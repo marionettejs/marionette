@@ -1,6 +1,6 @@
 ---
 name: marionette
-description: Build or debug Marionette v5 applications, or migrate from v4, using version-matched docs. For changes to the library itself, follow its repository guidance.
+description: Build, debug, review, or test Marionette v5 applications using version-matched docs, including v4-to-v5 migration and @mnjs integrations. For changes to the library itself, follow its repository guidance.
 ---
 
 # Build with Marionette
@@ -15,21 +15,25 @@ configuration, or workspace change. Resolve new facts from the application
 workspace, not a neighboring package. Use matching installed Markdown or MCP;
 plugin setup and reading both sources are unnecessary for routine work.
 
-The local read-only helper requires Node 24 or later. From an application with
-`node_modules/marionette`, read a known page or search an unfamiliar symbol:
+The read-only helper requires Node 24 or later. For a plugin, installed, or copied
+skill, use `scripts/docs.mjs` beside this `SKILL.md`. Replace the paths below with
+the absolute skill and application directories. The helper resolves hoisted
+packages by walking parents from `--project`; these commands work from any cwd:
 
 ```sh
-node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --page docs/quick-start.md
-node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --search getUI
+node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --page docs/quick-start.md
+node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --search getUI
 ```
 
-For a copied skill, the same helper is `scripts/docs.mjs` relative to this
-`SKILL.md`; keep `--project` pointed at the application. Search returns section
-IDs, sizes, and ancestry; use `--section '<returned-id>'` for a complete section.
+For package-only use, the skill directory is `<package-root>/dist/agent-skill/`;
+with a local install, the helper is
+`node_modules/marionette/dist/agent-skill/scripts/docs.mjs`.
+
+Search returns section IDs, sizes, and ancestry; use `--section '<returned-id>'` for a complete section.
 Use `--list` only when the page path is unknown. Installed Markdown is also
 readable directly; earlier packages may not have the helper or section index.
 
-For hoisted packages, missing docs, custom artifacts, or MCP configuration, consult
+For missing docs, custom artifacts, or MCP configuration, consult
 `docs/agent-retrieval.md` in the matching package/source. With no physical
 `node_modules`, the helper accepts `--package-root` for the actual package directory.
 Keep the exact release/source identity: current website docs, `master`, and an
@@ -44,6 +48,7 @@ application task guide; read one guide before following links for open questions
 <!-- task-routes:start -->
 | Task | Packaged page |
 | --- | --- |
+| Compose an application or paginated feed | `docs/application-composition.md` |
 | Build a first screen | `docs/quick-start.md` |
 | Start a new project | `docs/development.md` |
 | Edit and save a form | `docs/forms-and-accessibility.md` |
@@ -70,8 +75,14 @@ DataApi, StateApi, renderer, DomApi, EventDelegator, and router are independent
 choices; a Backbone router does not require Backbone data. Register configuration
 before consumers. Use templates, named Regions, and public lifecycle APIs; domain
 records belong in data sources, not child View traversal. For application design,
-use `docs/agents.md`; for teaching or personalized examples, use the corresponding
-section of `docs/development.md`.
+read the complete paginated feature in `docs/application-composition.md`.
+Feed loading, pagination/retry, route activation, and workflow coordination
+generally belong to a feature Application; cleanup capability alone does not make
+a View the right workflow owner. Loading-then-display normally belongs in
+Application readiness; Views own DOM and emit intent to their owner. Plain
+helpers serve those owners rather than supplying a parallel feature lifecycle.
+For teaching or personalized examples, use the corresponding section of
+`docs/development.md`.
 
 ## Completion
 

@@ -157,10 +157,10 @@ channels when components need communication beyond a direct owner-child link.
 
 <!-- executable-example: quick-start-application -->
 ```javascript
-import { Application, Radio, View } from 'marionette';
+import { Application, View } from 'marionette';
 
 const Ready = View.extend({ template: () => '<p>Ready</p>' });
-const Feature = Application.extend({
+export const Feature = Application.extend({
   radioEvents: { refresh: 'refresh' },
   onStart() { this.showView(new Ready()); },
   refresh() {
@@ -168,19 +168,13 @@ const Feature = Application.extend({
   }
 });
 
-export async function mountFeature(host, channelName) {
-  const application = new Feature({ region: { el: host }, channelName });
-  await application.start();
-  return {
-    application,
-    refresh() { Radio.channel(channelName).trigger('refresh'); },
-    destroy() { return application.destroy(); }
-  };
-}
 ```
 
-Call `const feature = await mountFeature(host, 'my-feature')` with an empty,
-connected host and a distinct channel name for each independent feature.
+Construct `new Feature({ region: { el: host }, channelName: 'my-feature' })`
+and await `feature.start()` with an empty connected host. Other components can
+emit `Radio.channel('my-feature').trigger('refresh')` using `Radio` from
+`marionette`; direct callers can use `feature.refresh()`. Use a distinct channel
+name for each independent feature.
 Call `await feature.destroy()` before removing the host. Destruction removes the
 owned View and managed Radio bindings. Channel names are shared: use an
 application-specific name if multiple independent features coexist. Read

@@ -4,6 +4,12 @@ Use native form controls and keep an unfinished draft in the existing input DOM.
 A Marionette View owns the form and its pending save; the application supplies the
 persistence operation. A DataApi or StateApi is not required for this local draft.
 Choose a shared observable source only when other owners need to observe it.
+This example is a single control's draft/save interaction. Feed loading, route
+activation, multi-step submission, and coordination with other screens belong
+to a feature Application; the ability to cancel a Promise in a View is not a
+reason to put those workflows there. Use the
+[complete feature](./application-composition.md#a-complete-paginated-feature)
+for that ownership structure.
 
 ## Save a form without losing focus
 
@@ -28,6 +34,7 @@ export const ProfileForm = View.extend({
       <button type="submit">Save</button>
       <p id="${id}-status" role="status" aria-live="polite"></p>`;
   },
+  ui: { input: '[name=displayName]', dirty: '.dirty', save: 'button', status: '[role="status"]' },
   events: { submit: 'onSubmit', 'input [name=displayName]': 'updateDraftStatus' },
   initialize({ displayName, save }) {
     this.initialName = displayName;
@@ -35,13 +42,13 @@ export const ProfileForm = View.extend({
     this.pendingSave = null;
   },
   onRender() {
-    this.el.elements.namedItem('displayName').value = this.initialName;
+    this.getUI('input')[0].value = this.initialName;
     this.updateDraftStatus();
   },
   updateDraftStatus() {
-    const input = this.el.elements.namedItem('displayName');
+    const input = this.getUI('input')[0];
     const dirty = input.value !== this.initialName;
-    this.el.querySelector('.dirty').textContent = dirty ? 'Unsaved changes' : '';
+    this.getUI('dirty')[0].textContent = dirty ? 'Unsaved changes' : '';
   },
   onBeforeRender() {
     this.cancelSave();
@@ -53,9 +60,9 @@ export const ProfileForm = View.extend({
   async submit() {
     if (this.isDestroyed() || this.pendingSave) return false;
     if (!this.el.reportValidity()) return false;
-    const input = this.el.elements.namedItem('displayName');
-    const button = this.el.querySelector('button');
-    const status = this.el.querySelector('[role="status"]');
+    const input = this.getUI('input')[0];
+    const button = this.getUI('save')[0];
+    const status = this.getUI('status')[0];
     const request = new AbortController();
     this.pendingSave = request;
     input.readOnly = true;

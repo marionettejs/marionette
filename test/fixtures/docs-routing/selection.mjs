@@ -1,21 +1,21 @@
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
-import { createResourceSelection } from './dist/resource-selection.js';
+import { ResourceSelection } from './dist/resource-selection.js';
 
 const dom = new JSDOM('<!doctype html><main id="selected"></main>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 const loads = new Map();
 const starts = [];
-const selector = createResourceSelection({
-  el: document.querySelector('#selected'),
+const selector = new ResourceSelection({
+  region: { el: document.querySelector('#selected') },
   loadResource(id, { signal }) {
     const load = { signal, ...Promise.withResolvers() };
     loads.set(id, load);
     return load.promise;
   }
 });
-selector.selected.on('start', (app, options) => starts.push(options.id));
+selector.getChildApp('selected').on('start', (app, options) => starts.push(options.id));
 async function expectLoad(id) {
   for (let attempt = 0; attempt < 20 && !loads.has(id); attempt++) {
     await Promise.resolve();
@@ -24,9 +24,9 @@ async function expectLoad(id) {
 }
 
 try {
-  assert.equal(await selector.application.start(), true);
-  assert.equal(selector.application.getChildApp('selected'), selector.selected);
-  const shell = selector.application.getView();
+  assert.equal(await selector.start(), true);
+  assert.equal(selector.getChildApp('selected'), selector.getChildApp('selected'));
+  const shell = selector.getView();
   const a = selector.select('A');
   await expectLoad('A');
   const b = selector.select('B');
@@ -37,7 +37,7 @@ try {
   loads.get('A').resolve({ name: 'Obsolete A' });
   assert.equal(await a, false);
   assert.deepEqual(starts, ['B'], 'obsolete readiness never activates A');
-  assert.equal(selector.application.getView(), shell);
+  assert.equal(selector.getView(), shell);
   assert.equal(document.querySelector('#selected').textContent, 'Selected B');
 
   const c = selector.select('C');
@@ -60,19 +60,19 @@ try {
   assert.deepEqual(starts, ['B', 'D']);
 
   const stoppedSelection = selector.select('stopped');
-  assert.equal(await selector.application.stop(), true);
+  assert.equal(await selector.stop(), true);
   assert.equal(await stoppedSelection, false);
   assert.equal(loads.has('stopped'), false, 'stopped owner cannot start a new selection');
 
-  assert.equal(await selector.application.start(), true);
+  assert.equal(await selector.start(), true);
   const releasedSelection = selector.select('released');
-  assert.equal(await selector.application.destroy(), true);
+  assert.equal(await selector.destroy(), true);
   assert.equal(await releasedSelection, false);
   assert.equal(loads.has('released'), false, 'destroyed owner cannot start a new selection');
   console.log('Selection example passed: latest A/B and C/D, obsolete readiness and failure, current failure.');
 } finally {
   loads.forEach(load => load.resolve({ name: 'Finished' }));
-  await selector.application.destroy();
+  await selector.destroy();
   dom.window.close();
   delete globalThis.window;
   delete globalThis.document;

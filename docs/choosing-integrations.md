@@ -19,9 +19,9 @@ the task; add a dependency only when the required behavior needs it.
    releases subscriptions, and which behavior demonstrates that the integration
    works. Configure it before constructing the affected owners.
 
-For a new application with no integration requirements, start with plain
-objects, arrays, native DOM operations, and template functions. Plain data is
-not observable: explicitly update the UI when it changes. If the task requires
+For static content or explicit snapshots, plain objects and arrays are sufficient.
+Choose data by its update requirements before growing an application. Native DOM
+and function templates do not imply manual data observation or screen orchestration. If the task requires
 observable models and ordered collections without an existing provider,
 use [`@mnjs/data`](../packages/data/readme.md) as the starting choice.
 Backbone models and collections are also observable: keep them and select

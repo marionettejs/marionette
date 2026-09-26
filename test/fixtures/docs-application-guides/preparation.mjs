@@ -8,14 +8,14 @@ assert.ok(code);
 await mkdir(new URL('./dist/', import.meta.url), { recursive: true });
 const example = new URL('./dist/preparation.mjs', import.meta.url);
 await writeFile(example, code[1]);
-const { createPreparedFeature } = await import(example);
+const { PreparedFeature } = await import(example);
 
 await test('preparation commit follows the originating operation', async t => {
   await t.test('commits a value only after successful validation', async() => {
     const validation = Promise.withResolvers();
     const entered = Promise.withResolvers();
     const committed = [];
-    const app = createPreparedFeature({
+    const app = new PreparedFeature({
       load: async() => 'ready',
       validate(value) { entered.resolve(value); return validation.promise; },
       commit(value) { committed.push(value); }
@@ -36,7 +36,7 @@ await test('preparation commit follows the originating operation', async t => {
     const settled = Promise.withResolvers();
     const validated = [];
     const committed = [];
-    const app = createPreparedFeature({
+    const app = new PreparedFeature({
       async load() {
         entered.resolve();
         try { return await loading.promise; } finally { settled.resolve(); }
@@ -64,7 +64,7 @@ await test('preparation commit follows the originating operation', async t => {
     const settled = Promise.withResolvers();
     const committed = [];
     let request = 0;
-    const app = createPreparedFeature({
+    const app = new PreparedFeature({
       load: async() => ++request,
       async validate(value) {
         if (value !== 1) { return; }

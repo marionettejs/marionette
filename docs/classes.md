@@ -4,6 +4,9 @@ Each Marionette class has a job: render a piece of interface, manage where it go
 repeat it, share an interaction, or coordinate a feature. Start with the job you
 need, then follow the reference for its options and lifecycle.
 
+For a complete application, start with [composition](./application-composition.md):
+choose the data, event, readiness, and cleanup owners before adding helpers.
+
 The classes share [configuration and inheritance patterns](./basics.md#class-based-inheritance)
 and a [common set of methods](./common.md).
 
@@ -67,7 +70,11 @@ a reusable button action. The host View constructs and cleans up its Behaviors.
 
 An `Application` coordinates a feature's asynchronous start, stop, restart, and
 destruction. It can own child Applications and display a View through an optional
-Region. Use it for work that should start and stop together.
+Region. Use it for feed loading, pagination/retry coordination, route activation,
+and submission workflows that should start and stop together. Its Views render
+supplied data and emit intent. Aborting a request from a View does not by itself
+justify assigning that workflow to the View. See the
+[complete feature](./application-composition.md#a-complete-paginated-feature).
 
 `Application` includes:
 - [Class Events](./events.class.md#application-events)

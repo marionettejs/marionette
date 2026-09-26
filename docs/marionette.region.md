@@ -570,8 +570,11 @@ View, any HTML that doesn't belong to the View will remain.
 
 ### Pending work after replacement
 
-Normal replacement destroys the outgoing View, removing its managed DOM handlers,
-its `listenTo` subscriptions, and Region/parent event forwarding. This cleanup does
+Normal replacement through `region.show(nextView)` or
+`parent.showChildView(name, nextView)` destroys the outgoing View, removing its
+managed DOM handlers, listeners registered through `listenTo`, and Region/parent
+event forwarding. Calling the View's `destroy()` also releases these resources.
+This cleanup does
 not cancel arbitrary promises or prevent an async function from continuing after
 `await`. A direct callback can still mutate application state. Detaching a View or
 removing its DOM manually is not destruction.

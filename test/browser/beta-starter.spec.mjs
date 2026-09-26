@@ -3,16 +3,16 @@ import { test } from './fixtures.mjs';
 
 test('beta starter preserves draft focus, rejects stale selection and releases handlers', async({ page }) => {
   await page.evaluate(async() => {
-    const { createWorkspace } = await import('/starter.mjs');
+    const { Workspace } = await import('/starter/workspace.ts');
     globalThis.requests = [];
-    globalThis.workspace = createWorkspace({
-      el: document.querySelector('main'),
-      loadNote(id, { signal }) {
-        const request = { id, signal, ...Promise.withResolvers() };
-        globalThis.requests.push(request);
-        return request.promise;
-      }
-    });
+    const { notesApi } = await import('/starter/notes.ts');
+    notesApi.loadNote = (id, { signal }) => {
+      const request = { id, signal, ...Promise.withResolvers() };
+      globalThis.requests.push(request);
+      return request.promise;
+    };
+    globalThis.workspace = new Workspace({ region: { el: document.querySelector('main') } });
+    await globalThis.workspace.start();
   });
   const input = page.getByRole('textbox', { name: 'Draft title' }).first();
   await input.fill('Unfinished draft');
@@ -38,7 +38,7 @@ test('beta starter preserves draft focus, rejects stale selection and releases h
     const model = globalThis.workspace.notes.at(0);
     const savedTitle = model.get('title');
     oldButton.closest('li').querySelector('input').value = 'Teardown draft';
-    globalThis.workspace.destroy();
+    await globalThis.workspace.destroy();
     globalThis.requests[2].resolve({ title: 'Too late', body: '' });
     await Promise.resolve();
     oldButton.click();

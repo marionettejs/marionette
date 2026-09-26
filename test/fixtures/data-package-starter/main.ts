@@ -1,32 +1,24 @@
-import { createWorkspace } from './workspace.ts';
+import { Workspace } from './workspace.ts';
 
 const mount = document.querySelector('main');
-if (!mount) { throw new Error('The starter requires a main element'); }
+if (!mount) throw new Error('The starter requires a main element');
 
-function start(factory: typeof createWorkspace) {
-  return factory({
-    el: mount!,
-    async loadNote(id, { signal }) {
-      // Local demonstration only. Replace with your application's data client.
-      await new Promise(resolve => setTimeout(resolve, id === 'first' ? 600 : 50));
-      signal.throwIfAborted();
-      return { title: `Selected: ${id}`, body: 'Your draft titles stay in the list while notes load.' };
-    }
-  });
-}
-let workspace = start(createWorkspace);
+let workspace = new Workspace({ region: { el: mount } });
+await workspace.start();
+
 function dispose() {
   window.removeEventListener('pagehide', dispose);
-  workspace.destroy();
+  void workspace.destroy().catch(console.error);
 }
 window.addEventListener('pagehide', dispose);
 if (import.meta.hot) {
-  // An edit restarts this feature. Drafts survive data updates, not code updates.
-  import.meta.hot.accept('./workspace.ts', module => {
-    if (module) {
-      workspace.destroy();
-      workspace = start(module.createWorkspace);
-    }
+  // A code edit replaces the Application; ordinary data updates preserve its Views.
+  import.meta.hot.accept('./workspace.ts', async module => {
+    if (!module) return;
+    const options = workspace.options;
+    await workspace.destroy();
+    workspace = new module.Workspace(options);
+    await workspace.start();
   });
   import.meta.hot.accept();
   import.meta.hot.dispose(dispose);

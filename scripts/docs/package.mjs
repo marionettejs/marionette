@@ -25,7 +25,7 @@ console.log(`Packaged ${manifest.pages.length} consumer documentation pages at t
 const starterDestination = resolve(root, '.package/starter');
 await rm(starterDestination, { recursive: true, force: true });
 await mkdir(starterDestination, { recursive: true });
-for (const file of ['package.json', 'AGENTS.md', 'playwright.config.mjs', 'workspace.browser.spec.mjs', 'gitignore', 'index.html', 'main.ts', 'workspace.ts', 'workspace.test.mjs', 'readme.md', 'tsconfig.json', 'eslint.config.mjs', 'vite.config.mjs']) {
+for (const file of ['package.json', 'AGENTS.md', 'playwright.config.mjs', 'workspace.browser.spec.mjs', 'gitignore', 'index.html', 'main.ts', 'setup.ts', 'workspace.ts', 'workspace-views.ts', 'notes.ts', 'workspace.test.mjs', 'readme.md', 'tsconfig.json', 'eslint.config.mjs', 'vite.config.mjs']) {
   await cp(resolve(root, 'test/fixtures/data-package-starter', file), resolve(starterDestination, file));
 }
 

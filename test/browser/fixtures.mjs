@@ -45,7 +45,9 @@ export const test = base.extend({
       }
       if (entry.id === 'core') {
         assets.set('/marionette.umd.js', join(entry.directory, entry.manifest.browser));
-        assets.set('/starter.mjs', join(entry.directory, 'starter/workspace.ts'));
+        for (const file of ['workspace.ts', 'workspace-views.ts', 'notes.ts', 'setup.ts']) {
+          assets.set(`/starter/${file}`, join(entry.directory, 'starter', file));
+        }
       }
     }
     const litRoot = dirname(fileURLToPath(import.meta.resolve('lit-html')));

@@ -23,6 +23,7 @@ async function load(id, filename) {
 const dom = new JSDOM('<!doctype html><main id="app"></main>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
+globalThis.MutationObserver = dom.window.MutationObserver;
 const observers = [];
 globalThis.ResizeObserver = class {
   constructor() {
@@ -37,7 +38,7 @@ const originalLog = console.log;
 console.log = message => messages.push(message);
 
 try {
-  const [{ MeasuredView }, { ChildListenerView }, { StatusView }, { Events, Region }] = await Promise.all([
+  const [{ MeasuredView }, { EditorObserverView }, { StatusView }, { Events, Region }] = await Promise.all([
     load('root-resize-observer-cleanup', 'measured-view.mjs'),
     load('descendant-listener-cleanup', 'child-listener-view.mjs'),
     load('view-lifetime-cleanup', 'status-view.mjs'),
@@ -54,24 +55,32 @@ try {
       region.show(measured);
       assert.equal(observers.length, cycle + 2);
     }
-    region.show(new ChildListenerView());
+    region.show(new EditorObserverView());
     assert.deepEqual(observers.map(observer => observer.disconnects), [1, 1, 1]);
 
     const child = region.currentView;
-    const oldButton = child.el.querySelector('button');
-    oldButton.click();
+    let changes = 0;
+    child.on('editor:changed', () => changes++);
+    const mutate = async element => {
+      element.append(document.createElement('span'));
+      await Promise.resolve();
+    };
+    const oldHost = child.getUI('editor')[0];
+    await mutate(oldHost);
+    assert.equal(changes, 1);
     child.render();
-    oldButton.click();
-    const newButton = child.el.querySelector('button');
-    newButton.click();
-    assert.deepEqual(messages, ['Run', 'Run']);
-    assert.notEqual(oldButton, newButton);
+    await mutate(oldHost);
+    assert.equal(changes, 1);
+    const newHost = child.getUI('editor')[0];
+    await mutate(newHost);
+    assert.equal(changes, 2);
+    assert.notEqual(oldHost, newHost);
     region.detachView();
-    newButton.click();
-    assert.deepEqual(messages, ['Run', 'Run']);
+    await mutate(newHost);
+    assert.equal(changes, 2);
     region.show(child);
-    child.el.querySelector('button').click();
-    assert.deepEqual(messages, ['Run', 'Run', 'Run']);
+    await mutate(newHost);
+    assert.equal(changes, 3);
 
     const source = Object.assign({}, Events);
     const status = new StatusView({ source });
@@ -95,4 +104,5 @@ try {
   delete globalThis.window;
   delete globalThis.document;
   delete globalThis.ResizeObserver;
+  delete globalThis.MutationObserver;
 }

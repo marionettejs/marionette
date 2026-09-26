@@ -12,6 +12,12 @@
     "section": "Start here"
   },
   {
+    "source": "docs/application-composition.md",
+    "route": "docs/application-composition",
+    "title": "Application composition",
+    "section": "Start here"
+  },
+  {
     "source": "docs/list-composition.md",
     "route": "docs/list-composition",
     "title": "Interactive lists",
@@ -375,6 +381,12 @@
     "source": "docs/maintainers/documentation.md",
     "route": "docs/maintainers/documentation",
     "title": "Write and distribute documentation",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/maintainers/discovery-audit.md",
+    "route": "docs/maintainers/discovery-audit",
+    "title": "Agent discovery audit",
     "section": "Maintaining Marionette"
   },
   {

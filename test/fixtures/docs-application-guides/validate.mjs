@@ -246,3 +246,7 @@ await import('./resource-cleanup.mjs');
 // <!-- executable-example: delegated-control-target -->
 // <!-- executable-example: trigger-method-forwarding -->
 await import('./event-contracts.mjs');
+
+// <!-- executable-example: application-feed-api -->
+// <!-- executable-example: application-feed-composition -->
+await import('./feed.mjs');

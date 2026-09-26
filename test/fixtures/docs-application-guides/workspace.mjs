@@ -8,7 +8,7 @@ const code = markdown.match(/<!-- executable-example: widget-owned-workspace -->
 assert.ok(code);
 const example = new URL('./dist/workspace.mjs', import.meta.url);
 await writeFile(example, code[1]);
-const { createEditorWorkspace } = await import(example);
+const { EditorWorkspace } = await import(example);
 
 await test('documented editor workspace preserves siblings and owns external handles', t => {
   const dom = new JSDOM('<!doctype html><main></main>');
@@ -17,7 +17,7 @@ await test('documented editor workspace preserves siblings and owns external han
   const handles = [];
   const saves = [];
   const host = document.querySelector('main');
-  const workspace = createEditorWorkspace(host, (element, emit) => {
+  const workspace = new EditorWorkspace({ el: host, mountEditor(element, emit) {
     assert.equal(element.isConnected, true);
     const handle = { element, emit, destroyed: 0, destroy() {
       this.destroyed++;
@@ -25,7 +25,8 @@ await test('documented editor workspace preserves siblings and owns external han
     } };
     handles.push(handle);
     return handle;
-  }, (...args) => saves.push(args));
+  } }).render();
+  workspace.on('save', (...args) => saves.push(args));
   t.after(() => {
     workspace.destroy();
     dom.window.close();
@@ -33,7 +34,7 @@ await test('documented editor workspace preserves siblings and owns external han
     delete globalThis.document;
   });
 
-  const notesView = workspace.view.getChildView('notes');
+  const notesView = workspace.getChildView('notes');
   const notes = host.querySelector('textarea');
   notes.value = 'Unfinished notes';
   notes.focus();
@@ -49,7 +50,7 @@ await test('documented editor workspace preserves siblings and owns external han
   const second = workspace.openEditor('second', 'Second');
   assert.equal(first.isDestroyed(), true);
   assert.equal(handles[0].destroyed, 1);
-  assert.equal(workspace.view.getChildView('notes'), notesView);
+  assert.equal(workspace.getChildView('notes'), notesView);
   assert.equal(host.querySelector('textarea'), notes);
   assert.equal(notes.value, 'Unfinished notes');
   assert.equal(document.activeElement, notes);
@@ -61,7 +62,7 @@ await test('documented editor workspace preserves siblings and owns external han
   assert.equal(saves.length, 2);
 
   handles[1].emit('second draft');
-  const region = workspace.view.getRegion('editor');
+  const region = workspace.getRegion('editor');
   assert.equal(region.detachView(), second);
   assert.equal(handles[1].destroyed, 1);
   assert.equal(second.isDestroyed(), false);

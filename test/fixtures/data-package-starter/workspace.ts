@@ -1,111 +1,90 @@
-import { createMarionette } from 'marionette';
-import { Collection, DataApi, Model, StateApi } from '@mnjs/data';
+import './setup.ts';
+import { Application } from 'marionette';
+import type { ApplicationOptions, LifecycleContext } from 'marionette';
+import { Collection, Model } from '@mnjs/data';
+import { notesApi } from './notes.ts';
+import { DetailView, LayoutView, LoadingView } from './workspace-views.ts';
+import type { Note, NoteRow } from './notes.ts';
 
-// Escape text and quoted HTML attributes, not URLs, scripts, or styles.
-const escapeHTML = (value: unknown) => String(value ?? '').replaceAll('&', '&amp;')
-  .replaceAll('<', '&lt;').replaceAll('>', '&gt;')
-  .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+const NoteApplication = Application.extend({
+  onBeforeStart() { this.showView(new LoadingView()); },
+  prepareStart({ id }: { id: string }, { signal }: LifecycleContext) { return notesApi.loadNote(id, { signal }); },
+  onStart(app: unknown, options: unknown, note: Note) { this.showView(new DetailView({ model: note })); }
+});
 
-export type Note = { title: string; body: string };
-export type NoteRow = { id: string; title: string };
-export type WorkspaceOptions = {
-  el: HTMLElement;
-  loadNote: (id: string, context: { signal: AbortSignal }) => Promise<Note>;
-};
+export const Workspace = Application.extend({
+  notes: undefined! as Collection<Model<NoteRow>>,
+  selection: 0,
 
-// This feature owns its runtime, Regions, subscriptions and pending selection.
-// The loader may ignore abort; its result must still be rejected after cancellation.
-export function createWorkspace({ el, loadNote }: WorkspaceOptions) {
-  const { Region, View, CollectionView } = createMarionette();
-  View.setDataApi(DataApi);
-  View.setStateApi(StateApi);
-  CollectionView.setDataApi(DataApi);
-  const notes = new Collection([
-    new Model<NoteRow>({ id: 'first', title: 'First note' }),
-    new Model<NoteRow>({ id: 'second', title: 'Second note' })
-  ]);
-  let pending: AbortController | undefined;
-  let destroyed = false;
-  const Row = View.extend({
-    tagName: 'li',
-    initialize(options: { model: Model<NoteRow> }) { void options; },
-    template: ({ title }: NoteRow) => `<label>Draft title <input value="${escapeHTML(title)}"></label><button type="button">Open</button>`,
-    ui: { input: 'input', open: 'button' },
-    triggers: { 'click @ui.open': 'click:open' },
-    inputValue(): string {
-      const input = this.getUI('input')?.[0];
-      if (!input || !('value' in input) || typeof input.value !== 'string') {
-        throw new Error('Row template requires an input');
-      }
-      return input.value;
-    },
-    onClickOpen() {
-      const model = this.options.model;
-      const id = model.get('id');
-      if (id === undefined) { throw new Error('A note requires an id'); }
-      model.set('title', this.inputValue());
-      void navigate(id).catch(() => undefined); // navigate owns the visible error state.
-    }
-  });
-  const List = CollectionView.extend({ tagName: 'ul', childView: Row });
-  const Detail = View.extend({
-    template: ({ title, body }: Note) => `<h2>${escapeHTML(title)}</h2><p>${escapeHTML(body)}</p>`
-  });
-  const Status = View.extend({
-    tagName: 'p',
-    attributes: { role: 'status' },
-    initialize(options: { state: Model<{ message: string }> }) { void options; },
-    templateContext(this: { getState(): Model<{ message: string }> }) { return this.getState().toObject(); },
-    template: ({ message }: { message: string }) => escapeHTML(message),
-    stateEvents: { 'change:message': 'render' }
-  });
-  const Shell = View.extend({
-    createState() { return new Model({ message: 'Choose a note.' }); },
-    template: () => '<h1>Notes</h1><button type="button" data-reorder>Reverse rows</button><div data-list></div><div data-status></div><section aria-label="Selected note" data-detail></section>',
-    regions: { list: '[data-list]', status: '[data-status]', detail: '[data-detail]' },
-    ui: { reorder: '[data-reorder]' },
-    triggers: { 'click @ui.reorder': 'click:reverse' },
-    onClickReverse() {
-      const first = notes.at(0);
-      if (first) { notes.move(first, notes.length - 1); }
-    },
-    onRender() {
-      this.showChildView('list', new List({ collection: notes }));
-      this.showChildView('status', new Status({ state: this.getState() }));
-    }
-  });
-  const region = new Region({ el });
-  const shell = new Shell();
-  region.show(shell);
+  initialize(options: ApplicationOptions) {
+    void options;
+    this.notes = new Collection<Model<NoteRow>>();
+    this.addChildApp('detail', new NoteApplication());
+  },
 
-  async function navigate(id: string): Promise<boolean> {
-    if (destroyed) { return false; }
-    pending?.abort();
-    const request = new AbortController();
-    pending = request;
-    shell.getState().set('message', 'Loading…');
+  onBeforeStart() {
+    const previous = this.getView();
+    if (previous) this.stopListening(previous);
+    const view = new LayoutView({ collection: this.notes });
+    view.showStatus('Loading notes…');
+    this.listenTo(view, 'note:open', this.openNote);
+    this.listenTo(view, 'reverse', this.reverseNotes);
+    this.listenTo(view, 'before:destroy', () => {
+      // A host may replace the root before the Application itself stops.
+      this.selection++;
+      void this.stop().catch(console.error);
+      this.stopListening(view);
+    });
+    this.showView(view);
+  },
+
+  prepareStart(options: unknown, { signal }: LifecycleContext) {
+    return notesApi.loadNotes({ signal });
+  },
+
+  onStart(app: unknown, options: unknown, records: NoteRow[]) {
+    this.notes.reset(records);
+    this.workspaceView().showStatus('Choose a note.');
+  },
+
+  workspaceView(): InstanceType<typeof LayoutView> {
+    return this.getView() as InstanceType<typeof LayoutView>;
+  },
+
+  openNote(model: Model<NoteRow>) {
+    void this.navigate(model.get('id')!).catch(console.error);
+  },
+
+  reverseNotes() {
+    const order = new Map(this.notes.map((model, index) => [model, index]));
+    this.notes.sort((left, right) => order.get(right)! - order.get(left)!);
+  },
+
+  async navigate(id: string): Promise<boolean> {
+    const view = this.getView() as InstanceType<typeof LayoutView> | undefined;
+    if (!this.isRunning() || !view || view.isDestroyed()) return false;
+    const selection = ++this.selection;
+    const detail = this.getChildApp('detail')!;
+    // Each selection replaces the detail feature. Keep the list and its drafts mounted.
+    await detail.stop();
+    if (selection !== this.selection || !this.isRunning() || view.isDestroyed()) return false;
+    view.showStatus('Loading…');
     try {
-      const note = await loadNote(id, { signal: request.signal });
-      if (request.signal.aborted || destroyed) { return false; }
-      shell.showChildView('detail', new Detail({ model: note }));
-      shell.getState().set('message', 'Loaded.');
+      const started = await detail.start({ id, region: view.getRegion('detail') });
+      if (!started || selection !== this.selection || view.isDestroyed()) return false;
+      view.showStatus('Loaded.');
       return true;
     } catch (error) {
-      if (request.signal.aborted || destroyed) { return false; }
-      shell.getState().set('message', 'Could not load this note. Try again.');
+      if (selection !== this.selection || view.isDestroyed()) return false;
+      // End the failed attempt and its loading View before presenting the retry message.
+      await detail.stop();
+      if (selection !== this.selection || view.isDestroyed()) return false;
+      view.showStatus('Could not load this note. Try again.');
       throw error;
-    } finally {
-      if (pending === request) { pending = undefined; }
     }
-  }
+  },
 
-  function destroy() {
-    if (destroyed) { return; }
-    destroyed = true;
-    pending?.abort();
-    pending = undefined;
-    region.destroy();
-    notes.destroy();
-  }
-  return { notes, navigate, destroy };
-}
+  onStop() { this.selection++; },
+  onBeforeDestroy() { this.selection++; },
+  onDestroy() { this.notes.destroy(); }
+});

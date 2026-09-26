@@ -4,7 +4,7 @@ Generated from the reviewed public contract inventory by `npm run check:api-cont
 
 ## Choose an owner
 
-Use plain functions or classes when you do not need Marionette lifecycle, events, or ownership. MnObject is an optional evented, destroyable convenience; Application adds an active asynchronous lifecycle. Application is never a Region-renderable object.
+Use plain functions or classes when you do not need Marionette lifecycle, events, or ownership. MnObject is an optional evented, destroyable convenience. Application owns feature readiness and coordination such as feed loading, pagination/retry, and route activation; Views render supplied data and emit intent. See the [complete feature](./application-composition.md#a-complete-paginated-feature). Application is never a Region-renderable object.
 
 | Owner | Ownership | Guide |
 | --- | --- | --- |

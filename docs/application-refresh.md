@@ -1,5 +1,12 @@
 # Refresh data without restarting a feature
 
+This page applies after a feature has started. For initial loading followed by
+presentation, use Application `onBeforeStart`, `prepareStart`, and `onStart` as
+shown in [application composition](./application-composition.md). The controllers
+below serve a different requirement: retain the active shell, editor, and sibling
+owners while replacing only a data request.
+
+
 Use Application `start` and `stop` for a feature's active lifetime. Use an explicit
 refresh operation to load new data while keeping its layout, editor, and draft
 alive. Restart deliberately ends the active session and destroys its Views.
@@ -13,6 +20,8 @@ Application.
 
 Save this module as `latest-request.js` and import it wherever the application
 needs replacement requests. It is application code, not a Marionette export.
+The active Application creates and releases this helper and decides when to call it.
+A View emits refresh intent; it does not acquire the helper to coordinate the feature.
 `load(input, { signal })` is asynchronous; `commit(value, input)` and the optional
 `fail(error, input)` are synchronous.
 
@@ -81,153 +90,6 @@ existing request alone. Old success, error, and cleanup continuations cannot
 commit or discard a newer request's cancellation handle.
 The external signal covers that pending request, not the feature's persistent effects.
 
-## Keep a shell and independently owned children
-
-Use this pattern when list results and a sidebar share a workspace but have different
-UI state. The parent owns their active lifetimes and the shell. Each child owns its
-own View; the list child owns its replaceable requests. A list refresh is not a
-child `restart()` or a parent lifecycle operation.
-
-Save this module beside `latest-request.js` as `workspace-results.js`. Supply an
-element and `loadItems(query, { signal })` returning records with unique, stable
-`id` and `name` values. The example uses the native `@mnjs/data` Collection and
-its DataApi, configured on the two collection-aware View classes.
-
-<!-- executable-example: application-child-data-refresh -->
-```javascript
-import { Application, CollectionView, View } from 'marionette';
-import { Collection, DataApi } from '@mnjs/data';
-import { createLatestRequest } from './latest-request.js';
-
-const Card = View.extend({
-  tagName: 'li',
-  template: () => '',
-  modelEvents: { 'change:name': 'render' },
-  onRender() { this.el.textContent = this.model.get('name'); }
-});
-const Cards = CollectionView.extend({ tagName: 'ul', childView: Card });
-Card.setDataApi(DataApi);
-Cards.setDataApi(DataApi);
-
-const Sidebar = View.extend({
-  template: () => '<label>Sidebar open<input type="checkbox"></label>' +
-    '<label>Draft<textarea></textarea></label>'
-});
-const Shell = View.extend({
-  template: () => '<p role="status">Ready</p><section class="results"></section>' +
-    '<aside></aside>',
-  regions: { results: '.results', sidebar: 'aside' },
-  showStatus(message) { this.el.querySelector('[role="status"]').textContent = message; }
-});
-
-export function createWorkspaceResults({ el, loadItems }) {
-  const items = new Collection();
-  let requests;
-  let showStatus;
-  const List = Application.extend({
-    onStart(app, options) {
-      requests?.dispose();
-      showStatus = options.showStatus;
-      this.showView(new Cards({ collection: items }));
-      requests = createLatestRequest({
-        load: loadItems,
-        commit(rows) {
-          const current = new Map(items.map(model => [model.get('id'), model]));
-          const order = new Map(rows.map((row, index) => [row.id, index]));
-          items.remove(items.models.filter(model => !order.has(model.get('id'))));
-          for (const row of rows) { current.get(row.id)?.set(row); }
-          items.add(rows.filter(row => !current.has(row.id)));
-          items.sort((left, right) => order.get(left.get('id')) - order.get(right.get('id')));
-          showStatus('Ready');
-        },
-        fail() { showStatus('Could not load. Try again.'); }
-      });
-    },
-    onStop() { requests?.dispose(); },
-    onBeforeDestroy() { requests?.dispose(); },
-    refresh(query) {
-      if (!this.isRunning()) { return false; }
-      showStatus('Loading…');
-      return requests.run(query);
-    },
-    cancelRefresh() {
-      requests?.cancel();
-      if (this.isRunning()) { showStatus('Ready'); }
-    }
-  });
-  const Side = Application.extend({
-    onStart() { this.showView(new Sidebar()); }
-  });
-  const list = new List();
-  const sidebar = new Side();
-  const Workspace = Application.extend({
-    initialize() {
-      this.addChildApp('list', list);
-      this.addChildApp('sidebar', sidebar);
-    },
-    onBeforeStart() { this.showView(new Shell()); },
-    async prepareStart(options, { signal }) {
-      const shell = this.getView();
-      const listStarted = await list.start({
-        region: shell.getRegion('results'), showStatus: message => shell.showStatus(message)
-      });
-      if (signal.aborted) { return; }
-      if (!listStarted) { throw new Error('List startup was superseded'); }
-      const sidebarStarted = await sidebar.start({ region: shell.getRegion('sidebar') });
-      if (signal.aborted) { return; }
-      if (!sidebarStarted) { throw new Error('Sidebar startup was superseded'); }
-    }
-  });
-  const application = new Workspace({ region: { el } });
-  return { application, list, sidebar, items,
-    refresh(query) { return list.refresh(query); },
-    cancelRefresh() { list.cancelRefresh(); }
-  };
-}
-```
-
-Call `await workspace.application.start()` once, then call
-`await workspace.refresh(query)` for each results load. The list's Collection
-retains Models for surviving ids, so their card Views remain in place while
-names and ordering change. The sidebar View, its disclosure state, and its draft
-textarea are untouched. While
-a replacement is pending, both the existing cards and sidebar remain visible.
-The result is assigned as text, so a record name is not interpreted as HTML.
-
-Each refresh cancels the previous list request. The controller checks its
-`AbortSignal` after the loader settles, including when a loader ignores abort.
-Success and failure status updates run inside the request controller's cancellation
-guard. A current load failure shows a retry message and leaves displayed cards
-alone; the next refresh can retry. `cancelRefresh()` invalidates the status
-update, restores the resting status, and keeps the list visible. A synchronous
-collection or render failure still rejects; it is not presented as a load failure.
-The list has one request controller because its results are one replaceable result.
-If the sidebar loads its own replaceable data, give that child a separate controller
-and dispose it at that child's stop and destruction; list and sidebar requests
-must not cancel one another.
-
-The parent registers both children once and starts them explicitly with Regions
-from the current shell. Parent stop stops the children and destroys their Views;
-parent destroy destroys both children. A later parent start creates a new shell
-and starts the same children with its new Regions. Call `items.destroy()` after
-destroying the workspace; this factory owns the Collection. If one child fails
-startup, explicitly stop or destroy the workspace before abandoning it: child
-startup is not transactional.
-
-Use `restart()` when the feature's active run must end, such as changing its host
-Region or resetting the whole workspace. Restart destroys the shell, list cards,
-and sidebar controls; it is unsuitable for a results refresh that must preserve
-them. The parent's preparation signal covers startup only. List refreshes have
-their own request lifetime and do not become Application preparation merely
-because the list is owned by an Application. See [child ownership](./marionette.application.md#application-ownership)
-and [effect lifetimes](./application-effects.md#choose-the-lifetime-first).
-
-Compatible `restart(options)` calls made while a restart is pending share its
-Promise and retain its original options. A later resource selection in those
-options is not queued. Coordinate latest selection explicitly, then start the
-chosen resource once the lifecycle boundary allows it; see the
-[restart contract](./marionette.application.md#starting-an-application).
-
 ## Select a resource with an explicit latest policy
 
 Use this separate pattern when changing the selected resource intentionally
@@ -249,44 +111,38 @@ const SelectionShell = View.extend({
   regions: { resource: 'section' }
 });
 
-export function createResourceSelection({ el, loadResource }) {
-  const Selected = Application.extend({
-    async prepareStart({ id }, { signal }) {
-      const resource = await loadResource(id, { signal });
-      if (signal.aborted) { return; }
-      return resource;
-    },
-    onStart(app, options, resource) {
-      this.showView(new Resource({ model: resource }));
-    }
-  });
-  const selected = new Selected();
-  const Workspace = Application.extend({
-    initialize() { this.addChildApp('selected', selected); },
-    onBeforeStart() { this.showView(new SelectionShell()); }
-  });
-  const application = new Workspace({ region: { el } });
-  let latest = 0;
+const SelectedResource = Application.extend({
+  async prepareStart({ id }, { signal }) {
+    return this.getOption('loadResource')(id, { signal });
+  },
+  onStart(app, options, resource) { this.showView(new Resource({ model: resource })); }
+});
 
-  return {
-    application, selected,
-    async select(id) {
-      if (!application.isRunning()) { return false; }
-      const selection = ++latest;
-      await selected.stop();
-      if (selection !== latest || !application.isRunning()) { return false; }
-      const shell = application.getView();
-      if (!shell || shell.isDestroyed()) { return false; }
-      const started = await selected.start({
-        region: shell.getRegion('resource'), id
-      });
-      return selection === latest && started;
-    }
-  };
-}
+export const ResourceSelection = Application.extend({
+  initialize({ loadResource }) {
+    this.latest = 0;
+    this.addChildApp('selected', new SelectedResource({ loadResource }));
+  },
+  onBeforeStart() { this.showView(new SelectionShell()); },
+  onStop() { this.latest++; },
+  onBeforeDestroy() { this.latest++; },
+  async select(id) {
+    if (!this.isRunning()) return false;
+    const selection = ++this.latest;
+    const child = this.getChildApp('selected');
+    await child.stop();
+    if (selection !== this.latest || !this.isRunning()) return false;
+    const shell = this.getView();
+    if (!shell || shell.isDestroyed()) return false;
+    const started = await child.start({ region: shell.getRegion('resource'), id });
+    return selection === this.latest && started;
+  }
+});
+
 ```
 
-Start the owning `application` first, then call `await selector.select(id)` and
+Construct `new ResourceSelection({ region: { el }, loadResource })` and
+start it with `await selector.start()` first, then call `await selector.select(id)` and
 handle a current loader rejection at the caller. A new selection calls `stop()`
 on the selected child immediately, canceling any pending child
 startup, then starts only the latest selected id after stop completes. The token
@@ -334,41 +190,42 @@ const Layout = View.extend({
   regions: { results: '.results' }
 });
 
-export async function createResultsFeature({ el, items, loadItems, beforeStop = async() => {} }) {
-  let requests;
-  const Feature = Application.extend({
-    onStart() {
-      requests?.dispose();
-      const layout = new Layout();
-      this.showView(layout);
-      layout.showChildView('results', new Results({ collection: items }));
-      requests = createLatestRequest({
-        load: loadItems,
-        commit(rows) {
-          const current = new Map(items.map(model => [model.get('id'), model]));
-          const order = new Map(rows.map((row, index) => [row.id, index]));
-          items.remove(items.models.filter(model => !order.has(model.get('id'))));
-          for (const row of rows) { current.get(row.id)?.set(row); }
-          items.add(rows.filter(row => !current.has(row.id)));
-          items.sort((left, right) => order.get(left.get('id')) - order.get(right.get('id')));
-        }
-      });
-    },
-    prepareStop(options, context) { return beforeStop(options, context); },
-    onStop() { requests?.dispose(); },
-    onBeforeDestroy() { requests?.dispose(); }
-  });
-  const application = new Feature({ region: { el } });
-  await application.start();
-  return {
-    application,
-    refresh(query, options) { return requests.run(query, options); },
-    cancel() { requests.cancel(); }
-  };
-}
+export const ResultsFeature = Application.extend({
+  onStart() {
+    this.requests?.dispose();
+    const items = this.getOption('items');
+    const layout = new Layout();
+    this.listenTo(layout, 'before:destroy', () => {
+      this.requests?.dispose();
+      this.stopListening(layout);
+    });
+    this.showView(layout);
+    layout.showChildView('results', new Results({ collection: items }));
+    this.requests = createLatestRequest({
+      load: this.getOption('loadItems'),
+      commit: rows => {
+        const current = new Map(items.map(model => [model.get('id'), model]));
+        const order = new Map(rows.map((row, index) => [row.id, index]));
+        items.remove(items.models.filter(model => !order.has(model.get('id'))));
+        for (const row of rows) { current.get(row.id)?.set(row); }
+        items.add(rows.filter(row => !current.has(row.id)));
+        items.sort((left, right) => order.get(left.get('id')) - order.get(right.get('id')));
+      }
+    });
+  },
+  prepareStop(options, context) { return this.getOption('beforeStop')?.(options, context); },
+  onStop() { this.requests?.dispose(); },
+  onBeforeDestroy() { this.requests?.dispose(); },
+  refresh(query, options) {
+    if (!this.isRunning() || !this.getView()) return Promise.resolve(false);
+    return this.requests.run(query, options);
+  },
+  cancel() { this.requests?.cancel(); }
+});
 ```
 
-Call `await feature.refresh(query)` for the initial results and subsequent filter
+Construct `new ResultsFeature({ region: { el }, items, loadItems, beforeStop })`
+and await `feature.start()`. Call `await feature.refresh(query)` for the initial results and subsequent filter
 changes or retries. Keep the same feature and collection. The commit updates retained
 Models, removes missing records, adds new records, then sorts to the response order.
 This uses native Collection operations; it has no Backbone-style `Collection.set`.

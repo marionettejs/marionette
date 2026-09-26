@@ -290,18 +290,14 @@ const SessionView = View.extend({
   template: ({ name }) => `<h1>${escapeHtml(name)}</h1>`
 });
 
-export function createSessionApplication({ el, loadSession }) {
-  const SessionApplication = Application.extend({
-    prepareStart(options, { signal }) {
-      return loadSession({ signal });
-    },
-    onStart(app, options, session) {
-      this.showView(new SessionView({ model: session }));
-    }
-  });
-
-  return new SessionApplication({ region: { el } });
-}
+export const SessionApplication = Application.extend({
+  prepareStart(options, { signal }) {
+    return this.getOption('loadSession')({ signal });
+  },
+  onStart(app, options, session) {
+    this.showView(new SessionView({ model: session }));
+  }
+});
 ```
 
 Create and start it at the application entry point:
@@ -310,8 +306,8 @@ Serve this application and its API over HTTPS in production; relative requests
 use the application origin.
 
 ```javascript
-const app = createSessionApplication({
-  el: document.querySelector('#root-element'),
+const app = new SessionApplication({
+  region: { el: document.querySelector('#root-element') },
   async loadSession({ signal }) {
     const response = await fetch('/api/bootstrap', { signal });
     if (!response.ok) throw new Error(`Session request failed: ${response.status}`);
@@ -348,41 +344,40 @@ import { Application, View } from 'marionette';
 const Shell = View.extend({
   template: () => '<p role="status">Loading…</p><main></main>',
   regions: { content: 'main' },
-  showStatus(message) { this.el.querySelector('[role="status"]').textContent = message; }
+  ui: { status: '[role="status"]' },
+  showStatus(message) { this.getUI('status')[0].textContent = message; }
 });
 
-export function createWorkspace({ el, child, loadAccount, loadSettings }) {
-  const Workspace = Application.extend({
-    initialize() { this.addChildApp('content', child); },
-    onBeforeStart() {
-      this.setView(new Shell());
-      this.getView().render();
-      this.showView();
-    },
-    async prepareStart(options, { signal }) {
-      const shell = this.getView();
-      try {
-        const [account, settings] = await Promise.all([
-          loadAccount({ signal }), loadSettings({ signal })
-        ]);
-        if (signal.aborted) { return; }
-        const started = await child.start({
-          region: shell.getRegion('content'), account, settings
-        });
-        if (signal.aborted) { return; }
-        if (!started) { throw new Error('Required child startup was superseded'); }
-      } catch (error) {
-        if (signal.aborted) { return; }
-        shell.showStatus('Could not load. Try again.');
-        throw error;
-      }
-    },
-    onStart() { this.getView().showStatus('Ready'); }
-  });
-  return new Workspace({ region: { el } });
-}
+export const WorkspaceApplication = Application.extend({
+  initialize({ child }) { this.addChildApp('content', child); },
+  onBeforeStart() {
+    this.setView(new Shell());
+    this.getView().render();
+    this.showView();
+  },
+  async prepareStart(options, { signal }) {
+    const shell = this.getView();
+    try {
+      const [account, settings] = await Promise.all([
+        this.getOption('loadAccount')({ signal }), this.getOption('loadSettings')({ signal })
+      ]);
+      if (signal.aborted) { return; }
+      const started = await this.getChildApp('content').start({
+        region: shell.getRegion('content'), account, settings
+      });
+      if (signal.aborted) { return; }
+      if (!started) { throw new Error('Required child startup was superseded'); }
+    } catch (error) {
+      if (signal.aborted) { return; }
+      shell.showStatus('Could not load. Try again.');
+      throw error;
+    }
+  },
+  onStart() { this.getView().showStatus('Ready'); }
+});
 ```
 
+Construct `new WorkspaceApplication({ region: { el }, child, loadAccount, loadSettings })`.
 Await `workspace.start()` at the entry point and handle its rejection there;
 readiness failure still rejects. The mounted error shell remains available
 until retry or teardown. The next start replaces it. `Promise.all` waits for
@@ -530,10 +525,10 @@ Parent stop deactivates owned children; parent start does not reactivate them
 automatically. Registration and ownership persist across stop and restart until
 removal or destruction.
 An individual request made by a child has its own lifetime.
-For a shell with separately owned list and sidebar children, use the
-[persistent-shell refresh example](./application-refresh.md#keep-a-shell-and-independently-owned-children).
-It starts children explicitly, refreshes only the list's data, and preserves
-the sidebar while superseded requests finish.
+For a shell with a feed Application and a persistent editor, use the
+[complete feed example](./application-composition.md#a-complete-paginated-feature).
+It starts the child explicitly, refreshes only the feed's data, and preserves
+the editor while superseded requests finish.
 
 <!-- executable-example: application-child-ownership -->
 ```javascript

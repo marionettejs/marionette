@@ -40,21 +40,21 @@ call all of them. `once` removes the callback after its matching detach.
 
 The root element can stay attached while `render()` replaces its children.
 `dom:refresh` runs after attached content appears; `dom:remove` runs before that
-content is replaced or detached. Keep a handle to the exact element and listener
-created for that render.
+content is replaced or detached. Use an observer when a third-party editor changes descendants outside Marionette.
+Ordinary buttons belong in `events` or `triggers`; they need no manual listener.
 
 <!-- executable-example: descendant-listener-cleanup -->
 ```javascript
 import { View } from 'marionette';
 
-export const ChildListenerView = View.extend({
-  template: () => '<button type="button">Run</button>',
+export const EditorObserverView = View.extend({
+  template: () => '<div data-editor></div>',
+  ui: { editor: '[data-editor]' },
 
   onDomRefresh() {
-    const button = this.el.querySelector('button');
-    const onClick = () => console.log('Run');
-    button.addEventListener('click', onClick);
-    this.once('dom:remove', () => button.removeEventListener('click', onClick));
+    const observer = new MutationObserver(() => this.triggerMethod('editor:changed'));
+    observer.observe(this.getUI('editor')[0], { childList: true, subtree: true });
+    this.once('dom:remove', () => observer.disconnect());
   }
 });
 ```
@@ -95,13 +95,13 @@ export const StatusView = View.extend({
 ```
 
 To try all three Views in a browser, save the classes as `measured-view.js`,
-`child-listener-view.js`, and `status-view.js`. Add `<main id="app"></main>`
+`editor-observer-view.js`, and `status-view.js`. Add `<main id="app"></main>`
 to the page and run this module:
 
 ```javascript
 import { Events, Region } from 'marionette';
 import { MeasuredView } from './measured-view.js';
-import { ChildListenerView } from './child-listener-view.js';
+import { EditorObserverView } from './editor-observer-view.js';
 import { StatusView } from './status-view.js';
 
 const source = Object.assign({}, Events);
@@ -110,9 +110,9 @@ const measured = new MeasuredView();
 region.show(measured);
 region.detachView();
 region.show(measured); // A new ResizeObserver replaces the disconnected one.
-region.show(new ChildListenerView()); // Destroys measured.
-region.currentView.render(); // Replaces the button and releases its old listener.
-region.show(new StatusView({ source })); // Destroys the button View.
+region.show(new EditorObserverView()); // Destroys measured.
+region.currentView.render(); // Replaces the editor host and disconnects its old observer.
+region.show(new StatusView({ source })); // Destroys the editor View.
 source.trigger('status:changed', 'ready');
 region.empty(); // Removes the online listener and tracked subscription.
 region.destroy();
