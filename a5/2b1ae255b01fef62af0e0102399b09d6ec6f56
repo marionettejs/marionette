@@ -1,0 +1,23 @@
+docs/application-composition.md
+  s_bae3f20545810f::t_e027c4bbb7ca7a 120
+test/fixtures/data-package-starter/workspace-views.ts
+  s_bae3f20545810f::t_96629c91889aaf 72
+test/fixtures/docs-application-guides/feed.mjs
+  s_bae3f20545810f::t_301fe18ff58a48 90-102,105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a52b1ae255b01fef62af0e0102399b09d6ec6f56",
+  "prompts": {},
+  "sessions": {
+    "s_bae3f20545810f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0dc4c-e2a2-7602-ad97-5ee963c9a2cb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
