@@ -1,0 +1,25 @@
+docs/application-effects.md
+  s_d7162dce862bc9::t_05da76ac71d2ea 46,50-51,72,74,80-83
+docs/forms-and-accessibility.md
+  s_d7162dce862bc9::t_7365eb7a551f4a 74-80,108-110
+test/fixtures/docs-application-guides/completion.mjs
+  s_d7162dce862bc9::t_7f48783c844bdf 69-106
+test/fixtures/docs-application-guides/validate.mjs
+  s_d7162dce862bc9::t_7b225b3078e6da 186-204
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c3c6ce662681fb2952998ad06a17e327a9119dfd",
+  "prompts": {},
+  "sessions": {
+    "s_d7162dce862bc9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0dc9d-456a-7b62-a7bd-67cc8801573c",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
