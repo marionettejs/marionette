@@ -24,8 +24,28 @@ before/after documentation experiment. No held-out tests were consulted or chang
 
 The raw transcripts remain in Stringent; they are not distributed with this
 library. The following digests identify the inspected inputs, not a public
-replication dataset. For each workload, hash the concatenation of relative path,
-NUL, file SHA-256 hex, and newline in pair 1–3 / T1–T3 order:
+replication dataset. Paths below are relative to the Stringent repository root
+(the directory containing `runs/`), with literal `/` separators and no leading
+`./`. Each column lists one workload's complete input set in hash order:
+
+| Content workload | Expense workload |
+| --- | --- |
+| `runs/content-dev-pilot-1/marionette/T1/messages.json` | `runs/expense-dev-pilot-1/marionette/T1/messages.json` |
+| `runs/content-dev-pilot-1/marionette/T2/messages.json` | `runs/expense-dev-pilot-1/marionette/T2/messages.json` |
+| `runs/content-dev-pilot-1/marionette/T3/messages.json` | `runs/expense-dev-pilot-1/marionette/T3/messages.json` |
+| `runs/content-dev-pilot-2/marionette/T1/messages.json` | `runs/expense-dev-pilot-2/marionette/T1/messages.json` |
+| `runs/content-dev-pilot-2/marionette/T2/messages.json` | `runs/expense-dev-pilot-2/marionette/T2/messages.json` |
+| `runs/content-dev-pilot-2/marionette/T3/messages.json` | `runs/expense-dev-pilot-2/marionette/T3/messages.json` |
+| `runs/content-dev-pilot-3/marionette/T1/messages.json` | `runs/expense-dev-pilot-3/marionette/T1/messages.json` |
+| `runs/content-dev-pilot-3/marionette/T2/messages.json` | `runs/expense-dev-pilot-3/marionette/T2/messages.json` |
+| `runs/content-dev-pilot-3/marionette/T3/messages.json` | `runs/expense-dev-pilot-3/marionette/T3/messages.json` |
+
+For each file, hash its raw bytes with SHA-256 without parsing or normalizing JSON.
+Encode one record as UTF-8 path bytes, one NUL byte (`0x00`), the file digest's
+64 lowercase ASCII hexadecimal characters, and one LF byte (`0x0a`). For each
+workload separately, concatenate its nine records from top to bottom and hash
+those bytes with SHA-256; report the result as lowercase hexadecimal. Do not
+include the absolute checkout path, table markup, or an extra separator:
 
 - Content transcript-set SHA-256: `ef3769ba3b06358568b1c312b795cc3000aaed7a4f8476fb87a3ca13f9a8222f`.
 - Expense transcript-set SHA-256: `091bcad26c7a18217c2ebbaeb3e5d8b9d7c84cb93f8ecbe98d57ba9fa3b910b7`.
