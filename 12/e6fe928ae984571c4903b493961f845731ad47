@@ -1,0 +1,174 @@
+test/browser/application-refresh.spec.mjs
+  s_bae3f20545810f::t_39b3927442e9ba 110-126
+  s_bae3f20545810f::t_4b9e466bef136a 41-42
+  s_bae3f20545810f::t_56ab1dc50427cf 18,25-26,34
+  s_bae3f20545810f::t_16580a796ab9d7 104-109,127-154
+docs/routing.md
+  s_bae3f20545810f::t_6bb83b9dcc17ed 83-99,102-105,184,245,255
+  s_bae3f20545810f::t_dcd98dbcf46601 52-60
+test/fixtures/docs-quick-start/validate.mjs
+  s_bae3f20545810f::t_fbd6c1a17299fc 65-68,70-73,76,80
+docs/application-composition.md
+  s_bae3f20545810f::t_58792d4281a470 1-15,17-37,230-238,243-323
+  s_bae3f20545810f::t_39b3927442e9ba 46-62,65,71,127,133,146,156,191-192,200,212-214,227-228,239-242
+  s_bae3f20545810f::t_5ef910a836ead5 16,38-45,63-64,66-70,72-126,128-132,134-145,147-155,157-190,193-199,201-203,208-211,215-226,229
+  s_bae3f20545810f::t_6f6c214cd6478e 204-207
+test/fixtures/data-package-starter/main.ts
+  s_bae3f20545810f::t_8c20f31aba0571 1,4,7,11,15-21
+  s_bae3f20545810f::t_58d59dc4a14ec6 5-6
+docs-site/navigation.json
+  s_bae3f20545810f::t_4b9e466bef136a 15-19
+  s_bae3f20545810f::t_d9b79ca27d8524 14
+test/fixtures/docs-routing/refresh.mjs
+  s_bae3f20545810f::t_56ab1dc50427cf 7,16-17,24
+  s_bae3f20545810f::t_8e7e93069f27cd 284-316
+  s_bae3f20545810f::t_4b9e466bef136a 25,27
+test/fixtures/docs-routing/validate.mjs
+  s_bae3f20545810f::t_56ab1dc50427cf 159,161-162
+  s_bae3f20545810f::t_fbd6c1a17299fc 49-51,60-62
+docs/marionette.application.md
+  s_bae3f20545810f::t_56ab1dc50427cf 293-300,309-310,347-348,351-377,380
+docs/development.md
+  s_bae3f20545810f::t_d7d7a6db124ca6 5,94,123-137
+  s_bae3f20545810f::t_4bc24631883c9a 86-90
+docs/application-effects.md
+  s_bae3f20545810f::t_56ab1dc50427cf 57-58,61-79,81-82,85-86,130,145,190-198,201,293-295,299-349,352-353
+  s_bae3f20545810f::t_389d8ceca0a641 3-10
+test/fixtures/data-package-starter/readme.md
+  s_bae3f20545810f::t_d7d7a6db124ca6 45-46,67-72
+  s_bae3f20545810f::t_1aee3d3c5da314 47-49
+test/browser/application-effects.spec.mjs
+  s_bae3f20545810f::t_56ab1dc50427cf 12,20-21
+test/fixtures/data-package-starter/workspace-views.ts
+  s_bae3f20545810f::t_8c20f31aba0571 1-4,6-42,47-74
+  s_bae3f20545810f::t_1aee3d3c5da314 5
+  s_bae3f20545810f::t_1d90a9a7353383 43-46
+test/fixtures/data-package-starter/AGENTS.md
+  s_bae3f20545810f::t_1aee3d3c5da314 15-18
+  s_bae3f20545810f::t_d7d7a6db124ca6 13-14,19-37
+test/fixtures/docs-routing/child-refresh.mjs
+  s_bae3f20545810f::t_6f6c214cd6478e 18-19,113-114
+  s_bae3f20545810f::t_4b9e466bef136a 21,24-27,37,47-48,53,92,101-104,109,119
+  s_bae3f20545810f::t_4725f211a32c71 3,9-10,22-23,120
+test/fixtures/docs-application-guides/effects.mjs
+  s_bae3f20545810f::t_56ab1dc50427cf 14,29-30
+plugins/marionette/skills/marionette/SKILL.md
+  s_bae3f20545810f::t_d7d7a6db124ca6 89-90
+  s_bae3f20545810f::t_5ef910a836ead5 53,85-88
+test/fixtures/data-package-starter/setup.ts
+  s_bae3f20545810f::t_8c20f31aba0571 1-6
+docs/readme.md
+  s_bae3f20545810f::t_58792d4281a470 64-66
+test/fixtures/docs-routing/selection.mjs
+  s_bae3f20545810f::t_4b9e466bef136a 18,27-29,40,63,67,69,75
+  s_bae3f20545810f::t_3d15430b6f6881 3,10-11
+test/fixtures/data-package-starter/notes.ts
+  s_bae3f20545810f::t_1aee3d3c5da314 1-2
+  s_bae3f20545810f::t_103278ea0d1384 3-15
+test/fixtures/docs-application-guides/completion.mjs
+  s_bae3f20545810f::t_56ab1dc50427cf 17,19,26-27,76-77,147-148
+test/fixtures/docs-application-guides/preparation.mjs
+  s_bae3f20545810f::t_56ab1dc50427cf 11,18,39,67
+docs/agents.md
+  s_bae3f20545810f::t_5ef910a836ead5 41
+  s_bae3f20545810f::t_58792d4281a470 72-76,79-81,90-91,95-96,109-112
+test/fixtures/data-package-starter/workspace.test.mjs
+  s_bae3f20545810f::t_fbd6c1a17299fc 62,75,83,97-103,105-111,113,115-118,120-125,127-137,139-155,157-162,166-180
+  s_bae3f20545810f::t_1d90a9a7353383 5-6,8,14-15,17,22-23,32,34,43,47,49,126,138
+  s_bae3f20545810f::t_1aee3d3c5da314 79
+  s_bae3f20545810f::t_8af0b51c4e72ba 51-52,69,76,82,104,112,114,119,156,163-165
+test/fixtures/docs-application-guides/resource-cleanup.mjs
+  s_bae3f20545810f::t_fbd6c1a17299fc 26,41,58,62-70,72-77,79-80,82-83,107
+docs/task-recipes.md
+  s_bae3f20545810f::t_b1b8d0e6664509 26,33,51-53,119,121-132,134,136-156,160-161,163,191,195,203-212,214,217,220-223,228-229,235-244,246-253,257-261,264,266-269,271-293,297-298,305,310-313,316-320,323,329-330,340-341
+  s_bae3f20545810f::t_8e7e93069f27cd 218-219,224-227
+  s_bae3f20545810f::t_47ee3688206f88 192-193,216,230-234,245,294-296,326-328
+docs/classes.md
+  s_bae3f20545810f::t_58792d4281a470 7-9
+  s_bae3f20545810f::t_5ef910a836ead5 73-77
+test/fixtures/data-package-starter/workspace.ts
+  s_bae3f20545810f::t_8c20f31aba0571 1-2,4,28,30-32,36-38,44,54,57-58,63-65,71,82,89
+  s_bae3f20545810f::t_1d90a9a7353383 6,9-10,13,22,24-25,29,33-34,40-41,46-47,49-51,53,55,66-70,73-75,78-81,90
+  s_bae3f20545810f::t_1aee3d3c5da314 7
+  s_bae3f20545810f::t_58bd054f807f36 26-27,35
+  s_bae3f20545810f::t_fbd6c1a17299fc 59-60
+  s_bae3f20545810f::t_1dcb45b0f05268 3,5,11-12,15-17,19-21,23,39,42-43,45,48,52,56,61,85,87-88
+docs/application-refresh.md
+  s_bae3f20545810f::t_8e7e93069f27cd 362-365,384
+  s_bae3f20545810f::t_4b9e466bef136a 3-9,287,289-304
+  s_bae3f20545810f::t_56ab1dc50427cf 110,115-119,125-181,186-188,190-191,194-211,214-215,238-239,281,283,357-361,366-383,385-388,391-392
+  s_bae3f20545810f::t_d8013ff7816a5c 23-24,96-98,278-280,282,284-286,288,308-309
+test/fixtures/docs-application-guides/feed.mjs
+  s_bae3f20545810f::t_39b3927442e9ba 2,9-12,33-36,38-39,106
+  s_bae3f20545810f::t_6f6c214cd6478e 1,3-8,19,24-32,37,40-105,107-111
+  s_bae3f20545810f::t_2e896744cec57a 13-18,20-23
+test/fixtures/docs-application-guides/validate.mjs
+  s_bae3f20545810f::t_6f6c214cd6478e 249-252
+test/fixtures/docs-region-lifecycle/retry-delete.mjs
+  s_bae3f20545810f::t_8e7e93069f27cd 196-201,203-210,212-217,219-227
+  s_bae3f20545810f::t_5352bb9e725d88 22,24-28,67,69,98,106,141,146,149,159,173,183,193,202,211,218
+docs/forms-and-accessibility.md
+  s_bae3f20545810f::t_6bb83b9dcc17ed 37,45,49,51,63-65
+  s_bae3f20545810f::t_50a30f7bbaeec1 7-12
+skills/marionette/SKILL.md
+  s_bae3f20545810f::t_5ef910a836ead5 53,85-88
+  s_bae3f20545810f::t_58792d4281a470 89-90
+docs/maintainers/documentation.md
+  s_bae3f20545810f::t_58792d4281a470 204-224
+docs/resource-cleanup.md
+  s_bae3f20545810f::t_6bb83b9dcc17ed 43-44,50-52,55-57,98,104,113-115
+test/fixtures/docs-list-composition/validate.mjs
+  s_bae3f20545810f::t_d7d7a6db124ca6 17,24,26-29,49-50,55
+docs/list-composition.md
+  s_bae3f20545810f::t_d7d7a6db124ca6 56-71,74-78,82
+test/agent-docs/retrieval.test.mjs
+  s_bae3f20545810f::t_6f6c214cd6478e 71
+docs/quick-start.md
+  s_bae3f20545810f::t_6bb83b9dcc17ed 160,163,173-177
+benchmarks/agent/evaluation-plan.md
+  s_bae3f20545810f::t_7f70ae00e3aaae 71-90
+config/api-contracts/inventory.json
+  s_bae3f20545810f::t_0bb49f45b839b9 8097,8105
+docs-site/resources.json
+  s_bae3f20545810f::t_87a99a1f28691a 11
+docs/application-agent-template.md
+  s_bae3f20545810f::t_e135c822d7ebc4 45-47
+docs/choosing-integrations.md
+  s_bae3f20545810f::t_9040ece6718146 22-24
+docs/compact-reference.md
+  s_bae3f20545810f::t_fa5e3f0553ae2f 7
+docs/maintainers/application-teaching-audit.md
+  s_bae3f20545810f::t_fe1f8df8d5a804 1-74
+docs/testing.md
+  s_bae3f20545810f::t_a74b6962f6289b 125-137
+scripts/api-contracts/reference.mjs
+  s_bae3f20545810f::t_3f2f0d230b0058 26
+scripts/docs/package.mjs
+  s_bae3f20545810f::t_6f7e483806fb02 28
+test/browser/beta-starter.spec.mjs
+  s_bae3f20545810f::t_dc31e3abdef3c5 6,8-15,41
+test/browser/docs-routing.test.mjs
+  s_bae3f20545810f::t_cafbc17f908cbb 21,54,57-58,65,88,136,138-139,145
+test/browser/fixtures.mjs
+  s_bae3f20545810f::t_58c16459d7d743 48-50
+test/browser/starter-development.spec.mjs
+  s_bae3f20545810f::t_ba773c56fc3512 118
+test/fixtures/docs-application-guides/workspace.mjs
+  s_bae3f20545810f::t_fbc0714f632826 11,20,28-29,37,53,65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "12e6fe928ae984571c4903b493961f845731ad47",
+  "prompts": {},
+  "sessions": {
+    "s_bae3f20545810f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0dc4c-e2a2-7602-ad97-5ee963c9a2cb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
