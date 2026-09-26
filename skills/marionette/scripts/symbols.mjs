@@ -1,12 +1,15 @@
 const identifier = '[A-Za-z_$][\\w$]*';
 const pattern = new RegExp(`^(${identifier})(?:\\.(${identifier}))?$`);
-const accesses = ['static', 'instance'];
+// Index key → member access label and export listing field.
+const accesses = [['static', 'static', 'staticMembers'], ['instance', 'instance', 'instanceMembers'],
+  ['members', 'member', 'members']];
 const invalid = () => new Error('Invalid documentation symbol index.');
+const isMap = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const shownMentions = 5;
 
 export function validateSymbolIndex(index, sectionIds) {
   const contracts = index?.contracts;
-  if (index?.schemaVersion !== 1 || !Array.isArray(index.symbols) || !contracts || typeof contracts !== 'object') {
+  if (index?.schemaVersion !== 1 || !Array.isArray(index.symbols) || !isMap(contracts)) {
     throw new Error('Unsupported documentation symbol index.');
   }
   for (const contract of Object.values(contracts)) {
@@ -17,9 +20,9 @@ export function validateSymbolIndex(index, sectionIds) {
   for (const symbol of index.symbols) {
     if (typeof symbol?.entrypoint !== 'string' || typeof symbol.name !== 'string' ||
         typeof symbol.signature !== 'string' || !known(symbol.contracts)) { throw invalid(); }
-    for (const access of accesses) {
-      if (symbol[access] !== undefined && !Object.values(symbol[access]).every(member =>
-        typeof member?.signature === 'string' && known(member.contracts))) { throw invalid(); }
+    for (const [key] of accesses) {
+      if (symbol[key] !== undefined && (!isMap(symbol[key]) || !Object.values(symbol[key]).every(member =>
+        typeof member?.signature === 'string' && known(member.contracts)))) { throw invalid(); }
     }
   }
 }
@@ -52,26 +55,28 @@ export function findSymbols(index, sections, files, query) {
   const parts = pattern.exec(query);
   if (!parts) { throw new Error('Symbol lookup takes an export name, Export.member, or member name.'); }
   const [, name, member] = parts;
-  const members = (symbol, key) => accesses.flatMap(access => {
-    const operation = symbol[access] && Object.hasOwn(symbol[access], key) && symbol[access][key];
-    if (!operation) { return []; }
-    const scope = operation.contracts.length ? operation.contracts : symbol.contracts;
-    return [{ entrypoint: symbol.entrypoint, name: symbol.name, member: key, access, ...operation,
-      ...mentions(key, scope, index, sections, files) }];
+  const members = (symbol, key) => accesses.flatMap(([property, access]) => {
+    const operation = symbol[property] && Object.hasOwn(symbol[property], key) && symbol[property][key];
+    return operation ? [{ entrypoint: symbol.entrypoint, name: symbol.name, member: key, access, ...operation,
+      ...mentions(key, operation.contracts, index, sections, files) }] : [];
   });
   const exports = index.symbols.filter(symbol => symbol.name === name);
   let matches;
   if (member) {
     matches = exports.flatMap(symbol => members(symbol, member));
   } else {
-    matches = exports.map(({ entrypoint, kind, signature, contracts, ...symbol }) => ({
-      entrypoint, name, kind, signature, contracts,
-      ...Object.fromEntries(accesses.filter(access => symbol[access])
-        .map(access => [`${access}Members`, Object.keys(symbol[access])])),
-    }));
-    if (!matches.length) {
-      matches = index.symbols.filter(symbol => symbol.kind === 'value').flatMap(symbol => members(symbol, name));
-    }
+    // Type-only members usually restate a runtime class; list them only for names
+    // no runtime export provides. `Type.member` always reaches them.
+    const runtime = index.symbols.filter(symbol => symbol.kind === 'value').flatMap(symbol => members(symbol, name));
+    matches = [
+      ...exports.map(({ entrypoint, kind, signature, contracts, ...symbol }) => ({
+        entrypoint, name, kind, signature, contracts,
+        ...Object.fromEntries(accesses.filter(([property]) => Object.keys(symbol[property] ?? {}).length)
+          .map(([property, , listing]) => [listing, Object.keys(symbol[property])])),
+      })),
+      ...runtime.length ? runtime :
+        index.symbols.filter(symbol => symbol.kind !== 'value').flatMap(symbol => members(symbol, name)),
+    ];
   }
   const byId = new Map(sections.map(section => [section.id, section]));
   const contracts = Object.fromEntries([...new Set(matches.flatMap(match => match.contracts))].map(id => [id, {

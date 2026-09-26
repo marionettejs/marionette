@@ -19,23 +19,24 @@ export function symbolIndex(inventory, semantics, sections) {
     diagnostics: contract.diagnostics,
   }]));
   const known = ids => ids.map(id => {
-    if (!contracts[id]) { throw new Error(`Unknown API contract: ${id}`); }
+    if (!Object.hasOwn(contracts, id)) { throw new Error(`Unknown API contract: ${id}`); }
     return id;
   });
   const members = (signatures = {}, operations = {}, fallback) => Object.fromEntries(
     Object.entries(signatures).map(([name, signature]) =>
-      [name, { signature, contracts: known(operations[name] ?? fallback) }]));
-  // Type-only exports repeat their runtime class's members; index those once.
+      [name, { signature, contracts: known(Object.hasOwn(operations, name) ? operations[name] : fallback) }]));
   const symbols = inventory.entrypoints.flatMap(entry => entry.exports.map(value => ({
     entrypoint: entry.name,
     name: value.name,
     kind: value.kind,
     signature: value.signature,
     contracts: known(value.contracts),
-    ...value.kind === 'value' && {
+    ...value.kind === 'value' ? {
       static: members(value.members, value.operationContracts?.static, value.contracts),
-      instance: members(value.instance, value.operationContracts?.instance, value.contracts),
+    } : {
+      members: members(value.members, value.operationContracts?.static, value.contracts),
     },
+    instance: members(value.instance, value.operationContracts?.instance, value.contracts),
   })));
   return { schemaVersion: 1, contracts, symbols };
 }

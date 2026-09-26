@@ -222,9 +222,13 @@ test('focused lookup rejects unknown IDs, ambiguous modes, missing and tampered 
 const regionPage = '# Region\n\n## Index\n* [`detachView`](#detachview)\n\n## Region ownership\nA Region owns one View.\n\n## Detaching Existing Views\nCall `region.detachView()` to take the View back.\n\n### Events\n`before:detachView` fires first.\n\n## `detachView()`\nReturns the detached View.\n';
 const regionInventory = { entrypoints: [{ name: 'marionette', exports: [
   { name: 'Region', kind: 'value', signature: 'RegionConstructor', contracts: ['region'],
-    members: { extend: '() => RegionConstructor' }, instance: { detachView: '() => View | undefined', show: '(view: View) => this' },
-    operationContracts: { instance: { detachView: ['region'] } } },
+    members: { extend: '() => RegionConstructor' },
+    instance: { detachView: '() => View | undefined', show: '(view: View) => this', reset: '() => this' },
+    operationContracts: { instance: { detachView: ['region'], reset: [] } } },
   { name: 'RegionInstance', kind: 'type', signature: 'RegionInstance', contracts: ['region'], instance: { detachView: '() => View' } },
+  { name: 'ShowOptions', kind: 'type', signature: 'ShowOptions', contracts: ['region'], members: { replaceElement: 'boolean' } },
+] }, { name: '@mnjs/utils', exports: [
+  { name: 'show', kind: 'value', signature: '(view: View) => void', contracts: ['region'] },
 ] }] };
 const regionSemantics = { contracts: [{ id: 'region', docs: [{ file: 'docs/routing.md', heading: 'Region ownership' }], diagnostics: ['MN0003'] }] };
 
@@ -244,7 +248,7 @@ test('symbol lookup returns exact export signatures, members and reviewed contra
   assert.deepEqual(output.matches.map(match => [match.name, match.kind, match.signature]),
     [['Region', 'value', 'RegionConstructor']]);
   assert.deepEqual(output.matches[0].staticMembers, ['extend']);
-  assert.deepEqual(output.matches[0].instanceMembers, ['detachView', 'show']);
+  assert.deepEqual(output.matches[0].instanceMembers, ['detachView', 'show', 'reset']);
   assert.deepEqual(output.contracts.region.diagnostics, ['MN0003']);
   assert.deepEqual(output.contracts.region.sections.map(section => [section.heading, section.ancestors]),
     [['Region ownership', ['Region']]]);
@@ -256,7 +260,7 @@ test('member lookup names the sections that use it, most specific and named head
   const data = await symbolFixture(t);
   const qualified = JSON.parse(data.run('--symbol', 'Region.detachView').stdout);
   const bare = JSON.parse(data.run('--symbol', 'detachView').stdout);
-  assert.deepEqual(bare.matches, qualified.matches, 'type-only exports do not repeat runtime members');
+  assert.deepEqual(bare.matches, qualified.matches, 'bare names omit type members that restate runtime members');
   const [match] = qualified.matches;
   assert.equal(match.access, 'instance');
   assert.equal(match.signature, '() => View | undefined');
@@ -265,7 +269,24 @@ test('member lookup names the sections that use it, most specific and named head
   const inherited = JSON.parse(data.run('--symbol', 'Region.show').stdout).matches[0];
   assert.deepEqual(inherited.contracts, ['region']);
   assert.deepEqual(inherited.sections, [], 'a member absent from code examples has no mention');
-  assert.deepEqual(JSON.parse(data.run('--symbol', 'RegionInstance.detachView').stdout).matches, []);
+  const unreviewed = JSON.parse(data.run('--symbol', 'Region.reset').stdout);
+  assert.deepEqual([unreviewed.matches[0].contracts, unreviewed.matches[0].sections, unreviewed.contracts], [[], [], {}],
+    'an explicitly empty contract list does not widen to the export');
+  assert.equal(JSON.parse(data.run('--symbol', 'RegionInstance.detachView').stdout).matches[0].signature, '() => View');
+});
+
+test('type members and colliding export names remain reachable', async t => {
+  const data = await symbolFixture(t);
+  const shape = JSON.parse(data.run('--symbol', 'ShowOptions').stdout).matches;
+  assert.deepEqual(shape.map(match => [match.kind, match.members]), [['type', ['replaceElement']]]);
+  for (const query of ['ShowOptions.replaceElement', 'replaceElement']) {
+    const { matches } = JSON.parse(data.run('--symbol', query).stdout);
+    assert.deepEqual(matches.map(match => [match.name, match.member, match.access, match.signature]),
+      [['ShowOptions', 'replaceElement', 'member', 'boolean']], query);
+  }
+  const { matches } = JSON.parse(data.run('--symbol', 'show').stdout);
+  assert.deepEqual(matches.map(match => [match.entrypoint, match.name, match.member]),
+    [['@mnjs/utils', 'show', undefined], ['marionette', 'Region', 'show']]);
 });
 
 test('symbol lookup reports absent names honestly and rejects malformed queries and indexes', async t => {
@@ -286,7 +307,8 @@ test('symbol lookup reports absent names honestly and rejects malformed queries 
   assert.match(data.run('--symbol', 'Region').stderr, /hash mismatch/);
   for (const [bytes, error] of [['{}', /Unsupported documentation symbol index/],
     [JSON.stringify({ schemaVersion: 1, contracts: {}, symbols: [{ entrypoint: 'marionette', name: 'Region', signature: 'x', contracts: ['region'] }] }), /Invalid documentation symbol index/],
-    [JSON.stringify({ schemaVersion: 1, contracts: { region: { sections: ['docs/routing.md#L99'], diagnostics: [] } }, symbols: [] }), /Invalid documentation symbol index/]]) {
+    [JSON.stringify({ schemaVersion: 1, contracts: { region: { sections: ['docs/routing.md#L99'], diagnostics: [] } }, symbols: [] }), /Invalid documentation symbol index/],
+    ...[5, null, []].map(map => [JSON.stringify({ schemaVersion: 1, contracts: {}, symbols: [{ entrypoint: 'marionette', name: 'Region', signature: 'x', contracts: [], static: map }] }), /Invalid documentation symbol index/])]) {
     await writeFile(symbols, bytes);
     data.manifest.assets.find(asset => asset.source === 'docs-symbols.json').sha256 = hash(bytes);
     await data.rehash();

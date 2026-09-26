@@ -104,6 +104,7 @@ test('symbol index resolves every reviewed contract heading to exactly one consu
   assert.throws(() => symbolIndex(inventory(['region']), semantics('Missing'), sections), /matches 0/);
   assert.throws(() => symbolIndex(inventory(['region']), semantics('Again'), sections), /matches 2/);
   assert.throws(() => symbolIndex(inventory(['absent']), semantics('`show(view)`'), sections), /Unknown API contract: absent/);
+  assert.throws(() => symbolIndex(inventory(['constructor']), semantics('`show(view)`'), sections), /Unknown API contract: constructor/);
 });
 
 test('real public members resolve to the sections that document them', async() => {
@@ -122,6 +123,11 @@ test('real public members resolve to the sections that document them', async() =
     ['View.getUI', 'docs/dom.interactions.md', 'getUI(name)'],
     ['View.renderAttributes', 'docs/marionette.view.md', 'Refreshing Root Attributes'],
   ];
+  for (const [query, signature] of [['LifecycleContext.signal', 'AbortSignal'], ['delegateTarget', undefined]]) {
+    const { matches } = findSymbols(index, sections, files, query);
+    assert.ok(matches.length && matches.every(match => match.access === 'member'), `${query}: public type member`);
+    if (signature) { assert.equal(matches[0].signature, signature); }
+  }
   for (const [query, source, heading] of cases) {
     const { matches } = findSymbols(index, sections, files, query);
     const found = matches[0]?.sections.find(section => section.id.startsWith(`${source}#`) && section.heading.startsWith(heading));

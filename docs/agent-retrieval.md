@@ -63,7 +63,10 @@ node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --sym
 export returns its entrypoint, declared signature, member names, and reviewed
 contracts. A member returns its signature and up to five sections on its contract
 pages that use it in code, with the count omitted. Each contract lists its owning
-sections and diagnostic codes. Pass any section ID to `--section`. Names match
+sections and diagnostic codes. A member name alone returns runtime members and
+any export of that name; type-only members appear for names no runtime export
+provides. Use `Type.member` for any member of a public type. An empty `contracts`
+list means no reviewed contract covers that member; use `--search` for it. Pass any section ID to `--section`. Names match
 exactly and case-sensitively; `matches: []` means this installed package has no
 such public export or member. Signatures come from the installed declarations'
 contract inventory, not a type checker; consult the declarations for full types.
