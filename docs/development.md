@@ -2,7 +2,7 @@
 
 For a first screen in an existing project, use the [quick start](quick-start.md).
 Use the TypeScript starter when you need a new project with a development toolchain,
-including trials against unreleased Marionette changes. It includes editable rows, asynchronous selection, cancellation,
+including trials against unreleased Marionette changes. It includes editable rows, Application readiness, owned detail selection, cancellation,
 ownership cleanup, lint, tests, and Vite. It has no backend or persistence; connect
 its `navigate(id)` function to your application's router when URLs are needed.
 
@@ -83,15 +83,15 @@ Do not combine an unreleased starter with registry beta.1 dependencies.
 
 ## Edit and verify a feature
 
-Start with `workspace.ts`: its typed options describe the mount element and the
-asynchronous note loader. `main.ts` supplies browser setup and a demonstration
-loader. `workspace.test.mjs` uses Node and jsdom against the installed packages.
-TypeScript checks options, native models, and owned state without application
-casts or declarations copied from the framework.
+Start with `workspace.ts`: both Applications use `Application.extend`, and their
+`prepareStart` methods call the data client imported from `notes.ts`. Options configure
+the mounting Region. `main.ts` supplies browser setup. `workspace.test.mjs` mocks
+the data client and uses Node and jsdom against the installed packages.
+TypeScript checks application options, native models, and owned state.
 
 1. Edit a row without opening it, then reverse the rows. Its draft survives.
 2. Open the slow first note, then the second. The late first load cannot replace it.
-3. Edit `workspace.ts` while a load is pending. Vite replaces the workspace and
+3. Edit `workspace-views.ts` while a load is pending. Vite replaces the workspace and
    cancels the old load. Code updates deliberately reset application state; row
    reconciliation during ordinary use preserves surviving DOM and drafts.
 4. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build`.
@@ -120,3 +120,18 @@ application source maps when deploying.
 For symptoms and framework error codes, use [troubleshooting](troubleshooting.md).
 For a larger typed feature, see [TypeScript](typescript.md),
 [application tests](testing.md), and [consumer lint](consumer-lint.md).
+
+## Composition taught by the starter
+
+`Workspace` is an Application with initial data readiness in `prepareStart`.
+Its detail child Application loads a selected record through the same lifecycle.
+The layout and list remain mounted while details change. Views own DOM, named UI,
+and semantic child events; the Application coordinates those events with data services.
+`setup.ts` configures the shared runtime once.
+
+The Application owns its collection through destruction. Layout state is owned,
+while its status child borrows it. Clean rows observe external title changes; dirty
+inputs retain their draft until Open commits it. Restart reloads initial records
+and resets the Views. Tests cover parent-owned lifecycle and root replacement, as
+well as ordinary interaction. See [application composition](./application-composition.md)
+for choosing startup versus retained-screen refresh.

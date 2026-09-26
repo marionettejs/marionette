@@ -68,6 +68,7 @@ test('real consumer questions retrieve the required contract without reading a f
     }
   }
   const cases = [
+    ['paginated feed feature', 'docs/application-composition.md', 'A complete paginated feature', ['FeedApplication', 'prepareStart', 'stateEvents', 'retry']],
     ['getUI', 'docs/dom.interactions.md', 'getUI(name)', ['NodeList', 'MN0023', 'template: false']],
     ['bindUIElements', 'docs/dom.interactions.md', 'bindUIElements()', ['template: false', 'Behavior', 'MN0023']],
     ['delegateEvents', 'docs/dom.interactions.md', 'delegateEvents(events)', ['no-ops after destruction', 'do not render', 'new matching descendants']],

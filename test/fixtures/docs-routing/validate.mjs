@@ -18,7 +18,6 @@ const refreshMarkdown = await readFile(resolve(fixtureDir, '../../../docs/applic
 for (const [exampleMarker, filename] of [
   ['<!-- executable-example: application-latest-request -->', 'latest-request.js'],
   ['<!-- executable-example: application-data-refresh -->', 'results-feature.js'],
-  ['<!-- executable-example: application-child-data-refresh -->', 'workspace-results.js'],
   ['<!-- executable-example: application-latest-selection -->', 'resource-selection.js']
 ]) {
   const source = refreshMarkdown.slice(refreshMarkdown.indexOf(exampleMarker) + exampleMarker.length)
@@ -46,9 +45,9 @@ let bootstrap;
 let stopPermission;
 
 try {
-  const { createPageNavigation } = await import(pathToFileURL(examplePath));
-  const feature = await createPageNavigation({
-    el: document.querySelector('#page'),
+  const { PageNavigation } = await import(pathToFileURL(examplePath));
+  const feature = new PageNavigation({
+    region: { el: document.querySelector('#page') },
     beforeStop() { return stopPermission?.promise; },
     loadPage(id, { signal }) {
       // Intentionally ignores abort: the controller must reject stale commits itself.
@@ -57,8 +56,9 @@ try {
       return request.promise;
     }
   });
-  application = feature.application;
-  const { navigate } = feature;
+  await feature.start();
+  application = feature;
+  const navigate = (...args) => feature.navigate(...args);
   assert.equal(application.isRunning(), true);
 
   const first = navigate('first');
@@ -155,10 +155,10 @@ try {
   assert.equal(document.querySelector('#page').children.length, 0);
   assert.equal(await navigate('after-destroy'), false);
   assert.equal(requests.has('after-destroy'), false);
-  const { createSessionApplication } = await import(pathToFileURL(bootstrapPath));
+  const { SessionApplication } = await import(pathToFileURL(bootstrapPath));
   const sessions = [];
-  bootstrap = createSessionApplication({
-    el: document.querySelector('#page'),
+  bootstrap = new SessionApplication({
+    region: { el: document.querySelector('#page') },
     loadSession({ signal }) {
       const request = { signal, ...Promise.withResolvers() };
       sessions.push(request);
@@ -199,5 +199,4 @@ try {
 }
 
 await import('./refresh.mjs');
-await import('./child-refresh.mjs');
 await import('./selection.mjs');

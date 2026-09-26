@@ -9,7 +9,7 @@ const code = markdown.match(/<!-- executable-example: application-active-effects
 test('Application effects survive denied stop and release on successful deactivation', async({ page }) => {
   await page.evaluate(async source => {
     const url = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }));
-    const { createStatusFeature } = await import(url);
+    const { StatusFeature } = await import(url);
     URL.revokeObjectURL(url);
     const { Model } = await import('@mnjs/data');
     const { Radio } = await import('@mnjs/radio');
@@ -17,8 +17,8 @@ test('Application effects survive denied stop and release on successful deactiva
     const channel = Radio.channel('effects-browser');
     const ready = Promise.withResolvers();
     let deny = true;
-    const app = createStatusFeature({
-      el: document.querySelector('#content'), state, channel,
+    const app = new StatusFeature({
+      region: { el: document.querySelector('#content') }, state, channel,
       load: () => ready.promise,
       beforeStop: async() => { if (deny) { throw new Error('Keep editing'); } }
     });

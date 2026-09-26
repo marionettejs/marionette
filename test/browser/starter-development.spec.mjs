@@ -115,7 +115,7 @@ test('installed TypeScript starter releases old owners across repeated Vite edit
     await page.getByRole('button', { name: 'Reverse rows' }).click();
     await expect(page.getByRole('textbox', { name: 'Draft title' }).last()).toHaveValue('Draft survives reorder');
 
-    const sourcePath = join(starter, 'workspace.ts');
+    const sourcePath = join(starter, 'workspace-views.ts');
     const source = await readFile(sourcePath, 'utf8');
     for (const title of ['Edited once', 'Edited twice']) {
       // Retain the old DOM, and start work which is still pending during replacement.

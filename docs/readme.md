@@ -61,3 +61,6 @@ For versions before v5, see the [backbone.marionette repository](https://github.
 
 [Owning feature effects](./application-effects.md) covers subscriptions, requests, and stop permission.
 [Refreshing data](./application-refresh.md) preserves a shell, list cards, and sidebar state while replacing requests.
+
+For application structure, use [Application composition](./application-composition.md)
+before expanding a small example into a feature.

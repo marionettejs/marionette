@@ -68,6 +68,26 @@ Behavior or other named API is a contract exercise, not a neutral architecture t
 Do not require unsupported synchronous recovery; apply the documented
 [synchronous failure boundary](../../docs/view.lifecycle.md#synchronous-failures).
 
+### Check whether the teaching transfers
+
+Use the packaged skill and the complete
+[paginated feature](../../docs/application-composition.md#a-complete-paginated-feature)
+as public teaching material. In a separately frozen task, ask a fresh agent to
+build and then extend a paginated feed from behavioral requirements. Do not put
+the reference implementation or the architecture answer into hidden tests.
+
+Review which class owns initial readiness, pagination/retry requests, observable
+status, child intent, and teardown. A `FeedView.loadPage` workflow needs an explicit
+architectural justification; aborting its request on View destruction is insufficient.
+A feature Application may own replacement requests without restarting itself.
+Evaluate parent-driven stop/destroy, direct source updates, stale requests, and
+an independent sibling editor as well as successful pagination.
+
+Record both behavioral and composition outcomes. A solution resembling a recipe
+is not automatically idiomatic. A local executable reference and retrieval test
+are controls, not a fresh-agent result. The authorization and frozen model,
+permissions, run-count, spend, and elapsed-time requirements above still apply.
+
 ## 4. Record every outcome
 
 For each attempt retain the prompt, input hashes, submission, trace, commands,

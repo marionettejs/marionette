@@ -38,6 +38,7 @@ prerequisite for reading a specific guide.
 <!-- task-routes:start -->
 | Task | Start here | Verify |
 | --- | --- | --- |
+| Compose an application or paginated feed | [Complete feature composition](./application-composition.md#a-complete-paginated-feature) | Readiness, child events, data authority, and cleanup through the actual owner. |
 | Build a first screen | [Quick start](./quick-start.md) | Mount, select a row, update the display, and destroy the owner. |
 | Start a new project | [Development starter](./development.md) | Typecheck, lint, test, build, and exercise the browser interaction. |
 | Edit and save a form | [Forms](./forms-and-accessibility.md) | Retain input identity and focus through edits, revert, save, failure, and late completion. |
@@ -68,12 +69,16 @@ application instructions. Recheck them when dependencies, configuration, or the
 workspace change; record new decisions with the
 [application instruction template](./application-agent-template.md).
 
-## Choose the smallest supported pattern
+## Choose the smallest complete owner
+
+Use [application composition](./application-composition.md) to choose readiness,
+data, event, and cleanup owners. The code in a task recipe should preserve those
+ownership contracts when composed into a larger application.
 
 Keep the application's established integrations unless the task requires changing
-them. For new code, start with the built-in defaults: native DOM APIs, function
-templates, and plain objects or arrays. Plain sources are not observable; update
-the UI explicitly or select an observable integration when the task needs one.
+them. For new code, use native DOM APIs and function templates. Choose data by the
+application's update requirements: plain objects/arrays for snapshots and an
+observable provider for shared or independently changing records.
 
 Choose data, state, rendering, and DOM capabilities independently. Follow the
 [integration decision order](./choosing-integrations.md) before writing a custom
@@ -82,12 +87,13 @@ application's own architecture notes so later agents do not choose again.
 
 Use a View for interface ownership, a Region for placement, and a CollectionView
 for repeated children when items need independent ownership. Use an Application
-when work has an asynchronous feature lifecycle. A plain function or class is enough when it needs none of these
+when work has a feature lifecycle: loading UI in `onBeforeStart`, asynchronous
+readiness in `prepareStart`, and resolved presentation in `onStart`. A plain function or class is enough when it needs none of these
 contracts. The [class guide](./classes.md) explains the boundaries.
 
 Before expanding a small example into an application, revisit its data and ownership
-choices. A recipe demonstrating manually managed children is not a default data
-architecture for a todo application. Domain records belong in a data source;
+choices. Use manually managed children only for independently supplied Views; use a
+collection for changing domain records. Domain records belong in a data source;
 CollectionView children are their presentation. Do not use child View traversal as
 the application's record store. Plain arrays can remain appropriate for explicit
 snapshot updates. When records need shared observation, filtering, and coordinated
@@ -100,9 +106,10 @@ Native DOM defaults describe the integration, not a replacement for View composi
 Render ordinary content through `template` and `templateContext`, place child Views
 through named Regions, and declare controls with `ui`, `events`, and `triggers`.
 Use `events` when the handler needs input or keyboard details; use `triggers` when
-an interaction should become a View event. Direct DOM work still belongs at real
-integration boundaries, such as focus, measurements, and an external animation or
-widget. Keep its lifetime with the owning View.
+an interaction should become a View event. Targeted updates to a View's own named UI elements are appropriate for status,
+input values, and focus without replacing editable DOM. Keep measurements,
+external animations, and widgets with their owning View as well. Applications
+call View presentation methods rather than manipulating their descendants.
 
 Observe each field used by a template or derived display, including changes that
 do not come from its main button. Let CollectionView handle membership changes
@@ -151,9 +158,8 @@ arbitrary write made by application code. Follow the complete
 [routing pattern](./routing.md) for navigation and feature startup.
 
 Keep an Application's active lifetime separate from each data request. If list
-results and a sidebar have separate owners under one shell, refresh the list's
-collection in place and cancel superseded requests; restarting their parent
-destroys both UI trees. See the [persistent-shell example](./application-refresh.md#keep-a-shell-and-independently-owned-children).
+results share a shell with an editor, refresh the list's collection and cancel
+superseded requests; restarting the parent destroys both UI trees. See the [complete feed example](./application-composition.md#a-complete-paginated-feature).
 
 ## Completion evidence
 

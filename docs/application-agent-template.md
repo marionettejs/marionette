@@ -42,6 +42,9 @@ a router choice does not imply a data, state, renderer, or DOM adapter change.
 ## Ownership and verification
 
 - Root mount and View/Region owner: [actual entry point].
+- Feature readiness: [Application owner and preparation; reason for any independent refresh controller].
+- Child communication: [semantic events and coordinating owner].
+- Data and draft policy: [authoritative source, observation, external changes while editing].
 - Shared resources and disposal owners: [actual subscriptions/state/widgets].
 - Unit/component check: [existing command and working directory].
 - Browser interaction check: [existing command and working directory].

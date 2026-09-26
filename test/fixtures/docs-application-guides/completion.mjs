@@ -14,17 +14,17 @@ async function extract(page, id) {
   await writeFile(output, code[1]);
   return import(output);
 }
-const { createEditor } = await extract('application-effects.md', 'application-save-completion');
+const { EditorApplication } = await extract('application-effects.md', 'application-save-completion');
 const { createDraftStore } = await extract('application-effects.md', 'persistent-draft-save');
-const { createWorkspace } = await extract('marionette.application.md', 'application-loading-shell');
+const { WorkspaceApplication } = await extract('marionette.application.md', 'application-loading-shell');
 const dom = new JSDOM('<!doctype html><div id="editor"></div><div id="workspace"></div>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 const { Application, View } = await import('marionette');
 const pending = [];
 const navigated = [];
-const editor = createEditor({
-  el: document.querySelector('#editor'),
+const editor = new EditorApplication({
+  region: { el: document.querySelector('#editor') },
   saveRecord(value) {
     const request = { value, ...Promise.withResolvers() };
     pending.push(request);
@@ -73,8 +73,8 @@ const drafts = createDraftStore((id, text) => {
   return write.promise;
 });
 const completions = [];
-const draftEditor = createEditor({
-  el: document.querySelector('#editor'),
+const draftEditor = new EditorApplication({
+  region: { el: document.querySelector('#editor') },
   saveRecord: id => drafts.save(id),
   navigate: saved => completions.push(saved)
 });
@@ -144,8 +144,8 @@ const Child = Application.extend({
 });
 const child = new Child();
 let fail = false;
-const workspace = createWorkspace({
-  el: document.querySelector('#workspace'), child,
+const workspace = new WorkspaceApplication({
+  region: { el: document.querySelector('#workspace') }, child,
   loadAccount() { startedLoaders.push('account'); return fail ? Promise.reject(new Error('Offline')) : account.promise; },
   loadSettings() { startedLoaders.push('settings'); return settings.promise; }
 });
