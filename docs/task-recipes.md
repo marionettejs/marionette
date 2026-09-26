@@ -23,13 +23,14 @@ import { View } from 'marionette';
 
 export const WidgetView = View.extend({
   template: () => '<div data-widget-host></div>',
+  ui: { host: '[data-widget-host]' },
   initialize({ createWidget }) {
     this.createWidget = createWidget;
     this.widget = null;
   },
   onDomRefresh() {
     if (!this.widget) {
-      this.widget = this.createWidget(this.el.querySelector('[data-widget-host]'));
+      this.widget = this.createWidget(this.getUI('host')[0]);
     }
   },
   releaseWidget() {
@@ -47,7 +48,9 @@ export const WidgetView = View.extend({
 ```
 
 Here is a complete factory for trying the ownership contract without installing
-another library. A real widget adapter supplies the same handle.
+another library. The button simulates an external widget; ordinary application
+buttons belong in a View with declarative events. A real widget adapter supplies
+the same handle. This handle adapts that library's API, not a Marionette feature.
 
 ```javascript
 import { Region } from 'marionette';
@@ -113,63 +116,51 @@ import { WidgetView } from './widget-view.js';
 const EditorView = WidgetView.extend({
   template: () => '<span data-label></span><div data-widget-host></div>' +
     '<button type="button" data-save>Save</button>',
+  ui: { host: '[data-widget-host]', label: '[data-label]', save: '[data-save]' },
   draft: '',
-  onRender() {
-    this.el.querySelector('[data-label]').textContent = this.getOption('label');
-  },
-  events: {
-    'click [data-save]'() {
-      this.triggerMethod('save', this.getOption('id'), this.draft);
-    }
-  }
+  onRender() { this.getUI('label')[0].textContent = this.getOption('label'); },
+  triggers: { 'click @ui.save': 'save:requested' },
+  onSaveRequested() { this.triggerMethod('save', this.getOption('id'), this.draft); }
 });
 
-export function createEditorWorkspace(el, mountEditor, onSave) {
-  const Workspace = View.extend({
-    template: () => '<div data-editor-region></div><div data-notes-region></div>',
-    regions: {
-      editor: { el: '[data-editor-region]', replaceElement: true },
-      notes: '[data-notes-region]'
-    },
-    childViewEvents: {
-      save(id, draft) { onSave(id, draft); }
-    }
-  });
-  const view = new Workspace({ el }).render();
-  const notes = new View({ template: () => '<textarea aria-label="Notes"></textarea>' });
-  view.showChildView('notes', notes);
-
-  return {
-    view,
-    openEditor(id, label) {
-      const editor = new EditorView({
-        id, label,
-        createWidget(host) {
-          let active = true;
-          const handle = mountEditor(host, draft => {
-            if (active) editor.draft = draft;
-          });
-          return {
-            destroy() {
-              active = false;
-              handle.destroy();
-            }
-          };
-        }
-      });
-      view.showChildView('editor', editor);
-      return editor;
-    },
-    closeEditor() { view.getRegion('editor').empty(); },
-    destroy() { view.destroy(); }
-  };
-}
+export const EditorWorkspace = View.extend({
+  template: () => '<div data-editor-region></div><div data-notes-region></div>',
+  regions: {
+    editor: { el: '[data-editor-region]', replaceElement: true },
+    notes: '[data-notes-region]'
+  },
+  childViewTriggers: { save: 'save' },
+  onRender() {
+    this.showChildView('notes', new View({ template: () => '<textarea aria-label="Notes"></textarea>' }));
+  },
+  openEditor(id, label) {
+    const mountEditor = this.getOption('mountEditor');
+    const editor = new EditorView({
+      id, label,
+      createWidget(host) {
+        let active = true;
+        const handle = mountEditor(host, draft => {
+          if (active) editor.draft = draft;
+        });
+        return {
+          destroy() {
+            active = false;
+            handle.destroy();
+          }
+        };
+      }
+    });
+    this.showChildView('editor', editor);
+    return editor;
+  },
+  closeEditor() { this.getRegion('editor').empty(); }
+});
 ```
 
-Call `createEditorWorkspace` with an attached element, your editor adapter, and a
-save callback. `openEditor(id, label)` destroys the previous editor; `closeEditor()`
+Construct `new EditorWorkspace({ mountEditor })` and show it through its owning
+Region. The coordinating owner uses `listenTo(workspace, 'save', onSave)`. `openEditor(id, label)` destroys the previous editor; `closeEditor()`
 releases it without disturbing the notes View, its DOM, draft, or focus. Open another
-editor later, and call `destroy()` when leaving the workspace. Update drafts through
+editor later, and let the owning Region destroy the workspace when leaving. Update drafts through
 the adapter callback, not by rerendering the workspace. Persist editor content outside
 the disposable widget if it must survive detach or rerender.
 
@@ -197,11 +188,11 @@ that catch this failure.
 
 ## Keep a delete screen open for retry
 
-Use a Region to own the screen while loading and deleting remain application
-state. A completed load is not necessarily a successful load: only success sets
-`ready`. A failed deletion leaves the same View and button mounted for retry.
+Use an Application to own load readiness and deletion, and a View to own the
+controls. `prepareStart` loads the record; successful load data enables deletion; a load error is an explicit disabled
+screen state returned from preparation. A failed deletion leaves the same View and button mounted for retry.
 
-Save this factory as `delete-screen.js`. Supply `load(id)` resolving `{ label }`,
+Save this Application as `delete-screen.js`. Supply `load(id)` resolving `{ label }`,
 `remove(id)` resolving after deletion, a synchronous `navigate(id)` callback, and a
 non-throwing `reportError(error)` callback for unexpected failures from button clicks.
 The two request functions may reject with an `Error`; other callbacks and DOM
@@ -209,110 +200,134 @@ operations follow the [synchronous failure contract](./view.lifecycle.md#synchro
 
 <!-- executable-example: retryable-delete-screen -->
 ```javascript
-import { Region, View } from 'marionette';
+import { Application, View } from 'marionette';
 
-export function createDeleteScreen(el, load, remove, navigate, reportError) {
-  const region = new Region({ el });
-  let current;
-  let destroyed = false;
-  const isCurrent = screen => !destroyed && current === screen;
-
-  const Screen = View.extend({
-    template: () => '<span class="label"></span><button type="button" disabled>Delete</button><p role="alert"></p>',
-    events: {
-      'click button': () => { void confirm().catch(reportError); }
-    }
-  });
-
-  function update(screen, error = '') {
-    const { el } = screen.view;
-    el.querySelector('[role="alert"]').textContent = error;
-    el.querySelector('button').disabled = !screen.ready || screen.deleting;
+const Screen = View.extend({
+  template: () => '<span class="label"></span><button type="button" disabled>Delete</button><p role="alert"></p>',
+  ui: { label: '.label', confirm: 'button', error: '[role="alert"]' },
+  triggers: { 'click @ui.confirm': 'confirm' },
+  showRecord(record) { this.getUI('label')[0].textContent = record.label; },
+  showStatus(enabled, error = '') {
+    this.getUI('confirm')[0].disabled = !enabled;
+    this.getUI('error')[0].textContent = error;
   }
+});
 
-  async function open(id) {
-    if (destroyed) { return false; }
-    const screen = { id, ready: false, deleting: false, view: new Screen() };
-    current = screen;
-    region.show(screen.view);
-    let record;
-    try {
-      record = await load(id);
-    } catch (error) {
-      if (isCurrent(screen)) { update(screen, error.message); }
-      return false;
-    }
-    if (!isCurrent(screen)) { return false; }
-    screen.view.el.querySelector('.label').textContent = record.label;
-    screen.ready = true;
-    update(screen);
-    return true;
-  }
-
-  async function confirm() {
-    const screen = current;
-    if (!screen || !isCurrent(screen) || !screen.ready || screen.deleting) {
-      return false;
-    }
-    screen.deleting = true;
-    update(screen);
-    try {
-      await remove(screen.id);
-    } catch (error) {
-      if (isCurrent(screen)) {
-        screen.deleting = false;
-        update(screen, error.message);
+const DeleteRecord = Application.extend({
+  onBeforeStart() {
+    const previous = this.getView();
+    if (previous) this.stopListening(previous);
+    const view = new Screen();
+    this.listenTo(view, 'confirm', () => {
+      void this.confirm().catch(this.getOption('reportError'));
+    });
+    this.listenTo(view, 'before:destroy', () => {
+      this.stopListening(view);
+      void this.stop().catch(this.getOption('reportError'));
+    });
+    this.showView(view);
+  },
+  async prepareStart({ id }, { signal }) {
+    try { return { record: await this.getOption('load')(id, { signal }) }; }
+    catch (error) { return { error }; }
+  },
+  onStart(app, { id }, { record, error }) {
+    this.id = id;
+    this.deleting = false;
+    this.completed = false;
+    this.ready = !error;
+    if (error) { this.getView().showStatus(false, error.message); return; }
+    this.getView().showRecord(record);
+    this.getView().showStatus(true);
+  },
+  async confirm() {
+    const view = this.getView();
+    if (!this.isRunning() || !this.ready || !view || view.isDestroyed() || this.deleting || this.completed) return false;
+    const id = this.id;
+    this.deleting = true;
+    view.showStatus(false);
+    try { await this.getOption('remove')(id); }
+    catch (error) {
+      if (view === this.getView() && !view.isDestroyed()) {
+        this.deleting = false;
+        view.showStatus(true, error.message);
       }
       return false;
     }
-    if (!isCurrent(screen)) { return false; }
-    screen.ready = false;
-    screen.deleting = false;
-    update(screen);
-    navigate(screen.id);
+    if (!this.isRunning() || view !== this.getView() || view.isDestroyed()) return false;
+    this.completed = true;
+    this.deleting = false;
+    view.showStatus(false);
+    this.getOption('navigate')(id);
     return true;
   }
+});
 
-  function close() {
-    current = undefined;
-    region.empty();
-  }
+const DeleteLayout = View.extend({
+  template: () => '<section data-record></section>',
+  regions: { record: '[data-record]' }
+});
 
-  function destroy() {
-    if (destroyed) { return; }
-    current = undefined;
-    destroyed = true;
-    region.destroy();
-  }
+export const DeleteScreen = Application.extend({
+  initialize(options) {
+    this.selection = 0;
+    const { load, remove, navigate, reportError } = options;
+    this.addChildApp('record', new DeleteRecord({ load, remove, navigate, reportError }));
+  },
+  onBeforeStart() {
+    const view = new DeleteLayout();
+    this.listenTo(view, 'before:destroy', () => {
+      this.stopListening(view);
+      void this.stop().catch(this.getOption('reportError'));
+    });
+    this.showView(view);
+  },
+  async open(id) {
+    if (!this.isRunning()) return false;
+    const selection = ++this.selection;
+    const record = this.getChildApp('record');
+    await record.stop();
+    if (selection !== this.selection || !this.isRunning()) return false;
+    const started = await record.start({ id, region: this.getView().getRegion('record') });
+    return started && selection === this.selection && record.ready;
+  },
+  confirm() { return this.getChildApp('record').confirm(); },
+  close() { this.selection++; return this.getChildApp('record').stop(); },
+  onStop() { this.selection++; },
+  onBeforeDestroy() { this.selection++; }
+});
 
-  return { open, confirm, close, destroy };
-}
 ```
 
 For example, with in-memory data:
 
 ```javascript
-import { createDeleteScreen } from './delete-screen.js';
+import { DeleteScreen } from './delete-screen.js';
 
 const host = document.createElement('main');
 document.body.append(host);
 const records = new Map([['a', { label: 'Draft' }]]);
-const screen = createDeleteScreen(
-  host,
-  async id => {
-    if (!records.has(id)) { throw new Error('Record not found'); }
+const screen = new DeleteScreen({
+  region: { el: host },
+  async load(id) {
+    if (!records.has(id)) throw new Error('Record not found');
     return records.get(id);
   },
-  async id => { records.delete(id); },
-  id => { console.log('Deleted', id); },
-  error => { console.error(error); }
-);
+  async remove(id) { records.delete(id); },
+  navigate(id) { console.log('Deleted', id); },
+  reportError(error) { console.error(error); }
+});
+await screen.start();
 await screen.open('a');
 // Click Delete, or await screen.confirm().
-// Call screen.destroy() when the owner leaves this workflow.
+// Await screen.destroy() when the owner leaves this workflow.
 ```
 
-The factory owns its Region; change screens only through the returned methods.
+The screen Application owns its layout and a record Application. The record owns
+loading and deletion; changing the selected record replaces only that child.
+`close()` stops the record child and leaves the layout ready for another selection. A parent can adopt it with
+`addChildApp`; parent stop/destruction uses the same lifecycle. Await `close()`
+or `destroy()` before removing the host.
 Awaited calls propagate unexpected callback or DOM failures as rejections. The
 button handler reports those failures through `reportError`; it does not treat
 them as retryable deletion failures.
@@ -322,7 +337,8 @@ true only for the current successful deletion and navigates once. Premature or
 duplicate confirmation returns false. Errors and labels are assigned as text,
 not HTML. Updating status does not rerender the View or replace its button.
 
-Opening another record, `close()`, or `destroy()` makes old results stale. A late
+Opening another record, awaiting `close()`, or destroying the Application makes
+old results stale. A late
 success or rejection cannot repaint or navigate from the new screen. This ignores
 results; it does not cancel a server-side deletion already in progress. `close()`
 permits reopening, while `destroy()` permanently ends the workflow.

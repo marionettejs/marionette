@@ -4,7 +4,7 @@ import { JSDOM } from 'jsdom';
 import { Application } from 'marionette';
 import { Collection } from '@mnjs/data';
 import { createLatestRequest } from './dist/latest-request.js';
-import { createResultsFeature } from './dist/results-feature.js';
+import { ResultsFeature } from './dist/results-feature.js';
 
 await test('documented refresh uses one active session and replaces only current data', async t => {
   const dom = new JSDOM('<!doctype html><main></main>');
@@ -13,17 +13,18 @@ await test('documented refresh uses one active session and replaces only current
   async function fixture(beforeStop) {
     const items = new Collection([{ id: 1, name: 'First' }]);
     const requests = [];
-    const feature = await createResultsFeature({
-      el: document.querySelector('main'), items, beforeStop,
+    const feature = new ResultsFeature({
+      region: { el: document.querySelector('main') }, items, beforeStop,
       loadItems(query, { signal }) {
         const request = { query, signal, ...Promise.withResolvers() };
         requests.push(request);
         return request.promise;
       }
     });
-    return { ...feature, items, requests, async destroy() {
+    await feature.start();
+    return { application: feature, refresh: (...args) => feature.refresh(...args), cancel: () => feature.cancel(), items, requests, async destroy() {
       requests.forEach(request => request.resolve([]));
-      await feature.application.destroy();
+      await feature.destroy();
       items.destroy();
     } };
   }
@@ -275,6 +276,39 @@ await test('documented refresh uses one active session and replaces only current
       } finally { requests.dispose(); }
     });
   } finally {
+    dom.window.close();
+    delete globalThis.window;
+    delete globalThis.document;
+  }
+});
+
+await test('replacing the feature root releases refresh requests and preserves its borrowed source', async() => {
+  const dom = new JSDOM('<main></main>');
+  globalThis.window = dom.window;
+  globalThis.document = dom.window.document;
+  const { View } = await import('marionette');
+  const items = new Collection([{ id: 1, name: 'Keep' }]);
+  const request = Promise.withResolvers();
+  let signal;
+  const feature = new ResultsFeature({
+    region: { el: document.querySelector('main') }, items,
+    loadItems(query, options) { signal = options.signal; return request.promise; }
+  });
+  try {
+    await feature.start();
+    const pending = feature.refresh('replace');
+    feature.getRegion().show(new View({ template: () => 'Replacement' }));
+    assert.equal(signal.aborted, true);
+    request.resolve([{ id: 2, name: 'Late' }]);
+    assert.equal(await pending, false);
+    assert.equal(items.at(0).get('name'), 'Keep');
+    assert.equal(document.querySelector('main').textContent, 'Replacement');
+    assert.equal(await feature.refresh('after-replacement'), false);
+    await feature.destroy();
+    assert.equal(items.isDestroyed(), false);
+  } finally {
+    await feature.destroy();
+    items.destroy();
     dom.window.close();
     delete globalThis.window;
     delete globalThis.document;

@@ -49,6 +49,15 @@ boundary to cancel pending page loads on stop and destruction.
 
 ## Load the latest page and discard stale work
 
+For route activation that shows a loading screen before a feature is ready, use
+Application `prepareStart` and display its resolved result in `onStart`. The
+[detail selection pattern](./application-refresh.md#select-a-resource-with-an-explicit-latest-policy)
+shows this as a child Application, and the [starter](./development.md) uses it.
+
+This section covers a different policy: retain the previous page until its
+replacement data is ready. Its active Application owns a latest-request controller;
+this is not the default loading-screen/startup architecture.
+
 Save the shared [latest-request module](./application-refresh.md#share-one-latest-request-controller)
 as `latest-request.js`, then save this module beside it as `page-navigation.js`.
 Supply an existing element and a
@@ -71,29 +80,28 @@ const PageView = View.extend({
   template: template('<h1><%- title %></h1><p><%- body %></p>')
 });
 
-export async function createPageNavigation({ el, loadPage, beforeStop = async() => {} }) {
-  let requests;
-  const Pages = Application.extend({
-    onStart() {
-      requests?.dispose();
-      requests = createLatestRequest({
-        load: loadPage,
-        commit: page => this.showView(new PageView({ model: page }))
-      });
-    },
-    prepareStop(options, context) { return beforeStop(options, context); },
-    onStop() { requests?.dispose(); },
-    onBeforeDestroy() { requests?.dispose(); }
-  });
-  const application = new Pages({ region: { el } });
-  await application.start();
-  return {
-    application,
-    navigate(id, options) { return requests.run(id, options); },
-    cancel() { requests.cancel(); }
-  };
-}
+export const PageNavigation = Application.extend({
+  onStart() {
+    this.requests?.dispose();
+    this.requests = createLatestRequest({
+      load: this.getOption('loadPage'),
+      commit: page => this.showView(new PageView({ model: page }))
+    });
+  },
+  navigate(id, options) {
+    if (!this.isRunning()) return Promise.resolve(false);
+    return this.requests.run(id, options);
+  },
+  cancel() { this.requests?.cancel(); },
+  prepareStop(options, context) { return this.getOption('beforeStop')?.(options, context); },
+  onStop() { this.requests?.dispose(); },
+  onBeforeDestroy() { this.requests?.dispose(); }
+});
 ```
+
+Construct `new PageNavigation({ region: { el }, loadPage, beforeStop })` and await
+its `start()` before connecting the router. The returned instance is the feature
+owner; use its public `navigate`, `cancel`, `stop`, and `destroy` methods.
 
 `navigate()` resolves `true` after displaying the requested page and `false`
 when navigation was canceled or its active request controller was disposed. A current
@@ -173,7 +181,7 @@ export function connectNavigation(feature, onError) {
     async destroy() {
       listeners.abort();
       feature.cancel();
-      await feature.application.destroy();
+      await feature.destroy();
     }
   };
 }
@@ -234,7 +242,7 @@ export function connectBackbone(feature, onError) {
     },
     leave() {
       feature.cancel();
-      feature.application.getRegion().empty();
+      feature.getRegion().empty();
     }
   });
   const router = new Router();
@@ -244,7 +252,7 @@ export function connectBackbone(feature, onError) {
     router,
     async destroy() {
       Backbone.history.stop();
-      await feature.application.destroy();
+      await feature.destroy();
     }
   };
 }

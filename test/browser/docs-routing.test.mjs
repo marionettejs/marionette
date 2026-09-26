@@ -18,7 +18,7 @@ const moduleFor = name => {
 };
 const assets = {
   '/latest-request.js': latestRequest[0],
-  '/feature.js': moduleFor('async function createPageNavigation'),
+  '/feature.js': moduleFor('const PageNavigation'),
   '/native.js': moduleFor('function connectNavigation'),
   '/backbone-integration.js': moduleFor('function connectBackbone'),
   '/marionette.js': await readFile(new URL('dist/marionette.js', root), 'utf8'),
@@ -51,17 +51,18 @@ for (const [browserName, browserType] of Object.entries({ chromium, firefox, web
         });
         await page.goto(kind === 'native' ? 'https://routing.test/pages/initial' : 'https://routing.test/#/pages/initial');
         await page.evaluate(async routerKind => {
-          const { createPageNavigation } = await import('/feature.js');
+          const { PageNavigation } = await import('/feature.js');
           window.requests = new Map();
           window.failures = [];
-          window.feature = await createPageNavigation({
-            el: document.querySelector('#page'),
+          window.feature = new PageNavigation({
+            region: { el: document.querySelector('#page') },
             loadPage(id, { signal }) {
               const request = { signal, ...Promise.withResolvers() };
               window.requests.set(id, request);
               return request.promise; // Deliberately ignores abort.
             }
           });
+          await window.feature.start();
           const onError = error => window.failures.push(error.message);
           if (routerKind === 'native') {
             const { connectNavigation } = await import('/native.js');
@@ -84,7 +85,7 @@ for (const [browserName, browserType] of Object.entries({ chromium, firefox, web
         await requested('initial');
         await page.evaluate(() => window.resolvePage('initial'));
         await displayed('initial');
-        await page.evaluate(() => { window.oldView = window.feature.application.getView(); window.go('slow'); });
+        await page.evaluate(() => { window.oldView = window.feature.getView(); window.go('slow'); });
         await requested('slow');
         await page.evaluate(() => window.go('fast'));
         await requested('fast');
@@ -132,15 +133,16 @@ for (const [browserName, browserType] of Object.entries({ chromium, firefox, web
 
           // Install a fresh owner, then leave its URL scope during initial loading.
           await page.evaluate(async() => {
-            const { createPageNavigation } = await import('/feature.js');
+            const { PageNavigation } = await import('/feature.js');
             const { connectNavigation } = await import('/native.js');
-            const owner = await createPageNavigation({
-              el: document.querySelector('#page'),
+            const owner = new PageNavigation({
+              region: { el: document.querySelector('#page') },
               loadPage(id, { signal }) {
                 signal.addEventListener('abort', () => sessionStorage.setItem('left-aborted', 'yes'));
                 return new Promise(() => {});
               }
             });
+            await owner.start();
             window.connection = connectNavigation(owner, error => { throw error; });
             void navigation.navigate('/outside').finished.catch(() => {});
           });

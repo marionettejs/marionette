@@ -19,8 +19,13 @@ const dom = new JSDOM('<!doctype html><html><body></body></html>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 const {
-  createDeleteScreen
+  DeleteScreen
 } = await import(pathToFileURL(examplePath));
+async function createDeleteScreen(el, load, remove, navigate, reportError) {
+  const screen = new DeleteScreen({ region: { el }, load, remove, navigate, reportError });
+  await screen.start();
+  return screen;
+}
 const host = () => {
   const el = document.createElement('main');
   document.body.append(el);
@@ -59,8 +64,9 @@ for (const schedule of ['immediate', 'deferred']) {
     const retryRemoval = deferred();
     let removes = 0;
     const nav = [];
-    const screen = subject.createDeleteScreen(el, () => loading.promise, () => ++removes === 1 ? firstRemoval.promise : retryRemoval.promise, id => nav.push(id));
+    const screen = await subject.createDeleteScreen(el, () => loading.promise, () => ++removes === 1 ? firstRemoval.promise : retryRemoval.promise, id => nav.push(id));
     const open = screen.open('a');
+    await settleRequests();
     const originalView = el.firstElementChild;
     const button = el.querySelector('button');
     assert.equal(button.disabled, true);
@@ -89,7 +95,7 @@ for (const schedule of ['immediate', 'deferred']) {
     await settleRequests();
     assert.deepEqual(nav, ['a']);
     assert.equal(await screen.confirm(), false);
-    screen.destroy();
+    await screen.destroy();
     el.remove();
   });
   test(`${schedule}: stale loads and removals cannot affect replacement or closed screen`, async() => {
@@ -97,7 +103,7 @@ for (const schedule of ['immediate', 'deferred']) {
     const loads = [];
     const removals = [];
     const nav = [];
-    const screen = subject.createDeleteScreen(el, id => {
+    const screen = await subject.createDeleteScreen(el, id => {
       const request = deferred();
       loads.push(request);
       return request.promise;
@@ -132,15 +138,15 @@ for (const schedule of ['immediate', 'deferred']) {
     await third;
     const late = screen.confirm();
     await settleRequests();
-    screen.close();
+    await screen.close();
     removals[1].resolve();
     assert.equal(await late, false);
     assert.deepEqual(nav, []);
     assert.equal(await screen.confirm(), false);
-    assert.equal(el.children.length, 0);
+    assert.equal(el.querySelector('button'), null);
     const last = screen.open('request');
     await settleRequests();
-    screen.destroy();
+    await screen.destroy();
     loads[3].reject(new Error('late'));
     assert.equal(await last, false);
     assert.equal(await screen.open('e'), false);
@@ -150,7 +156,7 @@ for (const schedule of ['immediate', 'deferred']) {
   test(`${schedule}: load rejection reports error and later open recovers`, async() => {
     const el = host();
     let count = 0;
-    const screen = subject.createDeleteScreen(el, async() => {
+    const screen = await subject.createDeleteScreen(el, async() => {
       if (!count++) {
         throw new Error('load failed');
       }
@@ -164,7 +170,7 @@ for (const schedule of ['immediate', 'deferred']) {
     assert.equal(await screen.confirm(), false);
     assert.equal(await screen.open('b'), true);
     assert.equal(el.querySelector('[role="alert"]').textContent, '');
-    screen.destroy();
+    await screen.destroy();
     el.remove();
   });
 }
@@ -174,8 +180,7 @@ test('unexpected navigation failures reject awaited calls and are reported on cl
   const failure = new Error('navigation failed');
   const reported = [];
   let removes = 0;
-  const screen = createDeleteScreen(el, async() => ({ label: 'A' }), async() => { removes++; }, () => { throw failure; }, error => reported.push(error));
-  assert.deepEqual(Object.keys(screen).sort(), ['close', 'confirm', 'destroy', 'open']);
+  const screen = await createDeleteScreen(el, async() => ({ label: 'A' }), async() => { removes++; }, () => { throw failure; }, error => reported.push(error));
   await screen.open('a');
   await assert.rejects(screen.confirm(), error => error === failure);
   assert.deepEqual(reported, []);
@@ -185,6 +190,38 @@ test('unexpected navigation failures reject awaited calls and are reported on cl
   assert.deepEqual(reported, [failure]);
   assert.equal(removes, 2);
   assert.equal(await screen.confirm(), false);
-  screen.destroy();
+  await screen.destroy();
   el.remove();
+});
+
+await test('parent stop and root replacement invalidate deletion startup', async() => {
+  const { Application, View } = await import('marionette');
+  const el = host();
+  const parent = new Application();
+  const requests = [];
+  const screen = await createDeleteScreen(el, () => {
+    const request = Promise.withResolvers();
+    requests.push(request);
+    return request.promise;
+  }, async() => {}, () => {});
+  parent.addChildApp('delete', screen);
+  try {
+    await parent.start();
+    const first = screen.open('first');
+    await new Promise(done => setImmediate(done));
+    await parent.stop();
+    requests[0].resolve({ label: 'Old' });
+    assert.equal(await first, false);
+    await parent.start();
+    await screen.start();
+    const second = screen.open('second');
+    await new Promise(done => setImmediate(done));
+    screen.getRegion().show(new View({ template: () => 'Replacement' }));
+    requests[1].resolve({ label: 'Late' });
+    assert.equal(await second, false);
+    assert.equal(el.textContent, 'Replacement');
+  } finally {
+    await parent.destroy();
+    el.remove();
+  }
 });

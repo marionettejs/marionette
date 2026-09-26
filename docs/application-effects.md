@@ -1,5 +1,13 @@
 # Own effects explicitly
 
+Start with [application composition](./application-composition.md). Initial
+loading and display belong to Application preparation. The helpers here handle
+specific lifetimes that remain after choosing that owner: persistent writes,
+active-run external resources, and independent replacement requests. They must
+not become a separate feature lifecycle or replace managed View events and
+owner-lifetime subscriptions.
+
+
 Application `stateEvents` deliver during the active run, following `isRunning()`.
 Seed state before activation and read its current value in `onStart`; pending stop
 permission for stop/restart leaves delivery active until stopping succeeds.
@@ -46,37 +54,36 @@ import { Application, View } from 'marionette';
 
 const Editor = View.extend({
   template: () => '<p role="status">Ready</p>',
-  showStatus(message) { this.el.querySelector('[role="status"]').textContent = message; }
+  ui: { status: '[role="status"]' },
+  showStatus(message) { this.getUI('status')[0].textContent = message; }
 });
 
-export function createEditor({ el, saveRecord, navigate }) {
-  const Feature = Application.extend({
-    onStart() { this.showView(new Editor()); },
-    async save(value) {
-      const screen = this.getView();
-      if (!this.isRunning() || !screen || screen.isDestroyed()) { return false; }
-      const request = {};
-      this.latestSave = request;
-      const isCurrent = () => this.latestSave === request && this.isRunning() &&
-        this.getView() === screen && !screen.isDestroyed();
-      try {
-        const saved = await saveRecord(value);
-        if (!isCurrent()) { return false; }
-        screen.showStatus('Saved');
-        navigate(saved);
-        return true;
-      } catch {
-        if (!isCurrent()) { return false; }
-        screen.showStatus('Could not save');
-        return false;
-      }
+export const EditorApplication = Application.extend({
+  onStart() { this.showView(new Editor()); },
+  async save(value) {
+    const screen = this.getView();
+    if (!this.isRunning() || !screen || screen.isDestroyed()) { return false; }
+    const request = {};
+    this.latestSave = request;
+    const isCurrent = () => this.latestSave === request && this.isRunning() &&
+      this.getView() === screen && !screen.isDestroyed();
+    try {
+      const saved = await this.getOption('saveRecord')(value);
+      if (!isCurrent()) { return false; }
+      screen.showStatus('Saved');
+      this.getOption('navigate')(saved);
+      return true;
+    } catch {
+      if (!isCurrent()) { return false; }
+      screen.showStatus('Could not save');
+      return false;
     }
-  });
-  return new Feature({ region: { el } });
-}
+  }
+});
 ```
 
-Stopping destroys the owned root. Restart creates a different root, so a late save
+Construct `new EditorApplication({ region: { el }, saveRecord, navigate })` and
+await its `start()` before saving. Stopping destroys the owned root. Restart creates a different root, so a late save
 cannot update it even if `isRunning()` is true again. Replacing the displayed root
 also invalidates completion without requiring an Application stop. Request identity
 handles overlapping saves on the same screen; it does not serialize server writes.
@@ -120,7 +127,7 @@ export function createDraftStore(saveRecord) {
 }
 ```
 
-Connect this store to `createEditor` above by supplying
+Connect this store to `EditorApplication` above by supplying
 `saveRecord: id => drafts.save(id)`. Record edits with `drafts.set(id, text)` and
 call `editor.save(id)`. The store reconciles the draft before its promise resolves;
 only then does the editor's `isCurrent()` check decide whether to show success or
@@ -135,7 +142,7 @@ policy and does not prove the server canceled a write. No framework recovery or
 automatic request cancellation is implied.
 
 The [installed completion checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/completion.mjs)
-execute this helper together with `createEditor`, replacing the View before late
+execute this helper together with `EditorApplication`, replacing the View before late
 success and failure and checking retained drafts and unchanged replacement UI.
 
 ## Choose when effects end
@@ -180,20 +187,18 @@ abort. They do not force that provider's Promise to settle or undo its own effec
 ```javascript
 import { Application } from 'marionette';
 
-export function createPreparedFeature({ load, validate, commit }) {
-  const Feature = Application.extend({
-    async prepareStart(options, { signal }) {
-      const value = await load({ signal });
-      if (signal.aborted) { return; }
-      await validate(value, { signal });
-      if (signal.aborted) { return; }
-      commit(value);
-    }
-  });
-  return new Feature();
-}
+export const PreparedFeature = Application.extend({
+  async prepareStart(options, { signal }) {
+    const value = await this.getOption('load')({ signal });
+    if (signal.aborted) { return; }
+    await this.getOption('validate')(value, { signal });
+    if (signal.aborted) { return; }
+    this.getOption('commit')(value);
+  }
+});
 ```
 
+Construct `new PreparedFeature({ load, validate, commit })` and await `start()`.
 If stop cancels startup while validation is pending, resolving validation later
 must not call `commit`. The second check is necessary even though the first check
 passed. Likewise, a newer successful start cannot authorize the old operation's
@@ -285,66 +290,67 @@ export function createEffects() {
 }
 
 const StatusView = View.extend({
-  template: false,
-  update(label, filter) { this.el.textContent = `${label}: ${filter}`; }
+  template: () => '<span></span>',
+  ui: { status: 'span' },
+  update(label, filter) { this.getUI('status')[0].textContent = `${label}: ${filter}`; }
 });
 
 // load reads feature metadata, independently of the current filter.
-export function createStatusFeature({ el, state, channel, load, beforeStop = async() => {}, tick = () => {} }) {
-  const Feature = Application.extend({
-    updateDisplay() {
-      this.getView()?.update(this.label, this.getState().get('filter'));
-    },
-    async prepareStart(options, { signal }) {
-      this.effects?.dispose();
-      // Seed before subscribing. The source is borrowed and survives each run.
-      if (state.get('filter') === undefined) { state.set('filter', 'open'); }
-      const effects = createEffects();
-      this.effects = effects;
-      const cancel = () => effects.dispose();
-      signal.addEventListener('abort', cancel, { once: true });
-      this.releaseReadiness = () => signal.removeEventListener('abort', cancel);
-      effects.add(this.releaseReadiness);
+export const StatusFeature = Application.extend({
+  updateDisplay() {
+    this.getView()?.update(this.label, this.getState().get('filter'));
+  },
+  async prepareStart(options, { signal }) {
+    this.effects?.dispose();
+    const state = this.getState();
+    const channel = this.getOption('channel');
+    // Seed before subscribing. The source is borrowed and survives each run.
+    if (state.get('filter') === undefined) { state.set('filter', 'open'); }
+    const effects = createEffects();
+    this.effects = effects;
+    const cancel = () => effects.dispose();
+    signal.addEventListener('abort', cancel, { once: true });
+    this.releaseReadiness = () => signal.removeEventListener('abort', cancel);
+    effects.add(this.releaseReadiness);
 
-      const update = () => this.updateDisplay();
-      state.on('change:filter', update);
-      effects.add(() => state.off('change:filter', update));
-      channel.on('refresh:display', update);
-      effects.add(() => channel.off('refresh:display', update));
-      const currentFilter = () => state.get('filter');
-      channel.reply('current:filter', currentFilter);
-      effects.add(() => channel.stopReplying('current:filter', currentFilter));
-      const interval = setInterval(tick, 1000);
-      effects.add(() => clearInterval(interval));
+    const update = () => this.updateDisplay();
+    state.on('change:filter', update);
+    effects.add(() => state.off('change:filter', update));
+    channel.on('refresh:display', update);
+    effects.add(() => channel.off('refresh:display', update));
+    const currentFilter = () => state.get('filter');
+    channel.reply('current:filter', currentFilter);
+    effects.add(() => channel.stopReplying('current:filter', currentFilter));
+    const interval = setInterval(this.getOption('tick') || (() => {}), 1000);
+    effects.add(() => clearInterval(interval));
 
-      try {
-        const metadata = await load({ signal: effects.signal });
-        if (effects.signal.aborted) { return; }
-        this.label = metadata.label;
-      } catch (error) {
-        const canceled = effects.signal.aborted;
-        effects.dispose();
-        if (!canceled) { throw error; }
-      }
-    },
-    onStart() {
-      // Successful readiness ends; the effect scope continues until deactivation.
-      this.releaseReadiness();
-      this.showView(new StatusView());
-      this.updateDisplay();
-    },
-    prepareStop(options, context) {
-      // A rejected permission leaves the running feature and its effects intact.
-      return beforeStop(options, context);
-    },
-    onStop() { this.effects?.dispose(); },
-    onBeforeDestroy() { this.effects?.dispose(); }
-  });
-  return new Feature({ region: { el }, state });
-}
+    try {
+      const metadata = await this.getOption('load')({ signal: effects.signal });
+      if (effects.signal.aborted) { return; }
+      this.label = metadata.label;
+    } catch (error) {
+      const canceled = effects.signal.aborted;
+      effects.dispose();
+      if (!canceled) { throw error; }
+    }
+  },
+  onStart() {
+    // Successful readiness ends; the effect scope continues until deactivation.
+    this.releaseReadiness();
+    this.showView(new StatusView());
+    this.updateDisplay();
+  },
+  prepareStop(options, context) {
+    // A rejected permission leaves the running feature and its effects intact.
+    return this.getOption('beforeStop')?.(options, context);
+  },
+  onStop() { this.effects?.dispose(); },
+  onBeforeDestroy() { this.effects?.dispose(); }
+});
 ```
 
-Call and await the returned Application's `start`, `stop`, `restart`, and `destroy`
+Construct `new StatusFeature({ region: { el }, state, channel, load, beforeStop, tick })`.
+Call and await the Application's `start`, `stop`, `restart`, and `destroy`
 methods normally. The hooks also run when an owning Application stops or destroys
 this feature. No wrapper must intercept those calls. `updateDisplay` uses a public
 View method and reads state at the time of display; the borrowed Model is never

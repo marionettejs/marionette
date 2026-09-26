@@ -8,6 +8,7 @@
   "test/fixtures/docs-application-guides/completion.mjs",
   "test/fixtures/docs-application-guides/effects.mjs",
   "test/fixtures/docs-application-guides/event-contracts.mjs",
+  "test/fixtures/docs-application-guides/feed.mjs",
   "test/fixtures/docs-application-guides/preparation.mjs",
   "test/fixtures/docs-application-guides/resource-cleanup.mjs",
   "test/fixtures/docs-application-guides/workspace.mjs",

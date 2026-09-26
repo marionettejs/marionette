@@ -53,29 +53,33 @@ export const List = runtime.CollectionView.extend({
   }
 });
 
-export function mountList(host, records, observeRow) {
-  const collection = new Collection(records);
-  const list = new List({ collection, childViewOptions: { observeRow } });
-  const region = new runtime.Region({ el: host });
-  region.show(list);
-  return {
-    list,
-    collection,
-    destroy() {
-      region.destroy();
-      collection.destroy();
-    }
-  };
-}
+export const ListScreen = runtime.View.extend({
+  template: () => '<div data-list></div>',
+  regions: { list: '[data-list]' },
+  childViewTriggers: { selection: 'selection' },
+  initialize({ records, observeRow }) {
+    this.collection = new Collection(records);
+    this.observeRow = observeRow;
+  },
+  onRender() {
+    this.showChildView('list', new List({
+      collection: this.collection, childViewOptions: { observeRow: this.observeRow }
+    }));
+  },
+  onDestroy() { this.collection.destroy(); }
+});
+
 ```
 
-Call `const feature = mountList(document.querySelector('#list'), records)` with an empty connected
-host and records such as `[{ id: 1, title: 'First post' }]`. Listen to
-`feature.list.on('selection', id => ...)` for application selection updates.
+Construct `new ListScreen({ records, observeRow })` with records such as
+`[{ id: 1, title: 'First post' }]` and show it through a Region from `runtime`.
+The coordinating owner uses `listenTo(feature, 'selection', handler)` to observe
+selection. The screen creates and owns its Collection; it releases it in
+`onDestroy`, including when its Region replaces the screen.
 Call `feature.collection.add(record)`, `remove(id)`, or `move(id, index)` to
 change membership or order. Surviving child Views and their input elements keep
 their identity. Selection updates only button attributes; it does not render the
-list or replace the input. Destroy the feature when its host is removed.
+list or replace the input. Let the owning Region destroy the feature before its host is removed.
 
 This example deliberately leaves draft edits in the input. Persist edits to
 application state when they must survive row removal. The targeted `modelEvents`

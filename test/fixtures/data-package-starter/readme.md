@@ -42,7 +42,11 @@ with registry packages: identical version strings can describe different sources
 The repository directory is the development template. Packaging generates its
 runtime dependencies; candidate construction supplies a complete tarball lock.
 
-Start with `workspace.ts`; `main.ts` owns browser setup and a demonstration loader.
+Start with `workspace.ts` for Application readiness and child ownership, and
+`workspace-views.ts` for presentation and child events. `setup.ts` configures the
+shared runtime once. `main.ts` owns browser setup; `notes.ts` provides the data client
+imported by both Applications. Both use `Application.extend`; options configure the
+mounting Region. Tests mock the data client directly.
 Edit a title without opening it, then reverse the rows: the input and draft survive.
 Open the first note and quickly open the second: the late first load cannot replace
 it. Leaving the page or a Vite code update destroys the workspace and cancels work.
@@ -60,3 +64,9 @@ developer tools. `eslint.config.mjs` enables the public Marionette consumer rule
 Use `node_modules/marionette/docs/development.md` for the complete workflow
 and matching troubleshooting and API guidance. The adjacent manifest records the
 source revision. A package version alone cannot identify an unpublished build.
+
+Initial records and selected details use `prepareStart` with cancellation signals.
+Selection replaces only the detail feature. List drafts survive selection/reordering;
+restarting the workspace reloads records and resets drafts. Clean rows observe external
+title changes; dirty drafts win until Open commits them. Region replacement and parent
+Application teardown release the same owners as direct destruction.

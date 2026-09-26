@@ -201,3 +201,24 @@ retrieval or implementation trials can expose gaps; record their scope and failu
 Follow the [evaluation plan](../../benchmarks/agent/evaluation-plan.md) for release
 usability evidence and separate comparative research. A small editorial trial does
 not complete either evaluation.
+
+## Review examples as application teaching
+
+Apply [application composition](../application-composition.md) to every task guide,
+copyable example, and starter. Runnable code must demonstrate the recommended
+owner; prose warnings cannot repair a competing implementation beside them.
+
+Review startup first: loading UI plus asynchronous prerequisites ordinarily belong
+to Application preparation. Explain retained-screen refresh as a distinct case.
+Keep DOM updates in Views, child communication explicit, and data authoritative.
+Factories may construct owners; do not teach a second lifecycle around them.
+
+Exercise cleanup through Region replacement and parent Application lifecycle, not
+only through a demo's custom destroy function. Test direct observable-source changes
+and editable identity. Include the ownership decision in the retrieved section,
+not only an introductory page that a task-directed reader may never open.
+
+Use a realistic application as a design reference, while preserving its provider,
+router, and product-specific policies in that application. The upstream examples
+must be self-contained and use only supported public package APIs. Do not import
+application code or copy private domain data into documentation.

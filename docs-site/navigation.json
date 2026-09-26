@@ -12,6 +12,12 @@
     "section": "Start here"
   },
   {
+    "source": "docs/application-composition.md",
+    "route": "docs/application-composition",
+    "title": "Application composition",
+    "section": "Start here"
+  },
+  {
     "source": "docs/list-composition.md",
     "route": "docs/list-composition",
     "title": "Interactive lists",

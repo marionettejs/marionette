@@ -50,6 +50,7 @@ application task guide; read one guide before following links for open questions
 <!-- task-routes:start -->
 | Task | Packaged page |
 | --- | --- |
+| Compose an application or paginated feed | `docs/application-composition.md` |
 | Build a first screen | `docs/quick-start.md` |
 | Start a new project | `docs/development.md` |
 | Edit and save a form | `docs/forms-and-accessibility.md` |
@@ -81,7 +82,12 @@ DataApi, StateApi, renderer, DomApi, EventDelegator, and router are independent
 choices; a Backbone router does not require Backbone data. Register configuration
 before consumers. Use templates, named Regions, and public lifecycle APIs; domain
 records belong in data sources, not child View traversal. For application design,
-including personalized examples, use `docs/agents.md`.
+read the complete paginated feature in `docs/application-composition.md`.
+Feed loading, pagination/retry, route activation, and workflow coordination
+generally belong to a feature Application; cleanup capability alone does not make
+a View the right workflow owner. Loading-then-display normally belongs in
+Application readiness; Views own DOM and emit intent to their owner. Plain
+helpers serve those owners rather than supplying a parallel feature lifecycle.
 
 ## Completion
 

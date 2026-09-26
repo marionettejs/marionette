@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
-import { createWorkspaceResults } from './dist/workspace-results.js';
+import { WorkspaceResults } from './dist/workspace-results.js';
 
 const dom = new JSDOM('<!doctype html><main id="workspace"></main>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 const loads = new Map();
-const workspace = createWorkspaceResults({
-  el: document.querySelector('#workspace'),
+const workspace = new WorkspaceResults({
+  region: { el: document.querySelector('#workspace') },
   loadItems(query, { signal }) {
     const load = { signal, ...Promise.withResolvers() };
     loads.set(query, load);
@@ -15,14 +15,16 @@ const workspace = createWorkspaceResults({
   }
 });
 
+const listOwner = workspace.getChildApp('list');
+const sidebarOwner = workspace.getChildApp('sidebar');
 try {
-  assert.equal(await workspace.application.start(), true);
-  assert.equal(workspace.application.getChildApp('list'), workspace.list);
-  assert.equal(workspace.application.getChildApp('sidebar'), workspace.sidebar);
-  assert.equal(workspace.list.isRunning(), true);
-  assert.equal(workspace.sidebar.isRunning(), true);
-  const shell = workspace.application.getView();
-  const sidebar = workspace.sidebar.getView();
+  assert.equal(await workspace.start(), true);
+  assert.equal(workspace.getChildApp('list'), listOwner);
+  assert.equal(workspace.getChildApp('sidebar'), sidebarOwner);
+  assert.equal(workspace.getChildApp('list').isRunning(), true);
+  assert.equal(workspace.getChildApp('sidebar').isRunning(), true);
+  const shell = workspace.getView();
+  const sidebar = workspace.getChildApp('sidebar').getView();
   const input = document.querySelector('aside input');
   const draft = document.querySelector('aside textarea');
   input.checked = true;
@@ -32,7 +34,7 @@ try {
   loads.get('initial').resolve([{ id: 1, name: 'First' }]);
   assert.equal(await initial, true);
   const firstCard = document.querySelector('li');
-  const firstModel = workspace.items.get(1);
+  const firstModel = listOwner.items.get(1);
 
   const slow = workspace.refresh('slow');
   assert.equal(firstCard.textContent, 'First', 'loading keeps current cards');
@@ -42,13 +44,13 @@ try {
   assert.equal(await fast, true);
   loads.get('slow').resolve([{ id: 3, name: 'Stale' }]);
   assert.equal(await slow, false);
-  assert.equal(workspace.application.getView(), shell);
-  assert.equal(workspace.sidebar.getView(), sidebar);
+  assert.equal(workspace.getView(), shell);
+  assert.equal(workspace.getChildApp('sidebar').getView(), sidebar);
   assert.equal(document.querySelector('aside input'), input);
   assert.equal(document.querySelector('aside textarea'), draft);
   assert.equal(input.checked, true);
   assert.equal(draft.value, 'Keep this draft');
-  assert.equal(workspace.items.get(1), firstModel);
+  assert.equal(listOwner.items.get(1), firstModel);
   assert.equal(document.querySelector('li'), firstCard);
   assert.equal(firstCard.textContent, '<b>Updated</b>');
   assert.equal(firstCard.querySelector('b'), null);
@@ -87,7 +89,7 @@ try {
   assert.equal(draft.value, 'Keep this draft');
 
   const pendingStop = workspace.refresh('pending-stop');
-  assert.equal(await workspace.application.stop(), true);
+  assert.equal(await workspace.stop(), true);
   assert.equal(loads.get('pending-stop').signal.aborted, true);
   loads.get('pending-stop').resolve([{ id: 4, name: 'Too late' }]);
   assert.equal(await pendingStop, false);
@@ -96,26 +98,26 @@ try {
   assert.equal(await workspace.refresh('while-stopped'), false);
   assert.equal(loads.has('while-stopped'), false);
 
-  assert.equal(await workspace.application.start(), true);
-  assert.notEqual(workspace.application.getView(), shell);
-  assert.equal(workspace.list.isRunning(), true);
-  assert.equal(workspace.sidebar.isRunning(), true);
+  assert.equal(await workspace.start(), true);
+  assert.notEqual(workspace.getView(), shell);
+  assert.equal(workspace.getChildApp('list').isRunning(), true);
+  assert.equal(workspace.getChildApp('sidebar').isRunning(), true);
   const newInput = document.querySelector('aside input');
   assert.notEqual(newInput, input, 'restart of active lifetime replaces sidebar UI');
   assert.notEqual(document.querySelector('aside textarea'), draft);
   const pendingDestroy = workspace.refresh('pending-destroy');
-  assert.equal(await workspace.application.destroy(), true);
+  assert.equal(await workspace.destroy(), true);
   assert.equal(loads.get('pending-destroy').signal.aborted, true);
   loads.get('pending-destroy').reject(new Error('Late failure'));
   assert.equal(await pendingDestroy, false);
-  assert.equal(workspace.list.isDestroyed(), true);
-  assert.equal(workspace.sidebar.isDestroyed(), true);
+  assert.equal(listOwner.isDestroyed(), true);
+  assert.equal(sidebarOwner.isDestroyed(), true);
   assert.equal(document.querySelector('#workspace').children.length, 0);
   console.log('Child refresh example passed: independent ownership, retained cards/sidebar, stale effects, retry, stop and destroy.');
 } finally {
   loads.forEach(load => load.resolve([]));
-  if (!workspace.application.isDestroyed()) { await workspace.application.destroy(); }
-  workspace.items.destroy();
+  if (!workspace.isDestroyed()) { await workspace.destroy(); }
+  assert.equal(listOwner.items.isDestroyed(), true);
   dom.window.close();
   delete globalThis.window;
   delete globalThis.document;

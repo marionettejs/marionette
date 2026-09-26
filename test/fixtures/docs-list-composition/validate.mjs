@@ -14,16 +14,19 @@ const dom = new JSDOM('<!doctype html><main></main>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 const host = document.querySelector('main');
-const { mountList } = await import('./dist/interactive-list.js');
+const { ListScreen, runtime } = await import('./dist/interactive-list.js');
 let active = 0;
 const observeRow = () => {
   active++;
   return () => { active--; };
 };
 let feature;
+const region = new runtime.Region({ el: host });
 try {
-  feature = mountList(host, [{ id: 1, title: '<First>' }, { id: 2, title: 'Second' }], observeRow);
-  const { list, collection } = feature;
+  feature = new ListScreen({ records: [{ id: 1, title: '<First>' }, { id: 2, title: 'Second' }], observeRow });
+  region.show(feature);
+  const list = feature.getChildView('list');
+  const { collection } = feature;
   const survivor = list.children.findByModel(collection.get(2));
   const input = survivor.getUI('draft')[0];
   input.value = 'Uncommitted draft';
@@ -43,12 +46,13 @@ try {
   assert.equal(input.value, 'Uncommitted draft');
   assert.equal(list.el.firstElementChild, survivor.el);
   assert.equal(active, 2);
-  feature.destroy();
+  region.empty();
+  assert.equal(collection.isDestroyed(), true);
   assert.equal(survivor.isDestroyed(), true);
   assert.equal(active, 0);
   assert.equal(host.children.length, 0);
 } finally {
-  feature?.destroy();
+  region.destroy();
   dom.window.close();
   delete globalThis.window;
   delete globalThis.document;

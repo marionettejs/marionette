@@ -11,7 +11,7 @@ const code = markdown.match(/<!-- executable-example: application-active-effects
 assert.ok(code);
 const example = new URL('./dist/effects.mjs', import.meta.url);
 await writeFile(example, code[1]);
-const { createEffects, createStatusFeature } = await import(example);
+const { createEffects, StatusFeature } = await import(example);
 
 await test('documented Application effect ownership', async t => {
   const dom = new JSDOM('<!doctype html><main></main>');
@@ -26,8 +26,8 @@ await test('documented Application effect ownership', async t => {
   function fixture(overrides = {}) {
     const state = new Model();
     const channel = Radio.channel(`documented-effects-${channelNumber++}`);
-    const app = createStatusFeature({
-      el: document.querySelector('main'), state, channel,
+    const app = new StatusFeature({
+      region: { el: document.querySelector('main') }, state, channel,
       load: async() => ({ label: 'Queue' }), ...overrides
     });
     return { app, state, channel, async dispose() {
