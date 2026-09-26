@@ -1,0 +1,19 @@
+docs/application-composition.md
+  s_bae3f20545810f::t_99d8b6bb218ab2 253
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a579c51097a42daf34f77fc3331f32f2f2862195",
+  "prompts": {},
+  "sessions": {
+    "s_bae3f20545810f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0dc4c-e2a2-7602-ad97-5ee963c9a2cb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
