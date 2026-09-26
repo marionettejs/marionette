@@ -164,19 +164,24 @@ test('a document symlink to the package root is rejected before reading', async 
   assert.equal(result.stdout, '');
 });
 
-async function sectionFixture(t) {
+async function sectionFixture(t, content = '# UI\n\n## `getUI(name)`\nRead bound elements after rendering.\n\n### Results\nA NodeList, not one element.\n\n## Cleanup\nDestroy the owner.\n', assets = () => ({})) {
   const data = await fixture(t);
   const { documentSections } = await import('../../scripts/docs/sections.mjs');
-  const content = '# UI\n\n## `getUI(name)`\nRead bound elements after rendering.\n\n### Results\nA NodeList, not one element.\n\n## Cleanup\nDestroy the owner.\n';
   await writeFile(resolve(data.docs, 'docs/routing.md'), content);
   data.manifest.pages[0].sha256 = hash(content);
-  const index = JSON.stringify({ schemaVersion: 1, sections: documentSections('docs/routing.md', content) });
-  await writeFile(resolve(data.docs, 'docs-sections.json'), index);
-  data.manifest.assets.push({ source: 'docs-sections.json', sha256: hash(index) });
-  data.manifest.contentSha256 = hash([...data.manifest.pages, ...data.manifest.assets]
-    .sort((a, b) => a.source.localeCompare(b.source, 'en'))
-    .map(entry => `${entry.source}\0${entry.sha256}\n`).join(''));
-  await data.save();
+  const sections = documentSections('docs/routing.md', content);
+  const files = { 'docs-sections.json': JSON.stringify({ schemaVersion: 1, sections }), ...assets(sections) };
+  for (const [source, bytes] of Object.entries(files)) {
+    await writeFile(resolve(data.docs, source), bytes);
+    data.manifest.assets.push({ source, sha256: hash(bytes) });
+  }
+  data.rehash = () => {
+    data.manifest.contentSha256 = hash([...data.manifest.pages, ...data.manifest.assets]
+      .sort((a, b) => a.source.localeCompare(b.source, 'en'))
+      .map(entry => `${entry.source}\0${entry.sha256}\n`).join(''));
+    return data.save();
+  };
+  await data.rehash();
   return { ...data, content };
 }
 
@@ -212,4 +217,82 @@ test('focused lookup rejects unknown IDs, ambiguous modes, missing and tampered 
   assert.equal(result.status, 1);
   assert.match(result.stderr, /hash mismatch/);
   assert.equal(result.stdout, '');
+});
+
+const regionPage = '# Region\n\n## Index\n* [`detachView`](#detachview)\n\n## Region ownership\nA Region owns one View.\n\n## Detaching Existing Views\nCall `region.detachView()` to take the View back.\n\n### Events\n`before:detachView` fires first.\n\n## `detachView()`\nReturns the detached View.\n';
+const regionInventory = { entrypoints: [{ name: 'marionette', exports: [
+  { name: 'Region', kind: 'value', signature: 'RegionConstructor', contracts: ['region'],
+    members: { extend: '() => RegionConstructor' }, instance: { detachView: '() => View | undefined', show: '(view: View) => this' },
+    operationContracts: { instance: { detachView: ['region'] } } },
+  { name: 'RegionInstance', kind: 'type', signature: 'RegionInstance', contracts: ['region'], instance: { detachView: '() => View' } },
+] }] };
+const regionSemantics = { contracts: [{ id: 'region', docs: [{ file: 'docs/routing.md', heading: 'Region ownership' }], diagnostics: ['MN0003'] }] };
+
+async function symbolFixture(t) {
+  const { symbolIndex } = await import('../../scripts/docs/symbols.mjs');
+  return sectionFixture(t, regionPage, sections => ({
+    'docs-symbols.json': JSON.stringify(symbolIndex(regionInventory, regionSemantics, sections)),
+  }));
+}
+
+test('symbol lookup returns exact export signatures, members and reviewed contract sections with provenance', async t => {
+  const data = await symbolFixture(t);
+  const result = data.run('--symbol', 'Region');
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(result.stdout);
+  assert.equal(output.contentSha256, data.manifest.contentSha256);
+  assert.deepEqual(output.matches.map(match => [match.name, match.kind, match.signature]),
+    [['Region', 'value', 'RegionConstructor']]);
+  assert.deepEqual(output.matches[0].staticMembers, ['extend']);
+  assert.deepEqual(output.matches[0].instanceMembers, ['detachView', 'show']);
+  assert.deepEqual(output.contracts.region.diagnostics, ['MN0003']);
+  assert.deepEqual(output.contracts.region.sections.map(section => [section.heading, section.ancestors]),
+    [['Region ownership', ['Region']]]);
+  const section = data.run('--section', output.contracts.region.sections[0].id);
+  assert.match(section.stdout, /A Region owns one View\./);
+});
+
+test('member lookup names the sections that use it, most specific and named headings first', async t => {
+  const data = await symbolFixture(t);
+  const qualified = JSON.parse(data.run('--symbol', 'Region.detachView').stdout);
+  const bare = JSON.parse(data.run('--symbol', 'detachView').stdout);
+  assert.deepEqual(bare.matches, qualified.matches, 'type-only exports do not repeat runtime members');
+  const [match] = qualified.matches;
+  assert.equal(match.access, 'instance');
+  assert.equal(match.signature, '() => View | undefined');
+  assert.deepEqual(match.sections.map(section => section.heading), ['detachView()', 'Detaching Existing Views']);
+  assert.equal(match.omittedSections, 0);
+  const inherited = JSON.parse(data.run('--symbol', 'Region.show').stdout).matches[0];
+  assert.deepEqual(inherited.contracts, ['region']);
+  assert.deepEqual(inherited.sections, [], 'a member absent from code examples has no mention');
+  assert.deepEqual(JSON.parse(data.run('--symbol', 'RegionInstance.detachView').stdout).matches, []);
+});
+
+test('symbol lookup reports absent names honestly and rejects malformed queries and indexes', async t => {
+  const data = await symbolFixture(t);
+  for (const query of ['Missing', 'Region.missing', 'constructor', 'Region.constructor']) {
+    const result = data.run('--symbol', query);
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(JSON.parse(result.stdout).matches, [], query);
+  }
+  for (const query of ['Region.detachView.x', 'region view', '1Region']) {
+    const result = data.run('--symbol', query);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /export name, Export\.member, or member name/);
+  }
+  assert.match((await sectionFixture(t)).run('--symbol', 'Region').stderr, /no symbol index/);
+  const symbols = resolve(data.docs, 'docs-symbols.json');
+  await writeFile(symbols, '{}');
+  assert.match(data.run('--symbol', 'Region').stderr, /hash mismatch/);
+  for (const [bytes, error] of [['{}', /Unsupported documentation symbol index/],
+    [JSON.stringify({ schemaVersion: 1, contracts: {}, symbols: [{ entrypoint: 'marionette', name: 'Region', signature: 'x', contracts: ['region'] }] }), /Invalid documentation symbol index/],
+    [JSON.stringify({ schemaVersion: 1, contracts: { region: { sections: ['docs/routing.md#L99'], diagnostics: [] } }, symbols: [] }), /Invalid documentation symbol index/]]) {
+    await writeFile(symbols, bytes);
+    data.manifest.assets.find(asset => asset.source === 'docs-symbols.json').sha256 = hash(bytes);
+    await data.rehash();
+    const result = data.run('--symbol', 'Region');
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, error);
+    assert.equal(result.stdout, '');
+  }
 });

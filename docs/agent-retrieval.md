@@ -2,8 +2,8 @@
 
 Use the [task table](./agents.md#read-for-the-task) to choose one starting guide.
 For a first screen, read the [quick start](./quick-start.md); for an API question,
-search its exact symbol. Once imports, setup, updates, and cleanup are clear,
-implement and check one public interaction before broadening the search.
+look up its exact name with `--symbol`. Once imports, setup, updates, and cleanup
+are clear, implement and check one public interaction before broadening the search.
 
 Reuse the package identity and integrations recorded in the application's
 instructions until its dependencies, configuration, or workspace change.
@@ -50,6 +50,24 @@ an excerpt is not guaranteed to contain every contract a task needs. Section
 lookup requires an artifact containing `docs-sections.json` (starting with RC.2).
 For earlier installed artifacts, use `--page` and search that local Markdown file.
 The helper never substitutes another package or the hosted corpus.
+
+For a known public name, look it up exactly instead of searching prose:
+
+```sh
+node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --symbol View
+node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --symbol Region.detachView
+node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --symbol prepareStart
+```
+
+`--symbol` accepts an export name, `Export.member`, or a member name alone. An
+export returns its entrypoint, declared signature, member names, and reviewed
+contracts. A member returns its signature and up to five sections on its contract
+pages that use it in code, with the count omitted. Each contract lists its owning
+sections and diagnostic codes. Pass any section ID to `--section`. Names match
+exactly and case-sensitively; `matches: []` means this installed package has no
+such public export or member. Signatures come from the installed declarations'
+contract inventory, not a type checker; consult the declarations for full types.
+Symbol lookup requires an artifact containing `docs-symbols.json`.
 
 Use `--page` directly when the source path is known; `--list` is only needed for
 discovery. Both modes return provenance, so listing first is unnecessary.

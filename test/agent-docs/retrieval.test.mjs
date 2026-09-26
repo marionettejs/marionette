@@ -4,7 +4,9 @@ import { resolve } from 'node:path';
 import test from 'node:test';
 import { documentSections, isConsumerPage } from '../../scripts/docs/sections.mjs';
 import { skillRoutes } from '../../scripts/docs/agent-routes.mjs';
+import { symbolIndex } from '../../scripts/docs/symbols.mjs';
 import { searchSections } from '../../skills/marionette/scripts/search.mjs';
+import { findSymbols } from '../../skills/marionette/scripts/symbols.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 
@@ -88,5 +90,43 @@ test('real consumer questions retrieve the required contract without reading a f
     for (const fact of facts) { assert.ok(text.includes(fact), `${query}: missing ${fact}`); }
     assert.ok(match.characters < 10000, `${query}: requires a full reference`);
     console.log(`${query}: rank ${results.indexOf(match) + 1}, ${match.characters} characters, ${match.id}`);
+  }
+});
+
+test('symbol index resolves every reviewed contract heading to exactly one consumer section', () => {
+  const sections = documentSections('docs/region.md', '# Region\n\n## `show(view)`\nShow.\n\n## Again\nOne.\n\n## Again\nTwo.\n');
+  const inventory = contracts => ({ entrypoints: [{ name: 'marionette', exports: [{ name: 'Region', kind: 'value',
+    signature: 'RegionConstructor', contracts, instance: { show: '(view) => this' } }] }] });
+  const semantics = heading => ({ contracts: [{ id: 'region', docs: [{ file: 'docs/region.md', heading }], diagnostics: [] }] });
+  const index = symbolIndex(inventory(['region']), semantics('`show(view)`'), sections);
+  assert.deepEqual(index.contracts.region.sections, ['docs/region.md#L3']);
+  assert.deepEqual(index.symbols[0].instance.show.contracts, ['region'], 'members inherit the export contracts');
+  assert.throws(() => symbolIndex(inventory(['region']), semantics('Missing'), sections), /matches 0/);
+  assert.throws(() => symbolIndex(inventory(['region']), semantics('Again'), sections), /matches 2/);
+  assert.throws(() => symbolIndex(inventory(['absent']), semantics('`show(view)`'), sections), /Unknown API contract: absent/);
+});
+
+test('real public members resolve to the sections that document them', async() => {
+  const pages = JSON.parse(await readFile(resolve(root, 'docs-site/navigation.json'), 'utf8')).filter(isConsumerPage);
+  const files = new Map(await Promise.all(pages.map(async page =>
+    [page.source, { content: await readFile(resolve(root, page.source)) }])));
+  const sections = pages.flatMap(page => documentSections(page.source, files.get(page.source).content.toString('utf8')));
+  const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
+  const index = symbolIndex(await json('config/api-contracts/inventory.json'),
+    await json('config/api-contracts/semantics.json'), sections);
+  const cases = [
+    ['Region.detachView', 'docs/marionette.region.md', 'Detaching Existing Views'],
+    ['DataApi.observeCollection', 'docs/data.api.md', 'Collection observations'],
+    ['Application.prepareStart', 'docs/marionette.application.md', 'Preparation methods and notifications'],
+    ['View.childViewTriggers', 'docs/events.md', 'Using CollectionView\'s childViewTriggers'],
+    ['View.getUI', 'docs/dom.interactions.md', 'getUI(name)'],
+    ['View.renderAttributes', 'docs/marionette.view.md', 'Refreshing Root Attributes'],
+  ];
+  for (const [query, source, heading] of cases) {
+    const { matches } = findSymbols(index, sections, files, query);
+    const found = matches[0]?.sections.find(section => section.id.startsWith(`${source}#`) && section.heading.startsWith(heading));
+    assert.ok(found, `${query}: expected ${heading}, got ${JSON.stringify(matches[0]?.sections.map(section => section.heading))}`);
+    assert.ok(matches[0].sections.length <= 5);
+    console.log(`${query}: position ${matches[0].sections.indexOf(found) + 1}, ${found.characters} characters, ${found.id}`);
   }
 });
