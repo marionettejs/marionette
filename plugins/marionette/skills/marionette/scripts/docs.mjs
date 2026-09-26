@@ -4,7 +4,7 @@ import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { searchSections } from './search.mjs';
 import { findSymbols, validateSymbolIndex } from './symbols.mjs';
 
-const usage = 'Usage: node docs.mjs [--project PATH] [--package-root PATH] [--list | --page SOURCE | --search QUERY | --section ID | --symbol NAME]';
+const usage = 'Usage: node docs.mjs [--project PATH] [--package-root PATH] [--list | --page SOURCE | --search QUERY | --section ID | --symbol NAME | --diagnostic MNxxxx]';
 const hash = value => createHash('sha256').update(value).digest('hex');
 const json = async path => JSON.parse(await readFile(path, 'utf8'));
 
@@ -38,10 +38,10 @@ async function main() {
     if (argument === '--list') {
       if (mode) { throw new Error(usage); }
       mode = 'list';
-    } else if (['--project', '--package-root', '--page', '--search', '--section', '--symbol'].includes(argument)) {
+    } else if (['--project', '--package-root', '--page', '--search', '--section', '--symbol', '--diagnostic'].includes(argument)) {
       const value = args[++index];
       if (!value || value.startsWith('--')) { throw new Error(usage); }
-      if (['--page', '--search', '--section', '--symbol'].includes(argument)) {
+      if (['--page', '--search', '--section', '--symbol', '--diagnostic'].includes(argument)) {
         if (mode) { throw new Error(usage); }
         mode = argument.slice(2);
       }
@@ -95,7 +95,36 @@ async function main() {
     sourceDirty: manifest.sourceDirty,
     contentSha256: digest,
   };
-  if (mode === 'search' || mode === 'section' || mode === 'symbol') {
+  if (mode === 'diagnostic') {
+    if (!/^MN[0-9]{4}$/.test(options.diagnostic)) { throw new Error('Diagnostic lookup requires an exact MNxxxx code.'); }
+    const source = 'config/diagnostics/catalog.json';
+    const entry = manifest.assets.find(asset => asset.source === source);
+    if (!entry) { throw new Error('This artifact has no diagnostic catalog.'); }
+    const catalog = JSON.parse(files.get(source).content.toString('utf8'));
+    if (catalog?.schemaVersion !== 2 || !Array.isArray(catalog.diagnostics) || !catalog.diagnostics.length) {
+      throw new Error('Unsupported or incomplete diagnostic catalog.');
+    }
+    const codes = new Set();
+    // Check the lookup record's shape and identity. Full semantic catalog
+    // validation remains the publishing check, not a second schema here.
+    for (const diagnostic of catalog.diagnostics) {
+      if (!diagnostic || typeof diagnostic.code !== 'string' || !/^MN[0-9]{4}$/.test(diagnostic.code) || codes.has(diagnostic.code) ||
+          !['defined', 'active', 'deprecated', 'retired'].includes(diagnostic.status) ||
+          !['slug', 'category', 'severity', 'remediation', 'benchmarkCategory'].every(field =>
+            typeof diagnostic[field] === 'string' && diagnostic[field].trim()) ||
+          !['objects', 'surfaces'].every(field => Array.isArray(diagnostic[field]) && diagnostic[field].length &&
+            diagnostic[field].every(value => typeof value === 'string' && value.trim())) ||
+          diagnostic.docsAnchor !== `/errors/${diagnostic.code}/` ||
+          (diagnostic.status === 'deprecated' ? !/^MN[0-9]{4}$/.test(diagnostic.replacementCode) :
+            diagnostic.replacementCode !== undefined)) {
+        throw new Error('Invalid or duplicate diagnostic catalog entry.');
+      }
+      codes.add(diagnostic.code);
+    }
+    const diagnostic = catalog.diagnostics.find(value => value.code === options.diagnostic);
+    if (!diagnostic) { throw new Error(`Unknown diagnostic code: ${options.diagnostic}`); }
+    console.log(JSON.stringify({ ...provenance, source, sha256: entry.sha256, diagnostic }, null, 2));
+  } else if (mode === 'search' || mode === 'section' || mode === 'symbol') {
     const entry = files.get('docs-sections.json');
     if (!entry) { throw new Error('This artifact has no section index. Use --page or search its installed Markdown directly.'); }
     const index = JSON.parse(entry.content.toString('utf8'));

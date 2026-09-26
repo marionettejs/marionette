@@ -318,3 +318,105 @@ test('symbol lookup reports absent names honestly and rejects malformed queries 
     assert.equal(result.stdout, '');
   }
 });
+
+async function diagnosticFixture(t) {
+  const data = await fixture(t);
+  const source = 'config/diagnostics/catalog.json';
+  const path = resolve(data.docs, source);
+  const catalog = JSON.parse(await readFile(resolve(repository, source), 'utf8'));
+  await mkdir(dirname(path), { recursive: true });
+  const asset = { source, sha256: '' };
+  data.manifest.assets.push(asset);
+  const saveCatalog = async value => {
+    const content = JSON.stringify(value);
+    await writeFile(path, content);
+    asset.sha256 = hash(content);
+    data.manifest.contentSha256 = hash([...data.manifest.pages, ...data.manifest.assets]
+      .sort((a, b) => a.source.localeCompare(b.source, 'en'))
+      .map(entry => `${entry.source}\0${entry.sha256}\n`).join(''));
+    await data.save();
+  };
+  await saveCatalog(catalog);
+  return { ...data, source, path, catalog, asset, saveCatalog };
+}
+
+test('exact diagnostic lookup returns every catalog entry with installed provenance, including retired codes', async t => {
+  const data = await diagnosticFixture(t);
+  for (const diagnostic of data.catalog.diagnostics) {
+    const result = data.run('--diagnostic', diagnostic.code);
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(JSON.parse(result.stdout), {
+      packageRoot: data.packageRoot,
+      packageVersion: data.manifest.packageVersion,
+      sourceRevision: data.manifest.sourceRevision,
+      sourceDirty: data.manifest.sourceDirty,
+      contentSha256: data.manifest.contentSha256,
+      source: data.source,
+      sha256: data.asset.sha256,
+      diagnostic,
+    });
+  }
+  assert.equal(JSON.parse(data.run('--diagnostic', 'MN0001').stdout).diagnostic.status, 'retired');
+  const explicit = data.run('--package-root', data.packageRoot, '--diagnostic', 'MN0037');
+  assert.equal(explicit.status, 0, explicit.stderr);
+  assert.equal(JSON.parse(explicit.stdout).diagnostic.code, 'MN0037');
+});
+
+test('diagnostic lookup rejects unknown codes and malformed or combined lookup arguments', async t => {
+  const data = await diagnosticFixture(t);
+  const unknown = data.run('--diagnostic', 'MN9999');
+  assert.equal(unknown.status, 1);
+  assert.equal(unknown.stdout, '');
+  assert.match(unknown.stderr, /Unknown diagnostic code: MN9999/);
+  for (const args of [['--diagnostic'], ['--diagnostic', 'mn0003'], ['--diagnostic', 'MN003'],
+    ['--diagnostic', ' MN0003'], ['--diagnostic', 'MN0003', '--list'],
+    ['--page', 'docs/routing.md', '--diagnostic', 'MN0003'],
+    ['--diagnostic', 'MN0003', '--search', 'MN0003'],
+    ['--diagnostic', 'MN0003', '--symbol', 'Region'],
+    ['--symbol', 'Region', '--diagnostic', 'MN0003'],
+    ['--section', 'some-id', '--diagnostic', 'MN0003'],
+    ['--diagnostic', 'MN0003', '--diagnostic', 'MN0007']]) {
+    const result = data.run(...args);
+    assert.equal(result.status, 1, JSON.stringify(args));
+    assert.equal(result.stdout, '');
+    assert.match(result.stderr, /Usage:|requires an exact MNxxxx code/);
+  }
+});
+
+test('diagnostic lookup requires its verified catalog asset without another source fallback', async t => {
+  const missing = await fixture(t);
+  const absent = missing.run('--diagnostic', 'MN0003');
+  assert.equal(absent.status, 1);
+  assert.equal(absent.stdout, '');
+  assert.match(absent.stderr, /no diagnostic catalog/);
+  const data = await diagnosticFixture(t);
+  await writeFile(data.path, '{}');
+  const tampered = data.run('--diagnostic', 'MN0003');
+  assert.equal(tampered.status, 1);
+  assert.equal(tampered.stdout, '');
+  assert.match(tampered.stderr, /Documentation hash mismatch: config\/diagnostics\/catalog.json/);
+});
+
+test('diagnostic lookup rejects unsupported catalog schemas and invalid or duplicate records', async t => {
+  const data = await diagnosticFixture(t);
+  const entry = data.catalog.diagnostics.find(diagnostic => diagnostic.code === 'MN0003');
+  for (const catalog of [null, {}, { schemaVersion: 1, diagnostics: [entry] },
+    { schemaVersion: 2, diagnostics: {} }, { schemaVersion: 2, diagnostics: [] }]) {
+    await data.saveCatalog(catalog);
+    const result = data.run('--diagnostic', entry.code);
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, '');
+    assert.match(result.stderr, /Unsupported or incomplete diagnostic catalog/);
+  }
+  for (const diagnostics of [[null], [entry, entry], [{ ...entry, code: 'mn0003' }],
+    [{ ...entry, status: 'unknown' }], [{ ...entry, remediation: '' }],
+    [{ ...entry, objects: [] }], [{ ...entry, surfaces: [null] }],
+    [{ ...entry, docsAnchor: '/errors/MN0007/' }],
+    [{ ...entry, status: 'deprecated' }], [{ ...entry, replacementCode: 'MN0007' }]]) {
+    await data.saveCatalog({ schemaVersion: 2, diagnostics });
+    const result = data.run('--diagnostic', entry.code);
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, '');
+    assert.match(result.stderr, /Invalid or duplicate diagnostic catalog entry/);
+  }
+});
