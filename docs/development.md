@@ -135,3 +135,17 @@ inputs retain their draft until Open commits it. Restart reloads initial records
 and resets the Views. Tests cover parent-owned lifecycle and root replacement, as
 well as ordinary interaction. See [application composition](./application-composition.md)
 for choosing startup versus retained-screen refresh.
+
+## Teaching and personalized examples
+
+When building teaching examples, make the application runnable independently of
+narration and inspection. Prefer ordinary modules with explicit imports and exports.
+Check that the preview supports the selected packages and module structure; a tiny
+sandbox's restrictions should not silently become the recommended app architecture.
+
+For personalized applications, connect a real user preference to interaction and
+visual design. Preserve readable hierarchy, spacing, contrast, labels, and narrow
+layouts; inspect the rendered result at desktop and narrow widths when changing
+visuals. Do not collapse independent owners to meet a line count or include
+teaching/test controls in the app. The website's optional personal-app brief supplies
+its own starter; it does not authorize browsing private sources for personalization.
