@@ -1,0 +1,29 @@
+docs/agents.md
+  s_02bf08a4f254a1::t_0b66912e9589c1 119-120,161-163,174-177
+docs/application-agent-template.md
+  s_02bf08a4f254a1::t_fb1016574a4f32 5-7
+docs/development.md
+  s_02bf08a4f254a1::t_154b583ba618e8 138-151
+docs/maintainers/documentation.md
+  s_02bf08a4f254a1::t_0d2d39170ec1d4 37-41,44,133-158
+plugins/marionette/skills/marionette/SKILL.md
+  s_02bf08a4f254a1::t_1aaf18bf97e8c5 13-16,18-21,29-44,74-75,87-88,92-100
+skills/marionette/SKILL.md
+  s_02bf08a4f254a1::t_d8665e3b20935f 13-16,18-21,29-44,74-75,87-88,92-100
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "095ba198a6857cdd2c851451f16becf8e392f566",
+  "prompts": {},
+  "sessions": {
+    "s_02bf08a4f254a1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0dc83-b213-7b62-b5f6-93a88f9fde6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
