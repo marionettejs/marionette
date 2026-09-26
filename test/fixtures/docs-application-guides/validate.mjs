@@ -183,6 +183,60 @@ try {
   calls[4].reject(new Error('Late rejection'));
   assert.equal(await rejected, false, 'late rejection is handled after destruction');
 
+  const commitFailure = new Error('Draft status update failed');
+  let committedWrites = 0;
+  const committing = new ProfileForm({
+    displayName: 'Original',
+    async save() { committedWrites++; }
+  });
+  formRegion.show(committing);
+  const committedInput = committing.el.querySelector('input');
+  committedInput.value = 'Persisted';
+  committing.updateDraftStatus = () => { throw commitFailure; };
+  await assert.rejects(committing.submit(), error => error === commitFailure);
+  assert.equal(committedWrites, 1, 'a UI commit failure does not retry persistence');
+  assert.equal(committing.initialName, 'Persisted', 'completed updates are not rolled back');
+  assert.equal(committing.el.querySelector('[role="status"]').textContent, 'Saved.');
+  assert.equal(committedInput.readOnly, false, 'finally releases input state after a commit failure');
+  assert.equal(committing.el.querySelector('button').disabled, false);
+  assert.equal(committing.el.hasAttribute('aria-busy'), false);
+  formRegion.empty();
+
+  for (const boundary of ['completion', 'persistence']) {
+    const failure = new Error(`${boundary} failed`);
+    const reported = [];
+    let writes = 0;
+    const submitting = new ProfileForm({
+      displayName: 'Original',
+      async save() {
+        writes++;
+        if (boundary === 'persistence') { throw failure; }
+      },
+      reportError(error) { reported.push(error); }
+    });
+    formRegion.show(submitting);
+    const submittedInput = submitting.el.querySelector('input');
+    submittedInput.value = 'Changed';
+    if (boundary === 'completion') {
+      submitting.updateDraftStatus = () => { throw failure; };
+    }
+    const event = new dom.window.Event('submit', { bubbles: true, cancelable: true });
+    submitting.el.dispatchEvent(event);
+    assert.equal(event.defaultPrevented, true);
+    // Let the native event's asynchronous save and rejection handler complete.
+    await new Promise(done => setImmediate(done));
+    assert.equal(writes, 1, 'event-bound completion failures never retry the write');
+    assert.deepEqual(reported, boundary === 'completion' ? [failure] : []);
+    assert.equal(submitting.initialName, boundary === 'completion' ? 'Changed' : 'Original');
+    assert.equal(submitting.el.querySelector('[role="status"]').textContent,
+      boundary === 'completion' ? 'Saved.' : 'Could not save. Your changes are still here. Try again.');
+    assert.equal(submitting.el.querySelector('input'), submittedInput);
+    assert.equal(submittedInput.readOnly, false);
+    assert.equal(submitting.el.querySelector('button').disabled, false);
+    assert.equal(submitting.el.hasAttribute('aria-busy'), false);
+    formRegion.empty();
+  }
+
   const handles = [];
   const widget = new WidgetView({
     createWidget(host) {
