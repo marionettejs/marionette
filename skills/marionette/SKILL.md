@@ -10,37 +10,35 @@ choices. This skill does not authorize dependency upgrades.
 
 ## Locate matching docs
 
-Resolve the package from the application workspace, not the copied skill directory
-or a neighboring monorepo package. The read-only helper requires Node 24 or later.
-Its path is `scripts/docs.mjs` relative to the directory containing this `SKILL.md`:
+Reuse the application's recorded package and integration facts until dependencies,
+configuration, or workspace change. Resolve new facts from the application
+workspace, not a neighboring package. Use matching installed Markdown or MCP;
+plugin setup and reading both sources are unnecessary for routine work.
 
-- In the npm package, that directory is `<package-root>/dist/agent-skill/`.
-- After copying the skill, it is the copied directory, such as
-  `/path/to/application/.agents/skills/marionette/`.
-
-Replace `/path/to/skill-directory` with that directory's absolute path and
-`/path/to/application` with the application's absolute path. These commands work
-from any working directory:
+The read-only helper requires Node 24 or later. For a plugin, installed, or copied
+skill, use `scripts/docs.mjs` beside this `SKILL.md`. Replace the paths below with
+the absolute skill and application directories. The helper resolves hoisted
+packages by walking parents from `--project`; these commands work from any cwd:
 
 ```sh
 node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --page docs/quick-start.md
 node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --search getUI
 ```
 
-Read a known task page directly; listing every page is unnecessary. `--search`
-returns up to five section IDs with sizes and ancestry; pass a returned ID to
-`--section` for its complete text. `--list` discovers page paths when needed.
-Search/section lookup requires the index shipped starting with RC.2; earlier
-artifacts can be read with `--page` or searched as local Markdown files.
-All modes verify hashes and version without executing project code or using a
-network. With no physical `node_modules`, supply `--package-root` from the
-application's package manager.
+For package-only use, the skill directory is `<package-root>/dist/agent-skill/`;
+with a local install, the helper is
+`node_modules/marionette/dist/agent-skill/scripts/docs.mjs`.
 
-If packaged docs are absent, use the exact release or known source commit and
-installed exports/declarations. Do not silently substitute current website docs,
-`master`, or another workspace's package. An alpha version alone does not establish
-source identity; `sourceDirty: true` is not an immutable release. Documentation
-hashes do not prove a custom runtime matches them; test uncertain runtime behavior.
+Search returns section IDs, sizes, and ancestry; use `--section '<returned-id>'` for a complete section.
+Use `--list` only when the page path is unknown. Installed Markdown is also
+readable directly; earlier packages may not have the helper or section index.
+
+For missing docs, custom artifacts, or MCP configuration, consult
+`docs/agent-retrieval.md` in the matching package/source. With no physical
+`node_modules`, the helper accepts `--package-root` for the actual package directory.
+Keep the exact release/source identity: current website docs, `master`, and an
+equal prerelease version label do not establish a match. Missing docs do not
+authorize upgrading the application.
 
 ## Select the relevant contract
 
@@ -71,12 +69,7 @@ application task guide; read one guide before following links for open questions
 
 For one unfamiliar API, prefer `--search` and `--section` over a complete
 reference. Stop discovery once setup, updates, and cleanup are clear; use an
-interaction check to identify what to read next. Reuse recorded package and
-integration facts until dependencies, configuration, or workspace change.
-
-Read `docs/agent-retrieval.md` for local lookup and optional MCP retrieval rules.
-Remote version and source must match the installed artifact. Installed Markdown
-is sufficient; plugin or MCP setup is not part of every task.
+interaction check to identify what to read next.
 
 DataApi, StateApi, renderer, DomApi, EventDelegator, and router are independent
 choices; a Backbone router does not require Backbone data. Register configuration
@@ -88,13 +81,17 @@ generally belong to a feature Application; cleanup capability alone does not mak
 a View the right workflow owner. Loading-then-display normally belongs in
 Application readiness; Views own DOM and emit intent to their owner. Plain
 helpers serve those owners rather than supplying a parallel feature lifecycle.
+For teaching or personalized examples, use the corresponding section of
+`docs/development.md`.
 
 ## Completion
 
-The requested application behavior works against the installed package, preserves
-unrelated edits/focus and ownership, and has evidence for the affected interaction
-and cleanup boundary. Reproduce uncertain contracts through public package APIs.
-Use the application's checks; exercise actual clicks, focus, hover boundaries,
-replacement and cleanup with the selected adapters. Browser interactions require
-browser evidence. Report actual results and untested boundaries. Record changed
-integration decisions in the application's notes, keeping API details in the docs.
+Complete the requested behavior against the installed package and continue through
+failures caused by the change within the authorized scope. Use the application's
+checks for the affected interaction and ownership boundaries. Exercise focus,
+events, editable state, replacement, or cleanup when the change depends on them;
+use a real browser for browser-dependent behavior. Reproduce uncertain contracts
+through public package APIs. A read-only review stays read-only.
+
+Report actual results and untested boundaries. Record changed integration decisions
+in the application's notes, keeping API details in the docs.

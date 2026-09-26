@@ -2,7 +2,9 @@
 
 Use this template to record decisions an agent cannot safely infer from Marionette
 alone. It belongs in the application repository's instruction file, usually
-`AGENTS.md` when supported by the agent client. Merge it with existing instructions
+`AGENTS.md` when supported by the agent client. If the client uses another entry
+file, keep these decisions in one project document and reference it from that
+entry rather than maintaining a copy per client. Merge it with existing instructions
 instead of replacing unrelated project policy.
 
 Fill each field from the installed package, lockfile, configuration, and actual
