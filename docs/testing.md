@@ -125,7 +125,7 @@ commands rather than copying Marionette's maintainer workflow wholesale.
 
 ## Verify composition through the actual owner
 
-Use the [composition review](./application-composition.md#review-behavior-and-composition-together)
+Use the [composition review](./application-composition.md#apply-the-same-boundaries-elsewhere)
 in addition to interaction assertions. Replace a View through its Region and stop
 or destroy a child Application through its parent; do not prove cleanup only by
 calling a demonstration wrapper. Hold startup data pending, remove its host, and

@@ -188,22 +188,23 @@ that catch this failure.
 
 ## Keep a delete screen open for retry
 
-Use an Application to own load readiness and deletion, and a View to own the
-controls. `prepareStart` loads the record; successful load data enables deletion; a load error is an explicit disabled
-screen state returned from preparation. A failed deletion leaves the same View and button mounted for retry.
+This recipe confirms deletion of an already-loaded record. The Application owns
+submission; its View emits intent and keeps the same button mounted after failure.
+The parent supplies the record to `start({ record })`, owns navigation after the
+`deleted` event, and stops or destroys the Application when leaving. Initial data
+loading and record selection belong to the [feature owner](./application-composition.md).
 
-Save this Application as `delete-screen.js`. Supply `load(id)` resolving `{ label }`,
-`remove(id)` resolving after deletion, a synchronous `navigate(id)` callback, and a
-non-throwing `reportError(error)` callback for unexpected failures from button clicks.
-The two request functions may reject with an `Error`; other callbacks and DOM
-operations follow the [synchronous failure contract](./view.lifecycle.md#synchronous-failures).
+Save this as `delete-screen.js`. Supply `remove(id)`, the deletion operation for
+this reusable confirmation screen. A failed request enables retry. The operation
+must reject with an Error; presentation and event handlers follow the
+[synchronous failure contract](./view.lifecycle.md#synchronous-failures).
 
 <!-- executable-example: retryable-delete-screen -->
 ```javascript
 import { Application, View } from 'marionette';
 
 const Screen = View.extend({
-  template: () => '<span class="label"></span><button type="button" disabled>Delete</button><p role="alert"></p>',
+  template: () => '<span class="label"></span><button type="button">Delete</button><p role="alert"></p>',
   ui: { label: '.label', confirm: 'button', error: '[role="alert"]' },
   triggers: { 'click @ui.confirm': 'confirm' },
   showRecord(record) { this.getUI('label')[0].textContent = record.label; },
@@ -213,136 +214,64 @@ const Screen = View.extend({
   }
 });
 
-const DeleteRecord = Application.extend({
-  onBeforeStart() {
-    const previous = this.getView();
-    if (previous) this.stopListening(previous);
+export const DeleteApplication = Application.extend({
+  onStart(app, { record }) {
+    this.record = record;
+    this.status = 'ready';
     const view = new Screen();
-    this.listenTo(view, 'confirm', () => {
-      void this.confirm().catch(this.getOption('reportError'));
-    });
+    this.listenTo(view, 'confirm', () => { void this.confirm().catch(console.error); });
     this.listenTo(view, 'before:destroy', () => {
       this.stopListening(view);
-      void this.stop().catch(this.getOption('reportError'));
+      void this.stop().catch(console.error);
     });
     this.showView(view);
-  },
-  async prepareStart({ id }, { signal }) {
-    try { return { record: await this.getOption('load')(id, { signal }) }; }
-    catch (error) { return { error }; }
-  },
-  onStart(app, { id }, { record, error }) {
-    this.id = id;
-    this.deleting = false;
-    this.completed = false;
-    this.ready = !error;
-    if (error) { this.getView().showStatus(false, error.message); return; }
-    this.getView().showRecord(record);
-    this.getView().showStatus(true);
+    view.showRecord(record);
   },
   async confirm() {
     const view = this.getView();
-    if (!this.isRunning() || !this.ready || !view || view.isDestroyed() || this.deleting || this.completed) return false;
-    const id = this.id;
-    this.deleting = true;
+    if (!this.isRunning() || this.status !== 'ready' || !view || view.isDestroyed()) return false;
+    const record = this.record;
+    this.status = 'deleting';
     view.showStatus(false);
-    try { await this.getOption('remove')(id); }
+    try { await this.getOption('remove')(record.id); }
     catch (error) {
       if (view === this.getView() && !view.isDestroyed()) {
-        this.deleting = false;
+        this.status = 'ready';
         view.showStatus(true, error.message);
       }
       return false;
     }
     if (!this.isRunning() || view !== this.getView() || view.isDestroyed()) return false;
-    this.completed = true;
-    this.deleting = false;
-    view.showStatus(false);
-    this.getOption('navigate')(id);
+    this.status = 'complete';
+    this.triggerMethod('deleted', record);
     return true;
   }
 });
-
-const DeleteLayout = View.extend({
-  template: () => '<section data-record></section>',
-  regions: { record: '[data-record]' }
-});
-
-export const DeleteScreen = Application.extend({
-  initialize(options) {
-    this.selection = 0;
-    const { load, remove, navigate, reportError } = options;
-    this.addChildApp('record', new DeleteRecord({ load, remove, navigate, reportError }));
-  },
-  onBeforeStart() {
-    const view = new DeleteLayout();
-    this.listenTo(view, 'before:destroy', () => {
-      this.stopListening(view);
-      void this.stop().catch(this.getOption('reportError'));
-    });
-    this.showView(view);
-  },
-  async open(id) {
-    if (!this.isRunning()) return false;
-    const selection = ++this.selection;
-    const record = this.getChildApp('record');
-    await record.stop();
-    if (selection !== this.selection || !this.isRunning()) return false;
-    const started = await record.start({ id, region: this.getView().getRegion('record') });
-    return started && selection === this.selection && record.ready;
-  },
-  confirm() { return this.getChildApp('record').confirm(); },
-  close() { this.selection++; return this.getChildApp('record').stop(); },
-  onStop() { this.selection++; },
-  onBeforeDestroy() { this.selection++; }
-});
-
 ```
 
 For example, with in-memory data:
 
 ```javascript
-import { DeleteScreen } from './delete-screen.js';
+import { DeleteApplication } from './delete-screen.js';
 
-const host = document.createElement('main');
-document.body.append(host);
-const records = new Map([['a', { label: 'Draft' }]]);
-const screen = new DeleteScreen({
-  region: { el: host },
-  async load(id) {
-    if (!records.has(id)) throw new Error('Record not found');
-    return records.get(id);
-  },
-  async remove(id) { records.delete(id); },
-  navigate(id) { console.log('Deleted', id); },
-  reportError(error) { console.error(error); }
+const records = new Map([['a', { id: 'a', label: 'Draft' }]]);
+const screen = new DeleteApplication({
+  region: { el: document.querySelector('main') },
+  async remove(id) { records.delete(id); }
 });
-await screen.start();
-await screen.open('a');
+screen.on('deleted', record => console.log('Deleted', record.id));
+await screen.start({ record: records.get('a') });
 // Click Delete, or await screen.confirm().
-// Await screen.destroy() when the owner leaves this workflow.
+// Await screen.destroy() when leaving this workflow.
 ```
 
-The screen Application owns its layout and a record Application. The record owns
-loading and deletion; changing the selected record replaces only that child.
-`close()` stops the record child and leaves the layout ready for another selection. A parent can adopt it with
-`addChildApp`; parent stop/destruction uses the same lifecycle. Await `close()`
-or `destroy()` before removing the host.
-Awaited calls propagate unexpected callback or DOM failures as rejections. The
-button handler reports those failures through `reportError`; it does not treat
-them as retryable deletion failures.
-
-`open` resolves true only for the current successful load. `confirm` resolves
-true only for the current successful deletion and navigates once. Premature or
-duplicate confirmation returns false. Errors and labels are assigned as text,
-not HTML. Updating status does not rerender the View or replace its button.
-
-Opening another record, awaiting `close()`, or destroying the Application makes
-old results stale. A late
-success or rejection cannot repaint or navigate from the new screen. This ignores
-results; it does not cancel a server-side deletion already in progress. `close()`
-permits reopening, while `destroy()` permanently ends the workflow.
+`confirm()` accepts one submission at a time and emits `deleted` once on success.
+A failed deletion displays text and enables the same button for retry. Unexpected
+presentation or `deleted` handler failures reject the awaited call; the click
+handler reports them. Stopping, replacing the root View, or destroying the
+Application prevents late results from updating UI or emitting `deleted`. This
+does not undo a deletion already accepted by the server.
 
 The [executable checks](../test/fixtures/docs-region-lifecycle/retry-delete.mjs)
-cover failed loading, duplicate clicks, failed deletion and retry, stale requests,
-reopening, and destruction, with both immediate and deferred request invocation.
+cover duplicate clicks, retry without replacing the button, completion events,
+and late results after parent stop, host replacement, and destruction.

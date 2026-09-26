@@ -166,14 +166,7 @@ export const FeedApplication = Application.extend({
     return true;
   },
   showPage(page, { items, hasNext }) {
-    const existing = new Map(this.articles.map(model => [model.id, model]));
-    const order = new Map(items.map((item, index) => [item.id, index]));
-    this.articles.remove(this.articles.models.filter(model => !order.has(model.id)));
-    for (const item of items) {
-      if (existing.has(item.id)) existing.get(item.id).set(item);
-      else this.articles.add(item);
-    }
-    this.articles.sort((left, right) => order.get(left.id) - order.get(right.id));
+    this.articles.reset(items);
     this.getState().set({ page, hasNext, status: 'ready' });
   },
   cancelRequest() { this.request?.abort(); this.request = undefined; },
@@ -220,7 +213,9 @@ Retry button. A feature that cannot activate without data should instead reject
 preparation and let its parent present the failure. Unexpected synchronous render
 and collection errors still propagate; they are not converted into load failures.
 
-Pagination retains the feed View, list, and surviving row identities. Changes to
+Pagination retains the feed View and sibling editor. It replaces the read-only
+article rows. For editable rows that must retain identity, use
+[list composition](./list-composition.md). Changes to
 observable status update only controls. Retry repeats the failed requested page;
 the displayed page changes only on success. Parent stop aborts work and destroys
 screens. Restart creates new screens and loads page one; terminal destruction also
@@ -228,96 +223,31 @@ releases the owned collection and state. The pagination controller cancels repla
 it does not replace the startup signal. Host replacement stops the affected
 feature as well. Detached/reusable hosts need their own stated activation policy.
 
-## Keep DOM and interaction with their View
+## Apply the same boundaries elsewhere
 
-Declare parent-owned selectors in `ui`. Use `triggers` for semantic actions and
-`events` when the handler needs keyboard or input details. Use `triggerMethod` to
-emit application intent. Forward child events through `childViewTriggers` or
-`childViewEvents`; let the feature owner subscribe with `listenTo`.
+- **Views own presentation.** Use `ui`, `events`, `triggers`, and declarative source
+  events. Forward child intent with `childViewTriggers` or `childViewEvents`; the
+  Application subscribes with `listenTo`. See [events](./events.md).
+- **Services own transport.** Import established application services directly.
+  Inject a service when instances need different implementations. A service does
+  not own feature activation or a View tree.
+- **Give data one owner.** Domain records belong to the established data provider.
+  Supplied sources are borrowed; `createState` sources are lifecycle-owned through
+  StateApi. Release collections you create at destruction. See [state](./marionette.state.md).
+- **Preserve only what the interaction requires.** Keep layouts mounted during
+  refresh. Editable rows need stable identity and an explicit policy for external
+  updates versus local drafts. See [list composition](./list-composition.md).
+- **Use framework cleanup.** Parents own child Applications; Regions own Views.
+  External widgets may return disposal handles, released by their Marionette
+  owner. Avoid a second `{ mount, update, dispose }` API around a feature. See
+  [resource cleanup](./resource-cleanup.md).
 
-A row should not close over the whole workspace's navigation function. A child
-Application receives its Region and any borrowed source. Import established
-application services directly; use injected services when instances actually need
-different implementations. Do not pass the parent layout or callbacks that walk
-its View tree. The parent
-coordinates siblings through their public methods and events.
-
-Render content through templates and `templateContext`. A View can update its own
-named UI elements for input values, status, selection, and focus without rendering
-again. This preserves editable DOM. An Application calls a View's presentation
-method; it does not query or mutate that View's descendants itself.
-
-A parent rerender destroys Region-owned children. Keep stable layouts mounted for
-ordinary updates. CollectionView observes structural collection updates; do not
-add a second subscription that rerenders the whole list after each mutation.
-
-## Give data one authority and a stated lifetime
-
-Domain records live in models/collections or the application's established data
-provider. UI state lives in an explicitly owned or borrowed observable source when
-several consumers need notification. View traversal is not a record store.
-
-Choose an observable integration when records change independently of one control.
-For a new application, `@mnjs/data` is the supported starting point. Plain snapshots
-remain useful for static content. Do not grow a notification system around plain
-arrays to avoid selecting a data provider.
-
-Observe displayed fields through `modelEvents`, `collectionEvents`, or `stateEvents`
-as appropriate. Distinguish a saved record from an unfinished draft. Define what
-external changes do to a clean editor and a dirty editor, and verify both paths.
-Avoid whole-View rendering during input handling.
-
-Supplied sources are borrowed; `createState` sources are owned through StateApi.
-A collection created by a feature must be released by that feature's lifecycle.
-A caller-owned collection must be supplied explicitly and survive feature teardown.
-Stopping an Application ends its run; decide separately whether records survive
-until destruction or are reloaded during the next startup.
-
-## Make framework composition sufficient for cleanup
-
-A parent owns a child Application with `addChildApp` or `childApps`. A Region owns
-its displayed View. Put cleanup in the corresponding lifecycle hooks so parent
-stop/destroy and Region replacement work without a second caller-managed disposer.
-Do not replace public lifecycle methods with forwarding wrappers.
-
-Host lifetime, Application lifetime, and request lifetime are distinct. If another
-owner can replace a feature's root, losing that root must invalidate its pending UI
-work even before asynchronous feature teardown completes. Test that path directly.
-
-A factory may construct and return a View or Application. It should not hide the
-feature's state machine, subscriptions, and ownership behind a parallel
-`{ mount, update, dispose }` API. Prefer ordinary exported definitions configured
-with constructor/start options. Custom adapters and third-party widgets can expose
-disposal handles: their Marionette owner acquires and releases those handles.
-
-Use external effect scopes only for resources whose lifetime the framework does
-not already manage. `listenTo` and declarative state/Radio bindings already manage
-owner-lifetime subscriptions. A run-scoped subscription may need explicit release
-at stop; do not silently extend it to the whole Application object's lifetime.
-
-Working synchronous callbacks remain required. These rules do not introduce
-constructor rollback, attempt-all cleanup, or synchronous recovery. Follow the
+Working synchronous callbacks remain required; this does not introduce rollback
+or recovery from synchronous callback failures. See the
 [synchronous failure contract](./view.lifecycle.md#synchronous-failures).
 
-## Review behavior and composition together
-
-For each feature, identify the data source, the View/Region tree, the Application
-boundary when needed, and the owner of external resources. Explain helpers that
-overlap a built-in responsibility. Review actual ownership rather than counting
-framework classes or matching a reference solution's syntax.
-
-Verify the boundary through its real owner:
-
-- Replace a screen through its Region while work is pending; old results must not
-  update the new screen or move focus.
-- Stop and destroy a feature through its parent Application; check released
-  resources and borrowed-source survival.
-- Change shared records directly; all intended consumers must update.
-- Edit a row while another changes or moves; preserve the surviving View, input,
-  focus, and draft according to the declared policy.
-- Add an independent pane or another source consumer without adding a second
-  rendering, notification, or cleanup system.
-
-Passing interactions do not establish good composition. Passing composition checks
-do not establish agent usability. A fresh build/change/repair exercise is needed
-to determine whether this teaching path leads agents to these choices.
+Review owner choice alongside behavior. [Composition checks](./testing.md) should
+exercise parent stop/destruction, Region replacement during a request, direct
+source updates, and any draft/focus guarantees. Passing those checks does not
+establish that fresh agents will select these owners; that needs a separate
+[usability evaluation](../benchmarks/agent/evaluation-plan.md).

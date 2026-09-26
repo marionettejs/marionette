@@ -15,9 +15,9 @@ test('editable survivors, latest selection and cleanup use installed package API
     const { notesApi } = await import('./notes.ts');
     const requests = [];
     t.mock.method(notesApi, 'loadNote', (id, { signal }) => {
-        const request = { id, signal, ...Promise.withResolvers() };
-        requests.push(request);
-        return request.promise; // Deliberately ignores abort.
+      const request = { id, signal, ...Promise.withResolvers() };
+      requests.push(request);
+      return request.promise; // Deliberately ignores abort.
     });
     workspace = new Workspace({ region: { el: document.querySelector('main') } });
     await workspace.start();
@@ -77,7 +77,7 @@ test('missing attributes render empty text and supplied text stays escaped', asy
     const { Model } = await import('@mnjs/data');
     const literal = '"><img src=x onerror="alert(1)">&';
     t.mock.method(notesApi, 'loadNote', async(id) => {
-        return id === 'missing' ? { title: null } : { title: literal, body: literal };
+      return id === 'missing' ? { title: null } : { title: literal, body: literal };
     });
     workspace = new Workspace({ region: { el: document.querySelector('main') } });
     await workspace.start();
@@ -112,9 +112,9 @@ test('a parent owns stop, restart and destruction; host replacement cancels late
     const { notesApi } = await import('./notes.ts');
     const requests = [];
     t.mock.method(notesApi, 'loadNote', (id, { signal }) => {
-        const request = { signal, ...Promise.withResolvers() };
-        requests.push(request);
-        return request.promise;
+      const request = { signal, ...Promise.withResolvers() };
+      requests.push(request);
+      return request.promise;
     });
     const workspace = new Workspace({ region: { el: document.querySelector('main') } });
     parent = new Application();

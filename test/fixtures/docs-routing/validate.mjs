@@ -18,7 +18,6 @@ const refreshMarkdown = await readFile(resolve(fixtureDir, '../../../docs/applic
 for (const [exampleMarker, filename] of [
   ['<!-- executable-example: application-latest-request -->', 'latest-request.js'],
   ['<!-- executable-example: application-data-refresh -->', 'results-feature.js'],
-  ['<!-- executable-example: application-child-data-refresh -->', 'workspace-results.js'],
   ['<!-- executable-example: application-latest-selection -->', 'resource-selection.js']
 ]) {
   const source = refreshMarkdown.slice(refreshMarkdown.indexOf(exampleMarker) + exampleMarker.length)
@@ -200,5 +199,4 @@ try {
 }
 
 await import('./refresh.mjs');
-await import('./child-refresh.mjs');
 await import('./selection.mjs');

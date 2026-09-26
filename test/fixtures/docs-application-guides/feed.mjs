@@ -10,16 +10,16 @@ const apiCode = markdown.split('<!-- executable-example: application-feed-api --
   .match(/^\s*```javascript\n([\s\S]*?)\n```/)[1];
 await writeFile(new URL('./dist/feed-api.js', import.meta.url), apiCode);
 const { feedApi } = await import('./dist/feed-api.js');
-const signal = new AbortController().signal;
+const transportSignal = new AbortController().signal;
 const response = { items: [{ id: 1, title: 'Transport' }], hasNext: false };
 const fetchMock = mock.method(globalThis, 'fetch', async(url, options) => {
   assert.equal(url, '/api/feed?page=2');
-  assert.equal(options.signal, signal);
+  assert.equal(options.signal, transportSignal);
   return { ok: true, json: async() => response };
 });
-assert.deepEqual(await feedApi.loadPage(2, { signal }), response);
+assert.deepEqual(await feedApi.loadPage(2, { signal: transportSignal }), response);
 fetchMock.mock.mockImplementation(async() => ({ ok: false, status: 503 }));
-await assert.rejects(feedApi.loadPage(2, { signal }), /503/);
+await assert.rejects(feedApi.loadPage(2, { signal: transportSignal }), /503/);
 fetchMock.mock.restore();
 const file = new URL('./dist/feed.mjs', import.meta.url);
 await writeFile(file, code);
@@ -52,7 +52,6 @@ try {
   await settle();
   const feedView = feed.getView();
   const list = feedView.getChildView('articles');
-  const row = list.children.findByModel(feed.articles.get(1));
   const textarea = document.querySelector('textarea');
   textarea.value = 'Keep my draft';
   document.querySelector('[data-next]').click();
@@ -64,10 +63,11 @@ try {
   requests[2].reject(new Error('Obsolete failure'));
   await settle();
   assert.equal(feed.getView(), feedView);
-  assert.equal(list.children.findByModel(feed.articles.get(1)), row);
+  assert.equal(feedView.getChildView('articles'), list);
   assert.equal(document.querySelector('textarea'), textarea);
   assert.equal(textarea.value, 'Keep my draft');
   assert.equal(document.querySelector('[role=status]').textContent, 'Page 3');
+  const row = list.children.findByModel(feed.articles.get(1));
   feed.articles.get(1).set('title', 'External update');
   assert.equal(row.el.textContent, 'External update');
   feed.getState().set('status', 'loading');

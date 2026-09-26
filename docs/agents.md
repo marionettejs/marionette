@@ -158,9 +158,8 @@ arbitrary write made by application code. Follow the complete
 [routing pattern](./routing.md) for navigation and feature startup.
 
 Keep an Application's active lifetime separate from each data request. If list
-results and a sidebar have separate owners under one shell, refresh the list's
-collection in place and cancel superseded requests; restarting their parent
-destroys both UI trees. See the [persistent-shell example](./application-refresh.md#keep-a-shell-and-independently-owned-children).
+results share a shell with an editor, refresh the list's collection and cancel
+superseded requests; restarting the parent destroys both UI trees. See the [complete feed example](./application-composition.md#a-complete-paginated-feature).
 
 ## Completion evidence
 
