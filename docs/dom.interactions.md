@@ -114,6 +114,8 @@ the same selector, its bubbling DOM event can reach the parent handler. Prefer
 owner-specific selectors; use Marionette events for parent-child communication
 instead of relying on DOM bubbling across ownership boundaries.
 
+### `delegateEvents(events)` and `undelegateEvents()`: refresh DOM handlers
+
 Call `view.delegateEvents(events)` to refresh delegated DOM handlers after
 changing a callable `events` or `triggers` definition. UI references use the
 View's current selector bindings; a Behavior retains the selector map captured
@@ -125,6 +127,11 @@ removes existing handlers, so repeated calls do not duplicate them.
 methods return the View, and both are no-ops after destruction has started.
 Construction calls `delegateEvents()`. A subclass override remains responsible
 for delegating to the base method when it wants Marionette's cleanup and redelegation.
+
+Delegation is attached to the root, so new matching descendants do not require
+redelegation. These methods do not render content or refresh cached `getUI()`
+results; use [UI binding](#binduielements-and-unbinduielements-refresh-element-lookups)
+when an external owner changes the queried DOM.
 
 ## Hover boundaries and nested clicks
 
@@ -371,7 +378,9 @@ each render.
 `getUI(name)` reads the named selector result without rendering or changing ownership.
 With the default DomApi it returns a native `NodeList`, not a single element; use
 `this.getUI('save')[0]` for the first match. Read it in `onRender()` or later.
-Rendering replaces the binding, so read it again after a render instead of retaining
+With `template: false`, rendering skips UI binding; after constructing the DOM,
+call [`bindUIElements()`](#binduielements-and-unbinduielements-refresh-element-lookups)
+before lookup. Rendering replaces the binding, so read it again after a render instead of retaining
 a collection of old nodes. An installed DomApi may supply a different array-like result.
 
 Use `getUI(name)` after declaring a `ui` map and binding its elements when
@@ -389,6 +398,26 @@ Selector values must be strings. An own key with `undefined` is not diagnosed
 as missing by core; do not rely on a particular result for that unsupported value.
 An explicitly declared empty selector is a known key, though the DOM API may
 reject it when the selector is used.
+
+### `bindUIElements()` and `unbindUIElements()`: refresh element lookups
+
+Declare selectors in `ui`, then `view.bindUIElements()` queries the current DOM
+through the configured DomApi and binds both View and Behavior UI maps. It returns
+the View without rendering or changing event delegation. Normal template rendering
+binds UI automatically. Use an explicit call after building DOM with `template: false`
+or after an external integration replaces queried elements. Read `getUI(name)`
+again afterward; previously saved query results still refer to the old nodes.
+Binding is a no-op once View destruction has started.
+
+`view.unbindUIElements()` releases the cached query results and restores the
+selector maps for the View and its Behaviors. It returns the View and does not
+remove DOM or delegated handlers. `getUI()` after unbinding throws `MN0023` until
+binding occurs again. Normal destruction performs UI cleanup; do not manually
+unbind merely to remove a child managed by a Region.
+
+For the render lifecycle and constructor timing, see
+[Views without templates](./view.rendering.md#using-a-view-without-a-template).
+For handlers, see [`delegateEvents()`](#delegateeventsevents-and-undelegateevents-refresh-dom-handlers).
 
 ## Optional jQuery DOM Adapter
 
