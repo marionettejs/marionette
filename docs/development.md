@@ -120,3 +120,17 @@ application source maps when deploying.
 For symptoms and framework error codes, use [troubleshooting](troubleshooting.md).
 For a larger typed feature, see [TypeScript](typescript.md),
 [application tests](testing.md), and [consumer lint](consumer-lint.md).
+
+## Teaching and personalized examples
+
+When building teaching examples, make the application runnable independently of
+narration and inspection. Prefer ordinary modules with explicit imports and exports.
+Check that the preview supports the selected packages and module structure; a tiny
+sandbox's restrictions should not silently become the recommended app architecture.
+
+For personalized applications, connect a real user preference to interaction and
+visual design. Preserve readable hierarchy, spacing, contrast, labels, and narrow
+layouts; inspect the rendered result at desktop and narrow widths when changing
+visuals. Do not collapse independent owners to meet a line count or include
+teaching/test controls in the app. The website's optional personal-app brief supplies
+its own starter; it does not authorize browsing private sources for personalization.

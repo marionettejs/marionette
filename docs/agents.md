@@ -109,17 +109,8 @@ do not come from its main button. Let CollectionView handle membership changes
 without a second whole-list render subscription. Keep focused editors stable
 when processing their own input.
 
-When building teaching examples, make the application runnable independently of
-narration and inspection. Prefer ordinary modules with explicit imports and exports.
-Check that the preview supports the selected packages and module structure; a tiny
-sandbox's restrictions should not silently become the recommended app architecture.
-
-For personalized applications, connect a real user preference to interaction and
-visual design. Preserve readable hierarchy, spacing, contrast, labels, and narrow
-layouts; inspect the rendered result at desktop and narrow widths when changing
-visuals. Do not collapse independent owners to meet a line count or include
-teaching/test controls in the app. The website's optional personal-app brief supplies
-its own starter; it does not authorize browsing private sources for personalization.
+For teaching or personalized examples, use the
+[example guidance](./development.md#teaching-and-personalized-examples).
 
 Configure the selected runtime before creating its consumers. The default named
 exports share a runtime. Use [runtime isolation](./runtime-isolation.md) when
@@ -161,7 +152,9 @@ Use the application's existing test runner, scripts, and package manager. Librar
 maintenance commands are not a consumer project's test strategy.
 
 The requested behavior is complete when its interaction and affected ownership
-boundary work in the installed application. For an
+boundary work in the installed application. Continue through failures caused by the
+change within the authorized scope. Choose checks for the boundaries the task
+affects; the following cases are examples, not a checklist for every edit. For an
 asynchronous screen, navigate away while work is pending and ensure its stale
 result cannot replace the current screen. For a list, edit a surviving row while
 inserting, removing, or reordering another row. For a subscription, destroy one
@@ -172,9 +165,9 @@ propagation, or editable state. A build or screenshot alone does not prove those
 interactions. Use documented public APIs for assertions rather than private
 framework fields.
 
-Review the architecture separately from interaction results: identify the data
-source, the Views and Regions that own the screen, and the external work each owner
-releases. Working buttons do not establish that the example teaches those contracts.
+When changing composition or building an example, review the architecture as well
+as interaction results: identify the data source, the Views and Regions that own
+the screen, and the external work each owner releases. Working buttons do not establish that the example teaches those contracts.
 For observable data, change the source directly and verify all intended consumers
 update. For attachment-bound resources, also detach and reattach the same View;
 replacement alone does not prove that repeated attachment releases resources.
