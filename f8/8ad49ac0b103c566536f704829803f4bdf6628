@@ -1,0 +1,19 @@
+config/release-validation.json
+  s_02bf08a4f254a1::t_6d52914f2b2ff3 220-223
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "f88ad49ac0b103c566536f704829803f4bdf6628",
+  "prompts": {},
+  "sessions": {
+    "s_02bf08a4f254a1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0dc83-b213-7b62-b5f6-93a88f9fde6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
