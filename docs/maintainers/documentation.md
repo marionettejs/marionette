@@ -58,6 +58,8 @@ match without the argument contract is not sufficient retrieval evidence.
 
 Package generation builds `docs-sections.json` from consumer Markdown with the
 build-time parser and includes its hash in the package documentation manifest.
+It also builds `docs-symbols.json` from the contract inventory and semantics; each
+semantics `docs` heading must name exactly one consumer section, or export fails.
 The local helper reads this index without loading a Markdown parser or application
 code. Its IDs are local source positions, not website anchors or MCP IDs. Preserve
 complete section boundaries and provenance. `npm run test:agent-docs` includes

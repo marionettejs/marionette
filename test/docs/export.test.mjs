@@ -8,6 +8,7 @@ import test from 'node:test';
 import { Marked } from 'marked';
 import { contentDigest, exportDocs, readResources, sha256, validateNavigation } from '../../scripts/docs/export.mjs';
 import { documentSections, isConsumerPage } from '../../scripts/docs/sections.mjs';
+import { symbolIndex } from '../../scripts/docs/symbols.mjs';
 
 const markdownParser = new Marked();
 
@@ -47,10 +48,10 @@ test('Markdown references ignore code examples and identify malformed URLs', asy
 test('export CLI labels stable and prerelease documentation from the selected policy', async() => {
   const directory = await mkdtemp(resolve(tmpdir(), 'marionette-doc-channel-'));
   try {
-    for (const path of ['scripts/docs', 'scripts/release', 'docs-site', 'docs', 'config/diagnostics']) {
+    for (const path of ['scripts/docs', 'scripts/release', 'docs-site', 'docs', 'config/diagnostics', 'config/api-contracts']) {
       await mkdir(resolve(directory, path), { recursive: true });
     }
-    for (const path of ['scripts/docs/export.mjs', 'scripts/docs/sections.mjs', 'scripts/release/publication.mjs', 'config/release-promotion.json']) {
+    for (const path of ['scripts/docs/export.mjs', 'scripts/docs/sections.mjs', 'scripts/docs/symbols.mjs', 'scripts/release/publication.mjs', 'config/release-promotion.json']) {
       await cp(new URL(`../../${path}`, import.meta.url), resolve(directory, path));
     }
     await cp(new URL('../../node_modules/marked', import.meta.url), resolve(directory, 'node_modules/marked'), { recursive: true });
@@ -60,7 +61,10 @@ test('export CLI labels stable and prerelease documentation from the selected po
     await writeFile(policyPath, JSON.stringify(policy));
     await writeFile(resolve(directory, 'docs/guide.md'), '# Guide\n');
     await writeFile(resolve(directory, 'config/diagnostics/catalog.json'), '{}');
-    await writeFile(resolve(directory, 'docs-site/resources.json'), JSON.stringify(['config/diagnostics/catalog.json']));
+    await writeFile(resolve(directory, 'config/api-contracts/inventory.json'), JSON.stringify({ entrypoints: [] }));
+    await writeFile(resolve(directory, 'config/api-contracts/semantics.json'), JSON.stringify({ contracts: [] }));
+    await writeFile(resolve(directory, 'docs-site/resources.json'), JSON.stringify(['config/diagnostics/catalog.json',
+      'config/api-contracts/inventory.json', 'config/api-contracts/semantics.json']));
     await writeFile(resolve(directory, 'docs-site/navigation.json'), JSON.stringify([
       { source: 'docs/guide.md', route: 'docs/guide', title: 'Guide', section: 'Start' }
     ]));
@@ -129,7 +133,7 @@ test('exports every current top-level guide with exact bytes and reproducible pr
   assert.match(manifest.sourceRevision, /^[a-f0-9]{40}$/);
   assert.equal(typeof manifest.sourceDirty, 'boolean');
   const resources = JSON.parse(await readFile(new URL('../../docs-site/resources.json', import.meta.url), 'utf8'));
-  assert.deepEqual(manifest.assets.map(asset => asset.source), [...resources, 'docs-sections.json']);
+  assert.deepEqual(manifest.assets.map(asset => asset.source), [...resources, 'docs-sections.json', 'docs-symbols.json']);
   for (const source of ['config/diagnostics/catalog.json', 'skills/marionette/agents/openai.yaml',
     'skills/marionette/scripts/docs.mjs',
     'test/fixtures/docs-routing/validate.mjs', 'benchmarks/docs/results/2026-09-08/latest-navigation/solution.mjs']) {
@@ -147,6 +151,10 @@ test('exports every current top-level guide with exact bytes and reproducible pr
         .map(async value => documentSections(value.source,
           await readFile(new URL(`../../${value.source}`, import.meta.url), 'utf8'))))).flat();
       assert.deepEqual(JSON.parse(exported), { schemaVersion: 1, sections: expected });
+    } else if (page.source === 'docs-symbols.json') {
+      const sections = JSON.parse(await readFile(new URL('../../.docs-export/docs-sections.json', import.meta.url), 'utf8')).sections;
+      const contracts = async name => JSON.parse(await readFile(new URL(`../../config/api-contracts/${name}.json`, import.meta.url), 'utf8'));
+      assert.deepEqual(JSON.parse(exported), symbolIndex(await contracts('inventory'), await contracts('semantics'), sections));
     } else {
       const original = await readFile(new URL(`../../${page.source}`, import.meta.url));
       assert.deepEqual(exported, original);

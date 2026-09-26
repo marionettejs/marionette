@@ -25,6 +25,7 @@
   "skills/marionette/agents/openai.yaml",
   "skills/marionette/scripts/docs.mjs",
   "skills/marionette/scripts/search.mjs",
+  "skills/marionette/scripts/symbols.mjs",
   "ROADMAP.md",
   "benchmarks/agent/evaluation-plan.md",
   "benchmarks/agent/README.md",

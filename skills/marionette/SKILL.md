@@ -25,11 +25,13 @@ from any working directory:
 ```sh
 node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --page docs/quick-start.md
 node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --search getUI
+node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --symbol Region.detachView
 ```
 
 Read a known task page directly; listing every page is unnecessary. `--search`
 returns up to five section IDs with sizes and ancestry; pass a returned ID to
-`--section` for its complete text. `--list` discovers page paths when needed.
+`--section` for its complete text. For an exact export or member name, `--symbol`
+returns its signature and the section IDs that own its contract. `--list` discovers page paths when needed.
 Search/section lookup requires the index shipped starting with RC.2; earlier
 artifacts can be read with `--page` or searched as local Markdown files.
 All modes verify hashes and version without executing project code or using a
@@ -69,8 +71,8 @@ application task guide; read one guide before following links for open questions
 | Migrate from v4 | `docs/agent-tools.md`, `upgradeGuide.md` |
 <!-- task-routes:end -->
 
-For one unfamiliar API, prefer `--search` and `--section` over a complete
-reference. Stop discovery once setup, updates, and cleanup are clear; use an
+For one unfamiliar API, prefer `--symbol` or `--search` and `--section` over a
+complete reference. Stop discovery once setup, updates, and cleanup are clear; use an
 interaction check to identify what to read next. Reuse recorded package and
 integration facts until dependencies, configuration, or workspace change.
 
