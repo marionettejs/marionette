@@ -1,0 +1,31 @@
+config/api-contracts/inventory.json
+  s_5de4e0020f73d1::t_b5c5a8f915f475 4,8065,8074,8076,8104,8106,8117
+config/api-contracts/semantics.json
+  s_5de4e0020f73d1::t_57a6822202880b 269,644,1868
+config/release-validation.json
+  s_5de4e0020f73d1::t_e46b0d67549ae5 251-254
+docs/events.md
+  s_5de4e0020f73d1::t_ac02cf9fa8e4de 215,222,235-238
+docs/migration-from-v4.md
+  s_5de4e0020f73d1::t_2484ad2ce51a9d 119
+docs/view.lifecycle.md
+  s_5de4e0020f73d1::t_28ac72e8966606 253
+src/mixins/behaviors.ts
+  s_5de4e0020f73d1::t_a768907f656bf2 98-99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "374be08df5f8791e560b7654bbcd1c65b6119521",
+  "prompts": {},
+  "sessions": {
+    "s_5de4e0020f73d1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e84b-cf5b-74c1-9b2c-90475eea87f7",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
