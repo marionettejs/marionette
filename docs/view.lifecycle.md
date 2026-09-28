@@ -250,7 +250,7 @@ destroyed `true` after successful teardown.
 
 After host and Behavior destruction notifications, final event cleanup clears
 all incoming handlers with `off()`, including direct `on()` callbacks and native
-listeners' tracked references to the View and its Behaviors. See
+listeners' tracked references to the View. See
 [terminal subscription cleanup](./events.md#terminal-subscription-cleanup).
 
 Destroy does not destroy borrowed models, collections, or arbitrary option

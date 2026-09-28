@@ -586,14 +586,6 @@ is destroyed. Nested Behaviors participate as Behaviors of the same host view.
 | First direct `behavior.destroy()` while the View is alive | Remains alive without the removed Behavior. | Undelegates its events, stops listening, removes itself from the View, and deletes its entity-event handlers. It receives no later host lifecycle notifications. |
 | Destroy the View | Runs `before:destroy`, tears down the View, and runs its `destroy` callback. Repeated View destruction is a no-op. | Receives `before:destroy` while the View is alive, is cleaned up after the View enters destroyed, then receives `destroy` after the View's callback. Nested Behaviors follow the same ordering. |
 
-Direct `behavior.destroy()` clears incoming handlers with `off()` as its last
-step. During host destruction, those handlers survive early Behavior teardown
-until the host finishes its final notifications, then incoming cleanup runs for
-all its Behaviors. A throwing notification aborts the operation and can skip
-remaining cleanup. This preserves existing lifecycle ordering without adding
-an independent Behavior destroy event. See
-[terminal subscription cleanup](./events.md#terminal-subscription-cleanup).
-
 `Behavior` does not expose an independent `isDestroyed()` state. Repeated direct
 `behavior.destroy()` calls, reuse after direct cleanup, and other post-cleanup
 operations are outside this lifecycle contract. Dependency access, invalid

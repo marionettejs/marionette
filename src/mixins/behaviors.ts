@@ -3,10 +3,8 @@ import type { TriggerTarget } from './view-events.ts';
 
 export interface BehaviorInstance {
   _isDestroyed?: boolean;
-  _isDestroyingWithHost?: boolean;
   behaviors?: unknown;
   destroy(options?: unknown): unknown;
-  off(): unknown;
   _delegateViewEvents(view: TriggerTarget): unknown;
   _undelegateViewEvents(options?: unknown): unknown;
   delegateEntityEvents(): unknown;
@@ -97,19 +95,8 @@ export default {
 
   _destroyBehaviors(this: BehaviorContainer, options?: unknown) {
     // Release each Behavior during host teardown, before the host's destroy event.
-    // Behavior.destroy releases outgoing listeners, DOM/entity subscriptions, and owned State.
-    eachBehavior(this._behaviors, behavior => {
-      behavior._isDestroyingWithHost = true;
-      behavior.destroy(options);
-    });
-  },
-
-  // Incoming handlers survive until the host has delivered final notifications.
-  _finalizeBehaviors(this: BehaviorContainer) {
-    eachBehavior(this._behaviors, behavior => {
-      behavior.off();
-      delete behavior._isDestroyingWithHost;
-    });
+    // Behavior.destroy removes its listeners, DOM/entity subscriptions, and owned State.
+    eachBehavior(this._behaviors, behavior => behavior.destroy(options));
   },
 
   // Remove a behavior

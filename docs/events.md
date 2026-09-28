@@ -212,15 +212,14 @@ when it is no longer needed.
 
 ### Terminal subscription cleanup
 
-Native Object, View/CollectionView, Region, Application, Behavior, Model, and
+Native Object, View/CollectionView, Region, Application, Model, and
 Collection destruction clears all handlers registered on the destroyed source
 with `off()` as its final event cleanup step. This releases native listeners'
 tracked references to that source, including `listenToOnce` relationships, while
 preserving their subscriptions to other sources. Direct `on`/`once` handlers and
 registrations added during final destruction notifications are also removed.
 
-Existing final lifecycle notifications run before incoming cleanup. Behaviors
-retain their handlers until the host finishes its destruction notifications.
+Existing final lifecycle notifications run before incoming cleanup.
 Cleanup finishes before synchronous destruction returns or Application destruction
 resolves. A throwing notification aborts the operation and can skip remaining
 cleanup, following the existing
@@ -232,6 +231,10 @@ a Collection does not perform terminal cleanup. This does not prevent new
 registrations after destruction, cancel callbacks in an already-running dispatch,
 or release application-owned references. Foreign listeners may maintain their own
 bookkeeping, which their own cleanup API must release.
+
+Behavior destruction releases its outgoing subscriptions and host participation.
+Outside listeners to a Behavior must release their own subscriptions with
+`stopListening(behavior)`; direct handlers can be removed with `behavior.off()`.
 
 ### Backbone interop
 

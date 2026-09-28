@@ -266,7 +266,7 @@
       "ownership": "Host owns top-level and nested Behaviors; direct Behavior destruction does not destroy its host.",
       "mutation": "Host preinitialize runs before Behavior construction; Behavior initialize precedes host initialize; bindings participate in host lifecycle.",
       "repetition": "One Behavior instance survives host render and attachment transitions.",
-      "destruction": "Direct destroy releases its participation and incoming handlers. Host destruction retains incoming handlers through final lifecycle notifications, then releases them after successful delivery; synchronous exceptions abort the operation.",
+      "destruction": "Direct destroy releases its participation; host destroy cleans remaining Behaviors once.",
       "diagnostics": [],
       "docs": [
         {
@@ -280,10 +280,6 @@
         {
           "file": "docs/events.class.md",
           "heading": "Behavior Events"
-        },
-        {
-          "file": "docs/events.md",
-          "heading": "Terminal subscription cleanup"
         }
       ],
       "tests": [
@@ -298,10 +294,6 @@
         {
           "file": "test/unit/behavior-lifecycle.spec.js",
           "title": "stops host, entity, and DOM participation after direct cleanup"
-        },
-        {
-          "file": "test/unit/behavior-destroy-listeners.spec.js",
-          "title": "cleans direct destruction without emitting an independent destroy notification"
         }
       ],
       "events": [
@@ -649,7 +641,7 @@
       "ownership": "listenTo subscriptions belong to the listener; off removes source registrations.",
       "mutation": "Registration/removal strings and event-map keys are literal names, including whitespace and empty strings; omitted/null removal names select all names. Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "once is removed before callback/reentrant trigger; ordinary listeners repeat.",
-      "destruction": "Native owner destruction clears outgoing and incoming subscriptions at terminal completion; Events itself has no destroy method. Emitting destroy alone does not clear subscriptions.",
+      "destruction": "Object, View/CollectionView, Region, Application, Model, and Collection destruction clears outgoing and incoming subscriptions at terminal completion; Events itself has no destroy method. Emitting destroy alone does not clear subscriptions.",
       "diagnostics": [],
       "docs": [
         {
@@ -1873,7 +1865,7 @@
       "ownership": "listenTo subscriptions belong to the listener; off removes source registrations.",
       "mutation": "Registration/removal strings and event-map keys are literal names, including whitespace and empty strings; omitted/null removal names select all names. Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "once is removed before callback/reentrant trigger; ordinary listeners repeat.",
-      "destruction": "Native owner destruction clears outgoing and incoming subscriptions at terminal completion; Events itself has no destroy method. Emitting destroy alone does not clear subscriptions.",
+      "destruction": "Object, View/CollectionView, Region, Application, Model, and Collection destruction clears outgoing and incoming subscriptions at terminal completion; Events itself has no destroy method. Emitting destroy alone does not clear subscriptions.",
       "diagnostics": [],
       "docs": [
         {
