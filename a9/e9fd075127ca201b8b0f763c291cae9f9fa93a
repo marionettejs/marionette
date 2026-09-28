@@ -1,0 +1,266 @@
+scripts/docs/development-kit.mjs
+  s_8553e3f264b3bb::t_e82578934ad40f 33-36
+docs/production-and-performance.md
+  s_8553e3f264b3bb::t_66122db5f60f86 46
+  s_8553e3f264b3bb::t_b23ccca5acc01f 11-12
+test/fixtures/docs-routing/selection.mjs
+  s_8553e3f264b3bb::t_d5f37d4d9e7ae1 63-66
+  s_8553e3f264b3bb::t_5806c07419242c 10,68,92
+  s_8553e3f264b3bb::t_11e534d3cef881 67,69-79
+packages/adapters/readme.md
+  s_8553e3f264b3bb::t_e0f776127f793e 77-78,83,91
+test/fixtures/docs-prerendered-content/literal-template.mjs
+  s_8553e3f264b3bb::t_6939ecff515eb3 28
+  s_8553e3f264b3bb::t_bbac1ef950fbb1 27
+docs/application-effects.md
+  s_8553e3f264b3bb::t_f1919b826fbabd 191-192,204-207,218-220,226-229
+  s_8553e3f264b3bb::t_05f2256583542e 4,22-23,36-37,280,284-288,298,302-315,333,337-342,345,348-349,352-353,358,366-367,371,379-383,385,390-392,397
+  s_8553e3f264b3bb::t_40969a8c22a5f3 39-41,59,61-66,68-71,299,318,320-322,330,374-375
+  s_8553e3f264b3bb::t_13489662954ead 300,319,325-326,378
+  s_8553e3f264b3bb::t_62dd390cd76268 350,357,360
+  s_8553e3f264b3bb::t_530e45c6f135c0 38,178,180,183,242,247,301
+docs/basics.md
+  s_8553e3f264b3bb::t_e0f776127f793e 84-85
+  s_8553e3f264b3bb::t_3eb347435f3a94 101,103,108,110-112,115,117
+  s_8553e3f264b3bb::t_78ada1c65823c6 157,162-163
+test/fixtures/docs-application-guides/package.json
+  s_8553e3f264b3bb::t_a785597b188685 8,10-11
+test/fixtures/docs-common-contract/validate.mjs
+  s_8553e3f264b3bb::t_b23ccca5acc01f 35-61
+test/fixtures/docs-application-guides/event-contracts.mjs
+  s_8553e3f264b3bb::t_a785597b188685 29
+test/fixtures/data-package-starter/AGENTS.md
+  s_8553e3f264b3bb::t_bf4c7fd0671a47 14,35-36
+  s_8553e3f264b3bb::t_6939ecff515eb3 13,29-32
+docs/view.rendering.md
+  s_8553e3f264b3bb::t_66122db5f60f86 25-67,73-74
+  s_8553e3f264b3bb::t_6939ecff515eb3 204
+  s_8553e3f264b3bb::t_6a37c3cd0cb9f9 147-149,152,158-159
+  s_8553e3f264b3bb::t_0d24a96cc66d69 160,202-203,205-211
+docs/marionette.application.md
+  s_8553e3f264b3bb::t_3eb347435f3a94 284,340-344,347-352,590,602-603,607
+  s_8553e3f264b3bb::t_f1919b826fbabd 543,546,554-559,563-567,581,583-585,588-589,591,593
+  s_8553e3f264b3bb::t_66c2f8bcaf8117 278-279,287,522-523,539,541-542,545,547-549,552-553
+test/fixtures/data-package-starter/workspace-views.ts
+  s_8553e3f264b3bb::t_bf4c7fd0671a47 4,6,11
+  s_8553e3f264b3bb::t_6939ecff515eb3 3,39-42,46,51-52,58-59
+docs/maintainers/documentation.md
+  s_8553e3f264b3bb::t_66122db5f60f86 255-280
+test/fixtures/data-package-starter/workspace.test.mjs
+  s_8553e3f264b3bb::t_5cfe658203b6ea 104,190-211,222-227,229
+  s_8553e3f264b3bb::t_3c0ca740cc67d9 212-218,291-296
+  s_8553e3f264b3bb::t_143b97b2404ed7 125,137-139
+  s_8553e3f264b3bb::t_6939ecff515eb3 45-46
+  s_8553e3f264b3bb::t_40f28aca409967 232-290
+  s_8553e3f264b3bb::t_63e6f78635e378 219-221,228,230-231
+docs/marionette.behavior.md
+  s_8553e3f264b3bb::t_05edb4f909b911 344,541
+  s_8553e3f264b3bb::t_87fe7ab35f3f77 162
+  s_8553e3f264b3bb::t_3eb347435f3a94 189-190,194,211-213,227-228
+docs/testing.md
+  s_8553e3f264b3bb::t_3c0ca740cc67d9 21,29-32,36,44-45,47-50
+test/fixtures/docs-application-guides/feed.mjs
+  s_8553e3f264b3bb::t_50b41e8dde9fb4 51-54
+  s_8553e3f264b3bb::t_6e79cda8a8a98a 110-113,131
+  s_8553e3f264b3bb::t_46a335b2715135 57-58
+scripts/docs/package.mjs
+  s_8553e3f264b3bb::t_a785597b188685 36
+test/browser/application-refresh.spec.mjs
+  s_8553e3f264b3bb::t_9d231e3122872d 139,149-155
+  s_8553e3f264b3bb::t_6e79cda8a8a98a 11,14,112,128
+  s_8553e3f264b3bb::t_d08dbc6e07f125 10,135-138,140-143,146-147
+docs/typescript.md
+  s_8553e3f264b3bb::t_3c0ca740cc67d9 47-48,53,57,95,99,102
+docs/marionette.region.md
+  s_8553e3f264b3bb::t_32c9e02bc47ef1 713-714,719,722,728-730
+  s_8553e3f264b3bb::t_e0f776127f793e 170,172,174,178,184-186
+  s_8553e3f264b3bb::t_4090f809eef88b 187,731
+docs/security.md
+  s_8553e3f264b3bb::t_6a37c3cd0cb9f9 28,32-33
+  s_8553e3f264b3bb::t_3c0ca740cc67d9 18-21,25,34-36
+test/fixtures/data-package-starter/workspace.ts
+  s_8553e3f264b3bb::t_6939ecff515eb3 6,9-10,12-23,52,70-73
+  s_8553e3f264b3bb::t_bf4c7fd0671a47 29
+  s_8553e3f264b3bb::t_5cfe658203b6ea 49-50
+  s_8553e3f264b3bb::t_9849e5d91ac55f 40
+test/unit/docs-integrations-examples.spec.js
+  s_8553e3f264b3bb::t_e0f776127f793e 13-14,58,61-82,145,150
+  s_8553e3f264b3bb::t_6d544942f7007f 60
+  s_8553e3f264b3bb::t_eb9324e7eb53e2 42-57,59
+test/fixtures/docs-view-dom-interactions/validate.mjs
+  s_8553e3f264b3bb::t_87fe7ab35f3f77 6,78-83,105-106,128,148,150
+docs/common.md
+  s_8553e3f264b3bb::t_b23ccca5acc01f 168-170,174,176-180,183-185,189-195
+  s_8553e3f264b3bb::t_474608351e7afc 196
+test/fixtures/run.mjs
+  s_8553e3f264b3bb::t_a785597b188685 89
+docs/events.md
+  s_8553e3f264b3bb::t_e0f776127f793e 120,126,365,368,386,407-409,451-453,510-512,514,525,548-550,552,563,612,614,626,675,677,691
+docs/choosing-integrations.md
+  s_8553e3f264b3bb::t_66122db5f60f86 24-27
+packages/data/readme.md
+  s_8553e3f264b3bb::t_3c0ca740cc67d9 10,14,16,20,28-31,34-35
+  s_8553e3f264b3bb::t_6f51dbf39c7946 36
+docs/development.md
+  s_8553e3f264b3bb::t_ae594c496cd02e 90,132-135
+test/fixtures/docs-entity-events/package.json
+  s_8553e3f264b3bb::t_684029e45e3ad6 10-11
+readme.md
+  s_8553e3f264b3bb::t_3c0ca740cc67d9 56,63,69-71
+test/browser/application-effects.spec.mjs
+  s_8553e3f264b3bb::t_05f2256583542e 21
+test/fixtures/docs-application-state/validate.mjs
+  s_8553e3f264b3bb::t_f1919b826fbabd 118-122
+  s_8553e3f264b3bb::t_3c0ca740cc67d9 181,187,199
+  s_8553e3f264b3bb::t_684029e45e3ad6 113-117,123
+  s_8553e3f264b3bb::t_b9c6ba48ff2b26 66,90-105,130-132,134-138,141-146,159-180,188-189
+docs/readme.md
+  s_8553e3f264b3bb::t_3c0ca740cc67d9 31-32,34,36,48-49
+test/fixtures/docs-application-guides/preparation.mjs
+  s_8553e3f264b3bb::t_11e534d3cef881 21-24
+test/fixtures/docs-list-composition/validate.mjs
+  s_8553e3f264b3bb::t_66122db5f60f86 40-41,43-45,47-53,57,67,70-75,87-90
+  s_8553e3f264b3bb::t_6a37c3cd0cb9f9 4,22-28,32,65,76-83
+  s_8553e3f264b3bb::t_d18cad921c247b 5,19,21,30
+  s_8553e3f264b3bb::t_9849e5d91ac55f 42,54,66,68-69
+docs/application-composition.md
+  s_8553e3f264b3bb::t_941c1cd53658d3 65-67,73,82-83,99,104,121-130,201,228-230,234-235,264
+  s_8553e3f264b3bb::t_9d231e3122872d 87-98,100,102-103,110,112-113,115,117
+  s_8553e3f264b3bb::t_825051f938c672 142,236-238
+  s_8553e3f264b3bb::t_c452a91ca2a011 105-109,120
+docs/quick-start.md
+  s_8553e3f264b3bb::t_9f18c4749ed388 44-47,49
+  s_8553e3f264b3bb::t_2208462a4c110b 13-15,20,24,31,36-40,42-43,112,122,127,178-180
+test/docs/development-kit.test.mjs
+  s_8553e3f264b3bb::t_e82578934ad40f 70-98
+test/fixtures/docs-behavior-host/validate.mjs
+  s_8553e3f264b3bb::t_05edb4f909b911 108,136
+docs/agents.md
+  s_8553e3f264b3bb::t_66122db5f60f86 49-50,80-82,112-116
+docs/troubleshooting.md
+  s_8553e3f264b3bb::t_b23ccca5acc01f 12
+test/fixtures/data-package-starter/setup.ts
+  s_8553e3f264b3bb::t_6939ecff515eb3 1-2
+docs/application-refresh.md
+  s_8553e3f264b3bb::t_f1919b826fbabd 138-139
+  s_8553e3f264b3bb::t_941c1cd53658d3 93-96,108,111-112,123,181,186-187,245
+  s_8553e3f264b3bb::t_46a335b2715135 233-236
+test/browser/starter-development.spec.mjs
+  s_8553e3f264b3bb::t_e82578934ad40f 45-47
+  s_8553e3f264b3bb::t_004f85b6f9f25c 130
+test/fixtures/data-package-starter/package.json
+  s_8553e3f264b3bb::t_bdb320b303dd16 20,31
+  s_8553e3f264b3bb::t_66122db5f60f86 19,21-22,25,29-30
+test/fixtures/docs-quick-start/package.json
+  s_8553e3f264b3bb::t_684029e45e3ad6 4-10
+test/browser/fixtures.mjs
+  s_8553e3f264b3bb::t_3ee3e4669a07ee 30,35
+docs-site/resources.json
+  s_8553e3f264b3bb::t_3c0ca740cc67d9 13
+test/fixtures/data-package-starter/readme.md
+  s_8553e3f264b3bb::t_6939ecff515eb3 69-72
+  s_8553e3f264b3bb::t_eaa9054fd0ec29 74-75,82-83
+  s_8553e3f264b3bb::t_66122db5f60f86 3,76-81
+test/fixtures/docs-list-composition/package.json
+  s_8553e3f264b3bb::t_bdb320b303dd16 10
+  s_8553e3f264b3bb::t_66122db5f60f86 9
+test/fixtures/docs-application-guides/effects.mjs
+  s_8553e3f264b3bb::t_13489662954ead 145
+  s_8553e3f264b3bb::t_05f2256583542e 14,28-29,31,211-236
+docs/forms-and-accessibility.md
+  s_8553e3f264b3bb::t_bf4c7fd0671a47 16-18,23-28,33-41,56-59,78,85,90,159
+skills/marionette/SKILL.md
+  s_8553e3f264b3bb::t_3c0ca740cc67d9 62-63
+docs/list-composition.md
+  s_8553e3f264b3bb::t_143b97b2404ed7 29
+  s_8553e3f264b3bb::t_6939ecff515eb3 70-72
+  s_8553e3f264b3bb::t_6a37c3cd0cb9f9 13,46,68,75-77,83,92,97-98,103-104
+  s_8553e3f264b3bb::t_d18cad921c247b 14,18,22-23,25,36,49,55,63,93
+  s_8553e3f264b3bb::t_9849e5d91ac55f 26-28,32-33
+  s_8553e3f264b3bb::t_66122db5f60f86 12,19-20,31,34,38-42,44-45,52,56-61,64-67,74,80,82,85,94-96,100,105-106,109-112
+  s_8553e3f264b3bb::t_eae40c716b957c 35,37,62,73
+test/fixtures/docs-application-state/package.json
+  s_8553e3f264b3bb::t_684029e45e3ad6 9-10
+test/fixtures/docs-application-guides/validate.mjs
+  s_8553e3f264b3bb::t_4240e02270fe8f 307-309
+  s_8553e3f264b3bb::t_78084a04bc5638 310-328
+  s_8553e3f264b3bb::t_ea01117e6dfeea 66,69,71-72,74-75,94,177
+docs/marionette.state.md
+  s_8553e3f264b3bb::t_3c0ca740cc67d9 278,281-282,287,289-293,299-302,307,309-311,315-318,321-323
+  s_8553e3f264b3bb::t_78084a04bc5638 133,137,158
+  s_8553e3f264b3bb::t_740ebfe0258f30 110-111
+  s_8553e3f264b3bb::t_4240e02270fe8f 64-109,112-121,138
+  s_8553e3f264b3bb::t_33be175bc6dcb0 126-128,132,139-140,143-146,148,151,153-157,161-165
+docs/marionette.collectionview.md
+  s_8553e3f264b3bb::t_acfc8803d1c82a 90-91,93-99,102-103
+  s_8553e3f264b3bb::t_e0f776127f793e 388,392,408-410,472,474,559
+  s_8553e3f264b3bb::t_130b0f2ab2cbec 22-23,1046,1049,1058,1064,1145,1148,1169,1172,1193,1199,1268,1274,1307,1313,1340,1346,1400,1406,1431,1437
+  s_8553e3f264b3bb::t_c106bdb10ec10a 104
+test/fixtures/docs-entity-events/validate.mjs
+  s_8553e3f264b3bb::t_684029e45e3ad6 24,29-30,33-37,40,43-52,55-65
+test/browser/docs-form.spec.mjs
+  s_8553e3f264b3bb::t_fca4e68efdf4ed 98-107,110-115,117-134,136-137
+  s_8553e3f264b3bb::t_bd3118d91e0f89 14,18
+  s_8553e3f264b3bb::t_3c0ca740cc67d9 116
+  s_8553e3f264b3bb::t_54132b9a9075d1 25,108-109,135
+docs/installation.md
+  s_8553e3f264b3bb::t_130b0f2ab2cbec 110-111,118-119,125
+  s_8553e3f264b3bb::t_a47ae7977df32f 103-104,142-143,146-147,149-150,158-160,164-166
+plugins/marionette/skills/marionette/SKILL.md
+  s_8553e3f264b3bb::t_3c0ca740cc67d9 62-63
+docs/data.api.md
+  s_8553e3f264b3bb::t_87fe7ab35f3f77 27
+  s_8553e3f264b3bb::t_90a333b30aa43f 15-16,20,24,175,183,242
+  s_8553e3f264b3bb::t_693dcf23cfad9a 235-236
+  s_8553e3f264b3bb::t_585a1b55336be1 227-229,232,249-252
+test/fixtures/docs-application-guides/state-presentation.mjs
+  s_8553e3f264b3bb::t_5c604a76d872c7 1-48
+docs/task-recipes.md
+  s_8553e3f264b3bb::t_40969a8c22a5f3 117,120-122,124,200-202,210,212-217,219-223,225-227,229,237
+  s_8553e3f264b3bb::t_5806c07419242c 94-95
+  s_8553e3f264b3bb::t_825051f938c672 238
+  s_8553e3f264b3bb::t_46a335b2715135 110-111
+test/fixtures/docs-quick-start/validate.mjs
+  s_8553e3f264b3bb::t_684029e45e3ad6 26,30-34,61
+  s_8553e3f264b3bb::t_62dd390cd76268 46-50
+test/fixtures/docs-basics-contract/validate.mjs
+  s_8553e3f264b3bb::t_684029e45e3ad6 28-47
+docs/dom.interactions.md
+  s_8553e3f264b3bb::t_05edb4f909b911 291
+  s_8553e3f264b3bb::t_87fe7ab35f3f77 38-39
+  s_8553e3f264b3bb::t_f65dcbe6ed8662 77,80,82-85,89-90
+docs/events.entity.md
+  s_8553e3f264b3bb::t_3eb347435f3a94 18-21,24-26,28,30-33,35-36,40-43,46-51
+config/api-contracts/inventory.json
+  s_8553e3f264b3bb::t_882e950e973439 8097-8099,8102,8104-8107,8109-8110,8115,8118-8120
+test/fixtures/data-package-starter/package-lock.json
+  s_8553e3f264b3bb::t_7c6bdf310b9d00 8-10,13,776-782,2336-2341
+test/fixtures/docs-application-guides/completion.mjs
+  s_8553e3f264b3bb::t_9bf1dac537bd4e 43,61,150,159
+test/fixtures/docs-application-guides/package-lock.json
+  s_8553e3f264b3bb::t_c76cbcf65c8130 8,10-11,208-213,459-464
+test/fixtures/docs-application-state/package-lock.json
+  s_8553e3f264b3bb::t_d80801fec8e81d 9-10,439-444
+test/fixtures/docs-entity-events/package-lock.json
+  s_8553e3f264b3bb::t_4dea64fbdd4121 10-11
+test/fixtures/docs-list-composition/package-lock.json
+  s_8553e3f264b3bb::t_71777c0a015d6f 9-10,439-444
+test/fixtures/docs-quick-start/package-lock.json
+  s_8553e3f264b3bb::t_ce87347c458743 8-9,438-443
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a9e9fd075127ca201b8b0f763c291cae9f9fa93a",
+  "prompts": {},
+  "sessions": {
+    "s_8553e3f264b3bb": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e64b-1785-7880-a431-9084946fbfbf",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
