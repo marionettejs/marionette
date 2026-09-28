@@ -1,0 +1,66 @@
+src/mixins/behaviors.ts
+  s_5de4e0020f73d1::t_1858b42440e60a 6,9,101-112
+  s_5de4e0020f73d1::t_ed809e158d8740 100
+src/modules/behavior.ts
+  s_5de4e0020f73d1::t_1858b42440e60a 114,183-184
+test/unit/behavior-destroy-listeners.spec.js
+  s_5de4e0020f73d1::t_e3d1baa29f7c20 102-104,114,120-125,134,152
+  s_5de4e0020f73d1::t_5638d042ad5b55 1-101,105-113,115-119,126-133,135-151,155
+  s_5de4e0020f73d1::t_7d2c6af2cc3656 153-154,156-159
+config/api-contracts/inventory.json
+  s_5de4e0020f73d1::t_e7db77aebd5b81 4,8039,8041,8065,8068,8074-8076,8084,8104-8106,8108-8109,8117,8120,8134,8153
+config/api-contracts/semantics.json
+  s_5de4e0020f73d1::t_dfb88f5d3996d4 131,145-148,159-162,192,206-209,220-223,269,283-286,301-304,342,359-362,377-380,433,450-453,476-479,652,658-661,684-687,1564,1584-1587,1650-1653,1721,1727-1730,1745-1748,1765,1771-1774,1793-1796,1876,1882-1885,1908-1911
+docs/compact-reference.md
+  s_5de4e0020f73d1::t_011effa59c5e64 32
+docs/events.md
+  s_5de4e0020f73d1::t_2afbf349057a6b 210-234
+docs/marionette.application.md
+  s_5de4e0020f73d1::t_6e6363abcf2816 664-670
+docs/marionette.behavior.md
+  s_5de4e0020f73d1::t_19284730f59ffa 589-596
+docs/marionette.mnobject.md
+  s_5de4e0020f73d1::t_eb5dad54223f78 75-78,90-93
+docs/marionette.region.md
+  s_5de4e0020f73d1::t_884d501af8eaed 664-668
+docs/migration-from-v4.md
+  s_5de4e0020f73d1::t_5a45c0b33dcf01 119
+docs/resource-cleanup.md
+  s_5de4e0020f73d1::t_1daf45675d8ca2 5-10
+docs/view.lifecycle.md
+  s_5de4e0020f73d1::t_979021c5d4e56e 251-258,297-303
+packages/data/readme.md
+  s_5de4e0020f73d1::t_e4498d689d8fad 102-105
+packages/data/src/collection.ts
+  s_5de4e0020f73d1::t_2ee15ece0a8e11 353-358
+packages/data/src/model.ts
+  s_5de4e0020f73d1::t_b36b89340c7e8a 186-191
+src/mixins/destroy.ts
+  s_5de4e0020f73d1::t_43f7ecc0271426 3,24-29
+src/mixins/view.ts
+  s_5de4e0020f73d1::t_8c1db85f2adbf9 215-222
+src/modules/application.ts
+  s_5de4e0020f73d1::t_f8ba790f15d969 740-745
+src/modules/region.ts
+  s_5de4e0020f73d1::t_83304e67031026 513-518
+test/browser/destroy-listener-cleanup.spec.mjs
+  s_5de4e0020f73d1::t_7cbda1649c42b8 1-69
+test/unit/destroy-listener-cleanup.spec.js
+  s_5de4e0020f73d1::t_e9ef33df57f24c 1-233
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "30c88203e020b412293846f54ea2cb505a3276d0",
+  "prompts": {},
+  "sessions": {
+    "s_5de4e0020f73d1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e84b-cf5b-74c1-9b2c-90475eea87f7",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
