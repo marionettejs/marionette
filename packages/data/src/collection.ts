@@ -350,12 +350,9 @@ Object.assign(Collection.prototype, Events, {
     if (this._isDestroyed) { return this; }
     this._isDestroyed = true;
     for (let index = this.models.length; index--;) { this._unbindModel(this.models[index]); }
-    try {
-      this.triggerMethod('destroy', this, options);
-    } finally {
-      this.stopListening();
-      this.off();
-    }
+    this.triggerMethod('destroy', this, options);
+    this.stopListening();
+    this.off();
     return this;
   }
 } satisfies ThisType<CollectionInstanceRuntime> & Pick<CollectionInstanceRuntime,

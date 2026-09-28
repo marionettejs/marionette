@@ -510,12 +510,9 @@ Object.assign(Region.prototype, CommonMixin, {
     if (parentView && name !== undefined) {
       parentView._removeReferences!(name);
     }
-    try {
-      this.triggerMethod('destroy', this, options);
-    } finally {
-      this.stopListening();
-      this.off();
-    }
+    this.triggerMethod('destroy', this, options);
+    this.stopListening();
+    this.off();
 
     return this;
   }

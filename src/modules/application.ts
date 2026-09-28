@@ -737,12 +737,9 @@ export default /* @__PURE__ */ ((methods: object) => {
       }
       this._destroyRadio();
       this._destroyState();
-      try {
-        this.triggerMethod('destroy', this, options);
-      } finally {
-        this.stopListening();
-        this.off();
-      }
+      this.triggerMethod('destroy', this, options);
+      this.stopListening();
+      this.off();
     });
   },
 

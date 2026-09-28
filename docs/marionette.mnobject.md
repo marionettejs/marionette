@@ -87,10 +87,9 @@ destruction also return the same MnObject without repeating the lifecycle.
 `Application` has an asynchronous destruction lifecycle; see its
 [reference](./marionette.application.md#application-lifecycle).
 `isDestroyed()` is `false` during `before:destroy` and `true` during `destroy`.
-If a lifecycle handler throws, the error propagates and interrupts notification
-delivery. Final event cleanup still runs when `onDestroy` or a `destroy`/`all`
-handler throws. Earlier failures can skip remaining teardown. The destruction
-guard remains set; later `destroy()` calls do not restart hooks or resume cleanup.
+If a lifecycle handler throws, the error propagates and stops destruction.
+The destruction guard remains set; later `destroy()` calls do not restart
+hooks or resume cleanup.
 
 A custom override that mutates owned state before calling the base `destroy`
 method is outside this guard. See the

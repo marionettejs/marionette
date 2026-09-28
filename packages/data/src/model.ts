@@ -183,12 +183,9 @@ Object.assign(Model.prototype, Events, {
   destroy(options?: unknown) {
     if (this._isDestroyed) { return this; }
     this._isDestroyed = true;
-    try {
-      this.triggerMethod('destroy', this, options);
-    } finally {
-      this.stopListening();
-      this.off();
-    }
+    this.triggerMethod('destroy', this, options);
+    this.stopListening();
+    this.off();
     return this;
   }
 } satisfies ThisType<ModelRuntime> & Pick<ModelRuntime,

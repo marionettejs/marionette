@@ -663,9 +663,8 @@ Reentrant Region destruction from `before:destroy` or `destroy`, repeated calls,
 and later destruction of the parent View do not repeat the child or Region teardown.
 After the final notification, `stopListening()` and `off()` release outgoing
 and incoming subscriptions, including native listeners' references to the Region.
-This event cleanup also runs if a final `onDestroy`/`destroy` notification throws.
-Earlier failing lifecycle hooks stop destruction without completing cleanup.
-Later `destroy()` calls do not retry hooks or resume partial teardown. Discard the Region after a cleanup error;
+A throwing lifecycle hook stops destruction. Later `destroy()` calls do not
+retry hooks or resume partial teardown. Discard the Region after a cleanup error;
 its remaining state is not a reusable lifecycle state.
 `isDestroyed()` becomes `true` after `reset()` finishes, before the `destroy`
 event. It remains `false` in `before:destroy`, `before:empty`, and `empty` handlers

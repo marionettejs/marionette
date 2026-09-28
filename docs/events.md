@@ -222,8 +222,8 @@ registrations added during final destruction notifications are also removed.
 Existing final lifecycle notifications run before incoming cleanup. Behaviors
 retain their handlers until the host finishes its destruction notifications.
 Cleanup finishes before synchronous destruction returns or Application destruction
-resolves. A throwing final notification interrupts dispatch and propagates the
-error, but final event cleanup still runs; earlier teardown failures retain the
+resolves. A throwing notification aborts the operation and can skip remaining
+cleanup, following the existing
 [synchronous failure boundary](./view.lifecycle.md#synchronous-failures).
 
 Application stop/restart and View detachment preserve their existing subscription

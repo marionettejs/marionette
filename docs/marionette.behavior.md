@@ -589,9 +589,9 @@ is destroyed. Nested Behaviors participate as Behaviors of the same host view.
 Direct `behavior.destroy()` clears incoming handlers with `off()` as its last
 step. During host destruction, those handlers survive early Behavior teardown
 until the host finishes its final notifications, then incoming cleanup runs for
-all its Behaviors. Final notification errors still release those incoming
-subscriptions before propagating. This preserves existing lifecycle ordering
-without adding an independent Behavior destroy event. See
+all its Behaviors. A throwing notification aborts the operation and can skip
+remaining cleanup. This preserves existing lifecycle ordering without adding
+an independent Behavior destroy event. See
 [terminal subscription cleanup](./events.md#terminal-subscription-cleanup).
 
 `Behavior` does not expose an independent `isDestroyed()` state. Repeated direct

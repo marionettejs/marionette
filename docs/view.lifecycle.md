@@ -294,13 +294,6 @@ restore a partially initialized or rendered instance, or recover on the next cal
 source notification. Fix the failing callback or adapter; do not rely on partial
 instance state after a failure.
 
-Final destruction notifications have a narrow exception: once teardown reaches
-`onDestroy`/`destroy` delivery, outgoing and incoming event cleanup runs even if
-that notification throws. Host-managed Behavior incoming cleanup also runs after
-a failing final host or Behavior notification. The original error still propagates
-and remaining notifications are not delivered. This does not guarantee completion
-of earlier failing teardown or recovery from failing cleanup implementations.
-
 Successful cleanup and the documented ownership and repeated-destruction rules still
 apply. A callback that destroys or mutates an owner during an in-progress render does
 not acquire additional recovery guarantees merely because it calls a public method;

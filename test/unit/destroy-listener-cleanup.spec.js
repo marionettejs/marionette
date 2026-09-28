@@ -76,35 +76,6 @@ describe('Terminal incoming listener cleanup', function() {
         otherOwner.destroy();
         otherSource.destroy();
       });
-
-      for (const phase of ['method', 'event']) {
-        it(`${name} releases terminal subscriptions when its destroy ${phase} throws`, async function() {
-          const source = create();
-          const owner = new MnObject();
-          const otherSource = new MnObject();
-          const callback = vi.fn();
-          const later = vi.fn();
-          const error = new Error('final notification failed');
-          owner.listenTo(source, 'change', callback);
-          source.listenTo(otherSource, 'change', callback);
-          if (phase === 'method') {
-            source.onDestroy = () => { throw error; };
-          } else {
-            source.on('destroy', () => { throw error; });
-          }
-          source.on('destroy', later);
-          await expect(Promise.resolve().then(() => source.destroy())).rejects.toBe(error);
-          expect(source.isDestroyed()).toBe(true);
-          expect(later).not.toHaveBeenCalled();
-          source.trigger('change');
-          otherSource.trigger('change');
-          expect(callback).not.toHaveBeenCalled();
-          expectReleased(source, [owner]);
-          await source.destroy();
-          owner.destroy();
-          otherSource.destroy();
-        });
-      }
     });
   }
 

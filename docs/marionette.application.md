@@ -663,7 +663,7 @@ Ordinary `listenTo` and `bindEvents` subscriptions belong to the Application
 instance. `stop()` does not remove them, and `restart()` reuses that instance.
 `destroy()` calls `stopListening()` and `off()` after its final notification,
 releasing outgoing and incoming subscriptions before successful resolution.
-A throwing final notification still runs this event cleanup before rejecting;
+A throwing notification rejects the operation and can skip remaining cleanup;
 a failure in preparation does not clear incoming subscriptions. See
 [terminal subscription cleanup](./events.md#terminal-subscription-cleanup).
 A stopped Application can still receive a service event from an in-flight save

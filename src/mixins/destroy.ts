@@ -21,12 +21,9 @@ export default {
     this._isDestroyed = true;
     this._destroyRadio?.();
     this._destroyState?.();
-    try {
-      this.triggerMethod('destroy', this, options);
-    } finally {
-      this.stopListening();
-      this.off();
-    }
+    this.triggerMethod('destroy', this, options);
+    this.stopListening();
+    this.off();
 
     return this;
   }
