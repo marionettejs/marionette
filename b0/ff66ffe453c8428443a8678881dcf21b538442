@@ -1,0 +1,52 @@
+examples/catalog/server.mjs
+  s_02bf08a4f254a1::t_cdc404bc63f207 1-13,15-34
+  s_02bf08a4f254a1::t_d43317474d2088 14
+examples/catalog/index.html
+  s_02bf08a4f254a1::t_d8e05609102dfa 1-30
+examples/catalog/catalog.js
+  s_02bf08a4f254a1::t_d8e05609102dfa 1-86,91
+  s_02bf08a4f254a1::t_8da133915299f4 87-90
+examples/catalog/catalog.browser.spec.mjs
+  s_02bf08a4f254a1::t_9eca8de9cea6a7 1-15,23-24,26,31-33
+  s_02bf08a4f254a1::t_589766a405c547 16-22,25,27-30
+examples/catalog/main.js
+  s_02bf08a4f254a1::t_d8e05609102dfa 1-3,5,7-18,20-22
+  s_02bf08a4f254a1::t_41fa033956034d 4,6,19
+examples/catalog/records.json
+  s_02bf08a4f254a1::t_d8e05609102dfa 1-12
+examples/catalog/playwright.config.mjs
+  s_02bf08a4f254a1::t_cdc404bc63f207 1-20
+skills/marionette/SKILL.md
+  s_02bf08a4f254a1::t_6b4f988e00e614 3
+test/unit/docs-catalog.spec.js
+  s_02bf08a4f254a1::t_d31ee3fcafd624 124,129,136
+  s_02bf08a4f254a1::t_560f256e97a321 1-28,31-123,125-128,130-135,137-149,170-225
+  s_02bf08a4f254a1::t_09e41d2d43cb06 29-30
+  s_02bf08a4f254a1::t_95b82512090170 150-169
+docs/readme.md
+  s_02bf08a4f254a1::t_293e02fb27d68b 1,3-4,6-8,10-11
+docs/catalog.md
+  s_02bf08a4f254a1::t_8da133915299f4 108-109
+  s_02bf08a4f254a1::t_293e02fb27d68b 1-3,6-20,23-35,37-68,71-107,110
+  s_02bf08a4f254a1::t_41fa033956034d 4-5,21-22,36,69-70,111-114
+plugins/marionette/skills/marionette/SKILL.md
+  s_02bf08a4f254a1::t_6b4f988e00e614 3
+readme.md
+  s_02bf08a4f254a1::t_cfac15d2bcc1cd 18,25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "b0ff66ffe453c8428443a8678881dcf21b538442",
+  "prompts": {},
+  "sessions": {
+    "s_02bf08a4f254a1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0dc83-b213-7b62-b5f6-93a88f9fde6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
