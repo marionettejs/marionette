@@ -72,10 +72,10 @@ On successful completion of its lifecycle, `destroy` removes subscriptions the
 instance made with `listenTo`, releases its owned Radio event subscriptions and
 replies, cleans up State, and returns the MnObject synchronously. Returned Promises
 from destruction hooks are not awaited. It does not reset the shared Radio channel or
-remove unrelated channel handlers. Listeners registered directly on the
-instance with `on` are not removed automatically. If a lifecycle callback
-throws, cleanup that has not yet run may be skipped; the failure boundaries are
-described below.
+remove unrelated channel handlers. After the final notification, `stopListening()`
+and `off()` release outgoing subscriptions and all incoming handlers, including
+native listeners' references to this object. See
+[terminal subscription cleanup](./events.md#terminal-subscription-cleanup).
 
 Invoking `destroy` triggers `before:destroy` and `destroy` events and their
 [corresponding `onBeforeDestroy` and `onDestroy` methods](./events.md#onevent-binding).

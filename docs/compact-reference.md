@@ -29,7 +29,7 @@ Read [Synchronous failures](./view.lifecycle.md#synchronous-failures).
 
 - **Timing:** Before and completion notifications are synchronous and ignore returns. Only prepareStart/prepareStop/prepareDestroy are awaited with options and an abort context; start completion receives one resolved preparation result. Supersession aborts before replacement preparation; adopted stop retains its original context/options without abort. Startup Region binding occurs before startup notifications, after any adopted stop readiness finishes. isRunning and configured stateEvents follow activation: false during startup preparation, true immediately before start notification through pending ordinary stop/restart permission, and false before root teardown or immediately when terminal destruction begins. Suppressed state events are not replayed.
 
-- **Cleanup:** Destruction blocks owner and descendant start/restart; successful destruction destroys owned children. Readiness rejection preserves the documented retry and partial-child boundaries.
+- **Cleanup:** Destruction blocks owner and descendant start/restart; successful destruction destroys owned children. Readiness rejection preserves the documented retry and partial-child boundaries. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.
 
 Read [Application Lifecycle](./marionette.application.md#application-lifecycle).
 

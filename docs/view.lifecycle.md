@@ -248,10 +248,14 @@ their current Views, and CollectionView children that remain owned. It detaches
 the root element and leaves the View rendered `false`, attached `false`, and
 destroyed `true` after successful teardown.
 
-Destroy does not remove callbacks registered directly on the View with `on()`,
-destroy its model, collection, or arbitrary option collaborators, or clean up
-application resources Marionette does not own. Release those resources in the
-appropriate lifecycle callback.
+After host and Behavior destruction notifications, final event cleanup clears
+all incoming handlers with `off()`, including direct `on()` callbacks and native
+listeners' tracked references to the View. See
+[terminal subscription cleanup](./events.md#terminal-subscription-cleanup).
+
+Destroy does not destroy borrowed models, collections, or arbitrary option
+collaborators, or clean up application resources Marionette does not own.
+Release those resources in the appropriate lifecycle callback.
 
 The [`before:destroy` event](./events.class.md#destroy-and-beforedestroy-events) is the best place to clean
 up any added listeners not related to the view's DOM.

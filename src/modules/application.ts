@@ -739,6 +739,7 @@ export default /* @__PURE__ */ ((methods: object) => {
       this._destroyState();
       this.triggerMethod('destroy', this, options);
       this.stopListening();
+      this.off();
     });
   },
 

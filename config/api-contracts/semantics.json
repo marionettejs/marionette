@@ -128,7 +128,7 @@
       "ownership": "Supplied state is borrowed; createState results are owned. Radio bindings belong to the owner.",
       "mutation": "Construction initializes configured options before initialize; it does not render DOM.",
       "repetition": "Each construction creates an independent owner; destroy is guarded against repeat cleanup.",
-      "destruction": "Destroy releases owned listeners and state subscriptions; synchronous exceptions abort.",
+      "destruction": "Destroy releases owned listeners and state subscriptions. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
       "diagnostics": [],
       "docs": [
         {
@@ -142,6 +142,10 @@
         {
           "file": "docs/events.class.md",
           "heading": "MnObject Events"
+        },
+        {
+          "file": "docs/events.md",
+          "heading": "Terminal subscription cleanup"
         }
       ],
       "tests": [
@@ -152,6 +156,10 @@
         {
           "file": "test/unit/object.spec.js",
           "title": "should maintain a reference to the options"
+        },
+        {
+          "file": "test/unit/destroy-listener-cleanup.spec.js",
+          "title": "delivers final notifications and releases incoming and outgoing subscriptions"
         }
       ],
       "events": [
@@ -181,7 +189,7 @@
       "ownership": "View owns its Regions and Behaviors, and owns only factory-created state. A Region or CollectionView can own the View.",
       "mutation": "render replaces template contents and refreshes UI bindings; renderAttributes explicitly refreshes root attributes. Named Region lookup does not render; getChildView renders an unrendered parent before reading its child.",
       "repetition": "render may repeat while live; rendering after destruction is a no-op.",
-      "destruction": "destroy releases owned composition and removes its element; before:destroy precedes destroy.",
+      "destruction": "destroy releases owned composition and removes its element; before:destroy precedes destroy. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
       "diagnostics": [],
       "docs": [
         {
@@ -195,6 +203,10 @@
         {
           "file": "docs/events.class.md",
           "heading": "View Events"
+        },
+        {
+          "file": "docs/events.md",
+          "heading": "Terminal subscription cleanup"
         }
       ],
       "tests": [
@@ -205,6 +217,10 @@
         {
           "file": "test/unit/view-lifecycle.spec.js",
           "title": "treats repeated render calls after destruction as idempotent no-ops"
+        },
+        {
+          "file": "test/unit/destroy-listener-cleanup.spec.js",
+          "title": "delivers final notifications and releases incoming and outgoing subscriptions"
         }
       ],
       "events": [
@@ -315,7 +331,7 @@
       "ownership": "show adopts a View; detach releases ownership without destroying it; empty/replacement destroy the current View.",
       "mutation": "show renders and inserts a View; detach removes it; replaceElement state is independent of attachment.",
       "repetition": "Showing the same View and repeating empty/destroy are deterministic no-ops when already satisfied.",
-      "destruction": "Once destruction begins, show/detach cannot acquire/release a new View; cleanup failures abort without retry.",
+      "destruction": "Once destruction begins, show/detach cannot acquire/release a new View; cleanup failures abort without retry. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
       "diagnostics": [
         "MN0003",
         "MN0004"
@@ -332,6 +348,10 @@
         {
           "file": "docs/events.class.md",
           "heading": "Region Events"
+        },
+        {
+          "file": "docs/events.md",
+          "heading": "Terminal subscription cleanup"
         }
       ],
       "tests": [
@@ -346,6 +366,10 @@
         {
           "file": "test/unit/region-lifecycle.spec.js",
           "title": "does not complete or retry destruction when child cleanup throws"
+        },
+        {
+          "file": "test/unit/destroy-listener-cleanup.spec.js",
+          "title": "delivers final notifications and releases incoming and outgoing subscriptions"
         }
       ],
       "events": [
@@ -398,7 +422,7 @@
       "ownership": "Managed children belong to the CollectionView; stable unchanged model sources preserve child identity; same-key replacement recreates a child.",
       "mutation": "Structural updates add/remove affected children and reorder survivor elements; reset destructively replaces the list. Filters affect presentation.",
       "repetition": "Explicit live render destroys all existing children and reconstructs collection-derived children; structural source updates reconcile survivors without an explicit render. Comparator ties preserve documented order.",
-      "destruction": "destroy releases collection observation and destroys owned children; queued updates cannot resurrect a destroyed owner.",
+      "destruction": "destroy releases collection observation and destroys owned children; queued updates cannot resurrect a destroyed owner. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
       "diagnostics": [
         "MN0003",
         "MN0039"
@@ -415,6 +439,10 @@
         {
           "file": "docs/events.class.md",
           "heading": "CollectionView Events"
+        },
+        {
+          "file": "docs/events.md",
+          "heading": "Terminal subscription cleanup"
         }
       ],
       "tests": [
@@ -437,6 +465,10 @@
         {
           "file": "test/unit/collection-view/collection-view-lifecycle.spec.js",
           "title": "follows the normal Region-managed transition sequence"
+        },
+        {
+          "file": "test/unit/destroy-listener-cleanup.spec.js",
+          "title": "delivers final notifications and releases incoming and outgoing subscriptions"
         }
       ],
       "events": [
@@ -609,12 +641,16 @@
       "ownership": "listenTo subscriptions belong to the listener; off removes source registrations.",
       "mutation": "Registration/removal strings and event-map keys are literal names, including whitespace and empty strings; omitted/null removal names select all names. Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "once is removed before callback/reentrant trigger; ordinary listeners repeat.",
-      "destruction": "Owner cleanup stops listening; Events itself has no destroy method.",
+      "destruction": "Object, View/CollectionView, Region, Application, Model, and Collection destruction clears outgoing and incoming subscriptions at terminal completion; Events itself has no destroy method. Emitting destroy alone does not clear subscriptions.",
       "diagnostics": [],
       "docs": [
         {
           "file": "docs/events.md",
           "heading": "Events API"
+        },
+        {
+          "file": "docs/events.md",
+          "heading": "Terminal subscription cleanup"
         }
       ],
       "tests": [
@@ -637,6 +673,10 @@
         {
           "file": "test/unit/events-literal-names.spec.js",
           "title": "binds and selectively unbinds literal entity-event map keys"
+        },
+        {
+          "file": "test/unit/destroy-listener-cleanup.spec.js",
+          "title": "delivers final notifications and releases incoming and outgoing subscriptions"
         }
       ]
     },
@@ -1513,7 +1553,7 @@
       "ownership": "Registration never starts children. Callers explicitly await prerequisites. Stop/destroy traverse all owned descendants, including stopped intermediate owners; descendants cannot start/restart during an ancestor stop or terminal phase.",
       "mutation": "Canceled readiness cannot append stale framework completion events or alter stable state.",
       "repetition": "Compatible calls share promises. Restart coalescing ends before startup completion notifications; restart from onStart/start begins a new cycle with independent options and outcome. A stopped owner still drains owned descendants without repeating its own stop preparation or notifications. Restart deactivates children; reactivation is explicit. A different Region on start while running or starting is rejected with MN0041. Restart with a different host supersedes pending start/restart, deactivates first, then binds the latest host. A fresh start from stopped may bind a new host. Start-time region options accept only existing Region instances; constructor options retain Region definitions.",
-      "destruction": "Destruction blocks owner and descendant start/restart; successful destruction destroys owned children. Readiness rejection preserves the documented retry and partial-child boundaries.",
+      "destruction": "Destruction blocks owner and descendant start/restart; successful destruction destroys owned children. Readiness rejection preserves the documented retry and partial-child boundaries. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
       "diagnostics": [
         "MN0041"
       ],
@@ -1533,6 +1573,10 @@
         {
           "file": "docs/marionette.application.md",
           "heading": "Starting an Application"
+        },
+        {
+          "file": "docs/events.md",
+          "heading": "Terminal subscription cleanup"
         }
       ],
       "tests": [
@@ -1595,6 +1639,10 @@
         {
           "file": "test/unit/application-restart-completion.spec.js",
           "title": "coalesces compatible restarts during both stop and start preparation with original options"
+        },
+        {
+          "file": "test/unit/destroy-listener-cleanup.spec.js",
+          "title": "delivers final notifications and releases incoming and outgoing subscriptions"
         }
       ],
       "events": [
@@ -1662,12 +1710,16 @@
       "ownership": "No source ownership transfer.",
       "mutation": "set/unset/clear/reset publish exact change records after notification-free construction; missing and own undefined are distinct. Native Model subclasses are preserved.",
       "repetition": "Nested writes complete synchronously as independent changes; destroy is idempotent.",
-      "destruction": "destroy notifies observers once; containing collections remove that model; later mutations do not revive it.",
+      "destruction": "destroy notifies observers once; containing collections remove that model; later mutations do not revive it. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
       "diagnostics": [],
       "docs": [
         {
           "file": "packages/data/readme.md",
           "heading": "Mutation semantics"
+        },
+        {
+          "file": "docs/events.md",
+          "heading": "Terminal subscription cleanup"
         }
       ],
       "tests": [
@@ -1682,6 +1734,10 @@
         {
           "file": "test/unit/data-package/model.spec.js",
           "title": "destroys once after notifying observers"
+        },
+        {
+          "file": "test/unit/destroy-listener-cleanup.spec.js",
+          "title": "delivers final notifications and releases incoming and outgoing subscriptions"
         }
       ]
     },
@@ -1698,12 +1754,16 @@
       "ownership": "Collections observe membership but do not own Model lifetimes; the same Model may belong to multiple Collections.",
       "mutation": "add/remove produce normalized records; move/sort reorder; reset rebuilds membership; no Collection.set API exists.",
       "repetition": "No-op mutations follow their documented event rules; notifications cannot be silenced; sort emits even if order is unchanged; destroy is idempotent.",
-      "destruction": "Successful destruction releases subscriptions; callback exceptions abort cleanup.",
+      "destruction": "Destruction releases subscriptions without destroying member models. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
       "diagnostics": [],
       "docs": [
         {
           "file": "packages/data/readme.md",
           "heading": "Mutation semantics"
+        },
+        {
+          "file": "docs/events.md",
+          "heading": "Terminal subscription cleanup"
         }
       ],
       "tests": [
@@ -1722,6 +1782,10 @@
         {
           "file": "test/unit/data-package/collection.spec.js",
           "title": "releases structural and model observation on idempotent destroy"
+        },
+        {
+          "file": "test/unit/destroy-listener-cleanup.spec.js",
+          "title": "delivers final notifications and releases incoming and outgoing subscriptions"
         }
       ]
     },
@@ -1801,12 +1865,16 @@
       "ownership": "listenTo subscriptions belong to the listener; off removes source registrations.",
       "mutation": "Registration/removal strings and event-map keys are literal names, including whitespace and empty strings; omitted/null removal names select all names. Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "once is removed before callback/reentrant trigger; ordinary listeners repeat.",
-      "destruction": "Owner cleanup stops listening; Events itself has no destroy method.",
+      "destruction": "Object, View/CollectionView, Region, Application, Model, and Collection destruction clears outgoing and incoming subscriptions at terminal completion; Events itself has no destroy method. Emitting destroy alone does not clear subscriptions.",
       "diagnostics": [],
       "docs": [
         {
           "file": "docs/events.md",
           "heading": "Events API"
+        },
+        {
+          "file": "docs/events.md",
+          "heading": "Terminal subscription cleanup"
         }
       ],
       "tests": [
@@ -1829,6 +1897,10 @@
         {
           "file": "test/unit/events-literal-names.spec.js",
           "title": "binds and selectively unbinds literal entity-event map keys"
+        },
+        {
+          "file": "test/unit/destroy-listener-cleanup.spec.js",
+          "title": "delivers final notifications and releases incoming and outgoing subscriptions"
         }
       ],
       "members": [

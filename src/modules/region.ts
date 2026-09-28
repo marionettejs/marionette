@@ -512,6 +512,7 @@ Object.assign(Region.prototype, CommonMixin, {
     }
     this.triggerMethod('destroy', this, options);
     this.stopListening();
+    this.off();
 
     return this;
   }

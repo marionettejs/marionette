@@ -215,6 +215,7 @@ const ViewMixin = {
     this.triggerMethod('destroy', this, options);
     this._triggerEventOnBehaviors('destroy', this, options);
     this.stopListening();
+    this.off();
 
     return this;
   },

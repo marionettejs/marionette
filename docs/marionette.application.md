@@ -661,8 +661,13 @@ export const dashboardView = dashboard.getView();
 
 Ordinary `listenTo` and `bindEvents` subscriptions belong to the Application
 instance. `stop()` does not remove them, and `restart()` reuses that instance.
-`destroy()` calls `stopListening()` for terminal cleanup. A stopped Application
-can therefore still receive a service event from an in-flight save or request.
+`destroy()` calls `stopListening()` and `off()` after its final notification,
+releasing outgoing and incoming subscriptions before successful resolution.
+A throwing notification rejects the operation and can skip remaining cleanup;
+a failure in preparation does not clear incoming subscriptions. See
+[terminal subscription cleanup](./events.md#terminal-subscription-cleanup).
+A stopped Application can still receive a service event from an in-flight save
+or request.
 
 For handlers that should act only during a run, pair registration with explicit
 cleanup: remove a `listenTo(source, event, callback)` binding with

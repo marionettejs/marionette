@@ -207,9 +207,34 @@ myView.triggerMethod('event:happened', 'someValue'); // Logs 'someValue'
 ```
 
 `listenTo` calls the callback with the listener as its context and records the
-relationship for `stopListening`. A direct `on` subscription must be removed
-with `off` when it is no longer needed. Marionette view lifecycles also clean up
-their tracked `listenTo` relationships during destruction.
+relationship for `stopListening`. Use `off` to remove a direct `on` subscription
+when it is no longer needed.
+
+### Terminal subscription cleanup
+
+Native Object, View/CollectionView, Region, Application, Model, and
+Collection destruction clears all handlers registered on the destroyed source
+with `off()` as its final event cleanup step. This releases native listeners'
+tracked references to that source, including `listenToOnce` relationships, while
+preserving their subscriptions to other sources. Direct `on`/`once` handlers and
+registrations added during final destruction notifications are also removed.
+
+Existing final lifecycle notifications run before incoming cleanup.
+Cleanup finishes before synchronous destruction returns or Application destruction
+resolves. A throwing notification aborts the operation and can skip remaining
+cleanup, following the existing
+[synchronous failure boundary](./view.lifecycle.md#synchronous-failures).
+
+Application stop/restart and View detachment preserve their existing subscription
+lifetimes. Emitting `destroy` manually or forwarding a model's `destroy` through
+a Collection does not perform terminal cleanup. This does not prevent new
+registrations after destruction, cancel callbacks in an already-running dispatch,
+or release application-owned references. Foreign listeners may maintain their own
+bookkeeping, which their own cleanup API must release.
+
+Behavior destruction releases its outgoing subscriptions and host participation.
+Outside listeners to a Behavior must release their own subscriptions with
+`stopListening(behavior)`; direct handlers can be removed with `behavior.off()`.
 
 ### Backbone interop
 

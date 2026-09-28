@@ -661,6 +661,8 @@ A region can be destroyed which will `reset` the region, destroy its current Vie
 remove it from any parent View's Region lookups, and stop any internal Region listeners.
 Reentrant Region destruction from `before:destroy` or `destroy`, repeated calls,
 and later destruction of the parent View do not repeat the child or Region teardown.
+After the final notification, `stopListening()` and `off()` release outgoing
+and incoming subscriptions, including native listeners' references to the Region.
 A throwing lifecycle hook stops destruction. Later `destroy()` calls do not
 retry hooks or resume partial teardown. Discard the Region after a cleanup error;
 its remaining state is not a reusable lifecycle state.

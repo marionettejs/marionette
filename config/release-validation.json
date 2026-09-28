@@ -248,6 +248,10 @@
     {
       "file": "docs-interaction-boundaries.spec.mjs",
       "title": "Morphdom rerender can retain a loaded iframe and its browsing state"
+    },
+    {
+      "file": "destroy-listener-cleanup.spec.mjs",
+      "title": "a surviving owner releases replaced screens after their final notifications"
     }
   ],
   "fixtures": [
