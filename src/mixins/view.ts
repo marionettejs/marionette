@@ -212,9 +212,14 @@ const ViewMixin = {
     this._undelegateEntityEvents();
     this._destroyBehaviors(options);
     this._destroyState();
-    this.triggerMethod('destroy', this, options);
-    this._triggerEventOnBehaviors('destroy', this, options);
-    this.stopListening();
+    try {
+      this.triggerMethod('destroy', this, options);
+      this._triggerEventOnBehaviors('destroy', this, options);
+    } finally {
+      this.stopListening();
+      this._finalizeBehaviors();
+      this.off();
+    }
 
     return this;
   },

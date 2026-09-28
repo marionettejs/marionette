@@ -99,7 +99,10 @@ the constructor used for future raw additions.
 A model may belong to multiple Collections. Its `destroy` event removes it from
 each containing Collection, forwarding removal metadata.
 The destroy event itself still fires. Destroying a Collection releases subscriptions; it
-does not destroy its models.
+does not destroy its models. After final destruction notifications, both native
+types release outgoing subscriptions and clear incoming handlers, including
+native listeners' tracked references. This event cleanup also runs if a final
+notification throws; the error still propagates and stops notification delivery.
 
 `model.toObject()` returns a shallow attribute copy. `collection.toArray()` returns
 an array of those plain objects; use `collection.models.slice()` or iteration for

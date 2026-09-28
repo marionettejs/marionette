@@ -2,9 +2,12 @@
 
 Match each resource to the part of the View that uses it. Marionette destroys
 owned child Views, delegated `events` handlers, Behaviors, and outgoing
-`listenTo()` subscriptions when a View is destroyed. It does not disconnect an
-observer, remove a native DOM listener, cancel a timer, or dispose a widget that
-application code created.
+`listenTo()` subscriptions when a View is destroyed. Final destruction cleanup
+also clears handlers registered on the View and releases native listeners'
+references to it; see
+[terminal subscription cleanup](./events.md#terminal-subscription-cleanup).
+Marionette does not disconnect an observer, remove a native DOM listener, cancel
+a timer, or dispose a widget that application code created.
 
 The examples below use the default View event monitor and a Region for attachment.
 They are browser modules; each class can be used with the mount code at the end.

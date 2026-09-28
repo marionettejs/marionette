@@ -111,6 +111,7 @@ export type BehaviorConstructor<Props extends object = {}, Args extends unknown[
 type BehaviorInternals = BehaviorInstance & UIHost & ViewEventsHost & StateHost & EntityEventHost &
   typeof DelegateEntityEventsMixin & Omit<typeof StateMixin, 'State'> & typeof UIMixin & Omit<typeof ViewEventsMixin, 'EventDelegator'> & {
     _isDestroyed?: boolean;
+    _isDestroyingWithHost?: boolean;
   };
 
 const ClassOptions = [
@@ -179,6 +180,8 @@ Object.assign(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateM
     this.stopListening();
     this.view._removeBehavior(this);
     this._undelegateEntityEvents();
+    // Host teardown delivers its final lifecycle notification after this method.
+    if (!this._isDestroyingWithHost) { this.off(); }
 
     return this;
   },

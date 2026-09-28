@@ -72,10 +72,10 @@ On successful completion of its lifecycle, `destroy` removes subscriptions the
 instance made with `listenTo`, releases its owned Radio event subscriptions and
 replies, cleans up State, and returns the MnObject synchronously. Returned Promises
 from destruction hooks are not awaited. It does not reset the shared Radio channel or
-remove unrelated channel handlers. Listeners registered directly on the
-instance with `on` are not removed automatically. If a lifecycle callback
-throws, cleanup that has not yet run may be skipped; the failure boundaries are
-described below.
+remove unrelated channel handlers. After the final notification, `stopListening()`
+and `off()` release outgoing subscriptions and all incoming handlers, including
+native listeners' references to this object. See
+[terminal subscription cleanup](./events.md#terminal-subscription-cleanup).
 
 Invoking `destroy` triggers `before:destroy` and `destroy` events and their
 [corresponding `onBeforeDestroy` and `onDestroy` methods](./events.md#onevent-binding).
@@ -87,9 +87,10 @@ destruction also return the same MnObject without repeating the lifecycle.
 `Application` has an asynchronous destruction lifecycle; see its
 [reference](./marionette.application.md#application-lifecycle).
 `isDestroyed()` is `false` during `before:destroy` and `true` during `destroy`.
-If a lifecycle handler throws, the error propagates and stops destruction.
-The destruction guard remains set; later `destroy()` calls do not restart
-hooks or resume cleanup.
+If a lifecycle handler throws, the error propagates and interrupts notification
+delivery. Final event cleanup still runs when `onDestroy` or a `destroy`/`all`
+handler throws. Earlier failures can skip remaining teardown. The destruction
+guard remains set; later `destroy()` calls do not restart hooks or resume cleanup.
 
 A custom override that mutates owned state before calling the base `destroy`
 method is outside this guard. See the

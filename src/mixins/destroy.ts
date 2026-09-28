@@ -1,6 +1,6 @@
 import type { EventsContract as Events } from '@mnjs/utils';
 
-export interface DestroyHost extends Pick<Events, 'stopListening' | 'trigger' | 'triggerMethod'> {
+export interface DestroyHost extends Pick<Events, 'stopListening' | 'off' | 'trigger' | 'triggerMethod'> {
   _isDestroyed?: boolean;
   _isDestroying?: boolean;
   _destroyState?(): unknown;
@@ -21,8 +21,12 @@ export default {
     this._isDestroyed = true;
     this._destroyRadio?.();
     this._destroyState?.();
-    this.triggerMethod('destroy', this, options);
-    this.stopListening();
+    try {
+      this.triggerMethod('destroy', this, options);
+    } finally {
+      this.stopListening();
+      this.off();
+    }
 
     return this;
   }

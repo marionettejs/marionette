@@ -248,10 +248,14 @@ their current Views, and CollectionView children that remain owned. It detaches
 the root element and leaves the View rendered `false`, attached `false`, and
 destroyed `true` after successful teardown.
 
-Destroy does not remove callbacks registered directly on the View with `on()`,
-destroy its model, collection, or arbitrary option collaborators, or clean up
-application resources Marionette does not own. Release those resources in the
-appropriate lifecycle callback.
+After host and Behavior destruction notifications, final event cleanup clears
+all incoming handlers with `off()`, including direct `on()` callbacks and native
+listeners' tracked references to the View and its Behaviors. See
+[terminal subscription cleanup](./events.md#terminal-subscription-cleanup).
+
+Destroy does not destroy borrowed models, collections, or arbitrary option
+collaborators, or clean up application resources Marionette does not own.
+Release those resources in the appropriate lifecycle callback.
 
 The [`before:destroy` event](./events.class.md#destroy-and-beforedestroy-events) is the best place to clean
 up any added listeners not related to the view's DOM.
@@ -289,6 +293,13 @@ back. Marionette does not promise to release every resource after a callback thr
 restore a partially initialized or rendered instance, or recover on the next call or
 source notification. Fix the failing callback or adapter; do not rely on partial
 instance state after a failure.
+
+Final destruction notifications have a narrow exception: once teardown reaches
+`onDestroy`/`destroy` delivery, outgoing and incoming event cleanup runs even if
+that notification throws. Host-managed Behavior incoming cleanup also runs after
+a failing final host or Behavior notification. The original error still propagates
+and remaining notifications are not delivered. This does not guarantee completion
+of earlier failing teardown or recovery from failing cleanup implementations.
 
 Successful cleanup and the documented ownership and repeated-destruction rules still
 apply. A callback that destroys or mutates an owner during an in-progress render does

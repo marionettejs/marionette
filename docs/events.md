@@ -207,9 +207,31 @@ myView.triggerMethod('event:happened', 'someValue'); // Logs 'someValue'
 ```
 
 `listenTo` calls the callback with the listener as its context and records the
-relationship for `stopListening`. A direct `on` subscription must be removed
-with `off` when it is no longer needed. Marionette view lifecycles also clean up
-their tracked `listenTo` relationships during destruction.
+relationship for `stopListening`. Use `off` to remove a direct `on` subscription
+when it is no longer needed.
+
+### Terminal subscription cleanup
+
+Native Object, View/CollectionView, Region, Application, Behavior, Model, and
+Collection destruction clears all handlers registered on the destroyed source
+with `off()` as its final event cleanup step. This releases native listeners'
+tracked references to that source, including `listenToOnce` relationships, while
+preserving their subscriptions to other sources. Direct `on`/`once` handlers and
+registrations added during final destruction notifications are also removed.
+
+Existing final lifecycle notifications run before incoming cleanup. Behaviors
+retain their handlers until the host finishes its destruction notifications.
+Cleanup finishes before synchronous destruction returns or Application destruction
+resolves. A throwing final notification interrupts dispatch and propagates the
+error, but final event cleanup still runs; earlier teardown failures retain the
+[synchronous failure boundary](./view.lifecycle.md#synchronous-failures).
+
+Application stop/restart and View detachment preserve their existing subscription
+lifetimes. Emitting `destroy` manually or forwarding a model's `destroy` through
+a Collection does not perform terminal cleanup. This does not prevent new
+registrations after destruction, cancel callbacks in an already-running dispatch,
+or release application-owned references. Foreign listeners may maintain their own
+bookkeeping, which their own cleanup API must release.
 
 ### Backbone interop
 
