@@ -13,10 +13,12 @@ Schema version 2 adds explicit retired identities without restoring their emissi
 
 ## Look up a code
 
-Read the [machine-readable catalog](../config/diagnostics/catalog.json), find the
-entry by `code`, and read its `remediation`. This file is included in packaged
-docs for offline lookup. The website also provides a
-[diagnostic reference](https://marionettejs.com/errors/).
+Use the installed [documentation helper](./agent-retrieval.md#look-up-a-diagnostic-code-locally)
+with `--diagnostic MN0015` to retrieve one exact record with provenance. Read its
+`status` and `remediation`; retired entries describe historical diagnostics.
+The [machine-readable catalog](../config/diagnostics/catalog.json) is the canonical
+source and is included in packaged docs for direct offline reading. The website
+also provides a [diagnostic reference](https://marionettejs.com/errors/).
 
 ## Runtime error contract
 

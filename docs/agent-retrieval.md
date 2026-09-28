@@ -97,6 +97,34 @@ alpha version alone cannot identify a source commit; `sourceDirty: true` means
 local changes are included. Older packages without docs require an exact release
 or known source checkout, not an automatic fallback to today's website.
 
+## Look up a diagnostic code locally
+
+For a reported Marionette code, retrieve its exact entry from the installed
+catalog in one call:
+
+```sh
+node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --diagnostic MN0015
+```
+
+The JSON result includes package provenance, the catalog source and hash, and one
+`diagnostic` record with its status and remediation. It reads the same
+[catalog](./diagnostic-catalog.md) shipped with the documentation; it does not
+inspect the running application. Use the exact `MN` code and four digits.
+Unknown codes and unavailable catalogs fail explicitly without choosing a similar
+code or another documentation version.
+
+Check `status` before applying the remediation. A `retired` entry preserves a
+historical identity; its severity and surfaces do not describe a current emission.
+An unexpected retired code is a reason to verify which installed artifact produced
+it. The catalog's website link is version-neutral; the returned local record
+belongs to the identified installed documentation.
+
+Use the relevant API guide and the application's checks to verify a repair. A code
+lookup does not supply every setup or ownership prerequisite. For a compiler error
+or a failure without a Marionette code, use installed declarations, task guides,
+and a public reproduction. Lexical `--search` remains useful for finding related
+examples; `--diagnostic` selects an exact catalog record.
+
 ## Read matching docs over MCP
 
 The public, read-only endpoint is `https://mcp.marionettejs.com/mcp`. The portable

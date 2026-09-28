@@ -36,9 +36,10 @@ export const ProfileForm = View.extend({
   },
   ui: { input: '[name=displayName]', dirty: '.dirty', save: 'button', status: '[role="status"]' },
   events: { submit: 'onSubmit', 'input [name=displayName]': 'updateDraftStatus' },
-  initialize({ displayName, save }) {
+  initialize({ displayName, save, reportError }) {
     this.initialName = displayName;
     this.save = save;
+    this.reportError = reportError;
     this.pendingSave = null;
   },
   onRender() {
@@ -55,7 +56,7 @@ export const ProfileForm = View.extend({
   },
   onSubmit(event) {
     event.preventDefault();
-    return this.submit();
+    void this.submit().catch(error => this.reportError(error));
   },
   async submit() {
     if (this.isDestroyed() || this.pendingSave) return false;
@@ -71,16 +72,18 @@ export const ProfileForm = View.extend({
     status.textContent = 'Saving…';
     const displayName = input.value;
     try {
-      await this.save({ displayName }, { signal: request.signal });
+      try {
+        await this.save({ displayName }, { signal: request.signal });
+      } catch {
+        if (request.signal.aborted || this.isDestroyed()) return false;
+        status.textContent = 'Could not save. Your changes are still here. Try again.';
+        return false;
+      }
       if (request.signal.aborted || this.isDestroyed()) return false;
       this.initialName = displayName;
-      this.updateDraftStatus();
       status.textContent = 'Saved.';
+      this.updateDraftStatus();
       return true;
-    } catch {
-      if (request.signal.aborted || this.isDestroyed()) return false;
-      status.textContent = 'Could not save. Your changes are still here. Try again.';
-      return false;
     } finally {
       if (this.pendingSave === request) {
         this.pendingSave = null;
@@ -103,6 +106,15 @@ export const ProfileForm = View.extend({
 
 Mount it through a Region. This example's persistence is deliberately in memory;
 replace `save` with the application's API client for durable storage.
+Only a persistence failure shows the retry message. An exception while applying
+the saved result rejects `submit()`; the `finally` block still releases the controls.
+It does not undo the completed write or any UI changes already applied.
+The DOM submit dispatcher does not await Promises, so `onSubmit` catches that
+rejection and calls the supplied synchronous `reportError(error)` function.
+The reporter must not throw; connect it to the application's error reporting.
+The saved baseline and status are set before updating the draft message, so a
+failure in that later step leaves the completed write labeled `Saved.`.
+Callers invoking `submit()` directly must handle its rejection themselves.
 
 ```javascript
 import { Region } from 'marionette';
@@ -117,6 +129,9 @@ region.show(new ProfileForm({
   async save(profile, { signal }) {
     signal.throwIfAborted();
     savedProfile = profile;
+  },
+  reportError(error) {
+    console.error('Profile form completion failed', error);
   }
 }));
 // When the feature is removed: region.destroy(); mount.remove();

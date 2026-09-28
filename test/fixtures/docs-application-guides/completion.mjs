@@ -66,6 +66,44 @@ try {
   assert.deepEqual(navigated, ['second']);
 } finally { await editor.destroy(); }
 
+for (const boundary of ['navigate', 'status', 'persistence']) {
+  const failure = new Error(`${boundary} failure`);
+  const statuses = [];
+  let writes = 0;
+  let navigationCalls = 0;
+  const app = new EditorApplication({
+    region: { el: document.querySelector('#editor') },
+    async saveRecord() {
+      writes++;
+      if (boundary === 'persistence') { throw failure; }
+      return 'persisted';
+    },
+    navigate() {
+      navigationCalls++;
+      if (boundary === 'navigate') { throw failure; }
+    }
+  });
+  try {
+    await app.start();
+    const screen = app.getView();
+    const showStatus = screen.showStatus;
+    screen.showStatus = function(message) {
+      statuses.push(message);
+      if (boundary === 'status' && message === 'Saved') { throw failure; }
+      return showStatus.call(this, message);
+    };
+    if (boundary === 'persistence') {
+      assert.equal(await app.save('record'), false);
+      assert.deepEqual(statuses, ['Could not save']);
+    } else {
+      await assert.rejects(app.save('record'), error => error === failure);
+      assert.deepEqual(statuses, ['Saved'], 'completion errors are not persistence failures');
+    }
+    assert.equal(writes, 1, 'completion never retries the write');
+    assert.equal(navigationCalls, boundary === 'navigate' ? 1 : 0);
+  } finally { await app.destroy(); }
+}
+
 const writes = [];
 const drafts = createDraftStore((id, text) => {
   const write = { id, text, ...Promise.withResolvers() };

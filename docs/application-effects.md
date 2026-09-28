@@ -43,10 +43,12 @@ Use this pattern when a save should finish after navigation away. The service ow
 persistence; the initiating Application root owns completion UI. Supply
 `saveRecord(value)` and synchronous `navigate(saved)` functions. This method is
 called while the feature is running. It returns `true` only when the save succeeds
-and its current screen applies success UI and navigation. A failure shows an error
+and its current screen applies success UI and navigation. A persistence failure shows an error
 on the current screen and returns `false`; an obsolete completion returns `false`
 without updating UI. It handles late rejection too. Keep navigation out of the
 persistence service.
+An exception while applying success UI or navigating rejects the returned Promise;
+it does not turn a completed write into a retryable persistence failure.
 
 <!-- executable-example: application-save-completion -->
 ```javascript
@@ -67,23 +69,30 @@ export const EditorApplication = Application.extend({
     this.latestSave = request;
     const isCurrent = () => this.latestSave === request && this.isRunning() &&
       this.getView() === screen && !screen.isDestroyed();
+    let saved;
     try {
-      const saved = await this.getOption('saveRecord')(value);
-      if (!isCurrent()) { return false; }
-      screen.showStatus('Saved');
-      this.getOption('navigate')(saved);
-      return true;
+      saved = await this.getOption('saveRecord')(value);
     } catch {
       if (!isCurrent()) { return false; }
       screen.showStatus('Could not save');
       return false;
     }
+    if (!isCurrent()) { return false; }
+    screen.showStatus('Saved');
+    this.getOption('navigate')(saved);
+    return true;
   }
 });
 ```
 
 Construct `new EditorApplication({ region: { el }, saveRecord, navigate })` and
-await its `start()` before saving. Stopping destroys the owned root. Restart creates a different root, so a late save
+await its `start()` before saving. Callers must handle a rejection from `save()`.
+A DOM event handler must attach a rejection handler such as
+`void editor.save(value).catch(reportError)`, because the event dispatcher does not
+await its return value. Supply a synchronous application error reporter that does
+not throw; reporting a completion error must not retry the completed write.
+
+Stopping destroys the owned root. Restart creates a different root, so a late save
 cannot update it even if `isRunning()` is true again. Replacing the displayed root
 also invalidates completion without requiring an Application stop. Request identity
 handles overlapping saves on the same screen; it does not serialize server writes.
