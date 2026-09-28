@@ -1,0 +1,37 @@
+docs/application-effects.md
+  s_02bf08a4f254a1::t_60d4e7488e1e9e 89-95
+  s_d7162dce862bc9::t_05da76ac71d2ea 46,50-51,72,74,80-83
+test/fixtures/docs-application-guides/completion.mjs
+  s_d7162dce862bc9::t_7f48783c844bdf 69-106
+test/fixtures/docs-application-guides/validate.mjs
+  s_02bf08a4f254a1::t_60d4e7488e1e9e 199,204-226,228-238
+  s_02bf08a4f254a1::t_723ee138bb7ed7 227
+  s_d7162dce862bc9::t_7b225b3078e6da 186-198,200-203,239
+docs/forms-and-accessibility.md
+  s_d7162dce862bc9::t_7365eb7a551f4a 75-81,109-111
+  s_02bf08a4f254a1::t_60d4e7488e1e9e 39,42,59,85,112-117,132-134
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "70796b20815e0cf484487bc0794e9c13d99b035d",
+  "prompts": {},
+  "sessions": {
+    "s_02bf08a4f254a1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0dc83-b213-7b62-b5f6-93a88f9fde6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": null
+    },
+    "s_d7162dce862bc9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0dc9d-456a-7b62-a7bd-67cc8801573c",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
