@@ -1,0 +1,59 @@
+{
+  "artifacts": {
+    "jsonPath": "/Users/paulfalgout/.ai-reviews/20260929T172734Z-review-with-claude.json",
+    "latestJsonPath": "/Users/paulfalgout/.ai-reviews/latest-review-with-claude.json",
+    "latestMdPath": "/Users/paulfalgout/.ai-reviews/latest-review-with-claude.md",
+    "mdPath": "/Users/paulfalgout/.ai-reviews/20260929T172734Z-review-with-claude.md"
+  },
+  "result": {
+    "verdict": "Accept with changes. The slice is sound, scoped honestly and has no runtime changes; it should not be described as release-ready. Fix the private-member leak and the stale evidence wording before merging. Keeping runtime checks separate from teaching checks is sound. The native browser tests support the limited claim they make, not equivalence with what was retired. Before retiring the last of that coverage, either port the few retired fixtures that were the only integration tests for real framework behavior, or record them as product coverage gaps rather than teaching gaps.",
+    "blockingIssues": [
+      "docs/api/runtime.md says 'the renderer occupies `_renderHtml`'. This points consumers at an internal member. It conflicts with the public-surface discipline behind check:public-tests (already failing on private-state assertions) and with the contract inventory's supported-API framing. Remove it, or say that the active renderer cannot be inspected publicly.",
+      "legacy-docs-fixture-migration.md 'Validation' still reads as a condition ('must pass ... before this migration is considered verified'), but the summary says both migrated fixtures passed. Record the actual result and the candidate hashes or revision, or keep it marked unverified. As written, the evidence record disagrees with the claimed status."
+    ],
+    "risks": [
+      "No test runs the quick-start shell recipe: npm ci, build, npm pack of five packages, then installing the tarballs plus lit-html@3.3.3 and vite@8.3.0 with --ignore-scripts. Tarball names, pinned versions, whether vite works under --ignore-scripts, and the `npm pkg set` scripts are all unverified. This is the primary onboarding path, so a broken step there hurts every new reader.",
+      "The docs-package link check skips fragment-only links and never validates the #fragment part of cross-page links. The new pages depend heavily on anchors (#isolation-and-composition, #declarative-radio-bindings, #binding-helpers, #choose-a-configuration-scope, #integration-guides-and-remaining-coverage, #typescript). A heading rename will break them silently unless the separate docs check validates anchors, and that was not shown.",
+      "Some retired fixtures covered framework behavior, not just samples: docs-hosted-view (an external host with a managed Lit child in a Region), docs-routing (native Navigation API and Backbone history integration, if Backbone integration is still supported), and docs-list-composition (subscription accounting across list changes). Filing these under 'needs a guide' ties product coverage to future teaching work. They can be independent integration tests now, with no guide required.",
+      "Radio claims with no evidence shown: 'every Events and Requests method is forwarded on the registry' (including listenTo, stopListening, triggerMethod and replyOnce), and that `marionette` and `@mnjs/radio` share one registry within a module format while ESM and CommonJS instances are separate. Both are installed-package behaviors. Unit tests on source do not prove them.",
+      "radio.reset(name): 'a supplied falsy name throws MN0017', yet reset() resets everything. What reset(undefined) does is ambiguous. It is either an argument-count check or a falsy check. Document whichever the implementation does and test it.",
+      "`documented` statuses in semantics.json are self-assigned. The self-audit is still tightening them, so the current documented count may overstate coverage. The README already disclaims this; keep that disclaimer out of any readiness summary.",
+      "Only check.mjs was supplied, not inventory.mjs. The claim that the heading-to-status migration keeps all old behavior, signature and test checks cannot be verified from the diff.",
+      "The quick-start fixture's lockfile pins lit-html separately from the quick-start text (3.3.3). No assertion ties the two, so they can drift apart.",
+      "planning/docs-v5/plan.md still calls Radio 'the next Radio reference slice' and says contract-check and fixture migration remain. This slice completes those, so the plan is already stale."
+    ],
+    "incorrectAssumptions": [
+      "setup.md says 'StateApi connects observable state to Applications and Views', but the runtime table lists setStateApi on Application, Behavior, View, CollectionView and MnObject. The setup sentence understates the scope. Say 'state owners' and link to the table.",
+      "runtime.md says standalone error references 'remain in the coverage gaps', but the gap section in api.md mentions only utils, adapter guides, consumer lint and the TypeScript guide. Errors and diagnostics are not listed. Add them, or the cross-reference makes a promise the index doesn't keep.",
+      "The browser-migration record says native-form covers 'prevented navigation'. The test only asserts that event.defaultPrevented is true, which the handler set itself. Navigation being prevented is shown only indirectly, because window.formFixture survives. Assert the URL or navigation count, or reword the claim.",
+      "Retiring the stale symbol-index assertion is safe only if docs/agents.md and the skill no longer advertise exact-symbol lookup. Nothing checks that."
+    ],
+    "missingTests": [
+      "Run the quick-start shell recipe once against fresh tarballs in CI or a release check (npm pack, install, vite build), or mark it clearly as manual and unverified.",
+      "An installed-package test that the `marionette` Radio is the same object as the `@mnjs/radio` Radio within ESM, and within CommonJS, and that the ESM and CommonJS instances differ. It should also check that `marionette` re-exports only the documented Radio values and types.",
+      "A test that each Events/Requests method forwarded on the registry creates a missing channel and returns the channel's result. Include listenTo, triggerMethod, replyOnce and stopReplying.",
+      "radio.reset(undefined) compared with reset() and reset(''), matching whatever the docs finally say.",
+      "Anchor validation for cross-page links in docs-package or the docs build.",
+      "A version-consistency assertion: the 5.0.0-rc.2 strings and tarball filenames in quick-start and setup must match package.json.",
+      "Negative tests in test/tooling/api-contracts.test.mjs for each status rule: partial without a reason, missing with a non-empty docs array, an unknown status. Also a test that missing prose still enforces signature and test anchors.",
+      "A negative assertion that the agent guide and skill do not advertise symbol lookup until a matching symbol index is packaged.",
+      "An execution check for the code blocks in setup.md (setup.js plus DetailView with a Model), unless those are among the 21 reference examples. State which it is.",
+      "Independent integration tests for a Region hosting a managed Lit child in an external host, and for subscription accounting in CollectionView across add, remove and reset in an installed package."
+    ],
+    "simplifications": [
+      "Replace the `_renderHtml` and `prototype.EventDelegator` inspection advice with one sentence: 'active providers are class configuration; prefer setters over inspection.'",
+      "In the fixture-migration table, split the right-hand column into 'product coverage gap' and 'teaching sample retired'. That makes clear which gaps a test can close now and which need a guide.",
+      "Drop the hard-coded `commands.length === 3` in docs-package. Asserting the three modes (list, search, page) are all exercised is enough and less brittle.",
+      "Refer to the prepareStart data-loading pattern in setup.md only through the Application reference or the records lesson. Otherwise it is a behavioral claim with no example."
+    ],
+    "nextSteps": [
+      "Remove `_renderHtml` from runtime.md, fix the StateApi owner list in setup.md, and add errors/diagnostics to the gap section in api.md.",
+      "Update the Validation section of the fixture-migration record with actual pass results and hashes. Refresh the stale Radio and migration wording in plan.md.",
+      "Add the installed Radio identity and forwarding tests and the reset(undefined) check, or downgrade those semantics profiles to `partial` until they exist.",
+      "Add anchor validation and a version-consistency check to docs-package.",
+      "Reclassify the hosted-view, routing-integration and list-subscription gaps as product coverage gaps, and schedule independent tests for them without waiting for guides.",
+      "Wait for the final tooling run. Report check:public-tests as a failure in existing, unchanged test code, not a regression from this slice, and keep release acceptance and teaching effectiveness marked unverified."
+    ]
+  },
+  "skill": "review-with-claude"
+}

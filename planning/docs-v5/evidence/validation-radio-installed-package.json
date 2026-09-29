@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "sourceRevision": "59a62504f04270392cc1eb905595644fc04917d6",
+  "sourceDirty": true,
+  "contentSha256": "17c1d3f06cd2ce19ef950f81228bd7e71e50df342134b2f82ab1badf1e84fa02",
+  "pages": 22,
+  "assets": 24,
+  "packages": [
+    {
+      "name": "@mnjs/utils",
+      "filename": "mnjs-utils-5.0.0-rc.2.tgz",
+      "sha256": "45b6c78947ae5f36e40abeee785f3ed21680d55607447b9e48ab4ec366291e4a"
+    },
+    {
+      "name": "@mnjs/radio",
+      "filename": "mnjs-radio-5.0.0-rc.2.tgz",
+      "sha256": "61278cd903ba775d7443d350fd4836071f37017e4e608faedbfa370c67c87968"
+    },
+    {
+      "name": "marionette",
+      "filename": "marionette-5.0.0-rc.2.tgz",
+      "sha256": "f6e814de32cb0ffb4cbebb346035ed9f8fe8b85f20a0d02f764993e2377a25be"
+    },
+    {
+      "name": "@mnjs/data",
+      "filename": "mnjs-data-5.0.0-rc.2.tgz",
+      "sha256": "a5be1eafc04d1d13099eaeb65dfbc01506f50fa4ffa846757c5f2323fefe8306"
+    },
+    {
+      "name": "@mnjs/adapters",
+      "filename": "mnjs-adapters-5.0.0-rc.2.tgz",
+      "sha256": "67b3f95679a046e1af775397e07daaf8b923cd5cdba6b0ce98897631d9ca542c"
+    }
+  ],
+  "discovery": [
+    "package resolution",
+    "list",
+    "search",
+    "section",
+    "page",
+    "diagnostic"
+  ],
+  "examplesExecuted": 24,
+  "typeFixtures": 20,
+  "typescriptExamples": 9,
+  "limits": "Local tarballs and JSDOM; not registry publication, live website, browser interaction, or teaching effectiveness."
+}

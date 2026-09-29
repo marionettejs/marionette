@@ -3,17 +3,39 @@
 Version-matched Markdown for the installed package. Start with the documentation index; read the relevant reference before changing application code.
 
 - [Documentation index](docs/readme.md)
+- [Agent workflow](docs/agents.md)
 - [Install and render a View](docs/quick-start.md)
 - [Ownership and lifetimes](docs/architecture.md)
 - [API index](docs/api.md)
+
+## Core classes
+
 - [Application reference](docs/api/application.md)
 - [View reference](docs/api/view.md)
 - [CollectionView reference](docs/api/collection-view.md)
 - [Region reference](docs/api/region.md)
 - [Behavior reference](docs/api/behavior.md)
 - [MnObject reference](docs/api/mnobject.md)
+
+## Shared contracts and configuration
+
+- [Common class methods](docs/api/shared/common.md)
+- [Events](docs/api/shared/events.md)
+- [State](docs/api/shared/state.md)
+- [Rendering and View bindings](docs/api/shared/view-bindings.md)
 - [Runtime configuration](docs/api/runtime.md)
-- [Rendering and DOM providers](docs/api/dom-providers.md)
-- [Data and state providers](docs/api/data-providers.md)
-- [Renderer and data setup](docs/setup.md)
+
+## Provider interfaces
+
+- [Rendering and DOM providers](docs/api/providers/dom.md)
+- [Data and state providers](docs/api/providers/data.md)
+
+## Companion packages
+
+- [@mnjs/data: Model and Collection](docs/packages/data.md)
+- [@mnjs/radio: channels and requests](docs/packages/radio.md)
+
+## Integration and learning guides
+
+- [Renderer and data setup](docs/integrations/setup.md)
 - [Records lesson](docs/records.md)

@@ -94,7 +94,7 @@ try {
   assert.equal(canceledChildRoot.isDestroyed(), true);
   ready.resolve();
   await ready.promise;
-  await new Promise(resolve => setImmediate(resolve));
+  await new Promise(done => setImmediate(done));
   assert.equal(parent.isRunning(), false);
   assert.equal(child.isRunning(), false);
   assert.equal(parent.getView(), undefined);
@@ -117,7 +117,7 @@ try {
   assert.equal(await parent.stop(), true);
   ready.resolve();
   await ready.promise;
-  await new Promise(resolve => setImmediate(resolve));
+  await new Promise(done => setImmediate(done));
   assert.equal(host.childElementCount, 0);
   console.log('PASS: explicit required-child false check rejects current parent readiness; caller stop cleans the already displayed shell.');
 

@@ -1,6 +1,6 @@
 # Region
 
-[API index](../api.md) · [View](view.md) · [Shared events](events.md)
+[API index](../api.md) · [View](view.md) · [Shared events](shared/events.md)
 
 A Region owns the placement and lifetime of one View or CollectionView. Showing another View destroys the current one. Detaching releases it for reuse. A View can own named Regions for composition; an Application can use a Region to display its root View.
 
@@ -15,7 +15,7 @@ A Region owns the placement and lifetime of one View or CollectionView. Showing 
 | `allowMissingEl` | Boolean or function returning a boolean; false by default. Allows a supplied selector to have no match. It does not allow an omitted `el`. |
 | `replaceElement` | Boolean or function returning a boolean; false by default. Replaces the Region's placeholder with the shown View's root instead of inserting the root inside it. |
 
-Functions run with the Region as `this`. Constructor options take precedence over class defaults. Use [common option methods](common.md) for custom options.
+Functions run with the Region as `this`. Constructor options take precedence over class defaults. Use [common option methods](shared/common.md) for custom options.
 
 This example moves a live View between two Regions without rendering it again:
 
@@ -72,7 +72,7 @@ Operations are synchronous. Lifecycle callbacks that throw interrupt the operati
 
 `empty()`, `reset()`, and `destroy()` use `ShowOptions` for element checking. The first lookup by `empty()` without options tolerates an unmatched selector when there is no child; supplying `allowMissingEl: false` makes that check strict. These options are not passed to the outgoing View's `destroy()`.
 
-Keep a reference to a detached View and either give it a new owner or destroy it when finished. Detachment preserves the View's own listeners and state; its [View owner](view.md) stops forwarding its events. See [event cleanup](events.md#cleanup) for native destruction and subscription ownership.
+Keep a reference to a detached View and either give it a new owner or destroy it when finished. Detachment preserves the View's own listeners and state; its [View owner](view.md) stops forwarding its events. See [event cleanup](shared/events.md#cleanup) for native destruction and subscription ownership.
 
 Repeated destruction is a no-op. Once destruction begins, `show()` does nothing and returns the Region; `detachView()` returns `undefined`. After destruction completes, `empty()` and `reset()` also do nothing and return the Region. Destruction leaves the Region's own element in place, with its owned View removed.
 
@@ -94,13 +94,13 @@ Use a placeholder that has a parent node: replacement exchanges nodes in that pa
 | `isReplaced()` | Whether the placeholder is currently replaced by the View's root. |
 | `isDestroyed()` | False before destruction completes; true before `destroy` notifications run. |
 | `el` | Initial selector/Element, resolved Element after lookup, or `undefined` after an unmatched lookup. A successful `reset()` restores the initial reference; see the [missing-selector limitation](#showing-a-view). |
-| `options` | Merged constructor options. See [common options](common.md). |
+| `options` | Merged constructor options. See [common options](shared/common.md). |
 | `cid`, `cidPrefix` | Unique instance identifier and its class-level prefix (`'mnr'` by default). |
 | `Dom` | DOM provider used for lookup, insertion, detachment, and replacement. Configure through `setDomApi`. |
 
 ## Lifecycle events and hooks
 
-Each event uses `triggerMethod`: its matching hook runs first, then registered event listeners receive the same arguments. See [shared events](events.md). Hook methods are supplied on a subclass, for example `onBeforeShow(region, view, options)`.
+Each event uses `triggerMethod`: its matching hook runs first, then registered event listeners receive the same arguments. See [shared events](shared/events.md). Hook methods are supplied on a subclass, for example `onBeforeShow(region, view, options)`.
 
 | Region event | Hook | Arguments |
 | --- | --- | --- |
@@ -123,7 +123,7 @@ Normally the outgoing View receives `before:destroy` before detach. With `replac
 
 ## Customization and inherited methods
 
-Use `Region.extend(prototypeProperties?, staticProperties?)` or subclass Region. `initialize(options)` is the constructor hook; the default does nothing. For custom constructors and `Region.call` / `Region.apply`, see [class construction](common.md).
+Use `Region.extend(prototypeProperties?, staticProperties?)` or subclass Region. `initialize(options)` is the constructor hook; the default does nothing. For custom constructors and `Region.call` / `Region.apply`, see [class construction](shared/common.md).
 
 | Extension point | Default contract |
 | --- | --- |
@@ -135,9 +135,9 @@ Use `Region.extend(prototypeProperties?, staticProperties?)` or subclass Region.
 
 These methods are called by lifecycle operations. Calling DOM hooks directly does not perform the ownership bookkeeping of `show`, `empty`, or `detachView`. If overriding a lifecycle method, delegate to `Region.prototype` to retain the standard cleanup and event contract.
 
-`Region.setDomApi(partialApi)` merges DOM methods into that class's provider and returns the class. Call it on a Region subclass to scope the override to that subclass. See [runtime configuration](runtime.md#choose-a-configuration-scope) for setter scope and [DomApi](dom-providers.md#domapi) for the provider-authoring contract.
+`Region.setDomApi(partialApi)` merges DOM methods into that class's provider and returns the class. Call it on a Region subclass to scope the override to that subclass. See [runtime configuration](runtime.md#choose-a-configuration-scope) for setter scope and [DomApi](providers/dom.md#domapi) for the provider-authoring contract.
 
-Region inherits [common utilities](common.md): `getOption`, `mergeOptions`, `normalizeMethods`, `bindEvents`, `unbindEvents`, `bindRequests`, and `unbindRequests`. It also inherits [event methods](events.md): `on`, `once`, `off`, `trigger`, `triggerMethod`, `listenTo`, `listenToOnce`, and `stopListening`. Region has no state, model, collection, renderer, or Radio-channel initialization of its own.
+Region inherits [common utilities](shared/common.md): `getOption`, `mergeOptions`, `normalizeMethods`, `bindEvents`, `unbindEvents`, `bindRequests`, and `unbindRequests`. It also inherits [event methods](shared/events.md): `on`, `once`, `off`, `trigger`, `triggerMethod`, `listenTo`, `listenToOnce`, and `stopListening`. Region has no state, model, collection, renderer, or Radio-channel initialization of its own.
 
 ## TypeScript types
 

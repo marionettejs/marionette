@@ -6,7 +6,6 @@ import { documentSections, isConsumerPage } from '../../scripts/docs/sections.mj
 import { skillRoutes } from '../../scripts/docs/agent-routes.mjs';
 import { symbolIndex } from '../../scripts/docs/symbols.mjs';
 import { searchSections } from '../../skills/marionette/scripts/search.mjs';
-import { findSymbols } from '../../skills/marionette/scripts/symbols.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 
@@ -70,17 +69,14 @@ test('real consumer questions retrieve the required contract without reading a f
     }
   }
   const cases = [
-    ['paginated feed feature', 'docs/application-composition.md', 'A complete paginated feature', ['FeedApplication', 'prepareStart', 'stateEvents', 'retry']],
-    ['getUI', 'docs/dom.interactions.md', 'getUI(name)', ['NodeList', 'MN0023', 'template: false']],
-    ['bindUIElements', 'docs/dom.interactions.md', 'bindUIElements()', ['template: false', 'Behavior', 'MN0023']],
-    ['delegateEvents', 'docs/dom.interactions.md', 'delegateEvents(events)', ['no-ops after destruction', 'do not render', 'new matching descendants']],
-    ['event currentTarget delegateTarget', 'docs/dom.interactions.md', 'Read the matched control', ['listener', 'nested', 'delegateTarget']],
-    ['showChildView destroys listeners', 'docs/marionette.region.md', 'Pending work after replacement', ['destroy()', 'not cancel arbitrary promises', 'longer-lived owner']],
-    ['save after destroy', 'docs/marionette.region.md', 'Pending work after replacement', ['retained draft', 'completion event']],
-    ['initialize options', 'docs/common.md', 'initialize', ['options']],
-    ['childViewEvents arguments', 'docs/events.md', 'Using CollectionView\'s childViewEvents', ['does not prepend', 'trigger']],
-    ['unsaved changes form focus', 'docs/forms-and-accessibility.md', 'Save a form without losing focus', ['initialName', 'updateDraftStatus']],
-    ['preserve editable rows sort', 'docs/list-composition.md', 'Add, remove, and reorder editable rows', ['Surviving child Views', 'input elements']],
+    ['getUI', 'docs/api/shared/view-bindings.md', 'UI bindings', ['NodeList', '[0]', 'snapshots']],
+    ['bindUIElements', 'docs/api/shared/view-bindings.md', 'UI bindings', ['Behavior', 'existing contents']],
+    ['delegateEvents', 'docs/api/shared/view-bindings.md', 'DOM events', ['no-ops while destroying/destroyed', 'delegates automatically']],
+    ['event currentTarget delegateTarget', 'docs/api/shared/view-bindings.md', 'DOM events', ['event.delegateTarget', 'nearest matching descendant']],
+    ['initialize options', 'docs/api/shared/common.md', 'Options and initialization', ['initialize', 'options']],
+    ['childViewEvents arguments', 'docs/api/shared/view-bindings.md', 'Child events', ['No child argument is added', 'original event arguments']],
+    ['preserve editable rows sort', 'docs/api/collection-view.md', 'Sorting', ['without changing the source collection', 'child Views']],
+    ['observeCollection', 'docs/api/providers/data.md', 'DataApi', ['cleanup', 'DataApi has no disposal method']],
   ];
   for (const [query, source, heading, facts] of cases) {
     const results = searchSections(sections, files, query);
@@ -107,32 +103,15 @@ test('symbol index resolves every reviewed contract heading to exactly one consu
   assert.throws(() => symbolIndex(inventory(['constructor']), semantics('`show(view)`'), sections), /Unknown API contract: constructor/);
 });
 
-test('real public members resolve to the sections that document them', async() => {
-  const pages = JSON.parse(await readFile(resolve(root, 'docs-site/navigation.json'), 'utf8')).filter(isConsumerPage);
-  const files = new Map(await Promise.all(pages.map(async page =>
-    [page.source, { content: await readFile(resolve(root, page.source)) }])));
-  const sections = pages.flatMap(page => documentSections(page.source, files.get(page.source).content.toString('utf8')));
-  const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
-  const index = symbolIndex(await json('config/api-contracts/inventory.json'),
-    await json('config/api-contracts/semantics.json'), sections);
-  const cases = [
-    ['Region.detachView', 'docs/marionette.region.md', 'Detaching Existing Views'],
-    ['DataApi.observeCollection', 'docs/data.api.md', 'Collection observations'],
-    ['Application.prepareStart', 'docs/marionette.application.md', 'Preparation methods and notifications'],
-    ['View.childViewTriggers', 'docs/events.md', 'Using CollectionView\'s childViewTriggers'],
-    ['View.getUI', 'docs/dom.interactions.md', 'getUI(name)'],
-    ['View.renderAttributes', 'docs/marionette.view.md', 'Refreshing Root Attributes'],
-  ];
-  for (const [query, signature] of [['LifecycleContext.signal', 'AbortSignal'], ['delegateTarget', undefined]]) {
-    const { matches } = findSymbols(index, sections, files, query);
-    assert.ok(matches.length && matches.every(match => match.access === 'member'), `${query}: public type member`);
-    if (signature) { assert.equal(matches[0].signature, signature); }
-  }
-  for (const [query, source, heading] of cases) {
-    const { matches } = findSymbols(index, sections, files, query);
-    const found = matches[0]?.sections.find(section => section.id.startsWith(`${source}#`) && section.heading.startsWith(heading));
-    assert.ok(found, `${query}: expected ${heading}, got ${JSON.stringify(matches[0]?.sections.map(section => section.heading))}`);
-    assert.ok(matches[0].sections.length <= 5);
-    console.log(`${query}: position ${matches[0].sections.indexOf(found) + 1}, ${found.characters} characters, ${found.id}`);
+test('canonical task routes match the skill and point at installed consumer pages', async() => {
+  const guide = await readFile(resolve(root, 'docs/agents.md'), 'utf8');
+  const skill = await readFile(resolve(root, 'skills/marionette/SKILL.md'), 'utf8');
+  assert.equal(skillRoutes(guide, skill), skill);
+  const pages = JSON.parse(await readFile(resolve(root, 'docs-site/navigation.json'), 'utf8'));
+  const published = new Set(pages.filter(isConsumerPage).map(page => page.source));
+  const table = skill.split('<!-- task-routes:start -->')[1].split('<!-- task-routes:end -->')[0];
+  for (const [, source] of table.matchAll(/`([^`]+)`/g)) {
+    assert.ok(published.has(source), `${source}: task route must be an installed consumer page`);
+    assert.ok((await readFile(resolve(root, source), 'utf8')).trim());
   }
 });

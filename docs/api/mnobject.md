@@ -1,6 +1,6 @@
 # MnObject
 
-[API index](../api.md) · [Application](application.md) · [Shared utilities](common.md)
+[API index](../api.md) · [Application](application.md) · [Shared utilities](shared/common.md)
 
 MnObject gives a nonvisual object Marionette's events, options, state, Radio bindings and synchronous destruction. Use it when an object needs these lifetime services. A plain function or object is enough without them; an Application is appropriate when work needs start/stop, asynchronous preparation, or owned UI.
 
@@ -28,7 +28,7 @@ changes.markSaved();
 changes.destroy();
 ```
 
-The draft remains available after `changes.destroy()`. Its owner disposes it when finished. `@mnjs/data` supplies observable data here; API access and persistence require a [separate solution](../setup.md#observable-data-and-api-access).
+The draft remains available after `changes.destroy()`. Its owner disposes it when finished. `@mnjs/data` supplies observable data here; API access and persistence require a [separate solution](../integrations/setup.md#observable-data-and-api-access).
 
 ## Construction and options
 
@@ -39,11 +39,11 @@ The draft remains available after `changes.destroy()`. Its owner disposes it whe
 | `state` | Exact borrowed source, taking precedence over the class's state source and `createState`. A function remains the source itself. |
 | `stateEvents` | Event-to-handler map or function returning one. Values are callbacks or MnObject method names. Observation begins after `initialize`. |
 | `channelName` | Radio channel name or function returning one. Falsy disables declarative Radio setup. |
-| `radioEvents`, `radioRequests` | Event/reply maps or functions returning maps, with callbacks or MnObject method names as values. See [Radio bindings](common.md#declarative-radio-bindings). |
+| `radioEvents`, `radioRequests` | Event/reply maps or functions returning maps, with callbacks or MnObject method names as values. See [Radio bindings](shared/common.md#declarative-radio-bindings). |
 
 Resolver functions run with the object as `this`. Custom options remain in `options` and are available through `getOption(name)`; they do not automatically become instance properties. `modelEvents` and `collectionEvents` are not built-in MnObject declarations. Use `listenTo` or `bindEvents` to observe a separate source.
 
-`MnObject.extend(prototypeProperties?, staticProperties?)` defines a subclass. `cidPrefix` defaults to `'mno'`. `initialize` defaults to a no-op. Common constructors, custom constructor invocation, option utilities and binding helpers are documented in [class utilities](common.md).
+`MnObject.extend(prototypeProperties?, staticProperties?)` defines a subclass. `cidPrefix` defaults to `'mno'`. `initialize` defaults to a no-op. Common constructors, custom constructor invocation, option utilities and binding helpers are documented in [class utilities](shared/common.md).
 
 ## State and communication
 
@@ -56,9 +56,9 @@ Resolver functions run with the object as `this`. Custom options remain in `opti
 | `getChannel()` | Returns the configured Radio channel, or `undefined`. |
 | `Radio` | Radio provider on the class/prototype; not a recognized constructor option. |
 
-[State](state.md) defines observation and owned/borrowed disposal. [Events](events.md) covers `on`, `once`, `off`, `trigger`, `triggerMethod`, `listenTo`, `listenToOnce`, and `stopListening`. State and declarative Radio bindings stay active throughout the live object's lifetime. MnObject has no running/stopped state.
+[State](shared/state.md) defines observation and owned/borrowed disposal. [Events](shared/events.md) covers `on`, `once`, `off`, `trigger`, `triggerMethod`, `listenTo`, `listenToOnce`, and `stopListening`. State and declarative Radio bindings stay active throughout the live object's lifetime. MnObject has no running/stopped state.
 
-Use [declarative Radio bindings](common.md#declarative-radio-bindings) when the object's lifetime owns channel subscriptions/replies. Destruction removes all replies on the configured channel registered with this object as context, including manual `bindRequests` calls. Replies on other channels or with another context need explicit cleanup; `stopListening` only handles event subscriptions.
+Use [declarative Radio bindings](shared/common.md#declarative-radio-bindings) when the object's lifetime owns channel subscriptions/replies. Destruction removes all replies on the configured channel registered with this object as context, including manual `bindRequests` calls. Replies on other channels or with another context need explicit cleanup; `stopListening` only handles event subscriptions.
 
 ## Destruction and ownership
 

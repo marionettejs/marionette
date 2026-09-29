@@ -4,7 +4,7 @@ The [runnable example](../examples/records/README.md) loads records, selects one
 
 ## Run it
 
-The source is included with these docs; the commands here use the repository checkout. For an application using installed packages, follow the [quick start](quick-start.md) and [setup reference](setup.md).
+The source is included with these docs; the commands here use the repository checkout. For an application using installed packages, follow the [quick start](quick-start.md) and [setup reference](integrations/setup.md).
 
 Requires Node 24 or newer. From the repository root:
 

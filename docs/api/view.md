@@ -1,10 +1,10 @@
 # View
 
-[API index](../api.md) · [Region](region.md) · [Shared View runtime](view-runtime.md)
+[API index](../api.md) · [Region](region.md) · [Shared View runtime](shared/view-bindings.md)
 
 A View owns one fixed DOM element, renders supplied data, and can compose child Views through named [Regions](region.md). Use it for an individual control or a layout. [CollectionView](collection-view.md) manages a set of children instead.
 
-Import `View` from `marionette`. Shared rendering, DOM, UI, data bindings, and child forwarding are defined in [View runtime](view-runtime.md). Inherited [common methods](common.md), [events](events.md), and [state](state.md) are part of this API.
+Import `View` from `marionette`. Shared rendering, DOM, UI, data bindings, and child forwarding are defined in [View runtime](shared/view-bindings.md). Inherited [common methods](shared/common.md), [events](shared/events.md), and [state](shared/state.md) are part of this API.
 
 ## Local interaction and feature coordination
 
@@ -12,11 +12,11 @@ A View can own local input state and save an edit to its model when the data lay
 
 Use an [Application](application.md) to coordinate feature readiness and shared workflow decisions. For these actions, the View emits intent; the Application decides what work to start and where its result belongs. Starting a feature's initial load in `onRender` ties readiness to rendering and can repeat the request on rerender. Put that readiness in [Application preparation](application.md#prepare-before-showing-ui).
 
-For shared records or selection that change over time, receive an observable source and use [model/collection bindings](view-runtime.md#data-bindings) or [state bindings](state.md). A replacement View reads current data and subscribes for later changes. Its owner can then replace it without coordinating each presentation update.
+For shared records or selection that change over time, receive an observable source and use [model/collection bindings](shared/view-bindings.md#data-bindings) or [state bindings](shared/state.md). A replacement View reads current data and subscribes for later changes. Its owner can then replace it without coordinating each presentation update.
 
 ## Construction and options
 
-`new View(options?)` creates the element, delegates DOM events, prepares state access and Behaviors, registers Regions, and calls `initialize(options)`. It does not evaluate the template. `View.extend(prototypeProperties?, staticProperties?)` returns a subclass; see [class extension](common.md).
+`new View(options?)` creates the element, delegates DOM events, prepares state access and Behaviors, registers Regions, and calls `initialize(options)`. It does not evaluate the template. `View.extend(prototypeProperties?, staticProperties?)` returns a subclass; see [class extension](shared/common.md).
 
 Options below can be declared on the class or supplied at construction. The table identifies which declarations accept resolver functions; those resolvers run with the View as `this`. The renderer controls template invocation. Model, collection, and borrowed state values are used as sources, not invoked as resolvers.
 
@@ -24,19 +24,19 @@ Options below can be declared on the class or supplied at construction. The tabl
 | --- | --- |
 | `el` | An `Element` or function returning one. Otherwise Marionette creates a root from `tagName`. Pass an actual element, not a selector string. |
 | `tagName` | String or function returning one; default `'div'`. Used only when creating a root. |
-| `id`, `className` | String, `null`, or function returning a string, `null`, or `undefined`. Applied when creating a root; see [attributes](view-runtime.md#root-attributes). |
+| `id`, `className` | String, `null`, or function returning a string, `null`, or `undefined`. Applied when creating a root; see [attributes](shared/view-bindings.md#root-attributes). |
 | `attributes` | Attribute map or function returning one. `id` and `className`, when declared, take precedence over its `id` and `class` entries. |
 | `template` | A template understood by the configured renderer, or `false` to preserve existing contents. The default renderer expects a function. No default template is supplied. |
 | `templateContext` | Object or function returning an object, merged over serialized data on each render. |
 | `model`, `collection` | Sources understood by the configured DataApi. A View serializes the model when both are present. Supplying either does not enable automatic rendering on change. |
-| `ui` | Map of names to selectors, or function returning that map. See [UI bindings](view-runtime.md#ui-bindings). |
-| `events`, `triggers` | DOM event maps or functions returning them. See [DOM events](view-runtime.md#dom-events). |
-| `modelEvents`, `collectionEvents` | Source event maps or functions returning them. See [data bindings](view-runtime.md#data-bindings). |
-| `state`, `stateEvents` | Borrowed state and its event bindings. `createState(options)` can supply owned state instead. See [state](state.md). |
+| `ui` | Map of names to selectors, or function returning that map. See [UI bindings](shared/view-bindings.md#ui-bindings). |
+| `events`, `triggers` | DOM event maps or functions returning them. See [DOM events](shared/view-bindings.md#dom-events). |
+| `modelEvents`, `collectionEvents` | Source event maps or functions returning them. See [data bindings](shared/view-bindings.md#data-bindings). |
+| `state`, `stateEvents` | Borrowed state and its event bindings. `createState(options)` can supply owned state instead. See [state](shared/state.md). |
 | `regions` | Map of names to Region definitions, or function returning that map; default empty. Definitions are described below. |
 | `regionClass` | Default Region constructor for this View's definitions; default `Region` from its Marionette runtime. Individual definitions may override it. |
-| `childViewEvents`, `childViewTriggers`, `childViewEventPrefix` | Parent handlers, event remapping, and optional prefix; see [child forwarding](view-runtime.md#child-events). Prefix forwarding defaults to `false`. |
-| `behaviors` | Array or object of Behavior definitions, or function returning either. See [Behavior composition](view-runtime.md#behavior-composition). |
+| `childViewEvents`, `childViewTriggers`, `childViewEventPrefix` | Parent handlers, event remapping, and optional prefix; see [child forwarding](shared/view-bindings.md#child-events). Prefix forwarding defaults to `false`. |
+| `behaviors` | Array or object of Behavior definitions, or function returning either. See [Behavior composition](shared/view-bindings.md#behavior-composition). |
 
 `preinitialize(options)` runs before the element, Behaviors, and Regions are initialized; `cid`, `options`, and recognized constructor declarations are already available. `initialize(options)` runs after those resources exist and before state/entity event bindings become active. Both hooks are no-ops by default. Constructor values for root-element configuration, model, collection, and DOM events take precedence over assignments made in `preinitialize`.
 
@@ -82,7 +82,7 @@ page.destroy(); // Removes the adopted section and destroys the child.
 | `isDestroyed()` → boolean | Whether destruction has reached its terminal state. |
 | `destroy(options?)` → `this` | Removes the root, destroys Regions and their current children, releases bindings/Behaviors/owned state, emits destruction notifications, and releases incoming and outgoing event subscriptions. Repeated calls do nothing. Model and collection sources are not destroyed by the View. |
 
-For template selection, serialization, `renderAttributes`, and renderer customization, see [rendering contracts](view-runtime.md#templates-and-data). `render()` does not refresh root attributes or automatically redelegate changed DOM event maps.
+For template selection, serialization, `renderAttributes`, and renderer customization, see [rendering contracts](shared/view-bindings.md#templates-and-data). `render()` does not refresh root attributes or automatically redelegate changed DOM event maps.
 
 ## Named Regions
 
@@ -108,7 +108,7 @@ The child operations and `removeRegion` throw for a missing Region. Region regis
 
 ## Lifecycle hooks and events
 
-Each event below uses `triggerMethod`: the corresponding hook runs first, then event subscribers receive the same arguments. The shared monitor can emit nested child/DOM notifications while an event is being delivered; the phases below describe lifecycle order rather than the ordering of every subscriber. See [event dispatch](events.md).
+Each event below uses `triggerMethod`: the corresponding hook runs first, then event subscribers receive the same arguments. The shared monitor can emit nested child/DOM notifications while an event is being delivered; the phases below describe lifecycle order rather than the ordering of every subscriber. See [event dispatch](shared/events.md).
 
 | Event | Hook | Arguments and timing |
 | --- | --- | --- |
@@ -131,17 +131,17 @@ Set `monitorViewEvents: false` on the class to disable descendant attachment pro
 
 ## Configuration and inherited API
 
-The class methods `setRenderer`, `setDomApi`, `setDataApi`, `setStateApi`, and `setEventDelegator` return the receiving class. Their [configuration contracts](view-runtime.md#class-configuration) apply to subclasses as well. Configure before constructing Views.
+The class methods `setRenderer`, `setDomApi`, `setDataApi`, `setStateApi`, and `setEventDelegator` return the receiving class. Their [configuration contracts](shared/view-bindings.md#class-configuration) apply to subclasses as well. Configure before constructing Views.
 
 The following methods are shared with other classes; their canonical definitions are linked rather than repeated:
 
-- [Common](common.md): `getOption`, `mergeOptions`, `normalizeMethods`, `bindEvents`, `unbindEvents`, `bindRequests`, `unbindRequests`, `extend` and constructor inheritance.
-- [Events](events.md): `on`, `once`, `off`, `trigger`, `triggerMethod`, `listenTo`, `listenToOnce`, `stopListening`.
-- [State](state.md): `createState`, `getState`, `state`, `stateEvents`, and the `State` provider.
-- [View runtime](view-runtime.md): `$`, `getUI`, UI normalization/binding, DOM/entity delegation, template serialization, `attachElContent`, root attributes, Behaviors, and child events.
+- [Common](shared/common.md): `getOption`, `mergeOptions`, `normalizeMethods`, `bindEvents`, `unbindEvents`, `bindRequests`, `unbindRequests`, `extend` and constructor inheritance.
+- [Events](shared/events.md): `on`, `once`, `off`, `trigger`, `triggerMethod`, `listenTo`, `listenToOnce`, `stopListening`.
+- [State](shared/state.md): `createState`, `getState`, `state`, `stateEvents`, and the `State` provider.
+- [View runtime](shared/view-bindings.md): `$`, `getUI`, UI normalization/binding, DOM/entity delegation, template serialization, `attachElContent`, root attributes, Behaviors, and child events.
 
 ## TypeScript
 
 `ViewConfiguration` describes recognized options. `ViewInstance<Options, State, Query>` describes instances; `Query` defaults to `ArrayLike<Element>` and follows the DOM provider. `ViewConstructor<Props, Args, State, Statics, Query>` describes constructors and preserves properties, arguments, state, static members, and fluent returns through `extend`. Normal application code can use inferred subclasses instead of spelling out these generics.
 
-Region definitions use exported `RegionDefinition` and `RegionClass`; child methods accept `SupportedView` and `ShowOptions`. These are structural contracts, not a promise that an arbitrary object with `render()` is a fully managed child. DOM maps, UI maps, and renderer types are listed in [View runtime](view-runtime.md#types).
+Region definitions use exported `RegionDefinition` and `RegionClass`; child methods accept `SupportedView` and `ShowOptions`. These are structural contracts, not a promise that an arbitrary object with `render()` is a fully managed child. DOM maps, UI maps, and renderer types are listed in [View runtime](shared/view-bindings.md#types).

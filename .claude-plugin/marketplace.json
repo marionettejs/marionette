@@ -7,7 +7,7 @@
     {
       "name": "marionette",
       "source": "./plugins/marionette",
-      "description": "Build and migrate Marionette applications with version-matched documentation."
+      "description": "Build and debug Marionette applications with version-matched documentation."
     }
   ]
 }

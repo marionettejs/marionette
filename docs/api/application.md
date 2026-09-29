@@ -39,7 +39,7 @@ await app.start();
 
 `prepareStart` may return a value or Promise. Its successful result reaches `onStart`; a failed request rejects `start()`. The caller handles that rejection at the feature's error boundary. `stop()` cancels a pending start or tears down active UI. `restart()` loads again and replaces the feature's root; it is not an in-place data refresh.
 
-This example uses plain response data, which the default DataApi serializes unchanged. For observable local data, use [native data setup](../setup.md#observable-data-and-api-access) or another compatible integration. API access and persistence remain separate from observable state.
+This example uses plain response data, which the default DataApi serializes unchanged. For observable local data, use [native data setup](../integrations/setup.md#observable-data-and-api-access) or another compatible integration. API access and persistence remain separate from observable state.
 
 ## Construction and options
 
@@ -50,13 +50,13 @@ This example uses plain response data, which the default DataApi serializes unch
 | `region` | Selector string, Region options object, Region constructor, or existing Region instance. Optional for an Application without mounted UI. See [root ownership](#root-view-and-region). |
 | `regionClass` | Default Region constructor when building from configuration; defaults to the runtime's Region. An individual Region definition can override it. |
 | `childApps` | Map of names to Application constructors, or a function returning that map. Constructors are called without arguments during parent construction. The map is resolved once; constructor/subclass maps replace rather than merge. |
-| `state`, `stateEvents` | Borrowed state and declarative observation. Use `createState(options)` for owned state; see [state](state.md). |
+| `state`, `stateEvents` | Borrowed state and declarative observation. Use `createState(options)` for owned state; see [state](shared/state.md). |
 | `channelName` | Radio channel name, or function returning one. A falsy name disables declarative Radio setup. |
 | `radioEvents`, `radioRequests` | Event/reply handler maps, or functions returning maps. Values are callbacks or Application method names. See [Radio bindings](#radio-bindings). |
 
 Resolver functions run with the Application as `this`. A Region constructor is a class to instantiate; a function supplied as `state` remains the source itself. `options` contains merged class and constructor options. Custom options are read with `getOption(name)` and are not automatically instance fields.
 
-`Application.extend(prototypeProperties?, staticProperties?)` creates a subclass. `preinitialize` and `initialize` default to no-ops. `cid` is generated using the class's `cidPrefix` (`'mna'` by default). Shared option methods and custom constructor invocation are in [class utilities](common.md).
+`Application.extend(prototypeProperties?, staticProperties?)` creates a subclass. `preinitialize` and `initialize` default to no-ops. `cid` is generated using the class's `cidPrefix` (`'mna'` by default). Shared option methods and custom constructor invocation are in [class utilities](shared/common.md).
 
 ## Lifecycle methods and results
 
@@ -156,17 +156,17 @@ Stop keeps the destination Region reusable. Destroy disposes a Region built from
 
 ## State and Radio
 
-State can be owned through `createState(options)` or borrowed through `state`; read it with `getState()`. Start/stop/restart retain the source. Declarative `stateEvents` deliver only while `isRunning()` is true; changes while stopped or preparing startup are not replayed. Ordinary `listenTo` subscriptions have their normal lifetime. See [state ownership and disposal](state.md).
+State can be owned through `createState(options)` or borrowed through `state`; read it with `getState()`. Start/stop/restart retain the source. Declarative `stateEvents` deliver only while `isRunning()` is true; changes while stopped or preparing startup are not replayed. Ordinary `listenTo` subscriptions have their normal lifetime. See [state ownership and disposal](shared/state.md).
 
-`Application.setStateApi(api)` overlays the receiving class's provider and returns that class. `State` is the provider, not the state source. Configure it before constructing instances; the shared [StateApi reference](state.md#configure-the-stateapi) defines this boundary.
+`Application.setStateApi(api)` overlays the receiving class's provider and returns that class. `State` is the provider, not the state source. Configure it before constructing instances; the shared [StateApi reference](shared/state.md#configure-the-stateapi) defines this boundary.
 
 ### Radio bindings
 
-`channelName`, `radioEvents`, `radioRequests`, `getChannel()` and `Radio` follow the shared [declarative Radio contract](common.md#declarative-radio-bindings). These bindings remain active while stopped as well as running. Destruction releases this Application's bindings while preserving the shared channel.
+`channelName`, `radioEvents`, `radioRequests`, `getChannel()` and `Radio` follow the shared [declarative Radio contract](shared/common.md#declarative-radio-bindings). These bindings remain active while stopped as well as running. Destruction releases this Application's bindings while preserving the shared channel.
 
 ## Lifecycle hooks and events
 
-Each event dispatches its hook first, then subscribers, using [triggerMethod](events.md). Hook arguments and subscriber arguments match.
+Each event dispatches its hook first, then subscribers, using [triggerMethod](shared/events.md). Hook arguments and subscriber arguments match.
 
 | Event | Hook | Arguments and timing |
 | --- | --- | --- |
@@ -179,10 +179,10 @@ Each event dispatches its hook first, then subscribers, using [triggerMethod](ev
 
 Restart has no separate restart event: it uses stop/start phases. A stopped instance can skip its own stop notification phase while still cleaning up children and roots. `preinitialize` and `initialize` are constructor hooks, not lifecycle events.
 
-Inherited APIs are documented once in [common methods](common.md), [events](events.md), and [state](state.md). Their methods remain available on Application; unlike View/Region, Application destruction is asynchronous.
+Inherited APIs are documented once in [common methods](shared/common.md), [events](shared/events.md), and [state](shared/state.md). Their methods remain available on Application; unlike View/Region, Application destruction is asynchronous.
 
 ## TypeScript
 
 Import `ApplicationOptions`, `ApplicationStartOptions`, `LifecycleContext`, `ApplicationInstance`, and `ApplicationConstructor` from `marionette`. `LifecycleContext` contains the preparation `AbortSignal`. Constructor options and per-start options are separate types. `ApplicationInstance<Options, State, StartResult>` describes the constructor options, state source and successful preparation result. `extend` carries the awaited return type of `prepareStart` into the instance's lifecycle result contract. Annotate overridden hook parameters as in the example; inference of the instance contract does not remove that need.
 
-Region definitions use `RegionDefinition`/`RegionClass`; start destinations use `RegionInstance`. Root methods preserve the supplied View's type when one is passed. Child lookup/removal returns the common Application interface; narrow it when using child-specific methods. Shared structural types are listed beside their [state](state.md) and [event](events.md) contracts.
+Region definitions use `RegionDefinition`/`RegionClass`; start destinations use `RegionInstance`. Root methods preserve the supplied View's type when one is passed. Child lookup/removal returns the common Application interface; narrow it when using child-specific methods. Shared structural types are listed beside their [state](shared/state.md) and [event](shared/events.md) contracts.

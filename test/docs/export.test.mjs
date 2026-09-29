@@ -8,7 +8,6 @@ import test from 'node:test';
 import { Marked } from 'marked';
 import { contentDigest, exportDocs, readResources, sha256, validateNavigation } from '../../scripts/docs/export.mjs';
 import { documentSections, isConsumerPage } from '../../scripts/docs/sections.mjs';
-import { symbolIndex } from '../../scripts/docs/symbols.mjs';
 
 const markdownParser = new Marked();
 
@@ -126,24 +125,26 @@ test('resources are explicit text files and cannot escape through paths or symli
   }
 });
 
-test('exports every current top-level guide with exact bytes and reproducible provenance', async() => {
+test('exports every current guide with exact bytes and reproducible provenance', async() => {
   const manifest = await exportDocs();
   const again = await exportDocs();
   assert.deepEqual(again, manifest);
   assert.match(manifest.sourceRevision, /^[a-f0-9]{40}$/);
   assert.equal(typeof manifest.sourceDirty, 'boolean');
   const resources = JSON.parse(await readFile(new URL('../../docs-site/resources.json', import.meta.url), 'utf8'));
-  assert.deepEqual(manifest.assets.map(asset => asset.source), [...resources, 'docs-sections.json', 'docs-symbols.json']);
+  assert.deepEqual(manifest.assets.map(asset => asset.source), [...resources, 'docs-sections.json']);
   for (const source of ['config/diagnostics/catalog.json', 'skills/marionette/agents/openai.yaml',
     'skills/marionette/scripts/docs.mjs',
-    'test/fixtures/docs-routing/validate.mjs', 'benchmarks/docs/results/2026-09-08/latest-navigation/solution.mjs']) {
+    'examples/records/src/main.js', 'examples/records/README.md']) {
     assert.ok(manifest.assets.some(asset => asset.source === source), `Missing supporting resource: ${source}`);
   }
-  const files = (await readdir(new URL('../../docs/', import.meta.url))).filter(file => file.endsWith('.md'));
+  const files = (await readdir(new URL('../../docs/', import.meta.url), { recursive: true })).filter(file => file.endsWith('.md'));
   for (const file of files) {
     assert.ok(manifest.pages.some(page => page.source === `docs/${file}`), `Missing page: ${file}`);
   }
   const entries = [...manifest.pages, ...manifest.assets];
+  assert.equal(entries.some(entry => /^(planning|benchmarks|test)\//.test(entry.source)), false, 'Consumer export excludes evaluation evidence and test fixtures');
+  assert.equal(manifest.assets.some(entry => entry.source === 'docs-symbols.json'), false, 'Retired semantic mappings must not masquerade as current reference coverage');
   for (const page of entries) {
     const exported = await readFile(new URL(`../../.docs-export/${page.source}`, import.meta.url));
     if (page.source === 'docs-sections.json') {
@@ -151,10 +152,6 @@ test('exports every current top-level guide with exact bytes and reproducible pr
         .map(async value => documentSections(value.source,
           await readFile(new URL(`../../${value.source}`, import.meta.url), 'utf8'))))).flat();
       assert.deepEqual(JSON.parse(exported), { schemaVersion: 1, sections: expected });
-    } else if (page.source === 'docs-symbols.json') {
-      const sections = JSON.parse(await readFile(new URL('../../.docs-export/docs-sections.json', import.meta.url), 'utf8')).sections;
-      const contracts = async name => JSON.parse(await readFile(new URL(`../../config/api-contracts/${name}.json`, import.meta.url), 'utf8'));
-      assert.deepEqual(JSON.parse(exported), symbolIndex(await contracts('inventory'), await contracts('semantics'), sections));
     } else {
       const original = await readFile(new URL(`../../${page.source}`, import.meta.url));
       assert.deepEqual(exported, original);
@@ -167,29 +164,38 @@ test('exports every current top-level guide with exact bytes and reproducible pr
   assert.notEqual(contentDigest(changed), manifest.contentSha256);
 });
 
-test('exports relative dependencies of fixture validators and raw Markdown resources', async() => {
-  const manifest = await exportDocs();
-  const entries = [...manifest.pages, ...manifest.assets];
+async function assertModuleClosure(entries, readSource) {
   const exported = new Set(entries.map(entry => entry.source));
-  const references = [];
-  const moduleQueue = manifest.assets.filter(asset =>
-    /^test\/fixtures\/[^/]+\/validate\.mjs$/.test(asset.source)).map(asset => asset.source);
+  const moduleQueue = entries.filter(asset =>
+    /^(?:examples\/records\/src\/.*\.js|skills\/marionette\/scripts\/.*\.mjs)$/.test(asset.source)).map(asset => asset.source);
   const checkedModules = new Set();
   while (moduleQueue.length) {
     const source = moduleQueue.shift();
     if (checkedModules.has(source)) { continue; }
     checkedModules.add(source);
-    const contents = await readFile(new URL(`../../.docs-export/${source}`, import.meta.url), 'utf8');
+    const contents = await readSource(source);
     for (const match of contents.matchAll(/(?:\bfrom\s*|\bimport\s*(?:\(\s*)?)(['"])(\.[^'"]+)\1/g)) {
       const target = decodeTarget(source, match[2]);
       const dependency = posix.normalize(posix.join(posix.dirname(source), target));
-      const generated = !exported.has(dependency) && /\/dist\/[^/]+\.js$/.test(dependency);
-      if (generated) { continue; }
       assert.ok(exported.has(dependency), `${source} imports omitted export source: ${dependency}`);
       if (/\.m?js$/.test(dependency)) { moduleQueue.push(dependency); }
     }
   }
-  for (const asset of manifest.assets) {
+}
+
+test('module closure rejects a missing skill dependency', async() => {
+  const entries = [{ source: 'skills/marionette/scripts/docs.mjs' }];
+  await assert.rejects(assertModuleClosure(entries, async() => 'import { search } from \'./search.mjs\';'),
+    /docs\.mjs imports omitted export source: skills\/marionette\/scripts\/search\.mjs/);
+});
+
+test('exports relative dependencies of examples and raw Markdown resources', async() => {
+  const manifest = await exportDocs();
+  const entries = [...manifest.pages, ...manifest.assets];
+  const exported = new Set(entries.map(entry => entry.source));
+  const references = [];
+  await assertModuleClosure(entries, source => readFile(new URL(`../../.docs-export/${source}`, import.meta.url), 'utf8'));
+  for (const asset of entries) {
     const contents = await readFile(new URL(`../../.docs-export/${asset.source}`, import.meta.url), 'utf8');
     if (asset.source.endsWith('.md')) {
       for (const href of await markdownTargets(contents)) {

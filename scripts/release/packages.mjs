@@ -29,7 +29,6 @@ export function stagedCoreManifest(pkg, documentation) {
       ...documentation.pages.map(entry => entry.source),
       ...documentation.assets.map(entry => entry.source),
       'docs-manifest.json',
-      'starter/',
     ])],
   };
 }

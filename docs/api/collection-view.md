@@ -1,12 +1,12 @@
 # CollectionView
 
-[API index](../api.md) · [View](view.md) · [Shared View runtime](view-runtime.md)
+[API index](../api.md) · [View](view.md) · [Shared View runtime](shared/view-bindings.md)
 
 CollectionView owns repeated child Views and their placement, order, and lifetime. Supply a collection for one child per model, or add View instances directly. Use a View with named Regions for a layout containing distinct pieces of UI.
 
 ## Render a collection
 
-This standalone TypeScript example uses `@mnjs/data` for observable membership and Lit for text rendering. API access and persistence remain separate concerns; see [data setup](../setup.md#observable-data-and-api-access).
+This standalone TypeScript example uses `@mnjs/data` for observable membership and Lit for text rendering. API access and persistence remain separate concerns; see [data setup](../integrations/setup.md#observable-data-and-api-access).
 
 ```ts
 import { CollectionView, Region, View } from 'marionette';
@@ -53,7 +53,7 @@ The Region owns the list; the list owns its rows and empty View. `region.destroy
 
 `new CollectionView(options?)` establishes its fixed root, children storage, Behaviors, state access and event bindings. It calls `preinitialize(options)` before those resources, then `initialize(options)` after child storage and Behaviors exist. `getState()` is available inside `initialize`; state bindings, the empty Region, and entity bindings initialize afterward. Construction does not create rows or subscribe to collection membership; the first `render()` does.
 
-CollectionView accepts View's root, template, data, UI/DOM, entity-event, state, Behavior and child-forwarding options. Their shared contracts are in [View runtime](view-runtime.md), [state](state.md), and [View construction](view.md#construction-and-options). It has no named-Region methods or `regions`/`regionClass` options. Custom options use [common option methods](common.md#options-and-initialization).
+CollectionView accepts View's root, template, data, UI/DOM, entity-event, state, Behavior and child-forwarding options. Their shared contracts are in [View runtime](shared/view-bindings.md), [state](shared/state.md), and [View construction](view.md#construction-and-options). It has no named-Region methods or `regions`/`regionClass` options. Custom options use [common option methods](shared/common.md#options-and-initialization).
 
 | CollectionView option | Value and default |
 | --- | --- |
@@ -84,7 +84,7 @@ Resolver functions and comparator/filter callbacks run with the CollectionView a
 
 A plain array is not observed. After changing it, `render()` rebuilds the list. Observable sources let additions and ordering changes preserve surviving Views and their DOM; do not call full `render()` merely to apply a filter or comparator. Use a new CollectionView when changing the collection source; assigning `collection` does not transfer an existing observer to that source.
 
-The DataApi supplies models and stable, unique, non-null keys. The default uses each array value as its key; `@mnjs/data` uses Model `cid`, not `id`. Missing, duplicate or changing keys throw `MN0039`. Full adapter authoring is a separate reference area; normal consumers use a compatible [DataApi setup](../setup.md#configure-once).
+The DataApi supplies models and stable, unique, non-null keys. The default uses each array value as its key; `@mnjs/data` uses Model `cid`, not `id`. Missing, duplicate or changing keys throw `MN0039`. Full adapter authoring is a separate reference area; normal consumers use a compatible [DataApi setup](../integrations/setup.md#configure-once).
 
 `template` is optional. With no template or `template: false`, `render()` still manages rows and emits events; it only skips rendering the list's own template. A supplied root is adopted, but existing markup does not mark a CollectionView rendered or bind its UI automatically. With no template, call `bindUIElements()` when you need UI queries against that markup. Place children in a dedicated `childViewContainer` when the root also contains persistent markup.
 
@@ -131,7 +131,7 @@ Changing values captured by a predicate does not change the predicate's identity
 
 `isEmpty()` reports whether `children` has no presented rows. All rows can be filtered out while the source still has models. The `emptyView` appears for this presentation state, through the Region returned by `getEmptyRegion()`.
 
-The empty View is separate from `children`. It receives `emptyViewOptions`, or the `childViewOptions` fallback, with no automatic model. Give it a root suitable for the child container, such as `li` inside `ul`. Each empty presentation pass creates a new empty View and replaces the previous one; it is destroyed when rows appear or the list is destroyed. Its events use the same [child forwarding](view-runtime.md#child-events) as rows.
+The empty View is separate from `children`. It receives `emptyViewOptions`, or the `childViewOptions` fallback, with no automatic model. Give it a root suitable for the child container, such as `li` inside `ul`. Each empty presentation pass creates a new empty View and replaces the previous one; it is destroyed when rows appear or the list is destroyed. Its events use the same [child forwarding](shared/view-bindings.md#child-events) as rows.
 
 `getEmptyRegion()` returns the list-owned Region for the current child container, with replacement disabled. It is created during construction and reused while live; its owner is this CollectionView. If explicitly destroyed while the list is live, the next call recreates it. After list destruction, the getter returns the destroyed Region. Use it to inspect `currentView`; configure empty presentation through `emptyView` and `emptyViewOptions`.
 
@@ -198,7 +198,7 @@ A full render runs: `before:render` → old-row destruction → new-row addition
 | `detachHtml(view)` | Detaches the child's element through the DOM provider; no defined return value. |
 | `getComparator()`, `getFilter()`, `isEmpty()` | Can be overridden to compute ordering, filtering, or empty presentation. |
 
-DOM extension points perform placement only; ownership and lifecycle remain the job of the enclosing operations. Keep the fixed root. Shared `getTemplate`, serialization, UI, delegation, attributes, Behavior composition, child events and their methods are defined in [View runtime](view-runtime.md). Class setters `setRenderer`, `setDomApi`, `setDataApi`, `setStateApi`, and `setEventDelegator` use its [configuration contracts](view-runtime.md#class-configuration). Inherited object APIs are in [common methods](common.md), [events](events.md), and [state](state.md).
+DOM extension points perform placement only; ownership and lifecycle remain the job of the enclosing operations. Keep the fixed root. Shared `getTemplate`, serialization, UI, delegation, attributes, Behavior composition, child events and their methods are defined in [View runtime](shared/view-bindings.md). Class setters `setRenderer`, `setDomApi`, `setDataApi`, `setStateApi`, and `setEventDelegator` use its [configuration contracts](shared/view-bindings.md#class-configuration). Inherited object APIs are in [common methods](shared/common.md), [events](shared/events.md), and [state](shared/state.md).
 
 ## TypeScript
 

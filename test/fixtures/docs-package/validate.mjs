@@ -68,30 +68,6 @@ assert.ok(discoveryLinks.includes('docs/agents.md'));
 for (const href of discoveryLinks) {
   await contained(resolve(packageRoot, href));
 }
-// Exercise the command advertised to package-only agents, without copying a skill.
-for (const source of ['llms.txt', 'readme.md', 'docs/agent-retrieval.md']) {
-  const markdown = await readFile(resolve(packageRoot, source), 'utf8');
-  const command = parser.lexer(markdown).filter(token => token.type === 'code' && token.lang === 'sh')
-    .flatMap(token => token.text.split('\n'))
-    .find(line => /--search 'getUI'$/.test(line));
-  assert.ok(command, `${source}: package-only search command is discoverable`);
-  const [executable, helper, ...args] = command.split(/\s+/).map(token => token.replace(/^(['"])(.*)\1$/, '$2'));
-  assert.equal(executable, 'node');
-  assert.equal(helper, 'node_modules/marionette/dist/agent-skill/scripts/docs.mjs');
-  const result = JSON.parse(execFileSync(process.execPath, [helper, ...args], {
-    cwd: process.cwd(), encoding: 'utf8'
-  }));
-  assert.equal(result.sourceRevision, manifest.sourceRevision);
-  const section = result.results[0];
-  assert.equal(section.heading, 'getUI(name): read bound elements');
-  const excerpt = execFileSync(process.execPath, [helper, '--project', '.', '--section', section.id], {
-    cwd: process.cwd(), encoding: 'utf8'
-  });
-  const headerEnd = excerpt.indexOf('\n');
-  assert.equal(JSON.parse(excerpt.slice(0, headerEnd)).contentSha256, manifest.contentSha256);
-  const page = await readFile(resolve(packageRoot, section.source), 'utf8');
-  assert.equal(excerpt.slice(headerEnd + 1), `${page.slice(section.start, section.end)}\n`);
-}
 assert.ok(!(await files(packageRoot)).some(path => path.startsWith('config/api-contracts/') ||
   path.startsWith('scripts/')), 'Build tooling and contract inventories must not be packed');
 assert.ok(manifest.assets.every(asset => !asset.source.startsWith('config/api-contracts/') &&
@@ -103,8 +79,8 @@ assert.ok(manifest.assets.every(asset => !asset.source.startsWith('benchmarks/')
 const maintainerAssets = new Set(['ROADMAP.md', 'test/README.md']);
 assert.ok(manifest.assets.every(asset => !maintainerAssets.has(asset.source) && !asset.source.startsWith('test/unit/')),
   'Maintainer planning and test guidance must not enter the consumer package');
-assert.ok(manifest.assets.some(asset => asset.source === 'test/fixtures/docs-routing/validate.mjs'),
-  'Consumer fixture evidence must be available offline');
+assert.ok(entries.every(entry => !/^(?:planning|test|benchmarks)\//.test(entry.source)),
+  'Maintainer evidence and test fixtures must not enter the consumer package');
 const installedSkill = await containedWithin(packageRoot,
   resolve(packageRoot, 'dist/agent-skill'), 'Packaged skill');
 const documentedSkill = await containedWithin(packageRoot,
@@ -118,71 +94,52 @@ for (const path of skillFiles) {
   await readFile(await containedWithin(documentedSkill,
     resolve(documentedSkill, path), 'Documented skill file')), `Packaged skill differs at ${path}`);
 }
-const skillMetadata = await readFile(resolve(installedSkill, 'agents/openai.yaml'), 'utf8');
-assert.match(skillMetadata, /https:\/\/mcp\.marionettejs\.com\/mcp/,
-  'Packaged skill must declare the documentation MCP dependency');
 const directory = await mkdtemp(resolve(tmpdir(), 'marionette-copied-skill-'));
 try {
   await cp(installedSkill, directory, { recursive: true });
-  for (const skillRoot of [installedSkill, directory]) {
+  const guide = await readFile(resolve(packageRoot, 'docs/agents.md'), 'utf8');
+  const commands = parser.lexer(guide).filter(token => token.type === 'code' && token.lang === 'sh')
+    .flatMap(token => token.text.split('\n')).filter(line => line.startsWith('node <skill>/'));
+  for (const skillRoot of [documentedSkill, installedSkill, directory]) {
     const skill = await readFile(resolve(skillRoot, 'SKILL.md'), 'utf8');
-    const commands = parser.lexer(skill).filter(token => token.type === 'code' && token.lang === 'sh')
-      .flatMap(token => token.text.split('\n'));
-    assert.equal(commands.length, 3, 'Exercise every documented lookup command');
+    assert.ok(skill.includes('docs/agents.md'));
+    const helper = resolve(skillRoot, 'scripts/docs.mjs');
+    const lookup = args => execFileSync(process.execPath, [helper, ...args], { cwd: process.cwd(), encoding: 'utf8' });
     const modes = new Set();
     for (const command of commands) {
-      const [executable, ...tokens] = command.split(/\s+/);
-      assert.equal(executable, 'node');
-      const substitutions = new Map([
-        ['/path/to/skill-directory/scripts/docs.mjs', resolve(skillRoot, 'scripts/docs.mjs')],
-        ['/path/to/application', process.cwd()],
-      ]);
-      const args = tokens.map(token => token.replace(/^(['"])(.*)\1$/, '$2'))
-        .map(arg => substitutions.get(arg) ?? arg);
-      const output = execFileSync(process.execPath, args, { cwd: process.cwd(), encoding: 'utf8' });
-      if (args.includes('--search')) {
-        modes.add('search');
+      const args = command.match(/'[^']*'|\S+/g).slice(2).map(token => token.replace(/^'|'$/g, ''));
+      const output = lookup(args);
+      if (args.includes('--list')) {
+        modes.add('list');
         const result = JSON.parse(output);
         assert.equal(result.sourceRevision, manifest.sourceRevision);
-        const section = result.results[0];
-        assert.equal(section.heading, 'getUI(name): read bound elements');
-        const excerpt = execFileSync(process.execPath, [resolve(skillRoot, 'scripts/docs.mjs'),
-          '--project', process.cwd(), '--section', section.id], { encoding: 'utf8' });
+        assert.ok(result.pages.some(page => page.source === 'docs/agents.md'));
+      } else if (args.includes('--search')) {
+        modes.add('search');
+        const result = JSON.parse(output);
+        assert.equal(result.contentSha256, manifest.contentSha256);
+        const section = result.results.find(match => match.source === 'docs/api/application.md');
+        assert.ok(section, 'Search discovers the current Application reference');
+        const excerpt = lookup(['--section', section.id]);
         const headerEnd = excerpt.indexOf('\n');
         assert.equal(JSON.parse(excerpt.slice(0, headerEnd)).contentSha256, manifest.contentSha256);
         const page = await readFile(resolve(packageRoot, section.source), 'utf8');
         assert.equal(excerpt.slice(headerEnd + 1), `${page.slice(section.start, section.end)}\n`);
-        assert.ok(excerpt.includes('NodeList'));
-        assert.ok(excerpt.includes('MN0023'));
-      } else if (args.includes('--symbol')) {
-        modes.add('symbol');
-        const result = JSON.parse(output);
-        assert.equal(result.contentSha256, manifest.contentSha256);
-        const [match] = result.matches;
-        assert.deepEqual([match.entrypoint, match.name, match.member, match.access],
-          ['marionette', 'Region', 'detachView', 'instance']);
-        assert.ok(match.contracts.every(id => result.contracts[id]), 'Every returned contract is described');
-        const section = match.sections.find(value => value.heading === 'Detaching Existing Views');
-        assert.ok(section, 'Symbol lookup names the section documenting the member');
-        const excerpt = execFileSync(process.execPath, [resolve(skillRoot, 'scripts/docs.mjs'),
-          '--project', process.cwd(), '--section', section.id], { encoding: 'utf8' });
-        assert.ok(excerpt.includes('detachView'));
       } else {
         modes.add('page');
-        assert.deepEqual(args.slice(-2), ['--page', 'docs/quick-start.md']);
         const headerEnd = output.indexOf('\n');
         const result = JSON.parse(output.slice(0, headerEnd));
         assert.equal(result.sourceRevision, manifest.sourceRevision);
-        assert.equal(result.source, 'docs/quick-start.md');
+        assert.equal(result.source, args.at(-1));
         const page = await readFile(resolve(packageRoot, result.source), 'utf8');
         assert.equal(output.slice(headerEnd + 1), `${page}\n`);
       }
     }
-    assert.deepEqual([...modes].sort(), ['page', 'search', 'symbol']);
+    assert.deepEqual([...modes].sort(), ['list', 'page', 'search']);
+    assert.equal(JSON.parse(lookup(['--diagnostic', 'MN0003'])).diagnostic.code, 'MN0003');
+    const result = JSON.parse(lookup(['--package-root', packageRoot, '--list']));
+    assert.equal(result.contentSha256, manifest.contentSha256);
   }
-  const result = execFileSync(process.execPath, [resolve(directory, 'scripts/docs.mjs'), '--package-root', packageRoot, '--list'], { encoding: 'utf8' });
-  assert.ok(result.includes(manifest.sourceRevision));
-  assert.ok(result.includes('docs/agents.md'));
 } finally {
   await rm(directory, { recursive: true, force: true });
 }

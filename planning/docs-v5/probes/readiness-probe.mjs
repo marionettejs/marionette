@@ -32,7 +32,7 @@ let finishPreparation;
 const pending = new (Application.extend({
   prepareStart(options, { signal }) {
     pendingSignal = signal;
-    return new Promise(resolve => { finishPreparation = resolve; });
+    return new Promise(done => { finishPreparation = done; });
   },
 }))();
 const starting = pending.start();

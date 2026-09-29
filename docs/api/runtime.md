@@ -1,8 +1,27 @@
 # Runtime configuration
 
-[API index](../api.md) · [Rendering and DOM providers](dom-providers.md) · [Data and state providers](data-providers.md)
+[API index](../api.md) · [Rendering and DOM providers](providers/dom.md) · [Data and state providers](providers/data.md)
 
 A Marionette runtime is a family of classes with shared configuration choices and a Radio instance. The named imports from `marionette` use the default family. Configure that family once for an ordinary application; use `createMarionette()` when independently configured parts or tests must coexist. An [Application](application.md) manages a feature lifetime within either family.
+
+## Configure the default runtime
+
+Import the named setters in your application's setup module, before constructing Views. For example, install the Lit DOM adapter once:
+
+```js
+import { View, setDomApi } from 'marionette';
+import LitDomApi from '@mnjs/adapters/dom/lit-html';
+import { html } from 'lit-html';
+
+setDomApi(LitDomApi);
+
+const Heading = View.extend({
+  template: () => html`<h1>Overview</h1>`,
+});
+const heading = new Heading().render();
+```
+
+The default renderer already calls the template function with its data. Configure a different renderer only when the template engine needs one. The [quick start](../quick-start.md) mounts a View in the page; [setup](../integrations/setup.md) adds observable data when needed.
 
 ## Configure an isolated runtime
 
@@ -29,7 +48,7 @@ heading.render();
 title.set('title', 'Updated overview');
 ```
 
-The default renderer evaluates the function; Lit inserts its result. DataApi supplies the Model's attributes and subscriptions. Configure StateApi separately if an owner's `stateEvents` or owned-state disposal needs it. The View borrows the Model; its owner manages the Model's lifetime. `@mnjs/data` remains an incomplete observable layer with [separate API/persistence concerns](../setup.md#observable-data-and-api-access).
+The default renderer evaluates the function; Lit inserts its result. DataApi supplies the Model's attributes and subscriptions. Configure StateApi separately if an owner's `stateEvents` or owned-state disposal needs it. The View borrows the Model; its owner manages the Model's lifetime. `@mnjs/data` remains an incomplete observable layer with [separate API/persistence concerns](../integrations/setup.md#observable-data-and-api-access).
 
 ## Choose a configuration scope
 
@@ -55,15 +74,15 @@ Overlays preserve unspecified methods, with the last supplied value winning. The
 
 | Runtime member | Default and reference |
 | --- | --- |
-| `Application`, `Behavior`, `CollectionView`, `MnObject`, `Region`, `View` | Constructors in this family. See the [class index](../api.md#classes). |
-| `DomApi` | Native DOM operations, static descendant queries and HTML-string insertion. [DOM contract](dom-providers.md#domapi). |
-| `DataApi` | Plain values for rendering and static arrays for collection membership; compatible `on`/`off` sources for explicit entity events. [Data contract](data-providers.md#dataapi). |
-| `StateApi` | No observable-state support or owned disposal by default. `subscribe` throws `MN0037`. [State contract](data-providers.md#stateapi). |
-| `Radio` | Default exported Radio for the default family; a new Radio instance for each isolated runtime. [Owner bindings](common.md#declarative-radio-bindings). |
+| `Application`, `Behavior`, `CollectionView`, `MnObject`, `Region`, `View` | Constructors in this family. See the [class index](../api.md#core-classes). |
+| `DomApi` | Native DOM operations, static descendant queries and HTML-string insertion. [DOM contract](providers/dom.md#domapi). |
+| `DataApi` | Plain values for rendering and static arrays for collection membership; compatible `on`/`off` sources for explicit entity events. [Data contract](providers/data.md#dataapi). |
+| `StateApi` | No observable-state support or owned disposal by default. `subscribe` throws `MN0037`. [State contract](providers/data.md#stateapi). |
+| `Radio` | Default exported Radio for the default family; a new Radio instance for each isolated runtime. [Owner bindings](shared/common.md#declarative-radio-bindings). |
 | `VERSION` | The package version string, also available as a named import. |
-| `Events`, `extend`, `MarionetteError`, `monitorViewEvents` | Shared utilities, not newly isolated copies. [Events](events.md), [extension](common.md#define-a-class), and [View lifecycle monitoring](view.md#lifecycle-hooks-and-events) describe the relevant contracts; standalone error/utility references remain in the [coverage gaps](../api.md#integrations-and-remaining-coverage). |
+| `Events`, `extend`, `MarionetteError`, `monitorViewEvents` | Shared utilities, not newly isolated copies. [Events](shared/events.md), [extension](shared/common.md#define-a-class), and [View lifecycle monitoring](view.md#lifecycle-hooks-and-events) describe the relevant contracts; standalone error/utility references remain in the [coverage gaps](../api.md#integration-guides-and-remaining-coverage). |
 
-`createMarionette` is a named export of `marionette`. The package has no default export, and a created runtime does not itself have a `createMarionette` method. `EventDelegator` and `Renderer` are type exports, not provider values. The active delegator is available through the class's `prototype.EventDelegator`; the renderer occupies `_renderHtml`.
+`createMarionette` is a named export of `marionette`. The package has no default export, and a created runtime does not itself have a `createMarionette` method. `EventDelegator` and `Renderer` are type exports, not provider values. Configure those behaviors through their setters.
 
 `DataApi`, `DomApi`, and `StateApi` expose the initial provider objects. Setters replace class slots with overlays; they do not update these exported objects into a registry of the active configuration. Inspect a class's `prototype.Data`, `prototype.Dom`, or `prototype.State` when needed. Prefer setters over direct mutation.
 
@@ -83,4 +102,4 @@ This is configuration isolation. Classes inherit from the library's base classes
 
 Use `ReturnType<typeof createMarionette>` for the returned runtime type; there is no named public Runtime type. Runtime methods expose the same class/provider contracts as named imports. Types are structural, so they do not brand objects by runtime; ownership checks still run at runtime.
 
-Provider registration accepts concrete source/output types through an intentionally opaque class slot. It does not prove that every model, template, DOM result, child class or supplied state matches that provider. Keep the concrete adapter typed, configure a coherent class family, and test its consumers. See [DOM types](dom-providers.md#typescript) and [data types](data-providers.md#typescript).
+Provider registration accepts concrete source/output types through an intentionally opaque class slot. It does not prove that every model, template, DOM result, child class or supplied state matches that provider. Keep the concrete adapter typed, configure a coherent class family, and test its consumers. See [DOM types](providers/dom.md#typescript) and [data types](providers/data.md#typescript).

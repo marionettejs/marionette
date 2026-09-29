@@ -5,8 +5,8 @@
 ## Delivered
 
 - [Runtime configuration](../../docs/api/runtime.md): default versus isolated families, affected classes, setter returns and inheritance, exports, defaults and composition limits.
-- [Rendering/DOM providers](../../docs/api/dom-providers.md): renderer/output flow, all 15 DomApi methods, event delegation and cleanup, and type boundaries.
-- [Data/state providers](../../docs/api/data-providers.md): reading/serialization, stable keys, exact collection notification shapes, source subscriptions and owned-state disposal.
+- [Rendering/DOM providers](../../docs/api/providers/dom.md): renderer/output flow, all 15 DomApi methods, event delegation and cleanup, and type boundaries.
+- [Data/state providers](../../docs/api/providers/data.md): reading/serialization, stable keys, exact collection notification shapes, source subscriptions and owned-state disposal.
 - Updated API/discovery entrypoints and shared references; setup remains a small concrete recipe.
 
 The reference distinguishes the built-in plain-data defaults from optional `@mnjs/data`. Native data remains incomplete for API/persistence needs. No additional helpers or application layers were introduced into the records example.

@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "154b740c3e6cb23f0d0d39f3f7ef9048f68f93b438e3cfae953006761849d515",
+  "semanticsSha256": "5887526c2eb12173b900bfdf763a1a93cac090036853c7f088341c58183aa4c6",
   "entrypoints": [
     {
       "name": "marionette",
@@ -7292,6 +7292,878 @@
       ]
     }
   ],
+  "documentationCoverage": [
+    {
+      "id": "type-shapes",
+      "status": "partial",
+      "reason": "Class, native data, and Radio references cover their types; standalone utility and adapter type exports still lack a complete reference.",
+      "docs": [
+        {
+          "file": "docs/api/runtime.md",
+          "heading": "TypeScript"
+        },
+        {
+          "file": "docs/api/view.md",
+          "heading": "TypeScript"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "TypeScript"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "TypeScript"
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Types and entrypoints"
+        }
+      ]
+    },
+    {
+      "id": "runtime-isolation",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/runtime.md",
+          "heading": "Choose a configuration scope"
+        },
+        {
+          "file": "docs/api/runtime.md",
+          "heading": "Isolation and composition"
+        },
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Define a class"
+        },
+        {
+          "file": "docs/api/providers/dom.md",
+          "heading": "EventDelegator"
+        }
+      ]
+    },
+    {
+      "id": "version",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/runtime.md",
+          "heading": "Defaults and exports"
+        }
+      ]
+    },
+    {
+      "id": "object",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/mnobject.md",
+          "heading": "Construction and options"
+        },
+        {
+          "file": "docs/api/mnobject.md",
+          "heading": "Destruction and ownership"
+        }
+      ]
+    },
+    {
+      "id": "view",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/view.md",
+          "heading": "Rendering and status"
+        },
+        {
+          "file": "docs/api/view.md",
+          "heading": "Lifecycle hooks and events"
+        },
+        {
+          "file": "docs/api/view.md",
+          "heading": "Named Regions"
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Root attributes"
+        }
+      ]
+    },
+    {
+      "id": "behavior",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "Declare and construct"
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "Host events and data"
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "Destruction and nested Behaviors"
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "Reuse a local interaction"
+        },
+        {
+          "file": "docs/api/view.md",
+          "heading": "Construction and options"
+        }
+      ]
+    },
+    {
+      "id": "region",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/region.md",
+          "heading": "Showing a View"
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "Empty, detach, reset, and destroy"
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "Properties and queries"
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "Lifecycle events and hooks"
+        }
+      ]
+    },
+    {
+      "id": "collection-view",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Rendering and collection updates"
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Lifecycle and extension points"
+        },
+        {
+          "file": "docs/api/providers/data.md",
+          "heading": "Collection identity and observation"
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Sorting"
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Find and inspect children"
+        }
+      ]
+    },
+    {
+      "id": "manual-children",
+      "status": "partial",
+      "reason": "Manual ownership operations are documented; placement of manual children during managed-source replacement is not explained.",
+      "docs": [
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Manage View instances directly"
+        }
+      ]
+    },
+    {
+      "id": "sync-failure-boundary",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/view.md",
+          "heading": "Lifecycle hooks and events"
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "Empty, detach, reset, and destroy"
+        },
+        {
+          "file": "docs/api/mnobject.md",
+          "heading": "Destruction and ownership"
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Lifecycle and extension points"
+        }
+      ]
+    },
+    {
+      "id": "events",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Subscribe and unsubscribe"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Names, maps, and callback context"
+        }
+      ]
+    },
+    {
+      "id": "radio",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Imports and registry scope"
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Lifetime and cleanup"
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Channel events"
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Standalone channels and Requests"
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Logging"
+        }
+      ]
+    },
+    {
+      "id": "requests",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Requests and replies"
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Standalone channels and Requests"
+        }
+      ]
+    },
+    {
+      "id": "extend",
+      "status": "partial",
+      "reason": "Ordinary function-constructor extension is documented; the profile also promises native-class constructor requirements and enumerable-accessor evaluation that the reference does not cover.",
+      "docs": [
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Define a class"
+        }
+      ]
+    },
+    {
+      "id": "error",
+      "status": "partial",
+      "reason": "The package README names MarionetteError; constructor metadata, formatting, and diagnostic lookup still need a canonical reference.",
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ]
+    },
+    {
+      "id": "get-value",
+      "status": "partial",
+      "reason": "The README introduces value resolution; fallback and invocation results still need a complete utility reference.",
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ]
+    },
+    {
+      "id": "get-option",
+      "status": "partial",
+      "reason": "Option precedence and function-valued options are documented; numeric and symbol property-key support in this profile is not explicit.",
+      "docs": [
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Options and initialization"
+        }
+      ]
+    },
+    {
+      "id": "merge-options",
+      "status": "partial",
+      "reason": "Option copying is documented; the profile additionally promises safe own-property treatment of __proto__, which the cited sections do not explain.",
+      "docs": [
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Options and initialization"
+        },
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Building a component"
+        }
+      ]
+    },
+    {
+      "id": "normalize-methods",
+      "status": "partial",
+      "reason": "Owner normalization is documented; standalone resolveMethod and normalizeBindings argument and result contracts remain incomplete.",
+      "docs": [
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Options and initialization"
+        },
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ]
+    },
+    {
+      "id": "bind-events",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Binding helpers"
+        },
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Building a component"
+        }
+      ]
+    },
+    {
+      "id": "bind-requests",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Binding helpers"
+        },
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Building a component"
+        }
+      ]
+    },
+    {
+      "id": "is-string",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ]
+    },
+    {
+      "id": "set-property",
+      "status": "partial",
+      "reason": "The README explains prototype-safe assignment; supported arguments and return value still need a utility reference.",
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ]
+    },
+    {
+      "id": "unique-id",
+      "status": "partial",
+      "reason": "The README lists uniqueId; prefix, sequence scope, and result contract remain undocumented.",
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ]
+    },
+    {
+      "id": "event-arguments",
+      "status": "partial",
+      "reason": "The README describes literal event names; descriptor shape, contexts, and supported argument forms remain incomplete.",
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ]
+    },
+    {
+      "id": "call-handler",
+      "status": "partial",
+      "reason": "The README lists callHandler; callback, context, arguments, and result contract remain undocumented.",
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ]
+    },
+    {
+      "id": "once-wrapper",
+      "status": "partial",
+      "reason": "The README lists onceWrap; memoization, cleanup ordering, and callback failure behavior remain undocumented.",
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ]
+    },
+    {
+      "id": "trigger-method",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks"
+        }
+      ]
+    },
+    {
+      "id": "dom-api",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/providers/dom.md",
+          "heading": "DomApi"
+        }
+      ]
+    },
+    {
+      "id": "monitor-view-events",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/view.md",
+          "heading": "Lifecycle hooks and events"
+        }
+      ]
+    },
+    {
+      "id": "jquery-dom",
+      "status": "partial",
+      "reason": "The README shows configuration and root ownership; jQuery-specific query/result shapes and detached-listener preservation are not covered by the native DomApi reference.",
+      "docs": [
+        {
+          "file": "packages/adapters/readme.md",
+          "heading": "jQuery DomApi"
+        },
+        {
+          "file": "docs/api/providers/dom.md",
+          "heading": "DomApi"
+        }
+      ]
+    },
+    {
+      "id": "provider.static-consumers",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/providers/data.md",
+          "heading": "DataApi"
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Rendering and collection updates"
+        }
+      ]
+    },
+    {
+      "id": "provider.native-consumers",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Providers"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Destruction and ownership"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Membership and ordering"
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Rendering and collection updates"
+        }
+      ]
+    },
+    {
+      "id": "provider.backbone-consumers",
+      "status": "partial",
+      "reason": "The README documents configuration and disposal; native event payloads and Backbone collection sort/remove/reset translation and retained-child guarantees need explicit reference coverage.",
+      "docs": [
+        {
+          "file": "packages/adapters/readme.md",
+          "heading": "Backbone"
+        }
+      ]
+    },
+    {
+      "id": "provider.actor-consumers",
+      "status": "partial",
+      "reason": "The README documents actor identity, selection and ownership; its observable reorder/removal effects on child Views and independent consumer cleanup are not fully explained.",
+      "docs": [
+        {
+          "file": "packages/adapters/readme.md",
+          "heading": "XState actors"
+        }
+      ]
+    },
+    {
+      "id": "provider.custom-state-consumers",
+      "status": "partial",
+      "reason": "State ownership and cleanup are documented; the profile also claims custom immutable data updates preserving child Views, focus and drafts, which these state-only sections do not explain.",
+      "docs": [
+        {
+          "file": "docs/api/providers/data.md",
+          "heading": "StateApi"
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Ownership and disposal"
+        }
+      ]
+    },
+    {
+      "id": "application-lifecycle",
+      "status": "partial",
+      "reason": "Lifecycle methods and cancellation are documented; exact destination-binding order after adopted stop preparation and restart reentry from completion hooks are not explained.",
+      "docs": [
+        {
+          "file": "docs/api/application.md",
+          "heading": "Lifecycle methods and results"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Preparation, cancellation, and failure"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Lifecycle hooks and events"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Child Applications"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Root View and Region"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "State and Radio"
+        }
+      ]
+    },
+    {
+      "id": "native-model",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Read and mutate attributes"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Model events"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Destruction and ownership"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Model"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Collection"
+        }
+      ]
+    },
+    {
+      "id": "native-collection",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Read and iterate"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Membership and ordering"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Collection events"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Destruction and ownership"
+        }
+      ]
+    },
+    {
+      "id": "morphdom-dom",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "packages/adapters/readme.md",
+          "heading": "Morphdom"
+        },
+        {
+          "file": "packages/adapters/readme.md",
+          "heading": "DOM contents"
+        }
+      ]
+    },
+    {
+      "id": "lit-html-dom",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "packages/adapters/readme.md",
+          "heading": "Lit HTML"
+        },
+        {
+          "file": "packages/adapters/readme.md",
+          "heading": "DOM contents"
+        }
+      ]
+    },
+    {
+      "id": "owner-events",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Subscribe and unsubscribe"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Names, maps, and callback context"
+        }
+      ]
+    },
+    {
+      "id": "owner-trigger-method",
+      "status": "partial",
+      "reason": "Hook/event dispatch is documented; the profile additionally prescribes avoiding recursive same-name forwarding, which the cited shared section does not explain.",
+      "docs": [
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks"
+        }
+      ]
+    },
+    {
+      "id": "owner-get-option",
+      "status": "partial",
+      "reason": "Option precedence and function-valued options are documented; numeric and symbol property-key support in this profile is not explicit.",
+      "docs": [
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Options and initialization"
+        }
+      ]
+    },
+    {
+      "id": "owner-merge-options",
+      "status": "partial",
+      "reason": "Option copying is documented; the profile additionally promises safe own-property treatment of __proto__, which the cited sections do not explain.",
+      "docs": [
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Options and initialization"
+        },
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Building a component"
+        }
+      ]
+    },
+    {
+      "id": "owner-normalize-methods",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Options and initialization"
+        },
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ]
+    },
+    {
+      "id": "owner-bind-events",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Binding helpers"
+        },
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Building a component"
+        }
+      ]
+    },
+    {
+      "id": "owner-bind-requests",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Binding helpers"
+        },
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Building a component"
+        }
+      ]
+    },
+    {
+      "id": "root-attributes",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Root attributes"
+        }
+      ]
+    },
+    {
+      "id": "view-regions",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/view.md",
+          "heading": "Named Regions"
+        }
+      ]
+    },
+    {
+      "id": "dom-events",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "DOM events"
+        },
+        {
+          "file": "docs/api/providers/dom.md",
+          "heading": "EventDelegator"
+        }
+      ]
+    },
+    {
+      "id": "ui",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "UI bindings"
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "DOM interaction and UI"
+        }
+      ]
+    },
+    {
+      "id": "serialization",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Templates and data"
+        }
+      ]
+    },
+    {
+      "id": "collection-presentation",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Sorting"
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Filtering"
+        }
+      ]
+    },
+    {
+      "id": "application-composition",
+      "status": "partial",
+      "reason": "Root and child ownership are documented; reselecting the displayed root while another root is prepared and rejecting adoption of directly displayed Region content need explicit coverage.",
+      "docs": [
+        {
+          "file": "docs/api/application.md",
+          "heading": "Child Applications"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Root View and Region"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Lifecycle hooks and events"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Construction and options"
+        }
+      ]
+    },
+    {
+      "id": "class-configuration",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/api/runtime.md",
+          "heading": "Choose a configuration scope"
+        },
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Define a class"
+        },
+        {
+          "file": "docs/api/runtime.md",
+          "heading": "Isolation and composition"
+        }
+      ]
+    }
+  ],
   "diagnostics": [
     {
       "code": "MN0003",
@@ -8062,18 +8934,18 @@
     "packages/utils/src/unique-id.ts": "22f5f12062eeef10c1336ee01e4b28b7d0cfe562c0f53f79e2a3219eb389f72b",
     "src/create-marionette.ts": "12baf1aadeeae54aefbb7e5777db9392f74650a407dcd506e97ebf18b73cfcc1",
     "src/index.ts": "41476602f9a5712f0742954fdc7d20a09bef62ba80711d25abe3d1bda8064656",
-    "src/mixins/behaviors.ts": "720633138c31d36c3c9e9367c1cd9ef4a9b8514b2e5cfcb88e04bfdea7566991",
+    "src/mixins/behaviors.ts": "2b44b92a40fc1707db4a72a9583d7616e7dcbae35d98297a9d77668cfaefa300",
     "src/mixins/common.ts": "375340ed4f7c5db6c3bd9dc9d73c73b49e69347e3451c0db7dd646ae714f5156",
     "src/mixins/delegate-entity-events.ts": "778dc193ff0b32611e6a9112e133f961c2f522c6864ea847c70e7d676fb41c9c",
-    "src/mixins/destroy.ts": "bca439af7bbb54e9847e1cc807c731847163d06da649de318f35ce9def63a5b5",
+    "src/mixins/destroy.ts": "cf91cac70e69b6bc4df65c2fb31bc40ff1601ee208bdf677b1711f6e5187ff8e",
     "src/mixins/radio.ts": "ab9d427c6d8de5279bc89abb9299f7ff679052fc383ed29ee94fa5efc1e33726",
     "src/mixins/state.ts": "7a22d8fe4bd58378f75c540294cb02a46853e8df65daf5d24ea8d3a4f521757d",
     "src/mixins/template-render.ts": "7af61305397db9a9bb31200fbc830f95ae1fd8ddf3e660e635e6a803e6ef473e",
     "src/mixins/ui.ts": "5cb417e1456cd17b43357e480102be3fc1b436167c43b853af7d45ab79d35ffd",
     "src/mixins/view-events.ts": "108a31ba7d0f74916848c5b2f85b422afe15703a8e9fa2dbca0b17b6a5ff0fb2",
-    "src/mixins/view.ts": "d0895d07d087d24d5cd8ce8d051a7acbbc9cee64fd2b5a6824b26973fc064e18",
-    "src/modules/application.ts": "5022f89e5cd60307c656257a28101293c6cc6c2217983c3e944b1300f084bca9",
-    "src/modules/behavior.ts": "475fe0451e629559992bd0f5ec18ad16438309b018bf643b5917dfc47a1693b6",
+    "src/mixins/view.ts": "2c49cce790ff9d4a89ad01f295363bc02c06e4b50101faac382d5dce549aee57",
+    "src/modules/application.ts": "67dcda40b4c273a054c603a681a78024eb44debd686c25191d7a58aa404dc342",
+    "src/modules/behavior.ts": "e79fb82f0a51c8ab788bc0846b1c5c2d9a6d2db7c4dfc6c000ee4a31623174cc",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
     "src/modules/collection-view.ts": "162f2114825d9bf67df0efd3fb7559e57a6dcfa0828f8eb0e71a9203e6a2474a",
     "src/modules/common/build-region.ts": "69fc222800674736c3385928e8a4b07932c1fd5ca7237b48fb4ab8f3a309022b",
@@ -8081,7 +8953,7 @@
     "src/modules/common/monitor-view-events.ts": "e4f221ca598e2ce63c1cff766edbb2221d7cc7d1cb527086689e08b622a4f655",
     "src/modules/common/view.ts": "cd62997f30b7120e61f5067f876e612793dba629dfe942b46f156c861273c67e",
     "src/modules/object.ts": "23dacb7eacf2448ccbb690caa92195b49b992def43e4ef7cb598b50c03224100",
-    "src/modules/region.ts": "21aa57762c8f05d955b0eaeaf2c362e3caed691a5c14cf056fcb2851d2fad128",
+    "src/modules/region.ts": "9de01bcb282653bae13e7748dbab971d289ec1ad22877af753e639acf9e41de8",
     "src/modules/view.ts": "ed458f9fad3452a9468fcc9bb8f1b85a7432d967d1caf2b36c18f8fb6d1b7a86",
     "src/runtime-id.ts": "3636769dee054da16eaa2171f2badc2a71a528dedb41ea1d4ac3342e09060087",
     "src/runtime/data-api.ts": "f962aeba9bc33e10a1db3fc0c098d05a23bc54250d781f5df371bd11da419b66",
@@ -8094,30 +8966,22 @@
   },
   "evidence": {
     "config/diagnostics/catalog.json": "45360deea6dfe7d531b256dbbebb443e9fa578fb0d43fc9becce7ab5126c76bf",
-    "docs/choosing-integrations.md": "ee38a509aae71acbd4cfb7df77cb51adafbbed83bcb35381340a8f76f4d31b8a",
-    "docs/common.md": "1d14004d1c49e98ca40be9fd28d35faaf372f2a12f13fae6afa3cac8a8bf14cc",
-    "docs/data.api.md": "c131d008a60da2d9bbf89c7174bd6b5fa2fece1003beb16677907fe61ca55ceb",
-    "docs/diagnostic-catalog.md": "8adfc34e8dc4fb1c910c903febb3cafc14a70ba9549ebb3e2060b76be581ba93",
-    "docs/dom.api.md": "a697a637ae4c6cc92aa5d72850b404763f08e0417800feacc0b431ec073d3916",
-    "docs/dom.interactions.md": "3b4ba76757eb871ebb793624104da804b5965e2dd9ebafd95e403c739de94cd1",
-    "docs/events.class.md": "faed5ac4f6eca3ec447ae7cd44b6efd8f039e935b38a4c191076d485bd57a35f",
-    "docs/events.md": "a96401363279b50de5a7a6a46700701712cd42f45a414d59be6d3de2e87a34d2",
-    "docs/marionette.application.md": "6f3415bfefca553251e58fe50748f6870cb1606574c0f51638e9d8523efa44b6",
-    "docs/marionette.behavior.md": "bf002b5ba380cf1bb1054b98f9813d89b4aef16ba6495d02b823ed178ab3f0c4",
-    "docs/marionette.collectionview.md": "5af1ed04daaf0e976fdd0538b0931fd370fd09167079d0c21b01195f8628cefe",
-    "docs/marionette.mnobject.md": "056bb3041902d66831a0031e2e9c97770f485f613450861ae55aba46ca592243",
-    "docs/marionette.region.md": "1bb9a55ae5dcbb2b80ec8fe837ed1d26821baf0c1e26a7e00e47246d6ba922e9",
-    "docs/marionette.state.md": "c75bd11c7d61d6e4dd6f67122c7864dc198deb3ea2cb7d6036227e2af40d7119",
-    "docs/marionette.view.md": "b7b5871b0b56474cc3bc2513c2e2c4fdabdafcd724bfbaa8076ea7eee40d5ab5",
-    "docs/optional-backbone.md": "ce2dccd1ee81138b5f41257f0d5ef262d9b6ebb53988bb3cc6e1fca44511f601",
-    "docs/radio.md": "c0013e382554aa6cd4e46ab60908f5e6cce7117c134b3f4656c37a163f8a5f4e",
-    "docs/runtime-isolation.md": "e18927a5aa30558805018c9c28dffceaf02d953394efce8eaa7d35f0711de7f4",
-    "docs/typescript.md": "08361d38a3b3c29dcc45097fc44d74962cee91d9d97bea9f84006c1a9639e59b",
-    "docs/utils.md": "5c2d0854895bb19f613926788cf81c5849cf18af1e43ac540e860b226fa80d2a",
-    "docs/view.lifecycle.md": "63b9328f66a72abb18f578cd2ecaf4996fa61a15033556e4d4ffc2389c1a3dac",
-    "docs/view.rendering.md": "568c99d50f11e38d26aae6b5e54c996991a2a67e4f14b1712d5b35521a6a2d88",
+    "docs/api/application.md": "cbd4524bfc28aeb02c7c2405396f5dbd8793dc4d3b6d809c2c1a9c93f2ea7ddd",
+    "docs/api/behavior.md": "d83fce01476376a3101ebb6bd77363134f841367422fe775b8431dc38128c7fa",
+    "docs/api/collection-view.md": "5ef7e80c9c07b8a9944bcc4e47ad4a22ee97ecb08f37b74c883d95d44e911030",
+    "docs/api/mnobject.md": "230e69cbdb697142c4d2a6979a925395cae5f71232dfa4f9ce21f287c707f1fa",
+    "docs/api/providers/data.md": "a9e9469565edaa1ce37e00032395083aaf5af910580561328039aeaa414b4e0b",
+    "docs/api/providers/dom.md": "c27ba850a18003b0fc15f9dfc8dec36e207b527bafb15b0ba87c5602cb72e57f",
+    "docs/api/region.md": "ca767ce14321648d39d269185c4adefc87d42c9dd338bc30bfc145e97486c632",
+    "docs/api/runtime.md": "7ac04620dea580680aa0f7ab996905d261f1b1b600b8214eddeec97094e05276",
+    "docs/api/shared/common.md": "29813f87b9affad1c3c820783cbb221f98cb4a99e700417dc620e276aeae7010",
+    "docs/api/shared/events.md": "7fc4d9923159b7f742c02077f9269da80793ccdb7d817895038cd1f66d3783cb",
+    "docs/api/shared/state.md": "9c3263569e68789585a49e6065e1b9cd88efa928dbe5e8b8abe62cc0b748a3ae",
+    "docs/api/shared/view-bindings.md": "7bb193ccf1541859eabf927f45217febd8b0251ab4c9f74c0fdfc218ded5b167",
+    "docs/api/view.md": "b988f7f08e79d06d5be6bced589fdd1afc84c60d6d3d27a8fc62eaecc1b9e4e6",
+    "docs/packages/data.md": "6a24f4e1c6441f1a73ec9a483422b269ff8613ee1cb9d86dcd2b8966e7096d52",
+    "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
     "packages/adapters/readme.md": "1dd30826ff90a136699c3669a6d394eaec541efa8742022900e88b365b205e25",
-    "packages/data/readme.md": "83f3dc2d3fe4cc210c139b7db38ed30f356535f0f98e7eb8a7f94d57104f21fb",
     "packages/utils/readme.md": "813c51a262532361e5c1a0f16f8e3cabc34a1404d9533672480d67fe8b60d05e",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
     "test/unit/application-child-declarations.spec.js": "3b98e033f99902a8bff5c533c03599375381da4b4a01b9014e825eb21cb80e2b",

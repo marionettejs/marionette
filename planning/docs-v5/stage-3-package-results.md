@@ -9,7 +9,7 @@ This stage builds a local candidate from the current runtime and the new documen
 - A small [documentation index](../../docs/readme.md) linked from the package README and llms.txt.
 - A [quick start](../../docs/quick-start.md) that renders one View before introducing the composed records feature.
 - A [core API reference](../../docs/api.md) for the example's lifecycle, ownership, Regions, state, and events.
-- A [setup and data reference](../../docs/setup.md) covering Lit and the incomplete observable data layer.
+- A [setup and data reference](../../docs/integrations/setup.md) covering Lit and the incomplete observable data layer.
 - The approved records source remains the composition example. Its behavior and Application boundaries were not changed in this stage.
 
 The core reference is task-relevant coverage, not an exhaustive API inventory. A later trial must check that its reference-only condition includes every contract required by both the build and extension tasks.

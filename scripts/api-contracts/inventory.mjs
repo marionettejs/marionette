@@ -74,8 +74,18 @@ export function validateSemantics(root, semantics, entrypoints) {
       }
     }
     if (!contract.entrypoints?.length || contract.entrypoints.some(name => !names.has(name)) ||
-        !contract.exports?.length || !contract.docs?.length || !contract.tests?.length || !Array.isArray(contract.diagnostics)) {
+        !contract.exports?.length || !Array.isArray(contract.docs) || !contract.tests?.length || !Array.isArray(contract.diagnostics)) {
       throw new Error(`Incomplete references: ${contract.id}`);
+    }
+    const coverage = contract.documentation;
+    if (!coverage || !['documented', 'partial', 'missing'].includes(coverage.status)) {
+      throw new Error(`Missing or invalid documentation coverage: ${contract.id}`);
+    }
+    if (coverage.status !== 'documented' && (typeof coverage.reason !== 'string' || !coverage.reason.trim())) {
+      throw new Error(`Missing documentation gap reason: ${contract.id}`);
+    }
+    if ((coverage.status === 'missing') !== (contract.docs.length === 0)) {
+      throw new Error(`Documentation coverage disagrees with references: ${contract.id}`);
     }
     for (const code of contract.diagnostics) {
       if (!diagnostics.has(code)) { throw new Error(`Unknown or retired diagnostic ${code}: ${contract.id}`); }
@@ -246,8 +256,9 @@ export function generateInventory(root, semantics) {
     }
     visit(source);
   }
-  return { schemaVersion: 1, authority: 'authored TypeScript and explicit public behavioral evidence',
+  return { schemaVersion: 2, authority: 'authored TypeScript and explicit public behavioral evidence',
     semanticsSha256: digest(JSON.stringify(semantics)), entrypoints: surfaces,
+    documentationCoverage: semantics.contracts.map(({ id, documentation, docs }) => ({ id, ...documentation, docs })),
     diagnostics: readJson(resolve(root, 'config/diagnostics/catalog.json')).diagnostics
       .filter(item => item.status === 'active').map(({ code, slug, objects }) => ({ code, slug, objects })),
     toolingEntrypoints: entrypoints.filter(entry => entry.kind === 'development-tooling'),

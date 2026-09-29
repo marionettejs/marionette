@@ -8,7 +8,9 @@ These guides target **5.0.0-rc.2**. This prerelease is being verified as local c
 2. [Choose ownership and lifetimes](architecture.md): Applications, Views, Regions, shared state, and asynchronous work.
 3. [Build the records feature](records.md): apply those concepts to preparation, selection, retry, and close/reopen.
 
-## Look up a contract
+For agent-led work, use the [agent workflow](agents.md) to find version-matched guidance and verify a change.
+
+## Core reference
 
 - [API index](api.md): classes, shared contracts, and current coverage.
 - [Application](api/application.md): feature readiness, child Applications, root ownership, and restart.
@@ -17,9 +19,18 @@ These guides target **5.0.0-rc.2**. This prerelease is being verified as local c
 - [Region](api/region.md): showing, replacing, retaining, and destroying Views.
 - [Behavior](api/behavior.md): reusable host interactions and lifecycle.
 - [MnObject](api/mnobject.md): nonvisual state, communication, and cleanup.
-- [Events](api/events.md), [state](api/state.md), and [common methods](api/common.md).
-- [Runtime configuration](api/runtime.md), [rendering/DOM providers](api/dom-providers.md), and [data/state providers](api/data-providers.md).
-- [Renderer and data setup](setup.md): the Lit integration and the `@mnjs/data` APIs used here.
+
+### Shared contracts and configuration
+
+- [Events](api/shared/events.md), [state](api/shared/state.md), [common methods](api/shared/common.md), and [rendering/View bindings](api/shared/view-bindings.md) apply across classes.
+- [Runtime configuration](api/runtime.md) explains setters and configuration scope.
+- [Rendering/DOM providers](api/providers/dom.md) and [data/state providers](api/providers/data.md) define interfaces for supplying integrations.
+
+## Companion packages and integration
+
+- [@mnjs/data: Model and Collection](packages/data.md): an optional observable data layer with its own operations, events, identity, and disposal. Fetching and persistence require an API layer or another data solution.
+- [@mnjs/radio: channels and requests](packages/radio.md): scoped communication, request/reply handlers, and cleanup.
+- [Renderer and data setup](integrations/setup.md): configure Lit and `@mnjs/data`.
 
 The [records source](../examples/records/src/main.js) is included for reading alongside the lesson. Its [README](../examples/records/README.md) explains the repository development commands.
 

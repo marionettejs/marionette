@@ -46,8 +46,7 @@ export function diagnosticPage(diagnostic) {
 | Category | ${diagnostic.category} |
 | Severity | ${diagnostic.severity}${historical} |
 | Objects | ${objects} |
-| Surfaces | ${surfaces}${historical} |
-| Benchmark category | ${diagnostic.benchmarkCategory} |${replacement}
+| Surfaces | ${surfaces}${historical} |${replacement}
 
 ## Remediation
 

@@ -4,9 +4,11 @@ The rebuild is organized around Marionette's public API and reader needs. The re
 
 ## Current work
 
+- [Delivery, agent discovery, and native data results](delivery-data-results.md)
+
 - [Committed baseline and acceptance status](baseline-status.md)
 - [Overall plan and quality checks](plan.md)
-- [Coverage inventory and next slice](coverage.md): corrected discovery/build/extension evaluation.
+- [Coverage inventory and next slice](coverage.md): remaining validation migration and Radio reference.
 - [Concepts guide and retry preparation](concepts-results.md)
 - [Runtime and provider reference results](runtime-provider-results.md)
 - [Behavior and MnObject reference results](behavior-object-results.md)

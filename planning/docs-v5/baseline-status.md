@@ -1,5 +1,7 @@
 # Committed baseline
 
+Historical commit-time status. See [delivery, agent discovery, and native data results](delivery-data-results.md) for the current working slice and remaining release blockers.
+
 2026-09-29. Integration branch: `docs/v5-reset`. These commits preserve work in progress; they do not establish release readiness or documentation effectiveness.
 
 - `e306ca7b`: native destruction releases incoming subscriptions after final notifications, with regression tests and changelog guidance.
@@ -12,7 +14,7 @@ The docs rely on the preceding destruction cleanup. Keep that dependency explici
 - 73 tests passed across destroy-listener-cleanup, mixins/destroy, behavior-lifecycle, region-lifecycle, and destroying-views.
 - `npm run check:types` passed.
 - ESLint passed for the six changed runtime files and the new cleanup regression suite.
-- All 33 consumer documentation and example files matched the hashes in `evidence/concepts-package.json` before committing. One trailing blank line was then removed from `docs/api/common.md`; no other consumer content changed in the baseline commit.
+- All 33 consumer documentation and example files matched the hashes in `evidence/concepts-package.json` before committing. One trailing blank line was then removed from `docs/api/shared/common.md`; no other consumer content changed in the baseline commit.
 - Whitespace checks passed for the runtime and consumer-doc commits.
 
 The earlier installed candidate package check recorded 12 reference examples, 16 declaration fixtures, production builds, and 51 browser checks. Those are historical results tied to that report's hashes, not freshly rerun checks. The full unit suite and production documentation pipeline were not rerun here. The earlier full unit result includes ten missing-document failures in docs-integrations-examples; production documentation tooling still needs migration to the replacement corpus.

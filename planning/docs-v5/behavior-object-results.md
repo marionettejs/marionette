@@ -6,7 +6,7 @@
 
 - [Behavior](../../docs/api/behavior.md): choosing reusable host interaction, declarations/options, DOM/UI/entity/state bindings, host event forwarding, direct/host teardown, nesting, and types.
 - [MnObject](../../docs/api/mnobject.md): choosing a nonvisual lifetime, construction, state/Radio, synchronous destruction and caller ownership, and types.
-- [Shared Radio owner bindings](../../docs/api/common.md#declarative-radio-bindings): moved from Application so both classes use one definition.
+- [Shared Radio owner bindings](../../docs/api/shared/common.md#declarative-radio-bindings): moved from Application so both classes use one definition.
 - Direct links from the API index, documentation index and llms.txt; updated framework inventory and verification harness.
 
 All six core classes now have dedicated references. Runtime/provider authoring, companion packages and standalone conceptual/task guidance remain incomplete. Class coverage is not whole-framework completeness.

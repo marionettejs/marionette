@@ -236,7 +236,7 @@ try {
     report.discovery.negativeCheck = 'Removed linked docs/api.md; traversal rejected the missing path. Original file restored.';
   } finally { renameSync(hiddenApiPath, apiPath); }
   assert.equal(hash(apiPath), report.packages.find(item => item.name === 'marionette').files['docs/api.md']);
-  const commonPath = join(installedCore, 'docs/api/common.md');
+  const commonPath = join(installedCore, 'docs/api/shared/common.md');
   const commonMarkdown = readFileSync(commonPath, 'utf8');
   assert(commonMarkdown.includes('## Binding helpers'), 'Expected shared reference heading missing');
   writeFileSync(commonPath, commonMarkdown.replace('## Binding helpers', '## Removed heading for discovery check'));

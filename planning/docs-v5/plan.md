@@ -1,6 +1,18 @@
 # Marionette v5 documentation and tooling plan
 
-Updated 2026-09-29. The six core class references and runtime/provider contracts have been audited; the [coverage inventory](coverage.md) tracks remaining scope. The [concepts slice](concepts-results.md) supplies independent ownership guidance. The subsequent navigation pilot produced three valid trajectories and one complete pair; the valid guided candidate retrieved the Application reference and records lesson but still failed architecture acceptance. See the [committed baseline and reassessment](baseline-status.md) for current evidence. Framework-wide coverage and independent teaching effectiveness remain incomplete. Production publishing remains separate work.
+Updated 2026-09-30. The six core class references and runtime/provider contracts have been audited. The [coverage inventory](coverage.md) tracks remaining scope. Later clean-source Claude probes chose Application in both conditions, but exposed implementation failures and no consistent benefit from a planning prompt. These short diagnostics do not establish reliable teaching effectiveness or improvement over the older docs. Resume framework-wide delivery and coverage work; further Application-choice probes are not a prerequisite.
+
+## Completion sequence
+
+1. **Delivery and discovery:** migrate ordinary documentation export/build/package checks to the replacement corpus and provide a short, version-matched agent entrypoint. Verify actual package contents and reading paths. Keep planning, evaluation evidence, and test starters out of the consumer artifact.
+2. **Supported reference:** complete `@mnjs/data`, then Radio, standalone utilities, adapters, errors, consumer lint, and relevant TypeScript contracts. Audit members against source and declarations; keep conflicts explicit instead of silently changing the framework.
+3. **Practical guidance:** address local edits and observable updates, retained refresh, navigation, existing HTML, lists, widget integration, testing/debugging, accessibility, and migration. Use focused independent examples, selected from reader needs. Keep the records lesson bounded.
+4. **Actionable tooling:** verify documented lint, type checking, diagnostic lookup, and example commands from a consumer installation. Document their actual limits. Exact-symbol retrieval needs rebuilt contract mappings before it can be advertised against this corpus.
+5. **Release acceptance:** review the whole map, validate the installed package and site artifact, then evaluate reserved lookup, greenfield, extension, and debugging tasks. Record behavior and architecture separately. Greenfield tasks provide requirements, HTTP contracts, dependencies, tooling, and an HTML mount, with no authored application JavaScript. Freeze scope and budget before paid runs.
+
+The [first parallel slice](delivery-data-results.md) delivered canonical package/site checks, agent discovery, and `@mnjs/data`. Separate file ownership kept authoring independent; integration checks ran serially because they share generated output. The [second parallel slice](validation-radio-results.md) adds Radio, simplifies onboarding, and migrates contract and documentation-fixture validation. It records retired sample coverage explicitly. Remaining API families and new task guides follow the inventory; partial semantic groups and the separate public-test policy failure remain visible before merge/release readiness. Completion means supported contracts are accounted for, common workflows are teachable, distribution and feedback tools work, and representative independent reader outcomes have evidence. Passing checks alone do not certify best-in-class teaching.
+
+Historical evaluation proposals below describe how to design a controlled comparison; they are not the current work queue or authorization for another campaign.
 
 ## Goal and scope
 
@@ -26,11 +38,13 @@ The documentation map is driven by framework capabilities and reader needs. An e
 | Complete a task | Task guides | Reader goals such as existing markup, filtered lists, retained refresh, navigation, or reusable behavior. |
 | Diagnose and maintain | Troubleshooting, testing, migration, deployment guidance | Observable symptoms and supported workflows. |
 
+Reference navigation separates core classes, shared class contracts, runtime configuration, provider interfaces, and companion packages. Core class pages live in `docs/api/`; shared contracts in `docs/api/shared/`; provider interfaces in `docs/api/providers/`. Companion APIs live in `docs/packages/`, and concrete setup recipes in `docs/integrations/`. These categories describe API ownership and reader purpose. Optional packages do not become core APIs because a tutorial uses them.
+
 Reference pages are organized by Application, View, CollectionView, Region, Behavior, and MnObject. Shared events, state, and class utilities have one authoritative explanation, linked from applicable classes. Runtime/provider and companion-package references cover their own contracts. Each class page covers purpose, construction/options, properties/methods, return values, lifecycle hooks/events, ownership, and extension points. Common operations appear first; advanced detail remains findable without dominating the learning path.
 
 The inventory records current coverage, missing contracts, source anchors, and the next work. Its initial rows are API families and reader needs. A family becomes complete only after a member-level audit, including inherited members, options, hooks, and events. An exported TypeScript helper or implementation method is not automatically a supported consumer API; ambiguous cases require an explicit disposition.
 
-Author guidance once. The verified candidate layout uses `docs/readme.md` beside the installed `marionette/package.json`, reached from README and llms.txt. The production publisher still requires migration. Agent instructions should point to the same content and ordinary verification commands. Website rendering and additional retrieval tools follow demonstrated needs.
+Author guidance once. The verified candidate layout uses `docs/readme.md` beside the installed `marionette/package.json`, reached from README and llms.txt. The ordinary build/package path now exports that layout; live website import and publication remain separately unverified. Agent instructions should point to the same content and ordinary verification commands. Website rendering and additional retrieval tools follow demonstrated needs.
 
 ## Quality checks at each milestone
 

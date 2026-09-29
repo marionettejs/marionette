@@ -44,13 +44,13 @@ Retain state at the lifetime that needs it. A local control's state can live in 
 
 ## Share data and communicate intent
 
-Keep one authority for each shared decision. For example, a feature Application can own selection while list and detail Views receive the data they need. A View emits a selection event; the Application listens, changes selection, and chooses which detail View its Region shows. [Child event forwarding](api/view-runtime.md#child-events) and `listenTo(view, { ... })` connect these boundaries without sibling Views reaching into each other's markup.
+Keep one authority for each shared decision. For example, a feature Application can own selection while list and detail Views receive the data they need. A View emits a selection event; the Application listens, changes selection, and chooses which detail View its Region shows. [Child event forwarding](api/shared/view-bindings.md#child-events) and `listenTo(view, { ... })` connect these boundaries without sibling Views reaching into each other's markup.
 
-Observable data lets several Views respond to the same change. Configure compatible [DataApi and StateApi providers](setup.md#configure-once); use model/collection bindings or `stateEvents` for the relevant source. Initialize a new View from current data as well as observing subsequent changes. Application `stateEvents` deliver while active and do not replay changes made while stopped.
+Observable data lets several Views respond to the same change. Configure compatible [DataApi and StateApi providers](integrations/setup.md#configure-once); use model/collection bindings or `stateEvents` for the relevant source. Initialize a new View from current data as well as observing subsequent changes. Application `stateEvents` deliver while active and do not replay changes made while stopped.
 
-Plain data is sufficient when observation is unnecessary. The introductory data solution, `@mnjs/data`, provides observable Models and Collections but is incomplete as an application data layer. It may sit alongside an API layer or be replaced by another solution through the [provider contracts](api/data-providers.md). Keep transport and persistence decisions explicit.
+Plain data is sufficient when observation is unnecessary. The introductory data solution, `@mnjs/data`, provides observable Models and Collections but is incomplete as an application data layer. It may sit alongside an API layer or be replaced by another solution through the [provider contracts](api/providers/data.md). Keep transport and persistence decisions explicit.
 
-State supplied to another object is borrowed. State created through `createState` belongs to its owner; destruction calls the configured provider's disposal method when provided. A View's `model`, `collection`, and state are separate inputs; state is not automatically template data. See [state ownership](api/state.md#ownership-and-disposal).
+State supplied to another object is borrowed. State created through `createState` belongs to its owner; destruction calls the configured provider's disposal method when provided. A View's `model`, `collection`, and state are separate inputs; state is not automatically template data. See [state ownership](api/shared/state.md#ownership-and-disposal).
 
 ## Let Views and Regions manage presentation
 
@@ -62,6 +62,6 @@ Choose updates at the boundary that changed. Rendering a containing View can des
 
 Regions destroy replaced Views. CollectionView destroys removed children. Destroying a Marionette object releases its event subscriptions and incoming callbacks; a retained listener needs no per-View `destroy` handler to call `stopListening(view)`.
 
-Application `stop()` retains the Application, its state, and subscriptions to surviving sources. Explicitly end subscriptions whose purpose lasts only for that run. Release external resources such as timers, service requests, or widget handles at the lifetime that owns them; attaching a resource to an arbitrary property does not make it framework-owned. See [event cleanup](api/events.md#cleanup).
+Application `stop()` retains the Application, its state, and subscriptions to surviving sources. Explicitly end subscriptions whose purpose lasts only for that run. Release external resources such as timers, service requests, or widget handles at the lifetime that owns them; attaching a resource to an arbitrary property does not make it framework-owned. See [event cleanup](api/shared/events.md#cleanup).
 
 For a runnable feature using preparation, selection, child Applications, and retry, continue with the [records lesson](records.md).

@@ -5,7 +5,7 @@
 ## Delivered
 
 - A direct [API index](../../docs/api.md), [View reference](../../docs/api/view.md), and [Region reference](../../docs/api/region.md).
-- Canonical shared [View runtime](../../docs/api/view-runtime.md), [common](../../docs/api/common.md), [events](../../docs/api/events.md), and [state](../../docs/api/state.md) contracts.
+- Canonical shared [View runtime](../../docs/api/shared/view-bindings.md), [common](../../docs/api/shared/common.md), [events](../../docs/api/shared/events.md), and [state](../../docs/api/shared/state.md) contracts.
 - Existing Application and CollectionView sections moved to their own explicitly partial pages. Removed overlapping compact-reference sections and updated inbound links; no redirect stubs.
 - Candidate packaging/discovery now includes nested reference pages, checks heading links, and extracts/executes the new reference fences from the installed package.
 

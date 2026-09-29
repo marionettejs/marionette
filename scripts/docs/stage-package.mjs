@@ -31,7 +31,7 @@ export async function stagePackage(root, manifest) {
   await writeFile(resolve(destination, 'package.json'), `${JSON.stringify(stagedCoreManifest(pkg, manifest), null, 2)}\n`);
   await writeFile(resolve(destination, 'docs-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   // Root guides keep their source bytes: links work in node_modules and on npmjs.com.
-  for (const file of ['readme.md', 'upgradeGuide.md']) {
+  for (const file of ['readme.md']) {
     const source = await readFile(resolve(destination, file), 'utf8');
     await Promise.all(marked.walkTokens(marked.lexer(source), async token => {
       if (token.type !== 'link' && token.type !== 'image') { return; }

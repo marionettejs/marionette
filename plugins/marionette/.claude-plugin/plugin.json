@@ -1,7 +1,7 @@
 {
   "name": "marionette",
   "version": "5.0.0-rc.2",
-  "description": "Build and migrate Marionette applications with version-matched documentation.",
+  "description": "Build and debug Marionette applications with version-matched documentation.",
   "author": {
     "name": "Marionette.js"
   }
