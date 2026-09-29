@@ -1,0 +1,33 @@
+test/unit/destroy-listener-cleanup.spec.js
+  s_930f3c9a37745c::t_eb8198d14bad64 14-24,57-59,79-80,97,102-104,112,118-119,121,125-127,141,143,161-163,176-178,182,189-191,216,235,237-239,258-260
+test/fixtures/dom-adapters-package/validate.mjs
+  s_930f3c9a37745c::t_4dafa5b16b188b 14,18-20
+test/fixtures/run.mjs
+  s_930f3c9a37745c::t_4dafa5b16b188b 89
+planning/docs-v5/evidence/integration-verification.md
+  s_930f3c9a37745c::t_d6e5ce2735d1f8 1-48
+test/fixtures/dom-adapters-package/runtime.mjs
+  s_930f3c9a37745c::t_4dafa5b16b188b 19-20,68-72
+  s_930f3c9a37745c::t_a57cc568d9e792 73
+test/fixtures/dom-adapters-package/integration.mjs
+  s_930f3c9a37745c::t_4dafa5b16b188b 1-9,11-66,68-110,112-167
+  s_930f3c9a37745c::t_b8786448f22092 10,67,111
+planning/docs-v5/evidence/integration-fixture.json
+  s_930f3c9a37745c::t_71dc4eb09574c6 1-902
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "deb62c26519e582f287d90fb22d4918e41b54b53",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
