@@ -1,0 +1,54 @@
+{
+  "librarySourceRevision": "37cda1fb3b370ac02b0f13988d6571e4524f4356",
+  "websiteRevision": "cc413baac0c0e80296fdfee11a57e68d73d7a08d",
+  "logs": [
+    {
+      "check": "library-tests",
+      "file": "tooling-library-tests.log",
+      "sha256": "027b05669e8374b3d39c666798b676106eea558a4009bb78affde134754e187c"
+    },
+    {
+      "check": "docs-authoring",
+      "file": "tooling-docs-authoring.log",
+      "sha256": "91b5bf48424813c9bdb6260539af9bd93887780c0a2a1a5d0c99e90ed5b0812f"
+    },
+    {
+      "check": "final-focused8",
+      "file": "tooling-final-focused8.log",
+      "sha256": "aa2763196fb66d4f25c864c626960adf715027d92e28c77d0354e077239cd2a5"
+    },
+    {
+      "check": "clean-build",
+      "file": "tooling-clean-build.log",
+      "sha256": "a90bc459ce39e4caa6ec8e7744a6293b02e4b1739601a72c837df3dc16b39e62"
+    },
+    {
+      "check": "clean-installed",
+      "file": "tooling-clean-installed.log",
+      "sha256": "b7d2d3eb6d35ed680ce6492b9716c155351236ab31208000ef5f1c136ab46cfd"
+    },
+    {
+      "check": "website88",
+      "file": "tooling-website88.log",
+      "sha256": "205667c902356b94ac6acb5f6525b2023a4e5a60420dc2230664b228d90e2487"
+    },
+    {
+      "check": "website-browser76",
+      "file": "tooling-website-browser76.log",
+      "sha256": "9aff368319752f7116f92af3d0033f00286dbf09049c66744bf22461135508e7"
+    },
+    {
+      "check": "website-http96",
+      "file": "tooling-website-http96.log",
+      "sha256": "3822bdc4ae4bb29dd8cf3294be5e76e6ed508a4f5a3ae36d8ef8499a51e07419"
+    },
+    {
+      "check": "worker-dry-run",
+      "file": "tooling-worker-dry-run.log",
+      "sha256": "e39ea4ed8038182d45317fc85b597e691de95c0dae3846815923c7d5e197e235",
+      "captureSha256": "62e977e5f2d65736099c76ed49f9eb658284390c4fa6b5732a6c51a8ebc7f0c8",
+      "normalization": "Trailing whitespace stripped from retained terminal output."
+    }
+  ],
+  "limits": "See tooling-delivery-results.md for snapshot and check scopes. No remote deployment performed."
+}

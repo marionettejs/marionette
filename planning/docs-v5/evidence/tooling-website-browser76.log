@@ -1,0 +1,5 @@
+
+> marionettejs-website@0.1.0 test:docs:browser
+> node test/browser/docs-candidate.mjs
+
+Verified 76 documentation page/viewport combinations and rendered search.

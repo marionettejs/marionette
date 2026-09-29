@@ -202,3 +202,7 @@ The [two independent guides](integration-routing-results.md) cover a host-owned 
 ## Completeness and consistency checkpoint — 2026-09-30
 
 The [bounded audit](completeness-results.md) reconciles API coverage, private reference patterns, declaration examples and installed discovery. Two detailed semantic gaps remain explicitly visible. Technical checks establish delivered example/contract correctness; they do not establish reader effectiveness or a successful consumer migration. Next work should validate those outcomes before expanding authoring scope.
+
+### Tooling and delivery checkpoint
+
+[Tooling and delivery integration](tooling-delivery-results.md) completes local repository entrypoints, llms coverage, skill/plugin acquisition guidance, Context7 curation, canonical website/MCP integration and a three-browser production consumer check. The frozen candidate remains unpublished. Public deployment/retrieval, real consumer migration and controlled fresh-reader outcomes require their own evidence; do not add authoring solely to optimize benchmark behavior.

@@ -1,0 +1,11 @@
+{
+  "packageVersion": "5.0.0-rc.2",
+  "sourceRevision": "37cda1fb3b370ac02b0f13988d6571e4524f4356",
+  "sourceDirty": false,
+  "sourceContentSha256": "04f344624bf4afa012adcedcfb0823b2cee9ce0303743c0920cc3bd861f18778",
+  "manifestSha256": "a859b934b32ada2214f151c2aae5d737c04fe860b7f1cf5a9074a1e1a11f1ae2",
+  "corpusSha256": "1167112bf077f7c966374b9170348e928eecb64bb309cc66e84d1641d6671e69",
+  "workerBundleSha256": "3edd84dd7d32f9d07ea7287acc1d7af321fb553e5c4c269895868831e436a49c",
+  "websiteRevision": "cc413baac0c0e80296fdfee11a57e68d73d7a08d",
+  "committedWebsiteChanges": true
+}

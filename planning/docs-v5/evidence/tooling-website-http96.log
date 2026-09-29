@@ -1,0 +1,2 @@
+PASS: 96 readable resources, 0 failures; 5.0.0-rc.2 @ 37cda1fb3b370ac02b0f13988d6571e4524f4356
+Direct HTTP reads of the built documentation. This does not establish search-engine indexing, browser WebMCP discovery, or model task success.

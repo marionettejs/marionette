@@ -1,0 +1,165 @@
+{
+  "date": "2026-09-30",
+  "checks": {
+    "codex": {
+      "version": "codex-cli 0.159.0",
+      "projectSkill": {
+        "name": "marionette",
+        "scope": "repo",
+        "enabled": true,
+        "path": ".agents/skills/marionette/SKILL.md",
+        "skillSha256": "539012b33ba5955a05a7468c46a5b555f4c5dbf4aa99c576ac71a0c402d1524d"
+      },
+      "localMarketplace": {
+        "name": "marionettejs",
+        "plugin": {
+          "id": "marionette@marionettejs",
+          "remotePluginId": null,
+          "version": null,
+          "localVersion": "5.0.0-rc.2",
+          "name": "marionette",
+          "shareContext": null,
+          "source": {
+            "type": "local",
+            "path": "plugins/marionette"
+          },
+          "installed": false,
+          "installedAt": null,
+          "enabled": false,
+          "installPolicy": "AVAILABLE",
+          "installPolicySource": null,
+          "mustShowInstallationInterstitial": null,
+          "authPolicy": "ON_INSTALL",
+          "availability": "AVAILABLE",
+          "disabledReason": null,
+          "eligiblePlanTypes": null,
+          "interface": {
+            "displayName": "Marionette",
+            "shortDescription": "Build with version-matched Marionette docs.",
+            "longDescription": "Use installed Marionette documentation to build, review, and debug an application. The bundled skill works with local package documentation.",
+            "developerName": "Marionette.js",
+            "category": "Developer Tools",
+            "capabilities": [
+              "Read"
+            ],
+            "websiteUrl": "https://marionettejs.com/",
+            "privacyPolicyUrl": null,
+            "termsOfServiceUrl": null,
+            "defaultPrompt": [
+              "Inspect this application's Marionette contract.",
+              "Review ownership and cleanup in this Marionette feature.",
+              "Debug this Marionette lifecycle issue."
+            ],
+            "brandColor": null,
+            "composerIcon": null,
+            "composerIconUrl": null,
+            "logo": null,
+            "logoDark": null,
+            "logoUrl": null,
+            "logoUrlDark": null,
+            "screenshots": [],
+            "screenshotUrls": []
+          },
+          "keywords": [
+            "marionette",
+            "documentation",
+            "application"
+          ]
+        },
+        "skillCount": 1,
+        "mcpServerNames": [
+          "marionette-docs"
+        ],
+        "mcpServerConfig": {
+          "marionette-docs": {
+            "type": "streamable-http",
+            "url": "https://mcp.marionettejs.com/mcp"
+          }
+        },
+        "mcpEvidence": "plugin/read returns server names; URL and transport are verified from the copied bundled mcp.json. No connection was started.",
+        "sourceRevision": "37cda1fb3b370ac02b0f13988d6571e4524f4356",
+        "sourceComparison": "Manifest, MCP config, and mirrored skill bytes match the clean source checkout."
+      },
+      "offlineLookup": {
+        "network": "Socket connect, TLS connect, and fetch disabled by preload",
+        "query": "prepareStart",
+        "packageVersion": "5.0.0-rc.2",
+        "sourceRevision": "37cda1fb3b370ac02b0f13988d6571e4524f4356",
+        "sourceDirty": false,
+        "contentSha256": "04f344624bf4afa012adcedcfb0823b2cee9ce0303743c0920cc3bd861f18778",
+        "returnedSections": [
+          {
+            "id": "docs/agents.md#L62",
+            "source": "docs/agents.md",
+            "heading": "Local contract lookup"
+          },
+          {
+            "id": "docs/guides/production.md#L19",
+            "source": "docs/guides/production.md",
+            "heading": "Handle startup at its owner"
+          },
+          {
+            "id": "docs/api/application.md#L111",
+            "source": "docs/api/application.md",
+            "heading": "Operations after start"
+          },
+          {
+            "id": "docs/api/application.md#L186",
+            "source": "docs/api/application.md",
+            "heading": "TypeScript"
+          },
+          {
+            "id": "docs/guides/testing.md#L53",
+            "source": "docs/guides/testing.md",
+            "heading": "test/summary-application.mjs"
+          }
+        ],
+        "artifact": "Final clean parent-prepared staged package from the five-package candidate build.",
+        "agentInstallGuidanceVerified": true,
+        "reproduction": "node /tmp/mnjs-client-discovery-smoke.mjs --package-root /tmp/mnjs-tooling-clean-source-20260930/.package",
+        "agentGuideSha256": "ff350282c347dc49891000c21ac26cef36a8b5e8766ba346444533c63d699b07"
+      }
+    },
+    "claudeCode": {
+      "version": "2.1.119",
+      "manifestValidation": "passed",
+      "sessionPluginActivation": "unverified",
+      "reason": "The bare --plugin-dir plugin-list probe rejected --json; no model turn was attempted."
+    },
+    "otherClients": {
+      "Cursor": "manifests only; runtime unavailable",
+      "Copilot": "not tested"
+    }
+  },
+  "hostedCatalogObserved": {
+    "endpoint": "https://mcp.marionettejs.com/mcp",
+    "packageVersion": "5.0.0-rc.1",
+    "sourceRevision": "469e790fea03993a5c063e39028445ac3610c9e4",
+    "matchesLocalCandidateVersion": false
+  },
+  "tests": {
+    "agentDocumentation": 32,
+    "passed": 32,
+    "skillValidator": "passed",
+    "focusedLint": "passed",
+    "agentDocumentationEvidence": "Earlier 32-test run retained; final focused rerun is recorded separately.",
+    "finalFocused": {
+      "tests": 8,
+      "passed": 8,
+      "files": [
+        "test/docs/repository-entrypoints.test.mjs",
+        "test/agent-docs/plugin.test.mjs",
+        "test/agent-docs/discovery.test.mjs"
+      ],
+      "output": "/tmp/mnjs-tooling-final-focus.log"
+    }
+  },
+  "limits": {
+    "paidModelTurns": 0,
+    "globalConfigurationMutations": 0,
+    "hostedMcpStartedByClient": false,
+    "pluginCacheInstallation": "unverified; installed CLI has no isolated configuration-directory option",
+    "readerEffectiveness": "not measured"
+  },
+  "externalGuidanceEvidence": "planning/docs-v5/evidence/tooling-external-guidance.json"
+}

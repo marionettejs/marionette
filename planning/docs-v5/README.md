@@ -4,6 +4,8 @@ The rebuild is organized around Marionette's public API and reader needs. The re
 
 ## Current work
 
+- [Tooling, agent distribution and delivery integration](tooling-delivery-results.md)
+
 - [Completeness, consistency and architecture audit](completeness-results.md)
 
 - [Production, accessibility, lists and controls](four-guides-results.md)

@@ -1,0 +1,13 @@
+{
+  "libraryRepository": "https://github.com/marionettejs/marionette",
+  "libraryRevision": "469e790fea03993a5c063e39028445ac3610c9e4",
+  "packageVersion": "5.0.0-rc.1",
+  "sourceStatus": "Published npm release candidate",
+  "libraryBuild": "Browser ESM bundle of the exact npm core, radio, and utils packages pinned in package-lock.json; built with esbuild",
+  "packageIntegrity": "sha512-sFu9jxdb4NzsevlwXkyzzfNu+SQMpc5KT+BqH6KTFRFxEcffkCAR1ARmL0JfCicf2ZiYPltkOhht5BiK411I0Q==",
+  "brandSource": "marionettejs/branding assets/marionette-mark.svg and assets/marionette-horizontal.svg",
+  "publication": "Marionette 5.0.0-rc.1 public website",
+  "bundleSha256": "2ae4eb12644f7283f29f4909a6d6fee284e2b3046ed5290e32217ef6de0c110d",
+  "documentationManifest": "/docs/manifest.json",
+  "documentationNote": "The browser demos use this pinned published runtime. Candidate documentation has separate provenance at /docs/manifest.json; match the installed version before combining them."
+}
