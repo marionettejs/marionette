@@ -1,0 +1,85 @@
+planning/docs-v5/evidence/tooling-website-import.json
+  s_930f3c9a37745c::t_50b7237e9e4179 1-13
+planning/docs-v5/evidence/tooling-external-guidance.json
+  s_930f3c9a37745c::t_33b5d920992531 1-19
+planning/docs-v5/evidence/tooling-verification-logs.json
+  s_930f3c9a37745c::t_50b7237e9e4179 1,4-5,9-12,14-15,19-22,24-27,29-32,34-42,44-47,51-54
+  s_930f3c9a37745c::t_108d938598624c 2-3,6-8,13,16-18,23,28,33,43
+  s_930f3c9a37745c::t_684caf7b52ec52 48-50
+planning/docs-v5/coverage.md
+  s_930f3c9a37745c::t_8b38f094eba7ff 64,114-117
+planning/docs-v5/README.md
+  s_930f3c9a37745c::t_8b38f094eba7ff 7-8
+planning/docs-v5/evidence/tooling-website-http.json
+  s_930f3c9a37745c::t_f2aec8a5a76bfe 2-3,5-6,13,19-20,27,34,41,48,55,62,69,76,83,90,97,104,111,118,125,132,139,146,153,160,166-167,173-174,181,188,202,209,216,223,230,237,244,251,258,265,272,279,286,293,300,307,321,328,335,342,349,356,363,370,377,384,391,398,405,412,419,426,433,440,447,454,461,468,475,482,489,496,503,510,517,524,531,538,545,552,559,566,573,580,587,594,601,608,615,622,629,636,643,650,657,663-664,671
+  s_930f3c9a37745c::t_492e1e152d856e 1,4,7-12,14-18,21-26,28-33,35-40,42-47,49-54,56-61,63-68,70-75,77-82,84-89,91-96,98-103,105-110,112-117,119-124,126-131,133-138,140-145,147-152,154-159,161-165,168-172,175-180,182-187,189-201,203-208,210-215,217-222,224-229,231-236,238-243,245-250,252-257,259-264,266-271,273-278,280-285,287-292,294-299,301-306,308-320,322-327,329-334,336-341,343-348,350-355,357-362,364-369,371-376,378-383,385-390,392-397,399-404,406-411,413-418,420-425,427-432,434-439,441-446,448-453,455-460,462-467,469-474,476-481,483-488,490-495,497-502,504-509,511-516,518-523,525-530,532-537,539-544,546-551,553-558,560-565,567-572,574-579,581-586,588-593,595-600,602-607,609-614,616-621,623-628,630-635,637-642,644-649,651-656,658-662,665-670,672-684
+planning/docs-v5/plan.md
+  s_930f3c9a37745c::t_8b38f094eba7ff 205-208
+planning/docs-v5/evidence/tooling-website-identity.json
+  s_930f3c9a37745c::t_f2aec8a5a76bfe 1-11
+planning/docs-v5/evidence/tooling-production-report.json
+  s_930f3c9a37745c::t_af52339519c954 5,96,662,668-669,671,750-754,757,759-760,762,785-789,792,794-795,797,815
+  s_930f3c9a37745c::t_059d8f30f9da03 1-4,6-95,97-661,663-667,670,672-749,755-756,758,761,763-784,790-791,793,796,798-814,816-817
+planning/docs-v5/evidence/tooling-delivery-claude-review.json
+  s_930f3c9a37745c::t_f21ca981eaf7a9 1-221
+planning/docs-v5/evidence/tooling-installed-report.json
+  s_930f3c9a37745c::t_644d5cfde66949 3,5,22
+  s_930f3c9a37745c::t_9d81b8cbc79344 1-2,4,6-21,23-95
+planning/docs-v5/evidence/production-build-logs.json
+  s_930f3c9a37745c::t_059d8f30f9da03 1-9,11-14,16-18,20,22-25,27-29,31,33-34
+  s_930f3c9a37745c::t_af52339519c954 10,15,19,21,26,30,32
+planning/docs-v5/evidence/production-consumer-package-lock.json
+  s_930f3c9a37745c::t_059d8f30f9da03 1,3-679,681-902
+  s_930f3c9a37745c::t_af52339519c954 2,680
+planning/docs-v5/evidence/tooling-client-smoke.json
+  s_930f3c9a37745c::t_257086024a0294 11,24,80,87,89,120,144-155,163-164
+  s_930f3c9a37745c::t_737210c34510de 10,71-78,91-95,116,118
+  s_930f3c9a37745c::t_32e40565a5f470 1-9,12-23,25-70,82-86,90,96-115,121-143,156-162,165
+  s_930f3c9a37745c::t_f39c34472b950f 79,81,88,117,119
+planning/docs-v5/tooling-delivery-results.md
+  s_930f3c9a37745c::t_108d938598624c 27,36,45
+  s_930f3c9a37745c::t_644d5cfde66949 17,44
+  s_930f3c9a37745c::t_f2aec8a5a76bfe 21,39,57
+  s_930f3c9a37745c::t_8b38f094eba7ff 1-16,18-20,22-26,28-35,37-38,40-43,46-56,58-59
+planning/docs-v5/evidence/tooling-candidate-artifacts.json
+  s_930f3c9a37745c::t_492e1e152d856e 1,3-4,7-10,13-36
+  s_930f3c9a37745c::t_644d5cfde66949 2,5-6,11-12
+planning/docs-v5/evidence/tooling-context7-schema.json
+  s_930f3c9a37745c::t_f21ca981eaf7a9 1-10
+planning/docs-v5/evidence/tooling-clean-build.log
+  s_930f3c9a37745c::t_50a6ef34e813b5 1-90
+planning/docs-v5/evidence/tooling-clean-installed.log
+  s_930f3c9a37745c::t_ef53bc8442212a 1-99
+planning/docs-v5/evidence/tooling-delivery-final-claude-review.json
+  s_930f3c9a37745c::t_1037604063443a 1-185
+planning/docs-v5/evidence/tooling-docs-authoring.log
+  s_930f3c9a37745c::t_41f7cb4429cb3e 1-139
+planning/docs-v5/evidence/tooling-final-focused8.log
+  s_930f3c9a37745c::t_4054ed7c699bb6 1-16
+planning/docs-v5/evidence/tooling-library-tests.log
+  s_930f3c9a37745c::t_7c310155ce6258 1-430
+planning/docs-v5/evidence/tooling-website-browser76.log
+  s_930f3c9a37745c::t_586deae5b1063b 1-5
+planning/docs-v5/evidence/tooling-website-http96.log
+  s_930f3c9a37745c::t_be8356a2ef0cad 1-2
+planning/docs-v5/evidence/tooling-website88.log
+  s_930f3c9a37745c::t_89dd5cb93a46af 1-112
+planning/docs-v5/evidence/tooling-worker-dry-run.log
+  s_930f3c9a37745c::t_755eccdff55868 1-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "b28218062464b817730fd8583c643cb15c2fd069",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
