@@ -15,11 +15,13 @@ Marionette organizes UI around ownership: who prepares a feature, who presents i
 
 A View with Regions is enough for visual composition. Add an Application when a feature needs readiness, coordinated effects, or an independently managed lifetime. A parent Application can own the page and start child features even when the parent has no asynchronous preparation. Registering a child establishes ownership; starting it is an explicit decision.
 
+A View can save an edit to its own model when the chosen data layer provides that operation. Reading a local input and calling `this.model.save(...)` can be a local interaction; an asynchronous call alone does not require an Application. The model or API layer owns persistence. Move coordination to a feature owner when the operation controls feature readiness, shared workflow decisions, or work that must survive replacement of the View.
+
 ## Prepare a feature, then activate its UI
 
 When a feature needs asynchronous readiness, use an Application and put the required service call in `prepareStart(options, { signal })`. Return the prepared data, then consume it in `onStart(app, options, result)` to create and connect the ready UI. The [Application example](api/application.md#prepare-before-showing-ui) demonstrates this sequence.
 
-The Application calls a service/API module; Views receive data and emit user intent. This keeps request decisions at the feature lifetime while individual panels can be replaced. For a composed layout, use the Application's `setView`, populate the layout's Regions with `showChildView`, then mount it with the Application's `showView`.
+For these feature requests, the Application calls a service/API module; Views receive data and emit user intent. This keeps request decisions at the feature lifetime while individual panels can be replaced. For a composed layout, use the Application's `setView`, populate the layout's Regions with `showChildView`, then mount it with the Application's `showView`.
 
 Show loading or error presentation through Views and Regions. The caller of `start()` handles rejection. When recovery replaces partial UI with an error View, await successful `stop()` before showing it in the intended Region.
 

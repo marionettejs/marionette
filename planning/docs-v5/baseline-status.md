@@ -28,3 +28,7 @@ This does not establish reliable improvement from the guidance. Inspect the save
 ## Next review boundary
 
 Future focused PRs target `docs/v5-reset`. Record the question each change addresses and the evidence needed to assess it. Keep correctness checks, architectural judgments, and teaching effectiveness separate. The existing results documents describe their historical stages; this page records the status when the baseline was committed.
+
+## Subsequent ownership clarification
+
+The owner clarified that a View saving its own model from a local input can be appropriate. The concepts guide and rubric version 0.5 now distinguish local persistence from feature readiness and shared workflow coordination. This prose change follows the evaluated baseline; the saved package/browser results do not test its teaching effect. Original Stringent conditions and grades remain unchanged.

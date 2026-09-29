@@ -1,6 +1,6 @@
 # Evaluation rubric — Stage 1
 
-Evaluator-only. Version 0.4, candidate for the first comparison. API constraints are source-checked; policy recommendations require assessment of the complete consumer feature. Freeze this rubric together with the concrete task requirements before model runs. The revised records example implements startup, selection, and cleanup checks. Remaining criteria are specifications for later tasks; this is not a controlled agent evaluation harness.
+Evaluator-only. Version 0.5, clarifying local model persistence after the navigation pilot. This does not change any frozen experiment rubric or historical grade. API constraints are source-checked; policy recommendations require assessment of the complete consumer feature. Freeze this rubric together with the concrete task requirements before model runs. The revised records example implements startup, selection, and cleanup checks. Remaining criteria are specifications for later tasks; this is not a controlled agent evaluation harness.
 
 ## Scoring and evidence
 
@@ -34,6 +34,8 @@ Hide condition labels and documentation traces during code review where feasible
 **Evidence:** Trace a user action through feature coordination, API/service access, result acceptance, state changes, rendering, and cleanup. Confirm which object is accountable for each.
 
 **Alternative:** A focused function or stateful object supports an explicit owner; transport and persistence can live in an API/service layer. A different data solution can satisfy the same ownership contracts. A purely local control needs no feature Application.
+
+A View may call its own model's save operation for a local edit when the data layer supports it. An asynchronous call in a View is not by itself a policy violation. Review whether it also owns feature readiness, shared workflow decisions, or work that needs to outlive the View. Other Views observing the same model does not alone make the saving View a cross-panel coordinator.
 
 **Superficial pass:** An Application merely constructs a View that manages feature requests and cross-panel effects.
 
