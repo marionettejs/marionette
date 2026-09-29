@@ -22,6 +22,11 @@ For agent-led work, use the [agent workflow](agents.md) to find version-matched 
 - [Integrate with existing UI](guides/existing-ui.md): mount, communicate, and clean up under another UI owner.
 - [Connect navigation](guides/routing.md): route destinations, retain a shell, and own browser subscriptions.
 
+- [Work with lists](guides/lists.md): row identity, sorting, filtering, and empty presentation.
+- [Integrate a control](guides/widgets.md): connect an imperative DOM API to View lifetime.
+- [Accessibility and rendering](guides/accessibility-rendering.md): keyboard interaction, focus, and text/HTML boundaries.
+- [Build and deploy](guides/production.md): installed packages, startup ownership, and production delivery checks.
+
 ## Core reference
 
 - [API index](api.md): classes, shared contracts, and current coverage.

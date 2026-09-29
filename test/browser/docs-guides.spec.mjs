@@ -185,3 +185,120 @@ test('Documented navigation handles direct links, history, focus and listener cl
   });
   assert.deepEqual(errors, []);
 });
+
+test('Documented list retains row input through sorting and filtering', async({ page }) => {
+  await loadGuide(page, 'lists', 'catalog, items, region, mount');
+  const notes = page.getByRole('textbox', { name: 'Notes for Blueberry' });
+  await notes.fill('Unfinished notes');
+  await page.evaluate(() => {
+    window.originalRow = window.guide.catalog.list.children.findByModel(window.guide.items.get('b'));
+    window.originalInput = window.originalRow.el.querySelector('input');
+  });
+  await page.getByRole('button', { name: 'Reverse order' }).click();
+  await expect(notes).toHaveValue('Unfinished notes');
+  await page.getByRole('checkbox', { name: 'Available only' }).check();
+  await expect(notes).toHaveCount(0);
+  await page.getByRole('checkbox', { name: 'Available only' }).uncheck();
+  await expect(notes).toHaveValue('Unfinished notes');
+  assert.equal(await page.evaluate(() => window.guide.catalog.list.children.findByModel(window.guide.items.get('b')) === window.originalRow &&
+    window.originalRow.el.querySelector('input') === window.originalInput), true);
+  await page.evaluate(() => { window.guide.catalog.list.setFilter(() => false); });
+  await expect(page.getByText('No matching items.', { exact: true })).toBeVisible();
+  assert.equal(await page.evaluate(() => window.guide.items.length), 2);
+  await page.evaluate(() => {
+    const { items, region, mount } = window.guide;
+    region.destroy();
+    items.destroy();
+    mount.remove();
+  });
+});
+
+test('Documented accessible toggle supports keyboard and explicit replacement focus', async({ page, browserName }) => {
+  await loadGuide(page, 'accessibility-rendering', 'NotificationSettings, settings, region, mount');
+  const button = page.getByRole('button', { name: 'Mute notifications' });
+  // macOS WebKit uses Option-Tab to include native buttons in keyboard navigation.
+  const nextControl = browserName === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab';
+  await page.keyboard.press(nextControl);
+  await expect(button).toBeFocused();
+  await page.evaluate(() => { window.originalToggle = window.guide.settings.getUI('mute')[0]; });
+  await button.press('Enter');
+  await expect(button).toHaveAttribute('aria-pressed', 'true');
+  await expect(button).toBeFocused();
+  await button.press('Space');
+  await expect(button).toHaveAttribute('aria-pressed', 'false');
+  await expect(button).toBeFocused();
+  assert.equal(await page.evaluate(() => window.guide.settings.getUI('mute')[0] === window.originalToggle), true);
+  await page.evaluate(() => {
+    window.guide.settings.getState().title = '<Alerts & updates>';
+    window.guide.settings.render();
+  });
+  await expect(page.getByRole('heading', { name: '<Alerts & updates>' })).toBeVisible();
+  await expect(page.locator('alerts')).toHaveCount(0);
+  await expect(button).toBeFocused();
+  assert.equal(await page.evaluate(() => {
+    const { NotificationSettings, settings, region } = window.guide;
+    const next = new NotificationSettings();
+    region.show(next);
+    next.focusHeading();
+    return settings.isDestroyed();
+  }), true);
+  await expect(page.getByRole('heading', { name: 'Notifications' })).toBeFocused();
+  await page.keyboard.press(nextControl);
+  await expect(button).toBeFocused();
+  await page.evaluate(() => { window.guide.region.destroy(); window.guide.mount.remove(); });
+});
+
+test('Documented dialog closes before render, detach and destroy', async({ page }) => {
+  await loadGuide(page, 'widgets', 'help, region, mount');
+  const opener = page.getByRole('button', { name: 'Help', exact: true });
+  const close = page.getByRole('button', { name: 'Close', exact: true });
+  await opener.focus();
+  await opener.press('Enter');
+  await expect(page.getByRole('dialog', { name: 'Help', exact: true })).toBeVisible();
+  await expect(close).toBeFocused();
+  await close.click();
+  await expect(page.locator('dialog')).not.toHaveAttribute('open', '');
+  await expect(opener).toBeFocused();
+  await opener.focus();
+  await opener.press('Enter');
+  await close.press('Escape');
+  await expect(page.locator('dialog')).not.toHaveAttribute('open', '');
+  await expect(opener).toBeFocused();
+  await opener.focus();
+  await opener.press('Enter');
+  assert.deepEqual(await page.evaluate(() => {
+    const { help } = window.guide;
+    const previous = help.getUI('dialog')[0];
+    let closedBeforeRemoval = false;
+    help.once('dom:remove', () => { closedBeforeRemoval = !previous.open && previous.isConnected; });
+    help.render();
+    return { closedBeforeRemoval, closed: !previous.open, removed: !previous.isConnected,
+      replaced: help.getUI('dialog')[0] !== previous };
+  }), { closedBeforeRemoval: true, closed: true, removed: true, replaced: true });
+  await opener.focus();
+  await opener.press('Enter');
+  assert.deepEqual(await page.evaluate(() => {
+    const { help, region } = window.guide;
+    const dialog = help.getUI('dialog')[0];
+    let closedBeforeRemoval = false;
+    help.once('dom:remove', () => { closedBeforeRemoval = !dialog.open && dialog.isConnected; });
+    region.detachView();
+    const result = { closedBeforeRemoval, closed: !dialog.open, alive: !help.isDestroyed() };
+    region.show(help);
+    result.same = help.getUI('dialog')[0] === dialog;
+    return result;
+  }), { closedBeforeRemoval: true, closed: true, alive: true, same: true });
+  await opener.focus();
+  await opener.press('Enter');
+  assert.deepEqual(await page.evaluate(() => {
+    const { help, region, mount } = window.guide;
+    const dialog = help.getUI('dialog')[0];
+    let closedBeforeDestroy = false;
+    help.once('before:destroy', () => { closedBeforeDestroy = !dialog.open && dialog.isConnected; });
+    region.empty();
+    const result = { closedBeforeDestroy, closed: !dialog.open, destroyed: help.isDestroyed() };
+    region.destroy();
+    mount.remove();
+    return result;
+  }), { closedBeforeDestroy: true, closed: true, destroyed: true });
+});

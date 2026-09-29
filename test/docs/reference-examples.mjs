@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { assertions as accessibilityAssertions } from './accessibility-guide-checks.mjs';
+import { assertions as widgetAssertions } from './widget-guide-checks.mjs';
+import { assertions as listAssertions, preparations as listPreparations } from './list-guide-checks.mjs';
 import { assertions as integrationAssertions } from './integration-guide-checks.mjs';
 import { assertions as dataAssertions } from './data-reference-checks.mjs';
 import { assertions as radioAssertions } from './radio-reference-checks.mjs';
@@ -28,6 +31,7 @@ const pages = ['api', 'packages', 'integrations', 'guides'].flatMap(section =>
   // This multi-file Node test recipe is executed by consumer-testing.mjs in the installed check.
   .filter(path => path !== 'docs/guides/testing.md');
 const preparations = {
+  ...listPreparations,
   ...getPreparations(installed),
   ...refreshPreparations,
   ...typescriptPreparations,
@@ -40,6 +44,9 @@ globalThis.fetch = async (url, options) => {
 `,
 };
 const assertions = {
+  ...accessibilityAssertions,
+  ...widgetAssertions,
+  ...listAssertions,
   ...integrationAssertions,
   ...dataAssertions,
   ...radioAssertions,

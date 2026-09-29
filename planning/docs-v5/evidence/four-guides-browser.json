@@ -1,0 +1,74 @@
+{
+  "stats": {
+    "startTime": "2026-09-29T18:58:28.958Z",
+    "duration": 20124.594,
+    "expected": 24,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "packages": [
+    {
+      "id": "utils",
+      "name": "@mnjs/utils",
+      "version": "5.0.0-rc.2",
+      "tarball": {
+        "file": "mnjs-utils-5.0.0-rc.2.tgz",
+        "size": 39987,
+        "sha512": "7bcf4061fc5463a6395a8258e037fd4e41578e2bc9ef991e42fee51797a6e9bdec9680423f4480268b0d663d571bd8927621141b6741611b7fc0919f23548086",
+        "integrity": "sha512-e89AYfxUY6Y5WoJY4Df9TkFXjivJ75keQv7lF5em6b3sloBCP0SAJosNZj1XG9iSdiEUG2dBYRt/wJGfI1SAhg=="
+      }
+    },
+    {
+      "id": "radio",
+      "name": "@mnjs/radio",
+      "version": "5.0.0-rc.2",
+      "tarball": {
+        "file": "mnjs-radio-5.0.0-rc.2.tgz",
+        "size": 11402,
+        "sha512": "e8d840c96d009f52f3242fd0173dbf27e4ab75d407e1399aeca48cd58261aea2f3d8a701476160b875351395de0f55eb5ad8efdf2c592c33f00664d8cac0e812",
+        "integrity": "sha512-6NhAyW0An1LzJC/QFz2/J+SrddQH4Tma7KSM1YJhrqLz2KcBR2FguHU1E5XeD1XrWtjv3yxZLDPwBmTYysDoEg=="
+      }
+    },
+    {
+      "id": "core",
+      "name": "marionette",
+      "version": "5.0.0-rc.2",
+      "tarball": {
+        "file": "marionette-5.0.0-rc.2.tgz",
+        "size": 596073,
+        "sha512": "15496cca306593106ec33c61faa3ebeb43f2d8110c9e050543547c72e5d59bcd52c42643a4b982a791d3d624504c0be6d96510ceb9fa706b2e1c2a08bca12ff9",
+        "integrity": "sha512-FUlsyjBlkxBuwzxh+qPr60Py2BEMngUFQ1R8cuXVm81SxCZDpLmCp5HT1iRQTAvm2WUQzrn6cGsuHCoIvKEv+Q=="
+      }
+    },
+    {
+      "id": "data",
+      "name": "@mnjs/data",
+      "version": "5.0.0-rc.2",
+      "tarball": {
+        "file": "mnjs-data-5.0.0-rc.2.tgz",
+        "size": 27788,
+        "sha512": "a2c5a3bf4f9bceb24cde2413d4fc12fffad7c201e77339ff0e25c22035352e4b1dfc639ee4f6a656c29557ddc8dc0cd838abf4876e2a60caa5724532f80b052d",
+        "integrity": "sha512-osWjv0+bzrJM3iQT1PwS//rXwgHnczn/DiXCIDU1Lksd/GOe5PamVsKVV93I3AzYOKv0h24qYMqlckUy+AsFLQ=="
+      }
+    },
+    {
+      "id": "adapters",
+      "name": "@mnjs/adapters",
+      "version": "5.0.0-rc.2",
+      "tarball": {
+        "file": "mnjs-adapters-5.0.0-rc.2.tgz",
+        "size": 15812,
+        "sha512": "52c4eb50910a6ca7b60508198bc4119adf370cb27ad8a3dabdcc01f2522487c44cfc7ff36372fe78381758e8cca0c9985dbd1c3b1d7992d9f4ffc0138510d432",
+        "integrity": "sha512-UsTrUJEKbKe2BQgZi8QRmt83DLJ62KPavcwB8lIkh8RM/H/zY3L+eDgXWOjMoMmYXb0cOx15ktn0/8AThRDUMg=="
+      }
+    }
+  ],
+  "specSha256": "ba6086fcb66b91d1be84a0b878bbb7574ff01cdecca7522ca247e70e6452cff2",
+  "guideFenceSha256": {
+    "docs/guides/lists.md": "549ebc9bb8ff8c523325a161e47c9cbda711e51ac542f10aa1b40a21b68a7fb4",
+    "docs/guides/accessibility-rendering.md": "ad2bcfd93d7228e5da5a06d9f983c76e5e551262c9eb5d281bd6445f21539124",
+    "docs/guides/widgets.md": "67da003922788617544a9fd4e88ed53015719be403153b79e20982c5ec52d78c"
+  },
+  "limits": "Real packaged example code in Chromium, Firefox and WebKit. No deployment, third-party widget integration, assistive-technology assessment or reader trial."
+}

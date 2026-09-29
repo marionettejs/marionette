@@ -1,0 +1,41 @@
+export const assertions = {
+  'guides-accessibility-rendering-1': `
+const button = settings.getUI('mute')[0];
+assert.equal(button.tagName, 'BUTTON');
+assert.equal(button.type, 'button');
+assert.equal(button.textContent.trim(), 'Mute notifications');
+assert.equal(button.getAttribute('aria-pressed'), 'false');
+button.focus();
+button.click();
+assert.equal(settings.getState().muted, true);
+assert.equal(button.getAttribute('aria-pressed'), 'true');
+assert.match(settings.el.textContent, /Notifications are muted/);
+assert.equal(settings.getUI('mute')[0], button);
+assert.equal(document.activeElement, button);
+button.click();
+assert.equal(settings.getState().muted, false);
+assert.equal(button.getAttribute('aria-pressed'), 'false');
+assert.equal(document.activeElement, button);
+settings.getState().title = '<Alerts & updates>';
+settings.render();
+assert.equal(settings.getUI('heading')[0].textContent, '<Alerts & updates>');
+assert.equal(settings.el.querySelector('alerts'), null);
+assert.equal(settings.getUI('mute')[0], button);
+assert.equal(document.activeElement, button);
+const nextSettings = new NotificationSettings();
+region.show(nextSettings);
+assert.equal(settings.isDestroyed(), true);
+assert.equal(button.isConnected, false);
+nextSettings.focusHeading();
+const heading = nextSettings.getUI('heading')[0];
+assert.equal(heading.getAttribute('tabindex'), '-1');
+assert.equal(document.activeElement, heading);
+button.click();
+assert.equal(settings.getState().muted, false);
+region.destroy();
+assert.equal(nextSettings.isDestroyed(), true);
+assert.equal(mount.isConnected, true);
+assert.equal(mount.textContent, '');
+mount.remove();
+`,
+};

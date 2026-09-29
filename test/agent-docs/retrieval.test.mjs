@@ -75,7 +75,8 @@ test('real consumer questions retrieve the required contract without reading a f
     ['event currentTarget delegateTarget', 'docs/api/shared/view-bindings.md', 'DOM events', ['event.delegateTarget', 'nearest matching descendant']],
     ['initialize options', 'docs/api/shared/common.md', 'Options and initialization', ['initialize', 'options']],
     ['childViewEvents arguments', 'docs/api/shared/view-bindings.md', 'Child events', ['No child argument is added', 'original event arguments']],
-    ['preserve editable rows sort', 'docs/api/collection-view.md', 'Sorting', ['without changing the source collection', 'child Views']],
+    ['preserve editable rows sort', 'docs/guides/lists.md', 'Own the controls and repeated rows', ['Sorting moves the existing rows', 'input values']],
+    ['setComparator viewComparator', 'docs/api/collection-view.md', 'Sorting', ['without changing the source collection', 'child Views']],
     ['observeCollection', 'docs/api/providers/data.md', 'DataApi', ['cleanup', 'DataApi has no disposal method']],
   ];
   for (const [query, source, heading, facts] of cases) {

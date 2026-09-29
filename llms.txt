@@ -49,6 +49,10 @@ Version-matched Markdown for the installed package. Start with the documentation
 - [Existing HTML](docs/guides/existing-html.md)
 - [Integrate with existing UI](docs/guides/existing-ui.md)
 - [Navigation and feature ownership](docs/guides/routing.md)
+- [Lists](docs/guides/lists.md)
+- [Imperative controls](docs/guides/widgets.md)
+- [Accessibility and rendering](docs/guides/accessibility-rendering.md)
+- [Production](docs/guides/production.md)
 - [Records lesson](docs/records.md)
 
 ## Development tools

@@ -192,6 +192,30 @@
     "section": "Guides"
   },
   {
+    "source": "docs/guides/lists.md",
+    "route": "docs/guides/lists",
+    "title": "Show, sort, and filter a list",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/widgets.md",
+    "route": "docs/guides/widgets",
+    "title": "Integrate an imperative control",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/accessibility-rendering.md",
+    "route": "docs/guides/accessibility-rendering",
+    "title": "Accessibility and rendering",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/production.md",
+    "route": "docs/guides/production",
+    "title": "Build and deploy an application",
+    "section": "Guides"
+  },
+  {
     "source": "docs/records.md",
     "route": "docs/records",
     "title": "Build a records feature",

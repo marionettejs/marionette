@@ -193,3 +193,7 @@ reader choices and adaptation still requires the frozen comparison described abo
 ## Existing UI and navigation slice
 
 The [two independent guides](integration-routing-results.md) cover a host-owned mounting element with Region-owned content and an Application-owned navigation shell. They extend task coverage independently of the records example. Actual Markdown fences execute locally and against installed packages; browser checks cover history, focus, retained shell identity and cleanup. Asynchronous route transition policy and a concrete host-framework integration remain separate coverage needs. Next authoring priorities are production behavior and accessibility/rendering trust boundaries; reader effectiveness still requires the controlled comparison.
+
+## Four task guides checkpoint
+
+[Production, accessibility/rendering, lists and imperative controls](four-guides-results.md) complete the four agreed authoring areas. The guides describe independent reader tasks with proportionate examples and link existing canonical references. No new runtime or dependency was introduced. A completeness/consistency pass should resolve stale status, declaration examples and genuinely useful reference gaps before adding more pages. Actual consumer migration, deployment and independent teaching effectiveness remain separate validation needs.
