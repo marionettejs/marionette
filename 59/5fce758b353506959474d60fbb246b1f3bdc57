@@ -1,0 +1,93 @@
+planning/docs-v5/plan.md
+  s_930f3c9a37745c::t_31afd850157c53 163-171
+test/browser/docs-guides.spec.mjs
+  s_930f3c9a37745c::t_99010dc382e88e 1-78,89,97,107
+  s_930f3c9a37745c::t_d5b67982683c12 79-88,90-96,98-106,108
+docs/guides/existing-html.md
+  s_930f3c9a37745c::t_a97e44723b3d2b 1-29,31-32,34,36-45
+  s_930f3c9a37745c::t_5052f75d9da6da 35
+  s_930f3c9a37745c::t_111fec434b3305 30,33
+test/docs/editing-html-checks.mjs
+  s_930f3c9a37745c::t_5052f75d9da6da 1-91
+test/docs/installed-package.mjs
+  s_930f3c9a37745c::t_d91cb62044aa0a 39-41
+test/docs/reference-examples.mjs
+  s_930f3c9a37745c::t_d91cb62044aa0a 5-7,23,27-28,41-42
+  s_930f3c9a37745c::t_dc6fe2fdf3247a 43
+llms.txt
+  s_930f3c9a37745c::t_d91cb62044aa0a 39,44-46
+docs/guides/retained-refresh.md
+  s_930f3c9a37745c::t_b20d0295305ad6 1-126
+docs/readme.md
+  s_930f3c9a37745c::t_d91cb62044aa0a 9,13-18,40
+  s_930f3c9a37745c::t_6144448ece9cf1 3
+plugins/marionette/skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_d91cb62044aa0a 21,23-24,30
+docs-site/navigation.json
+  s_930f3c9a37745c::t_d91cb62044aa0a 134-139,146-163
+skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_d91cb62044aa0a 21,23-24,30
+docs/api.md
+  s_930f3c9a37745c::t_d91cb62044aa0a 45-46,51
+planning/docs-v5/evidence/adapters-reference-audit.md
+  s_930f3c9a37745c::t_234f64928de66b 1-26,29
+  s_930f3c9a37745c::t_be21d1aea24e3d 27-28
+test/docs/retained-refresh-checks.mjs
+  s_930f3c9a37745c::t_b0302a55ea7904 1-155
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_248618d164f006 4,7299,7744,7747-7748,7790,7793,7800,7803,7907-7908,7911-7912,7921-7922,7925-7926
+  s_930f3c9a37745c::t_f944007a19b74e 8961
+planning/docs-v5/adapters-guides-results.md
+  s_930f3c9a37745c::t_31afd850157c53 1-106
+planning/docs-v5/evidence/editing-html-guide-audit.md
+  s_930f3c9a37745c::t_6b64456026f3a0 1-27
+  s_930f3c9a37745c::t_acbd7e12b6b2c2 28-35
+docs/agents.md
+  s_930f3c9a37745c::t_d91cb62044aa0a 22,24-25,31
+config/release-validation.json
+  s_930f3c9a37745c::t_99010dc382e88e 239-249
+  s_930f3c9a37745c::t_d097979c2cf3a2 250
+planning/docs-v5/evidence/retained-refresh-guide-audit.md
+  s_930f3c9a37745c::t_89c95c13deb616 1-66
+planning/docs-v5/peer-comparison.md
+  s_930f3c9a37745c::t_31afd850157c53 103-113
+docs/guides/local-editing.md
+  s_930f3c9a37745c::t_a97e44723b3d2b 1-51
+  s_930f3c9a37745c::t_0545d7b294737b 52
+planning/docs-v5/evidence/adapters-guides-claude-review.json
+  s_930f3c9a37745c::t_2b64f31bb25a93 1-46
+config/api-contracts/semantics.json
+  s_930f3c9a37745c::t_2d149864737e24 58,1456-1457,1471,1584,1607,1627,1654,1994-1995,1998-1999,2030-2031,2034-2035
+docs/packages/adapters.md
+  s_930f3c9a37745c::t_bec32c91e07799 1-174
+planning/docs-v5/README.md
+  s_930f3c9a37745c::t_230316fe133cae 7-8,13
+planning/docs-v5/coverage.md
+  s_930f3c9a37745c::t_278b4187106b34 44,53-54,57,106
+planning/docs-v5/evidence/adapters-guides-browser-candidate.json
+  s_930f3c9a37745c::t_72119ff77bb41a 1-60
+planning/docs-v5/evidence/adapters-guides-browser-results.json
+  s_930f3c9a37745c::t_72fd93d3b5dc1c 1-13
+planning/docs-v5/evidence/adapters-guides-installed.json
+  s_930f3c9a37745c::t_e4b4adca0613e5 1-60
+test/browser/fixtures.mjs
+  s_930f3c9a37745c::t_06fa097cdb46d1 54
+test/docs/adapters-reference-checks.mjs
+  s_930f3c9a37745c::t_791b1fe73e053e 1-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "595fce758b353506959474d60fbb246b1f3bdc57",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
