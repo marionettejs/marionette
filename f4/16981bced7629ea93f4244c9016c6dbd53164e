@@ -1,0 +1,94 @@
+docs/guides/retained-refresh.md
+  s_930f3c9a37745c::t_d3ad297e5dd911 103
+packages/adapters/readme.md
+  s_930f3c9a37745c::t_51222f0e994cfb 238-240
+  s_930f3c9a37745c::t_2c370a49f4e7bf 241-244
+planning/docs-v5/evidence/completeness-claude-review.json
+  s_930f3c9a37745c::t_4deccb57b17908 1-196
+planning/docs-v5/evidence/completeness-installed-report.json
+  s_930f3c9a37745c::t_4deccb57b17908 1-95
+planning/docs-v5/evidence/completeness-pattern-audit.md
+  s_930f3c9a37745c::t_4deccb57b17908 1-29
+config/api-contracts/semantics.json
+  s_930f3c9a37745c::t_19e6dbb6431e5b 623,654,1691,1703-1706,1729,2200,2218,2220-2221,2243,2261,2263-2264,2813
+  s_930f3c9a37745c::t_4957655ed43cf8 2274-2277,2290
+docs/api/shared/common.md
+  s_930f3c9a37745c::t_58deea3ce7da2b 33
+docs/api/collection-view.md
+  s_930f3c9a37745c::t_58deea3ce7da2b 177
+  s_930f3c9a37745c::t_32b4253f67053c 106,176
+planning/docs-v5/plan.md
+  s_930f3c9a37745c::t_4deccb57b17908 200-204
+packages/utils/readme.md
+  s_930f3c9a37745c::t_2c370a49f4e7bf 76-79
+  s_930f3c9a37745c::t_51222f0e994cfb 73-75
+docs/api/application.md
+  s_930f3c9a37745c::t_58deea3ce7da2b 150
+  s_930f3c9a37745c::t_0fcbc9ba55d0d4 149
+planning/docs-v5/evidence/completeness-api-audit.md
+  s_930f3c9a37745c::t_4deccb57b17908 1-32
+examples/records/tests/records.spec.js
+  s_930f3c9a37745c::t_2c370a49f4e7bf 365
+  s_930f3c9a37745c::t_d8442e583f2e09 348-364,366-379
+planning/docs-v5/evidence/completeness-writing-audit.md
+  s_930f3c9a37745c::t_4deccb57b17908 1-52
+docs/api/providers/data.md
+  s_930f3c9a37745c::t_58deea3ce7da2b 41-42
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_decb16f4705ddb 8975
+  s_930f3c9a37745c::t_2c370a49f4e7bf 8992
+  s_930f3c9a37745c::t_ca49c30e3926b2 4,7490,7833,7842-7845,7980,7990,8000,8009-8012,8132,8954,8961,8973,8978,8982-8983,9009
+planning/docs-v5/coverage.md
+  s_930f3c9a37745c::t_4deccb57b17908 28,34,68,107
+planning/docs-v5/completeness-results.md
+  s_930f3c9a37745c::t_37b95314bbdf4a 1-59
+planning/docs-v5/README.md
+  s_930f3c9a37745c::t_4deccb57b17908 7-8
+src/modules/collection-view.ts
+  s_930f3c9a37745c::t_ce547ec513485b 46-47,50,52
+  s_930f3c9a37745c::t_296680260c2eac 44
+planning/docs-v5/evidence/completeness-final-claude-review.json
+  s_930f3c9a37745c::t_4deccb57b17908 1-172
+docs/api/shared/events.md
+  s_930f3c9a37745c::t_58deea3ce7da2b 49-50
+planning/docs-v5/evidence/completeness-verification.json
+  s_930f3c9a37745c::t_00308df09066e1 33-37
+  s_930f3c9a37745c::t_07d050645dfc92 1-32,38
+src/modules/view.ts
+  s_930f3c9a37745c::t_ce547ec513485b 39-41,43,45-46
+  s_930f3c9a37745c::t_e5a82f46fb1c10 37
+docs/agents.md
+  s_930f3c9a37745c::t_17950223231501 32
+docs/api.md
+  s_930f3c9a37745c::t_2d1874729dc267 3,47,51-55,58-59
+docs/readme.md
+  s_930f3c9a37745c::t_fee2c7ec27915d 5-6
+docs/records.md
+  s_930f3c9a37745c::t_2c53735b9cc653 47
+examples/records/src/main-application.js
+  s_930f3c9a37745c::t_6163a3eec43dbb 20-21,25-26,29-30
+planning/docs-v5/evidence/completeness-declarations.json
+  s_930f3c9a37745c::t_d8a79d3a10853f 1-16
+plugins/marionette/skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_f0d45a92313863 31
+skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_a6b1a3cc354926 31
+test/unit/collection-view/collection-view-reconciliation.spec.js
+  s_930f3c9a37745c::t_8fa8de139cba31 603-611
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "f416981bced7629ea93f4244c9016c6dbd53164e",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
