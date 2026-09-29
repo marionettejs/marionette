@@ -620,7 +620,7 @@
       "result": "addChildView/removeChildView/detachChildView return their supplied child or unchanged missing input; swapChildViews returns the owner.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "Manually added children are owned until removed/detached; detach preserves the child.",
-      "mutation": "Manual child order is preserved during managed replacement; swap moves existing child elements and keeps identity.",
+      "mutation": "Same-key source replacement is inserted at the previous child position before configured sorting; unaffected manual children retain identity. Source order and comparator rules determine final placement. Swap moves existing child elements and keeps identity.",
       "repetition": "Swapping a child with itself leaves it in place; ownership conflicts are rejected before adoption.",
       "destruction": "Destroy owns manual children too; additions to a destroyed owner cannot adopt new children.",
       "diagnostics": [],
@@ -651,8 +651,7 @@
         "swapChildViews"
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "Manual ownership operations are documented; placement of manual children during managed-source replacement is not explained."
+        "status": "documented"
       }
     },
     {
@@ -1689,7 +1688,7 @@
       "result": "Custom provider state/data retains opaque source identity and provider-owned event vocabulary.",
       "timing": "Native provider notifications drive configured callbacks; valid cleanup callbacks are required.",
       "ownership": "Multiple owners may borrow a state source; factory state alone is owned.",
-      "mutation": "A custom immutable store adapter can update list/detail contents while retaining child Views, focus and draft DOM.",
+      "mutation": "A custom immutable-store DataApi can read stable opaque source references and publish source events without replacing their Views; retaining input nodes, focus and drafts additionally depends on the View renderer and update strategy.",
       "repetition": "Destroying one owner releases only its subscriptions; remaining consumers continue.",
       "destruction": "Successful cleanup removes externally tracked subscriptions and precedes owned-source disposal; synchronous failures abort without rollback or attempt-all cleanup.",
       "diagnostics": [],
@@ -1701,6 +1700,10 @@
         {
           "file": "docs/api/shared/state.md",
           "heading": "Ownership and disposal"
+        },
+        {
+          "file": "docs/api/providers/data.md",
+          "heading": "Collection identity and observation"
         }
       ],
       "tests": [
@@ -1723,7 +1726,7 @@
       ],
       "documentation": {
         "status": "partial",
-        "reason": "State ownership and cleanup are documented; the profile also claims custom immutable data updates preserving child Views, focus and drafts, which these state-only sections do not explain."
+        "reason": "Provider ownership, opaque references and renderer-dependent retention are documented. A complete custom immutable-store integration demonstrating notification translation and retained DOM is still absent; the existing unit test is evidence of feasibility, not a consumer recipe."
       }
     },
     {
@@ -2194,8 +2197,7 @@
         "triggerMethod"
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "Hook/event dispatch is documented; the profile additionally prescribes avoiding recursive same-name forwarding, which the cited shared section does not explain."
+        "status": "documented"
       }
     },
     {
@@ -2213,10 +2215,10 @@
       ],
       "result": "Returns a defined option before the receiver property for string, number, and symbol keys, including 0 and the empty string; undefined options fall back. Omitted, null, and undefined keys return undefined.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
-      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "ownership": "No ownership transfer; this operation only reads or copies option values.",
       "mutation": "Reads options and receiver; does not call an option function.",
-      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
-      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "repetition": "Each call reads the current options and receiver.",
+      "destruction": "No subscriptions or disposal are added by this operation.",
       "diagnostics": [],
       "docs": [
         {
@@ -2238,8 +2240,7 @@
         "getOption"
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "Option precedence and function-valued options are documented; numeric and symbol property-key support in this profile is not explicit."
+        "status": "documented"
       }
     },
     {
@@ -2257,10 +2258,10 @@
       ],
       "result": "Returns undefined after copying selected defined options.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
-      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "ownership": "No ownership transfer; this operation only reads or copies option values.",
       "mutation": "Copies selected own enumerable options onto the receiver; safely owns __proto__.",
-      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
-      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "repetition": "Each call copies the current selected defined options.",
+      "destruction": "No subscriptions or disposal are added by this operation.",
       "diagnostics": [],
       "docs": [
         {
@@ -2270,6 +2271,10 @@
         {
           "file": "packages/utils/readme.md",
           "heading": "Building a component"
+        },
+        {
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -2282,8 +2287,7 @@
         "mergeOptions"
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "Option copying is documented; the profile additionally promises safe own-property treatment of __proto__, which the cited sections do not explain."
+        "status": "documented"
       }
     },
     {
@@ -2806,8 +2810,7 @@
         "isDestroyed"
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "Root and child ownership are documented; reselecting the displayed root while another root is prepared and rejecting adoption of directly displayed Region content need explicit coverage."
+        "status": "documented"
       }
     },
     {

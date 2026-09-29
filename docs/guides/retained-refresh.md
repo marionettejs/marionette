@@ -100,7 +100,7 @@ must survive leaving the page, give that draft an appropriate longer-lived owner
 This example chooses the most recently requested summary. Starting another
 refresh aborts the previous request. The controller's identity also checks which
 operation owns the result; its aborted signal prevents an old run from committing
-after a later start. The check does not assume every transport honors abort.
+after a later start. The check does not assume every transport honors abort. An [external host](existing-ui.md) must cancel or destroy its feature when removing its mount; removing DOM alone does not end Application authority.
 
 A current failure leaves the previous summary visible and displays its error.
 An obsolete success or failure leaves newer work alone. `refresh()` resolves

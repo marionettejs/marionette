@@ -17,14 +17,17 @@ export const MainApplication = Application.extend({
   openRecords() {
     const page = this.getView();
     return this.getChildApp('records').start({ region: page.getRegion('content') })
-      .catch(error => this.showRecordsError(error));
+      .catch(error => this.showRecordsError(error))
+      .catch(error => console.error('Could not recover records.', error));
   },
   restartRecords() {
     return this.getChildApp('records').restart()
-      .catch(error => this.showRecordsError(error));
+      .catch(error => this.showRecordsError(error))
+      .catch(error => console.error('Could not recover records.', error));
   },
   closeRecords() {
-    return this.getChildApp('records').stop();
+    return this.getChildApp('records').stop()
+      .catch(error => console.error('Could not close records.', error));
   },
   async showRecordsError(error) {
     const page = this.getView();

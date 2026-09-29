@@ -2,6 +2,8 @@
 
 These guides target **5.0.0-rc.2**. This prerelease is being verified as local candidate tarballs. Use the docs bundled with the candidate you installed. The reference and learning paths below can be read independently. The reference index links the supported classes and shared contracts.
 
+For an existing application, choose its task below and read the installed contract before changing code.
+
 ## Start here
 
 1. [Install and render a View](quick-start.md).
@@ -18,10 +20,8 @@ For agent-led work, use the [agent workflow](agents.md) to find version-matched 
 - [Edit a View’s own model](guides/local-editing.md): local interaction and observable updates.
 - [Refresh data while retaining UI](guides/retained-refresh.md): update an active feature without rebuilding its shell or draft.
 - [Add behavior to existing HTML](guides/existing-html.md): enhance existing markup and manage its lifetime.
-
 - [Integrate with existing UI](guides/existing-ui.md): mount, communicate, and clean up under another UI owner.
 - [Connect navigation](guides/routing.md): route destinations, retain a shell, and own browser subscriptions.
-
 - [Work with lists](guides/lists.md): row identity, sorting, filtering, and empty presentation.
 - [Integrate a control](guides/widgets.md): connect an imperative DOM API to View lifetime.
 - [Accessibility and rendering](guides/accessibility-rendering.md): keyboard interaction, focus, and text/HTML boundaries.

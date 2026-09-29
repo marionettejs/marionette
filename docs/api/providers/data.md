@@ -38,6 +38,8 @@ Every model must occur once. Keys must be non-null, unique and unchanged while t
 
 Keep source events separate from collection notifications. A Model's `change` event can drive a row's `modelEvents`; it does not by itself mean the collection observer emits an update, sorts, or refilters. See [`@mnjs/data` providers](../../packages/data.md#providers) for that package's collection event translation. Reporting one mutation both as a same-object update pair and as a row render event can render that row twice. Use the [CollectionView reference](../collection-view.md) for display/lifetime operations.
 
+A custom provider may use stable opaque references, such as entity IDs, and read their current attributes from an immutable store. Keeping those references stable allows existing Views to react through source events; retaining a View does not itself preserve its input nodes or drafts. DOM retention depends on that View's renderer and update strategy.
+
 ## StateApi
 
 | Method | Contract |

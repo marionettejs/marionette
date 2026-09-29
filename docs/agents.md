@@ -29,7 +29,7 @@ Start with the task below, then follow links to the exact class or provider refe
 | Connect URLs and destination lifetimes | [Navigation](guides/routing.md), [Application composition](api/application.md#child-applications) |
 | Show, replace, or retain child UI | [Region](api/region.md), [View Regions and existing elements](api/view.md) |
 | Render, filter, or sort repeated children | [Lists](guides/lists.md), [CollectionView](api/collection-view.md) |
-| Share observable data and state | [@mnjs/data](packages/data.md), [state](api/shared/state.md), [data providers](api/providers/data.md) |
+| Share observable data and state | [state](api/shared/state.md), [data providers](api/providers/data.md), [optional @mnjs/data](packages/data.md) |
 | Connect events and clean up subscriptions | [Events](api/shared/events.md), [child and entity bindings](api/shared/view-bindings.md) |
 | Connect channels and request/reply handlers | [Radio](packages/radio.md), [class Radio bindings](api/shared/common.md#declarative-radio-bindings) |
 | Configure a renderer or another data layer | [Optional adapters](packages/adapters.md), [Runtime configuration](api/runtime.md), [DOM providers](api/providers/dom.md), [data providers](api/providers/data.md) |

@@ -345,3 +345,35 @@ test('PageView uses the original HTML and controls without rendering', async({ p
   await expect(page.locator('main')).toBeEmpty();
   expect(await originalHeading.evaluate(element => element.isConnected)).toBe(true);
 });
+
+test('UI close reports a rejected stop without an unhandled Promise', async({ page }) => {
+  const unhandled = [];
+  const reports = [];
+  page.on('pageerror', error => unhandled.push(error.message));
+  page.on('console', message => { if (message.type() === 'error') { reports.push(message.text()); } });
+  await openRecords(page);
+  await page.evaluate(async() => {
+    const { application } = await import('/src/main.js');
+    application.getChildApp('records').prepareStop = () => Promise.reject(new Error('Stop blocked'));
+  });
+  await page.getByRole('button', { name: 'Close records', exact: true }).click();
+  await expect.poll(() => reports.some(value => value.includes('Could not close records.'))).toBe(true);
+  await expect(page.getByRole('status')).toHaveText('2 records');
+  expect(unhandled).toEqual([]);
+});
+
+test('retry intent reports failure during recovery without replacing the live feature', async({ page }) => {
+  const unhandled = [];
+  const reports = [];
+  page.on('pageerror', error => unhandled.push(error.message));
+  page.on('console', message => { if (message.type() === 'error') { reports.push(message.text()); } });
+  await openRecords(page);
+  await page.evaluate(async() => {
+    const { application } = await import('/src/main.js');
+    application.getChildApp('records').prepareStop = () => Promise.reject(new Error('Stop blocked'));
+    application.getView().triggerMethod('retry:records');
+  });
+  await expect.poll(() => reports.some(value => value.includes('Could not recover records.'))).toBe(true);
+  await expect(page.getByRole('status')).toHaveText('2 records');
+  expect(unhandled).toEqual([]);
+});

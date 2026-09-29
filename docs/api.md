@@ -1,6 +1,6 @@
 # API reference
 
-These references target **5.0.0-rc.2**. Use the page for the class or contract you need. The reference is being rebuilt. Partial and missing coverage is identified below.
+These references target **5.0.0-rc.2**. Use the page for the class or contract you need. Class pages define supported APIs and link shared contracts; task guides show how to use them.
 
 ## Core classes
 
@@ -44,10 +44,16 @@ Use these contracts when implementing or adapting an integration. For configurat
 
 [@mnjs/adapters](packages/adapters.md) covers optional data and DOM integrations, their imports, configuration, observation, and cleanup.
 
-## Integration guides and remaining coverage
+## Integration and task guides
 
 [Renderer and data setup](integrations/setup.md) connects Lit and `@mnjs/data` to Marionette. Integration guides explain configuration and use; package references define the APIs supplied by each package.
 
-[Check and debug an application](tooling.md) covers consumer lint, declaration checks, and diagnostic lookup. [Practical TypeScript](guides/typescript.md) covers options, handlers, state and lifecycle results. [Migration](guides/migration.md) and [consumer testing](guides/testing.md) provide upgrade and verification paths. [Existing UI](guides/existing-ui.md) and [navigation](guides/routing.md) cover mounting and destination ownership. [Lists](guides/lists.md), [imperative controls](guides/widgets.md), [accessibility/rendering](guides/accessibility-rendering.md), and [production](guides/production.md) provide further task paths. Class pages link to the relevant [shared configuration contracts](api/shared/view-bindings.md#class-configuration); Region documents its own DOM setter.
+[Check and debug an application](tooling.md) covers consumer lint, declaration checks, and diagnostic lookup. [Practical TypeScript](guides/typescript.md) covers options, handlers, state and lifecycle results. [Migration](guides/migration.md) and [consumer testing](guides/testing.md) provide upgrade and verification paths.
+
+[Existing UI](guides/existing-ui.md) and [navigation](guides/routing.md) cover mounting and destination ownership. [Lists](guides/lists.md), [imperative controls](guides/widgets.md), [accessibility/rendering](guides/accessibility-rendering.md), and [production](guides/production.md) provide further task paths.
+
+Class pages link to the relevant [shared configuration contracts](api/shared/view-bindings.md#class-configuration); Region documents its own DOM setter.
 
 For a first runnable result, use the [quick start](quick-start.md). For composition guidance, see [architecture](architecture.md).
+
+Detailed coverage still pending: a complete custom immutable-store integration, and exact Application destination-binding order when lifecycle operations overlap or completion hooks start another cycle. The [provider contracts](api/providers/data.md) and [Application lifecycle](api/application.md) describe the currently documented boundaries.

@@ -34,17 +34,16 @@ import type { Constructed, Merge, ArgumentsFor, DefaultOptions, OptionsFor, Stat
 /**
  * Configure a component with data-first templates and managed child Regions.
  * @example
+ * // This example uses the optional Lit adapter for text interpolation.
  * import { View } from 'marionette';
- * function escapeHtml(value) {
- *   const text = document.createElement('span');
- *   text.textContent = String(value);
- *   return text.innerHTML;
- * }
+ * import LitDomApi from '@mnjs/adapters/dom/lit-html';
+ * import { html } from 'lit-html';
+ * const Ready = View.extend({ template: () => html`Ready` }).setDomApi(LitDomApi);
  * const Screen = View.extend({
- *   template: ({ title }) => `<h1>${escapeHtml(title)}</h1><div class="body"></div>`,
+ *   template: ({ title }) => html`<h1>${title}</h1><div class="body"></div>`,
  *   regions: { body: '.body' },
- *   onRender() { this.showChildView('body', new View({ template: () => 'Ready' })); }
- * });
+ *   onRender() { this.showChildView('body', new Ready()); }
+ * }).setDomApi(LitDomApi);
  * const screen = new Screen({ model: { title: 'Posts' } });
  * // Show through a Region; destroy that Region at teardown.
  */

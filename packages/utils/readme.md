@@ -70,3 +70,10 @@ Event-building helpers `buildEventArgs`, `callHandler`, and
 `onceWrap`, plus `uniqueId`, are shared by core and Radio. `buildEventArgs`
 preserves each literal string name or own event-map key without splitting
 whitespace.
+
+## Version-matched reference
+
+When the matching Marionette candidate is installed, locate its package root with
+`require.resolve('marionette/package.json')`. Read `docs/packages/utils.md` under
+that root for all exported helpers, receiver and return contracts, cleanup, and
+TypeScript types. Core remains unnecessary for standalone utils use.

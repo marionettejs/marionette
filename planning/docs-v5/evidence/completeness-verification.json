@@ -1,0 +1,38 @@
+{
+  "baseRevision": "47cb69d164091f47e5796173d02eb8d2259862c7",
+  "sourceDirty": true,
+  "checks": {
+    "fullUnit": {
+      "passed": true,
+      "tests": 2125,
+      "logSha256": "b283320e5ca0e655ad2f203928370cc487e0765423ffdc02d8d026d0f6da8e65"
+    },
+    "tooling": {
+      "passed": true,
+      "tests": 380,
+      "logSha256": "009e19a3b03e3ca50542f6ce3753c6f2cb189155ea1a91b1a031c3f98fd33d09"
+    },
+    "guideBrowser": {
+      "passed": true,
+      "tests": 24,
+      "logSha256": "a351ec9f060d1551e3646e6648e05abdd611055911b49efbd53b0671d53c29f7"
+    },
+    "recordsBrowser": {
+      "passed": true,
+      "tests": 54,
+      "logSha256": "9ed9af75fc144973a97dc89c3d91c2a619d77208b34c26ec26751e4c88c632cf"
+    },
+    "recordsFinalTargetedBrowser": {
+      "passed": true,
+      "tests": 6,
+      "logSha256": "e5eebded00d226bfdd270c03e49774091b56c3582b57e146b968321297ae63ff"
+    },
+    "finalContractRetrieval": {
+      "passed": true,
+      "tests": 16,
+      "logSha256": "fe27887662318a0f69ff1a9f1545486b9d703e3194492e85f8ba207a71e86d4a"
+    }
+  },
+  "limits": "Author and deterministic execution checks, not independent reader effectiveness or a real consumer migration.",
+  "auditedDiffSha256": "d62ac47f0cfdceabd0cf65c0fecaeb5ee3cafc1de906a1faac71800ccacb1ab2"
+}

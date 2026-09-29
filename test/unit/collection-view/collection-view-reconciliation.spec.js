@@ -600,6 +600,15 @@ describe('CollectionView normalized reconciliation', function() {
         [manual, second, first] : [second, first, manual]);
       expect(view.children.findByModel(manual)).to.equal(manualView);
       expect(manualView.renderCount).to.equal(1);
+
+      const replacement = { id: 1, rank: 0, name: 'replacement' };
+      source.models = [second, replacement];
+      source.notify({ kind: 'update', added: [], removed: [],
+        updated: [{ previous: first, current: replacement }] });
+      expect(view.children.map(child => child.model)).to.deep.equal(viewComparator === undefined ?
+        [manual, second, replacement] : [second, replacement, manual]);
+      expect(view.children.findByModel(manual)).to.equal(manualView);
+      expect(manualView.renderCount).to.equal(1);
       view.destroy();
     });
   });

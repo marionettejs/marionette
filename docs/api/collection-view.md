@@ -103,7 +103,7 @@ Sorting changes View order without changing the source collection. Comparators o
 | `setComparator(value, options?)` → `this` | Stores the value and calls `sort()` if its identity changed, unless `preventRender` is true. |
 | `removeComparator(options?)` → `this` | Clears the explicit comparator. With a collection and `sortWithCollection: true`, this restores the source-order comparator. |
 
-`viewComparator: false` disables comparator sorting. To ignore source reorder notifications as well, use `sortWithCollection: false`. With `sortWithCollection: true`, source updates establish source order before custom comparison, so equal-key ties follow the source. The default source-order comparator places manual children without a source model before collection rows. Use an explicit comparator or indexed insertion when you need another order.
+`viewComparator: false` disables comparator sorting. To ignore source reorder notifications as well, use `sortWithCollection: false`. With `sortWithCollection: true`, source updates establish source order before custom comparison, so equal-key ties follow the source. The default source-order comparator places manual children before collection rows when their model is missing or absent from the collection. Use an explicit comparator or indexed insertion when you need another order.
 
 Configure initial options before rendering. The setters do not check readiness: their default behavior immediately runs a presentation pass. Use `{ preventRender: true }` to defer a changed setting. Apply a deferred comparator with `sort()`; a deferred filter with `filter()` or `sort()`. Full rendering applies both.
 
@@ -172,6 +172,8 @@ These operations do not change the source collection. For collection-backed rows
 For addition, `{ index, preventRender }` may be supplied as options; a non-null options index takes precedence over the positional index. `preventRender` defers child presentation, not adoption or the parent's initial render. Destroyed/falsy incoming Views and additions to a destroying/destroyed list return unchanged. Already owned incoming Views throw `MN0003`.
 
 A child that destroys itself is removed from the list automatically. Full `render()` destroys manual children too and rebuilds only collection rows.
+
+A same-key source update inserts its replacement View at the old child's position before sorting. Unaffected manual children retain identity; their placement follows the [sorting rules](#sorting), including preceding collection rows under the default source-order comparator.
 
 ## Lifecycle and extension points
 

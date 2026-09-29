@@ -146,6 +146,8 @@ Parent stop visits children sequentially in registration order before destroying
 
 `setView` → the root View's `showChildView` → `showView` permits composition before attachment. Selecting a replacement leaves the displayed root in place until the replacement is shown. Showing transfers ownership to the Region; Application tracks which root it displayed. Stop/destroy clean up both a prepared root that was never shown and the displayed root.
 
+Reselecting the Application's own displayed root destroys any pending prepared replacement. Content shown directly through a Region is Region-owned; `setView` and `showView` reject adopting it with `MN0003`.
+
 A selected View must be live and unowned (`MN0007` for destroyed, `MN0003` for another owner). Selecting the same root is harmless. During/after Application destruction, set/show operations do nothing and return the supplied View; they do not adopt it. The caller remains responsible for it.
 
 An Application can own [existing page markup](view.md#existing-elements) with `setView(new PageView({ el, template: false }))` without a destination Region or show call. Stop destroys that View and removes its element; a later run needs markup again. An Application can also have no root UI.

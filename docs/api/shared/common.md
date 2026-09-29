@@ -30,7 +30,7 @@ Construction creates `this.options` by shallowly combining the class's `options`
 
 | Instance method | Contract and return value |
 | --- | --- |
-| `getOption(name)` | Returns `this.options[name]` when it is not `undefined`; otherwise returns `this[name]`. Preserves `false`, `0`, `''`, and `null`. Does not invoke a function-valued option. An omitted/null name returns `undefined`. |
+| `getOption(name)` | Accepts a string, number, or symbol property key. Returns `this.options[name]` when it is not `undefined`; otherwise returns `this[name]`. Preserves `false`, `0`, `''`, and `null`. Does not invoke a function-valued option. An omitted/null name returns `undefined`. |
 | `mergeOptions(options, keys)` | Copies listed own enumerable string properties from `options` onto this instance, skipping `undefined` values. Use an array of option names. Returns `undefined`; nullish options do nothing. |
 | `normalizeMethods(bindings)` | Returns a new map with each function value preserved and each method-name string resolved on this instance/prototype. Does not bind the functions or modify the input. Falsy input returns `undefined`. A missing/nonfunction handler throws `MN0019`. |
 

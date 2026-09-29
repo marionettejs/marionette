@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "35752371804ce86fb10fb5e8ca8a2c336c28a7ea7fedb1f42ff09338cf18ad0e",
+  "semanticsSha256": "73882688208f701c6e50162a18f5ff9171050ba0ffb1c000d3a4b90f0acd03c2",
   "entrypoints": [
     {
       "name": "marionette",
@@ -7487,8 +7487,7 @@
     },
     {
       "id": "manual-children",
-      "status": "partial",
-      "reason": "Manual ownership operations are documented; placement of manual children during managed-source replacement is not explained.",
+      "status": "documented",
       "docs": [
         {
           "file": "docs/api/collection-view.md",
@@ -7831,7 +7830,7 @@
     {
       "id": "provider.custom-state-consumers",
       "status": "partial",
-      "reason": "State ownership and cleanup are documented; the profile also claims custom immutable data updates preserving child Views, focus and drafts, which these state-only sections do not explain.",
+      "reason": "Provider ownership, opaque references and renderer-dependent retention are documented. A complete custom immutable-store integration demonstrating notification translation and retained DOM is still absent; the existing unit test is evidence of feasibility, not a consumer recipe.",
       "docs": [
         {
           "file": "docs/api/providers/data.md",
@@ -7840,6 +7839,10 @@
         {
           "file": "docs/api/shared/state.md",
           "heading": "Ownership and disposal"
+        },
+        {
+          "file": "docs/api/providers/data.md",
+          "heading": "Collection identity and observation"
         }
       ]
     },
@@ -7974,8 +7977,7 @@
     },
     {
       "id": "owner-trigger-method",
-      "status": "partial",
-      "reason": "Hook/event dispatch is documented; the profile additionally prescribes avoiding recursive same-name forwarding, which the cited shared section does not explain.",
+      "status": "documented",
       "docs": [
         {
           "file": "docs/api/shared/events.md",
@@ -7985,8 +7987,7 @@
     },
     {
       "id": "owner-get-option",
-      "status": "partial",
-      "reason": "Option precedence and function-valued options are documented; numeric and symbol property-key support in this profile is not explicit.",
+      "status": "documented",
       "docs": [
         {
           "file": "docs/api/shared/common.md",
@@ -7996,8 +7997,7 @@
     },
     {
       "id": "owner-merge-options",
-      "status": "partial",
-      "reason": "Option copying is documented; the profile additionally promises safe own-property treatment of __proto__, which the cited sections do not explain.",
+      "status": "documented",
       "docs": [
         {
           "file": "docs/api/shared/common.md",
@@ -8006,6 +8006,10 @@
         {
           "file": "packages/utils/readme.md",
           "heading": "Building a component"
+        },
+        {
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ]
     },
@@ -8125,8 +8129,7 @@
     },
     {
       "id": "application-composition",
-      "status": "partial",
-      "reason": "Root and child ownership are documented; reselecting the displayed root while another root is prepared and rejecting adoption of directly displayed Region content need explicit coverage.",
+      "status": "documented",
       "docs": [
         {
           "file": "docs/api/application.md",
@@ -8948,14 +8951,14 @@
     "src/modules/application.ts": "67dcda40b4c273a054c603a681a78024eb44debd686c25191d7a58aa404dc342",
     "src/modules/behavior.ts": "e79fb82f0a51c8ab788bc0846b1c5c2d9a6d2db7c4dfc6c000ee4a31623174cc",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
-    "src/modules/collection-view.ts": "162f2114825d9bf67df0efd3fb7559e57a6dcfa0828f8eb0e71a9203e6a2474a",
+    "src/modules/collection-view.ts": "794aa457311316ed7131018aa906b5302e2563445081f06451ceb1846770c87c",
     "src/modules/common/build-region.ts": "69fc222800674736c3385928e8a4b07932c1fd5ca7237b48fb4ab8f3a309022b",
     "src/modules/common/chainable-methods.ts": "5d61465f3de8bc0f84a3491e24067f7a711f2a7ebae08cb1a3d94375d9d153a2",
     "src/modules/common/monitor-view-events.ts": "e4f221ca598e2ce63c1cff766edbb2221d7cc7d1cb527086689e08b622a4f655",
     "src/modules/common/view.ts": "cd62997f30b7120e61f5067f876e612793dba629dfe942b46f156c861273c67e",
     "src/modules/object.ts": "23dacb7eacf2448ccbb690caa92195b49b992def43e4ef7cb598b50c03224100",
     "src/modules/region.ts": "9de01bcb282653bae13e7748dbab971d289ec1ad22877af753e639acf9e41de8",
-    "src/modules/view.ts": "ed458f9fad3452a9468fcc9bb8f1b85a7432d967d1caf2b36c18f8fb6d1b7a86",
+    "src/modules/view.ts": "8252fd94d9422d18e710418327e3726a98503f0081bf950390e265cabd49d966",
     "src/runtime-id.ts": "3636769dee054da16eaa2171f2badc2a71a528dedb41ea1d4ac3342e09060087",
     "src/runtime/data-api.ts": "f962aeba9bc33e10a1db3fc0c098d05a23bc54250d781f5df371bd11da419b66",
     "src/runtime/dom-api.ts": "6dcaec5e6e4c7e14c84da32daeb8ff5b8f85ae24ec1f82ab9af2054ed9166475",
@@ -8967,17 +8970,17 @@
   },
   "evidence": {
     "config/diagnostics/catalog.json": "45360deea6dfe7d531b256dbbebb443e9fa578fb0d43fc9becce7ab5126c76bf",
-    "docs/api/application.md": "cbd4524bfc28aeb02c7c2405396f5dbd8793dc4d3b6d809c2c1a9c93f2ea7ddd",
+    "docs/api/application.md": "2a3aacbbb3194e07dc96cc8a3168dcb2a88f0dc38288b43c93ab8dce769360aa",
     "docs/api/behavior.md": "d83fce01476376a3101ebb6bd77363134f841367422fe775b8431dc38128c7fa",
-    "docs/api/collection-view.md": "5ef7e80c9c07b8a9944bcc4e47ad4a22ee97ecb08f37b74c883d95d44e911030",
+    "docs/api/collection-view.md": "a6ef68cdf1c8fd77fd47a0ff835e51a1714d23352c8d0c13d28bf83df586d94f",
     "docs/api/errors.md": "df341352b5380aeeafa0f2f13a110eebad41f378e8e33c103f8a10975e1ea1ea",
     "docs/api/mnobject.md": "230e69cbdb697142c4d2a6979a925395cae5f71232dfa4f9ce21f287c707f1fa",
-    "docs/api/providers/data.md": "a9e9469565edaa1ce37e00032395083aaf5af910580561328039aeaa414b4e0b",
+    "docs/api/providers/data.md": "4354afe1dedf5ab53ea9e507fb07055fb37e6b2cb356585619507e3d2158f408",
     "docs/api/providers/dom.md": "c27ba850a18003b0fc15f9dfc8dec36e207b527bafb15b0ba87c5602cb72e57f",
     "docs/api/region.md": "ca767ce14321648d39d269185c4adefc87d42c9dd338bc30bfc145e97486c632",
     "docs/api/runtime.md": "d487aa88bcef315d46b14c231c8be9c682c7bf8037c9ffb80a63b5f831c2ad4c",
-    "docs/api/shared/common.md": "29813f87b9affad1c3c820783cbb221f98cb4a99e700417dc620e276aeae7010",
-    "docs/api/shared/events.md": "7fc4d9923159b7f742c02077f9269da80793ccdb7d817895038cd1f66d3783cb",
+    "docs/api/shared/common.md": "8982228a2345240414e35ba4f0967e95530f5966fe1254efd9a09575706d5b6a",
+    "docs/api/shared/events.md": "55cae66f2ac4b5de06cf68763a4f841a9d7ff55c065de8e4112df29109925051",
     "docs/api/shared/state.md": "9c3263569e68789585a49e6065e1b9cd88efa928dbe5e8b8abe62cc0b748a3ae",
     "docs/api/shared/view-bindings.md": "7bb193ccf1541859eabf927f45217febd8b0251ab4c9f74c0fdfc218ded5b167",
     "docs/api/view.md": "b988f7f08e79d06d5be6bced589fdd1afc84c60d6d3d27a8fc62eaecc1b9e4e6",
@@ -8986,7 +8989,7 @@
     "docs/packages/data.md": "6a24f4e1c6441f1a73ec9a483422b269ff8613ee1cb9d86dcd2b8966e7096d52",
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
     "docs/packages/utils.md": "b022f7f2a958673aa40da59d12591316ef6773228f2dfc93f0af9a901878cb3d",
-    "packages/utils/readme.md": "813c51a262532361e5c1a0f16f8e3cabc34a1404d9533672480d67fe8b60d05e",
+    "packages/utils/readme.md": "875f359fc7e4c8129fe1c743d4517547706dbd7f99f37163c315fa805fd71dc9",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
     "test/unit/application-child-declarations.spec.js": "3b98e033f99902a8bff5c533c03599375381da4b4a01b9014e825eb21cb80e2b",
     "test/unit/application-child-lifecycle.spec.js": "e69e6a140e341563b49333d09bd1c483151f9f4b2a494960a4dfc78bb81f8dcb",
@@ -9003,7 +9006,7 @@
     "test/unit/behavior-ui-contract.spec.js": "65def27b40f17e3d931803faeff7c9dbb3c580e14f157fa5d2f8145fb95c1761",
     "test/unit/collection-view/collection-view-children.spec.js": "3383be2e1def6c561ce827bb4742b7d57e7f2396e99b0fd2b39b601accc327e4",
     "test/unit/collection-view/collection-view-lifecycle.spec.js": "6d331ff97770fcc755fc4f5ddaef20372ac000fa2948d53ead4670b7b56801ec",
-    "test/unit/collection-view/collection-view-reconciliation.spec.js": "b65841d3e25d4ab13e55b498513548df8892d8494fee48077de9386b5ba2fc7e",
+    "test/unit/collection-view/collection-view-reconciliation.spec.js": "372bede26503051afad9e77f8c5acd0cd1a636eb5c4acd8df3adb8b6b136f6db",
     "test/unit/collection-view/collection-view-sorting.spec.js": "c20347ce2d7ef8352a5b5441a5a5b9d98537ca4ee5880ebb1d9b15740d9627df",
     "test/unit/common/bind-events.spec.js": "52704cfd2974216d9558751c7ba614e001a52a0606b1d3945d021988191c4f48",
     "test/unit/common/bind-request.spec.js": "44d59624cfd5cfd4899078b90cb700f3a175cdfb09f13191059d07909548a1e4",

@@ -28,7 +28,7 @@ The paths below are relative to the installed package, not this skill directory.
 | Connect URLs and destination lifetimes | `docs/guides/routing.md`, `docs/api/application.md` |
 | Show, replace, or retain child UI | `docs/api/region.md`, `docs/api/view.md` |
 | Render, filter, or sort repeated children | `docs/guides/lists.md`, `docs/api/collection-view.md` |
-| Share observable data and state | `docs/packages/data.md`, `docs/api/shared/state.md`, `docs/api/providers/data.md` |
+| Share observable data and state | `docs/api/shared/state.md`, `docs/api/providers/data.md`, `docs/packages/data.md` |
 | Connect events and clean up subscriptions | `docs/api/shared/events.md`, `docs/api/shared/view-bindings.md` |
 | Connect channels and request/reply handlers | `docs/packages/radio.md`, `docs/api/shared/common.md` |
 | Configure a renderer or another data layer | `docs/packages/adapters.md`, `docs/api/runtime.md`, `docs/api/providers/dom.md`, `docs/api/providers/data.md` |

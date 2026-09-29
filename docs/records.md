@@ -44,7 +44,7 @@ The Application chooses DetailView for a selected record or EmptyDetailView when
 
 | Source | Responsibility |
 | --- | --- |
-| [main-application.js](../examples/records/src/main-application.js) | Own the page and registered Records child; connect controls and handle startup failures. |
+| [main-application.js](../examples/records/src/main-application.js) | Own the page and registered Records child; connect controls and report startup, recovery and close failures. |
 | [records-application.js](../examples/records/src/records-application.js) | Prepare records, own their collection and selection, coordinate the ready UI. |
 | [records-views.js](../examples/records/src/records-views.js) | Render loading, error, list, and detail content. Emit intent. Regions and CollectionView manage their child Views. |
 | [records-api.js](../examples/records/src/records-api.js) | Implement `list({ signal })`, returning `{ id, title, description }` objects. |

@@ -46,6 +46,8 @@ All methods in this table return the receiver. Removing a one-time callback can 
 
 `triggerMethod('before:render', view)` calls `onBeforeRender(view)` before emitting `before:render`. Each colon-separated segment begins with a capital letter in the hook name. Hooks come from the instance/prototype, not from `options`.
 
+Calling `triggerMethod` with that same name inside its hook invokes the hook again. Forward a distinct intent, or use `trigger` when only listeners should be notified.
+
 Delivery is synchronous and follows registration order for each event. Callback return values do not cancel an event. A synchronous exception stops the dispatch and propagates to the caller. If the hook throws, `triggerMethod` does not emit the event. Returned Promises are not awaited: an asynchronous hook's result is returned while event listeners run immediately.
 
 An `all` subscription observes event names as well as payloads. It is useful for event forwarding; ordinary feature subscriptions should name the intent they need.

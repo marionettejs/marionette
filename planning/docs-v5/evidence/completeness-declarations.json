@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "package": "marionette@5.0.0-rc.2",
+  "sha256": "f7413fae87633ccfd27408821f9891eefd38bbcc616d4fae9d6477594d3033b0",
+  "declarations": [
+    "package/dist/types/esm/modules/view.d.ts",
+    "package/dist/types/esm/modules/collection-view.d.ts",
+    "package/dist/types/cjs/modules/view.d.ts",
+    "package/dist/types/cjs/modules/collection-view.d.ts"
+  ],
+  "checks": [
+    "optional Lit integration appears in packaged ESM and CJS examples",
+    "no escapeHtml example helpers"
+  ],
+  "limits": "Tarball content inspection; declaration examples were executed separately with public exports."
+}
