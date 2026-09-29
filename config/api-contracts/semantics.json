@@ -55,7 +55,7 @@
       "kind": "type",
       "documentation": {
         "status": "partial",
-        "reason": "Class, native data, and Radio references cover their types; standalone utility and adapter type exports still lack a complete reference."
+        "reason": "Class and companion references cover their exported types; practical guidance for typed initialization, event narrowing, and lifecycle result composition remains incomplete."
       }
     },
     {
@@ -1453,12 +1453,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/adapters/readme.md",
-          "heading": "jQuery DomApi"
-        },
-        {
-          "file": "docs/api/providers/dom.md",
-          "heading": "DomApi"
+          "file": "docs/packages/adapters.md",
+          "heading": "jQuery"
         }
       ],
       "tests": [
@@ -1472,8 +1468,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "The README shows configuration and root ownership; jQuery-specific query/result shapes and detached-listener preservation are not covered by the native DomApi reference."
+        "status": "documented"
       }
     },
     {
@@ -1586,7 +1581,7 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/adapters/readme.md",
+          "file": "docs/packages/adapters.md",
           "heading": "Backbone"
         }
       ],
@@ -1609,8 +1604,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "The README documents configuration and disposal; native event payloads and Backbone collection sort/remove/reset translation and retained-child guarantees need explicit reference coverage."
+        "status": "documented"
       }
     },
     {
@@ -1630,7 +1624,7 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/adapters/readme.md",
+          "file": "docs/packages/adapters.md",
           "heading": "XState actors"
         }
       ],
@@ -1657,8 +1651,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "The README documents actor identity, selection and ownership; its observable reorder/removal effects on child Views and independent consumer cleanup are not fully explained."
+        "status": "documented"
       }
     },
     {
@@ -1998,12 +1991,12 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/adapters/readme.md",
-          "heading": "Morphdom"
+          "file": "docs/packages/adapters.md",
+          "heading": "DOM contents"
         },
         {
-          "file": "packages/adapters/readme.md",
-          "heading": "DOM contents"
+          "file": "docs/packages/adapters.md",
+          "heading": "Morphdom"
         }
       ],
       "tests": [
@@ -2034,12 +2027,12 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/adapters/readme.md",
-          "heading": "Lit HTML"
+          "file": "docs/packages/adapters.md",
+          "heading": "DOM contents"
         },
         {
-          "file": "packages/adapters/readme.md",
-          "heading": "DOM contents"
+          "file": "docs/packages/adapters.md",
+          "heading": "Lit HTML"
         }
       ],
       "tests": [

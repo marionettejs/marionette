@@ -132,10 +132,34 @@
     "section": "Companion packages"
   },
   {
+    "source": "docs/packages/adapters.md",
+    "route": "docs/packages/adapters",
+    "title": "@mnjs/adapters: optional integrations",
+    "section": "Companion packages"
+  },
+  {
     "source": "docs/integrations/setup.md",
     "route": "docs/integrations/setup",
     "title": "Setup and data",
     "section": "Integration guides"
+  },
+  {
+    "source": "docs/guides/local-editing.md",
+    "route": "docs/guides/local-editing",
+    "title": "Edit a View’s own model",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/retained-refresh.md",
+    "route": "docs/guides/retained-refresh",
+    "title": "Refresh data while retaining UI",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/existing-html.md",
+    "route": "docs/guides/existing-html",
+    "title": "Add behavior to existing HTML",
+    "section": "Guides"
   },
   {
     "source": "docs/records.md",

@@ -18,14 +18,16 @@ The paths below are relative to the installed package, not this skill directory.
 | --- | --- |
 | Install and render a first View | `docs/quick-start.md`, `docs/integrations/setup.md` |
 | Choose ownership and lifetimes | `docs/architecture.md`, `docs/api.md` |
-| Handle a local control or edit | `docs/api/view.md`, `docs/api/shared/view-bindings.md` |
+| Handle a local control or edit | `docs/guides/local-editing.md`, `docs/api/view.md`, `docs/api/shared/view-bindings.md` |
 | Prepare, start, stop, or refresh a feature | `docs/api/application.md`, `docs/architecture.md` |
+| Refresh while retaining a draft or shell | `docs/guides/retained-refresh.md`, `docs/api/application.md` |
+| Enhance existing markup | `docs/guides/existing-html.md`, `docs/api/view.md` |
 | Show, replace, or retain child UI | `docs/api/region.md`, `docs/api/view.md` |
 | Render, filter, or sort repeated children | `docs/api/collection-view.md` |
 | Share observable data and state | `docs/packages/data.md`, `docs/api/shared/state.md`, `docs/api/providers/data.md` |
 | Connect events and clean up subscriptions | `docs/api/shared/events.md`, `docs/api/shared/view-bindings.md` |
 | Connect channels and request/reply handlers | `docs/packages/radio.md`, `docs/api/shared/common.md` |
-| Configure a renderer or another data layer | `docs/api/runtime.md`, `docs/api/providers/dom.md`, `docs/api/providers/data.md` |
+| Configure a renderer or another data layer | `docs/packages/adapters.md`, `docs/api/runtime.md`, `docs/api/providers/dom.md`, `docs/api/providers/data.md` |
 | Check types, lint, or diagnose a failure | `docs/tooling.md`, `docs/api/errors.md` |
 | Apply the concepts in a composed feature | `docs/records.md` |
 <!-- task-routes:end -->

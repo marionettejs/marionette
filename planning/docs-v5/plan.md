@@ -160,3 +160,12 @@ Continue closing the framework-wide coverage inventory while using trial failure
 Choose each subsequent slice from the remaining reference and reader needs in the inventory. Package installation and discovery checks are rerun when their inputs change. Retired-document tests and the production documentation pipeline need their own migration work before a clean release claim.
 
 Before a paid or model-based comparison, make the task, rubric, reference coverage, isolation, model/client, tools, and budget concrete and obtain the required configuration approval. Existing example tests and Claude reviews do not establish teaching effectiveness. Local commits on `docs/v5-reset` preserve reviewed increments; publishing and pushing require separate authorization.
+
+## Upstream comparison checkpoint — 2026-09-30
+
+The initial independent design is complete enough for a read-only coverage comparison.
+The [current reassessment](adapters-guides-results.md) compares reader needs against
+upstream v5 at a fixed revision. Prioritize migration and runnable consumer testing
+before treating this corpus as a complete replacement. Run an effectiveness comparison
+only after freezing compatible documentation conditions against the same runtime;
+existing branch runtime differences prevent a clean docs-only branch comparison.

@@ -1,0 +1,60 @@
+{
+  "passed": true,
+  "sourceRevision": "10e88e8cbf3dc72e58547b3a37275f12c71692e1",
+  "sourceDirty": true,
+  "contentSha256": "b899208cd4ea9c128ebb4352f3e3a97c3a73412fefd46de63bee3b34f5b7b4fa",
+  "pages": 29,
+  "assets": 24,
+  "packages": [
+    {
+      "name": "@mnjs/utils",
+      "filename": "mnjs-utils-5.0.0-rc.2.tgz",
+      "sha256": "45b6c78947ae5f36e40abeee785f3ed21680d55607447b9e48ab4ec366291e4a"
+    },
+    {
+      "name": "@mnjs/radio",
+      "filename": "mnjs-radio-5.0.0-rc.2.tgz",
+      "sha256": "61278cd903ba775d7443d350fd4836071f37017e4e608faedbfa370c67c87968"
+    },
+    {
+      "name": "marionette",
+      "filename": "marionette-5.0.0-rc.2.tgz",
+      "sha256": "9f3ce57a2506f45fe7236acc7b780b202973f26e0d55a4e235fbf3d3d3942cc8"
+    },
+    {
+      "name": "@mnjs/data",
+      "filename": "mnjs-data-5.0.0-rc.2.tgz",
+      "sha256": "a5be1eafc04d1d13099eaeb65dfbc01506f50fa4ffa846757c5f2323fefe8306"
+    },
+    {
+      "name": "@mnjs/adapters",
+      "filename": "mnjs-adapters-5.0.0-rc.2.tgz",
+      "sha256": "67b3f95679a046e1af775397e07daaf8b923cd5cdba6b0ce98897631d9ca542c"
+    }
+  ],
+  "discovery": [
+    "package resolution",
+    "list",
+    "search",
+    "section",
+    "page",
+    "diagnostic"
+  ],
+  "consumerTooling": {
+    "passed": true,
+    "checks": [
+      "documented lint configuration",
+      "public View interaction accepted",
+      "private framework access rejected",
+      "installed declarations accepted",
+      "invalid Region argument rejected",
+      "restored valid examples accepted",
+      "installed diagnostic lookup"
+    ],
+    "limits": "Checks package tooling and recipes, not browser behavior or architectural effectiveness."
+  },
+  "examplesExecuted": 37,
+  "typeFixtures": 20,
+  "typescriptExamples": 11,
+  "limits": "Local tarballs and JSDOM; not registry publication, live website, browser interaction, or teaching effectiveness."
+}

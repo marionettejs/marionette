@@ -19,14 +19,16 @@ Start with the task below, then follow links to the exact class or provider refe
 | --- | --- |
 | Install and render a first View | [Quick start](quick-start.md), [renderer and data setup](integrations/setup.md) |
 | Choose ownership and lifetimes | [Architecture](architecture.md), [API index](api.md) |
-| Handle a local control or edit | [View responsibilities](api/view.md#local-interaction-and-feature-coordination), [View bindings](api/shared/view-bindings.md) |
+| Handle a local control or edit | [Local editing](guides/local-editing.md), [View responsibilities](api/view.md#local-interaction-and-feature-coordination), [View bindings](api/shared/view-bindings.md) |
 | Prepare, start, stop, or refresh a feature | [Application](api/application.md), [ownership and lifetimes](architecture.md) |
+| Refresh while retaining a draft or shell | [Retained refresh](guides/retained-refresh.md), [Application](api/application.md#restart-and-retained-ui) |
+| Enhance existing markup | [Existing HTML](guides/existing-html.md), [View](api/view.md) |
 | Show, replace, or retain child UI | [Region](api/region.md), [View Regions and existing elements](api/view.md) |
 | Render, filter, or sort repeated children | [CollectionView](api/collection-view.md) |
 | Share observable data and state | [@mnjs/data](packages/data.md), [state](api/shared/state.md), [data providers](api/providers/data.md) |
 | Connect events and clean up subscriptions | [Events](api/shared/events.md), [child and entity bindings](api/shared/view-bindings.md) |
 | Connect channels and request/reply handlers | [Radio](packages/radio.md), [class Radio bindings](api/shared/common.md#declarative-radio-bindings) |
-| Configure a renderer or another data layer | [Runtime configuration](api/runtime.md), [DOM providers](api/providers/dom.md), [data providers](api/providers/data.md) |
+| Configure a renderer or another data layer | [Optional adapters](packages/adapters.md), [Runtime configuration](api/runtime.md), [DOM providers](api/providers/dom.md), [data providers](api/providers/data.md) |
 | Check types, lint, or diagnose a failure | [Application tooling](tooling.md), [errors and diagnostics](api/errors.md) |
 | Apply the concepts in a composed feature | [Records lesson](records.md) |
 <!-- task-routes:end -->

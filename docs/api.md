@@ -42,10 +42,12 @@ Use these contracts when implementing or adapting an integration. For configurat
 
 [@mnjs/utils: shared utilities](packages/utils.md) covers standalone component methods, callbacks, object helpers, and exports. Shared Events and class methods remain at their canonical references.
 
+[@mnjs/adapters](packages/adapters.md) covers optional data and DOM integrations, their imports, configuration, observation, and cleanup.
+
 ## Integration guides and remaining coverage
 
 [Renderer and data setup](integrations/setup.md) connects Lit and `@mnjs/data` to Marionette. Integration guides explain configuration and use; package references define the APIs supplied by each package.
 
-[Check and debug an application](tooling.md) covers consumer lint, declaration checks, and diagnostic lookup. Optional-adapter guides and the complete TypeScript guide remain forthcoming. Class pages link to the relevant [shared configuration contracts](api/shared/view-bindings.md#class-configuration); Region documents its own DOM setter.
+[Check and debug an application](tooling.md) covers consumer lint, declaration checks, and diagnostic lookup. Focused migration/integration recipes and the complete TypeScript guide remain forthcoming. Class pages link to the relevant [shared configuration contracts](api/shared/view-bindings.md#class-configuration); Region documents its own DOM setter.
 
 For a first runnable result, use the [quick start](quick-start.md). For composition guidance, see [architecture](architecture.md).

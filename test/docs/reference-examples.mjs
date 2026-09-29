@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 import { assertions as dataAssertions } from './data-reference-checks.mjs';
 import { assertions as radioAssertions } from './radio-reference-checks.mjs';
 import { assertions as utilsAssertions } from './utils-reference-checks.mjs';
+import { assertions as adapterAssertions } from './adapters-reference-checks.mjs';
+import { assertions as editingHtmlAssertions, getPreparations } from './editing-html-checks.mjs';
+import { assertions as refreshAssertions, preparations as refreshPreparations } from './retained-refresh-checks.mjs';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -17,10 +20,12 @@ const consumer = process.argv[2] ? resolve(process.argv[2]) : root;
 const output = process.argv[2] ? join(consumer, 'reference-examples') : join(root, 'test/tmp/docs-reference');
 const installed = process.argv[2] ? join(consumer, 'node_modules/marionette') : root;
 const require = createRequire(join(root, 'package.json'));
-const pages = ['api', 'packages', 'integrations'].flatMap(section =>
+const pages = ['api', 'packages', 'integrations', 'guides'].flatMap(section =>
   readdirSync(join(installed, 'docs', section), { recursive: true }).filter(name => name.endsWith('.md'))
     .sort().map(name => `docs/${section}/${name}`));
 const preparations = {
+  ...getPreparations(installed),
+  ...refreshPreparations,
   'api-application-1': `
 const fetches = [];
 globalThis.fetch = async (url, options) => {
@@ -33,6 +38,9 @@ const assertions = {
   ...dataAssertions,
   ...radioAssertions,
   ...utilsAssertions,
+  ...adapterAssertions,
+  ...editingHtmlAssertions,
+  ...refreshAssertions,
   'integrations-setup-1': `
 const { View } = await import('marionette');
 const { Model } = await import('@mnjs/data');

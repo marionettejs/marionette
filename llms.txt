@@ -36,10 +36,14 @@ Version-matched Markdown for the installed package. Start with the documentation
 - [@mnjs/data: Model and Collection](docs/packages/data.md)
 - [@mnjs/radio: channels and requests](docs/packages/radio.md)
 - [@mnjs/utils: shared utilities](docs/packages/utils.md)
+- [@mnjs/adapters: optional integrations](docs/packages/adapters.md)
 
 ## Integration and learning guides
 
 - [Renderer and data setup](docs/integrations/setup.md)
+- [Local model editing](docs/guides/local-editing.md)
+- [Retained refresh](docs/guides/retained-refresh.md)
+- [Existing HTML](docs/guides/existing-html.md)
 - [Records lesson](docs/records.md)
 
 ## Development tools

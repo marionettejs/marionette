@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "abe5f9ac4c3ce549ef76446a7e7ef991e8a96c0c4f67327039667f28ce322e89",
+  "semanticsSha256": "9c1fbee28705c1c852b98546635babbad190efd96c246886c618658f849c9f19",
   "entrypoints": [
     {
       "name": "marionette",
@@ -7296,7 +7296,7 @@
     {
       "id": "type-shapes",
       "status": "partial",
-      "reason": "Class, native data, and Radio references cover their types; standalone utility and adapter type exports still lack a complete reference.",
+      "reason": "Class and companion references cover their exported types; practical guidance for typed initialization, event narrowing, and lifecycle result composition remains incomplete.",
       "docs": [
         {
           "file": "docs/api/runtime.md",
@@ -7741,16 +7741,11 @@
     },
     {
       "id": "jquery-dom",
-      "status": "partial",
-      "reason": "The README shows configuration and root ownership; jQuery-specific query/result shapes and detached-listener preservation are not covered by the native DomApi reference.",
+      "status": "documented",
       "docs": [
         {
-          "file": "packages/adapters/readme.md",
-          "heading": "jQuery DomApi"
-        },
-        {
-          "file": "docs/api/providers/dom.md",
-          "heading": "DomApi"
+          "file": "docs/packages/adapters.md",
+          "heading": "jQuery"
         }
       ]
     },
@@ -7792,22 +7787,20 @@
     },
     {
       "id": "provider.backbone-consumers",
-      "status": "partial",
-      "reason": "The README documents configuration and disposal; native event payloads and Backbone collection sort/remove/reset translation and retained-child guarantees need explicit reference coverage.",
+      "status": "documented",
       "docs": [
         {
-          "file": "packages/adapters/readme.md",
+          "file": "docs/packages/adapters.md",
           "heading": "Backbone"
         }
       ]
     },
     {
       "id": "provider.actor-consumers",
-      "status": "partial",
-      "reason": "The README documents actor identity, selection and ownership; its observable reorder/removal effects on child Views and independent consumer cleanup are not fully explained.",
+      "status": "documented",
       "docs": [
         {
-          "file": "packages/adapters/readme.md",
+          "file": "docs/packages/adapters.md",
           "heading": "XState actors"
         }
       ]
@@ -7911,12 +7904,12 @@
       "status": "documented",
       "docs": [
         {
-          "file": "packages/adapters/readme.md",
-          "heading": "Morphdom"
+          "file": "docs/packages/adapters.md",
+          "heading": "DOM contents"
         },
         {
-          "file": "packages/adapters/readme.md",
-          "heading": "DOM contents"
+          "file": "docs/packages/adapters.md",
+          "heading": "Morphdom"
         }
       ]
     },
@@ -7925,12 +7918,12 @@
       "status": "documented",
       "docs": [
         {
-          "file": "packages/adapters/readme.md",
-          "heading": "Lit HTML"
+          "file": "docs/packages/adapters.md",
+          "heading": "DOM contents"
         },
         {
-          "file": "packages/adapters/readme.md",
-          "heading": "DOM contents"
+          "file": "docs/packages/adapters.md",
+          "heading": "Lit HTML"
         }
       ]
     },
@@ -8965,10 +8958,10 @@
     "docs/api/shared/state.md": "9c3263569e68789585a49e6065e1b9cd88efa928dbe5e8b8abe62cc0b748a3ae",
     "docs/api/shared/view-bindings.md": "7bb193ccf1541859eabf927f45217febd8b0251ab4c9f74c0fdfc218ded5b167",
     "docs/api/view.md": "b988f7f08e79d06d5be6bced589fdd1afc84c60d6d3d27a8fc62eaecc1b9e4e6",
+    "docs/packages/adapters.md": "48304620efe6bc04c6a59647053bd0b692925a5c4ae99bb172d218ef4cb60c8a",
     "docs/packages/data.md": "6a24f4e1c6441f1a73ec9a483422b269ff8613ee1cb9d86dcd2b8966e7096d52",
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
     "docs/packages/utils.md": "b022f7f2a958673aa40da59d12591316ef6773228f2dfc93f0af9a901878cb3d",
-    "packages/adapters/readme.md": "1dd30826ff90a136699c3669a6d394eaec541efa8742022900e88b365b205e25",
     "packages/utils/readme.md": "813c51a262532361e5c1a0f16f8e3cabc34a1404d9533672480d67fe8b60d05e",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
     "test/unit/application-child-declarations.spec.js": "3b98e033f99902a8bff5c533c03599375381da4b4a01b9014e825eb21cb80e2b",

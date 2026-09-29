@@ -36,7 +36,9 @@ try {
   }
   writeFileSync(join(directory, 'package.json'), JSON.stringify({ name: 'installed-docs-check', private: true, type: 'module' }));
   npm(['install', '--ignore-scripts', '--no-audit', '--no-fund',
-    ...packs.map(pack => join(artifacts, pack.filename)), 'lit-html@3.3.3', 'eslint@10.11.0', 'typescript@6.0.3']);
+    ...packs.map(pack => join(artifacts, pack.filename)), 'lit-html@3.3.3', 'eslint@10.11.0', 'typescript@6.0.3',
+    'backbone@1.6.1', '@types/backbone@1.4.23', 'jquery@4.0.0', '@types/jquery@4.0.1',
+    'morphdom@2.7.8', 'xstate@5.33.2']);
 
   const packageJson = run(process.execPath, ['-p', 'require.resolve(\'marionette/package.json\')']).trim();
   const packageRoot = join(directory, 'node_modules/marionette');

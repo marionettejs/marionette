@@ -236,6 +236,18 @@
     {
       "file": "interaction-boundaries.spec.mjs",
       "title": "Morphdom rerender can retain a loaded iframe and its browsing state"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented local editing retains focus and cleans up borrowed-model listeners"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented existing HTML preserves native controls until the View is destroyed"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented refresh retains unfinished input and focus"
     }
   ],
   "fixtures": [

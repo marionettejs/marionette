@@ -1,14 +1,20 @@
 # Marionette v5 documentation
 
-These guides target **5.0.0-rc.2**. This prerelease is being verified as local candidate tarballs. Use the docs bundled with the candidate you installed. The reference and learning paths below can be read independently. Remaining API coverage is identified in the reference index.
+These guides target **5.0.0-rc.2**. This prerelease is being verified as local candidate tarballs. Use the docs bundled with the candidate you installed. The reference and learning paths below can be read independently. The reference index links the supported classes and shared contracts.
 
 ## Start here
 
 1. [Install and render a View](quick-start.md).
 2. [Choose ownership and lifetimes](architecture.md): Applications, Views, Regions, shared state, and asynchronous work.
-3. [Build the records feature](records.md): apply those concepts to preparation, selection, retry, and close/reopen.
+3. Choose a task below, or [build the records feature](records.md) for a composed example.
 
 For agent-led work, use the [agent workflow](agents.md) to find version-matched guidance and verify a change.
+
+## Common tasks
+
+- [Edit a View’s own model](guides/local-editing.md): local interaction and observable updates.
+- [Refresh data while retaining UI](guides/retained-refresh.md): update an active feature without rebuilding its shell or draft.
+- [Add behavior to existing HTML](guides/existing-html.md): enhance existing markup and manage its lifetime.
 
 ## Core reference
 
@@ -31,6 +37,7 @@ For agent-led work, use the [agent workflow](agents.md) to find version-matched 
 - [@mnjs/data: Model and Collection](packages/data.md): an optional observable data layer with its own operations, events, identity, and disposal. Fetching and persistence require an API layer or another data solution.
 - [@mnjs/radio: channels and requests](packages/radio.md): scoped communication, request/reply handlers, and cleanup.
 - [@mnjs/utils](packages/utils.md): standalone component and object utilities.
+- [@mnjs/adapters](packages/adapters.md): optional Backbone, XState, Lit, Morphdom, and jQuery contracts.
 - [Renderer and data setup](integrations/setup.md): configure Lit and `@mnjs/data`.
 
 The [records source](../examples/records/src/main.js) is included for reading alongside the lesson. Its [README](../examples/records/README.md) explains the repository development commands.

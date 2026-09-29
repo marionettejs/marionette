@@ -51,7 +51,7 @@ export const test = base.extend({
       }
     }
     const litRoot = dirname(fileURLToPath(import.meta.resolve('lit-html')));
-    for (const name of ['lit-html.js', 'async-directive.js', 'directive.js', 'directive-helpers.js']) {
+    for (const name of ['lit-html.js', 'async-directive.js', 'directive.js', 'directive-helpers.js', 'directives/live.js']) {
       assets.set(`/lit/${name}`, resolve(litRoot, name));
     }
     const html = `<!doctype html><script type="importmap">${JSON.stringify({ imports })}</script><main id="content"></main>`;

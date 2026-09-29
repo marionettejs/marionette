@@ -100,3 +100,14 @@ The peer sources are live documentation. Our first consumer will have a frozen p
 ### Recorded candidate package follow-through
 
 The new documentation index and llms.txt implement the small-entrypoint approach. A minimal quick start precedes the composed records feature, and focused API/setup pages support contract lookup. The [candidate-package probe](stage-3-package-results.md) checks installed discovery and runnable source with current package artifacts. No framework-specific analysis engine or retrieval service has been added. These checks establish the Marionette mechanisms work locally; they do not compare agent outcomes against peer frameworks.
+
+## Structural recheck — 2026-09-30
+
+The official [React reference](https://react.dev/reference/react) separates reference
+families and points beginners toward learning material. The
+[Svelte documentation](https://svelte.dev/docs/svelte/overview) separates tutorial
+learning from reference and gives testing, TypeScript and migration explicit places.
+This supports our separated references, companions and guides, while emphasizing
+remaining reader coverage. It does not establish Marionette's teaching effectiveness
+or require compiler-level tooling. See the [upstream reassessment](adapters-guides-results.md)
+for current gaps and fair-comparison constraints.
