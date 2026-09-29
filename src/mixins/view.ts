@@ -206,15 +206,20 @@ const ViewMixin = {
     this._removeChildren();
     this._isDestroyed = true;
     this._isRendered = false;
-    const dataObserverCleanup = this._dataObserverCleanup;
-    delete this._dataObserverCleanup;
-    dataObserverCleanup?.();
-    this._undelegateEntityEvents();
-    this._destroyBehaviors(options);
-    this._destroyState();
-    this.triggerMethod('destroy', this, options);
-    this._triggerEventOnBehaviors('destroy', this, options);
-    this.stopListening();
+    try {
+      const dataObserverCleanup = this._dataObserverCleanup;
+      delete this._dataObserverCleanup;
+      dataObserverCleanup?.();
+      this._undelegateEntityEvents();
+      this._destroyBehaviors(options);
+      this._destroyState();
+      this.triggerMethod('destroy', this, options);
+      this._triggerEventOnBehaviors('destroy', this, options);
+    } finally {
+      this._behaviors?.forEach(behavior => behavior.off());
+      this.stopListening();
+      this.off();
+    }
 
     return this;
   },

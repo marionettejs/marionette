@@ -1,3 +1,11 @@
+### Unreleased
+
+* Native Marionette destruction now clears incoming event subscriptions after
+  final destroy notifications, including native `listenTo` bookkeeping. Remove
+  handlers whose only job is `stopListening(source)` when that source is destroyed.
+  Application `stop()` retains subscriptions to surviving sources. External data
+  and event sources still follow their own destruction contracts.
+
 ### v5.0.0-rc.2
 
 > The docs now have directions, so the agent can stop asking for a map of the maps.
