@@ -1,0 +1,70 @@
+skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_7f67951eebbe2a 57
+  s_930f3c9a37745c::t_d438cffdabadad 54-56
+test/docs/repository-entrypoints.test.mjs
+  s_930f3c9a37745c::t_cb3530eed7e477 11
+  s_930f3c9a37745c::t_fc51432119a8b0 1-10,12-13,15-17,19-27,29-34,36-56
+  s_930f3c9a37745c::t_e61ae757f6fae5 14,18,28,35
+docs/api/errors.md
+  s_930f3c9a37745c::t_cb3530eed7e477 35
+ROADMAP.md
+  s_930f3c9a37745c::t_ad9eafaac89bae 609,947-949
+test/README.md
+  s_930f3c9a37745c::t_ad9eafaac89bae 10,24-27,41,55-58
+  s_930f3c9a37745c::t_021e73f1f995f7 59
+docs-site/README.md
+  s_930f3c9a37745c::t_ad94f0287e8c0f 90-91
+  s_930f3c9a37745c::t_3b5b34ac451945 3-6,8,16-18,20-24,26-30,32-36,38-40,45,48-89,92-101
+test/agent-docs/discovery.test.mjs
+  s_930f3c9a37745c::t_26603a0d0bcbaf 1-39
+docs-site/resources.json
+  s_930f3c9a37745c::t_26603a0d0bcbaf 3
+readme.md
+  s_930f3c9a37745c::t_ad9eafaac89bae 20-23
+test/docs/production-package.test.mjs
+  s_930f3c9a37745c::t_9b727fc70050be 32-42
+  s_930f3c9a37745c::t_629d83ed8f407d 1-31,43-49,51-66
+  s_930f3c9a37745c::t_696b8936336e32 50
+AGENTS.md
+  s_930f3c9a37745c::t_ad9eafaac89bae 1-47
+CONTRIBUTING.md
+  s_930f3c9a37745c::t_ad9eafaac89bae 15,18,39,51-52,83-87,155
+docs/agents.md
+  s_930f3c9a37745c::t_d438cffdabadad 52,54-57,59-62,73-75,77
+  s_930f3c9a37745c::t_7f67951eebbe2a 58,76,78
+test/docs/production-package.mjs
+  s_930f3c9a37745c::t_696b8936336e32 155,205,304-306
+  s_930f3c9a37745c::t_9840c857add935 185-187
+  s_930f3c9a37745c::t_9e4444bd6dc88b 114,117,137-139
+  s_930f3c9a37745c::t_011095eda4c4f0 1-16,19-46,54-113,115-116,118-123,125-136,140-154,156-158,173-177,179-182,194-197,199-204,206-215,217-225,230,250-264,266,268-273,275,280-283,290-293,296,299-303,307-309,311-327
+  s_930f3c9a37745c::t_8bf32185796377 17-18,47-53,124,159-172,178,183-184,188-193,198,216,226-229,231-249,265,267,274,276-279,284-289,294-295,297-298,310
+context7.json
+  s_930f3c9a37745c::t_cb3530eed7e477 9,22,26-27,29-30
+test/agent-docs/plugin.test.mjs
+  s_930f3c9a37745c::t_83a53b32324a7f 80
+plugins/marionette/skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_7f67951eebbe2a 57
+  s_930f3c9a37745c::t_d438cffdabadad 54-56
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_d63c981522d116 8976
+docs/tooling.md
+  s_930f3c9a37745c::t_ba2e41989f78dd 100
+package.json
+  s_930f3c9a37745c::t_3e1475c5d024f7 120-121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "e639d9fa355a262c2db8c19feacb10185b6e024b",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
