@@ -86,7 +86,7 @@ function selectedPackages(fixtureName) {
   if (fixtureName !== 'standalone-packages') {
     names.push('marionette');
   }
-  if (fixtureName === 'standalone-packages' || fixtureName === 'core-types' || fixtureName === 'vite' || fixtureName.startsWith('data-package-')) {
+  if (fixtureName === 'standalone-packages' || fixtureName === 'core-types' || fixtureName === 'vite' || fixtureName === 'dom-adapters-package' || fixtureName.startsWith('data-package-')) {
     names.push('@mnjs/data');
   }
   if (fixtureName === 'core-types' || fixtureName === 'vite' || adapterFixtures.has(fixtureName)) {

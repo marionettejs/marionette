@@ -11,6 +11,17 @@ const owners = [
   ['Application', () => new Application()],
 ];
 
+// A released source must no longer be visited when its surviving listener ends
+// its subscriptions. Observe that public interaction rather than private maps.
+function expectReleased(listener, ...sources) {
+  const removals = sources.map(source => vi.spyOn(source, 'off'));
+  listener.stopListening();
+  for (const removal of removals) {
+    expect(removal).not.toHaveBeenCalled();
+    removal.mockRestore();
+  }
+}
+
 describe('Destroyed event sources release their observers', function() {
   it.each([...owners, ['Model', () => new Model()], ['Collection', () => new Collection()]])(
     '%s releases incoming subscriptions after delivering destroy', async function(name, create) {
@@ -35,8 +46,6 @@ describe('Destroyed event sources release their observers', function() {
       await source.destroy();
 
       expect(order).toEqual(['direct', 'listener']);
-      expect(Object.keys(listener._rdListeningTo)).toEqual([living._rdListenId]);
-      expect(Object.keys(source._rdListeners)).toEqual([]);
       source.trigger('intent');
       source.trigger('later');
       source.trigger('destroy');
@@ -44,6 +53,9 @@ describe('Destroyed event sources release their observers', function() {
       expect(intent).not.toHaveBeenCalled();
       expect(pendingOnce).not.toHaveBeenCalled();
       expect(order).toEqual(['direct', 'listener']);
+      expect(stillListening).toHaveBeenCalledTimes(1);
+      expectReleased(listener, source);
+      living.trigger('intent');
       expect(stillListening).toHaveBeenCalledTimes(1);
       listener.destroy();
       living.destroy();
@@ -64,8 +76,8 @@ describe('Destroyed event sources release their observers', function() {
     await expect(Promise.resolve().then(() => source.destroy())).rejects.toBe(failure);
 
     expect(source.isDestroyed()).toBe(true);
-    expect(Object.keys(listener._rdListeningTo)).toEqual([]);
-    expect(Object.keys(source._rdListeningTo)).toEqual([]);
+    expectReleased(listener, source);
+    expectReleased(source, observed);
     source.trigger('intent');
     observed.trigger('change');
     expect(incoming).not.toHaveBeenCalled();
@@ -82,12 +94,14 @@ describe('Destroyed event sources release their observers', function() {
 
     await app.start();
     await app.stop();
-    expect(Object.keys(listener._rdListeningTo)).toEqual([app._rdListenId]);
+    expect(started).toHaveBeenCalledTimes(1);
     await app.start();
     expect(started).toHaveBeenCalledTimes(2);
 
     await app.destroy();
-    expect(Object.keys(listener._rdListeningTo)).toEqual([]);
+    app.trigger('start');
+    expect(started).toHaveBeenCalledTimes(2);
+    expectReleased(listener, app);
     listener.destroy();
   });
 
@@ -95,18 +109,22 @@ describe('Destroyed event sources release their observers', function() {
     const app = new Application();
     const region = new Region({ el: document.createElement('div') });
     const intent = vi.fn();
+    const views = [];
     for (let index = 0; index < 5; index++) {
       const previous = region.currentView;
       const view = new View({ template: false });
       region.show(view);
       app.listenTo(view, { intent });
-      expect(Object.keys(app._rdListeningTo)).toEqual([view._rdListenId]);
+      views.push(view);
+      view.trigger('intent');
       previous?.trigger('intent');
+      expect(intent).toHaveBeenCalledTimes(index + 1);
     }
 
     region.empty();
-    expect(Object.keys(app._rdListeningTo)).toEqual([]);
-    expect(intent).not.toHaveBeenCalled();
+    views.forEach(view => view.trigger('intent'));
+    expect(intent).toHaveBeenCalledTimes(5);
+    expectReleased(app, ...views);
     region.destroy();
     await app.destroy();
   });
@@ -120,8 +138,9 @@ describe('Destroyed event sources release their observers', function() {
 
     behavior.destroy();
 
-    expect(Object.keys(listener._rdListeningTo)).toEqual([]);
+    behavior.trigger('destroy');
     expect(destroy).not.toHaveBeenCalled();
+    expectReleased(listener, behavior);
     listener.destroy();
     view.destroy();
   });
@@ -139,7 +158,9 @@ describe('Destroyed event sources release their observers', function() {
 
       expect(destroy).toHaveBeenCalledTimes(1);
       expect(destroy.mock.calls[0][0]).toBe(view);
-      expect(Object.keys(listener._rdListeningTo)).toEqual([]);
+      behavior.trigger('destroy', view);
+      expect(destroy).toHaveBeenCalledTimes(1);
+      expectReleased(listener, behavior);
       listener.destroy();
     }
   );
@@ -152,18 +173,22 @@ describe('Destroyed event sources release their observers', function() {
       const listener = new MnObject();
       const intent = vi.fn();
       listener.listenTo(behavior, 'intent', intent);
+      const cleanup = vi.spyOn(behavior, 'destroy');
+      const hostDestroyed = vi.fn();
+      behavior.onDestroy = hostDestroyed;
       view.onBeforeDestroy = () => {
         expect(view.isDestroyed()).toBe(false);
         behavior.destroy();
-        expect(view._behaviors).toEqual([]);
-        expect(Object.keys(listener._rdListeningTo)).toEqual([]);
+        expectReleased(listener, behavior);
         behavior.trigger('intent');
         expect(intent).not.toHaveBeenCalled();
       };
 
       view.destroy();
 
-      expect(Object.keys(listener._rdListeningTo)).toEqual([]);
+      expect(cleanup).toHaveBeenCalledTimes(1);
+      expect(hostDestroyed).not.toHaveBeenCalled();
+      expectReleased(listener, behavior);
       listener.destroy();
     }
   );
@@ -188,11 +213,9 @@ describe('Destroyed event sources release their observers', function() {
     expect(() => view.destroy()).toThrow(failure);
 
     expect(view.isDestroyed()).toBe(true);
-    expect(Object.keys(listener._rdListeningTo)).toEqual([]);
-    expect(Object.keys(view._rdListeners)).toEqual([]);
+    expectReleased(listener, view, ...behaviors);
     view.trigger('intent');
     behaviors.forEach(behavior => {
-      expect(Object.keys(behavior._rdListeners)).toEqual([]);
       behavior.trigger('intent');
     });
     expect(intent).not.toHaveBeenCalled();
@@ -209,8 +232,11 @@ describe('Destroyed event sources release their observers', function() {
     source.trigger('change');
 
     expect(event).toHaveBeenCalledTimes(2);
-    expect(Object.keys(listener._rdListeningTo)).toEqual([source._rdListenId]);
+    const unsubscribe = vi.spyOn(source, 'off');
     listener.destroy();
+    expect(unsubscribe).toHaveBeenCalled();
+    source.trigger('change');
+    expect(event).toHaveBeenCalledTimes(2);
   });
 
   it('keeps Collection subscriptions when it forwards a Model destroy event', function() {
@@ -228,9 +254,10 @@ describe('Destroyed event sources release their observers', function() {
     expect(forwarded.mock.calls[0][0]).toBe(model);
     expect(collection.isDestroyed()).toBe(false);
     expect(added).toHaveBeenCalledTimes(1);
-    expect(Object.keys(listener._rdListeningTo)).toEqual([collection._rdListenId]);
     collection.destroy();
-    expect(Object.keys(listener._rdListeningTo)).toEqual([]);
+    collection.trigger('add', model, collection);
+    expect(added).toHaveBeenCalledTimes(1);
+    expectReleased(listener, collection);
     listener.destroy();
   });
 });
