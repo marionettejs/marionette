@@ -1,0 +1,21 @@
+planning/docs-v5/evidence/tooling-review-followup.json
+  s_930f3c9a37745c::t_bdcdaa4734142f 1-41
+planning/docs-v5/tooling-delivery-results.md
+  s_930f3c9a37745c::t_33fcdce24efd9a 60-65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "b1a2b39e6bde6ce5605b0cfff00f9408652f4b39",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
