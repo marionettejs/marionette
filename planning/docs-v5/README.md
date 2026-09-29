@@ -4,6 +4,7 @@ The rebuild is organized around Marionette's public API and reader needs. The re
 
 ## Current work
 
+- [Migration and runnable consumer testing](migration-testing-results.md)
 - [Optional adapters, independent guides, and upstream reassessment](adapters-guides-results.md)
 
 - [Delivery, agent discovery, and native data results](delivery-data-results.md)

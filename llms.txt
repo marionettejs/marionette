@@ -41,6 +41,8 @@ Version-matched Markdown for the installed package. Start with the documentation
 ## Integration and learning guides
 
 - [Renderer and data setup](docs/integrations/setup.md)
+- [Migrate from v4](docs/guides/migration.md)
+- [Test an application](docs/guides/testing.md)
 - [Local model editing](docs/guides/local-editing.md)
 - [Retained refresh](docs/guides/retained-refresh.md)
 - [Existing HTML](docs/guides/existing-html.md)

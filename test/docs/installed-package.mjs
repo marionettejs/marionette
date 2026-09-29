@@ -38,7 +38,7 @@ try {
   npm(['install', '--ignore-scripts', '--no-audit', '--no-fund',
     ...packs.map(pack => join(artifacts, pack.filename)), 'lit-html@3.3.3', 'eslint@10.11.0', 'typescript@6.0.3',
     'backbone@1.6.1', '@types/backbone@1.4.23', 'jquery@4.0.0', '@types/jquery@4.0.1',
-    'morphdom@2.7.8', 'xstate@5.33.2']);
+    'morphdom@2.7.8', 'xstate@5.33.2', 'jsdom@30.1.0']);
 
   const packageJson = run(process.execPath, ['-p', 'require.resolve(\'marionette/package.json\')']).trim();
   const packageRoot = join(directory, 'node_modules/marionette');
@@ -53,6 +53,8 @@ try {
   const section = lookup(['--section', match.id]);
   assert(section.includes('prepareStart'));
   assert(lookup(['--page', 'docs/packages/data.md']).includes('Membership and ordering'));
+  assert(lookup(['--page', 'docs/guides/migration.md']).includes('# Migrate from v4 to v5'));
+  assert(lookup(['--page', 'docs/guides/testing.md']).includes('node --import'));
   assert.equal(JSON.parse(lookup(['--diagnostic', 'MN0003'])).diagnostic.code, 'MN0003');
 
   run(process.execPath, [join(root, 'test/docs/reference-examples.mjs'), directory]);
@@ -61,6 +63,9 @@ try {
   run(process.execPath, [join(root, 'test/docs/consumer-tooling.mjs'), directory]);
   const tooling = JSON.parse(readFileSync(join(directory, 'consumer-tooling/report.json')));
   assert(tooling.passed);
+  run(process.execPath, [join(root, 'test/docs/consumer-testing.mjs'), directory]);
+  const testing = JSON.parse(readFileSync(join(directory, 'consumer-testing/report.json')));
+  assert(testing.passed);
   const manifest = JSON.parse(readFileSync(join(packageRoot, 'docs-manifest.json')));
   for (const item of [...manifest.pages, ...manifest.assets]) {
     assert.equal(hash(readFileSync(join(packageRoot, item.source))), item.sha256, item.source);
@@ -70,7 +75,7 @@ try {
     contentSha256: manifest.contentSha256, pages: manifest.pages.length, assets: manifest.assets.length,
     packages: packs.map(({ files, ...pack }) => pack),
     discovery: ['package resolution', 'list', 'search', 'section', 'page', 'diagnostic'],
-    consumerTooling: tooling,
+    consumerTooling: tooling, consumerTesting: testing,
     examplesExecuted: examples.examples.filter(example => example.executed).length,
     typeFixtures: examples.typescript.contractFixtures, typescriptExamples: examples.typescript.examples,
     limits: 'Local tarballs and JSDOM; not registry publication, live website, browser interaction, or teaching effectiveness.',

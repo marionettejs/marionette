@@ -18,6 +18,8 @@ Start with the task below, then follow links to the exact class or provider refe
 | Task | Read |
 | --- | --- |
 | Install and render a first View | [Quick start](quick-start.md), [renderer and data setup](integrations/setup.md) |
+| Migrate an existing v4 application | [Migration guide](guides/migration.md), [optional adapters](packages/adapters.md) |
+| Test interaction, readiness, or teardown | [Consumer testing](guides/testing.md), [application tooling](tooling.md) |
 | Choose ownership and lifetimes | [Architecture](architecture.md), [API index](api.md) |
 | Handle a local control or edit | [Local editing](guides/local-editing.md), [View responsibilities](api/view.md#local-interaction-and-feature-coordination), [View bindings](api/shared/view-bindings.md) |
 | Prepare, start, stop, or refresh a feature | [Application](api/application.md), [ownership and lifetimes](architecture.md) |

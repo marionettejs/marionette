@@ -1,0 +1,35 @@
+{
+  "verdict": "Approve with changes. I found no definite API errors in the context given. The v4 comparisons look source-backed and honest. Before merge, fix one teaching gap: runtime setup in tests. Also add a few common migration steps that are missing. Everything else can wait for the reader trial.",
+  "blockingIssues": [
+    "The testing guide sets each class's data and DOM API on the class itself (`.setDataApi(DataApi).setDomApi(LitDomApi)`). It then says this 'matches the integration setup'. The migration guide tells readers to use one setup module with the default runtime setters. If the setup page uses those global setters, the 'matches' claim is false. A reader could then either add class-level setters to production Views or test real Views with no runtime setup. Choose one: preload or import the app's setup module in tests (for example `--import ./test/dom.mjs --import ./src/setup.js`), or say plainly that class-level setters are used only to keep the recipe self-contained. The closing line 'import the real View and Application modules' needs this step to be correct."
+  ],
+  "risks": [
+    "The replacement test spies on `render`. That checks how the View reacts internally, not what the user sees, which conflicts with the page's claim that the tests 'avoid lifecycle implementation details'. Readers whose Views update through methods other than `render` will copy a check that doesn't fit their View. Either state the limit (a destroyed View's later renders aren't visible) or rely on the `oldRoot` DOM and model assertions, and keep the spy only for the mutation check.",
+    "The mutation run only checks that test 2 fails. It never confirms the other four tests still pass, so a mutation that broke module loading, or everything, could still match. Also assert `# fail 1` / `# pass 4`.",
+    "The validator reads `docs/guides/testing.md` from the installed package, so it fails if docs are ever dropped from the package's `files` field. That is correct behavior, but it should be a stated dependency of the install check.",
+    "Pinning `jsdom@30.1.0` and telling users to pass `--ignore-scripts` makes the page age quickly and adds install flags consumers don't need. The pin is fine for the harness, but the prose should not suggest it's required.",
+    "Step 3 of the migration guide says to 'await start(), stop(), restart(), and destroy()' as if all four existed in v4. v4 Application had no stop, restart or isRunning, and its destroy was synchronous. Say which methods are new so readers don't search for v4 call sites that don't exist."
+  ],
+  "incorrectAssumptions": [
+    "That v4 apps use namespace imports. Many already use named imports from `backbone.marionette`, or a default import. For them only the import path changes, plus the `Object` \u2192 `MnObject` rename.",
+    "That covering `getUI(...)` and `$el` covers jQuery UI usage. The most common v4 pattern is `this.ui.name.val()` / `.addClass()` through the `ui` hash, plus `this.$(selector)`. Neither appears in the table.",
+    "The migration guide assumes readers have no Behaviors. Behaviors are common in v4 apps and inherit the same jQuery-based `$el`/`ui`/event assumptions. The guide should at least say whether the View-row changes also apply to Behaviors."
+  ],
+  "missingTests": [
+    "Mutation-run assertion that exactly one test fails (`# fail 1`).",
+    "No check that the tests work with app-wide runtime setup (a setup module preloaded before the tests) instead of class-level setters, if the guide switches to recommending that.",
+    "The superseded-start test never checks what `await app.stop()` returns (whether stopping mid-start resolves true or false). Readers will want to know this contract.",
+    "Migration guide: nothing checks that its links and anchors resolve (e.g. `application.md#prepare-before-showing-ui`, `events.md#cleanup`). The audit says this is root-agent work, so it still has to happen before merge."
+  ],
+  "simplifications": [
+    "Drop `--ignore-scripts` from the consumer-facing install command. If the harness needs it, keep it in the harness only.",
+    "Add one short setup-module code fence to the migration guide showing the Backbone adapter, Radio import and renderer setup. It would teach step 1 better than the prose alone. Register it in the example harness rather than adding a new mechanism.",
+    "The final `t.after` `await app.destroy()` in the readiness test runs after the test has already destroyed the app. That's harmless, but a note or a guard would stop readers thinking a double destroy is required."
+  ],
+  "nextSteps": [
+    "Fix the testing guide's setup statement: preload the app's setup module, or explicitly call the class-level setters a self-contained shortcut, and update the closing paragraph to match.",
+    "Add `this.ui.name` / `this.$()` and Behaviors to the migration table. Say that stop, restart and isRunning are new in v5.",
+    "Tighten the mutation assertion to `# fail 1` and rerun the installed consumer check.",
+    "Report the results of the integrated docs/link/install check separately, then freeze. Leave the other teaching-quality questions to the reader trial on the same runtime."
+  ]
+}

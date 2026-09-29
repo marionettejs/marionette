@@ -12,6 +12,8 @@ For agent-led work, use the [agent workflow](agents.md) to find version-matched 
 
 ## Common tasks
 
+- [Migrate from v4](guides/migration.md): update configuration and lifecycle boundaries.
+- [Test an application](guides/testing.md): run interaction, replacement, readiness and teardown checks.
 - [Edit a View’s own model](guides/local-editing.md): local interaction and observable updates.
 - [Refresh data while retaining UI](guides/retained-refresh.md): update an active feature without rebuilding its shell or draft.
 - [Add behavior to existing HTML](guides/existing-html.md): enhance existing markup and manage its lifetime.

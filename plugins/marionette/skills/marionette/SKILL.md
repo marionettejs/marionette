@@ -17,6 +17,8 @@ The paths below are relative to the installed package, not this skill directory.
 | Task | Packaged page |
 | --- | --- |
 | Install and render a first View | `docs/quick-start.md`, `docs/integrations/setup.md` |
+| Migrate an existing v4 application | `docs/guides/migration.md`, `docs/packages/adapters.md` |
+| Test interaction, readiness, or teardown | `docs/guides/testing.md`, `docs/tooling.md` |
 | Choose ownership and lifetimes | `docs/architecture.md`, `docs/api.md` |
 | Handle a local control or edit | `docs/guides/local-editing.md`, `docs/api/view.md`, `docs/api/shared/view-bindings.md` |
 | Prepare, start, stop, or refresh a feature | `docs/api/application.md`, `docs/architecture.md` |

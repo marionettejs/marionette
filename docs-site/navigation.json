@@ -144,6 +144,18 @@
     "section": "Integration guides"
   },
   {
+    "source": "docs/guides/migration.md",
+    "route": "docs/guides/migration",
+    "title": "Migrate from Marionette v4",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/testing.md",
+    "route": "docs/guides/testing",
+    "title": "Test an application",
+    "section": "Guides"
+  },
+  {
     "source": "docs/guides/local-editing.md",
     "route": "docs/guides/local-editing",
     "title": "Edit a View’s own model",

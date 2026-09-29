@@ -22,7 +22,9 @@ const installed = process.argv[2] ? join(consumer, 'node_modules/marionette') : 
 const require = createRequire(join(root, 'package.json'));
 const pages = ['api', 'packages', 'integrations', 'guides'].flatMap(section =>
   readdirSync(join(installed, 'docs', section), { recursive: true }).filter(name => name.endsWith('.md'))
-    .sort().map(name => `docs/${section}/${name}`));
+    .sort().map(name => `docs/${section}/${name}`))
+  // This multi-file Node test recipe is executed by consumer-testing.mjs in the installed check.
+  .filter(path => path !== 'docs/guides/testing.md');
 const preparations = {
   ...getPreparations(installed),
   ...refreshPreparations,

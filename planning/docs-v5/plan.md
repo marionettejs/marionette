@@ -169,3 +169,13 @@ upstream v5 at a fixed revision. Prioritize migration and runnable consumer test
 before treating this corpus as a complete replacement. Run an effectiveness comparison
 only after freezing compatible documentation conditions against the same runtime;
 existing branch runtime differences prevent a clean docs-only branch comparison.
+
+## Migration and consumer testing checkpoint — 2026-09-30
+
+The [new slice](migration-testing-results.md) adds a common migration sequence verified
+against v4 source and v5 contracts, plus runnable public-outcome consumer tests.
+The installed package check executes every file of that recipe and rejects an
+unmanaged subscription defect. Practical TypeScript, external hosting/routing,
+production and accessibility/rendering guidance remain reader priorities. A real
+consumer migration and controlled reader comparison still provide separate evidence;
+these authoring checks do not establish either outcome.
