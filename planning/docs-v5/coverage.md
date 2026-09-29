@@ -1,6 +1,6 @@
 # Documentation map and coverage
 
-Baseline: 2026-09-29, working tree based on `b6f23c5953793d5cef1cb51dbc675420214ffd01`, package version `5.0.0-rc.2`. This is the working inventory for the [plan](plan.md). The source has local destruction-cleanup changes; the commit alone does not identify the current runtime. The SHA-256 of `git diff --binary HEAD -- src packages` at this baseline is `c356d888e6a87a840f754348b44cf32e684b0684026e4f9f29a640641755cdf6`. Recheck it when citing source evidence.
+Historical audit baseline: 2026-09-29, working tree based on `b6f23c5953793d5cef1cb51dbc675420214ffd01`, package version `5.0.0-rc.2`. At that time the runtime diff SHA-256 was `c356d888e6a87a840f754348b44cf32e684b0684026e4f9f29a640641755cdf6`. Those changes are now committed as `e306ca7b`; see the [committed baseline](baseline-status.md). This remains the working inventory for the [plan](plan.md), with original audit evidence tied to its recorded revision/hashes.
 
 ## How to use this inventory
 

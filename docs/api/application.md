@@ -4,6 +4,8 @@
 
 Application coordinates preparation, composition, and state for a feature lifetime. It can own a root View, registered child Applications, and a destination Region. A local control can remain a View; use an Application when the feature needs this lifecycle boundary.
 
+Choose the owner by what must survive: a feature can retain data, pending work, and decisions across View replacement. A [local model edit](view.md#local-interaction-and-feature-coordination) can stay in its View.
+
 ## Prepare before showing UI
 
 This standalone TypeScript example loads a summary before activating its UI. It expects `/summary.json` to return an object with a string `title`. The Application owns the request and the View renders the result.
@@ -105,6 +107,12 @@ Handle rejection where the operation is requested. When replacing partial UI wit
 Restart repeats readiness for a new run and tears down the current root, including its child Views. It does not preserve input elements, focus, or a layout's Region children. Restart a feature child when the surrounding parent page should remain alive. Starting the parent again does not automatically reactivate that child.
 
 For refresh that keeps the current layout, use an explicit operation on the active feature and update the appropriate child View or data source. Choose cancellation/obsolete-response handling for that operation; `restart()` is the choice when ending the current run is intended.
+
+## Operations after start
+
+Initial preparation and later feature operations can belong to the same Application. `prepareStart` supplies readiness data; `onStart` connects the ready Views. Later operations update shared observable data, and each View updates its own presentation. The owner supplies the same source to replacement Views, which read its current values and subscribe for changes. Persistence can live in a model or API layer.
+
+Methods such as `refresh` or `save` are application-defined operations. Marionette does not automatically await or cancel their requests. Decide which concurrent results may commit and when ending a run invalidates them. See [preparation and cancellation](#preparation-cancellation-and-failure) for the narrower lifetime of a preparation signal, and [lifetime choices](../architecture.md#choose-what-survives-an-operation) for replacing a panel while keeping its feature active.
 
 ## Child Applications
 

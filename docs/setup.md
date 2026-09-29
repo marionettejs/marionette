@@ -1,6 +1,6 @@
 # Setup and data
 
-Use the packages installed by the [quick start](quick-start.md), including `@mnjs/data`. This page describes the renderer and observable data setup used by the [records example](records.md). Core framework methods are covered in the [API reference](api.md).
+Use the packages installed by the [quick start](quick-start.md), including `@mnjs/data`. This page configures Lit rendering and observable data; those are independent integration choices. Core framework methods are covered in the [API reference](api.md).
 
 ## Configure once
 
@@ -39,7 +39,7 @@ Ordinary Lit interpolation renders these values as text, including characters su
 
 `@mnjs/data` is a workable but incomplete observable data layer. Use it alongside an API layer for fetching and persistence, or replace it with another data solution and the corresponding Marionette integration. Models and Collections do not provide an HTTP client, server synchronization, or a complete application data architecture.
 
-The Records Application imports its API module directly. Its `prepareStart` awaits the request, then constructs a Collection from the returned attributes. The successful result is passed to `onStart`; each activation gets that prepared Collection.
+For initial feature data, an Application can import its API module directly, await the request in `prepareStart`, and return a Collection built from the response attributes. The successful result reaches `onStart`. If the API layer already supplies a compatible observable source, use it directly.
 
 ### Model
 

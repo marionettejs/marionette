@@ -1,6 +1,6 @@
 # Marionette v5 documentation and tooling plan
 
-Updated 2026-09-29. The View/Region reference slice is documented in [its results](view-region-results.md). The [CollectionView slice](collection-view-results.md) follows it. The [Application slice](application-results.md) completes that core lifecycle reference. The [Behavior/MnObject slice](behavior-object-results.md) completes the six core class pages. The [runtime/provider slice](runtime-provider-results.md) adds the configuration and integration contracts. The [concepts slice](concepts-results.md) supplies independent ownership guidance and records preparation for a corrected evaluation. The first six-trajectory Stringent pilot found broad functional success but no Application readiness compliance; its guided condition removed the intended navigation and had no observed retrieval of the added guidance. Framework-wide coverage and independent teaching effectiveness remain incomplete. A new live run and production publishing remain separate decisions.
+Updated 2026-09-29. The six core class references and runtime/provider contracts have been audited; the [coverage inventory](coverage.md) tracks remaining scope. The [concepts slice](concepts-results.md) supplies independent ownership guidance. The subsequent navigation pilot produced three valid trajectories and one complete pair; the valid guided candidate retrieved the Application reference and records lesson but still failed architecture acceptance. See the [committed baseline and reassessment](baseline-status.md) for current evidence. Framework-wide coverage and independent teaching effectiveness remain incomplete. Production publishing remains separate work.
 
 ## Goal and scope
 
@@ -10,7 +10,7 @@ The documentation map is driven by framework capabilities and reader needs. An e
 
 - Design from the v5 implementation and reader needs. Do not restore retired documentation as the starting design.
 - Use proven application architecture as a conceptual model. Public work must be generic and self-contained, with no name, link, quotation, or dependency on the private reference application.
-- Applications coordinate feature composition, effects, and state for a concrete lifetime. Views render supplied state and emit intent; Regions manage placement and teardown. A local control can remain a View. Additional boundaries need a reason.
+- Applications coordinate feature composition, effects, and state for a concrete lifetime. Views render supplied state, handle local interactions, and emit feature intent; Regions manage placement and teardown. A View may save its own model when the data layer supplies persistence. Additional boundaries need a reason.
 - Prefer `@mnjs/data` in introductory examples, while explaining its incomplete scope and explicit API/service boundary. Support replacing the data solution through the framework contracts.
 - Use ordinary renderer facilities. Avoid example-only helpers and warnings that distract from the concept being taught.
 - Source tests establish API behavior. Their setup code is not an application-design reference.
@@ -55,6 +55,8 @@ Before implementation of each slice, identify its inventory rows, reader questio
 - Next priority and why it matters more than extending the current example.
 
 These notes belong in the existing inventory or milestone result. Do not create a new reporting system for each page. Checks that were not run remain unverified; later edits do not inherit exact-artifact verification automatically.
+
+When a benchmark exposes a gap, identify the general reader decision before changing consumer docs. The guidance must also make sense for application shapes outside that task and must preserve legitimate simpler designs. Keep ticket IDs, test selectors, required output strings, and evaluator instructions out of consumer material. Record task-specific analysis only in evaluation notes. Improvement on an exposed task remains regression evidence.
 
 ## Drift and peer checks
 
@@ -110,6 +112,8 @@ B. The same reference contracts plus architecture guidance, examples, and their 
 
 Both conditions use the same version-verified runtime and dependencies. Keep the relevant reference sufficient for the task rather than withholding essential contracts from A. Preserve the guided package's real index and continuation links. Give A a coherent reference-only index without dangling links. Enumerate navigation changes alongside added pages in the treatment manifest; shared API contracts remain identical. This measures the combined contribution of navigation, guidance, and examples beyond that reference. It does not isolate their individual effects or measure docs versus no docs. A forced-reading diagnostic would be a separate, explicitly declared condition.
 
+Class references include purpose and recommended ownership alongside API contracts. Keep those recommendations in both conditions. Record reference revisions explicitly; the A/B comparison measures the additional material's contribution beyond the current reference and cannot isolate the effect of those revisions from a historical run.
+
 Proposed first pilot: one model, one build task, two conditions, three fresh starts per condition: six independent sessions. Within each session, follow the build with one unannounced extension. Keep build and extension scores separate. This intentionally measures whether the agent's own architecture supports later work; it is not an isolated measurement of extension skill. Follow-up execution and budgets must be specified consistently, including how failed builds affect the extension stage.
 
 Use product requirements that do not prescribe class boundaries. Include a modest follow-up control that does not require another Application, to expose over-decomposition without adding a separate benchmark.
@@ -141,4 +145,4 @@ Continue closing the framework-wide coverage inventory while using trial failure
 
 Choose each subsequent slice from the remaining reference and reader needs in the inventory. Package installation and discovery checks are rerun when their inputs change. Retired-document tests and the production documentation pipeline need their own migration work before a clean release claim.
 
-Before a paid or model-based comparison, make the task, rubric, reference coverage, isolation, model/client, tools, and budget concrete and obtain the required configuration approval. Existing example tests and Claude reviews do not establish teaching effectiveness. Publishing, committing, or pushing is outside the current work.
+Before a paid or model-based comparison, make the task, rubric, reference coverage, isolation, model/client, tools, and budget concrete and obtain the required configuration approval. Existing example tests and Claude reviews do not establish teaching effectiveness. Local commits on `docs/v5-reset` preserve reviewed increments; publishing and pushing require separate authorization.

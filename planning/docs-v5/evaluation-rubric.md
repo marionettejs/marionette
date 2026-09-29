@@ -1,6 +1,6 @@
 # Evaluation rubric — Stage 1
 
-Evaluator-only. Version 0.5, clarifying local model persistence after the navigation pilot. This does not change any frozen experiment rubric or historical grade. API constraints are source-checked; policy recommendations require assessment of the complete consumer feature. Freeze this rubric together with the concrete task requirements before model runs. The revised records example implements startup, selection, and cleanup checks. Remaining criteria are specifications for later tasks; this is not a controlled agent evaluation harness.
+Evaluator-only. Version 0.6, clarifying local API persistence and the reference treatment after the navigation pilot. This does not change any frozen experiment rubric or historical grade. API constraints are source-checked; policy recommendations require assessment of the complete consumer feature. Freeze this rubric together with the concrete task requirements before model runs. The revised records example implements startup, selection, and cleanup checks. Remaining criteria are specifications for later tasks; this is not a controlled agent evaluation harness.
 
 ## Scoring and evidence
 
@@ -21,7 +21,7 @@ Retain a file/line or runtime observation, reproduction/check, and rationale per
 
 A critical runtime failure includes an obsolete result acting on ended UI, broken required retention, or repeated active effects after their required lifetime. Safe resource retention by a surviving owner is not a leak. A policy violation may exist in functionally correct code; label it as such, without reclassifying functional success. Accept justified alternative ownership designs that protect the same boundaries.
 
-The reference-only condition is intentionally not given the architectural guide. Comparing adherence measures whether the guide teaches these declared policies. It does not establish that every alternative architecture is objectively defective or that long-term maintainability improved. Report both results and the follow-up change evidence; do not turn policy adherence into a single success-rate claim.
+The reference-only condition includes purpose and ownership recommendations in the class references, but omits the standalone concepts guide and lesson. Both conditions receive the same updated references. Comparing adherence measures the additional contribution of the guide, examples, and navigation beyond those references. It does not isolate the effect of a reference revision, establish that every alternative architecture is objectively defective, or show that long-term maintainability improved. Report both results and the follow-up change evidence; do not turn policy adherence into a single success-rate claim.
 
 Hide condition labels and documentation traces during code review where feasible; code itself may still reveal the condition. Preserve disputed findings as U until the same frozen criterion and evidence support a decision. If two reviewers are used, reconcile their original findings explicitly rather than silently averaging them. Additional model grading is not a prerequisite for this small pilot.
 
@@ -35,7 +35,7 @@ Hide condition labels and documentation traces during code review where feasible
 
 **Alternative:** A focused function or stateful object supports an explicit owner; transport and persistence can live in an API/service layer. A different data solution can satisfy the same ownership contracts. A purely local control needs no feature Application.
 
-A View may call its own model's save operation for a local edit when the data layer supports it. An asynchronous call in a View is not by itself a policy violation. Review whether it also owns feature readiness, shared workflow decisions, or work that needs to outlive the View. Other Views observing the same model does not alone make the saving View a cross-panel coordinator.
+A View may call its own model's save operation for a local edit when the data layer supports it, or call an API layer and update its model when persistence is separate. An asynchronous call in a View is not by itself a policy violation. Review whether it also owns feature readiness or shared workflow decisions, and whether retained work has an appropriate surviving owner such as the model or feature Application. Other Views observing the same model does not alone make the saving View a cross-panel coordinator.
 
 **Superficial pass:** An Application merely constructs a View that manages feature requests and cross-panel effects.
 

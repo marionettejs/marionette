@@ -1,0 +1,52 @@
+{
+  "artifacts": {
+    "jsonPath": "/Users/paulfalgout/.ai-reviews/20260929T135340Z-review-with-claude.json",
+    "latestJsonPath": "/Users/paulfalgout/.ai-reviews/latest-review-with-claude.json",
+    "latestMdPath": "/Users/paulfalgout/.ai-reviews/latest-review-with-claude.md",
+    "mdPath": "/Users/paulfalgout/.ai-reviews/20260929T135340Z-review-with-claude.md"
+  },
+  "result": {
+    "verdict": "Conditional go for a docs-only diagnostic. The direction is general, not benchmark mimicry: every added claim follows from lifetime ownership and none mentions queues or records. Four things need fixing before the diagnostic. (1) The permitted local `this.model.save(...)` has no working path with the introductory `@mnjs/data`, which has no save. (2) Policy prose has moved into shared reference pages, so the frozen A/B manifest must record that change. (3) The package probe and the link/anchor checks must be rerun on the exact candidate. (4) Tracing must be able to show whether architecture guidance was read; without that, the diagnostic cannot be interpreted. Whole-docs direction meets the framework-wide and data-boundary goals structurally. The biggest remaining teaching gap is that no material anywhere shows an Application-owned operation after start with a retained layout. Release remains blocked by known pipeline, test and coverage gaps.",
+    "blockingIssues": [
+      "Before the diagnostic: view.md and architecture.md allow `this.model.save(...)` 'when the data layer supplies that operation'. The only documented data layer, `@mnjs/data`, supplies no persistence (setup.md). So the docs never say whether a View may call an API function for a local edit. Meanwhile architecture.md says 'For these feature requests, the Application calls a service/API module'. Fact: the local-save path is unusable with the introductory setup. Inference: agents will either invent `save` or route every request through a layout, which matches the observed failure. Smallest fix: one sentence in view.md stating the `@mnjs/data` equivalent (e.g. a View may call its API module for a local edit and `set` the result). Mirror that in rubric criterion 1.",
+      "Before the diagnostic: the added application.md and view.md text contains policy ('give that coordination to an Application', 'the View emits intent'). Both pages are shared reference, so condition A now receives architectural policy. That contradicts the rubric statement that the reference-only condition 'is intentionally not given the architectural guide'. Record this in the frozen treatment manifest and the rubric note, or move the policy sentences into architecture.md. Otherwise any null A/B result will be misread.",
+      "Before the diagnostic: the package probe (12 examples, 16 type fixtures, 51 browser checks) and link/anchor validation have not been rerun on these edits. The new anchors to check are `view.md#local-interaction-and-feature-coordination`, `view-runtime.md#data-bindings` and `application.md#preparation-cancellation-and-failure`. The installed candidate must be re-verified; prior verification does not carry over.",
+      "Before the diagnostic: the pilot recorded no measured architecture.md read and had incomplete shell tracing. A small diagnostic without reliable retrieval tracing cannot tell 'not found' from 'found but not applied'. Fix tracing, or explicitly declare that discovery is unmeasured and limit the claims to that.",
+      "Before release (not the diagnostic): 10 retired-docs unit failures, a production publisher and docs tests still on old navigation, an incomplete registry install path (quick start requires local tarballs), and skill files that contain frontmatter only. The skill description claims v4-to-v5 migration and @mnjs integrations, which have no docs; ensure skills are either absent from or identical in both diagnostic conditions. Also outstanding: the undecided runtime TypeError on synchronous initial provider notification."
+    ],
+    "risks": [
+      "The diagnostic uses an exposed task with about 1 valid pair of prior evidence. Any result is regression/directional only; it cannot support a claim that guidance teaches ownership in general.",
+      "The guided T1 run retrieved 140 KB, including the Application readiness and retained-refresh sections, and still failed architecture. Inference: more abstract prose may not change behavior. The missing piece is more likely a concrete pattern than more explanation. Frame this edit as a hypothesis, not a fix for the observed failure.",
+      "Retention guidance is now in three places (architecture.md 'Retain state', application.md intro, application.md 'Closing one panel'). This risks drift and makes the reference longer, not simpler.",
+      "The ongoing-operation paragraphs sit under 'Restart and retained UI', a heading that does not signal refresh or save operations. architecture.md sends readers there for 'ongoing requests', so lookup depends on following that link.",
+      "The records lesson's close action stops the whole child Application and resets selection in `onBeforeStart`. The new text says closing a panel can empty its Region while the Application stays active. These are different scopes (feature versus panel) and are not contradictory, but agents who copy the lesson will learn stop/start as 'close'.",
+      "application.md says the Application 'gives replacement Views their current data'; view.md says the replacement View 'reads current data and subscribes'. The owner-supplies versus View-reads roles are slightly inconsistent."
+    ],
+    "incorrectAssumptions": [
+      "The plan assumes that 'shared reference improvements go in both conditions' keeps the A/B contrast intact. It does not when the improvements are policy prose; the treatment delta has shrunk and must be re-declared.",
+      "It assumes that clarifying prose addresses the pilot failure. Fact: the agent's motivation is unknown and retrieval was incomplete. Inference only.",
+      "It assumes the local-save allowance is actionable. With `@mnjs/data` it is not, as there is no `Model.save`.",
+      "It assumes that 'reassess all documentation areas' can use the coverage inventory as evidence of teaching quality. The inventory itself says coverage rows cannot establish explanation quality."
+    ],
+    "missingTests": [
+      "Rerun the installed-candidate package probe and the docs link/anchor check after these edits, and record the docs hash in the manifest.",
+      "Harness check: confirm the trace captures reads of architecture.md and application.md#restart-and-retained-ui in both conditions before the live diagnostic.",
+      "Harness check: confirm the skill directory is absent from or identical in both conditions, and that workspaces cannot reach the planning or rubric files.",
+      "Pre-freeze rubric check: grade the frozen reference implementation plus one seeded variant (a layout View owning feature requests with manual child updates). Confirm criterion 1 scores it 0 and scores a View-local API save for one edit as 2."
+    ],
+    "simplifications": [
+      "Delete the application.md 'Closing one panel…' paragraph; architecture.md 'Retain state' already says the same. Link to it instead.",
+      "Merge the three new restart-section paragraphs into one short subsection, e.g. '## Operations after start': the same Application owns later refresh/save; results update retained data; Marionette does not cancel these operations; the owner decides which results commit. The existing sentence 'Choose cancellation/obsolete-response handling…' already covers most of the third paragraph.",
+      "Cut the application.md intro addition to one sentence ('Choose the owner by what must survive; a local model edit can stay in its View'). The full boundary is already in view.md.",
+      "In view.md, drop the 'For these actions' ambiguity by naming them ('feature readiness and shared workflow actions'). Fix the grammar: 'That other Views observe the same model does not make…'."
+    ],
+    "nextSteps": [
+      "Commit the bounded edits after applying the simplifications above and the one-sentence `@mnjs/data` local-edit clarification. Update rubric criterion 1 to match.",
+      "Update the treatment manifest to record the policy sentences now shared in the reference. Freeze it with the docs hash after rerunning the probe and link checks on the installed candidate.",
+      "Fix or explicitly scope the retrieval tracing, then hand off to Stringent for the small frozen A/B.",
+      "Highest-priority gap beyond this example: add one short (~25-line) post-start operation snippet in application.md, using the existing Summary example. It would show a refresh owned by the Application, a retained layout, a child View updated through observable data, and a run-scoped obsolete-response guard. This covers the 'Refresh retained UI' reader-need row, which the inventory lists as missing a dedicated guide. It is general, not a records expansion, and not a mega-example.",
+      "Keep release blockers visible and separate from the diagnostic: retired-docs test and publisher migration, the registry install path, real skill content (or remove the migration claim), the Radio/errors/TypeScript/migration coverage rows, and the provider initial-notification runtime decision."
+    ]
+  },
+  "skill": "review-with-claude"
+}

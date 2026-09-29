@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-09-29T13:58:28.758Z",
+  "relativeLinks": 379,
+  "markdownFiles": 27,
+  "consumerPages": 19,
+  "reachableWithoutLesson": 18,
+  "changedCodeFences": 0,
+  "privateOrBenchmarkContent": 0,
+  "matchedPackageFiles": 33,
+  "packageSha256": "4b33eb85221a813f8cdbc15c6fc8fd39c8858697c6c6760e54e3b03fdd2854e4",
+  "scope": "Local consumer docs plus changed planning Markdown; structural checks are not independent learning evidence."
+}

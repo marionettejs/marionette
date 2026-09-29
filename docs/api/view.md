@@ -6,6 +6,14 @@ A View owns one fixed DOM element, renders supplied data, and can compose child 
 
 Import `View` from `marionette`. Shared rendering, DOM, UI, data bindings, and child forwarding are defined in [View runtime](view-runtime.md). Inherited [common methods](common.md), [events](events.md), and [state](state.md) are part of this API.
 
+## Local interaction and feature coordination
+
+A View can own local input state and save an edit to its model when the data layer supplies that operation. Calling `this.model.save(...)` from an input handler can be appropriate. With `@mnjs/data`, a local edit can instead call the application's API layer and update the model with `set`; the package supplies no persistence method. Having other Views observe the same model does not make that handler responsible for their presentation; each consumer handles its own updates.
+
+Use an [Application](application.md) to coordinate feature readiness and shared workflow decisions. For these actions, the View emits intent; the Application decides what work to start and where its result belongs. Starting a feature's initial load in `onRender` ties readiness to rendering and can repeat the request on rerender. Put that readiness in [Application preparation](application.md#prepare-before-showing-ui).
+
+For shared records or selection that change over time, receive an observable source and use [model/collection bindings](view-runtime.md#data-bindings) or [state bindings](state.md). A replacement View reads current data and subscribes for later changes. Its owner can then replace it without coordinating each presentation update.
+
 ## Construction and options
 
 `new View(options?)` creates the element, delegates DOM events, prepares state access and Behaviors, registers Regions, and calls `initialize(options)`. It does not evaluate the template. `View.extend(prototypeProperties?, staticProperties?)` returns a subclass; see [class extension](common.md).

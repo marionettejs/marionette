@@ -56,6 +56,12 @@ The Marionette concepts page now explains responsibilities and lifetime choices 
 
 Tradeoff: a prose concepts page introduces an extra reading step. It avoids making the full lesson a prerequisite but still needs a reader trial to establish whether its links and explanations help. The next comparison must preserve natural navigation in the guided package; removing those links would test a different product. Discovery traces, architecture review and build/extension behavior remain separate measurements. This structural comparison does not rank agent effectiveness or framework quality.
 
+## Ownership decision reassessment
+
+Sources rechecked 2026-09-29. [React's shared-state guide](https://react.dev/learn/sharing-state-between-components) starts with independent local state and moves ownership when a concrete coordination need appears. [Vue's state-management guide](https://vuejs.org/guide/scaling-up/state-management.html) distinguishes component state from shared state and explains how shared actions become useful as coordination grows.
+
+The relevant teaching mechanism is to explain the reason for moving a responsibility and keep simpler local behavior legitimate. Marionette's View reference now states that local model/API persistence can remain local, while its Application reference connects readiness to later feature operations. Marionette's classes and lifecycle contracts remain its own; this comparison does not establish equivalent architecture or measured learning outcomes. We have not added an implementation of the exposed task to the docs.
+
 ## Earlier records-lesson comparison
 
 Sources accessed 2026-09-28. The findings below concern one runnable list/detail lesson. They do not define the framework documentation map or require future guides to extend that lesson.

@@ -15,7 +15,7 @@ Marionette organizes UI around ownership: who prepares a feature, who presents i
 
 A View with Regions is enough for visual composition. Add an Application when a feature needs readiness, coordinated effects, or an independently managed lifetime. A parent Application can own the page and start child features even when the parent has no asynchronous preparation. Registering a child establishes ownership; starting it is an explicit decision.
 
-A View can save an edit to its own model when the chosen data layer provides that operation. Reading a local input and calling `this.model.save(...)` can be a local interaction; an asynchronous call alone does not require an Application. The model or API layer owns persistence. Move coordination to a feature owner when the operation controls feature readiness, shared workflow decisions, or work that must survive replacement of the View.
+A View can save an edit to its own model when the chosen data layer provides that operation. An asynchronous call alone does not require an Application. The [View reference](api/view.md#local-interaction-and-feature-coordination) explains this boundary; the model or API layer owns persistence, while an Application coordinates feature readiness and shared workflow decisions.
 
 ## Prepare a feature, then activate its UI
 
@@ -40,7 +40,7 @@ Pass the preparation signal to the service where supported. Marionette prevents 
 
 For refreshes, decide which result may update state, how failure affects displayed data, and how completions lose authority when their owner ends.
 
-Retain state at the lifetime that needs it. A local control's state can live in that View. Drafts or pending work that must survive panel replacement belong to a surviving owner. Application stop/restart preserves state but removes its root UI. Choose panel replacement or a child feature boundary when the surrounding interface should remain mounted. See [restart and retained UI](api/application.md#restart-and-retained-ui).
+Retain state at the lifetime that needs it. A local control's state can live in that View. Drafts or pending work that must survive panel replacement belong to a surviving owner. Closing a panel can empty its Region while the feature Application stays active; completions update retained data, and a replacement panel reads that data. Application stop/restart removes its root UI while retaining Application state. See [operations after start](api/application.md#operations-after-start) for how ongoing requests use that shared data.
 
 ## Share data and communicate intent
 
