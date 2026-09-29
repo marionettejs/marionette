@@ -1,0 +1,203 @@
+examples/records/README.md
+  s_930f3c9a37745c::t_6154015b4d4641 5-7
+  s_930f3c9a37745c::t_f08f17bb6e82d2 1-2,8-30
+  s_930f3c9a37745c::t_67871c9821db39 3-4,31-41
+docs/api/events.md
+  s_930f3c9a37745c::t_7eb5e5e1fd9aaa 3
+  s_930f3c9a37745c::t_38ec10e84c079d 1-2,4-37,39-61
+  s_930f3c9a37745c::t_fa3c6459be2c19 38
+test/types/dom.mts
+  s_930f3c9a37745c::t_170f7765c7d443 75
+readme.md
+  s_930f3c9a37745c::t_a02b37eaa8b5fe 18
+  s_02bf08a4f254a1::t_cfac15d2bcc1cd 25
+docs/readme.md
+  s_930f3c9a37745c::t_a02b37eaa8b5fe 3,13,15-17,20
+  s_930f3c9a37745c::t_6154015b4d4641 1,5,7,11,22,24,26,28,30-31,34
+  s_930f3c9a37745c::t_cee9b31f133fff 21
+  s_930f3c9a37745c::t_8a213267884994 18-19
+  s_930f3c9a37745c::t_3ca74b4e0c639f 14
+  s_930f3c9a37745c::t_f03022e7605b5d 8-9
+examples/records/.gitignore
+  s_930f3c9a37745c::t_e0c32393604ef3 1-4
+docs/api/view-runtime.md
+  s_930f3c9a37745c::t_61bc4645969361 1-81,84-97,99-105,107-121,123-134
+  s_930f3c9a37745c::t_cee9b31f133fff 122,135
+  s_930f3c9a37745c::t_7eb5e5e1fd9aaa 82-83,98
+  s_930f3c9a37745c::t_8a213267884994 106
+examples/records/playwright.config.js
+  s_930f3c9a37745c::t_44f8df37d42a28 1-24
+examples/records/index.html
+  s_930f3c9a37745c::t_e0c32393604ef3 1-21
+docs/api.md
+  s_930f3c9a37745c::t_634e2e093bb554 1,5,7,9-10,16,18-21,27,29,33
+  s_930f3c9a37745c::t_cee9b31f133fff 23-26,31
+  s_930f3c9a37745c::t_f03022e7605b5d 3
+  s_930f3c9a37745c::t_8a213267884994 13-14
+  s_930f3c9a37745c::t_2f37158ebc03b6 2,4,6,8,15,17,22,28,30
+  s_930f3c9a37745c::t_3ca74b4e0c639f 11
+  s_1b3bfe72667b50::t_9e2742ad841dca 12,32
+examples/records/src/styles.css
+  s_930f3c9a37745c::t_d273370f4e6535 1-20
+docs/api/runtime.md
+  s_930f3c9a37745c::t_170f7765c7d443 50
+  s_930f3c9a37745c::t_57e4c5781c6811 1-49,51-86
+docs/api/collection-view.md
+  s_930f3c9a37745c::t_634e2e093bb554 1-2,4,6,8,195,204,206
+  s_930f3c9a37745c::t_b8309b1bb11c62 3,5,7,9-86,88-107,109-184,186-194,196-203,205
+  s_930f3c9a37745c::t_b093b03f164e08 87,108,185
+  s_930f3c9a37745c::t_3611e73ab4cb59 207
+skills/marionette/SKILL.md
+  s_02bf08a4f254a1::t_6b4f988e00e614 3
+examples/records/scripts/build-local-packages.mjs
+  s_930f3c9a37745c::t_e0c32393604ef3 1-17
+docs/api/application.md
+  s_930f3c9a37745c::t_1247ec2ec55e5f 157
+  s_930f3c9a37745c::t_634e2e093bb554 1-2,37,39,41,81,91,93,100,102,104,106,108-110,121-123,125,128-131,136,173,175,177-179
+  s_930f3c9a37745c::t_dc2556ee044b0f 3-36,38,40,42-80,82,84-89,92,94-99,101,103,105,107,111-120,124,126-127,132-135,137-156,158-172,174,176,180
+  s_930f3c9a37745c::t_3ca74b4e0c639f 83
+  s_930f3c9a37745c::t_c03dadf31c5556 90
+docs/architecture.md
+  s_930f3c9a37745c::t_5bd157ef658b82 14,20,24,26-27,35-37,39,51,55
+  s_930f3c9a37745c::t_9e1607aa1a31a3 1-2,4,6,15,17,19,21,23,25,29,31,38,40,42,44,46,48,50,52
+  s_930f3c9a37745c::t_1f352d1364afe2 22
+  s_930f3c9a37745c::t_f03022e7605b5d 3,5,7-13,16,18,28,30,32-34,41,43,45,47,49,53-54,56-65
+docs/api/data-providers.md
+  s_930f3c9a37745c::t_170f7765c7d443 31,37,39,62
+  s_930f3c9a37745c::t_57e4c5781c6811 1-30,32-36,38,40-61,63-72
+docs/setup.md
+  s_930f3c9a37745c::t_6664d4e51fc029 3,66
+  s_930f3c9a37745c::t_53d618afac22f1 1-2,4-20,22-65,67-82
+  s_930f3c9a37745c::t_cee9b31f133fff 21
+docs/api/region.md
+  s_930f3c9a37745c::t_f47414cabee549 138
+  s_930f3c9a37745c::t_79ce375002783e 61
+  s_930f3c9a37745c::t_7eb5e5e1fd9aaa 60,70,73,75,96,120,122
+  s_930f3c9a37745c::t_76ae0120aae1b7 58
+  s_930f3c9a37745c::t_5e26bd4a804e34 1-57,59,62-69,71-72,74,76-95,97-119,121,123-137,139-156
+examples/records/tests/records.spec.js
+  s_930f3c9a37745c::t_f50e64a80c33ee 26-29,188-190
+  s_930f3c9a37745c::t_ff5f8ebc9b283d 231
+  s_930f3c9a37745c::t_1ea4d63a3b509c 111
+  s_930f3c9a37745c::t_6ea3905e054b89 71,87-101,122-129,131-136,139-179,264,316
+  s_930f3c9a37745c::t_a300f4acd7cd76 18
+  s_930f3c9a37745c::t_44f8df37d42a28 1-13,31-58,62,103-108,121,137-138,182-183,195,202-211,213-220,249,280,283,289,301,324,347
+  s_930f3c9a37745c::t_d64f2fafe0cd4f 308-309
+  s_930f3c9a37745c::t_e358d97bb3ac35 14,22-25,260-263
+  s_930f3c9a37745c::t_0cb40fac0bdf67 16-17,74,212,221-229,232-244,253,268,293,305,310,338,344
+  s_930f3c9a37745c::t_35f6e6d49d3bf6 130
+  s_930f3c9a37745c::t_452910aef007cd 15,19-21,30,59-61,63-70,72-73,75-86,102,109-110,112-120,180-181,184-187,191-194,196-201,230,245-248,252,254-259,265-267,269-279,281-282,286-288,290-292,294-300,304,306-307,311-312,314-315,317-323,327-337,339-343,345-346
+docs/api/common.md
+  s_930f3c9a37745c::t_7eb5e5e1fd9aaa 23
+  s_930f3c9a37745c::t_cee9b31f133fff 62
+  s_930f3c9a37745c::t_38ec10e84c079d 1-2,4-22,24-51,53-54
+  s_930f3c9a37745c::t_1247ec2ec55e5f 3,52,55-61
+examples/records/src/records-api.js
+  s_930f3c9a37745c::t_d273370f4e6535 1-7
+docs/api/state.md
+  s_930f3c9a37745c::t_cee9b31f133fff 63
+  s_930f3c9a37745c::t_5486b7e416ff1b 42
+  s_930f3c9a37745c::t_38ec10e84c079d 1-41,43-62,64-65
+examples/records/package.json
+  s_930f3c9a37745c::t_e0c32393604ef3 1-26
+examples/records/public/api/records.json
+  s_930f3c9a37745c::t_d273370f4e6535 1-5
+test/types/dom.cts
+  s_930f3c9a37745c::t_170f7765c7d443 75
+docs/quick-start.md
+  s_930f3c9a37745c::t_f03022e7605b5d 61
+  s_930f3c9a37745c::t_b9059942313d18 12-13
+  s_930f3c9a37745c::t_6154015b4d4641 1,5,9-11,16-33,35-44,46-48,51,53-54,57-59
+  s_930f3c9a37745c::t_6664d4e51fc029 3,7
+  s_1b3bfe72667b50::t_225bb0610aac61 6,60
+examples/records/src/main.js
+  s_930f3c9a37745c::t_d273370f4e6535 1-4
+  s_930f3c9a37745c::t_b4834adb81f845 5-6
+examples/records/src/records-views.js
+  s_930f3c9a37745c::t_d273370f4e6535 1-57
+docs/api/dom-providers.md
+  s_930f3c9a37745c::t_57e4c5781c6811 1-10,12-56,59-84
+  s_930f3c9a37745c::t_170f7765c7d443 11,58
+  s_930f3c9a37745c::t_1030fb5a5edffd 57,85
+docs/api/behavior.md
+  s_930f3c9a37745c::t_1247ec2ec55e5f 1-56,58-61,63-64,68-76,78-94
+  s_930f3c9a37745c::t_8a213267884994 57,62,65-67,77
+  s_930f3c9a37745c::t_15821be2a4e9dd 95
+docs/records.md
+  s_930f3c9a37745c::t_1ea4d63a3b509c 23
+  s_930f3c9a37745c::t_fc6dce84e63abd 3,17,25,27,29,34-36,39,43,49-53,59,65,67,69,74
+  s_930f3c9a37745c::t_6154015b4d4641 7-8,48,77
+  s_930f3c9a37745c::t_54a0118bb360fa 19-22,24
+  s_930f3c9a37745c::t_67871c9821db39 1-2,4-6,9-16,18,26,28,32,37-38,40-42,44-46,54-56,58,60-64,66,68,70-73,75-76
+  s_930f3c9a37745c::t_e358d97bb3ac35 57
+  s_930f3c9a37745c::t_27ecef70751a0e 30-31,33,47
+plugins/marionette/skills/marionette/SKILL.md
+  s_02bf08a4f254a1::t_6b4f988e00e614 3
+examples/records/src/setup.js
+  s_930f3c9a37745c::t_d273370f4e6535 1-8
+examples/records/src/records-application.js
+  s_930f3c9a37745c::t_e358d97bb3ac35 3,16
+  s_930f3c9a37745c::t_d273370f4e6535 1-2,5-11,14,19,26,28,31-38
+  s_930f3c9a37745c::t_b2370a0519b1a7 30
+  s_930f3c9a37745c::t_f19774962dfc9d 4
+  s_930f3c9a37745c::t_ed7bf6cd4f8602 12-13
+  s_930f3c9a37745c::t_3a3f46cb324652 15
+  s_930f3c9a37745c::t_641151b6365f4c 17-18
+  s_930f3c9a37745c::t_4354373c11ae1d 20-25
+  s_930f3c9a37745c::t_08d40e7ef91811 27
+  s_930f3c9a37745c::t_151d8cc13dc6ed 29
+examples/records/vite.config.js
+  s_930f3c9a37745c::t_e0c32393604ef3 1-17
+docs/api/view.md
+  s_930f3c9a37745c::t_7eb5e5e1fd9aaa 11,13,33,92,99,118
+  s_930f3c9a37745c::t_61bc4645969361 1-2,5-10,12,14-32,34-91,93-98,100-117,121-139
+  s_930f3c9a37745c::t_283c0ff1b43644 3-4,119-120
+examples/records/src/main-application.js
+  s_930f3c9a37745c::t_9a5b7505851019 10-14
+  s_930f3c9a37745c::t_5714fd39ed5d3d 1-9,15-35
+llms.txt
+  s_930f3c9a37745c::t_f03022e7605b5d 7
+  s_930f3c9a37745c::t_6154015b4d4641 1,3,5-6,18-19
+  s_930f3c9a37745c::t_3ca74b4e0c639f 9
+  s_930f3c9a37745c::t_8a213267884994 13-14
+  s_930f3c9a37745c::t_a02b37eaa8b5fe 8,10-12
+  s_930f3c9a37745c::t_cee9b31f133fff 15-17
+docs/api/mnobject.md
+  s_930f3c9a37745c::t_1247ec2ec55e5f 1-82
+examples/records/package-lock.json
+  s_930f3c9a37745c::t_de0fbf53ce00e7 1-1005
+examples/records/src/page.js
+  s_930f3c9a37745c::t_e24d4565add3dc 1-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0173d44f7ff584cbb0ace8515b20a86d9ceef61c",
+  "prompts": {},
+  "sessions": {
+    "s_02bf08a4f254a1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0dc83-b213-7b62-b5f6-93a88f9fde6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_1b3bfe72667b50": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ebf6-b9bc-7691-863f-e913eb470b24",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
