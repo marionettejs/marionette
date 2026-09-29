@@ -606,7 +606,7 @@ Phase 0 budget process is historical evidence, not an active release gate.
 - Revisit enforceable budgets after the v5 API and package boundaries stabilize,
   using representative consumer bundles and controlled runtime measurements.
   New budgets need a reason tied to users; the old Phase 0 limits do not reactivate
-  automatically. See [performance measurements](docs/performance-baselines.md).
+  automatically. See the [measurement configuration](config/performance.json).
 - Large-list operation-count evidence includes at least 1,000 visible children and
   covers initial render, append one, append many, remove one, reset or clear,
   targeted update, and destroy. Deterministic cases record created, attached, moved,
@@ -944,8 +944,9 @@ closed rather than retained as dormant APIs.
 The September 23, 2026 maintainer decision separates candidate publication from
 stable acceptance. RC.1 provisionally freezes beta.6's public API and introduces
 no new runtime behavior. [Issue #574](https://github.com/marionettejs/marionette/issues/574)
-and the [RC stabilization checklist](https://github.com/marionettejs/marionette/blob/master/docs/maintainers/rc-stabilization.md) own the
-remaining evidence and dated results.
+owns the remaining evidence and dated results. The
+[release test guide](test/README.md#exact-release-candidates) describes artifact
+certification; acceptance remains governed by this strategy and the issue.
 
 A candidate may be published after known critical supported-workflow library
 failures are resolved, its public contract and limitations are documented, and

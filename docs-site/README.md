@@ -1,12 +1,11 @@
 # Documentation publication
 
-The library repository owns documentation and executable examples. The website
-repository owns presentation, navigation UI, search, and the deployment artifact.
-Both render the same Markdown; do not maintain a second reference in website HTML.
-The consumer documentation starts at [the documentation index](../docs/readme.md).
-Importing reference docs does not update the playground runtime or deploy the website.
+The library owns canonical Markdown, executable examples, the diagnostic catalog
+and the application skill. The website owns presentation, search and deployment.
+Read the [consumer index](../docs/readme.md) for application work and
+[contributor guidance](../CONTRIBUTING.md) for library work.
 
-## Build and review
+## Build one identifiable snapshot
 
 ```sh
 npm run build
@@ -14,182 +13,89 @@ npm run docs:check
 npm run docs:export
 ```
 
-`navigation.json` lists the current consumer corpus, including nested API pages,
-with one title, section, and route per page. `resources.json` explicitly lists the
-supporting diagnostic catalog, agent skill, and records example source. Planning,
-evaluation results, and repository test fixtures are excluded from the export.
+`navigation.json` defines consumer pages, titles and routes. `resources.json`
+selects the diagnostic catalog/schema, complete skill and records lesson source.
+Planning, benchmarks and repository test fixtures stay outside the consumer export.
 
-`docs:check` validates navigation coverage, exact exported bytes, relative resource
-links, generated HTML links and anchors, agent routes, and the reference examples.
-The example check executes actual documentation fences with JSDOM and checks their
-TypeScript declarations against the built packages. It does not establish browser
-behavior or reader effectiveness. The records example has separate browser tests.
+The export in `.docs-export` records package version, source revision, dirty state,
+individual hashes and an aggregate digest. It includes a heading-section index for
+focused retrieval. Exact-symbol lookup is not distributed in this corpus; use
+section search or canonical class references. These checks establish delivery and
+specific example behavior, not independent reader effectiveness.
 
-`docs:export` writes `.docs-export/manifest.json` and the selected files at their
-repository paths. It also produces `docs-sections.json`, which records verified
-heading offsets for local lookup. The former symbol-to-contract index is not
-published. The migrated contract inventory still records partial coverage;
-exact-symbol retrieval needs its own consumer audit before being offered again.
+`docs:package` stages the same consumer snapshot in `.package`; pack that directory
+for npm distribution. Root `npm pack` and Git dependencies do not deliver the complete
+consumer corpus. The package includes the skill and readable records source; it
+does not install an authored application starter. [Consumer tooling](../docs/tooling.md)
+and [agent guidance](../docs/agents.md) describe its supported use.
 
-The manifest records package version, source revision, working changes, each
-file's SHA-256, and a combined content hash. It contains no timestamp or network
-input. `docs:package` stages those same consumer pages and resources in `.package`
-for npm packaging. The package includes the records source for reading alongside
-the lesson; it does not install a separate authored application starter.
+For release evidence, use a clean checkout of the exact target commit and preserve
+the five package tarballs and their hashes. Unrelated untracked files make the export
+dirty too. A version string or a successful build does not authorize publication.
+The checked-in [publication policy](../config/release-promotion.json) and exact-artifact
+release certification determine whether a package can be published.
 
-The website imports the canonical snapshot explicitly:
+## Integrate the website
+
+Use the current `marionettejs/marionettejs.com` checkout and its instructions:
 
 ```sh
 npm run docs:import -- /absolute/path/to/.docs-export
 npm run check
+node scripts/check-agent-site.mjs --local --report output/agent-retrieval.json
 ```
 
-These commands run in the website checkout. A library export does not deploy the
-website. The imported site must retain the snapshot's provenance and display local
-changes as such. A changed document requires a new website import.
+Run these commands in the website repository. Review navigation, import provenance,
+Markdown alternatives, search, `llms.txt`, diagnostics and the MCP corpus together.
+An unreleased candidate must remain identified as a candidate. A published archive
+must match its npm package bytes; publication wording must not disguise a different
+runtime or source revision. The website's demo/workshop runtime has separate provenance.
 
-For a release snapshot, export a clean checkout of the exact release commit and
-preserve the importing website revision. Package and site content must not be
-silently replaced with a different version. The homepage demonstration has its own
-runtime provenance; importing documentation does not update that runtime.
+The website's ordinary reading-copy sync opens a PR from merged library `master`.
+It does not replace package archives or skill assets. Navigation changes stop for
+explicit website review, so a rebuilt corpus requires an integration update. Package,
+skill or resource changes need an explicit snapshot import, not a reading-copy sync.
+The sender workflow requires `WEBSITE_DOCS_DISPATCH_TOKEN`; receiver setup is in the
+[website sync guide](https://github.com/marionettejs/marionettejs.com/blob/main/scripts/docs-sync/README.md).
 
-## Website integration
+## Deploy and verify
 
-The integrated prototype renders the full reference under `/docs/`, with local
-Pagefind search, Markdown alternatives, a scoped `llms.txt`, and links to exact
-source provenance. The existing website's layout and static builder remain the
-presentation layer. A framework migration is not required to obtain those features.
+Merging a reviewed website change into `main` runs the shared
+[site/MCP deployment workflow](https://github.com/marionettejs/marionettejs.com/blob/main/.github/workflows/deploy.yml).
+It checks the artifact, publishes/verifies Pages, then publishes/verifies MCP from
+that same checkout. Follow the [deployment and rollback runbook](https://github.com/marionettejs/marionettejs.com/blob/main/mcp/DEPLOYMENT.md);
+do not publish the website out of band. Library merges, local exports and plugin
+changes do not themselves deploy the integrated website.
 
-The library's `.docs-site/` renderer remains a validation surface and the existing
-diagnostic-host artifact. It now uses the same complete navigation list rather
-than a separate publication allowlist. It maps `/docs/` entries to `/development/`.
+Before deployment, record the target commit, documentation and runtime hashes,
+previous Pages deployment and Worker version. Verify that the advertised version,
+all Markdown/diagnostic URLs, search and MCP catalog/tools agree with the reviewed
+artifact. Exercise the deployed website and a consumer production bundle separately.
+Check direct visits, asset/API errors, failure/retry, teardown, keyboard and focus.
+A local server check does not establish CDN cache behavior or Worker CPU limits.
 
-## Hosting and distribution choices
+Pages and Worker uploads are sequential, so a failed Worker deployment can leave the
+services temporarily on different snapshots. The deployment runbook owns recovery
+and rollback. Retain installed/static docs independently of MCP and keep the existing
+free-plan constraints; local timing does not prove edge resource compliance.
 
-The default recommendation is Cloudflare Pages for the integrated static website.
-Keep GitHub as the canonical source and package distribution, and use Context7 as
-an optional retrieval channel. A docs-specific hosting service is an alternative
-when its managed version navigation is worth adapting the existing site.
+`docs-site/CNAME` and the opt-in `DOCS_PAGES_ENABLED` workflow describe a separate
+diagnostic Pages artifact. They do not publish the integrated website. Retire that
+artifact only after its existing domain and diagnostic routes are handled by the
+reviewed deployment. Preserve published v4 documentation for its active consumers.
 
-| Service | Role and current free boundary | Decision for Marionette |
-| --- | --- | --- |
-| Cloudflare Pages | Static asset requests are free and unlimited when they do not invoke Functions. The free plan permits 500 builds/month, 20,000 files/site, and 25 MiB/file. | Preferred host for the combined website and docs under the popularity constraint. Build once per reviewed content change; serve static files. |
-| GitHub Pages | Public repositories can use GitHub Free. Published sites have a 1 GB limit and a soft 100 GB/month bandwidth limit; rate limiting can apply. | Suitable for a small site or recovery copy, but less suitable as the primary host if traffic grows dramatically. |
-| Read the Docs Community | Free for open-source projects with public docs and advertising-supported hosting. | A credible managed-docs alternative if the project accepts its advertising and platform integration. Keep canonical Markdown in this repository if adopted. |
-| Context7 | Optional public-repository indexing and retrieval; consumers use their own accounts and quotas. | Add discovery without making the website depend on its API or availability. It does not replace the website host. |
+## Optional retrieval channels
 
-These are current plan boundaries, not promises that a provider will retain the
-same terms indefinitely. Recheck them before enabling a service. Do not attach a
-paid plan, enable usage overages, or add an automatic upgrade to compensate for
-traffic. If the free service is unavailable, retain downloadable package docs and
-the repository; consider another free static host instead of silently incurring a
-bill. Do not maintain a second independently authored documentation set.
+The local skill works without a hosted service. The optional hosted MCP catalog must
+match the application's installed version and source revision before use; matching
+version strings alone do not establish the same contract. It does not run code or validate
+an application's architecture. Verify catalog identity, document hashes, focused
+retrieval and explicit version-mismatch rejection after each deployment.
 
-Sources checked September 2026: [Cloudflare static pricing](https://developers.cloudflare.com/pages/functions/pricing/),
-[Cloudflare platform limits](https://developers.cloudflare.com/pages/platform/limits/),
-[GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits),
-and [Read the Docs platform choices](https://about.readthedocs.com/choosing-a-platform/).
-
-## Deployment decision
-
-The public website and optional documentation MCP have separate manual deployments.
-Prepare and review the complete static website artifact and matching MCP corpus,
-then follow the [website deployment runbook](https://github.com/marionettejs/marionettejs.com/blob/main/mcp/DEPLOYMENT.md)
-for the authorized hosting configuration and live checks. Keep static and installed
-documentation available independently of MCP. Record the previous deployments so
-content and presentation can be restored together if needed.
-
-Keep hosting within the authorized free plans; do not enable paid overages or an
-automatic upgrade. Record measured MCP CPU limits and accepted availability
-limitations for each release. A successful request does not prove the service
-stays within its provider's nominal resource budget. Domain registration remains
-an existing separate cost.
-
-The catalog reserves `/errors/<code>/` routes. Coded runtime `MarionetteError.url`
-values point to `https://marionettejs.com/errors/<code>/`, where the integrated
-website generates catalog pages from the same source. Do not remove published
-error codes or leave their URLs unresolved.
-
-`docs-site/CNAME` configures `docs.marionettejs.com` for the separate diagnostic
-artifact. The existing `DOCS_PAGES_ENABLED` gate is unchanged. Retire that separate
-Pages deployment and library presentation scaffold only when its domain is served
-by the integrated artifact; keep the shared catalog and export validation.
-
-Legacy documentation at `marionettejs.com/docs/current/` describes earlier releases.
-Do not replace it implicitly when deploying the v5 preview. Stable and immutable
-release URLs require actual release snapshots and a separately reviewed route map.
-
-## Context7
-
-`context7.json` selects current consumer documentation and excludes maintainer
-policy and migration comparisons from default retrieval. Migration guides remain
-available through the canonical index; agents doing an upgrade should open those
-explicitly so old and new APIs retain their before/after context. The public library
-is `/marionettejs/marionette`; its development branch is `master`. A user should
-select documentation matching their actual installation or source revision.
-
-Keep parsing policy in this repository so changes can be reviewed alongside docs.
-Ownership verification requires the public proof file on the default branch; a
-local file alone does not claim the library. Refresh indexing after the reviewed
-configuration lands. Test representative retrieval for version confusion and
-integration choice before presenting Context7 as a reliable shortcut.
-For a release, follow the [Context7 steps in the release checklist](../docs/maintainers/release-checklist.md#5-close-the-release-or-recover):
-register the published version, request a refresh, and verify actual retrieval.
-Refreshing the configured development branch does not pin it to a release.
-
-Each developer connects Context7 using their own account. The docs site does not
-proxy queries or distribute a maintainer API key. Free-tier throttling may make
-Context7 unavailable; canonical Markdown, package documentation, and local website
-search remain usable. Do not enable a paid plan or usage overages.
-
-Sources checked September 2026: [Context7 configuration](https://context7.com/docs/library-owners),
-[Context7 ownership](https://context7.com/docs/howto/claiming-libraries),
-[Context7 plans](https://context7.com/plans), and
-[Cloudflare Pages pricing](https://developers.cloudflare.com/pages/functions/pricing/).
-
-## Continuous website reading-copy sync
-
-Merges affecting rendered reading-copy sources request the website's single
-[reading-copy sync workflow](https://github.com/marionettejs/marionettejs.com/blob/main/.github/workflows/docs-sync.yml).
-It reads the latest merged `master` Git objects, preserves website publication
-wording with a three-way merge, validates the complete website/MCP artifact, and
-creates or updates `automation/library-docs-sync` as one ready website PR.
-Dispatches contain no executable code, source URL, or revision to trust; delayed
-requests always converge on current `master`. Use **Request website documentation
-sync → Run workflow** to retry failed delivery or recover a missed event.
-
-This is development/CI tooling only: no library runtime cost. Supporting-resource-only changes (`docs-site/resources.json`, catalogs, skills,
-fixtures and benchmark assets) intentionally do not dispatch: the receiver leaves
-those archived assets pinned and synchronizes Markdown pages only.
-Ordinary syncs never
-run a library build, change package versions, import a new npm archive, or copy
-skill/starter assets. Reading-copy edits carry their exact source revisions and
-hashes separately from the immutable npm archive. Conflicting publication edits
-stop for review rather than overwriting website wording.
-
-Setup: create the repository secret `WEBSITE_DOCS_DISPATCH_TOKEN` in this library
-repository. Use a fine-grained token restricted to `marionettejs/marionettejs.com`
-with **Contents: write**, the permission required by GitHub's repository dispatch
-endpoint; no access to write this library is needed. Store the value only in
-Actions secrets. Configure the receiver and its PR credential first, then enable
-this sender. See the website's `scripts/docs-sync/README.md` for receiver setup,
-branch rules, validation, conflict recovery, and token rotation. The default
-`GITHUB_TOKEN` cannot dispatch across repositories.
-
-An npm release remains an explicit import in the website. Read the exact revision
-from the published package's `docs-manifest.json`, export with `npm run docs:export`
-from a clean checkout of that revision, and import the complete `.docs-export` with
-`npm run docs:import -- /path/to/released-source/.docs-export`. The full export
-preserves maintainer pages that the consumer npm package omits.
-Require matching version/repository/revision, `sourceDirty: false`, identical
-metadata and bytes for every npm consumer page/asset, and the reviewed maintainer
-route inventory. Website `npm run check` verifies the npm subset against the pinned
-installed package; review the full manifest diff for maintainer scope. Review
-publication edits and supplemental schema provenance with that import. Ordinary
-merges must never import a moving or unreleased export into this archive.
-
-Neither workflow merges PRs or deploys. After the website sync PR merges, manually
-build and deploy the complete website and MCP from the same reviewed website
-commit, record the corpus hash, and follow `mcp/DEPLOYMENT.md`. Existing diagnostic
-Pages hosting is a separate opt-in workflow; this sync grants no Pages, deployment,
-package, or release permissions.
+`context7.json` currently selects library `master`, not this feature branch or an
+immutable release. Its rules label development content and require installed-version
+selection. After reviewed changes reach that branch, register/refresh the desired
+release through the library-owner workflow and verify returned version/source and
+representative contracts. A refresh request is not evidence of correct retrieval.
+Context7 is optional; do not make installed documentation or the website depend on
+its availability. See [Context7's owner documentation](https://context7.com/docs/library-owners).

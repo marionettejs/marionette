@@ -1,5 +1,6 @@
 [
   "config/diagnostics/catalog.json",
+  "config/diagnostics/catalog.schema.json",
   "skills/marionette/SKILL.md",
   "skills/marionette/agents/openai.yaml",
   "skills/marionette/scripts/docs.mjs",

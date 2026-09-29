@@ -117,7 +117,8 @@
     "check:api-contracts": "node scripts/api-contracts/check.mjs",
     "performance:browser": "npm run build && node scripts/performance/browser.mjs",
     "test:browser-performance": "node scripts/performance/browser.mjs --profile validation",
-    "performance:retention": "npm run build && node scripts/performance/retention.mjs"
+    "performance:retention": "npm run build && node scripts/performance/retention.mjs",
+    "test:docs-production": "node test/docs/production-package.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"

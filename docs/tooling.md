@@ -97,7 +97,7 @@ When an error includes a code such as `MN0003`, use the lookup helper shipped wi
 node node_modules/marionette/skills/marionette/scripts/docs.mjs --diagnostic MN0003
 ```
 
-The result includes the catalog explanation and any documented recovery guidance. Use the code from the actual error, preserve its stack trace, and read the associated API contract before changing the code. The [agent guide](agents.md#optional-local-skill) explains lookup when a package lives in an external store.
+The result includes the catalog explanation and any documented recovery guidance. Use the code from the actual error, preserve its stack trace, and read the associated API contract before changing the code. The [agent guide](agents.md#local-contract-lookup) explains lookup when a package lives in an external store.
 
 For runnable interaction, replacement, readiness and teardown tests, follow [Test an application](guides/testing.md).
 

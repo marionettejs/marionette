@@ -32,7 +32,7 @@ Only the listed metadata fields (`code`, `description`, `fileName`, `lineNumber`
 
 ## Find a diagnostic
 
-Use the package's [local documentation helper](../agents.md#optional-local-skill) from the application's directory. Replace `<skill>` with the installed or copied `skills/marionette` directory:
+Use the package's [local documentation helper](../agents.md#local-contract-lookup) from the application's directory. Replace `<skill>` with the installed or copied `skills/marionette` directory:
 
 ```sh
 node <skill>/scripts/docs.mjs --diagnostic MN0019

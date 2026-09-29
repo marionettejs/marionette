@@ -12,10 +12,10 @@ and must state its production runtime-cost boundary.
 1. Fork and clone `marionettejs/marionette`.
 2. Create a focused branch from `master`.
 3. Select the exact Node and npm versions in the
-   [source and release profile](docs/release-profile.md).
+   [source and release profile](config/release-profile.json).
 4. Run `npm run check:release-profile` to verify the source toolchain.
 5. Install the pinned dependency graph with `npm ci`.
-6. Choose the [checks for your change](docs/maintainers/readme.md#select-the-smallest-valid-check)
+6. Choose the [checks for your change](test/README.md#choose-the-smallest-useful-check)
    before opening a pull request.
 
 ```sh
@@ -36,7 +36,7 @@ For a local core tarball, run `npm run build` followed by
 consumer docs at their repository-relative paths. Root guides, source Markdown,
 and website exports share the same links. Release and fixture tooling use this same
 staged core package. Only its generated `package.json` expands `files` with the
-selected documentation paths, `docs-manifest.json`, and `starter/`. The source
+selected documentation paths, `docs-manifest.json`, and the consumer skill. The source
 manifest keeps the narrow runtime-and-root-guides allowlist for direct root packs
 and Git installs. Use the staged artifact to include the consumer documentation.
 
@@ -48,8 +48,8 @@ Git dependency. Tarball consumers can deny scripts because the package is prebui
 `npm run size` reports bundle sizes and checks production artifacts and module
 graphs. Size growth and new adapters do not require budget approval during v5
 development. `npm run performance:timing` records informative hosted timings.
-See [performance measurements](docs/performance-baselines.md) for reproducibility
-and the checks that still fail on broken artifacts.
+The [performance configuration](config/performance.json) records measurement
+inputs; package correctness checks still fail on broken artifacts.
 
 The full coverage and fixture commands take longer than a focused test. Run the
 smallest useful test while developing, then run the checks required by the linked
@@ -80,10 +80,11 @@ or restore obsolete root-level source paths.
 
 ## Working on the library
 
-Use the [maintainer guide](docs/maintainers/readme.md) to find the source,
-public contract, and validation for your task. It is shared by human contributors
-and coding agents. [TypeScript implementation notes](docs/maintainers/types.md)
-cover declaration generation, composition, and the current compiler boundaries.
+Use [AGENTS.md](AGENTS.md) for a short contributor orientation and the
+[API index](docs/api.md) for the affected public contract. Edit authored TypeScript
+beside its implementation; [declaration generation](build/declarations.mjs) builds
+the ESM and CommonJS consumer shapes. Verify changes with the relevant unit and
+declaration consumers from the [test guide](test/README.md).
 
 ## Report a bug
 
@@ -151,7 +152,7 @@ Maintainers review correctness, public contracts, runtime cost, tests, documenta
 and release evidence. Automated review is supporting evidence, not a substitute for
 the issue contract or maintainer judgment.
 
-Use the [synchronous failure boundary](docs/view.lifecycle.md#synchronous-failures)
+Use the [View lifecycle contract](docs/api/view.md#lifecycle-hooks-and-events)
 when proposing tests or reviewing lifecycle changes. Registration, constructor,
 render, and teardown exceptions abort the synchronous operation; valid adapters and
 working cleanup callbacks are required. Coverage, retention checks, public API usage,

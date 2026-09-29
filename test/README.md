@@ -7,7 +7,7 @@ Do not move a regression merely to match an internal refactor.
 
 ## Stay within the supported lifecycle
 
-Use the [synchronous failure contract](../docs/view.lifecycle.md#synchronous-failures)
+Use the [View lifecycle contract](../docs/api/view.md#lifecycle-hooks-and-events)
 as the boundary for runtime tests. Valid adapters must return working cleanup
 callbacks. Synchronous registration, construction, render, and teardown exceptions
 abort the operation; do not write tests promising rollback, remaining cleanup after
@@ -20,6 +20,10 @@ consumer case and the complexity/performance tradeoff for an explicit maintainer
 decision before expanding the contract. Keep coverage for successful subscription
 release, ordinary ownership/idempotence, and documented asynchronous Application
 readiness, cancellation, and restart. Reviewer prompts must carry this distinction.
+
+## Production bundle from candidate tarballs
+
+Run `npm run test:docs-production -- --artifact-dir /absolute/path/to/five-tarballs --report /absolute/path/to/production-report.json` to install and build the delivered records example in isolation. It checks a subdirectory deployment through an explicit local HTTP hosting policy, browser failure/retry and cancellation, keyboard/focus, and an upgrade to a second hashed build. It does not verify a remote CDN or production account configuration.
 
 ## Choose the smallest useful check
 
@@ -34,6 +38,7 @@ readiness, cancellation, and restart. Reviewer prompts must carry this distincti
 | CLI, release, docs, performance and benchmark infrastructure | `tooling/`, `release/`, `docs/`, `performance/`, `agent-benchmark/` | `npm run test:tooling` |
 | Static production import graph | `source/` | `npm run test:source` |
 | Built ESM/CJS/UMD exports | `dist/` | `npm run test:dist` |
+| Consumer documentation, package discovery and runnable recipes | `docs/`, `agent-docs/` | `npm run docs:check` |
 
 `npm ci` uses the pinned toolchain and builds packages through `prepare`. `npm test`
 is deliberately fast: it runs unit tests without a hidden type/build pretest.
@@ -46,6 +51,11 @@ real browsers, documentation checks, and every installed fixture.
 positive/negative corpus controls. They can be invoked separately with
 `agent:cache`, `test:agent-app`, `agent:reference`, and `agent:fixtures`. These
 commands never invoke a model.
+
+Application authors can use the [consumer testing guide](../docs/guides/testing.md)
+for a small installed-package recipe. Repository docs checks execute the actual
+published-page fences and consumer commands; passing them demonstrates recipe and
+delivery correctness, while independent tasks assess reader effectiveness.
 
 `npm run lint` never edits files. Use `npm run lint:fix` explicitly. Lint rejects
 focused/disabled unit tests, missing assertions, unawaited async assertions, and

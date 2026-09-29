@@ -77,7 +77,7 @@ test('repository marketplace exposes the Marionette plugin', async() => {
   }]);
 });
 
-test('Claude Code, Cursor, and Copilot marketplaces share the portable plugin', async() => {
+test('Claude Code and Cursor marketplace manifests share the portable plugin', async() => {
   const packageManifest = await json(resolve(repository, 'package.json'));
   const portable = await json(resolve(pluginRoot, 'plugin.json'));
   const claude = await json(resolve(pluginRoot, '.claude-plugin/plugin.json'));

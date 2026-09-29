@@ -49,9 +49,17 @@ Check the configured data provider before using persistence methods. `@mnjs/data
 
 Verify the changed behavior at that boundary: observable updates for data changes, replacement and teardown for composition, and failure or cancellation for asynchronous work. A successful build checks a different property from successful user interaction. The [API index](api.md) identifies reference coverage that is still being completed.
 
-## Optional local skill
+## Choose an agent installation
 
-The package includes `skills/marionette`. Copy that directory into the skill location supported by your coding client, or read its `SKILL.md` directly. It routes to this documentation and includes a local lookup helper; a hosted service is not required.
+The installed package includes `skills/marionette`. The skill routes to that application's installed docs and includes an offline lookup helper. Reading `SKILL.md` directly also works.
+
+For a Codex project, copy the complete folder to `.agents/skills/marionette` in your application and invoke `$marionette`. Keep the scripts with the entrypoint. For other clients, use their documented skill location and invocation support. See [Codex skill installation](https://learn.chatgpt.com/docs/build-skills).
+
+The `marionette` plugin is distributed through repository marketplaces, separately from the npm package. To use it, obtain a source checkout matching the installed package version and its manifest's `sourceRevision`; use the corresponding working checkout for a dirty candidate. Otherwise, copy the skill delivered with the package. The plugin combines that checkout's skill with the hosted documentation MCP connection. In a Codex client supporting local marketplaces, add the matching checkout with `codex plugin marketplace add /absolute/path/to/checkout`, then install Marionette from that marketplace using the client's plugin interface. See [OpenAI plugin installation](https://developers.openai.com/plugins/build/plugins). The repository includes Claude Code and Cursor marketplace manifests; their client installation and activation must be verified in those clients.
+
+Choose the copied skill for local lookup without MCP. A plugin-capable client can use the bundled skill and hosted connection together, but installation does not make the hosted corpus match your package. The next section explains that check.
+
+### Local contract lookup
 
 Run the helper from your application directory, replacing `<skill>` with the copied directory:
 
@@ -62,3 +70,9 @@ node <skill>/scripts/docs.mjs --page docs/api/application.md
 ```
 
 Use `--section` with an ID returned by search to read a single section. For a package in an external store, pass `--package-root` with its physical directory. The helper verifies the bundled manifest and content hashes, and reports the installed version and source revision with its results. These checks establish which documentation was read; they do not prove that an implementation follows it.
+
+## Optional hosted documentation MCP
+
+The plugin's connection is `https://mcp.marionettejs.com/mcp`. Before searching it, read the `marionette://catalog` resource. Compare both `provenance.packageVersion` and `provenance.sourceRevision` with the application's installed package and `docs-manifest.json`. A matching version alone does not establish the same contract, including when the hosted catalog serves a development candidate. Pass that exact version to `search_docs` or `search_sections`, then read the returned document or section IDs. Do not use a latest-version alias.
+
+A reused prerelease version can contain different contracts. A manifest with `sourceDirty: true` includes changes beyond that revision, so its local docs remain authoritative. If either revision is unavailable, the identities differ, or the service is unavailable, use installed Markdown and the local helper. Hosted results do not override the installed artifact's contract. Copying the skill alone requires no hosted connection; disable the bundled server only through your client's supported settings if using the plugin without MCP.

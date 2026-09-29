@@ -51,3 +51,7 @@ Use the relevant reference for method arguments, event payloads, and cleanup. Ve
 Run `node <skill>/scripts/docs.mjs --list` from the application directory, replacing `<skill>` with this skill's directory. Use `--search 'query'`, `--page docs/api/view.md`, or `--section <id>` returned by search. For an external package store, pass `--package-root <directory>`.
 
 The helper reads the installed package and verifies its documentation manifest and hashes. Reading the same Markdown files directly is also supported. See the installed `docs/agents.md` for the full discovery workflow.
+
+## Optional hosted lookup
+
+The plugin also supplies a documentation MCP connection. Read `marionette://catalog` before using its search tools: both `provenance.packageVersion` and `provenance.sourceRevision` must match the installed package and its docs manifest, even when the version matches. A hosted development candidate can reuse a version. `sourceDirty: true` means local changes beyond that revision. Pass the exact version and use the IDs returned by search. Missing revision metadata, a mismatch, or an unavailable service leaves the installed Markdown and local helper as the authority; do not substitute its current corpus. The copied skill works without MCP.

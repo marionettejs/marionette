@@ -6,12 +6,9 @@
   "description": "Marionette v5 UI composition: Views, Regions, CollectionViews, lifecycle, and independent data, state, DOM and rendering integrations. Development source; published packages can differ.",
   "branch": "master",
   "folders": [
-    "docs",
-    "packages/data",
-    "packages/adapters"
+    "docs"
   ],
   "excludeFolders": [
-    "docs/maintainers",
     "**/node_modules",
     "**/dist",
     "**/test",
@@ -22,17 +19,14 @@
     "CONTRIBUTING.md",
     "ROADMAP.md",
     "changelog.md",
-    "license.txt",
-    "release-profile.md",
-    "release-promotion.md",
-    "performance-baselines.md",
-    "upgradeGuide.md",
-    "migration-from-v4.md"
+    "license.txt"
   ],
   "rules": [
     "Identify the installed package version and source revision before choosing documentation. This branch describes v5 development; published package content may differ.",
-    "Read docs/agents.md and docs/integrations/setup.md for task and integration decisions. Preserve an existing compatible provider; choose each adapter for its own capability.",
+    "Start with docs/agents.md and the relevant task/reference. Inspect the configured renderer and data providers before choosing an adapter; preserve an existing compatible integration.",
+    "@mnjs/data is optional and incomplete as an application data layer. API access and persistence need an API layer or another data solution.",
     "Routing is an application integration. The router owns URLs; application code owns navigation and cancellation; Marionette owns feature and View lifecycle.",
-    "Use public package exports. Verify setup, replacement, asynchronous completion, and cleanup against the installed artifact. Do not infer measured agent gains from documentation coverage."
+    "For v4 upgrades, read docs/guides/migration.md with its before/after context. APIs shown as v4 examples are not v5 contracts.",
+    "Use public package exports. Verify interaction, replacement, asynchronous completion and cleanup against the installed artifact. Choose ownership from the lifetime of the work; an asynchronous call alone does not require an Application."
   ]
 }

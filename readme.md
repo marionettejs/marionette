@@ -17,6 +17,10 @@ the work that starts and stops with them.
 
 Start with the [v5 documentation index](docs/readme.md), [quick start](docs/quick-start.md), or [API index](docs/api.md). The reference is organized by class and shared contracts; runnable lessons demonstrate selected workflows.
 
+For agent-led application work, use the [agent entrypoint](docs/agents.md).
+[Consumer tooling](docs/tooling.md) covers lint, types and installed documentation
+lookup; the [testing guide](docs/guides/testing.md) supplies a runnable test recipe.
+
 ## Development
 
 Found an awkward API, a missing example, or a bug that survives a convincing test
