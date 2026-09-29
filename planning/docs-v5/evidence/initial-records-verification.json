@@ -1,0 +1,67 @@
+{
+  "date": "2026-09-28",
+  "frameworkCommit": "b6f23c5953793d5cef1cb51dbc675420214ffd01",
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "scope": "Local linked consumer; no published-package or controlled comparative agent claim.",
+  "versions": {
+    "marionette": "5.0.0-rc.2",
+    "@mnjs/data": "5.0.0-rc.2",
+    "@mnjs/adapters": "5.0.0-rc.2",
+    "lit-html": "3.3.3",
+    "vite": "8.3.0",
+    "playwright": "1.63.0"
+  },
+  "sha256": {
+    "docs/architecture.md": "1a9657e2e1377e20eba72829fb8f2fdaa9a34e01683f362cd1ee4c3b4919ae03",
+    "docs/records.md": "d46d7f7591ba99666d48f085f0d8df3cab6ca03e1d42b6f4addc8125b76048f6",
+    "examples/records/README.md": "c130d8ed822ec5f9ac808ea38d4b5f30f8f9f5077707a74eb692ff1137163b7f",
+    "examples/records/index.html": "899c4e496bcad73c27d0c6b65a5ca10a801bfe0681744290dc988270892a9101",
+    "examples/records/package-lock.json": "170cb83826c00fa57719cf63223aa5c8ae8ddb4829edbad32ea10a3653986551",
+    "examples/records/package.json": "8da65232d8f0f3eea2c1498d47f5171240ccbdd2978d807abdb2a6763b218bdc",
+    "examples/records/playwright.config.js": "1a69ed49b35ab21fe08c19c460a7f7c443cc945da93a516eaebb6f7606566a9d",
+    "examples/records/public/api/records.json": "7e40223309652f988c0c013eef681d314be90db9883e9dce32b3a5c7eb9d24c3",
+    "examples/records/scripts/build-local-packages.mjs": "03313c8fef539038e324e727f4b0b6dd97f06e6ca1241865f4efebe7043215c1",
+    "examples/records/src/main.js": "6c8309160c0460e6d035d6ba895654cc8e9a98ff6fc935fc9227d5989a001452",
+    "examples/records/src/records-api.js": "d85f89ff80fd3710919a42fb5b50a42cba2048b683089ee3bdcb5ed08c61ca80",
+    "examples/records/src/records-application.js": "7d76858e1b079b6b81eb25ce428cc5c2ce830e3d2d66ce175341ff0b436753db",
+    "examples/records/src/records-views.js": "3aa591cf0ed93338fdfdf5fd52acaa9dc064c0b8cad3d2023fe1e6951594fd5e",
+    "examples/records/src/setup.js": "e06baac1af4943e6b6a99cb21b250d4c6b7b708b1c9a297fcb55e0641df732e0",
+    "examples/records/src/styles.css": "f481a0ab7d7fd122a4699f06998f13488fe73ae6fc1b76f785732e778852988b",
+    "examples/records/src/workspace.js": "1b349382d07b26e56e60db0ef0c5884b2d12e882855812ea15c2b86c40a8fc5d",
+    "examples/records/tests/records.spec.js": "01cd2cf9f9e292fc44a8d63fd60a6b39f4f1b857079905ec4514f3d608022ce3",
+    "examples/records/vite.config.js": "cade79f781fc6f4aae162840fa0a6343a8e423d61a137d8b5ca909eceaee5ed8",
+    "planning/docs-v5/probes/records-counterexamples.mjs": "24492de90ae0c847742cacf02258a9a72cde8c53dbe4f4b527344884268937ed",
+    "planning/docs-v5/probes/records-reader.spec.mjs": "fd85a065728ba2247831d15658692469b64039b3f6b8280d30947c342931aac9"
+  },
+  "checks": [
+    {
+      "command": "npm --prefix examples/records ci --ignore-scripts",
+      "result": "passed by scaffold subagent"
+    },
+    {
+      "command": "npm --prefix examples/records run build",
+      "result": "passed"
+    },
+    {
+      "command": "npx playwright test --config examples/records/playwright.config.js --workers=3",
+      "result": "45 passed; 15 cases across Chromium, Firefox, WebKit; retries 0"
+    },
+    {
+      "command": "node planning/docs-v5/probes/records-counterexamples.mjs",
+      "result": "2 baseline passes; 2 expected behavioral failures detected"
+    },
+    {
+      "command": "npx playwright test --config test/tmp/records-reader-trial/playwright.config.mjs",
+      "result": "1 passed in Chromium; unchanged learner patch on final consumer base"
+    },
+    {
+      "command": "npx eslint examples/records/src examples/records/vite.config.js examples/records/scripts examples/records/playwright.config.js examples/records/tests planning/docs-v5/probes/records-counterexamples.mjs planning/docs-v5/probes/records-reader.spec.mjs --max-warnings=0",
+      "result": "passed"
+    },
+    {
+      "check": "resolve local links in docs/records.md, docs/architecture.md and example README",
+      "result": "8 resolved"
+    }
+  ]
+}

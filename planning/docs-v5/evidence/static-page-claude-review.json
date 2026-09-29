@@ -1,0 +1,23 @@
+{
+  "verdict": "Approve with minor doc fix. I found no blocking lifecycle or ownership bugs in the parent/static-HTML design, based only on the provided diff and excerpts. Supersede/fail semantics, setView-only root teardown, the running gate on stateEvents, and throwIfAborted-before-Collection all hold. The build and deliberate-defect reruns are still pending.",
+  "blockingIssues": [],
+  "risks": [
+    "showRecordsError awaits child stop() before showing ErrorView. If stop ever takes more than a microtask, an Open or Close click in that window lets a stale ErrorView appear next to a fresh start. The window is negligible today; this is a conditional risk, not a verified failure.",
+    "Tests replace recordsApi.list on the shared exported object. That makes the mutable-object export an implicit test contract; a refactor to named function exports would break the tests silently."
+  ],
+  "incorrectAssumptions": [
+    "The docs say 'Starting another parent would require supplying the page markup again.' That also applies to calling start() again on the same MainApplication: after stop, getOption('el') still returns the removed #app, so PageView attaches to a detached node with no error. The wording should cover restarting this parent, not only a new one."
+  ],
+  "missingTests": [
+    "The failure path doesn't check that LoadingView is removed when ErrorView appears. Add expect(page.getByRole('status')).toHaveCount(0) next to the alert assertion in the Retry test.",
+    "Optional: double-click Retry while a retry is still preparing. Expect one live request, the first restart() resolving false, and no ErrorView."
+  ],
+  "simplifications": [
+    "None needed. Don't add guards or request tokens for the showRecordsError await window unless stop becomes truly async."
+  ],
+  "nextSteps": [
+    "Change the docs sentence to: 'Starting this or another parent after stop requires the page markup again.'",
+    "Add the LoadingView-removal assertion to the failure test.",
+    "Finish the build and deliberate-defect reruns, then merge."
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "artifacts": {
+    "jsonPath": "/Users/paulfalgout/.ai-reviews/20260928T193432Z-review-with-claude.json",
+    "latestJsonPath": "/Users/paulfalgout/.ai-reviews/latest-review-with-claude.json",
+    "latestMdPath": "/Users/paulfalgout/.ai-reviews/latest-review-with-claude.md",
+    "mdPath": "/Users/paulfalgout/.ai-reviews/20260928T193432Z-review-with-claude.md"
+  },
+  "result": {
+    "verdict": "Approve with corrections. The pages match the audit's source contracts, and the examples are independent and check real outcomes. Three statements need fixing before sign-off: (1) the MnObject and shared Radio pages understate which request replies destroy removes; (2) the Behavior page omits that `this.view.triggerMethod(...)` also invokes the sending Behavior's own hook; (3) the Behavior page refers to a `setElement` restriction, but the v5 View has no `setElement`. behavior-object-results.md still says the Claude review is \"in progress\" and must be updated. No runtime changes are needed.",
+    "blockingIssues": [],
+    "risks": [
+      "Event echo footgun: the audit says calling `view.triggerMethod` from a Behavior is forwarded back to the sender too. The Behavior page recommends `this.view.triggerMethod('dismiss', this.view)` but never says the Behavior's own `onDismiss` or `dismiss` subscribers also fire. A Behavior whose `onX` calls `this.view.triggerMethod('x')` will recurse. Add one sentence.",
+      "Overriding `destroy` (recommended on the Behavior page): the audit says direct `destroy()` has no idempotence guard. The page tells readers to override `destroy` for cleanup but doesn't warn that repeated manual calls rerun the override. Add 'make the extra cleanup idempotent'.",
+      "`stateEvents` on Behavior and MnObject throw MN0037 under the default unconfigured StateApi (per the audit). Neither class page mentions this; it is only reachable through state.md. That is the most likely first-run failure.",
+      "coverage.md cites a source-diff SHA-256 from an earlier baseline. If `src`/`packages` changed during the destruction-cleanup work, the 'audited against local source' claim points at a stale snapshot. Recompute the hash or date it.",
+      "common.md's Radio section ends with gap language ('remain separate reference areas') and has no link. That is planning information inside consumer docs. Acceptable, but it will go stale when the Radio reference lands.",
+      "The 'Audited supported class surface' label for Behavior/MnObject in coverage.md is fine. The results page's 'All six core classes now have dedicated references' is also fine, but avoid calling them 'complete'. Provider authoring for EventDelegator/StateApi, which both pages link to, is still a gap."
+    ],
+    "incorrectAssumptions": [
+      "mnobject.md says 'Manually registered request replies need explicit unbindRequests'. The audit says destroy removes every reply on the configured channel registered with this owner as context, not just the `radioRequests` map. Manual replies on the configured channel with owner context are cleaned up automatically. Only replies on other channels, or with a different context, need `unbindRequests`. Fix both mnobject.md and common.md ('Destruction removes this owner's subscriptions and replies'), which is similarly ambiguous.",
+      "behavior.md: 'The host's `setElement` restriction also applies to Behavior's shared root.' The v5 View exposes no `setElement` (the earlier scope review rejected adding it for that reason). Say 'the host's fixed root' and link view.md#existing-elements.",
+      "behavior.md: 'an object definition is passed to its constructor as options.' True, but the passed object still contains `behaviorClass`. Say so, or readers will assume the options are clean.",
+      "common.md Radio: 'remain active while stopped as well as running' reads as MnObject having a stopped state. Say 'on an Application, these stay active while it is stopped'; MnObject has no run state."
+    ],
+    "missingTests": [
+      "No compiled TypeScript MnObject example, and no installed-package fixture that exercises `MnObjectInstance<Options, State>` or the `extend` inference the page claims ('preserves declared methods and state inference'). The installed run compiled presentation, lifecycle-mixins and application fixtures. consumer and fixed-root were compiled only against the checkout.",
+      "Nothing in the installed-package run checks the `BehaviorInstance<Options, Host, State, Query>` type-parameter order the page documents.",
+      "The reference probe doesn't assert: `onBeforeDestroy` forwarding to a managed Behavior before host UI teardown; nested Behaviors surviving destruction of the declaring Behavior; `onInitialize(host, options)` running after host `initialize`; the same Behavior instance surviving rerender (only the absence of duplicate delegation is checked); or template-less CollectionView not binding Behavior UI. Source specs may cover these, but name the spec for each doc claim or add probe assertions.",
+      "The MnObject probe doesn't check that a manual `bindRequests` on the configured channel with owner context is removed on destroy. It would prove or disprove the manual-reply wording.",
+      "No check of the event echo, i.e. that `this.view.triggerMethod('x')` from a Behavior invokes that Behavior's `onX`."
+    ],
+    "simplifications": [
+      "Behavior 'Destruction and nested Behaviors': replace the prose with a three-row table (direct destroy / host teardown / removed-then-host-destroyed) with columns for resources released, notifications received and when listeners are released. The contract stays exact with less text.",
+      "Behavior 'Declare and construct': the paragraph that lists construction order duplicates the audit. Keep only what a reader acts on: UI selectors are resolved before `initialize`, DOM/state bindings after it, host `initialize` after all Behaviors are constructed, and there is no `preinitialize`.",
+      "Behavior TypeScript section: drop the sentence about underscore members, and don't list them. Saying they are internal draws attention to them.",
+      "In the common.md Radio section, change the self-link `common.md#binding-helpers` to `#binding-helpers`, and remove or shorten the trailing gap sentence.",
+      "mnobject.md opening: 'events, options, state, Radio bindings and synchronous destruction' plus the Application comparison is enough. The same Application comparison is repeated in the destruction section; cut one."
+    ],
+    "nextSteps": [
+      "Fix the manual-reply cleanup wording in mnobject.md and common.md, and add a probe assertion that settles it.",
+      "Add the event-echo sentence and the idempotent-override caveat to behavior.md. Replace the `setElement` wording and mention that `behaviorClass` stays in options.",
+      "Mention MN0037 in one line on each class page next to `stateEvents`, linking state.md.",
+      "Add a small compiled TypeScript MnObject snippet (or installed fixture) covering `MnObjectInstance` and `extend` inference, plus a `BehaviorInstance` generic-order check.",
+      "Recompute or date the source-diff hash in coverage.md. Replace 'Claude review is in progress' in behavior-object-results.md with this outcome and the corrections applied.",
+      "Then continue with runtime configuration and provider contracts as planned."
+    ]
+  },
+  "skill": "review-with-claude"
+}

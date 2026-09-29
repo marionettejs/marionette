@@ -1,0 +1,31 @@
+{
+  "date": "2026-09-28",
+  "method": "npm view via configured npm registry",
+  "checks": [
+    {
+      "command": "npm view marionette@5.0.0-rc.2 version --json",
+      "result": "E404: No match found for version 5.0.0-rc.2"
+    },
+    {
+      "command": "npm view @mnjs/data@5.0.0-rc.2 version --json",
+      "result": "E404: No match found for version 5.0.0-rc.2"
+    },
+    {
+      "command": "npm view @mnjs/adapters@5.0.0-rc.2 version --json",
+      "result": "E404: No match found for version 5.0.0-rc.2"
+    },
+    {
+      "command": "npm view vite@8.3.0 version engines --json",
+      "result": {
+        "version": "8.3.0",
+        "engines": {
+          "node": "^20.19.0 || >=22.12.0"
+        }
+      }
+    },
+    {
+      "command": "npm view lit-html@3.3.3 version --json",
+      "result": "3.3.3"
+    }
+  ]
+}

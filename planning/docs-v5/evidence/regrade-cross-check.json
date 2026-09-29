@@ -1,0 +1,97 @@
+{
+  "passed": true,
+  "scope": "Independent read-only cross-check of separate Stringent regrade against unchanged original snapshots; no browser or model execution in this check.",
+  "evaluator": "EXPOSED-WORKLOAD-EVALUATOR-RQ4-IDENTITY-V2",
+  "checks": [
+    {
+      "attempt": "r1-b1-a1-c1",
+      "ticket": "T1",
+      "snapshotMatches": true,
+      "changedRequirements": [],
+      "failed": [
+        "RQ-7"
+      ]
+    },
+    {
+      "attempt": "r1-b1-a1-c1",
+      "ticket": "T2",
+      "snapshotMatches": true,
+      "changedRequirements": [],
+      "failed": []
+    },
+    {
+      "attempt": "r1-b1-a1-c2",
+      "ticket": "T1",
+      "snapshotMatches": true,
+      "changedRequirements": [],
+      "failed": []
+    },
+    {
+      "attempt": "r1-b1-a1-c2",
+      "ticket": "T2",
+      "snapshotMatches": true,
+      "changedRequirements": [],
+      "failed": []
+    },
+    {
+      "attempt": "r1-b2-a1-c1",
+      "ticket": "T1",
+      "snapshotMatches": true,
+      "changedRequirements": [],
+      "failed": []
+    },
+    {
+      "attempt": "r1-b2-a1-c1",
+      "ticket": "T2",
+      "snapshotMatches": true,
+      "changedRequirements": [],
+      "failed": []
+    },
+    {
+      "attempt": "r1-b2-a1-c2",
+      "ticket": "T1",
+      "snapshotMatches": true,
+      "changedRequirements": [],
+      "failed": []
+    },
+    {
+      "attempt": "r1-b2-a1-c2",
+      "ticket": "T2",
+      "snapshotMatches": true,
+      "changedRequirements": [],
+      "failed": []
+    },
+    {
+      "attempt": "r1-b3-a1-c1",
+      "ticket": "T1",
+      "snapshotMatches": true,
+      "changedRequirements": [],
+      "failed": []
+    },
+    {
+      "attempt": "r1-b3-a1-c1",
+      "ticket": "T2",
+      "snapshotMatches": true,
+      "changedRequirements": [],
+      "failed": []
+    },
+    {
+      "attempt": "r1-b3-a1-c2",
+      "ticket": "T1",
+      "snapshotMatches": true,
+      "changedRequirements": [
+        "RQ-4"
+      ],
+      "failed": []
+    },
+    {
+      "attempt": "r1-b3-a1-c2",
+      "ticket": "T2",
+      "snapshotMatches": true,
+      "changedRequirements": [
+        "RQ-4"
+      ],
+      "failed": []
+    }
+  ]
+}

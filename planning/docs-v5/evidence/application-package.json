@@ -1,0 +1,1668 @@
+{
+  "schemaVersion": 1,
+  "kind": "local-candidate-package-probe",
+  "startedAt": "2026-09-28T19:08:59.913Z",
+  "commands": [
+    {
+      "command": "/Users/paulfalgout/.nvm/versions/node/v24.19.0/bin/node",
+      "args": [
+        "examples/records/scripts/build-local-packages.mjs"
+      ],
+      "cwd": "/Users/paulfalgout/Projects/marionettejs",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/01-build-runtime.log",
+      "startedAt": "2026-09-28T19:09:00.350Z",
+      "exitCode": 0
+    },
+    {
+      "command": "npm",
+      "args": [
+        "pack",
+        "--ignore-scripts",
+        "--json",
+        "--pack-destination",
+        "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer/tarballs"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/staging/marionette",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/02-pack-marionette.log",
+      "startedAt": "2026-09-28T19:09:15.926Z",
+      "exitCode": 0
+    },
+    {
+      "command": "npm",
+      "args": [
+        "pack",
+        "--ignore-scripts",
+        "--json",
+        "--pack-destination",
+        "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer/tarballs"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/staging/@mnjs-utils",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/03-pack-@mnjs-utils.log",
+      "startedAt": "2026-09-28T19:09:16.669Z",
+      "exitCode": 0
+    },
+    {
+      "command": "npm",
+      "args": [
+        "pack",
+        "--ignore-scripts",
+        "--json",
+        "--pack-destination",
+        "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer/tarballs"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/staging/@mnjs-radio",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/04-pack-@mnjs-radio.log",
+      "startedAt": "2026-09-28T19:09:17.128Z",
+      "exitCode": 0
+    },
+    {
+      "command": "npm",
+      "args": [
+        "pack",
+        "--ignore-scripts",
+        "--json",
+        "--pack-destination",
+        "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer/tarballs"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/staging/@mnjs-data",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/05-pack-@mnjs-data.log",
+      "startedAt": "2026-09-28T19:09:17.715Z",
+      "exitCode": 0
+    },
+    {
+      "command": "npm",
+      "args": [
+        "pack",
+        "--ignore-scripts",
+        "--json",
+        "--pack-destination",
+        "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer/tarballs"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/staging/@mnjs-adapters",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/06-pack-@mnjs-adapters.log",
+      "startedAt": "2026-09-28T19:09:18.166Z",
+      "exitCode": 0
+    },
+    {
+      "command": "npm",
+      "args": [
+        "ci",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/07-install.log",
+      "startedAt": "2026-09-28T19:09:18.633Z",
+      "exitCode": 0
+    },
+    {
+      "command": "/Users/paulfalgout/.nvm/versions/node/v24.19.0/bin/node",
+      "args": [
+        "--input-type=module",
+        "-e",
+        "import assert from 'node:assert/strict'; import { createRequire } from 'node:module'; const require = createRequire(import.meta.url); assert.throws(() => require.resolve('backbone'), { code: 'MODULE_NOT_FOUND' });"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/08-consumer-no-backbone.log",
+      "startedAt": "2026-09-28T19:09:19.439Z",
+      "exitCode": 0
+    },
+    {
+      "command": "/Users/paulfalgout/.nvm/versions/node/v24.19.0/bin/node",
+      "args": [
+        "-p",
+        "require.resolve('marionette/package.json')"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/09-resolve-package.log",
+      "startedAt": "2026-09-28T19:09:19.672Z",
+      "exitCode": 0
+    },
+    {
+      "command": "/Users/paulfalgout/.nvm/versions/node/v24.19.0/bin/node",
+      "args": [
+        "/Users/paulfalgout/Projects/marionettejs/planning/docs-v5/probes/reference-examples.mjs",
+        "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/10-reference-examples.log",
+      "startedAt": "2026-09-28T19:09:19.900Z",
+      "exitCode": 0
+    },
+    {
+      "command": "/Users/paulfalgout/.nvm/versions/node/v24.19.0/bin/node",
+      "args": [
+        "verify-imports.mjs"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/11-public-imports.log",
+      "startedAt": "2026-09-28T19:09:26.669Z",
+      "exitCode": 0
+    },
+    {
+      "command": "npm",
+      "args": [
+        "run",
+        "build"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/12-consumer-build.log",
+      "startedAt": "2026-09-28T19:09:26.928Z",
+      "exitCode": 0
+    },
+    {
+      "command": "/Users/paulfalgout/.nvm/versions/node/v24.19.0/bin/node",
+      "args": [
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        "playwright.config.js",
+        "--workers=3"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/13-consumer-browser.log",
+      "startedAt": "2026-09-28T19:09:29.310Z",
+      "exitCode": 0
+    },
+    {
+      "command": "bash",
+      "args": [
+        "-e",
+        "install.sh"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/quick-start",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/14-quick-start-install.log",
+      "startedAt": "2026-09-28T19:09:44.909Z",
+      "exitCode": 0
+    },
+    {
+      "command": "/Users/paulfalgout/.nvm/versions/node/v24.19.0/bin/node",
+      "args": [
+        "--input-type=module",
+        "-e",
+        "import assert from 'node:assert/strict'; import { createRequire } from 'node:module'; const require = createRequire(import.meta.url); assert.throws(() => require.resolve('backbone'), { code: 'MODULE_NOT_FOUND' });"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/quick-start",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/15-quick-start-no-backbone.log",
+      "startedAt": "2026-09-28T19:09:48.049Z",
+      "exitCode": 0
+    },
+    {
+      "command": "npm",
+      "args": [
+        "run",
+        "build"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/quick-start",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/16-quick-start-build.log",
+      "startedAt": "2026-09-28T19:09:48.284Z",
+      "exitCode": 0
+    },
+    {
+      "command": "/Users/paulfalgout/.nvm/versions/node/v24.19.0/bin/node",
+      "args": [
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        "quick-start.config.js",
+        "--workers=3"
+      ],
+      "cwd": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer",
+      "log": "/Users/paulfalgout/Projects/marionettejs/test/tmp/docs-v5-package/17-quick-start-browser.log",
+      "startedAt": "2026-09-28T19:09:50.034Z",
+      "exitCode": 0
+    }
+  ],
+  "passed": true,
+  "provenance": {
+    "revision": "b6f23c5953793d5cef1cb51dbc675420214ffd01",
+    "status": "D  AGENTS.md\n M changelog.md\nD  docs/agent-retrieval.md\nD  docs/agent-tools.md\nD  docs/agents.md\nD  docs/application-agent-template.md\nD  docs/application-composition.md\nD  docs/application-effects.md\nD  docs/application-refresh.md\nD  docs/basics.md\nD  docs/beta.md\nD  docs/choosing-integrations.md\nD  docs/classes.md\nD  docs/common.md\nD  docs/compact-reference.md\nD  docs/consumer-lint.md\nD  docs/data.api.md\nD  docs/development.md\nD  docs/diagnostic-catalog.md\nD  docs/dom.api.md\nD  docs/dom.interactions.md\nD  docs/dom.prerendered.md\nD  docs/events.class.md\nD  docs/events.entity.md\nD  docs/events.md\nD  docs/forms-and-accessibility.md\nD  docs/hosting-views.md\nD  docs/installation.md\nD  docs/list-composition.md\nD  docs/maintainers/authorship-inventory.md\nD  docs/maintainers/browser-contract-matrix.md\nD  docs/maintainers/discovery-audit.md\nD  docs/maintainers/documentation-trial.md\nD  docs/maintainers/documentation.md\nD  docs/maintainers/line-audit-core.md\nD  docs/maintainers/line-audit-integrations.md\nD  docs/maintainers/line-audit-operations.md\nD  docs/maintainers/package-comment-audit.md\nD  docs/maintainers/rc-stabilization.md\nD  docs/maintainers/readme.md\nD  docs/maintainers/reference-audit.md\nD  docs/maintainers/release-checklist.md\nD  docs/maintainers/source-comment-audit.md\nD  docs/maintainers/types.md\nD  docs/marionette.application.md\nD  docs/marionette.behavior.md\nD  docs/marionette.collectionview.md\nD  docs/marionette.mnobject.md\nD  docs/marionette.region.md\nD  docs/marionette.state.md\nD  docs/marionette.view.md\nD  docs/migration-from-v4.md\nD  docs/optional-backbone.md\nD  docs/performance-baselines.md\nD  docs/production-and-performance.md\nD  docs/public-api.md\nD  docs/quick-start.md\nD  docs/radio.md\nD  docs/readme.md\nD  docs/release-profile.md\nD  docs/release-promotion.md\nD  docs/resource-cleanup.md\nD  docs/routing.md\nD  docs/runtime-isolation.md\nD  docs/security.md\nD  docs/task-recipes.md\nD  docs/terminology.md\nD  docs/testing.md\nD  docs/troubleshooting.md\nD  docs/typescript.md\nD  docs/utils.md\nD  docs/view.lifecycle.md\nD  docs/view.rendering.md\nD  llms.txt\nM  plugins/marionette/skills/marionette/SKILL.md\nMM readme.md\nM  skills/marionette/SKILL.md\n M src/mixins/behaviors.ts\n M src/mixins/destroy.ts\n M src/mixins/view.ts\n M src/modules/application.ts\n M src/modules/behavior.ts\n M src/modules/region.ts\nD  upgradeGuide.md\n?? docs/\n?? examples/\n?? llms.txt\n?? planning/\n?? test/unit/destroy-listener-cleanup.spec.js",
+    "stagedDiffSha256": "4e2c0b52d56d4deb66a4f2b95d5273ffd7d6e2ad8a02d6bb267243cb0fa9eb84",
+    "unstagedDiffSha256": "4055c519f421637d415dd0e9b77d50abca30c73917f684c0ebea503b1d0ffd96",
+    "probeSha256": "b6bf2179392d1cf7f0d4ca07827bbf1de9453607809fabb05de0218dd625b085",
+    "node": "v24.19.0",
+    "npm": "11.17.0",
+    "note": "Dirty working-tree candidate. Untracked public files are identified by content hashes below. No registry release or production packaging claim."
+  },
+  "candidateDirectory": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb",
+  "consumer": {
+    "directory": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer",
+    "nodePath": "",
+    "nodeOptions": "--no-global-search-paths",
+    "inheritedBinPathsRemoved": true,
+    "ancestorNodeModules": false,
+    "backboneAbsent": true,
+    "generatedFiles": {
+      "package.json": "fd426e7c47f2b734529d5225d3b45b6b85c821a602ebf951b54a3436023b3ccf",
+      "package-lock.json": "7505bddce12dc88ad01d4ded9b674dfac558a714af9d11c7e9b8fc7e6925a1df",
+      "playwright.config.js": "36a1a619390bd4aa1d3496660d7c02951227a15e3a15812a8b0f84b198e86988",
+      "quick-start.config.js": "c653e3742030466f7403b29d9392f4132ef7dd5df666e0fe75e770d167bbf8c8",
+      "verify-imports.mjs": "5e4e64a8eec9ad057dc64a1113c9fc4efd740f26934c04eadbfaaa4153ffef58"
+    }
+  },
+  "transforms": {
+    "packageManifests": "Remove repository scripts, devDependencies, workspaces, overrides, allowScripts; replace files allowlist. Preserve versions, exports, runtime dependencies and peer constraints.",
+    "exampleSources": "Unmodified src/public/index.html/vite.config.js from installed package.",
+    "consumerConfig": "Local tarball dependencies and frozen third-party lock overlay; browser harness uses ports 5197/5198 and copied repository tests."
+  },
+  "packages": [
+    {
+      "name": "marionette",
+      "version": "5.0.0-rc.2",
+      "filename": "marionette-5.0.0-rc.2.tgz",
+      "sha256": "9b1773c767e6fe5fed301ba08f12de3ad4ea86e6f86e6250f24530b3571485d0",
+      "integrity": "sha512-lfuDLp11C1/97fD3j03M88O76sqMrc197n4E+chvv9DWreEJlSxR9P/DP32n7c/MQD1JEl57AJumBMopsuL32A==",
+      "exports": {
+        ".": {
+          "import": {
+            "types": "./dist/types/esm/index.d.ts",
+            "default": "./dist/marionette.js"
+          },
+          "require": {
+            "types": "./dist/types/cjs/index.d.ts",
+            "default": "./dist/marionette.cjs"
+          },
+          "default": "./dist/marionette.js"
+        },
+        "./package.json": "./package.json",
+        "./eslint": {
+          "import": {
+            "types": "./dist/eslint/index.d.ts",
+            "default": "./dist/eslint/index.js"
+          },
+          "require": {
+            "types": "./dist/eslint/index.d.cts",
+            "default": "./dist/eslint/index.cjs"
+          }
+        }
+      },
+      "dependencies": {
+        "@mnjs/radio": "5.0.0-rc.2",
+        "@mnjs/utils": "5.0.0-rc.2"
+      },
+      "files": {
+        "dist/eslint/index.cjs": "1ff16e5fb12b17c27a0d3b7aebff2f1336d3c23944e01b3a817e52f531065452",
+        "dist/eslint/index.d.cts": "d48558ab090c1a25559b82cd09e16bdf956f6b7647387c20fa08898b00f719d5",
+        "dist/eslint/index.d.ts": "855b89bb99a4988ab0db9f68e41722807f8094cf138b133bf2ef406d07d83b31",
+        "dist/eslint/index.js": "43b07d8847653e68aeadfa13e6248d82df72e99a9b054032cb06ec67602d9a90",
+        "dist/marionette.cjs": "b967be4d89ec1260c374d79249aafba532ec722632351b3517c714efcbbd30d8",
+        "dist/marionette.cjs.map": "8d80b3095b187b4962f6915a119496ff59764c59fbd5a1bd93ab23908c71332c",
+        "dist/marionette.js": "0e4382557e11b87dae34bf34364985dfd98f6e2f6c8b3ed022a21fdfe708c177",
+        "dist/marionette.js.map": "f82f293933238baab869cd0168e53b206cc92128499c6e3370272793acf4be27",
+        "dist/marionette.umd.js": "87a13a013cca5afb7b2b9a2c98457804186341fefcf150061fc4af2830c5c5e8",
+        "dist/marionette.umd.js.map": "367ff90ffabbaf52b5529bda57861263a94b07acf9b2de9648e5fa4a515a8043",
+        "dist/types/cjs/create-marionette.d.ts": "a85d62f12edd752c0c137735f6bb9b14e22f9a5a05feefb53bbd4605032b31ef",
+        "dist/types/cjs/index.d.ts": "c5ca84e65b2ec4548fbff9202d7097b154d495ce1c9672642666b1c50247c675",
+        "dist/types/cjs/mixins/behaviors.d.ts": "4dee767ba25d070022561d784c08c9798cee7bb5ac90b185315f0bbbae0ca439",
+        "dist/types/cjs/mixins/common.d.ts": "85668496e912ea160b1b78a0041a67f6677c0bce15a67c7519e6822d8de9c723",
+        "dist/types/cjs/mixins/delegate-entity-events.d.ts": "afff6222e77478d4c79db0dfa011b4099ce414e93611c497b174e971902e04d1",
+        "dist/types/cjs/mixins/destroy.d.ts": "d9df0f147b6910d2960edf78646f51daf8a5d4e7aee99a42f2aa1c105af4db93",
+        "dist/types/cjs/mixins/radio.d.ts": "dfd0cc070a53edc1c005e1de7434bb892cda3624061a3802d8ab6193c7c5faba",
+        "dist/types/cjs/mixins/state.d.ts": "92ddb4e6f66e46f09e87eaed7ef7290e636598fd03555671319d28f826dc18f5",
+        "dist/types/cjs/mixins/template-render.d.ts": "436ce3cd5bf614ec38186961663c44b50902ebc3fd30d6e61b98b2ae4a8474cf",
+        "dist/types/cjs/mixins/ui.d.ts": "bec57d1b82c9671a5ed822d5a66d341b5fe03df346dded3fbbab2a33ca3270f0",
+        "dist/types/cjs/mixins/view-events.d.ts": "5d816b62769ce7726312154544561e01472f3dd691d71beac3c33a0398f50ed4",
+        "dist/types/cjs/mixins/view.d.ts": "3644b4da45c2b46ff7bb05a3884cb612e5ef52b2bc9e2f7edb4353de4bd55974",
+        "dist/types/cjs/modules/application.d.ts": "51b45ef62a3abf7fef0f699137115610f00d6a436916db392d7f7d2e179dfcfe",
+        "dist/types/cjs/modules/behavior.d.ts": "e4f0b72c0e2b487541bd43dad6d9b129f3d5a60fcf8dc1bea039efd5623c2866",
+        "dist/types/cjs/modules/child-view-container.d.ts": "6c008732b514bf81aa66ad9f00c8fda1077710aaead0454f78631175e10b4328",
+        "dist/types/cjs/modules/collection-view.d.ts": "4cd6c480391b3c63ac9ecd3f6c828bfdf6344cec384baff7d5887e68dd239d3a",
+        "dist/types/cjs/modules/common/build-region.d.ts": "7c542b4ce9fb560f6c05a07ca97871c6820cbe36a6711fbe121ca5e18aca0bbe",
+        "dist/types/cjs/modules/common/chainable-methods.d.ts": "86e0e91dd2227c7601632e23c7df41c0192f27f4133e3da1f40ccb707a1d1043",
+        "dist/types/cjs/modules/common/monitor-view-events.d.ts": "e5bbc37c60842b36d74367b77f750582c2d7bbf9ebc3761f65f5255e2ce4133a",
+        "dist/types/cjs/modules/common/view.d.ts": "ea4efa33212e3090be181786252efb6b96ac43a9483d51c420237c78b33dbe40",
+        "dist/types/cjs/modules/object.d.ts": "d21b142a039e31c15136252a2b1cc8d82153ce3dc1fb97bf076919561cc4f813",
+        "dist/types/cjs/modules/region.d.ts": "5c68c4ec7efaac4078cdb6a79a715aef76e5f72691774bd81317d812ec774072",
+        "dist/types/cjs/modules/view.d.ts": "e919edbd966c0aad24ad5b47ee5936ff1173dc40243748bcfdb96a4e300ea7b1",
+        "dist/types/cjs/package.json": "dbf8353f77358bc12169b7bb7301e1978d5b503e002ee927229a8993672818fc",
+        "dist/types/cjs/runtime-id.d.ts": "4d481cc79ffdb7d2c57a86c98e43562caf660a255f73724845c8c3f128e273bd",
+        "dist/types/cjs/runtime/data-api.d.ts": "63ba627749998cd3f8ee26e08bed2065950b1bb2386b852995f2e7f3ba4d1dad",
+        "dist/types/cjs/runtime/dom-api.d.ts": "a59f2cb3561a1de86fc9bc434e5c12027f0dcbfc5938124751a97416ae9bd301",
+        "dist/types/cjs/runtime/event-delegator.d.ts": "713cf45c831c28f4596aa6f427045e4f97a1f6162bd7e4593d7a033fc680e70d",
+        "dist/types/cjs/runtime/renderer.d.ts": "0d2e992fe2eaf3f83d7143544e099680bb918b2ce9e58a673fc00a7fe2b57b8b",
+        "dist/types/cjs/runtime/state-api.d.ts": "624ceffcbec8d6c2e0396b91ec6e9007aa724aa75711455253bf8df1aa6f4c51",
+        "dist/types/cjs/utils/extend.d.ts": "7a204df803232d3945193a3efdcc485d5b37792a77a200253fbd2b2e7ebf3906",
+        "dist/types/cjs/utils/subscribe-bindings.d.ts": "5e9bdbb746b770af49562b0134ffb925e4ed56c4040a077d079ea29dcdaa3ada",
+        "dist/types/cjs/version.d.ts": "cbc567d2461560f08b3080b1d40ff05521082f6046181e2ae2ff25dc31065f3f",
+        "dist/types/esm/create-marionette.d.ts": "a85d62f12edd752c0c137735f6bb9b14e22f9a5a05feefb53bbd4605032b31ef",
+        "dist/types/esm/index.d.ts": "c5ca84e65b2ec4548fbff9202d7097b154d495ce1c9672642666b1c50247c675",
+        "dist/types/esm/mixins/behaviors.d.ts": "4dee767ba25d070022561d784c08c9798cee7bb5ac90b185315f0bbbae0ca439",
+        "dist/types/esm/mixins/common.d.ts": "85668496e912ea160b1b78a0041a67f6677c0bce15a67c7519e6822d8de9c723",
+        "dist/types/esm/mixins/delegate-entity-events.d.ts": "afff6222e77478d4c79db0dfa011b4099ce414e93611c497b174e971902e04d1",
+        "dist/types/esm/mixins/destroy.d.ts": "d9df0f147b6910d2960edf78646f51daf8a5d4e7aee99a42f2aa1c105af4db93",
+        "dist/types/esm/mixins/radio.d.ts": "dfd0cc070a53edc1c005e1de7434bb892cda3624061a3802d8ab6193c7c5faba",
+        "dist/types/esm/mixins/state.d.ts": "92ddb4e6f66e46f09e87eaed7ef7290e636598fd03555671319d28f826dc18f5",
+        "dist/types/esm/mixins/template-render.d.ts": "436ce3cd5bf614ec38186961663c44b50902ebc3fd30d6e61b98b2ae4a8474cf",
+        "dist/types/esm/mixins/ui.d.ts": "bec57d1b82c9671a5ed822d5a66d341b5fe03df346dded3fbbab2a33ca3270f0",
+        "dist/types/esm/mixins/view-events.d.ts": "5d816b62769ce7726312154544561e01472f3dd691d71beac3c33a0398f50ed4",
+        "dist/types/esm/mixins/view.d.ts": "3644b4da45c2b46ff7bb05a3884cb612e5ef52b2bc9e2f7edb4353de4bd55974",
+        "dist/types/esm/modules/application.d.ts": "51b45ef62a3abf7fef0f699137115610f00d6a436916db392d7f7d2e179dfcfe",
+        "dist/types/esm/modules/behavior.d.ts": "e4f0b72c0e2b487541bd43dad6d9b129f3d5a60fcf8dc1bea039efd5623c2866",
+        "dist/types/esm/modules/child-view-container.d.ts": "6c008732b514bf81aa66ad9f00c8fda1077710aaead0454f78631175e10b4328",
+        "dist/types/esm/modules/collection-view.d.ts": "4cd6c480391b3c63ac9ecd3f6c828bfdf6344cec384baff7d5887e68dd239d3a",
+        "dist/types/esm/modules/common/build-region.d.ts": "7c542b4ce9fb560f6c05a07ca97871c6820cbe36a6711fbe121ca5e18aca0bbe",
+        "dist/types/esm/modules/common/chainable-methods.d.ts": "86e0e91dd2227c7601632e23c7df41c0192f27f4133e3da1f40ccb707a1d1043",
+        "dist/types/esm/modules/common/monitor-view-events.d.ts": "e5bbc37c60842b36d74367b77f750582c2d7bbf9ebc3761f65f5255e2ce4133a",
+        "dist/types/esm/modules/common/view.d.ts": "ea4efa33212e3090be181786252efb6b96ac43a9483d51c420237c78b33dbe40",
+        "dist/types/esm/modules/object.d.ts": "d21b142a039e31c15136252a2b1cc8d82153ce3dc1fb97bf076919561cc4f813",
+        "dist/types/esm/modules/region.d.ts": "5c68c4ec7efaac4078cdb6a79a715aef76e5f72691774bd81317d812ec774072",
+        "dist/types/esm/modules/view.d.ts": "e919edbd966c0aad24ad5b47ee5936ff1173dc40243748bcfdb96a4e300ea7b1",
+        "dist/types/esm/runtime-id.d.ts": "4d481cc79ffdb7d2c57a86c98e43562caf660a255f73724845c8c3f128e273bd",
+        "dist/types/esm/runtime/data-api.d.ts": "63ba627749998cd3f8ee26e08bed2065950b1bb2386b852995f2e7f3ba4d1dad",
+        "dist/types/esm/runtime/dom-api.d.ts": "a59f2cb3561a1de86fc9bc434e5c12027f0dcbfc5938124751a97416ae9bd301",
+        "dist/types/esm/runtime/event-delegator.d.ts": "713cf45c831c28f4596aa6f427045e4f97a1f6162bd7e4593d7a033fc680e70d",
+        "dist/types/esm/runtime/renderer.d.ts": "0d2e992fe2eaf3f83d7143544e099680bb918b2ce9e58a673fc00a7fe2b57b8b",
+        "dist/types/esm/runtime/state-api.d.ts": "624ceffcbec8d6c2e0396b91ec6e9007aa724aa75711455253bf8df1aa6f4c51",
+        "dist/types/esm/utils/extend.d.ts": "7a204df803232d3945193a3efdcc485d5b37792a77a200253fbd2b2e7ebf3906",
+        "dist/types/esm/utils/subscribe-bindings.d.ts": "5e9bdbb746b770af49562b0134ffb925e4ed56c4040a077d079ea29dcdaa3ada",
+        "dist/types/esm/version.d.ts": "cbc567d2461560f08b3080b1d40ff05521082f6046181e2ae2ff25dc31065f3f",
+        "docs/api.md": "0b9c8519e8a3ad2c671425dd494bb2a05e5b81ce7c2fdd7c2fae37daef538690",
+        "docs/api/application.md": "8ea4c355cd992038f2023816257fa8522476f2b6e09c89d45f7f158900c1a3ef",
+        "docs/api/collection-view.md": "e62797af03684ad07980f6bca789501c7a16259a720624ec690ad6364a260f3f",
+        "docs/api/common.md": "c56b6e18d9bbdb192844c19df2c2156cc9721b274385f14467fc713ab1a6a92e",
+        "docs/api/events.md": "72259fa2b9f7940b23ef5377e08a45099cc49ab6d267fda642475c7c462737ef",
+        "docs/api/region.md": "30d98764e199fea86a074bb46034f54e6bff2f7469e72c6605898225bcaad250",
+        "docs/api/state.md": "5900ddb825ca7b3ee17ad9c8bf74bfff455a610badbb5d847516f8b0b8afdc1e",
+        "docs/api/view-runtime.md": "b6a420a8770304efba3d87a20bcfa0be9222b65a429c3a1293b47f6954a722da",
+        "docs/api/view.md": "8c7425990d987064c231722641925c15ab09adf81d0113b59abe11c2277071e8",
+        "docs/architecture.md": "246ca277f725090b6359140184ee04091d9f6ca834eff95b04e4b3832fe3daed",
+        "docs/quick-start.md": "bac68a8c32cb4faeea0b1f74f1963cc18466b3013d46d1ba1e9a8fcaa8ce24dc",
+        "docs/readme.md": "baa4d79b0260005bebe2c6783ee3a5721c356f7cbe8c457a6bf5f8e63af1d9a0",
+        "docs/records.md": "f60bd669076d64c2f43cb95323813648db63dfcac021bed18990f513d1fe797d",
+        "docs/setup.md": "28d8681214bb9a33c2b00d5cf52199362ac7a9184edfe819e069ca805cf6dec3",
+        "examples/records/README.md": "2fe4ba3d1cce9c5af2637c67313f07212704a997c03e787e8f95ceca121d8c51",
+        "examples/records/index.html": "4ca4d73942ad18c9029cb32dd97657e2eea2426bd7385c59c0b369c8dcbc690d",
+        "examples/records/public/api/records.json": "7e40223309652f988c0c013eef681d314be90db9883e9dce32b3a5c7eb9d24c3",
+        "examples/records/src/main-application.js": "2c6b6e35f00d08d05d80c19e4fa2e35cd4836e5623f64ca3e5063baab63c6086",
+        "examples/records/src/main.js": "e57ab4fcb102fccf10e111d2f4995d8ae3f2e560d543a47cc6c2fee38d79b5ad",
+        "examples/records/src/page.js": "472076b97ff0a80f1f10aabb8bffc8ad827c3675f62abcb8be9732932f916022",
+        "examples/records/src/records-api.js": "d85f89ff80fd3710919a42fb5b50a42cba2048b683089ee3bdcb5ed08c61ca80",
+        "examples/records/src/records-application.js": "e3d8974977b8f1a8c6dbc760c68bb212f6987489e81a95258b77af2033c37333",
+        "examples/records/src/records-views.js": "7465791b99c299f1190c1db2f1168462dedbb3e7d243ebb73c316eee5775f008",
+        "examples/records/src/setup.js": "e06baac1af4943e6b6a99cb21b250d4c6b7b708b1c9a297fcb55e0641df732e0",
+        "examples/records/src/styles.css": "5bd2f36b22d099653cd5578d4e2cc267261663d4fd4c2f381dea6ac55b734bf7",
+        "examples/records/vite.config.js": "cade79f781fc6f4aae162840fa0a6343a8e423d61a137d8b5ca909eceaee5ed8",
+        "license.txt": "b44373a6a0309d29206a148fc65c8ebb49781f74fe9bee84877e22c0d35f11c0",
+        "llms.txt": "3a40b7fb4209a074adabc3f2132db6204274e656e9c2ac51a1f3ff66d2ec2a9e",
+        "package.json": "4e25173177639f6f78b47432f2c0da80bcbbfc90f4093fc4e57f9f5877b2ebf0",
+        "readme.md": "c8cd348424ffcfaa2bfe5445c0ea6335bbec73ecb2836aad0b7977b2b87785b3"
+      }
+    },
+    {
+      "name": "@mnjs/utils",
+      "version": "5.0.0-rc.2",
+      "filename": "mnjs-utils-5.0.0-rc.2.tgz",
+      "sha256": "b3c8cf3ccdd38bec22deff62c5ec62c31ddb0371a9406ed0dd9c04763b5a6b4d",
+      "integrity": "sha512-1nWm7vmBPPB0DTaoBNJPnAyfdT3Mx6FF9gzf+OVdl+I+gOUn5URsWLAP3ygo3LbUItg/Xu5ASqK7DlZ1bRRFxw==",
+      "exports": {
+        ".": {
+          "import": {
+            "types": "./dist/types/esm/index.d.ts",
+            "default": "./dist/index.js"
+          },
+          "require": {
+            "types": "./dist/types/cjs/index.d.ts",
+            "default": "./dist/index.cjs"
+          },
+          "default": "./dist/index.js"
+        },
+        "./package.json": "./package.json"
+      },
+      "dependencies": {},
+      "files": {
+        "dist/index.cjs": "cfe89ea93cd07852a08f6d29d3a52b4708b2f08a1f4c2c5927cc44f2f46d02b9",
+        "dist/index.cjs.map": "27ff71966cdf7b4e303a2b2b9152c1d4729d6c8fb8f5819f239551090ee3a962",
+        "dist/index.js": "250f3d661823a5faf7480904dbc2bd9a7fc194fb64fb7e8433f876dbc77f2323",
+        "dist/index.js.map": "944a0968b35c7fa5e3e6bfd6cc7d5f8d4eb1579947bd2bb9a7ba8fafce5ddc9a",
+        "dist/types/cjs/bind-events.d.ts": "b0ca63125b1667e4a9a7d8308f200ab7dee95816d851bcdfb28ef08a2792401d",
+        "dist/types/cjs/bind-requests.d.ts": "7fa0ce1b1b1bdf84faf0f55651c8cc292b6bab8ed54be37f0baa4e96da03090d",
+        "dist/types/cjs/build-event-args.d.ts": "8bc39650607879d6b8a8384f1579bb10ad5d79d5f5cd5590f6ee4871830fecda",
+        "dist/types/cjs/call-handler.d.ts": "3ce22faa6c0d741189b0867730e82728347fe7d86c98f2f121ce163f0009e253",
+        "dist/types/cjs/error.d.ts": "0cf68cc960bc5c1890a87ff168b75bbf8e2960d79f94d62e16fcb0257fcce849",
+        "dist/types/cjs/events.d.ts": "8ff866549f20cc0670b31c82da81970e406b4a8fd0d51a1b7443090da1d0d333",
+        "dist/types/cjs/extend.d.ts": "ee6c69bac2f8ddd2a3e65521bb7f9ea1380382325d80c46bfd60f67944e1c1e5",
+        "dist/types/cjs/get-option.d.ts": "5054507562119b371309a3484a27a2369d9294725ea8483d93eadbabd2041c32",
+        "dist/types/cjs/get-value.d.ts": "eee2b9ab82871c3382d7b01295376dbc0f538ada76c90d176ed5c7f0ce4dd4ee",
+        "dist/types/cjs/index.d.ts": "bd1129fcc6966eac540f9ee65e5a4bbb4445b297a3ad1e3538aa70a69ab377f0",
+        "dist/types/cjs/is-string.d.ts": "763864cbd83739362cf9ea2e54e4e18746db8e7540b1a2182ef7d852375a88ba",
+        "dist/types/cjs/merge-options.d.ts": "12ceca39fc9fc217da7676645a8f3948b083d9109f5710c669174d17d3c19a72",
+        "dist/types/cjs/normalize-methods.d.ts": "5f99d608cdb028e56b492f584421ce2fe76f631e93b0e690a9bb0e6ca90a0c8c",
+        "dist/types/cjs/once-wrap.d.ts": "b0f072f2bcb10faf7929bd0fd4600b29f6f3ee38d1fcdf1fb9e9981b1da75b61",
+        "dist/types/cjs/package.json": "dbf8353f77358bc12169b7bb7301e1978d5b503e002ee927229a8993672818fc",
+        "dist/types/cjs/set-property.d.ts": "87a262cf721319ec844568c7a1c93e44aa53a5a44b462b4afff889a54cc7b4ff",
+        "dist/types/cjs/trigger-method.d.ts": "a0c619bc304539c57757c32c6febacdd2d19060d6073b0aab4f7abfea3a66d09",
+        "dist/types/cjs/unique-id.d.ts": "7e2868aca50e7759c0deb17b6b352a76be65d906831e5a36d72c484dd6106153",
+        "dist/types/esm/bind-events.d.ts": "b0ca63125b1667e4a9a7d8308f200ab7dee95816d851bcdfb28ef08a2792401d",
+        "dist/types/esm/bind-requests.d.ts": "7fa0ce1b1b1bdf84faf0f55651c8cc292b6bab8ed54be37f0baa4e96da03090d",
+        "dist/types/esm/build-event-args.d.ts": "8bc39650607879d6b8a8384f1579bb10ad5d79d5f5cd5590f6ee4871830fecda",
+        "dist/types/esm/call-handler.d.ts": "3ce22faa6c0d741189b0867730e82728347fe7d86c98f2f121ce163f0009e253",
+        "dist/types/esm/error.d.ts": "0cf68cc960bc5c1890a87ff168b75bbf8e2960d79f94d62e16fcb0257fcce849",
+        "dist/types/esm/events.d.ts": "8ff866549f20cc0670b31c82da81970e406b4a8fd0d51a1b7443090da1d0d333",
+        "dist/types/esm/extend.d.ts": "ee6c69bac2f8ddd2a3e65521bb7f9ea1380382325d80c46bfd60f67944e1c1e5",
+        "dist/types/esm/get-option.d.ts": "5054507562119b371309a3484a27a2369d9294725ea8483d93eadbabd2041c32",
+        "dist/types/esm/get-value.d.ts": "eee2b9ab82871c3382d7b01295376dbc0f538ada76c90d176ed5c7f0ce4dd4ee",
+        "dist/types/esm/index.d.ts": "bd1129fcc6966eac540f9ee65e5a4bbb4445b297a3ad1e3538aa70a69ab377f0",
+        "dist/types/esm/is-string.d.ts": "763864cbd83739362cf9ea2e54e4e18746db8e7540b1a2182ef7d852375a88ba",
+        "dist/types/esm/merge-options.d.ts": "12ceca39fc9fc217da7676645a8f3948b083d9109f5710c669174d17d3c19a72",
+        "dist/types/esm/normalize-methods.d.ts": "5f99d608cdb028e56b492f584421ce2fe76f631e93b0e690a9bb0e6ca90a0c8c",
+        "dist/types/esm/once-wrap.d.ts": "b0f072f2bcb10faf7929bd0fd4600b29f6f3ee38d1fcdf1fb9e9981b1da75b61",
+        "dist/types/esm/set-property.d.ts": "87a262cf721319ec844568c7a1c93e44aa53a5a44b462b4afff889a54cc7b4ff",
+        "dist/types/esm/trigger-method.d.ts": "a0c619bc304539c57757c32c6febacdd2d19060d6073b0aab4f7abfea3a66d09",
+        "dist/types/esm/unique-id.d.ts": "7e2868aca50e7759c0deb17b6b352a76be65d906831e5a36d72c484dd6106153",
+        "license.txt": "b44373a6a0309d29206a148fc65c8ebb49781f74fe9bee84877e22c0d35f11c0",
+        "package.json": "cd65f190cf9bf1edc151666506a7466cdcfd1c14d01084ce29bd1d5b614cbc87",
+        "readme.md": "813c51a262532361e5c1a0f16f8e3cabc34a1404d9533672480d67fe8b60d05e"
+      }
+    },
+    {
+      "name": "@mnjs/radio",
+      "version": "5.0.0-rc.2",
+      "filename": "mnjs-radio-5.0.0-rc.2.tgz",
+      "sha256": "838bd3e281f3ecf853d4cbd4149c2773e3d2c2b229eb8bce7912972e4b20db35",
+      "integrity": "sha512-HLx7zfgtBrnItcqDzvJbfgRGYvsLp1tB6H6/vyUMJ2bW3GSg4KjtrJEezecqFSM1zksJ5knApCORBri52f9Jtw==",
+      "exports": {
+        ".": {
+          "import": {
+            "types": "./dist/types/esm/index.d.ts",
+            "default": "./dist/index.js"
+          },
+          "require": {
+            "types": "./dist/types/cjs/index.d.ts",
+            "default": "./dist/index.cjs"
+          },
+          "default": "./dist/index.js"
+        },
+        "./package.json": "./package.json"
+      },
+      "dependencies": {
+        "@mnjs/utils": "5.0.0-rc.2"
+      },
+      "files": {
+        "dist/index.cjs": "d7594769978a84daf852fd24cef490c8fa92daa2cdea652eb47750bfe7bb828b",
+        "dist/index.cjs.map": "3c682da1c903693c236cba24e58b74c05b8e4b7e8ee564de399ee266e7ab7673",
+        "dist/index.js": "4c3e49e77b211a72297c1eda1572aba377945dbd5011af80d96caf0c4c4c9e8a",
+        "dist/index.js.map": "0fcc49a9314f0681b429b20e734ccdf9d59a4eaf75540b63b457de08425f3cb8",
+        "dist/types/cjs/debug.d.ts": "ed78b85ba9b49ce475382b52d78b9df6f5dd63838b6f0f22e11054ca54c8470e",
+        "dist/types/cjs/index.d.ts": "f0de272c1c9c1980ed0a2dc884293276fe43aa53827d7657d86a7474613d6544",
+        "dist/types/cjs/package.json": "dbf8353f77358bc12169b7bb7301e1978d5b503e002ee927229a8993672818fc",
+        "dist/types/cjs/radio.d.ts": "afc5030a4aa0b912b2950890b66684a356015bb6cc22afad35c29ea3fdf40ed3",
+        "dist/types/cjs/requests.d.ts": "70b8f43362010bd47bee08263450575071e56916d4722ddb0cdfe66e6748257c",
+        "dist/types/esm/debug.d.ts": "ed78b85ba9b49ce475382b52d78b9df6f5dd63838b6f0f22e11054ca54c8470e",
+        "dist/types/esm/index.d.ts": "f0de272c1c9c1980ed0a2dc884293276fe43aa53827d7657d86a7474613d6544",
+        "dist/types/esm/radio.d.ts": "afc5030a4aa0b912b2950890b66684a356015bb6cc22afad35c29ea3fdf40ed3",
+        "dist/types/esm/requests.d.ts": "70b8f43362010bd47bee08263450575071e56916d4722ddb0cdfe66e6748257c",
+        "license.txt": "b44373a6a0309d29206a148fc65c8ebb49781f74fe9bee84877e22c0d35f11c0",
+        "package.json": "c24bc2a1e0042394327ebc1d55772ee728a6e194b0e24d82af768077b2a54444",
+        "readme.md": "21821ddfea4a6fb460fb254553fe3f167f9c16a8741aa3f333e825286f1e4719"
+      }
+    },
+    {
+      "name": "@mnjs/data",
+      "version": "5.0.0-rc.2",
+      "filename": "mnjs-data-5.0.0-rc.2.tgz",
+      "sha256": "34e34e90c0df7b5654faeedbb7b77bb396cbbea896c0cc22ea68863a5db3f6d0",
+      "integrity": "sha512-LfFIqKhTg7ZP5QlavsR+uKGo8HrJYYySvTI7IHwG2Zjus5FLYwRGsH1k9RPY2CYhXuSQVcZWSp6UUXUD1oCFzg==",
+      "exports": {
+        ".": {
+          "import": {
+            "types": "./dist/types/esm/index.d.ts",
+            "default": "./dist/index.js"
+          },
+          "require": {
+            "types": "./dist/types/cjs/index.d.ts",
+            "default": "./dist/index.cjs"
+          },
+          "default": "./dist/index.js"
+        },
+        "./package.json": "./package.json"
+      },
+      "dependencies": {
+        "@mnjs/utils": "5.0.0-rc.2"
+      },
+      "files": {
+        "dist/index.cjs": "2335a007df247cb0bf204216c5d43151f12e96645df1abbc21644922f01ec0c6",
+        "dist/index.cjs.map": "60d3dca8124810be336a4f85512ce7088e1cbdef56d43d16c121626c763377b7",
+        "dist/index.js": "bd2e6c3f51646a8fb1e6788a35323ef0b4da94c0af85344d6870614cb6a25c44",
+        "dist/index.js.map": "faa5e4cecbfdcf97966ff46a634c4c9283d4e60c548d7f08b8ad604f035f8a46",
+        "dist/types/cjs/api.d.ts": "3382ee9e97fecf192412f7e9cae63504ca772a7d05d75b07461d54f97bbfb261",
+        "dist/types/cjs/collection.d.ts": "d082b2b04708c0810bc04d09620f3fed070be825e769124c3444e5e5d08f28d2",
+        "dist/types/cjs/index.d.ts": "3b1723d7889ed143ae359d6efddaab6c9ef66182f15e9b284d39fef9a05b7ff5",
+        "dist/types/cjs/model.d.ts": "6a8faf8d14902e565aa45dedc43acb4971b849751e904bea215a51358d3676c4",
+        "dist/types/cjs/package.json": "dbf8353f77358bc12169b7bb7301e1978d5b503e002ee927229a8993672818fc",
+        "dist/types/esm/api.d.ts": "3382ee9e97fecf192412f7e9cae63504ca772a7d05d75b07461d54f97bbfb261",
+        "dist/types/esm/collection.d.ts": "d082b2b04708c0810bc04d09620f3fed070be825e769124c3444e5e5d08f28d2",
+        "dist/types/esm/index.d.ts": "3b1723d7889ed143ae359d6efddaab6c9ef66182f15e9b284d39fef9a05b7ff5",
+        "dist/types/esm/model.d.ts": "6a8faf8d14902e565aa45dedc43acb4971b849751e904bea215a51358d3676c4",
+        "license.txt": "b44373a6a0309d29206a148fc65c8ebb49781f74fe9bee84877e22c0d35f11c0",
+        "package.json": "9f7db204e1267e7d77269f13f297056ca279d6fc4ba706b635f83012492a6e72",
+        "readme.md": "83f3dc2d3fe4cc210c139b7db38ed30f356535f0f98e7eb8a7f94d57104f21fb"
+      }
+    },
+    {
+      "name": "@mnjs/adapters",
+      "version": "5.0.0-rc.2",
+      "filename": "mnjs-adapters-5.0.0-rc.2.tgz",
+      "sha256": "a9f16fb9fdd875726698d3103966d7d2decf87cc00dab393d3de0330492266ba",
+      "integrity": "sha512-n6muJytG+G52BPG6YNby9JfIVZkDUfpZ83y++Yyz09HM3FvhZlMcE/Ah75dv6LToZagddvm48UX19QMJC4frjQ==",
+      "exports": {
+        "./backbone": {
+          "import": {
+            "types": "./dist/types/esm/data/backbone.d.ts",
+            "default": "./dist/backbone.js"
+          },
+          "require": {
+            "types": "./dist/types/cjs/data/backbone.d.ts",
+            "default": "./dist/backbone.cjs"
+          },
+          "default": "./dist/backbone.js"
+        },
+        "./dom/jquery": {
+          "import": {
+            "types": "./dist/types/esm/dom/jquery.d.ts",
+            "default": "./dist/dom/jquery.js"
+          },
+          "require": {
+            "types": "./dist/types/cjs/dom/jquery.d.ts",
+            "default": "./dist/dom/jquery.cjs"
+          },
+          "default": "./dist/dom/jquery.js"
+        },
+        "./xstate": {
+          "import": {
+            "types": "./dist/types/esm/data/xstate.d.ts",
+            "default": "./dist/xstate.js"
+          },
+          "require": {
+            "types": "./dist/types/cjs/data/xstate.d.ts",
+            "default": "./dist/xstate.cjs"
+          },
+          "default": "./dist/xstate.js"
+        },
+        "./package.json": "./package.json",
+        "./dom/morphdom": {
+          "import": {
+            "types": "./dist/types/esm/dom/morphdom.d.ts",
+            "default": "./dist/dom/morphdom.js"
+          },
+          "require": {
+            "types": "./dist/types/cjs/dom/morphdom.d.ts",
+            "default": "./dist/dom/morphdom.cjs"
+          },
+          "default": "./dist/dom/morphdom.js"
+        },
+        "./dom/lit-html": {
+          "import": {
+            "types": "./dist/types/esm/dom/lit-html.d.ts",
+            "default": "./dist/dom/lit-html.js"
+          },
+          "require": {
+            "types": "./dist/types/cjs/dom/lit-html.d.ts",
+            "default": "./dist/dom/lit-html.cjs"
+          },
+          "default": "./dist/dom/lit-html.js"
+        }
+      },
+      "dependencies": {},
+      "files": {
+        "dist/backbone.cjs": "3a7a93e4f8857bbbd725310898daa7e20b72965a241e0e4797f6cd6602e0d304",
+        "dist/backbone.cjs.map": "e06deb926bd21767d3e10f25b221bec2d6bc4907d2bb0066edc9eb2511613823",
+        "dist/backbone.js": "a5d199eb3a9983aba6ffbec4c9b68558d8d0ad295654025210862de5ff0c968a",
+        "dist/backbone.js.map": "0ad2a79aafb0fe2fa0db3acb9566f7b72b49c28ba74a5262709fc4aab1fba05c",
+        "dist/dom/jquery.cjs": "631b65a1ca984cb1986fa16f500430daac62d1bd43925b2b267c526880dafc41",
+        "dist/dom/jquery.cjs.map": "d0348d54b13445d81d32434b2f4db3b0fc2b7da44a8d702f0aa9cc7ed3619b96",
+        "dist/dom/jquery.js": "43d103f9feef92f5993880575fa430a3ca3f9ec190b8ca7f887e6a8af49b1d73",
+        "dist/dom/jquery.js.map": "7e2168794a1f25b800d57c5dccbc20f17acb4ccdbc5ab7d72926a26c35c1df14",
+        "dist/dom/lit-html.cjs": "93cbbb60a1a7de7d6db3b5baae002c9a002a01d732c4a17631cf240f74923d49",
+        "dist/dom/lit-html.cjs.map": "1dc9eca7c11b1d16b1c7abd327f2faf1e93317a252dcc50c64cc991a081b9a75",
+        "dist/dom/lit-html.js": "931a217878f11fa28064ee9f79a689bc73449b7dbfa265884a1ca46ae9bda054",
+        "dist/dom/lit-html.js.map": "1be617c839637f6711cdb264428b90c3ab928b404956dbc3a34a2784af0f863d",
+        "dist/dom/morphdom.cjs": "5ce8fe787c5e5d374242c8e53c619dc4d2d0a339bb86b65911bb07ea41826ba8",
+        "dist/dom/morphdom.cjs.map": "9cadb12986ffc439a3407fa38a106e616b17de2a389e05fdb4de9e3f743e28af",
+        "dist/dom/morphdom.js": "977161aef1e776c51ce7b5c3df83b7853f2a08a04ac3761635850ebab316061b",
+        "dist/dom/morphdom.js.map": "735d3e8182e243cd0d72a8dcf443a9e1626cf0ff6d2cce4a6cfae1af25779518",
+        "dist/types/cjs/data/backbone.d.ts": "798c35adbff41ebdccaedd8b68a6bacd4864928042037f07d83dbdbab06031ed",
+        "dist/types/cjs/data/internal/keyed-snapshot.d.ts": "22fc054c2c79701bf12b7a8b23c390a97cf0837ece1f0f3fe3ac60ecc3324486",
+        "dist/types/cjs/data/xstate.d.ts": "e17d64fa52ea4d624deeee3868699bca4c2a4d659158f62c35b3b642ddd1fb71",
+        "dist/types/cjs/dom/jquery.d.ts": "ca41e1afa685b3d33c39cfad2187e19717ceef7318a2167eaf2615c47be1bed6",
+        "dist/types/cjs/dom/lit-html.d.ts": "d1b612d95e4aca85c3ac72acae140d96786d1978b15e02e0989d0f32dce9bd61",
+        "dist/types/cjs/dom/morphdom.d.ts": "691cb2fd85a7b205822371889ea4dcaea6b0f4e13e0ce0c69985099c662e2f0a",
+        "dist/types/cjs/package.json": "dbf8353f77358bc12169b7bb7301e1978d5b503e002ee927229a8993672818fc",
+        "dist/types/esm/data/backbone.d.ts": "ce91875eb950c19b941dcfb7924ce84a68378b587a10cb8a13d7a181f9a72a50",
+        "dist/types/esm/data/internal/keyed-snapshot.d.ts": "22fc054c2c79701bf12b7a8b23c390a97cf0837ece1f0f3fe3ac60ecc3324486",
+        "dist/types/esm/data/xstate.d.ts": "f9b89a21636533b14954aea4d6eb11cd353b307564cf448c54327c8854fa9f23",
+        "dist/types/esm/dom/jquery.d.ts": "25badd9e96fe4406efd56b6ee814f0fc6ce5daf4ae010a04838e384ccef40e3e",
+        "dist/types/esm/dom/lit-html.d.ts": "4b6af41a097f7eabcad1807da12c4d7b5aab50a2935d7f7553c24b80c342221a",
+        "dist/types/esm/dom/morphdom.d.ts": "036f9d4da44024bdcc9f3d2469132263343efe3b0dabd60652698f222b56c91b",
+        "dist/xstate.cjs": "449f20a3ff82f6a1d4d96a24dd217b7e9d3178390108b1f56105c548e2603b56",
+        "dist/xstate.cjs.map": "a421df2957e208ad5066f818ae24dfb273ffcad34d3f7dfda78dfbcda7570fc6",
+        "dist/xstate.js": "ab77127dae9027d30b3cdc1d2e57e7959be22fc1d7a06c7cba2419a26cd97426",
+        "dist/xstate.js.map": "2c7e28b8c8971915633a72ebba8cd0004efdf2cf4ba54eb940b8f4a5e48f0d01",
+        "license.txt": "b44373a6a0309d29206a148fc65c8ebb49781f74fe9bee84877e22c0d35f11c0",
+        "package.json": "7e9d0246441836fbefba5c765b579e380cf45ae7883e56d6ea9491ef99c90662",
+        "readme.md": "1dd30826ff90a136699c3669a6d394eaec541efa8742022900e88b365b205e25"
+      }
+    }
+  ],
+  "lock": {
+    "sourceExampleSha256": "170cb83826c00fa57719cf63223aa5c8ae8ddb4829edbad32ea10a3653986551",
+    "sourceRootSha256": "26ff613c360db52d36b3837730f819f3eec9f228f59a59d68f2a5922a3f45378",
+    "consumerSha256": "7505bddce12dc88ad01d4ded9b674dfac558a714af9d11c7e9b8fc7e6925a1df",
+    "note": "Exact registry lock entries retained; only local framework tarballs and the existing root Playwright dependency closure are overlaid."
+  },
+  "documentationVersions": {
+    "docs/readme.md": "5.0.0-rc.2",
+    "docs/quick-start.md": "5.0.0-rc.2",
+    "docs/api.md": "5.0.0-rc.2"
+  },
+  "discovery": {
+    "entrypoints": [
+      "readme.md",
+      "llms.txt"
+    ],
+    "visited": [
+      "docs/api.md",
+      "docs/api/application.md",
+      "docs/api/collection-view.md",
+      "docs/api/common.md",
+      "docs/api/events.md",
+      "docs/api/region.md",
+      "docs/api/state.md",
+      "docs/api/view-runtime.md",
+      "docs/api/view.md",
+      "docs/architecture.md",
+      "docs/quick-start.md",
+      "docs/readme.md",
+      "docs/records.md",
+      "docs/setup.md",
+      "examples/records/README.md",
+      "license.txt",
+      "llms.txt",
+      "readme.md"
+    ],
+    "links": [
+      {
+        "from": "readme.md",
+        "to": "docs/readme.md"
+      },
+      {
+        "from": "readme.md",
+        "to": "docs/quick-start.md"
+      },
+      {
+        "from": "readme.md",
+        "to": "docs/api.md"
+      },
+      {
+        "from": "readme.md",
+        "to": "license.txt"
+      },
+      {
+        "from": "llms.txt",
+        "to": "docs/readme.md"
+      },
+      {
+        "from": "llms.txt",
+        "to": "docs/quick-start.md"
+      },
+      {
+        "from": "llms.txt",
+        "to": "docs/api.md"
+      },
+      {
+        "from": "llms.txt",
+        "to": "docs/api/application.md"
+      },
+      {
+        "from": "llms.txt",
+        "to": "docs/api/view.md"
+      },
+      {
+        "from": "llms.txt",
+        "to": "docs/api/collection-view.md"
+      },
+      {
+        "from": "llms.txt",
+        "to": "docs/api/region.md"
+      },
+      {
+        "from": "llms.txt",
+        "to": "docs/setup.md"
+      },
+      {
+        "from": "llms.txt",
+        "to": "docs/architecture.md"
+      },
+      {
+        "from": "llms.txt",
+        "to": "docs/records.md"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "docs/quick-start.md"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "docs/records.md"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "docs/architecture.md"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "docs/api.md"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "docs/api/application.md"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "docs/api/view.md"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "docs/api/collection-view.md"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "docs/api/region.md"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "docs/setup.md"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "examples/records/src/main.js"
+      },
+      {
+        "from": "docs/readme.md",
+        "to": "examples/records/README.md"
+      },
+      {
+        "from": "docs/quick-start.md",
+        "to": "docs/readme.md"
+      },
+      {
+        "from": "docs/quick-start.md",
+        "to": "docs/setup.md"
+      },
+      {
+        "from": "docs/quick-start.md",
+        "to": "docs/records.md"
+      },
+      {
+        "from": "docs/api.md",
+        "to": "docs/api/view.md"
+      },
+      {
+        "from": "docs/api.md",
+        "to": "docs/api/region.md"
+      },
+      {
+        "from": "docs/api.md",
+        "to": "docs/api/application.md"
+      },
+      {
+        "from": "docs/api.md",
+        "to": "docs/api/collection-view.md"
+      },
+      {
+        "from": "docs/api.md",
+        "to": "docs/api/view-runtime.md",
+        "anchor": "behavior-composition"
+      },
+      {
+        "from": "docs/api.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/api.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api.md",
+        "to": "docs/api/view-runtime.md"
+      },
+      {
+        "from": "docs/api.md",
+        "to": "docs/setup.md"
+      },
+      {
+        "from": "docs/api.md",
+        "to": "docs/api/view-runtime.md",
+        "anchor": "class-configuration"
+      },
+      {
+        "from": "docs/api.md",
+        "to": "docs/quick-start.md"
+      },
+      {
+        "from": "docs/api.md",
+        "to": "docs/architecture.md"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api.md"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/view.md"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/region.md"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/setup.md",
+        "anchor": "observable-data-and-api-access"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/application.md",
+        "anchor": "root-view-and-region"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/application.md",
+        "anchor": "radio-bindings"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/region.md",
+        "anchor": "construction-and-options"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/view.md",
+        "anchor": "existing-elements"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/region.md",
+        "anchor": "showing-a-view"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/state.md",
+        "anchor": "configure-the-stateapi"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/common.md",
+        "anchor": "binding-helpers"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api/application.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/region.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/view-runtime.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/region.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/collection-view.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/view-runtime.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/view-runtime.md",
+        "anchor": "root-attributes"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/view-runtime.md",
+        "anchor": "ui-bindings"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/view-runtime.md",
+        "anchor": "dom-events"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/view-runtime.md",
+        "anchor": "data-bindings"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/view-runtime.md",
+        "anchor": "child-events"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/view-runtime.md",
+        "anchor": "behavior-composition"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/view-runtime.md",
+        "anchor": "templates-and-data"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/region.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/region.md",
+        "anchor": "showing-a-view"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/region.md",
+        "anchor": "replacing-a-collectionview"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/view-runtime.md",
+        "anchor": "class-configuration"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/view-runtime.md"
+      },
+      {
+        "from": "docs/api/view.md",
+        "to": "docs/api/view-runtime.md",
+        "anchor": "types"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api.md"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/view.md"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/view-runtime.md"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/setup.md",
+        "anchor": "observable-data-and-api-access"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/view-runtime.md"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/view.md",
+        "anchor": "construction-and-options"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/common.md",
+        "anchor": "options-and-initialization"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/collection-view.md",
+        "anchor": "sorting"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/collection-view.md",
+        "anchor": "filtering"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/setup.md",
+        "anchor": "configure-once"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/view-runtime.md",
+        "anchor": "child-events"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/view.md",
+        "anchor": "lifecycle-hooks-and-events"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/region.md",
+        "anchor": "replacing-a-collectionview"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/view-runtime.md"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/view-runtime.md",
+        "anchor": "class-configuration"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/api/collection-view.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api.md"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/view.md"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/view.md"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/region.md",
+        "anchor": "showing-a-view"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/view.md"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/events.md",
+        "anchor": "cleanup"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/region.md",
+        "anchor": "showing-a-view"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/view.md",
+        "anchor": "lifecycle-hooks-and-events"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/view-runtime.md"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api/region.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/setup.md",
+        "to": "docs/quick-start.md"
+      },
+      {
+        "from": "docs/setup.md",
+        "to": "docs/records.md"
+      },
+      {
+        "from": "docs/setup.md",
+        "to": "docs/api.md"
+      },
+      {
+        "from": "docs/architecture.md",
+        "to": "docs/records.md"
+      },
+      {
+        "from": "docs/records.md",
+        "to": "examples/records/README.md"
+      },
+      {
+        "from": "docs/records.md",
+        "to": "docs/quick-start.md"
+      },
+      {
+        "from": "docs/records.md",
+        "to": "docs/setup.md"
+      },
+      {
+        "from": "docs/records.md",
+        "to": "examples/records/index.html"
+      },
+      {
+        "from": "docs/records.md",
+        "to": "examples/records/src/records-application.js"
+      },
+      {
+        "from": "docs/records.md",
+        "to": "examples/records/src/main-application.js"
+      },
+      {
+        "from": "docs/records.md",
+        "to": "examples/records/src/records-application.js"
+      },
+      {
+        "from": "docs/records.md",
+        "to": "examples/records/src/records-views.js"
+      },
+      {
+        "from": "docs/records.md",
+        "to": "examples/records/src/records-api.js"
+      },
+      {
+        "from": "docs/records.md",
+        "to": "examples/records/src/page.js"
+      },
+      {
+        "from": "docs/records.md",
+        "to": "examples/records/src/main.js"
+      },
+      {
+        "from": "docs/records.md",
+        "to": "examples/records/src/setup.js"
+      },
+      {
+        "from": "docs/api/events.md",
+        "to": "docs/api/view-runtime.md"
+      },
+      {
+        "from": "docs/api/events.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api/events.md",
+        "to": "docs/api/common.md",
+        "anchor": "binding-helpers"
+      },
+      {
+        "from": "docs/api/events.md",
+        "to": "docs/api.md"
+      },
+      {
+        "from": "docs/api/events.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api/events.md",
+        "to": "docs/api/view-runtime.md"
+      },
+      {
+        "from": "docs/api/state.md",
+        "to": "docs/setup.md",
+        "anchor": "observable-data-and-api-access"
+      },
+      {
+        "from": "docs/api/state.md",
+        "to": "docs/api/events.md",
+        "anchor": "cleanup"
+      },
+      {
+        "from": "docs/api/state.md",
+        "to": "docs/setup.md",
+        "anchor": "configure-once"
+      },
+      {
+        "from": "docs/api/state.md",
+        "to": "docs/api/view-runtime.md"
+      },
+      {
+        "from": "docs/api/state.md",
+        "to": "docs/api.md"
+      },
+      {
+        "from": "docs/api/state.md",
+        "to": "docs/api/view.md"
+      },
+      {
+        "from": "docs/api/state.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api/common.md",
+        "to": "docs/api.md"
+      },
+      {
+        "from": "docs/api/common.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/api/common.md",
+        "to": "docs/api/events.md",
+        "anchor": "cleanup"
+      },
+      {
+        "from": "docs/api/common.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "examples/records/README.md",
+        "to": "docs/records.md"
+      },
+      {
+        "from": "examples/records/README.md",
+        "to": "docs/quick-start.md"
+      },
+      {
+        "from": "docs/api/view-runtime.md",
+        "to": "docs/api/view.md"
+      },
+      {
+        "from": "docs/api/view-runtime.md",
+        "to": "docs/api/collection-view.md"
+      },
+      {
+        "from": "docs/api/view-runtime.md",
+        "to": "docs/api/common.md"
+      },
+      {
+        "from": "docs/api/view-runtime.md",
+        "to": "docs/api/events.md"
+      },
+      {
+        "from": "docs/api/view-runtime.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api/view-runtime.md",
+        "to": "docs/setup.md",
+        "anchor": "configure-once"
+      },
+      {
+        "from": "docs/api/view-runtime.md",
+        "to": "docs/setup.md",
+        "anchor": "configure-once"
+      },
+      {
+        "from": "docs/api/view-runtime.md",
+        "to": "docs/api/view.md",
+        "anchor": "rendering-and-status"
+      },
+      {
+        "from": "docs/api/view-runtime.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api/view-runtime.md",
+        "to": "docs/api/events.md",
+        "anchor": "cleanup"
+      },
+      {
+        "from": "docs/api/view-runtime.md",
+        "to": "docs/api/state.md"
+      },
+      {
+        "from": "docs/api/view-runtime.md",
+        "to": "docs/setup.md",
+        "anchor": "configure-once"
+      }
+    ],
+    "scope": "core package docs only",
+    "resolvedPackage": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer/node_modules/marionette/package.json",
+    "negativeCheck": "Removed linked docs/api.md; traversal rejected the missing path. Original file restored.",
+    "anchorNegativeCheck": "Removed linked binding-helpers heading; traversal rejected the stale anchor. Original file restored."
+  },
+  "referenceExamples": {
+    "passed": true,
+    "examples": [
+      {
+        "path": "docs/api/view.md",
+        "fence": 1,
+        "name": "view-1",
+        "sourceSha256": "2b17e26294022574ed3a2960356b13a73733c3d8581a9b736752e8ba245c1c04",
+        "file": "reference-examples/view-1.mts",
+        "typescript": true,
+        "executed": true,
+        "outcomeAssertions": "assert.equal(page.isDestroyed(), true); assert.equal(child.isDestroyed(), true); assert.equal(document.body.contains(el), false);"
+      },
+      {
+        "path": "docs/api/region.md",
+        "fence": 1,
+        "name": "region-1",
+        "sourceSha256": "a69d7734a41a8325689722d9d3c8093847d8b8488d4aa54e4092dc7ce8fb5563",
+        "file": "reference-examples/region-1.mts",
+        "typescript": true,
+        "executed": true,
+        "outcomeAssertions": "assert.equal(retained, view); assert.equal(first.hasView(), false); assert.equal(second.hasView(), false); assert.equal(view.isDestroyed(), true);"
+      },
+      {
+        "path": "docs/api/view-runtime.md",
+        "fence": 1,
+        "name": "view-runtime-1",
+        "sourceSha256": "1af58eee01db15d6e067b72f36e8fcdb9fb482fe2e76c6209f36d9e9aceba363",
+        "file": "reference-examples/view-runtime-1.mjs",
+        "typescript": false,
+        "executed": true,
+        "outcomeAssertions": "assert.equal(greeting.el.textContent, 'Hello, Sam'); assert.equal(greeting.isDestroyed(), true);"
+      },
+      {
+        "path": "docs/api/common.md",
+        "fence": 1,
+        "name": "common-1",
+        "sourceSha256": "94a49a0bfb07ee3612252bf0daaa4c77917f5a43c63c70a9754039c63e132f99",
+        "file": "reference-examples/common-1.mjs",
+        "typescript": false,
+        "executed": true,
+        "outcomeAssertions": "assert.equal(panel.el.getAttribute('aria-label'), 'Settings'); panel.destroy();"
+      },
+      {
+        "path": "docs/api/events.md",
+        "fence": 1,
+        "name": "events-1",
+        "sourceSha256": "fd784982fad2c96e08decf5e68b7e29b54e94d3cf91b588ed9af9d0a9caeafa1",
+        "file": "reference-examples/events-1.mjs",
+        "typescript": false,
+        "executed": true,
+        "outcomeAssertions": "assert.equal(listener.selectedView, source); assert.equal(source.isDestroyed(), true); assert.equal(listener.isDestroyed(), true);"
+      },
+      {
+        "path": "docs/api/state.md",
+        "fence": 1,
+        "name": "state-1",
+        "sourceSha256": "6b997bb405b38b20b2ef5bc960f3f4430d50883467bb45882665b55f9134942f",
+        "file": "reference-examples/state-1.mjs",
+        "typescript": false,
+        "executed": true,
+        "outcomeAssertions": "assert.equal(disclosure.el.getAttribute('aria-expanded'), 'true'); assert.equal(disclosure.getState().isDestroyed(), true);"
+      },
+      {
+        "path": "docs/api/collection-view.md",
+        "fence": 1,
+        "name": "collection-view-1",
+        "sourceSha256": "ec5014af4d141334b7ba8c8ce126a4a066a5f37d95b63cda89ac5d253d4ac63b",
+        "file": "reference-examples/collection-view-1.mts",
+        "typescript": true,
+        "executed": true,
+        "outcomeAssertions": "\nconst apricot = list.children.findByModel(items.get('a'));\nconst blueberry = list.children.findByModel(items.get('b'));\nassert.equal(list.children.length, 2);\nlist.setFilter('available');\nassert.equal(list.children.length, 1);\nassert.equal(blueberry.isDestroyed(), false);\nassert.equal(blueberry.el.isConnected, false);\nitems.get('b').set('available', true);\nassert.equal(list.children.length, 1); // Native model change does not refilter the parent.\nlist.filter();\nassert.equal(list.children.findByModel(items.get('b')), blueberry);\nitems.get('b').set('available', false);\nlist.removeFilter();\nassert.equal(list.children.findByModel(items.get('b')), blueberry);\nlist.setComparator((view) => view.model.get('label'));\nitems.add({ id: 'c', label: 'Apple', available: true });\nassert.deepEqual(list.children.map(view => view.model.id), ['c', 'a', 'b']);\nassert.equal(list.children.findByModel(items.get('a')), apricot);\nassert.equal(list.children.findByModel(items.get('b')), blueberry);\nlist.setComparator(view => view.model.id === 'b' ? -1 : 0);\nassert.deepEqual(list.children.map(view => view.model.id), ['b', 'c', 'a']);\nlist.setComparator(view => view.model.id === 'b' ? undefined : 0);\nassert.deepEqual(list.children.map(view => view.model.id), ['c', 'a', 'b']);\nlist.setComparator('label');\nitems.get('b').set('label', '<Berry>');\nassert.deepEqual(list.children.map(view => view.model.id), ['c', 'a', 'b']); // No automatic resort.\n\nassert.equal(blueberry.el.textContent, '<Berry>');\nassert.equal(blueberry.el.querySelector('berry'), null);\nlist.setFilter(() => false);\nassert.equal(list.isEmpty(), true);\nconst empty = list.getEmptyRegion().currentView;\nassert.equal(empty.el.textContent, 'No items');\nassert.equal(blueberry.isDestroyed(), false);\nlist.removeFilter();\nassert.equal(empty.isDestroyed(), true);\nconst former = list.children.toArray();\nitems.reset([{ id: 'd', label: 'Date' }]);\nassert.equal(former.every(view => view.isDestroyed()), true);\nassert.equal(list.children.length, 1);\nconst extra = new View({ template: false });\nlist.addChildView(extra, 0);\nassert.equal(list.children.first(), extra);\nassert.equal(list.detachChildView(extra), extra);\nassert.equal(extra.isDestroyed(), false);\nconst nextOwner = new Region({ el: document.createElement('aside') });\nnextOwner.show(extra);\nnextOwner.destroy();\nconst finalRow = list.children.first();\nregion.destroy();\nassert.equal(finalRow.isDestroyed(), true);\nassert.equal(list.isDestroyed(), true);\nitems.destroy();\nmount.remove();\n"
+      },
+      {
+        "path": "docs/api/application.md",
+        "fence": 1,
+        "name": "application-1",
+        "sourceSha256": "a61e215bbe5cee60571b49853671a8200f3820189ec87428c3452eaa61f6d3f5",
+        "file": "reference-examples/application-1.mts",
+        "typescript": true,
+        "executed": true,
+        "testPreparation": "\nconst fetches = [];\nglobalThis.fetch = async (url, options) => {\n  fetches.push({ url, signal: options.signal });\n  return new Response(JSON.stringify({ title: '<Quarterly summary>' }));\n};\n",
+        "outcomeAssertions": "\nassert.equal(app.isRunning(), true);\nassert.equal(fetches.length, 1);\nassert.equal(fetches[0].url, '/summary.json');\nassert.equal(fetches[0].signal.aborted, false);\nconst initialRoot = app.getView();\nconst destination = app.getRegion();\nconst state = app.getState();\nassert.equal(initialRoot.el.querySelector('h1').textContent, '<Quarterly summary>');\nassert.equal(initialRoot.el.querySelector('quarterly'), null);\nassert.equal(await app.restart(), true);\nassert.equal(fetches.length, 2);\nassert.equal(initialRoot.isDestroyed(), true);\nassert.notEqual(app.getView(), initialRoot);\nassert.equal(app.getState(), state);\nassert.equal(app.getRegion(), destination);\nassert.equal(await app.stop(), true);\nassert.equal(app.getView(), undefined);\nassert.equal(destination.isDestroyed(), false);\nglobalThis.fetch = async () => new Response('', { status: 503 });\nawait assert.rejects(app.start(), /Could not load the summary/);\nassert.equal(app.isRunning(), false);\nlet finishFetch;\nlet cancelledSignal;\nglobalThis.fetch = (url, options) => {\n  cancelledSignal = options.signal;\n  return new Promise(resolve => { finishFetch = resolve; });\n};\nlet activations = 0;\napp.on('start', () => { activations++; });\nconst pending = app.start();\nassert.equal(app.start(), pending);\nassert.equal(await app.stop(), true);\nassert.equal(await pending, false);\nassert.equal(cancelledSignal.aborted, true);\nfinishFetch(new Response(JSON.stringify({ title: 'Obsolete' })));\nawait new Promise(resolve => setImmediate(resolve));\nassert.equal(activations, 0);\nassert.equal(app.getView(), undefined);\nassert.equal(await app.destroy(), true);\nassert.equal(destination.isDestroyed(), true);\nassert.equal(await app.start(), false);\nconst adopted = document.createElement('article');\nadopted.textContent = 'Existing page';\ndocument.body.append(adopted);\nconst owner = new Application();\nconst page = owner.setView(new View({ el: adopted, template: false }));\nassert.equal(page.isRendered(), true);\nawait owner.stop();\nassert.equal(page.isDestroyed(), true);\nassert.equal(adopted.isConnected, false);\nawait owner.destroy();\nmount.remove();\n"
+      }
+    ],
+    "environment": "Installed package with repository-supplied JSDOM and TypeScript; no browser or fresh-reader claim.",
+    "probeSha256": "e6e47360bbb209e84f1c311282954aa82a79f8a39670761ac73631663ad086ba",
+    "tools": {
+      "typescript": "6.0.3",
+      "jsdom": "30.1.0"
+    },
+    "typeFixtures": [
+      {
+        "source": "test/types/application.mts",
+        "sourceSha256": "0d4c214d34489b4da98bc0318b90a165a1e134ed9671b8be313c65e5a816619d"
+      },
+      {
+        "source": "test/types/application.cts",
+        "sourceSha256": "70fae06703689d05a7224c661a03e2b7ea7f50ac3f1ff4d84e6aae3b7ff48bc7"
+      }
+    ],
+    "typescript": {
+      "passed": true,
+      "examples": 4,
+      "contractFixtures": 2
+    }
+  },
+  "imports": [
+    {
+      "name": "marionette",
+      "resolved": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer/node_modules/marionette/dist/marionette.cjs",
+      "esm": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "DataApi",
+        "DomApi",
+        "Events",
+        "MarionetteError",
+        "MnObject",
+        "Radio",
+        "Region",
+        "StateApi",
+        "VERSION",
+        "View",
+        "createMarionette",
+        "extend",
+        "monitorViewEvents",
+        "setDataApi",
+        "setDomApi",
+        "setEventDelegator",
+        "setRenderer",
+        "setStateApi"
+      ],
+      "commonjs": "object"
+    },
+    {
+      "name": "@mnjs/utils",
+      "resolved": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer/node_modules/@mnjs/utils/dist/index.cjs",
+      "esm": [
+        "Events",
+        "MarionetteError",
+        "bindEvents",
+        "bindRequests",
+        "buildEventArgs",
+        "callHandler",
+        "extend",
+        "getOption",
+        "getValue",
+        "isString",
+        "mergeOptions",
+        "normalizeBindings",
+        "normalizeMethods",
+        "onceWrap",
+        "resolveMethod",
+        "setProperty",
+        "triggerMethod",
+        "unbindEvents",
+        "unbindRequests",
+        "uniqueId"
+      ],
+      "commonjs": "object"
+    },
+    {
+      "name": "@mnjs/radio",
+      "resolved": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer/node_modules/@mnjs/radio/dist/index.cjs",
+      "esm": [
+        "Channel",
+        "Radio",
+        "Requests",
+        "createRadio"
+      ],
+      "commonjs": "object"
+    },
+    {
+      "name": "@mnjs/data",
+      "resolved": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer/node_modules/@mnjs/data/dist/index.cjs",
+      "esm": [
+        "Collection",
+        "DataApi",
+        "Model",
+        "StateApi",
+        "triggerMethod"
+      ],
+      "commonjs": "object"
+    },
+    {
+      "name": "@mnjs/adapters/dom/lit-html",
+      "resolved": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer/node_modules/@mnjs/adapters/dist/dom/lit-html.cjs",
+      "esm": [
+        "default"
+      ],
+      "commonjs": "object"
+    },
+    {
+      "name": "marionette/eslint",
+      "resolved": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/consumer/node_modules/marionette/dist/eslint/index.cjs",
+      "esm": [
+        "default"
+      ],
+      "commonjs": "object"
+    }
+  ],
+  "browserTestSha256": "f1672ae46b6fe70e7dc0064e313cb0150646e4041d1848536ff26da7dfea0fec",
+  "browser": {
+    "startTime": "2026-09-28T19:09:29.882Z",
+    "duration": 14996.435,
+    "expected": 48,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "quickstart": {
+    "source": "installed docs/quick-start.md",
+    "directory": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/quick-start",
+    "extracted": {
+      "index.html": "eff73730e87fbbff0e03270e4e42394a189be7708487d2c25f01249bcf4dcdc5",
+      "main.js": "e94bd34ab7d90139fd92187a811ce1ae297e404a3909ac6a8b976aebed5d0b8e"
+    },
+    "installScriptSha256": "c63b95a20fc3c061b3820fc88b3c61d159b7f799ba1f393e67a54b34e0cb9c6e",
+    "installCommands": "npm init -y\nnpm pkg set type=module scripts.dev=\"vite\" scripts.build=\"vite build\"\nnpm install --ignore-scripts --save-exact ./artifacts/*.tgz lit-html@3.3.3\nnpm install --ignore-scripts --save-dev --save-exact vite@8.3.0\n",
+    "lockSha256": "d86c614f586b100f94b8635645bffe5bc35d5d3bfd7d6368833bd2edb69088ea",
+    "manifestSha256": "b1d19e5190cc64c3ba4c3d13620c743dc08627d1fb1ac84969c1a9780457cf2c",
+    "build": "passed",
+    "browser": "3 passed",
+    "dependencyRoot": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-V12PVb/quick-start",
+    "backboneAbsent": true,
+    "ancestorNodeModules": false,
+    "playwrightInstalledInApp": false,
+    "note": "Separate fresh bootstrap using documented commands and supplied tarballs. Third-party transitive dependencies resolved during this run; this is not the frozen dependency graph used by the main consumer. npm lifecycle scripts disabled by the probe environment."
+  },
+  "limitations": [
+    "Candidate packaging only; production publisher pipeline remains unchanged.",
+    "Browser checks use the dev server; production bundling is checked separately.",
+    "Behavior and discovery do not measure independent-agent teaching effectiveness."
+  ],
+  "completedAt": "2026-09-28T19:09:54.353Z"
+}

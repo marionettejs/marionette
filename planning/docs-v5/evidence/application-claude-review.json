@@ -1,0 +1,47 @@
+{
+  "artifacts": {
+    "jsonPath": "/Users/paulfalgout/.ai-reviews/20260928T190717Z-review-with-claude.json",
+    "latestJsonPath": "/Users/paulfalgout/.ai-reviews/latest-review-with-claude.json",
+    "latestMdPath": "/Users/paulfalgout/.ai-reviews/latest-review-with-claude.md",
+    "mdPath": "/Users/paulfalgout/.ai-reviews/20260928T190717Z-review-with-claude.md"
+  },
+  "result": {
+    "verdict": "Approve with changes. I found no confirmed contradiction between docs/api/application.md and the source audit on the points you flagged: restart teardown, preparation-signal scope, child readiness vs ownership, ignored notification Promises, Region borrowing, and stateEvents gating vs Radio. The merge blockers are in the evidence records. They describe pending package and type checks in the present tense, and they leave the audit's review requests without a recorded outcome. A few page claims go beyond what the audit shows and need source backing.",
+    "blockingIssues": [
+      "application-results.md, Usability row, says the example 'is compiled/executed against installed packages'. The Verification section says package checks are 'in progress'. Reword it as pending, or record the actual result, before completing the slice.",
+      "coverage.md ('The installed-package probe includes its TypeScript example… this verifies lifecycle behavior') and the Application row ('Audited supported class surface') read as verified. The TS example and the type fixtures (test/types/application.mts/.cts, which the audit only inspected) have not been compiled yet. Mark both as pending until the package run and type compile finish.",
+      "The audit's last paragraph says the final result record should give the outcome of the three review requests. application-results.md does not do this. The requests were: stopped state after a failed restart startup or onStop throw; preparation signal vs lifetime signal; childApps resolved once and replaced. Record that each was incorporated, and where."
+    ],
+    "risks": [
+      "Existing-markup pattern ('setView(new PageView({ el, template: false })) … Stop destroys that View and removes its element'): the audit does not cover this. It relies on View destroy removing an element it adopted, and on a View that is never shown via setView being usable. This is a source question: back it with a test or a link to the View reference, or drop it.",
+      "'During/after Application destruction, set/show operations do nothing': the audit says 'terminal app', which may mean only after destruction commits. This is a source question: does this apply while destroy is pending (e.g. during prepareDestroy)?",
+      "addChildApp 'ending parent / already ending child': the audit says 'terminal'. Readers may take 'ending' to include stopping. Use the audit's wording, or name the exact phases.",
+      "The failure bullet 'If restart finishes stopping but its next startup preparation fails… A throw in onStop also rejects after deactivation' mixes two cases. Say explicitly that an onStop throw during restart rejects without starting the next run, if the source confirms that.",
+      "The example's onStart annotates `_app: ApplicationInstance` with default generics, while the TypeScript section says to rely on inference. That could conflict with the inferred `this`/StartResult types. The pending compile must confirm it, or drop the explicit annotation.",
+      "The 'Preparation, cancellation, and failure' and 'Lifecycle methods and results' sections are dense rule lists. Their accuracy is fine, but a reader may not easily find the three rules that matter most."
+    ],
+    "incorrectAssumptions": [
+      "The audit's Region/Radio/TS row set does not by itself establish the existing-markup root pattern or the during-destroy no-op claim. Neither appears in the audited evidence.",
+      "Passing the 276 focused tests is being treated as backing for the docs' TypeScript claims. The audit states the type fixtures were not compiled."
+    ],
+    "missingTests": [
+      "Compile the example and the type fixtures (test/types/application.mts/.cts) against the installed package declarations, including the explicit `ApplicationInstance` annotation on onStart.",
+      "Probe or cite a focused test for setView on a fixed-el View with no Region: stop destroys it and removes the element.",
+      "Source check: what setView/showView do while destroy is pending but not yet committed."
+    ],
+    "simplifications": [
+      "The example could let `extend` infer the onStart argument types instead of annotating `ApplicationInstance`. This matches the TypeScript section and removes a type risk.",
+      "Split the isRunning table row: put the activation timeline in one sentence under the table and keep the row as a short query definition.",
+      "Cut the overlap paragraph ('Repeated pending starts… After destruction, stop/destroy resolve true') down to the rules that matter to callers: shared Promise, destroy wins, false on supersession. Leave phase detail to the audit."
+    ],
+    "nextSteps": [
+      "Finish the package run and the TS compile. Record the actual results in application-results.md and coverage.md, and remove the present-tense verification wording until then.",
+      "Record the outcome of the three prior review requests in application-results.md.",
+      "Answer the two source questions (existing-markup stop/element removal; set/show while destroy is pending), then adjust the page wording or add evidence.",
+      "Tighten the ending/terminal wording and the onStop-during-restart bullet.",
+      "Add three short omissions: child starts may be issued again in restart's prepareStart; a start({region}) whose preparation fails stays bound to that Region; a failed destroy before terminal commit can be retried and unfinished children stay registered.",
+      "Then proceed to Behavior and MnObject as planned."
+    ]
+  },
+  "skill": "review-with-claude"
+}

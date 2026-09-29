@@ -1,0 +1,56 @@
+{
+  "artifacts": {
+    "jsonPath": "/Users/paulfalgout/.ai-reviews/20260928T185602Z-review-with-claude.json",
+    "latestJsonPath": "/Users/paulfalgout/.ai-reviews/latest-review-with-claude.json",
+    "latestMdPath": "/Users/paulfalgout/.ai-reviews/latest-review-with-claude.md",
+    "mdPath": "/Users/paulfalgout/.ai-reviews/20260928T185602Z-review-with-claude.md"
+  },
+  "result": {
+    "verdict": "Not ready to mark complete. The reference page mostly agrees with the supplied audit and covers the supported surface. Three problems stop completion: the planning files contradict each other, the package verification has no recorded result yet, and the results file claims two index updates that are not in the changed-file list. I found no confirmed factual error in docs/api/collection-view.md. A few claims have no audit backing, and some contract detail is left out. The page covers CollectionView in general, not the records example. It does explain list lifetime well, but its opening example leaves out the main reason to use CollectionView: seeing membership changes happen.",
+    "blockingIssues": [
+      "The package verification has no result. collection-view-results.md still says 'Package verification and review are in progress. Replace this status…'. Even so, coverage.md already labels CollectionView 'Audited supported class surface', and the results table cites 'Final package results recorded below'. Either record the actual package run (extraction, compilation, execution, anchor probe) or downgrade the coverage row until you do.",
+      "coverage.md contradicts itself. 'Current result and next priority' still says 'Next: CollectionView reference. Its sorting, filtering, empty presentation… are still largely missing', while the updated table row says the surface is audited. Rewrite that section so it names Application as next, matching the results file.",
+      "The results file claims 'The API index, documentation index and llms.txt expose the class directly', but only docs/api.md is in the changed files. Neither docs/readme.md nor llms.txt appears. Either those edits exist and were left out of the change list, or the claim is false. Check before merging.",
+      "The results file links peer-comparison.md#collectionview-reference-check, but peer-comparison.md is not in the changed files. Confirm the anchor exists; otherwise this is a broken link that the anchor probe should catch."
+    ],
+    "risks": [
+      "Two sorting claims have no support in the supplied audit: 'Equal keys retain their current ordering' and 'missing (`undefined`) keys sort last'. They may be true, but check them in the source and a test.",
+      "The audit says the default source comparator puts manual children, which have no source model (index -1), before source rows. The page only says 'use an explicit ordering policy'. Readers mixing manual and collection rows will be surprised when manual rows come first. State this directly.",
+      "The page says the payload of `before:render:children`/`render:children` is an array, but it does not say what the audit says: the array is live presentation storage, so copy it if you keep it. Readers who store the array will see it change underneath them. Also, the page says 'The arrays' (plural) for what is a single argument.",
+      "`isEmpty()` is listed as an overridable extension point that controls empty presentation. The audit only calls it a boolean based on presented children. Check whether the runtime actually uses an overridden `isEmpty()` to decide empty presentation before advertising it as an extension point.",
+      "The page says construction 'establishes … state access' before `initialize`, then says 'State bindings … initialize afterward'. It is unclear whether `getState()` works inside `initialize`. Resolve this from the source, or state it plainly.",
+      "`childViewContainer` is described as a 'function returning one' (a selector). The audit says zero-argument resolver. If the resolver can return an Element, the page understates it; if it cannot, fine. Needs source check.",
+      "The claim that child model changes 'do not automatically rerun the list's comparator or filter' depends on the native Collection not emitting normalized updates for attribute changes. The audit implies this (it observes update/reset/sort) but does not test it directly. Add a test.",
+      "`getEmptyRegion()` behavior after an explicit destroy (recreated while the owner is live) and after the owner is destroyed (returns the destroyed instance) is in the audit but missing from the page. This is a minor gap."
+    ],
+    "incorrectAssumptions": [
+      "The coverage row assumes the audit plus the focused test run is enough to call the page 'audited' while the package probe for the new snippet is still pending. The results file's own completion criteria require that probe result.",
+      "docs/api.md says 'Configuration methods used by View, CollectionView and Region are covered on their class pages'. For View and CollectionView, the setter contracts live in view-runtime.md#class-configuration, and the class page only links to them. Reword it.",
+      "The example looks like it demonstrates observation, but it only shows filtering. `viewComparator: 'label'` sorts data that is already in order, and the list never adds, removes or resets anything, so it does not show that surviving rows keep their identity."
+    ],
+    "missingTests": [
+      "Snippet harness: check the rendered result, not just that it compiles and runs. Blueberry is absent after `setFilter('available')`, and after `removeFilter()` the same element instance is back.",
+      "Comparator key function: equal keys keep their current order, and `undefined` keys sort last (backs the two unsupported claims).",
+      "With the default source comparator, a manual child added through `addChildView` without an index is ordered before collection rows.",
+      "A native `@mnjs/data` Model attribute change does not re-sort or re-filter the parent list.",
+      "`RegionClass` passed as a constructor option is ignored, while the prototype and `initialize` forms work. This documents the known mismatch.",
+      "An overridden `isEmpty()` changes whether the empty View is shown (only needed if it stays listed as an extension point).",
+      "`setFilter`/`setComparator` called before the first render, without `preventRender`: no error and no rows created (the audit says `filter()` does not populate an unrendered list)."
+    ],
+    "simplifications": [
+      "Change the example to show membership changes: for instance `items.add({ id: 'c', label: 'Cherry', available: true })`, plus a comment that the existing rows keep their Views. Either drop `viewComparator: 'label'` or use data where it visibly reorders.",
+      "Trim the ordering detail in the construction paragraph (preinitialize → storage → Behaviors → initialize → state bindings → empty Region → entity bindings). Keep only 'rows are created and collection observation starts on first render()'. Leave the full order to the audit or to View construction.",
+      "Remove the sentences about internals from the reader page: 'Underscore storage/mutation members are internal…', the `shouldDetach` sentence, and 'Internal storage and lifecycle fields in structural types…'. Saying nothing about internals is enough, and the audit already records their disposition.",
+      "Merge the two paragraphs on setter readiness and `preventRender` in Sorting with the one in Filtering; they currently say much the same thing twice."
+    ],
+    "nextSteps": [
+      "Run the package probe, record the actual result in collection-view-results.md, then decide the coverage row label.",
+      "Fix the stale 'Current result and next priority' section in coverage.md.",
+      "Check that the docs/readme.md, llms.txt and peer-comparison anchor edits exist, or remove the claims.",
+      "Check in the source the claims about sort stability, undefined keys sorting last, `isEmpty` as an extension point, and the `childViewContainer` resolver's return type. Correct the page or add a test for each.",
+      "Add the manual-child ordering fact and the note about the live render:children array.",
+      "Then start the Application slice as planned."
+    ]
+  },
+  "skill": "review-with-claude"
+}

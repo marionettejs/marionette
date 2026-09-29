@@ -1,0 +1,35 @@
+{
+  "verdict": "Approve with changes. I found no concrete, reachable failure in the shown diff. The ownership split is right: one Application, loading in onBeforeStart, data in prepareStart, the ready UI in onStart, and failure handled by the caller in main.js. What remains is teardown machinery the maintainer is likely to reject (blanket stopListening, reset-then-destroy of Models, onBeforeDestroy juggling) and a few lifecycle-ordering assumptions the tests pass on without anyone having checked them.",
+  "blockingIssues": [],
+  "risks": [
+    "onStop calls this.stopListening() with no arguments, which removes every listener the Application registered, not just the select:record listener from onStart. If the framework registers its own listeners through the Application's listenTo (region or tracked-view listeners, state bindings), each stop silently breaks them. Close/reopen tests pass today, but this relies on framework internals nobody has checked. Remove only the list listener, or drop the listener entirely.",
+    "Destroy ordering has not been checked. If Application.destroy() on a running app calls onBeforeDestroy (which destroys this.records) before stop/onStop, then onStop spreads, resets and destroys Models on an already-destroyed Collection. The destroy test passes, but confirm the order in the source or make onStop safe to run in either order.",
+    "Resetting selectedId to null in onBeforeStart only works if active-only stateEvents are not yet bound at that point. If they were, reopening after selecting a record would call showDetail with getView() undefined (stop destroyed the view) and throw. The code depends on that ordering without saying so. Resetting selection when the feature stops is where that responsibility naturally sits.",
+    "main.js catch path: while it awaits application.stop(), a user Open click can begin a new start. The catch then shows ErrorView over the new run's LoadingView until that run's onStart replaces it. Cosmetic and narrow; note it, don't engineer around it.",
+    "Real transport cancellation is unverified. Every cancellation test swaps in a fake service, so nothing checks that recordsApi actually passes the signal to fetch."
+  ],
+  "incorrectAssumptions": [
+    "The docs claim that 'Explicit Model disposal is needed because destroying a Collection does not destroy its Models' explains why disposal would be manual, not that disposal is needed at all. Once views are destroyed and the collection is reset, nothing references the Models. Either @mnjs/data Models hold resources that need releasing (say so), or the forEach(destroy) and its test assertions are unnecessary machinery.",
+    "The docs say 'The Application needs no separate run flag or request controller.' True, but only because superseded starts resolve false instead of rejecting. The main.js catch depends on that. The docs should say it, or readers will add their own abort checks."
+  ],
+  "missingTests": [
+    "Real recordsApi cancellation: delay the route, click Close during loading, and assert the network request is aborted or fails. This tests the signal passed to fetch, not a fake service.",
+    "Retry that fails again: ErrorView is shown again, no LoadingView is left behind, and a third attempt succeeds.",
+    "application.destroy() during pending preparation: start resolves false, a late result is ignored, and no errors or unhandled rejections occur.",
+    "application.destroy() while ErrorView is displayed: the view is removed and the page stays mounted.",
+    "Close during loading followed by a delayed real network response (route-level, not a service swap): nothing mounts and no alert appears."
+  ],
+  "simplifications": [
+    "Drop the Application's intent listener: let the list or row set selectedId on the state it already receives. That removes listenTo from onStart and stopListening from onStop. If views must only emit intent, keep the listener but remove it with this.stopListening(list), not a blanket call.",
+    "Reduce onStop to this.records.reset([]) plus clearing selection, unless Model disposal is shown to be required. If you do, drop the model-destroyed assertions and the docs sentence along with it.",
+    "Alternatively, create the Collection per run: build new Collection(records) in onStart and release it in onStop. That removes initialize and onBeforeDestroy and the long-lived empty collection. Weigh this against the tests reading application.records after a failure.",
+    "In the onStart-failure test, assert the view is destroyed and records are empty rather than spying on model.isDestroyed, so the test doesn't lock in disposal machinery."
+  ],
+  "nextSteps": [
+    "Check the source for the order of destroy -> stop/onStop vs onBeforeDestroy, and whether Application stateEvents bind before or after onBeforeStart.",
+    "Decide whether Model disposal is actually required. If not, reduce onStop to reset plus clearing selection, and update the docs and tests together.",
+    "Replace the blanket stopListening() with direct state updates or a targeted stopListening(list).",
+    "Add the real-fetch abort test and the retry-fails-again test.",
+    "Update docs/records.md: note that superseded starts resolve false (not reject), and remove or justify the Model-disposal sentence."
+  ]
+}

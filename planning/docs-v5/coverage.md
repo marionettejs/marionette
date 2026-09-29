@@ -1,0 +1,111 @@
+# Documentation map and coverage
+
+Baseline: 2026-09-29, working tree based on `b6f23c5953793d5cef1cb51dbc675420214ffd01`, package version `5.0.0-rc.2`. This is the working inventory for the [plan](plan.md). The source has local destruction-cleanup changes; the commit alone does not identify the current runtime. The SHA-256 of `git diff --binary HEAD -- src packages` at this baseline is `c356d888e6a87a840f754348b44cf32e684b0684026e4f9f29a640641755cdf6`. Recheck it when citing source evidence.
+
+## How to use this inventory
+
+**Partial** means useful current material exists but the row's scope is incomplete. **Missing** means no dedicated treatment in the rebuilt consumer docs. **Complete** requires an audited public member list, verified contracts, and answered representative author lookup questions. Independent reader usability is tracked separately and remains unverified until tested. **Unverified** describes evidence, not a passing result. Deferrals retain their gap, reason, and revisit condition here.
+
+This baseline maps API families and reader needs, not every member. Do not turn its row counts into a coverage percentage. For the class being authored, expand its row into a member checklist covering options, inherited methods, properties, extension points, hooks, and events. Mark each member documented or explicitly outside the supported public contract, with a reason. Reconcile declarations with implementation and tests; export or visibility alone does not establish recommended usage. Extend this file as needed instead of building a separate inventory tool now.
+
+Coverage below describes the rebuilt consumer documentation, including the new class/shared reference pages. Existing companion READMEs, declaration examples, and consumer lint are additional surfaces that require consistency review; their presence does not certify rebuilt coverage. Source links identify where to inspect the contract. They are not claims that every linked behavior has been tested in this milestone.
+
+## Public API audit rule
+
+1. Start with current package export maps, source entrypoints and their consumer declarations. Include exported runtime APIs and non-internal constructor/static/instance members, configuration options, hooks and events reachable through supported classes, including inherited members. Default these to requiring documentation.
+2. Classify an explicitly internal member or implementation detail as internal, with its declaration/source evidence. An underscore is a signal to inspect, not grounds to silently exclude a supported extension point. Exported type helpers need appropriate type-reference treatment, not automatically a tutorial.
+3. Use implementation and focused tests to verify behavior. Test coverage alone does not make an API public; v4 precedent does not establish a v5 contract. If runtime and declarations disagree, or support is ambiguous, record **needs decision** and the conflict. Keep it visible as a gap; do not omit it to claim completion or silently change the framework.
+4. For each member, record **documented** (canonical link), **missing/partial** (gap), **internal** (reason/source), or **needs decision**. Mark deprecated only when verified current v5 evidence says so, and document its supported contract. A supported export cannot be discarded as unimportant to the example.
+
+For a completed class, every candidate member must have a disposition and no unresolved supported-member gap. Audit lifecycle events from implementation as well as declarations; event names may not all appear in the type surface.
+
+## Public API families
+
+The [core export surface](../../src/index.ts) and companion export maps establish the starting boundary. Every core runtime export is assigned below, including shared re-exports. Audit public type exports alongside their owning API; application authors also need accurate TypeScript examples.
+
+| Area | Current coverage | Scope still to cover | Source anchor |
+| --- | --- | --- | --- |
+| Application | Audited supported class surface: [Application](../../docs/api/application.md), [member audit](evidence/application-reference-audit.md) | Independent-reader effectiveness remains unverified. Full Radio channel API remains a separate row; provider contracts are linked below. | [Application](../../src/modules/application.ts) |
+| View | Audited supported class surface: [View](../../docs/api/view.md), [member audit](evidence/view-reference-audit.md) | Independent-reader effectiveness remains unverified. Provider authoring is documented in its separate rows. | [View](../../src/modules/view.ts), [shared View behavior](../../src/mixins/view.ts) |
+| CollectionView | Audited supported class surface: [CollectionView](../../docs/api/collection-view.md), [member audit](evidence/collection-view-reference-audit.md) | Independent-reader effectiveness remains unverified. The RegionClass constructor-type mismatch remains an explicit limitation. | [CollectionView](../../src/modules/collection-view.ts), [children](../../src/modules/child-view-container.ts) |
+| Region | Audited current surface: [Region](../../docs/api/region.md), [member audit](evidence/region-reference-audit.md) | Missing-selector recovery is a known runtime limitation with a design decision outstanding; current behavior is documented. Independent-reader effectiveness remains unverified. | [Region](../../src/modules/region.ts), [fluent methods](../../src/modules/common/chainable-methods.ts) |
+| Behavior | Audited supported class surface: [Behavior](../../docs/api/behavior.md), [member audit](evidence/behavior-object-reference-audit.md) | Independent-reader effectiveness and widget integration guide remain unverified/missing. | [Behavior](../../src/modules/behavior.ts), [composition](../../src/mixins/behaviors.ts) |
+| MnObject | Audited supported class surface: [MnObject](../../docs/api/mnobject.md), [member audit](evidence/behavior-object-reference-audit.md) | Independent-reader effectiveness remains unverified; full channel API is a separate row. | [MnObject](../../src/modules/object.ts) |
+| Shared class utilities and `extend` | Documented inherited surface: [common methods](../../docs/api/common.md), [audit](evidence/shared-reference-audit.md) | Standalone utility exports remain a separate audit. | [Common](../../src/mixins/common.ts), [extend](../../packages/utils/src/extend.ts) |
+| Events and child forwarding | Documented: [Events](../../docs/api/events.md), [child forwarding](../../docs/api/view-runtime.md#child-events), [audit](evidence/shared-reference-audit.md) | Independent lookup and transfer evidence still pending. | [Events](../../packages/utils/src/events.ts), [View forwarding](../../src/mixins/view.ts) |
+| State | Owner contract documented: [State](../../docs/api/state.md), [audit](evidence/shared-reference-audit.md) | Provider-authoring interfaces are documented below; dedicated alternative integration guides remain separate work. | [State mixin](../../src/mixins/state.ts), [StateApi](../../src/runtime/state-api.ts) |
+| Runtime and configuration | Audited: [runtime configuration](../../docs/api/runtime.md), [audit](evidence/runtime-dom-reference-audit.md) | Independent-reader setup/isolation effectiveness remains unverified. | [Runtime factory](../../src/create-marionette.ts) |
+| Renderer and DOM providers | Audited: [Renderer, DomApi, EventDelegator](../../docs/api/dom-providers.md), [audit](evidence/runtime-dom-reference-audit.md) | Dedicated optional integration guides remain separate; provider types do not establish every consumer/output combination. | [Renderer](../../src/runtime/renderer.ts), [DomApi](../../src/runtime/dom-api.ts), [delegation](../../src/runtime/event-delegator.ts) |
+| Data providers | Audited: [DataApi/StateApi](../../docs/api/data-providers.md), [audit](evidence/data-provider-reference-audit.md) | Core collection callback remains typed unknown and has limited malformed-payload diagnostics. A synchronous initial observer notification causes an internal TypeError; see the decision item below. Full native data package and optional adapter APIs remain separate rows. | [DataApi](../../src/runtime/data-api.ts), [native providers](../../packages/data/src/api.ts) |
+| Radio and requests | Partial: [declarative owner bindings](../../docs/api/common.md#declarative-radio-bindings) | Core Radio re-export API; standalone `Radio`, `createRadio`, `Channel`, `Requests`; event versus request/reply contracts and lifetime. | [Package exports](../../packages/radio/src/index.ts), [owner integration](../../src/mixins/radio.ts) |
+| Errors and diagnostics | Missing | `MarionetteError`, supported error fields, interpreting errors and resolving common configuration/lifecycle mistakes. | [Error](../../packages/utils/src/error.ts), [core exports](../../src/index.ts) |
+| `@mnjs/data` | Partial: [Model/Collection subset](../../docs/setup.md#model) | All exported Model/Collection operations, options/events and types; DataApi/StateApi, triggerMethod re-export; identity and local disposal. State the incomplete transport/persistence scope. | [Exports](../../packages/data/src/index.ts), [Model](../../packages/data/src/model.ts), [Collection](../../packages/data/src/collection.ts) |
+| `@mnjs/utils` | Partial: shared methods mentioned through core | Standalone exports, supported helper contracts/types and use cases; cross-link authoritative shared contracts instead of duplicating them. | [Exports](../../packages/utils/src/index.ts) |
+| `@mnjs/adapters` | Partial: Lit used by example | Exported Backbone, XState, jQuery, morphdom and Lit integration entrypoints; prerequisites, configuration, limitations and teardown. Native data remains the introductory choice. | [Export map](../../packages/adapters/package.json) |
+| Consumer lint and package entrypoints | Partial: [package discovery](../../docs/readme.md#find-these-docs-from-an-installed-package) | `marionette/eslint` configuration/rules/limits; runtime/types import paths, supported environment, package-version matching. | [Core export map](../../package.json), [lint entrypoint](../../tools/eslint/index.mjs) |
+
+## Reader needs beyond API lookup
+
+| Need | Current material/status | Remaining work and useful check |
+| --- | --- | --- |
+| Install and render first UI | Partial: [quick start](../../docs/quick-start.md), tested as a local candidate | Registry/release path and supported environment still need release integration. Recheck documented commands from a clean installed package. |
+| Understand Marionette's model | [Ownership and lifetimes](../../docs/architecture.md): standalone responsibilities, readiness/refresh, state, composition and cleanup. | Independent reader effectiveness remains unverified. Check whether a reader chooses a View for local interaction and an Application for an independently managed feature. |
+| Adopt existing HTML or compose nested UI | Partial: records page and reference paragraphs | A standalone task path; explain render/attach/ownership implications without requiring the records app. |
+| Work with lists | Reference and standalone snippet: [CollectionView](../../docs/api/collection-view.md); records remains one composed lesson. | Independent task-guide and reader evidence remain partial; reference now covers filtering, sorting, empty presentation and identity. |
+| Manage async readiness and failures | [Application reference](../../docs/api/application.md) plus records lesson. | Independent architecture/reader evidence across different owner lifetimes remains unverified. |
+| Refresh retained UI and navigate | [Restart/refresh boundary](../../docs/api/application.md#restart-and-retained-ui); dedicated guides missing. | Define product retention and history/lifetime requirements, then select supported mechanisms. This is not an obligation to expand records. |
+| Reuse behavior or integrate a widget | Partial: [Behavior](../../docs/api/behavior.md) and [MnObject](../../docs/api/mnobject.md) references explain boundaries and cleanup. | Dedicated widget integration task guide and independent choice/transfer evidence remain missing. |
+| Choose or replace data/rendering integrations | [Runtime](../../docs/api/runtime.md), [DOM](../../docs/api/dom-providers.md) and [data/state](../../docs/api/data-providers.md) references plus one setup recipe. | Independent configuration/transfer evidence and dedicated optional integration guides remain missing. |
+| Use TypeScript | Missing dedicated treatment | Imports, constructors/extend, inference and provider types; compile representative consumer examples. |
+| Test and debug | Partial: example commands | Lifecycle testing, interpreting diagnostics and tracing ownership. A reserved debugging task can later test reader success. |
+| Accessibility and safe rendering | Partial: ordinary Lit interpolation | Framework-relevant guidance on semantic UI, focus across replacement, and renderer trust boundaries; verify claimed behavior. |
+| Migrate and deploy | Missing rebuilt guides | v4-to-v5 workflow and changes, production build/package/site delivery. Migrate obsolete docs tests and publishing before claiming release readiness. |
+
+## Historical planning baseline
+
+Before this slice, class references had not been audited. The [earlier package report](evidence/package-discovery.json) and [destruction cleanup checks](evidence/destroy-cleanup-verification.json) retain that snapshot's evidence; subsequent evidence is in [View and Region results](view-region-results.md) and [CollectionView results](collection-view-results.md). The last full unit run had 10 missing-file failures in the retired-docs example suite. Production publishing and retired-docs tests still require migration.
+
+## View and Region reference slice
+
+**Reader need:** understand and manage a piece of UI without first learning the records application. These two classes underpin composition; this slice addresses their initial reference omissions.
+
+**Delivered:** a direct API index and audited supported View/Region references, with the Region recovery limitation recorded. Apply the member audit rule above to both classes, including static and inherited members.
+
+**Shared-contract boundary:** author canonical contracts for their inherited event/common methods and shared View UI/DOM/entity/child bindings, rendering and state ownership. Link these from the class pages so CollectionView can reuse them. The class references must explain the accepted options and behavior of their renderer/data/state configuration and `behaviors` option. Full provider-authoring interfaces, standalone utility exports and the Behavior class reference remain separate inventory gaps. Link the existing setup recipe only for the integration it actually explains; label remaining coverage partial without creating empty reference pages.
+
+Move authoritative contracts out of the compact reference as replacement pages land. Update every inbound link in consumer docs, README/llms entrypoints, examples and planning; do not preserve obsolete sections as redirect stubs. Keep other families visibly partial until covered.
+
+**Representative author lookup checks:**
+
+1. From the index, find how to adopt an existing element and what render and destruction do to it.
+2. Find how to detach a Region's child while retaining it, and how that differs from emptying the Region.
+3. Find how to add/remove/query a View's Regions and whether each operation renders or destroys UI.
+4. Find the argument and ordering contracts for View/Region lifecycle events.
+5. Find how UI bindings and child intent forwarding work, including which owner releases listeners.
+6. Find the Region event order when replacing a CollectionView, including which events belong to the Region and which to the outgoing child.
+
+The [slice results](view-region-results.md) record paths, answers and evidence for these checks. They are author lookup checks, not independent-reader results. Select unseen questions for later reader evaluation.
+
+**Completion checks:** member audit including shared/inherited surface; one authoritative definition per moved contract; relevant behavior/example checks; compile TypeScript examples against the package declarations; recheck inbound links/anchors after moving sections. Run executable snippets or identify their precise source/test backing and label any unexecuted example. Report all six dimensions, with independent-reader usability unverified for this authoring slice; no fresh-agent trial is required to complete the reference work. Update the inventory and select the next slice by remaining need. The [peer decisions](peer-comparison.md#framework-wide-decisions) explain the chosen structure and what would prompt revision.
+
+**Scope boundary:** no additional records features, retrieval server, framework runtime changes, publication, or model campaign is needed for this slice. Record any discovered dependency and its concrete impact before expanding the work.
+
+## Planning setup review
+
+The [Claude review](evidence/scope-review.json) received the full plan, inventory, peer decisions, and planning index. It supported the framework-wide direction and identified a missing public-API classification rule, loose shared-contract scope, ambiguous stage numbering, and missing link/type checks. Those were addressed above and in the plan/index. Its suggestion to include `setElement` was not adopted: the inspected v5 View declaration uses a fixed element and does not expose that method. The review assessed the supplied planning artifacts before these corrections; it did not validate API completeness or teaching effectiveness.
+
+Setup validation checked that all 21 core runtime exports are assigned to an inventory area and that local links and heading anchors resolve. This checks the map's structure, not member coverage. No framework, example, or consumer-doc content changed in this setup step.
+
+## Current result and next priority
+
+The [runtime/provider results](runtime-provider-results.md) add configuration scope, isolated families and full Renderer/DomApi/EventDelegator/DataApi/StateApi member contracts, following the [six core class references](behavior-object-results.md). The native data integration's observable/persistence boundary remains explicit. Provider registration types do not prove a correct integration, and the public collection callback is still typed unknown.
+
+The [concepts and retry preparation](concepts-results.md) replaces the records-specific architecture explanation with a standalone guide. The documentation index and quick start route to it before the optional lesson. This closes the authoring gap; teaching effectiveness remains unverified.
+
+**Next: qualify and freeze the corrected discovery/build/extension comparison.** Preserve natural navigation in the guided condition and separate behavioral grading from complete source-based architecture assessment. Repair the known selector defect and regrade original snapshots separately before another live run. Keep Radio, companion packages, diagnostics, optional integrations and TypeScript gaps visible; this pilot does not determine the framework's API coverage.
+
+## Runtime decision requiring follow-up
+
+The data provider audit reproduced an internal TypeError when a provider synchronously emits reset/reorder/update during initial observer registration. Current docs require subscription to subsequent changes. Decide whether to reject initial replay with an actionable diagnostic or support it after container setup; then add a focused regression test and update the provider contract atomically. This is a runtime robustness gap, not resolved by this documentation slice. [Reproduction and source evidence](evidence/data-provider-reference-audit.md#initial-notification-requirement).
+
+The standalone `monitorViewEvents(view)` export is documented in [View lifecycle monitoring](../../docs/api/view.md#lifecycle-hooks-and-events), including its argument, return value, idempotent installation and required structural View behavior. It is distinct from the View class option. The runtime page links that canonical contract.

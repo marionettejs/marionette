@@ -1,0 +1,45 @@
+{
+  "artifacts": {
+    "jsonPath": "/Users/paulfalgout/.ai-reviews/20260928T143240Z-review-with-claude.json",
+    "latestJsonPath": "/Users/paulfalgout/.ai-reviews/latest-review-with-claude.json",
+    "latestMdPath": "/Users/paulfalgout/.ai-reviews/latest-review-with-claude.md",
+    "mdPath": "/Users/paulfalgout/.ai-reviews/20260928T143240Z-review-with-claude.md"
+  },
+  "result": {
+    "verdict": "Approve with minor follow-ups. No concrete listener-retention or final-notification ordering bugs found. Native Events off() with no args runs cleanupListener for every _rdListeners entry, which removes the listener's _rdListeningTo record of the source, so no manual stopListening(source) is needed. Every off() runs after the last destroy notification. The Behavior deferral is correct and minimal: it checks view._isDestroyed rather than _isDestroying. With _isDestroying, a Behavior destroyed from a before:destroy handler would be removed from _behaviors and never get off(). Because _removeBehavior does nothing once the View is destroyed, _behaviors is still complete when the View's finally runs. A throwing overridden off() is only hypothetical.",
+    "blockingIssues": [],
+    "risks": [
+      "The plan says to remove the example's manual destroy callback, but no example or doc file is in the changed files. Either the cleanup is missing or it is in another commit.",
+      "This is a breaking change with no compatibility path. Calling trigger() or triggerMethod() on a destroyed View, Region, Application, MnObject or Behavior now reaches no handlers, and a failed destroy handler now also runs cleanup. It needs an upgrade or changelog note.",
+      "The finally blocks can hide errors. If a destroy handler throws and stopListening() or off() in finally also throws (for example an overridden or Backbone-backed off), the original error is lost. Only hypothetical with native Events.",
+      "Inside View's finally, behavior.off() runs before this.stopListening() and this.off(). If one Behavior's overridden off() throws, the View keeps its own listeners and subscribers. Only hypothetical.",
+      "Cleanup covers native sources only. With a Backbone Events source, a native listener's record of that source is not released on destroy, and Backbone Models do not call off() on destroy. The docs should make this external contract explicit so users don't assume the manual pattern can go everywhere.",
+      "CollectionView must go through the shared ViewMixin.destroy. If it has its own destroy override, it misses the Behavior off() cleanup.",
+      "A Behavior destroyed directly after its host was already destroyed skips off(). Listeners added to it between the host's cleanup and that call are kept. This is a narrow edge case."
+    ],
+    "incorrectAssumptions": [
+      "'Native Model/Collection already stopListening and off on destroy' is true only for the native classes. Backbone Model and Collection sources remain a manual-cleanup case even though Backbone is optional in v5. Don't phrase docs as 'never need stopListening on destroy'.",
+      "The diff summary implies all cleanup is inside this diff, but the example or doc removal named in the plan is not among the changed files."
+    ],
+    "missingTests": [
+      "A Behavior destroyed directly while its View is live: afterwards behavior.trigger reaches nothing, and the listener's record of the Behavior is released.",
+      "A Behavior destroyed from a View before:destroy handler: it is removed from _behaviors and off() runs right away, not deferred.",
+      "During View teardown, a listener on the Behavior's 'destroy' receives the forwarded destroy event, then the Behavior's off() runs.",
+      "A View onDestroy that throws: the View and every Behavior are still cleaned up (stopListening and off) and the error still propagates. Same case for Region, Application and MnObject.",
+      "Listener bookkeeping after a native source is destroyed: the listener's record of the source is gone, the source's record of listeners is empty, and the listener's other live sources are untouched.",
+      "Application stop() then start() keeps observers, while destroy() releases them.",
+      "CollectionView with Behaviors gets the same guarantees as View.",
+      "A second destroy() call is still a no-op and does not double-trigger or throw."
+    ],
+    "simplifications": [
+      "None needed. The conditional deferral on view._isDestroyed is the smallest complete fix. Alternatives such as moving the forwarded Behavior destroy or having the Behavior register itself for cleanup add more moving parts.",
+      "Optional: move the Behavior-deferral comment onto _destroyBehaviors or the View's finally so the pairing is found in one place. This is cosmetic and matches the comment-density rule."
+    ],
+    "nextSteps": [
+      "Add the missing example or doc removal, plus an upgrade note: native-only cleanup, and off() now runs on destroy.",
+      "Confirm CollectionView uses ViewMixin.destroy, or give it the same Behavior off() cleanup.",
+      "Finish the regression tests, with priority on the Behavior-deferral cases and the throwing destroy handler for each module type."
+    ]
+  },
+  "skill": "review-with-claude"
+}

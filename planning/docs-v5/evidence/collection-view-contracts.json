@@ -1,0 +1,57 @@
+{
+  "passed": true,
+  "probeSha256": "e4d961a4363aa00dbce7859f450806f89292fb1f1f8c9d2bc24ee72411709888",
+  "consumer": "/private/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-docs-package-GEVd1X/consumer",
+  "scope": "Installed candidate contract checks; no fresh-reader claim. Row detach propagation is covered separately by source tests.",
+  "runs": [
+    {
+      "replaceElement": false,
+      "trace": [
+        "region:before:show",
+        "region:before:empty",
+        "list:before:destroy",
+        "list:before:detach",
+        "list:detach",
+        "list:before:destroy:children",
+        "row:before:destroy",
+        "row:destroy",
+        "list:destroy:children",
+        "list:destroy",
+        "region:empty",
+        "next:before:render",
+        "next:render",
+        "next:before:attach",
+        "next:attach",
+        "region:show"
+      ]
+    },
+    {
+      "replaceElement": true,
+      "trace": [
+        "region:before:show",
+        "region:before:empty",
+        "list:before:detach",
+        "list:detach",
+        "list:before:destroy",
+        "list:before:destroy:children",
+        "row:before:destroy",
+        "row:destroy",
+        "list:destroy:children",
+        "list:destroy",
+        "region:empty",
+        "next:before:render",
+        "next:render",
+        "next:before:attach",
+        "next:attach",
+        "region:show"
+      ]
+    }
+  ],
+  "checks": [
+    "empty after failed lookup throws MN0004 with or without options",
+    "skipped showChildView returns a live unowned child; later parent render throws MN0004",
+    "model and collection functions are retained as sources, not resolved",
+    "View and Region custom constructors support Parent.call and Parent.apply",
+    "modelEvents change:render updates template data and destroys managed children"
+  ]
+}
