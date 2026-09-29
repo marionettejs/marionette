@@ -188,3 +188,8 @@ It explains opaque provider sources and the event-payload boundary without addin
 casts or helper abstractions. External hosting/routing, production and
 accessibility/rendering guidance remain reader priorities. Independently measuring
 reader choices and adaptation still requires the frozen comparison described above.
+
+
+## Existing UI and navigation slice
+
+The [two independent guides](integration-routing-results.md) cover a host-owned mounting element with Region-owned content and an Application-owned navigation shell. They extend task coverage independently of the records example. Actual Markdown fences execute locally and against installed packages; browser checks cover history, focus, retained shell identity and cleanup. Asynchronous route transition policy and a concrete host-framework integration remain separate coverage needs. Next authoring priorities are production behavior and accessibility/rendering trust boundaries; reader effectiveness still requires the controlled comparison.

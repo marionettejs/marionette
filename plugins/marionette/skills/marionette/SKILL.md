@@ -24,6 +24,8 @@ The paths below are relative to the installed package, not this skill directory.
 | Prepare, start, stop, or refresh a feature | `docs/api/application.md`, `docs/architecture.md` |
 | Refresh while retaining a draft or shell | `docs/guides/retained-refresh.md`, `docs/api/application.md` |
 | Enhance existing markup | `docs/guides/existing-html.md`, `docs/api/view.md` |
+| Embed a feature in another UI | `docs/guides/existing-ui.md`, `docs/api/region.md` |
+| Connect URLs and destination lifetimes | `docs/guides/routing.md`, `docs/api/application.md` |
 | Show, replace, or retain child UI | `docs/api/region.md`, `docs/api/view.md` |
 | Render, filter, or sort repeated children | `docs/api/collection-view.md` |
 | Share observable data and state | `docs/packages/data.md`, `docs/api/shared/state.md`, `docs/api/providers/data.md` |

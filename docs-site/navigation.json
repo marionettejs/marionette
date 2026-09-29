@@ -180,6 +180,18 @@
     "section": "Guides"
   },
   {
+    "source": "docs/guides/existing-ui.md",
+    "route": "docs/guides/existing-ui",
+    "title": "Integrate with existing UI",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/routing.md",
+    "route": "docs/guides/routing",
+    "title": "Connect navigation to feature ownership",
+    "section": "Guides"
+  },
+  {
     "source": "docs/records.md",
     "route": "docs/records",
     "title": "Build a records feature",

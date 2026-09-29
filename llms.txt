@@ -47,6 +47,8 @@ Version-matched Markdown for the installed package. Start with the documentation
 - [Local model editing](docs/guides/local-editing.md)
 - [Retained refresh](docs/guides/retained-refresh.md)
 - [Existing HTML](docs/guides/existing-html.md)
+- [Integrate with existing UI](docs/guides/existing-ui.md)
+- [Navigation and feature ownership](docs/guides/routing.md)
 - [Records lesson](docs/records.md)
 
 ## Development tools

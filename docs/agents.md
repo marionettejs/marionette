@@ -25,6 +25,8 @@ Start with the task below, then follow links to the exact class or provider refe
 | Prepare, start, stop, or refresh a feature | [Application](api/application.md), [ownership and lifetimes](architecture.md) |
 | Refresh while retaining a draft or shell | [Retained refresh](guides/retained-refresh.md), [Application](api/application.md#restart-and-retained-ui) |
 | Enhance existing markup | [Existing HTML](guides/existing-html.md), [View](api/view.md) |
+| Embed a feature in another UI | [Existing UI](guides/existing-ui.md), [Region](api/region.md) |
+| Connect URLs and destination lifetimes | [Navigation](guides/routing.md), [Application composition](api/application.md#child-applications) |
 | Show, replace, or retain child UI | [Region](api/region.md), [View Regions and existing elements](api/view.md) |
 | Render, filter, or sort repeated children | [CollectionView](api/collection-view.md) |
 | Share observable data and state | [@mnjs/data](packages/data.md), [state](api/shared/state.md), [data providers](api/providers/data.md) |

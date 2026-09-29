@@ -106,3 +106,82 @@ test('Documented refresh retains unfinished input and focus', async({ page }) =>
     window.guide.app.getView() === window.originalPage), true);
   await page.evaluate(async() => { await window.guide.app.destroy(); window.guide.mount.remove(); });
 });
+
+test('Documented host mount preserves the host and ends detached interaction', async({ page }) => {
+  await loadGuide(page, 'existing-ui', '');
+  await page.evaluate(() => {
+    const host = document.createElement('section');
+    document.body.append(host);
+    window.host = host;
+    window.counts = [];
+    window.feature = window.guide.mountCounter(host, count => window.counts.push(count));
+    window.retainedButton = host.querySelector('button');
+  });
+  await page.getByRole('button', { name: 'Count: 0' }).click();
+  await expect(page.getByRole('button', { name: 'Count: 1' })).toBeVisible();
+  assert.deepEqual(await page.evaluate(() => {
+    window.feature.destroy();
+    window.feature.destroy();
+    window.retainedButton.click();
+    const result = { counts: window.counts, mounted: window.host.isConnected,
+      children: window.host.childElementCount };
+    const next = window.guide.mountCounter(window.host, () => {});
+    result.fresh = window.host.querySelector('button').textContent;
+    next.destroy();
+    window.host.remove();
+    return result;
+  }), { counts: [1], mounted: true, children: 0, fresh: 'Count: 0' });
+});
+
+test('Documented navigation handles direct links, history, focus and listener cleanup', async({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.evaluate(() => window.history.replaceState(null, '', '#about'));
+  await loadGuide(page, 'routing', 'app, mount');
+  await expect(page.getByRole('heading', { name: 'About', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'About', exact: true })).not.toBeFocused();
+  await expect(page).toHaveTitle('About');
+  await page.evaluate(() => {
+    window.shell = window.guide.app.getView();
+    window.previous = window.shell.getChildView('content');
+  });
+  await page.getByRole('link', { name: 'Home', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Home', exact: true })).toBeFocused();
+  await expect(page).toHaveTitle('Home');
+  assert.equal(await page.evaluate(() => window.guide.app.getView() === window.shell && window.previous.isDestroyed()), true);
+  await page.goBack();
+  await expect(page.getByRole('heading', { name: 'About', exact: true })).toBeFocused();
+  await page.goForward();
+  await expect(page.getByRole('heading', { name: 'Home', exact: true })).toBeFocused();
+  assert.equal(await page.evaluate(() => {
+    const current = window.shell.getChildView('content');
+    window.guide.app.showRoute();
+    return window.shell.getChildView('content') === current;
+  }), true);
+  await page.evaluate(() => { window.location.hash = '#unknown'; });
+  await expect(page.getByRole('heading', { name: 'Page not found' })).toBeFocused();
+  assert.equal(await page.evaluate(async() => {
+    const app = window.guide.app;
+    const original = app.showRoute;
+    window.routeCalls = 0;
+    app.showRoute = function(...args) { window.routeCalls++; return original.apply(this, args); };
+    await app.stop();
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    return window.routeCalls;
+  }), 0);
+  await page.evaluate(() => window.history.replaceState(null, '', '#about'));
+  await page.evaluate(async() => { await window.guide.app.start(); });
+  await expect(page.getByRole('heading', { name: 'About', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'About', exact: true })).not.toBeFocused();
+  assert.equal(await page.evaluate(() => {
+    window.routeCalls = 0;
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    return window.routeCalls;
+  }), 1);
+  await page.evaluate(async() => {
+    await window.guide.app.destroy();
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    window.guide.mount.remove();
+  });
+  assert.deepEqual(errors, []);
+});

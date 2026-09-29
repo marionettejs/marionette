@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { assertions as integrationAssertions } from './integration-guide-checks.mjs';
 import { assertions as dataAssertions } from './data-reference-checks.mjs';
 import { assertions as radioAssertions } from './radio-reference-checks.mjs';
 import { assertions as utilsAssertions } from './utils-reference-checks.mjs';
@@ -39,6 +40,7 @@ globalThis.fetch = async (url, options) => {
 `,
 };
 const assertions = {
+  ...integrationAssertions,
   ...dataAssertions,
   ...radioAssertions,
   ...utilsAssertions,

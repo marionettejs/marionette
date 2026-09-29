@@ -19,6 +19,9 @@ For agent-led work, use the [agent workflow](agents.md) to find version-matched 
 - [Refresh data while retaining UI](guides/retained-refresh.md): update an active feature without rebuilding its shell or draft.
 - [Add behavior to existing HTML](guides/existing-html.md): enhance existing markup and manage its lifetime.
 
+- [Integrate with existing UI](guides/existing-ui.md): mount, communicate, and clean up under another UI owner.
+- [Connect navigation](guides/routing.md): route destinations, retain a shell, and own browser subscriptions.
+
 ## Core reference
 
 - [API index](api.md): classes, shared contracts, and current coverage.
