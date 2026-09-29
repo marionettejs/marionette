@@ -1,0 +1,73 @@
+skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_4c8d4c2ef7ef0e 33
+planning/docs-v5/evidence/typescript-claude-review.json
+  s_930f3c9a37745c::t_e996115f8f8380 1-42
+llms.txt
+  s_930f3c9a37745c::t_4c8d4c2ef7ef0e 46
+test/docs/typescript-guide-checks.mjs
+  s_930f3c9a37745c::t_d21606c397225c 24
+  s_930f3c9a37745c::t_36c5a1ab159c53 54
+  s_930f3c9a37745c::t_e395f2ccb52955 1-23,25-53,55-71
+docs/tooling.md
+  s_930f3c9a37745c::t_4c8d4c2ef7ef0e 90-91
+test/docs/reference-examples.mjs
+  s_930f3c9a37745c::t_4c8d4c2ef7ef0e 500
+  s_930f3c9a37745c::t_49a50068901e8a 8,32,48
+planning/docs-v5/typescript-results.md
+  s_930f3c9a37745c::t_e996115f8f8380 1-85
+docs/agents.md
+  s_930f3c9a37745c::t_4c8d4c2ef7ef0e 34
+docs/guides/typescript.md
+  s_930f3c9a37745c::t_36c5a1ab159c53 40,46,49-51,53,61,108
+  s_930f3c9a37745c::t_d21606c397225c 54
+  s_930f3c9a37745c::t_f06ec16d94cbff 91,135-136,138
+  s_930f3c9a37745c::t_18875972ab2d5c 44,84,114,128
+  s_930f3c9a37745c::t_e395f2ccb52955 1-31,33,35-37,39,41-43,45,47-48,52,55-60,62-73,75-83,85-88,92-107,109-113,115-118,120-122,124-127,129-133,137,139-150
+  s_930f3c9a37745c::t_b0d873cfac6f75 34,74
+  s_930f3c9a37745c::t_0cc0140e6a21ee 32,38,89-90,119,123,134
+plugins/marionette/skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_4c8d4c2ef7ef0e 33
+docs-site/navigation.json
+  s_930f3c9a37745c::t_4c8d4c2ef7ef0e 159-163
+  s_930f3c9a37745c::t_0ac957aaa0bdbc 158
+planning/docs-v5/evidence/typescript-guide-audit.md
+  s_930f3c9a37745c::t_d21606c397225c 1-38
+docs/readme.md
+  s_930f3c9a37745c::t_4c8d4c2ef7ef0e 17
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_bda1b4cea6d19b 4,7298,7319-7342,8978,8984
+config/api-contracts/semantics.json
+  s_930f3c9a37745c::t_a8740042245072 47-70,81
+docs/api.md
+  s_930f3c9a37745c::t_d3ac663a909b7b 51
+docs/api/runtime.md
+  s_930f3c9a37745c::t_5e815aad301043 83
+planning/docs-v5/README.md
+  s_930f3c9a37745c::t_d5302555a0cd06 7
+planning/docs-v5/coverage.md
+  s_930f3c9a37745c::t_94165815be759a 60,106
+planning/docs-v5/evidence/typescript-installed.json
+  s_930f3c9a37745c::t_c8345ad6c3d1df 1-95
+planning/docs-v5/plan.md
+  s_930f3c9a37745c::t_bbf25b046fd172 182-190
+test/docs/consumer-typescript.mjs
+  s_930f3c9a37745c::t_9a3dfe513ee576 1-71
+test/docs/installed-package.mjs
+  s_930f3c9a37745c::t_c6466858aeb649 58,70-72,82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "868100e56e799271f5a98a1f7076c5d664bd66a7",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
