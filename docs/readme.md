@@ -1,66 +1,34 @@
-# Build your first piece of UI
+# Marionette v5 documentation
 
-A View handles a piece of the interface. A Region puts it on the page and cleans
-it up when it is replaced. Start there; add the other pieces when you need them.
+These guides target **5.0.0-rc.2**. This prerelease is being verified as local candidate tarballs. Use the docs bundled with the candidate you installed. The reference and learning paths below can be read independently. Remaining API coverage is identified in the reference index.
 
-## Where do you want to start?
+## Start here
 
-- **[Build a complete screen](quick-start.md)** — compose Views, rows, and events in one module.
-- **[Start a development project](development.md)** — use matching candidate packages, TypeScript, lint, tests, and Vite.
-- **[Troubleshoot a problem](troubleshooting.md)** — follow a symptom or diagnostic code to a fix.
-- **[Install Marionette](installation.md#install)** — choose package entrypoints and set up dependencies.
-- **[Work with an agent](agents.md)** — give your agent the right contract and a concrete task.
-- **[Look up an API](public-api.md)** — find the class, method, or integration you need.
+1. [Install and render a View](quick-start.md).
+2. [Choose ownership and lifetimes](architecture.md): Applications, Views, Regions, shared state, and asynchronous work.
+3. [Build the records feature](records.md): apply those concepts to preparation, selection, retry, and close/reopen.
 
-## A button that does something
+## Look up a contract
 
-With a [matching v5 build](installation.md#install) installed, add a place for the
-View in your HTML:
+- [API index](api.md): classes, shared contracts, and current coverage.
+- [Application](api/application.md): feature readiness, child Applications, root ownership, and restart.
+- [View](api/view.md): rendering, bindings, child Regions, and lifecycle.
+- [CollectionView](api/collection-view.md): repeated children, sorting, filtering, and empty presentation.
+- [Region](api/region.md): showing, replacing, retaining, and destroying Views.
+- [Behavior](api/behavior.md): reusable host interactions and lifecycle.
+- [MnObject](api/mnobject.md): nonvisual state, communication, and cleanup.
+- [Events](api/events.md), [state](api/state.md), and [common methods](api/common.md).
+- [Runtime configuration](api/runtime.md), [rendering/DOM providers](api/dom-providers.md), and [data/state providers](api/data-providers.md).
+- [Renderer and data setup](setup.md): the Lit integration and the `@mnjs/data` APIs used here.
 
-```html
-<main id="app"></main>
+The [records source](../examples/records/src/main.js) is included for reading alongside the lesson. Its [README](../examples/records/README.md) explains the repository development commands.
+
+## Find these docs from an installed package
+
+From your application's directory:
+
+```sh
+node -p "require.resolve('marionette/package.json')"
 ```
 
-Then run this module in your application:
-
-<!-- executable-example: first-view-counter -->
-```javascript
-import { Region, View } from 'marionette';
-
-const Counter = View.extend({
-  initialize() { this.count = 0; },
-  template: ({ count }) => `<button type="button">Count: <span>${count}</span></button>`,
-  templateContext() { return { count: this.count }; },
-  events: { 'click button': 'increment' },
-  increment() {
-    this.count += 1;
-    this.render();
-  }
-});
-
-export const region = new Region({ el: '#app' });
-region.show(new Counter());
-```
-
-Click the button: **Count: 0 → Count: 1 → Count: 2**. The View handles the click,
-updates its state, and renders the template again.
-
-When that part of the screen is finished, `region.empty()` destroys the View and
-removes its event handlers. The `#app` mount remains, ready for the next View.
-
-## Give it a little more to do
-
-Use the [task table](./agents.md#read-for-the-task) for changing lists, forms,
-navigation, integrations, and cleanup. [Testing](./testing.md) explains how to
-verify the affected interaction.
-
-You can keep Backbone models, an existing router, or a preferred template system.
-Choose each integration for the job it does; the button above needs none of them.
-
-For versions before v5, see the [backbone.marionette repository](https://github.com/marionettejs/backbone.marionette).
-
-[Owning feature effects](./application-effects.md) covers subscriptions, requests, and stop permission.
-[Refreshing data](./application-refresh.md) preserves a shell, list cards, and sidebar state while replacing requests.
-
-For application structure, use [Application composition](./application-composition.md)
-before expanding a small example into a feature.
+Open `docs/readme.md` beside that package.json. Follow the relative Markdown links to the reference or lesson you need. This works without a documentation server or framework-specific retrieval tool.

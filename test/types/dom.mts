@@ -72,7 +72,7 @@ DelegatorClass.setEventDelegator(custom);
 DelegatorClass.setEventDelegator({delegate() {return 3;}});
 // @ts-expect-error An adapter is complete, not a partial overlay.
 DelegatorClass.setEventDelegator({});
-// @ts-expect-error Null is rejected by the runtime setter.
+// @ts-expect-error Null is not a valid provider under the declaration contract.
 DelegatorClass.setEventDelegator(null);
 
 const RendererClass = {prototype: {}, setRenderer, label: 'renderer class'};

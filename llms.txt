@@ -1,26 +1,19 @@
-# Marionette
+# Marionette v5
 
-Start here when using the installed package or this repository to build an application.
+Version-matched Markdown for the installed package. Start with the documentation index; read the relevant reference before changing application code.
 
-- [Quick start](docs/quick-start.md): one complete first screen with managed rows, selection, DOM events, and cleanup.
-- [Task routing](docs/agents.md): choose one starting guide for an existing task.
-- [Focused retrieval](docs/agent-retrieval.md): read a known guide or search matching installed sections; optional MCP uses the same contract.
-- [Forms](docs/forms-and-accessibility.md): retain focused input while updating derived display and saving.
-- [Compact contracts](docs/compact-reference.md): ownership, readiness, teardown, delegated event targets, and triggerMethod dispatch.
-- [API index](docs/readme.md): individual reference pages.
-- [Migration from v4](upgradeGuide.md).
-
-Use the relevant task guide directly, or the quick start when an API introduction helps.
-Search docs/*.md for API guidance; test/fixtures/ holds executable doc examples; config/diagnostics/ holds diagnostic codes.
-The installed package version is in package.json. Its documentation provenance is
-in docs-manifest.json. This file is a discovery index, not maintainer instructions.
-
-For a focused API lookup from your application directory (Node 24+):
-
-```sh
-node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --search 'getUI'
-```
-
-Use a returned section ID with `--section` on the same helper. It ships inside the
-package; no skill installation or MCP connection is required. See
-[focused retrieval](docs/agent-retrieval.md) for hoisted package paths and provenance.
+- [Documentation index](docs/readme.md)
+- [Install and render a View](docs/quick-start.md)
+- [Ownership and lifetimes](docs/architecture.md)
+- [API index](docs/api.md)
+- [Application reference](docs/api/application.md)
+- [View reference](docs/api/view.md)
+- [CollectionView reference](docs/api/collection-view.md)
+- [Region reference](docs/api/region.md)
+- [Behavior reference](docs/api/behavior.md)
+- [MnObject reference](docs/api/mnobject.md)
+- [Runtime configuration](docs/api/runtime.md)
+- [Rendering and DOM providers](docs/api/dom-providers.md)
+- [Data and state providers](docs/api/data-providers.md)
+- [Renderer and data setup](docs/setup.md)
+- [Records lesson](docs/records.md)
