@@ -1,0 +1,48 @@
+planning/docs-v5/baseline-status.md
+  s_930f3c9a37745c::t_c0ba3d7732f6c9 35-63,66-68
+  s_930f3c9a37745c::t_a3d1439c5d86f0 64-65
+docs/setup.md
+  s_930f3c9a37745c::t_ad85b7c2595184 3,42
+docs/api/view.md
+  s_930f3c9a37745c::t_472f27605f7db2 11
+  s_930f3c9a37745c::t_5c47b4a95719cf 9-10,12,14,16
+  s_930f3c9a37745c::t_ad85b7c2595184 13,15
+planning/docs-v5/evaluation-rubric.md
+  s_930f3c9a37745c::t_472f27605f7db2 3,24,38
+planning/docs-v5/evidence/ownership-claude-review.json
+  s_930f3c9a37745c::t_107946d40c43c6 1-52
+docs/architecture.md
+  s_930f3c9a37745c::t_472f27605f7db2 43
+  s_930f3c9a37745c::t_ad85b7c2595184 18
+planning/docs-v5/coverage.md
+  s_930f3c9a37745c::t_0e98080aebffee 3
+planning/docs-v5/evidence/ownership-package.json
+  s_930f3c9a37745c::t_7abc11c2ff9fe0 1-2262
+planning/docs-v5/plan.md
+  s_930f3c9a37745c::t_472f27605f7db2 115-116
+  s_930f3c9a37745c::t_0e98080aebffee 3,13,59-60,148
+planning/docs-v5/peer-comparison.md
+  s_930f3c9a37745c::t_c0ba3d7732f6c9 59-64
+planning/docs-v5/evidence/ownership-static-checks.json
+  s_930f3c9a37745c::t_a1ef30aca0eb6f 1-12
+docs/api/application.md
+  s_930f3c9a37745c::t_5c47b4a95719cf 8,112,114
+  s_930f3c9a37745c::t_472f27605f7db2 7,111,113,115
+  s_930f3c9a37745c::t_a81dbdd8ffe7a6 116
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "59a62504f04270392cc1eb905595644fc04917d6",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
