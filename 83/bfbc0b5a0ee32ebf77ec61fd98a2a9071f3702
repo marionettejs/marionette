@@ -1,0 +1,70 @@
+docs/agents.md
+  s_930f3c9a37745c::t_6b5696fde88cee 21-22
+docs/readme.md
+  s_930f3c9a37745c::t_6b5696fde88cee 15-16
+skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_6b5696fde88cee 20-21
+docs/guides/testing.md
+  s_930f3c9a37745c::t_2104efef71ea06 82
+  s_930f3c9a37745c::t_3f73acbe085694 199
+  s_930f3c9a37745c::t_b46d6998315e56 111,127,129
+  s_930f3c9a37745c::t_9d58a5b12b0936 1-4,6-7,9-10,12-54,56-66,71-77,79-81,83-110,112-124,126,128,130-139,142-145,147-155,157-158,160-164,167-177,181,183-186,188-198,200-201,203-207
+  s_930f3c9a37745c::t_335ec13755860e 156,159
+  s_930f3c9a37745c::t_8a4adcaa41080f 55,67-70,78,125,140-141,146,165-166,178-180,182,187,202
+  s_930f3c9a37745c::t_1e2dc905105bfa 5,8,11,208
+plugins/marionette/skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_6b5696fde88cee 20-21
+planning/docs-v5/README.md
+  s_930f3c9a37745c::t_261bc00e54f183 7
+test/docs/installed-package.mjs
+  s_930f3c9a37745c::t_610fcad54bc63e 41,57,66-68,78
+  s_930f3c9a37745c::t_85fabdd5d82372 56
+planning/docs-v5/evidence/consumer-testing-guide-audit.md
+  s_930f3c9a37745c::t_2104efef71ea06 1-25
+planning/docs-v5/evidence/migration-testing-claude-review.json
+  s_930f3c9a37745c::t_a435c8d7b79546 1-35
+test/docs/consumer-testing.mjs
+  s_930f3c9a37745c::t_b46d6998315e56 33,40
+  s_930f3c9a37745c::t_9d58a5b12b0936 1-10,13-23,25-32,34,36-39,43-59
+  s_930f3c9a37745c::t_ea1b984e450df5 35
+  s_930f3c9a37745c::t_3f73acbe085694 12,24
+  s_930f3c9a37745c::t_736ff391ecc50e 11,41-42
+planning/docs-v5/plan.md
+  s_930f3c9a37745c::t_261bc00e54f183 172-181
+docs-site/navigation.json
+  s_930f3c9a37745c::t_6b5696fde88cee 146-157
+llms.txt
+  s_930f3c9a37745c::t_6b5696fde88cee 44-45
+planning/docs-v5/coverage.md
+  s_930f3c9a37745c::t_261bc00e54f183 61,63,106
+planning/docs-v5/evidence/migration-guide-audit.md
+  s_930f3c9a37745c::t_ee04e32b46327e 1-47
+docs/tooling.md
+  s_930f3c9a37745c::t_6b5696fde88cee 100-101
+test/docs/reference-examples.mjs
+  s_930f3c9a37745c::t_610fcad54bc63e 25-27
+planning/docs-v5/migration-testing-results.md
+  s_930f3c9a37745c::t_b00235e02ab371 30
+  s_930f3c9a37745c::t_a435c8d7b79546 1-29,31-75
+planning/docs-v5/evidence/migration-testing-installed.json
+  s_930f3c9a37745c::t_261bc00e54f183 1-73
+docs/guides/migration.md
+  s_930f3c9a37745c::t_60d7b2a387d592 1-6,8-28,30-47,49-59,61-68
+  s_930f3c9a37745c::t_ba119e02a38e93 7,29,48,60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "83bfbc0b5a0ee32ebf77ec61fd98a2a9071f3702",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
