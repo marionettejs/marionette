@@ -1,0 +1,80 @@
+planning/docs-v5/evidence/accessibility-guide-audit.md
+  s_930f3c9a37745c::t_6d6d69b72c0bc3 1-40
+test/docs/widget-guide-checks.mjs
+  s_930f3c9a37745c::t_977401fab7d899 1-35
+test/browser/docs-guides.spec.mjs
+  s_930f3c9a37745c::t_747a34bbf67a3a 188-214,231,234,249,300-301,304
+  s_930f3c9a37745c::t_63f4903eb72e71 215-230,232-233,235-248,250-299,302-303
+docs/guides/production.md
+  s_930f3c9a37745c::t_f21213ba8d3f2c 1-22,24-36
+  s_930f3c9a37745c::t_7ecb37781a5f68 23,37
+planning/docs-v5/evidence/four-guides-claude-review.json
+  s_930f3c9a37745c::t_b5d63c60cc67c9 1-185
+planning/docs-v5/evidence/widget-guide-audit.md
+  s_930f3c9a37745c::t_3fd037f2b5326c 1-30
+test/docs/list-guide-checks.mjs
+  s_930f3c9a37745c::t_d8ab7354eeb6d3 2,9-11,13-71
+  s_930f3c9a37745c::t_dd55435087de3d 1,3-8,12
+planning/docs-v5/evidence/production-guide-audit.md
+  s_930f3c9a37745c::t_f21213ba8d3f2c 1-22
+planning/docs-v5/evidence/four-guides-browser.json
+  s_930f3c9a37745c::t_b5d63c60cc67c9 1-74
+docs/guides/lists.md
+  s_930f3c9a37745c::t_d8ab7354eeb6d3 1-86,88-93
+  s_930f3c9a37745c::t_204578c2b9d76d 87
+planning/docs-v5/evidence/four-guides-installed.json
+  s_930f3c9a37745c::t_b5d63c60cc67c9 1-95
+planning/docs-v5/plan.md
+  s_930f3c9a37745c::t_be3dd7c71f8d7f 196-199
+planning/docs-v5/README.md
+  s_930f3c9a37745c::t_be3dd7c71f8d7f 7-8
+planning/docs-v5/coverage.md
+  s_930f3c9a37745c::t_b5d63c60cc67c9 32
+  s_930f3c9a37745c::t_be3dd7c71f8d7f 56,59,63-64,107
+docs/guides/widgets.md
+  s_930f3c9a37745c::t_3ddd04f966b5cc 61
+  s_930f3c9a37745c::t_977401fab7d899 1-45,47-60,62-67
+  s_930f3c9a37745c::t_0d9348cd4cdc5f 46
+planning/docs-v5/four-guides-results.md
+  s_930f3c9a37745c::t_b5d63c60cc67c9 1-46
+docs-site/navigation.json
+  s_930f3c9a37745c::t_fe9261560ee0a8 194-217
+docs/agents.md
+  s_930f3c9a37745c::t_8ecb197462b95e 31,38-40
+docs/api.md
+  s_930f3c9a37745c::t_abd57c76313df0 51
+docs/guides/accessibility-rendering.md
+  s_930f3c9a37745c::t_a4c9b9b18c4d57 1-69
+docs/readme.md
+  s_930f3c9a37745c::t_9191fa7298068b 25-29
+llms.txt
+  s_930f3c9a37745c::t_9b1bf48723539f 52-55
+planning/docs-v5/evidence/list-cleanup-sensitivity.json
+  s_930f3c9a37745c::t_cdf80069ffcf14 1-9
+plugins/marionette/skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_25b32909f6e831 30,37-39
+skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_f6ce528bd33c00 30,37-39
+test/agent-docs/retrieval.test.mjs
+  s_930f3c9a37745c::t_f40db9a8ae8d11 78-79
+test/docs/accessibility-guide-checks.mjs
+  s_930f3c9a37745c::t_52c0047d6aa4bd 1-41
+test/docs/reference-examples.mjs
+  s_930f3c9a37745c::t_c1389b8cc74431 2-4,34,47-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "47cb69d164091f47e5796173d02eb8d2259862c7",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
