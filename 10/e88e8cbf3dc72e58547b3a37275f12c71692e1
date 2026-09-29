@@ -1,0 +1,72 @@
+test/docs/utils-reference-checks.mjs
+  s_930f3c9a37745c::t_3bb8e2a8c45a82 1-42,48-62
+  s_930f3c9a37745c::t_69c49e9f675cf5 43-47
+planning/docs-v5/coverage.md
+  s_930f3c9a37745c::t_a6da8a4467c086 105
+  s_930f3c9a37745c::t_ac2ab7629c65f9 41,43,45,59-60
+llms.txt
+  s_930f3c9a37745c::t_031ace91f98c93 25,38,44-47
+docs-site/navigation.json
+  s_930f3c9a37745c::t_031ace91f98c93 92-97,128-133,145-150
+test/docs/installed-package.mjs
+  s_930f3c9a37745c::t_031ace91f98c93 39,59-61,71
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_df007a18d707f5 4,7562,7565-7566,7572,7575-7580,7586,7589-7590,7596,7599-7600,7606,7609-7610,7616,7619-7620,7657-7658,7664,7667-7668,7674,7677-7678,7684,7687-7688,7694,7697-7698,7704,7707-7708,8957,8970
+docs/agents.md
+  s_930f3c9a37745c::t_031ace91f98c93 30
+plugins/marionette/skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_031ace91f98c93 29
+docs/api/errors.md
+  s_930f3c9a37745c::t_031ace91f98c93 41
+  s_930f3c9a37745c::t_6d21203fc1f732 1-40,42-43
+docs/api.md
+  s_930f3c9a37745c::t_031ace91f98c93 22,43,49
+planning/docs-v5/evidence/tooling-utils-installed-package.json
+  s_930f3c9a37745c::t_a6da8a4467c086 1-60
+docs/packages/utils.md
+  s_930f3c9a37745c::t_6d21203fc1f732 1-2,4-29,31-109
+  s_930f3c9a37745c::t_3bb8e2a8c45a82 3,30
+planning/docs-v5/evidence/utils-errors-reference-audit.md
+  s_930f3c9a37745c::t_69c49e9f675cf5 21
+  s_930f3c9a37745c::t_ae34598226341d 1-20,22-25
+test/docs/consumer-tooling.mjs
+  s_930f3c9a37745c::t_c48dc9010a1a38 1-44,50-70
+  s_930f3c9a37745c::t_a5910b744643bb 45-48
+  s_930f3c9a37745c::t_75760bf2506038 49
+planning/docs-v5/evidence/consumer-tooling-audit.md
+  s_930f3c9a37745c::t_8fd90f201bcdf6 1-25
+planning/docs-v5/plan.md
+  s_930f3c9a37745c::t_a6da8a4467c086 13
+docs/tooling.md
+  s_930f3c9a37745c::t_a5910b744643bb 75,77,82
+  s_930f3c9a37745c::t_c48dc9010a1a38 1-74,76,78-81,83-107
+docs-site/README.md
+  s_930f3c9a37745c::t_ac2ab7629c65f9 31-32
+planning/docs-v5/tooling-utils-results.md
+  s_930f3c9a37745c::t_f0f9067998de01 1-80
+test/docs/reference-examples.mjs
+  s_930f3c9a37745c::t_a5910b744643bb 4,35
+docs/readme.md
+  s_930f3c9a37745c::t_031ace91f98c93 33,38-40
+  s_930f3c9a37745c::t_cab27bf79206b9 41
+config/api-contracts/semantics.json
+  s_930f3c9a37745c::t_99fb0f37051ccc 869-870,888,909-914,932,952-953,963,983-984,998,1018-1019,1029,1053-1054,1064,1156-1157,1187-1188,1198,1218-1219,1229,1249-1250,1260,1280-1281,1291,1311-1312,1322
+skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_031ace91f98c93 29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "10e88e8cbf3dc72e58547b3a37275f12c71692e1",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
