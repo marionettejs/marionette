@@ -1,0 +1,326 @@
+planning/docs-v5/evidence/data-provider-reference-audit.md
+  s_930f3c9a37745c::t_85160133fc32fc 117-164
+  s_930f3c9a37745c::t_cc6a90d13ea1a0 1-116
+planning/docs-v5/runtime-provider-results.md
+  s_930f3c9a37745c::t_1c4b9ec9d51083 51,63-69
+  s_930f3c9a37745c::t_96e8287d77af9b 1-50,52,55-62,70-77
+  s_930f3c9a37745c::t_f47414cabee549 54
+  s_930f3c9a37745c::t_a2073f61a42a99 53
+planning/docs-v5/evidence/registry-install-checks.json
+  s_930f3c9a37745c::t_6990899f0eb027 1-31
+planning/docs-v5/evidence/scope-review.json
+  s_930f3c9a37745c::t_f4ad7c25347246 1-51
+planning/docs-v5/concepts-results.md
+  s_930f3c9a37745c::t_f3729cc12c6306 50-55
+  s_930f3c9a37745c::t_8a382316c6f017 46-47
+  s_930f3c9a37745c::t_202e8610663c8e 35-40
+  s_930f3c9a37745c::t_85a6d35795ff14 30-34
+  s_930f3c9a37745c::t_04970b0957b497 49,58-62
+  s_930f3c9a37745c::t_294fd750ca9ed8 1-29,41-45,48
+  s_930f3c9a37745c::t_d0157c751eb9de 56-57
+planning/docs-v5/evidence/application-contract-checks.json
+  s_930f3c9a37745c::t_f45c75e2d80315 4
+  s_930f3c9a37745c::t_ace487bdb80caa 1-3,5-57
+planning/docs-v5/evidence/application-package.json
+  s_930f3c9a37745c::t_f45c75e2d80315 4,13,23,25,27,37,39,41,51,53,55,65,67,69,79,81,83,94,96,106,108,117,119,126,128,130,138,140,149,151,163,165,174,176,186,188,197,199,211,213,228,230,238,240,254-255,361,650,904-908,1427,1513,1517,1522-1531,1534-1535,1541,1569,1596,1607,1619,1627,1636-1637,1645,1652,1656,1667
+  s_930f3c9a37745c::t_22d5636534fee4 1-3,5-12,14-22,24,26,28-36,38,40,42-50,52,54,56-64,66,68,70-78,80,82,84-93,95,97-105,107,109-116,118,120-125,127,129,131-137,139,141-148,150,152-162,164,166-173,175,177-185,187,189-196,198,200-210,212,214-227,229,231-237,239,241-253,256-360,362-649,651-903,909-1426,1428-1512,1514-1516,1518-1521,1532-1533,1536-1540,1542-1568,1570-1595,1597-1606,1608-1618,1620-1626,1628-1635,1638-1644,1646-1651,1653-1655,1657-1666,1668
+planning/docs-v5/evidence/reference-contracts.md
+  s_930f3c9a37745c::t_98d6ddff3f1bde 1-14
+planning/docs-v5/application-results.md
+  s_930f3c9a37745c::t_c619b0ef0a5ee8 1-40,62-65
+  s_930f3c9a37745c::t_ace487bdb80caa 41-48,50-52,54
+  s_930f3c9a37745c::t_f45c75e2d80315 49,53
+  s_930f3c9a37745c::t_d445e4d9e8fa7b 55-61
+planning/docs-v5/behavior-object-results.md
+  s_930f3c9a37745c::t_901f76a5f0354c 1-45,47,49,53-61,67-74
+  s_930f3c9a37745c::t_398cc0a05d7d1e 46,48,52,62-65
+  s_930f3c9a37745c::t_addf21d784d46b 50
+  s_930f3c9a37745c::t_c8503218ab6c7f 66
+  s_930f3c9a37745c::t_a2ef1954c97079 51
+planning/docs-v5/evidence/collection-view-reference-audit.md
+  s_930f3c9a37745c::t_7d470c637f8b4d 1-129
+  s_930f3c9a37745c::t_87f50c8faa14be 143-150
+  s_930f3c9a37745c::t_66b112622ce2a9 130-142
+planning/docs-v5/evidence/runtime-provider-contract-checks.json
+  s_930f3c9a37745c::t_a2073f61a42a99 4
+  s_930f3c9a37745c::t_96e8287d77af9b 1-3,5-57
+planning/docs-v5/evidence/behavior-object-claude-review.json
+  s_930f3c9a37745c::t_398cc0a05d7d1e 1-49
+planning/docs-v5/stage-3-package-results.md
+  s_930f3c9a37745c::t_169bd52426c338 1-2,5-28,37-51,53,55-60
+  s_930f3c9a37745c::t_b9059942313d18 52
+  s_930f3c9a37745c::t_4b38347e107cce 3-4
+  s_930f3c9a37745c::t_6990899f0eb027 29-30,34-36,54
+  s_930f3c9a37745c::t_9aefb97818fa40 31
+  s_930f3c9a37745c::t_9a1e943a20b541 32-33
+planning/docs-v5/evidence/redesign-claude-final.json
+  s_930f3c9a37745c::t_5a01e63c9c14da 1-35
+planning/docs-v5/probes/records-counterexamples.mjs
+  s_930f3c9a37745c::t_fc6dce84e63abd 12-13,16,19-22,112
+  s_930f3c9a37745c::t_e358d97bb3ac35 14-15
+  s_930f3c9a37745c::t_44b7a6a9d46cff 1-11,17-18,23-111,113-122
+planning/docs-v5/evidence/concepts-package.json
+  s_930f3c9a37745c::t_7c738fafd6d4fa 1-2228
+planning/docs-v5/evidence/behavior-object-contract-checks.json
+  s_930f3c9a37745c::t_addf21d784d46b 4
+  s_930f3c9a37745c::t_901f76a5f0354c 1-3,5-57
+planning/docs-v5/evidence/regrade-cross-check.json
+  s_930f3c9a37745c::t_357bba546143b6 1-97
+planning/docs-v5/stage-2-results.md
+  s_930f3c9a37745c::t_9815e423799fb9 1,3,7,17,19,21,23-26,30,34,40,42,44,52,54-56,58,60
+  s_930f3c9a37745c::t_1ea4d63a3b509c 49-50
+  s_930f3c9a37745c::t_64709997e159c2 2,4,8,16,18,20,22,31,33,35-39,41,43,45,51,53,59
+  s_930f3c9a37745c::t_5a01e63c9c14da 9,46-47
+  s_930f3c9a37745c::t_54a0118bb360fa 10,27-29,32,57
+  s_930f3c9a37745c::t_49ff681f702f34 5-6,11-15,48
+planning/docs-v5/evidence/behavior-object-package.json
+  s_930f3c9a37745c::t_addf21d784d46b 4,13,23,25,27,37,39,41,51,53,55,65,67,69,79,81,83,94,96,106,108,117,119,126,128,130,138,140,149,151,163,165,174,176,186,188,197,199,211,213,228,230,238,240,254-255,362,364,366,652,1293-1297,1574,1670,1680,1684,1713-1728,1734,1740,1768,1795,1806,1818,1826,1835-1836,1844,1851,1855,1866
+  s_930f3c9a37745c::t_901f76a5f0354c 1-3,5-12,14-22,24,26,28-36,38,40,42-50,52,54,56-64,66,68,70-78,80,82,84-93,95,97-105,107,109-116,118,120-125,127,129,131-137,139,141-148,150,152-162,164,166-173,175,177-185,187,189-196,198,200-210,212,214-227,229,231-237,239,241-253,256-361,363,365,367-651,653-1292,1298-1573,1575-1669,1671-1679,1681-1683,1685-1712,1729-1733,1735-1739,1741-1767,1769-1794,1796-1805,1807-1817,1819-1825,1827-1834,1837-1843,1845-1850,1852-1854,1856-1865,1867
+planning/docs-v5/probes/reference-examples.mjs
+  s_930f3c9a37745c::t_01a936f2332af3 390-391,447
+  s_930f3c9a37745c::t_8a213267884994 173-270
+  s_930f3c9a37745c::t_22aae6ef689052 345-346
+  s_930f3c9a37745c::t_3ca74b4e0c639f 17-25,271-324,379-380,443,446
+  s_930f3c9a37745c::t_170f7765c7d443 41-58,128-149
+  s_930f3c9a37745c::t_4759fb42dd29e3 26,381-387,432,442,444
+  s_930f3c9a37745c::t_87e55005cf4109 1-15,388-389,392-418,424,426-430,433-441,445,448-457
+  s_930f3c9a37745c::t_cee9b31f133fff 16,27-37,59-127,150-172,375,419
+  s_930f3c9a37745c::t_d4542cce2178fb 38-40,325-344,347-374,376-378,420-423,425,431
+planning/docs-v5/evidence/destroy-cleanup-verification.json
+  s_930f3c9a37745c::t_9aefb97818fa40 1-60
+planning/docs-v5/evidence/runtime-dom-reference-audit.md
+  s_930f3c9a37745c::t_12d2e289d8f432 1-140
+planning/docs-v5/plan.md
+  s_930f3c9a37745c::t_4b38347e107cce 77
+  s_930f3c9a37745c::t_20c437d9cb35da 5,7,9,11-17,19,21-27,29,31,33,35,37,39,41-46,50,52-55,57,59,61,63-67,69,71,75,80,84,86,88,90,138,144
+  s_930f3c9a37745c::t_b0b24e80b38ea0 48,73,82,92,104,130,140,142
+  s_930f3c9a37745c::t_3f98b4428f6713 79
+  s_930f3c9a37745c::t_817a7660ed071a 18,20,87
+  s_930f3c9a37745c::t_9e1607aa1a31a3 1-2,4,6,8,10,28,30,32,34,36,38,40,47,49,51,56,58,60,62,68,70,72,74,76,81,83,85,89,91,93-103,105,107-108,110,112-129,131-137,139,141,143
+  s_930f3c9a37745c::t_1ec7b3de0183b7 3,78,106,109,111
+planning/docs-v5/review-assessment.md
+  s_930f3c9a37745c::t_6d0e89014189d9 23,41,48
+  s_930f3c9a37745c::t_9e1607aa1a31a3 1-22,24-26,31-32,34-40,42-47
+  s_930f3c9a37745c::t_817a7660ed071a 27-30,33
+planning/docs-v5/evidence/application-contracts.md
+  s_930f3c9a37745c::t_817a7660ed071a 5-6,18
+  s_930f3c9a37745c::t_9e1607aa1a31a3 1-4,7-17,19-48
+planning/docs-v5/coverage.md
+  s_930f3c9a37745c::t_9d52783d037338 32-33,40,57
+  s_930f3c9a37745c::t_cbefe09617790a 11,31,34-35,64,68,72,78,87,98-100,102
+  s_930f3c9a37745c::t_b0b24e80b38ea0 3,7,13-21,71,73-74,76,85,89
+  s_930f3c9a37745c::t_170f7765c7d443 39,106-110
+  s_930f3c9a37745c::t_f4ad7c25347246 92-97
+  s_930f3c9a37745c::t_75e8cc32e6969f 28-30,36-38,58,101
+  s_930f3c9a37745c::t_66b112622ce2a9 54,66
+  s_930f3c9a37745c::t_c619b0ef0a5ee8 55-56
+  s_930f3c9a37745c::t_1ec7b3de0183b7 52,103-105
+  s_930f3c9a37745c::t_4b38347e107cce 70
+  s_930f3c9a37745c::t_c95b408ab1e7c6 1-2,4-6,8-10,12,22-27,41-51,53,59-63,65,67,69,75,77,79-84,86,88,90-91
+  s_1b3bfe72667b50::t_c75a94677590e5 111
+planning/docs-v5/evidence/view-state-contracts.md
+  s_930f3c9a37745c::t_9e1607aa1a31a3 1-2,4,6,8-17,21-70,72,74,76
+  s_930f3c9a37745c::t_817a7660ed071a 3,5,7,18-20
+  s_930f3c9a37745c::t_6d0e89014189d9 71,73,75,77
+planning/docs-v5/evidence/region-reference-audit.md
+  s_930f3c9a37745c::t_fa23045fd4e0f1 107
+  s_930f3c9a37745c::t_712411d4eee451 1-106,108-115
+planning/docs-v5/evidence/collection-view-package.json
+  s_930f3c9a37745c::t_041901d3248585 1-1557
+  s_930f3c9a37745c::t_196a39aa507f4e 1558-1562
+planning/docs-v5/evidence/source-manifest.json
+  s_930f3c9a37745c::t_c359aae80c7981 62
+  s_930f3c9a37745c::t_6d0e89014189d9 45-49,64
+  s_930f3c9a37745c::t_9e1607aa1a31a3 1-44,50-61,63,71
+  s_930f3c9a37745c::t_060f42619eda3f 65-70
+planning/docs-v5/evidence/behavior-object-reference-audit.md
+  s_930f3c9a37745c::t_f28c596e7edc48 1-99
+  s_930f3c9a37745c::t_89d6728092d32b 100-107
+  s_930f3c9a37745c::t_7cfcd413a295ab 108-121
+planning/docs-v5/evidence/package-discovery.json
+  s_930f3c9a37745c::t_6990899f0eb027 1-3,5-12,14-22,24,26,28-36,38,40,42-50,52,54,56-64,66,68,70-78,80,82,84-93,95,97-105,107,109-116,118,120-126,128,130-137,139,141-151,153,155-162,164,166-174,176,178-185,187,189-199,201,203-208,210,212-216,218,220-226,228,230-242,245-277,284-285,287-288,290-318,320-321,323-348,350-352,354-361,363-630,632-822,824-828,830-856,858-883,885-894,896-906,908-914,916-923,926-932,934-939,941-943,945-954,956
+  s_930f3c9a37745c::t_9aefb97818fa40 4,13,23,25,27,37,39,41,51,53,55,65,67,69,79,81,83,94,96,106,108,117,119,127,129,138,140,152,154,163,165,175,177,186,188,200,202,209,211,217,219,227,229,243-244,278-283,286,289,319,322,349,353,362,631,823,829,857,884,895,907,915,924-925,933,940,944,955
+planning/docs-v5/evidence/destroy-cleanup-claude-review.json
+  s_930f3c9a37745c::t_9aefb97818fa40 1-45
+planning/docs-v5/evidence/static-page-claude-review.json
+  s_930f3c9a37745c::t_1ea4d63a3b509c 1-23
+planning/docs-v5/reader-trial.md
+  s_930f3c9a37745c::t_fc6dce84e63abd 1,3,5
+  s_930f3c9a37745c::t_172e27ffaac2da 2,4
+planning/docs-v5/baseline-status.md
+  s_930f3c9a37745c::t_07699eb888179a 1-30
+planning/docs-v5/view-region-results.md
+  s_930f3c9a37745c::t_4b38347e107cce 36-37,61-72
+  s_930f3c9a37745c::t_309cf6d9d39369 20,49-55
+  s_930f3c9a37745c::t_7a135b83e1cd18 1-19,21-35,38-48,56-60,73-76
+planning/docs-v5/peer-comparison.md
+  s_930f3c9a37745c::t_294fd750ca9ed8 51-58
+  s_930f3c9a37745c::t_169bd52426c338 93,95-96
+  s_930f3c9a37745c::t_e9955160c2e6b7 3,5-16,59-62,72
+  s_930f3c9a37745c::t_c619b0ef0a5ee8 25-32
+  s_930f3c9a37745c::t_534b4445a5e2e4 71
+  s_930f3c9a37745c::t_b0b24e80b38ea0 63,75,85,94
+  s_930f3c9a37745c::t_75e8cc32e6969f 41-50
+  s_930f3c9a37745c::t_4ad2e0a06e8c47 1-2,4,64-70,73-74,76-84,86-92
+  s_930f3c9a37745c::t_9d52783d037338 33-40
+  s_1b3bfe72667b50::t_89b31d9174e89e 17-24
+planning/docs-v5/collection-view-results.md
+  s_930f3c9a37745c::t_bd8b4ba2052398 1-38,60-65
+  s_930f3c9a37745c::t_566004a63706b9 39-50,52-54
+  s_930f3c9a37745c::t_7d4edba421d06f 51
+  s_930f3c9a37745c::t_f62dffd6434d35 55-59
+planning/docs-v5/probes/reference-contracts.mjs
+  s_930f3c9a37745c::t_4b38347e107cce 66
+  s_930f3c9a37745c::t_09caacb25a5b7a 1,3-64,69-87,89
+  s_930f3c9a37745c::t_caef9c80e6afe0 2,88
+  s_930f3c9a37745c::t_7fff745d19cf46 65,67-68
+planning/docs-v5/evidence/view-region-package.json
+  s_930f3c9a37745c::t_d24a48c154add4 1-1444
+  s_930f3c9a37745c::t_9a6be59288a1c9 1445-1469
+planning/docs-v5/evidence/runtime-provider-claude-review.json
+  s_930f3c9a37745c::t_1c4b9ec9d51083 1-50
+planning/docs-v5/evidence/destroy-cleanup-counterexamples.json
+  s_930f3c9a37745c::t_9aefb97818fa40 1-63
+planning/docs-v5/probes/package-discovery.mjs
+  s_930f3c9a37745c::t_a78a6f2c161e6c 14,68-77,88-98
+  s_930f3c9a37745c::t_b8a8f8612d8bc9 234,239-246
+  s_930f3c9a37745c::t_7141c6b2107885 272-273
+  s_930f3c9a37745c::t_fa85dc2387db01 1-13,15-58,60,81-82,100-208,211-218,250-254,256-262,306-318
+  s_930f3c9a37745c::t_9d6bf16c991136 59,62-67,209-210,219-227,263-271,274-293,295-305
+  s_930f3c9a37745c::t_c717e5f14918b4 247-248
+  s_930f3c9a37745c::t_45c7ff53e73b15 249,255,294
+  s_930f3c9a37745c::t_bf6d037cb4f5e5 61
+  s_930f3c9a37745c::t_2dbdf4acb40bca 78-80
+  s_930f3c9a37745c::t_f5c906b7ea896a 83-87
+  s_930f3c9a37745c::t_f2afaeaa737634 99
+  s_930f3c9a37745c::t_2caa2af287cb8f 228-233
+  s_930f3c9a37745c::t_32ab423c3fce7d 235-238
+planning/docs-v5/evidence/shared-reference-audit.md
+  s_930f3c9a37745c::t_fa3c6459be2c19 48-49
+  s_930f3c9a37745c::t_cbefe09617790a 23
+  s_930f3c9a37745c::t_5486b7e416ff1b 1-22,24-47,50
+planning/docs-v5/evidence/application-reference-audit.md
+  s_930f3c9a37745c::t_06b8fd6b734535 17-24
+  s_930f3c9a37745c::t_e3b3cec1f19674 1-16,25-114
+  s_930f3c9a37745c::t_f45c75e2d80315 133-136
+  s_930f3c9a37745c::t_9aa5dd1429b497 115-132
+planning/docs-v5/verification.md
+  s_930f3c9a37745c::t_817a7660ed071a 55
+  s_930f3c9a37745c::t_6d0e89014189d9 61,68-69
+  s_930f3c9a37745c::t_9e1607aa1a31a3 1-54,56-60,62-65
+  s_930f3c9a37745c::t_060f42619eda3f 66-67
+planning/docs-v5/README.md
+  s_930f3c9a37745c::t_817a7660ed071a 21
+  s_930f3c9a37745c::t_b0b24e80b38ea0 5,8,17-18,20,22-24,26-30,32,34
+  s_930f3c9a37745c::t_e9955160c2e6b7 6,33
+  s_930f3c9a37745c::t_9e1607aa1a31a3 1-2,19,31
+  s_930f3c9a37745c::t_9d52783d037338 12
+  s_930f3c9a37745c::t_07699eb888179a 3,7
+  s_930f3c9a37745c::t_5bd157ef658b82 9-10,25
+  s_930f3c9a37745c::t_cbefe09617790a 15
+  s_930f3c9a37745c::t_75e8cc32e6969f 11
+  s_930f3c9a37745c::t_3ca74b4e0c639f 13
+  s_930f3c9a37745c::t_8f5c6385370b35 4
+  s_930f3c9a37745c::t_2e892011356d03 14
+  s_930f3c9a37745c::t_a844133084fe1a 16
+planning/docs-v5/evidence/collection-view-contracts.json
+  s_930f3c9a37745c::t_7d4edba421d06f 4
+  s_930f3c9a37745c::t_041901d3248585 1-3,5-57
+planning/docs-v5/evidence/verification-results.txt
+  s_930f3c9a37745c::t_9e1607aa1a31a3 1-73
+planning/docs-v5/evidence/records-counterexamples.json
+  s_930f3c9a37745c::t_958de4ab529661 55
+  s_930f3c9a37745c::t_6c7defc450ed7f 42
+  s_930f3c9a37745c::t_a127d69d153157 2-3,14,18,24,34,40,43,50
+  s_930f3c9a37745c::t_e78e8d2f5a4e90 26-27
+  s_930f3c9a37745c::t_64709997e159c2 1,4-13,15-17,19-23,25,28-33,35-39,41,44-49,51-54,56
+planning/docs-v5/evidence/view-region-claude-review.json
+  s_930f3c9a37745c::t_4b38347e107cce 1-57
+planning/docs-v5/evidence/runtime-provider-package.json
+  s_930f3c9a37745c::t_a2073f61a42a99 4,13,23,25,27,37,39,41,51,53,55,65,67,69,79,81,83,94,96,106,108,117,119,126,128,130,138,140,149,151,163,165,174,176,186,188,197,199,211,213,220,222,228,230,238,240,254-255,365-366,369-370,373,655,1282-1288,1512-1516,1542-1546,1808,1924,1934,1938,1994,1998,2018,2046,2073,2084,2096,2104,2113-2114,2122,2129,2133,2144
+  s_930f3c9a37745c::t_96e8287d77af9b 1-3,5-12,14-22,24,26,28-36,38,40,42-50,52,54,56-64,66,68,70-78,80,82,84-93,95,97-105,107,109-116,118,120-125,127,129,131-137,139,141-148,150,152-162,164,166-173,175,177-185,187,189-196,198,200-210,212,214-219,221,223-227,229,231-237,239,241-253,256-364,367-368,371-372,374-654,656-1281,1289-1511,1517-1541,1547-1807,1809-1923,1925-1933,1935-1937,1939-1993,1995-1997,1999-2017,2019-2045,2047-2072,2074-2083,2085-2095,2097-2103,2105-2112,2115-2121,2123-2128,2130-2132,2134-2143,2145
+planning/docs-v5/slice-decisions.md
+  s_930f3c9a37745c::t_54a0118bb360fa 7-11
+  s_930f3c9a37745c::t_e358d97bb3ac35 16,25
+  s_930f3c9a37745c::t_9e1607aa1a31a3 2,4-6,18,20-22,24,26,28-30,32,36
+  s_930f3c9a37745c::t_c359aae80c7981 12,14
+  s_930f3c9a37745c::t_534b4445a5e2e4 1,3,13,15,19,23,27,31,33-35
+  s_930f3c9a37745c::t_9aefb97818fa40 37
+  s_930f3c9a37745c::t_86d10a94fa890f 17
+planning/docs-v5/probes/readiness-probe.mjs
+  s_930f3c9a37745c::t_9e1607aa1a31a3 1-47
+planning/docs-v5/evidence/records-verification.json
+  s_930f3c9a37745c::t_0c983044b0e3dd 34,57
+  s_930f3c9a37745c::t_f73327de772689 18,30,36,41,49,62-69
+  s_930f3c9a37745c::t_9aefb97818fa40 71-72
+  s_930f3c9a37745c::t_958de4ab529661 17,20,26,28,45,53,58-61
+  s_930f3c9a37745c::t_977cfdaaa7cf11 1-2,4-6,8-16,19,21-25,29,32,35,37-39,42-43,46-47,50-51,54-55,70,73
+  s_930f3c9a37745c::t_6569ff59bade3d 3,7,27,31,33,40,44,48,52,56
+planning/docs-v5/probes/composition-probe.mjs
+  s_930f3c9a37745c::t_9e1607aa1a31a3 1-141
+planning/docs-v5/evidence/view-region-contracts.json
+  s_930f3c9a37745c::t_caef9c80e6afe0 1-57
+planning/docs-v5/evaluation-rubric.md
+  s_930f3c9a37745c::t_9e1607aa1a31a3 1-2,4-14,16-33,35,37-109,111-115
+  s_930f3c9a37745c::t_817a7660ed071a 15
+  s_930f3c9a37745c::t_c359aae80c7981 34,36
+  s_930f3c9a37745c::t_534b4445a5e2e4 3,110
+planning/destroy-listener-cleanup.md
+  s_5de4e0020f73d1::t_fad9573e977727 1-2,4-49,51-59,64,68-80,82-91,94-104,106-120
+  s_5de4e0020f73d1::t_73b98a917398dd 3,50,60-63,65-67,81,92-93,105
+planning/docs-v5/evidence/view-reference-audit.md
+  s_930f3c9a37745c::t_283c0ff1b43644 28
+  s_930f3c9a37745c::t_aff0e2589ec2af 1-27,29-61
+planning/docs-v5/evidence/application-claude-review.json
+  s_930f3c9a37745c::t_919d86dad0ec3f 1-47
+planning/docs-v5/evidence/collection-view-claude-review.json
+  s_930f3c9a37745c::t_d46d8337b69199 1-56
+planning/docs-v5/evidence/concepts-claude-input.json
+  s_930f3c9a37745c::t_1977a5b9fc5521 1
+planning/docs-v5/evidence/concepts-claude-review.json
+  s_930f3c9a37745c::t_96c2dfbe87cf21 1-51
+planning/docs-v5/evidence/initial-records-counterexamples.json
+  s_930f3c9a37745c::t_7675bba918722a 1-55
+planning/docs-v5/evidence/initial-records-verification.json
+  s_930f3c9a37745c::t_629ff931807e4e 1-67
+planning/docs-v5/evidence/initial-stage-2-claude-final.json
+  s_930f3c9a37745c::t_5ba410011e9533 1-24
+planning/docs-v5/evidence/initial-stage-2-claude-review.json
+  s_930f3c9a37745c::t_31e084a543a860 1-42
+planning/docs-v5/evidence/redesign-claude-review.json
+  s_930f3c9a37745c::t_66e639891a3396 1-35
+planning/docs-v5/evidence/reference-claude-review.json
+  s_930f3c9a37745c::t_062343c617edf5 1-46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "370aee09b8f17175a10f06de3d7ab7c660dce96a",
+  "prompts": {},
+  "sessions": {
+    "s_1b3bfe72667b50": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ebf6-b9bc-7691-863f-e913eb470b24",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_5de4e0020f73d1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e84b-cf5b-74c1-9b2c-90475eea87f7",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
