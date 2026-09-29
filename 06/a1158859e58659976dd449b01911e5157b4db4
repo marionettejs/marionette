@@ -1,0 +1,61 @@
+docs-site/navigation.json
+  s_930f3c9a37745c::t_35a931d39cbd01 182-193
+planning/docs-v5/evidence/integration-routing-installed.json
+  s_930f3c9a37745c::t_59bcc81ebe5679 1-95
+docs/api.md
+  s_930f3c9a37745c::t_35a931d39cbd01 51
+test/docs/integration-guide-checks.mjs
+  s_930f3c9a37745c::t_35a931d39cbd01 1-58
+skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_35a931d39cbd01 27-28
+docs/guides/routing.md
+  s_930f3c9a37745c::t_5e7c4c09accc39 1-35,37,39-47,49-61,63,65-82
+  s_930f3c9a37745c::t_056208191bb768 36,38,48,62,64
+docs/agents.md
+  s_930f3c9a37745c::t_35a931d39cbd01 28-29
+llms.txt
+  s_930f3c9a37745c::t_35a931d39cbd01 50-51
+planning/docs-v5/plan.md
+  s_930f3c9a37745c::t_5f0f76cb9cba04 191-195
+planning/docs-v5/README.md
+  s_930f3c9a37745c::t_5f0f76cb9cba04 7-8
+docs/readme.md
+  s_930f3c9a37745c::t_35a931d39cbd01 22-24
+planning/docs-v5/evidence/integration-routing-browser.json
+  s_930f3c9a37745c::t_59bcc81ebe5679 1-16
+plugins/marionette/skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_35a931d39cbd01 27-28
+docs/guides/existing-ui.md
+  s_930f3c9a37745c::t_5e7c4c09accc39 1-42,44,46-50
+  s_930f3c9a37745c::t_12c4f2359161ab 43,45,51
+planning/docs-v5/integration-routing-results.md
+  s_930f3c9a37745c::t_42070b9191a412 31
+  s_930f3c9a37745c::t_59bcc81ebe5679 24-30
+  s_930f3c9a37745c::t_efbbfb19ef4abc 1-23,32-39
+planning/docs-v5/evidence/integration-routing-claude-review.json
+  s_930f3c9a37745c::t_efbbfb19ef4abc 1-186
+test/docs/reference-examples.mjs
+  s_930f3c9a37745c::t_35a931d39cbd01 2,43
+planning/docs-v5/coverage.md
+  s_930f3c9a37745c::t_5f0f76cb9cba04 54,58,107
+test/browser/docs-guides.spec.mjs
+  s_930f3c9a37745c::t_35a931d39cbd01 109-110,112-123,125-136,139-140,144-149,151-162,173,178,181-185,187
+  s_930f3c9a37745c::t_2c85d5db79e534 167
+  s_930f3c9a37745c::t_5393b742c0cf60 111,124,137-138,141-143,150,163-166,168-172,174-177,179-180,186
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "06a1158859e58659976dd449b01911e5157b4db4",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
