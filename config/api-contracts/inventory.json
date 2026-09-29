@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "5887526c2eb12173b900bfdf763a1a93cac090036853c7f088341c58183aa4c6",
+  "semanticsSha256": "abe5f9ac4c3ce549ef76446a7e7ef991e8a96c0c4f67327039667f28ce322e89",
   "entrypoints": [
     {
       "name": "marionette",
@@ -7559,75 +7559,65 @@
     },
     {
       "id": "extend",
-      "status": "partial",
-      "reason": "Ordinary function-constructor extension is documented; the profile also promises native-class constructor requirements and enumerable-accessor evaluation that the reference does not cover.",
+      "status": "documented",
       "docs": [
         {
-          "file": "docs/api/shared/common.md",
-          "heading": "Define a class"
+          "file": "docs/packages/utils.md",
+          "heading": "Constructors and errors"
         }
       ]
     },
     {
       "id": "error",
-      "status": "partial",
-      "reason": "The package README names MarionetteError; constructor metadata, formatting, and diagnostic lookup still need a canonical reference.",
+      "status": "documented",
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/api/errors.md",
+          "heading": "MarionetteError"
+        },
+        {
+          "file": "docs/api/errors.md",
+          "heading": "Find a diagnostic"
         }
       ]
     },
     {
       "id": "get-value",
-      "status": "partial",
-      "reason": "The README introduces value resolution; fallback and invocation results still need a complete utility reference.",
+      "status": "documented",
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Value and method resolution"
         }
       ]
     },
     {
       "id": "get-option",
-      "status": "partial",
-      "reason": "Option precedence and function-valued options are documented; numeric and symbol property-key support in this profile is not explicit.",
+      "status": "documented",
       "docs": [
         {
-          "file": "docs/api/shared/common.md",
-          "heading": "Options and initialization"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ]
     },
     {
       "id": "merge-options",
-      "status": "partial",
-      "reason": "Option copying is documented; the profile additionally promises safe own-property treatment of __proto__, which the cited sections do not explain.",
+      "status": "documented",
       "docs": [
         {
-          "file": "docs/api/shared/common.md",
-          "heading": "Options and initialization"
-        },
-        {
-          "file": "packages/utils/readme.md",
-          "heading": "Building a component"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ]
     },
     {
       "id": "normalize-methods",
-      "status": "partial",
-      "reason": "Owner normalization is documented; standalone resolveMethod and normalizeBindings argument and result contracts remain incomplete.",
+      "status": "documented",
       "docs": [
         {
-          "file": "docs/api/shared/common.md",
-          "heading": "Options and initialization"
-        },
-        {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Value and method resolution"
         }
       ]
     },
@@ -7664,63 +7654,58 @@
       "status": "documented",
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Small standalone helpers"
         }
       ]
     },
     {
       "id": "set-property",
-      "status": "partial",
-      "reason": "The README explains prototype-safe assignment; supported arguments and return value still need a utility reference.",
+      "status": "documented",
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Small standalone helpers"
         }
       ]
     },
     {
       "id": "unique-id",
-      "status": "partial",
-      "reason": "The README lists uniqueId; prefix, sequence scope, and result contract remain undocumented.",
+      "status": "documented",
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Small standalone helpers"
         }
       ]
     },
     {
       "id": "event-arguments",
-      "status": "partial",
-      "reason": "The README describes literal event names; descriptor shape, contexts, and supported argument forms remain incomplete.",
+      "status": "documented",
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Event-building helpers"
         }
       ]
     },
     {
       "id": "call-handler",
-      "status": "partial",
-      "reason": "The README lists callHandler; callback, context, arguments, and result contract remain undocumented.",
+      "status": "documented",
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Event-building helpers"
         }
       ]
     },
     {
       "id": "once-wrapper",
-      "status": "partial",
-      "reason": "The README lists onceWrap; memoization, cleanup ordering, and callback failure behavior remain undocumented.",
+      "status": "documented",
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Event-building helpers"
         }
       ]
     },
@@ -8969,6 +8954,7 @@
     "docs/api/application.md": "cbd4524bfc28aeb02c7c2405396f5dbd8793dc4d3b6d809c2c1a9c93f2ea7ddd",
     "docs/api/behavior.md": "d83fce01476376a3101ebb6bd77363134f841367422fe775b8431dc38128c7fa",
     "docs/api/collection-view.md": "5ef7e80c9c07b8a9944bcc4e47ad4a22ee97ecb08f37b74c883d95d44e911030",
+    "docs/api/errors.md": "df341352b5380aeeafa0f2f13a110eebad41f378e8e33c103f8a10975e1ea1ea",
     "docs/api/mnobject.md": "230e69cbdb697142c4d2a6979a925395cae5f71232dfa4f9ce21f287c707f1fa",
     "docs/api/providers/data.md": "a9e9469565edaa1ce37e00032395083aaf5af910580561328039aeaa414b4e0b",
     "docs/api/providers/dom.md": "c27ba850a18003b0fc15f9dfc8dec36e207b527bafb15b0ba87c5602cb72e57f",
@@ -8981,6 +8967,7 @@
     "docs/api/view.md": "b988f7f08e79d06d5be6bced589fdd1afc84c60d6d3d27a8fc62eaecc1b9e4e6",
     "docs/packages/data.md": "6a24f4e1c6441f1a73ec9a483422b269ff8613ee1cb9d86dcd2b8966e7096d52",
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
+    "docs/packages/utils.md": "b022f7f2a958673aa40da59d12591316ef6773228f2dfc93f0af9a901878cb3d",
     "packages/adapters/readme.md": "1dd30826ff90a136699c3669a6d394eaec541efa8742022900e88b365b205e25",
     "packages/utils/readme.md": "813c51a262532361e5c1a0f16f8e3cabc34a1404d9533672480d67fe8b60d05e",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",

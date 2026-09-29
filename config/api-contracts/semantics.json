@@ -866,8 +866,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/api/shared/common.md",
-          "heading": "Define a class"
+          "file": "docs/packages/utils.md",
+          "heading": "Constructors and errors"
         }
       ],
       "tests": [
@@ -885,8 +885,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "Ordinary function-constructor extension is documented; the profile also promises native-class constructor requirements and enumerable-accessor evaluation that the reference does not cover."
+        "status": "documented"
       }
     },
     {
@@ -907,8 +906,12 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/api/errors.md",
+          "heading": "MarionetteError"
+        },
+        {
+          "file": "docs/api/errors.md",
+          "heading": "Find a diagnostic"
         }
       ],
       "tests": [
@@ -926,8 +929,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "The package README names MarionetteError; constructor metadata, formatting, and diagnostic lookup still need a canonical reference."
+        "status": "documented"
       }
     },
     {
@@ -947,8 +949,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Value and method resolution"
         }
       ],
       "tests": [
@@ -958,8 +960,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "The README introduces value resolution; fallback and invocation results still need a complete utility reference."
+        "status": "documented"
       }
     },
     {
@@ -979,8 +980,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/api/shared/common.md",
-          "heading": "Options and initialization"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -994,8 +995,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "Option precedence and function-valued options are documented; numeric and symbol property-key support in this profile is not explicit."
+        "status": "documented"
       }
     },
     {
@@ -1015,12 +1015,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/api/shared/common.md",
-          "heading": "Options and initialization"
-        },
-        {
-          "file": "packages/utils/readme.md",
-          "heading": "Building a component"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -1030,8 +1026,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "Option copying is documented; the profile additionally promises safe own-property treatment of __proto__, which the cited sections do not explain."
+        "status": "documented"
       }
     },
     {
@@ -1055,12 +1050,8 @@
       ],
       "docs": [
         {
-          "file": "docs/api/shared/common.md",
-          "heading": "Options and initialization"
-        },
-        {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Value and method resolution"
         }
       ],
       "tests": [
@@ -1070,8 +1061,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "Owner normalization is documented; standalone resolveMethod and normalizeBindings argument and result contracts remain incomplete."
+        "status": "documented"
       }
     },
     {
@@ -1163,8 +1153,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Small standalone helpers"
         }
       ],
       "tests": [
@@ -1194,8 +1184,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Small standalone helpers"
         }
       ],
       "tests": [
@@ -1205,8 +1195,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "The README explains prototype-safe assignment; supported arguments and return value still need a utility reference."
+        "status": "documented"
       }
     },
     {
@@ -1226,8 +1215,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Small standalone helpers"
         }
       ],
       "tests": [
@@ -1237,8 +1226,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "The README lists uniqueId; prefix, sequence scope, and result contract remain undocumented."
+        "status": "documented"
       }
     },
     {
@@ -1258,8 +1246,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Event-building helpers"
         }
       ],
       "tests": [
@@ -1269,8 +1257,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "The README describes literal event names; descriptor shape, contexts, and supported argument forms remain incomplete."
+        "status": "documented"
       }
     },
     {
@@ -1290,8 +1277,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Event-building helpers"
         }
       ],
       "tests": [
@@ -1301,8 +1288,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "The README lists callHandler; callback, context, arguments, and result contract remain undocumented."
+        "status": "documented"
       }
     },
     {
@@ -1322,8 +1308,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Event-building helpers"
         }
       ],
       "tests": [
@@ -1333,8 +1319,7 @@
         }
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "The README lists onceWrap; memoization, cleanup ordering, and callback failure behavior remain undocumented."
+        "status": "documented"
       }
     },
     {

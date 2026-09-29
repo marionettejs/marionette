@@ -27,6 +27,7 @@ Start with the task below, then follow links to the exact class or provider refe
 | Connect events and clean up subscriptions | [Events](api/shared/events.md), [child and entity bindings](api/shared/view-bindings.md) |
 | Connect channels and request/reply handlers | [Radio](packages/radio.md), [class Radio bindings](api/shared/common.md#declarative-radio-bindings) |
 | Configure a renderer or another data layer | [Runtime configuration](api/runtime.md), [DOM providers](api/providers/dom.md), [data providers](api/providers/data.md) |
+| Check types, lint, or diagnose a failure | [Application tooling](tooling.md), [errors and diagnostics](api/errors.md) |
 | Apply the concepts in a composed feature | [Records lesson](records.md) |
 <!-- task-routes:end -->
 

@@ -19,6 +19,7 @@ These behaviors apply across several classes. Class pages link to the relevant c
 
 - [Common class methods](api/shared/common.md): construction, extension, options and binding helpers.
 - [Events](api/shared/events.md): subscription methods, notification arguments and cleanup.
+- [Errors and diagnostics](api/errors.md): error properties, diagnostic codes, and installed lookup.
 - [State](api/shared/state.md): creating, borrowing, observing and disposing state.
 - [Rendering and View bindings](api/shared/view-bindings.md): templates, UI, DOM/entity events and child event forwarding shared by View and CollectionView.
 
@@ -39,12 +40,12 @@ Use these contracts when implementing or adapting an integration. For configurat
 
 [@mnjs/radio: channels and requests](packages/radio.md) covers channel registries, events, replies, cleanup, logging, and standalone use.
 
-A standalone `@mnjs/utils` reference is forthcoming. Shared methods already documented above remain at their canonical locations.
+[@mnjs/utils: shared utilities](packages/utils.md) covers standalone component methods, callbacks, object helpers, and exports. Shared Events and class methods remain at their canonical references.
 
 ## Integration guides and remaining coverage
 
 [Renderer and data setup](integrations/setup.md) connects Lit and `@mnjs/data` to Marionette. Integration guides explain configuration and use; package references define the APIs supplied by each package.
 
-Optional-adapter guides, errors and diagnostics guidance, consumer lint, and the complete TypeScript guide are forthcoming. Class pages link to the relevant [shared configuration contracts](api/shared/view-bindings.md#class-configuration); Region documents its own DOM setter.
+[Check and debug an application](tooling.md) covers consumer lint, declaration checks, and diagnostic lookup. Optional-adapter guides and the complete TypeScript guide remain forthcoming. Class pages link to the relevant [shared configuration contracts](api/shared/view-bindings.md#class-configuration); Region documents its own DOM setter.
 
 For a first runnable result, use the [quick start](quick-start.md). For composition guidance, see [architecture](architecture.md).

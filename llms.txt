@@ -22,6 +22,7 @@ Version-matched Markdown for the installed package. Start with the documentation
 - [Common class methods](docs/api/shared/common.md)
 - [Events](docs/api/shared/events.md)
 - [State](docs/api/shared/state.md)
+- [Errors and diagnostics](docs/api/errors.md)
 - [Rendering and View bindings](docs/api/shared/view-bindings.md)
 - [Runtime configuration](docs/api/runtime.md)
 
@@ -34,8 +35,13 @@ Version-matched Markdown for the installed package. Start with the documentation
 
 - [@mnjs/data: Model and Collection](docs/packages/data.md)
 - [@mnjs/radio: channels and requests](docs/packages/radio.md)
+- [@mnjs/utils: shared utilities](docs/packages/utils.md)
 
 ## Integration and learning guides
 
 - [Renderer and data setup](docs/integrations/setup.md)
 - [Records lesson](docs/records.md)
+
+## Development tools
+
+- [Check and debug an application](docs/tooling.md)

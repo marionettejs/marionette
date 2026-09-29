@@ -90,6 +90,12 @@
     "section": "Shared class contracts"
   },
   {
+    "source": "docs/api/errors.md",
+    "route": "docs/api/errors",
+    "title": "Errors and diagnostics",
+    "section": "Shared class contracts"
+  },
+  {
     "source": "docs/api/runtime.md",
     "route": "docs/api/runtime",
     "title": "Runtime configuration",
@@ -120,6 +126,12 @@
     "section": "Companion packages"
   },
   {
+    "source": "docs/packages/utils.md",
+    "route": "docs/packages/utils",
+    "title": "@mnjs/utils: shared utilities",
+    "section": "Companion packages"
+  },
+  {
     "source": "docs/integrations/setup.md",
     "route": "docs/integrations/setup",
     "title": "Setup and data",
@@ -130,5 +142,11 @@
     "route": "docs/records",
     "title": "Build a records feature",
     "section": "Guides"
+  },
+  {
+    "source": "docs/tooling.md",
+    "route": "docs/tooling",
+    "title": "Check and debug an application",
+    "section": "Development tools"
   }
 ]

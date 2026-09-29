@@ -30,9 +30,14 @@ For agent-led work, use the [agent workflow](agents.md) to find version-matched 
 
 - [@mnjs/data: Model and Collection](packages/data.md): an optional observable data layer with its own operations, events, identity, and disposal. Fetching and persistence require an API layer or another data solution.
 - [@mnjs/radio: channels and requests](packages/radio.md): scoped communication, request/reply handlers, and cleanup.
+- [@mnjs/utils](packages/utils.md): standalone component and object utilities.
 - [Renderer and data setup](integrations/setup.md): configure Lit and `@mnjs/data`.
 
 The [records source](../examples/records/src/main.js) is included for reading alongside the lesson. Its [README](../examples/records/README.md) explains the repository development commands.
+
+## Check and debug
+
+[Application tooling](tooling.md) sets up lint and TypeScript checks and shows diagnostic lookup. Use [errors and diagnostics](api/errors.md) for the error contract.
 
 ## Find these docs from an installed package
 

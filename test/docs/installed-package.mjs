@@ -36,7 +36,7 @@ try {
   }
   writeFileSync(join(directory, 'package.json'), JSON.stringify({ name: 'installed-docs-check', private: true, type: 'module' }));
   npm(['install', '--ignore-scripts', '--no-audit', '--no-fund',
-    ...packs.map(pack => join(artifacts, pack.filename)), 'lit-html@3.3.3']);
+    ...packs.map(pack => join(artifacts, pack.filename)), 'lit-html@3.3.3', 'eslint@10.11.0', 'typescript@6.0.3']);
 
   const packageJson = run(process.execPath, ['-p', 'require.resolve(\'marionette/package.json\')']).trim();
   const packageRoot = join(directory, 'node_modules/marionette');
@@ -56,6 +56,9 @@ try {
   run(process.execPath, [join(root, 'test/docs/reference-examples.mjs'), directory]);
   const examples = JSON.parse(readFileSync(join(directory, 'reference-examples/report.json')));
   assert(examples.passed);
+  run(process.execPath, [join(root, 'test/docs/consumer-tooling.mjs'), directory]);
+  const tooling = JSON.parse(readFileSync(join(directory, 'consumer-tooling/report.json')));
+  assert(tooling.passed);
   const manifest = JSON.parse(readFileSync(join(packageRoot, 'docs-manifest.json')));
   for (const item of [...manifest.pages, ...manifest.assets]) {
     assert.equal(hash(readFileSync(join(packageRoot, item.source))), item.sha256, item.source);
@@ -65,6 +68,7 @@ try {
     contentSha256: manifest.contentSha256, pages: manifest.pages.length, assets: manifest.assets.length,
     packages: packs.map(({ files, ...pack }) => pack),
     discovery: ['package resolution', 'list', 'search', 'section', 'page', 'diagnostic'],
+    consumerTooling: tooling,
     examplesExecuted: examples.examples.filter(example => example.executed).length,
     typeFixtures: examples.typescript.contractFixtures, typescriptExamples: examples.typescript.examples,
     limits: 'Local tarballs and JSDOM; not registry publication, live website, browser interaction, or teaching effectiveness.',

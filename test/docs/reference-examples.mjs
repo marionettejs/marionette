@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { assertions as dataAssertions } from './data-reference-checks.mjs';
 import { assertions as radioAssertions } from './radio-reference-checks.mjs';
+import { assertions as utilsAssertions } from './utils-reference-checks.mjs';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -31,6 +32,7 @@ globalThis.fetch = async (url, options) => {
 const assertions = {
   ...dataAssertions,
   ...radioAssertions,
+  ...utilsAssertions,
   'integrations-setup-1': `
 const { View } = await import('marionette');
 const { Model } = await import('@mnjs/data');

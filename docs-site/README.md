@@ -28,8 +28,8 @@ behavior or reader effectiveness. The records example has separate browser tests
 `docs:export` writes `.docs-export/manifest.json` and the selected files at their
 repository paths. It also produces `docs-sections.json`, which records verified
 heading offsets for local lookup. The former symbol-to-contract index is not
-published: its semantic mappings refer to retired documentation and need a separate
-coverage audit before being offered again.
+published. The migrated contract inventory still records partial coverage;
+exact-symbol retrieval needs its own consumer audit before being offered again.
 
 The manifest records package version, source revision, working changes, each
 file's SHA-256, and a combined content hash. It contains no timestamp or network
