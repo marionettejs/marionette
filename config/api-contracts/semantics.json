@@ -44,6 +44,30 @@
         {
           "file": "docs/packages/radio.md",
           "heading": "Types and entrypoints"
+        },
+        {
+          "file": "docs/guides/typescript.md",
+          "heading": "Constructors, instances, options, and state"
+        },
+        {
+          "file": "docs/guides/typescript.md",
+          "heading": "Local DOM interactions"
+        },
+        {
+          "file": "docs/guides/typescript.md",
+          "heading": "Readiness results and lifecycle completion"
+        },
+        {
+          "file": "docs/guides/typescript.md",
+          "heading": "Typed data and provider boundaries"
+        },
+        {
+          "file": "docs/packages/utils.md",
+          "heading": "Types and entrypoints"
+        },
+        {
+          "file": "docs/packages/adapters.md",
+          "heading": "TypeScript"
         }
       ],
       "tests": [
@@ -54,8 +78,7 @@
       ],
       "kind": "type",
       "documentation": {
-        "status": "partial",
-        "reason": "Class and companion references cover their exported types; practical guidance for typed initialization, event narrowing, and lifecycle result composition remains incomplete."
+        "status": "documented"
       }
     },
     {

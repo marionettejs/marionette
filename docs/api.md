@@ -48,6 +48,6 @@ Use these contracts when implementing or adapting an integration. For configurat
 
 [Renderer and data setup](integrations/setup.md) connects Lit and `@mnjs/data` to Marionette. Integration guides explain configuration and use; package references define the APIs supplied by each package.
 
-[Check and debug an application](tooling.md) covers consumer lint, declaration checks, and diagnostic lookup. Focused migration/integration recipes and the complete TypeScript guide remain forthcoming. Class pages link to the relevant [shared configuration contracts](api/shared/view-bindings.md#class-configuration); Region documents its own DOM setter.
+[Check and debug an application](tooling.md) covers consumer lint, declaration checks, and diagnostic lookup. [Practical TypeScript](guides/typescript.md) covers options, handlers, state and lifecycle results. [Migration](guides/migration.md) and [consumer testing](guides/testing.md) provide upgrade and verification paths. External hosting/routing and production guides remain forthcoming. Class pages link to the relevant [shared configuration contracts](api/shared/view-bindings.md#class-configuration); Region documents its own DOM setter.
 
 For a first runnable result, use the [quick start](quick-start.md). For composition guidance, see [architecture](architecture.md).

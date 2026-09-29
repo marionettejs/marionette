@@ -5,6 +5,7 @@ import { assertions as utilsAssertions } from './utils-reference-checks.mjs';
 import { assertions as adapterAssertions } from './adapters-reference-checks.mjs';
 import { assertions as editingHtmlAssertions, getPreparations } from './editing-html-checks.mjs';
 import { assertions as refreshAssertions, preparations as refreshPreparations } from './retained-refresh-checks.mjs';
+import { assertions as typescriptAssertions, preparations as typescriptPreparations } from './typescript-guide-checks.mjs';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -28,6 +29,7 @@ const pages = ['api', 'packages', 'integrations', 'guides'].flatMap(section =>
 const preparations = {
   ...getPreparations(installed),
   ...refreshPreparations,
+  ...typescriptPreparations,
   'api-application-1': `
 const fetches = [];
 globalThis.fetch = async (url, options) => {
@@ -43,6 +45,7 @@ const assertions = {
   ...adapterAssertions,
   ...editingHtmlAssertions,
   ...refreshAssertions,
+  ...typescriptAssertions,
   'integrations-setup-1': `
 const { View } = await import('marionette');
 const { Model } = await import('@mnjs/data');
@@ -494,7 +497,7 @@ try {
   const bootstrap = join(output, 'bootstrap.mjs');
   writeFileSync(bootstrap, `import { JSDOM } from ${JSON.stringify(pathToFileURL(require.resolve('jsdom')).href)};
 const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'http://localhost/' });
-for (const key of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'DocumentFragment', 'Event', 'CustomEvent']) {
+for (const key of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'HTMLInputElement', 'HTMLButtonElement', 'DocumentFragment', 'Event', 'CustomEvent']) {
   Object.defineProperty(globalThis, key, { configurable: true, value: dom.window[key] });
 }
 `);

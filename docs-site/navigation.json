@@ -156,6 +156,12 @@
     "section": "Guides"
   },
   {
+    "source": "docs/guides/typescript.md",
+    "route": "docs/guides/typescript",
+    "title": "Use TypeScript in an application",
+    "section": "Guides"
+  },
+  {
     "source": "docs/guides/local-editing.md",
     "route": "docs/guides/local-editing",
     "title": "Edit a View’s own model",

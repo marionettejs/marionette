@@ -4,6 +4,7 @@ The rebuild is organized around Marionette's public API and reader needs. The re
 
 ## Current work
 
+- [Practical TypeScript results](typescript-results.md)
 - [Migration and runnable consumer testing](migration-testing-results.md)
 - [Optional adapters, independent guides, and upstream reassessment](adapters-guides-results.md)
 

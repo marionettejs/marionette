@@ -80,7 +80,7 @@ Overlays preserve unspecified methods, with the last supplied value winning. The
 | `StateApi` | No observable-state support or owned disposal by default. `subscribe` throws `MN0037`. [State contract](providers/data.md#stateapi). |
 | `Radio` | Default exported Radio for the default family; a new Radio instance for each isolated runtime. [Owner bindings](shared/common.md#declarative-radio-bindings). |
 | `VERSION` | The package version string, also available as a named import. |
-| `Events`, `extend`, `MarionetteError`, `monitorViewEvents` | Shared utilities, not newly isolated copies. [Events](shared/events.md), [extension](shared/common.md#define-a-class), and [View lifecycle monitoring](view.md#lifecycle-hooks-and-events) describe the relevant contracts; standalone error/utility references remain in the [coverage gaps](../api.md#integration-guides-and-remaining-coverage). |
+| `Events`, `extend`, `MarionetteError`, `monitorViewEvents` | Shared utilities, not newly isolated copies. [Events](shared/events.md), [extension](shared/common.md#define-a-class), and [View lifecycle monitoring](view.md#lifecycle-hooks-and-events) describe the relevant contracts; the [utilities reference](../packages/utils.md) and [errors reference](errors.md) cover the standalone exports. |
 
 `createMarionette` is a named export of `marionette`. The package has no default export, and a created runtime does not itself have a `createMarionette` method. `EventDelegator` and `Renderer` are type exports, not provider values. Configure those behaviors through their setters.
 

@@ -179,3 +179,12 @@ unmanaged subscription defect. Practical TypeScript, external hosting/routing,
 production and accessibility/rendering guidance remain reader priorities. A real
 consumer migration and controlled reader comparison still provide separate evidence;
 these authoring checks do not establish either outcome.
+
+## Practical TypeScript checkpoint — 2026-09-30
+
+The [TypeScript slice](typescript-results.md) adds common application patterns with
+strict installed compilation, runtime outcome checks and negative compiler checks.
+It explains opaque provider sources and the event-payload boundary without adding
+casts or helper abstractions. External hosting/routing, production and
+accessibility/rendering guidance remain reader priorities. Independently measuring
+reader choices and adaptation still requires the frozen comparison described above.

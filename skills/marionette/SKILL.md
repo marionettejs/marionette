@@ -30,6 +30,7 @@ The paths below are relative to the installed package, not this skill directory.
 | Connect events and clean up subscriptions | `docs/api/shared/events.md`, `docs/api/shared/view-bindings.md` |
 | Connect channels and request/reply handlers | `docs/packages/radio.md`, `docs/api/shared/common.md` |
 | Configure a renderer or another data layer | `docs/packages/adapters.md`, `docs/api/runtime.md`, `docs/api/providers/dom.md`, `docs/api/providers/data.md` |
+| Write typed options, handlers, or lifecycle hooks | `docs/guides/typescript.md`, `docs/tooling.md` |
 | Check types, lint, or diagnose a failure | `docs/tooling.md`, `docs/api/errors.md` |
 | Apply the concepts in a composed feature | `docs/records.md` |
 <!-- task-routes:end -->

@@ -87,6 +87,8 @@ npx tsc -p tsconfig.json
 
 For example, passing a string to `region.show()` produces a type error because that method expects a View. A successful build may only mean that TypeScript was transformed into JavaScript; run the type check explicitly. Types do not prove that a selector exists, an event happens at the intended time, or a workflow has the right owner.
 
+For typed initialization, DOM handlers, state and lifecycle results, follow [Use TypeScript](guides/typescript.md).
+
 ## Look up a diagnostic
 
 When an error includes a code such as `MN0003`, use the lookup helper shipped with the same package:

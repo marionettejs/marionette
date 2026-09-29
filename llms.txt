@@ -43,6 +43,7 @@ Version-matched Markdown for the installed package. Start with the documentation
 - [Renderer and data setup](docs/integrations/setup.md)
 - [Migrate from v4](docs/guides/migration.md)
 - [Test an application](docs/guides/testing.md)
+- [Use TypeScript](docs/guides/typescript.md)
 - [Local model editing](docs/guides/local-editing.md)
 - [Retained refresh](docs/guides/retained-refresh.md)
 - [Existing HTML](docs/guides/existing-html.md)

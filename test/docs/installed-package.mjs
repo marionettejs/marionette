@@ -55,6 +55,7 @@ try {
   assert(lookup(['--page', 'docs/packages/data.md']).includes('Membership and ordering'));
   assert(lookup(['--page', 'docs/guides/migration.md']).includes('# Migrate from v4 to v5'));
   assert(lookup(['--page', 'docs/guides/testing.md']).includes('node --import'));
+  assert(lookup(['--page', 'docs/guides/typescript.md']).includes('LifecycleContext'));
   assert.equal(JSON.parse(lookup(['--diagnostic', 'MN0003'])).diagnostic.code, 'MN0003');
 
   run(process.execPath, [join(root, 'test/docs/reference-examples.mjs'), directory]);
@@ -66,6 +67,9 @@ try {
   run(process.execPath, [join(root, 'test/docs/consumer-testing.mjs'), directory]);
   const testing = JSON.parse(readFileSync(join(directory, 'consumer-testing/report.json')));
   assert(testing.passed);
+  run(process.execPath, [join(root, 'test/docs/consumer-typescript.mjs'), directory]);
+  const typescriptGuide = JSON.parse(readFileSync(join(directory, 'consumer-typescript/report.json')));
+  assert(typescriptGuide.passed);
   const manifest = JSON.parse(readFileSync(join(packageRoot, 'docs-manifest.json')));
   for (const item of [...manifest.pages, ...manifest.assets]) {
     assert.equal(hash(readFileSync(join(packageRoot, item.source))), item.sha256, item.source);
@@ -75,7 +79,7 @@ try {
     contentSha256: manifest.contentSha256, pages: manifest.pages.length, assets: manifest.assets.length,
     packages: packs.map(({ files, ...pack }) => pack),
     discovery: ['package resolution', 'list', 'search', 'section', 'page', 'diagnostic'],
-    consumerTooling: tooling, consumerTesting: testing,
+    consumerTooling: tooling, consumerTesting: testing, typescriptGuide,
     examplesExecuted: examples.examples.filter(example => example.executed).length,
     typeFixtures: examples.typescript.contractFixtures, typescriptExamples: examples.typescript.examples,
     limits: 'Local tarballs and JSDOM; not registry publication, live website, browser interaction, or teaching effectiveness.',
