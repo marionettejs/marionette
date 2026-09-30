@@ -1,0 +1,351 @@
+scripts/docs/agent-routes.mjs
+  s_930f3c9a37745c::t_48baa484719671 15-18
+test/docs/async-navigation-checks.mjs
+  s_930f3c9a37745c::t_d39f39bf0fe1f5 1-113,115-130,133-151,164-215,217-219,221-237
+  s_930f3c9a37745c::t_13765fecf675d8 216,220
+  s_930f3c9a37745c::t_c54afc5874f190 114,131-132
+  s_930f3c9a37745c::t_3d4f344d9c98cb 152-163
+planning/docs-v5/evidence/lookup-baseline-20260930/results.json
+  s_930f3c9a37745c::t_176cd645b81ae6 1-2,4-51,53-59,61-2232
+  s_930f3c9a37745c::t_a2d479175dd9a6 3,52,60
+plugins/marionette/skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_42922b91088c58 8,10,15-18,21-31,33-37,41,43,45,47,51
+  s_930f3c9a37745c::t_7fc745e9764812 19-20,32
+  s_930f3c9a37745c::t_b00b41bab0e95c 49
+planning/docs-v5/acquisition-results.md
+  s_930f3c9a37745c::t_528049d94407b8 1-70
+planning/docs-v5/evidence/workflow-installed-20260930.json
+  s_930f3c9a37745c::t_d48036bb738cec 1-96
+planning/docs-v5/coverage.md
+  s_930f3c9a37745c::t_cdfe08ba3f858f 51,107
+  s_930f3c9a37745c::t_d99ddd96a70e4e 55,58
+  s_930f3c9a37745c::t_e3ed60320f7b43 28
+planning/docs-v5/evidence/design-probes-20260930/participants/p4.md
+  s_930f3c9a37745c::t_11453700305555 1-180
+planning/docs-v5/tooling-delivery-results.md
+  s_930f3c9a37745c::t_19481d1421c4ba 135-138
+  s_930f3c9a37745c::t_5f9f59ee33fa81 66-120
+  s_930f3c9a37745c::t_179faeb4b86f5a 121-134
+config/api-contracts/semantics.json
+  s_930f3c9a37745c::t_3539c5bee6aeea 1773-1780,1843-1858,1913
+  s_930f3c9a37745c::t_28c8eb6072b7df 1111-1112,1147-1148,2340-2341,2383-2384,2427-2428
+test/docs/draft-save-checks.mjs
+  s_930f3c9a37745c::t_e07024b410a8fd 1-43,47-61,64-80,83-131
+  s_930f3c9a37745c::t_c54afc5874f190 44-46,62-63,81-82
+planning/docs-v5/evidence/acquisition-installed-20260930.json
+  s_930f3c9a37745c::t_39401a12822c64 1-174
+planning/docs-v5/reader-comparison-protocol.md
+  s_930f3c9a37745c::t_c1ddfcfd006d8f 1-2,4,6-8,10,14-24,28,30-32,34,36
+  s_930f3c9a37745c::t_1f811cfe8611f0 29
+  s_930f3c9a37745c::t_c83540988d66d1 3,37
+  s_930f3c9a37745c::t_2797325fe62474 25
+  s_930f3c9a37745c::t_0cb59649129d3f 5
+  s_930f3c9a37745c::t_78e030bf037a03 13
+  s_930f3c9a37745c::t_aaea5db9b67395 9
+  s_930f3c9a37745c::t_273b1aafa0468c 11-12,26-27,33,35
+skills/marionette/scripts/docs.mjs
+  s_930f3c9a37745c::t_4e1cc48e66f395 7,45-49,159-162,165-172
+  s_930f3c9a37745c::t_42fe6ae3906f16 163-164
+plugins/marionette/skills/marionette/scripts/search.mjs
+  s_930f3c9a37745c::t_d7814a09ae6add 21-22,25
+  s_930f3c9a37745c::t_37d134bc52c6f2 1-3,10-13,19-20,29,33,35-38
+  s_930f3c9a37745c::t_b710de5fcac8f5 14-18
+  s_930f3c9a37745c::t_62a8fb525e87e6 4-7,23-24,26-28,30-32,34,39-52,55
+planning/docs-v5/README.md
+  s_930f3c9a37745c::t_211569c0792fed 22-23,25
+  s_930f3c9a37745c::t_528049d94407b8 18-19
+  s_930f3c9a37745c::t_a136bed342af1b 16-17
+  s_930f3c9a37745c::t_47d4c41dde2ec1 68-70
+  s_930f3c9a37745c::t_20d26723f78de7 7-11
+  s_930f3c9a37745c::t_b2ef5bc199cef1 12-15
+  s_930f3c9a37745c::t_d99ddd96a70e4e 20-21
+  s_930f3c9a37745c::t_be402769f73536 24
+  s_930f3c9a37745c::t_490de93fc47834 67
+  s_930f3c9a37745c::t_c6d351670fe508 71-73
+  s_930f3c9a37745c::t_2add51107187a9 74-77
+planning/docs-v5/evidence/workflow-negative-controls-20260930.json
+  s_930f3c9a37745c::t_d48036bb738cec 1-32
+planning/docs-v5/evidence/reader-qualification-20260930.json
+  s_930f3c9a37745c::t_1b9c4dd41646c5 40-288,497
+  s_930f3c9a37745c::t_7753bfa8e13605 1-2,4-38,498
+  s_930f3c9a37745c::t_78027b12256bbb 3,39,289-496
+llms.txt
+  s_930f3c9a37745c::t_66e72cfd409a2a 3
+test/docs/reference-examples.mjs
+  s_930f3c9a37745c::t_4c698367bfe59d 13-14,40-41,62-63
+docs/guides/routing.md
+  s_930f3c9a37745c::t_3d4f344d9c98cb 117,126
+  s_930f3c9a37745c::t_dfdd2d115662ca 76,78-94,101-116,118-125,127-150,154-169,171,173,175
+  s_930f3c9a37745c::t_f480561d60ce6b 95-100,151-153,170,172,174,176
+docs/readme.md
+  s_930f3c9a37745c::t_3b1e022225f894 7-9
+  s_930f3c9a37745c::t_6058bde78f13ee 16,20
+  s_930f3c9a37745c::t_66e72cfd409a2a 5
+planning/docs-v5/evidence/ranking-comparison-20260930/installed-report.json
+  s_930f3c9a37745c::t_ee7076dc6a710f 1-96
+scripts/docs/sections.mjs
+  s_930f3c9a37745c::t_5270dce707979f 24-26
+  s_930f3c9a37745c::t_63557eb2ccb907 2,17,22-23,27-32,35
+plugins/marionette/skills/marionette/scripts/docs.mjs
+  s_930f3c9a37745c::t_b00b41bab0e95c 7,45-49,159-172
+docs/api.md
+  s_930f3c9a37745c::t_01ed0b7f2b0c13 59
+planning/docs-v5/evidence/reader-pilot-v3-20261001.json
+  s_930f3c9a37745c::t_24e16148e772bc 1-355
+planning/docs-v5/probes/lookup-screen.mjs
+  s_930f3c9a37745c::t_211569c0792fed 1-76,78-91
+  s_930f3c9a37745c::t_07a2e3c796b51a 77
+planning/docs-v5/probes/freeze-reader-baseline.mjs
+  s_930f3c9a37745c::t_6fac42a27bbf0e 174-190,195
+  s_930f3c9a37745c::t_08e1e99b4050bf 1-70,72-119,121-130,132-135,139-147,149-173,191-194,196-198
+  s_930f3c9a37745c::t_290f60a6cf889f 71,120,131,136-138
+  s_930f3c9a37745c::t_a9ee428b7a3fa9 148
+skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_7fc745e9764812 19-20,32
+  s_930f3c9a37745c::t_66e72cfd409a2a 8,15-18,21-31,33-37,41,43,45,47
+  s_930f3c9a37745c::t_d234f64e268612 49
+  s_930f3c9a37745c::t_54b2583765505a 10,51
+planning/docs-v5/evidence/runtime-integration-scope.md
+  s_930f3c9a37745c::t_f8244b0ce5cb42 1-73
+planning/docs-v5/evidence/reader-corpus-freeze-20260930.json
+  s_930f3c9a37745c::t_2b4bd54b849bc6 2,10-13
+  s_930f3c9a37745c::t_3404cbd24a4dc3 1,3-9,14
+changelog.md
+  s_930f3c9a37745c::t_448e7ccebefb50 5-6
+  s_930f3c9a37745c::t_5270dce707979f 3-4,15-21
+benchmarks/agent/evaluation-plan.md
+  s_930f3c9a37745c::t_5270dce707979f 69,73-85
+planning/docs-v5/evidence/acquisition-fixture-20260930.json
+  s_930f3c9a37745c::t_39401a12822c64 1-712
+test/agent-docs/discovery.test.mjs
+  s_930f3c9a37745c::t_89563efbd21ba3 6,42-54,61-66
+  s_930f3c9a37745c::t_4a61c460ebc350 58-60
+planning/docs-v5/application-results.md
+  s_930f3c9a37745c::t_be402769f73536 63,66-85,112-126
+  s_930f3c9a37745c::t_31b14910e3fde6 86-111
+scripts/api-contracts/README.md
+  s_930f3c9a37745c::t_710077cfc9fad6 9-14
+planning/docs-v5/evidence/ranking-comparison-20260930/existing-queries.json
+  s_930f3c9a37745c::t_6ed6f310e6bf06 1-50
+planning/docs-v5/evidence/reader-delivery-20260930.json
+  s_930f3c9a37745c::t_19481d1421c4ba 3,7,787,805-816,822,826-827,843-844,980,1154-1155,1557,1596-1602,1617,1620,1622
+  s_930f3c9a37745c::t_b8677e6bc0d0bd 1-2,4-6,8-786,788-804,817-821,823-825,828-842,845-979,981-1153,1156-1556,1558-1595,1603-1616,1618-1619,1621,1623-1630
+planning/docs-v5/evidence/reader-pilot-v2-20260930.json
+  s_930f3c9a37745c::t_cf8e4a0fd9bc10 1-2,4-24,29-1096
+  s_930f3c9a37745c::t_47b7960d5dcffa 3,25-28
+planning/docs-v5/efficiency-results.md
+  s_930f3c9a37745c::t_b2ef5bc199cef1 1-93
+  s_930f3c9a37745c::t_20d26723f78de7 117-121
+  s_930f3c9a37745c::t_6f258365939dc0 94-116
+planning/docs-v5/follow-up-checklist.md
+  s_930f3c9a37745c::t_5f9f59ee33fa81 28,33-35
+  s_930f3c9a37745c::t_be402769f73536 45,49-51,53,75-77,127-164
+  s_930f3c9a37745c::t_211569c0792fed 1-10,12-17,21-24,29-32,37-40,46-48,54-58,64-66,72-74,78-80,94,113-126
+  s_930f3c9a37745c::t_528049d94407b8 63,67-70
+  s_930f3c9a37745c::t_a136bed342af1b 81-82
+  s_930f3c9a37745c::t_47d4c41dde2ec1 83,85
+  s_930f3c9a37745c::t_d99ddd96a70e4e 52,59-62
+  s_930f3c9a37745c::t_6f258365939dc0 106-108
+  s_930f3c9a37745c::t_20d26723f78de7 109-111
+  s_930f3c9a37745c::t_f8244b0ce5cb42 20,25-27
+  s_930f3c9a37745c::t_b2ef5bc199cef1 95-105,112
+  s_930f3c9a37745c::t_5e5b41c66fd9f5 11,18-19
+  s_930f3c9a37745c::t_179faeb4b86f5a 36,41-44
+  s_930f3c9a37745c::t_6f0d2d01b18ac8 71
+  s_930f3c9a37745c::t_35fc4a022cc54b 84
+  s_930f3c9a37745c::t_b37c2c6e224a24 86-88,91-93
+  s_930f3c9a37745c::t_9c191de62d5511 89-90
+planning/docs-v5/reader-comparison-v3-results.md
+  s_930f3c9a37745c::t_24e16148e772bc 1-74
+planning/rc2-readiness.md
+  s_930f3c9a37745c::t_5270dce707979f 14,18-20,23
+  s_930f3c9a37745c::t_20d26723f78de7 1-13,15-16,21-22,24-74
+  s_930f3c9a37745c::t_a8c6dcaef2f69b 17
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_b145e2bb7c2711 7655-7656,7669-7670,7851,7876-7883,8028-8029,8042-8043,8056-8057
+  s_930f3c9a37745c::t_3628eeb2630e77 4,8976
+skills/marionette/scripts/search.mjs
+  s_930f3c9a37745c::t_87458cdb49c0be 21-22,25
+  s_930f3c9a37745c::t_719ffa68a7a2e0 4-7,23-24,26-28,30-32,34,39-52,55
+  s_930f3c9a37745c::t_1fd99919ce4365 1-3,10-13,19-20,29,33,35-38
+  s_930f3c9a37745c::t_b710de5fcac8f5 14-18
+docs/integrations/setup.md
+  s_930f3c9a37745c::t_d8109a92d79eba 7
+planning/docs-v5/evidence/design-probes-20260930/participants/p1.md
+  s_930f3c9a37745c::t_11453700305555 1-178
+planning/docs-v5/evidence/acquisition-browser-20260930.json
+  s_930f3c9a37745c::t_39401a12822c64 1-97
+test/docs/installed-package.mjs
+  s_930f3c9a37745c::t_fb7b517e2add54 96-98,108,111
+  s_930f3c9a37745c::t_281f300aab3f76 58-60
+  s_930f3c9a37745c::t_a675692eb46e5b 55-57
+  s_930f3c9a37745c::t_0e60c013115b90 69-71,73-74,76-79
+  s_930f3c9a37745c::t_710077cfc9fad6 34,66-68,72,75,80-82,107
+planning/docs-v5/evidence/design-probes-20260930/report.md
+  s_930f3c9a37745c::t_db3a5a153f3ef1 3
+  s_930f3c9a37745c::t_b286fa4a655eef 1-2,4-61
+docs/quick-start.md
+  s_930f3c9a37745c::t_d8109a92d79eba 7,9,13,16-17
+scripts/docs/headings.mjs
+  s_930f3c9a37745c::t_93a060682d923d 27
+  s_930f3c9a37745c::t_cf9db1e1606677 1-26,28-60
+planning/docs-v5/evidence/reader-pilot-20260930.json
+  s_930f3c9a37745c::t_b53f381ed794b1 98-204,297-403,464-617,626-645,653-672,680-699,713-714,716-1078
+  s_930f3c9a37745c::t_ca623061e24d51 1-97,205-296,404-463,618-625,646-652,673-679,700-712,715,1079
+test/docs/export.test.mjs
+  s_930f3c9a37745c::t_36360b2d01703e 83
+  s_930f3c9a37745c::t_0e60c013115b90 170,172,179-184
+  s_930f3c9a37745c::t_710077cfc9fad6 11-12,65-67,84-85,141,153-154,162-169,171,173-178,185-187
+  s_930f3c9a37745c::t_63557eb2ccb907 55
+config/release-promotion.json
+  s_930f3c9a37745c::t_5270dce707979f 5
+docs/tooling.md
+  s_930f3c9a37745c::t_66e72cfd409a2a 112-128
+planning/docs-v5/evidence/design-probes-20260930/evidence.json
+  s_930f3c9a37745c::t_11453700305555 1-288
+planning/docs-v5/evidence/symbol-installed-report.json
+  s_930f3c9a37745c::t_9778357efcb4ec 1-96
+planning/docs-v5/reader-preparation-results.md
+  s_930f3c9a37745c::t_19481d1421c4ba 49-50,73-78
+  s_930f3c9a37745c::t_a136bed342af1b 1-2,8-32,34-48,51-72
+  s_930f3c9a37745c::t_07dc1103f6da9b 3-4,7,79-89,92
+  s_930f3c9a37745c::t_492f45d45ba01e 33
+  s_930f3c9a37745c::t_47d4c41dde2ec1 5-6,90-91
+planning/docs-v5/evidence/lookup-baseline-20260930/questions.json
+  s_930f3c9a37745c::t_ca593ae1412e55 1-87
+planning/docs-v5/evidence/baseline-corpus-freeze-20260930.json
+  s_930f3c9a37745c::t_e6b73ba824b48f 7
+  s_930f3c9a37745c::t_d01ede3235446b 1-3,8-45,61
+  s_930f3c9a37745c::t_66a4f716d35de0 46-56
+  s_930f3c9a37745c::t_2b4bd54b849bc6 4-6,57-60
+planning/docs-v5/evidence/reader-comparison-preflight-20260930.json
+  s_930f3c9a37745c::t_4bc6ef8db99cee 1-11,18-25,28-32,34-42,63-70,87-90,94-133,136-137,139,141-142,144-149,162,169
+  s_930f3c9a37745c::t_aaea5db9b67395 13-15,33,43-56,91-93,134
+  s_930f3c9a37745c::t_0cb59649129d3f 74-86,138,150
+  s_930f3c9a37745c::t_78e030bf037a03 12,57-62,71-73,135,140,143
+  s_930f3c9a37745c::t_2b4bd54b849bc6 16-17,26-27,151
+  s_930f3c9a37745c::t_4de834b1750d61 152-161,163-168
+planning/docs-v5/reader-comparison-v2-results.md
+  s_930f3c9a37745c::t_70f1e244fd5c52 33-34,45-51,127-128
+  s_930f3c9a37745c::t_5b67276a867607 1-32,35-44,52-53,61,82-93,121-123,129-131
+  s_930f3c9a37745c::t_723e3f3910e0eb 54-58,62-81,94-120,124-126
+  s_930f3c9a37745c::t_3939d301638b9e 59-60
+planning/docs-v5/evidence/lookup-baseline-20260930/README.md
+  s_930f3c9a37745c::t_5e5b41c66fd9f5 70-72
+  s_930f3c9a37745c::t_8c5e96823dccf2 1-4,6-69,73-86
+  s_930f3c9a37745c::t_00920e6449b150 5
+planning/docs-v5/evidence/reader-reservation-20260930.json
+  s_930f3c9a37745c::t_989027f4a86947 1-4,7,9-11,13-19,23
+  s_930f3c9a37745c::t_2b4bd54b849bc6 5-6,8,20-22
+  s_930f3c9a37745c::t_c245e5dea6d72e 12
+test/agent-docs/retrieval.test.mjs
+  s_930f3c9a37745c::t_63557eb2ccb907 17,110-111,143,164-165
+  s_930f3c9a37745c::t_48baa484719671 25,31,158-159,161-163,166
+  s_930f3c9a37745c::t_506b2dfdaa8a06 68
+  s_930f3c9a37745c::t_1fd99919ce4365 38,47-49,54-59,64-66,69-74
+  s_930f3c9a37745c::t_87458cdb49c0be 78-79,83,87-96
+  s_930f3c9a37745c::t_b710de5fcac8f5 60-63,67,75-77,80-82,84-86
+  s_930f3c9a37745c::t_541736261ddb50 97
+planning/docs-v5/evidence/workflow-browser-20260930.json
+  s_930f3c9a37745c::t_d48036bb738cec 1-143
+planning/docs-v5/evidence/efficiency-tightening-20261001.json
+  s_930f3c9a37745c::t_d7837ca877ff9f 1-732
+docs/guides/local-editing.md
+  s_930f3c9a37745c::t_e07024b410a8fd 50-51,53-84,87-104,106,108-109,112-113,119-134,136,138,142-143
+  s_930f3c9a37745c::t_3f9577cac66d27 105,107,110-111,114-118
+  s_930f3c9a37745c::t_f480561d60ce6b 52,85-86,135,137
+planning/docs-v5/evidence/design-probes-20260930/assessment.md
+  s_930f3c9a37745c::t_11453700305555 1-29
+scripts/docs/export.mjs
+  s_930f3c9a37745c::t_710077cfc9fad6 8,90,93-95
+  s_930f3c9a37745c::t_36360b2d01703e 91-92,96
+planning/docs-v5/evidence/workflow-examples-20260930.json
+  s_930f3c9a37745c::t_d48036bb738cec 1-586
+planning/docs-v5/plan.md
+  s_930f3c9a37745c::t_ede3a09bb6ad56 127,129,131,133,143-144
+  s_930f3c9a37745c::t_ca593ae1412e55 7,11
+  s_930f3c9a37745c::t_06a0c1b53f20f8 8-10,15
+planning/docs-v5/evidence/ranking-comparison-20260930/before.json
+  s_930f3c9a37745c::t_8e3c2f2901f671 1-2232
+test/browser/docs-guides.spec.mjs
+  s_930f3c9a37745c::t_abfb25317a0f77 82-83
+  s_930f3c9a37745c::t_2f7bfb235267e6 55-73,75-76,80-81,87-88,92,94-101
+  s_930f3c9a37745c::t_d4a0f6bb7f15a4 74,79,86,91,153
+  s_930f3c9a37745c::t_d61fb6649d53c5 102-103,106-111,113,116-129
+  s_930f3c9a37745c::t_8ab2cad73733ca 130-152,154-162
+  s_930f3c9a37745c::t_37d97d37b274c6 7,13,20
+  s_930f3c9a37745c::t_be4f1ef3b8bef5 77-78,84-85,89-90,93,104-105,112,114-115
+CONTRIBUTING.md
+  s_930f3c9a37745c::t_d8109a92d79eba 49-72
+  s_930f3c9a37745c::t_01677f099b4e52 73
+planning/docs-v5/evaluation-rubric.md
+  s_930f3c9a37745c::t_5fe962cc507e3d 3
+  s_930f3c9a37745c::t_ede3a09bb6ad56 24
+test/docs/quick-start.mjs
+  s_930f3c9a37745c::t_6632dd67ed454f 14
+  s_930f3c9a37745c::t_9e35e47324580c 34-37,40,42,96-105
+  s_930f3c9a37745c::t_dc7ea02ffa3461 1-13,15-33,38-39,41,43-95,106-183
+planning/docs-v5/workflow-results.md
+  s_930f3c9a37745c::t_d0e3062343f922 1-106
+planning/docs-v5/evidence/design-probes-20260930/participants/p3.md
+  s_930f3c9a37745c::t_11453700305555 1-192
+planning/docs-v5/evidence/design-probes-20260930/participants/p2.md
+  s_930f3c9a37745c::t_11453700305555 1-184
+docs/agents.md
+  s_930f3c9a37745c::t_d234f64e268612 59,62
+  s_930f3c9a37745c::t_66e72cfd409a2a 3,7,15,18,20-23,26-36,38-42,46,48,50,52,54,56,64,66
+  s_930f3c9a37745c::t_3b1e022225f894 13
+  s_930f3c9a37745c::t_01ed0b7f2b0c13 24-25,37
+docs/api/application.md
+  s_930f3c9a37745c::t_0e37606691584f 159-160,162
+  s_930f3c9a37745c::t_dc4769ead7d75b 161,190-192
+  s_33bb8cd239820b::t_c9f2387741da02 193
+test/README.md
+  s_930f3c9a37745c::t_fb7b517e2add54 60-64,68
+  s_930f3c9a37745c::t_cdc3a34b05769e 65-67
+test/agent-docs/lookup.test.mjs
+  s_930f3c9a37745c::t_42fe6ae3906f16 209
+  s_930f3c9a37745c::t_d234f64e268612 205-208,210-238,246-247
+  s_930f3c9a37745c::t_1809373ed57937 196
+test/docs/build.test.mjs
+  s_930f3c9a37745c::t_085d133a933b93 2-3,8-40
+scripts/docs/build.mjs
+  s_930f3c9a37745c::t_cf9db1e1606677 5
+  s_930f3c9a37745c::t_93a060682d923d 6
+planning/docs-v5/evidence/ranking-comparison-20260930/README.md
+  s_930f3c9a37745c::t_179faeb4b86f5a 89-104
+  s_930f3c9a37745c::t_6a3619786f9d72 1-88,105-115
+planning/docs-v5/reader-comparison-results.md
+  s_930f3c9a37745c::t_b0c32ce0d844c6 1-2,7,9,15-18,20-28,31
+  s_930f3c9a37745c::t_47d4c41dde2ec1 3-6,8,10-14,19,29-30,32-132
+planning/docs-v5/evidence/ranking-comparison-20260930/after.json
+  s_930f3c9a37745c::t_ea34c5e254fb7c 1-1927
+planning/docs-v5/reader-comparison-rc2-closeout.md
+  s_930f3c9a37745c::t_10d617b6727363 1-47
+test/docs/consumer-typescript.mjs
+  s_930f3c9a37745c::t_753dc37027484f 36,42,44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "37a743399e59248771d4759c8d33816aaddfa6c5",
+  "prompts": {},
+  "sessions": {
+    "s_33bb8cd239820b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0f0cd-bbc3-7263-bd22-4fdeb98ce196",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
