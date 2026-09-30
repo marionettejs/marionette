@@ -1,0 +1,1927 @@
+{
+  "schemaVersion": 1,
+  "measuredAt": "2026-09-30T08:25:17.521Z",
+  "revision": "b1a2b39e6bde6ce5605b0cfff00f9408652f4b39",
+  "provenance": {
+    "questionSha256": "798d578b7c67afd0ab886c93d9ab14d090a984fc05792a4902aab0a9234b1c1d",
+    "navigationSha256": "e2d559f11963bd90cf5c31b4c0b12111fc904c7e3f81f0638c2fedf4b69c0a85",
+    "corpusSha256": "d0d95a23af29ad466d2798b199cd9de3b215d569df0dad3c66ef6bf4f6148212",
+    "corpusFiles": {
+      "docs/readme.md": "4308402598ebac1e298e8a18c030310f0a5a8a36aa24f876f31db3733de77dc6",
+      "docs/quick-start.md": "5c360f6eb55e783caa2813a3fb938d1e822087ac2ba9a24f0ee3f5c1be2299d4",
+      "docs/architecture.md": "b72e9505beca81399d6d075f886fcc7ab49e20db15b3cf95e0d901034b6d5993",
+      "docs/agents.md": "1229d5f1bc631450485447867d237eadb70c917b1c9c2bb390bd934499f229b8",
+      "docs/api.md": "dc5c55965ea811c45717cd9ef870f771c361080dda63c347948471fe71df835b",
+      "docs/api/application.md": "2a3aacbbb3194e07dc96cc8a3168dcb2a88f0dc38288b43c93ab8dce769360aa",
+      "docs/api/view.md": "b988f7f08e79d06d5be6bced589fdd1afc84c60d6d3d27a8fc62eaecc1b9e4e6",
+      "docs/api/collection-view.md": "a6ef68cdf1c8fd77fd47a0ff835e51a1714d23352c8d0c13d28bf83df586d94f",
+      "docs/api/region.md": "ca767ce14321648d39d269185c4adefc87d42c9dd338bc30bfc145e97486c632",
+      "docs/api/behavior.md": "d83fce01476376a3101ebb6bd77363134f841367422fe775b8431dc38128c7fa",
+      "docs/api/mnobject.md": "230e69cbdb697142c4d2a6979a925395cae5f71232dfa4f9ce21f287c707f1fa",
+      "docs/api/shared/common.md": "8982228a2345240414e35ba4f0967e95530f5966fe1254efd9a09575706d5b6a",
+      "docs/api/shared/events.md": "55cae66f2ac4b5de06cf68763a4f841a9d7ff55c065de8e4112df29109925051",
+      "docs/api/shared/state.md": "9c3263569e68789585a49e6065e1b9cd88efa928dbe5e8b8abe62cc0b748a3ae",
+      "docs/api/shared/view-bindings.md": "7bb193ccf1541859eabf927f45217febd8b0251ab4c9f74c0fdfc218ded5b167",
+      "docs/api/errors.md": "f0dd3a19d442003e171ca373c50e8d6aace0d97896a8324babb8c779d8060954",
+      "docs/api/runtime.md": "d487aa88bcef315d46b14c231c8be9c682c7bf8037c9ffb80a63b5f831c2ad4c",
+      "docs/api/providers/dom.md": "c27ba850a18003b0fc15f9dfc8dec36e207b527bafb15b0ba87c5602cb72e57f",
+      "docs/api/providers/data.md": "4354afe1dedf5ab53ea9e507fb07055fb37e6b2cb356585619507e3d2158f408",
+      "docs/packages/data.md": "6a24f4e1c6441f1a73ec9a483422b269ff8613ee1cb9d86dcd2b8966e7096d52",
+      "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
+      "docs/packages/utils.md": "b022f7f2a958673aa40da59d12591316ef6773228f2dfc93f0af9a901878cb3d",
+      "docs/packages/adapters.md": "48304620efe6bc04c6a59647053bd0b692925a5c4ae99bb172d218ef4cb60c8a",
+      "docs/integrations/setup.md": "d009e98971def967328762cabe63d270a97dadf73074c7bce9346b0bc95a686d",
+      "docs/guides/migration.md": "fed09411f1430ebf7f9036028d68972f7ecc4cdb93f763654c24b24c337b804e",
+      "docs/guides/testing.md": "7d2fb783ad80dc3a56dc4dc3c999426a992ee8214d65011eeebcdcc1206152ff",
+      "docs/guides/typescript.md": "9011a7cda3f391ec2ca96be5487b6857f0508cab25cc556ff8f4843bd680b0ce",
+      "docs/guides/local-editing.md": "bf65e682c4b1a4a47b4d5205f5deffdd3878daaec2f8f39fd63fcd53805e2e1c",
+      "docs/guides/retained-refresh.md": "0b7bdaa4e57ddc12b81567278fa4f01b78d2660e3ed7de5f5c3583ab0148fcc5",
+      "docs/guides/existing-html.md": "052b1b216adaa6de91a76eb2a365bfcb5062a3525e3f1cbbe7cf87a091cf8a95",
+      "docs/guides/existing-ui.md": "62bfa91930eabdc35e8f33baf7703ae96dad56ef14a15a402194dbbf3b5230c8",
+      "docs/guides/routing.md": "683eae713eaf5e5472abf50473cb3599684b2f2cc7af9593c46297c47a07b4f9",
+      "docs/guides/lists.md": "8ffa8a0109427c739ad956284c192f0db11bb266494ee853110bbf1ae7975822",
+      "docs/guides/widgets.md": "cf8cc28d52bcac0c849d4a1e9e771beb987b5c834ed7cd94f44a77c0aedaa009",
+      "docs/guides/accessibility-rendering.md": "0f97012cc4cbef97b96b066c04c91de6baf39fbfd1a22c8a2528b53ba191ff32",
+      "docs/guides/production.md": "494fd930cf79d052bcfd825813175ea1157a6a82195762ee76e2c812d340cba3",
+      "docs/records.md": "65605e31bd96db536e7e1a4b160895d87ada9deae98497213302f4f25a04b8b3",
+      "docs/tooling.md": "7d966f4dbacd338a4530af3d87b1177288573acbc910fcfd19b92446d4a54d02"
+    },
+    "implementationHashes": {
+      "scripts/docs/sections.mjs": "70d13ba5d4b6370c38aa87e714093fa9d35751adb21820f10e74761c979c1cc6",
+      "skills/marionette/scripts/search.mjs": "99eeb6ef5b5f8cf1bef6ac1b0cc163f129955d62f8811071ffdffad7aeffe1b1",
+      "planning/docs-v5/probes/lookup-screen.mjs": "1e14307610cf23f35b34b0c0676756deabf7a4e06e4ed6fe3383deb19f919be8"
+    }
+  },
+  "summary": {
+    "questions": 15,
+    "top1ExpectedSection": 9,
+    "top1ContainsRequiredEvidence": 9,
+    "top5ExpectedSection": 13,
+    "top5ContainsRequiredEvidence": 14,
+    "noResults": 0,
+    "top1PageHeading": 1,
+    "returnedCharacters": 171594
+  },
+  "limits": [
+    "Exact-section precision and literal answer evidence are separate measurements.",
+    "A parent section may contain the answer; a broad result is not automatically wrong.",
+    "Returned characters count overlapping snippets as returned, not unique text or model tokens.",
+    "A missing expected section in five results is not proof that the corpus lacks an answer.",
+    "This exposed question set is regression evidence, not an unseen reader or application trial.",
+    "This measures source helper search, not installed tooling, website search or model outcomes."
+  ],
+  "results": [
+    {
+      "id": "reader-01",
+      "query": "How do I load the data a page needs before showing its UI, and where do I receive the successful result?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/api/application.md",
+          "heading": "Prepare before showing UI",
+          "facts": [
+            "`prepareStart` may return a value or Promise.",
+            "Its successful result reaches `onStart`",
+            "a failed request rejects `start()`."
+          ],
+          "id": "docs/api/application.md#L9"
+        }
+      ],
+      "expectedRank": 1,
+      "top1ExpectedSection": true,
+      "top1ContainsRequiredEvidence": true,
+      "charactersBeforeExpectedSection": 0,
+      "returnedCharacters": 13910,
+      "hits": [
+        {
+          "id": "docs/api/application.md#L9",
+          "source": "docs/api/application.md",
+          "heading": "Prepare before showing UI",
+          "depth": 2,
+          "characters": 1839,
+          "score": 24.121021124626182,
+          "matchedTerms": [
+            "load",
+            "data",
+            "before",
+            "showing",
+            "ui",
+            "successful",
+            "result"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/architecture.md#L20",
+          "source": "docs/architecture.md",
+          "heading": "Prepare a feature, then activate its UI",
+          "depth": 2,
+          "characters": 1720,
+          "score": 21.1107534930203,
+          "matchedTerms": [
+            "data",
+            "page",
+            "needs",
+            "before",
+            "showing",
+            "ui",
+            "receive",
+            "successful",
+            "result"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/retained-refresh.md#L1",
+          "source": "docs/guides/retained-refresh.md",
+          "heading": "Refresh data while retaining UI",
+          "depth": 1,
+          "characters": 5785,
+          "score": 14.270322906929563,
+          "matchedTerms": [
+            "data",
+            "page",
+            "before",
+            "ui",
+            "result"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/retained-refresh.md#L98",
+          "source": "docs/guides/retained-refresh.md",
+          "heading": "Decide which response may update the page",
+          "depth": 2,
+          "characters": 1335,
+          "score": 13.566983820590815,
+          "matchedTerms": [
+            "data",
+            "page",
+            "before",
+            "showing",
+            "result"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/retained-refresh.md#L14",
+          "source": "docs/guides/retained-refresh.md",
+          "heading": "Keep the page and update its source",
+          "depth": 2,
+          "characters": 3231,
+          "score": 12.726692322470024,
+          "matchedTerms": [
+            "load",
+            "data",
+            "page"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    },
+    {
+      "id": "reader-02",
+      "query": "I need to refresh a running feature while keeping its current layout and focused input. Should I use Application.restart()?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/api/application.md",
+          "heading": "Restart and retained UI",
+          "facts": [
+            "It does not preserve input elements, focus, or a layout's Region children.",
+            "use an explicit operation on the active feature",
+            "update the appropriate child View or data source."
+          ],
+          "id": "docs/api/application.md#L105"
+        }
+      ],
+      "expectedRank": 1,
+      "top1ExpectedSection": true,
+      "top1ContainsRequiredEvidence": true,
+      "charactersBeforeExpectedSection": 0,
+      "returnedCharacters": 10603,
+      "hits": [
+        {
+          "id": "docs/api/application.md#L105",
+          "source": "docs/api/application.md",
+          "heading": "Restart and retained UI",
+          "depth": 2,
+          "characters": 634,
+          "score": 26.021484879997768,
+          "matchedTerms": [
+            "refresh",
+            "feature",
+            "current",
+            "layout",
+            "input",
+            "use",
+            "restart"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/guides/retained-refresh.md#L118",
+          "source": "docs/guides/retained-refresh.md",
+          "heading": "Choose refresh or restart",
+          "depth": 2,
+          "characters": 538,
+          "score": 24.804756914334384,
+          "matchedTerms": [
+            "refresh",
+            "feature",
+            "current",
+            "use",
+            "application",
+            "restart"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/migration.md#L46",
+          "source": "docs/guides/migration.md",
+          "heading": "3. Make feature readiness and ownership explicit",
+          "depth": 2,
+          "characters": 2224,
+          "score": 22.20192817520683,
+          "matchedTerms": [
+            "need",
+            "refresh",
+            "running",
+            "feature",
+            "layout",
+            "input",
+            "use",
+            "application",
+            "restart"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/architecture.md#L32",
+          "source": "docs/architecture.md",
+          "heading": "Choose what survives an operation",
+          "depth": 2,
+          "characters": 1422,
+          "score": 20.764975159100224,
+          "matchedTerms": [
+            "need",
+            "refresh",
+            "feature",
+            "while",
+            "keeping",
+            "current",
+            "use",
+            "application",
+            "restart"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/retained-refresh.md#L1",
+          "source": "docs/guides/retained-refresh.md",
+          "heading": "Refresh data while retaining UI",
+          "depth": 1,
+          "characters": 5785,
+          "score": 20.42482478670421,
+          "matchedTerms": [
+            "refresh",
+            "while",
+            "current",
+            "input",
+            "use",
+            "application"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    },
+    {
+      "id": "reader-03",
+      "query": "If I declare childApps on an Application, does starting the parent also start and wait for those children?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/api/application.md",
+          "heading": "Child Applications",
+          "facts": [
+            "Registration owns lifetime, not readiness.",
+            "Parent start does not start children or await them.",
+            "Start required children explicitly"
+          ],
+          "id": "docs/api/application.md#L117"
+        }
+      ],
+      "expectedRank": 1,
+      "top1ExpectedSection": true,
+      "top1ContainsRequiredEvidence": true,
+      "charactersBeforeExpectedSection": 0,
+      "returnedCharacters": 9565,
+      "hits": [
+        {
+          "id": "docs/api/application.md#L117",
+          "source": "docs/api/application.md",
+          "heading": "Child Applications",
+          "depth": 2,
+          "characters": 2258,
+          "score": 23.361233325393165,
+          "matchedTerms": [
+            "childapps",
+            "apps",
+            "child",
+            "on",
+            "application",
+            "parent",
+            "start",
+            "children"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/guides/migration.md#L46",
+          "source": "docs/guides/migration.md",
+          "heading": "3. Make feature readiness and ownership explicit",
+          "depth": 2,
+          "characters": 2224,
+          "score": 20.673670678368687,
+          "matchedTerms": [
+            "childapps",
+            "apps",
+            "child",
+            "on",
+            "application",
+            "starting",
+            "parent",
+            "start",
+            "children"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/records.md#L19",
+          "source": "docs/records.md",
+          "heading": "Attach to the page",
+          "depth": 2,
+          "characters": 685,
+          "score": 13.230748947350193,
+          "matchedTerms": [
+            "child",
+            "on",
+            "application",
+            "starting",
+            "parent",
+            "start"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/application.md#L61",
+          "source": "docs/api/application.md",
+          "heading": "Lifecycle methods and results",
+          "depth": 2,
+          "characters": 2358,
+          "score": 13.171792589981877,
+          "matchedTerms": [
+            "child",
+            "on",
+            "application",
+            "starting",
+            "parent",
+            "start",
+            "children"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/application.md#L44",
+          "source": "docs/api/application.md",
+          "heading": "Construction and options",
+          "depth": 2,
+          "characters": 2040,
+          "score": 12.514323882746288,
+          "matchedTerms": [
+            "childapps",
+            "apps",
+            "child",
+            "application",
+            "parent",
+            "children"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    },
+    {
+      "id": "reader-04",
+      "query": "How can I add a View to existing page HTML without replacing that markup, and what happens to the element when the View is destroyed?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/api/view.md",
+          "heading": "Existing elements",
+          "facts": [
+            "Construction adopts the supplied element without replacing its contents or applying root attributes.",
+            "Use `template: false` to preserve existing HTML.",
+            "Destroying the View still removes its element and destroys managed children."
+          ],
+          "id": "docs/api/view.md#L45"
+        }
+      ],
+      "expectedRank": 2,
+      "top1ExpectedSection": false,
+      "top1ContainsRequiredEvidence": false,
+      "charactersBeforeExpectedSection": 2688,
+      "returnedCharacters": 6039,
+      "hits": [
+        {
+          "id": "docs/guides/existing-html.md#L1",
+          "source": "docs/guides/existing-html.md",
+          "heading": "Add behavior to existing HTML",
+          "depth": 1,
+          "characters": 2688,
+          "score": 27.530291485773418,
+          "matchedTerms": [
+            "add",
+            "view",
+            "existing",
+            "html",
+            "without",
+            "replacing",
+            "markup",
+            "element"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/view.md#L45",
+          "source": "docs/api/view.md",
+          "heading": "Existing elements",
+          "depth": 2,
+          "characters": 1379,
+          "score": 22.43429711763474,
+          "matchedTerms": [
+            "view",
+            "existing",
+            "page",
+            "html",
+            "without",
+            "replacing",
+            "markup",
+            "element"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/records.md#L19",
+          "source": "docs/records.md",
+          "heading": "Attach to the page",
+          "depth": 2,
+          "characters": 685,
+          "score": 19.38765690590707,
+          "matchedTerms": [
+            "view",
+            "existing",
+            "page",
+            "html",
+            "markup",
+            "element"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/region.md#L79",
+          "source": "docs/api/region.md",
+          "heading": "Replacing the Region element",
+          "depth": 3,
+          "characters": 591,
+          "score": 16.835860181424348,
+          "matchedTerms": [
+            "view",
+            "replacing",
+            "element",
+            "destroyed"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/existing-html.md#L37",
+          "source": "docs/guides/existing-html.md",
+          "heading": "Own the adopted element",
+          "depth": 2,
+          "characters": 696,
+          "score": 16.164972308153175,
+          "matchedTerms": [
+            "view",
+            "existing",
+            "page",
+            "markup",
+            "element"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    },
+    {
+      "id": "reader-05",
+      "query": "How do I move a live View from one Region to another without destroying it?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/api/region.md",
+          "heading": "Empty, detach, reset, and destroy",
+          "facts": [
+            "`detachView()`",
+            "releases ownership and parent event forwarding, and keeps the View alive.",
+            "either give it a new owner or destroy it when finished."
+          ],
+          "id": "docs/api/region.md#L64"
+        },
+        {
+          "source": "docs/api/region.md",
+          "heading": "Construction and options",
+          "facts": [
+            "moves a live View between two Regions without rendering it again",
+            "const retained = first.detachView();",
+            "if (retained) second.show(retained);"
+          ],
+          "id": "docs/api/region.md#L7"
+        }
+      ],
+      "expectedRank": null,
+      "top1ExpectedSection": false,
+      "top1ContainsRequiredEvidence": false,
+      "charactersBeforeExpectedSection": null,
+      "returnedCharacters": 22987,
+      "hits": [
+        {
+          "id": "docs/api/application.md#L136",
+          "source": "docs/api/application.md",
+          "heading": "Root View and Region",
+          "depth": 2,
+          "characters": 2961,
+          "score": 15.064354030972398,
+          "matchedTerms": [
+            "move",
+            "live",
+            "view",
+            "from",
+            "region",
+            "another",
+            "without"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/runtime.md#L89",
+          "source": "docs/api/runtime.md",
+          "heading": "Isolation and composition",
+          "depth": 2,
+          "characters": 1317,
+          "score": 11.893158570104088,
+          "matchedTerms": [
+            "move",
+            "view",
+            "from",
+            "one",
+            "region",
+            "another"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/region.md#L1",
+          "source": "docs/api/region.md",
+          "heading": "Region",
+          "depth": 1,
+          "characters": 13515,
+          "score": 10.68528408387064,
+          "matchedTerms": [
+            "view",
+            "one",
+            "region",
+            "another"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/packages/data.md#L109",
+          "source": "docs/packages/data.md",
+          "heading": "Membership and ordering",
+          "depth": 3,
+          "characters": 2384,
+          "score": 10.073020011108078,
+          "matchedTerms": [
+            "move",
+            "view",
+            "one",
+            "without",
+            "destroying"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/local-editing.md#L1",
+          "source": "docs/guides/local-editing.md",
+          "heading": "Edit a View's own model",
+          "depth": 1,
+          "characters": 2810,
+          "score": 9.239409982606047,
+          "matchedTerms": [
+            "live",
+            "view",
+            "from",
+            "region",
+            "another"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    },
+    {
+      "id": "reader-06",
+      "query": "Does View.getUI('name') return an element, and do I need to rebind it after changing the HTML myself?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/api/shared/view-bindings.md",
+          "heading": "UI bindings",
+          "facts": [
+            "Returns the bound query result",
+            "Use `[0]` when the first native element is needed.",
+            "Bound queries are snapshots; manually changed contents need rebinding"
+          ],
+          "id": "docs/api/shared/view-bindings.md#L45"
+        }
+      ],
+      "expectedRank": 1,
+      "top1ExpectedSection": true,
+      "top1ContainsRequiredEvidence": true,
+      "charactersBeforeExpectedSection": 0,
+      "returnedCharacters": 12148,
+      "hits": [
+        {
+          "id": "docs/api/shared/view-bindings.md#L45",
+          "source": "docs/api/shared/view-bindings.md",
+          "heading": "UI bindings",
+          "depth": 2,
+          "characters": 1648,
+          "score": 19.111444456123248,
+          "matchedTerms": [
+            "view",
+            "getui",
+            "get",
+            "ui",
+            "name",
+            "element",
+            "need",
+            "after"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/guides/typescript.md#L36",
+          "source": "docs/guides/typescript.md",
+          "heading": "Local DOM interactions",
+          "depth": 2,
+          "characters": 2193,
+          "score": 16.865657368685877,
+          "matchedTerms": [
+            "view",
+            "getui",
+            "get",
+            "ui",
+            "return",
+            "element",
+            "need",
+            "html"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/existing-html.md#L1",
+          "source": "docs/guides/existing-html.md",
+          "heading": "Add behavior to existing HTML",
+          "depth": 1,
+          "characters": 2688,
+          "score": 16.768130507980587,
+          "matchedTerms": [
+            "view",
+            "getui",
+            "get",
+            "ui",
+            "element",
+            "after",
+            "html"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/behavior.md#L55",
+          "source": "docs/api/behavior.md",
+          "heading": "DOM interaction and UI",
+          "depth": 2,
+          "characters": 2033,
+          "score": 14.504243222457095,
+          "matchedTerms": [
+            "view",
+            "getui",
+            "get",
+            "ui",
+            "name",
+            "after"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/migration.md#L22",
+          "source": "docs/guides/migration.md",
+          "heading": "2. Update Views and composition",
+          "depth": 2,
+          "characters": 3586,
+          "score": 14.141939581802214,
+          "matchedTerms": [
+            "view",
+            "getui",
+            "get",
+            "ui",
+            "name",
+            "return",
+            "element",
+            "html"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    },
+    {
+      "id": "reader-07",
+      "query": "My View uses triggers for a link click. Why does the browser stop following the link, and how can I allow navigation?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/api/shared/view-bindings.md",
+          "heading": "DOM events",
+          "facts": [
+            "{ event, preventDefault, stopPropagation }",
+            "Both prevention flags default to `true`",
+            "set either to `false` to allow that browser behavior."
+          ],
+          "id": "docs/api/shared/view-bindings.md#L61"
+        }
+      ],
+      "expectedRank": 5,
+      "top1ExpectedSection": false,
+      "top1ContainsRequiredEvidence": false,
+      "charactersBeforeExpectedSection": 10106,
+      "returnedCharacters": 11588,
+      "hits": [
+        {
+          "id": "docs/guides/routing.md#L80",
+          "source": "docs/guides/routing.md",
+          "heading": "Check navigation",
+          "depth": 2,
+          "characters": 293,
+          "score": 21.41112074653566,
+          "matchedTerms": [
+            "link",
+            "browser",
+            "stop",
+            "navigation"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/routing.md#L5",
+          "source": "docs/guides/routing.md",
+          "heading": "Keep a shell while changing its content",
+          "depth": 2,
+          "characters": 3343,
+          "score": 15.727121302233698,
+          "matchedTerms": [
+            "view",
+            "uses",
+            "link",
+            "browser",
+            "stop",
+            "following",
+            "navigation"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/routing.md#L1",
+          "source": "docs/guides/routing.md",
+          "heading": "Connect navigation to feature ownership",
+          "depth": 1,
+          "characters": 5730,
+          "score": 14.146824864504577,
+          "matchedTerms": [
+            "browser",
+            "navigation"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/testing.md#L204",
+          "source": "docs/guides/testing.md",
+          "heading": "Add browser checks where they matter",
+          "depth": 2,
+          "characters": 740,
+          "score": 13.857376790719584,
+          "matchedTerms": [
+            "view",
+            "browser",
+            "navigation"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/shared/view-bindings.md#L61",
+          "source": "docs/api/shared/view-bindings.md",
+          "heading": "DOM events",
+          "depth": 2,
+          "characters": 1482,
+          "score": 12.090444362441215,
+          "matchedTerms": [
+            "view",
+            "triggers",
+            "browser",
+            "stop",
+            "allow"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        }
+      ]
+    },
+    {
+      "id": "reader-08",
+      "query": "When I call triggerMethod, does the hook run before event listeners, and will an async hook delay those listeners?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks",
+          "facts": [
+            "Calls the matching instance/prototype hook, then triggers the event",
+            "Returned Promises are not awaited",
+            "event listeners run immediately."
+          ],
+          "id": "docs/api/shared/events.md#L40"
+        }
+      ],
+      "expectedRank": 1,
+      "top1ExpectedSection": true,
+      "top1ContainsRequiredEvidence": true,
+      "charactersBeforeExpectedSection": 0,
+      "returnedCharacters": 8309,
+      "hits": [
+        {
+          "id": "docs/api/shared/events.md#L40",
+          "source": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks",
+          "depth": 2,
+          "characters": 1399,
+          "score": 29.084560497720005,
+          "matchedTerms": [
+            "triggermethod",
+            "method",
+            "trigger",
+            "hook",
+            "run",
+            "before",
+            "event",
+            "listeners"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/packages/data.md#L55",
+          "source": "docs/packages/data.md",
+          "heading": "Model events",
+          "depth": 2,
+          "characters": 1403,
+          "score": 18.471713862431,
+          "matchedTerms": [
+            "triggermethod",
+            "method",
+            "trigger",
+            "hook",
+            "before",
+            "event",
+            "listeners"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/packages/radio.md#L46",
+          "source": "docs/packages/radio.md",
+          "heading": "Channel events",
+          "depth": 2,
+          "characters": 1081,
+          "score": 16.85209805177218,
+          "matchedTerms": [
+            "triggermethod",
+            "method",
+            "trigger",
+            "hook",
+            "run",
+            "before",
+            "event"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/packages/utils.md#L5",
+          "source": "docs/packages/utils.md",
+          "heading": "Component methods",
+          "depth": 2,
+          "characters": 2395,
+          "score": 16.254912930833335,
+          "matchedTerms": [
+            "call",
+            "triggermethod",
+            "method",
+            "trigger",
+            "hook",
+            "before",
+            "event"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/region.md#L101",
+          "source": "docs/api/region.md",
+          "heading": "Lifecycle events and hooks",
+          "depth": 2,
+          "characters": 2031,
+          "score": 15.278174732066708,
+          "matchedTerms": [
+            "triggermethod",
+            "method",
+            "trigger",
+            "hook",
+            "before",
+            "event",
+            "listeners"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    },
+    {
+      "id": "reader-09",
+      "query": "An Application uses listenTo on Views that it replaces. Do I need to stopListening when each View is destroyed, and does Application.stop() clear subscriptions to surviving sources?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/api/shared/events.md",
+          "heading": "Cleanup",
+          "facts": [
+            "Destroying a native Marionette object removes its outgoing `listenTo` subscriptions and its incoming callbacks",
+            "a retained Application does not need a `destroy` handler that calls `stopListening(view)` for each replaced View.",
+            "Application `stop()` preserves subscriptions to surviving sources"
+          ],
+          "id": "docs/api/shared/events.md#L55"
+        }
+      ],
+      "expectedRank": 1,
+      "top1ExpectedSection": true,
+      "top1ContainsRequiredEvidence": true,
+      "charactersBeforeExpectedSection": 0,
+      "returnedCharacters": 6847,
+      "hits": [
+        {
+          "id": "docs/api/shared/events.md#L55",
+          "source": "docs/api/shared/events.md",
+          "heading": "Cleanup",
+          "depth": 2,
+          "characters": 1188,
+          "score": 39.92444916792895,
+          "matchedTerms": [
+            "application",
+            "listento",
+            "listen",
+            "on",
+            "need",
+            "stoplistening",
+            "listening",
+            "stop",
+            "each",
+            "view",
+            "destroyed",
+            "clear",
+            "subscriptions",
+            "surviving",
+            "sources"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/api/shared/events.md#L27",
+          "source": "docs/api/shared/events.md",
+          "heading": "Subscribe and unsubscribe",
+          "depth": 2,
+          "characters": 1806,
+          "score": 25.479016908391447,
+          "matchedTerms": [
+            "listento",
+            "listen",
+            "on",
+            "stoplistening",
+            "listening",
+            "stop",
+            "each",
+            "subscriptions",
+            "sources"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/architecture.md#L61",
+          "source": "docs/architecture.md",
+          "heading": "Clean up at the ownership boundary",
+          "depth": 2,
+          "characters": 829,
+          "score": 23.318072153556656,
+          "matchedTerms": [
+            "application",
+            "views",
+            "stoplistening",
+            "listening",
+            "stop",
+            "view",
+            "subscriptions",
+            "surviving",
+            "sources"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/migration.md#L58",
+          "source": "docs/guides/migration.md",
+          "heading": "4. Verify the migrated application",
+          "depth": 2,
+          "characters": 1664,
+          "score": 22.93890950430648,
+          "matchedTerms": [
+            "application",
+            "uses",
+            "stoplistening",
+            "listening",
+            "stop",
+            "view",
+            "destroyed",
+            "subscriptions",
+            "surviving",
+            "sources"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/mnobject.md#L48",
+          "source": "docs/api/mnobject.md",
+          "heading": "State and communication",
+          "depth": 2,
+          "characters": 1360,
+          "score": 21.033599096396408,
+          "matchedTerms": [
+            "listento",
+            "listen",
+            "on",
+            "need",
+            "stoplistening",
+            "listening",
+            "stop",
+            "subscriptions"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    },
+    {
+      "id": "reader-10",
+      "query": "If my data provider replaces a model object with another object under the same key, will CollectionView reuse its existing row?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/api/collection-view.md",
+          "heading": "Rendering and collection updates",
+          "facts": [
+            "Creates a replacement child and destroys the previous child.",
+            "Stable keys do not imply rebinding an existing View to a different model."
+          ],
+          "id": "docs/api/collection-view.md#L74"
+        },
+        {
+          "source": "docs/api/providers/data.md",
+          "heading": "Collection identity and observation",
+          "facts": [
+            "A different-object pair replaces and destroys the old child even when the key is unchanged.",
+            "A retained key does not grant a new model object the previous child's identity."
+          ],
+          "id": "docs/api/providers/data.md#L25"
+        }
+      ],
+      "expectedRank": 1,
+      "top1ExpectedSection": true,
+      "top1ContainsRequiredEvidence": true,
+      "charactersBeforeExpectedSection": 0,
+      "returnedCharacters": 9982,
+      "hits": [
+        {
+          "id": "docs/api/providers/data.md#L25",
+          "source": "docs/api/providers/data.md",
+          "heading": "Collection identity and observation",
+          "depth": 2,
+          "characters": 2860,
+          "score": 26.386549366348238,
+          "matchedTerms": [
+            "data",
+            "provider",
+            "replaces",
+            "model",
+            "object",
+            "same",
+            "key",
+            "collectionview",
+            "collection",
+            "view",
+            "existing",
+            "row"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/guides/lists.md#L85",
+          "source": "docs/guides/lists.md",
+          "heading": "Identity and scale",
+          "depth": 2,
+          "characters": 637,
+          "score": 23.80733461136063,
+          "matchedTerms": [
+            "data",
+            "replaces",
+            "model",
+            "object",
+            "key",
+            "collectionview",
+            "collection",
+            "view",
+            "reuse",
+            "row"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/collection-view.md#L74",
+          "source": "docs/api/collection-view.md",
+          "heading": "Rendering and collection updates",
+          "depth": 2,
+          "characters": 2352,
+          "score": 20.863423406864452,
+          "matchedTerms": [
+            "data",
+            "model",
+            "object",
+            "under",
+            "same",
+            "key",
+            "collectionview",
+            "collection",
+            "view",
+            "existing"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/api/providers/data.md#L7",
+          "source": "docs/api/providers/data.md",
+          "heading": "DataApi",
+          "depth": 2,
+          "characters": 2344,
+          "score": 18.284102089823197,
+          "matchedTerms": [
+            "data",
+            "provider",
+            "model",
+            "object",
+            "same",
+            "key",
+            "collectionview",
+            "collection",
+            "view",
+            "reuse"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/collection-view.md#L7",
+          "source": "docs/api/collection-view.md",
+          "heading": "Render a collection",
+          "depth": 2,
+          "characters": 1789,
+          "score": 15.149675845722669,
+          "matchedTerms": [
+            "data",
+            "model",
+            "same",
+            "collectionview",
+            "collection",
+            "view",
+            "existing",
+            "row"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    },
+    {
+      "id": "reader-11",
+      "query": "Does CollectionView.setFilter() destroy excluded rows, or can I show the same row Views again when I remove the filter?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/api/collection-view.md",
+          "heading": "Filtering",
+          "facts": [
+            "Hidden children keep state and subscriptions and remain owned by the list.",
+            "Detaches excluded rows without destroying them.",
+            "Hidden Views can be shown again as the same instances"
+          ],
+          "id": "docs/api/collection-view.md#L110"
+        }
+      ],
+      "expectedRank": 2,
+      "top1ExpectedSection": false,
+      "top1ContainsRequiredEvidence": false,
+      "charactersBeforeExpectedSection": 2695,
+      "returnedCharacters": 11146,
+      "hits": [
+        {
+          "id": "docs/guides/lists.md#L7",
+          "source": "docs/guides/lists.md",
+          "heading": "Own the controls and repeated rows",
+          "depth": 2,
+          "characters": 2695,
+          "score": 32.17705623401234,
+          "matchedTerms": [
+            "collectionview",
+            "collection",
+            "view",
+            "setfilter",
+            "filter",
+            "set",
+            "destroy",
+            "excluded",
+            "rows",
+            "show",
+            "row",
+            "views"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/collection-view.md#L110",
+          "source": "docs/api/collection-view.md",
+          "heading": "Filtering",
+          "depth": 2,
+          "characters": 1485,
+          "score": 29.58827804374492,
+          "matchedTerms": [
+            "view",
+            "setfilter",
+            "filter",
+            "set",
+            "destroy",
+            "excluded",
+            "rows",
+            "same",
+            "views",
+            "again",
+            "remove"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/api/collection-view.md#L7",
+          "source": "docs/api/collection-view.md",
+          "heading": "Render a collection",
+          "depth": 2,
+          "characters": 1789,
+          "score": 28.716096987179462,
+          "matchedTerms": [
+            "collectionview",
+            "collection",
+            "view",
+            "setfilter",
+            "filter",
+            "set",
+            "destroy",
+            "rows",
+            "show",
+            "same",
+            "row",
+            "again",
+            "remove"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/lists.md#L71",
+          "source": "docs/guides/lists.md",
+          "heading": "Update without rebuilding everything",
+          "depth": 2,
+          "characters": 1361,
+          "score": 25.680030738276376,
+          "matchedTerms": [
+            "collection",
+            "view",
+            "filter",
+            "set",
+            "destroy",
+            "rows",
+            "show",
+            "row",
+            "again",
+            "remove"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/collection-view.md#L178",
+          "source": "docs/api/collection-view.md",
+          "heading": "Lifecycle and extension points",
+          "depth": 2,
+          "characters": 3816,
+          "score": 24.185060782187474,
+          "matchedTerms": [
+            "collectionview",
+            "collection",
+            "view",
+            "filter",
+            "set",
+            "destroy",
+            "excluded",
+            "rows",
+            "row",
+            "views",
+            "remove"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    },
+    {
+      "id": "reader-12",
+      "query": "With the native StateApi configured, what gets destroyed when a View creates a Model through createState instead of receiving it through the state option?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/api/shared/state.md",
+          "heading": "Ownership and disposal",
+          "facts": [
+            "State returned by `createState` belongs to its owner.",
+            "The native data StateApi calls the source's `destroy()` method if it has one.",
+            "A borrowed source is never disposed by the borrower"
+          ],
+          "id": "docs/api/shared/state.md#L53"
+        }
+      ],
+      "expectedRank": 2,
+      "top1ExpectedSection": false,
+      "top1ContainsRequiredEvidence": false,
+      "charactersBeforeExpectedSection": 1904,
+      "returnedCharacters": 6901,
+      "hits": [
+        {
+          "id": "docs/api/shared/state.md#L5",
+          "source": "docs/api/shared/state.md",
+          "heading": "Create or supply state",
+          "depth": 2,
+          "characters": 1904,
+          "score": 22.251615910102224,
+          "matchedTerms": [
+            "native",
+            "stateapi",
+            "api",
+            "state",
+            "view",
+            "model",
+            "createstate",
+            "create",
+            "option"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/shared/state.md#L53",
+          "source": "docs/api/shared/state.md",
+          "heading": "Ownership and disposal",
+          "depth": 2,
+          "characters": 753,
+          "score": 20.733700685223667,
+          "matchedTerms": [
+            "native",
+            "stateapi",
+            "api",
+            "state",
+            "configured",
+            "destroyed",
+            "view",
+            "creates",
+            "createstate",
+            "create"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/api/mnobject.md#L48",
+          "source": "docs/api/mnobject.md",
+          "heading": "State and communication",
+          "depth": 2,
+          "characters": 1360,
+          "score": 20.474971577654873,
+          "matchedTerms": [
+            "stateapi",
+            "api",
+            "state",
+            "configured",
+            "createstate",
+            "create",
+            "receiving",
+            "option"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/integrations/setup.md#L47",
+          "source": "docs/integrations/setup.md",
+          "heading": "Observable data and API access",
+          "depth": 2,
+          "characters": 1494,
+          "score": 19.80494878975309,
+          "matchedTerms": [
+            "stateapi",
+            "api",
+            "state",
+            "configured",
+            "view",
+            "model",
+            "through",
+            "createstate",
+            "create",
+            "instead"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/providers/data.md#L43",
+          "source": "docs/api/providers/data.md",
+          "heading": "StateApi",
+          "depth": 2,
+          "characters": 1390,
+          "score": 19.526378593106628,
+          "matchedTerms": [
+            "stateapi",
+            "api",
+            "state",
+            "createstate",
+            "create"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    },
+    {
+      "id": "reader-13",
+      "query": "If I call setDataApi() on my CollectionView subclass, does that also configure the child View classes to use the same data provider?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/api/providers/data.md",
+          "heading": "DataApi",
+          "facts": [
+            "A CollectionView's children use their own class configuration",
+            "configuring the parent alone does not configure its children."
+          ],
+          "id": "docs/api/providers/data.md#L7"
+        }
+      ],
+      "expectedRank": null,
+      "top1ExpectedSection": false,
+      "top1ContainsRequiredEvidence": false,
+      "charactersBeforeExpectedSection": null,
+      "returnedCharacters": 10005,
+      "hits": [
+        {
+          "id": "docs/api/runtime.md#L53",
+          "source": "docs/api/runtime.md",
+          "heading": "Choose a configuration scope",
+          "depth": 2,
+          "characters": 2260,
+          "score": 28.441065006630424,
+          "matchedTerms": [
+            "call",
+            "setdataapi",
+            "api",
+            "data",
+            "set",
+            "on",
+            "collectionview",
+            "collection",
+            "view",
+            "subclass",
+            "configure",
+            "child",
+            "classes",
+            "use",
+            "same",
+            "provider"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/shared/state.md#L59",
+          "source": "docs/api/shared/state.md",
+          "heading": "Configure the StateApi",
+          "depth": 2,
+          "characters": 1028,
+          "score": 20.501048582691535,
+          "matchedTerms": [
+            "api",
+            "set",
+            "collectionview",
+            "collection",
+            "view",
+            "configure",
+            "classes",
+            "provider"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/collection-view.md#L7",
+          "source": "docs/api/collection-view.md",
+          "heading": "Render a collection",
+          "depth": 2,
+          "characters": 1789,
+          "score": 19.8902416157189,
+          "matchedTerms": [
+            "call",
+            "setdataapi",
+            "api",
+            "data",
+            "set",
+            "on",
+            "collectionview",
+            "collection",
+            "view",
+            "child",
+            "same"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/migration.md#L5",
+          "source": "docs/guides/migration.md",
+          "heading": "1. Replace installation and configure integrations",
+          "depth": 2,
+          "characters": 2950,
+          "score": 19.092502662858212,
+          "matchedTerms": [
+            "call",
+            "setdataapi",
+            "api",
+            "data",
+            "set",
+            "on",
+            "view",
+            "configure",
+            "classes",
+            "use",
+            "same",
+            "provider"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/shared/view-bindings.md#L108",
+          "source": "docs/api/shared/view-bindings.md",
+          "heading": "Class configuration",
+          "depth": 2,
+          "characters": 1978,
+          "score": 18.761402699133193,
+          "matchedTerms": [
+            "setdataapi",
+            "api",
+            "data",
+            "set",
+            "collectionview",
+            "collection",
+            "view",
+            "subclass",
+            "configure",
+            "classes",
+            "provider"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    },
+    {
+      "id": "reader-14",
+      "query": "I am putting a chart into a View. Which hooks should initialize it if it needs a connected element, and release it when the View ends?",
+      "expectation": "contract",
+      "expected": [
+        {
+          "source": "docs/guides/widgets.md",
+          "heading": "Match the control to the View lifecycle",
+          "facts": [
+            "Create or measure controls that require a connected element in `onAttach`, or `onDomRefresh`",
+            "Dispose or release bindings before the renderer replaces their elements.",
+            "Release terminal resources in `onBeforeDestroy`, even when the View was never attached."
+          ],
+          "id": "docs/guides/widgets.md#L44"
+        }
+      ],
+      "expectedRank": 1,
+      "top1ExpectedSection": true,
+      "top1ContainsRequiredEvidence": true,
+      "charactersBeforeExpectedSection": 0,
+      "returnedCharacters": 6692,
+      "hits": [
+        {
+          "id": "docs/guides/widgets.md#L44",
+          "source": "docs/guides/widgets.md",
+          "heading": "Match the control to the View lifecycle",
+          "depth": 2,
+          "characters": 1539,
+          "score": 24.29070750049865,
+          "matchedTerms": [
+            "chart",
+            "view",
+            "initialize",
+            "connected",
+            "element",
+            "release",
+            "ends"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/guides/existing-ui.md#L5",
+          "source": "docs/guides/existing-ui.md",
+          "heading": "Mount a View in a host-owned element",
+          "depth": 2,
+          "characters": 1882,
+          "score": 12.45531710430593,
+          "matchedTerms": [
+            "view",
+            "hooks",
+            "initialize",
+            "needs",
+            "element"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/existing-html.md#L37",
+          "source": "docs/guides/existing-html.md",
+          "heading": "Own the adopted element",
+          "depth": 2,
+          "characters": 696,
+          "score": 9.756030859175528,
+          "matchedTerms": [
+            "view",
+            "element",
+            "ends"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/application.md#L169",
+          "source": "docs/api/application.md",
+          "heading": "Lifecycle hooks and events",
+          "depth": 2,
+          "characters": 1513,
+          "score": 9.589949521908899,
+          "matchedTerms": [
+            "view",
+            "hooks",
+            "initialize"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/packages/adapters.md#L119",
+          "source": "docs/packages/adapters.md",
+          "heading": "Lit HTML",
+          "depth": 3,
+          "characters": 1062,
+          "score": 9.37921189882932,
+          "matchedTerms": [
+            "view",
+            "needs",
+            "element",
+            "release"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    },
+    {
+      "id": "reader-15",
+      "query": "What built-in @mnjs/data Model.save() API sends my changes to the server and synchronizes the response?",
+      "expectation": "boundary",
+      "expected": [
+        {
+          "source": "docs/integrations/setup.md",
+          "heading": "Observable data and API access",
+          "facts": [
+            "Use it alongside an API layer for fetching and persistence",
+            "Models and Collections do not provide an HTTP client, server synchronization, or a complete application data architecture."
+          ],
+          "id": "docs/integrations/setup.md#L47"
+        },
+        {
+          "source": "docs/api/view.md",
+          "heading": "Local interaction and feature coordination",
+          "facts": [
+            "With `@mnjs/data`, a local edit can instead call the application's API layer and update the model with `set`",
+            "the package supplies no persistence method."
+          ],
+          "id": "docs/api/view.md#L9"
+        }
+      ],
+      "expectedRank": 1,
+      "top1ExpectedSection": true,
+      "top1ContainsRequiredEvidence": true,
+      "charactersBeforeExpectedSection": 0,
+      "returnedCharacters": 24872,
+      "hits": [
+        {
+          "id": "docs/integrations/setup.md#L47",
+          "source": "docs/integrations/setup.md",
+          "heading": "Observable data and API access",
+          "depth": 2,
+          "characters": 1494,
+          "score": 20.69636013485872,
+          "matchedTerms": [
+            "built",
+            "mnjs",
+            "data",
+            "model",
+            "api",
+            "changes",
+            "server",
+            "response"
+          ],
+          "expectedSection": true,
+          "containsRequiredEvidence": true
+        },
+        {
+          "id": "docs/packages/data.md#L1",
+          "source": "docs/packages/data.md",
+          "heading": "Model and Collection (@mnjs/data)",
+          "depth": 1,
+          "characters": 18371,
+          "score": 19.617952622456144,
+          "matchedTerms": [
+            "mnjs",
+            "data",
+            "model",
+            "save",
+            "api",
+            "server"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/api/mnobject.md#L7",
+          "source": "docs/api/mnobject.md",
+          "heading": "Track draft changes",
+          "depth": 2,
+          "characters": 1117,
+          "score": 17.892461032099828,
+          "matchedTerms": [
+            "mnjs",
+            "data",
+            "model",
+            "save",
+            "api",
+            "changes",
+            "server"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/guides/local-editing.md#L1",
+          "source": "docs/guides/local-editing.md",
+          "heading": "Edit a View's own model",
+          "depth": 1,
+          "characters": 2810,
+          "score": 15.02642298843752,
+          "matchedTerms": [
+            "mnjs",
+            "data",
+            "model",
+            "save",
+            "api",
+            "changes"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        },
+        {
+          "id": "docs/agents.md#L44",
+          "source": "docs/agents.md",
+          "heading": "Make changes at the right boundary",
+          "depth": 2,
+          "characters": 1080,
+          "score": 14.573836393298585,
+          "matchedTerms": [
+            "mnjs",
+            "data",
+            "model",
+            "save",
+            "api",
+            "changes"
+          ],
+          "expectedSection": false,
+          "containsRequiredEvidence": false
+        }
+      ]
+    }
+  ]
+}

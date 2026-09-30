@@ -1,0 +1,96 @@
+{
+  "passed": true,
+  "sourceRevision": "b1a2b39e6bde6ce5605b0cfff00f9408652f4b39",
+  "sourceDirty": true,
+  "contentSha256": "f7d772bc0b5ae40c983454f80455011273215dbc298d514b18376bebf269005d",
+  "pages": 38,
+  "assets": 26,
+  "packages": [
+    {
+      "name": "@mnjs/utils",
+      "filename": "mnjs-utils-5.0.0-rc.2.tgz",
+      "sha256": "097e6dd5d79e92f93f445f5cfe99c37fe1a0ff852f69fd3eead274dd3c5a0991"
+    },
+    {
+      "name": "@mnjs/radio",
+      "filename": "mnjs-radio-5.0.0-rc.2.tgz",
+      "sha256": "61278cd903ba775d7443d350fd4836071f37017e4e608faedbfa370c67c87968"
+    },
+    {
+      "name": "marionette",
+      "filename": "marionette-5.0.0-rc.2.tgz",
+      "sha256": "7f2cdb2eeda736834e27d8d5883e4bb0434a8fab1b0bbfeb3fb9ed3147ce8e32"
+    },
+    {
+      "name": "@mnjs/data",
+      "filename": "mnjs-data-5.0.0-rc.2.tgz",
+      "sha256": "a5be1eafc04d1d13099eaeb65dfbc01506f50fa4ffa846757c5f2323fefe8306"
+    },
+    {
+      "name": "@mnjs/adapters",
+      "filename": "mnjs-adapters-5.0.0-rc.2.tgz",
+      "sha256": "0f1ae5180a770cc3b23dd942a2590aebc0e398a8ab41effd3175f866e07ed119"
+    }
+  ],
+  "discovery": [
+    "package resolution",
+    "list",
+    "search",
+    "section",
+    "page",
+    "diagnostic",
+    "symbol"
+  ],
+  "consumerTooling": {
+    "passed": true,
+    "checks": [
+      "documented lint configuration",
+      "public View interaction accepted",
+      "private framework access rejected",
+      "installed declarations accepted",
+      "invalid Region argument rejected",
+      "restored valid examples accepted",
+      "installed diagnostic lookup"
+    ],
+    "limits": "Checks package tooling and recipes, not browser behavior or architectural effectiveness."
+  },
+  "consumerTesting": {
+    "passed": true,
+    "tests": 5,
+    "checks": [
+      "local interaction",
+      "Region replacement and borrowed-model cleanup",
+      "async readiness and stop/destroy",
+      "failed readiness",
+      "superseded readiness",
+      "unmanaged model subscription mutation rejected"
+    ],
+    "limits": "JSDOM consumer recipe; does not prove browser behavior or reader effectiveness."
+  },
+  "typescriptGuide": {
+    "passed": true,
+    "examples": 4,
+    "compiler": "6.0.3",
+    "sourceSha256": [
+      "e0ee5c19f63348f5c5e5eae9e11f9b2d46f03d16e0bf0c73421ef13d99dc5063",
+      "7edcbc09a718a4be6c7a314ee750ccbaa0153bc2f9d07b2c8905f53b4f0f479d",
+      "649dfcb1eeeda8a90732f35beb495a8188ab2f0d3b818c06397bb67d71398590",
+      "b1348d500f5dfee53de87d75e58f62f765a5da304e957bd9f6c71bf2a3f16677"
+    ],
+    "checks": [
+      "actual guide fences compile with documented strict browser configuration",
+      "required initializer options cannot be omitted",
+      "DOM properties require target narrowing",
+      "optional model attributes require handling",
+      "provider registration does not narrow the View model",
+      "invalid initializer option rejected",
+      "preparation data is not the lifecycle operation result",
+      "restored examples compile"
+    ],
+    "limits": "Installed declaration and compiler checks; not runtime validation, browser behavior, or reader effectiveness."
+  },
+  "examplesExecuted": 46,
+  "typeFixtures": 20,
+  "typescriptExamples": 15,
+  "limits": "Local tarballs and JSDOM; not registry publication, live website, browser interaction, or teaching effectiveness."
+}

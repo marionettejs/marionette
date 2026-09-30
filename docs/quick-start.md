@@ -4,24 +4,17 @@ This guide targets Marionette 5.0.0-rc.2 with Node 24 or newer. The [documentati
 
 ## Obtain the development candidate
 
-These instructions use local candidate packages built from the same source as this documentation. Start in the Marionette repository checkout containing this page, using Node 24 or newer and the npm version in its `packageManager` field:
+Obtain the five matching `5.0.0-rc.2` candidate tarballs from the maintainer: `marionette`, `@mnjs/utils`, `@mnjs/radio`, `@mnjs/adapters`, and `@mnjs/data`. Put them together in a directory named `marionette-v5-artifacts` in your workspace. The packages are already built; you do not need a framework checkout.
 
-```sh
-npm ci --ignore-scripts
-npm run build
-mkdir -p ../marionette-v5-artifacts
-npm pack ./.package ./packages/utils ./packages/radio ./packages/adapters ./packages/data --ignore-scripts --pack-destination ../marionette-v5-artifacts
-```
-
-The build prepares `.package` with the runtime and its documentation. The pack command writes five versioned tarballs into the sibling `marionette-v5-artifacts` directory. Keep them together when moving the candidate to another machine.
+This guide uses supplied local artifacts. A registry installation path for this candidate has not been verified.
 
 ## Create the project
 
-From the same repository directory, create a sibling project:
+From the directory containing `marionette-v5-artifacts`, create the project beside it:
 
 ```sh
-mkdir ../marionette-example
-cd ../marionette-example
+mkdir marionette-example
+cd marionette-example
 npm init -y
 npm pkg set type=module scripts.dev="vite" scripts.build="vite build"
 npm install --ignore-scripts --save-exact ../marionette-v5-artifacts/marionette-5.0.0-rc.2.tgz ../marionette-v5-artifacts/mnjs-utils-5.0.0-rc.2.tgz ../marionette-v5-artifacts/mnjs-radio-5.0.0-rc.2.tgz ../marionette-v5-artifacts/mnjs-adapters-5.0.0-rc.2.tgz lit-html@3.3.3

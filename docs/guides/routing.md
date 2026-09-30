@@ -73,9 +73,107 @@ For path-based routing, configure the server to serve the application entry for 
 
 ## Route to asynchronous features
 
-When a destination needs readiness or multiple coordinated panels, let the navigation Application manage a child Application in the content Region. Await stopping the previous child before starting the next one, handle failed preparation, and define which navigation may still commit when requests overlap. Use the child's lifecycle signal to cancel preparation. Replacing its visible View alone does not end the child Application's lifetime.
+When a destination needs readiness, let the navigation Application manage a child Application in the content Region. This independent example expects `GET /pages/home.json` and `GET /pages/about.json` to return `{ "title": string, "body": string }`. It keeps the shell while stopping the previous child run, then replaces the content with loading, the ready page, or an error. These Views share one Region, so only one is visible.
 
-Choose where loading and errors belong and when the URL becomes authoritative. Keep these decisions in the navigation/feature owner. [Application composition](../api/application.md#child-applications) describes managed children; [consumer testing](testing.md) covers cancellation. This synchronous example does not establish an asynchronous transition or unsaved-change policy.
+```js
+import { Application, View } from 'marionette';
+import LitDomApi from '@mnjs/adapters/dom/lit-html';
+import { html } from 'lit-html';
+
+const ShellView = View.extend({
+  template: () => html`
+    <nav aria-label="Pages"><a href="#home">Home</a> <a href="#about">About</a></nav>
+    <main class="content"></main>`,
+  regions: { content: '.content' },
+}).setDomApi(LitDomApi);
+const MessageView = View.extend({
+  template: ({ title, body }) => html`<h1>${title}</h1><p role="status">${body}</p>`,
+}).setDomApi(LitDomApi);
+const ContentView = View.extend({
+  template: ({ title, body }) => html`<h1>${title}</h1><p>${body}</p>`,
+}).setDomApi(LitDomApi);
+const ErrorView = View.extend({
+  template: ({ message }) => html`
+    <h1>Could not load page</h1><p role="alert">${message}</p>
+    <button type="button" class="retry">Retry</button>`,
+  triggers: { 'click .retry': 'retry' },
+}).setDomApi(LitDomApi);
+
+const PageApplication = Application.extend({
+  async prepareStart({ route }, { signal }) {
+    const response = await fetch(`/pages/${route.slice(1)}.json`, { signal });
+    if (!response.ok) throw new Error('The page request failed.');
+    return response.json();
+  },
+  onStart(_app, _options, page) {
+    this.showView(new ContentView({ model: page }));
+  },
+});
+
+const NavigationApplication = Application.extend({
+  childApps: { page: PageApplication },
+  onStart() {
+    this.showView(new ShellView());
+    this.navigation = {};
+    this.onHashChange = () => {
+      this.navigationTask = this.showRoute();
+      this.navigationTask.catch(error => console.error(error));
+    };
+    window.addEventListener('hashchange', this.onHashChange);
+    this.onHashChange();
+  },
+  async showRoute() {
+    if (!this.isRunning() || !this.navigation) return false;
+    const route = window.location.hash || '#home';
+    if (route === this.currentRoute) return false;
+    this.currentRoute = route;
+    const navigation = this.navigation = {};
+    const isCurrent = () => this.isRunning() && this.navigation === navigation;
+    const child = this.getChildApp('page');
+    if (!await child.stop() || !isCurrent()) return false;
+    const region = this.getView().getRegion('content');
+    if (route !== '#home' && route !== '#about') {
+      region.show(new MessageView({ model: {
+        title: 'Page not found', body: 'Choose Home or About.',
+      } }));
+      return true;
+    }
+    region.show(new MessageView({ model: {
+      title: 'Loading page…', body: 'Please wait.',
+    } }));
+    try {
+      const started = await child.start({ region, route });
+      return started && isCurrent();
+    } catch (error) {
+      if (!isCurrent()) return false;
+      if (!await child.stop() || !isCurrent()) return false;
+      this.currentRoute = undefined;
+      const errorView = new ErrorView({ model: { message: error.message } });
+      this.listenTo(errorView, { retry: this.onHashChange });
+      region.show(errorView);
+      return false;
+    }
+  },
+  onBeforeStop() {
+    this.navigation = undefined;
+    this.currentRoute = undefined;
+    window.removeEventListener('hashchange', this.onHashChange);
+  },
+});
+
+const mount = document.createElement('div');
+document.body.append(mount);
+const app = new NavigationApplication({ region: { el: mount } });
+await app.start();
+```
+
+The URL selects the destination as soon as it changes. A failed request keeps that URL and shows an error View; Retry dispatches the current URL again. An unknown fragment shows a not-found View. Repeating a route that is loading or ready leaves it alone.
+
+The owner stops the outgoing child before starting the next destination. Only the newest navigation may continue after an await. The child's preparation signal cancels its request, and superseded preparation cannot activate even if the transport ignores abort. A rejected start is stopped before error presentation replaces its UI.
+
+`await app.start()` activates the shell; `navigationTask` tracks the separately started page transition. The child loads readiness data in `prepareStart` and renders it in `onStart`.
+
+Stop is unconditional here: `onBeforeStop` ends navigation authority and the Window subscription before child teardown. Stop destroys the shell; restart creates a fresh one and reads the current URL. Destroy also disposes the registered child. See [Application composition](../api/application.md#child-applications) and [consumer testing](testing.md).
 
 ## Check navigation
 

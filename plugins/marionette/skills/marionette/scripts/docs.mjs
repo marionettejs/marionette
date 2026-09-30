@@ -4,7 +4,7 @@ import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { searchSections } from './search.mjs';
 import { findSymbols, validateSymbolIndex } from './symbols.mjs';
 
-const usage = 'Usage: node docs.mjs [--project PATH] [--package-root PATH] [--list | --page SOURCE | --search QUERY | --section ID | --symbol NAME | --diagnostic MNxxxx]';
+const usage = 'Usage: node docs.mjs [--project PATH] [--package-root PATH] [--list | --page SOURCE [--section HEADING] | --search QUERY | --section SOURCE#ANCHOR | --symbol NAME | --diagnostic MNxxxx]';
 const hash = value => createHash('sha256').update(value).digest('hex');
 const json = async path => JSON.parse(await readFile(path, 'utf8'));
 
@@ -42,8 +42,11 @@ async function main() {
       const value = args[++index];
       if (!value || value.startsWith('--')) { throw new Error(usage); }
       if (['--page', '--search', '--section', '--symbol', '--diagnostic'].includes(argument)) {
-        if (mode) { throw new Error(usage); }
-        mode = argument.slice(2);
+        const nextMode = argument.slice(2);
+        const scopedSection = mode && !options[nextMode] &&
+          ((mode === 'page' && nextMode === 'section') || (mode === 'section' && nextMode === 'page'));
+        if (mode && !scopedSection) { throw new Error(usage); }
+        mode = scopedSection ? 'section' : nextMode;
       }
       options[argument.slice(2)] = value;
     } else {
@@ -153,8 +156,20 @@ async function main() {
       console.log(JSON.stringify({ ...provenance, query: options.search,
         results: searchSections(index.sections, files, options.search) }, null, 2));
     } else {
-      const section = index.sections.find(value => value.id === options.section);
-      if (!section) { throw new Error('Unknown section ID. Use --search against this installed artifact.'); }
+      if (options.page && !pageSources.has(options.page)) {
+        throw new Error('Page is not in this package manifest. Use --list to find its exact source path.');
+      }
+      const matches = index.sections.filter(value => options.page ? value.source === options.page &&
+        (value.id === options.section || value.heading === options.section ||
+          value.id.slice(value.id.indexOf('#') + 1) === options.section) :
+        value.id === options.section);
+      if (matches.length > 1) {
+        throw new Error(`Ambiguous section heading. Use --section with one exact ID: ${matches.map(value => value.id).join(', ')}`);
+      }
+      const section = matches[0];
+      if (!section) {
+        throw new Error('Unknown section ID or heading. Use --section SOURCE#ANCHOR or --page SOURCE --section "Heading". Use --search when the location is unknown.');
+      }
       console.log(JSON.stringify({ ...provenance, ...section }));
       console.log(files.get(section.source).content.toString('utf8').slice(section.start, section.end));
     }

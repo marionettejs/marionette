@@ -1108,8 +1108,8 @@
           "heading": "Binding helpers"
         },
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Building a component"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -1144,8 +1144,8 @@
           "heading": "Binding helpers"
         },
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Building a component"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -1770,6 +1770,14 @@
         {
           "file": "docs/api/application.md",
           "heading": "State and Radio"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Destination binding order"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Restart from start completion"
         }
       ],
       "tests": [
@@ -1832,6 +1840,22 @@
         {
           "file": "test/unit/application-restart-completion.spec.js",
           "title": "coalesces compatible restarts during both stop and start preparation with original options"
+        },
+        {
+          "file": "test/unit/application-start-region.spec.js",
+          "title": "waits for an adopted stop before binding a superseding start host"
+        },
+        {
+          "file": "test/unit/application-start-region.spec.js",
+          "title": "does not bind a new host when the stop phase fails"
+        },
+        {
+          "file": "test/unit/application-restart-completion.spec.js",
+          "title": "keeps a completed restart successful when its completion-triggered cycle fails"
+        },
+        {
+          "file": "test/unit/application-restart-completion.spec.js",
+          "title": "keeps a completed restart successful when its completion-triggered cycle is canceled"
         }
       ],
       "events": [
@@ -1886,8 +1910,7 @@
         "onDestroy"
       ],
       "documentation": {
-        "status": "partial",
-        "reason": "Lifecycle methods and cancellation are documented; exact destination-binding order after adopted stop preparation and restart reentry from completion hooks are not explained."
+        "status": "documented"
       }
     },
     {
@@ -2269,10 +2292,6 @@
           "heading": "Options and initialization"
         },
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Building a component"
-        },
-        {
           "file": "docs/packages/utils.md",
           "heading": "Component methods"
         }
@@ -2318,8 +2337,8 @@
           "heading": "Options and initialization"
         },
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -2361,8 +2380,8 @@
           "heading": "Binding helpers"
         },
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Building a component"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -2405,8 +2424,8 @@
           "heading": "Binding helpers"
         },
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Building a component"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [

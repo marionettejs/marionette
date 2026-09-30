@@ -1,0 +1,174 @@
+{
+  "passed": true,
+  "sourceRevision": "b1a2b39e6bde6ce5605b0cfff00f9408652f4b39",
+  "sourceDirty": true,
+  "contentSha256": "c91c223e4cf4956bc34450c48fd83ef6a59c44d903eceae81c1e69640e7e154a",
+  "pages": 38,
+  "assets": 26,
+  "packages": [
+    {
+      "name": "@mnjs/utils",
+      "filename": "mnjs-utils-5.0.0-rc.2.tgz",
+      "sha256": "097e6dd5d79e92f93f445f5cfe99c37fe1a0ff852f69fd3eead274dd3c5a0991"
+    },
+    {
+      "name": "@mnjs/radio",
+      "filename": "mnjs-radio-5.0.0-rc.2.tgz",
+      "sha256": "61278cd903ba775d7443d350fd4836071f37017e4e608faedbfa370c67c87968"
+    },
+    {
+      "name": "marionette",
+      "filename": "marionette-5.0.0-rc.2.tgz",
+      "sha256": "6085f4e5215b7e62e24524a7a505ee86b623f34e53c2cf8460075274a8bd7e12"
+    },
+    {
+      "name": "@mnjs/data",
+      "filename": "mnjs-data-5.0.0-rc.2.tgz",
+      "sha256": "a5be1eafc04d1d13099eaeb65dfbc01506f50fa4ffa846757c5f2323fefe8306"
+    },
+    {
+      "name": "@mnjs/adapters",
+      "filename": "mnjs-adapters-5.0.0-rc.2.tgz",
+      "sha256": "0f1ae5180a770cc3b23dd942a2590aebc0e398a8ab41effd3175f866e07ed119"
+    }
+  ],
+  "discovery": [
+    "package resolution",
+    "list",
+    "search",
+    "section",
+    "page",
+    "diagnostic",
+    "symbol"
+  ],
+  "consumerTooling": {
+    "passed": true,
+    "checks": [
+      "documented lint configuration",
+      "public View interaction accepted",
+      "private framework access rejected",
+      "installed declarations accepted",
+      "invalid Region argument rejected",
+      "restored valid examples accepted",
+      "installed diagnostic lookup"
+    ],
+    "limits": "Checks package tooling and recipes, not browser behavior or architectural effectiveness."
+  },
+  "consumerTesting": {
+    "passed": true,
+    "tests": 5,
+    "checks": [
+      "local interaction",
+      "Region replacement and borrowed-model cleanup",
+      "async readiness and stop/destroy",
+      "failed readiness",
+      "superseded readiness",
+      "unmanaged model subscription mutation rejected"
+    ],
+    "limits": "JSDOM consumer recipe; does not prove browser behavior or reader effectiveness."
+  },
+  "typescriptGuide": {
+    "passed": true,
+    "examples": 4,
+    "compiler": "6.0.3",
+    "sourceSha256": [
+      "e0ee5c19f63348f5c5e5eae9e11f9b2d46f03d16e0bf0c73421ef13d99dc5063",
+      "7edcbc09a718a4be6c7a314ee750ccbaa0153bc2f9d07b2c8905f53b4f0f479d",
+      "649dfcb1eeeda8a90732f35beb495a8188ab2f0d3b818c06397bb67d71398590",
+      "b1348d500f5dfee53de87d75e58f62f765a5da304e957bd9f6c71bf2a3f16677"
+    ],
+    "checks": [
+      "actual guide fences compile with documented strict browser configuration",
+      "required initializer options cannot be omitted",
+      "DOM properties require target narrowing",
+      "optional model attributes require handling",
+      "provider registration does not narrow the View model",
+      "invalid initializer option rejected",
+      "preparation data is not the lifecycle operation result",
+      "restored examples compile"
+    ],
+    "limits": "Installed declaration and compiler checks; not runtime validation, browser behavior, or reader effectiveness."
+  },
+  "quickStart": {
+    "schemaVersion": 1,
+    "passed": true,
+    "node": "v24.19.0",
+    "startedAt": "2026-09-30T09:44:15.290Z",
+    "commands": [
+      {
+        "command": "mkdir marionette-example\ncd marionette-example\nnpm init -y\nnpm pkg set type=module scripts.dev=\"vite\" scripts.build=\"vite build\"\nnpm install --ignore-scripts --save-exact ../marionette-v5-artifacts/marionette-5.0.0-rc.2.tgz ../marionette-v5-artifacts/mnjs-utils-5.0.0-rc.2.tgz ../marionette-v5-artifacts/mnjs-radio-5.0.0-rc.2.tgz ../marionette-v5-artifacts/mnjs-adapters-5.0.0-rc.2.tgz lit-html@3.3.3\nnpm install --ignore-scripts --save-dev --save-exact vite@8.3.0\n",
+        "sha256": "b2a212d02c69e94d1cbbdafa2aa972f7b1a04bfc6968d7d244423f243ffd57a4",
+        "cwd": ".",
+        "outputSha256": "9d0816dc9bb322905c5689dc9b1e2b4c365ddb03773d2712822cf700120afe93"
+      },
+      {
+        "command": "npm run build",
+        "sha256": "16c0e4305ac213dff39fc82b69b6e08aeeb8758e33cd72d7c409752a70e9f054",
+        "cwd": "marionette-example",
+        "outputSha256": "d75ea67e3cc8bc024ea3801815907c52439c44373e54d62d46d1e8bcef846fd3"
+      }
+    ],
+    "packages": [
+      {
+        "name": "marionette",
+        "version": "5.0.0-rc.2",
+        "file": "marionette-5.0.0-rc.2.tgz",
+        "sha256": "6085f4e5215b7e62e24524a7a505ee86b623f34e53c2cf8460075274a8bd7e12",
+        "integrity": "sha512-0deXl0yFue+q2RWAzx2A9g2xhkPlQszkUKO7zY+/D/tFK74FD4XlZgB5BWm04s3bkkJqatseT6wvKf4yfLv+XA==",
+        "installed": true
+      },
+      {
+        "name": "@mnjs/adapters",
+        "version": "5.0.0-rc.2",
+        "file": "mnjs-adapters-5.0.0-rc.2.tgz",
+        "sha256": "0f1ae5180a770cc3b23dd942a2590aebc0e398a8ab41effd3175f866e07ed119",
+        "integrity": "sha512-j3aPwbBntK8xRQVWAvwSHWHPIKbV3umPRERAl+ObLGDV3wXwiNHHeCQS0Jyd2h02x3QiZAdrRwk9gsxSl3/thg==",
+        "installed": true
+      },
+      {
+        "name": "@mnjs/data",
+        "version": "5.0.0-rc.2",
+        "file": "mnjs-data-5.0.0-rc.2.tgz",
+        "sha256": "a5be1eafc04d1d13099eaeb65dfbc01506f50fa4ffa846757c5f2323fefe8306",
+        "integrity": "sha512-osWjv0+bzrJM3iQT1PwS//rXwgHnczn/DiXCIDU1Lksd/GOe5PamVsKVV93I3AzYOKv0h24qYMqlckUy+AsFLQ=="
+      },
+      {
+        "name": "@mnjs/radio",
+        "version": "5.0.0-rc.2",
+        "file": "mnjs-radio-5.0.0-rc.2.tgz",
+        "sha256": "61278cd903ba775d7443d350fd4836071f37017e4e608faedbfa370c67c87968",
+        "integrity": "sha512-6NhAyW0An1LzJC/QFz2/J+SrddQH4Tma7KSM1YJhrqLz2KcBR2FguHU1E5XeD1XrWtjv3yxZLDPwBmTYysDoEg==",
+        "installed": true
+      },
+      {
+        "name": "@mnjs/utils",
+        "version": "5.0.0-rc.2",
+        "file": "mnjs-utils-5.0.0-rc.2.tgz",
+        "sha256": "097e6dd5d79e92f93f445f5cfe99c37fe1a0ff852f69fd3eead274dd3c5a0991",
+        "integrity": "sha512-Ya7X+vaBIq/H3dMTgwN5W66TLB/XVczfp3F+TsZbzWnN3507B5QnD8C7KCzV7t9aacX/Cptz6f/RoF/wIpF3QQ==",
+        "installed": true
+      }
+    ],
+    "browsers": [],
+    "stage": "complete",
+    "npm": "11.17.0",
+    "source": {
+      "quickStartSha256": "9a01001c583a26792e02b4b5df9259ee86c6f9bf9dcde5156dc38089af2f2637",
+      "htmlSha256": "eff73730e87fbbff0e03270e4e42394a189be7708487d2c25f01249bcf4dcdc5",
+      "javascriptSha256": "44bcff5e08de7a28825285de47281e061dae167b989d75603d8356343fafd813",
+      "harnessSha256": "1d18a2f12a5329a9c10704a6b0c824dacf1b4aaacf12c725389aaf5930020244",
+      "sourceRevision": "b1a2b39e6bde6ce5605b0cfff00f9408652f4b39",
+      "sourceDirty": true,
+      "contentSha256": "c91c223e4cf4956bc34450c48fd83ef6a59c44d903eceae81c1e69640e7e154a"
+    },
+    "lockSha256": "21202a635f14e808cfca1f1e52c2fce048a29e78a0c07d888e2bccf3e95ccafb",
+    "packageJsonSha256": "cccec63ab54a28a3aa931d066fb0a3686cca43d678f16323b9a631dfaaf4a861",
+    "bundleSha256": "15f68f6f84dea336170bbbaf11eba8d28f3ad5c76186152eb8c35d4c3c4adba3",
+    "finishedAt": "2026-09-30T09:44:21.263Z",
+    "limits": "Supplied local candidate bytes and documented consumer commands; browser execution was not requested. Does not verify registry publication, website deployment, or reader effectiveness."
+  },
+  "examplesExecuted": 48,
+  "typeFixtures": 20,
+  "typescriptExamples": 15,
+  "limits": "Local tarballs, JSDOM recipes and quick-start production build; not registry publication, live website, browser interaction, or teaching effectiveness."
+}

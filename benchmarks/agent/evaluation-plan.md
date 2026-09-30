@@ -66,22 +66,23 @@ Judge requested behavior and documented public contracts. Valid idiomatic soluti
 need not match a reference solution's structure. A task specifically requiring a
 Behavior or other named API is a contract exercise, not a neutral architecture test.
 Do not require unsupported synchronous recovery; apply the documented
-[synchronous failure boundary](../../docs/view.lifecycle.md#synchronous-failures).
+[synchronous failure boundary](../../docs/api/view.md#lifecycle-hooks-and-events).
 
 ### Check whether the teaching transfers
 
-Use the packaged skill and the complete
-[paginated feature](../../docs/application-composition.md#a-complete-paginated-feature)
-as public teaching material. In a separately frozen task, ask a fresh agent to
-build and then extend a paginated feed from behavioral requirements. Do not put
-the reference implementation or the architecture answer into hidden tests.
+Provide the version-matched [consumer documentation](../../docs/readme.md) and its
+normal discovery routes. In separately frozen tasks, ask fresh agents to build,
+extend, repair, and hand off features from behavioral requirements. Starters supply
+dependencies and evaluator plumbing, without authored application architecture.
+Do not put a reference implementation or an architecture answer into hidden tests.
 
-Review which class owns initial readiness, pagination/retry requests, observable
-status, child intent, and teardown. A `FeedView.loadPage` workflow needs an explicit
-architectural justification; aborting its request on View destruction is insufficient.
-A feature Application may own replacement requests without restarting itself.
-Evaluate parent-driven stop/destroy, direct source updates, stale requests, and
-an independent sibling editor as well as successful pagination.
+Review the lifetime and scope of initial readiness, active operations, shared state,
+child intent, and teardown. Application preparation establishes activation readiness;
+explicit operations handle active feature work. Local View interactions, including
+appropriate asynchronous work or model saves, may remain local. Judge ownership
+against the feature's required lifetime and coordination, rather than requiring one
+class everywhere. Include source updates, late results, stop/restart and independent
+features where the declared task requires them.
 
 Record both behavioral and composition outcomes. A solution resembling a recipe
 is not automatically idiomatic. A local executable reference and retrieval test

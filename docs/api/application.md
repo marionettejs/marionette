@@ -156,6 +156,10 @@ Stop keeps the destination Region reusable. Destroy disposes a Region built from
 
 `showView` can display UI while stopped without activating the Application. If an allowed missing Region selector skips a show, the prepared root remains the Application's cleanup responsibility; see the current [missing-selector limitation](region.md#showing-a-view).
 
+### Destination binding order
+
+Startup binds the requested Region before `before:start` and `prepareStart`, so both can read it through `getRegion()`. Omitting `region` or passing `undefined` keeps the current destination. Restart completes its stop phase before rebinding; a stop-phase failure leaves the current destination bound. A newer start or restart that [reuses pending stop preparation](#preparation-cancellation-and-failure) also waits for that preparation and child stops before rebinding, then passes its own options to startup.
+
 ## State and Radio
 
 State can be owned through `createState(options)` or borrowed through `state`; read it with `getState()`. Start/stop/restart retain the source. Declarative `stateEvents` deliver only while `isRunning()` is true; changes while stopped or preparing startup are not replayed. Ordinary `listenTo` subscriptions have their normal lifetime. See [state ownership and disposal](shared/state.md).
@@ -182,6 +186,10 @@ Each event dispatches its hook first, then subscribers, using [triggerMethod](sh
 Restart has no separate restart event: it uses stop/start phases. A stopped instance can skip its own stop notification phase while still cleaning up children and roots. `preinitialize` and `initialize` are constructor hooks, not lifecycle events.
 
 Inherited APIs are documented once in [common methods](shared/common.md), [events](shared/events.md), and [state](shared/state.md). Their methods remain available on Application; unlike View/Region, Application destruction is asynchronous.
+
+### Restart from start completion
+
+Compatible `restart()` calls share a Promise during stop and startup preparation; sharing ends before `onStart` and `start` subscribers run. Calling `restart(nextOptions)` from `onStart` or a `start` subscriber begins a separate stop/start cycle with its own options and Promise, which the caller must handle. The completed outer restart resolves `true` even if that new cycle later fails or is superseded: its result describes the run it completed.
 
 ## TypeScript
 

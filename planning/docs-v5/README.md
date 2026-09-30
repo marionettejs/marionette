@@ -4,6 +4,25 @@ The rebuild is organized around Marionette's public API and reader needs. The re
 
 ## Current work
 
+- [RC2 preparation and stable-release evidence](../rc2-readiness.md)
+- [Repeated build/maintenance comparison](reader-comparison-v3-results.md): all
+  required behavior passed; maintenance improved in both repetitions, while build
+  efficiency remains mixed. This pilot does not establish the stable usability gate.
+
+- [Entry and retrieval efficiency](efficiency-results.md): shorter entry guidance,
+  repaired section lookup and mixed independent reading results. Expansion is paused;
+  consistent time/cost improvement remains unestablished.
+
+- [Frozen reader comparison and exact delivery preparation](reader-preparation-results.md)
+
+- [Quick-start acquisition results](acquisition-results.md)
+
+- [Async navigation and local draft/save results](workflow-results.md)
+
+- [Comparison follow-up checklist](follow-up-checklist.md): retrieval baseline,
+  runtime integration, symbol lookup, reference and workflow gaps, onboarding,
+  delivery and fresh-reader validation. Includes the [progress reassessment](follow-up-checklist.md#progress-reassessment-after-step-5).
+
 - [Tooling, agent distribution and delivery integration](tooling-delivery-results.md)
 
 - [Completeness, consistency and architecture audit](completeness-results.md)
@@ -45,4 +64,14 @@ Each milestone reports coverage, accuracy, findability, architecture, usability,
 
 Stage numbers in these records refer to the earlier example-led sequence. The current plan uses named work areas. Evidence belongs to the revision or hashes recorded with it; later edits do not refresh previous test or reviewer results.
 
-Keep this planning directory outside the docs supplied to evaluated agents. Only consumer guidance belongs in published/package docs. The production publisher migration and controlled teaching-effectiveness runs remain separate work.
+Keep this planning directory outside the docs supplied to evaluated agents. Only consumer guidance belongs in published/package docs. Publication/deployment validation and broader reader-effectiveness claims remain separate work.
+
+## Frozen reader pilot
+
+[First-cohort results](reader-comparison-results.md) preserve one passing pair,
+one partial accounting stop and three unstarted cells.
+[Second-cohort results](reader-comparison-v2-results.md) record the four newly
+authorized attempts: both remaining task pairs pass required behavior, API and
+applicable ownership criteria, with two explanation-delivery issues recorded.
+Final accounting is complete. The cohorts remain separate; the corpus is unchanged
+and improved reader effectiveness is unestablished.

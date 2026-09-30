@@ -6,6 +6,12 @@ The JSON in `config/api-contracts/` is maintainer verification metadata. It is
 excluded from consumer documentation resources and never imported by production
 modules.
 
+The documentation exporter derives `docs-symbols.json` from these records and the
+consumer section index. It contains signatures and links to canonical reference
+sections for the installed lookup helper. The exporter checks the semantic digest;
+the inventory checker verifies source and evidence drift. Partial documentation
+groups remain partial; an index link does not complete their coverage.
+
 - [inventory.json](../../config/api-contracts/inventory.json) derives exports, signatures, inherited public
   methods, constructor options, child-query protocols and emitter sites from the
   authored TypeScript that generates the package declarations. `kind` distinguishes

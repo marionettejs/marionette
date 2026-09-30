@@ -1,0 +1,498 @@
+{
+  "schema_version": 1,
+  "checked_utc": "2026-09-30T13:46:19.611479+00:00",
+  "author_safe": true,
+  "live_reader_requests": 0,
+  "task_qualification": {
+    "schema_version": 1,
+    "qualified_utc": "2026-09-30T13:29:48.045095+00:00",
+    "tasks": 3,
+    "reader_models_launched": 0,
+    "single_phase": true,
+    "candidate_workspaces": 3,
+    "docker_positive_controls": 3,
+    "docker_negative_controls": 3,
+    "required_behavior_cases": 29,
+    "private_specification_diagnostics": 5,
+    "positive_required_passed": 29,
+    "positive_diagnostics_passed": 5,
+    "negative_intended_failures": 3,
+    "timeouts": 0,
+    "cleanup_failures": 0,
+    "private_verifier_readonly": true,
+    "network": "none",
+    "runtime_version": "5.0.0-rc.2",
+    "reservation_files_verified": 151,
+    "reservation_mismatches": 0,
+    "reservation_manifest_sha256": "07228243b5d15bea762bc72d9e2f4d6b36bc7a5c790688f321b6715726ddddc6",
+    "raw_docker_controls": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/tasks/docker-results/20260930T132135595607Z",
+    "interface": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/tasks/interface.json",
+    "policy_and_api_assessment": "Separate source/manual assessment; behavior checks do not grade class hierarchy or documented diagnosis.",
+    "limitations": [
+      "5 exact private acceptance requirements absent from brief/seed are isolated diagnostics excluded from required behavior status.",
+      "Initial shared-dependency setup error artifacts were overwritten during early development; status and example stack remain in tool transcript. Final six Docker control raw outputs, reports and cleanup records are durable.",
+      "Host alternatives qualified independently by audit; separate architecture assessment pending candidate snapshots."
+    ]
+  },
+  "task_summary_sha256": "b134567511c803c193abb85b8700bdbee8672c90f48313fa76ba1b262e2d1bf5",
+  "task_freeze_sha256": "0307da53b874a7ece5f431658aeceb12aa08f771b3b0cc1b1fc125554a1a6f2b",
+  "runner_and_isolation": "qualified; independent final audit passed",
+  "consumer_authoring_frozen": true,
+  "runner_qualification": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "build builtin tools/settings disabled",
+        "passed": true
+      },
+      {
+        "name": "build exact allowlist",
+        "passed": true
+      },
+      {
+        "name": "build prohibited rejected and counted",
+        "passed": true
+      },
+      {
+        "name": "extension builtin tools/settings disabled",
+        "passed": true
+      },
+      {
+        "name": "extension exact allowlist",
+        "passed": true
+      },
+      {
+        "name": "extension prohibited rejected and counted",
+        "passed": true
+      },
+      {
+        "name": "cumulative allowance passed to extension",
+        "passed": true
+      },
+      {
+        "name": "cumulative totals persist",
+        "passed": true
+      },
+      {
+        "name": "tool exhaustion rejects beyond35 and stops",
+        "passed": true
+      },
+      {
+        "name": "interrupted missing estimate retained unknown",
+        "passed": true
+      },
+      {
+        "name": "missing accounting blocks",
+        "passed": true
+      },
+      {
+        "name": "wrong model blocks",
+        "passed": true
+      },
+      {
+        "name": "unknown response identity blocks",
+        "passed": true
+      },
+      {
+        "name": "resolved dated sonnet identity accepted",
+        "passed": true
+      },
+      {
+        "name": "used_tools exhausted cannot reset",
+        "passed": true
+      },
+      {
+        "name": "used_seconds exhausted cannot reset",
+        "passed": true
+      },
+      {
+        "name": "used_estimate exhausted cannot reset",
+        "passed": true
+      },
+      {
+        "name": "model stops with five cells unstarted",
+        "passed": true
+      },
+      {
+        "name": "accounting stops with five cells unstarted",
+        "passed": true
+      },
+      {
+        "name": "cleanup stops with five cells unstarted",
+        "passed": true
+      },
+      {
+        "name": "behavioral failures do not abort six cells",
+        "passed": true
+      },
+      {
+        "name": "35th admitted allowed call completes",
+        "passed": true
+      },
+      {
+        "name": "35 admitted calls allow final response",
+        "passed": true
+      },
+      {
+        "name": "real worker wall watchdog kills client",
+        "passed": true
+      },
+      {
+        "name": "wall interruption accounting unknown blocks",
+        "passed": true
+      },
+      {
+        "name": "actual response revision drift stops batch",
+        "passed": true
+      },
+      {
+        "name": "revision drift preserves four unstarted cells",
+        "passed": true
+      },
+      {
+        "name": "actual container final dependency and docs vector matches",
+        "passed": true
+      },
+      {
+        "name": "candidate mutation of docs stops and invalidates",
+        "passed": true
+      },
+      {
+        "name": "vector qualification cleans container",
+        "passed": true
+      },
+      {
+        "name": "memory disable env forwarded to real stub client",
+        "passed": true
+      },
+      {
+        "name": "pinned native client recognizes both memory context flags",
+        "passed": true
+      },
+      {
+        "name": "actual response revision drift stops batch",
+        "passed": true
+      },
+      {
+        "name": "revision drift preserves four unstarted cells",
+        "passed": true
+      },
+      {
+        "name": "mismatched attempted cell preserves partial source before removal",
+        "passed": true
+      }
+    ],
+    "checks_count": 35,
+    "live_reader_requests": 0,
+    "stub_only": true,
+    "limits": {
+      "tool_calls": 35,
+      "seconds": 1500,
+      "cli_estimated_usd": 1.5
+    },
+    "total_admitted_requests": 35,
+    "over_limit_request": "rejected and logged; cannot execute",
+    "provider_billing_ceiling": false,
+    "commands": [
+      "python3 /Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner/qualify.py",
+      "python3 /Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner/qualify_extra.py",
+      "python3 /Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner/qualify_vector.py",
+      "python3 /Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner/qualify_preservation.py"
+    ],
+    "source_sha256": {
+      "launcher.py": "944d40a78033e54c9ca5ffa1a85b0690018f698a7d469696c8cc399e8e007ba6",
+      "bridge.py": "dd25c5d9154156eb0a4db91e46e9bbb7e847e5e11aec3857185783de6ee28602",
+      "qualify.py": "d2fda5a816b384c2248e13348a1808436545a5d8ddaaa73b8923c50709d4d90b",
+      "qualify_extra.py": "537028012744fc6e22bfb27f725dd94345589952824543a5232fa2ea34121df8",
+      "qualify_vector.py": "9c6ded3adbb062826b84f05cda1a7952132b34cb04484cdd88d4ea33e2786b2d",
+      "stub_client.py": "96609790bac89469d7d69e3e318974bd0274e4d7cc2c6a2ac96249fa32224a57",
+      "runtime_src/scripts/run_signed_in_claude.py": "4025ff2985b027661f80b5782dd28d3457a96308f6edec98ac730b620b35f0b9",
+      "runtime_src/scripts/candidate_mcp.py": "cfc5d3345d4c54855533b9cf49c17581c909899e195177af35f569cca61f26a1",
+      "qualify_preservation.py": "8bf5c7d8db28674f718ab4826759b3bec4aa7760ceebc4e90d66d7404d40a129"
+    },
+    "final_source_change": "Added final dependency/doc integrity comparator and native client memory disable environment; reran underlying27checks and qualified actual vector/memory additions.",
+    "freeze_binding_note": "Final preservation fix captures safely stopped partial source in finally before removal; final input hashes refreshed."
+  },
+  "alternative_controls": {
+    "author_safe": true,
+    "route": "same_networkless_private_verifier_container",
+    "launcher_sha256": "dfebb837020407f0f03b2d9ce77c7fd19ffe3bb58a96fe70513d66d38f57f8d4",
+    "records": [
+      {
+        "task": "01",
+        "exit_code": 0,
+        "status": "pass",
+        "required_pass": 9,
+        "required_fail": 0,
+        "diagnostics": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0
+        },
+        "snapshot_sha256": "e38bff6c13afba3d40fc417bce532c4b72ae47cae68b382f513b3ae9dab36633",
+        "verifier_cleanup": {
+          "exit_code": 0
+        },
+        "command": [
+          "python3",
+          "import launcher; launcher.grade_snapshot(task,snapshot,directory)"
+        ]
+      },
+      {
+        "task": "02",
+        "exit_code": 0,
+        "status": "pass",
+        "required_pass": 13,
+        "required_fail": 0,
+        "diagnostics": {
+          "passed": 3,
+          "failed": 0,
+          "unverified": 2
+        },
+        "snapshot_sha256": "6890fe909e3241069a31d2ff84a9acfec6d6c1b2992e8abe7eb5237ee397bd23",
+        "verifier_cleanup": {
+          "exit_code": 0
+        },
+        "command": [
+          "python3",
+          "import launcher; launcher.grade_snapshot(task,snapshot,directory)"
+        ]
+      },
+      {
+        "task": "03",
+        "exit_code": 0,
+        "status": "pass",
+        "required_pass": 7,
+        "required_fail": 0,
+        "diagnostics": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0
+        },
+        "snapshot_sha256": "4720dc487ddc482515c14d85947676c21c7d9cd851c9e0c6d08a58905cdd145e",
+        "verifier_cleanup": {
+          "exit_code": 0
+        },
+        "command": [
+          "python3",
+          "import launcher; launcher.grade_snapshot(task,snapshot,directory)"
+        ]
+      }
+    ],
+    "live_reader_requests": 0
+  },
+  "execution_freeze": {
+    "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner/freeze.json",
+    "sha256": "d6eb0201fe9f3fe4dbf2d3bcf8d210140fcaf6a5852a2c96326177d844e8444f",
+    "bound_inputs": 82,
+    "cells": 6
+  },
+  "independent_audit": {
+    "schema_version": 2,
+    "author_safe": true,
+    "created_utc": "2026-09-30T13:45:34.717524+00:00",
+    "gate": "qualified_for_authorized_six_cell_pilot",
+    "open_blockers": [],
+    "command": [
+      "python3",
+      "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/audit/finalize_audit.py"
+    ],
+    "audit_script_sha256": "2410c9fb7f6a7e2c51cf284572ec5a08a98fd19b32fb0fa02eafd72ff2ec447f",
+    "execution_freeze": {
+      "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner/freeze.json",
+      "sha256": "d6eb0201fe9f3fe4dbf2d3bcf8d210140fcaf6a5852a2c96326177d844e8444f"
+    },
+    "launcher": {
+      "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner/launcher.py",
+      "sha256": "944d40a78033e54c9ca5ffa1a85b0690018f698a7d469696c8cc399e8e007ba6"
+    },
+    "task_freeze": {
+      "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/tasks/task-freeze.json",
+      "sha256": "0307da53b874a7ece5f431658aeceb12aa08f771b3b0cc1b1fc125554a1a6f2b"
+    },
+    "qualification": {
+      "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner/qualification.json",
+      "sha256": "b653186f276776cf4944c8cb24f7887db57e3231d1822cac859790a42f08fb48"
+    },
+    "checks": [
+      {
+        "name": "execution freeze exact requested identity",
+        "passed": true
+      },
+      {
+        "name": "all execution bound inputs unchanged",
+        "passed": true,
+        "count": 82
+      },
+      {
+        "name": "01-01-original complete input vector and prompt match",
+        "passed": true,
+        "count": 2036
+      },
+      {
+        "name": "02-01-revised complete input vector and prompt match",
+        "passed": true,
+        "count": 1989
+      },
+      {
+        "name": "03-02-revised complete input vector and prompt match",
+        "passed": true,
+        "count": 1989
+      },
+      {
+        "name": "04-02-original complete input vector and prompt match",
+        "passed": true,
+        "count": 2036
+      },
+      {
+        "name": "05-03-original complete input vector and prompt match",
+        "passed": true,
+        "count": 2035
+      },
+      {
+        "name": "06-03-revised complete input vector and prompt match",
+        "passed": true,
+        "count": 1988
+      },
+      {
+        "name": "six single phase cells no invented extension",
+        "passed": true
+      },
+      {
+        "name": "task qualification freeze unchanged",
+        "passed": true,
+        "count": 30
+      },
+      {
+        "name": "qualified runner tests source hash bound",
+        "passed": true,
+        "count": 35
+      },
+      {
+        "name": "whole candidate filesystem and cleanup qualification",
+        "passed": true
+      },
+      {
+        "name": "independent variants through same verifier route",
+        "passed": true,
+        "count": 3
+      },
+      {
+        "name": "independent preserved brief seed runtime helper checks",
+        "passed": true,
+        "count": 21
+      },
+      {
+        "name": "all original freeze hashes unchanged",
+        "passed": true,
+        "count": 490
+      },
+      {
+        "name": "private task lookup fit executed through common tools",
+        "passed": true,
+        "count": 30
+      }
+    ],
+    "acceptance": {
+      "qualified_positive_controls": 3,
+      "qualified_negative_controls": 3,
+      "positive_required_case_passes": 29,
+      "isolated_specification_diagnostics": 5,
+      "independent_alternative_controls": 3,
+      "independent_required_case_passes": 29,
+      "negative_controls": "each triggers its intended required observable failure",
+      "api_contract_and_policy": "unverified until separate source/manual assessment; no functional pass is a policy grade"
+    },
+    "prompt": {
+      "source": "unchanged reserved public brief and Reader seed plus neutral public submission interface",
+      "evaluator_acceptance_and_policy_notes": "excluded",
+      "task_specific_seed_source": "unchanged frozen reservation input",
+      "new_architecture_starter": "none",
+      "single_phase": true
+    },
+    "limits": {
+      "tool_calls": 35,
+      "seconds": 1500,
+      "cli_estimated_usd": 1.5
+    },
+    "total_cli_estimate_usd": 9,
+    "requested_model": "claude-sonnet-5",
+    "effort": "high",
+    "assessor": {
+      "identity": "/root/qualification_audit",
+      "consumer_author": false,
+      "exposure": "read frozen reserved task requirements, private criteria and controls during qualification",
+      "blinding": "condition setup known; later opaque source review before retrieval join; code can reveal condition"
+    },
+    "resolved_findings": [
+      "private evaluator notes removed from prompts",
+      "alternate revised generated indexes removed from shared runtime",
+      "runtime sanitizer preserves executable dependency files",
+      "cleanup timing accepts equivalent public lifecycle hooks",
+      "borrowed accepted-state alternatives allowed",
+      "retained presentation toolbar and serialized refresh alternatives allowed",
+      "diagnostic-only cases isolated from required outcomes",
+      "host candidate execution replaced by networkless verifier container",
+      "ordinary candidate failure preserves six-cell attempt sequence",
+      "35th admitted call can complete with final response",
+      "cumulative budgets and missing accounting fail closed",
+      "model identity drift stops and preserves partial source/unstarted cells",
+      "final installed dependency/doc vector detects mutation"
+    ],
+    "evidence": [
+      {
+        "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/audit/frozen-input-check.json",
+        "sha256": "cc070835422e1cfc2c60a9a259f4d340e392b04dd76e9c691876d9602b3c63f1"
+      },
+      {
+        "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/audit/private-input-check.json",
+        "sha256": "ab8db95bb0e683875fccc26d28eb16b81b525d650d78444bc12e7e6c1074274e"
+      },
+      {
+        "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/audit/docker-alternatives/summary.json",
+        "sha256": "885a474ad44b0679b0c22108503a47c8c05c63d6bfcbfe5c2c41f5885fb2ce85"
+      },
+      {
+        "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/audit/private-lookup-fit/author-safe-summary.json",
+        "sha256": "3162a8e5dba57d7eb57b904c05b5078375ac12746db49bc0c5b2b039f02c179c"
+      },
+      {
+        "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner/candidate-audit/report.json",
+        "sha256": "c05bd9f6fdef9fd0be548c5aac98c517f59d061fbc530264680d9924ccb3c160"
+      },
+      {
+        "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner/candidate-audit/readable-visible-files.sha256",
+        "sha256": "61fd410ec56864955beabd6ffb7ef0aea51c9d25e8b2f24ec3bc995c7a8eed3e"
+      }
+    ],
+    "limitations": [
+      "descriptive three-pair pilot; no significance or framework-wide effectiveness claim",
+      "task author saw revised API wording before reservation",
+      "current runtime embedded JSDoc/declarations/maps/error text common to both conditions",
+      "CLI estimate is not provider billing or token ceiling",
+      "model availability and actual response identity remain runtime checks; unavailable revision and temperature are unknown",
+      "pinned client context-disable flags recognized and passed, but persistent sign-in/default client state and internal retries not independently proven absent",
+      "grader and submission share JS process; source authenticity/evidence-tampering assessment required, no adversarial integrity claim",
+      "some early development setup failures preceded immutable archives; official control raw evidence complete",
+      "task lookup fit is representative not exhaustive or reader relevance evidence"
+    ],
+    "audit_live_reader_requests": 0,
+    "audit_model_judge_requests": 0
+  },
+  "independent_audit_sha256": "3de06535276b7e5e918e75da5c784d672f9a585bff56a073bceec725f80c1a40",
+  "authorization": {
+    "recordedUtc": "2026-09-30T13:11:06.971804+00:00",
+    "userInstruction": "ok use subagents and do this",
+    "scope": "Qualify tasks and isolation/cumulative budgets, then six matched attempts described in immediately preceding next-step response and active protocol. Consumer docs remain frozen.",
+    "requestedModel": "claude-sonnet-5",
+    "effort": "high",
+    "attempts": 6,
+    "maxToolsPerAttempt": 35,
+    "maxSecondsPerAttempt": 1500,
+    "maxCliEstimatedUsdPerAttempt": 1.5,
+    "maxCliEstimatedUsdTotal": 9,
+    "providerBillingCeiling": false,
+    "replacements": 0,
+    "launchGate": "Controls, isolation, accounting and independent audit qualified; stop batch on protocol integrity failure."
+  }
+}

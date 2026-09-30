@@ -63,3 +63,76 @@ A real consumer migration, reserved fresh-reader comparison and the two disclose
 The website's instruction/reference corrections are committed as `265ae2f439461a8bf562f9e1262690b3bbb43146`. The rc.2 library snapshot is unchanged. Installed-document paths distinguish the rebuilt root layout from the existing rc.1 runtime. Workshop API questions now use the immutable rc.1 reference, and TodoMVC has a distinct lists-guide link. The release runbook removes obsolete maintainer-corpus and manual-deployment instructions and records the coordinated runtime/vendor/provenance upgrade and registry-backed publication gate.
 
 [Follow-up verification](evidence/tooling-review-followup.json): Node 24.19.0; 88 full tests and complete MCP parity passed against the committed website head. Full workshop and standalone personal preview/export browser checks passed. Runtime pins and candidate publication status remain unchanged. The historical `marionettejs-website-v5` checkout was preserved; its broken Git pointer is not the integration source.
+
+## Exact-symbol lookup restoration
+
+Checklist step 3, 2026-09-30. Six supplemental semantic references pointed to the
+excluded utilities README. They now name the canonical consumer utility contract;
+the already-present duplicate reference was removed. The derived inventory was
+regenerated and checked against source and behavioral anchors. No runtime source,
+signature or coverage disposition changed.
+
+The normal exporter now generates and hashes `docs-symbols.json` beside the section
+index. It checks the canonical semantic digest before generating the index. Raw
+inventory/semantics metadata remains build input and is excluded from consumer
+resources. The new asset contains 131 exports, 56 contract groups and all nine
+runtime entrypoints. The two existing partial groups remain partial: Application
+binding/reentry detail and a complete custom immutable-store integration. Index
+presence does not close those reference gaps or imply complete public API teaching.
+
+Agent guidance and both skill copies expose `--symbol`. Exact public export names
+are used, including `default` for adapter entrypoints; local import names such as
+`BackboneApi` are not invented aliases. Shared exports/member names report matches
+with their entrypoint so the reader can distinguish them. Existing `--section`
+retrieves the referenced answer. Natural-language ranking was not changed.
+
+### Checks actually run
+
+| Check | Result |
+| --- | --- |
+| Inventory check before and after metadata edits | Passed; 54 documented groups, 2 partial |
+| Real export, provenance, module closure and stale semantic metadata | 7 tests passed |
+| Lookup, retrieval and discovery | 30 tests passed |
+| Inventory generator and evidence drift | 10 tests passed |
+| Normal package staging | Passed; 38 consumer pages, 26 supporting assets |
+| Fresh installed tarballs | Passed: symbol queries, section reads, core type member, data/utils/Radio methods, all five adapter defaults, shared-member ambiguity, unknown symbols and absent native `Model.save()` |
+| Existing installed consumer recipes | 46 executable documentation fences, 20 type fixtures, 15 TypeScript examples plus tooling/testing/TypeScript guide checks passed |
+| Affected JavaScript lint and diff whitespace | Passed |
+
+The [installed report](evidence/symbol-installed-report.json) records package tarball
+hashes and content digest
+`f7d772bc0b5ae40c983454f80455011273215dbc298d514b18376bebf269005d`.
+Its source revision is `b1a2b39e6bde6ce5605b0cfff00f9408652f4b39` with
+`sourceDirty: true`; these are local working changes, not a newly committed release.
+
+An independent subagent reviewed the runtime scope and symbol restoration. It
+verified real-metadata generation, every export lookup across nine entrypoints,
+skill parity and metadata exclusion. Review and parent test runs caught an initial
+raw-versus-canonical digest mismatch and tests that used an adapter's local import
+name; both were corrected before the successful final runs. No alias or ranking
+exception was added.
+
+This validates local package delivery and exact lookup, not a live website/MCP
+import, registry release or improved reader outcomes. Runtime scope is recorded in
+the [integration disposition](evidence/runtime-integration-scope.md). Next is
+natural-language ranking against the preserved retrieval baseline. Later delivery
+validation must refresh the website snapshot and its asset count/digest from the
+new artifact; the earlier website evidence remains attached to its older snapshot.
+
+## Section ranking follow-up
+
+Checklist step 4 is complete. The [same-corpus comparison](evidence/ranking-comparison-20260930/README.md)
+records the own-text scorer, fixed BM25/heading/ancestor weights, unchanged frozen
+questions, gains, misses and older-query regressions. Canonical and plugin helpers
+match. 37 focused checks and fresh installed-package validation passed on the final
+bytes; the report records current artifact hashes. Claude review led to deterministic
+identifier expansion, order-independent section boundaries and stronger generic tests.
+
+These exposed retrieval cases do not establish improved fresh-reader application
+outcomes. Consumer prose was not changed for the comparison. Website/MCP ranking and
+snapshot alignment remain separately scoped delivery work. Next is the bounded
+Application reference detail, without further tuning of these questions.
+
+## Frozen comparison delivery refresh
+
+The [step-8 preparation result](reader-preparation-results.md) pins the current 38-page/26-asset consumer corpus, refreshes the local website/MCP from exact frozen bytes, and defines the upstream-v5 comparison under common reader tooling. Final affected website tests, HTTP reads, transport parity, rendered search and local Worker compilation passed. Publication and reader-effectiveness gates remain open; the original search-artifact failure and unresolved producer cause are retained in its evidence.

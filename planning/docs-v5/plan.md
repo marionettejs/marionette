@@ -4,10 +4,15 @@ Updated 2026-09-30. The six core class references and runtime/provider contracts
 
 ## Completion sequence
 
+The [comparison follow-up checklist](follow-up-checklist.md) is the current bounded
+queue after the completed coverage and delivery slices. The frozen retrieval baseline, runtime scope review, symbol lookup restoration and
+ranking comparison are complete. Finish the bounded reference/workflow and onboarding
+items, then freeze fresh-reader validation before further expansion.
+
 1. **Delivery and discovery:** migrate ordinary documentation export/build/package checks to the replacement corpus and provide a short, version-matched agent entrypoint. Verify actual package contents and reading paths. Keep planning, evaluation evidence, and test starters out of the consumer artifact.
 2. **Supported reference:** complete `@mnjs/data`, then Radio, standalone utilities, adapters, errors, consumer lint, and relevant TypeScript contracts. Audit members against source and declarations; keep conflicts explicit instead of silently changing the framework.
 3. **Practical guidance:** address local edits and observable updates, retained refresh, navigation, existing HTML, lists, widget integration, testing/debugging, accessibility, and migration. Use focused independent examples, selected from reader needs. Keep the records lesson bounded.
-4. **Actionable tooling:** verify documented lint, type checking, diagnostic lookup, and example commands from a consumer installation. Document their actual limits. Exact-symbol retrieval needs rebuilt contract mappings before it can be advertised against this corpus.
+4. **Actionable tooling:** verify documented lint, type checking, diagnostic lookup, and example commands from a consumer installation. Document their actual limits. Installed exact-symbol retrieval now uses the rebuilt contract mappings; its generation and consumer lookup checks are recorded in the follow-up checklist.
 5. **Release acceptance:** review the whole map, validate the installed package and site artifact, then evaluate reserved lookup, greenfield, extension, and debugging tasks. Record behavior and architecture separately. Greenfield tasks provide requirements, HTTP contracts, dependencies, tooling, and an HTML mount, with no authored application JavaScript. Freeze scope and budget before paid runs.
 
 The [first parallel slice](delivery-data-results.md) delivered canonical package/site checks, agent discovery, and `@mnjs/data`. Separate file ownership kept authoring independent; integration checks ran serially because they share generated output. The [second parallel slice](validation-radio-results.md) adds Radio, simplifies onboarding, and migrates contract and documentation-fixture validation. It records retired sample coverage explicitly. The [third parallel slice](tooling-utils-results.md) completes utilities/errors references and consumer-tooling recipes, closes the two recorded Lit/list integration gaps, and fixes the public-test policy failure. Remaining API families, partial semantic groups, and practical guides follow the inventory before release acceptance. Completion means supported contracts are accounted for, common workflows are teachable, distribution and feedback tools work, and representative independent reader outcomes have evidence. Passing checks alone do not certify best-in-class teaching.
@@ -119,18 +124,13 @@ Record the source/package revision, docs revision, scaffold revision, model and 
 
 ## Controlled pilot
 
-Compare two conditions with the same scaffold, available tools, installed-package discovery mechanism, and task requirements:
+Compare the frozen upstream v5 consumer documentation at `74534f719e9ae6bf00fb6061e9f8cb712e92e2ef` with the frozen rebuilt documentation. Use the same runtime/declaration bytes, dependencies, initial files, model, available tools and task requirements. The [reader comparison protocol](reader-comparison-protocol.md) owns exact snapshot identities, execution limits and qualification gates.
 
-A. Task-relevant API reference.
-B. The same reference contracts plus architecture guidance, examples, and their natural navigation.
+Hold the documentation reader and retrieval algorithm constant. Preserve each corpus's actual consumer references, guides, navigation and public teaching assets. Exclude evaluator material and mask every other documentation copy in the candidate environment. This estimates the difference between these two documentation corpora under common tooling. It does not measure the ranking change or plugin activation, and it does not isolate individual pages. Record which documentation was retrieved; do not force a particular reading path.
 
-Both conditions use the same version-verified runtime and dependencies. Keep the relevant reference sufficient for the task rather than withholding essential contracts from A. Preserve the guided package's real index and continuation links. Give A a coherent reference-only index without dangling links. Enumerate navigation changes alongside added pages in the treatment manifest; shared API contracts remain identical. This measures the combined contribution of navigation, guidance, and examples beyond that reference. It does not isolate their individual effects or measure docs versus no docs. A forced-reading diagnostic would be a separate, explicitly declared condition.
+The bounded comparison has three independently reserved tasks, two conditions and one attempt per task/condition: six attempts. A task's follow-up is revealed only after its build snapshot is preserved. Keep build and extension findings separate; freeze how incomplete builds proceed before collection. Dependencies and neutral initial files are identical within each pair; a supplied framework implementation must not prescribe the solution's ownership design.
 
-Class references include purpose and recommended ownership alongside API contracts. Keep those recommendations in both conditions. Record reference revisions explicitly; the A/B comparison measures the additional material's contribution beyond the current reference and cannot isolate the effect of those revisions from a historical run.
-
-Proposed first pilot: one model, one build task, two conditions, three fresh starts per condition: six independent sessions. Within each session, follow the build with one unannounced extension. Keep build and extension scores separate. This intentionally measures whether the agent's own architecture supports later work; it is not an isolated measurement of extension skill. Follow-up execution and budgets must be specified consistently, including how failed builds affect the extension stage.
-
-Use product requirements that do not prescribe class boundaries. Include a modest follow-up control that does not require another Application, to expose over-decomposition without adding a separate benchmark.
+Use product requirements that do not prescribe class boundaries. Grade proportional ownership from the actual requirements and lifetimes, including where local View work is sufficient.
 
 Runs are autonomous within fixed limits. Record failures, timeouts, retries, and interventions; do not silently repair or discard them. An intervention invalidates autonomous success for that attempt and is reported separately.
 
@@ -140,8 +140,8 @@ Pilot progression rules, proposed before execution:
 
 - If discovery or harness isolation fails, repair that layer before interpreting architecture results.
 - A condition has a successful session only when required behavior passes and no critical ownership/lifecycle violation remains. Also report each phase and failure separately.
-- Guidance should succeed in at least two of three sessions, with no unresolved repeated critical failure, before testing generalization. A single critical failure still requires diagnosis.
-- Look for a repeatable reduction in the targeted failures compared with reference-only. A three-run pilot provides directional evidence, not statistical proof or a reliable performance percentage.
+- Report the paired outcomes, concerns, failures and missing evidence for each task. Different tasks are not repeated samples of one workload; do not apply an arbitrary two-of-three success threshold.
+- Use observed failures to choose the next bounded change. Three pairs provide task-level directional evidence, not a framework-wide superiority claim or a reliable performance percentage.
 - If both conditions pass, the task does not establish added value from guidance. Use a pre-reserved harder task rather than rewriting the test to force a preferred result.
 - If both fail, classify the cause before expanding docs. A confirmed framework limitation requires a separate decision about API work.
 

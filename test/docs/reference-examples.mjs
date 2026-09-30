@@ -10,6 +10,8 @@ import { assertions as adapterAssertions } from './adapters-reference-checks.mjs
 import { assertions as editingHtmlAssertions, getPreparations } from './editing-html-checks.mjs';
 import { assertions as refreshAssertions, preparations as refreshPreparations } from './retained-refresh-checks.mjs';
 import { assertions as typescriptAssertions, preparations as typescriptPreparations } from './typescript-guide-checks.mjs';
+import { assertions as draftSaveAssertions, preparations as draftSavePreparations } from './draft-save-checks.mjs';
+import { assertions as navigationAssertions, preparations as navigationPreparations } from './async-navigation-checks.mjs';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -35,6 +37,8 @@ const preparations = {
   ...getPreparations(installed),
   ...refreshPreparations,
   ...typescriptPreparations,
+  ...draftSavePreparations,
+  ...navigationPreparations,
   'api-application-1': `
 const fetches = [];
 globalThis.fetch = async (url, options) => {
@@ -55,6 +59,8 @@ const assertions = {
   ...editingHtmlAssertions,
   ...refreshAssertions,
   ...typescriptAssertions,
+  ...draftSaveAssertions,
+  ...navigationAssertions,
   'integrations-setup-1': `
 const { View } = await import('marionette');
 const { Model } = await import('@mnjs/data');

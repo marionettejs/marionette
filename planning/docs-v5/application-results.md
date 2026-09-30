@@ -60,6 +60,67 @@ The subagent's three prior requests were incorporated: failed restart/onStop sta
 
 Source backing resolves its remaining questions: `setView`/`showView` use `isTerminal` (destroying or destroyed); `application-prepared-view.spec.js` tests their no-op behavior during before:destroy. The installed example assertions now also exercise a no-Region Application adopting existing markup and removing it on stop. View's existing-element contract is linked. The final package probe is rerun after these corrections; the stored review remains a review of the submitted snapshot.
 
-## Next priority
+## Next priority at the initial pass
 
 Complete Behavior and MnObject, then the runtime/provider and companion-package references according to the [coverage inventory](coverage.md). A short standalone concepts guide and a controlled fresh-reader trial remain important gaps; finishing class references alone does not establish best-in-class documentation.
+
+## Binding and completion follow-up
+
+2026-09-30, checklist step 5. Two short sections in the owning reference now explain
+[destination binding order](../../docs/api/application.md#destination-binding-order)
+and [restart from start completion](../../docs/api/application.md#restart-from-start-completion).
+The new sections link existing rules rather than repeat cancellation, destination
+ownership or root teardown. No runtime, example or test source changed.
+
+| Claim | Existing evidence |
+| --- | --- |
+| The requested destination is visible before startup notifications and preparation; startup receives its options unchanged. | [Binding tests](../../test/unit/application-start-region.spec.js): `binds before startup notifications and forwards the complete options object`. |
+| Rebinding waits for the restart stop phase or reused stop readiness. | Same file: `changes a restart host only after the previous host has stopped`, `waits for an adopted stop before binding a superseding start host`; [start implementation](../../src/modules/application.ts) awaits stop readiness before replacing the Region. |
+| Reused stop preparation retains its original options and signal. | [Lifecycle tests](../../test/unit/application-lifecycle.spec.js): `transfers stop readiness without aborting its signal`. Startup options forwarding is covered separately above; the implementation supplies the newer operation's options after the reused readiness. |
+| Stop failure leaves the prior destination bound. | Binding tests: `does not bind a new host when the stop phase fails`. |
+| Restart from onStart or a start subscriber begins a separate cycle with independent options and Promise. | [Restart completion tests](../../test/unit/application-restart-completion.spec.js): generated cases `starts a distinct cycle from onStart with its own options and root teardown` and `starts a distinct cycle from start event with its own options and root teardown`. |
+| A completed outer restart stays successful if the next cycle fails or is canceled. | Same file: `keeps a completed restart successful when its completion-triggered cycle fails` and `keeps a completed restart successful when its completion-triggered cycle is canceled`. |
+
+### Focused verification
+
+Commands run after the final prose changes:
+
+```sh
+npm test -- test/unit/application-start-region.spec.js test/unit/application-restart-completion.spec.js
+npm test -- test/unit/application-lifecycle.spec.js -t 'transfers stop readiness without aborting its signal'
+node --test test/docs/export.test.mjs test/agent-docs/lookup.test.mjs
+node scripts/api-contracts/check.mjs --write
+node scripts/api-contracts/check.mjs
+npm run docs:build
+node scripts/docs/check-links.mjs
+npm run docs:package
+node skills/marionette/scripts/docs.mjs --package-root .package --symbol Application.restart
+node skills/marionette/scripts/docs.mjs --package-root .package --section 'docs/api/application.md#L159'
+node skills/marionette/scripts/docs.mjs --package-root .package --section 'docs/api/application.md#L190'
+git diff --check
+```
+
+- **30 runtime tests passed:** 29 binding/restart cases plus the selected readiness-transfer case. The targeted invocation deselected 58 unrelated cases; no full lifecycle-suite claim is made.
+- **28 documentation/lookup tests passed:** real-metadata export and CLI/package integrity/lookup checks.
+- Contract regeneration and consistency check passed: **55 documented groups, one partial custom-store group**.
+- Documentation build passed; link checking validated **84 HTML files and 1,104 internal links**.
+- Package staging exported **38 consumer pages**. `Application.restart` contract results link both new sections, and both section reads returned the expected text. The member's short mention list is capped at five; the full contract list remains available.
+- The staged content digest is `c993298d643993b25be57ff904ddc4495cce30199aaccddac701871f2a8c31c8`, with `sourceDirty: true` at `b1a2b39e6bde6ce5605b0cfff00f9408652f4b39`.
+- Diff whitespace check passed.
+
+ Earlier installed-tarball
+reports apply to their snapshots; this slice uses regenerated local package staging.
+A full installed-tarball check and runtime rebuild were not needed for these prose
+and metadata changes. Reader effectiveness remains unverified.
+
+### Claude review
+
+[Review record](</Users/paulfalgout/.ai-reviews/20260930T083806Z-review-with-claude.md>)
+received the Application prose diff, current guide/index content, goals, remaining
+checklist and the 29-test result. It agreed with the remaining bounded scope but
+requested less repetition, corrected subsection placement, linked contract evidence
+and delivery checks. We shortened the prose, moved the inherited-API paragraph out
+of the new subsection and added the source/test mapping above. Existing tests cover
+the proposed lifecycle cases; we did not duplicate them. The review predates the
+final check results and final prose reduction, so it is not an approval of those
+final bytes.

@@ -1,0 +1,1079 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-09-30T14:06:30.427763+00:00",
+  "status": "stopped",
+  "stop_reason": "missing accounting",
+  "execution_freeze_sha256": "d6eb0201fe9f3fe4dbf2d3bcf8d210140fcaf6a5852a2c96326177d844e8444f",
+  "cells": [
+    {
+      "id": "01-01-original",
+      "task": "01",
+      "condition": "original",
+      "status": "completed",
+      "stop_reason": null,
+      "grade_exit": 0,
+      "tool_requests": 25,
+      "elapsed_seconds": 195.82,
+      "cli_estimated_usd": 0.6046782,
+      "usage": {
+        "assistant_message_total": {
+          "input_tokens": 34,
+          "cache_creation_input_tokens": 76933,
+          "cache_read_input_tokens": 658241,
+          "output_tokens": 105,
+          "reasoning_tokens": null
+        },
+        "result_usage": {
+          "input_tokens": 34,
+          "cache_creation_input_tokens": 76933,
+          "cache_read_input_tokens": 658241,
+          "output_tokens": 16523,
+          "output_tokens_details": {
+            "thinking_tokens": 9920
+          },
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 76933,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 2,
+              "output_tokens": 238,
+              "cache_read_input_tokens": 75155,
+              "cache_creation_input_tokens": 1778,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 1778
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "reported_total": {
+          "input_tokens": 34,
+          "cache_creation_input_tokens": 76933,
+          "cache_read_input_tokens": 658241,
+          "output_tokens": 16523,
+          "reasoning_tokens": null
+        },
+        "reported_total_source": "cli_result_aggregate",
+        "diagnostics": {
+          "unique_message_ids": 17,
+          "unattributed_usage_records": 0,
+          "cumulative_usage_regressions": [],
+          "conflicting_result_records": false,
+          "provider_billing_verified": false
+        }
+      },
+      "response_models": [
+        "claude-sonnet-5"
+      ],
+      "limit_interrupt": false,
+      "functional": {
+        "passed": 9,
+        "failed": 0,
+        "unverified": 0
+      },
+      "grade_status": "pass",
+      "installed_files_unchanged": true,
+      "installed_files_checked": 2031,
+      "cleanup": {
+        "all_stopped": true,
+        "process_check_exit": 1,
+        "survivors": "",
+        "known_session_paths_cleared": true
+      },
+      "container_removed": true,
+      "snapshot": {
+        "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner/results/01-01-original/snapshot.tgz",
+        "sha256": "8a7ee736442b5f28fd31c9e0ede8a88c6e6a5ff4dda38d7114d5f1272edd2f0e",
+        "bytes": 4502
+      },
+      "assessment": {
+        "case": "a7e4a00d0ac9",
+        "task": "01",
+        "functional": {
+          "status": "pass",
+          "passed": 9,
+          "failed": 0,
+          "unverified": 0,
+          "evidence": "sealed deterministic behavior.json supplied to assessor; not rerun by assessor"
+        },
+        "api_contract": "pass within inspected frozen public contract surface",
+        "policy_scores": {
+          "1": 2,
+          "2": "N/A",
+          "3": 2,
+          "4": 2,
+          "5": 2,
+          "6": 2
+        },
+        "architecture_result": "meets the declared task-specific teaching policies",
+        "unnecessary_scaffolding_findings": 0,
+        "evidence_integrity_findings": 0,
+        "finding_categories": {
+          "established": 5,
+          "concerns": 0,
+          "violations": 0,
+          "unverified": 0,
+          "not_applicable": 1
+        },
+        "private_assessment_sha256": "05645b7e57f7879c81c903a6863c98eb91561dddd094d4ef2ab8fa0cde8727e9"
+      },
+      "retrieval": {
+        "cell": "01-01-original",
+        "status": "completed",
+        "completed_bridge_calls": 25,
+        "rejected_requests": 0,
+        "incomplete_calls": 0,
+        "helper_commands": 7,
+        "helper_operations": {
+          "list": 1,
+          "page": 2,
+          "section": 1,
+          "search": 4,
+          "symbol": 0,
+          "diagnostic": 0
+        },
+        "measured_consumer_file_reads": 8,
+        "measured_consumer_source_identities": [
+          {
+            "source": "/workspace/node_modules/marionette/docs/compact-reference.md",
+            "contentSha256": "ca7a6648ecd80bc7eb80e17b31e3e4394e56fb712da542d75fe1a1273c36c82f",
+            "source_bytes": 16530,
+            "returned_content_bytes": 16530,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/marionette.view.md",
+            "contentSha256": "b7b5871b0b56474cc3bc2513c2e2c4fdabdafcd724bfbaa8076ea7eee40d5ab5",
+            "source_bytes": 17058,
+            "returned_content_bytes": 17058,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/quick-start.md",
+            "contentSha256": "3473a2aeb23d1742ebf81c1cf702fa8408714f0dc800d655ec219e733879115b",
+            "source_bytes": 9564,
+            "returned_content_bytes": 9564,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/forms-and-accessibility.md",
+            "contentSha256": "38dfd68ac639437c64bce49d8ebc42ede6aacb19fd7dba057c166fa1b5fd7acb",
+            "source_bytes": 9074,
+            "returned_content_bytes": 9074,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/events.entity.md",
+            "contentSha256": "68b17daed92fab3108029e728c6f0263188e55ae860cf25df9a4307754457c00",
+            "source_bytes": 5228,
+            "returned_content_bytes": 5228,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/data.api.md",
+            "contentSha256": "c131d008a60da2d9bbf89c7174bd6b5fa2fece1003beb16677907fe61ca55ceb",
+            "source_bytes": 14203,
+            "returned_content_bytes": 14203,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/marionette.region.md",
+            "contentSha256": "b3df545b9796718772703ba8909ca41dde4fc5ece498837363138b5e959bdd55",
+            "source_bytes": 30018,
+            "returned_content_bytes": 30000,
+            "truncated": true
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/testing.md",
+            "contentSha256": "df301911ce9c28eb8ca119c0bea8072d660c9772d9f5e97aa61da772dc64f0cd",
+            "source_bytes": 7203,
+            "returned_content_bytes": 7203,
+            "truncated": false
+          }
+        ],
+        "limitations": "Helper command classification is syntactic; search/lookup alone is not understanding, and arbitrary subprocess reads are not exhaustively traced."
+      }
+    },
+    {
+      "id": "02-01-revised",
+      "task": "01",
+      "condition": "revised",
+      "status": "completed",
+      "stop_reason": null,
+      "grade_exit": 0,
+      "tool_requests": 25,
+      "elapsed_seconds": 238.98,
+      "cli_estimated_usd": 0.580244,
+      "usage": {
+        "assistant_message_total": {
+          "input_tokens": 36,
+          "cache_creation_input_tokens": 62866,
+          "cache_read_input_tokens": 639640,
+          "output_tokens": 154,
+          "reasoning_tokens": null
+        },
+        "result_usage": {
+          "input_tokens": 36,
+          "cache_creation_input_tokens": 62866,
+          "cache_read_input_tokens": 639640,
+          "output_tokens": 20078,
+          "output_tokens_details": {
+            "thinking_tokens": 13797
+          },
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 62866,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "not_available",
+          "iterations": [
+            {
+              "input_tokens": 2,
+              "output_tokens": 434,
+              "cache_read_input_tokens": 67347,
+              "cache_creation_input_tokens": 519,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 519
+              },
+              "type": "message"
+            }
+          ],
+          "speed": "standard"
+        },
+        "reported_total": {
+          "input_tokens": 36,
+          "cache_creation_input_tokens": 62866,
+          "cache_read_input_tokens": 639640,
+          "output_tokens": 20078,
+          "reasoning_tokens": null
+        },
+        "reported_total_source": "cli_result_aggregate",
+        "diagnostics": {
+          "unique_message_ids": 18,
+          "unattributed_usage_records": 0,
+          "cumulative_usage_regressions": [],
+          "conflicting_result_records": false,
+          "provider_billing_verified": false
+        }
+      },
+      "response_models": [
+        "claude-sonnet-5"
+      ],
+      "limit_interrupt": false,
+      "functional": {
+        "passed": 9,
+        "failed": 0,
+        "unverified": 0
+      },
+      "grade_status": "pass",
+      "installed_files_unchanged": true,
+      "installed_files_checked": 1984,
+      "cleanup": {
+        "all_stopped": true,
+        "process_check_exit": 1,
+        "survivors": "",
+        "known_session_paths_cleared": true
+      },
+      "container_removed": true,
+      "snapshot": {
+        "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner/results/02-01-revised/snapshot.tgz",
+        "sha256": "cc265227cd354ab25f696b1c238700947427a3076c21023a0b74e7700b1be7f9",
+        "bytes": 4032
+      },
+      "assessment": {
+        "case": "26ea14ea0d2f",
+        "task": "01",
+        "functional": {
+          "status": "pass",
+          "passed": 9,
+          "failed": 0,
+          "unverified": 0,
+          "evidence": "sealed deterministic behavior.json supplied to assessor; not rerun by assessor"
+        },
+        "api_contract": "pass within inspected frozen public contract surface",
+        "policy_scores": {
+          "1": 2,
+          "2": "N/A",
+          "3": 2,
+          "4": 2,
+          "5": 2,
+          "6": 2
+        },
+        "architecture_result": "meets the declared task-specific teaching policies",
+        "unnecessary_scaffolding_findings": 0,
+        "evidence_integrity_findings": 0,
+        "finding_categories": {
+          "established": 5,
+          "concerns": 0,
+          "violations": 0,
+          "unverified": 0,
+          "not_applicable": 1
+        },
+        "private_assessment_sha256": "06039c003d2e68dcd7681a910bc9e1dee7fc20a7abb75ce1ce4dabcdfc47d290"
+      },
+      "retrieval": {
+        "cell": "02-01-revised",
+        "status": "completed",
+        "completed_bridge_calls": 25,
+        "rejected_requests": 0,
+        "incomplete_calls": 0,
+        "helper_commands": 4,
+        "helper_operations": {
+          "list": 1,
+          "page": 1,
+          "section": 1,
+          "search": 2,
+          "symbol": 0,
+          "diagnostic": 0
+        },
+        "measured_consumer_file_reads": 8,
+        "measured_consumer_source_identities": [
+          {
+            "source": "/workspace/node_modules/marionette/docs/api/view.md",
+            "contentSha256": "b988f7f08e79d06d5be6bced589fdd1afc84c60d6d3d27a8fc62eaecc1b9e4e6",
+            "source_bytes": 15994,
+            "returned_content_bytes": 15994,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/packages/data.md",
+            "contentSha256": "6a24f4e1c6441f1a73ec9a483422b269ff8613ee1cb9d86dcd2b8966e7096d52",
+            "source_bytes": 18373,
+            "returned_content_bytes": 18373,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/guides/local-editing.md",
+            "contentSha256": "45afd4ebdecb95e766770bc4a76f3c755510ba28f88bc797072cb417d4e13af1",
+            "source_bytes": 7285,
+            "returned_content_bytes": 7285,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/quick-start.md",
+            "contentSha256": "9a01001c583a26792e02b4b5df9259ee86c6f9bf9dcde5156dc38089af2f2637",
+            "source_bytes": 2972,
+            "returned_content_bytes": 2972,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/api/providers/dom.md",
+            "contentSha256": "c27ba850a18003b0fc15f9dfc8dec36e207b527bafb15b0ba87c5602cb72e57f",
+            "source_bytes": 8106,
+            "returned_content_bytes": 8106,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/api/runtime.md",
+            "contentSha256": "d487aa88bcef315d46b14c231c8be9c682c7bf8037c9ffb80a63b5f831c2ad4c",
+            "source_bytes": 8758,
+            "returned_content_bytes": 8758,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/api/region.md",
+            "contentSha256": "ca767ce14321648d39d269185c4adefc87d42c9dd338bc30bfc145e97486c632",
+            "source_bytes": 13535,
+            "returned_content_bytes": 13535,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/api/shared/view-bindings.md",
+            "contentSha256": "7bb193ccf1541859eabf927f45217febd8b0251ab4c9f74c0fdfc218ded5b167",
+            "source_bytes": 13381,
+            "returned_content_bytes": 13381,
+            "truncated": false
+          }
+        ],
+        "limitations": "Helper command classification is syntactic; search/lookup alone is not understanding, and arbitrary subprocess reads are not exhaustively traced."
+      }
+    },
+    {
+      "id": "03-02-revised",
+      "task": "02",
+      "condition": "revised",
+      "status": "stopped",
+      "stop_reason": "missing accounting",
+      "grade_exit": 1,
+      "tool_requests": 35,
+      "elapsed_seconds": 350.95287629100494,
+      "cli_estimated_usd": null,
+      "usage": {
+        "assistant_message_total": {
+          "input_tokens": 72,
+          "cache_creation_input_tokens": 97390,
+          "cache_read_input_tokens": 1578484,
+          "output_tokens": 437,
+          "reasoning_tokens": null
+        },
+        "result_usage": null,
+        "reported_total": {
+          "input_tokens": 72,
+          "cache_creation_input_tokens": 97390,
+          "cache_read_input_tokens": 1578484,
+          "output_tokens": 437,
+          "reasoning_tokens": null
+        },
+        "reported_total_source": "message_snapshots",
+        "diagnostics": {
+          "unique_message_ids": 36,
+          "unattributed_usage_records": 0,
+          "cumulative_usage_regressions": [],
+          "conflicting_result_records": false,
+          "provider_billing_verified": false
+        }
+      },
+      "response_models": [
+        "claude-sonnet-5"
+      ],
+      "limit_interrupt": true,
+      "functional": {
+        "passed": 1,
+        "failed": 1,
+        "unverified": 11
+      },
+      "grade_status": "fail",
+      "installed_files_unchanged": true,
+      "installed_files_checked": 1984,
+      "cleanup": {
+        "all_stopped": true,
+        "process_check_exit": 1,
+        "survivors": "",
+        "known_session_paths_cleared": true
+      },
+      "container_removed": true,
+      "snapshot": {
+        "path": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner/results/03-02-revised/snapshot.tgz",
+        "sha256": "82db0a23968a37b8eaba9c0b13504dd606cb990a18ba19bded50b77e7667a437",
+        "bytes": 6322
+      },
+      "assessment": {
+        "case": "43088f6c6bf2",
+        "task": "02",
+        "assessment_status": "provisional partial submission; tool-cap stop reported by root; no final-response intent inferred",
+        "functional": {
+          "status": "fail",
+          "passed": 1,
+          "failed": 1,
+          "unverified": 11,
+          "provisional": true,
+          "evidence": "sealed deterministic behavior.json supplied to assessor; no assessor rerun",
+          "specification_diagnostics": {
+            "passed": 0,
+            "failed": 0,
+            "unverified": 5
+          },
+          "source_supported_additional_gaps": 2,
+          "extra_executed_failures_claimed": 0
+        },
+        "api_contract": "fail: one unsupported template receiver assumption, source verified against frozen runtime; exact observed failure cause remains inferred",
+        "policy_scores": {
+          "1": 2,
+          "2": 2,
+          "3": 1,
+          "4": 2,
+          "5": 2,
+          "6": 2
+        },
+        "architecture_result": "meets with concerns on this partial source snapshot; provisional, not a finished-intent assessment",
+        "unnecessary_scaffolding_findings": 0,
+        "evidence_integrity_findings": 0,
+        "finding_categories": {
+          "established": 5,
+          "concerns": 1,
+          "violations": 0,
+          "unverified": 0,
+          "not_applicable": 0
+        },
+        "category_findings": [
+          {
+            "category": "API contract",
+            "rationale": "Template code assumes a receiver the default renderer does not supply."
+          },
+          {
+            "category": "state synchronization",
+            "rationale": "Source lacks direct rendering paths for two accepted state/data changes, coupling visible updates to unrelated rerenders. Runtime transitions were blocked, so these remain source-supported gaps rather than extra executed failures."
+          }
+        ],
+        "private_assessment_sha256": "c74dd554eba84607c2172998b00160e8dce012fd3948ae1fa95947389bd4fa38"
+      },
+      "retrieval": {
+        "cell": "03-02-revised",
+        "status": "stopped",
+        "completed_bridge_calls": 35,
+        "rejected_requests": 1,
+        "incomplete_calls": 0,
+        "helper_commands": 6,
+        "helper_operations": {
+          "list": 2,
+          "page": 2,
+          "section": 1,
+          "search": 2,
+          "symbol": 0,
+          "diagnostic": 0
+        },
+        "measured_consumer_file_reads": 12,
+        "measured_consumer_source_identities": [
+          {
+            "source": "/workspace/node_modules/marionette/docs/records.md",
+            "contentSha256": "65605e31bd96db536e7e1a4b160895d87ada9deae98497213302f4f25a04b8b3",
+            "source_bytes": 6894,
+            "returned_content_bytes": 6894,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/api/providers/dom.md",
+            "contentSha256": "c27ba850a18003b0fc15f9dfc8dec36e207b527bafb15b0ba87c5602cb72e57f",
+            "source_bytes": 8106,
+            "returned_content_bytes": 8106,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/quick-start.md",
+            "contentSha256": "9a01001c583a26792e02b4b5df9259ee86c6f9bf9dcde5156dc38089af2f2637",
+            "source_bytes": 2972,
+            "returned_content_bytes": 2972,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/guides/retained-refresh.md",
+            "contentSha256": "0b7bdaa4e57ddc12b81567278fa4f01b78d2660e3ed7de5f5c3583ab0148fcc5",
+            "source_bytes": 5789,
+            "returned_content_bytes": 5789,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/guides/existing-ui.md",
+            "contentSha256": "62bfa91930eabdc35e8f33baf7703ae96dad56ef14a15a402194dbbf3b5230c8",
+            "source_bytes": 3696,
+            "returned_content_bytes": 3696,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/api/application.md",
+            "contentSha256": "e8cf32f5a7af7e91196d635317a395dc19c6cbdad56da55c9d526f6d512f8538",
+            "source_bytes": 21099,
+            "returned_content_bytes": 21099,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/integrations/setup.md",
+            "contentSha256": "929e8a13cf61f97fe75cf90d78fe54d34a9da79258744ef10c5e5e3f1051c0e2",
+            "source_bytes": 3446,
+            "returned_content_bytes": 3446,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/api/collection-view.md",
+            "contentSha256": "a6ef68cdf1c8fd77fd47a0ff835e51a1714d23352c8d0c13d28bf83df586d94f",
+            "source_bytes": 20816,
+            "returned_content_bytes": 20816,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/packages/data.md",
+            "contentSha256": "6a24f4e1c6441f1a73ec9a483422b269ff8613ee1cb9d86dcd2b8966e7096d52",
+            "source_bytes": 18373,
+            "returned_content_bytes": 18373,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/api/view.md",
+            "contentSha256": "b988f7f08e79d06d5be6bced589fdd1afc84c60d6d3d27a8fc62eaecc1b9e4e6",
+            "source_bytes": 15994,
+            "returned_content_bytes": 15994,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/api/shared/view-bindings.md",
+            "contentSha256": "7bb193ccf1541859eabf927f45217febd8b0251ab4c9f74c0fdfc218ded5b167",
+            "source_bytes": 13381,
+            "returned_content_bytes": 13381,
+            "truncated": false
+          },
+          {
+            "source": "/workspace/node_modules/marionette/docs/api/shared/state.md",
+            "contentSha256": "9c3263569e68789585a49e6065e1b9cd88efa928dbe5e8b8abe62cc0b748a3ae",
+            "source_bytes": 5449,
+            "returned_content_bytes": 5449,
+            "truncated": false
+          }
+        ],
+        "limitations": "Helper command classification is syntactic; search/lookup alone is not understanding, and arbitrary subprocess reads are not exhaustively traced."
+      }
+    },
+    {
+      "id": "04-02-original",
+      "task": "02",
+      "condition": "original",
+      "status": "unstarted",
+      "stop_reason": null,
+      "grade_exit": null,
+      "retrieval": {
+        "cell": "04-02-original",
+        "status": "unstarted",
+        "completed_bridge_calls": 0,
+        "rejected_requests": 0,
+        "incomplete_calls": 0,
+        "helper_commands": 0,
+        "helper_operations": {
+          "list": 0,
+          "page": 0,
+          "section": 0,
+          "search": 0,
+          "symbol": 0,
+          "diagnostic": 0
+        },
+        "measured_consumer_file_reads": 0,
+        "measured_consumer_source_identities": [],
+        "limitations": "Helper command classification is syntactic; search/lookup alone is not understanding, and arbitrary subprocess reads are not exhaustively traced."
+      }
+    },
+    {
+      "id": "05-03-original",
+      "task": "03",
+      "condition": "original",
+      "status": "unstarted",
+      "stop_reason": null,
+      "grade_exit": null,
+      "retrieval": {
+        "cell": "05-03-original",
+        "status": "unstarted",
+        "completed_bridge_calls": 0,
+        "rejected_requests": 0,
+        "incomplete_calls": 0,
+        "helper_commands": 0,
+        "helper_operations": {
+          "list": 0,
+          "page": 0,
+          "section": 0,
+          "search": 0,
+          "symbol": 0,
+          "diagnostic": 0
+        },
+        "measured_consumer_file_reads": 0,
+        "measured_consumer_source_identities": [],
+        "limitations": "Helper command classification is syntactic; search/lookup alone is not understanding, and arbitrary subprocess reads are not exhaustively traced."
+      }
+    },
+    {
+      "id": "06-03-revised",
+      "task": "03",
+      "condition": "revised",
+      "status": "unstarted",
+      "stop_reason": null,
+      "grade_exit": null,
+      "retrieval": {
+        "cell": "06-03-revised",
+        "status": "unstarted",
+        "completed_bridge_calls": 0,
+        "rejected_requests": 0,
+        "incomplete_calls": 0,
+        "helper_commands": 0,
+        "helper_operations": {
+          "list": 0,
+          "page": 0,
+          "section": 0,
+          "search": 0,
+          "symbol": 0,
+          "diagnostic": 0
+        },
+        "measured_consumer_file_reads": 0,
+        "measured_consumer_source_identities": [],
+        "limitations": "Helper command classification is syntactic; search/lookup alone is not understanding, and arbitrary subprocess reads are not exhaustively traced."
+      }
+    }
+  ],
+  "completed": 2,
+  "partial": 1,
+  "unstarted": 3,
+  "matched_pairs_completed": 1,
+  "known_completed_cli_estimate_usd": 1.1849222,
+  "total_cli_estimate_usd": null,
+  "missing_cost_cells": [
+    "03-02-revised"
+  ],
+  "authoring_files_checked": 53,
+  "authoring_changes": [],
+  "assessment_pending": false,
+  "retrieval_join_pending": false,
+  "operator_retries": 0,
+  "replacement_attempts": 0,
+  "assessment": {
+    "schema_version": 1,
+    "author_safe": true,
+    "assessor": {
+      "assessor": "/root/qualification_audit",
+      "consumer_document_author": false,
+      "prior_exposure": "reserved requirements, qualification criteria and control implementations reviewed before reader trials",
+      "masking": "condition-masked; condition labels and retrieval traces not opened; source wording and archive timestamps may reveal clues; not fully blind",
+      "model_judge_requests": 0,
+      "reader_interventions": 0
+    },
+    "source_review_before_retrieval_join": true,
+    "cases_assessed": 3,
+    "cases": [
+      {
+        "case": "26ea14ea0d2f",
+        "task": "01",
+        "functional": {
+          "status": "pass",
+          "passed": 9,
+          "failed": 0,
+          "unverified": 0,
+          "evidence": "sealed deterministic behavior.json supplied to assessor; not rerun by assessor"
+        },
+        "api_contract": "pass within inspected frozen public contract surface",
+        "policy_scores": {
+          "1": 2,
+          "2": "N/A",
+          "3": 2,
+          "4": 2,
+          "5": 2,
+          "6": 2
+        },
+        "architecture_result": "meets the declared task-specific teaching policies",
+        "unnecessary_scaffolding_findings": 0,
+        "evidence_integrity_findings": 0,
+        "finding_categories": {
+          "established": 5,
+          "concerns": 0,
+          "violations": 0,
+          "unverified": 0,
+          "not_applicable": 1
+        },
+        "private_assessment_sha256": "06039c003d2e68dcd7681a910bc9e1dee7fc20a7abb75ce1ce4dabcdfc47d290"
+      },
+      {
+        "case": "a7e4a00d0ac9",
+        "task": "01",
+        "functional": {
+          "status": "pass",
+          "passed": 9,
+          "failed": 0,
+          "unverified": 0,
+          "evidence": "sealed deterministic behavior.json supplied to assessor; not rerun by assessor"
+        },
+        "api_contract": "pass within inspected frozen public contract surface",
+        "policy_scores": {
+          "1": 2,
+          "2": "N/A",
+          "3": 2,
+          "4": 2,
+          "5": 2,
+          "6": 2
+        },
+        "architecture_result": "meets the declared task-specific teaching policies",
+        "unnecessary_scaffolding_findings": 0,
+        "evidence_integrity_findings": 0,
+        "finding_categories": {
+          "established": 5,
+          "concerns": 0,
+          "violations": 0,
+          "unverified": 0,
+          "not_applicable": 1
+        },
+        "private_assessment_sha256": "05645b7e57f7879c81c903a6863c98eb91561dddd094d4ef2ab8fa0cde8727e9"
+      },
+      {
+        "case": "43088f6c6bf2",
+        "task": "02",
+        "assessment_status": "provisional partial submission; tool-cap stop reported by root; no final-response intent inferred",
+        "functional": {
+          "status": "fail",
+          "passed": 1,
+          "failed": 1,
+          "unverified": 11,
+          "provisional": true,
+          "evidence": "sealed deterministic behavior.json supplied to assessor; no assessor rerun",
+          "specification_diagnostics": {
+            "passed": 0,
+            "failed": 0,
+            "unverified": 5
+          },
+          "source_supported_additional_gaps": 2,
+          "extra_executed_failures_claimed": 0
+        },
+        "api_contract": "fail: one unsupported template receiver assumption, source verified against frozen runtime; exact observed failure cause remains inferred",
+        "policy_scores": {
+          "1": 2,
+          "2": 2,
+          "3": 1,
+          "4": 2,
+          "5": 2,
+          "6": 2
+        },
+        "architecture_result": "meets with concerns on this partial source snapshot; provisional, not a finished-intent assessment",
+        "unnecessary_scaffolding_findings": 0,
+        "evidence_integrity_findings": 0,
+        "finding_categories": {
+          "established": 5,
+          "concerns": 1,
+          "violations": 0,
+          "unverified": 0,
+          "not_applicable": 0
+        },
+        "category_findings": [
+          {
+            "category": "API contract",
+            "rationale": "Template code assumes a receiver the default renderer does not supply."
+          },
+          {
+            "category": "state synchronization",
+            "rationale": "Source lacks direct rendering paths for two accepted state/data changes, coupling visible updates to unrelated rerenders. Runtime transitions were blocked, so these remain source-supported gaps rather than extra executed failures."
+          }
+        ],
+        "private_assessment_sha256": "c74dd554eba84607c2172998b00160e8dce012fd3948ae1fa95947389bd4fa38"
+      }
+    ],
+    "remaining": "Batch stopped: two completed, one partial, three unstarted. All three sealed submissions assessed; no comparative condition claim.",
+    "script_sha256": "8f8127d419c859ef7e4cbd8ebb23446c6083ed181876ea5329d18e664304fa8e",
+    "model_judge_requests": 0,
+    "completion_counts": {
+      "completed_submissions": 2,
+      "partial_submissions": 1,
+      "unstarted_cells": 3
+    },
+    "assessment_scripts": [
+      {
+        "file": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/assessment/assess_first_pair.py",
+        "sha256": "8f8127d419c859ef7e4cbd8ebb23446c6083ed181876ea5329d18e664304fa8e"
+      },
+      {
+        "file": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/assessment/assess_partial.py",
+        "sha256": "9713b87dca95aab1f8b46bbddbff7eb7f8e1c1531b89789648dbb72e9c2867a7"
+      }
+    ],
+    "assessment_complete_for_supplied_cases": true
+  },
+  "assessment_validation": {
+    "schema_version": 1,
+    "author_safe": true,
+    "summary_sha256": "2b74156629d39fc5c2bbbd75888f77a124d2c3d7dee47ef37f9368de42f5e4f3",
+    "cases_manifest_sha256": "f0312aa234dcbd2f5d610e428816e91b6a74d567c427f2efbdf90386ed6269fd",
+    "script_sha256": "1fc1a2be5cf20066a68aa580f8ea7156ef75f01b05c342e26f1328478e5fb460",
+    "check_command": "python3 /Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/assessment/verify_assessment.py",
+    "checks_run": 36,
+    "failed": 0,
+    "checks": [
+      {
+        "case": "26ea14ea0d2f",
+        "check": "extracted bytes explanation.md",
+        "passed": true
+      },
+      {
+        "case": "26ea14ea0d2f",
+        "check": "extracted bytes interface.md",
+        "passed": true
+      },
+      {
+        "case": "26ea14ea0d2f",
+        "check": "extracted bytes package.json",
+        "passed": true
+      },
+      {
+        "case": "26ea14ea0d2f",
+        "check": "extracted bytes seed.json",
+        "passed": true
+      },
+      {
+        "case": "26ea14ea0d2f",
+        "check": "extracted bytes submission.js",
+        "passed": true
+      },
+      {
+        "case": "26ea14ea0d2f",
+        "check": "extracted bytes submission.smoke.mjs",
+        "passed": true
+      },
+      {
+        "case": "26ea14ea0d2f",
+        "check": "extracted bytes task.md",
+        "passed": true
+      },
+      {
+        "case": "26ea14ea0d2f",
+        "check": "archive SHA",
+        "passed": true
+      },
+      {
+        "case": "26ea14ea0d2f",
+        "check": "behavior SHA",
+        "passed": true
+      },
+      {
+        "case": "26ea14ea0d2f",
+        "check": "source SHA",
+        "passed": true
+      },
+      {
+        "case": "26ea14ea0d2f",
+        "check": "private assessment SHA",
+        "passed": true
+      },
+      {
+        "case": "43088f6c6bf2",
+        "check": "extracted bytes debug.mjs",
+        "passed": true
+      },
+      {
+        "case": "43088f6c6bf2",
+        "check": "extracted bytes debug2.mjs",
+        "passed": true
+      },
+      {
+        "case": "43088f6c6bf2",
+        "check": "extracted bytes debug3.mjs",
+        "passed": true
+      },
+      {
+        "case": "43088f6c6bf2",
+        "check": "extracted bytes interface.md",
+        "passed": true
+      },
+      {
+        "case": "43088f6c6bf2",
+        "check": "extracted bytes package.json",
+        "passed": true
+      },
+      {
+        "case": "43088f6c6bf2",
+        "check": "extracted bytes seed.json",
+        "passed": true
+      },
+      {
+        "case": "43088f6c6bf2",
+        "check": "extracted bytes smoke.test.mjs",
+        "passed": true
+      },
+      {
+        "case": "43088f6c6bf2",
+        "check": "extracted bytes submission.js",
+        "passed": true
+      },
+      {
+        "case": "43088f6c6bf2",
+        "check": "extracted bytes task.md",
+        "passed": true
+      },
+      {
+        "case": "43088f6c6bf2",
+        "check": "archive SHA",
+        "passed": true
+      },
+      {
+        "case": "43088f6c6bf2",
+        "check": "behavior SHA",
+        "passed": true
+      },
+      {
+        "case": "43088f6c6bf2",
+        "check": "source SHA",
+        "passed": true
+      },
+      {
+        "case": "43088f6c6bf2",
+        "check": "private assessment SHA",
+        "passed": true
+      },
+      {
+        "case": "a7e4a00d0ac9",
+        "check": "extracted bytes explanation.md",
+        "passed": true
+      },
+      {
+        "case": "a7e4a00d0ac9",
+        "check": "extracted bytes interface.md",
+        "passed": true
+      },
+      {
+        "case": "a7e4a00d0ac9",
+        "check": "extracted bytes package.json",
+        "passed": true
+      },
+      {
+        "case": "a7e4a00d0ac9",
+        "check": "extracted bytes seed.json",
+        "passed": true
+      },
+      {
+        "case": "a7e4a00d0ac9",
+        "check": "extracted bytes smoke-test.mjs",
+        "passed": true
+      },
+      {
+        "case": "a7e4a00d0ac9",
+        "check": "extracted bytes submission.js",
+        "passed": true
+      },
+      {
+        "case": "a7e4a00d0ac9",
+        "check": "extracted bytes task.md",
+        "passed": true
+      },
+      {
+        "case": "a7e4a00d0ac9",
+        "check": "archive SHA",
+        "passed": true
+      },
+      {
+        "case": "a7e4a00d0ac9",
+        "check": "behavior SHA",
+        "passed": true
+      },
+      {
+        "case": "a7e4a00d0ac9",
+        "check": "source SHA",
+        "passed": true
+      },
+      {
+        "case": "a7e4a00d0ac9",
+        "check": "private assessment SHA",
+        "passed": true
+      },
+      {
+        "check": "all supplied cases assessed exactly once",
+        "passed": true
+      }
+    ]
+  },
+  "forensics": {
+    "author_safe_report": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/forensics/author-safe-findings.json",
+    "sha256": "e6a01cb814b2a096cd6d88b23fc9200b978328ae02862227bd07c3b19a5952ab"
+  },
+  "followup": {
+    "proposal": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/qualification/runner-followup/proposal.md",
+    "stub_checks": 20,
+    "live_requests": 0
+  },
+  "protocol_metadata_drift": {
+    "bound_path": "/Users/paulfalgout/Projects/marionettejs/planning/docs-v5/reader-comparison-protocol.md",
+    "expected_sha256": "82daba1a5997788a13f3167bc39b7afddae32e105d774aa2cf30839841d0bca5",
+    "transient_status_update_sha256": "1bd90663b3cecfd54d8ab712f7e3b5de5176d88834e721e70152ba5f7a49b34e",
+    "restored_exact_frozen_bytes": true,
+    "changes": "Header and current-gate status paragraphs changed during pilot; no product brief, scoring criterion, prompt, task/runner code or consumer corpus changed. Restored after recording transient version.",
+    "limitation": "Do not claim bound planning file was continuously unchanged during execution."
+  },
+  "conclusions": [
+    "The only completed matched pair passes behavior, API and applicable architecture under both corpora.",
+    "This pilot provides no demonstrated superiority of revised documentation.",
+    "The unpaired partial has an implementation/API error despite observing its documentation contract; it cannot establish a documentation-condition effect.",
+    "The budget guard preserved limits, partial source and unstarted cells; rejection-triggered termination prevented final CLI accounting.",
+    "Keep consumer docs frozen; qualify a separate accounting-preserving run before further comparison."
+  ]
+}

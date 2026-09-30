@@ -1,0 +1,732 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-01",
+  "source_revision": "b1a2b39e6bde6ce5605b0cfff00f9408652f4b39",
+  "source_dirty": true,
+  "scope": "Entry and section retrieval tightening; recorded-run audit and four bounded internal fresh-reader checks. No external provider calls, full build evaluation, registry publication or deployment.",
+  "candidate_manifest": {
+    "schemaVersion": 1,
+    "packageName": "marionette",
+    "packageVersion": "5.0.0-rc.2",
+    "channel": "latest",
+    "sourceRepository": "https://github.com/marionettejs/marionette",
+    "sourceRevision": "b1a2b39e6bde6ce5605b0cfff00f9408652f4b39",
+    "sourceDirty": true,
+    "contentSha256": "ba4a749f3bf3e905a24da012a11a037823cb5d59607b6a1c87f6e8176cc510ef",
+    "pages": [
+      {
+        "source": "docs/readme.md",
+        "route": "docs",
+        "title": "Marionette v5 documentation",
+        "section": "Start here",
+        "sha256": "5a60a2c6743fc3c762e101c57dea91d9dab2e3222e1f8ccd74cbf09733e527cf"
+      },
+      {
+        "source": "docs/quick-start.md",
+        "route": "docs/quick-start",
+        "title": "Install and render a View",
+        "section": "Start here",
+        "sha256": "9a01001c583a26792e02b4b5df9259ee86c6f9bf9dcde5156dc38089af2f2637"
+      },
+      {
+        "source": "docs/architecture.md",
+        "route": "docs/architecture",
+        "title": "Building features with Marionette v5",
+        "section": "Start here",
+        "sha256": "b72e9505beca81399d6d075f886fcc7ab49e20db15b3cf95e0d901034b6d5993"
+      },
+      {
+        "source": "docs/agents.md",
+        "route": "docs/agents",
+        "title": "Agent workflow",
+        "section": "Start here",
+        "sha256": "7341a89c97432e59e74192245bd22f21179acd21986167883296554b3294e1a7"
+      },
+      {
+        "source": "docs/api.md",
+        "route": "docs/api",
+        "title": "API reference",
+        "section": "Start here",
+        "sha256": "dc5c55965ea811c45717cd9ef870f771c361080dda63c347948471fe71df835b"
+      },
+      {
+        "source": "docs/api/application.md",
+        "route": "docs/api/application",
+        "title": "Application",
+        "section": "Core classes",
+        "sha256": "e8cf32f5a7af7e91196d635317a395dc19c6cbdad56da55c9d526f6d512f8538"
+      },
+      {
+        "source": "docs/api/view.md",
+        "route": "docs/api/view",
+        "title": "View",
+        "section": "Core classes",
+        "sha256": "b988f7f08e79d06d5be6bced589fdd1afc84c60d6d3d27a8fc62eaecc1b9e4e6"
+      },
+      {
+        "source": "docs/api/collection-view.md",
+        "route": "docs/api/collection-view",
+        "title": "CollectionView",
+        "section": "Core classes",
+        "sha256": "a6ef68cdf1c8fd77fd47a0ff835e51a1714d23352c8d0c13d28bf83df586d94f"
+      },
+      {
+        "source": "docs/api/region.md",
+        "route": "docs/api/region",
+        "title": "Region",
+        "section": "Core classes",
+        "sha256": "ca767ce14321648d39d269185c4adefc87d42c9dd338bc30bfc145e97486c632"
+      },
+      {
+        "source": "docs/api/behavior.md",
+        "route": "docs/api/behavior",
+        "title": "Behavior",
+        "section": "Core classes",
+        "sha256": "d83fce01476376a3101ebb6bd77363134f841367422fe775b8431dc38128c7fa"
+      },
+      {
+        "source": "docs/api/mnobject.md",
+        "route": "docs/api/mnobject",
+        "title": "MnObject",
+        "section": "Core classes",
+        "sha256": "230e69cbdb697142c4d2a6979a925395cae5f71232dfa4f9ce21f287c707f1fa"
+      },
+      {
+        "source": "docs/api/shared/common.md",
+        "route": "docs/api/shared/common",
+        "title": "Shared class utilities",
+        "section": "Shared class contracts",
+        "sha256": "8982228a2345240414e35ba4f0967e95530f5966fe1254efd9a09575706d5b6a"
+      },
+      {
+        "source": "docs/api/shared/events.md",
+        "route": "docs/api/shared/events",
+        "title": "Events",
+        "section": "Shared class contracts",
+        "sha256": "55cae66f2ac4b5de06cf68763a4f841a9d7ff55c065de8e4112df29109925051"
+      },
+      {
+        "source": "docs/api/shared/state.md",
+        "route": "docs/api/shared/state",
+        "title": "State",
+        "section": "Shared class contracts",
+        "sha256": "9c3263569e68789585a49e6065e1b9cd88efa928dbe5e8b8abe62cc0b748a3ae"
+      },
+      {
+        "source": "docs/api/shared/view-bindings.md",
+        "route": "docs/api/shared/view-bindings",
+        "title": "Rendering and View bindings",
+        "section": "Shared class contracts",
+        "sha256": "7bb193ccf1541859eabf927f45217febd8b0251ab4c9f74c0fdfc218ded5b167"
+      },
+      {
+        "source": "docs/api/errors.md",
+        "route": "docs/api/errors",
+        "title": "Errors and diagnostics",
+        "section": "Shared class contracts",
+        "sha256": "f0dd3a19d442003e171ca373c50e8d6aace0d97896a8324babb8c779d8060954"
+      },
+      {
+        "source": "docs/api/runtime.md",
+        "route": "docs/api/runtime",
+        "title": "Runtime configuration",
+        "section": "Runtime configuration",
+        "sha256": "d487aa88bcef315d46b14c231c8be9c682c7bf8037c9ffb80a63b5f831c2ad4c"
+      },
+      {
+        "source": "docs/api/providers/dom.md",
+        "route": "docs/api/providers/dom",
+        "title": "Rendering and DOM providers",
+        "section": "Provider interfaces",
+        "sha256": "c27ba850a18003b0fc15f9dfc8dec36e207b527bafb15b0ba87c5602cb72e57f"
+      },
+      {
+        "source": "docs/api/providers/data.md",
+        "route": "docs/api/providers/data",
+        "title": "Data and state providers",
+        "section": "Provider interfaces",
+        "sha256": "4354afe1dedf5ab53ea9e507fb07055fb37e6b2cb356585619507e3d2158f408"
+      },
+      {
+        "source": "docs/packages/data.md",
+        "route": "docs/packages/data",
+        "title": "@mnjs/data: Model and Collection",
+        "section": "Companion packages",
+        "sha256": "6a24f4e1c6441f1a73ec9a483422b269ff8613ee1cb9d86dcd2b8966e7096d52"
+      },
+      {
+        "source": "docs/packages/radio.md",
+        "route": "docs/packages/radio",
+        "title": "@mnjs/radio: channels and requests",
+        "section": "Companion packages",
+        "sha256": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270"
+      },
+      {
+        "source": "docs/packages/utils.md",
+        "route": "docs/packages/utils",
+        "title": "@mnjs/utils: shared utilities",
+        "section": "Companion packages",
+        "sha256": "b022f7f2a958673aa40da59d12591316ef6773228f2dfc93f0af9a901878cb3d"
+      },
+      {
+        "source": "docs/packages/adapters.md",
+        "route": "docs/packages/adapters",
+        "title": "@mnjs/adapters: optional integrations",
+        "section": "Companion packages",
+        "sha256": "48304620efe6bc04c6a59647053bd0b692925a5c4ae99bb172d218ef4cb60c8a"
+      },
+      {
+        "source": "docs/integrations/setup.md",
+        "route": "docs/integrations/setup",
+        "title": "Setup and data",
+        "section": "Integration guides",
+        "sha256": "929e8a13cf61f97fe75cf90d78fe54d34a9da79258744ef10c5e5e3f1051c0e2"
+      },
+      {
+        "source": "docs/guides/migration.md",
+        "route": "docs/guides/migration",
+        "title": "Migrate from Marionette v4",
+        "section": "Guides",
+        "sha256": "fed09411f1430ebf7f9036028d68972f7ecc4cdb93f763654c24b24c337b804e"
+      },
+      {
+        "source": "docs/guides/testing.md",
+        "route": "docs/guides/testing",
+        "title": "Test an application",
+        "section": "Guides",
+        "sha256": "7d2fb783ad80dc3a56dc4dc3c999426a992ee8214d65011eeebcdcc1206152ff"
+      },
+      {
+        "source": "docs/guides/typescript.md",
+        "route": "docs/guides/typescript",
+        "title": "Use TypeScript in an application",
+        "section": "Guides",
+        "sha256": "9011a7cda3f391ec2ca96be5487b6857f0508cab25cc556ff8f4843bd680b0ce"
+      },
+      {
+        "source": "docs/guides/local-editing.md",
+        "route": "docs/guides/local-editing",
+        "title": "Edit a View\u2019s own model",
+        "section": "Guides",
+        "sha256": "45afd4ebdecb95e766770bc4a76f3c755510ba28f88bc797072cb417d4e13af1"
+      },
+      {
+        "source": "docs/guides/retained-refresh.md",
+        "route": "docs/guides/retained-refresh",
+        "title": "Refresh data while retaining UI",
+        "section": "Guides",
+        "sha256": "0b7bdaa4e57ddc12b81567278fa4f01b78d2660e3ed7de5f5c3583ab0148fcc5"
+      },
+      {
+        "source": "docs/guides/existing-html.md",
+        "route": "docs/guides/existing-html",
+        "title": "Add behavior to existing HTML",
+        "section": "Guides",
+        "sha256": "052b1b216adaa6de91a76eb2a365bfcb5062a3525e3f1cbbe7cf87a091cf8a95"
+      },
+      {
+        "source": "docs/guides/existing-ui.md",
+        "route": "docs/guides/existing-ui",
+        "title": "Integrate with existing UI",
+        "section": "Guides",
+        "sha256": "62bfa91930eabdc35e8f33baf7703ae96dad56ef14a15a402194dbbf3b5230c8"
+      },
+      {
+        "source": "docs/guides/routing.md",
+        "route": "docs/guides/routing",
+        "title": "Connect navigation to feature ownership",
+        "section": "Guides",
+        "sha256": "030d555a9ff9b90187c0ff52555e95d6df18b487c7a26fc3237e7f7f0a90f9af"
+      },
+      {
+        "source": "docs/guides/lists.md",
+        "route": "docs/guides/lists",
+        "title": "Show, sort, and filter a list",
+        "section": "Guides",
+        "sha256": "8ffa8a0109427c739ad956284c192f0db11bb266494ee853110bbf1ae7975822"
+      },
+      {
+        "source": "docs/guides/widgets.md",
+        "route": "docs/guides/widgets",
+        "title": "Integrate an imperative control",
+        "section": "Guides",
+        "sha256": "cf8cc28d52bcac0c849d4a1e9e771beb987b5c834ed7cd94f44a77c0aedaa009"
+      },
+      {
+        "source": "docs/guides/accessibility-rendering.md",
+        "route": "docs/guides/accessibility-rendering",
+        "title": "Accessibility and rendering",
+        "section": "Guides",
+        "sha256": "0f97012cc4cbef97b96b066c04c91de6baf39fbfd1a22c8a2528b53ba191ff32"
+      },
+      {
+        "source": "docs/guides/production.md",
+        "route": "docs/guides/production",
+        "title": "Build and deploy an application",
+        "section": "Guides",
+        "sha256": "494fd930cf79d052bcfd825813175ea1157a6a82195762ee76e2c812d340cba3"
+      },
+      {
+        "source": "docs/records.md",
+        "route": "docs/records",
+        "title": "Build a records feature",
+        "section": "Guides",
+        "sha256": "65605e31bd96db536e7e1a4b160895d87ada9deae98497213302f4f25a04b8b3"
+      },
+      {
+        "source": "docs/tooling.md",
+        "route": "docs/tooling",
+        "title": "Check and debug an application",
+        "section": "Development tools",
+        "sha256": "a623a46b5f0b68c4597e685a3018587e96ee7db3064c64b6bd9700c5d55c5a3c"
+      }
+    ],
+    "assets": [
+      {
+        "source": "config/diagnostics/catalog.json",
+        "sha256": "45360deea6dfe7d531b256dbbebb443e9fa578fb0d43fc9becce7ab5126c76bf"
+      },
+      {
+        "source": "config/diagnostics/catalog.schema.json",
+        "sha256": "0d6b10a7995f5d0d878c855a32321b8e5493596bfe3f40a43137b00acc4c8b52"
+      },
+      {
+        "source": "skills/marionette/SKILL.md",
+        "sha256": "93e7f5e16827534803eb5c41e7c858b576086a66f5a8fd3b0289a31c0771f998"
+      },
+      {
+        "source": "skills/marionette/agents/openai.yaml",
+        "sha256": "fea7e861cd2c759b5eee0a0cebe01618e851cd36618c36cb25efbe214f050f5f"
+      },
+      {
+        "source": "skills/marionette/scripts/docs.mjs",
+        "sha256": "7eb7a388d1ab1e2d37419c4746c72b540f085513671384bf84af37a537063bc1"
+      },
+      {
+        "source": "skills/marionette/scripts/search.mjs",
+        "sha256": "99eeb6ef5b5f8cf1bef6ac1b0cc163f129955d62f8811071ffdffad7aeffe1b1"
+      },
+      {
+        "source": "skills/marionette/scripts/symbols.mjs",
+        "sha256": "6681e72d8c52cd5b1395b8a76692f04b2a7c674d9f85574c51494592a09d9678"
+      },
+      {
+        "source": "examples/records/README.md",
+        "sha256": "2fe4ba3d1cce9c5af2637c67313f07212704a997c03e787e8f95ceca121d8c51"
+      },
+      {
+        "source": "examples/records/index.html",
+        "sha256": "4ca4d73942ad18c9029cb32dd97657e2eea2426bd7385c59c0b369c8dcbc690d"
+      },
+      {
+        "source": "examples/records/package-lock.json",
+        "sha256": "170cb83826c00fa57719cf63223aa5c8ae8ddb4829edbad32ea10a3653986551"
+      },
+      {
+        "source": "examples/records/package.json",
+        "sha256": "8da65232d8f0f3eea2c1498d47f5171240ccbdd2978d807abdb2a6763b218bdc"
+      },
+      {
+        "source": "examples/records/playwright.config.js",
+        "sha256": "1a69ed49b35ab21fe08c19c460a7f7c443cc945da93a516eaebb6f7606566a9d"
+      },
+      {
+        "source": "examples/records/public/api/records.json",
+        "sha256": "7e40223309652f988c0c013eef681d314be90db9883e9dce32b3a5c7eb9d24c3"
+      },
+      {
+        "source": "examples/records/scripts/build-local-packages.mjs",
+        "sha256": "03313c8fef539038e324e727f4b0b6dd97f06e6ca1241865f4efebe7043215c1"
+      },
+      {
+        "source": "examples/records/src/main-application.js",
+        "sha256": "8369d588659fa23aa87a5701d2ff88f7d455a8b9a2a64696c5bda55706f8ae75"
+      },
+      {
+        "source": "examples/records/src/main.js",
+        "sha256": "e57ab4fcb102fccf10e111d2f4995d8ae3f2e560d543a47cc6c2fee38d79b5ad"
+      },
+      {
+        "source": "examples/records/src/page.js",
+        "sha256": "472076b97ff0a80f1f10aabb8bffc8ad827c3675f62abcb8be9732932f916022"
+      },
+      {
+        "source": "examples/records/src/records-api.js",
+        "sha256": "d85f89ff80fd3710919a42fb5b50a42cba2048b683089ee3bdcb5ed08c61ca80"
+      },
+      {
+        "source": "examples/records/src/records-application.js",
+        "sha256": "e3d8974977b8f1a8c6dbc760c68bb212f6987489e81a95258b77af2033c37333"
+      },
+      {
+        "source": "examples/records/src/records-views.js",
+        "sha256": "7465791b99c299f1190c1db2f1168462dedbb3e7d243ebb73c316eee5775f008"
+      },
+      {
+        "source": "examples/records/src/setup.js",
+        "sha256": "e06baac1af4943e6b6a99cb21b250d4c6b7b708b1c9a297fcb55e0641df732e0"
+      },
+      {
+        "source": "examples/records/src/styles.css",
+        "sha256": "5bd2f36b22d099653cd5578d4e2cc267261663d4fd4c2f381dea6ac55b734bf7"
+      },
+      {
+        "source": "examples/records/tests/records.spec.js",
+        "sha256": "0c8a3bfb2a9a8c4e284f702327ea3a913987e46e44cb53de515b09586fe09aef"
+      },
+      {
+        "source": "examples/records/vite.config.js",
+        "sha256": "cade79f781fc6f4aae162840fa0a6343a8e423d61a137d8b5ca909eceaee5ed8"
+      },
+      {
+        "source": "docs-sections.json",
+        "sha256": "519f2c1178e9009d88ba62084d49d163f9cb16f4d9778190c84d45f602140b3d"
+      },
+      {
+        "source": "docs-symbols.json",
+        "sha256": "ead68cca377855e792a9eda1d2f6f3d25e949833c7175473cd45636257e9eaec"
+      }
+    ]
+  },
+  "source_changes": [
+    {
+      "source": "docs/agents.md",
+      "sha256": "1229d5f1bc631450485447867d237eadb70c917b1c9c2bb390bd934499f229b8",
+      "bytes": 8837,
+      "characters": 8837,
+      "after_sha256": "7341a89c97432e59e74192245bd22f21179acd21986167883296554b3294e1a7",
+      "after_bytes": 4617,
+      "after_characters": 4617,
+      "character_delta": -4220
+    },
+    {
+      "source": "docs/readme.md",
+      "sha256": "4939d0710347b8f9c3cf3bf8ccd71e1703eb877548f46bf2319472fd22956847",
+      "bytes": 4563,
+      "characters": 4561,
+      "after_sha256": "5a60a2c6743fc3c762e101c57dea91d9dab2e3222e1f8ccd74cbf09733e527cf",
+      "after_bytes": 4475,
+      "after_characters": 4473,
+      "character_delta": -88
+    },
+    {
+      "source": "docs/tooling.md",
+      "sha256": "7d966f4dbacd338a4530af3d87b1177288573acbc910fcfd19b92446d4a54d02",
+      "bytes": 5143,
+      "characters": 5143,
+      "after_sha256": "a623a46b5f0b68c4597e685a3018587e96ee7db3064c64b6bd9700c5d55c5a3c",
+      "after_bytes": 8068,
+      "after_characters": 8068,
+      "character_delta": 2925
+    },
+    {
+      "source": "llms.txt",
+      "sha256": "d5003de396ccac9798eb284b04d2e52a8a1d07e332969a9a892046952b834d76",
+      "bytes": 2221,
+      "characters": 2221,
+      "after_sha256": "73a059e67bf00c3886b9731360894462fbd1f4008b1e90c7cad1862a1ae93683",
+      "after_bytes": 2205,
+      "after_characters": 2205,
+      "character_delta": -16
+    },
+    {
+      "source": "skills/marionette/SKILL.md",
+      "sha256": "7b0b02a6364abe7796bc7833ea2504deb01341f14d91ccc4e5610b032031cd0f",
+      "bytes": 5378,
+      "characters": 5378,
+      "after_sha256": "93e7f5e16827534803eb5c41e7c858b576086a66f5a8fd3b0289a31c0771f998",
+      "after_bytes": 3995,
+      "after_characters": 3995,
+      "character_delta": -1383
+    },
+    {
+      "source": "scripts/docs/agent-routes.mjs",
+      "sha256": "c6b0a39f0f7dfc3fb8252e32e5a8e740cf82f3a48721202f9e70f646f12a4a7d",
+      "bytes": 2008,
+      "characters": 2008,
+      "after_sha256": "759fbebcec5def6dd54b5fea90557a97d7c510a9407283c2b2a05ae5d22c7c49",
+      "after_bytes": 2095,
+      "after_characters": 2095,
+      "character_delta": 87
+    },
+    {
+      "source": "test/agent-docs/retrieval.test.mjs",
+      "sha256": "40c51ca49931f7b3f38860df996b77215bff2c2bd06c1b584f83857ef565c0ff",
+      "bytes": 12188,
+      "characters": 12188,
+      "after_sha256": "580eb4f922baa511312921e8dd464edf3f133fc1579d54fb1bd84e624d991bfd",
+      "after_bytes": 12471,
+      "after_characters": 12471,
+      "character_delta": 283
+    },
+    {
+      "source": "test/agent-docs/discovery.test.mjs",
+      "sha256": "901d71142170d317b8502cd9e754e872fb28607eb1a00b0d105f700501dc6fa5",
+      "bytes": 2984,
+      "characters": 2984,
+      "after_sha256": "34845f4dc9eb3b9f6090a5ec1dbe1387186a51f63a17bfdebd5ebceafa5cda2e",
+      "after_bytes": 3898,
+      "after_characters": 3898,
+      "character_delta": 914
+    }
+  ],
+  "recorded_audit": {
+    "recorded_public_reading_findings": [
+      {
+        "id": "section-access",
+        "priority": 1,
+        "finding": "Recorded readers frequently failed focused section retrieval and then fetched broad references.",
+        "measured": {
+          "attempts_with_helper_error": 6,
+          "helper_error_responses": 8,
+          "helper_errors_with_zero_shell_exit": 7,
+          "attempts": 7,
+          "largest_observed_complete_reference_chars": 30000
+        },
+        "ordinary_reader_validation": "Public helper modes are mutually exclusive. Section lookup requires an ID from the generated section index, not a page-heading string or URL anchor. Six matching public sections were validated independently from frozen byte offsets; their complete contracts are unchanged.",
+        "general_action": "Make the entry instructions demonstrate search then copy the returned section ID, with a clear distinction between page source paths, section IDs and website anchors. Warn that a shell pipeline can conceal helper failure. Keep references, ranking and runtime unchanged.",
+        "causal_limit": "This directly accounts for eight error responses and observed fallback reading; it does not quantify saved dollars or prove all broader reading unnecessary."
+      },
+      {
+        "id": "installed-runtime-route",
+        "priority": 2,
+        "finding": "Some revised readers entered optional renderer/dependency discovery after startup/example reading even though an installed default runtime was available.",
+        "measured": {
+          "affected_revised_attempts": 3,
+          "optional_renderer_inspection_calls_per_affected_attempt": "3 to4, including one mixed inspection/reference read",
+          "actual_missing_optional_package_lookup_or_import_observed": true,
+          "separate_package_readme_llms_skill_consumer_entry_chain_reads": 0
+        },
+        "ordinary_reader_validation": "The public quick start is an installation recipe that selects an optional renderer; the public provider contract separately documents the built-in string-template renderer and DOM implementation. Both are valid workflows. An existing consumer asking how its installed rendering works should have a short route to the current integration rather than traversing fresh-project setup.",
+        "general_action": "Label install/setup and optional renderer recipes by their prerequisites; give existing-project readers an early route to their installed providers and versioned contracts. Do not prescribe a renderer or alter the public default.",
+        "causal_limit": "Inspections are observed, and one optional package was unavailable. This does not establish a defective frozen closure or prove installation text caused implementation/debugging errors."
+      }
+    ],
+    "entry_attribution": {
+      "standalone_package_readme_llms_skill_or_consumer_entry_page_reads": 0,
+      "inventory_calls": 8,
+      "inventory_returned_characters_including_mixed_search_call": 17194,
+      "explicit_quickstart_architecture_integration_setup_page_characters": 30057,
+      "mcp_install_configuration_page_reads": 0,
+      "warning": "The quick-start/integration pages contain install text, so absence of a standalone entry chain is not absence of setup prose. Their character counts are exposure, not avoidable-cost estimates. Whole-reference and example reading dominates the substantive character totals. Do not use these runs to attribute aggregate regressions to README/skill duplication or newly audited anchor stripping."
+    },
+    "helper_error_syntax_categories": {
+      "total": 8,
+      "categories": {
+        "incompatible_page_and_section_modes": 4,
+        "bare_heading_as_section_id": 2,
+        "page_path_without_required_docs_prefix": 1,
+        "markdown_path_with_heading_fragment_as_section_id": 1
+      }
+    },
+    "anchor_change_scope": "Canonical Markdown-anchor IDs directly address1 of8 observed error shapes; they alone do not fix incompatible mode combinations, bare headings or missing page-path prefixes.",
+    "measurement_limits": [
+      "Substantive character totals decode measured document-reader content and remove helper JSON provenance where possible; mixed shell output may retain labels or brief dependency output. They include declaration/example source reads and are not equivalent to model tokens.",
+      "Stage timing uses first captured event to the visible first write invocation. It includes prior code generation in the tool argument; remaining wall time is not purely planning, reading, reasoning or debugging.",
+      "Tool subprocess durations account for a small share of wall time; residual includes provider latency, thinking, generation, client overhead and scheduling.",
+      "No reserved minimal reading set exists; documentation_needed_characters remains null.",
+      "Repeated source paths are not equivalent to repeated spans, and a truncated large reference can require a later tail read.",
+      "Message usage snapshots and CLI result aggregates differ; interrupted earlier task2 lacks a final aggregate, thinking count and cost.",
+      "One attempt per cell, sequential order, model/provider drift and changed runner stop handling preclude general performance or causal conclusions.",
+      "Earlier task1 pair remains separate from v2; earlier stopped task2 is descriptive only.",
+      "Preliminary setup logs were overwritten before archive protection; no claim of complete development history."
+    ],
+    "sealed_input_files_verified_unchanged": 35
+  },
+  "audit_sha256": "9b99d672599a4abad508d8cea9208421ef229f56efde22d0a53efc0842532eac",
+  "short_reader_comparison": {
+    "scope": "Four fresh fork_turns=none internal subagent readers of two pre-edit frozen narrow consumer-documentation questions. No implementation execution or external provider calls. Not a broad efficiency, time or dollar comparison.",
+    "pairs": [
+      {
+        "request": "ordinary-1",
+        "before": {
+          "case": "bf085c0bfae2",
+          "stdout_characters": 44892,
+          "document_characters": 44773,
+          "requests": 3,
+          "admitted": 3,
+          "rejected": 0,
+          "errors": 0,
+          "requested_sources": [
+            [
+              "package.json",
+              "skills/marionette/SKILL.md"
+            ],
+            [
+              "docs/api/shared/view-bindings.md"
+            ],
+            [
+              "docs/api/view.md"
+            ]
+          ],
+          "required_correctness": "pass",
+          "required_citation_suitability": "pass"
+        },
+        "after": {
+          "case": "17083dc05698",
+          "stdout_characters": 31798,
+          "document_characters": 31667,
+          "requests": 3,
+          "admitted": 3,
+          "rejected": 0,
+          "errors": 0,
+          "requested_sources": [
+            [
+              "package.json",
+              "skills/marionette/SKILL.md"
+            ],
+            [
+              "docs/api/view.md"
+            ],
+            [
+              "docs/api/shared/view-bindings.md#ui-bindings"
+            ]
+          ],
+          "required_correctness": "pass",
+          "required_citation_suitability": "pass"
+        }
+      },
+      {
+        "request": "ordinary-2",
+        "before": {
+          "case": "1664f7b9401c",
+          "stdout_characters": 28886,
+          "document_characters": 28791,
+          "requests": 2,
+          "admitted": 2,
+          "rejected": 0,
+          "errors": 0,
+          "requested_sources": [
+            [
+              "package.json",
+              "skills/marionette/SKILL.md"
+            ],
+            [
+              "docs/api/shared/view-bindings.md"
+            ]
+          ],
+          "required_correctness": "pass",
+          "required_citation_suitability": "pass"
+        },
+        "after": {
+          "case": "637a56095632",
+          "stdout_characters": 33174,
+          "document_characters": 33046,
+          "requests": 3,
+          "admitted": 3,
+          "rejected": 0,
+          "errors": 0,
+          "requested_sources": [
+            [
+              "package.json",
+              "skills/marionette/SKILL.md"
+            ],
+            [
+              "docs/api/shared/events.md"
+            ],
+            [
+              "docs/api/shared/view-bindings.md"
+            ]
+          ],
+          "required_correctness": "pass",
+          "required_citation_suitability": "pass"
+        }
+      }
+    ],
+    "assessment": {
+      "cases": 4,
+      "required_correctness_pass": 4,
+      "required_correctness_fail": 0,
+      "required_correctness_unverified": 0,
+      "required_clauses_passed": 14,
+      "required_clauses_failed": 0,
+      "required_clauses_unverified": 0,
+      "required_citation_suitability_pass": 4,
+      "contradictions_to_frozen_evidence": 0,
+      "unsupported_required_assertions": 0,
+      "supplementary_source_verification_unverified_cases": 2,
+      "supplementary_source_verification_pass_cases": 2
+    },
+    "integrity": {
+      "all_package_vectors_unchanged": true,
+      "mismatches": [],
+      "frozen_requests_unchanged": true,
+      "frozen_criteria_unchanged": true,
+      "wrapper_unchanged": true,
+      "package_files_checked": 608,
+      "reader_calls": 4,
+      "external_model_calls": 0,
+      "cap": 6,
+      "admission_seconds": 180,
+      "limits": "Wrapper admission enforced; filesystem/tool surface not sandboxed. Cross-surface absence cannot be independently proven from wrapper logs alone. Wall time logs cover admitted document access, not complete model thinking duration.",
+      "response_capture": "Final response payloads transcribed into private JSON; Markdown and spacing normalized. Substantive answers, examples, citations and self-reported request counts preserved. Wrapper stdout is preserved exactly with SHA256."
+    },
+    "mechanism_observed": {
+      "before_startup_stdout_characters": 15475,
+      "after_startup_stdout_characters": 14092,
+      "helper_calls": 0,
+      "after_direct_anchor_reads": 1,
+      "before_direct_anchor_reads": 0,
+      "per_case_after_startup_read_modes": {
+        "ordinary-1-before": "2fullpages",
+        "ordinary-1-after": "1fullpage+1anchor",
+        "ordinary-2-before": "1fullpage",
+        "ordinary-2-after": "2fullpages"
+      }
+    },
+    "limits": [
+      "One reader per request/condition; same inherited model, model identities not independently verified.",
+      "Starting skill+package metadata are supplied through a common wrapper; installed-package acquisition is not tested.",
+      "Common direct-anchor wrapper resolution is a measurement affordance available in both conditions; no actual product helper use was observed.",
+      "Wrapper enforces its6-request and180-second admission limits but does not sandbox filesystem access; other-surface absence cannot be proven from wrapper logs.",
+      "Logged access duration excludes complete thinking/answer duration, and no billing estimates were collected.",
+      "Required correctness and citation suitability passed; two supplementary claims retain independent source-verification limits.",
+      "Assessor is condition-masked, not guaranteed blind; prior public/private qualification knowledge exists.",
+      "Final answers are transcribed with Markdown/spacing normalized; document stdout retained exactly."
+    ],
+    "artifact_sha256": {
+      "freeze.json": "db0575e1f9b715ed8cd430586bc75eadf4b7e4bf76d4ec70ae647012ff31919a",
+      "input-freeze.json": "a48b1213f1fc4a4e65590f04b77608cfafadae87848b6cc370643a4ba0af98e1",
+      "read.py": "e7209ddbde0e746f5556048a634fbda3382ecbc92eef16ba205099dd55c98a8f",
+      "read-metrics.json": "b8e52bc0ddb73363a72b94348649f225b4c9a698e8f826dd4617032586bab058",
+      "assessment.json": "edf8beaebdeaee0c5c3ebcb142f754290d9012684b3b7a52da4b328bc35b6c12",
+      "integrity-receipt.json": "d7f8d4d23007ac3a53e4d8fe0e983648e2ce927b12a5e00c811ae03c0c5cb4fd"
+    }
+  },
+  "short_reader_report_sha256": "7dc3c929bed8dc19d0e800b9c516a543799e50c4657a367871cadbe6da4a1799",
+  "old_run_input_integrity": {
+    "runner": {
+      "files_checked": 82,
+      "mismatches": 0
+    },
+    "runner-v2": {
+      "files_checked": 1994,
+      "mismatches": 0
+    }
+  },
+  "checks": {
+    "agent_docs": {
+      "command": "npm run test:agent-docs",
+      "passed": 39,
+      "failed": 0
+    },
+    "heading_build": {
+      "command": "node --test test/docs/build.test.mjs",
+      "passed": 4,
+      "failed": 0
+    },
+    "docs_check": {
+      "command": "npm run docs:check",
+      "result": "passed after missing textFromHeading import repair",
+      "example_fences": 48,
+      "declaration_fixtures": 20,
+      "rendered_pages": 83,
+      "html_files_checked": 84,
+      "internal_links_checked": 1082,
+      "consumer_pages": 38,
+      "supporting_assets": 26,
+      "installed_consumer_tests": 5
+    },
+    "skill_frontmatter": "Existing Node yaml package validates unchanged frontmatter; official Python quick_validate unavailable because PyYAML is absent."
+  }
+}

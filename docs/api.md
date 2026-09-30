@@ -56,4 +56,4 @@ Class pages link to the relevant [shared configuration contracts](api/shared/vie
 
 For a first runnable result, use the [quick start](quick-start.md). For composition guidance, see [architecture](architecture.md).
 
-Detailed coverage still pending: a complete custom immutable-store integration, and exact Application destination-binding order when lifecycle operations overlap or completion hooks start another cycle. The [provider contracts](api/providers/data.md) and [Application lifecycle](api/application.md) describe the currently documented boundaries.
+Detailed coverage still pending: a complete custom immutable-store integration. The [provider contracts](api/providers/data.md) describe the integration boundary. Application lifecycle details include [destination binding order](api/application.md#destination-binding-order) and [restart from start completion](api/application.md#restart-from-start-completion).

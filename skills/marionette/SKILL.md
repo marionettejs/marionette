@@ -5,53 +5,47 @@ description: Build, debug, review, or test Marionette v5 applications using thei
 
 # Marionette applications
 
-Use this skill for application work. For changes to Marionette itself, follow its repository guidance.
+For application work, locate `marionette/package.json` with Node's `require.resolve` from the application workspace and read its version. For rendering, observation or persistence changes, check the configured renderer or data provider. For framework changes, follow repository guidance.
 
-## Find the application's documentation
-
-From the application workspace, locate `marionette/package.json` with Node's `require.resolve` and read its version. Open `docs/agents.md` or `docs/readme.md` beside that file. Check the application's renderer and data setup before choosing APIs. If packaged documentation is missing, obtain the exact release or known source revision; do not substitute a different version's contracts.
-
-The paths below are relative to the installed package, not this skill directory. Start with the relevant task and follow its canonical references. A narrow API change does not require reading the whole corpus.
+Choose one task or exact API section below directly from the installed package. Documentation paths are relative to that package, not this skill. Follow additional references when the task needs them. If docs are absent, obtain the exact release or known source revision; do not substitute current website contracts.
 
 <!-- task-routes:start -->
 | Task | Packaged page |
 | --- | --- |
-| Install and render a first View | `docs/quick-start.md`, `docs/integrations/setup.md` |
-| Migrate an existing v4 application | `docs/guides/migration.md`, `docs/packages/adapters.md` |
-| Test interaction, readiness, or teardown | `docs/guides/testing.md`, `docs/tooling.md` |
-| Choose ownership and lifetimes | `docs/architecture.md`, `docs/api.md` |
-| Handle a local control or edit | `docs/guides/local-editing.md`, `docs/api/view.md`, `docs/api/shared/view-bindings.md` |
-| Prepare, start, stop, or refresh a feature | `docs/api/application.md`, `docs/architecture.md` |
-| Refresh while retaining a draft or shell | `docs/guides/retained-refresh.md`, `docs/api/application.md` |
-| Enhance existing markup | `docs/guides/existing-html.md`, `docs/api/view.md` |
-| Embed a feature in another UI | `docs/guides/existing-ui.md`, `docs/api/region.md` |
-| Connect URLs and destination lifetimes | `docs/guides/routing.md`, `docs/api/application.md` |
-| Show, replace, or retain child UI | `docs/api/region.md`, `docs/api/view.md` |
-| Render, filter, or sort repeated children | `docs/guides/lists.md`, `docs/api/collection-view.md` |
-| Share observable data and state | `docs/api/shared/state.md`, `docs/api/providers/data.md`, `docs/packages/data.md` |
-| Connect events and clean up subscriptions | `docs/api/shared/events.md`, `docs/api/shared/view-bindings.md` |
-| Connect channels and request/reply handlers | `docs/packages/radio.md`, `docs/api/shared/common.md` |
-| Configure a renderer or another data layer | `docs/packages/adapters.md`, `docs/api/runtime.md`, `docs/api/providers/dom.md`, `docs/api/providers/data.md` |
-| Write typed options, handlers, or lifecycle hooks | `docs/guides/typescript.md`, `docs/tooling.md` |
-| Check types, lint, or diagnose a failure | `docs/tooling.md`, `docs/api/errors.md` |
-| Integrate an imperative control | `docs/guides/widgets.md`, `docs/api/behavior.md` |
-| Check keyboard, focus, or rendering safety | `docs/guides/accessibility-rendering.md`, `docs/api/providers/dom.md` |
-| Build and deploy an application | `docs/guides/production.md`, `docs/tooling.md` |
+| Install and render a first View | `docs/quick-start.md` |
+| Migrate an existing v4 application | `docs/guides/migration.md` |
+| Test interaction, readiness, or teardown | `docs/guides/testing.md` |
+| Choose ownership and lifetimes | `docs/architecture.md` |
+| Bind a DOM event or trigger | `docs/api/shared/view-bindings.md#dom-events` |
+| Read or rebind named DOM elements | `docs/api/shared/view-bindings.md#ui-bindings` |
+| Edit a model or retain a draft | `docs/guides/local-editing.md` |
+| Prepare, start, stop, or refresh a feature | `docs/api/application.md` |
+| Refresh while retaining a draft or shell | `docs/guides/retained-refresh.md` |
+| Enhance existing markup | `docs/guides/existing-html.md` |
+| Embed a feature in another UI | `docs/guides/existing-ui.md` |
+| Connect URLs and destination lifetimes | `docs/guides/routing.md` |
+| Show, replace, or retain child UI | `docs/api/region.md` |
+| Render, filter, or sort repeated children | `docs/guides/lists.md` |
+| Share observable data and state | `docs/api/shared/state.md` |
+| Connect events and clean up subscriptions | `docs/api/shared/events.md` |
+| Connect channels and request/reply handlers | `docs/packages/radio.md` |
+| Configure a renderer or another data layer | `docs/api/runtime.md#choose-a-configuration-scope` |
+| Write typed options, handlers, or lifecycle hooks | `docs/guides/typescript.md` |
+| Check types, lint, or diagnose a failure | `docs/tooling.md` |
+| Integrate an imperative control | `docs/guides/widgets.md` |
+| Check keyboard, focus, or rendering safety | `docs/guides/accessibility-rendering.md` |
+| Build and deploy an application | `docs/guides/production.md` |
 | Apply the concepts in a composed feature | `docs/records.md` |
 <!-- task-routes:end -->
 
-## Apply the contract
+## Apply and verify
 
-Use `docs/architecture.md` when deciding ownership or lifetimes. Keep local interaction in a View when that fits the task; coordinate feature readiness and shared work at the lifetime that owns it. An asynchronous call alone does not require an Application. A View may save its own model if the configured data layer supplies that operation; `@mnjs/data` does not supply persistence or `Model.save()`.
+Local interaction can stay in a View. An asynchronous call alone does not require an Application. A View may save its own model if the configured data layer supplies it; optional `@mnjs/data` supplies observation, with fetching and persistence provided separately, and does not supply `Model.save()`.
 
-Use the relevant reference for method arguments, event payloads, and cleanup. Verify the changed behavior, including replacement or cancellation when those are part of the task. Distinguish executed checks from conclusions based only on source inspection.
+Application preparation establishes readiness; explicit operations refresh active features. Coordinate shared decisions at their owning lifetime. Use `docs/architecture.md` when choosing ownership. Verify changed interaction, replacement, cancellation or teardown as relevant; distinguish executed checks from source inspection.
 
-## Optional lookup helper
+## Optional lookup
 
-Run `node <skill>/scripts/docs.mjs --list` from the application directory, replacing `<skill>` with this skill's directory. Use `--search 'query'`, `--page docs/api/view.md`, or `--section <id>` returned by search. For an external package store, pass `--package-root <directory>`.
+Read Markdown directly, or run `node <skill>/scripts/docs.mjs --section docs/path.md#heading-anchor` from the application directory. Replace `<skill>` with this skill directory and use a section link from the docs or a returned lookup ID. `--page SOURCE --section 'Heading'` reads a named section. Use `--symbol Export.member` for signatures, `--search 'query'` for an unknown location, or `--page SOURCE` for a full page. `--list` is optional page discovery. External package stores need `--package-root <physical-directory>`. The helper verifies installed documentation hashes and reports version/revision.
 
-The helper reads the installed package and verifies its documentation manifest and hashes. Reading the same Markdown files directly is also supported. See the installed `docs/agents.md` for the full discovery workflow.
-
-## Optional hosted lookup
-
-The plugin also supplies a documentation MCP connection. Read `marionette://catalog` before using its search tools: both `provenance.packageVersion` and `provenance.sourceRevision` must match the installed package and its docs manifest, even when the version matches. A hosted development candidate can reuse a version. `sourceDirty: true` means local changes beyond that revision. Follow the catalog's `requestIdentity` for required tool arguments. Pass the exact `version`; candidate search and read calls also require the matching `sourceRevision`. Use the IDs returned by search. Missing revision metadata, a mismatch, or an unavailable service leaves the installed Markdown and local helper as the authority; do not substitute its current corpus. The copied skill works without MCP.
+Only when using the plugin's hosted connection, follow the installed `docs/tooling.md#hosted-documentation-mcp` identity checks. Installed Markdown remains authoritative. The copied skill works without MCP.

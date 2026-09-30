@@ -1,4 +1,5 @@
 import { marked } from 'marked';
+import { createSlugger, markdownRenderer } from './headings.mjs';
 
 export const isConsumerPage = page => page.section !== 'Maintaining Marionette';
 export const plainHeading = text => text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
@@ -13,18 +14,25 @@ export function documentSections(source, markdown) {
     offsets.push(index + 1);
   }
   const headings = [];
+  const slug = createSlugger();
   let cursor = 0;
   for (const token of marked.lexer(normalized)) {
     const position = normalized.indexOf(token.raw, cursor);
     cursor = position + token.raw.length;
-    if (token.type !== 'heading') { continue; }
-    const start = offsets[position];
-    const line = markdown.slice(0, start).split(/\r\n?|\n/).length;
-    const heading = plainHeading(token.text);
-    headings.push({ id: `${source}#L${line}`, source, heading, depth: token.depth, start });
+    // Nested headings still consume rendered anchors, although only top-level
+    // blocks become retrievable sections with independently verified offsets.
+    // The visitor returns only undefined; traversal completes synchronously.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    marked.walkTokens([token], item => {
+      if (item.type !== 'heading') { return; }
+      const anchor = slug(marked.parseInline(item.text, { renderer: markdownRenderer }));
+      if (item !== token) { return; }
+      headings.push({ id: `${source}#${anchor}`, source, heading: plainHeading(item.text),
+        depth: item.depth, start: offsets[position] });
+    });
   }
   if (!headings.length || headings[0].start > 0) {
-    headings.unshift({ id: `${source}#intro`, source, heading: 'Introduction', depth: 0, start: 0 });
+    headings.unshift({ id: `${source}#@intro`, source, heading: 'Introduction', depth: 0, start: 0 });
   }
   return headings.map((heading, index) => ({
     ...heading,

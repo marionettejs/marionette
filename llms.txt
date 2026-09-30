@@ -1,6 +1,6 @@
 # Marionette v5
 
-Version-matched Markdown for the installed package. Start with the documentation index; read the relevant reference before changing application code.
+Version-matched Markdown for the installed package. Choose the relevant task or exact reference directly; use the index for browsing.
 
 - [Documentation index](docs/readme.md)
 - [Agent workflow](docs/agents.md)

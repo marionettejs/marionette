@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "73882688208f701c6e50162a18f5ff9171050ba0ffb1c000d3a4b90f0acd03c2",
+  "semanticsSha256": "3c9157faae46d9261193b47cb52463ef5ac0de0a92f21ee9501d3ae8c9053943",
   "entrypoints": [
     {
       "name": "marionette",
@@ -7652,8 +7652,8 @@
           "heading": "Binding helpers"
         },
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Building a component"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ]
     },
@@ -7666,8 +7666,8 @@
           "heading": "Binding helpers"
         },
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Building a component"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ]
     },
@@ -7848,8 +7848,7 @@
     },
     {
       "id": "application-lifecycle",
-      "status": "partial",
-      "reason": "Lifecycle methods and cancellation are documented; exact destination-binding order after adopted stop preparation and restart reentry from completion hooks are not explained.",
+      "status": "documented",
       "docs": [
         {
           "file": "docs/api/application.md",
@@ -7874,6 +7873,14 @@
         {
           "file": "docs/api/application.md",
           "heading": "State and Radio"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Destination binding order"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Restart from start completion"
         }
       ]
     },
@@ -8004,10 +8011,6 @@
           "heading": "Options and initialization"
         },
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Building a component"
-        },
-        {
           "file": "docs/packages/utils.md",
           "heading": "Component methods"
         }
@@ -8022,8 +8025,8 @@
           "heading": "Options and initialization"
         },
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ]
     },
@@ -8036,8 +8039,8 @@
           "heading": "Binding helpers"
         },
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Building a component"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ]
     },
@@ -8050,8 +8053,8 @@
           "heading": "Binding helpers"
         },
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Building a component"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ]
     },
@@ -8970,7 +8973,7 @@
   },
   "evidence": {
     "config/diagnostics/catalog.json": "45360deea6dfe7d531b256dbbebb443e9fa578fb0d43fc9becce7ab5126c76bf",
-    "docs/api/application.md": "2a3aacbbb3194e07dc96cc8a3168dcb2a88f0dc38288b43c93ab8dce769360aa",
+    "docs/api/application.md": "e8cf32f5a7af7e91196d635317a395dc19c6cbdad56da55c9d526f6d512f8538",
     "docs/api/behavior.md": "d83fce01476376a3101ebb6bd77363134f841367422fe775b8431dc38128c7fa",
     "docs/api/collection-view.md": "a6ef68cdf1c8fd77fd47a0ff835e51a1714d23352c8d0c13d28bf83df586d94f",
     "docs/api/errors.md": "f0dd3a19d442003e171ca373c50e8d6aace0d97896a8324babb8c779d8060954",
@@ -8989,7 +8992,6 @@
     "docs/packages/data.md": "6a24f4e1c6441f1a73ec9a483422b269ff8613ee1cb9d86dcd2b8966e7096d52",
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
     "docs/packages/utils.md": "b022f7f2a958673aa40da59d12591316ef6773228f2dfc93f0af9a901878cb3d",
-    "packages/utils/readme.md": "875f359fc7e4c8129fe1c743d4517547706dbd7f99f37163c315fa805fd71dc9",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
     "test/unit/application-child-declarations.spec.js": "3b98e033f99902a8bff5c533c03599375381da4b4a01b9014e825eb21cb80e2b",
     "test/unit/application-child-lifecycle.spec.js": "e69e6a140e341563b49333d09bd1c483151f9f4b2a494960a4dfc78bb81f8dcb",

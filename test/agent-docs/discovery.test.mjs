@@ -3,6 +3,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
+import { documentSections } from '../../scripts/docs/sections.mjs';
 
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const json = async path => JSON.parse(await readFile(resolve(repository, path), 'utf8'));
@@ -38,17 +39,30 @@ test('discovery validation rejects an omitted consumer page', async() => {
   assert.throws(() => checkDiscoveryCoverage(omitted, navigation), /every consumer navigation page/);
 });
 
-test('agent and distributed skill guidance expose the candidate MCP request identity', async() => {
+test('agent and distributed skills route to the canonical candidate MCP request identity', async() => {
+  const tooling = await readFile(resolve(repository, 'docs/tooling.md'), 'utf8');
+  const hostedSection = documentSections('docs/tooling.md', tooling)
+    .find(section => section.heading === 'Hosted documentation MCP');
+  assert.ok(hostedSection, 'Hosted guidance must have a real tooling heading');
+  const hosted = tooling.slice(hostedSection.start, hostedSection.end);
+  const namedFields = new Set([...hosted.matchAll(/`([^`]+)`/g)].map(([, field]) => field));
+  // Candidate tools require both identity arguments. The protocol belongs to
+  // the setup page; entrypoints only need a resolvable route to that protocol.
+  for (const field of ['requestIdentity', 'version', 'sourceRevision']) {
+    assert.ok(namedFields.has(field), `Hosted guidance omits MCP argument/catalog field ${field}`);
+  }
+  assert.match(hosted, /candidate[\s\S]*sourceRevision/);
   const paths = ['docs/agents.md', 'skills/marionette/SKILL.md', 'plugins/marionette/skills/marionette/SKILL.md'];
   for (const path of paths) {
     const markdown = await readFile(resolve(repository, path), 'utf8');
-    const hosted = markdown.slice(markdown.indexOf('## Optional hosted'));
-    const namedFields = new Set([...hosted.matchAll(/`([^`]+)`/g)].map(([, field]) => field));
-    // A candidate catalog requires both identity arguments on tools. Checking
-    // their documented names catches the reviewed version-only instruction.
-    for (const field of ['requestIdentity', 'version', 'sourceRevision']) {
-      assert.ok(namedFields.has(field), `${path} omits candidate MCP argument/catalog field ${field}`);
-    }
-    assert.match(hosted, /candidate[\s\S]*sourceRevision/, `${path} must connect candidate calls to their revision argument`);
+    const href = path === 'docs/agents.md' ?
+      localLinks(markdown).find(value => value === 'tooling.md#hosted-documentation-mcp') :
+      [...markdown.matchAll(/`([^`]+)`/g)].map(([, value]) => value)
+        .find(value => value === 'docs/tooling.md#hosted-documentation-mcp');
+    assert.ok(href, `${path} must route to hosted identity guidance`);
+    const [source, fragment] = href.split('#');
+    const target = resolve(repository, path === 'docs/agents.md' ? dirname(path) : '', source);
+    assert.equal(target, resolve(repository, 'docs/tooling.md'));
+    assert.equal(fragment, 'hosted-documentation-mcp');
   }
 });

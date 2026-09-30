@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "checked_utc": "2026-09-30T10:01:41.843105+00:00",
+  "scope": "author-safe preparation only",
+  "model_run": false,
+  "trial_ready": false,
+  "comparison": {
+    "original_revision": "74534f719e9ae6bf00fb6061e9f8cb712e92e2ef",
+    "revised_corpus_freeze_sha256": "94c461f4b8e4307ad27caf0b25d20051cf49509b583f2864d0c5f2d0954b13e1",
+    "revised_content_sha256": "c91c223e4cf4956bc34450c48fd83ef6a59c44d903eceae81c1e69640e7e154a",
+    "question": "original upstream v5 documentation versus revised framework-wide documentation on one runtime",
+    "tooling": "controlled common docs.mjs/search.mjs/symbols.mjs with validated per-corpus section and symbol indexes",
+    "b1_followup_control": "statically feasible, not selected; answers only follow-up changes",
+    "original_corpus_freeze_sha256": "007b969c7dcb0482a444b19e0272b987aadfebccb4830f710c67a8177c23bdd0",
+    "original_content_sha256": "f8c30a56eb60665154347da6ff58ae51b7b52b5919e696e40590fcd4467cf85b",
+    "authoritative_original_corpus_directory": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/upstream/baseline-package",
+    "authoritative_revised_corpus_directory": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/revised/revised-package"
+  },
+  "reservation": {
+    "task_count": 3,
+    "max_reader_attempts": 6,
+    "original_freeze_sha256": "07228243b5d15bea762bc72d9e2f4d6b36bc7a5c790688f321b6715726ddddc6",
+    "original_reserved_file_count": 151,
+    "original_reserved_hash_mismatches": 0,
+    "task_contents_exposed_to_authors": false,
+    "reservation_preserved": true,
+    "durable_private_artifact_directory": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/reserved-tasks"
+  },
+  "private_preparation": {
+    "directory": "/tmp/marionette-v5-reader-preflight-20260930",
+    "freeze_sha256": "6384637747af682b5c0dc604ce1a66438dd75892e47b378eada553335f89db0d",
+    "contains_task_requirements": false,
+    "status": "neutral indexing/runtime smoke only; authoritative corpora use the linked original and revised freezes"
+  },
+  "corpora": {
+    "original": {
+      "pages": 58,
+      "indexed_pages": 58,
+      "sections": 602,
+      "section_offsets_valid": true,
+      "generic_search_checks": 4,
+      "all_generic_searches_return_results": true,
+      "authoritative_freeze_sha256": "007b969c7dcb0482a444b19e0272b987aadfebccb4830f710c67a8177c23bdd0",
+      "authoritative_content_sha256": "f8c30a56eb60665154347da6ff58ae51b7b52b5919e696e40590fcd4467cf85b",
+      "authoritative_assets": 37,
+      "authoritative_file_count": 122,
+      "authoritative_hash_mismatches": 0,
+      "link_closure": {
+        "checkedLocalLinks": 964,
+        "missingPaths": [],
+        "excludedLinks": [],
+        "missingAnchors": [],
+        "externalLinks": 78,
+        "externalAccess": "not fetched; disable network during comparison",
+        "anchorCheck": "GitHub-style heading approximation and explicit HTML ids; missing anchors require review",
+        "passedPaths": true
+      },
+      "symbol_index_sha256": "dc5cc37ab2cd298357bf4b4c0a37374760d455ca25686ab13f17f3ddcc7e8fe1",
+      "symbol_index_available": true,
+      "section_index_sha256": "60e4194b32ac6fefbbc162bef68933492891c472685215e904921f9cb60fd096",
+      "files": 122,
+      "assets": 37
+    },
+    "revised": {
+      "pages": 38,
+      "indexed_pages": 38,
+      "sections": 244,
+      "section_offsets_valid": true,
+      "generic_search_checks": 4,
+      "all_generic_searches_return_results": true,
+      "symbol_index_sha256": "a8dc196565f6a5448d4de52a3e5be6ae4c7a01c43bfc267d03ab928710c3a25b",
+      "symbol_index_available": true,
+      "section_index_sha256": "c37421e1f1e580a452282cbe1b0b7f145fce0fe3dc280d45423f63f1f10b1ba3",
+      "assets": 26,
+      "authoritative_file_verification": [
+        {
+          "collection": "revisedPackageFiles",
+          "files": 152,
+          "mismatches": 0
+        },
+        {
+          "collection": "revisedExportFiles",
+          "files": 65,
+          "mismatches": 0
+        }
+      ]
+    }
+  },
+  "controlled_helper_hashes": {
+    "search.mjs": "99eeb6ef5b5f8cf1bef6ac1b0cc163f129955d62f8811071ffdffad7aeffe1b1",
+    "sections.mjs": "70d13ba5d4b6370c38aa87e714093fa9d35751adb21820f10e74761c979c1cc6",
+    "docs.mjs": "589e87ea1caa5b6fcec8cd2893175795c99462c6b595d987b51ad528d1148c3d",
+    "symbols.mjs": "6681e72d8c52cd5b1395b8a76692f04b2a7c674d9f85574c51494592a09d9678"
+  },
+  "runtime": {
+    "version": "5.0.0-rc.2",
+    "node": "v24.19.0",
+    "common_core_cjs_sha256": "b967be4d89ec1260c374d79249aafba532ec722632351b3517c714efcbbd30d8",
+    "neutral_public_import_smoke": {
+      "passed": true,
+      "public_imports": 4,
+      "application_lifecycle_checks": 3,
+      "view_region_behavior_lifecycle_notifications": 7
+    },
+    "task_acceptance_runtime_checks_run": 0,
+    "new_install": false,
+    "shared_artifact_build": false
+  },
+  "feasibility": {
+    "original_upstream_static_task_contracts_supported": 3,
+    "b1_static_task_contracts_supported": 3,
+    "runnable_task_workspaces": 0,
+    "qualified_known_good_controls": 0,
+    "qualified_negative_controls": 0,
+    "seed_status": "frozen input data and one source seed; complete candidate workspaces and private acceptance runners still required"
+  },
+  "recommended_runner": {
+    "kind": "existing Stringent signed-in run_agent + candidate_mcp bridge with thin private six-cell launcher",
+    "client_version": "2.1.284",
+    "client_sha256": "4241eb34a941f9e7ca960ed845714b40f381a0365fe36d06077a1296bc6f97b2",
+    "local_signed_in_status_checked": true,
+    "model": "claude-sonnet-5",
+    "effort": "high",
+    "model_access_verified": false,
+    "resolved_model_revision": null,
+    "max_tool_calls_per_attempt": 35,
+    "seconds_per_attempt": 1500,
+    "cli_estimated_usd_per_attempt": 1.5,
+    "cli_estimated_usd_total": 9.0,
+    "strict_total_model_token_cap": false,
+    "strict_provider_spend_cap": false,
+    "operator_retries": 0,
+    "replacement_attempts": 0,
+    "internal_client_retry_visibility": "not independently guaranteed",
+    "lookup": "reuse identical existing docs.mjs/search.mjs/symbols.mjs and supported full reader commands; no new adapter or corpus variant"
+  },
+  "blockers": [
+    "Construct three private runnable workspaces, frozen deterministic acceptance scripts and injected-dependency doubles without changing reserved product requirements.",
+    "Qualify one known-good and at least one deliberate negative fixture for each task before exposing prompts to readers; record raw reports and evaluator failures separately.",
+    "Freeze the thin private launch/grade script, common reader/tool identities, exact dependency image/artifact hashes, prompt extraction, and all six sanitized candidate workspaces.",
+    "Audit all visible installed runtime packages for alternate docs, README, llms, skills, indexes and evaluator material; frozen runtime/declaration bytes must match across conditions.",
+    "Recheck signed-in client and verify actual response model identity at execution; stop rather than substitute an unavailable model.",
+    "Freeze the exact six-cell closure after controls pass; before model requests ensure run authorization covers this concrete model, configuration, limits and maximum CLI estimate. Local preparation is already authorized."
+  ],
+  "limits": [
+    "Three tasks and one attempt per cell support a small descriptive pilot, not framework-wide effectiveness or a statistical ranking.",
+    "Task author saw some revised public API wording before reservation; private permissions do not isolate same-user processes.",
+    "No task-level behavior/architecture/control qualification or live model availability is established.",
+    "Signed-in CLI estimated spend and shared host client/account state are limitations; no claim of a hard provider token/spend bound."
+  ],
+  "protocol_local_links_valid": true,
+  "durable_storage_verified": true,
+  "runner_source_checks": {
+    "cli_estimate_flag": "--max-budget-usd",
+    "built_in_tools_disabled": "--tools empty string",
+    "allowed_tools": [
+      "mcp__stringent__bash",
+      "mcp__stringent__read_document"
+    ],
+    "cumulative_multi_phase_limits_qualified": false,
+    "reviewer_assigned": false
+  },
+  "qualification_requirements": [
+    "Cumulative attempt budgets across build and extension, qualified using a stub client.",
+    "Sanitized visible packages, shared embedded contract text inventory and API drift disposition.",
+    "Per-task lookup fit measured in private without exposing API lists to authors.",
+    "Assessor identity, author exposure and blinding limits disclosed."
+  ]
+}

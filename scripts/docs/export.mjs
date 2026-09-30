@@ -5,6 +5,7 @@ import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { releaseChannel } from '../release/publication.mjs';
 import { documentSections, isConsumerPage } from './sections.mjs';
+import { symbolIndex } from './symbols.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 export const sha256 = value => createHash('sha256').update(value).digest('hex');
@@ -86,6 +87,13 @@ export async function exportDocs() {
     .flatMap(({ page, bytes }) => documentSections(page.source, bytes.toString('utf8')));
   assetContents.push({ source: 'docs-sections.json',
     bytes: Buffer.from(`${JSON.stringify({ schemaVersion: 1, sections })}\n`) });
+  const inventory = JSON.parse(await readSource(root, 'config/api-contracts/inventory.json'));
+  const semantics = JSON.parse(await readSource(root, 'config/api-contracts/semantics.json'));
+  if (inventory.semanticsSha256 !== sha256(JSON.stringify(semantics))) {
+    throw new Error('Public contract inventory is stale. Run node scripts/api-contracts/check.mjs after reviewing the metadata.');
+  }
+  assetContents.push({ source: 'docs-symbols.json',
+    bytes: Buffer.from(`${JSON.stringify(symbolIndex(inventory, semantics, sections))}\n`) });
   const assets = assetContents.map(({ source, bytes }) => ({ source, sha256: sha256(bytes) }));
   const manifest = {
     schemaVersion: 1,

@@ -2,26 +2,22 @@
 
 These guides target **5.0.0-rc.2**. This prerelease is being verified as local candidate tarballs. Use the docs bundled with the candidate you installed. The reference and learning paths below can be read independently. The reference index links the supported classes and shared contracts.
 
-For an existing application, choose its task below and read the installed contract before changing code.
+## Choose a starting point
 
-## Start here
-
-1. [Install and render a View](quick-start.md).
-2. [Choose ownership and lifetimes](architecture.md): Applications, Views, Regions, shared state, and asynchronous work.
-3. Choose a task below, or [build the records feature](records.md) for a composed example.
-
-For agent-led work, use the [agent workflow](agents.md) to find version-matched guidance and verify a change.
+- New project: [quick start](quick-start.md), then [architecture](architecture.md) for feature composition. [Records](records.md) is a composed lesson.
+- Existing application: choose a task or class reference below; follow additional contracts when needed.
+- Agent work: [task routing and lookup](agents.md), with optional [skill/plugin setup](tooling.md#agent-installation).
 
 ## Common tasks
 
 - [Migrate from v4](guides/migration.md): update configuration and lifecycle boundaries.
 - [Test an application](guides/testing.md): run interaction, replacement, readiness and teardown checks.
 - [Use TypeScript](guides/typescript.md): typed options, DOM handlers, state and lifecycle results.
-- [Edit a View’s own model](guides/local-editing.md): local interaction and observable updates.
+- [Edit a View’s own model](guides/local-editing.md): live edits, local drafts, and API saves.
 - [Refresh data while retaining UI](guides/retained-refresh.md): update an active feature without rebuilding its shell or draft.
 - [Add behavior to existing HTML](guides/existing-html.md): enhance existing markup and manage its lifetime.
 - [Integrate with existing UI](guides/existing-ui.md): mount, communicate, and clean up under another UI owner.
-- [Connect navigation](guides/routing.md): route destinations, retain a shell, and own browser subscriptions.
+- [Connect navigation](guides/routing.md): synchronous or asynchronous destinations, a retained shell, and browser subscriptions.
 - [Work with lists](guides/lists.md): row identity, sorting, filtering, and empty presentation.
 - [Integrate a control](guides/widgets.md): connect an imperative DOM API to View lifetime.
 - [Accessibility and rendering](guides/accessibility-rendering.md): keyboard interaction, focus, and text/HTML boundaries.

@@ -31,15 +31,6 @@ packages; do not maintain separate handwritten copies. After source edits, run
 once before packing local packages; supplying an artifact directory or all five
 tarballs skips rebuilding.
 
-For a local core tarball, run `npm run build` followed by
-`npm pack ./.package --ignore-scripts`; the generated staging directory contains
-consumer docs at their repository-relative paths. Root guides, source Markdown,
-and website exports share the same links. Release and fixture tooling use this same
-staged core package. Only its generated `package.json` expands `files` with the
-selected documentation paths, `docs-manifest.json`, and the consumer skill. The source
-manifest keeps the narrow runtime-and-root-guides allowlist for direct root packs
-and Git installs. Use the staged artifact to include the consumer documentation.
-
 `npm pack` and npm Git installs
 run `prepare` automatically; installing a published tarball uses its compiled files.
 If npm uses `strict-allow-scripts`, approve Marionette's `prepare` lifecycle for a
@@ -54,6 +45,31 @@ inputs; package correctness checks still fail on broken artifacts.
 The full coverage and fixture commands take longer than a focused test. Run the
 smallest useful test while developing, then run the checks required by the linked
 issue before requesting review.
+
+## Prepare candidate packages
+
+From the framework checkout, using the toolchain in the release profile:
+
+```sh
+npm ci --ignore-scripts
+npm run build
+mkdir -p ../marionette-v5-artifacts
+npm pack ./.package ./packages/utils ./packages/radio ./packages/adapters ./packages/data --ignore-scripts --pack-destination ../marionette-v5-artifacts
+```
+
+Supply the five matching versioned tarballs together in `marionette-v5-artifacts`.
+Consumers can place this directory in their own workspace and follow the
+[quick start](docs/quick-start.md) without a framework checkout. The data package
+is supplied for later integration and is optional for the first UI.
+
+The build prepares `.package` with the core runtime and selected consumer docs at
+their repository-relative paths. Release and fixture tooling use this same staged
+core package. Its generated `package.json` includes `docs-manifest.json` and the
+consumer skill. The source manifest keeps a narrow runtime-and-root-guides allowlist
+for direct root packs and Git installs; use `.package` for the documented candidate.
+
+Local packing does not establish registry publication. Release evidence and version
+labels must come from the actual published artifact.
 
 ## Repository layout
 

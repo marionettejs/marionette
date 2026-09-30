@@ -31,7 +31,7 @@ try {
   });
   const core = packs.find(pack => pack.name === 'marionette');
   assert(!core.files.some(path => /^(starter|planning|benchmarks|test)\//.test(path)));
-  for (const path of ['docs/agents.md', 'docs/packages/data.md', 'skills/marionette/SKILL.md']) {
+  for (const path of ['docs/agents.md', 'docs/packages/data.md', 'skills/marionette/SKILL.md', 'docs-symbols.json']) {
     assert(core.files.includes(path), `Missing packaged entrypoint: ${path}`);
   }
   writeFileSync(join(directory, 'package.json'), JSON.stringify({ name: 'installed-docs-check', private: true, type: 'module' }));
@@ -52,11 +52,34 @@ try {
   assert(match, 'Search did not find the Application contract');
   const section = lookup(['--section', match.id]);
   assert(section.includes('prepareStart'));
+  const uiSearch = JSON.parse(lookup(['--search', 'getUI']));
+  assert.equal(uiSearch.results[0].heading, 'UI bindings');
+  assert(lookup(['--section', uiSearch.results[0].id]).includes('NodeList'));
+  const uiContract = lookup(['--section', 'docs/api/shared/view-bindings.md#ui-bindings']);
+  assert(uiContract.includes('NodeList'));
+  assert.equal(lookup(['--page', 'docs/api/shared/view-bindings.md', '--section', 'UI bindings']), uiContract);
   assert(lookup(['--page', 'docs/packages/data.md']).includes('Membership and ordering'));
   assert(lookup(['--page', 'docs/guides/migration.md']).includes('# Migrate from v4 to v5'));
   assert(lookup(['--page', 'docs/guides/testing.md']).includes('node --import'));
   assert(lookup(['--page', 'docs/guides/typescript.md']).includes('LifecycleContext'));
   assert.equal(JSON.parse(lookup(['--diagnostic', 'MN0003'])).diagnostic.code, 'MN0003');
+  const symbols = query => JSON.parse(lookup(['--symbol', query]));
+  const detached = symbols('Region.detachView');
+  assert.equal(detached.matches[0].entrypoint, 'marionette');
+  assert(detached.matches[0].sections.some(hit => hit.heading === 'Empty, detach, reset, and destroy'));
+  assert(lookup(['--section', detached.matches[0].sections.find(hit =>
+    hit.heading === 'Empty, detach, reset, and destroy').id]).includes('keeps the View alive'));
+  for (const [query, entrypoint] of [['RegionInstance.detachView', 'marionette'], ['Model.set', '@mnjs/data'],
+    ['bindEvents', '@mnjs/utils'], ['channel', '@mnjs/radio']]) {
+    assert(symbols(query).matches.some(hit => hit.entrypoint === entrypoint), query);
+  }
+  const defaults = symbols('default').matches;
+  assert.deepEqual(defaults.map(hit => hit.entrypoint).sort(), ['@mnjs/adapters/backbone',
+    '@mnjs/adapters/dom/jquery', '@mnjs/adapters/xstate', '@mnjs/adapters/dom/morphdom', '@mnjs/adapters/dom/lit-html'].sort());
+  assert.deepEqual(symbols('BackboneApi').matches, []);
+  assert(symbols('listenTo').matches.length > 1);
+  assert.deepEqual(symbols('MissingPublicSymbol').matches, []);
+  assert.deepEqual(symbols('Model.save').matches, []);
 
   run(process.execPath, [join(root, 'test/docs/reference-examples.mjs'), directory]);
   const examples = JSON.parse(readFileSync(join(directory, 'reference-examples/report.json')));
@@ -70,6 +93,9 @@ try {
   run(process.execPath, [join(root, 'test/docs/consumer-typescript.mjs'), directory]);
   const typescriptGuide = JSON.parse(readFileSync(join(directory, 'consumer-typescript/report.json')));
   assert(typescriptGuide.passed);
+  const quickStart = JSON.parse(run(process.execPath,
+    [join(root, 'test/docs/quick-start.mjs'), packageRoot, artifacts]));
+  assert(quickStart.passed);
   const manifest = JSON.parse(readFileSync(join(packageRoot, 'docs-manifest.json')));
   for (const item of [...manifest.pages, ...manifest.assets]) {
     assert.equal(hash(readFileSync(join(packageRoot, item.source))), item.sha256, item.source);
@@ -78,11 +104,11 @@ try {
     passed: true, sourceRevision: manifest.sourceRevision, sourceDirty: manifest.sourceDirty,
     contentSha256: manifest.contentSha256, pages: manifest.pages.length, assets: manifest.assets.length,
     packages: packs.map(({ files, ...pack }) => pack),
-    discovery: ['package resolution', 'list', 'search', 'section', 'page', 'diagnostic'],
-    consumerTooling: tooling, consumerTesting: testing, typescriptGuide,
+    discovery: ['package resolution', 'list', 'search', 'section', 'page', 'diagnostic', 'symbol'],
+    consumerTooling: tooling, consumerTesting: testing, typescriptGuide, quickStart,
     examplesExecuted: examples.examples.filter(example => example.executed).length,
     typeFixtures: examples.typescript.contractFixtures, typescriptExamples: examples.typescript.examples,
-    limits: 'Local tarballs and JSDOM; not registry publication, live website, browser interaction, or teaching effectiveness.',
+    limits: 'Local tarballs, JSDOM recipes and quick-start production build; not registry publication, live website, browser interaction, or teaching effectiveness.',
   });
 } catch (error) {
   report.error = String(error.stack || error);

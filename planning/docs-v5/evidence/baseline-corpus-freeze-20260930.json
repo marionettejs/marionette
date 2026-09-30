@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "sourceRevision": "74534f719e9ae6bf00fb6061e9f8cb712e92e2ef",
+  "directory": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/upstream",
+  "corpusDirectory": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/upstream/baseline-package",
+  "freezeManifest": "/Users/paulfalgout/.local/share/marionette-docs-evaluation/20260930/upstream/freeze.json",
+  "freezeManifestSha256": "007b969c7dcb0482a444b19e0272b987aadfebccb4830f710c67a8177c23bdd0",
+  "contentSha256": "f8c30a56eb60665154347da6ff58ae51b7b52b5919e696e40590fcd4467cf85b",
+  "pages": 58,
+  "assets": 37,
+  "symbolValidation": {
+    "passed": true,
+    "exports": 131,
+    "contracts": 56
+  },
+  "toolingNormalization": [
+    {
+      "source": "skills/marionette/scripts/docs.mjs",
+      "originalSha256": "589e87ea1caa5b6fcec8cd2893175795c99462c6b595d987b51ad528d1148c3d",
+      "commonSha256": "589e87ea1caa5b6fcec8cd2893175795c99462c6b595d987b51ad528d1148c3d"
+    },
+    {
+      "source": "skills/marionette/scripts/search.mjs",
+      "originalSha256": "36870f635359a1f42f0c170d9647f84f45d52b394319f8b0637d7bc0766f2b0b",
+      "commonSha256": "99eeb6ef5b5f8cf1bef6ac1b0cc163f129955d62f8811071ffdffad7aeffe1b1"
+    },
+    {
+      "source": "skills/marionette/scripts/symbols.mjs",
+      "originalSha256": "6681e72d8c52cd5b1395b8a76692f04b2a7c674d9f85574c51494592a09d9678",
+      "commonSha256": "6681e72d8c52cd5b1395b8a76692f04b2a7c674d9f85574c51494592a09d9678"
+    }
+  ],
+  "linkClosure": {
+    "checkedLocalLinks": 964,
+    "missingPaths": [],
+    "excludedLinks": [],
+    "missingAnchors": [],
+    "externalLinks": 78,
+    "externalAccess": "not fetched; disable network during comparison",
+    "anchorCheck": "GitHub-style heading approximation and explicit HTML ids; missing anchors require review",
+    "passedPaths": true
+  },
+  "preparationOnly": true,
+  "modelRuns": 0,
+  "runtimeBuilds": 0,
+  "privateReservedTasksRead": false,
+  "verification": {
+    "corpusFilesVerified": 122,
+    "freezeHashVerified": true,
+    "helper": {
+      "pages": 58,
+      "searchResults": 5,
+      "symbolMatches": 1,
+      "unknownSymbolMatches": 0,
+      "contentSha256": "f8c30a56eb60665154347da6ff58ae51b7b52b5919e696e40590fcd4467cf85b"
+    }
+  },
+  "originalTemporaryDirectory": "/var/folders/s6/02kylqmd56gg5_53cq4zzwxr0000gn/T/marionette-v5-baseline-freeze-20260930-yvq3pb",
+  "durableStorageVerified": true,
+  "manifestPaths": "Frozen manifest retains its origin path; this pointer owns the active storage location."
+}

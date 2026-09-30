@@ -14,7 +14,7 @@ test('section boundaries ignore code, include descendants, distinguish repeated 
   const sections = documentSections('docs/ui.md', text);
   assert.deepEqual(sections.map(section => section.heading), ['Introduction', 'Page', 'getUI(name)', 'Details', 'Again', 'Again']);
   assert.deepEqual(sections.map(section => section.id),
-    ['intro', 'L3', 'L5', 'L12', 'L15', 'L18'].map(anchor => `docs/ui.md#${anchor}`));
+    ['@intro', 'page', 'getuiname', 'details', 'again', 'again-1'].map(anchor => `docs/ui.md#${anchor}`));
   assert.equal(text.slice(sections[0].start, sections[0].end), 'Introduction\r\n\r\n');
   assert.equal(text.slice(sections[2].start, sections[2].end), text.slice(text.indexOf('## `getUI'), text.indexOf('## Again')));
   assert.deepEqual(sections[3].ancestors, ['Page', 'getUI(name)']);
@@ -22,20 +22,20 @@ test('section boundaries ignore code, include descendants, distinguish repeated 
   assert.equal(documentSections('docs/plain.md', 'No headings.')[0].end, 12);
 });
 
-test('task routes resolve relative guides to package sources and reject incomplete rows', () => {
+test('task routes resolve relative guides, preserve fragments and reject incomplete rows', () => {
   const marker = '<!-- task-routes:start -->';
   const end = '<!-- task-routes:end -->';
   const guide = `${marker}\n| Task | Guide | Check |\n| --- | --- | --- |\n| Edit | [Form](./forms.md#save), [Upgrade](../upgradeGuide.md) | Verify |\n${end}`;
   const skill = `Before\n${marker}\n${end}\nAfter`;
   const result = skillRoutes(guide, skill);
-  assert.ok(result.includes('| Edit | `docs/forms.md`, `upgradeGuide.md` |'));
+  assert.ok(result.includes('| Edit | `docs/forms.md#save`, `upgradeGuide.md` |'));
   assert.ok(result.startsWith('Before\n'));
   assert.ok(result.endsWith('\nAfter'));
   assert.throws(() => skillRoutes('', skill), /AGENT_ROUTES/);
   assert.throws(() => skillRoutes(guide.replace('[Form](./forms.md#save), [Upgrade](../upgradeGuide.md)', 'missing'), skill), /no guide/);
 });
 
-test('complete query coverage outranks a common heading word, then heading specificity and size break ties', () => {
+test('specific terms and headings outrank an incidental common word', () => {
   const content = '# Reference\n\n## event\nAn unrelated notification.\n\n## Read a control\nevent currentTarget delegateTarget\n\n## currentTarget delegateTarget\nevent currentTarget delegateTarget\n\n## Another complete answer\nevent currentTarget delegateTarget with additional explanation.\n';
   const files = new Map([['reference.md', { content: Buffer.from(content) }]]);
   const sections = documentSections('reference.md', content);
@@ -44,9 +44,55 @@ test('complete query coverage outranks a common heading word, then heading speci
   assert.equal(results[1].heading, 'Read a control');
   assert.ok(results.findIndex(result => result.heading === 'event') >
     results.findIndex(result => result.heading === 'Another complete answer'));
-  assert.deepEqual(results[0].matchedTerms, ['event', 'currenttarget', 'delegatetarget']);
+  assert.deepEqual(results[0].matchedTerms, ['event', 'currenttarget', 'current', 'target', 'delegatetarget', 'delegate']);
+  assert.deepEqual(searchSections(sections, files, 'EVENT CURRENTTARGET DELEGATETARGET'), results,
+    'Corpus identifier expansion is independent of query casing');
   assert.deepEqual(searchSections(sections, files, 'absentSymbol'), []);
   assert.deepEqual(searchSections(sections, files, 'the and'), []);
+});
+
+test('parent headings cannot borrow descendant matches while section reads retain their full spans', () => {
+  const content = '# Manual\nOverview.\n\n## Account\nAccount settings.\n\n### Token renewal\nRenew a token.\n\n## Export\nExport a report.\n';
+  const files = new Map([['manual.md', { content: Buffer.from(content) }]]);
+  const sections = documentSections('manual.md', content);
+  const results = searchSections(sections, files, 'token renewal');
+  assert.deepEqual(results.map(result => result.heading), ['Token renewal']);
+  const account = sections.find(section => section.heading === 'Account');
+  assert(content.slice(account.start, account.end).includes('Renew a token.'));
+  assert.deepEqual(searchSections(sections, files, 'Account').map(result => result.heading), ['Account'],
+    'Ancestor context alone does not admit a child');
+});
+
+test('rare terms outrank repeated common terms and Markdown link paths do not create answers', () => {
+  const content = '# Manual\n\n## Event notifications\nEvent event event event event event event.\n\n## Authorization\nRevoke a credential.\n\n## Links\n[Overview](./credential.md)\n' +
+    ['Calendar', 'Delivery', 'History', 'Listeners', 'Logging', 'Controls'].map(heading => `\n## ${heading}\nObserve an event.\n`).join('');
+  const files = new Map([['manual.md', { content: Buffer.from(content) }]]);
+  const sections = documentSections('manual.md', content);
+  assert.equal(searchSections(sections, files, 'event credential')[0].heading, 'Authorization');
+  assert.deepEqual(searchSections(sections, files, 'credential').map(result => result.heading), ['Authorization']);
+  assert.deepEqual(searchSections(sections, files, 'credential credential'), searchSections(sections, files, 'credential'));
+  assert.deepEqual(searchSections([], files, 'credential'), []);
+});
+
+test('identifier expansion is order-independent and does not guess absent API names', () => {
+  const files = new Map([['a.md', { content: Buffer.from('# AbC\nAn adapter.\n\n## Settings\nConfigure the adapter.\n') }],
+    ['b.md', { content: Buffer.from('# ABc\nAnother adapter.\n\n## Options\nRead the adapter options.\n') }]]);
+  const sections = [...files].flatMap(([source, file]) => documentSections(source, file.content.toString('utf8')));
+  const expected = searchSections(sections, files, 'abc');
+  assert.deepEqual(searchSections([...sections].reverse(), files, 'ABC'), expected);
+  assert.deepEqual(searchSections([sections[3], sections[1], sections[2], sections[0]], files, 'abc'), expected);
+  for (const query of ['MissingAdapterMethod', 'missingadaptermethod', 'MISSINGADAPTERMETHOD']) {
+    assert.deepEqual(searchSections(sections, files, query), [], query);
+  }
+});
+
+test('an intact API name ranks ahead of sections containing only a component word', () => {
+  const content = '# Manual\n\n## Bindings\nCall getUI to read a control.\n\n## Other work\nGet another value.\n';
+  const files = new Map([['manual.md', { content: Buffer.from(content) }]]);
+  const sections = documentSections('manual.md', content);
+  const results = searchSections(sections, files, 'getUI');
+  assert.equal(results[0].heading, 'Bindings');
+  assert.equal(results[1].heading, 'Other work');
 });
 
 test('real consumer questions retrieve the required contract without reading a full API reference', async() => {
@@ -61,10 +107,8 @@ test('real consumer questions retrieve the required contract without reading a f
     for (const section of sections.filter(value => value.source === page.source)) {
       assert.ok(section.start > previous, `${section.id}: offsets must increase within each page`);
       assert.ok(section.end > section.start && section.end <= text.length, `${section.id}: invalid bounds`);
-      if (!section.id.endsWith('#intro')) {
-        const line = text.slice(0, section.start).split(/\r\n?|\n/).length;
-        assert.equal(section.id, `${page.source}#L${line}`);
-      }
+      assert.ok(section.id.startsWith(`${page.source}#`));
+      assert.equal(section.id.includes('#L'), false, 'Section identities follow Markdown anchors');
       previous = section.start;
     }
   }
@@ -96,7 +140,7 @@ test('symbol index resolves every reviewed contract heading to exactly one consu
     signature: 'RegionConstructor', contracts, instance: { show: '(view) => this' } }] }] });
   const semantics = heading => ({ contracts: [{ id: 'region', docs: [{ file: 'docs/region.md', heading }], diagnostics: [] }] });
   const index = symbolIndex(inventory(['region']), semantics('`show(view)`'), sections);
-  assert.deepEqual(index.contracts.region.sections, ['docs/region.md#L3']);
+  assert.deepEqual(index.contracts.region.sections, ['docs/region.md#showview']);
   assert.deepEqual(index.symbols[0].instance.show.contracts, ['region'], 'members inherit the export contracts');
   assert.throws(() => symbolIndex(inventory(['region']), semantics('Missing'), sections), /matches 0/);
   assert.throws(() => symbolIndex(inventory(['region']), semantics('Again'), sections), /matches 2/);
@@ -111,8 +155,14 @@ test('canonical task routes match the skill and point at installed consumer page
   const pages = JSON.parse(await readFile(resolve(root, 'docs-site/navigation.json'), 'utf8'));
   const published = new Set(pages.filter(isConsumerPage).map(page => page.source));
   const table = skill.split('<!-- task-routes:start -->')[1].split('<!-- task-routes:end -->')[0];
-  for (const [, source] of table.matchAll(/`([^`]+)`/g)) {
+  for (const [, href] of table.matchAll(/`([^`]+)`/g)) {
+    const [source, fragment] = href.split('#');
     assert.ok(published.has(source), `${source}: task route must be an installed consumer page`);
-    assert.ok((await readFile(resolve(root, source), 'utf8')).trim());
+    const markdown = await readFile(resolve(root, source), 'utf8');
+    assert.ok(markdown.trim());
+    if (fragment) {
+      const sections = documentSections(source, markdown);
+      assert.ok(sections.some(section => section.id === href), `${href}: task route must preserve an existing heading`);
+    }
   }
 });

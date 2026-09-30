@@ -4,20 +4,20 @@ import { join } from 'node:path';
 import { expect } from '@playwright/test';
 import { test } from './fixtures.mjs';
 
-async function loadGuide(page, name, bindings) {
+async function loadGuide(page, name, bindings, fence = 1) {
   const candidate = JSON.parse(await readFile(process.env.MARIONETTE_BROWSER_CANDIDATE, 'utf8'));
   const core = candidate.packages.find(entry => entry.id === 'core');
   const source = await readFile(join(core.directory, 'docs/guides', `${name}.md`), 'utf8');
   const markup = [...source.matchAll(/```html\n([\s\S]*?)```/g)];
   const scripts = [...source.matchAll(/```js\n([\s\S]*?)```/g)];
-  assert.equal(scripts.length, 1);
+  assert(scripts[fence - 1], `Missing ${name} JavaScript fence ${fence}`);
   await page.evaluate(async({ html, script, exports }) => {
     if (html) { document.body.innerHTML = html; }
     window.originalRoot = document.body.firstElementChild;
     window.originalButton = document.querySelector('button');
     const url = URL.createObjectURL(new Blob([`${script}\nexport { ${exports} };`], { type: 'text/javascript' }));
     try { window.guide = await import(url); } finally { URL.revokeObjectURL(url); }
-  }, { html: markup[0]?.[1], script: scripts[0][1], exports: bindings });
+  }, { html: markup[0]?.[1], script: scripts[fence - 1][1], exports: bindings });
 }
 
 test('Documented local editing retains focus and cleans up borrowed-model listeners', async({ page }) => {
@@ -50,6 +50,114 @@ test('Documented local editing retains focus and cleans up borrowed-model listen
     before: { value: '<External update>', text: '<External update>', same: true },
     after: { value: '<External update>', model: 'After cleanup', borrowed: true, destroyed: true, mounted: false }
   });
+});
+
+test('Documented draft save preserves input through failure and retry', async({ page }) => {
+  const errors = [];
+  const payloads = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.route('**/api/titles/1', async route => {
+    payloads.push(route.request().postDataJSON());
+    if (payloads.length === 1) {
+      await route.fulfill({ status: 503, body: '' });
+      return;
+    }
+    await route.fulfill({ json: { title: 'Accepted draft' } });
+  });
+  await loadGuide(page, 'local-editing', 'draftEditor, savedTitle, draftRegion, mount', 2);
+  const input = page.getByRole('textbox', { name: 'Title' });
+  await input.fill('My draft');
+  await input.press('ArrowLeft');
+  assert.equal(await input.evaluate(el => el.selectionStart), 7);
+  assert.equal(await page.evaluate(() => window.guide.savedTitle.get('title')), 'Original');
+  await page.evaluate(() => { window.draftInput = window.guide.draftEditor.getUI('title')[0]; });
+  await input.press('Enter');
+  await expect(page.getByRole('alert')).toHaveText('Could not save. Your draft is still here; try again.');
+  await expect(input).toHaveValue('My draft');
+  await expect(input).not.toHaveAttribute('readonly');
+  await expect(page.getByRole('button', { name: 'Save', exact: true })).toHaveAttribute('aria-disabled', 'false');
+  await expect(input).toBeFocused();
+  assert.equal(await page.evaluate(() => window.guide.savedTitle.get('title')), 'Original');
+  assert.equal(await page.evaluate(() => window.guide.draftEditor.getUI('title')[0] === window.draftInput), true);
+  assert.equal(await input.evaluate(el => el.selectionStart), 7);
+  await input.press('ArrowRight');
+  await input.press('!');
+  await expect(input).toHaveValue('My draft!');
+  await input.press('Enter');
+  await expect(page.getByRole('status')).toHaveText('Saved.');
+  await expect(input).toHaveValue('Accepted draft');
+  await expect(input).not.toHaveAttribute('readonly');
+  await expect(page.getByRole('button', { name: 'Save', exact: true })).toHaveAttribute('aria-disabled', 'false');
+  await expect(input).toBeFocused();
+  assert.equal(await page.evaluate(() => window.guide.savedTitle.get('title')), 'Accepted draft');
+  assert.deepEqual(payloads, [{ title: 'My draft' }, { title: 'My draft!' }]);
+  assert.equal(await page.evaluate(() => {
+    const { draftRegion, draftEditor, savedTitle } = window.guide;
+    draftRegion.empty();
+    return draftEditor.isDestroyed() && draftEditor.getState().isDestroyed() && !savedTitle.isDestroyed();
+  }), true);
+  assert.deepEqual(errors, []);
+});
+
+test('Documented draft teardown aborts a pending browser save', async({ page }) => {
+  let pending;
+  let requests = 0;
+  await page.route('**/api/titles/1', route => { requests++; pending = route; });
+  await loadGuide(page, 'local-editing', 'draftEditor, savedTitle, draftRegion, mount', 2);
+  const input = page.getByRole('textbox', { name: 'Title' });
+  await input.fill('Unfinished draft');
+  await input.press('Enter');
+  await expect(page.getByRole('status')).toHaveText('Saving…');
+  await expect(input).toHaveAttribute('readonly', '');
+  await expect(page.getByRole('button', { name: 'Save', exact: true })).toHaveAttribute('aria-disabled', 'true');
+  await expect(input).toBeFocused();
+  await input.press('Enter');
+  assert.equal(requests, 1);
+  const failed = page.waitForEvent('requestfailed', {
+    predicate: request => request.url().endsWith('/api/titles/1'),
+  });
+  await page.evaluate(() => { window.guide.draftRegion.empty(); });
+  await failed;
+  await pending.fulfill({ json: { title: 'Late response' } }).catch(() => {});
+  assert.equal(await page.evaluate(() => {
+    const { draftEditor, savedTitle } = window.guide;
+    return draftEditor.isDestroyed() && draftEditor.getState().isDestroyed() &&
+      !savedTitle.isDestroyed() && savedTitle.get('title') === 'Original';
+  }), true);
+  await expect(page.getByRole('textbox', { name: 'Title' })).toHaveCount(0);
+});
+
+test('Documented asynchronous navigation retains its shell through readiness and errors', async({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  let aboutAttempts = 0;
+  await page.route('**/pages/*.json', async route => {
+    const about = route.request().url().endsWith('/about.json');
+    if (about && ++aboutAttempts === 1) {
+      await route.fulfill({ status: 503, body: '' });
+      return;
+    }
+    await route.fulfill({ json: { title: about ? 'About' : 'Home', body: 'Ready' } });
+  });
+  await loadGuide(page, 'routing', 'app, mount', 2);
+  await expect(page.getByRole('heading', { name: 'Home', exact: true })).toBeVisible();
+  await page.evaluate(() => {
+    window.shell = window.guide.app.getView();
+    window.outgoing = window.guide.app.getChildApp('page').getView();
+  });
+  await page.getByRole('link', { name: 'About', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Could not load page' })).toBeVisible();
+  assert.equal(await page.evaluate(() => window.guide.app.getView() === window.shell &&
+    window.outgoing.isDestroyed() && !window.guide.app.getChildApp('page').isRunning()), true);
+  assert.equal(new URL(page.url()).hash, '#about');
+  await page.getByRole('button', { name: 'Retry', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'About', exact: true })).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('heading', { name: 'Home', exact: true })).toBeVisible();
+  assert.equal(await page.evaluate(() => window.guide.app.getView() === window.shell), true);
+  await page.evaluate(async() => { await window.guide.app.destroy(); });
+  await expect(page.getByRole('navigation', { name: 'Pages' })).toHaveCount(0);
+  assert.deepEqual(errors, []);
 });
 
 test('Documented existing HTML preserves native controls until the View is destroyed', async({ page }) => {

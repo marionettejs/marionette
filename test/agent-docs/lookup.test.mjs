@@ -193,13 +193,47 @@ test('search and section lookup preserve provenance and read complete nested sec
   assert.equal(result.sourceRevision, data.manifest.sourceRevision);
   assert.equal(result.results[0].heading, 'getUI(name)');
   assert.deepEqual(result.results[0].ancestors, ['UI']);
-  assert.deepEqual(result.results[0].matchedTerms, ['getui']);
+  assert.deepEqual(result.results[0].matchedTerms, ['getui', 'get', 'ui']);
   const read = data.run('--section', result.results[0].id);
   assert.equal(read.status, 0, read.stderr);
   const [metadata, ...body] = read.stdout.split('\n');
   assert.equal(JSON.parse(metadata).contentSha256, data.manifest.contentSha256);
   assert.equal(body.join('\n'), data.content.slice(data.content.indexOf('## `getUI'), data.content.indexOf('## Cleanup')) + '\n');
   assert.deepEqual(JSON.parse(data.run('--search', 'nonexistent-symbol').stdout).results, []);
+});
+
+test('Markdown section links and page-scoped headings read the same complete contract', async t => {
+  const data = await sectionFixture(t);
+  const direct = data.run('--section', 'docs/routing.md#getuiname');
+  assert.equal(direct.status, 0, direct.stderr);
+  for (const selector of ['getUI(name)', 'getuiname', 'docs/routing.md#getuiname']) {
+    for (const args of [['--page', 'docs/routing.md', '--section', selector],
+      ['--section', selector, '--page', 'docs/routing.md']]) {
+      const read = data.run(...args);
+      assert.equal(read.status, 0, read.stderr);
+      assert.equal(read.stdout, direct.stdout);
+    }
+  }
+  assert.match(direct.stdout, /A NodeList, not one element/);
+  assert(!direct.stdout.includes('Destroy the owner'), 'a scoped read must not include the next contract');
+});
+
+test('page-scoped lookup rejects missing pages and ambiguous headings without guessing', async t => {
+  const data = await sectionFixture(t, '# Manual\n\n## Again\nFirst contract.\n\n## Again\nSecond contract.\n');
+  const ambiguous = data.run('--page', 'docs/routing.md', '--section', 'Again');
+  assert.equal(ambiguous.status, 1);
+  assert.match(ambiguous.stderr, /Ambiguous section heading/);
+  assert.match(ambiguous.stderr, /docs\/routing.md#again-1/);
+  const selected = data.run('--page', 'docs/routing.md', '--section', 'again-1');
+  assert.equal(selected.status, 0, selected.stderr);
+  assert.match(selected.stdout, /Second contract/);
+  assert(!selected.stdout.includes('First contract'));
+  for (const page of ['docs/missing.md', '../outside.md']) {
+    const read = data.run('--page', page, '--section', 'Again');
+    assert.equal(read.status, 1);
+    assert.match(read.stderr, /Page is not in this package manifest/);
+    assert.equal(read.stdout, '');
+  }
 });
 
 test('focused lookup rejects unknown IDs, ambiguous modes, missing and tampered indexes', async t => {
@@ -209,7 +243,8 @@ test('focused lookup rejects unknown IDs, ambiguous modes, missing and tampered 
   const data = await sectionFixture(t);
   assert.match(data.run('--section', 'docs/routing.md#missing').stderr, /Unknown section ID/);
   for (const args of [['--search'], ['--search', ' '], ['--search', 'x'.repeat(201)],
-    ['--search', 'getUI', '--list'], ['--section', 'x', '--page', 'docs/routing.md']]) {
+    ['--search', 'getUI', '--list'], ['--section', 'x', '--search', 'getUI'],
+    ['--page', 'docs/routing.md', '--section', 'Cleanup', '--section', 'Results']]) {
     assert.equal(data.run(...args).status, 1);
   }
   await writeFile(resolve(data.docs, 'docs-sections.json'), '{}');

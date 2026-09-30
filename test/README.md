@@ -57,6 +57,15 @@ for a small installed-package recipe. Repository docs checks execute the actual
 published-page fences and consumer commands; passing them demonstrates recipe and
 delivery correctness, while independent tasks assess reader effectiveness.
 
+The installed-doc check executes the quick start's actual project setup commands
+from a clean workspace containing only supplied candidate tarballs, then builds
+its HTML and JavaScript. To also check the rendered result in Chromium, Firefox
+and WebKit, run `npm exec -- node test/docs/quick-start.mjs .package /absolute/path/to/five-tarballs --browser`
+after `npm run docs:package`. The browser harness stays outside the consumer app.
+Installed-doc checks require registry access for third-party dependencies; they
+install Marionette packages from the supplied local tarballs. The quick-start
+report records the exact candidate bytes and commands tested.
+
 `npm run lint` never edits files. Use `npm run lint:fix` explicitly. Lint rejects
 focused/disabled unit tests, missing assertions, unawaited async assertions, and
 floating promises in tooling. `npm run check:public-tests` rejects private members,

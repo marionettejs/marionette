@@ -1,0 +1,143 @@
+{
+  "passed": true,
+  "stats": {
+    "startTime": "2026-09-30T09:20:48.088Z",
+    "duration": 11760.069,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "checks": [
+    {
+      "title": "Documented local editing retains focus and cleans up borrowed-model listeners",
+      "project": "chromium",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented draft save preserves input through failure and retry",
+      "project": "chromium",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented draft teardown aborts a pending browser save",
+      "project": "chromium",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented asynchronous navigation retains its shell through readiness and errors",
+      "project": "chromium",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented navigation handles direct links, history, focus and listener cleanup",
+      "project": "chromium",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented local editing retains focus and cleans up borrowed-model listeners",
+      "project": "firefox",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented draft save preserves input through failure and retry",
+      "project": "firefox",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented draft teardown aborts a pending browser save",
+      "project": "firefox",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented asynchronous navigation retains its shell through readiness and errors",
+      "project": "firefox",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented navigation handles direct links, history, focus and listener cleanup",
+      "project": "firefox",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented local editing retains focus and cleans up borrowed-model listeners",
+      "project": "webkit",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented draft save preserves input through failure and retry",
+      "project": "webkit",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented draft teardown aborts a pending browser save",
+      "project": "webkit",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented asynchronous navigation retains its shell through readiness and errors",
+      "project": "webkit",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    },
+    {
+      "title": "Documented navigation handles direct links, history, focus and listener cleanup",
+      "project": "webkit",
+      "expectedStatus": "passed",
+      "statuses": [
+        "passed"
+      ]
+    }
+  ],
+  "sourceSha256": {
+    "docs/guides/local-editing.md": "45afd4ebdecb95e766770bc4a76f3c755510ba28f88bc797072cb417d4e13af1",
+    "docs/guides/routing.md": "030d555a9ff9b90187c0ff52555e95d6df18b487c7a26fc3237e7f7f0a90f9af",
+    "docs/readme.md": "4939d0710347b8f9c3cf3bf8ccd71e1703eb877548f46bf2319472fd22956847",
+    "test/docs/reference-examples.mjs": "8b6496c8c1b9f640f8c9361c88623e124cf5d0a2feaafd32f429403a8112a0ff",
+    "test/docs/draft-save-checks.mjs": "9fec96971fdbe115559f16e79baaa28eeac8231cf937cb9fb36bdd1ea1833f6c",
+    "test/docs/async-navigation-checks.mjs": "0c4f37f2114bbc5a2a1356d6ddaf3c50892ee3a4605b6d7b241399c839221d4f",
+    "test/browser/docs-guides.spec.mjs": "6aa79e4aea0469dcd9d395963e8222c9ea2a339a0ce7c37b3606c35dbc767f5b"
+  },
+  "limits": "Controlled HTTP against tarball runtime in Chromium, Firefox and WebKit; not live APIs, deployment, accessibility certification or reader effectiveness."
+}
