@@ -85,8 +85,22 @@ The complete docs/tooling closeout was committed before integration at `37a74339
 Fresh integrated checks and immutable artifacts are recorded separately in the
 [RC2 readiness checklist](../../rc2-readiness.md).
 
-Fresh integration checks passed: 54 unit tests in cleanup, Behavior lifecycle and
-composition; lint; and the 2 browser-artifact setup tests. The complete initial
+Fresh integration checks passed: cleanup 39, Behavior lifecycle 12 and composition
+3 (54 total); lint; and the 2 browser-artifact setup tests. The complete initial
 release-harness run had 130 passes and one temporary fixture-commit GPG failure.
 Fixture commits now disable signing explicitly; full certification reruns the
 harness under tooling coverage. No global Git configuration was changed.
+
+The first complete candidate browser run retained 207 passes and 6 failures in
+two obsolete package-starter tests. The npm package intentionally no longer ships
+that authored application. Browser validation now serves the repository's consumer
+fixture against the supplied packed exports; the portable development kit uses its
+explicit fixture file list. Draft/focus, stale selection, teardown, sourcemaps and
+repeated Vite replacement assertions remain. Both corrected tests passed in
+Chromium, Firefox and WebKit (6 checks). The retired npm-starter-copy path was
+removed; installed quick-start setup remains checked by `docs:check`.
+
+The complete failed certification attempt also passed 2,139 unit tests, 395 tooling
+tests, documentation and distribution checks. These remain evidence for that exact
+earlier candidate, not certification of the subsequent harness correction. Build
+and certify new artifacts from the committed corrected source.

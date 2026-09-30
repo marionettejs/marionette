@@ -1,11 +1,11 @@
 import { expect } from '@playwright/test';
 import { test } from './fixtures.mjs';
 
-test('beta starter preserves draft focus, rejects stale selection and releases handlers', async({ page }) => {
+test('consumer workspace preserves draft focus, rejects stale selection and releases handlers', async({ page }) => {
   await page.evaluate(async() => {
-    const { Workspace } = await import('/starter/workspace.ts');
+    const { Workspace } = await import('/consumer-fixture/workspace.ts');
     globalThis.requests = [];
-    const { notesApi } = await import('/starter/notes.ts');
+    const { notesApi } = await import('/consumer-fixture/notes.ts');
     notesApi.loadNote = (id, { signal }) => {
       const request = { id, signal, ...Promise.withResolvers() };
       globalThis.requests.push(request);

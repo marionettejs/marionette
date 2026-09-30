@@ -26,8 +26,8 @@
       "title": "imported template content attaches parent and child once"
     },
     {
-      "file": "beta-starter.spec.mjs",
-      "title": "beta starter preserves draft focus, rejects stale selection and releases handlers"
+      "file": "consumer-workspace.spec.mjs",
+      "title": "consumer workspace preserves draft focus, rejects stale selection and releases handlers"
     },
     {
       "file": "collection-removal-survivors.spec.mjs",
@@ -198,8 +198,8 @@
       "title": "replacement Regions release detached children without disturbing a later owner"
     },
     {
-      "file": "starter-development.spec.mjs",
-      "title": "installed TypeScript starter releases old owners across repeated Vite edits"
+      "file": "development-kit.spec.mjs",
+      "title": "installed TypeScript consumer fixture releases old owners across repeated Vite edits"
     },
     {
       "file": "view-render-attributes.spec.mjs",
