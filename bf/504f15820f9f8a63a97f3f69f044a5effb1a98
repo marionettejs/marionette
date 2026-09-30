@@ -1,0 +1,37 @@
+config/api-contracts/semantics.json
+  s_930f3c9a37745c::t_94aad74c818464 198-199,212-215,266-267,280-283,408,429-430,447-450,531-532,557-560,754,794-797,1817-1818,1899-1902,1973,1995-1996,2013-2016,2036,2054-2055,2076-2079,2176,2216-2219
+  s_930f3c9a37745c::t_a1cc5631e89e84 188,200-201,248,268-269,431-432,506,533-534,1781,1819-1820,1997-1998,2056-2057
+test/unit/destroy-listener-cleanup.spec.js
+  s_930f3c9a37745c::t_94aad74c818464 272-277,279-331,333-351,353-365,367-399,401-417,419-439,441-457,459-463
+  s_930f3c9a37745c::t_c753e27d9f82bb 5,265-271,278,332,352,366,400,418,440,458,464
+test/browser/destroy-listener-cleanup.spec.mjs
+  s_930f3c9a37745c::t_94aad74c818464 1-69
+planning/rc2-readiness.md
+  s_930f3c9a37745c::t_975ebf62fc9cfd 21
+config/release-validation.json
+  s_930f3c9a37745c::t_94aad74c818464 253-254
+  s_930f3c9a37745c::t_2952be3f7f97c0 251-252
+test/release/fixture.mjs
+  s_930f3c9a37745c::t_975ebf62fc9cfd 55
+planning/docs-v5/evidence/runtime-integration-scope.md
+  s_930f3c9a37745c::t_2b904c0f558e1d 87-92
+  s_930f3c9a37745c::t_975ebf62fc9cfd 74-86
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_83326dd4da1f48 4,7389-7392,7415-7418,7467-7470,7497-7500,7900-7903,7930-7933,7956-7959,9053
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "bf504f15820f9f8a63a97f3f69f044a5effb1a98",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
