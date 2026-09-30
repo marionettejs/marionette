@@ -71,3 +71,22 @@ checks, not additive unique coverage or a full-suite result.
 No runtime source was edited or rebuilt for this decision. Existing installed
 integration evidence remains scoped to its own artifact. This audit does not
 certify publication, deployment, the entire runtime or reader effectiveness.
+
+## Integration on 2026-10-01
+
+Fetched master at the same `74534f719e9ae6bf00fb6061e9f8cb712e92e2ef` revision.
+Reconciled its overlapping cleanup changes with the reset's terminal cleanup path,
+retaining Behavior cleanup and the final-callback failure checks. Retained master's
+public subscription regression tests and browser replacement test, and registered
+that browser test in the release inventory. Updated semantic records to route to
+the rebuilt event reference; superseded doc pages remain removed.
+
+The complete docs/tooling closeout was committed before integration at `37a74339`.
+Fresh integrated checks and immutable artifacts are recorded separately in the
+[RC2 readiness checklist](../../rc2-readiness.md).
+
+Fresh integration checks passed: 54 unit tests in cleanup, Behavior lifecycle and
+composition; lint; and the 2 browser-artifact setup tests. The complete initial
+release-harness run had 130 passes and one temporary fixture-commit GPG failure.
+Fixture commits now disable signing explicitly; full certification reruns the
+harness under tooling coverage. No global Git configuration was changed.

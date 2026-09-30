@@ -18,7 +18,7 @@ It records preparation; it does not authorize publication or claim stable readin
   consumer wiring and test-editing churn; all final behavioral checks passed, but
   its explanation was missing. The ownership concern remains a moderate
   maintainability concern without a demonstrated workflow failure.
-- [ ] Commit the complete docs/tooling work and reconcile the cleanup overlap with
+- [x] Commit the complete docs/tooling work and reconcile the cleanup overlap with
   master once. Retain [terminal cleanup contracts](docs-v5/evidence/runtime-integration-scope.md).
 - [x] Prepare the exact prerelease policy and release notes; stable publication stays disabled.
 - [ ] Build clean, immutable five-package artifacts. Run `release:validate`, then

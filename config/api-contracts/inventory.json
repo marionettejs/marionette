@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "3c9157faae46d9261193b47cb52463ef5ac0de0a92f21ee9501d3ae8c9053943",
+  "semanticsSha256": "971159685ba5ff0b809f55b97d2ef648d0df8a302544eb6f699e66f5a29fa9c1",
   "entrypoints": [
     {
       "name": "marionette",
@@ -7386,6 +7386,10 @@
         {
           "file": "docs/api/mnobject.md",
           "heading": "Destruction and ownership"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
         }
       ]
     },
@@ -7408,6 +7412,10 @@
         {
           "file": "docs/api/shared/view-bindings.md",
           "heading": "Root attributes"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
         }
       ]
     },
@@ -7456,6 +7464,10 @@
         {
           "file": "docs/api/region.md",
           "heading": "Lifecycle events and hooks"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
         }
       ]
     },
@@ -7482,6 +7494,10 @@
         {
           "file": "docs/api/collection-view.md",
           "heading": "Find and inspect children"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
         }
       ]
     },
@@ -7881,6 +7897,10 @@
         {
           "file": "docs/api/application.md",
           "heading": "Restart from start completion"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
         }
       ]
     },
@@ -7907,6 +7927,10 @@
         {
           "file": "docs/packages/data.md",
           "heading": "Collection"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
         }
       ]
     },
@@ -7929,6 +7953,10 @@
         {
           "file": "docs/packages/data.md",
           "heading": "Destruction and ownership"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
         }
       ]
     },
@@ -9022,6 +9050,7 @@
     "test/unit/data-package/api-integration.spec.js": "ec12b3be7cc046a020d5d2b6f2f7ee7dfdb3b986da13387c5fc78a5cf4482afb",
     "test/unit/data-package/collection.spec.js": "7f3e2b860ce7b120a85387c4acc1d385aa9ab012109ce2512e1e2028a4b47cec",
     "test/unit/data-package/model.spec.js": "3d8fae03af29f886864f234b2d8e4b563de26ac85187224db05f3358d952c3f4",
+    "test/unit/destroy-listener-cleanup.spec.js": "55045f8efbe19af0a2aae5adbc1d6729c6d5e6e8e9233ed747f6a5987333f55b",
     "test/unit/dom-adapters.spec.js": "12450f4ad513ae9000c9db640d481b995db91bcbe2f66c42fc503b72d019f69a",
     "test/unit/events-literal-names.spec.js": "ed182d2c2d34f11ad702af6d6c69b439faa04745e93256e0ae28cc2c87298bf0",
     "test/unit/events-parity.spec.js": "a0ec7cd3dac3636803ec6ecc6fb7161df2a74fa7d5e6d532477e12539a9bd71c",

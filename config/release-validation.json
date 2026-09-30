@@ -248,6 +248,10 @@
     {
       "file": "docs-guides.spec.mjs",
       "title": "Documented refresh retains unfinished input and focus"
+    },
+    {
+      "file": "destroy-listener-cleanup.spec.mjs",
+      "title": "a surviving owner releases replaced screens after their final notifications"
     }
   ],
   "fixtures": [
