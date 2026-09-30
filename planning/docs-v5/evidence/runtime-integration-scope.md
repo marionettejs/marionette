@@ -104,3 +104,11 @@ The complete failed certification attempt also passed 2,139 unit tests, 395 tool
 tests, documentation and distribution checks. These remain evidence for that exact
 earlier candidate, not certification of the subsequent harness correction. Build
 and certify new artifacts from the committed corrected source.
+
+The next candidate passed all 213 browser checks and 26 of 27 installed fixtures.
+The docs-package fixture still asserted a literal skill phrase and assumed that
+the guide required list/page/search commands. It now executes the guide's actual
+focused-section command and independently verifies optional list/page/search,
+symbol and diagnostic lookup from canonical, packaged and copied skills. The
+corrected installed fixture and lint passed. This harness correction again
+requires a new clean-source artifact and complete certification.

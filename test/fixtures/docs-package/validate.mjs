@@ -100,14 +100,15 @@ try {
   const guide = await readFile(resolve(packageRoot, 'docs/agents.md'), 'utf8');
   const commands = parser.lexer(guide).filter(token => token.type === 'code' && token.lang === 'sh')
     .flatMap(token => token.text.split('\n')).filter(line => line.startsWith('node <skill>/'));
+  assert.ok(commands.length, 'The installed guide supplies an executable lookup command');
+  const documentedArgs = commands.map(command => command.match(/'[^']*'|\S+/g)
+    .slice(2).map(token => token.replace(/^'|'$/g, '')));
   for (const skillRoot of [documentedSkill, installedSkill, directory]) {
-    const skill = await readFile(resolve(skillRoot, 'SKILL.md'), 'utf8');
-    assert.ok(skill.includes('docs/agents.md'));
     const helper = resolve(skillRoot, 'scripts/docs.mjs');
     const lookup = args => execFileSync(process.execPath, [helper, ...args], { cwd: process.cwd(), encoding: 'utf8' });
     const modes = new Set();
-    for (const command of commands) {
-      const args = command.match(/'[^']*'|\S+/g).slice(2).map(token => token.replace(/^'|'$/g, ''));
+    for (const args of [...documentedArgs, ['--list'], ['--search', 'prepareStart'],
+      ['--page', 'docs/api/application.md'], ['--symbol', 'Application.prepareStart']]) {
       const output = lookup(args);
       if (args.includes('--list')) {
         modes.add('list');
@@ -125,17 +126,29 @@ try {
         assert.equal(JSON.parse(excerpt.slice(0, headerEnd)).contentSha256, manifest.contentSha256);
         const page = await readFile(resolve(packageRoot, section.source), 'utf8');
         assert.equal(excerpt.slice(headerEnd + 1), `${page.slice(section.start, section.end)}\n`);
+      } else if (args.includes('--symbol')) {
+        modes.add('symbol');
+        const result = JSON.parse(output);
+        assert.equal(result.contentSha256, manifest.contentSha256);
+        assert.equal(result.query, 'Application.prepareStart');
+        assert.ok(result.matches.length);
       } else {
-        modes.add('page');
+        const section = args.includes('--section');
+        modes.add(section ? 'section' : 'page');
         const headerEnd = output.indexOf('\n');
         const result = JSON.parse(output.slice(0, headerEnd));
         assert.equal(result.sourceRevision, manifest.sourceRevision);
-        assert.equal(result.source, args.at(-1));
         const page = await readFile(resolve(packageRoot, result.source), 'utf8');
-        assert.equal(output.slice(headerEnd + 1), `${page}\n`);
+        if (section) {
+          assert.equal(result.id, args.at(-1));
+          assert.equal(output.slice(headerEnd + 1), `${page.slice(result.start, result.end)}\n`);
+        } else {
+          assert.equal(result.source, args.at(-1));
+          assert.equal(output.slice(headerEnd + 1), `${page}\n`);
+        }
       }
     }
-    assert.deepEqual([...modes].sort(), ['list', 'page', 'search']);
+    assert.deepEqual([...modes].sort(), ['list', 'page', 'search', 'section', 'symbol']);
     assert.equal(JSON.parse(lookup(['--diagnostic', 'MN0003'])).diagnostic.code, 'MN0003');
     const result = JSON.parse(lookup(['--package-root', packageRoot, '--list']));
     assert.equal(result.contentSha256, manifest.contentSha256);
