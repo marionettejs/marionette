@@ -252,6 +252,38 @@
     {
       "file": "destroy-listener-cleanup.spec.mjs",
       "title": "a surviving owner releases replaced screens after their final notifications"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented draft save preserves input through failure and retry"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented draft teardown aborts a pending browser save"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented asynchronous navigation retains its shell through readiness and errors"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented host mount preserves the host and ends detached interaction"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented navigation handles direct links, history, focus and listener cleanup"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented list retains row input through sorting and filtering"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented accessible toggle supports keyboard and explicit replacement focus"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented dialog closes before render, detach and destroy"
     }
   ],
   "fixtures": [

@@ -71,7 +71,7 @@ Use [declarative Radio bindings](shared/common.md#declarative-radio-bindings) wh
 
 Hooks run before event subscribers. Returned Promises are ignored; complete required asynchronous work before calling `destroy()`, or use an Application lifecycle when that coordination belongs to the object. Exceptions propagate; destruction is not transactional. A throw in `before:destroy` interrupts cleanup and leaves destruction marked in progress, so calling `destroy()` again does not retry it. Keep teardown hooks synchronous and reliable.
 
-Normal destruction releases outgoing `listenTo` subscriptions and incoming event subscriptions automatically. Final listener cleanup still runs if the `destroy` notification throws. Other subscribers on a shared data source/channel remain intact. State produced by `createState` is disposed through the configured StateApi; supplied state is borrowed and survives.
+Normal destruction releases outgoing `listenTo` subscriptions and incoming event subscriptions automatically. Other subscribers on a shared data source/channel remain intact. State produced by `createState` is disposed through the configured StateApi; supplied state is borrowed and survives.
 
 MnObject does not own arbitrary fields or constructor arguments. Assigning it to an Application field does not register it for destruction: that owner must call its `destroy()` when finished. Similarly, extra resources created by a MnObject need explicit cleanup in its lifecycle hooks. An overridden `destroy` must call the parent implementation to retain these guarantees.
 

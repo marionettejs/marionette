@@ -179,8 +179,6 @@ Object.assign(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateM
     this.stopListening();
     this.view._removeBehavior(this);
     this._undelegateEntityEvents();
-    // Host teardown releases incoming listeners after forwarding its final destroy event.
-    if (!this.view._isDestroyed) { this.off(); }
 
     return this;
   },

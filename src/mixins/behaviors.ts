@@ -5,7 +5,6 @@ export interface BehaviorInstance {
   _isDestroyed?: boolean;
   behaviors?: unknown;
   destroy(options?: unknown): unknown;
-  off(): unknown;
   _delegateViewEvents(view: TriggerTarget): unknown;
   _undelegateViewEvents(options?: unknown): unknown;
   delegateEntityEvents(): unknown;

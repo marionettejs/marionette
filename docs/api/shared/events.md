@@ -54,7 +54,7 @@ An `all` subscription observes event names as well as payloads. It is useful for
 
 ## Cleanup
 
-Destroying a native Marionette object removes its outgoing `listenTo` subscriptions and its incoming callbacks after its final destruction notifications. Native listener bookkeeping is released too: a retained Application does not need a `destroy` handler that calls `stopListening(view)` for each replaced View. Native `@mnjs/data` Models and Collections also release events on destruction.
+Successful destruction of a MnObject, View/CollectionView, Region or Application removes its outgoing `listenTo` subscriptions and its incoming callbacks after its final destruction notifications. Native listener bookkeeping is released too: a retained Application does not need a `destroy` handler that calls `stopListening(view)` for each replaced View. Native `@mnjs/data` Models and Collections also release events on destruction.
 
 Application `stop()` preserves subscriptions to surviving sources; it is not Application destruction. Use `stopListening(source, ...)` when a subscription's useful lifetime ends before either object is destroyed. `off()` removes incoming callbacks; `stopListening()` removes outgoing subscriptions. Neither is a substitute for the other's direction.
 

@@ -1,9 +1,0 @@
-{
-  "passed": true,
-  "positiveExit": 0,
-  "unmanagedListenerExit": 1,
-  "restoredExit": 0,
-  "sourceSha256": "549ebc9bb8ff8c523325a161e47c9cbda711e51ac542f10aa1b40a21b68a7fb4",
-  "checkSha256": "1e619a034543514ea1e905fd1ec2b83d8af3274140013cce6c13f3283fc6c581",
-  "scope": "Before-construction render spy rejects an unmanaged callback to a destroyed row on model change."
-}

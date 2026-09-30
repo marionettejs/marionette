@@ -82,7 +82,7 @@ Host events are forwarded to each Behavior's `triggerMethod` with their original
 
 ## Destruction and nested Behaviors
 
-Host destruction invokes `destroy()` on its managed Behaviors. Behavior cleanup removes DOM handlers, state observation/owned state, host subscriptions, and host model/collection subscriptions. Direct destruction releases its own event subscriptions immediately. During host teardown, these subscriptions remain until the host forwards its final destroy notification, then are released. Behavior cleanup does not destroy the host or borrowed sources.
+Host destruction invokes `destroy()` on its managed Behaviors. Behavior cleanup removes DOM handlers, state observation/owned state, host subscriptions, and host model/collection subscriptions. It releases its outgoing subscriptions; callbacks registered on the Behavior itself follow the ordinary `off`/`stopListening` ownership rules. Behavior cleanup does not destroy the host or borrowed sources.
 
 Direct `behavior.destroy()` returns the Behavior and removes it from the host's managed list. It emits **no independent `before:destroy` or `destroy` notification** and has no public `isDestroyed()` method. `onBeforeDestroy`/`onDestroy` are forwarded host notifications: a removed Behavior no longer receives them. When the host destroys a managed Behavior, its final `onDestroy(host, options)` notification arrives after Behavior resource cleanup. If a Behavior must release an extra resource on both direct and host teardown, override `destroy` and delegate to `Behavior.prototype.destroy.call(this)` as part of that cleanup. Make the extra cleanup safe to repeat, since direct Behavior destruction has no once-only guard; do not rely only on `onDestroy`.
 

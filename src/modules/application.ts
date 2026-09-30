@@ -735,14 +735,11 @@ export default /* @__PURE__ */ ((methods: object) => {
       if (this._parentApp) {
         removeChildAppReference(this._parentApp, this._name!, this);
       }
-      try {
-        this._destroyRadio();
-        this._destroyState();
-        this.triggerMethod('destroy', this, options);
-      } finally {
-        this.stopListening();
-        this.off();
-      }
+      this._destroyRadio();
+      this._destroyState();
+      this.triggerMethod('destroy', this, options);
+      this.stopListening();
+      this.off();
     });
   },
 

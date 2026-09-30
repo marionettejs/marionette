@@ -98,7 +98,7 @@ Failures are not transactional rollback:
 - A throw in `onStart` or a `start` subscriber rejects after activation; `isRunning()` can already be true.
 - Failed stop preparation can leave a running Application active. Children stopped earlier in a sequential traversal are not automatically restarted.
 - Failed destruction before terminal completion can be retried; unfinished children remain registered.
-- A throw after terminal destruction commits can reject even though `isDestroyed()` is already true. Incoming and outgoing subscriptions are released even if the final destroy notification throws.
+- A throw after terminal destruction commits can reject even though `isDestroyed()` is already true.
 
 Handle rejection where the operation is requested. When replacing partial UI with an error View, first await `stop()` successfully, then show the error in the intended Region. Do not infer that a rejected operation restored the prior screen.
 
