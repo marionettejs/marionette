@@ -1,0 +1,21 @@
+test/fixtures/docs-package/validate.mjs
+  s_930f3c9a37745c::t_b2773b157e2afb 103-105,110-111,129-134,136-137,142-148,151
+planning/docs-v5/evidence/runtime-integration-scope.md
+  s_930f3c9a37745c::t_ac18445752f8cf 107-114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "3760949d3e64f4650d6ae4acefc3c6b167371d01",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
