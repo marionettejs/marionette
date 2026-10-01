@@ -1,0 +1,21 @@
+docs/application-composition.md
+  s_930f3c9a37745c::t_cd68e4f8a0b417 116,187,219-221
+test/fixtures/docs-application-guides/feed.mjs
+  s_930f3c9a37745c::t_ff5835185d9f23 75-81,110-115,118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c61977ff69d8a53fde8ec641b13cf7c469ba7496",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
