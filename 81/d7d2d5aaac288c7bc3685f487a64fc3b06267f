@@ -1,0 +1,41 @@
+src/modules/application.ts
+  s_930f3c9a37745c::t_3cd532e2c2a6b4 738-742
+src/modules/region.ts
+  s_930f3c9a37745c::t_3cd532e2c2a6b4 513-515
+config/api-contracts/semantics.json
+  s_930f3c9a37745c::t_3cd532e2c2a6b4 188,248,408,506,1781
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_3cd532e2c2a6b4 4,8972,8975,8981-8983,8991,9004-9005,9008,9014,9053
+docs/api/shared/events.md
+  s_930f3c9a37745c::t_3cd532e2c2a6b4 57
+docs/api/behavior.md
+  s_930f3c9a37745c::t_3cd532e2c2a6b4 85
+src/mixins/view.ts
+  s_930f3c9a37745c::t_3cd532e2c2a6b4 209-218
+test/unit/destroy-listener-cleanup.spec.js
+  s_930f3c9a37745c::t_3cd532e2c2a6b4 2,18,72,92,106,140,158,180,198
+config/release-validation.json
+  s_930f3c9a37745c::t_07f1c9aea07259 255-286
+src/mixins/destroy.ts
+  s_930f3c9a37745c::t_3cd532e2c2a6b4 3,22-26
+docs/api/application.md
+  s_930f3c9a37745c::t_32f01a2c83e8b0 101
+docs/api/mnobject.md
+  s_930f3c9a37745c::t_dbb66dbab94277 74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "81d7d2d5aaac288c7bc3685f487a64fc3b06267f",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": null
+    }
+  }
+}
