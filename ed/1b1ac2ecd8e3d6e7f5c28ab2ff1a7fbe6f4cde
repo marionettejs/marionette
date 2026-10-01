@@ -1,0 +1,259 @@
+test/unit/application-child-declarations.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 41,43,45,134
+benchmarks/agent/tasks/composed-lifecycle-repair/workspace/solution.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 3,53
+benchmarks/agent/README.md
+  s_930f3c9a37745c::t_69f4c6e39d7db1 176
+test/dist/application-notifications.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 43
+benchmarks/agent/tasks/composed-lifecycle-repair/acceptance/acceptance.test.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 62,68,175,182-183,251,254,282
+benchmarks/agent/tasks/borrowed-workspace-state/acceptance/acceptance.test.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 71-74,78-79,85,94
+benchmarks/agent/tasks/owned-workspace-state/acceptance/acceptance.test.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 86-90,93-96,100-114
+benchmarks/consumer-bundles/contract.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 10
+test/unit/application-sync-stop.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 1-218
+docs/records.md
+  s_930f3c9a37745c::t_6062799936c61a 29,31,47,55,61,63,79
+  s_930f3c9a37745c::t_5b6eb484a0e9b9 3,30,35,64-65
+config/release-validation.json
+  s_930f3c9a37745c::t_7fffaf3518c159 214,230,250,287-290
+package.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 145-147,152,156,159,161,163,167
+test/unit/application-retained-restart.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 1-191
+test/browser/application-child-activation.spec.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 26-28
+test/browser/application-retained-restart.spec.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 1-85
+examples/records/src/records-application.js
+  s_930f3c9a37745c::t_be8f6a8042a06d 4,8,12-17,25-29,32,43
+config/api-contracts/semantics.json
+  s_930f3c9a37745c::t_7fffaf3518c159 1776-1777,1780-1782,1848,1867-1868,1871-1872,1875-1876,1879-1880,1883-1884,1887-1888,1891-1896,1910,1932,2800-2802,2804,2827-2830,2869-2876
+scripts/performance/bundle-size.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 39
+test/types/application.cts
+  s_930f3c9a37745c::t_69f4c6e39d7db1 1,77,81,86,88-92,115-116,195-204
+docs-site/navigation.json
+  s_930f3c9a37745c::t_9c553c6e919132 171-172
+  s_930f3c9a37745c::t_1dbb6d80e71ef2 173
+examples/records/src/records-views.js
+  s_930f3c9a37745c::t_be8f6a8042a06d 17,19,24,26,32-36,38
+  s_930f3c9a37745c::t_e6c4a5ff66879f 37
+  s_930f3c9a37745c::t_67c9c1e2bf8f5e 39-40
+test/fixtures/collection-removal-survivors/package.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 10
+docs/guides/migration.md
+  s_930f3c9a37745c::t_6062799936c61a 48,52,56,65
+test/unit/model-based/application.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 24-25,54,92,133,153-157,159-160
+docs/readme.md
+  s_930f3c9a37745c::t_6062799936c61a 17
+test/unit/model-based/README.md
+  s_930f3c9a37745c::t_69f4c6e39d7db1 8,12,21
+benchmarks/agent/tasks/borrowed-workspace-state/reference/solution.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 40
+test/fixtures/core-types/consumer.mts
+  s_930f3c9a37745c::t_69f4c6e39d7db1 32-35,69
+docs/guides/retained-restart.md
+  s_930f3c9a37745c::t_9c553c6e919132 1-73,75-79,81-86
+  s_930f3c9a37745c::t_be8f6a8042a06d 74,80
+benchmarks/agent/evaluator.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 49,53
+test/fixtures/vite/package.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 9
+docs/architecture.md
+  s_930f3c9a37745c::t_6062799936c61a 41
+  s_930f3c9a37745c::t_88576f7b5b74a4 37
+  s_930f3c9a37745c::t_b24fee9ca653e0 26,38,43
+test/unit/destroy-listener-cleanup.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 162,172
+benchmarks/agent/tasks/borrowed-workspace-state/prompt.md
+  s_930f3c9a37745c::t_69f4c6e39d7db1 15-16,20-23
+src/index.ts
+  s_930f3c9a37745c::t_69f4c6e39d7db1 53
+config/performance.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 24-25
+test/browser/application-state-events.spec.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 4,32,44,56,59,88
+test/fixtures/dom-adapters-package/package.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 9
+test/browser/application-restart-completion.spec.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 4,36
+test/unit/application-preparation.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 52-68,82-89
+benchmarks/agent/tasks/composed-lifecycle-repair/README.md
+  s_930f3c9a37745c::t_69f4c6e39d7db1 13,16,19-20,25,27-28,49-50,70
+test/fixtures/jquery-dom-api/package.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 10
+test/unit/application-restart-completion.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 54,87
+test/fixtures/data-package-starter/package.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 19-20,23
+ROADMAP.md
+  s_930f3c9a37745c::t_69f4c6e39d7db1 286,294-296,298,308-309,421,718-719,778,780-782,785-786,791-796,798-800
+test/fixtures/docs-quick-start/package.json
+  s_930f3c9a37745c::t_9a5091ea2ec33b 8
+test/unit/backbone-adapter.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 158,162
+skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_39855654c9c1b2 22-23,45
+test/docs/async-navigation-checks.mjs
+  s_930f3c9a37745c::t_654266ffc043ab 130-131,156-157,159-160,162-163,165-169,171,176,179,181
+test/docs/typescript-guide-checks.mjs
+  s_930f3c9a37745c::t_654266ffc043ab 47,54
+src/modules/application.ts
+  s_930f3c9a37745c::t_69f4c6e39d7db1 4,36,45-49,61,74-76,85,122,124-125,130-132,137,140,156-157,194,201,255,258,293,298-302,305-306,315-316,318-320,322,325-331,333-334,336-337,339,342-348,350-355,357-369,393,395-397,401-402,405-407,411-417,419-432,454-455,493,511,519-533,540
+test/unit/application-view-events.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 1-233
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_121897003a3bc3 4,63,97-98,105,110-111,353,387-388,395,400-401,597-611,8176-8179,8798,8964,8975,8996,9001,9008,9017-9029,9048,9054
+  s_930f3c9a37745c::t_4c8144b431f197 8997,9011
+test/fixtures/data-package-vite/package.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 9
+test/browser/docs-guides.spec.mjs
+  s_930f3c9a37745c::t_078f0f9117baf7 158,215,290
+  s_930f3c9a37745c::t_be8f6a8042a06d 207
+  s_930f3c9a37745c::t_9c553c6e919132 199
+  s_930f3c9a37745c::t_654266ffc043ab 188,196,205,209,276
+plugins/marionette/skills/marionette/SKILL.md
+  s_930f3c9a37745c::t_39855654c9c1b2 45
+  s_930f3c9a37745c::t_6062799936c61a 22-23
+test/unit/application-child-lifecycle.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 31,79,83,90,162,172-175,221,228-229
+test/fixtures/cjs-adapters/package.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 11
+test/unit/application-prepared-view.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 13,18,35,38-52,183,200
+tools/eslint/framework-contract.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 32-34
+examples/records/src/page.js
+  s_930f3c9a37745c::t_be8f6a8042a06d 10
+test/agent-benchmark/composed-lifecycle-controls.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 27,41,52,55,57
+test/fixtures/data-package-starter/main.ts
+  s_930f3c9a37745c::t_69f4c6e39d7db1 11
+changelog.md
+  s_930f3c9a37745c::t_69f4c6e39d7db1 13-24
+  s_930f3c9a37745c::t_dab61a44b09502 74
+examples/records/tests/records.spec.js
+  s_930f3c9a37745c::t_be8f6a8042a06d 323-329,331,333-348,351-356,358-363,365-366,372,393
+  s_930f3c9a37745c::t_078f0f9117baf7 196,217,225,227,246,253,255,286,294
+  s_930f3c9a37745c::t_e566c74e4479c4 367-371,373-392,394-397
+test/browser/application-start-region.spec.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 4,42-43,98,132-133,139-140
+test/docs/integration-guide-checks.mjs
+  s_930f3c9a37745c::t_654266ffc043ab 43,54
+test/fixtures/core-types/consumer.cts
+  s_930f3c9a37745c::t_69f4c6e39d7db1 32-35,69
+docs/guides/routing.md
+  s_930f3c9a37745c::t_654266ffc043ab 32-36,65,67,117,127,132,144,146,176
+  s_930f3c9a37745c::t_128924fcb25852 168,172
+benchmarks/agent/tasks/owned-workspace-state/reference/solution.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 46
+docs/guides/accessibility-rendering.md
+  s_930f3c9a37745c::t_a2ffc0b105b4cf 69
+test/unit/application-ownership.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 1,167
+test/docs/reference-examples.mjs
+  s_930f3c9a37745c::t_654266ffc043ab 356,372,379,388,391
+  s_930f3c9a37745c::t_dde200e76f2631 11,38,60
+test/types/application.mts
+  s_930f3c9a37745c::t_69f4c6e39d7db1 1,77,86,88-92,115-116,216-225
+test/tooling/consumer-lint.test.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 95
+test/fixtures/attachment-owner-document/package.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 9
+test/unit/application-lifecycle.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 41,166,180,185,198,349,356,386
+test/fixtures/data-package-starter/workspace.ts
+  s_930f3c9a37745c::t_69f4c6e39d7db1 35
+docs/api/application.md
+  s_930f3c9a37745c::t_9c553c6e919132 5,9,38-40,42,46,50-55,58,60,66,68,70-71,73,75,77,79,83,85,87,89,91,93,95,99,103,106-108,110,112,114,120-124,126-128,130,132,134,136,138,140,142,144,148,150,154,158,162-167,169,173,177,179
+  s_930f3c9a37745c::t_1e1ec4dc006d34 67,69
+examples/records/src/main-application.js
+  s_930f3c9a37745c::t_be8f6a8042a06d 8-13,16,20-21,25,28,30-38
+  s_930f3c9a37745c::t_e6c4a5ff66879f 15
+test/fixtures/docs-package/package.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 5
+test/docs/retained-restart-checks.mjs
+  s_930f3c9a37745c::t_9c553c6e919132 2-4,6-32,34-39,41-45,47-57,59,61-67,69,71,75-76,82,84-85,91,94,98,100,108,111,113-115
+  s_930f3c9a37745c::t_654266ffc043ab 1,5,33,40,46,58,60,68,70,72-74,77-81,83,86-90,92-93,95-97,99,101-107,109-110,112
+docs/agents.md
+  s_930f3c9a37745c::t_6062799936c61a 27-28,50
+benchmarks/agent/tasks/composed-lifecycle-repair/prompt.md
+  s_930f3c9a37745c::t_69f4c6e39d7db1 5,9,24,32-35
+test/unit/application-root-view.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 73,80-81,276,290,295,304,315,344,356
+test/unit/application-state-events.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 56-57,69,106,108,110-114,116-122,145,161-164,194
+benchmarks/agent/tasks/composed-lifecycle-repair/reference/solution.mjs
+  s_930f3c9a37745c::t_69f4c6e39d7db1 3
+benchmarks/agent/tasks/owned-workspace-state/prompt.md
+  s_930f3c9a37745c::t_69f4c6e39d7db1 3,15-16,20-23
+test/fixtures/adapters-package-vite/package.json
+  s_930f3c9a37745c::t_69f4c6e39d7db1 12
+test/unit/application-start-region.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 64-65,72,78,82,91,93,213,218-219,225-227,232,245,251,263,265-266
+test/unit/application-sync-destroy.spec.js
+  s_930f3c9a37745c::t_69f4c6e39d7db1 1-224
+docs/guides/typescript.md
+  s_930f3c9a37745c::t_078f0f9117baf7 78
+  s_930f3c9a37745c::t_a2ffc0b105b4cf 119
+llms.txt
+  s_930f3c9a37745c::t_6062799936c61a 48
+docs/guides/testing.md
+  s_930f3c9a37745c::t_654266ffc043ab 142,152,157,167,183,185
+  s_930f3c9a37745c::t_a2ffc0b105b4cf 208
+docs/api/mnobject.md
+  s_930f3c9a37745c::t_01c73901e15c92 72
+docs/api/shared/state.md
+  s_930f3c9a37745c::t_9baa4a01da382c 49
+docs/guides/existing-ui.md
+  s_930f3c9a37745c::t_518c4098452b13 45
+docs/guides/production.md
+  s_930f3c9a37745c::t_5b59249ea34cbc 21,25
+package-lock.json
+  s_930f3c9a37745c::t_c5a11e0f12baed 33-35,40,44,47,49,51,55,89-91,98,2619-2621,2673-2675,2691-2693,2709-2711,2727-2729,2745-2747,2763-2765,2781-2783,2802-2804,2823-2825,2844-2846,2865-2867,2886-2888,2907-2909,2925-2927,2943-2945,3064-3066,3078-3080,3092-3094,3106-3108,3120-3122,3134-3136,3148-3150,3165-3167,3182-3184,3199-3201,3216-3218,3233-3235,3250-3252,3267-3269,3284-3286,3301-3303,3318-3320,3335-3337,3352-3354,3369-3371,3383-3385,3397-3399,3411-3413,3425-3427,3439-3441,4322-4324,4329-4332,4345,4361-4363,4367-4370,4386-4388,4392-4393,4408-4410,4414-4415,4426-4428,4443-4445,4449-4451,4468-4470,4482-4484,4488-4491,4510-4512,4517-4519,4534-4536,4540,4552-4554,4571-4572,4635-4637,4642,4673-4675,4926-4928,4946,4948-4949,5318-5320,5688-5690,5749-5751,6088-6090,6094,6097,6384-6386,6391,6398,6405,6820-6822,6830-6832,6867-6869,7011-7013,7527-7529,7534,7544-7558,7562-7564,7579-7603,8288-8290,8298,8367-8369,8374,8382-8383,8385,8400-8401,8403-8405,8450-8452,8459,8521-8523,8530
+test/fixtures/adapters-package-vite/package-lock.json
+  s_930f3c9a37745c::t_10dd8e742c16c4 11,16-18,25-27,41-43,57-59,73-75,89-91,105-107,121-123,140-142,159-161,178-180,197-199,216-218,235-237,251-253,267-269,669-671,674,684-698,733-735,741
+test/fixtures/attachment-owner-document/package-lock.json
+  s_930f3c9a37745c::t_51c1065534184a 9,29-31,37,274-276,279,282,292-294,298,305,312,448-450,456
+test/fixtures/cjs-adapters/package-lock.json
+  s_930f3c9a37745c::t_ced17287bec77e 11,32-34,40,286-288,291,294,310-312,316,323,330,472-474,480
+test/fixtures/collection-removal-survivors/package-lock.json
+  s_930f3c9a37745c::t_9c5512731b7625 10,30-32,38,284-286,289,292,302-304,308,315,322,464-466,472
+test/fixtures/data-package-starter/package-lock.json
+  s_930f3c9a37745c::t_6ab0cc9d9c8e4f 10,12,14,38-40,47,446-448,472-474,489-491,506-508,523-525,540-542,557-559,574-576,594-596,614-616,634-636,654-656,674-676,694-696,711-713,728-730,773-775,779-782,798-800,804-805,820-822,826-827,838-840,855-857,869-871,875-878,897-899,903,1416-1418,1422,1425,1486-1488,1493,1500,1507,2130-2132,2136,2146-2160,2346-2348,2355,2424-2426,2433
+test/fixtures/data-package-vite/package-lock.json
+  s_930f3c9a37745c::t_afbb069732fade 9,13-15,22-24,38-40,54-56,70-72,86-88,102-104,118-120,137-139,156-158,175-177,194-196,213-215,232-234,248-250,264-266,651-653,656,666-680,709-711,717
+test/fixtures/docs-package/package-lock.json
+  s_930f3c9a37745c::t_458f761e443477 8,12-14
+test/fixtures/docs-quick-start/package-lock.json
+  s_930f3c9a37745c::t_6ffecb89adfc9f 8,280-282,285,288,298-300,304,311,318,463-465,471
+test/fixtures/dom-adapters-package/package-lock.json
+  s_930f3c9a37745c::t_0eeab2b9c9de6f 9,33-35,41,604-606,609,612,622-624,628,635,642,841-843,849
+test/fixtures/jquery-dom-api/package-lock.json
+  s_930f3c9a37745c::t_f2dbffe8b25fd5 10,30-32,38,275-277,280,283,299-301,305,312,319,455-457,463
+test/fixtures/vite/package-lock.json
+  s_930f3c9a37745c::t_66be7336dd5670 9,13-15,22-24,38-40,54-56,70-72,86-88,102-104,118-120,137-139,156-158,175-177,194-196,213-215,232-234,248-250,264-266,651-653,656,666-680,709-711,717
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "ed1b1ac2ecd8e3d6e7f5c28ab2ff1a7fbe6f4cde",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
