@@ -40,6 +40,7 @@ try {
       }
     }
 
+    if (operation !== 'start') { continue; }
     const app = new Application();
     const prepare = `prepare${suffix}`;
     const error = new Error(`${format}:${operation}:preparation`);

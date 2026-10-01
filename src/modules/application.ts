@@ -43,7 +43,7 @@ export interface ApplicationStartOptions {
 }
 
 export interface ApplicationRestartOptions {
-  region?: never;
+  region?: RegionInstance;
   [key: string]: unknown;
 }
 
@@ -71,12 +71,10 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   isDestroyed(): boolean;
   isRunning(): boolean;
   start(options?: ApplicationStartOptions): Promise<boolean>;
-  stop(options?: unknown): Promise<boolean>;
+  stop(options?: unknown): boolean;
   restart(options?: ApplicationRestartOptions): Promise<boolean>;
-  destroy(options?: unknown): Promise<boolean>;
+  destroy(options?: unknown): boolean;
   prepareStart?(options: unknown, context: LifecycleContext): StartResult | PromiseLike<StartResult>;
-  prepareStop?(options: unknown, context: LifecycleContext): unknown;
-  prepareDestroy?(options: unknown, context: LifecycleContext): unknown;
   onBeforeStart?(application: this, options: unknown): unknown;
   onBeforeStop?(application: this, options: unknown): unknown;
   onBeforeDestroy?(application: this, options: unknown): unknown;
@@ -84,7 +82,7 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   onStop?(application: this, options: unknown): unknown;
   onDestroy?(application: this, options: unknown): unknown;
   addChildApp<Child extends ApplicationInstance<object, unknown>>(name: string, application: Child): Child;
-  removeChildApp(name: string, options?: unknown): Promise<ApplicationInstance<object, unknown> | undefined>;
+  removeChildApp(name: string, options?: unknown): ApplicationInstance<object, unknown> | undefined;
   hasChildApp(name: string): boolean;
   getChildApp(name: string): ApplicationInstance<object, unknown> | undefined;
   getChildApps(): Record<string, ApplicationInstance<object, unknown>>;
@@ -121,44 +119,22 @@ export type ApplicationConstructor<Props extends object = {}, Args extends unkno
     StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>>;
 }, Statics>;
 
-type LifecycleState = 'destroyed' | 'destroying' | 'running' | 'starting' | 'stopped' | 'stopping';
-type OperationKind = 'start' | 'stop' | 'restart' | 'destroy';
-type FailureState = 'running' | 'stopped' | 'destroyed';
-interface Deferred<Value> {
-  promise: Promise<Value>;
-  resolve: (value: Value | PromiseLike<Value>) => void;
-  reject: (reason: unknown) => void;
-}
-interface Readiness<Value = unknown> {
-  promise: Promise<Value>;
-  context: LifecycleContext;
+interface PendingStart {
   controller: AbortController;
-  options: unknown;
-  isCanceled?: boolean;
-}
-interface StopReadiness extends Readiness<boolean> {
-  notify: boolean;
-}
-interface Operation extends Deferred<boolean> {
-  kind: OperationKind;
-  failureState: FailureState;
-  readiness?: Readiness;
-  stopReadiness?: StopReadiness;
-  stopDeferred?: Deferred<boolean>;
-  isCompleting?: boolean;
-  isStopped?: boolean;
-  startRegion?: RegionInstance;
+  promise: Promise<boolean>;
+  resolve(value: boolean): void;
 }
 
 type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & StateHost & {
   [runtimeId]: object;
-  _lifecycleState: LifecycleState;
-  _lifecycleOperation?: Operation;
+  _pendingStart?: PendingStart;
+  _isStopping?: boolean;
+  _isDestroying?: boolean;
   _parentApp?: ApplicationInternals;
   _name?: string;
   _childApps?: Map<string, ApplicationInternals>;
   _region?: RegionInstance;
-  _ownedRegion?: RegionInstance;
+  _ownsRegion?: boolean;
   _preparedView?: SupportedView;
   _displayedView?: SupportedView;
   _viewEventViews?: WeakSet<SupportedView>;
@@ -181,12 +157,6 @@ const ClassOptions = [
   'viewEvents'
 ];
 
-const DESTROYED = 'destroyed';
-const DESTROYING = 'destroying';
-const RUNNING = 'running';
-const STARTING = 'starting';
-const STOPPED = 'stopped';
-const STOPPING = 'stopping';
 const classErrorName = 'ApplicationError';
 
 const Application = function(this: ApplicationInternals, options?: ApplicationOptions) {
@@ -212,17 +182,6 @@ function isApplicationRunning(application: ApplicationInternals) {
   return application._isRunning;
 }
 
-// Phase and activation differ while stop permission is pending. Commit both
-// together so public activity and configured state-event delivery cannot drift.
-function setLifecycleState(application: ApplicationInternals, state: LifecycleState, running: boolean) {
-  application._lifecycleState = state;
-  application._isRunning = running;
-}
-
-function isCurrentOperation(application: ApplicationInternals, operation: Operation) {
-  return application._lifecycleOperation === operation;
-}
-
 function throwApplicationOwnershipConflict(message: string) {
   throw new MarionetteError({
     code: 'MN0031',
@@ -231,27 +190,15 @@ function throwApplicationOwnershipConflict(message: string) {
   });
 }
 
-function applicationRegionConflict() {
-  return new MarionetteError({
-    code: 'MN0041',
-    name: classErrorName,
-    message: 'Only start() can select a Region, and an active or starting Application cannot change hosts.'
-  });
-}
-
 function isTerminal(application: ApplicationInternals) {
-  return application._lifecycleState === DESTROYING ||
-    application._lifecycleState === DESTROYED;
+  return application._isDestroying || application._isDestroyed;
 }
 
 function hasStoppingOwner(application: ApplicationInternals) {
   let owner = application._parentApp;
 
-  // Stop callbacks run after STOPPED commits; an adopting start may still
-  // hold stop readiness. Retained restart does not block child activation.
   while (owner) {
-    if (isTerminal(owner) || owner._lifecycleOperation?.kind === 'stop' ||
-        owner._lifecycleOperation?.stopReadiness) { return true; }
+    if (isTerminal(owner) || owner._isStopping) { return true; }
     owner = owner._parentApp;
   }
 
@@ -305,44 +252,11 @@ function removeChildAppReference(owner: ApplicationInternals, name: string, appl
   }
 }
 
-async function destroyChildApps(application: ApplicationInternals, options: unknown) {
+function destroyChildApps(application: ApplicationInternals, options: unknown) {
   // Destroy removes the current child from this Map without skipping the next.
   for (const child of application._childApps!.values()) {
-    await child.destroy(options);
+    child.destroy(options);
   }
-}
-
-function hasStableLifecycleState(application: ApplicationInternals, state: LifecycleState) {
-  return application._lifecycleState === state && !application._lifecycleOperation;
-}
-
-function canStopChildren(application: ApplicationInternals, operation: Operation) {
-  if (isCurrentOperation(application, operation)) { return true; }
-
-  // A replacement stop, restart, or destroy continues the adopted stop phase.
-  const current = application._lifecycleOperation;
-  return current?.stopReadiness !== undefined && current.stopReadiness === operation.stopReadiness &&
-    current.kind !== 'start';
-}
-
-function cancelStopReadiness(operation: Operation) {
-  operation.stopReadiness!.isCanceled = true;
-  return false;
-}
-
-async function stopChildApps(application: ApplicationInternals, operation: Operation, options: unknown) {
-  if (!application._childApps) { return true; }
-
-  for (const child of application._childApps!.values()) {
-    if (!canStopChildren(application, operation)) { return cancelStopReadiness(operation); }
-    const stopped = await child.stop(options);
-    if (!canStopChildren(application, operation)) { return cancelStopReadiness(operation); }
-    if (stopped && hasStableLifecycleState(child, STOPPED)) { continue; }
-    if (!isTerminal(application)) { return cancelStopReadiness(operation); }
-    await child.destroy(options);
-  }
-
-  return true;
 }
 
 function releasePreparedView(application: ApplicationInternals) {
@@ -376,131 +290,20 @@ function emptyView(application: ApplicationInternals, options?: unknown) {
   releasePreparedView(application)?.destroy();
   const region = application.getRegion();
   const displayed = releaseDisplayedView(application);
-  if (region?.currentView && (application._ownedRegion || region.currentView === displayed)) {
+  if (region?.currentView && (application._ownsRegion || region.currentView === displayed)) {
     region.empty(options as ShowOptions | undefined);
   }
 }
 
-function createDeferred<Value = unknown>() {
-  let resolve!: Deferred<Value>['resolve'];
-  let reject!: Deferred<Value>['reject'];
-  const promise = new Promise<Value>((resolvePromise, rejectPromise) => {
-    resolve = resolvePromise;
-    reject = rejectPromise;
-  });
-
-  return { promise, reject, resolve };
+function cancelStart(application: ApplicationInternals) {
+  const pending = application._pendingStart;
+  delete application._pendingStart;
+  pending?.resolve(false);
+  pending?.controller.abort();
 }
 
-function beginReadiness<Value>(operation: Operation, options: unknown, callback: (context: LifecycleContext) => Value | PromiseLike<Value>) {
-  const deferred = createDeferred<Value>();
-  const controller = new AbortController();
-  const readiness = {
-    ...deferred,
-    context: { signal: controller.signal },
-    controller,
-    options
-  };
-
-  operation.readiness = readiness;
-
-  try {
-    Promise.resolve(callback(readiness.context)).then(readiness.resolve, readiness.reject);
-  } catch (error) {
-    readiness.reject(error);
-  }
-
-  return readiness;
-}
-
-function completeReadiness(operation: Operation) {
-  delete operation.readiness;
-}
-
-function getFailureState(application: ApplicationInternals, operation?: Operation) {
-  if (operation?.stopReadiness) { return operation.failureState; }
-  return application._isRunning ? RUNNING : STOPPED;
-}
-
-function supersedeOperation(application: ApplicationInternals) {
-  const operation = application._lifecycleOperation;
-  if (!operation) { return; }
-
-  delete application._lifecycleOperation;
-  operation.resolve(!!operation.isCompleting);
-  return operation;
-}
-
-function completeOperation(application: ApplicationInternals, operation: Operation) {
-  if (!isCurrentOperation(application, operation)) { return; }
-
-  delete application._lifecycleOperation;
-  operation.resolve(true);
-}
-
-function cancelOperation(application: ApplicationInternals, operation: Operation) {
-  delete application._lifecycleOperation;
-  setLifecycleState(application, operation.failureState, operation.failureState === RUNNING);
-  operation.resolve(false);
-}
-
-function failOperation(application: ApplicationInternals, operation: Operation, error: unknown) {
-  if (!isCurrentOperation(application, operation)) { return; }
-
-  delete application._lifecycleOperation;
-  setLifecycleState(application, operation.failureState, operation.failureState === RUNNING);
-  operation.reject(error);
-}
-
-// A lifecycle callback may settle after a newer operation has superseded it.
-// Only the current operation may commit or restore Application state.
-function runOperation(application: ApplicationInternals, operation: Operation, callback: () => unknown) {
-  (async() => {
-    try {
-      await callback();
-      completeOperation(application, operation);
-    } catch (error) {
-      failOperation(application, operation, error);
-    }
-  })();
-}
-
-function beginOperation(application: ApplicationInternals, kind: OperationKind, state: LifecycleState, failureState: FailureState,
-  callback: (operation: Operation) => unknown, startRegion?: RegionInstance) {
-  const superseded = supersedeOperation(application);
-  const deferred = createDeferred<boolean>();
-  // A canceled child traversal cannot be continued by a later operation.
-  const stopReadiness = superseded?.stopReadiness?.isCanceled ? undefined : superseded?.stopReadiness;
-
-  const operation: Operation = {
-    ...deferred,
-    kind,
-    failureState,
-    readiness: stopReadiness,
-    stopReadiness,
-    startRegion
-  };
-
-  application._lifecycleOperation = operation;
-  setLifecycleState(application, state, state === DESTROYING ? false : application._isRunning);
-
-  if (superseded?.readiness && superseded.readiness !== stopReadiness) {
-    superseded.readiness.controller.abort();
-  }
-
-  if (!isCurrentOperation(application, operation)) { return deferred.promise; }
-  runOperation(application, operation, () => callback(operation));
-
-  return deferred.promise;
-}
-
-function isCompatibleStartRegion(application: ApplicationInternals, region: RegionInstance | undefined, operation?: Operation) {
-  return region === undefined || region === (operation?.startRegion ?? application._region);
-}
-
-function replaceStartRegion(application: ApplicationInternals, operation: Operation, region: RegionInstance) {
-  const current = application._region;
-  if (region === current) { return; }
+function replaceStartRegion(application: ApplicationInternals, region: RegionInstance) {
+  if (region === application._region) { return; }
   if ((region as RegionInternals)[runtimeId] !== application[runtimeId]) {
     throw new MarionetteError({
       code: 'MN0030',
@@ -509,97 +312,61 @@ function replaceStartRegion(application: ApplicationInternals, operation: Operat
     });
   }
 
-  const owned = application._ownedRegion;
+  const current = application._region;
+  const owned = application._ownsRegion;
   const displayed = releaseDisplayedView(application);
-  if (displayed && current?.currentView === displayed) {
-    current.empty();
-  }
-  if (!isCurrentOperation(application, operation)) { return; }
-  owned?.destroy();
-  if (!isCurrentOperation(application, operation)) { return; }
-
+  if (displayed && current?.currentView === displayed) { current.empty(); }
+  if (owned) { current?.destroy(); }
+  if (isTerminal(application)) { return; }
   application._region = region;
-  delete application._ownedRegion;
+  application._ownsRegion = false;
 }
 
-async function startApplication(application: ApplicationInternals, operation: Operation, options: unknown) {
-  if (operation.stopReadiness) {
-    const readiness = operation.stopReadiness;
-    const childrenStopped = await readiness.promise;
-    if (!isCurrentOperation(application, operation)) { return; }
+async function prepareApplication(application: ApplicationInternals, pending: PendingStart,
+  options: unknown, region?: RegionInstance) {
+  if (application._pendingStart !== pending) { return false; }
+  if (region) { replaceStartRegion(application, region); }
+  if (application._pendingStart !== pending) { return false; }
+  application.triggerMethod('before:start', application, options);
+  if (application._pendingStart !== pending) { return false; }
 
-    completeReadiness(operation);
-    if (childrenStopped) { operation.failureState = STOPPED; }
-    delete operation.stopReadiness;
-  }
+  const result = await application.prepareStart?.(options, { signal: pending.controller.signal });
+  if (application._pendingStart !== pending) { return false; }
 
-  const retained = operation.kind === 'restart' && application._isRunning;
-  // Only a stopped run may move hosts. Retained preparation stays active.
-  if (!retained) { setLifecycleState(application, application._lifecycleState, false); }
-  if (operation.startRegion !== undefined) {
-    replaceStartRegion(application, operation, operation.startRegion);
-    if (!isCurrentOperation(application, operation)) { return; }
-  }
-
-  setLifecycleState(application, STARTING, retained);
-  const readiness = beginReadiness(operation, options, context => {
-    application.triggerMethod('before:start', application, options);
-    if (!isCurrentOperation(application, operation)) { return; }
-    return application.prepareStart?.(options, context);
-  });
-
-  const result = await readiness.promise;
-  if (!isCurrentOperation(application, operation)) { return; }
-
-  completeReadiness(operation);
-  // Completion handlers may stop the successfully prepared run.
-  delete operation.isStopped;
-  setLifecycleState(application, RUNNING, true);
-  operation.failureState = RUNNING;
-  operation.isCompleting = true;
+  delete application._pendingStart;
+  application._isRunning = true;
   application.triggerMethod('start', application, options, result);
+  return true;
 }
 
-async function stopApplication(application: ApplicationInternals, operation: Operation, options: unknown, notify = true) {
-  try {
-    if (!operation.stopReadiness) {
-      const readiness = beginReadiness(operation, options, async context => {
-        if (notify) {
-          application.triggerMethod('before:stop', application, options);
-          if (!isCurrentOperation(application, operation)) { return false; }
-          await application.prepareStop?.(options, context);
-        }
-        return stopChildApps(application, operation, options);
-      });
-      // Adopters retain this phase's notification policy, just like its options.
-      operation.stopReadiness = Object.assign(readiness, { notify });
-    }
+function beginStart(application: ApplicationInternals, options: unknown, region?: RegionInstance) {
+  const previous = application._pendingStart;
+  const { promise, resolve, reject } = Promise.withResolvers<boolean>();
+  const pending = { controller: new AbortController(), promise, resolve };
+  application._pendingStart = pending;
+  previous?.resolve(false);
+  previous?.controller.abort();
 
-    const readiness = operation.stopReadiness;
-    const childrenStopped = await readiness.promise;
-    if (!isCurrentOperation(application, operation)) { return; }
+  prepareApplication(application, pending, options, region).then(resolve, error => {
+    if (application._pendingStart === pending) { delete application._pendingStart; }
+    reject(error);
+  });
+  return promise;
+}
 
-    completeReadiness(operation);
-    delete operation.stopReadiness;
-    if (!childrenStopped) {
-      cancelOperation(application, operation);
-      return;
-    }
-    setLifecycleState(application, application._lifecycleState, false);
-    emptyView(application, readiness.options);
-    if (!isCurrentOperation(application, operation)) { return; }
-    operation.failureState = STOPPED;
-    operation.isStopped = true;
-    if (operation.kind === 'stop') {
-      setLifecycleState(application, STOPPED, false);
-      operation.isCompleting = true;
-    }
-    if (readiness.notify) { application.triggerMethod('stop', application, readiness.options); }
-    operation.stopDeferred?.resolve(true);
-  } catch (error) {
-    operation.stopDeferred?.reject(error);
-    throw error;
-  }
+function stopApplication(application: ApplicationInternals, options: unknown,
+  notify = application._isRunning || !!application._pendingStart) {
+  if (application._isStopping) { return; }
+  application._isStopping = true;
+  cancelStart(application);
+  if (application._isDestroyed) { return; }
+  if (notify) { application.triggerMethod('before:stop', application, options); }
+  application._childApps?.forEach(child => child.stop(options));
+  if (application._isDestroyed) { return; }
+  application._isRunning = false;
+  emptyView(application, options);
+  application._isStopping = false;
+  if (notify && !application._isDestroyed) { application.triggerMethod('stop', application, options); }
 }
 
 // Application Methods
@@ -617,133 +384,52 @@ export default /* @__PURE__ */ ((methods: object) => {
 
   cidPrefix: 'mna',
 
-  _lifecycleState: STOPPED,
   _isRunning: false,
 
   isRunning(this: ApplicationInternals) {
     return isApplicationRunning(this);
   },
 
-  // Begin local asynchronous readiness; callers explicitly start required children.
+  // Start joins pending readiness; restart replaces it without stopping the active run.
   start(this: ApplicationInternals, options?: ApplicationStartOptions) {
-    if (isTerminal(this) || hasStoppingOwner(this)) {
-      return Promise.resolve(false);
-    }
-
-    const region = options?.region;
-    const operation = this._lifecycleOperation;
-    if (operation?.kind === 'start' || this._lifecycleState === STARTING || this._lifecycleState === RUNNING) {
-      if (!isCompatibleStartRegion(this, region, operation)) { return Promise.reject(applicationRegionConflict()); }
-    }
-    if (operation?.kind === 'start' || (operation?.kind === 'restart' && (!this._isRunning || operation.stopReadiness))) { return operation.promise; }
-    if (this._isRunning && (!operation || operation.kind === 'restart')) { return Promise.resolve(true); }
-
-    const failureState = getFailureState(this, operation);
-    return beginOperation(this, 'start', STARTING, failureState, nextOperation => {
-      return startApplication(this, nextOperation, options);
-    }, region);
+    if (isTerminal(this) || this._isStopping || hasStoppingOwner(this)) { return Promise.resolve(false); }
+    if (this._isRunning) { return Promise.resolve(true); }
+    return this._pendingStart?.promise || beginStart(this, options, options?.region);
   },
 
   stop(this: ApplicationInternals, options?: unknown) {
-    if (this._lifecycleState === DESTROYED) {
-      return Promise.resolve(true);
-    }
-
-    const operation = this._lifecycleOperation;
-    if (this._lifecycleState === DESTROYING) {
-      if (!operation?.stopReadiness) { return Promise.resolve(true); }
-      // Destroy cannot be superseded and starts its stop phase synchronously.
-      if (!operation.stopDeferred) {
-        operation.stopDeferred = createDeferred<boolean>();
-      }
-      return operation.stopDeferred.promise;
-    }
-    if (operation?.kind === 'stop') { return operation.promise; }
-    if (operation?.isStopped) {
-      const superseded = supersedeOperation(this);
-      setLifecycleState(this, STOPPED, false);
-      superseded!.readiness?.controller.abort();
-      return Promise.resolve(true);
-    }
-    const wasStopped = this._lifecycleState === STOPPED && !operation;
-    if (wasStopped && !this._childApps) {
-      try {
-        emptyView(this, options);
-        return Promise.resolve(true);
-      } catch (error) {
-        return Promise.reject(error);
-      }
-    }
-    const failureState = getFailureState(this, operation);
-
-    return beginOperation(this, 'stop', STOPPING, failureState, nextOperation => {
-      return stopApplication(this, nextOperation, options, !wasStopped);
-    });
+    if (!isTerminal(this)) { stopApplication(this, options); }
+    return true;
   },
 
   restart(this: ApplicationInternals, options?: ApplicationRestartOptions) {
-    if (isTerminal(this) || hasStoppingOwner(this)) {
-      return Promise.resolve(false);
-    }
-
-    if (options?.region !== undefined) { return Promise.reject(applicationRegionConflict()); }
-    const operation = this._lifecycleOperation;
-    const failureState = getFailureState(this, operation);
-
-    return beginOperation(this, 'restart', STARTING, failureState, async nextOperation => {
-      // An explicit stop already in progress must finish before reactivation.
-      if (nextOperation.stopReadiness) {
-        await stopApplication(this, nextOperation, options);
-        if (!isCurrentOperation(this, nextOperation)) { return; }
-      }
-      await startApplication(this, nextOperation, options);
-    });
+    if (isTerminal(this) || this._isStopping || hasStoppingOwner(this)) { return Promise.resolve(false); }
+    return beginStart(this, options);
   },
 
   destroy(this: ApplicationInternals, options?: unknown) {
-    if (this._lifecycleState === DESTROYED) { return Promise.resolve(true); }
-
-    const operation = this._lifecycleOperation;
-    if (operation?.kind === 'destroy') { return operation.promise; }
-    const shouldStop = !operation?.isStopped && this._lifecycleState !== STOPPED;
-    const failureState = getFailureState(this, operation);
-
-    return beginOperation(this, 'destroy', DESTROYING, failureState, async nextOperation => {
-      if (shouldStop) {
-        await stopApplication(this, nextOperation, options);
-      } else if (this._childApps) {
-        await stopChildApps(this, nextOperation, options);
-      }
-
+    if (isTerminal(this)) { return true; }
+    const notifyStop = this._isRunning || !!this._pendingStart;
+    this._isDestroying = true;
+    this._isRunning = false;
+    stopApplication(this, options, notifyStop);
+    if (this._isStopping) {
+      this._childApps?.forEach(child => child.stop(options));
       emptyView(this, options);
-
-      const readiness = beginReadiness(nextOperation, options, context => {
-        this.triggerMethod('before:destroy', this, options);
-        return this.prepareDestroy?.(options, context);
-      });
-
-      await readiness.promise;
-      completeReadiness(nextOperation);
-      if (this._childApps) {
-        await destroyChildApps(this, options);
-      }
-      const ownedRegion = this._ownedRegion;
-      ownedRegion?.destroy(options as ShowOptions | undefined);
-      delete this._region;
-      delete this._ownedRegion;
-      this._isDestroyed = true;
-      setLifecycleState(this, DESTROYED, false);
-      nextOperation.failureState = DESTROYED;
-      nextOperation.isCompleting = true;
-      if (this._parentApp) {
-        removeChildAppReference(this._parentApp, this._name!, this);
-      }
-      this._destroyRadio();
-      this._destroyState();
-      this.triggerMethod('destroy', this, options);
-      this.stopListening();
-      this.off();
-    });
+    }
+    this.triggerMethod('before:destroy', this, options);
+    if (this._childApps) { destroyChildApps(this, options); }
+    if (this._ownsRegion) { this._region?.destroy(options as ShowOptions | undefined); }
+    delete this._region;
+    delete this._ownsRegion;
+    this._isDestroyed = true;
+    if (this._parentApp) { removeChildAppReference(this._parentApp, this._name!, this); }
+    this._destroyRadio();
+    this._destroyState();
+    this.triggerMethod('destroy', this, options);
+    this.stopListening();
+    this.off();
+    return true;
   },
 
   addChildApp(this: ApplicationInternals, name: string, application: ApplicationInternals) {
@@ -765,9 +451,8 @@ export default /* @__PURE__ */ ((methods: object) => {
 
   removeChildApp(this: ApplicationInternals, name: string, options?: unknown) {
     const application = this.getChildApp(name);
-    if (!application) { return Promise.resolve(); }
-
-    return application.destroy(options).then(() => application);
+    application?.destroy(options);
+    return application;
   },
 
   hasChildApp(this: ApplicationInternals, name: string) {
@@ -805,7 +490,7 @@ export default /* @__PURE__ */ ((methods: object) => {
     this._region = buildRegion(region, defaults);
 
     if (!(region instanceof Region)) {
-      this._ownedRegion = this._region;
+      this._ownsRegion = true;
     }
   },
 
@@ -835,6 +520,7 @@ export default /* @__PURE__ */ ((methods: object) => {
     const bindings = declaration && normalizeBindings(this, declaration);
     if (view !== this._preparedView) {
       releasePreparedView(this)?.destroy();
+      if (isTerminal(this)) { return view; }
       if (view !== this._displayedView) {
         this._preparedView = view;
         view._parent = this;
@@ -851,6 +537,7 @@ export default /* @__PURE__ */ ((methods: object) => {
   showView(this: ApplicationInternals, view?: SupportedView, ...args: [options?: ShowOptions]) {
     if (isTerminal(this)) { return view; }
     if (view) { this.setView(view); }
+    if (isTerminal(this)) { return view; }
 
     const root = this.getView();
     if (!root) { return; }

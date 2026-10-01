@@ -71,11 +71,10 @@ async function lifecycle() {
   const dynamicRegionStart: ApplicationStartOptions = { region: borrowedRegion, source: 'dynamic-region' };
   const dynamicRegionStarted: Promise<boolean> = root.start(dynamicRegionStart);
   root.start({region: borrowedRegion, source: 'direct'});
-  // @ts-expect-error Only start accepts a Region.
   root.restart({region: borrowedRegion, source: 'direct'});
   // @ts-expect-error A startup Region must be a Region instance.
   root.start({region: 42});
-  // @ts-expect-error Restart validates its next Region too.
+  // @ts-expect-error Forwarded restart region must be a Region instance.
   root.restart({region: false});
   // @ts-expect-error Start borrows an existing Region, never a selector.
   root.start({region: '#application'});
@@ -84,13 +83,13 @@ async function lifecycle() {
   // @ts-expect-error A Region class is not an existing instance.
   root.start({region: Region});
   const started: boolean = await root.start({source: 'example'});
-  const stopped: boolean = await root.stop();
+  const stopped: boolean = root.stop();
   const restarted: boolean = await root.restart();
-  const removed: ApplicationInstance<object, unknown> | undefined = await root.removeChildApp('editor');
-  const destroyed: boolean = await root.destroy();
-  // @ts-expect-error Application destroy is asynchronous, unlike View and MnObject.
-  const synchronous: boolean = root.destroy();
-  // @ts-expect-error Application destroy resolves readiness status, not its receiver.
+  const removed: ApplicationInstance<object, unknown> | undefined = root.removeChildApp('editor');
+  const destroyed: boolean = root.destroy();
+  // @ts-expect-error Application destroy is synchronous.
+  const asynchronous: Promise<boolean> = root.destroy();
+  // @ts-expect-error Application destroy returns status, not its receiver.
   const returnedApplication: ApplicationInstance = await root.destroy();
 }
 
@@ -113,6 +112,8 @@ const configuredEarly: void = child.preinitialize({label: 'Editor'});
 // @ts-expect-error The preinitialize override retains its declared option type.
 child.preinitialize({label: false});
 declare const applicationInstance: ApplicationInstance<{label: string}>;
+// @ts-expect-error Application teardown has no preparation hook.
+applicationInstance.prepareDestroy;
 applicationInstance.preinitialize({label: 'Editor'});
 // @ts-expect-error The public instance hook uses the Application option type.
 applicationInstance.preinitialize({label: 1});
@@ -215,7 +216,6 @@ class NativeMethodDeclaredParent extends Application {
 
 const restartOptions: ApplicationRestartOptions = { filter: 'latest' };
 void applicationInstance.restart(restartOptions);
-// @ts-expect-error restart cannot select a Region
 void applicationInstance.restart({ region: new Region({ el: '#other' }) });
 
 const DeclaredViewEvents = Application.extend({

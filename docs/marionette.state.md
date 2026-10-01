@@ -167,7 +167,7 @@ methods to state owners.
 
 Application state identity and subscriptions persist across stop/restart, but
 configured `stateEvents` deliver only while `isRunning()` is true. Delivery begins
-before `onStart`, continues through retained restart preparation and pending stop permission, and ends before
+before `onStart`, continues through retained restart preparation, and ends before
 successful stop tears down the root or when terminal destruction begins. Initial startup
 and stopped writes remain in the source without replay; read current state in
 `onStart` for initial composition. Other state owners, including Views, retain

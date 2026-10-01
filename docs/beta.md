@@ -21,9 +21,9 @@ No scored agent result or completed stabilization period is claimed by this vers
 
 Application `stateEvents` follows the active run: startup and stopped changes do
 not invoke configured handlers or replay later. Read initial state in `onStart`.
-An active Application remains running while stop permission is pending; a rejected
-stop preserves the run. Restart requests from completion callbacks begin a fresh
-cycle rather than reusing the completed restart.
+Stop completes synchronously; retained restart preserves the active UI and
+children. Restart requests from completion callbacks begin a fresh cycle rather
+than reusing the completed restart.
 
 Native `@mnjs/data` mutations no longer support `{ silent: true }`. Remove those
 options and expect documented notifications after construction. Backbone mutation

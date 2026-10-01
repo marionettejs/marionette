@@ -62,32 +62,6 @@ await test('documented Application effect ownership', async t => {
     } finally { await f.dispose(); }
   });
 
-  await t.test('keeps effects and current state through rejected stop permission', async() => {
-    const gate = Promise.withResolvers();
-    let rejectStop = true;
-    let signal;
-    const f = fixture({
-      load(options) { signal = options.signal; return Promise.resolve({ label: 'Queue' }); },
-      beforeStop() { if (rejectStop) { return gate.promise; } }
-    });
-    try {
-      await f.app.start();
-      const stopping = f.app.stop();
-      f.state.set('filter', 'closed');
-      assert.equal(document.querySelector('main').textContent, 'Queue: closed');
-      assert.equal(f.channel.request('current:filter'), 'closed');
-      const failure = new Error('Keep editing');
-      gate.reject(failure);
-      await assert.rejects(stopping, error => error === failure);
-      assert.equal(f.app.isRunning(), true);
-      assert.equal(signal.aborted, false);
-      assert.equal(document.querySelector('main').textContent, 'Queue: closed');
-      rejectStop = false;
-      await f.app.stop();
-      assert.equal(signal.aborted, true);
-    } finally { rejectStop = false; await f.dispose(); }
-  });
-
   await t.test('cancels a loading scope and ignores a late result after a new start', async() => {
     const requests = [];
     const f = fixture({ load({ signal }) {
@@ -155,6 +129,27 @@ await test('documented Application effect ownership', async t => {
     } finally { await f.dispose(); }
   });
 
+  await t.test('retained restart failure preserves active effects and presentation', async() => {
+    const failure = new Error('Metadata unavailable');
+    let attempt = 0;
+    const f = fixture({ load() {
+      return attempt++ === 1 ? Promise.reject(failure) : Promise.resolve({ label: 'Queue' });
+    } });
+    try {
+      await f.app.start();
+      const root = f.app.getView();
+      await assert.rejects(f.app.restart(), error => error === failure);
+      assert.equal(f.app.isRunning(), true);
+      assert.equal(f.app.getView(), root);
+      f.state.set('filter', 'closed');
+      assert.equal(document.querySelector('main').textContent, 'Queue: closed');
+      assert.equal(f.channel.request('current:filter'), 'closed');
+      await f.app.restart();
+      assert.equal(f.app.getView(), root);
+      assert.equal(f.channel.request('current:filter'), 'closed');
+    } finally { await f.dispose(); }
+  });
+
   await t.test('successful stop ends the timer and destroy cancels pending readiness', async() => {
     let ticks = 0;
     const f = fixture({ tick() { ticks++; } });
@@ -182,31 +177,6 @@ await test('documented Application effect ownership', async t => {
     } finally { loading.resolve({ label: 'Done' }); await pending.dispose(); }
   });
 
-
-  await t.test('a replacement start adopts pending stop permission and replaces effects once', async() => {
-    const permission = Promise.withResolvers();
-    let hold = true;
-    const signals = [];
-    const f = fixture({
-      load({ signal }) { signals.push(signal); return Promise.resolve({ label: 'Queue' }); },
-      beforeStop() { if (hold) { return permission.promise; } }
-    });
-    try {
-      await f.app.start();
-      const stopping = f.app.stop();
-      const starting = f.app.start();
-      assert.equal(await stopping, false);
-      f.state.set('filter', 'closed');
-      assert.equal(f.channel.request('current:filter'), 'closed');
-      assert.equal(signals[0].aborted, false);
-      permission.resolve();
-      assert.equal(await starting, true);
-      assert.equal(signals[0].aborted, true);
-      assert.equal(signals.length, 2);
-      assert.equal(signals[1].aborted, false);
-      assert.equal(document.querySelector('main').textContent, 'Queue: closed');
-    } finally { hold = false; permission.resolve(); await f.dispose(); }
-  });
 
   await t.test('scope disposal is idempotent and releases late registered resources', () => {
     const effects = createEffects();

@@ -140,13 +140,12 @@ start it with `await selector.start()` first, then call `await selector.select(i
 handle a current loader rejection at the caller. A new selection calls `stop()`
 on the selected child immediately, canceling any pending child
 startup, then starts only the latest selected id after stop completes. The token
-prevents an older `select()` continuation from starting its resource when
-concurrent calls share stop readiness. Marionette's preparation signal prevents
+prevents an older `select()` continuation from starting its resource after
+a newer selection replaces it. Marionette's preparation signal prevents
 an obsolete load, even one that ignores abort, from reaching `onStart` and
 showing its View. The parent shell stays mounted as selected Views change.
 `false` means the selection was superseded or the owner stopped; a current
-readiness failure rejects. An owner stop or destroy while `select()` awaits the
-child stop also prevents a later child start.
+readiness failure rejects. An owner stop or destroy invalidates selection before a later child start.
 Destroy the owning Application when the selector is released.
 
 Use retained `restart({ id })` when old content should remain visible during loading.
@@ -197,12 +196,11 @@ export const ResultsFeature = Application.extend({
     for (const row of rows) { current.get(row.id)?.set(row); }
     items.add(rows.filter(row => !current.has(row.id)));
     items.sort((left, right) => order.get(left.get('id')) - order.get(right.get('id')));
-  },
-  prepareStop(options, context) { return this.getOption('beforeStop')?.(options, context); }
+  }
 });
 ```
 
-Construct `new ResultsFeature({ region: { el }, items, loadItems, beforeStop })`
+Construct `new ResultsFeature({ region: { el }, items, loadItems })`
 and await `feature.start()`. Call `await feature.restart({ query })` for the initial results and subsequent filter
 changes or retries. Keep the same feature and collection. The commit updates retained
 Models, removes missing records, adds new records, then sorts to the response order.
@@ -215,10 +213,9 @@ updating the results does not rerender the layout or
 replace the editor. Rows removed by the new result are intentionally destroyed.
 Record names are assigned as text rather than interpolated into HTML.
 
-Stop and destroy invalidate preparation immediately, including while stop permission
-is pending. Rejecting stop permission leaves the previous UI usable but does not
-resurrect canceled preparation. A subsequent start creates fresh Views while the
-borrowed collection survives. The caller owns and disposes that collection.
+Stop and destroy invalidate preparation immediately and remove the selected UI.
+A subsequent start creates fresh Views while the borrowed collection survives.
+The caller owns and disposes that collection.
 
 Use `restart()` without a query to supersede a pending load without changing
 results. Handle current rejection at the caller. Every preparation result is
@@ -235,7 +232,7 @@ asynchronous or provide recovery from partial rendering.
 
 The [installed fixture](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-routing/refresh.mjs) runs these exact
 modules against packaged Marionette and native data. It checks retained identities,
-response ordering, cancellation, retry, stop permission, and ownership cleanup.
+response ordering, cancellation, retry, synchronous stop, and ownership cleanup.
 The [browser check](https://github.com/marionettejs/marionette/blob/master/test/browser/application-refresh.spec.mjs) also verifies
 editor focus, selection, and draft preservation in Chromium, Firefox, and WebKit.
 

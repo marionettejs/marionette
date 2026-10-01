@@ -69,17 +69,17 @@ describe('Application start Region binding', () => {
     expect(child.isRunning()).toBe(true);
   });
 
-  it('rejects a different Region while running and preserves the current host', async() => {
+  it('ignores new start options while running and preserves the current host', async() => {
     const first = makeRegion();
     const second = makeRegion();
     const application = makeApplication({ region: first });
     await application.start();
 
-    await expect(application.start({ region: second })).rejects.toMatchObject({ code: 'MN0041' });
+    expect(await application.start({ region: second })).toBe(true);
     expect(application.getRegion()).toBe(first);
   });
 
-  it('joins a matching in-flight start and rejects a different in-flight Region', async() => {
+  it('joins pending startup regardless of later options', async() => {
     const first = makeRegion();
     const second = makeRegion();
     const ready = Promise.withResolvers();
@@ -88,28 +88,10 @@ describe('Application start Region binding', () => {
     const joined = application.start({ region: first, source: 'same-region' });
 
     expect(joined).toBe(started);
-    await expect(application.start({ region: second })).rejects.toMatchObject({ code: 'MN0041' });
+    expect(application.start({ region: second })).toBe(started);
+    expect(application.getRegion()).toBe(first);
     ready.resolve();
     await expect(started).resolves.toBe(true);
-  });
-
-  it('waits for an adopted stop before binding a superseding start host', async() => {
-    const first = makeRegion();
-    const second = makeRegion();
-    const stopping = Promise.withResolvers();
-    const application = makeApplication({
-      region: first,
-      prepareStop: () => stopping.promise
-    });
-    await application.start();
-
-    const stopped = application.stop();
-    const started = application.start({ region: second });
-    expect(application.getRegion()).toBe(first);
-    stopping.resolve();
-    await expect(stopped).resolves.toBe(false);
-    await expect(started).resolves.toBe(true);
-    expect(application.getRegion()).toBe(second);
   });
 
   it('retains the current host for missing or undefined Region options', async() => {
@@ -208,20 +190,6 @@ describe('Application start Region binding', () => {
     await application.destroy();
   });
 
-  it('does not bind a replacement host when owned host destruction cancels startup', async() => {
-    const application = makeApplication({ region: { el: document.createElement('div') } });
-    const owned = application.getRegion();
-    const requested = makeRegion();
-    let stopped;
-    owned.on('destroy', () => { stopped = application.stop(); });
-    const started = application.start({ region: requested });
-    expect(await started).toBe(false);
-    expect(await stopped).toBe(true);
-    expect(application.isRunning()).toBe(false);
-    expect(application.getRegion()).toBe(owned);
-    expect(requested.isDestroyed()).toBe(false);
-  });
-
   it('reuses the same instance for running and in-flight starts', async() => {
     const region = makeRegion();
     const application = makeApplication({ prepareStart: () => Promise.resolve() });
@@ -255,36 +223,14 @@ describe('Application start Region binding', () => {
     });
     const started = application.start({ region: first });
     const other = makeRegion();
-    await expect(application.restart({ region: other })).rejects.toMatchObject({ code: 'MN0041' });
-    expect(firstSignal.aborted).toBe(false);
+    const restarted = application.restart({ region: other, source: 'retry' });
     expect(other.hasView()).toBe(false);
-    const restarted = application.restart({ source: 'retry' });
 
     await expect(started).resolves.toBe(false);
     await expect(restarted).resolves.toBe(true);
     expect(firstSignal.aborted).toBe(true);
     expect(application.getRegion()).toBe(first);
     pending.resolve();
-  });
-
-  it('rejects a conflicting start from the previous root teardown', async() => {
-    const requested = makeRegion();
-    const conflicting = makeRegion();
-    const application = makeApplication({ region: { el: document.createElement('div') } });
-    const oldHost = application.getRegion();
-    const view = new View({ template: false });
-    let attempted;
-    view.on('before:destroy', () => {
-      attempted = application.start({ region: conflicting });
-    });
-    application.showView(view);
-
-    const started = application.start({ region: requested });
-    await expect(attempted).rejects.toMatchObject({ code: 'MN0041' });
-    await expect(started).resolves.toBe(true);
-    expect(oldHost.isDestroyed()).toBe(true);
-    expect(application.getRegion()).toBe(requested);
-    expect(conflicting.isDestroyed()).toBe(false);
   });
 
   it('does not revive an Application destroyed during old root teardown', async() => {
@@ -296,13 +242,13 @@ describe('Application start Region binding', () => {
     application.showView(view);
 
     await expect(application.start({ region: next })).resolves.toBe(false);
-    await expect(destroyed).resolves.toBe(true);
+    expect(destroyed).toBe(true);
     expect(application.isDestroyed()).toBe(true);
     expect(application.getRegion()).toBeUndefined();
     expect(next.isDestroyed()).toBe(false);
   });
 
-  it('rejects a new host once restart has reached startup readiness', async() => {
+  it('keeps start idempotent during retained restart readiness', async() => {
     const first = makeRegion();
     const third = makeRegion();
     const entered = Promise.withResolvers();
@@ -316,7 +262,7 @@ describe('Application start Region binding', () => {
 
     const restarted = application.restart();
     await entered.promise;
-    await expect(application.start({ region: third })).rejects.toMatchObject({ code: 'MN0041' });
+    expect(await application.start({ region: third })).toBe(true);
     expect(application.getRegion()).toBe(first);
     ready.resolve();
     await expect(restarted).resolves.toBe(true);

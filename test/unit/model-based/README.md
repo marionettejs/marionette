@@ -5,11 +5,11 @@ The models compare public library behavior against small consumer-owned state: o
 Application commands keep only the owner's and children's stable running state,
 terminal destruction, and registration order. Each async command performs a
 bounded interaction with an explicitly held consumer readiness Promise: compatible
-repeated calls, superseded startup, adopted stop, current readiness rejection,
+repeated calls, superseded startup, synchronous stop, current readiness rejection,
 opposing child operations, or terminal teardown. Generated flags settle canceled
 startup before or after its replacement and resolve or reject its obsolete
 readiness. Assertions cover exact Promise identity/results, signal abort ordering,
-original adopted stop options/context, no stale completion events, and ownership.
+no stale completion events, and ownership.
 Registration and removal commands compose these interactions across a sequence.
 Destruction is available after eight completed commands so terminal no-ops do not
 dominate the generated cases. Each wait permits at most 100 microtask turns and
@@ -18,9 +18,7 @@ timer scheduling is used.
 
 This is deliberately a model of bounded interactions, not an exhaustive operation
 state machine or arbitrary scheduler. Direct child supersession targets the first
-child; the explicit `application-child-lifecycle.spec.js` tests cover partially
-completed sibling prefixes, completion-handler reentry, and canceled child-stop
-suffixes. Existing `application-lifecycle.spec.js` tests cover failure/retry at the
+child; the explicit `application-child-lifecycle.spec.js` tests cover synchronous descendant teardown and completion-handler reentry. Existing `application-lifecycle.spec.js` tests cover failure/retry at the
 other readiness phases. No synchronous rollback or attempt-all cleanup contract is
 introduced.
 

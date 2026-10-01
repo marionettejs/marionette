@@ -24,8 +24,7 @@ reason to examine whether it has recreated Application startup. Begin with
 An arbitrary Promise does not by itself need an Application. Requests that refresh
 an already-active feature are a separate case, not the default startup recipe.
 
-Keep readiness in `prepareStart`, `prepareStop`, and `prepareDestroy` when it belongs
-to those transitions. Their signals cover the pending transition. `onStart` and
+Keep startup readiness in `prepareStart`. Its signal covers pending preparation. `onStart` and
 other completion hooks are synchronous notifications. After an await, respect the
 signal before performing application side effects. Returning readiness data lets
 Marionette suppress obsolete completion before calling `onStart`.
@@ -125,7 +124,7 @@ export const FeedApplication = Application.extend({
     this.listenTo(view, 'before:destroy', () => {
       this.cancelRequest();
       this.stopListening(view);
-      void this.stop().catch(console.error);
+      this.stop();
     });
     this.showView(view);
   },
@@ -191,7 +190,7 @@ export const RootApplication = Application.extend({
     const view = new RootView();
     this.listenTo(view, 'before:destroy', () => {
       this.stopListening(view);
-      void this.stop().catch(console.error);
+      this.stop();
     });
     this.showView(view);
   },
@@ -204,7 +203,7 @@ export const RootApplication = Application.extend({
 ```
 
 At the entry point, construct `new RootApplication({ region: { el: host } })`
-and await `root.start()`. Await `root.destroy()` when leaving. No separate collection
+and await `root.start()`. Call `root.destroy()` when leaving. No separate collection
 or request disposer is required. The imported service owns transport; the FeedApplication owns when its result may affect this
 feature. There is no global event bus for this direct parent/child relationship.
 

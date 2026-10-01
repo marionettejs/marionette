@@ -211,7 +211,7 @@
     },
     {
       "file": "application-effects.spec.mjs",
-      "title": "Application effects survive denied stop and release on successful deactivation"
+      "title": "Application effects release synchronously on stop and reactivate on start"
     },
     {
       "file": "application-refresh.spec.mjs",
@@ -231,7 +231,7 @@
     },
     {
       "file": "application-state-events.spec.mjs",
-      "title": "Application state events preserve active UI through rejected stop and reset safely on restart"
+      "title": "Application state events stop synchronously and seed fresh UI on start"
     },
     {
       "file": "application-state-events.spec.mjs",

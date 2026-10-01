@@ -174,131 +174,13 @@ describe('retained Application restart', () => {
     expect(child.isRunning()).toBe(true);
   });
 
-  it('adopts explicit stop readiness before re-preparing once with current options', async() => {
-    const ready = Promise.withResolvers();
-    const stop = vi.fn();
-    const start = vi.fn();
-    let stopSignal;
-    const app = make({
-      prepareStop(options, { signal }) { stopSignal = signal; return ready.promise; },
-      onStop: stop,
-      onStart: start
-    });
-    await app.start();
-    const root = app.showView(new View({ template: false }));
-    const stopping = app.stop({ permission: 'original' });
-    const options = { query: 'latest' };
-    const restarting = app.restart(options);
-    expect(await stopping).toBe(false);
-    expect(stopSignal.aborted).toBe(false);
-    ready.resolve();
-    expect(await restarting).toBe(true);
-    expect(stop).toHaveBeenCalledExactlyOnceWith(app, { permission: 'original' });
-    expect(start).toHaveBeenLastCalledWith(app, options, undefined);
-    expect(root.isDestroyed()).toBe(true);
-  });
-
-  it('joins reactivation after an adopted stop and rejects when preparation fails', async() => {
-    const stopReady = Promise.withResolvers();
-    const failure = new Error('reactivation failed');
-    const app = make({
-      prepareStop() { return stopReady.promise; },
-      prepareStart(options) { if (options?.fail) { throw failure; } }
-    });
-    await app.start();
-    const root = app.showView(new View({ template: false }));
-    const stopping = app.stop();
-    const restarting = app.restart({ fail: true });
-    const requested = new Region({ el: document.createElement('main') });
-    await expect(app.start({ region: requested })).rejects.toMatchObject({ code: 'MN0041' });
-    requested.destroy();
-    const joined = app.start({ region: app.getRegion() });
-    expect(joined).toBe(restarting);
-    const rejection = joined.catch(error => error);
-    expect(await stopping).toBe(false);
-    stopReady.resolve();
-    expect(await rejection).toBe(failure);
-    expect(app.isRunning()).toBe(false);
-    expect(root.isDestroyed()).toBe(true);
-  });
-
-  it('cancels new readiness after the adopted stop has completed teardown', async() => {
-    const stopReady = Promise.withResolvers();
-    const entered = Promise.withResolvers();
-    const startReady = Promise.withResolvers();
-    let signal;
-    const app = make({
-      prepareStop() { return stopReady.promise; },
-      prepareStart(options, context) {
-        if (!options?.hold) { return; }
-        signal = context.signal;
-        entered.resolve();
-        return startReady.promise;
-      }
-    });
-    await app.start();
-    const root = app.showView(new View({ template: false }));
-    const stopping = app.stop();
-    const restarting = app.restart({ hold: true });
-    stopReady.resolve();
-    await entered.promise;
-    expect(root.isDestroyed()).toBe(true);
-    expect(app.isRunning()).toBe(false);
-    expect(await app.stop()).toBe(true);
-    expect(await stopping).toBe(false);
-    expect(await restarting).toBe(false);
-    expect(signal.aborted).toBe(true);
-    startReady.resolve();
-    await startReady.promise;
-    expect(app.isRunning()).toBe(false);
-  });
-
-  it('does not start preparation when onStop cancels adopted reactivation', async() => {
-    const stopReady = Promise.withResolvers();
-    const preparing = vi.fn();
-    let canceled;
-    const app = make({
-      prepareStart: preparing,
-      prepareStop() { return stopReady.promise; },
-      onStop() { canceled = this.stop(); }
-    });
-    await app.start();
-    const stopping = app.stop();
-    const restarting = app.restart();
-    stopReady.resolve();
-    expect(await stopping).toBe(false);
-    expect(await restarting).toBe(false);
-    expect(await canceled).toBe(true);
-    expect(preparing).toHaveBeenCalledTimes(1);
-    expect(app.isRunning()).toBe(false);
-  });
-
-  it('keeps the selected host when superseding a start still waiting for stop permission', async() => {
-    const ready = Promise.withResolvers();
-    const app = make({ prepareStop() { return ready.promise; } });
-    await app.start();
-    const current = app.getRegion();
-    const requested = new Region({ el: document.createElement('main') });
-    const stopped = app.stop();
-    const started = app.start({ region: requested });
-    const restarted = app.restart();
-    expect(await started).toBe(false);
-    expect(await stopped).toBe(false);
-    ready.resolve();
-    expect(await restarted).toBe(true);
-    expect(app.getRegion()).toBe(current);
-    expect(requested.hasView()).toBe(false);
-    await app.destroy();
-    expect(requested.isDestroyed()).toBe(false);
-    requested.destroy();
-  });
-
   it('requires stop/start to change an active host', async() => {
     const app = make();
     await app.start();
     const root = app.showView(new View({ template: false }));
     const region = new Region({ el: document.createElement('div') });
-    await expect(app.restart({ region })).rejects.toMatchObject({ code: 'MN0041' });
+    expect(await app.restart({ region })).toBe(true);
+    expect(app.getRegion()).not.toBe(region);
     expect(app.getView()).toBe(root);
     await app.stop();
     expect(await app.start({ region })).toBe(true);

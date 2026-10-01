@@ -93,13 +93,12 @@ export const PageNavigation = Application.extend({
     return this.requests.run(id, options);
   },
   cancel() { this.requests?.cancel(); },
-  prepareStop(options, context) { return this.getOption('beforeStop')?.(options, context); },
   onStop() { this.requests?.dispose(); },
   onBeforeDestroy() { this.requests?.dispose(); }
 });
 ```
 
-Construct `new PageNavigation({ region: { el }, loadPage, beforeStop })` and await
+Construct `new PageNavigation({ region: { el }, loadPage })` and await
 its `start()` before connecting the router. The returned instance is the feature
 owner; use its public `navigate`, `cancel`, `stop`, and `destroy` methods.
 
@@ -119,16 +118,15 @@ This controller owns cancellation for page requests. It does not make every
 View lifecycle asynchronous. Use Application preparation methods for work that
 must finish before the *feature* can start; see
 [Application lifecycle](./marionette.application.md#application-lifecycle).
-Repeated in-flight `start()` or `restart()` calls share their operation Promise,
-so changing their options is not a substitute for navigation cancellation.
+In-flight `start()` calls share their Promise and ignore new options; every `restart()`
+supersedes older preparation. Independent page requests use their own cancellation.
 
 The optional `signal` connects an external navigation cancellation to the page
 request. `cancel()` aborts pending work without removing the displayed View.
 These functions belong to this example, not Marionette's public API.
-Requests remain active during asynchronous `beforeStop` permission; a rejected
-permission leaves them intact. Successful stop or destruction disposes the
-controller. Each start disposes the previous controller before creating a fresh one,
-including a start that supersedes pending stop permission. For data-only refresh that
+Stop and destroy synchronously dispose the request controller. Ask for
+navigation permission before calling stop.
+Each start replaces the previous controller. For data-only refresh that
 preserves the current layout and editor, use the [collection refresh example](./application-refresh.md#refresh-a-collection-and-preserve-the-editor).
 
 ## Use the Navigation API
@@ -178,18 +176,18 @@ export function connectNavigation(feature, onError) {
 
   return {
     ready,
-    async destroy() {
+    destroy() {
       listeners.abort();
       feature.cancel();
-      await feature.destroy();
+      feature.destroy();
     }
   };
 }
 ```
 
 Create the feature once, then call `connectNavigation(feature, onError)` and await
-its `ready` Promise. The returned object owns the listener and feature; call and
-await its `destroy()` when the application releases this integration, including
+its `ready` Promise. The returned object owns the listener and feature;
+call its `destroy()` when the application releases this integration, including
 during hot replacement.
 
 Use ordinary links such as `<a href="/pages/notes">Notes</a>`. For programmatic
@@ -250,9 +248,9 @@ export function connectBackbone(feature, onError) {
 
   return {
     router,
-    async destroy() {
+    destroy() {
       Backbone.history.stop();
-      await feature.destroy();
+      feature.destroy();
     }
   };
 }

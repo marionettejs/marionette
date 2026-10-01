@@ -25,19 +25,19 @@ Read [Synchronous failures](./view.lifecycle.md#synchronous-failures).
 
 ### Application start, stop, restart, and destroy
 
-- **Results:** Operations resolve true at the requested target and false when superseded. Current preparation failure rejects. Each restart supersedes older preparation using the latest options and result.
+- **Results:** Start and restart resolve true at the requested target and false when superseded; current preparation failure rejects. Stop and destroy return synchronous booleans and callback failures throw.
 
-- **Timing:** Before and completion notifications are synchronous and ignore returns. Only prepareStart/prepareStop/prepareDestroy are awaited with options and an abort context; start completion receives one resolved preparation result. Supersession aborts before replacement preparation; adopted explicit stop retains original context/options without abort. Initial startup is inactive; retained restart stays active with stateEvents delivering. Stop deactivates before root teardown and destroy deactivates immediately. Suppressed state events are not replayed.
+- **Timing:** Notifications are synchronous and ignore returns. Only prepareStart is awaited with options and an abort context; start completion receives one resolved result. Supersession aborts before replacement preparation. Initial startup is inactive; retained restart stays active with stateEvents delivering. Stop synchronously stops descendants and deactivates before root teardown; destroy synchronously releases child Applications, UI, owned Region, state, Radio and listeners. Suppressed state events are not replayed.
 
-- **Cleanup:** Destruction blocks owner and descendant start/restart; successful destruction destroys owned children. Readiness rejection preserves the documented retry and partial-child boundaries. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.
+- **Cleanup:** Destruction is terminal during callbacks and blocks owner/descendant activation. It stops descendants before the before:destroy notification, destroys children in registration order, and releases owned resources and incoming/outgoing event subscriptions synchronously. Callback failures throw and abort remaining teardown, without rollback or retry of partial instances.
 
 Read [Application Lifecycle](./marionette.application.md#application-lifecycle).
 
 ### Application children and root Views
 
-- **Results:** Construction, addChildApp, setView and showView(view) return their public instance; showView() returns the prepared or selected displayed View, or undefined; repeated showView() on the selected displayed root is a no-op; removeChildApp returns a Promise of the removed child or undefined; queries return the declared state or optional owner member.
+- **Results:** Construction, addChildApp, setView and showView(view) return their public instance; showView() returns the prepared or selected displayed View, or undefined; repeated showView() on the selected displayed root is a no-op; removeChildApp returns the destroyed child or undefined synchronously; queries return the declared state or optional owner member.
 
-- **Timing:** Construction, registration, root preparation/display and queries are synchronous; removeChildApp awaits child destruction before releasing ownership. childApps resolves a map or function once and registers fresh no-argument children before initialize; declarations do not activate children. Parent restart retains registered instances without reconstructing them or deactivating active children; start selected children explicitly.
+- **Timing:** Construction, registration, root preparation/display and queries are synchronous; removeChildApp completes child destruction before returning. childApps resolves a map or function once and registers fresh no-argument children before initialize; declarations do not activate children. Parent restart retains registered instances without reconstructing them or deactivating active children; start selected children explicitly.
 
 - **Cleanup:** Stop destroys a prepared View and empties the host only when its selected displayed View is still current, or when a directly shown View occupies an Application-created Region. Destroy also tears down owned children and a constructed root Region; it preserves unrelated content in a borrowed Region. Direct destruction releases preparation; displayed View associations end on Region replacement, empty, or detachment.
 
@@ -232,7 +232,6 @@ Match a framework invariant by its stable diagnostic code, not message prose. Th
 | `MN0037` | adapter-observation-unsupported |
 | `MN0039` | collection-data-contract-invalid |
 | `MN0040` | private-framework-member-access |
-| `MN0041` | application-region-conflict |
 
 Use public return values, DOM state, child identity, events, and externally counted subscriptions to prove behavior. Test focus and editable state in a real browser; test cancellation with held readiness and late results. A generated contract record proves consistency, not behavior or agent effectiveness.
 
