@@ -31,7 +31,7 @@ not verify published tarballs or documentation discovery in an installed package
 
 ## Verify
 
-From the repository root:
+Stop the preview server first; these checks start their own server from this checkout. From the repository root:
 
 ```sh
 npx playwright install chromium firefox webkit

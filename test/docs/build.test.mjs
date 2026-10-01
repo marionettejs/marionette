@@ -53,3 +53,10 @@ for (const replacementCode of [undefined, 'MN9999']) {
     assert.equal(document.body.textContent.includes('Benchmark category'), false);
   });
 }
+
+
+test('section anchors stay unique for suffix collisions, empty headings and invalid entities', () => {
+  assertSectionAnchors('docs/anchors.md', '# A\n\n## A\n\n## A-1\n\n## !!!\n\n## ???\n\n## &#x110000;\n');
+  const document = new JSDOM(addHeadingIds(marked.parse('# A\n\n## A\n\n## A-1\n\n## !!!\n\n## ???\n', { renderer: markdownRenderer }))).window.document;
+  assert.deepEqual([...document.querySelectorAll('h1, h2')].map(heading => heading.id), ['a', 'a-1', 'a-1-1', 'section', 'section-1']);
+});

@@ -318,8 +318,10 @@ for (const version of ['5.0.0-beta.1', '5.0.0-beta.2', '5.0.0']) {
     assert.equal(notes.split('\n')[0], `Opening for ${version}.`);
     assert.ok(notes.includes(`npm install marionette@${version}`));
     assert.ok(notes.includes(`/blob/${candidate.commit}/changelog.md`));
-    assert.ok(notes.includes(`/blob/${candidate.commit}/upgradeGuide.md`));
-    assert.equal(notes.includes(`/blob/${candidate.commit}/docs/beta.md`), version.includes('-'));
+    assert.ok(notes.includes(`/blob/${candidate.commit}/docs/guides/migration.md`));
+    assert.ok(notes.includes(`/blob/${candidate.commit}/docs/quick-start.md`));
+    assert.equal(notes.includes('upgradeGuide.md'), false);
+    assert.equal(notes.includes('docs/beta.md'), false);
   });
 }
 

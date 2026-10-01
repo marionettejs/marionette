@@ -19,8 +19,8 @@ Planning, benchmarks and repository test fixtures stay outside the consumer expo
 
 The export in `.docs-export` records package version, source revision, dirty state,
 individual hashes and an aggregate digest. It includes a heading-section index for
-focused retrieval. Exact-symbol lookup is not distributed in this corpus; use
-section search or canonical class references. These checks establish delivery and
+focused retrieval and `docs-symbols.json` for exact public symbol lookup. Use
+section search for an unknown location or symbol lookup for a known API member. These checks establish delivery and
 specific example behavior, not independent reader effectiveness.
 
 `docs:package` stages the same consumer snapshot in `.package`; pack that directory

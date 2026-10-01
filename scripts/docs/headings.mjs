@@ -17,7 +17,8 @@ function decodeEntities(value) {
     if (code[0] === '#') {
       const radix = code[1].toLowerCase() === 'x' ? 16 : 10;
       const digits = radix === 16 ? code.slice(2) : code.slice(1);
-      return String.fromCodePoint(parseInt(digits, radix));
+      const point = parseInt(digits, radix);
+      return point <= 0x10FFFF ? String.fromCodePoint(point) : entity;
     }
 
     return named[code.toLowerCase()] || entity;
@@ -29,17 +30,19 @@ export function textFromHeading(value) {
 }
 
 export function createSlugger() {
-  const occurrences = new Map();
+  const used = new Set();
 
   return value => {
     const base = textFromHeading(value)
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, '')
-      .replace(/\s/g, '-');
-    const occurrence = occurrences.get(base) || 0;
-    occurrences.set(base, occurrence + 1);
-    return occurrence ? `${base}-${occurrence}` : base;
+      .replace(/\s/g, '-') || 'section';
+    let id = base;
+    let suffix = 1;
+    while (used.has(id)) { id = `${base}-${suffix++}`; }
+    used.add(id);
+    return id;
   };
 }
 

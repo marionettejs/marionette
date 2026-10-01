@@ -259,9 +259,8 @@ if (mode === 'stage') {
     '',
     `Install core: \`npm install marionette@${evidence.release.version}\`. Keep companion package versions aligned.`,
     '',
-    `[Changes](${sourceUrl}/changelog.md) · [Migration guide](${sourceUrl}/upgradeGuide.md)`,
+    `[Changes](${sourceUrl}/changelog.md) · [Migration guide](${sourceUrl}/docs/guides/migration.md) · [Quick start](${sourceUrl}/docs/quick-start.md)`,
     ...(evidence.release.prerelease ? [
-      `[Beta trial, starter and known limits](${sourceUrl}/docs/beta.md)`,
       'This is a prerelease for application trials, not a stable or comparative agent-readiness claim.',
     ] : []),
     '',
