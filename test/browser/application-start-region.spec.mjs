@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from './fixtures.mjs';
 
-test('registered child follows a recreated parent layout Region across restart', async({ page }) => {
+test('registered child follows a recreated parent layout Region across stop/start', async({ page }) => {
   const result = await page.evaluate(async() => {
     const { Application, View } = await import('marionette');
     const ChildScreen = View.extend({ template: () => '<p data-child-screen>Child screen</p>' });
@@ -39,7 +39,8 @@ test('registered child follows a recreated parent layout Region across restart',
       screenText: firstScreen.el.textContent
     };
 
-    await parent.restart();
+    await parent.stop();
+    await parent.start();
     const secondLayout = layout;
     const secondRegion = childRegion;
     const secondScreen = child.getView();
@@ -94,7 +95,7 @@ test('registered child follows a recreated parent layout Region across restart',
   });
 });
 
-test('a borrowed shell survives canceled loading and controller restart', async({ page }) => {
+test('a borrowed shell survives canceled loading and explicit controller reset', async({ page }) => {
   const result = await page.evaluate(async() => {
     const { Application, Region, View } = await import('marionette');
     const host = new Region({ el: '#content' });
@@ -128,13 +129,15 @@ test('a borrowed shell survives canceled loading and controller restart', async(
     const firstA = coordinator.getChildApp('a');
     const first = coordinator.start({ screen: 'a', ready: pending.promise });
     const loading = firstA.getView();
-    const replacement = coordinator.restart({ screen: 'b', ready: Promise.resolve('Screen B') });
+    await coordinator.stop();
+    const replacement = coordinator.start({ screen: 'b', ready: Promise.resolve('Screen B') });
     const firstCompleted = await first;
     const replacementCompleted = await replacement;
     pending.resolve('Obsolete A');
     await pending.promise;
     const afterB = shell.getRegion('content').currentView.el.textContent;
-    const restarted = await coordinator.restart({ screen: 'a', ready: Promise.resolve('Screen A again') });
+    await coordinator.stop();
+    const restarted = await coordinator.start({ screen: 'a', ready: Promise.resolve('Screen A again') });
     const afterA = shell.getRegion('content').currentView.el.textContent;
     const reusedChild = coordinator.getChildApp('a') === firstA;
     await coordinator.destroy();

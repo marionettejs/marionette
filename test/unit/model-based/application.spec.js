@@ -21,8 +21,8 @@ function fixture() {
     };
     const App = Application.extend({
       prepareStart(options, context) { return before('start', options, context); },
-      prepareStop(options, context) { return before('stop', options, context); },
-      prepareDestroy(options, context) { return before('destroy', options, context); },
+      onBeforeStop() { real.trace.push(`${name}:before:stop`); },
+      onBeforeDestroy() { real.trace.push(`${name}:before:destroy`); },
       onStart() { real.trace.push(`${name}:start`); },
       onStop() { real.trace.push(`${name}:stop`); },
       onDestroy() { real.trace.push(`${name}:destroy`); }
@@ -51,7 +51,7 @@ async function until(predicate) {
 
 async function settled(promise) {
   let done = false;
-  const observed = promise.then(value => { done = true; return value; }, error => { done = true; throw error; });
+  const observed = Promise.resolve(promise).then(value => { done = true; return value; }, error => { done = true; throw error; });
   // Install rejection observation before progressing deferred work.
   const outcome = observed.then(value => ({ value }), error => ({ error }));
   await until(() => done);
@@ -89,7 +89,7 @@ function target(model, method) {
     model.children.clear();
   } else {
     model.running = method !== 'stop';
-    if (method !== 'start') {
+    if (method === 'stop') {
       for (const name of model.children.keys()) { model.children.set(name, false); }
     }
   }
@@ -130,7 +130,7 @@ const commands = [
       expect(app.isRunning()).toBe(false);
       const winner = app[replacement]({ request: 'replacement' });
       expect(gate.context.signal.aborted).toBe(true);
-      expect(real.trace.indexOf('owner:abort:start')).toBeLessThan(real.trace.indexOf('owner:before:stop'));
+      if (replacement !== 'restart') { expect(real.trace.indexOf('owner:abort:start')).toBeLessThan(real.trace.indexOf('owner:before:stop')); }
       expect(await settled(first)).toBe(false);
       const release = () => rejectLate ? gate.reject(new Error('obsolete loader')) : gate.resolve();
       if (lateFirst) { release(); }
@@ -145,49 +145,20 @@ const commands = [
       expect(real.trace).toEqual(completed);
       expect(real.trace.filter(event => event === 'owner:start')).toHaveLength(replacement === 'restart' ? 1 : 0);
     })),
-  fc.constantFrom('start', 'restart', 'destroy').map(replacement => command('adoptStop', [replacement], model =>
-    !model.destroyed && model.running && (replacement !== 'destroy' || model.completed >= 8), async(model, real) => {
-    const { app } = real.owner;
-    const gate = real.owner.hold('stop');
-    const options = { request: 'original stop' };
-    const first = app.stop(options);
-    expect(app.stop()).toBe(first);
-    await until(() => gate.entered);
-    const context = gate.context;
-    const winner = app[replacement]({ request: 'replacement' });
-    expect(app[replacement]()).toBe(winner);
-    expect(await settled(first)).toBe(false);
-    expect(gate.options).toBe(options);
-    expect(context.signal.aborted).toBe(false);
-    expect(app.isRunning()).toBe(replacement !== 'destroy');
-    expect(real.trace.filter(event => event === 'owner:before:stop')).toHaveLength(1);
-    gate.resolve();
-    expect(await settled(winner)).toBe(true);
-    expect(gate.context).toBe(context);
-    expect(real.trace).not.toContain('owner:abort:stop');
-    expect(real.trace.filter(event => event === 'owner:stop')).toHaveLength(replacement === 'start' ? 0 : 1);
-    target(model, replacement);
-  })),
   fc.tuple(fc.constantFrom('a', 'b', 'c'), method).map(([name, operation]) => command('childTransition', [name, operation],
     model => model.children.has(name), async(model, real) => {
       expect(await settled(real.children.get(name).app[operation]())).toBe(true);
       model.children.set(name, operation !== 'stop');
     })),
-  fc.constant(null).map(() => command('terminalReadiness', [], model => !model.destroyed && model.completed >= 8, async(model, real) => {
-    const gate = real.owner.hold('destroy');
-    const first = real.owner.app.destroy();
-    await until(() => gate.entered);
-    expect(real.owner.app.destroy()).toBe(first);
-    expect(await settled(real.owner.app.start())).toBe(false);
-    expect(await settled(real.owner.app.restart())).toBe(false);
+  fc.constant(null).map(() => command('terminalTeardown', [], model => !model.destroyed && model.completed >= 8, async(model, real) => {
+    expect(real.owner.app.destroy()).toBe(true);
+    expect(real.owner.app.destroy()).toBe(true);
+    expect(await real.owner.app.start()).toBe(false);
+    expect(await real.owner.app.restart()).toBe(false);
     for (const child of real.children.values()) {
-      expect(await settled(child.app.start())).toBe(false);
-      expect(await settled(child.app.restart())).toBe(false);
+      expect(child.app.isDestroyed()).toBe(true);
+      expect(await child.app.start()).toBe(false);
     }
-    const stopped = real.owner.app.stop();
-    gate.resolve();
-    expect(await settled(stopped)).toBe(true);
-    expect(await settled(first)).toBe(true);
     target(model, 'destroy');
   })),
   fc.constant(null).map(() => command('rejectCurrentStart', [], model => !model.destroyed && !model.running, async(model, real) => {

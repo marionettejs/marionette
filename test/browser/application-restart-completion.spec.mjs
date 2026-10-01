@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from './fixtures.mjs';
 
-test('restart from completion mounts a fresh run after releasing prior roots', async({ page }) => {
+test('restart completion explicitly replaces roots without stop notifications', async({ page }) => {
   const result = await page.evaluate(async() => {
     const { Application, View } = await import('marionette');
     const roots = [];
@@ -33,7 +33,7 @@ test('restart from completion mounts a fresh run after releasing prior roots', a
   });
   assert.deepEqual(result, {
     outerResult: true, nestedResult: true, distinct: true,
-    labels: ['initial', 'outer', 'next'], stops: 2,
+    labels: ['initial', 'outer', 'next'], stops: 0,
     destroyed: [true, true, false], mounted: [false, false, true], input: 'next'
   });
 });

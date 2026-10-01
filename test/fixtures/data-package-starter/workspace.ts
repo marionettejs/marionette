@@ -32,7 +32,7 @@ export const Workspace = Application.extend({
     this.listenTo(view, 'before:destroy', () => {
       // A host may replace the root before the Application itself stops.
       this.selection++;
-      void this.stop().catch(console.error);
+      this.stop();
       this.stopListening(view);
     });
     this.showView(view);

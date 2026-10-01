@@ -92,7 +92,7 @@ test('respects shadowing and abstains for mutable receiver or constructor bindin
 test('reports private access on inline constructed framework receivers', function() {
   const messages = lint(`
     import { Application, CollectionView } from 'marionette';
-    new Application()._lifecycleState;
+    new Application()._pendingStart;
     new CollectionView()._renderChildren();
   `);
 

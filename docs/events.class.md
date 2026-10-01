@@ -71,9 +71,8 @@ Starting a history service is application setup, not a Marionette requirement.
 
 ### `before:stop` event
 
-Receives `(application, options)` before `prepareStop(options, { signal })` runs.
-The matching `onBeforeStop` method is a synchronous notification. Only the
-preparation method can delay stop permission and readiness.
+Receives `(application, options)` before synchronous descendant and root teardown.
+The matching `onBeforeStop` method is a notification; returned Promises are ignored.
 
 ### `stop` event
 
@@ -82,12 +81,11 @@ The matching `onStop` method is also a synchronous completion notification.
 
 #### Application `destroy` events
 
-`before:destroy` and `onBeforeDestroy` receive `(application, options)` before
-`prepareDestroy(options, { signal })`. After preparation and teardown,
+`before:destroy` and `onBeforeDestroy` receive `(application, options)` after
+synchronous stop and before child/Region destruction. After teardown,
 `destroy` and `onDestroy` receive `(application, options)`.
 
-Only preparation methods receive the readiness context. A transferred stop phase
-retains its original options and signal. See [Application lifecycle](./marionette.application.md#application-lifecycle)
+Only `prepareStart` receives the readiness context. See [Application lifecycle](./marionette.application.md#application-lifecycle)
 for cancellation, ownership, operation results, and failure behavior.
 
 ## Behavior Events
@@ -429,21 +427,22 @@ _and all child views_ of this view. Disabling should be done carefully.
 
 Every class has a `destroy` method which can be used to clean up the instance.
 With the exception of `Behavior`, each class triggers a `before:destroy` and a
-`destroy` event. Application uses the separate asynchronous lifecycle described
-under [Application Events](#application-events); this section describes the
-synchronous owner classes.
+`destroy` event. Destruction is synchronous for all of these classes. Application
+also stops its children and root UI before `before:destroy`; see
+[Application Events](#application-events).
 
 As a general rule, `onBeforeDestroy` is the best handler for cleanup as the instance
 and any internally created children are already destroyed by the time `onDestroy` is called.
 
 For classes with these lifecycle events, once destruction begins, reentrant
 `destroy()` calls from `before:destroy` or `destroy`, and later repeated calls,
-return the same instance without restarting teardown. `isDestroyed()` remains
+return without restarting teardown. Application returns `true`; other owners
+return their instance. `isDestroyed()` remains
 `false` during `before:destroy` and is `true` by the time `destroy` is triggered.
 If a synchronous lifecycle handler throws, its error propagates and teardown
 stops. Later `destroy()` calls do not retry the lifecycle or resume partial
-cleanup. Application's asynchronous operation failures follow its separate
-lifecycle contract.
+cleanup. Application startup readiness has a separate asynchronous failure
+contract.
 
 Use [`dom:remove`](#domremove-event) or [`before:detach`](#detach-and-beforedetach-events)
 for work tied to those transitions. Resources created while detached, or while

@@ -87,8 +87,8 @@ emitter.trigger('start', 'manual');
 emitter.trigger('stop', 'manual');
 ```
 
-Declarative entity-event maps such as `modelEvents`, `collectionEvents`, and
-`radioEvents` use the same literal keys, except that an own enumerable
+Declarative entity-event maps such as `modelEvents`, `collectionEvents`,
+`radioEvents`, and Application `viewEvents` use the same literal keys. An own enumerable
 `__proto__` key is rejected with `MN0026` before binding or selective unbinding.
 Direct `listenTo` and `stopListening` calls pass each name unchanged to the
 emitter's `on` and `off`; a third-party emitter controls how it interprets that

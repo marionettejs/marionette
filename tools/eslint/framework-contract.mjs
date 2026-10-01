@@ -29,8 +29,9 @@ const behaviorPrivate = ['_bindUIElements', '_collectionEventCleanup', '_collect
 // These names are implementation facts, not supported API. Each entry is
 // checked against authored source so a rename cannot leave a stale lint error.
 export const PRIVATE_MEMBERS = {
-  Application: new Set([...objectPrivate, '_childApps', '_initRegion', '_lifecycleOperation',
-    '_lifecycleState', '_name', '_ownedRegion', '_parentApp', '_region']),
+  Application: new Set([...objectPrivate, '_childApps', '_displayedView', '_initRegion', '_isRunning',
+    '_isStopping', '_name', '_ownsRegion', '_parentApp', '_pendingStart', '_preparedView', '_region',
+    '_viewEventViews']),
   Behavior: new Set(behaviorPrivate),
   CollectionView: new Set([...visualPrivate, '_addChild', '_addChildModel', '_addChildModels',
     '_attachChildren', '_children', '_collectionChangeQueue', '_collectionObservedSnapshot',

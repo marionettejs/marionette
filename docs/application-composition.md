@@ -24,8 +24,7 @@ reason to examine whether it has recreated Application startup. Begin with
 An arbitrary Promise does not by itself need an Application. Requests that refresh
 an already-active feature are a separate case, not the default startup recipe.
 
-Keep readiness in `prepareStart`, `prepareStop`, and `prepareDestroy` when it belongs
-to those transitions. Their signals cover the pending transition. `onStart` and
+Keep startup readiness in `prepareStart`. Its signal covers pending preparation. `onStart` and
 other completion hooks are synchronous notifications. After an await, respect the
 signal before performing application side effects. Returning readiness data lets
 Marionette suppress obsolete completion before calling `onStart`.
@@ -103,8 +102,8 @@ export const FeedView = View.extend({
     const { page, status, hasNext } = this.getState().toObject();
     this.getUI('status')[0].textContent = status === 'loading' ? 'Loading…'
       : status === 'error' ? 'Could not load. Try again.' : `Page ${page}`;
-    this.getUI('previous')[0].disabled = page === 1;
-    this.getUI('next')[0].disabled = !hasNext;
+    this.getUI('previous')[0].disabled = status === 'loading' || page === 1;
+    this.getUI('next')[0].disabled = status === 'loading' || !hasNext;
     this.getUI('retry')[0].hidden = status !== 'error';
   }
 });
@@ -114,8 +113,8 @@ export const FeedApplication = Application.extend({
   createState() { return new Model({ page: 1, status: 'loading', hasNext: false }); },
   onBeforeStart() {
     this.cancelRequest();
-    const previous = this.getView();
-    if (previous) this.stopListening(previous);
+    this.preparing = true;
+    if (this.getView()) { this.getState().set('status', 'loading'); return; }
     this.getState().set({ page: 1, status: 'loading', hasNext: false });
     this.articles.reset();
     const view = new FeedView({ collection: this.articles, state: this.getState() });
@@ -125,7 +124,7 @@ export const FeedApplication = Application.extend({
     this.listenTo(view, 'before:destroy', () => {
       this.cancelRequest();
       this.stopListening(view);
-      void this.stop().catch(console.error);
+      this.stop();
     });
     this.showView(view);
   },
@@ -139,6 +138,7 @@ export const FeedApplication = Application.extend({
     }
   },
   onStart(app, options, result) {
+    this.preparing = false;
     if (result.error) this.getState().set('status', 'error');
     else this.showPage(1, result);
   },
@@ -147,7 +147,7 @@ export const FeedApplication = Application.extend({
     void this.refresh(page).catch(console.error);
   },
   async refresh(page) {
-    if (!this.isRunning() || this.getView()?.isDestroyed() || page < 1) return false;
+    if (!this.isRunning() || this.preparing || this.getView()?.isDestroyed() || page < 1) return false;
     this.cancelRequest();
     this.requestedPage = page;
     const request = new AbortController();
@@ -171,7 +171,7 @@ export const FeedApplication = Application.extend({
     this.getState().set({ page, hasNext, status: 'ready' });
   },
   cancelRequest() { this.request?.abort(); this.request = undefined; },
-  onStop() { this.cancelRequest(); },
+  onStop() { this.preparing = false; this.cancelRequest(); },
   onBeforeDestroy() { this.cancelRequest(); },
   onDestroy() { this.articles.destroy(); }
 });
@@ -186,12 +186,11 @@ export const RootApplication = Application.extend({
     this.addChildApp('feed', new FeedApplication());
   },
   onBeforeStart() {
-    const previous = this.getView();
-    if (previous) this.stopListening(previous);
+    if (this.getView()) return;
     const view = new RootView();
     this.listenTo(view, 'before:destroy', () => {
       this.stopListening(view);
-      void this.stop().catch(console.error);
+      this.stop();
     });
     this.showView(view);
   },
@@ -204,7 +203,7 @@ export const RootApplication = Application.extend({
 ```
 
 At the entry point, construct `new RootApplication({ region: { el: host } })`
-and await `root.start()`. Await `root.destroy()` when leaving. No separate collection
+and await `root.start()`. Call `root.destroy()` when leaving. No separate collection
 or request disposer is required. The imported service owns transport; the FeedApplication owns when its result may affect this
 feature. There is no global event bus for this direct parent/child relationship.
 
@@ -219,8 +218,9 @@ article rows. For editable rows that must retain identity, use
 [list composition](./list-composition.md). Changes to
 observable status update only controls. Retry repeats the failed requested page;
 the displayed page changes only on success. Parent stop aborts work and destroys
-screens. Restart creates new screens and loads page one; terminal destruction also
-releases the owned collection and state. The pagination controller cancels replaceable requests within the running feature;
+screens. Parent restart retains both screens and the active child. Restarting the
+feed reloads page one within its existing screen; pagination waits for readiness. Use stop/start to construct new
+screens. Terminal destruction also releases the owned collection and state. The pagination controller cancels replaceable requests within the running feature;
 it does not replace the startup signal. Host replacement stops the affected
 feature as well. Detached/reusable hosts need their own stated activation policy.
 

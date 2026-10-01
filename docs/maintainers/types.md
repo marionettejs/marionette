@@ -71,7 +71,7 @@ Installed-package fixtures check ESM, CommonJS and bundler resolution with stric
 library checking. Core and utils fixtures check TypeScript 6 and 7; the data and
 adapter type fixtures currently use TypeScript 7. Keep shared
 contracts at their implementations and reuse them across classes. Application's
-asynchronous `destroy` remains distinct from MnObject's synchronous return type.
+synchronous `destroy` returns a boolean, unlike MnObject's receiver return.
 
 Class `.extend` and standalone `extend.call` are exercised by these fixtures.
 Standalone calls reuse a known callable MnObject constructor's type parameters
@@ -145,7 +145,7 @@ the renderer. Public package exports remain separate.
 Application owns its checked lifecycle operations, deferred results, readiness
 contexts, child ownership and root-view coordination. Readiness callbacks receive
 a concrete AbortSignal; lifecycle options and dynamic event results remain unknown.
-Its asynchronous destroy returns Promise<boolean> and replaces the synchronous
+Its synchronous destroy returns boolean and replaces the receiver-returning
 DestroyMixin method during prototype composition. Child listings are name-keyed
 objects, lookups may be absent, and setView/showView return synchronously. The
 no-argument showView overload returns the selected root or undefined.

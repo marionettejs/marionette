@@ -159,8 +159,7 @@ describe('Terminal incoming listener cleanup', function() {
     owner.destroy();
   });
 
-  it('keeps incoming subscriptions across stop, restart, and failed destroy preparation', async function() {
-    const error = new Error('not ready');
+  it('keeps incoming subscriptions across stop and restart until destruction', async function() {
     const app = new Application();
     const owner = new MnObject();
     const callback = vi.fn();
@@ -170,12 +169,7 @@ describe('Terminal incoming listener cleanup', function() {
     app.trigger('change');
     await app.restart();
     app.trigger('change');
-    app.prepareDestroy = () => { throw error; };
-    await expect(app.destroy()).rejects.toBe(error);
-    expect(app.isDestroyed()).toBe(false);
-    app.trigger('change');
-    expect(callback).toHaveBeenCalledTimes(3);
-    delete app.prepareDestroy;
+    expect(callback).toHaveBeenCalledTimes(2);
     await app.destroy();
     expectReleased(app, [owner]);
     owner.destroy();

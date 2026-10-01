@@ -173,7 +173,7 @@ reference solution, and withheld acceptance. Each is independently evaluated.
 | `owned-workspace-state` | Nested Applications and separately owned Application/View state |
 | `render-resource` | Resource survives creation, receives the owning View, and releases once before replacement and on destroy |
 | `attach-resource` | Connection receives the owning View, survives attached rerenders, releases on detach/destroy, and reacquires on reattachment |
-| `composed-lifecycle-repair` | Two-stage startup/refresh races, rejected stop, active resources, draft and borrowed-state preservation |
+| `composed-lifecycle-repair` | Two-stage startup/refresh races, synchronous teardown, active resources, draft and borrowed-state preservation |
 | `borrowed-workspace-state` | Nested ownership rejection and borrowed state/domain survival |
 
 `loadCorpus` validates task isolation, a complete decision inventory, and at least

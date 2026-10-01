@@ -175,7 +175,7 @@ and await `feature.start()` with an empty connected host. Other components can
 emit `Radio.channel('my-feature').trigger('refresh')` using `Radio` from
 `marionette`; direct callers can use `feature.refresh()`. Use a distinct channel
 name for each independent feature.
-Call `await feature.destroy()` before removing the host. Destruction removes the
+Call `feature.destroy()` before removing the host. Destruction removes the
 owned View and managed Radio bindings. Channel names are shared: use an
 application-specific name if multiple independent features coexist. Read
 [Application](./marionette.application.md) before adding readiness hooks, child

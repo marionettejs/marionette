@@ -18,11 +18,11 @@ current public behavior boundary. Final migration documentation is tracked in
    roots. Replace `setElement`, implicit View construction and removed child
    helper aliases using the [compatibility ledger](docs/migration-from-v4.md).
    Keep the existing application's routing and domain model unless it needs a change.
-4. Await Application `start`, `stop`, `restart` and `destroy` results at the
-   application boundary. Application is the Marionette owner with an asynchronous
-   active lifecycle; View, CollectionView, Behavior, MnObject and Region destruction
-   remains synchronous. Test and mount helpers must await Application destruction
-   before clearing or replacing its host. Make asynchronous readiness respect
+4. Await Application `start` and `restart` at the application boundary. Call
+   `stop` and `destroy` synchronously. Check that stop succeeded before clearing
+   or replacing the host.
+   Destruction is synchronous for Application, View, CollectionView, Behavior,
+   MnObject and Region. Make asynchronous readiness respect
    cancellation before committing side effects. Distinguish borrowed state/Regions
    from owned factories.
 5. Use the shipped public declarations and run the application's type/build
@@ -51,7 +51,7 @@ when its selected root is still current. A View that another Application has
 displayed remains with that Application. Detaching through `region.detachView()`
 transfers the View to the caller, so a later stop does not destroy it. An
 Application-created Region is still destroyed with the Application, including
-its current contents; stopping or restarting it also clears a directly shown
+its current contents; stopping it also clears a directly shown
 View while preserving unmanaged HTML. Borrowed Regions remain available to their
 external owner. Repeating `showView()` for an already displayed root is a no-op
 and ignores its options.
@@ -582,7 +582,7 @@ returns `false` while an ancestor is stopping or terminal. See
 ## Bind reusable child Applications to a new parent Region
 
 An Application can receive its host at startup, which lets a registered child
-follow a parent layout that is recreated on restart:
+follow a parent layout that is recreated after stop/start:
 
 ```javascript
 import { Application, View } from 'marionette';
@@ -607,22 +607,21 @@ const Parent = Application.extend({
 });
 const parent = new Parent({ region: '#app' });
 await parent.start();
-await parent.restart(); // Same child Application, new layout and content Region.
-await parent.destroy();
+if (parent.stop()) await parent.start(); // Same child, new layout and Region.
+parent.destroy();
 ```
 
 `start({ region })` binds before `before:start` and `prepareStart`, while the
 original options object remains available to those hooks. Region instances are
-borrowed. Start and restart accept only existing Region instances. Constructor
+borrowed. Only start selects a Region. Constructor
 options still support creating an Application-owned Region from a selector,
 Region class, or definition object. Startup leaves that constructor configuration
 unchanged; use `getRegion()` to read the active host.
-Missing or `undefined` `region` retains the current host. A running or starting
-Application rejects a different host passed to `start()` with `MN0041`; stop the
-child before rebinding it, or use `restart({ region })`. Restart waits for its
-stop phase before changing hosts, and a failed stop leaves the old host in place.
-A newer restart with a different host supersedes an unfinished start or restart;
-the superseded operation resolves `false`.
+Missing or `undefined` `region` retains the current host. Running or pending
+start calls ignore new options; stop the child before rebinding it. Restart
+forwards options unchanged and retains the existing host, ignoring `region` for
+host selection. It supersedes unfinished preparation with the newest input,
+without a stop phase.
 
 The `region` option is now reserved. Rename domain options such as
 `start({ region: 'us-east-1' })` to `start({ regionCode: 'us-east-1' })` and update
@@ -632,21 +631,20 @@ the same Marionette runtime, not domain data.
 ## Application preparation methods
 
 V5 through beta.3 awaited `onBeforeStart`, `onBeforeStop`, and `onBeforeDestroy`.
-Move asynchronous readiness to `prepareStart`, `prepareStop`, and `prepareDestroy`.
-They receive `(options, { signal })`, with the Application available as `this`.
+Move asynchronous readiness to `prepareStart`.
+It receives `(options, { signal })`, with the Application available as `this`.
 The `onBefore*` methods and `before:*` listeners now receive `(application, options)`
 and run only as synchronous notifications. Marionette neither awaits their returned
 Promises nor attaches rejection handlers. Move any work that must succeed for the
-operation to complete into `prepare*`; otherwise the operation can succeed while
+startup to complete into `prepareStart`; otherwise the operation can succeed while
 an unmigrated async notification produces an unhandled rejection. Background work
 started by a notification must handle its own errors.
 
 Return startup data from `prepareStart` and receive it as the third argument of
 `onStart(application, options, result)` or a `start` listener. The result is not
 spread or stored by Marionette. `start()` still resolves `Promise<boolean>`.
-Stop and destroy preparation return values are awaited but otherwise ignored.
-An already-stopped owner skips its own `prepareStop` and stop notifications, even
-when stop, restart, or destroy must still stop its active descendants.
+An already-stopped owner skips its own stop notifications, even
+when stop or destroy must still stop its active descendants.
 Update cancellation work to use the preparation method's context, not a
 notification argument. Existing synchronous cleanup in `onBeforeDestroy` stays there.
 
@@ -657,16 +655,15 @@ See [Application preparation](docs/marionette.application.md#preparation-methods
 ## Application state events follow the active run
 
 Application `stateEvents` no longer invoke handlers during startup preparation
-(including the startup phase of a restart), or while stopped. Seed state normally
+for a stopped Application, or while stopped. Retained restart keeps delivery active. Seed state normally
 before startup and read the current source in `onStart` for initial display. Remove per-handler
 `isRunning()` guards used only to enforce this boundary; suppressed events are
 not replayed. State identity and subscriptions persist across stop/restart.
 
-`isRunning()` now remains true while an active run awaits stop permission or
-owned-child stopping, including a restart's stop phase. It becomes false before
-root teardown and during the new startup preparation, or immediately when
+`isRunning()` now remains true during retained restart preparation. It becomes false before
+root teardown and during initial startup preparation, or immediately when
 destruction begins.
-Rejected/canceled stop preserves activation. Use explicit listeners with owned
+Use explicit listeners with owned
 cleanup if a feature deliberately needs loading-time or object-lifetime reactions.
 View state events, Radio bindings, and explicit listeners are unchanged.
 
@@ -687,10 +684,50 @@ API is unchanged. This change does not introduce batching or deferred delivery.
 
 ## Restart requests from completion callbacks
 
-A compatible `restart()` still coalesces during stop/start preparation and retains
-the original operation's options. Once startup commits, before `onStart` and the
-`start` event, another `restart()` begins a new cycle with its own Promise/options.
-The previous cycle has completed successfully; cancellation or failure of the next
-cycle does not change that result. Do not restart unconditionally from every
-start notification. Completion callbacks remain synchronous notifications whose
-returned Promises Marionette does not await.
+Every restart supersedes older preparation and uses its own options and result.
+Once startup commits, before `onStart` and the `start` event, another `restart()`
+begins a new cycle. Failure or cancellation of that cycle does not change the
+completed cycle's success. Do not restart unconditionally from every start
+notification. Completion callbacks remain synchronous and are not awaited.
+
+## Retained restart and root View declarations
+
+Restart now reruns preparation while retaining presentation and active children.
+It never calls stop hooks.
+Audit hooks that recreate layouts, reset form state, reconnect sockets, or rely on
+`onStop` cleanup: use explicit stop followed by start for full reset. Otherwise,
+initialize only when needed and consume the current preparation result in `onStart`.
+A preparation failure rejects while the previous active UI stays usable. There is
+no rollback of side effects performed by user code. Independent saves and pagination
+still need their own operation policy.
+
+Replace repeated root `listenTo` registration with optional `viewEvents` where
+appropriate. `setView()` binds each selected View once using ordinary `listenTo`
+semantics. Listeners stay active through retained restart and release when the View
+or Application is destroyed. See the
+[Application contract](docs/marionette.application.md#root-view-events).
+
+## Synchronous Application stop
+
+`stop(options)` now stops descendants and the selected UI synchronously, returning
+a boolean. Remove `.then()` and `.catch()` chaining on stop; synchronous failures
+throw. `prepareStop` has been removed. Move synchronous cleanup to `onStop`, ask
+for navigation permission or finish required saves before calling stop, and use
+a caller-owned async operation for required final disposal. Start and restart
+retain their Promise results.
+
+## Synchronous Application destruction
+
+`destroy(options)` now releases owned children, UI, state, Radio, and listeners
+before returning a boolean. `removeChildApp(name, options)` returns the destroyed
+child or `undefined` synchronously. Remove Promise chaining on either method.
+`prepareDestroy` has been removed; move required asynchronous finalization to an
+explicit operation before destruction:
+
+```javascript
+await myApp.customerTearDown();
+myApp.destroy();
+```
+
+Synchronous callback failures throw and abort remaining teardown. They do not
+provide rollback or retry of a partial instance. Notification returns are ignored.

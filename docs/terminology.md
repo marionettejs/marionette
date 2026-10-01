@@ -74,9 +74,9 @@ migration guides may refer to the old `backbone.marionette` package name.
 ## Application lifecycle and readiness
 
 `start()`, `stop()`, `restart()`, and `destroy()` are Application **lifecycle
-operations**. A **preparation method** is one of `prepareStart`, `prepareStop`, or
-`prepareDestroy`. Marionette awaits a Promise returned by one of those methods
-before completing that phase.
+operations**. The **preparation method** `prepareStart` supplies readiness
+for start and restart. Marionette awaits its result before startup completion.
+Stop and destroy perform synchronous teardown.
 
 The `onBefore*` methods and corresponding `before:*` event listeners are synchronous notifications;
 their return values are not awaited. `onStart`, `onStop`, `onDestroy`, and their

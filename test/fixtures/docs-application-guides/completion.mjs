@@ -172,13 +172,21 @@ const childReady = Promise.withResolvers();
 const childEntered = Promise.withResolvers();
 const startedLoaders = [];
 let inputs;
+let restartOnChildStart = false;
+let parentReplacement;
 const Child = Application.extend({
   prepareStart(options) {
     inputs = options;
     childEntered.resolve();
     return childReady.promise;
   },
-  onStart() { this.showView(new View({ template: () => 'Content' })); }
+  onStart() {
+    this.showView(new View({ template: () => 'Content' }));
+    if (restartOnChildStart) {
+      restartOnChildStart = false;
+      parentReplacement = workspace.restart();
+    }
+  }
 });
 const child = new Child();
 let fail = false;
@@ -206,8 +214,26 @@ try {
   assert.equal(await starting, true);
   assert.equal(document.querySelector('#workspace').textContent, 'ReadyContent');
   const oldRegion = child.getRegion();
+  const shell = workspace.getView();
   assert.equal(await workspace.restart(), true);
-  assert.notEqual(child.getRegion(), oldRegion);
+  assert.equal(workspace.getView(), shell);
+  assert.equal(child.getRegion(), oldRegion);
+  assert.equal(shell.isDestroyed(), false);
+  workspace.getRegion().empty();
+  assert.equal(await workspace.restart(), true);
+  assert.notEqual(workspace.getView(), shell);
+  assert.equal(child.getRegion(), workspace.getView().getRegion('content'));
+  assert.equal(document.querySelector('#workspace').textContent, 'ReadyContent');
+  await workspace.stop();
+  restartOnChildStart = true;
+  const superseded = workspace.start();
+  const startingShell = workspace.getView();
+  assert.equal(await superseded, false);
+  assert.equal(await parentReplacement, true);
+  assert.equal(workspace.getView(), startingShell);
+  assert.equal(startingShell.isDestroyed(), false);
+  assert.equal(child.getRegion(), startingShell.getRegion('content'));
+  assert.equal(document.querySelector('#workspace').textContent, 'ReadyContent');
   fail = true;
   await workspace.stop();
   await assert.rejects(workspace.start(), /Offline/);

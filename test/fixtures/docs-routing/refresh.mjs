@@ -10,11 +10,11 @@ await test('documented refresh uses one active session and replaces only current
   const dom = new JSDOM('<!doctype html><main></main>');
   globalThis.window = dom.window;
   globalThis.document = dom.window.document;
-  async function fixture(beforeStop) {
+  async function fixture() {
     const items = new Collection([{ id: 1, name: 'First' }]);
     const requests = [];
     const feature = new ResultsFeature({
-      region: { el: document.querySelector('main') }, items, beforeStop,
+      region: { el: document.querySelector('main') }, items,
       loadItems(query, { signal }) {
         const request = { query, signal, ...Promise.withResolvers() };
         requests.push(request);
@@ -22,7 +22,7 @@ await test('documented refresh uses one active session and replaces only current
       }
     });
     await feature.start();
-    return { application: feature, refresh: (...args) => feature.refresh(...args), cancel: () => feature.cancel(), items, requests, async destroy() {
+    return { application: feature, refresh: (...args) => feature.restart({ query: args[0] }), cancel: () => feature.restart(), items, requests, async destroy() {
       requests.forEach(request => request.resolve([]));
       await feature.destroy();
       items.destroy();
@@ -145,56 +145,6 @@ await test('documented refresh uses one active session and replaces only current
       } finally { list.dispose(); detail.dispose(); loads.forEach(load => load.resolve()); }
     });
 
-    await t.test('stop permission keeps requests active until successful deactivation', async() => {
-      const permission = Promise.withResolvers();
-      let hold = true;
-      const f = await fixture(() => hold ? permission.promise : undefined);
-      try {
-        const loading = f.refresh('during-permission');
-        const stopping = f.application.stop().then(value => ({ value }), error => ({ error }));
-        f.requests[0].resolve([{ id: 1, name: 'Still active' }]);
-        assert.equal(await loading, true);
-        assert.equal(document.querySelector('li').textContent, 'Still active');
-        const denied = new Error('Keep editing');
-        permission.reject(denied);
-        assert.equal((await stopping).error, denied);
-        assert.equal(f.application.isRunning(), true);
-        const pending = f.refresh('before-stop');
-        hold = false;
-        assert.equal(await f.application.stop(), true);
-        assert.equal(f.requests[1].signal.aborted, true);
-        assert.equal(await f.refresh('stopped'), false);
-        assert.equal(f.requests.length, 2);
-        assert.equal(await f.application.start(), true);
-        const resumed = f.refresh('resumed');
-        f.requests[2].resolve([{ id: 1, name: 'New session' }]);
-        assert.equal(await resumed, true);
-        f.requests[1].resolve([{ id: 1, name: 'Obsolete session' }]);
-        assert.equal(await pending, false);
-        assert.equal(f.items.get(1).get('name'), 'New session');
-      } finally { hold = false; permission.resolve(); await f.destroy(); }
-    });
-
-    await t.test('start superseding pending stop releases the previous request controller', async() => {
-      const permission = Promise.withResolvers();
-      const f = await fixture(() => permission.promise);
-      try {
-        const old = f.refresh('old-session');
-        const stopping = f.application.stop();
-        const starting = f.application.start();
-        assert.equal(await stopping, false);
-        permission.resolve();
-        assert.equal(await starting, true);
-        assert.equal(f.requests[0].signal.aborted, true);
-        const current = f.refresh('current-session');
-        f.requests[1].resolve([{ id: 1, name: 'Current session' }]);
-        assert.equal(await current, true);
-        f.requests[0].resolve([{ id: 1, name: 'Obsolete session' }]);
-        assert.equal(await old, false);
-        assert.equal(document.querySelector('li').textContent, 'Current session');
-      } finally { permission.resolve(); await f.destroy(); }
-    });
-
     await t.test('owner stop and direct destroy cancel work without disposing borrowed data', async() => {
       const f = await fixture();
       const owner = new Application();
@@ -276,39 +226,6 @@ await test('documented refresh uses one active session and replaces only current
       } finally { requests.dispose(); }
     });
   } finally {
-    dom.window.close();
-    delete globalThis.window;
-    delete globalThis.document;
-  }
-});
-
-await test('replacing the feature root releases refresh requests and preserves its borrowed source', async() => {
-  const dom = new JSDOM('<main></main>');
-  globalThis.window = dom.window;
-  globalThis.document = dom.window.document;
-  const { View } = await import('marionette');
-  const items = new Collection([{ id: 1, name: 'Keep' }]);
-  const request = Promise.withResolvers();
-  let signal;
-  const feature = new ResultsFeature({
-    region: { el: document.querySelector('main') }, items,
-    loadItems(query, options) { signal = options.signal; return request.promise; }
-  });
-  try {
-    await feature.start();
-    const pending = feature.refresh('replace');
-    feature.getRegion().show(new View({ template: () => 'Replacement' }));
-    assert.equal(signal.aborted, true);
-    request.resolve([{ id: 2, name: 'Late' }]);
-    assert.equal(await pending, false);
-    assert.equal(items.at(0).get('name'), 'Keep');
-    assert.equal(document.querySelector('main').textContent, 'Replacement');
-    assert.equal(await feature.refresh('after-replacement'), false);
-    await feature.destroy();
-    assert.equal(items.isDestroyed(), false);
-  } finally {
-    await feature.destroy();
-    items.destroy();
     dom.window.close();
     delete globalThis.window;
     delete globalThis.document;
