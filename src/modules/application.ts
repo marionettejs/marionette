@@ -41,6 +41,11 @@ export interface ApplicationStartOptions {
   [key: string]: unknown;
 }
 
+export interface ApplicationRestartOptions {
+  region?: never;
+  [key: string]: unknown;
+}
+
 type Common = typeof CommonMixin;
 export interface ApplicationInstance<Options extends object = object, State = object, StartResult = unknown> extends Common {
   cid: string;
@@ -65,7 +70,7 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   isRunning(): boolean;
   start(options?: ApplicationStartOptions): Promise<boolean>;
   stop(options?: unknown): Promise<boolean>;
-  restart(options?: ApplicationStartOptions): Promise<boolean>;
+  restart(options?: ApplicationRestartOptions): Promise<boolean>;
   destroy(options?: unknown): Promise<boolean>;
   prepareStart?(options: unknown, context: LifecycleContext): StartResult | PromiseLike<StartResult>;
   prepareStop?(options: unknown, context: LifecycleContext): unknown;
@@ -114,7 +119,7 @@ export type ApplicationConstructor<Props extends object = {}, Args extends unkno
     StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>>;
 }, Statics>;
 
-type LifecycleState = 'destroyed' | 'destroying' | 'restarting' | 'running' | 'starting' | 'stopped' | 'stopping';
+type LifecycleState = 'destroyed' | 'destroying' | 'running' | 'starting' | 'stopped' | 'stopping';
 type OperationKind = 'start' | 'stop' | 'restart' | 'destroy';
 type FailureState = 'running' | 'stopped' | 'destroyed';
 interface Deferred<Value> {
@@ -174,7 +179,6 @@ const ClassOptions = [
 
 const DESTROYED = 'destroyed';
 const DESTROYING = 'destroying';
-const RESTARTING = 'restarting';
 const RUNNING = 'running';
 const STARTING = 'starting';
 const STOPPED = 'stopped';
@@ -227,7 +231,7 @@ function applicationRegionConflict() {
   return new MarionetteError({
     code: 'MN0041',
     name: classErrorName,
-    message: 'An Application cannot start with a different Region while it is running or starting.'
+    message: 'Only start() can select a Region, and an active or starting Application cannot change hosts.'
   });
 }
 
@@ -239,12 +243,11 @@ function isTerminal(application: ApplicationInternals) {
 function hasStoppingOwner(application: ApplicationInternals) {
   let owner = application._parentApp;
 
-  // Check operations as well as state: stop callbacks run after STOPPED commits,
-  // restart stays RESTARTING through deactivation, and a replacement start can
-  // still hold adopted stopReadiness. Terminal owners also block activation.
+  // Stop callbacks run after STOPPED commits; an adopting start may still
+  // hold stop readiness. Retained restart does not block child activation.
   while (owner) {
     if (isTerminal(owner) || owner._lifecycleOperation?.kind === 'stop' ||
-        owner._lifecycleState === RESTARTING || owner._lifecycleOperation?.stopReadiness) { return true; }
+        owner._lifecycleOperation?.stopReadiness) { return true; }
     owner = owner._parentApp;
   }
 
@@ -526,15 +529,15 @@ async function startApplication(application: ApplicationInternals, operation: Op
     delete operation.stopReadiness;
   }
 
-  // Deactivate before replacing a Region can invoke root teardown callbacks.
-  setLifecycleState(application, application._lifecycleState, false);
+  const retained = operation.kind === 'restart' && application._isRunning;
+  // Only a stopped run may move hosts. Retained preparation stays active.
+  if (!retained) { setLifecycleState(application, application._lifecycleState, false); }
   if (operation.startRegion !== undefined) {
     replaceStartRegion(application, operation, operation.startRegion);
     if (!isCurrentOperation(application, operation)) { return; }
   }
 
-  // Restart has finished deactivation; explicit child starts are now allowed.
-  setLifecycleState(application, STARTING, false);
+  setLifecycleState(application, STARTING, retained);
   const readiness = beginReadiness(operation, options, context => {
     application.triggerMethod('before:start', application, options);
     if (!isCurrentOperation(application, operation)) { return; }
@@ -545,8 +548,7 @@ async function startApplication(application: ApplicationInternals, operation: Op
   if (!isCurrentOperation(application, operation)) { return; }
 
   completeReadiness(operation);
-  // A restart's completed stop belongs to the previous run. Completion handlers
-  // can stop this new run and must execute its full stop lifecycle.
+  // Completion handlers may stop the successfully prepared run.
   delete operation.isStopped;
   setLifecycleState(application, RUNNING, true);
   operation.failureState = RUNNING;
@@ -629,8 +631,8 @@ export default /* @__PURE__ */ ((methods: object) => {
     if (operation?.kind === 'start' || this._lifecycleState === STARTING || this._lifecycleState === RUNNING) {
       if (!isCompatibleStartRegion(this, region, operation)) { return Promise.reject(applicationRegionConflict()); }
     }
-    if (operation?.kind === 'start') { return operation.promise; }
-    if (this._lifecycleState === RUNNING && !operation) { return Promise.resolve(true); }
+    if (operation?.kind === 'start' || (operation?.kind === 'restart' && (!this._isRunning || operation.stopReadiness))) { return operation.promise; }
+    if (this._isRunning && (!operation || operation.kind === 'restart')) { return Promise.resolve(true); }
 
     const failureState = getFailureState(this, operation);
     return beginOperation(this, 'start', STARTING, failureState, nextOperation => {
@@ -675,26 +677,23 @@ export default /* @__PURE__ */ ((methods: object) => {
     });
   },
 
-  restart(this: ApplicationInternals, options?: ApplicationStartOptions) {
+  restart(this: ApplicationInternals, options?: ApplicationRestartOptions) {
     if (isTerminal(this) || hasStoppingOwner(this)) {
       return Promise.resolve(false);
     }
 
-    const region = options?.region;
+    if (options?.region !== undefined) { return Promise.reject(applicationRegionConflict()); }
     const operation = this._lifecycleOperation;
-    if (operation?.kind === 'restart' && !operation.isCompleting &&
-        isCompatibleStartRegion(this, region, operation)) { return operation.promise; }
-    const wasStopped = this._lifecycleState === STOPPED;
-    const shouldStop = !operation?.isStopped && (!wasStopped || !!this._childApps);
     const failureState = getFailureState(this, operation);
 
-    return beginOperation(this, 'restart', RESTARTING, failureState, async nextOperation => {
-      if (shouldStop) {
-        await stopApplication(this, nextOperation, options, !wasStopped);
-      } else { emptyView(this, options); }
-      if (!isCurrentOperation(this, nextOperation)) { return; }
+    return beginOperation(this, 'restart', STARTING, failureState, async nextOperation => {
+      // An explicit stop already in progress must finish before reactivation.
+      if (nextOperation.stopReadiness) {
+        await stopApplication(this, nextOperation, options);
+        if (!isCurrentOperation(this, nextOperation)) { return; }
+      }
       await startApplication(this, nextOperation, options);
-    }, region);
+    });
   },
 
   destroy(this: ApplicationInternals, options?: unknown) {

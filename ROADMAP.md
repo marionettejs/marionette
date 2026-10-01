@@ -283,8 +283,7 @@ Displayed View teardown belongs to the Region. Calling `Region.empty` first dest
 the displayed View and clears the Region's `currentView`, but does not implicitly
 stop the Application or clear a separately prepared View. A later stop empties
 whatever View is then current in the host Region, so Applications sharing a borrowed
-host must coordinate their lifecycles. Restart follows the same stop contract before
-starting and showing a new root View.
+host must coordinate their lifecycles. Restart reruns preparation while retaining presentation; full reset is explicit stop/start.
 
 Phase 1 must define `start`'s return value, readiness and failure semantics, and
 reentrant or overlapping start, stop, and restart behavior under the selected
@@ -307,8 +306,8 @@ previously had no cancellation channel.
 
 Owned child Applications are activated explicitly with their own inputs. Ownership
 propagates stop and destroy, including through stopped intermediate owners, without
-per-child lifecycle flags. Parent restart deactivates its children; startup code
-chooses which capabilities to reactivate. A capability that must outlive its
+per-child lifecycle flags. Parent restart retains active children; preparation code
+explicitly chooses any child changes. A capability that must outlive its
 current owner belongs to a longer-lived Application and is passed to the shorter-lived
 Application explicitly.
 

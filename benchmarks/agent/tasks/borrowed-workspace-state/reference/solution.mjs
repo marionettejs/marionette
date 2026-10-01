@@ -37,7 +37,7 @@ export function createStateWorkspace(el, sharedState, domain, lifecycle) {
       if (!started && !context.signal.aborted) { throw new Error('Editor startup canceled'); }
     },
     onStart() {
-      unsubscribe = lifecycle.subscribe();
+      if (!unsubscribe) { unsubscribe = lifecycle.subscribe(); }
     },
     onStop: releaseSession,
     onDestroy: releaseSession

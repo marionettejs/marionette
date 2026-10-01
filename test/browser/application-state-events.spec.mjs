@@ -98,5 +98,5 @@ test('restart completion can stop its newly mounted root', async({ page }) => {
     await app.destroy();
     return observed;
   });
-  assert.deepEqual(result, { stopped: true, stops: 2, running: false, destroyed: true, mounted: false, empty: true });
+  assert.deepEqual(result, { stopped: true, stops: 1, running: false, destroyed: true, mounted: false, empty: true });
 });

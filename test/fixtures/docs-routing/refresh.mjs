@@ -22,7 +22,7 @@ await test('documented refresh uses one active session and replaces only current
       }
     });
     await feature.start();
-    return { application: feature, refresh: (...args) => feature.refresh(...args), cancel: () => feature.cancel(), items, requests, async destroy() {
+    return { application: feature, refresh: (...args) => feature.restart({ query: args[0] }), cancel: () => feature.restart(), items, requests, async destroy() {
       requests.forEach(request => request.resolve([]));
       await feature.destroy();
       items.destroy();
@@ -153,8 +153,8 @@ await test('documented refresh uses one active session and replaces only current
         const loading = f.refresh('during-permission');
         const stopping = f.application.stop().then(value => ({ value }), error => ({ error }));
         f.requests[0].resolve([{ id: 1, name: 'Still active' }]);
-        assert.equal(await loading, true);
-        assert.equal(document.querySelector('li').textContent, 'Still active');
+        assert.equal(await loading, false);
+        assert.equal(document.querySelector('li').textContent, 'First');
         const denied = new Error('Keep editing');
         permission.reject(denied);
         assert.equal((await stopping).error, denied);
@@ -163,7 +163,6 @@ await test('documented refresh uses one active session and replaces only current
         hold = false;
         assert.equal(await f.application.stop(), true);
         assert.equal(f.requests[1].signal.aborted, true);
-        assert.equal(await f.refresh('stopped'), false);
         assert.equal(f.requests.length, 2);
         assert.equal(await f.application.start(), true);
         const resumed = f.refresh('resumed');
@@ -276,39 +275,6 @@ await test('documented refresh uses one active session and replaces only current
       } finally { requests.dispose(); }
     });
   } finally {
-    dom.window.close();
-    delete globalThis.window;
-    delete globalThis.document;
-  }
-});
-
-await test('replacing the feature root releases refresh requests and preserves its borrowed source', async() => {
-  const dom = new JSDOM('<main></main>');
-  globalThis.window = dom.window;
-  globalThis.document = dom.window.document;
-  const { View } = await import('marionette');
-  const items = new Collection([{ id: 1, name: 'Keep' }]);
-  const request = Promise.withResolvers();
-  let signal;
-  const feature = new ResultsFeature({
-    region: { el: document.querySelector('main') }, items,
-    loadItems(query, options) { signal = options.signal; return request.promise; }
-  });
-  try {
-    await feature.start();
-    const pending = feature.refresh('replace');
-    feature.getRegion().show(new View({ template: () => 'Replacement' }));
-    assert.equal(signal.aborted, true);
-    request.resolve([{ id: 2, name: 'Late' }]);
-    assert.equal(await pending, false);
-    assert.equal(items.at(0).get('name'), 'Keep');
-    assert.equal(document.querySelector('main').textContent, 'Replacement');
-    assert.equal(await feature.refresh('after-replacement'), false);
-    await feature.destroy();
-    assert.equal(items.isDestroyed(), false);
-  } finally {
-    await feature.destroy();
-    items.destroy();
     dom.window.close();
     delete globalThis.window;
     delete globalThis.document;

@@ -28,7 +28,7 @@ describe('Application child lifecycle', () => {
     await app.restart();
     expect(app.isRunning()).toBe(true);
     expect(first.isRunning()).toBe(false);
-    expect(late.isRunning()).toBe(false);
+    expect(late.isRunning()).toBe(true);
     await first.start();
     expect(first.isRunning()).toBe(true);
   });
@@ -76,7 +76,7 @@ describe('Application child lifecycle', () => {
     expect(await starting).toBe(true);
   });
 
-  for (const method of ['stop', 'restart', 'destroy']) {
+  for (const method of ['stop', 'destroy']) {
     it(`${method} drains a running grandchild through stopped owners`, async() => {
       const beforeStop = vi.fn();
       const beforeDestroy = vi.fn(() => expect(grandchild.isRunning()).toBe(false));
@@ -87,7 +87,7 @@ describe('Application child lifecycle', () => {
       expect(await app[method]()).toBe(true);
       expect(grandchild.isRunning()).toBe(false);
       expect(child.isRunning()).toBe(false);
-      expect(app.isRunning()).toBe(method === 'restart');
+      expect(app.isRunning()).toBe(false);
       expect(beforeStop).not.toHaveBeenCalled();
       if (method === 'destroy') { expect(beforeDestroy).toHaveBeenCalledTimes(1); }
       if (method !== 'destroy') {
@@ -159,7 +159,7 @@ describe('Application child lifecycle', () => {
     expect(app.isRunning()).toBe(false);
   });
 
-  for (const method of ['stop', 'restart', 'destroy']) {
+  for (const method of ['stop', 'destroy']) {
     it(`blocks descendant activation in the ${method} stop phase`, async() => {
       const ready = gate();
       const entered = gate();
@@ -192,7 +192,10 @@ describe('Application child lifecycle', () => {
     child = app.addChildApp('child', new Application());
     await app.start();
     expect(await app.restart()).toBe(true);
+    expect(blocked).toBeUndefined();
+    await app.stop();
     expect(await blocked).toBe(false);
+    await app.start();
     expect(child.isRunning()).toBe(true);
   });
 
@@ -324,7 +327,7 @@ describe('Application child lifecycle', () => {
   }
 });
 
-['stop', 'restart', 'destroy'].forEach(method => {
+['stop', 'destroy'].forEach(method => {
   it(`begins a new stop phase when ${method} replaces a start after child stops were canceled`, async function() {
     const readiness = gate();
     const childStopping = gate();
@@ -362,7 +365,7 @@ describe('Application child lifecycle', () => {
 
     expect(await Promise.all([earlierStop, start, latest])).to.deep.equal([false, false, true]);
     expect(events).to.deep.equal([firstOptions, 'first:stop', latestOptions, 'second:stop', 'parent:stop']);
-    expect(parent.isRunning()).to.equal(method === 'restart');
+    expect(parent.isRunning()).toBe(false);
     expect(first.isRunning()).toBe(false);
     expect(second.isRunning()).toBe(false);
     expect(parent.isDestroyed()).to.equal(method === 'destroy');

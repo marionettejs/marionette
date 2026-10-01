@@ -10,7 +10,7 @@ owner-lifetime subscriptions.
 
 Application `stateEvents` deliver during the active run, following `isRunning()`.
 Seed state before activation and read its current value in `onStart`; pending stop
-permission for stop/restart leaves delivery active until stopping succeeds.
+permission for stop leaves delivery active until stopping succeeds.
 Terminal destruction deactivates delivery immediately. Subscriptions themselves
 remain installed until destruction, and suppressed notifications are not replayed.
 
@@ -92,9 +92,12 @@ A DOM event handler must attach a rejection handler such as
 await its return value. Supply a synchronous application error reporter that does
 not throw; reporting a completion error must not retry the completed write.
 
-Stopping destroys the owned root. Restart creates a different root, so a late save
-cannot update it even if `isRunning()` is true again. Replacing the displayed root
-also invalidates completion without requiring an Application stop. Request identity
+Stopping destroys the owned root. A subsequent start creates a different root,
+so a late save cannot update it even if `isRunning()` is true again. This example
+also replaces its Editor in `onStart`, so restart invalidates the old screen's
+completion. When `onStart` reuses the current View, retained restart allows its
+pending save to finish. Replacing the displayed root invalidates completion
+without requiring an Application stop. Request identity
 handles overlapping saves on the same screen; it does not serialize server writes.
 During pending stop permission the run and its screen remain active, so this policy
 still permits completion; a rejected stop keeps that screen usable. If the product
@@ -272,10 +275,10 @@ one set of scope tests; each feature chooses when to create and dispose its own
 scope through its lifecycle hooks.
 
 The initial request fetches metadata independent of the filter. Reading the latest
-filter after loading is correct here. A server request that captures a filter needs
-a separate refresh operation that owns replacement requests; see
-[refresh without restarting](./application-refresh.md).
-Do not map filter changes to `restart` to implement latest-request-wins behavior.
+filter after loading is correct here. A server request that captures a filter can use
+[retained restart](./application-refresh.md) to replace preparation results when
+the filter changes. Independent operations, such as saves and pagination, need
+their own completion policy.
 
 <!-- executable-example: application-active-effects -->
 ```javascript

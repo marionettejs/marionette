@@ -1,20 +1,14 @@
-# Refresh data without restarting a feature
+# Refresh data with retained preparation
 
-This page applies after a feature has started. For initial loading followed by
-presentation, use Application `onBeforeStart`, `prepareStart`, and `onStart` as
-shown in [application composition](./application-composition.md). The controllers
-below serve a different requirement: retain the active shell, editor, and sibling
-owners while replacing only a data request.
+Use `restart({ query })` to rerun a feature's preparation while retaining its
+layout, editor, active children, and displayed results. The newest preparation
+wins; current failure rejects with previous presentation still active. Return data
+from `prepareStart` and consume it in `onStart`. Stop followed by start performs
+full teardown and reconstruction.
 
-
-Use Application `start` and `stop` for a feature's active lifetime. Use an explicit
-refresh operation to load new data while keeping its layout, editor, and draft
-alive. Restart deliberately ends the active session and destroys its Views.
-
-The same latest-request controller can refresh a collection or navigate to a new
-page. The difference is the commit: update an existing collection for refresh,
-or show a replacement View for page navigation. Neither requires restarting an
-Application.
+The collection example below uses this native contract. A separate request policy
+remains useful for independent saves, pagination, and routing that must not replace
+Application preparation. The helper in the next section serves those operations.
 
 ## Share one latest-request controller
 
@@ -155,16 +149,12 @@ readiness failure rejects. An owner stop or destroy while `select()` awaits the
 child stop also prevents a later child start.
 Destroy the owning Application when the selector is released.
 
-Repeated `restart({ id })` is unsuitable for rapid selection: compatible
-in-flight restarts share the first operation and its original options. The
-selection token is application code, not a Marionette framework API or a
-framework-owned run signal. This example uses a lifecycle boundary because the
-selected child screen is replaced; the list refresh above remains an individual
-request within an active child.
+Use retained `restart({ id })` when old content should remain visible during loading.
+Use explicit stop/start when changing selection intentionally ends the child run.
 
 ## Refresh a collection and preserve the editor
 
-Save this module beside `latest-request.js` as `results-feature.js`. Supply an
+Save this module as `results-feature.js`. Supply an
 element, a borrowed `@mnjs/data` Collection, and `loadItems(query, { signal })`
 returning records with stable `id` and `name` fields. The collection must contain
 only result data; the editor's draft has its own lifetime.
@@ -173,7 +163,6 @@ only result data; the editor's draft has its own lifetime.
 ```javascript
 import { Application, CollectionView, View } from 'marionette';
 import { DataApi } from '@mnjs/data';
-import { createLatestRequest } from './latest-request.js';
 
 const Row = View.extend({
   tagName: 'li',
@@ -191,41 +180,30 @@ const Layout = View.extend({
 });
 
 export const ResultsFeature = Application.extend({
-  onStart() {
-    this.requests?.dispose();
+  prepareStart({ query } = {}, { signal }) {
+    if (query === undefined) return;
+    return this.getOption('loadItems')(query, { signal });
+  },
+  onStart(app, options, rows) {
     const items = this.getOption('items');
-    const layout = new Layout();
-    this.listenTo(layout, 'before:destroy', () => {
-      this.requests?.dispose();
-      this.stopListening(layout);
-    });
-    this.showView(layout);
-    layout.showChildView('results', new Results({ collection: items }));
-    this.requests = createLatestRequest({
-      load: this.getOption('loadItems'),
-      commit: rows => {
-        const current = new Map(items.map(model => [model.get('id'), model]));
-        const order = new Map(rows.map((row, index) => [row.id, index]));
-        items.remove(items.models.filter(model => !order.has(model.get('id'))));
-        for (const row of rows) { current.get(row.id)?.set(row); }
-        items.add(rows.filter(row => !current.has(row.id)));
-        items.sort((left, right) => order.get(left.get('id')) - order.get(right.get('id')));
-      }
-    });
+    if (!this.getView()) {
+      const layout = this.showView(new Layout());
+      layout.showChildView('results', new Results({ collection: items }));
+    }
+    if (!rows) return;
+    const current = new Map(items.map(model => [model.get('id'), model]));
+    const order = new Map(rows.map((row, index) => [row.id, index]));
+    items.remove(items.models.filter(model => !order.has(model.get('id'))));
+    for (const row of rows) { current.get(row.id)?.set(row); }
+    items.add(rows.filter(row => !current.has(row.id)));
+    items.sort((left, right) => order.get(left.get('id')) - order.get(right.get('id')));
   },
-  prepareStop(options, context) { return this.getOption('beforeStop')?.(options, context); },
-  onStop() { this.requests?.dispose(); },
-  onBeforeDestroy() { this.requests?.dispose(); },
-  refresh(query, options) {
-    if (!this.isRunning() || !this.getView()) return Promise.resolve(false);
-    return this.requests.run(query, options);
-  },
-  cancel() { this.requests?.cancel(); }
+  prepareStop(options, context) { return this.getOption('beforeStop')?.(options, context); }
 });
 ```
 
 Construct `new ResultsFeature({ region: { el }, items, loadItems, beforeStop })`
-and await `feature.start()`. Call `await feature.refresh(query)` for the initial results and subsequent filter
+and await `feature.start()`. Call `await feature.restart({ query })` for the initial results and subsequent filter
 changes or retries. Keep the same feature and collection. The commit updates retained
 Models, removes missing records, adds new records, then sorts to the response order.
 This uses native Collection operations; it has no Backbone-style `Collection.set`.
@@ -237,20 +215,17 @@ updating the results does not rerender the layout or
 replace the editor. Rows removed by the new result are intentionally destroyed.
 Record names are assigned as text rather than interpolated into HTML.
 
-As in [the effects pattern](./application-effects.md), requests remain active while
-stop permission is pending. A rejected permission leaves them active. Successful
-stop disposes the request controller and destroys the Views; destruction also
-disposes it. A subsequent start creates fresh Views and a fresh request controller,
-while the borrowed collection survives. These hooks also work when an owning
-Application stops the feature. The caller supplies and disposes the collection;
-this feature borrows it.
-If `start()` supersedes pending stop permission, it can run `onStart()` again
-without `onStop()`. Each start disposes the previous controller before replacing it.
+Stop and destroy invalidate preparation immediately, including while stop permission
+is pending. Rejecting stop permission leaves the previous UI usable but does not
+resurrect canceled preparation. A subsequent start creates fresh Views while the
+borrowed collection survives. The caller owns and disposes that collection.
 
-Use one controller for each independently replaceable result. Sharing one controller
-between unrelated list and detail loads would make them cancel each other.
-The [routing guide](./routing.md#load-the-latest-page-and-discard-stale-work) uses
-this same module with a View-replacement commit.
+Use `restart()` without a query to supersede a pending load without changing
+results. Handle current rejection at the caller. Every preparation result is
+committed only by its current `onStart`; transports may ignore cancellation safely.
+No request counter or application-owned AbortController is needed for this workflow.
+Independent operations still need their own policy; sharing preparation between
+unrelated list and detail loads would make them cancel each other.
 
 Working synchronous registration, rendering, and collection callbacks are required.
 A throwing commit aborts without rollback; this example does not make View lifecycle

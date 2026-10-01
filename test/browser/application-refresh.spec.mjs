@@ -38,14 +38,14 @@ test('Application refresh preserves editor focus and draft while only latest res
     status.setAttribute('role', 'status');
     document.body.prepend(query, status);
     const fixture = {
-      application: result, refresh: (...args) => result.refresh(...args), cancel: () => result.cancel(), items, pending,
+      application: result, refresh: (...args) => result.restart({ query: args[0] }), cancel: () => result.restart(), items, pending,
       layout: result.getView(), row: document.querySelector('li'),
       editor: document.querySelector('textarea'),
       allowStop() { denyStop = false; }
     };
     query.addEventListener('input', () => {
       status.textContent = 'Loading';
-      fixture.refreshing = result.refresh(query.value).then(committed => {
+      fixture.refreshing = result.restart({ query: query.value }).then(committed => {
         if (committed) { status.textContent = 'Ready'; }
         return committed;
       }, error => { status.textContent = error.message; return false; });

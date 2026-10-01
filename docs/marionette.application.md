@@ -78,11 +78,14 @@ an idempotent call when that state is already current. It resolves `false` when
 a later incompatible operation supersedes the request. `false` is cancellation,
 not failure. A current lifecycle hook failure rejects its operation Promise.
 
-Compatible repeated calls share the in-flight Promise. For `restart()`, this
-coalescing ends before the `onStart`/`start` completion notification: a restart
-requested there begins a new cycle with its own options and Promise. The completed
-cycle remains successful if that new cycle later fails or is canceled. An
-unconditional restart on every start notification therefore creates a loop.
+Repeated start, stop, and destroy calls share compatible pending operations.
+Every `restart()` creates a new preparation intent: it aborts older preparation,
+resolves the older operation `false`, and uses the newest options and result.
+Each intent emits `before:start`; several such notifications may precede one
+current `start` completion.
+A restart requested from `onStart` or `start` begins a new cycle; the completed
+cycle remains successful if the next cycle fails or is canceled. An unconditional
+restart on every start notification creates a loop.
 Completion notifications are synchronous; Marionette does not await their return
 values or automatically wait for a cycle they initiate. Before destruction
 begins, the latest incompatible operation wins: for example, `stop()` during
@@ -97,9 +100,9 @@ destroyed state or emit the invalidated success event.
 
 `isRunning()` describes the active run. It becomes `true` after startup readiness,
 before `onStart`, and stays `true` while stop permission or descendant stopping is
-pending, including a restart's stop phase. Rejected or canceled stop preserves the
+pending. It also stays active throughout retained restart preparation. Rejected or canceled stop preserves the
 active run. It becomes `false` before successful stop tears down the root, during
-startup preparation, and immediately when terminal destruction begins. If
+initial startup preparation, and immediately when terminal destruction begins. If
 destruction's stop preparation fails before the previous run is stopped, its
 running state is restored. It does not report whether a lifecycle operation is
 pending.
@@ -138,7 +141,7 @@ these rules do not add rollback or asynchronous notification handling.
 | Running | `start(options)` | No-op | `true` |
 | Running or starting | `stop(options)` | Invalidates startup when needed, then `before:stop`, await `prepareStop`, `stop` | `true` when stopped; the invalidated start resolves `false` |
 | Stopped | `stop(options)` | Stop owned descendants and clear roots without repeating this owner's stop notifications | `true` |
-| Any live, non-destroying state | `restart(options)` | Stop when needed, then start | `true` when running |
+| Any live, non-destroying state | `restart(options)` | Rerun preparation, retaining presentation and active children; an explicitly pending stop completes teardown first | `true` when prepared |
 | Running or starting | `destroy(options)` | Stop when needed, then `before:destroy`, await `prepareDestroy`, `destroy` | `true` when destroyed |
 | Stopped | `destroy(options)` | Stop owned descendants, then `before:destroy`, await `prepareDestroy`, `destroy` | `true` when destroyed |
 | Destroying | repeated `destroy()` | Shares the active destroy lifecycle | Same in-flight Promise |
@@ -187,7 +190,23 @@ Before notifications run before preparation begins. If a `before:start` or
 does not run. A synchronous replacement begins its own before-notification
 sequence; it cannot adopt preparation that has not begun. Destruction is terminal
 and cannot be superseded. A preparation method must not await the same operation whose readiness it is defining.
-`restart` composes the stop and start lifecycles; it has no separate preparation method.
+`restart` reruns `before:start`, `prepareStart`, and `start` without a stop phase.
+The active root and children remain usable; active `stateEvents` continue delivering.
+Current preparation failure rejects and leaves the active presentation intact. This
+is not rollback of mutations already performed by application code. Return data
+from preparation and commit it in `onStart` to prevent obsolete results committing.
+Construct initial presentation only when needed; `showView(next)` explicitly replaces it.
+
+During initial startup, restart supersedes preparation without destroying already
+prepared roots or stopping children. After stop, restart prepares and activates a
+stopped Application. A compatible `start()` during retained restart resolves `true`
+without canceling that restart. While stopped startup readiness is pending, a compatible
+start joins the restart Promise. Independently active children of a stopped owner
+stay active through restart. Restart adopts an explicit stop already in progress
+and completes its teardown before preparing again. Stop and destroy immediately
+invalidate retained preparation, even if stop permission subsequently rejects.
+For complete teardown and reconstruction, use `if (await app.stop()) await app.start(options)`.
+Restart accepts preparation options, but no `region`; only start selects a host.
 
 Only preparation methods receive the context with an
 [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal).
@@ -199,7 +218,7 @@ in-flight stop phase retains that phase's original options and context, without
 aborting its signal.
 
 If a replacement start has already canceled the remaining child stops, that
-stop phase is no longer adopted. A later `stop()`, `restart()`, or `destroy()`
+stop phase is no longer adopted. A later `stop()` or `destroy()`
 begins a fresh stop phase with its own options and context.
 
 The context belongs to the readiness phase rather than to one caller's Promise.
@@ -216,12 +235,12 @@ order before the owner reaches stopped and emits `stop`. Stop also traverses
 already-stopped intermediate owners, releases their prepared/displayed roots,
 and stops active descendants. Already-stopped owners skip their own `prepareStop`
 as well as `before:stop` and `stop` notifications: only the active descendants need
-to deactivate. This also applies to descendant cleanup during restart or destroy.
-Restart performs that cleanup before its local startup readiness; application code chooses which children to reactivate.
+to deactivate. This also applies to descendant cleanup during destroy.
+Restart keeps registered children in their current state; preparation may explicitly change them.
 
 Descendant `start` and `restart` calls resolve `false` while any owner is in a
-stop phase, including the stop portion of restart, or is terminal. They become
-eligible again when restart enters startup readiness or a stop completes. An
+stop phase or is terminal. They become
+eligible again when a stop completes. An
 explicitly later child start under a stopped, nonterminal owner is allowed.
 `isRunning()` describes that Application, not an aggregate of its descendants.
 
@@ -248,18 +267,13 @@ borrowed. Use constructor options to create an Application-owned Region from a
 selector, Region class, or definition object. Startup does not construct Regions
 or change the `region` constructor configuration; `getRegion()` returns the active
 host. A different host passed to `start()` while an Application is running or starting rejects
-with `MN0041`; await `stop()` before a new `start({ region })`, or use
-`restart({ region })` to stop and select a new host in one operation.
-An in-flight start with the same Region instance continues to share
-its existing Promise. A compatible restart during stop/start preparation shares
-its Promise and keeps the original options; it does not queue newer options. A
-restart requesting a different host during preparation supersedes the earlier
-operation, which resolves `false`. Once startup commits, a restart from `onStart`
-or a `start` listener starts a new cycle, even with the same host. Restart can
-replace an unfinished start: it cancels startup,
-completes deactivation, and then binds the requested host. Rebinding releases the
-Application's displayed root, preserves a prepared root for the new host, and
-destroys the previous owned Region.
+with `MN0041`; await `stop()` before a new `start({ region })`.
+An in-flight start with the same Region shares its existing Promise. Restart
+keeps the currently selected host, including when it replaces unfinished startup.
+If a superseded start was still awaiting stop permission, its requested host was
+not yet bound and is discarded with that canceled start's input.
+Rebinding a stopped Application releases its displayed root, preserves a prepared
+root for the new host, and destroys the previous owned Region.
 
 The `region` key is reserved for host configuration. Use a different option name
 for domain data, such as `regionCode`. The startup option must be a Region
@@ -351,9 +365,8 @@ const Shell = View.extend({
 export const WorkspaceApplication = Application.extend({
   initialize({ child }) { this.addChildApp('content', child); },
   onBeforeStart() {
-    this.setView(new Shell());
-    this.getView().render();
-    this.showView();
+    if (!this.getView()) { this.showView(new Shell()); }
+    this.getView().showStatus('Loading…');
   },
   async prepareStart(options, { signal }) {
     const shell = this.getView();
@@ -362,9 +375,16 @@ export const WorkspaceApplication = Application.extend({
         this.getOption('loadAccount')({ signal }), this.getOption('loadSettings')({ signal })
       ]);
       if (signal.aborted) { return; }
-      const started = await this.getChildApp('content').start({
-        region: shell.getRegion('content'), account, settings
-      });
+      const child = this.getChildApp('content');
+      const region = shell.getRegion('content');
+      if (child.isRunning() && child.getRegion() !== region) {
+        const stopped = await child.stop();
+        if (signal.aborted) { return; }
+        if (!stopped) { throw new Error('Required child stop was superseded'); }
+      }
+      const started = child.isRunning()
+        ? await child.restart({ account, settings })
+        : await child.start({ region, account, settings });
       if (signal.aborted) { return; }
       if (!started) { throw new Error('Required child startup was superseded'); }
     } catch (error) {
@@ -380,7 +400,8 @@ export const WorkspaceApplication = Application.extend({
 Construct `new WorkspaceApplication({ region: { el }, child, loadAccount, loadSettings })`.
 Await `workspace.start()` at the entry point and handle its rejection there;
 readiness failure still rejects. The mounted error shell remains available
-until retry or teardown. The next start replaces it. `Promise.all` waits for
+until retry or teardown. Retry reuses the mounted shell. A running restart retains
+the shell and re-prepares the child in its existing Region. `Promise.all` waits for
 both loaders; returning an array would not wait for its entries. It does not
 cancel the other loader when one rejects. Loaders here return values without
 committing UI. Child startup is explicit and awaited; registering it alone does
@@ -788,9 +809,9 @@ detached View remains with the Region or caller that now owns it. Destroying the
 Application also destroys a Region it constructed, including whatever that
 Region currently displays, but never destroys a borrowed Region or an unrelated
 View in it. For a Region constructed by the Application, a directly shown View
-is also cleared by stop or restart; unmanaged HTML remains when there is no
-current View. Restart cleans up the Application's preparation and display before
-`onStart` builds a new root. Detaching a View through the host transfers it to
+is also cleared by stop; unmanaged HTML remains when there is no
+current View. Restart retains preparation and display until application code
+explicitly replaces them. Detaching a View through the host transfers it to
 the caller; the Application does not keep ownership of that detached View.
 
 Borrowing does not reserve a Region exclusively. Applications borrowing the same
@@ -847,7 +868,7 @@ Prepare a supported View instance without rendering or displaying it. Returns th
 supplied View synchronously. A Region is not required for preparation. The
 Application owns the pending View until display, replacement, or cleanup.
 
-Preparing the same pending View again is a no-op. A different View destroys the
+Preparing the same pending View again preserves it. A different View destroys the
 previous pending View and its children, leaving the host's displayed View alone.
 Passing the Application's own displayed View cancels and destroys a pending
 replacement without changing Region ownership or display.
@@ -878,7 +899,7 @@ needed. To pass options, use `showView(undefined, options)`.
 Without preparation, `showView()` re-shows the Application's selected displayed
 View, or returns `undefined` when no View is selected. A View shown directly by
 the Region is not adopted or claimed by this call. Otherwise it returns the View
-synchronously. Calling it for the already displayed root is a no-op; supplied
+synchronously. Calling it for the already displayed root does not render or attach it again; supplied
 options are ignored and the View is not rendered or attached again.
 
 When no separate composition step is needed, `showView(view, options)` performs
@@ -902,3 +923,4 @@ synchronous query; it does not render or attach a View. Direct Region display is
 not adopted or claimable; prepare the View with `setView()` before displaying it
 through the Application. Read `getRegion().currentView` when you need the host's
 current display regardless of which owner selected it.
+

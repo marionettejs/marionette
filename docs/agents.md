@@ -150,7 +150,20 @@ arbitrary write made by application code. Follow the complete
 
 Keep an Application's active lifetime separate from each data request. If list
 results share a shell with an editor, refresh the list's collection and cancel
-superseded requests; restarting the parent destroys both UI trees. See the [complete feed example](./application-composition.md#a-complete-paginated-feature).
+superseded requests; stopping the parent destroys both UI trees; restart retains them. See the [complete feed example](./application-composition.md#a-complete-paginated-feature).
+
+Use `start()` to ensure activation without reloading an active feature. Use
+`restart(options)` to rerun preparation with the latest input, keeping active UI
+and children. In `onBeforeStart`, `isRunning()` distinguishes retained preparation
+from setup of a stopped feature. Every restart emits `before:start`; superseded
+preparation does not emit `start`. Return request data from `prepareStart` and
+commit it in `onStart`. Construct the layout only when `getView()` is absent;
+otherwise update the existing presentation. The complete retained-preparation
+recipe shows this pattern with native collection operations.
+
+For complete teardown and reconstruction, check `await app.stop()` before
+calling `app.start(options)`. Independent saves and pagination retain their own
+operation policies. See [retained preparation](./application-refresh.md).
 
 ## Completion evidence
 

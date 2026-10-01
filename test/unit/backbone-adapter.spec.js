@@ -155,11 +155,11 @@ describe('Backbone adapter', function() {
     expect(handler.mock.contexts).toEqual([app]);
     await app.restart();
     expect(app.getState()).toBe(state);
-    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler).toHaveBeenCalledTimes(2);
     expect(observer).toHaveBeenCalledTimes(3);
     await app.destroy();
     state.set('responseId', 'after');
-    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler).toHaveBeenCalledTimes(2);
     expect(observer).toHaveBeenCalledTimes(4);
     state.off();
   });

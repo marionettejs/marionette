@@ -1,4 +1,4 @@
-import { Application, type ApplicationInstance, type ApplicationStartOptions, type LifecycleContext } from 'marionette';
+import { Application, type ApplicationInstance, type ApplicationStartOptions, type ApplicationRestartOptions, type LifecycleContext } from 'marionette';
 import { View } from 'marionette';
 import { Region, type RegionInstance } from 'marionette';
 import type {SupportedView} from 'marionette';
@@ -71,6 +71,7 @@ async function lifecycle() {
   const dynamicRegionStart: ApplicationStartOptions = { region: borrowedRegion, source: 'dynamic-region' };
   const dynamicRegionStarted: Promise<boolean> = root.start(dynamicRegionStart);
   root.start({region: borrowedRegion, source: 'direct'});
+  // @ts-expect-error Only start accepts a Region.
   root.restart({region: borrowedRegion, source: 'direct'});
   // @ts-expect-error A startup Region must be a Region instance.
   root.start({region: 42});
@@ -211,3 +212,9 @@ class NativeMethodDeclaredParent extends Application {
   // @ts-expect-error Native methods cannot override the declared childApps property; use a getter.
   childApps() { return { editor: StaticChild }; }
 }
+
+const restartOptions: ApplicationRestartOptions = { filter: 'latest' };
+void applicationInstance.restart(restartOptions);
+// @ts-expect-error restart cannot select a Region
+void applicationInstance.restart({ region: new Region({ el: '#other' }) });
+

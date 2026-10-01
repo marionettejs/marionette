@@ -25,9 +25,9 @@ Read [Synchronous failures](./view.lifecycle.md#synchronous-failures).
 
 ### Application start, stop, restart, and destroy
 
-- **Results:** Operations resolve true at the requested target, false when superseded, and compatible calls share in-flight promises. Current readiness failure rejects the operation promise.
+- **Results:** Operations resolve true at the requested target and false when superseded. Current preparation failure rejects. Each restart supersedes older preparation using the latest options and result.
 
-- **Timing:** Before and completion notifications are synchronous and ignore returns. Only prepareStart/prepareStop/prepareDestroy are awaited with options and an abort context; start completion receives one resolved preparation result. Supersession aborts before replacement preparation; adopted stop retains its original context/options without abort. Startup Region binding occurs before startup notifications, after any adopted stop readiness finishes. isRunning and configured stateEvents follow activation: false during startup preparation, true immediately before start notification through pending ordinary stop/restart permission, and false before root teardown or immediately when terminal destruction begins. Suppressed state events are not replayed.
+- **Timing:** Before and completion notifications are synchronous and ignore returns. Only prepareStart/prepareStop/prepareDestroy are awaited with options and an abort context; start completion receives one resolved preparation result. Supersession aborts before replacement preparation; adopted explicit stop retains original context/options without abort. Initial startup is inactive; retained restart stays active with stateEvents delivering. Stop deactivates before root teardown and destroy deactivates immediately. Suppressed state events are not replayed.
 
 - **Cleanup:** Destruction blocks owner and descendant start/restart; successful destruction destroys owned children. Readiness rejection preserves the documented retry and partial-child boundaries. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.
 
@@ -37,7 +37,7 @@ Read [Application Lifecycle](./marionette.application.md#application-lifecycle).
 
 - **Results:** Construction, addChildApp, setView and showView(view) return their public instance; showView() returns the prepared or selected displayed View, or undefined; repeated showView() on the selected displayed root is a no-op; removeChildApp returns a Promise of the removed child or undefined; queries return the declared state or optional owner member.
 
-- **Timing:** Construction, registration, root preparation/display and queries are synchronous; removeChildApp awaits child destruction before releasing ownership. childApps resolves a map or function once and registers fresh no-argument children before initialize; declarations do not activate children. Parent restart retains registered instances without reconstructing or automatically reactivating them; start selected children explicitly.
+- **Timing:** Construction, registration, root preparation/display and queries are synchronous; removeChildApp awaits child destruction before releasing ownership. childApps resolves a map or function once and registers fresh no-argument children before initialize; declarations do not activate children. Parent restart retains registered instances without reconstructing them or deactivating active children; start selected children explicitly.
 
 - **Cleanup:** Stop destroys a prepared View and empties the host only when its selected displayed View is still current, or when a directly shown View occupies an Application-created Region. Destroy also tears down owned children and a constructed root Region; it preserves unrelated content in a borrowed Region. Direct destruction releases preparation; displayed View associations end on Region replacement, empty, or detachment.
 

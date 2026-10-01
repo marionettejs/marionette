@@ -163,7 +163,7 @@ describe('Application prepared root View', () => {
     expect(app.getRegion().currentView).toBe(replacement);
   });
 
-  for (const operation of ['stop', 'restart', 'destroy']) {
+  for (const operation of ['stop', 'destroy']) {
     for (const running of [false, true]) {
       it(`${operation} destroys a never-displayed root while ${running ? 'running' : 'stopped'}`, async() => {
         const app = application();
@@ -180,7 +180,7 @@ describe('Application prepared root View', () => {
     }
   }
 
-  for (const operation of ['stop', 'restart', 'destroy']) {
+  for (const operation of ['stop', 'destroy']) {
     it(`${operation} destroys both a prepared replacement and the displayed root`, async() => {
       const app = application();
       await app.start();

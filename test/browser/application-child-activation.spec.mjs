@@ -23,8 +23,9 @@ test('Application optional children activate explicitly and stop beneath a stopp
     await page.getByLabel('Draft').focus();
     await expect(page.getByLabel('Draft')).toBeFocused();
     await page.evaluate(() => window.childExample.owner.restart());
-    await expect(page.locator('#content')).toBeEmpty();
-    assert.equal(await page.evaluate(() => window.childExample.child.isRunning()), false);
+    await expect(page.getByLabel('Draft')).toBeFocused();
+    await expect(page.getByLabel('Draft')).toHaveValue('Unsaved draft');
+    assert.equal(await page.evaluate(() => window.childExample.child.isRunning()), true);
     await page.evaluate(() => window.childExample.owner.stop());
     await page.evaluate(() => window.childExample.child.start());
     await expect(page.getByLabel('Draft')).toBeVisible();

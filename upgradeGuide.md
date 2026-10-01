@@ -51,7 +51,7 @@ when its selected root is still current. A View that another Application has
 displayed remains with that Application. Detaching through `region.detachView()`
 transfers the View to the caller, so a later stop does not destroy it. An
 Application-created Region is still destroyed with the Application, including
-its current contents; stopping or restarting it also clears a directly shown
+its current contents; stopping it also clears a directly shown
 View while preserving unmanaged HTML. Borrowed Regions remain available to their
 external owner. Repeating `showView()` for an already displayed root is a no-op
 and ignores its options.
@@ -582,7 +582,7 @@ returns `false` while an ancestor is stopping or terminal. See
 ## Bind reusable child Applications to a new parent Region
 
 An Application can receive its host at startup, which lets a registered child
-follow a parent layout that is recreated on restart:
+follow a parent layout that is recreated after stop/start:
 
 ```javascript
 import { Application, View } from 'marionette';
@@ -607,22 +607,21 @@ const Parent = Application.extend({
 });
 const parent = new Parent({ region: '#app' });
 await parent.start();
-await parent.restart(); // Same child Application, new layout and content Region.
+if (await parent.stop()) await parent.start(); // Same child, new layout and Region.
 await parent.destroy();
 ```
 
 `start({ region })` binds before `before:start` and `prepareStart`, while the
 original options object remains available to those hooks. Region instances are
-borrowed. Start and restart accept only existing Region instances. Constructor
+borrowed. Only start accepts a Region instance. Constructor
 options still support creating an Application-owned Region from a selector,
 Region class, or definition object. Startup leaves that constructor configuration
 unchanged; use `getRegion()` to read the active host.
 Missing or `undefined` `region` retains the current host. A running or starting
 Application rejects a different host passed to `start()` with `MN0041`; stop the
-child before rebinding it, or use `restart({ region })`. Restart waits for its
-stop phase before changing hosts, and a failed stop leaves the old host in place.
-A newer restart with a different host supersedes an unfinished start or restart;
-the superseded operation resolves `false`.
+child before rebinding it. Restart retains the existing host and does not accept
+`region`. It supersedes unfinished preparation with the newest input, without a
+stop phase.
 
 The `region` option is now reserved. Rename domain options such as
 `start({ region: 'us-east-1' })` to `start({ regionCode: 'us-east-1' })` and update
@@ -646,7 +645,7 @@ Return startup data from `prepareStart` and receive it as the third argument of
 spread or stored by Marionette. `start()` still resolves `Promise<boolean>`.
 Stop and destroy preparation return values are awaited but otherwise ignored.
 An already-stopped owner skips its own `prepareStop` and stop notifications, even
-when stop, restart, or destroy must still stop its active descendants.
+when stop or destroy must still stop its active descendants.
 Update cancellation work to use the preparation method's context, not a
 notification argument. Existing synchronous cleanup in `onBeforeDestroy` stays there.
 
@@ -657,14 +656,14 @@ See [Application preparation](docs/marionette.application.md#preparation-methods
 ## Application state events follow the active run
 
 Application `stateEvents` no longer invoke handlers during startup preparation
-(including the startup phase of a restart), or while stopped. Seed state normally
+for a stopped Application, or while stopped. Retained restart keeps delivery active. Seed state normally
 before startup and read the current source in `onStart` for initial display. Remove per-handler
 `isRunning()` guards used only to enforce this boundary; suppressed events are
 not replayed. State identity and subscriptions persist across stop/restart.
 
 `isRunning()` now remains true while an active run awaits stop permission or
-owned-child stopping, including a restart's stop phase. It becomes false before
-root teardown and during the new startup preparation, or immediately when
+owned-child stopping and retained restart preparation. It becomes false before
+root teardown and during initial startup preparation, or immediately when
 destruction begins.
 Rejected/canceled stop preserves activation. Use explicit listeners with owned
 cleanup if a feature deliberately needs loading-time or object-lifetime reactions.
@@ -687,10 +686,20 @@ API is unchanged. This change does not introduce batching or deferred delivery.
 
 ## Restart requests from completion callbacks
 
-A compatible `restart()` still coalesces during stop/start preparation and retains
-the original operation's options. Once startup commits, before `onStart` and the
-`start` event, another `restart()` begins a new cycle with its own Promise/options.
-The previous cycle has completed successfully; cancellation or failure of the next
-cycle does not change that result. Do not restart unconditionally from every
-start notification. Completion callbacks remain synchronous notifications whose
-returned Promises Marionette does not await.
+Every restart supersedes older preparation and uses its own options and result.
+Once startup commits, before `onStart` and the `start` event, another `restart()`
+begins a new cycle. Failure or cancellation of that cycle does not change the
+completed cycle's success. Do not restart unconditionally from every start
+notification. Completion callbacks remain synchronous and are not awaited.
+
+## Retained restart and root View declarations
+
+Restart now reruns preparation while retaining presentation and active children.
+It never calls stop hooks unless adopting a stop explicitly begun by the caller.
+Audit hooks that recreate layouts, reset form state, reconnect sockets, or rely on
+`onStop` cleanup: use explicit stop followed by start for full reset. Otherwise,
+initialize only when needed and consume the current preparation result in `onStart`.
+A preparation failure rejects while the previous active UI stays usable. There is
+no rollback of side effects performed by user code. Independent saves and pagination
+still need their own operation policy.
+

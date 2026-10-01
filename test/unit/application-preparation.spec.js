@@ -108,7 +108,7 @@ describe('Application preparation', () => {
     });
   }
 
-  for (const replacementKind of ['restart', 'destroy']) {
+  for (const replacementKind of ['destroy']) {
     it(`starts a fresh stop phase when a before:stop listener requests ${replacementKind}`, async() => {
       const prepareStop = vi.fn();
       const beforeStop = vi.fn();
@@ -130,6 +130,21 @@ describe('Application preparation', () => {
       expect(app.isDestroyed()).toBe(replacementKind === 'destroy');
     });
   }
+
+  it('retains the run when before:stop requests restart before stop preparation begins', async() => {
+    const prepareStop = vi.fn();
+    const beforeStop = vi.fn();
+    const app = application({ prepareStop });
+    await app.start();
+    let replacement;
+    app.on('before:stop', beforeStop);
+    app.once('before:stop', () => { replacement = app.restart(); });
+    expect(await app.stop()).toBe(false);
+    expect(await replacement).toBe(true);
+    expect(prepareStop).not.toHaveBeenCalled();
+    expect(beforeStop).toHaveBeenCalledTimes(1);
+    expect(app.isRunning()).toBe(true);
+  });
 
   it('does not begin stop preparation after its notification starts a replacement operation', async() => {
     const prepareStop = vi.fn();

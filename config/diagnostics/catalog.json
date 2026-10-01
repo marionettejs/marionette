@@ -712,7 +712,7 @@
       "objects": [
         "Application"
       ],
-      "remediation": "Stop the Application before binding a different Region, or reuse the current Region while it is running or starting.",
+      "remediation": "Only start can select a Region. Stop the Application before binding a different Region with start; restart retains its current host.",
       "docsAnchor": "/errors/MN0041/",
       "surfaces": [
         "runtime"

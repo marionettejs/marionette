@@ -38,7 +38,7 @@ describe('Application child declarations', () => {
     await expect(child.start()).resolves.toBe(true);
     await expect(app.restart()).resolves.toBe(true);
     expect(app.getChildApp('editor')).toBe(child);
-    expect(child.isRunning()).toBe(false);
+    expect(child.isRunning()).toBe(true);
     await expect(child.start()).resolves.toBe(true);
     await expect(app.stop()).resolves.toBe(true);
     expect(child.isRunning()).toBe(false);

@@ -89,7 +89,7 @@ function target(model, method) {
     model.children.clear();
   } else {
     model.running = method !== 'stop';
-    if (method !== 'start') {
+    if (method === 'stop') {
       for (const name of model.children.keys()) { model.children.set(name, false); }
     }
   }
@@ -130,7 +130,7 @@ const commands = [
       expect(app.isRunning()).toBe(false);
       const winner = app[replacement]({ request: 'replacement' });
       expect(gate.context.signal.aborted).toBe(true);
-      expect(real.trace.indexOf('owner:abort:start')).toBeLessThan(real.trace.indexOf('owner:before:stop'));
+      if (replacement !== 'restart') { expect(real.trace.indexOf('owner:abort:start')).toBeLessThan(real.trace.indexOf('owner:before:stop')); }
       expect(await settled(first)).toBe(false);
       const release = () => rejectLate ? gate.reject(new Error('obsolete loader')) : gate.resolve();
       if (lateFirst) { release(); }
@@ -155,7 +155,7 @@ const commands = [
     await until(() => gate.entered);
     const context = gate.context;
     const winner = app[replacement]({ request: 'replacement' });
-    expect(app[replacement]()).toBe(winner);
+    if (replacement !== 'restart') { expect(app[replacement]()).toBe(winner); }
     expect(await settled(first)).toBe(false);
     expect(gate.options).toBe(options);
     expect(context.signal.aborted).toBe(false);
@@ -166,6 +166,7 @@ const commands = [
     expect(gate.context).toBe(context);
     expect(real.trace).not.toContain('owner:abort:stop');
     expect(real.trace.filter(event => event === 'owner:stop')).toHaveLength(replacement === 'start' ? 0 : 1);
+    if (replacement !== 'start') { target(model, 'stop'); }
     target(model, replacement);
   })),
   fc.tuple(fc.constantFrom('a', 'b', 'c'), method).map(([name, operation]) => command('childTransition', [name, operation],
