@@ -1,0 +1,186 @@
+test/browser/application-child-activation.spec.mjs
+  s_2f2b5093b51639::t_22be886bf7dcca 26-28
+test/browser/application-restart-completion.spec.mjs
+  s_2f2b5093b51639::t_f129c1f8f0fddb 4,36
+test/unit/application-start-region.spec.js
+  s_2f2b5093b51639::t_19b2f4e724a7ba 64-65,211-224,245,250-251,257-261,266,317,320
+docs/marionette.state.md
+  s_2f2b5093b51639::t_4b4428b778dd06 170-171
+test/unit/application-child-lifecycle.spec.js
+  s_2f2b5093b51639::t_6afa5a48e1c70c 31,79,162,195-196,198,330
+  s_15ef02ef10478f::t_d2b9ed24d5f961 90,368
+test/unit/model-based/application.spec.js
+  s_2f2b5093b51639::t_fca422117fa02d 92,133,158,169
+docs/compact-reference.md
+  s_2f2b5093b51639::t_0dda50df10b57a 16,28,30,40
+test/browser/application-refresh.spec.mjs
+  s_2f2b5093b51639::t_8376b3116f845a 41,48
+test/browser/application-start-region.spec.mjs
+  s_2f2b5093b51639::t_e4002b1870807a 4,42-43,98,132-133,139-140
+test/unit/backbone-adapter.spec.js
+  s_2f2b5093b51639::t_94685b6842003c 158,162
+test/unit/application-lifecycle.spec.js
+  s_2f2b5093b51639::t_34f9bc190a645d 41,398,412,417,430-431,584
+ROADMAP.md
+  s_2f2b5093b51639::t_bd1f7ddfb048fc 286,309-310
+docs/application-refresh.md
+  s_2f2b5093b51639::t_14afa94027e414 1,3-7,9-11,152-153,157,183-185,187-199,201,206,218-228
+test/unit/application-preparation.spec.js
+  s_2f2b5093b51639::t_ba4d0afa564410 111
+  s_930f3c9a37745c::t_98fc5ed416a1ce 134-148
+test/unit/application-state-events.spec.js
+  s_2f2b5093b51639::t_b405498265182b 90-91,103,139,209,225-228,258
+test/types/application.cts
+  s_0b2518106a33a7::t_882d70eaba6043 78,82
+  s_2f2b5093b51639::t_00312fcfd85b75 1,74,194-204
+src/modules/application.ts
+  s_0b2518106a33a7::t_ec9d3974563550 826,834-846
+  s_2f2b5093b51639::t_81ebb3dd54d0f4 4,36,45-49,61,75,124,164,180-181,238,250-251,254,536-538,544,555,638-639,684,689,693-698,700
+  s_930f3c9a37745c::t_20f08b7b94ac59 847
+test/unit/application-retained-restart.spec.js
+  s_2f2b5093b51639::t_f2f536dbcbf091 1-309
+benchmarks/agent/tasks/borrowed-workspace-state/acceptance/acceptance.test.mjs
+  s_930f3c9a37745c::t_f12dceef4fc620 71-74,78-79,85,94
+test/fixtures/docs-application-guides/completion.mjs
+  s_267e7a791356aa::t_0f9961da2865c0 183-189,218-221
+  s_930f3c9a37745c::t_a9b4cbf140abfd 217
+  s_930f3c9a37745c::t_9a0d081486b192 175-176,222,224-236
+benchmarks/agent/tasks/owned-workspace-state/prompt.md
+  s_930f3c9a37745c::t_be06c72ab89ef2 3,15-16,20-23
+docs/agents.md
+  s_2f2b5093b51639::t_ecb2b90928a5b6 153-166
+config/diagnostics/catalog.json
+  s_2f2b5093b51639::t_747046611c2593 715
+test/types/application.mts
+  s_2f2b5093b51639::t_c1d8e112b9b8fc 1,74,215-225
+benchmarks/agent/tasks/owned-workspace-state/acceptance/acceptance.test.mjs
+  s_930f3c9a37745c::t_5eae24c1a68785 86-90,93-96,100-114
+benchmarks/agent/tasks/borrowed-workspace-state/reference/solution.mjs
+  s_930f3c9a37745c::t_f8dc7c0eb47b43 40
+test/unit/application-child-declarations.spec.js
+  s_2f2b5093b51639::t_03a4981f1ae6cb 41
+benchmarks/agent/tasks/owned-workspace-state/reference/solution.mjs
+  s_930f3c9a37745c::t_4300592fe8101b 46
+benchmarks/agent/tasks/borrowed-workspace-state/prompt.md
+  s_930f3c9a37745c::t_8aa6e5b446fcd6 15-16,20-23
+test/fixtures/docs-routing/refresh.mjs
+  s_2f2b5093b51639::t_30a4dee1f32e30 25,156-157
+upgradeGuide.md
+  s_2f2b5093b51639::t_262c06be3d916a 54,585,610,616,622-624,648,659,665-666,689-710
+src/index.ts
+  s_2f2b5093b51639::t_46e094cc86f567 53
+test/unit/application-view-events.spec.js
+  s_2f2b5093b51639::t_861e9b2764e5d2 1-233
+test/unit/application-prepared-view.spec.js
+  s_2f2b5093b51639::t_800a7865be7b22 166,183
+docs/marionette.application.md
+  s_2f2b5093b51639::t_d0ecb3d426c2d9 81-88,103,105,144,193-209,221,238-239,242-243,270-276,812-814,926-949
+  s_bae3f20545810f::t_56ab1dc50427cf 368-369,378-387
+  s_a602915b6dbd3b::t_d8e6deaf1fe97c 403-404
+  s_0b2518106a33a7::t_361964c1f8ff61 902
+  s_63ae9922a9af57::t_722728ee6328c0 871
+test/unit/application-root-view.spec.js
+  s_2f2b5093b51639::t_431a410b085c18 73,80-81,344,356
+config/api-contracts/semantics.json
+  s_2f2b5093b51639::t_7ff1b80db43ad0 1551-1552,1555,1642-1649,2442-2443,2510-2517
+  s_0b2518106a33a7::t_2ea598c85e282f 2445
+config/api-contracts/inventory.json
+  s_2f2b5093b51639::t_bb0335f718fed5 4,100,112-113,400,412-413,617-631,8080,8091,8112,8121,8126,8139-8141,8143-8150,8175
+test/browser/application-retained-restart.spec.mjs
+  s_2f2b5093b51639::t_5e13533d9bdc07 1-85
+config/release-validation.json
+  s_0b2518106a33a7::t_d0453936b22cd1 230
+  s_0b2518106a33a7::t_b346c164289364 226
+  s_9ac4d9a4112f3d::t_9a5e7a131138de 242
+  s_930f3c9a37745c::t_a270c4d14c363e 255-258
+test/browser/application-state-events.spec.mjs
+  s_2f2b5093b51639::t_d1983fe3f34be7 101
+docs/application-effects.md
+  s_15ef02ef10478f::t_f59c53f0e9e825 276
+  s_2f2b5093b51639::t_b0db1e5179bb43 13,278-279
+  s_15ef02ef10478f::t_60b30e8df28805 277
+  s_267e7a791356aa::t_c9dc942b9adf92 96-97
+  s_930f3c9a37745c::t_22e7e8462ae828 95
+test/unit/application-restart-completion.spec.js
+  s_2f2b5093b51639::t_a4c1aee73f4feb 54,87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "2cbcf82093ac5c9ac6d73e349fbdabca7fc4d1ac",
+  "prompts": {},
+  "sessions": {
+    "s_0b2518106a33a7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b78c-30de-7fc1-8943-96b2fce3589f",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_15ef02ef10478f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a021-e188-7d30-b992-73ccc4ae5f18",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_267e7a791356aa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08689-8981-7cf3-a3c5-0ee0a88b599c",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_2f2b5093b51639": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0f523-b820-7bb0-96c7-109209dc414d",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_63ae9922a9af57": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09f4a-44db-7561-b88b-8d4385a51aae",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_9ac4d9a4112f3d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c2af-dd78-7880-ab85-5f5ec704af20",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_a602915b6dbd3b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c924-d791-7fe3-b2b7-2e3fcdcff4a5",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_bae3f20545810f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0dc4c-e2a2-7602-ad97-5ee963c9a2cb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
