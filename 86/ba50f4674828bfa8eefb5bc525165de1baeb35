@@ -1,0 +1,105 @@
+ROADMAP.md
+  s_930f3c9a37745c::t_08cdaad5171f28 294-296,298,779,781-782,786-787,792-794,796,798-800
+benchmarks/agent/evaluator.json
+  s_930f3c9a37745c::t_2693895c6267ce 49,53
+benchmarks/agent/tasks/composed-lifecycle-repair/README.md
+  s_930f3c9a37745c::t_3cf8621e7b8a10 13,20,27-28
+benchmarks/agent/tasks/composed-lifecycle-repair/acceptance/acceptance.test.mjs
+  s_930f3c9a37745c::t_1f71aced23cc58 62,68,175,182-183,251,254,282
+benchmarks/agent/tasks/composed-lifecycle-repair/prompt.md
+  s_930f3c9a37745c::t_c0f0512014b30f 9,24,32-33
+benchmarks/agent/tasks/composed-lifecycle-repair/reference/solution.mjs
+  s_930f3c9a37745c::t_e4abddb8c77936 3
+benchmarks/agent/tasks/composed-lifecycle-repair/workspace/solution.mjs
+  s_930f3c9a37745c::t_8c51e3349f2b2d 3
+changelog.md
+  s_930f3c9a37745c::t_ce47e74cc8205a 5-11
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_0a9b84d38fcac9 4,106,401,7904,8081,8109,8111,8116,8121,8129-8131,8133,8135-8138,8165
+config/api-contracts/semantics.json
+  s_930f3c9a37745c::t_2a7b9a7eb7f9ac 1551-1552,1555,1638-1649,1663,1685
+config/release-validation.json
+  s_930f3c9a37745c::t_dad7e9a2a96666 214,234
+docs/agents.md
+  s_930f3c9a37745c::t_2451061123a616 49,164
+docs/application-composition.md
+  s_930f3c9a37745c::t_e5d454ea579434 27,128,194
+docs/application-effects.md
+  s_930f3c9a37745c::t_7ce8d9aaca8060 12-13,102-103,165-166,216,220,226,257,303-305,331,338-339,342,350-351,365
+docs/application-refresh.md
+  s_930f3c9a37745c::t_51cb710fc34fe2 143-144,148,199,203,216-218,235
+docs/beta.md
+  s_930f3c9a37745c::t_ca142c50a9f54d 24
+docs/compact-reference.md
+  s_930f3c9a37745c::t_10ad202a5d47e2 28,30
+docs/events.class.md
+  s_930f3c9a37745c::t_774151a7877ab2 74-75
+docs/marionette.application.md
+  s_930f3c9a37745c::t_84d0d5d0d4b971 35,75-89,92-106,110-121,129,131,136,142,147,152,167-168,170,175,191-193,201,212,215-216,228-229,248,663-664,675-677,692
+docs/marionette.state.md
+  s_930f3c9a37745c::t_640cb043dc9a96 170
+docs/migration-from-v4.md
+  s_930f3c9a37745c::t_1c2da8788b53be 87
+docs/readme.md
+  s_930f3c9a37745c::t_c61e8ed0894e4c 62
+docs/routing.md
+  s_930f3c9a37745c::t_0d0f3bd6c2cf89 101,121-122,127-129
+docs/task-recipes.md
+  s_930f3c9a37745c::t_037ecfb9118e79 225
+docs/terminology.md
+  s_930f3c9a37745c::t_d0c1d2c0c7433d 77
+docs/typescript.md
+  s_930f3c9a37745c::t_46e45bc0674630 121-122
+src/modules/application.ts
+  s_930f3c9a37745c::t_b62456aef24302 74,124,144-148,152,211,218,247,308,310-312,364,370,388,397,444,452-453,490,507-510,512-520,553-554,556-557,559,566-577,586,588-589,596-598,602,604,609
+test/agent-benchmark/composed-lifecycle-controls.mjs
+  s_930f3c9a37745c::t_09cc76814eaae0 27,41,52,55,57
+test/browser/application-effects.spec.mjs
+  s_930f3c9a37745c::t_79b5ff47c7d365 9,21,27,39
+test/browser/application-refresh.spec.mjs
+  s_930f3c9a37745c::t_1f1035d3c6e74d 30,41
+test/browser/application-state-events.spec.mjs
+  s_930f3c9a37745c::t_4dc97aba0181b0 4,32,44,56,59
+test/fixtures/data-package-starter/workspace.ts
+  s_930f3c9a37745c::t_fc7b808a824927 35
+test/fixtures/docs-application-guides/effects.mjs
+  s_930f3c9a37745c::t_d13a01cf8c8ec0 132-152
+test/fixtures/docs-routing/refresh.mjs
+  s_930f3c9a37745c::t_732aa54d2af6eb 13,17
+test/fixtures/docs-routing/validate.mjs
+  s_930f3c9a37745c::t_0ddbd99bd639db 101,103
+test/types/application.cts
+  s_930f3c9a37745c::t_cfeddb83fc60eb 87
+test/types/application.mts
+  s_930f3c9a37745c::t_0a18bbe7a21285 87
+test/unit/application-child-declarations.spec.js
+  s_930f3c9a37745c::t_13a5beef6d6561 43
+test/unit/application-child-lifecycle.spec.js
+  s_930f3c9a37745c::t_227eda59d01229 83
+test/unit/application-root-view.spec.js
+  s_930f3c9a37745c::t_9fdcfd11779d6a 276,295
+test/unit/application-sync-stop.spec.js
+  s_930f3c9a37745c::t_03054acc536ba6 1-215
+test/unit/model-based/README.md
+  s_930f3c9a37745c::t_72ce51dc9c8ee4 8,12,21
+test/unit/model-based/application.spec.js
+  s_930f3c9a37745c::t_541b1053781ec9 24,54
+upgradeGuide.md
+  s_930f3c9a37745c::t_6aeb041fda01b9 634,646-647,664,667,697,710-718
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "86ba50f4674828bfa8eefb5bc525165de1baeb35",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
