@@ -1,7 +1,7 @@
 // Application
 // -----------
 
-import { setProperty, MarionetteError, uniqueId } from '@mnjs/utils';
+import { setProperty, MarionetteError, uniqueId, getValue, normalizeBindings } from '@mnjs/utils';
 import extend from '../utils/extend.ts';
 import CommonMixin from '../mixins/common.ts';
 import DestroyMixin from '../mixins/destroy.ts';
@@ -33,6 +33,7 @@ export interface ApplicationOptions {
   radioRequests?: Bindings | (() => Bindings);
   region?: RegionDefinition;
   regionClass?: RegionClass;
+  viewEvents?: Bindings | (() => Bindings);
   stateEvents?: Bindings | (() => Bindings);
   state?: unknown;
 }
@@ -57,6 +58,7 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   radioRequests?: ApplicationOptions['radioRequests'];
   region?: RegionDefinition;
   regionClass: RegionClass;
+  viewEvents?: ApplicationOptions['viewEvents'];
   stateEvents?: ApplicationOptions['stateEvents'];
   state?: unknown;
   State: Partial<StateApi<never>>;
@@ -159,6 +161,7 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _ownedRegion?: RegionInstance;
   _preparedView?: SupportedView;
   _displayedView?: SupportedView;
+  _viewEventViews?: WeakSet<SupportedView>;
   _isDestroyed: boolean;
   _initRegion(): void;
   _initRadio(): void;
@@ -174,7 +177,8 @@ const ClassOptions = [
   'radioRequests',
   'region',
   'regionClass',
-  'stateEvents'
+  'stateEvents',
+  'viewEvents'
 ];
 
 const DESTROYED = 'destroyed';
@@ -811,7 +815,6 @@ export default /* @__PURE__ */ ((methods: object) => {
 
   setView(this: ApplicationInternals, view: SupportedView) {
     if (isTerminal(this)) { return view; }
-    if (view === this._preparedView) { return view; }
 
     if (view._isDestroyed) {
       throw new MarionetteError({
@@ -820,7 +823,7 @@ export default /* @__PURE__ */ ((methods: object) => {
         message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`
       });
     }
-    if (view._parent && view !== this._displayedView) {
+    if (view._parent && view !== this._preparedView && view !== this._displayedView) {
       throw new MarionetteError({
         code: 'MN0003',
         name: 'ApplicationError',
@@ -828,12 +831,20 @@ export default /* @__PURE__ */ ((methods: object) => {
       });
     }
 
-    releasePreparedView(this)?.destroy();
-    if (view === this._displayedView) { return view; }
-
-    this._preparedView = view;
-    view._parent = this;
-    view.on('destroy', onPreparedViewDestroyed, this);
+    const declaration = this._viewEventViews?.has(view) ? undefined : getValue(this, 'viewEvents') as Bindings | undefined;
+    const bindings = declaration && normalizeBindings(this, declaration);
+    if (view !== this._preparedView) {
+      releasePreparedView(this)?.destroy();
+      if (view !== this._displayedView) {
+        this._preparedView = view;
+        view._parent = this;
+        view.on('destroy', onPreparedViewDestroyed, this);
+      }
+    }
+    if (bindings) {
+      this.listenTo(view, bindings);
+      (this._viewEventViews || (this._viewEventViews = new WeakSet())).add(view);
+    }
     return view;
   },
 

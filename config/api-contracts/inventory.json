@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "c8ee6123354ca94cca46e39b8a7b40cbb0c2f0369727b3fbdf59bae3ee4264b3",
+  "semanticsSha256": "0d7480b025dc40c869b576e0b8e4736603994ed3afccd76259ffd56610881468",
   "entrypoints": [
     {
       "name": "marionette",
@@ -109,7 +109,8 @@
             "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
-            "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
+            "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "viewEvents": "?object | (() => object) | undefined"
           },
           "callableInstanceMembers": [
             "addChildApp",
@@ -408,7 +409,8 @@
             "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
-            "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
+            "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "viewEvents": "?object | (() => object) | undefined"
           },
           "callableMembers": [
             "addChildApp",
@@ -612,7 +614,8 @@
             "region": "?RegionDefinition | undefined",
             "regionClass": "?RegionClass | undefined",
             "state": "?unknown",
-            "stateEvents": "?object | (() => object) | undefined"
+            "stateEvents": "?object | (() => object) | undefined",
+            "viewEvents": "?object | (() => object) | undefined"
           },
           "callableMembers": [],
           "operationContracts": {}
@@ -8085,7 +8088,7 @@
     "src/mixins/ui.ts": "5cb417e1456cd17b43357e480102be3fc1b436167c43b853af7d45ab79d35ffd",
     "src/mixins/view-events.ts": "108a31ba7d0f74916848c5b2f85b422afe15703a8e9fa2dbca0b17b6a5ff0fb2",
     "src/mixins/view.ts": "a49fae40c04953cca920441ef0d52e47aa808ed47801b2a0c764920755619c60",
-    "src/modules/application.ts": "e2ccc1794732b03a951d35d5264f2e2382eacaa70e43f90ddfc1341fdf4e832f",
+    "src/modules/application.ts": "eb40afce22552b8621be6e6dade3da9a69f2aaf798c8e9f8a3192d31c20d38be",
     "src/modules/behavior.ts": "475fe0451e629559992bd0f5ec18ad16438309b018bf643b5917dfc47a1693b6",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
     "src/modules/collection-view.ts": "162f2114825d9bf67df0efd3fb7559e57a6dcfa0828f8eb0e71a9203e6a2474a",
@@ -8114,8 +8117,8 @@
     "docs/dom.api.md": "a697a637ae4c6cc92aa5d72850b404763f08e0417800feacc0b431ec073d3916",
     "docs/dom.interactions.md": "3b4ba76757eb871ebb793624104da804b5965e2dd9ebafd95e403c739de94cd1",
     "docs/events.class.md": "faed5ac4f6eca3ec447ae7cd44b6efd8f039e935b38a4c191076d485bd57a35f",
-    "docs/events.md": "ea62d920bf612577b6c0c9307b6160903b3be2b7c89795b80eb9be60c196558c",
-    "docs/marionette.application.md": "ed6a64f54d19074d44a8204adaacd2dc3117e0093179f82d6a48d02db5d5d7ee",
+    "docs/events.md": "9bd0dee676861cc2f9fd64e23a1353644655da14032a9f56c064cbffbc0fef03",
+    "docs/marionette.application.md": "c270967b7ee7726795f94d24ad511b4479ec547044e5830b57b003853a2974ca",
     "docs/marionette.behavior.md": "bf002b5ba380cf1bb1054b98f9813d89b4aef16ba6495d02b823ed178ab3f0c4",
     "docs/marionette.collectionview.md": "5af1ed04daaf0e976fdd0538b0931fd370fd09167079d0c21b01195f8628cefe",
     "docs/marionette.mnobject.md": "9cbb4279648ac23ec6ca492b85be45386718daac345d4bb85e8d208d1bc4bb5d",
@@ -8139,10 +8142,11 @@
     "test/unit/application-ownership.spec.js": "f1e6a74f639bb6ceedd85957c696a45de28e1526ed41df0f34663a23b25bb68f",
     "test/unit/application-preparation.spec.js": "c571098563b9b118d36e01d11d21644488cd973765b06b13c20b704108c2b724",
     "test/unit/application-prepared-view.spec.js": "d9b6c9e54308ed2d6f5006cea272a17dcb1edb1283dd6f989915e2dc3c9eb7ff",
-    "test/unit/application-retained-restart.spec.js": "e9ea117097179d5861c6825a8ff6224e3b0138fcf5d8591670abf9c73489538d",
+    "test/unit/application-retained-restart.spec.js": "2f33bdd84c30b583d32ddf98235ad435a37c8777560a374f2c159779eb3b4dec",
     "test/unit/application-root-view.spec.js": "50de9c00ca3a48084d4a25640fc12fff4bba8dcb620ac191d9b001d297ff57e9",
     "test/unit/application-start-region.spec.js": "041df28c7c360606c25783df763977837bf4517f8e78baefd847d9a1e8a4c438",
     "test/unit/application-state-events.spec.js": "b70386d1f4dc9ff179b43d78a12d016df05884c94c19ce264beb3d711ba66e21",
+    "test/unit/application-view-events.spec.js": "ba87e6376067daa6fe2ce0c1bceb708ec331bf1744a503790fccf0f1cafc1164",
     "test/unit/backbone-adapter.spec.js": "938af63edb26b7e8175f58295a63c9e510a7c0c73d0c3653ff6dec443a8795c7",
     "test/unit/behavior-lifecycle.spec.js": "8c70d05fa530d27eac901291a3487c9cacac1ef1d0c22a3adda917da5774d05a",
     "test/unit/behavior-ui-contract.spec.js": "65def27b40f17e3d931803faeff7c9dbb3c580e14f157fa5d2f8145fb95c1761",

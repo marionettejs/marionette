@@ -28,6 +28,7 @@ describe('retained Application restart', () => {
       state,
       State: StateApi,
       stateEvents: { 'change:filter': 'filterChanged' },
+      viewEvents: { select: 'selected' },
       filterChanged() { interactions.push('state'); },
       selected(value) { interactions.push(value); },
       prepareStart(options, { signal }) {
@@ -37,10 +38,7 @@ describe('retained Application restart', () => {
         return request.promise;
       },
       onStart(owner, options, result) {
-        if (!this.getView()) {
-          const root = this.showView(new View({ template: () => '<input value="initial">' }));
-          this.listenTo(root, { select: this.selected });
-        }
+        if (!this.getView()) { this.showView(new View({ template: () => '<input value="initial">' })); }
         if (options?.filter) { results.push([options.filter, result]); }
       },
       onStop: stops
@@ -86,13 +84,13 @@ describe('retained Application restart', () => {
     const ready = Promise.withResolvers();
     const selected = vi.fn();
     const app = make({
+      viewEvents: { select: selected },
       prepareStart(options) { if (options?.hold) { return ready.promise; } }
     });
     const child = app.addChildApp('child', new Application());
     await app.start();
     await child.start();
     const root = app.showView(new View({ template: () => '<input>' }));
-    app.listenTo(root, { select: selected });
     const input = root.el.querySelector('input');
     input.value = 'edited';
     input.focus();

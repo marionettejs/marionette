@@ -703,3 +703,8 @@ A preparation failure rejects while the previous active UI stays usable. There i
 no rollback of side effects performed by user code. Independent saves and pagination
 still need their own operation policy.
 
+Replace repeated root `listenTo` registration with optional `viewEvents` where
+appropriate. `setView()` binds each selected View once using ordinary `listenTo`
+semantics. Listeners stay active through retained restart and release when the View
+or Application is destroyed. See the
+[Application contract](docs/marionette.application.md#root-view-events).

@@ -197,3 +197,8 @@ void applicationInstance.restart(restartOptions);
 // @ts-expect-error restart cannot select a Region
 void applicationInstance.restart({ region: new Region({ el: '#other' }) });
 
+const DeclaredViewEvents = Application.extend({
+  viewEvents: { selected: 'select' },
+  select(id: string) { this.restart({ id }); }
+});
+new DeclaredViewEvents({ viewEvents: () => ({ ready() {} }) });

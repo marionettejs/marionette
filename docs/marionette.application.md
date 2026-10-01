@@ -924,3 +924,27 @@ not adopted or claimable; prepare the View with `setView()` before displaying it
 through the Application. Read `getRegion().currentView` when you need the host's
 current display regardless of which owner selected it.
 
+## Root View events
+
+Declare `viewEvents` as an event map or a function returning a map. Method names
+and functions run with the Application as `this` and receive unchanged View event
+arguments. Constructor options override the declaration; inherited maps follow the
+usual replacement convention rather than merging. Maps follow the shared
+[entity-event binding rules](./common.md#bindevents).
+
+```javascript
+const ResultsApp = Application.extend({
+  viewEvents: { 'reload:requested': 'reload' },
+  reload(query) {
+    void this.restart({ query }).catch(error => this.triggerMethod('load:error', error));
+  }
+});
+```
+
+`setView()` registers these handlers once per selected View using `listenTo()`;
+`showView(view)` also selects the View. Registration precedes render and attachment.
+Listeners remain active through startup and retained restart, including both roots
+during staged replacement. They use ordinary `listenTo` cleanup when the View or
+Application is destroyed. Detaching a live View preserves its listeners; manual
+`stopListening(view)` removes them. Reselecting the same View does not register
+handlers again. Unrelated content shown directly in the Region is not selected.

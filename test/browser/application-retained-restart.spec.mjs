@@ -11,6 +11,7 @@ test('retained restart keeps loading and failed UI interactive and commits only 
     });
     const Feature = Application.extend({
       region: '#content',
+      viewEvents: { reload: 'reload' },
       reload() {
         this.pending = this.restart({ load: true }).catch(error => {
           this.getView().el.querySelector('output').textContent = error.message;
@@ -24,10 +25,7 @@ test('retained restart keeps loading and failed UI interactive and commits only 
         return request.promise;
       },
       onStart(owner, options, result) {
-        if (!this.getView()) {
-          const root = this.showView(new Root());
-          this.listenTo(root, { reload: this.reload });
-        }
+        if (!this.getView()) { this.showView(new Root()); }
         if (result) { this.getView().el.querySelector('output').textContent = result; }
       }
     });
