@@ -1,0 +1,29 @@
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_f2f66372159d6a 9002-9003
+docs/api/providers/data.md
+  s_930f3c9a37745c::t_e06077c552f6bc 23,47
+docs/api/providers/dom.md
+  s_930f3c9a37745c::t_1e53c770d25c90 49,68
+docs/guides/existing-html.md
+  s_930f3c9a37745c::t_e954bed43185bd 14
+docs/guides/testing.md
+  s_930f3c9a37745c::t_d59d30f583a5bc 198-199
+packages/adapters/readme.md
+  s_930f3c9a37745c::t_c7325fa1bf3b51 241-243
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "689a5c6fbc691a01f9086bae6b2ed2b8c3954e64",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
