@@ -1,0 +1,61 @@
+config/api-contracts/inventory.json
+  s_2f2b5093b51639::t_bb0335f718fed5 112-113,412-413,617-618,8091,8120-8121,8145,8149
+  s_930f3c9a37745c::t_07d3ebcde0e986 4
+test/types/application.mts
+  s_2f2b5093b51639::t_c1d8e112b9b8fc 221-225
+config/api-contracts/semantics.json
+  s_2f2b5093b51639::t_7ff1b80db43ad0 2443,2510-2517
+test/types/application.cts
+  s_2f2b5093b51639::t_00312fcfd85b75 200-204
+src/modules/application.ts
+  s_930f3c9a37745c::t_20f08b7b94ac59 847
+  s_2f2b5093b51639::t_81ebb3dd54d0f4 4,36,61,164,180-181
+  s_0b2518106a33a7::t_ec9d3974563550 826,834-846
+test/unit/application-view-events.spec.js
+  s_2f2b5093b51639::t_861e9b2764e5d2 1-233
+test/unit/application-retained-restart.spec.js
+  s_2f2b5093b51639::t_f2f536dbcbf091 31,41,87
+docs/marionette.application.md
+  s_2f2b5093b51639::t_d0ecb3d426c2d9 927-950
+docs/compact-reference.md
+  s_2f2b5093b51639::t_0dda50df10b57a 16
+test/browser/application-retained-restart.spec.mjs
+  s_2f2b5093b51639::t_5e13533d9bdc07 14
+  s_930f3c9a37745c::t_88dc954444f2e0 28
+upgradeGuide.md
+  s_2f2b5093b51639::t_262c06be3d916a 706-710
+docs/events.md
+  s_930f3c9a37745c::t_813ad2b2443936 91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "4b0a8857c627c959f3467972417bebdeb598d377",
+  "prompts": {},
+  "sessions": {
+    "s_0b2518106a33a7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b78c-30de-7fc1-8943-96b2fce3589f",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_2f2b5093b51639": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0f523-b820-7bb0-96c7-109209dc414d",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
