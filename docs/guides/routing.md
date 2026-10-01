@@ -29,10 +29,11 @@ const NotFoundView = View.extend({
 
 const NavigationApplication = Application.extend({
   onStart() {
-    this.setView(new PageView());
-    this.showView();
-    this.onHashChange = () => this.showRoute();
-    window.addEventListener('hashchange', this.onHashChange);
+    if (!this.getView()) {
+      this.showView(new PageView());
+      this.onHashChange = () => this.showRoute();
+      window.addEventListener('hashchange', this.onHashChange);
+    }
     this.showRoute({ focus: false });
   },
   showRoute({ focus = true } = {}) {
@@ -61,9 +62,9 @@ await app.start();
 
 Startup reads the current fragment explicitly, so a direct link to `#about` works. Following a link changes the URL; `hashchange` selects the destination. Browser Back/Forward uses the same path. The shell and its navigation remain mounted while Region replacement destroys the previous page. Repeated dispatch of the same route keeps the current page. Unknown fragments show a separate not-found View.
 
-Each destination updates the document title. Later navigation moves focus to its heading; startup leaves focus alone. Decide the focus policy for your actual navigation, especially when a route update merely filters retained content. A route parameter change need not replace the whole feature: update its owned state or use an explicit [retained refresh](retained-refresh.md) when appropriate.
+Each destination updates the document title. Later navigation moves focus to its heading; startup leaves focus alone. Decide the focus policy for your actual navigation, especially when a route update merely filters retained content. A route parameter change need not replace the whole feature: update its owned state or use the destination Application’s [retained restart](retained-restart.md) when appropriate.
 
-Stopping destroys the shell and its children and removes the Window listener. Starting again reads the current URL and creates a fresh shell. Native `addEventListener` subscriptions need this explicit cleanup; Marionette's `listenTo` cleanup handles Marionette event sources, not Window subscriptions. Restart also rebuilds the shell, so it is unnecessary for an ordinary page change.
+Stopping destroys the shell and its children and removes the Window listener. Starting again reads the current URL and creates a fresh shell. Native `addEventListener` subscriptions need this explicit cleanup; Marionette's `listenTo` cleanup handles Marionette event sources, not Window subscriptions. Restart retains the shell and subscription; this example installs them only when no root exists. Route changes update the content Region directly.
 
 ## Choose the URL owner
 
@@ -113,8 +114,8 @@ const PageApplication = Application.extend({
 const NavigationApplication = Application.extend({
   childApps: { page: PageApplication },
   onStart() {
+    if (this.getView()) return;
     this.showView(new ShellView());
-    this.navigation = {};
     this.onHashChange = () => {
       this.navigationTask = this.showRoute();
       this.navigationTask.catch(error => console.error(error));
@@ -123,14 +124,12 @@ const NavigationApplication = Application.extend({
     this.onHashChange();
   },
   async showRoute() {
-    if (!this.isRunning() || !this.navigation) return false;
+    if (!this.isRunning()) return false;
     const route = window.location.hash || '#home';
     if (route === this.currentRoute) return false;
     this.currentRoute = route;
-    const navigation = this.navigation = {};
-    const isCurrent = () => this.isRunning() && this.navigation === navigation;
     const child = this.getChildApp('page');
-    if (!await child.stop() || !isCurrent()) return false;
+    child.stop();
     const region = this.getView().getRegion('content');
     if (route !== '#home' && route !== '#about') {
       region.show(new MessageView({ model: {
@@ -142,11 +141,9 @@ const NavigationApplication = Application.extend({
       title: 'Loading page…', body: 'Please wait.',
     } }));
     try {
-      const started = await child.start({ region, route });
-      return started && isCurrent();
+      return await child.start({ region, route });
     } catch (error) {
-      if (!isCurrent()) return false;
-      if (!await child.stop() || !isCurrent()) return false;
+      child.stop();
       this.currentRoute = undefined;
       const errorView = new ErrorView({ model: { message: error.message } });
       this.listenTo(errorView, { retry: this.onHashChange });
@@ -155,7 +152,6 @@ const NavigationApplication = Application.extend({
     }
   },
   onBeforeStop() {
-    this.navigation = undefined;
     this.currentRoute = undefined;
     window.removeEventListener('hashchange', this.onHashChange);
   },
@@ -169,12 +165,12 @@ await app.start();
 
 The URL selects the destination as soon as it changes. A failed request keeps that URL and shows an error View; Retry dispatches the current URL again. An unknown fragment shows a not-found View. Repeating a route that is loading or ready leaves it alone.
 
-The owner stops the outgoing child before starting the next destination. Only the newest navigation may continue after an await. The child's preparation signal cancels its request, and superseded preparation cannot activate even if the transport ignores abort. A rejected start is stopped before error presentation replaces its UI.
+The owner stops the outgoing child before starting the next destination. Stopping the child cancels its pending start, which resolves `false`; obsolete failures do not reject that cancelled call. The next destination starts a new preparation. Stopping the outgoing child aborts its preparation signal; an obsolete result cannot activate even if the transport ignores abort. A rejected start is stopped before error presentation replaces its UI.
 
 `await app.start()` activates the shell; `navigationTask` tracks the separately started page transition. The child loads readiness data in `prepareStart` and renders it in `onStart`.
 
-Stop is unconditional here: `onBeforeStop` ends navigation authority and the Window subscription before child teardown. Stop destroys the shell; restart creates a fresh one and reads the current URL. Destroy also disposes the registered child. See [Application composition](../api/application.md#child-applications) and [consumer testing](testing.md).
+Stop is unconditional here: `onBeforeStop` removes the Window subscription before child teardown. Stop destroys the shell; a later start creates a new one and reads the current URL. Restart retains the shell, the Window listener, and the current child run. Destroy also disposes the registered child. See [Application composition](../api/application.md#child-applications) and [consumer testing](testing.md).
 
 ## Check navigation
 
-Test direct links, link clicks, Back/Forward, unknown routes, and repeat selection. Verify shell identity survives page changes, outgoing pages are destroyed, and stop/restart removes and reinstalls one URL subscription. Use a real browser for history and focus behavior.
+Test direct links, link clicks, Back/Forward, unknown routes, and repeat selection. Verify shell identity survives page changes, outgoing pages are destroyed, and stop/start removes and reinstalls one URL subscription; restart retains that single subscription. Use a real browser for history and focus behavior.

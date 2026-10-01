@@ -18,11 +18,11 @@ Run the application's lint and TypeScript checks separately from bundling. The [
 
 ## Handle startup at its owner
 
-Put required asynchronous readiness in Application `prepareStart`, pass its signal to cancellable requests, and connect the ready UI in synchronous `onStart`. The caller of `start()` handles rejection and decides whether to show an error, offer retry, or end the feature. Retain the Application so the owner can await `stop()` for reuse or `destroy()` when its lifetime ends.
+Put required asynchronous readiness in Application `prepareStart`, pass its signal to cancellable requests, and connect the ready UI in synchronous `onStart`. The caller of `start()` handles rejection and decides whether to show an error, offer retry, or end the feature. Retain the Application so the owner can call synchronous `stop()` for reuse or `destroy()` when its lifetime ends.
 
 See the [Application failure contract](../api/application.md#preparation-cancellation-and-failure) for cancellation, partial activation and lifecycle results.
 
-Restart stops and rebuilds root UI. Use [retained refresh](retained-refresh.md) for active data updates that should preserve the page. Embedded features follow the [existing UI ownership boundary](existing-ui.md); their host must end the feature before removing its mounting content.
+Use [retained restart](retained-restart.md) to repeat preparation while preserving the active page. Create retained shells once and update only the source or child Region that changed. Embedded features follow the [existing UI ownership boundary](existing-ui.md); their host must end the feature before removing its mounting content.
 
 ## Serve direct links deliberately
 

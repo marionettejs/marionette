@@ -8,7 +8,7 @@ import { assertions as radioAssertions } from './radio-reference-checks.mjs';
 import { assertions as utilsAssertions } from './utils-reference-checks.mjs';
 import { assertions as adapterAssertions } from './adapters-reference-checks.mjs';
 import { assertions as editingHtmlAssertions, getPreparations } from './editing-html-checks.mjs';
-import { assertions as refreshAssertions, preparations as refreshPreparations } from './retained-refresh-checks.mjs';
+import { assertions as restartAssertions, preparations as restartPreparations } from './retained-restart-checks.mjs';
 import { assertions as typescriptAssertions, preparations as typescriptPreparations } from './typescript-guide-checks.mjs';
 import { assertions as draftSaveAssertions, preparations as draftSavePreparations } from './draft-save-checks.mjs';
 import { assertions as navigationAssertions, preparations as navigationPreparations } from './async-navigation-checks.mjs';
@@ -35,7 +35,7 @@ const pages = ['api', 'packages', 'integrations', 'guides'].flatMap(section =>
 const preparations = {
   ...listPreparations,
   ...getPreparations(installed),
-  ...refreshPreparations,
+  ...restartPreparations,
   ...typescriptPreparations,
   ...draftSavePreparations,
   ...navigationPreparations,
@@ -57,7 +57,7 @@ const assertions = {
   ...utilsAssertions,
   ...adapterAssertions,
   ...editingHtmlAssertions,
-  ...refreshAssertions,
+  ...restartAssertions,
   ...typescriptAssertions,
   ...draftSaveAssertions,
   ...navigationAssertions,
@@ -353,7 +353,7 @@ assert.equal(initialRoot.isDestroyed(), true);
 assert.notEqual(app.getView(), initialRoot);
 assert.equal(app.getState(), state);
 assert.equal(app.getRegion(), destination);
-assert.equal(await app.stop(), true);
+assert.equal(app.stop(), true);
 assert.equal(app.getView(), undefined);
 assert.equal(destination.isDestroyed(), false);
 globalThis.fetch = async () => new Response('', { status: 503 });
@@ -369,14 +369,14 @@ let activations = 0;
 app.on('start', () => { activations++; });
 const pending = app.start();
 assert.equal(app.start(), pending);
-assert.equal(await app.stop(), true);
+assert.equal(app.stop(), true);
 assert.equal(await pending, false);
 assert.equal(cancelledSignal.aborted, true);
 finishFetch(new Response(JSON.stringify({ title: 'Obsolete' })));
 await new Promise(resolve => setImmediate(resolve));
 assert.equal(activations, 0);
 assert.equal(app.getView(), undefined);
-assert.equal(await app.destroy(), true);
+assert.equal(app.destroy(), true);
 assert.equal(destination.isDestroyed(), true);
 assert.equal(await app.start(), false);
 const adopted = document.createElement('article');
@@ -385,10 +385,10 @@ document.body.append(adopted);
 const owner = new Application();
 const page = owner.setView(new View({ el: adopted, template: false }));
 assert.equal(page.isRendered(), true);
-await owner.stop();
+owner.stop();
 assert.equal(page.isDestroyed(), true);
 assert.equal(adopted.isConnected, false);
-await owner.destroy();
+owner.destroy();
 mount.remove();
 `,
   'api-collection-view-1': `

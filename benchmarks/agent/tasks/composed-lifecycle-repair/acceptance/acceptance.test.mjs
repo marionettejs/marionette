@@ -41,7 +41,6 @@ function resources() {
 function setup(t) {
   const loading = queue();
   const validating = queue();
-  const permissions = queue();
   const subscriptions = resources();
   const timers = resources();
   const values = { label: 'previous', draft: '', status: 'offline' };
@@ -51,27 +50,23 @@ function setup(t) {
     set(key, value) { values[key] = value; },
     dispose() { disposed++; }
   };
-  let permissionRequired = false;
   let pulses = 0;
   const session = createReviewSession({ state,
     load: (id, context) => loading.call(id, context),
     validate: (value, context) => validating.call(value, context),
-    beforeStop: (options, context) => permissionRequired ? permissions.call(options, context) : Promise.resolve(),
     subscribe: callback => subscriptions.register(callback),
     schedule: callback => timers.register(callback),
     onPulse() { pulses++; }
   });
   t.after(async() => {
-    permissionRequired = false;
-    for (const channel of [loading, validating, permissions]) {
+    for (const channel of [loading, validating]) {
       for (const gate of channel.all) { gate.resolve('cleanup'); }
     }
     await session.app.destroy();
   }, { timeout: 3000 });
   assert.ok(session.app instanceof Application);
-  return { ...session, state, loading, validating, permissions, subscriptions, timers,
+  return { ...session, state, loading, validating, subscriptions, timers,
     get disposed() { return disposed; }, get pulses() { return pulses; },
-    requirePermission() { permissionRequired = true; },
     async complete(value) {
       const load = await loading.next();
       load.resolve(value);
@@ -177,51 +172,16 @@ test('refresh replacement, obsolete errors and successful stop invalidate pendin
   assert.equal(c.state.get('label'), 'new');
 });
 
-test('rejected stop preserves delivery, heartbeat, editing and pending refresh', options, async t => {
-  const c = setup(t);
-  await c.start();
-  c.requirePermission();
-  const stopping = c.app.stop();
-  stopping.catch(() => {});
-  const permission = await c.permissions.next();
-  c.subscriptions.emit('still connected');
-  c.timers.emit();
-  c.edit('pending draft');
-  assert.equal(c.state.get('label'), 'initial');
-  assert.equal(c.state.get('status'), 'still connected');
-  assert.equal(c.pulses, 1);
-  assert.equal(c.subscriptions.released, 0);
-  assert.equal(c.timers.released, 0);
-  const loadCount = c.loading.all.length;
-  const refreshing = c.refresh('pending-stop-refresh');
-  await turn();
-  assert.equal(c.loading.all.length, loadCount + 1, 'refresh remains usable during pending stop');
-  (await c.loading.next()).resolve('updated');
-  const validation = await c.validating.next();
-  permission.reject(new Error('keep editing'));
-  await assert.rejects(stopping, /keep editing/);
-  validation.resolve();
-  assert.equal(await refreshing, true);
-  assert.equal(c.app.isRunning(), true);
-  assert.equal(c.state.get('label'), 'updated');
-  assert.equal(c.state.get('draft'), 'pending draft');
-});
-
-test('destroy adopts stop permission and prevents late refresh commits', options, async t => {
+test('destroy stops resources immediately and prevents late refresh commits', options, async t => {
   const c = setup(t);
   await c.start();
   const refreshing = c.refresh('late');
   (await c.loading.next()).resolve('late');
   const validation = await c.validating.next();
-  c.requirePermission();
-  const stopping = c.app.stop();
-  const permission = await c.permissions.next();
   const destroying = c.app.destroy();
-  assert.equal(permission.context.signal.aborted, false);
-  permission.resolve();
-  assert.equal(await stopping, false);
+  assert.equal(c.subscriptions.callbacks.size, 0);
+  assert.equal(c.timers.callbacks.size, 0);
   assert.equal(await destroying, true);
-  assert.equal(c.permissions.all.length, 1);
   validation.resolve();
   assert.equal(await refreshing, false);
   assert.equal(c.state.get('label'), 'initial');
@@ -288,15 +248,10 @@ test('refresh validation errors respect replacement and preserve data for retry'
   assert.equal(c.state.get('label'), 'retry');
 });
 
-test('start superseding pending stop leaves one active resource pair', options, async t => {
+test('retained restart leaves one active resource pair', options, async t => {
   const c = setup(t);
   await c.start();
-  c.requirePermission();
-  const stopping = c.app.stop();
-  const permission = await c.permissions.next();
-  const starting = c.app.start({ id: 'replacement' });
-  permission.resolve();
-  assert.equal(await stopping, false);
+  const starting = c.app.restart({ id: 'replacement' });
   const loading = await c.loading.next();
   const loadCount = c.loading.all.length;
   assert.equal(await c.refresh('during-replacement'), false);
@@ -312,7 +267,6 @@ test('start superseding pending stop leaves one active resource pair', options, 
   c.timers.emit();
   assert.equal(c.pulses, 1);
   const destroying = c.app.destroy();
-  (await c.permissions.next()).resolve();
   assert.equal(await destroying, true);
   assert.equal(c.subscriptions.callbacks.size, 0);
   assert.equal(c.timers.callbacks.size, 0);
@@ -325,13 +279,9 @@ for (const stage of ['load', 'validation']) {
     const c = setup(t);
     await c.start();
     c.edit('retained draft');
-    c.requirePermission();
-    const stopping = c.app.stop();
-    const permission = await c.permissions.next();
+    assert.equal(c.app.stop(), true);
     const starting = c.app.start({ id: 'replacement' });
     const rejected = assert.rejects(starting, /replacement failed/);
-    permission.resolve();
-    assert.equal(await stopping, false);
     const loading = await c.loading.next();
     if (stage === 'load') {
       loading.reject(new Error('replacement failed'));

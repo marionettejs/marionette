@@ -14,7 +14,7 @@ These guides target **5.0.0-rc.2**. This prerelease is being verified as local c
 - [Test an application](guides/testing.md): run interaction, replacement, readiness and teardown checks.
 - [Use TypeScript](guides/typescript.md): typed options, DOM handlers, state and lifecycle results.
 - [Edit a View’s own model](guides/local-editing.md): live edits, local drafts, and API saves.
-- [Refresh data while retaining UI](guides/retained-refresh.md): update an active feature without rebuilding its shell or draft.
+- [Restart readiness while retaining UI](guides/retained-restart.md): repeat preparation without rebuilding the shell or draft.
 - [Add behavior to existing HTML](guides/existing-html.md): enhance existing markup and manage its lifetime.
 - [Integrate with existing UI](guides/existing-ui.md): mount, communicate, and clean up under another UI owner.
 - [Connect navigation](guides/routing.md): synchronous or asynchronous destinations, a retained shell, and browser subscriptions.

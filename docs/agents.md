@@ -24,8 +24,8 @@ If installed docs are absent, obtain the exact release or known source revision.
 | Bind a DOM event or trigger | [DOM events](api/shared/view-bindings.md#dom-events) |
 | Read or rebind named DOM elements | [UI bindings](api/shared/view-bindings.md#ui-bindings) |
 | Edit a model or retain a draft | [Local editing](guides/local-editing.md) |
-| Prepare, start, stop, or refresh a feature | [Application](api/application.md) |
-| Refresh while retaining a draft or shell | [Retained refresh](guides/retained-refresh.md) |
+| Prepare, start, restart, or stop a feature | [Application](api/application.md) |
+| Restart while retaining a draft or shell | [Retained restart](guides/retained-restart.md) |
 | Enhance existing markup | [Existing HTML](guides/existing-html.md) |
 | Embed a feature in another UI | [Existing UI](guides/existing-ui.md) |
 | Connect URLs and destination lifetimes | [Navigation](guides/routing.md) |
@@ -47,7 +47,7 @@ If installed docs are absent, obtain the exact release or known source revision.
 
 Keep local interaction in its View when that fits the task. An asynchronous call alone does not require an Application. A View may save its own model when the configured data layer supplies that operation. `@mnjs/data` supplies observable Models and Collections; fetching and persistence require an API layer or another provider. It does not supply `Model.save()`.
 
-Use Application preparation for feature readiness; use explicit operations to refresh an active feature. Coordinate shared decisions and work that survives panel replacement at the lifetime that owns them. Read [architecture](architecture.md) when deciding that ownership.
+Use Application preparation for feature readiness and `restart()` to repeat it while retaining active UI. Apply the current result in `onStart`; construct retained shells once. Coordinate shared decisions and work that survives panel replacement at the lifetime that owns them. Read [architecture](architecture.md) when deciding that ownership.
 
 Read method signatures, event payloads and cleanup for the APIs you change. Verify the affected interaction, including replacement, cancellation or teardown when relevant. A successful build does not establish those outcomes.
 

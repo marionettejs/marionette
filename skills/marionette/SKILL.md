@@ -19,8 +19,8 @@ Choose one task or exact API section below directly from the installed package. 
 | Bind a DOM event or trigger | `docs/api/shared/view-bindings.md#dom-events` |
 | Read or rebind named DOM elements | `docs/api/shared/view-bindings.md#ui-bindings` |
 | Edit a model or retain a draft | `docs/guides/local-editing.md` |
-| Prepare, start, stop, or refresh a feature | `docs/api/application.md` |
-| Refresh while retaining a draft or shell | `docs/guides/retained-refresh.md` |
+| Prepare, start, restart, or stop a feature | `docs/api/application.md` |
+| Restart while retaining a draft or shell | `docs/guides/retained-restart.md` |
 | Enhance existing markup | `docs/guides/existing-html.md` |
 | Embed a feature in another UI | `docs/guides/existing-ui.md` |
 | Connect URLs and destination lifetimes | `docs/guides/routing.md` |
@@ -42,7 +42,7 @@ Choose one task or exact API section below directly from the installed package. 
 
 Local interaction can stay in a View. An asynchronous call alone does not require an Application. A View may save its own model if the configured data layer supplies it; optional `@mnjs/data` supplies observation, with fetching and persistence provided separately, and does not supply `Model.save()`.
 
-Application preparation establishes readiness; explicit operations refresh active features. Coordinate shared decisions at their owning lifetime. Use `docs/architecture.md` when choosing ownership. Verify changed interaction, replacement, cancellation or teardown as relevant; distinguish executed checks from source inspection.
+Application preparation establishes readiness. Use restart to prepare new data while retaining a running feature; commit the prepared result in onStart and construct retained UI once. Use explicit operations for ongoing work that has a separate lifetime. Coordinate shared decisions at their owning lifetime. Use `docs/architecture.md` when choosing ownership. Verify changed interaction, replacement, cancellation or teardown as relevant; distinguish executed checks from source inspection.
 
 ## Optional lookup
 

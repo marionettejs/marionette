@@ -14,18 +14,28 @@ export const ErrorView = View.extend({
 
 export const RecordsLayout = View.extend({
   className: 'records',
-  templateContext() { return { count: this.collection.length }; },
-  template: ({ count }) => html`
+  template: () => html`
     <h2>Records</h2>
-    <p role="status">${count} ${count === 1 ? 'record' : 'records'}</p>
+    <div class="js-status"></div>
     <div class="records-columns">
       <div class="js-list"></div>
       <section class="js-detail" aria-label="Record details"></section>
     </div>`,
+  childViewTriggers: { retry: 'retry', reload: 'reload' },
   regions: {
+    status: '.js-status',
     list: '.js-list',
     detail: '.js-detail'
   }
+});
+
+export const RecordsStatus = View.extend({
+  modelEvents: { change: 'render' },
+  template: ({ count, loading, error }) => html`
+    <p role="status">${loading ? 'Loading records…' : `${count} ${count === 1 ? 'record' : 'records'}`}</p>
+    ${error ? html`<p role="alert">${error}</p><button type="button" class="js-retry">Retry</button>` :
+    html`<button type="button" class="js-reload">Reload records</button>`}`,
+  triggers: { 'click .js-retry': 'retry', 'click .js-reload': 'reload' }
 });
 
 const RecordRow = View.extend({

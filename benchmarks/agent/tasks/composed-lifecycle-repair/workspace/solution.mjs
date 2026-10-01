@@ -1,6 +1,6 @@
 import { Application } from 'marionette';
 
-export function createReviewSession({ state, load, validate, beforeStop, subscribe, schedule, onPulse }) {
+export function createReviewSession({ state, load, validate, subscribe, schedule, onPulse }) {
   let pending;
   let active = false;
   let releaseSubscription;
@@ -50,8 +50,7 @@ export function createReviewSession({ state, load, validate, beforeStop, subscri
       releaseSubscription = subscribe(status => state.set('status', status));
       releaseTimer = schedule(onPulse);
     },
-    prepareStop(options, context) { return beforeStop(options, context); },
-    onBeforeStop: release,
+    onStop: release,
     onDestroy: release
   });
   Session.setStateApi({ disposeOwned(source) { source.dispose(); } });

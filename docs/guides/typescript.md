@@ -75,7 +75,7 @@ The element checks establish what the code uses: `value` and `focus`. They also 
 
 ## Readiness results and lifecycle completion
 
-An Application's `prepareStart` returns data required before activation. `onStart` receives that resolved result as its third argument. The public `start`, `stop`, and `restart` operations return `Promise<boolean>`: their boolean reports lifecycle completion, rather than the preparation data. A rejection remains an error to handle.
+An Application's `prepareStart` returns data required before activation. `onStart` receives that resolved result as its third argument. The public `start` and `restart` operations return `Promise<boolean>`; `stop` and `destroy` return synchronous booleans. The boolean reports lifecycle completion rather than preparation data. Handle rejected start/restart Promises and synchronous teardown errors at the calling boundary.
 
 TypeScript does not validate a server response. Treat parsed JSON as `unknown`, validate the fields your feature needs, and only then return a typed result. This example validates one title field; use your application's API schema validation for larger responses.
 
@@ -116,7 +116,7 @@ const activation: Promise<boolean> = app.start();
 const activated: boolean = await activation;
 ```
 
-The Application owns readiness and the displayed View. Pass the lifecycle signal to transport; Stopping or destroying during pending preparation prevents that startup from activating and aborts its signal. An active refresh needs a separate operation and request policy; see [retained refresh](retained-refresh.md). Reuse the same `Summary` type in preparation and the explicitly annotated completion hook. Keep concrete application types when hooks or subclasses rely on an inherited preparation-result contract; the general `ApplicationInstance` type defaults that result to `unknown`.
+The Application owns readiness and the displayed View. Pass the lifecycle signal to transport; stopping or destroying during pending preparation prevents that startup from activating and aborts its signal. An active restart prepares new data while retaining the current UI; commit its result in `onStart` and construct the shell once. See [retained restart](retained-restart.md). Reuse the same `Summary` type in preparation and the explicitly annotated completion hook. Keep concrete application types when hooks or subclasses rely on an inherited preparation-result contract; the general `ApplicationInstance` type defaults that result to `unknown`.
 
 ## Typed data and provider boundaries
 

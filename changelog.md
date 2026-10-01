@@ -10,6 +10,18 @@
   Application `stop()` retains subscriptions to surviving sources. External data
   and event sources still follow their own destruction contracts.
 
+* Retain the active root and children while `Application.restart()` reruns
+  preparation; each restart supersedes older preparation. Change hosts with
+  explicit stop/start.
+* Simplify Application readiness to one pending preparation. Stop cannot be
+  superseded during cleanup; `onStop` may begin a new run after cleanup. Repeated
+  start ignores new options; restart retains its host and forwards options.
+* Add optional `Application.viewEvents` using ordinary `listenTo` lifetime and
+  once-per-selected-View registration.
+* Make `Application.stop()` synchronous and remove `prepareStop`. Perform required
+  saves or navigation permission before stopping; remove Promise chaining on stop.
+* Make `Application.destroy()` and `removeChildApp()` synchronous. Remove
+  `prepareDestroy`; complete required asynchronous finalization before destruction.
 * Preserve native Error reporting and point coded diagnostics to their public error
   pages, carrying forward the post-RC.1 fixes from #583.
 * Rebuild the consumer docs around class and shared API references, lifecycle,
@@ -59,7 +71,7 @@
   update development dependencies and reduce routine PR package work while
   retaining complete manual release certification.
 
-Breaking beta changes are detailed in [the upgrade guide](upgradeGuide.md).
+Breaking beta changes are detailed in [the upgrade guide](docs/guides/migration.md).
 Recover with all five beta.5 packages and their matching consumer code and lockfile;
 reverting package versions alone does not restore the previous application contract.
 Stable publication remains disabled. This prerelease uses npm `latest`; `next`

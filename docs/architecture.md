@@ -23,7 +23,7 @@ When a feature needs asynchronous readiness, use an Application and put the requ
 
 For these feature requests, the Application calls a service/API module; Views receive data and emit user intent. This keeps request decisions at the feature lifetime while individual panels can be replaced. For a composed layout, use the Application's `setView`, populate the layout's Regions with `showChildView`, then mount it with the Application's `showView`.
 
-Show loading or error presentation through Views and Regions. The caller of `start()` handles rejection. When recovery replaces partial UI with an error View, await successful `stop()` before showing it in the intended Region.
+Show loading or error presentation through Views and Regions. The caller of `start()` handles rejection. When abandoning a failed initial start, call synchronous `stop()` before showing an error View. A failed active restart can show feedback alongside its retained UI.
 
 Notification hooks such as `onStart` do not await returned Promises. If a child must be ready before the parent activates, include that work in parent preparation and handle cleanup if preparation fails. If the page can be ready while its child loads, start the child from the active parent and handle its failure there. See [child Application ownership](api/application.md#child-applications).
 
@@ -34,13 +34,13 @@ Pass the preparation signal to the service where supported. Marionette prevents 
 | Operation | Lifetime decision |
 | --- | --- |
 | Replace a panel | Show another View in its Region. The Region destroys the previous View; keep shared data outside that disposable View. |
-| Refresh data while keeping the current UI | Keep the feature active and update its data through an explicit operation. |
-| Restart a feature | `restart()` stops the current run and prepares another. Its root UI is destroyed; the Application instance and its state survive. Registered children stop and need explicit activation again. |
+| Reconstruct a feature | Call `stop()`, then await `start(options)`. The root and child Views are destroyed and startup creates the intended replacement. |
+| Restart a feature | `restart()` repeats preparation while retaining the active root, child Applications and state. Successful completion code selects what to update. |
 | End a feature permanently | `destroy()` ends its lifetime and destroys owned UI and children. The configured state provider handles owned-state disposal when supported. |
 
-For refreshes, decide which result may update state, how failure affects displayed data, and how completions lose authority when their owner ends.
+Use `restart()` to repeat feature readiness while retaining its active UI, children, and state event delivery. Apply prepared data in `onStart`, creating the shell only when absent. Current failure leaves the active feature in place; superseded preparation cannot commit. Use stop/start for reconstruction. Independent domain operations, such as saving, still need their own concurrency and cancellation policy.
 
-Retain state at the lifetime that needs it. A local control's state can live in that View. Drafts or pending work that must survive panel replacement belong to a surviving owner. Closing a panel can empty its Region while the feature Application stays active; completions update retained data, and a replacement panel reads that data. Application stop/restart removes its root UI while retaining Application state. See [operations after start](api/application.md#operations-after-start) for how ongoing requests use that shared data.
+Retain state at the lifetime that needs it. A local control's state can live in that View. Drafts or pending work that must survive panel replacement belong to a surviving owner. Closing a panel can empty its Region while the feature Application stays active; completions update retained data, and a replacement panel reads that data. Application stop removes its root UI and retains state; restart retains both. See [readiness and ongoing effects](api/application.md#readiness-and-ongoing-effects) for how ongoing requests use that shared data.
 
 ## Share data and communicate intent
 

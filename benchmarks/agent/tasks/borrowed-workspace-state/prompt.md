@@ -12,12 +12,13 @@ The required fourth argument `lifecycle` provides `ready(signal) -> Promise<void
 and `subscribe() -> unsubscribe`. Await readiness through the parent's public
 `prepareStart(options, context)` callback, passing `context.signal`
 unchanged. No child View or subscription may be created before readiness completes.
-Keep the native lifecycle semantics: compatible in-flight restart calls share their
-operation; stop/destroy can cancel pending readiness. A canceled start/restart resolves false and late readiness must never mount content
+Keep the native lifecycle semantics: each restart supersedes earlier preparation;
+stop/destroy can cancel pending readiness. A canceled start/restart resolves false and late readiness must never mount content
 or subscribe. Cancellation signals must be observable by the supplied provider.
 
 Subscribe once after a successful start. Release that session subscription exactly
-once through public Application lifecycle callbacks on stop, restart, or destroy.
-A restart releases the old session before awaiting new readiness, creates a fresh
-View only after readiness succeeds, and preserves Application state. Destroy during
+once through public Application lifecycle callbacks on stop or destroy.
+A running restart retains the View, its state and the session subscription while
+awaiting new readiness. A start after stop creates a new View and subscription
+only after readiness succeeds. Destroy during
 pending readiness cancels it and cannot resurrect the Application or a View.

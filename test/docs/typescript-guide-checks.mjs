@@ -44,14 +44,14 @@ assert.equal(mount.querySelector('summary'), null);
 assert.equal(requests.length, 1);
 assert.equal(requests[0].url, '/summary.json');
 assert.equal(requests[0].signal instanceof AbortSignal, true);
-assert.equal(await app.stop(), true);
+assert.equal(app.stop(), true);
 assert.equal(app.isRunning(), false);
 assert.equal(mount.textContent, '');
 globalThis.fetch = async () => new Response(JSON.stringify({ title: 42 }));
 await assert.rejects(app.start(), /Invalid summary response/);
 assert.equal(app.isRunning(), false);
 assert.equal(mount.textContent, '');
-await app.destroy();
+app.destroy();
 mount.remove();
 `,
   'guides-typescript-4': `

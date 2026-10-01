@@ -69,7 +69,7 @@ Use [declarative Radio bindings](shared/common.md#declarative-radio-bindings) wh
 | `before:destroy` | `onBeforeDestroy` | `(object, options)` before Radio/state cleanup, while `isDestroyed()` is false. |
 | `destroy` | `onDestroy` | `(object, options)` after marking destroyed and releasing Radio bindings and owned state. Event subscriptions are cleared afterward. |
 
-Hooks run before event subscribers. Returned Promises are ignored; complete required asynchronous work before calling `destroy()`, or use an Application lifecycle when that coordination belongs to the object. Exceptions propagate; destruction is not transactional. A throw in `before:destroy` interrupts cleanup and leaves destruction marked in progress, so calling `destroy()` again does not retry it. Keep teardown hooks synchronous and reliable.
+Hooks run before event subscribers. Returned Promises are ignored; complete required asynchronous work before calling `destroy()`. Exceptions propagate; destruction is not transactional. A throw in `before:destroy` interrupts cleanup and leaves destruction marked in progress, so calling `destroy()` again does not retry it. Keep teardown hooks synchronous and reliable.
 
 Normal destruction releases outgoing `listenTo` subscriptions and incoming event subscriptions automatically. Other subscribers on a shared data source/channel remain intact. State produced by `createState` is disposed through the configured StateApi; supplied state is borrowed and survives.
 

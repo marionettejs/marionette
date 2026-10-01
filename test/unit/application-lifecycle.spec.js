@@ -38,7 +38,7 @@ const lifecycleTransitions = [
   ['stopped', 'destroy', true, 'destroyed', ['before:destroy', 'destroy']],
   ['running', 'start', true, 'running', []],
   ['running', 'stop', true, 'stopped', ['before:stop', 'stop']],
-  ['running', 'restart', true, 'running', ['before:stop', 'stop', 'before:start', 'start']],
+  ['running', 'restart', true, 'running', ['before:start', 'start']],
   ['running', 'destroy', true, 'destroyed', ['before:stop', 'stop', 'before:destroy', 'destroy']],
   ['destroyed', 'start', false, 'destroyed', []],
   ['destroyed', 'stop', true, 'destroyed', []],
@@ -123,102 +123,6 @@ describe('Application lifecycle', function() {
     await app.destroy();
   });
 
-  it('aborts invalidated readiness before replacement readiness starts', async function() {
-    const readiness = defer();
-    const events = [];
-    let firstContext;
-    let startCount = 0;
-    const TestApplication = Application.extend({
-      prepareStart(options, context) {
-        if (startCount++) {
-          events.push(`before:start:${firstContext.signal.aborted}`);
-          return;
-        }
-
-        firstContext = context;
-        events.push('before:start');
-        context.signal.addEventListener('abort', () => {
-          events.push('abort:start');
-          readiness.resolve();
-        }, { once: true });
-        return readiness.promise;
-      },
-      prepareStop(options, context) {
-        events.push(`before:stop:${firstContext.signal.aborted}:${context.signal.aborted}`);
-      }
-    });
-    const app = new TestApplication();
-
-    const start = app.start();
-    const restart = app.restart();
-
-    expect(await start).toBe(false);
-    expect(await restart).toBe(true);
-    expect(events).to.deep.equal([
-      'before:start',
-      'abort:start',
-      'before:stop:true:false',
-      'before:start:true'
-    ]);
-  });
-
-  it('lets abort listeners supersede the replacement operation', async function() {
-    const readiness = defer();
-    const beforeStop = vi.fn();
-    let destroy;
-    const app = new (Application.extend({
-      prepareStart(options, context) {
-        context.signal.addEventListener('abort', () => {
-          readiness.resolve();
-          destroy = this.destroy();
-        }, { once: true });
-        return readiness.promise;
-      },
-      prepareStop: beforeStop
-    }))();
-
-    const start = app.start();
-    const stop = app.stop();
-
-    expect(await start).toBe(false);
-    expect(await stop).toBe(false);
-    expect(await destroy).toBe(true);
-    expect(beforeStop).toHaveBeenCalledTimes(1);
-    expect(app.isDestroyed()).toBe(true);
-  });
-
-  it('transfers stop readiness without aborting its signal', async function() {
-    const readiness = defer();
-    const stopOptions = { source: 'stop' };
-    const restartOptions = { source: 'restart' };
-    let stopContext;
-    let completedStopOptions;
-    const prepareStop = vi.fn().mockImplementation((options, context) => {
-      stopContext = context;
-      return readiness.promise;
-    });
-    const app = new (Application.extend({
-      prepareStop,
-      onStop(application, options) {
-        expect(application).to.equal(app);
-        completedStopOptions = options;
-      }
-    }))();
-    await app.start();
-
-    const stop = app.stop(stopOptions);
-    const restart = app.restart(restartOptions);
-
-    expect(await stop).toBe(false);
-    expect(stopContext.signal.aborted).toBe(false);
-    readiness.resolve();
-    expect(await restart).toBe(true);
-    expect(stopContext.signal.aborted).toBe(false);
-    expect(prepareStop).toHaveBeenCalledTimes(1);
-    expect(prepareStop).toHaveBeenCalledWith(stopOptions, stopContext);
-    expect(completedStopOptions).to.equal(stopOptions);
-  });
-
   it('shares a compatible in-flight start and no-ops once running', async function() {
     const readiness = defer();
     const beforeStart = vi.fn().mockReturnValue(readiness.promise);
@@ -234,41 +138,6 @@ describe('Application lifecycle', function() {
     expect(await app.start()).toBe(true);
     expect(beforeStart).toHaveBeenCalledTimes(1);
     expect(startEvent).toHaveBeenCalledTimes(1);
-  });
-
-  it('lets stop supersede an in-flight start without stale success', async function() {
-    const readiness = defer();
-    const events = [];
-    const TestApplication = Application.extend({
-      prepareStart() {
-        events.push('before:start');
-        return readiness.promise;
-      },
-      onStart() {
-        events.push('start');
-      },
-      prepareStop() {
-        events.push('before:stop');
-      },
-      onStop() {
-        events.push('stop');
-      }
-    });
-    const app = new TestApplication();
-
-    const start = app.start();
-    const stop = app.stop();
-
-    expect(await start).toBe(false);
-    expect(await stop).toBe(true);
-    expect(app.isRunning()).toBe(false);
-
-    readiness.resolve();
-    await readiness.promise;
-    await Promise.resolve();
-
-    expect(events).to.deep.equal(['before:start', 'before:stop', 'stop']);
-    expect(app.isRunning()).toBe(false);
   });
 
   it('rejects a current start failure and permits retry', async function() {
@@ -294,109 +163,7 @@ describe('Application lifecycle', function() {
     expect(app.isRunning()).toBe(true);
   });
 
-  it('stops a running Application once and shares the in-flight result', async function() {
-    const stopping = defer();
-    const beforeStop = vi.fn().mockReturnValue(stopping.promise);
-    const stopEvent = vi.fn();
-    const app = new (Application.extend({ prepareStop: beforeStop, onStop: stopEvent }))();
-    await app.start();
-
-    const first = app.stop();
-    const repeated = app.stop();
-
-    expect(repeated).to.equal(first);
-    expect(app.isRunning()).toBe(true);
-    stopping.resolve();
-    expect(await first).toBe(true);
-    expect(await app.stop()).toBe(true);
-    expect(beforeStop).toHaveBeenCalledTimes(1);
-    expect(stopEvent).toHaveBeenCalledTimes(1);
-  });
-
-  it('rejects a synchronous before:stop failure', async function() {
-    const error = new Error('stop failed');
-    const app = new (Application.extend({
-      prepareStop() { throw error; }
-    }))();
-    await app.start();
-
-    await expectRejection(app.stop(), error);
-
-    expect(app.isRunning()).toBe(true);
-  });
-
-  it('rejects the winning stop when superseded restart readiness throws synchronously', async function() {
-    const error = new Error('stop failed');
-    const app = new (Application.extend({
-      prepareStop() { throw error; }
-    }))();
-    await app.start();
-
-    const restart = app.restart();
-    const stop = app.stop();
-
-    expect(await restart).toBe(false);
-    await expectRejection(stop, error);
-    expect(app.isRunning()).toBe(true);
-  });
-
-  it('preserves running state when restart inherits failing stop readiness', async function() {
-    const stopping = defer();
-    const error = new Error('stop failed');
-    const app = new (Application.extend({
-      prepareStop() { return stopping.promise; }
-    }))();
-    await app.start();
-
-    const stop = app.stop();
-    const restart = app.restart();
-    const restartResult = expectRejection(restart, error);
-
-    expect(await stop).toBe(false);
-    stopping.reject(error);
-    await restartResult;
-    expect(app.isRunning()).toBe(true);
-  });
-
-  it('preserves running state when destroy inherits failing stop readiness', async function() {
-    const stopping = defer();
-    const error = new Error('stop failed');
-    const app = new (Application.extend({
-      prepareStop() { return stopping.promise; }
-    }))();
-    await app.start();
-
-    const stop = app.stop();
-    const destroy = app.destroy();
-    const destroyResult = expectRejection(destroy, error);
-
-    expect(await stop).toBe(false);
-    stopping.reject(error);
-    await destroyResult;
-    expect(app.isRunning()).toBe(true);
-    expect(app.isDestroyed()).toBe(false);
-  });
-
-  it('preserves running state when destroy supersedes failing restart teardown', async function() {
-    const stopping = defer();
-    const error = new Error('stop failed');
-    const app = new (Application.extend({
-      prepareStop() { return stopping.promise; }
-    }))();
-    await app.start();
-
-    const restart = app.restart();
-    const destroy = app.destroy();
-    const destroyResult = expectRejection(destroy, error);
-
-    expect(await restart).toBe(false);
-    stopping.reject(error);
-    await destroyResult;
-    expect(app.isRunning()).toBe(true);
-    expect(app.isDestroyed()).toBe(false);
-  });
-
-  it('restarts through stop and start in lifecycle order', async function() {
+  it('reruns preparation without stop notifications', async function() {
     const events = [];
     const TestApplication = Application.extend({
       onBeforeStart() { events.push('before:start'); },
@@ -410,27 +177,12 @@ describe('Application lifecycle', function() {
 
     expect(await app.restart()).toBe(true);
 
-    expect(events).to.deep.equal(['before:stop', 'stop', 'before:start', 'start']);
+    expect(events).to.deep.equal(['before:start', 'start']);
     expect(app.isRunning()).toBe(true);
   });
 
-  it('shares a compatible in-flight restart', async function() {
-    const stopping = defer();
-    const beforeStop = vi.fn().mockReturnValue(stopping.promise);
-    const app = new (Application.extend({ prepareStop: beforeStop }))();
-    await app.start();
 
-    const first = app.restart();
-    const repeated = app.restart();
-
-    expect(repeated).to.equal(first);
-    stopping.resolve();
-    expect(await first).toBe(true);
-    expect(beforeStop).toHaveBeenCalledTimes(1);
-    expect(app.isRunning()).toBe(true);
-  });
-
-  it('remains stopped when restart readiness fails after stop', async function() {
+  it('remains running when retained restart readiness fails', async function() {
     const error = new Error('restart failed');
     const events = [];
     const prepareStart = vi.fn();
@@ -443,69 +195,7 @@ describe('Application lifecycle', function() {
 
     await expectRejection(app.restart(), error);
 
-    expect(events).to.deep.equal(['stop']);
-    expect(app.isRunning()).toBe(false);
-  });
-
-  it('remains stopped when the restart stop completion hook fails', async function() {
-    const error = new Error('stop completion failed');
-    const app = new (Application.extend({
-      onStop() { throw error; }
-    }))();
-    await app.start();
-
-    await expectRejection(app.restart(), error);
-
-    expect(app.isRunning()).toBe(false);
-    expect(await app.start()).toBe(true);
-  });
-
-  it('lets start supersede an in-flight stop without a stale stop event', async function() {
-    const stopping = defer();
-    const beforeStart = vi.fn();
-    const stopEvent = vi.fn();
-    const app = new (Application.extend({
-      prepareStart: beforeStart,
-      prepareStop() { return stopping.promise; },
-      onStop: stopEvent
-    }))();
-    await app.start();
-    beforeStart.mockClear();
-
-    const stop = app.stop();
-    const start = app.start();
-
-    expect(await stop).toBe(false);
-    expect(beforeStart).not.toHaveBeenCalled();
-
-    stopping.resolve();
-    expect(await start).toBe(true);
-
-    expect(beforeStart).toHaveBeenCalledTimes(1);
-    expect(stopEvent).not.toHaveBeenCalled();
-    expect(app.isRunning()).toBe(true);
-  });
-
-  it('rejects a start that supersedes failing stop readiness', async function() {
-    const stopping = defer();
-    const error = new Error('stop failed');
-    const beforeStart = vi.fn();
-    const app = new (Application.extend({
-      prepareStart: beforeStart,
-      prepareStop() { return stopping.promise; }
-    }))();
-    await app.start();
-    beforeStart.mockClear();
-
-    const stop = app.stop();
-    const start = app.start();
-    const startResult = expectRejection(start, error);
-
-    expect(await stop).toBe(false);
-    stopping.reject(error);
-    await startResult;
-
-    expect(beforeStart).not.toHaveBeenCalled();
+    expect(events).to.deep.equal([]);
     expect(app.isRunning()).toBe(true);
   });
 
@@ -531,8 +221,6 @@ describe('Application lifecycle', function() {
     expect(await restart).toBe(true);
     expect(events).to.deep.equal([
       'before:start',
-      'before:stop',
-      'stop',
       'before:start',
       'start'
     ]);
@@ -543,131 +231,6 @@ describe('Application lifecycle', function() {
 
     expect(events.filter(event => event === 'start')).to.have.length(1);
     expect(app.isRunning()).toBe(true);
-  });
-
-  it('stops a restart whose new startup is still pending', async function() {
-    const restartReadiness = defer();
-    const restartStarted = defer();
-    let restartContext;
-    const beforeStop = vi.fn();
-    const stopEvent = vi.fn();
-    const startEvent = vi.fn();
-    const prepareStart = vi.fn();
-    prepareStart.mockReturnValueOnce(undefined).mockImplementationOnce((options, context) => {
-      restartContext = context;
-      restartStarted.resolve();
-      return restartReadiness.promise;
-    });
-    const app = new (Application.extend({
-      prepareStart,
-      prepareStop: beforeStop,
-      onStop: stopEvent,
-      onStart: startEvent
-    }))();
-    await app.start();
-    startEvent.mockClear();
-
-    const restart = app.restart();
-    await restartStarted.promise;
-    const stop = app.stop();
-
-    expect(await restart).toBe(false);
-    expect(await stop).toBe(true);
-    expect(restartContext.signal.aborted).toBe(true);
-    restartReadiness.resolve();
-    await restartReadiness.promise;
-    await Promise.resolve();
-
-    expect(startEvent).not.toHaveBeenCalled();
-    expect(beforeStop).toHaveBeenCalledTimes(1);
-    expect(stopEvent).toHaveBeenCalledTimes(1);
-    expect(app.isRunning()).toBe(false);
-  });
-
-  it('publishes stopped state before abort listener reentry', async function() {
-    const readiness = defer();
-    const restartStarted = defer();
-    const beforeStop = vi.fn();
-    const stopEvent = vi.fn();
-    const prepareStart = vi.fn();
-    let destroy;
-    prepareStart.mockReturnValueOnce(undefined).mockImplementationOnce((options, context) => {
-      context.signal.addEventListener('abort', () => {
-        readiness.resolve();
-        destroy = app.destroy();
-      }, { once: true });
-      restartStarted.resolve();
-      return readiness.promise;
-    });
-    const app = new (Application.extend({
-      prepareStart,
-      prepareStop: beforeStop,
-      onStop: stopEvent
-    }))();
-    await app.start();
-
-    const restart = app.restart();
-    await restartStarted.promise;
-    const stop = app.stop();
-
-    expect(await restart).toBe(false);
-    expect(await stop).toBe(true);
-    expect(await destroy).toBe(true);
-    expect(beforeStop).toHaveBeenCalledTimes(1);
-    expect(stopEvent).toHaveBeenCalledTimes(1);
-    expect(app.isDestroyed()).toBe(true);
-  });
-
-  it('shares stop readiness when stop supersedes restart teardown', async function() {
-    const stopping = defer();
-    const beforeStop = vi.fn().mockReturnValue(stopping.promise);
-    const stopEvent = vi.fn();
-    const app = new (Application.extend({ prepareStop: beforeStop, onStop: stopEvent }))();
-    await app.start();
-
-    const restart = app.restart();
-    const stop = app.stop();
-
-    expect(await restart).toBe(false);
-    stopping.resolve();
-    expect(await stop).toBe(true);
-    expect(beforeStop).toHaveBeenCalledTimes(1);
-    expect(stopEvent).toHaveBeenCalledTimes(1);
-    expect(app.isRunning()).toBe(false);
-  });
-
-  it('destroys a restart without repeating its completed stop phase', async function() {
-    const restartReadiness = defer();
-    const restartStarted = defer();
-    const beforeStop = vi.fn();
-    const stopEvent = vi.fn();
-    const prepareStart = vi.fn();
-    prepareStart.mockReturnValueOnce(undefined).mockImplementationOnce(() => {
-      restartStarted.resolve();
-      return restartReadiness.promise;
-    });
-    const app = new (Application.extend({
-      prepareStart,
-      prepareStop: beforeStop,
-      onStop: stopEvent
-    }))();
-    await app.start();
-
-    const restart = app.restart();
-    await restartStarted.promise;
-    const destroy = app.destroy();
-
-    expect(await restart).toBe(false);
-    expect(await destroy).toBe(true);
-    expect(beforeStop).toHaveBeenCalledTimes(1);
-    expect(stopEvent).toHaveBeenCalledTimes(1);
-    expect(app.isDestroyed()).toBe(true);
-
-    restartReadiness.resolve();
-    await restartReadiness.promise;
-    await Promise.resolve();
-
-    expect(app.isDestroyed()).toBe(true);
   });
 
   it('lets destroy supersede startup and prevents stale lifecycle work', async function() {
@@ -783,268 +346,14 @@ describe('Application lifecycle', function() {
     expect(app.isRunning()).toBe(false);
   });
 
-  it('rejects destroy hook failure without marking the Application destroyed', async function() {
-    const error = new Error('destroy failed');
-    const app = new (Application.extend({
-      prepareDestroy() {
-        throw error;
-      }
-    }))();
-
-    await expectRejection(app.destroy(), error);
-
-    expect(app.isDestroyed()).toBe(false);
-    expect(await app.start()).toBe(true);
-  });
-
-  it('shares repeated destroy calls while teardown is in flight', async function() {
-    const teardown = defer();
-    let destroyContext;
-    const beforeDestroy = vi.fn().mockImplementation((options, context) => {
-      destroyContext = context;
-      return teardown.promise;
-    });
-    const destroyEvent = vi.fn();
-    const app = new (Application.extend({ prepareDestroy: beforeDestroy, onDestroy: destroyEvent }))();
-
-    const first = app.destroy();
-    const repeated = app.destroy();
-    const stop = app.stop();
-
-    expect(repeated).to.equal(first);
-    expect(await stop).toBe(true);
-    expect(app.isDestroyed()).toBe(false);
-    expect(destroyContext.signal.aborted).toBe(false);
-    teardown.resolve();
-    expect(await first).toBe(true);
-    expect(app.isDestroyed()).toBe(true);
-    expect(destroyContext.signal.aborted).toBe(false);
-    expect(beforeDestroy).toHaveBeenCalledTimes(1);
-    expect(destroyEvent).toHaveBeenCalledTimes(1);
-  });
-
-  it('stays stopped when destroy fails after stopping a running Application', async function() {
-    const error = new Error('destroy failed');
-    const events = [];
-    const app = new (Application.extend({
-      onStop() { events.push('stop'); },
-      prepareDestroy() { throw error; }
-    }))();
-    await app.start();
-
-    await expectRejection(app.destroy(), error);
-
-    expect(events).to.deep.equal(['stop']);
-    expect(app.isRunning()).toBe(false);
-    expect(app.isDestroyed()).toBe(false);
-  });
-
-  it('resolves stop when destroy fails after completing its stop phase', async function() {
-    const stopping = defer();
-    const error = new Error('destroy failed');
-    const app = new (Application.extend({
-      prepareStop() { return stopping.promise; },
-      prepareDestroy() { throw error; }
-    }))();
-    await app.start();
-
-    const destroy = app.destroy();
-    const stop = app.stop();
-    const destroyResult = expectRejection(destroy, error);
-
-    stopping.resolve();
-    await destroyResult;
-
-    expect(await stop).toBe(true);
-    expect(app.isRunning()).toBe(false);
-    expect(app.isDestroyed()).toBe(false);
-  });
-
-  it('shares stop calls during destroy and settles after the stop phase', async function() {
-    const stopping = defer();
-    const teardown = defer();
-    const stopEvent = vi.fn();
-    const app = new (Application.extend({
-      prepareStop() { return stopping.promise; },
-      onStop: stopEvent,
-      prepareDestroy() { return teardown.promise; }
-    }))();
-    await app.start();
-
-    const destroy = app.destroy();
-    const firstStop = app.stop();
-    const repeatedStop = app.stop();
-    const thirdStop = app.stop();
-
-    expect(repeatedStop).to.equal(firstStop);
-    expect(thirdStop).to.equal(firstStop);
-    stopping.resolve();
-    expect(await firstStop).toBe(true);
-    expect(stopEvent).toHaveBeenCalledTimes(1);
-    expect(app.isDestroyed()).toBe(false);
-
-    teardown.resolve();
-    expect(await destroy).toBe(true);
-    expect(app.isDestroyed()).toBe(true);
-  });
-
-  it('shares stop readiness across a start-stop-destroy overlap', async function() {
-    const stopping = defer();
-    const beforeStop = vi.fn().mockReturnValue(stopping.promise);
-    const startEvent = vi.fn();
-    const stopEvent = vi.fn();
-    const app = new (Application.extend({
-      prepareStop: beforeStop,
-      onStart: startEvent,
-      onStop: stopEvent
-    }))();
-    await app.start();
-    startEvent.mockClear();
-
-    const stop = app.stop();
-    const start = app.start();
-    const destroy = app.destroy();
-    const stopDuringDestroy = app.stop();
-
-    expect(await start).toBe(false);
-    expect(await stop).toBe(false);
-    expect(beforeStop).toHaveBeenCalledTimes(1);
-
-    stopping.resolve();
-    expect(await destroy).toBe(true);
-    expect(await stopDuringDestroy).toBe(true);
-
-    expect(beforeStop).toHaveBeenCalledTimes(1);
-    expect(stopEvent).toHaveBeenCalledTimes(1);
-    expect(startEvent).not.toHaveBeenCalled();
-    expect(app.isDestroyed()).toBe(true);
-  });
-
-  it('shares repeated stop readiness before destroy supersedes both calls', async function() {
-    const stopping = defer();
-    const beforeStop = vi.fn().mockReturnValue(stopping.promise);
-    const stopEvent = vi.fn();
-    const app = new (Application.extend({ prepareStop: beforeStop, onStop: stopEvent }))();
-    await app.start();
-
-    const firstStop = app.stop();
-    const repeatedStop = app.stop();
-    const destroy = app.destroy();
-
-    expect(repeatedStop).to.equal(firstStop);
-    expect(await firstStop).toBe(false);
-    expect(await repeatedStop).toBe(false);
-
-    stopping.resolve();
-    expect(await destroy).toBe(true);
-    expect(beforeStop).toHaveBeenCalledTimes(1);
-    expect(stopEvent).toHaveBeenCalledTimes(1);
-    expect(app.isDestroyed()).toBe(true);
-  });
-
-  it('resolves stop when destroy completion fails after marking destroyed', async function() {
-    const stopping = defer();
-    const error = new Error('destroy completion failed');
-    const app = new (Application.extend({
-      prepareStop() { return stopping.promise; },
-      onDestroy() { throw error; }
-    }))();
-    await app.start();
-
-    const destroy = app.destroy();
-    const stop = app.stop();
-    const destroyResult = expectRejection(destroy, error);
-
-    stopping.resolve();
-    await destroyResult;
-
-    expect(await stop).toBe(true);
-    expect(app.isDestroyed()).toBe(true);
-  });
-
-  it('rejects stop during destroy when stopping fails', async function() {
-    const stopping = defer();
-    const error = new Error('stop failed');
-    const app = new (Application.extend({
-      prepareStop() { return stopping.promise; }
-    }))();
-    await app.start();
-
-    const destroy = app.destroy();
-    const stop = app.stop();
-    const destroyResult = expectRejection(destroy, error);
-    const stopResult = expectRejection(stop, error);
-
-    stopping.reject(error);
-    await Promise.all([destroyResult, stopResult]);
-
-    expect(app.isRunning()).toBe(true);
-    expect(app.isDestroyed()).toBe(false);
-  });
-
-  it('keeps running when destroy stop readiness fails without a stop caller', async function() {
-    const error = new Error('stop failed');
-    const app = new (Application.extend({
-      prepareStop() { throw error; }
-    }))();
-    await app.start();
-
-    await expectRejection(app.destroy(), error);
-
-    expect(app.isRunning()).toBe(true);
-    expect(app.isDestroyed()).toBe(false);
-  });
-
-  it('rejects a concurrent stop when destroy stop readiness throws synchronously', async function() {
-    const error = new Error('stop failed');
-    const beforeStop = vi.fn().mockImplementation(() => { throw error; });
-    const app = new (Application.extend({
-      prepareStop: beforeStop
-    }))();
-    await app.start();
-
-    const destroy = app.destroy();
-    const stop = app.stop();
-
-    await Promise.all([
-      expectRejection(destroy, error),
-      expectRejection(stop, error)
-    ]);
-
-    expect(app.isRunning()).toBe(true);
-    expect(app.isDestroyed()).toBe(false);
-    expect(beforeStop).toHaveBeenCalledTimes(1);
-  });
-
-  it('rejects stop during destroy when the stop event fails', async function() {
-    const stopping = defer();
-    const error = new Error('stop event failed');
-    const app = new (Application.extend({
-      prepareStop() { return stopping.promise; },
-      onStop() { throw error; }
-    }))();
-    await app.start();
-
-    const destroy = app.destroy();
-    const stop = app.stop();
-    const destroyResult = expectRejection(destroy, error);
-    const stopResult = expectRejection(stop, error);
-
-    stopping.resolve();
-    await Promise.all([destroyResult, stopResult]);
-
-    expect(app.isRunning()).toBe(false);
-    expect(app.isDestroyed()).toBe(false);
-  });
-
-  it('rejects destroy when its stop event fails without a stop caller', async function() {
+  it('throws synchronously when destruction stop notification fails', async function() {
     const error = new Error('stop event failed');
     const app = new (Application.extend({
       onStop() { throw error; }
     }))();
     await app.start();
 
-    await expectRejection(app.destroy(), error);
+    expect(() => app.destroy()).toThrow(error);
 
     expect(app.isRunning()).toBe(false);
     expect(app.isDestroyed()).toBe(false);
@@ -1074,7 +383,7 @@ describe('Application lifecycle', function() {
     expect(app.isRunning()).toBe(true);
   });
 
-  it('tears down Application-owned Radio replies through async destroy', async function() {
+  it('releases Application-owned Radio replies synchronously', async function() {
     const channelName = 'application-lifecycle-radio';
     const TestApplication = Application.extend({
       channelName,

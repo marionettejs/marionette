@@ -40,7 +40,7 @@ assert.equal(shell.getChildView('content').el.textContent, 'Page not found');
 const originalShowRoute = app.showRoute;
 let routeCalls = 0;
 app.showRoute = function(...args) { routeCalls++; return originalShowRoute.apply(this, args); };
-await app.stop();
+app.stop();
 assert.equal(shell.isDestroyed(), true);
 window.dispatchEvent(new window.HashChangeEvent('hashchange'));
 assert.equal(app.getView(), undefined);
@@ -51,7 +51,7 @@ assert.equal(app.getView().getChildView('content').el.querySelector('h1').textCo
 routeCalls = 0;
 window.dispatchEvent(new window.HashChangeEvent('hashchange'));
 assert.equal(routeCalls, 1);
-await app.destroy();
+app.destroy();
 assert.equal(mount.isConnected, true);
 mount.remove();
 `,

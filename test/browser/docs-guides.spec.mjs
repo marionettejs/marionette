@@ -155,7 +155,7 @@ test('Documented asynchronous navigation retains its shell through readiness and
   await page.goBack();
   await expect(page.getByRole('heading', { name: 'Home', exact: true })).toBeVisible();
   assert.equal(await page.evaluate(() => window.guide.app.getView() === window.shell), true);
-  await page.evaluate(async() => { await window.guide.app.destroy(); });
+  await page.evaluate(async() => { window.guide.app.destroy(); });
   await expect(page.getByRole('navigation', { name: 'Pages' })).toHaveCount(0);
   assert.deepEqual(errors, []);
 });
@@ -185,7 +185,7 @@ test('Documented existing HTML preserves native controls until the View is destr
   assert.deepEqual(result, { connected: false, expanded: 'false' });
 });
 
-test('Documented refresh retains unfinished input and focus', async({ page }) => {
+test('Documented restart retains unfinished input and focus', async({ page }) => {
   await page.evaluate(() => {
     let initial = true;
     window.fetch = async() => {
@@ -193,26 +193,26 @@ test('Documented refresh retains unfinished input and focus', async({ page }) =>
         initial = false;
         return new Response(JSON.stringify({ openTasks: 5 }));
       }
-      return new Promise(resolve => { window.finishRefresh = () => resolve(new Response(JSON.stringify({ openTasks: 8 }))); });
+      return new Promise(resolve => { window.finishRestart = () => resolve(new Response(JSON.stringify({ openTasks: 8 }))); });
     };
   });
-  await loadGuide(page, 'retained-refresh', 'app, mount');
+  await loadGuide(page, 'retained-restart', 'app, mount');
   const notes = page.getByRole('textbox', { name: 'Working notes' });
   await notes.fill('Unfinished draft');
   await page.evaluate(() => {
     window.originalNotes = document.querySelector('textarea');
     window.originalPage = window.guide.app.getView();
-    window.refreshDone = window.guide.app.refresh();
+    window.restartDone = window.guide.app.restart();
   });
-  await expect(page.getByRole('status')).toHaveText('Refreshing…');
+  await expect(page.getByRole('status')).toHaveText('Loading…');
   await expect(notes).toBeFocused();
-  await page.evaluate(async() => { window.finishRefresh(); await window.refreshDone; });
+  await page.evaluate(async() => { window.finishRestart(); await window.restartDone; });
   await expect(notes).toBeFocused();
   await expect(notes).toHaveValue('Unfinished draft');
   await expect(page.locator('.summary')).toContainText('Open tasks: 8');
   assert.equal(await page.evaluate(() => document.querySelector('textarea') === window.originalNotes &&
     window.guide.app.getView() === window.originalPage), true);
-  await page.evaluate(async() => { await window.guide.app.destroy(); window.guide.mount.remove(); });
+  await page.evaluate(async() => { window.guide.app.destroy(); window.guide.mount.remove(); });
 });
 
 test('Documented host mount preserves the host and ends detached interaction', async({ page }) => {
@@ -273,7 +273,7 @@ test('Documented navigation handles direct links, history, focus and listener cl
     const original = app.showRoute;
     window.routeCalls = 0;
     app.showRoute = function(...args) { window.routeCalls++; return original.apply(this, args); };
-    await app.stop();
+    app.stop();
     window.dispatchEvent(new HashChangeEvent('hashchange'));
     return window.routeCalls;
   }), 0);
@@ -287,7 +287,7 @@ test('Documented navigation handles direct links, history, focus and listener cl
     return window.routeCalls;
   }), 1);
   await page.evaluate(async() => {
-    await window.guide.app.destroy();
+    window.guide.app.destroy();
     window.dispatchEvent(new HashChangeEvent('hashchange'));
     window.guide.mount.remove();
   });

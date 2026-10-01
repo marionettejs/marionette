@@ -37,40 +37,6 @@ describe('Application state events follow activation', function() {
     return { promise, resolve, reject };
   }
 
-  it('delivers payloads and context during activation including pending stop permission', async function() {
-    const startReady = readiness();
-    const stopReady = readiness();
-    const handler = vi.fn();
-    const app = createApp({
-      stateEvents() { return { changed: 'onChanged' }; },
-      onChanged: handler,
-      onBeforeStart() { state.trigger('changed', 'before:start'); },
-      prepareStart() { return startReady.promise; },
-      onStart() { state.trigger('changed', 'start'); },
-      onBeforeStop() { state.trigger('changed', 'before:stop'); },
-      prepareStop() { return stopReady.promise; },
-      onStop() { state.trigger('changed', 'stop'); },
-      onBeforeDestroy() { state.trigger('changed', 'before:destroy'); }
-    });
-    state.trigger('changed', 'constructed');
-    const starting = app.start();
-    state.trigger('changed', 'starting');
-    expect(handler).not.toHaveBeenCalled();
-    startReady.resolve();
-    expect(await starting).toBe(true);
-    state.trigger('changed', state, 42);
-    const stopping = app.stop();
-    expect(app.isRunning()).toBe(true);
-    state.trigger('changed', 'stopping');
-    stopReady.resolve();
-    expect(await stopping).toBe(true);
-    state.trigger('changed', 'stopped');
-    await app.destroy();
-    state.trigger('changed', 'destroyed');
-    expect(handler.mock.calls).toEqual([['start'], [state, 42], ['before:stop'], ['stopping']]);
-    expect(handler.mock.contexts).toEqual([app, app, app, app]);
-  });
-
   it('seeds reusable form state before its UI and persistence handlers activate', async function() {
     const render = vi.fn();
     const persist = vi.fn();
@@ -87,7 +53,8 @@ describe('Application state events follow activation', function() {
     state.set({ responseId: 'response', saveMode: 'next' });
     expect(render).toHaveBeenCalledTimes(1);
     expect(persist).toHaveBeenCalledTimes(1);
-    await app.restart();
+    await app.stop();
+    await app.start();
     expect(app.getState()).toBe(state);
     expect(render).toHaveBeenCalledTimes(1);
     expect(persist).toHaveBeenCalledTimes(1);
@@ -99,7 +66,7 @@ describe('Application state events follow activation', function() {
     const starts = vi.fn();
     const app = createApp({
       stateEvents: { 'change:filter': function() { restarted = this.restart(); } },
-      onBeforeStart() { state.set('filter', 'initial'); },
+      onBeforeStart() { if (!this.isRunning()) { state.set('filter', 'initial'); } },
       onStart: starts
     });
     expect(await app.start()).toBe(true);
@@ -135,75 +102,24 @@ describe('Application state events follow activation', function() {
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
-  ['stop', 'restart'].forEach(operation => {
-    it(`keeps delivery when ${operation} permission rejects`, async function() {
-      const ready = readiness();
-      const handler = vi.fn();
-      const app = createApp({
-        stateEvents: { changed: handler },
-        prepareStop: vi.fn().mockReturnValueOnce(ready.promise)
-      });
-      await app.start();
-      const stopping = app[operation]();
-      state.trigger('changed', 'pending');
-      ready.reject(new Error('denied'));
-      await expect(stopping).rejects.toThrow('denied');
-      expect(app.isRunning()).toBe(true);
-      state.trigger('changed', 'restored');
-      expect(handler.mock.calls).toEqual([['pending'], ['restored']]);
-      expect(await app.stop()).toBe(true);
-      expect(app.isRunning()).toBe(false);
-    });
-  });
 
-  it('keeps delivery through an adopted stop phase then suppresses replacement startup', async function() {
-    const ready = readiness();
-    const started = readiness();
-    const startReady = readiness();
+  it('forwards state payloads with Application context and releases delivery on destroy', async function() {
     const handler = vi.fn();
-    let replacing = false;
-    const app = createApp({
-      stateEvents: { changed: handler },
-      prepareStop() { return ready.promise; },
-      prepareStart() { if (replacing) { started.resolve(); return startReady.promise; } }
-    });
+    const app = createApp({ stateEvents: { changed: handler } });
     await app.start();
-    const stopping = app.stop();
-    replacing = true;
-    const starting = app.start();
-    expect(await stopping).toBe(false);
-    expect(app.isRunning()).toBe(true);
-    state.trigger('changed', 'adopted');
-    ready.resolve();
-    await started.promise;
-    expect(app.isRunning()).toBe(false);
-    state.trigger('changed', 'starting');
-    startReady.resolve();
-    await starting;
-    state.trigger('changed', 'started');
-    expect(handler.mock.calls).toEqual([['adopted'], ['started']]);
-  });
-
-  it('preserves activation when reentrant stop replacement rejects', async function() {
-    let replacement;
-    let replace = true;
-    const handler = vi.fn();
-    const app = createApp({
-      stateEvents: { changed: handler },
-      onBeforeStop() {
-        if (replace) { replace = false; replacement = this.restart(); }
-      },
-      prepareStop: vi.fn().mockImplementationOnce(() => { throw new Error('denied'); })
-    });
-    await app.start();
-    const stopped = app.stop();
-    await expect(replacement).rejects.toThrow('denied');
-    expect(await stopped).toBe(false);
-    expect(app.isRunning()).toBe(true);
-    state.trigger('changed');
+    state.trigger('changed', state, 42);
+    expect(handler).toHaveBeenCalledExactlyOnceWith(state, 42);
+    expect(handler.mock.contexts).toEqual([app]);
+    app.stop();
+    state.trigger('changed', state, 43);
     expect(handler).toHaveBeenCalledTimes(1);
-    expect(await app.stop()).toBe(true);
-    expect(app.isRunning()).toBe(false);
+    await app.start();
+    state.trigger('changed', state, 44);
+    expect(handler.mock.calls).toEqual([[state, 42], [state, 44]]);
+    expect(handler.mock.contexts).toEqual([app, app]);
+    app.destroy();
+    state.trigger('changed', state, 45);
+    expect(handler).toHaveBeenCalledTimes(2);
   });
 
   it('suppresses canceled and failed startup including late completions', async function() {
@@ -226,7 +142,7 @@ describe('Application state events follow activation', function() {
     expect(handler).not.toHaveBeenCalled();
   });
 
-  it('deactivates before view teardown and stays inactive after failed restart preparation', async function() {
+  it('retains activation and its root after failed restart preparation', async function() {
     const handler = vi.fn();
     let fail = false;
     const app = createApp({
@@ -242,7 +158,10 @@ describe('Application state events follow activation', function() {
     fail = true;
     await expect(app.restart()).rejects.toThrow('failed');
     state.trigger('changed', 'failed');
-    expect(handler).not.toHaveBeenCalled();
+    expect(handler.mock.calls).toEqual([['failed']]);
+    expect(app.getView().isDestroyed()).toBe(false);
+    await app.stop();
+    expect(handler.mock.calls).toEqual([['failed']]);
   });
 
   it('does not deliver to later configured handlers after an earlier handler destroys the app', async function() {
@@ -272,47 +191,12 @@ describe('Application state events follow activation', function() {
     await app.start();
     expect(await app.restart()).toBe(true);
     expect(await stopping).toBe(true);
-    expect(stopped).toHaveBeenCalledTimes(2);
+    expect(stopped).toHaveBeenCalledTimes(1);
     expect(app.isRunning()).toBe(false);
     expect(root.isDestroyed()).toBe(true);
     expect(app.getView()).toBeUndefined();
     state.trigger('changed');
     expect(handler).not.toHaveBeenCalled();
-  });
-
-  it('deactivates before an adopted start replaces the old Region', async function() {
-    const ready = readiness();
-    const handler = vi.fn();
-    const activity = [];
-    const first = new runtime.Region({ el: document.createElement('main') });
-    const second = new runtime.Region({ el: document.createElement('main') });
-    const app = createApp({
-      stateEvents: { changed: handler },
-      prepareStop() { return ready.promise; },
-      onStart() {
-        const root = this.showView(new runtime.View({ template: false }));
-        root.on('before:destroy', () => {
-          activity.push(this.isRunning());
-          state.trigger('changed');
-        });
-      }
-    });
-    await app.start({ region: first });
-    const oldRoot = app.getView();
-    const stopping = app.stop();
-    const starting = app.start({ region: second });
-    expect(app.isRunning()).toBe(true);
-    ready.resolve();
-    expect(await stopping).toBe(false);
-    expect(await starting).toBe(true);
-    expect(activity).toEqual([false]);
-    expect(handler).not.toHaveBeenCalled();
-    expect(oldRoot.isDestroyed()).toBe(true);
-    expect(app.getRegion()).toBe(second);
-    expect(app.isRunning()).toBe(true);
-    await app.destroy();
-    first.destroy();
-    second.destroy();
   });
 
   it('keeps other owners and explicit listeners independent and releases subscriptions once', async function() {

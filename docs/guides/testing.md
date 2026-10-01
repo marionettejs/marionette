@@ -139,7 +139,7 @@ test('readiness precedes activation and stop destroys the screen', async t => {
   const request = Promise.withResolvers();
   t.mock.method(globalThis, 'fetch', () => request.promise);
   const app = new SummaryApplication({ region: { el: mount } });
-  t.after(async () => { await app.destroy(); mount.remove(); });
+  t.after(() => { app.destroy(); mount.remove(); });
   const starting = app.start();
   assert.equal(app.isRunning(), false);
   assert.equal(mount.childElementCount, 0);
@@ -149,12 +149,12 @@ test('readiness precedes activation and stop destroys the screen', async t => {
   assert.equal(mount.querySelector('h1').textContent, 'Ready summary');
   const screen = app.getView();
 
-  assert.equal(await app.stop(), true);
+  assert.equal(app.stop(), true);
   assert.equal(app.isRunning(), false);
   assert.equal(screen.isDestroyed(), true);
   assert.equal(mount.childElementCount, 0);
   const region = app.getRegion();
-  assert.equal(await app.destroy(), true);
+  assert.equal(app.destroy(), true);
   assert.equal(app.isDestroyed(), true);
   assert.equal(region.isDestroyed(), true);
 });
@@ -164,7 +164,7 @@ test('failed readiness leaves an initially stopped feature without a screen', as
   const failure = new Error('Unavailable');
   t.mock.method(globalThis, 'fetch', async () => { throw failure; });
   const app = new SummaryApplication({ region: { el: mount } });
-  t.after(async () => { await app.destroy(); mount.remove(); });
+  t.after(() => { app.destroy(); mount.remove(); });
   await assert.rejects(app.start(), error => error === failure);
   assert.equal(app.isRunning(), false);
   assert.equal(app.getView(), undefined);
@@ -180,9 +180,9 @@ test('stop cancels pending readiness and an obsolete result cannot show UI', asy
     return request.promise;
   });
   const app = new SummaryApplication({ region: { el: mount } });
-  t.after(async () => { await app.destroy(); mount.remove(); });
+  t.after(() => { app.destroy(); mount.remove(); });
   const starting = app.start();
-  await app.stop();
+  app.stop();
   assert.equal(preparationSignal.aborted, true);
   request.resolve(new Response(JSON.stringify({ title: 'Obsolete summary' })));
   assert.equal(await starting, false);
@@ -205,4 +205,4 @@ These tests do not need an HTTP server, timers, or a complete application. The p
 
 JSDOM verifies DOM changes, delegated events, public lifecycle outcomes, and cleanup. It cannot establish real layout, focus and caret behavior while typing, browser navigation, or accessibility quality. Add browser tests for those user interactions and run them against your built consumer bundle. Test the behavior your application promises, including the chosen renderer and data provider.
 
-In your application, import your application setup first, then the real View and Application modules and test their promised public behavior with these patterns. See [local editing](local-editing.md), [retained refresh](retained-refresh.md), and [tooling](../tooling.md) for related contracts and checks.
+In your application, import your application setup first, then the real View and Application modules and test their promised public behavior with these patterns. See [local editing](local-editing.md), [retained restart](retained-restart.md), and [tooling](../tooling.md) for related contracts and checks.

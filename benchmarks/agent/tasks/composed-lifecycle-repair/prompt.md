@@ -2,11 +2,11 @@
 
 A colleague handed you a review-session controller. Normal startup, editing, and
 refresh work, but switching sessions during validation can overwrite newer data,
-and declining a stop request can leave the session disconnected. Repair
+and destruction can dispose state another consumer still uses. Repair
 `solution.mjs` without regressing the working behavior below. You may add local
 files; do not alter dependencies or test tooling.
 
-Export `createReviewSession({ state, load, validate, beforeStop, subscribe,
+Export `createReviewSession({ state, load, validate, subscribe,
 schedule, onPulse })`, returning `{ app, refresh(id), edit(draft) }`:
 
 - `app` is a Marionette Application. `app.start({ id })` loads and validates that
@@ -21,8 +21,7 @@ schedule, onPulse })`, returning `{ app, refresh(id), edit(draft) }`:
 - `refresh(id)` uses the same load/validate behavior without restarting. Resolve
   true for a committed value, false for obsolete requests. An obsolete request
   need only settle when its provider settles. While stopped, starting, or destroyed,
-  refresh returns false without loading. During pending stop permission the active
-  run is still usable, including refresh and editing.
+  refresh returns false without loading.
 - `edit(draft)` updates only `state`'s draft. Startup, refresh, errors, stop and
   restart preserve that draft. This is a headless controller task: browser focus
   and DOM behavior are outside its contract.
@@ -30,16 +29,10 @@ schedule, onPulse })`, returning `{ app, refresh(id), edit(draft) }`:
   them to `state.set('status', status)`. `schedule(onPulse)` registers a recurring
   heartbeat. Each returns a working synchronous disposer. Use only these supplied
   resources; do not create real timers, network calls, or global singletons.
-- `prepareStop` awaits `beforeStop(options, context)`. While permission is pending,
-  status and heartbeat remain active. Rejection preserves them and pending refresh
-  work. Successful stop releases both registrations exactly once and invalidates
-  pending refresh work. Restart acquires one fresh pair. A start superseding pending
-  stop must not leak
-  the previous pair when startup completes again; retaining a working pair is valid.
-  If replacement startup fails and leaves the Application stopped, release its
-  resources, preserve label/draft, and allow a later start to retry. Destruction releases all
-  owned resources and prevents later commits. A destroy adopting pending stop
-  permission must not ask twice. No synchronous disposer-error recovery is required.
+- Stop completes synchronously: cancel pending requests and release subscriptions
+  and timers before returning. Destroy does the same and prevents late request
+  commits. Successful restart leaves exactly one active subscription and timer;
+  retaining existing registrations or replacing them are both valid.
 - `state` is a borrowed source exposing `get`, `set`, and `dispose`. `app.getState()`
   must return that exact source. Never dispose it: another consumer continues using
   it after this session is destroyed.

@@ -46,7 +46,7 @@ The default StateApi cannot observe the plain-object default state. Configure a 
 | Owner | When `stateEvents` deliver |
 | --- | --- |
 | View, CollectionView, Behavior, MnObject | After their state bindings initialize, until destruction releases them. View delivery does not require render or DOM attachment; detaching a View keeps its state observation. |
-| Application | Only while `isRunning()` is true, including `onStart` and pending stop preparation. Delivery stops before root View teardown. Startup, stopped, and failed-start writes are not replayed when the Application later activates. |
+| Application | Only while `isRunning()` is true, including `onStart` and preparation during an active restart. Delivery stops before root View teardown. Startup, stopped, and failed-start writes are not replayed when the Application later activates. |
 
 Application's activity rule applies to configured `stateEvents`. An explicit `app.listenTo(state, ...)` subscription has the ordinary [Events lifetime](events.md#cleanup) and is not automatically gated by `isRunning()`.
 

@@ -1773,15 +1773,13 @@
       "exports": [
         "Application"
       ],
-      "result": "Operations resolve true at the requested target, false when superseded, and compatible calls share in-flight promises. Current readiness failure rejects the operation promise.",
-      "timing": "Before and completion notifications are synchronous and ignore returns. Only prepareStart/prepareStop/prepareDestroy are awaited with options and an abort context; start completion receives one resolved preparation result. Supersession aborts before replacement preparation; adopted stop retains its original context/options without abort. Startup Region binding occurs before startup notifications, after any adopted stop readiness finishes. isRunning and configured stateEvents follow activation: false during startup preparation, true immediately before start notification through pending ordinary stop/restart permission, and false before root teardown or immediately when terminal destruction begins. Suppressed state events are not replayed.",
+      "result": "Start and restart resolve true at the requested target and false when superseded; current preparation failure rejects. Stop and destroy return synchronous booleans and callback failures throw.",
+      "timing": "Notifications are synchronous and ignore returns. Only prepareStart is awaited with options and an abort context; start completion receives one resolved result. Supersession aborts before replacement preparation. Initial startup is inactive; retained restart stays active with stateEvents delivering. Stop synchronously stops descendants and deactivates before root teardown; destroy synchronously releases child Applications, UI, owned Region, state, Radio and listeners. Suppressed state events are not replayed.",
       "ownership": "Registration never starts children. Callers explicitly await prerequisites. Stop/destroy traverse all owned descendants, including stopped intermediate owners; descendants cannot start/restart during an ancestor stop or terminal phase.",
       "mutation": "Canceled readiness cannot append stale framework completion events or alter stable state.",
-      "repetition": "Compatible calls share promises. Restart coalescing ends before startup completion notifications; restart from onStart/start begins a new cycle with independent options and outcome. A stopped owner still drains owned descendants without repeating its own stop preparation or notifications. Restart deactivates children; reactivation is explicit. A different Region on start while running or starting is rejected with MN0041. Restart with a different host supersedes pending start/restart, deactivates first, then binds the latest host. A fresh start from stopped may bind a new host. Start-time region options accept only existing Region instances; constructor options retain Region definitions.",
-      "destruction": "Destruction blocks owner and descendant start/restart; successful destruction destroys owned children. Readiness rejection preserves the documented retry and partial-child boundaries. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
-      "diagnostics": [
-        "MN0041"
-      ],
+      "repetition": "Pending start calls share promises and ignore later options. Stop and destroy are synchronous and idempotent. Each restart reruns preparation without stopping the active run or children; latest intent wins. Start during retained restart resolves true without canceling it. Restart during initial startup supersedes preparation; after stop it starts the stopped feature. Only start selects a Region instance. Active or pending start ignores new options; restart retains its host and ignores forwarded region options. Start/restart cannot activate during cleanup; onStop may start a next run after cleanup. Full reset is explicit stop followed by start. Start joins restart readiness while the Application has no active run. Independently active children remain active when restart prepares a stopped owner.",
+      "destruction": "Destruction is terminal during callbacks and blocks owner/descendant activation. It stops descendants before the before:destroy notification, destroys children in registration order, and releases owned resources and incoming/outgoing event subscriptions synchronously. Callback failures throw and abort remaining teardown, without rollback or retry of partial instances.",
+      "diagnostics": [],
       "docs": [
         {
           "file": "docs/api/application.md",
@@ -1831,14 +1829,6 @@
         },
         {
           "file": "test/unit/application-lifecycle.spec.js",
-          "title": "aborts invalidated readiness before replacement readiness starts"
-        },
-        {
-          "file": "test/unit/application-lifecycle.spec.js",
-          "title": "transfers stop readiness without aborting its signal"
-        },
-        {
-          "file": "test/unit/application-lifecycle.spec.js",
           "title": "shares a compatible in-flight start and no-ops once running"
         },
         {
@@ -1855,7 +1845,7 @@
         },
         {
           "file": "test/unit/application-child-lifecycle.spec.js",
-          "title": "allows explicit children again in restart readiness, but not the stop completion hook"
+          "title": "allows explicit children in restart readiness and after stop cleanup"
         },
         {
           "file": "test/unit/application-child-lifecycle.spec.js",
@@ -1874,32 +1864,36 @@
           "title": "keeps a prepared root while rebinding a stopped displayed root"
         },
         {
-          "file": "test/unit/application-state-events.spec.js",
-          "title": "delivers payloads and context during activation including pending stop permission"
-        },
-        {
-          "file": "test/unit/application-restart-completion.spec.js",
-          "title": "coalesces compatible restarts during both stop and start preparation with original options"
-        },
-        {
-          "file": "test/unit/application-start-region.spec.js",
-          "title": "waits for an adopted stop before binding a superseding start host"
-        },
-        {
-          "file": "test/unit/application-start-region.spec.js",
-          "title": "does not bind a new host when the stop phase fails"
-        },
-        {
-          "file": "test/unit/application-restart-completion.spec.js",
-          "title": "keeps a completed restart successful when its completion-triggered cycle fails"
-        },
-        {
-          "file": "test/unit/application-restart-completion.spec.js",
-          "title": "keeps a completed restart successful when its completion-triggered cycle is canceled"
-        },
-        {
           "file": "test/unit/destroy-listener-cleanup.spec.js",
           "title": "delivers final notifications and releases incoming and outgoing subscriptions"
+        },
+        {
+          "file": "test/unit/application-retained-restart.spec.js",
+          "title": "keeps DOM, focus, children and event delivery active through supersession"
+        },
+        {
+          "file": "test/unit/application-retained-restart.spec.js",
+          "title": "keeps the active presentation and children usable after failed re-preparation"
+        },
+        {
+          "file": "test/unit/application-sync-stop.spec.js",
+          "title": "stops descendants and destroys its root before returning a boolean"
+        },
+        {
+          "file": "test/unit/application-sync-stop.spec.js",
+          "title": "cancels pending preparation and suppresses stale completion immediately"
+        },
+        {
+          "file": "test/unit/application-sync-destroy.spec.js",
+          "title": "stops live children before notification and destroys them in registration order"
+        },
+        {
+          "file": "test/unit/application-sync-destroy.spec.js",
+          "title": "returns a removed child synchronously and clears its ownership"
+        },
+        {
+          "file": "test/unit/application-sync-destroy.spec.js",
+          "title": "preserves terminal ownership during notification reentry"
         }
       ],
       "events": [
@@ -1913,7 +1907,7 @@
             "application",
             "options"
           ],
-          "timing": "Synchronous notifications; method and listener return values are not consumed, and returned Promises are neither awaited nor rejection-handled. Preparation follows; start/stop preparation is skipped if the notification supersedes its pending operation. Destruction is terminal and cannot be superseded."
+          "timing": "Synchronous notifications; method and listener return values are not consumed, and returned Promises are neither awaited nor rejection-handled. Startup preparation follows; stop/destroy tear down synchronously. start preparation is skipped if the notification supersedes its pending operation. Destruction is terminal and cannot be superseded."
         },
         {
           "names": [
@@ -1935,7 +1929,7 @@
             "application",
             "options"
           ],
-          "timing": "Synchronous completion after preparation and teardown; return values are ignored."
+          "timing": "Synchronous completion after synchronous teardown; return values are ignored."
         }
       ],
       "members": [
@@ -1944,8 +1938,6 @@
         "restart",
         "destroy",
         "prepareStart",
-        "prepareStop",
-        "prepareDestroy",
         "onBeforeStart",
         "onBeforeStop",
         "onBeforeDestroy",
@@ -2805,11 +2797,11 @@
       "exports": [
         "Application"
       ],
-      "result": "Construction, addChildApp, setView and showView(view) return their public instance; showView() returns the prepared or selected displayed View, or undefined; repeated showView() on the selected displayed root is a no-op; removeChildApp returns a Promise of the removed child or undefined; queries return the declared state or optional owner member.",
-      "timing": "Construction, registration, root preparation/display and queries are synchronous; removeChildApp awaits child destruction before releasing ownership. childApps resolves a map or function once and registers fresh no-argument children before initialize; declarations do not activate children. Parent restart retains registered instances without reconstructing or automatically reactivating them; start selected children explicitly.",
-      "ownership": "Named children belong to the Application until removal. setView temporarily owns a prepared View; showView hands it to the Region and records the Application's selected displayed root. A direct Region display is not adopted or claimable; an Application may reselect its own displayed root.",
+      "result": "Construction, addChildApp, setView and showView(view) return their public instance; showView() returns the prepared or selected displayed View, or undefined; repeated showView() on the selected displayed root is a no-op; removeChildApp returns the destroyed child or undefined synchronously; queries return the declared state or optional owner member.",
+      "timing": "Construction, registration, root preparation/display and queries are synchronous; removeChildApp completes child destruction before returning. childApps resolves a map or function once and registers fresh no-argument children before initialize; declarations do not activate children. Parent restart retains registered instances without reconstructing them or deactivating active children; start selected children explicitly.",
+      "ownership": "Named children belong to the Application until removal. setView temporarily owns a prepared View; showView hands it to the Region and records the Application's selected displayed root. A direct Region display is not adopted or claimable; an Application may reselect its own displayed root. viewEvents registers ordinary listenTo handlers once per selected View, including both roots during staged replacement. Destroying the View or Application cleans listeners; detaching a live View preserves them.",
       "mutation": "setView destroys only a previous prepared View, leaving the selected displayed View until Region show replaces it. getView reads preparation or the Application's selected display without rendering. Child registration/removal coordinates with the owner lifecycle.",
-      "repetition": "Preparing the same pending View is a no-op; reselecting the Application's displayed root cancels preparation. Showing the current View does not render or attach it again. Child registrations and lookups follow documented ownership guards. Child declaration maps replace rather than merge inherited maps and are not reprocessed on restart.",
+      "repetition": "Preparing the same pending View preserves ownership; reselecting the Application's displayed root cancels preparation. Showing the current View does not render or attach it again. Child registrations and lookups follow documented ownership guards. Child declaration maps replace rather than merge inherited maps and are not reprocessed on restart.",
       "destruction": "Stop destroys a prepared View and empties the host only when its selected displayed View is still current, or when a directly shown View occupies an Application-created Region. Destroy also tears down owned children and a constructed root Region; it preserves unrelated content in a borrowed Region. Direct destruction releases preparation; displayed View associations end on Region replacement, empty, or detachment.",
       "diagnostics": [
         "MN0003",
@@ -2832,6 +2824,10 @@
         {
           "file": "docs/api/application.md",
           "heading": "Construction and options"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "View events"
         }
       ],
       "tests": [
@@ -2846,10 +2842,6 @@
         {
           "file": "test/unit/application-ownership.spec.js",
           "title": "removes and destroys an owned child"
-        },
-        {
-          "file": "test/unit/application-ownership.spec.js",
-          "title": "retains a child when removal destroy readiness fails"
         },
         {
           "file": "test/unit/application-root-view.spec.js",
@@ -2874,6 +2866,14 @@
         {
           "file": "test/unit/application-child-declarations.spec.js",
           "title": "resolves a function declaration once with the parent as context before initialize"
+        },
+        {
+          "file": "test/unit/application-view-events.spec.js",
+          "title": "never binds unrelated content in a shared borrowed Region"
+        },
+        {
+          "file": "test/unit/application-view-events.spec.js",
+          "title": "preserves ordinary listeners on detach and avoids duplicate binding on reselection"
         }
       ],
       "members": [

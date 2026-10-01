@@ -45,7 +45,7 @@ Version-matched Markdown for the installed package. Choose the relevant task or 
 - [Test an application](docs/guides/testing.md)
 - [Use TypeScript](docs/guides/typescript.md)
 - [Local model editing](docs/guides/local-editing.md)
-- [Retained refresh](docs/guides/retained-refresh.md)
+- [Retained restart](docs/guides/retained-restart.md)
 - [Existing HTML](docs/guides/existing-html.md)
 - [Integrate with existing UI](docs/guides/existing-ui.md)
 - [Navigation and feature ownership](docs/guides/routing.md)

@@ -7,5 +7,5 @@ export const PageView = View.extend({
     'click .js-open': 'open:records',
     'click .js-close': 'close:records'
   },
-  childViewTriggers: { retry: 'retry:records' }
+  childViewTriggers: { retry: 'retry:records', reload: 'reload:records' }
 });

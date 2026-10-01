@@ -26,31 +26,6 @@ describe('Application restart completion boundary', function() {
     return { app, runtime };
   }
 
-  it('coalesces compatible restarts during both stop and start preparation with original options', async function() {
-    const stop = gate();
-    const start = gate();
-    const entered = gate();
-    const seen = [];
-    let hold = false;
-    const { app } = createApp({
-      prepareStop(options) { if (hold) { seen.push(['stop', options]); return stop.promise; } },
-      prepareStart(options) {
-        if (hold) { seen.push(['start', options]); entered.resolve(); return start.promise; }
-      }
-    });
-    await app.start();
-    hold = true;
-    const options = { filter: 'original' };
-    const first = app.restart(options);
-    expect(app.restart({ filter: 'ignored during stop' })).toBe(first);
-    stop.resolve();
-    await entered.promise;
-    expect(app.restart({ filter: 'ignored during start' })).toBe(first);
-    start.resolve();
-    expect(await first).toBe(true);
-    expect(seen).toEqual([['stop', options], ['start', options]]);
-    hold = false;
-  });
 
   ['onStart', 'start event'].forEach(notification => {
     it(`starts a distinct cycle from ${notification} with its own options and root teardown`, async function() {
@@ -76,43 +51,13 @@ describe('Application restart completion boundary', function() {
       expect(nested).not.toBe(outer);
       expect(await nested).toBe(true);
       expect(starts).toEqual([{ filter: 'initial' }, { filter: 'outer' }, options]);
-      expect(stops).toBe(2);
+      expect(stops).toBe(0);
       expect(roots.map(root => root.isDestroyed())).toEqual([true, true, false]);
       expect(app.getView()).toBe(roots[2]);
       expect(app.isRunning()).toBe(true);
     });
   });
 
-  it('starts the new cycle with its requested Region and explicitly reactivates children', async function() {
-    let starts = 0;
-    let nested;
-    const roots = [];
-    const { app, runtime } = createApp({
-      async prepareStart() { await this.getChildApp('child').start(); },
-      onStart() {
-        roots.push(this.showView(new runtime.View({ template: false })));
-        if (++starts === 2) { nested = this.restart({ region: second }); }
-      }
-    });
-    const first = new runtime.Region({ el: document.createElement('main') });
-    const second = new runtime.Region({ el: document.createElement('main') });
-    owners.push(first, second);
-    const child = app.addChildApp('child', new runtime.Application());
-    let childStarts = 0;
-    let childStops = 0;
-    child.on('start', () => { childStarts += 1; });
-    child.on('stop', () => { childStops += 1; });
-    await app.start({ region: first });
-    expect(await app.restart()).toBe(true);
-    expect(await nested).toBe(true);
-    expect(app.getRegion()).toBe(second);
-    expect(first.hasView()).toBe(false);
-    expect(second.currentView).toBe(roots[2]);
-    expect(roots.map(root => root.isDestroyed())).toEqual([true, true, false]);
-    expect(childStarts).toBe(3);
-    expect(childStops).toBe(2);
-    expect(child.isRunning()).toBe(true);
-  });
 
   it('keeps a completed restart successful when its completion-triggered cycle fails', async function() {
     const pending = gate();
@@ -139,7 +84,7 @@ describe('Application restart completion boundary', function() {
     expect(await outcome).toEqual({ error });
     expect(await outer).toBe(true);
     expect(starts).toBe(2);
-    expect(app.isRunning()).toBe(false);
+    expect(app.isRunning()).toBe(true);
   });
 
   it('keeps a completed restart successful when its completion-triggered cycle is canceled', async function() {

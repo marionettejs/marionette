@@ -161,33 +161,6 @@ for (const outcome of ['success', 'failure']) {
   });
 }
 
-test('a failure in onStart is logged and its partial UI/data are cleaned up', async({ page }) => {
-  await openRecords(page);
-  await page.getByRole('button', { name: 'Close records', exact: true }).click();
-  const control = await page.evaluateHandle(async() => {
-    const { application: main } = await import('/src/main.js');
-    const application = main.getChildApp('records');
-    const onStart = application.onStart;
-    const result = {};
-    application.onStart = function(...args) {
-      this.onStart = onStart;
-      onStart.apply(this, args);
-      result.view = this.getView();
-      throw new Error('Deliberate rendering failure');
-    };
-    return result;
-  });
-  const logged = page.waitForEvent('console', {
-    predicate: message => message.type() === 'error' && message.text().includes('Could not open records.'),
-  });
-  await page.getByRole('button', { name: 'Open records', exact: true }).click();
-  expect(await (await logged).args()[1].evaluate(error => error.message)).toBe('Deliberate rendering failure');
-  await expect(page.getByRole('alert')).toBeVisible();
-  expect(await control.evaluate(value => value.view.isDestroyed())).toBe(true);
-  await page.getByRole('button', { name: 'Retry', exact: true }).click();
-  await expect(page.getByRole('status')).toHaveText('2 records');
-});
-
 test('record values use ordinary text rendering', async({ page }) => {
   const title = '<img src=x onerror="document.body.dataset.injected=1">';
   const description = '<script>document.body.dataset.injected=1</script>';
@@ -220,7 +193,7 @@ test('repeated close/open resets selection and makes one load per start', async(
   }
 });
 
-test('stop releases views, records, and old intent listeners; destroy releases owned state', async({ page }) => {
+test('stop releases Views and old intent listeners; destroy releases owned state', async({ page }) => {
   await openRecords(page);
   const owned = await page.evaluateHandle(async() => {
     const { application: main } = await import('/src/main.js');
@@ -241,7 +214,7 @@ test('stop releases views, records, and old intent listeners; destroy releases o
   await page.getByRole('button', { name: 'Open records', exact: true }).click();
   await expect(page.getByRole('status')).toHaveText('2 records');
   expect(await owned.evaluate(async({ application, state }) => {
-    await application.destroy();
+    application.destroy();
     return { state: state.isDestroyed(), hasView: Boolean(application.getView()) };
   })).toEqual({ state: true, hasView: false });
   await expect(page.locator('main')).toBeEmpty();
@@ -249,9 +222,9 @@ test('stop releases views, records, and old intent listeners; destroy releases o
 });
 
 
-test('restart replaces the active feature and awaits a fresh prepared collection', async({ page }) => {
+test('restart retains the layout and selection while preparing a fresh collection', async({ page }) => {
   await openRecords(page);
-  await page.getByRole('button', { name: 'Alpha', exact: true }).click();
+  await page.getByRole('button', { name: 'Beta', exact: true }).click();
   const pageNode = await page.getByRole('heading', { name: 'Records example', exact: true }).elementHandle();
   const control = await page.evaluateHandle(async() => {
     const { application: main } = await import('/src/main.js');
@@ -270,15 +243,16 @@ test('restart replaces the active feature and awaits a fresh prepared collection
   expect(await control.evaluate(value => ({
     viewDestroyed: value.previousView.isDestroyed(),
     running: value.application.isRunning(), result: value.result,
-  }))).toEqual({ viewDestroyed: true, running: false, result: undefined });
+  }))).toEqual({ viewDestroyed: false, running: true, result: undefined });
   expect(await control.evaluate(async value => {
     value.resolve([{ id: 'beta', title: 'Updated Beta', description: 'New preparation.' }]);
     return value.restart;
   })).toBe(true);
   await expect(page.getByRole('status')).toHaveText('1 record');
   await expect(page.getByRole('list', { name: 'Records', exact: true }).getByRole('button')).toHaveText(['Updated Beta']);
-  await expect(page.getByRole('region', { name: 'Record details', exact: true })).toHaveText('Select a record.');
+  await expect(page.getByRole('region', { name: 'Record details', exact: true })).toContainText('Updated Beta');
   expect(await control.evaluate(value => value.application.records !== value.previousCollection)).toBe(true);
+  expect(await control.evaluate(value => value.application.getView() === value.previousView)).toBe(true);
   expect(await pageNode.evaluate(element => element.isConnected)).toBe(true);
 });
 
@@ -309,7 +283,7 @@ test('the main Application owns the existing page and child teardown', async({ p
     return { application, records: child, page: application.getView(), state: child.getState() };
   });
   expect(await control.evaluate(async value => {
-    await value.application.stop();
+    value.application.stop();
     return {
       pageDestroyed: value.page.isDestroyed(), childRunning: value.records.isRunning(),
       hasView: Boolean(value.records.getView()), stateDestroyed: value.state.isDestroyed(),
@@ -317,7 +291,7 @@ test('the main Application owns the existing page and child teardown', async({ p
   })).toEqual({ pageDestroyed: true, childRunning: false, hasView: false, stateDestroyed: false });
   await expect(page.locator('#app')).toHaveCount(0);
   expect(await control.evaluate(async value => {
-    await value.application.destroy();
+    value.application.destroy();
     return { main: value.application.isDestroyed(), child: value.records.isDestroyed(), state: value.state.isDestroyed() };
   })).toEqual({ main: true, child: true, state: true });
   await expect(page.locator('#app')).toHaveCount(0);
@@ -346,34 +320,79 @@ test('PageView uses the original HTML and controls without rendering', async({ p
   expect(await originalHeading.evaluate(element => element.isConnected)).toBe(true);
 });
 
-test('UI close reports a rejected stop without an unhandled Promise', async({ page }) => {
-  const unhandled = [];
-  const reports = [];
-  page.on('pageerror', error => unhandled.push(error.message));
-  page.on('console', message => { if (message.type() === 'error') { reports.push(message.text()); } });
-  await openRecords(page);
-  await page.evaluate(async() => {
-    const { application } = await import('/src/main.js');
-    application.getChildApp('records').prepareStop = () => Promise.reject(new Error('Stop blocked'));
+test('reload failure retains the layout, selection and records, then retry updates content', async({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  let attempts = 0;
+  await page.route('**/api/records.json', route => {
+    attempts++;
+    return attempts === 2 ? route.fulfill({ status: 503, body: '' }) : route.fulfill({ json: records });
   });
-  await page.getByRole('button', { name: 'Close records', exact: true }).click();
-  await expect.poll(() => reports.some(value => value.includes('Could not close records.'))).toBe(true);
+  await page.goto('/');
   await expect(page.getByRole('status')).toHaveText('2 records');
-  expect(unhandled).toEqual([]);
+  await page.getByRole('button', { name: 'Beta', exact: true }).click();
+  const root = await page.locator('.records').elementHandle();
+  const list = await page.getByRole('list', { name: 'Records', exact: true }).elementHandle();
+  await page.getByRole('button', { name: 'Reload records', exact: true }).click();
+  await expect(page.getByRole('alert')).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Record details', exact: true })).toContainText('Second record description.');
+  expect(await root.evaluate(element => element.isConnected)).toBe(true);
+  expect(await list.evaluate(element => element.isConnected)).toBe(true);
+  await page.getByRole('button', { name: 'Retry', exact: true }).click();
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  await expect(page.getByRole('status')).toHaveText('2 records');
+  expect(await root.evaluate(element => element.isConnected)).toBe(true);
+  expect(await list.evaluate(element => element.isConnected)).toBe(false);
+  await expect(page.getByRole('button', { name: 'Beta', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  expect(attempts).toBe(3);
+  expect(errors).toEqual([]);
 });
 
-test('retry intent reports failure during recovery without replacing the live feature', async({ page }) => {
-  const unhandled = [];
-  const reports = [];
-  page.on('pageerror', error => unhandled.push(error.message));
-  page.on('console', message => { if (message.type() === 'error') { reports.push(message.text()); } });
-  await openRecords(page);
-  await page.evaluate(async() => {
-    const { application } = await import('/src/main.js');
-    application.getChildApp('records').prepareStop = () => Promise.reject(new Error('Stop blocked'));
-    application.getView().triggerMethod('retry:records');
-  });
-  await expect.poll(() => reports.some(value => value.includes('Could not recover records.'))).toBe(true);
+test('parent restart retains its original page and active child without another request', async({ page }) => {
+  let requests = 0;
+  await page.route('**/api/records.json', route => { requests++; return route.fulfill({ json: records }); });
+  await page.goto('/');
   await expect(page.getByRole('status')).toHaveText('2 records');
-  expect(unhandled).toEqual([]);
+  const result = await page.evaluate(async() => {
+    const { application } = await import('/src/main.js');
+    const root = application.getView();
+    const child = application.getChildApp('records');
+    const childRoot = child.getView();
+    await application.restart();
+    return { samePage: application.getView() === root, sameChildRoot: child.getView() === childRoot,
+      childRunning: child.isRunning() };
+  });
+  expect(result).toEqual({ samePage: true, sameChildRoot: true, childRunning: true });
+  expect(requests).toBe(1);
+});
+
+
+test('overlapping reloads commit the newest records and ignore an obsolete failure', async({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await openRecords(page);
+  await page.getByRole('button', { name: 'Beta', exact: true }).click();
+  const control = await page.evaluateHandle(async() => {
+    const { application: main } = await import('/src/main.js');
+    const { recordsApi } = await import('/src/records-api.js');
+    const application = main.getChildApp('records');
+    const requests = [];
+    recordsApi.list = ({ signal }) => new Promise((resolve, reject) => requests.push({ signal, resolve, reject }));
+    const value = { application, layout: application.getView(), requests };
+    value.older = main.restartRecords();
+    value.newer = main.restartRecords();
+    return value;
+  });
+  expect(await control.evaluate(value => value.older)).toBe(false);
+  expect(await control.evaluate(value => value.requests[0].signal.aborted)).toBe(true);
+  await expect(page.getByRole('button', { name: 'Beta', exact: true })).toBeVisible();
+  expect(await control.evaluate(async value => {
+    value.requests[0].reject(new Error('Obsolete request'));
+    value.requests[1].resolve([{ id: 'beta', title: 'Newest Beta', description: 'Latest records.' }]);
+    return value.newer;
+  })).toBe(true);
+  await expect(page.getByRole('region', { name: 'Record details', exact: true })).toContainText('Newest Beta');
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  expect(await control.evaluate(value => value.application.getView() === value.layout)).toBe(true);
+  expect(errors).toEqual([]);
 });

@@ -42,7 +42,7 @@ Use the host framework's mount/ref and cleanup hooks to perform these two operat
 
 Use an [Application](../api/application.md) for feature readiness or coordinated child Applications. Give it `region: { el }`; the host owns its `start()` and `destroy()` calls and handles their failures. Follow [startup and cancellation](../api/application.md#preparation-cancellation-and-failure) and the executable [pending-start teardown test](testing.md) for the lifecycle contract.
 
-Keep the Application reference available to host cleanup while startup is pending. An asynchronous host cleanup hook can await destruction before reusing its mount; a synchronous hook must arrange completion and failure handling, or use a fresh element for the next mount. Adapt that boundary to the host's actual cleanup guarantees. The Region example above has synchronous teardown.
+Keep the Application reference available to host cleanup while startup is pending. Call synchronous `app.destroy()` in the host cleanup hook before reusing the mount. It cancels pending preparation and releases the feature UI. Finish any required asynchronous business work before invoking cleanup, according to the host’s lifecycle.
 
 Removing DOM alone does not destroy a View or Application. Likewise, Marionette does not destroy the surrounding host. For markup whose root itself belongs to Marionette, see [adopting existing HTML](existing-html.md); that View's destruction removes its root.
 

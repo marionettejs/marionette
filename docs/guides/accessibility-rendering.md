@@ -66,4 +66,4 @@ Choose an integration whose output matches the [renderer and DOM provider](../ap
 
 Use browser interaction tests to Tab to the button, activate it with Enter and Space, and check both `aria-pressed` and visible feedback. Confirm the same button remains focused through the local update. Then replace the View through its Region, verify the old View is destroyed, and check that the transition owner moves focus to the intended new destination.
 
-Include a text value containing HTML-like characters and verify it stays text. Test with keyboard navigation and assistive technology for your complete application; these focused checks do not establish accessibility conformance. See [consumer testing](testing.md) for test setup and [retained refresh](retained-refresh.md) for updates that preserve a larger page.
+Include a text value containing HTML-like characters and verify it stays text. Test with keyboard navigation and assistive technology for your complete application; these focused checks do not establish accessibility conformance. See [consumer testing](testing.md) for test setup and [retained restart](retained-restart.md) for updates that preserve a larger page.

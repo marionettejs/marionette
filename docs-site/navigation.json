@@ -168,9 +168,9 @@
     "section": "Guides"
   },
   {
-    "source": "docs/guides/retained-refresh.md",
-    "route": "docs/guides/retained-refresh",
-    "title": "Refresh data while retaining UI",
+    "source": "docs/guides/retained-restart.md",
+    "route": "docs/guides/retained-restart",
+    "title": "Restart readiness while retaining UI",
     "section": "Guides"
   },
   {
