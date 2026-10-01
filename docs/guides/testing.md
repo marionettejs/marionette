@@ -195,6 +195,8 @@ The render spy checks that a disposed editor no longer reacts to its borrowed Mo
 
 Run the test file with the DOM preload:
 
+Run from the application root:
+
 ```sh
 node --import ./test/dom.mjs --test --test-reporter=tap ./test/app.test.mjs
 ```

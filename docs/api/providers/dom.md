@@ -46,7 +46,7 @@ Only content insertion changes; native root creation, queries and placement rema
 | `replaceEl(newEl, oldEl)` | Replace the old element in its parent. Native does nothing for identical elements or a parentless old element. |
 | `setContents(el, output)` | Apply renderer output within the root. Native uses `innerHTML`, with nullish output clearing contents. Match this method to the renderer's output. |
 | `setAttributes(el, attributes)` | Apply attributes. Native uses own enumerable keys, removes `null` values, ignores `undefined`, and stringifies other values. Unmentioned attributes remain. |
-| `appendContents(el, contents)` | Append an Element/DocumentFragment to the parent Element/DocumentFragment. |
+| `appendContents(el, contents)` | Native default: append an Element/DocumentFragment to the parent Element/DocumentFragment. The jQuery adapter also accepts HTML strings, element arrays and jQuery collections. |
 | `moveEl(el, parent, before?)` | Insert or move the element before the reference node; append when omitted/null. Native uses `moveBefore` for an existing child of that parent when available, otherwise `insertBefore`. |
 | `hasContents(el) → boolean` | Report child-node presence. Native returns false for a nullish element. |
 | `detachContents(el)` | Remove contents while retaining the root. Native clears `textContent`. This operation does not establish View destruction by itself. |
@@ -65,7 +65,7 @@ DOM methods are synchronous; they are not lifecycle preparation hooks. View/Regi
 
 `delegate({ eventName, selector, handler, rootEl }) → cleanup`
 
-Install the listener on `rootEl` and return a function that releases exactly that subscription. Cleanup should be safe to repeat. Preserve the event passed to `handler`; the View/Behavior binding layer already selects the callback context. An empty selector represents the root listener. Marionette calls the cleanup on undelegation/destruction; detaching a live View preserves its bindings.
+Install the listener on `rootEl` and return a function that releases exactly that subscription. Preserve the event passed to `handler`; the View/Behavior binding layer already selects the callback context. An empty selector represents the root listener. Marionette calls the cleanup on undelegation/destruction; detaching a live View preserves its bindings.
 
 The native provider:
 

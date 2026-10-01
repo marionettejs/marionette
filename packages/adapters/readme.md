@@ -238,7 +238,7 @@ contents or switch content adapters after rendering.
 
 ## Version-matched reference
 
-When the matching Marionette candidate is installed, locate its package root with
-`require.resolve('marionette/package.json')`. Read `docs/packages/adapters.md` under
-that root for the five adapter subpaths, provider configuration, ownership and
+When the matching Marionette candidate is installed, locate its `package.json` with
+`require.resolve('marionette/package.json')`. Read `docs/packages/adapters.md` beside
+that file for the five adapter subpaths, provider configuration, ownership and
 cleanup, optional peers, and exported types.

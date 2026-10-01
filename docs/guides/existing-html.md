@@ -11,7 +11,7 @@ Start with this HTML:
 </section>
 ```
 
-Run this module after the markup is available, for example through a module script at the end of the body:
+Run this module through your bundler after the markup is available. A native browser module script needs an import map to resolve the bare package import:
 
 ```js
 import { View } from 'marionette';
