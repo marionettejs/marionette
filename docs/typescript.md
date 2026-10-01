@@ -118,12 +118,12 @@ owner-document constructors or a suitable structural check. Do not use a broad
 
 ## Keep lifecycle result types distinct
 
-`View#destroy()` and `Region#destroy()` are synchronous. Application lifecycle
-operations return promises; await `app.start()`, `app.stop()`, and `app.destroy()`
+`View#destroy()` and `Region#destroy()` are synchronous. Application `stop()` and `destroy()` also complete
+synchronously and return booleans. Await `app.start()` and `app.restart()`
 when later work depends on their completion. A `true` result means the requested state was reached, including an already-running
 `start()` or repeated `destroy()`. A superseded transition resolves `false`;
 starting a destroyed application also resolves `false`. Rejection reports a
-failed transition. See [Application](./marionette.application.md) for exact states.
+failed startup transition; synchronous teardown failures throw. See [Application](./marionette.application.md) for exact states.
 
 Types do not establish data validity at a network boundary, protect against stale
 asynchronous results, or demonstrate focus retention. Validate external data in

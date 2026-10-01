@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from './fixtures.mjs';
 
-test('Application state events preserve active UI through rejected stop and reset safely on restart', async({ page }) => {
+test('Application state events stop synchronously and seed fresh UI on start', async({ page }) => {
   await page.evaluate(async() => {
     const { createMarionette } = await import('marionette');
     const { Model, StateApi } = await import('@mnjs/data');
@@ -9,9 +9,6 @@ test('Application state events preserve active UI through rejected stop and rese
     runtime.setStateApi(StateApi);
     const state = new Model();
     const writes = [];
-    let rejectStop;
-    let stopping;
-    let needsPermission = true;
     const Layout = runtime.View.extend({
       template: () => '<input aria-label="Draft"><button>Choose next</button><output></output>',
       events: { 'click button'() { state.set('choice', 'next'); } }
@@ -27,23 +24,14 @@ test('Application state events preserve active UI through rejected stop and rese
       updateChoice() {
         writes.push(state.get('choice'));
         this.getView().el.querySelector('output').textContent = state.get('choice');
-      },
-      prepareStop() {
-        if (needsPermission) { return new Promise((resolve, reject) => { rejectStop = reject; }); }
       }
     });
     const app = new App({ state });
     await app.start();
     const root = app.getView();
-    window.stateFeature = {
-      app, state, writes, root,
-      stop() { stopping = app.stop().catch(error => error.message); },
-      async deny() { rejectStop(new Error('keep editing')); return stopping; },
-      async close() { needsPermission = false; await app.stop(); }
-    };
+    window.stateFeature = { app, state, writes, root };
   });
   await page.getByRole('textbox', { name: 'Draft' }).fill('Keep this draft');
-  await page.evaluate(() => window.stateFeature.stop());
   await page.getByRole('button', { name: 'Choose next' }).click();
   const pending = await page.evaluate(() => {
     const { app, writes, root } = window.stateFeature;
@@ -51,10 +39,9 @@ test('Application state events preserve active UI through rejected stop and rese
       text: root.el.querySelector('output').textContent, draft: root.el.querySelector('input').value };
   });
   assert.deepEqual(pending, { running: true, sameRoot: true, writes: ['next'], text: 'next', draft: 'Keep this draft' });
-  assert.equal(await page.evaluate(() => window.stateFeature.deny()), 'keep editing');
   const result = await page.evaluate(async() => {
     const feature = window.stateFeature;
-    await feature.close();
+    const stopResult = feature.app.stop();
     feature.state.set('choice', 'stopped');
     const stopped = { running: feature.app.isRunning(), empty: document.querySelector('#content').childElementCount === 0 };
     await feature.app.start();
@@ -66,10 +53,10 @@ test('Application state events preserve active UI through rejected stop and rese
     await feature.app.destroy();
     feature.state.destroy();
     delete window.stateFeature;
-    return { stopped, restarted, empty: document.querySelector('#content').childElementCount === 0 };
+    return { stopResult, stopped, restarted, empty: document.querySelector('#content').childElementCount === 0 };
   });
   assert.deepEqual(result, {
-    stopped: { running: false, empty: true },
+    stopResult: true, stopped: { running: false, empty: true },
     restarted: { sameState: true, choice: 'initial', writes: ['next'] }, empty: true
   });
 });
@@ -98,5 +85,5 @@ test('restart completion can stop its newly mounted root', async({ page }) => {
     await app.destroy();
     return observed;
   });
-  assert.deepEqual(result, { stopped: true, stops: 2, running: false, destroyed: true, mounted: false, empty: true });
+  assert.deepEqual(result, { stopped: true, stops: 1, running: false, destroyed: true, mounted: false, empty: true });
 });

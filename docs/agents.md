@@ -46,7 +46,7 @@ prerequisite for reading a specific guide.
 | Show or update a piece of UI | [Rendering](./view.rendering.md) | The intended content changes; unrelated edits and handlers survive. |
 | Replace part of a screen | [Region](./marionette.region.md) | The outgoing View is cleaned up and the new View owns the intended mount. |
 | Navigate between screens | [Routing](./routing.md) | Direct URLs, startup failure, stale navigation, focus, and destruction. |
-| Own asynchronous feature work | [Feature effects](./application-effects.md) | Activation, cancellation, stop permission, and cleanup. |
+| Own asynchronous feature work | [Feature effects](./application-effects.md) | Activation, cancellation, and cleanup. |
 | Refresh data without restarting a feature | [Feature refresh](./application-refresh.md) | Preserve the shell and drafts while superseding requests. |
 | Choose an integration | [Choosing integrations](./choosing-integrations.md) | Preserve compatible application choices; configure each capability independently. |
 | Host a screen in another framework | [Host a Marionette screen](./hosting-views.md) | Managed attachment, one DOM owner, stable drafts, and cleanup before host removal. |
@@ -136,11 +136,12 @@ A supplied `state` source is borrowed. A `createState()` result is owned and use
 the configured StateApi's optional disposal hook when its owner is destroyed.
 Marionette does not infer ownership from which object first reads a source.
 
-Await Application lifecycle operations when later work depends on their result.
+Await Application `start()` and `restart()` when later work depends on their result.
 They return `Promise<boolean>`: `true` means the target state was reached; `false`
-means the request was superseded. A current readiness failure rejects. Keep those
-outcomes distinct. Constructor hooks run synchronously, and completion hooks are synchronous
-notifications; returning a Promise from them does not add readiness.
+means the request was superseded. A current readiness failure rejects. `stop()`
+and `destroy()` return booleans synchronously; callback errors throw. Keep those
+outcomes distinct. Constructor and completion hooks run synchronously; returning
+a Promise from them does not add readiness.
 
 Pass the preparation method's signal to cancellable work. After an asynchronous step,
 check that it still belongs to the active operation before committing application
@@ -150,7 +151,22 @@ arbitrary write made by application code. Follow the complete
 
 Keep an Application's active lifetime separate from each data request. If list
 results share a shell with an editor, refresh the list's collection and cancel
-superseded requests; restarting the parent destroys both UI trees. See the [complete feed example](./application-composition.md#a-complete-paginated-feature).
+superseded requests. Successful parent stop destroys both UI trees; restart retains
+them when startup hooks reuse their roots. See the
+[complete feed example](./application-composition.md#a-complete-paginated-feature).
+
+Use `start()` to ensure activation without reloading an active feature. Use
+`restart(options)` to rerun preparation with the latest input, keeping active UI
+and children. In `onBeforeStart`, `isRunning()` distinguishes retained preparation
+from setup of a stopped feature. Every restart emits `before:start`; superseded
+preparation does not emit `start`. Return request data from `prepareStart` and
+commit it in `onStart`. Construct the layout only when `getView()` is absent;
+otherwise update the existing presentation. The complete retained-preparation
+recipe shows this pattern with native collection operations.
+
+For complete teardown and reconstruction, check `app.stop()` before
+calling `app.start(options)`. Independent saves and pagination retain their own
+operation policies. See [retained preparation](./application-refresh.md).
 
 ## Completion evidence
 

@@ -8,7 +8,7 @@ await workspace.start();
 
 function dispose() {
   window.removeEventListener('pagehide', dispose);
-  void workspace.destroy().catch(console.error);
+  workspace.destroy();
 }
 window.addEventListener('pagehide', dispose);
 if (import.meta.hot) {

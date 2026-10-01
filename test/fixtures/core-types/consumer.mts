@@ -29,7 +29,10 @@ list.addChildView(item);
 const found = list.children.findByCid(item.cid);
 if (found) { found.label().toUpperCase(); }
 const app: ApplicationInstance = new Application();
-const completion: Promise<boolean> = app.destroy();
+const completion: boolean = app.destroy();
+const removed: ApplicationInstance<object, unknown> | undefined = app.removeChildApp('child');
+// @ts-expect-error Application destroy no longer returns a Promise.
+const pendingDestroy: Promise<boolean> = app.destroy();
 const App = Application.extend({
   prepareStart(options: unknown, context: LifecycleContext) {
     context.signal.throwIfAborted();
@@ -63,7 +66,7 @@ new Item();
 new Item({ label: 1 });
 // @ts-expect-error instance methods cannot be invented
 item.missingMethod();
-// @ts-expect-error Application destruction is asynchronous
+// @ts-expect-error Application destruction returns status, not its receiver
 const synchronous: ApplicationInstance = app.destroy();
 // @ts-expect-error child lookup can be absent
 list.children.findByCid('missing').label();

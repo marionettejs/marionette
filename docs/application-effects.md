@@ -9,8 +9,8 @@ owner-lifetime subscriptions.
 
 
 Application `stateEvents` deliver during the active run, following `isRunning()`.
-Seed state before activation and read its current value in `onStart`; pending stop
-permission for stop/restart leaves delivery active until stopping succeeds.
+Seed state before activation and read its current value in `onStart`. Delivery
+continues through retained restart and ends before stop tears down the root.
 Terminal destruction deactivates delivery immediately. Subscriptions themselves
 remain installed until destruction, and suppressed notifications are not replayed.
 
@@ -92,13 +92,15 @@ A DOM event handler must attach a rejection handler such as
 await its return value. Supply a synchronous application error reporter that does
 not throw; reporting a completion error must not retry the completed write.
 
-Stopping destroys the owned root. Restart creates a different root, so a late save
-cannot update it even if `isRunning()` is true again. Replacing the displayed root
-also invalidates completion without requiring an Application stop. Request identity
+Stopping destroys the owned root. A subsequent start creates a different root,
+so a late save cannot update it even if `isRunning()` is true again. This example
+also replaces its Editor in `onStart`, so restart invalidates the old screen's
+completion. When `onStart` reuses the current View, retained restart allows its
+pending save to finish. Replacing the displayed root invalidates completion
+without requiring an Application stop. Request identity
 handles overlapping saves on the same screen; it does not serialize server writes.
-During pending stop permission the run and its screen remain active, so this policy
-still permits completion; a rejected stop keeps that screen usable. If the product
-must freeze interaction earlier, define that policy explicitly.
+Ask for navigation permission before stopping. While that decision is pending,
+the feature remains active; freezing interaction is application policy.
 
 For cancellation of the work itself, see the [form example](./forms-and-accessibility.md#save-a-form-without-losing-focus).
 Neither canceling a client request nor suppressing its completion proves that a
@@ -160,11 +162,8 @@ This example activates effects during startup so loading-time state and Radio
 notifications can be observed. Initial state is seeded before subscriptions.
 `onStart` reads the current state instead of replaying notifications.
 
-Effects remain active while asynchronous stop permission is pending. Successful
-stop disposes them in `onStop`. Rejected stop permission leaves them intact, so no missed
-notifications need to be replayed. If pending stop must freeze interaction, disable
-that feature's controls while asking permission; do not silently discard source
-changes. Starting from stopped creates a fresh scope.
+Stop synchronously disposes effects in `onStop`. Ask for permission or finish a
+required save before calling stop. Starting from stopped creates a fresh scope.
 
 Canceling pending startup or rejecting its loader disposes the scope immediately.
 Terminal destruction
@@ -180,12 +179,6 @@ A `prepareStart` signal belongs to its pending startup phase. Read
 result. Capturing `const canceled = signal.aborted` before an await only records
 its earlier value. Checking `isRunning()` instead is also insufficient: a newer
 start may be running when an older request finally resolves.
-
-Stop preparation has different ownership: a replacement operation can adopt an
-in-flight `prepareStop` phase, retaining its original options and context without
-aborting its signal. The original caller's Promise resolving `false` does not mean
-that adopted work was canceled. See
-[preparation methods and notifications](./marionette.application.md#preparation-methods-and-notifications).
 
 This example loads and validates a value before committing it. Supply asynchronous
 `load({ signal })` and `validate(value, { signal })` functions and a synchronous
@@ -220,19 +213,17 @@ a newer successful start.
 ## Distinguish delivery from resource cleanup
 
 Configured `stateEvents` gate delivery; they do not unsubscribe on stop or cancel
-work a handler already started. `isRunning()` stays true during pending stop
-permission, but a later run can also be active when an older request finishes.
+work a handler already started. A later run can be active when an older request finishes.
 Use operation signals or a latest-request owner to prevent stale commits.
 
 Use the explicit scope below for effects that observe loading-time changes or own
-timers, requests, and other resources. Disposing them in `onBeforeStop` would end
-them before permission is decided; disposal belongs in `onStop` for this policy.
+timers, requests, and other resources. Dispose the active scope in `onStop`.
 
 Successful `prepareStart` does not give its signal the lifetime of the subsequent
 active run. Register active resources with their own scope and dispose that scope
 on successful stop and terminal destruction. The executable example below and its
 [installed checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/effects.mjs)
-already cover rejected stop permission and successful timer cleanup.
+cover cancellation, synchronous stop, and timer cleanup.
 
 ## Work started after activation
 
@@ -263,8 +254,7 @@ failure is relevant to the parent's current context.
 
 Save this module as `status-feature.js`. Supply an element, an `@mnjs/data` Model,
 a Radio channel dedicated to this feature, and `load({ signal })` returning
-`{ label }`. `beforeStop(options, { signal })` may await a permission decision and
-reject to keep the feature running. Its own asynchronous work must honor cancellation.
+`{ label }`. The loader must honor cancellation or permit its late result to be ignored.
 
 When several features need the same scope, move `createEffects` into one shared
 application module and import it in those features. Keep one implementation and
@@ -272,10 +262,10 @@ one set of scope tests; each feature chooses when to create and dispose its own
 scope through its lifecycle hooks.
 
 The initial request fetches metadata independent of the filter. Reading the latest
-filter after loading is correct here. A server request that captures a filter needs
-a separate refresh operation that owns replacement requests; see
-[refresh without restarting](./application-refresh.md).
-Do not map filter changes to `restart` to implement latest-request-wins behavior.
+filter after loading is correct here. A server request that captures a filter can use
+[retained restart](./application-refresh.md) to replace preparation results when
+the filter changes. Independent operations, such as saves and pagination, need
+their own completion policy.
 
 <!-- executable-example: application-active-effects -->
 ```javascript
@@ -310,7 +300,9 @@ export const StatusFeature = Application.extend({
     this.getView()?.update(this.label, this.getState().get('filter'));
   },
   async prepareStart(options, { signal }) {
-    this.effects?.dispose();
+    if (this.effects && !this.effects.signal.aborted) {
+      return this.getOption('load')({ signal });
+    }
     const state = this.getState();
     const channel = this.getOption('channel');
     // Seed before subscribing. The source is borrowed and survives each run.
@@ -336,31 +328,27 @@ export const StatusFeature = Application.extend({
     try {
       const metadata = await this.getOption('load')({ signal: effects.signal });
       if (effects.signal.aborted) { return; }
-      this.label = metadata.label;
+      return metadata;
     } catch (error) {
       const canceled = effects.signal.aborted;
       effects.dispose();
       if (!canceled) { throw error; }
     }
   },
-  onStart() {
+  onStart(app, options, metadata) {
+    this.label = metadata.label;
     // Successful readiness ends; the effect scope continues until deactivation.
     this.releaseReadiness();
-    this.showView(new StatusView());
+    if (!this.getView()) { this.showView(new StatusView()); }
     this.updateDisplay();
-  },
-  prepareStop(options, context) {
-    // A rejected permission leaves the running feature and its effects intact.
-    return this.getOption('beforeStop')?.(options, context);
   },
   onStop() { this.effects?.dispose(); },
   onBeforeDestroy() { this.effects?.dispose(); }
 });
 ```
 
-Construct `new StatusFeature({ region: { el }, state, channel, load, beforeStop, tick })`.
-Call and await the Application's `start`, `stop`, `restart`, and `destroy`
-methods normally. The hooks also run when an owning Application stops or destroys
+Construct `new StatusFeature({ region: { el }, state, channel, load, tick })`.
+Await `start` and `restart`; `stop` and `destroy` complete synchronously. The hooks also run when an owning Application stops or destroys
 this feature. No wrapper must intercept those calls. `updateDisplay` uses a public
 View method and reads state at the time of display; the borrowed Model is never
 recreated or disposed by this example.
@@ -374,7 +362,7 @@ when added to the scope.
 Cleanup follows the [synchronous failure contract](./view.lifecycle.md#synchronous-failures):
 registration, rendering, and cleanup callbacks must work. Synchronous setup or
 `onStart` failures have no automatic rollback; destroy the feature to release
-its effect scope. A throwing cleanup in `onStop` rejects the operation after
+its effect scope. A throwing cleanup in `onStop` throws after
 its stopped state has committed; later cleanups need not run, and another dispose
 call does not retry them. This helper does not promise recovery. It also does not make
 asynchronous `onStart` work part of readiness.

@@ -42,13 +42,11 @@ const requests = new Map();
 const page = title => ({ title, body: `Body of ${title}` });
 let application;
 let bootstrap;
-let stopPermission;
 
 try {
   const { PageNavigation } = await import(pathToFileURL(examplePath));
   const feature = new PageNavigation({
     region: { el: document.querySelector('#page') },
-    beforeStop() { return stopPermission?.promise; },
     loadPage(id, { signal }) {
       // Intentionally ignores abort: the controller must reject stale commits itself.
       const request = { signal, ...Promise.withResolvers() };
@@ -99,26 +97,11 @@ try {
   assert.equal(document.querySelector('h1').textContent, 'Newest',
     'a failed load retains the previous page');
 
-  stopPermission = Promise.withResolvers();
-  const duringPermission = navigate('permission');
-  const deniedStop = application.stop().then(value => ({ value }), error => ({ error }));
-  requests.get('permission').resolve(page('Permission pending'));
-  assert.equal(await duringPermission, true, 'pending stop permission leaves navigation active');
-  const permissionError = new Error('Keep editing');
-  stopPermission.reject(permissionError);
-  assert.equal((await deniedStop).error, permissionError);
-  stopPermission = undefined;
-  assert.equal(application.isRunning(), true);
-  assert.equal(document.querySelector('h1').textContent, 'Permission pending');
-
-  stopPermission = Promise.withResolvers();
   const obsoleteSession = navigate('obsolete-session');
-  const supersededStop = application.stop();
+  const stoppedSession = application.stop();
   const resumedStart = application.start();
-  assert.equal(await supersededStop, false);
-  stopPermission.resolve();
+  assert.equal(stoppedSession, true);
   assert.equal(await resumedStart, true);
-  stopPermission = undefined;
   assert.equal(requests.get('obsolete-session').signal.aborted, true);
   const currentSession = navigate('current-session');
   requests.get('current-session').resolve(page('Current session'));
@@ -185,8 +168,6 @@ try {
   assert.equal(document.querySelector('#page').children.length, 0);
   console.log('Routing and bootstrap examples passed: replacement, stale results/errors, readiness, failure, stop/restart, destruction.');
 } finally {
-  stopPermission?.resolve();
-  stopPermission = undefined;
   if (bootstrap && !bootstrap.isDestroyed()) {
     await bootstrap.destroy();
   }

@@ -222,7 +222,7 @@ export const DeleteApplication = Application.extend({
     this.listenTo(view, 'confirm', () => { void this.confirm().catch(console.error); });
     this.listenTo(view, 'before:destroy', () => {
       this.stopListening(view);
-      void this.stop().catch(console.error);
+      this.stop();
     });
     this.showView(view);
     view.showRecord(record);

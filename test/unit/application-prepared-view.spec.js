@@ -10,10 +10,12 @@ describe('Application prepared root View', () => {
   const apps = [];
   const owners = [];
   const views = [];
+  const hosts = [];
   let host;
 
   function application(options) {
     host = document.createElement('section');
+    hosts.push(host);
     document.body.append(host);
     const app = new Application({ region: { el: host }, ...options });
     apps.push(app);
@@ -30,8 +32,23 @@ describe('Application prepared root View', () => {
     for (const app of apps.splice(0)) { await app.destroy(); }
     for (const owner of owners.splice(0)) { owner.destroy(); }
     for (const root of views.splice(0)) { root.destroy(); }
-    host?.remove();
+    for (const mount of hosts.splice(0)) { mount.remove(); }
   });
+
+  for (const method of ['setView', 'showView']) {
+    it(`does not adopt a candidate after prepared-root cleanup destroys the Application during ${method}`, () => {
+      const app = application();
+      const previous = app.setView(view());
+      const candidate = view();
+      previous.on('destroy', () => app.destroy());
+      expect(app[method](candidate)).toBe(candidate);
+      expect(app.isDestroyed()).toBe(true);
+      expect(app.getView()).toBeUndefined();
+      expect(candidate.isDestroyed()).toBe(false);
+      const nextOwner = application();
+      expect(nextOwner.setView(candidate)).toBe(candidate);
+    });
+  }
 
   it('composes detached children through getView and updates one region after display', () => {
     const app = application();
@@ -163,7 +180,7 @@ describe('Application prepared root View', () => {
     expect(app.getRegion().currentView).toBe(replacement);
   });
 
-  for (const operation of ['stop', 'restart', 'destroy']) {
+  for (const operation of ['stop', 'destroy']) {
     for (const running of [false, true]) {
       it(`${operation} destroys a never-displayed root while ${running ? 'running' : 'stopped'}`, async() => {
         const app = application();
@@ -180,7 +197,7 @@ describe('Application prepared root View', () => {
     }
   }
 
-  for (const operation of ['stop', 'restart', 'destroy']) {
+  for (const operation of ['stop', 'destroy']) {
     it(`${operation} destroys both a prepared replacement and the displayed root`, async() => {
       const app = application();
       await app.start();

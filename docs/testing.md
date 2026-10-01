@@ -105,7 +105,7 @@ for changed ownership rather than weakening acceptance to fit the implementation
 A mocked View proves the host's coordination only. A reference fixture proves its
 listed contracts only. A route that still uses the previous framework does not
 prove the migrated screen, and a View-only integration cannot establish Application
-startup, rejected stop, or restart behavior. Pair fast tests with a browser witness
+startup cancellation, synchronous teardown, or restart behavior. Pair fast tests with a browser witness
 through the activated production route and real adapter.
 
 Report failed or skipped checks and retry-only passes explicitly. A green CI job

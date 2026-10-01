@@ -283,8 +283,7 @@ Displayed View teardown belongs to the Region. Calling `Region.empty` first dest
 the displayed View and clears the Region's `currentView`, but does not implicitly
 stop the Application or clear a separately prepared View. A later stop empties
 whatever View is then current in the host Region, so Applications sharing a borrowed
-host must coordinate their lifecycles. Restart follows the same stop contract before
-starting and showing a new root View.
+host must coordinate their lifecycles. Restart reruns preparation while retaining presentation; full reset is explicit stop/start.
 
 Phase 1 must define `start`'s return value, readiness and failure semantics, and
 reentrant or overlapping start, stop, and restart behavior under the selected
@@ -292,12 +291,11 @@ synchronous or awaitable contract. If lifecycle work may remain pending, invalid
 work must settle deterministically without exposing stale success or leaving callers
 pending. Migration tests must cover the existing synchronous return contract.
 
-Application is the one selected promise-based lifecycle boundary. Readiness hooks
-receive the Application and caller options first, preserving Marionette convention,
-plus a standard readiness context with an `AbortSignal`. The context belongs to the
+Application is the one selected promise-based lifecycle boundary. Preparation methods
+receive caller options and a context with an `AbortSignal`; notifications receive
+the Application and options. The context belongs to the
 readiness phase rather than the Promise returned to one caller. Supersession aborts it
-synchronously only when no winning operation adopts that readiness; when restart or
-destroy inherits an in-flight stop phase, it inherits the same context and signal.
+synchronously when a newer operation supersedes preparation.
 Aborting is ordinary supersession, not failure: it settles the invalidated operation
 according to the documented overlap result, while a hook throw or rejection remains a
 failure. The context does not make arbitrary event callbacks awaitable, and completion
@@ -307,8 +305,8 @@ previously had no cancellation channel.
 
 Owned child Applications are activated explicitly with their own inputs. Ownership
 propagates stop and destroy, including through stopped intermediate owners, without
-per-child lifecycle flags. Parent restart deactivates its children; startup code
-chooses which capabilities to reactivate. A capability that must outlive its
+per-child lifecycle flags. Parent restart retains active children; preparation code
+explicitly chooses any child changes. A capability that must outlive its
 current owner belongs to a longer-lived Application and is passed to the shorter-lived
 Application explicitly.
 
@@ -420,7 +418,7 @@ current-evidence findings:
   method runs before the event and supplies the return value; a synchronous method
   exception prevents event dispatch. `getOption` remains available for configuration.
 - **Selected:** Application lifecycle is the selected asynchronous boundary. Only Promises returned
-  by its preparation methods are awaited; lifecycle notifications and every View, Region,
+  by `prepareStart` are awaited; lifecycle notifications and every View, Region,
   CollectionView, renderer, template, Events, Radio, Marionette-managed state-source
   callbacks, and destroy callbacks stay synchronous. Publish a sync/async contract
   matrix and never auto-await an arbitrary callback. Development validation may
@@ -717,9 +715,8 @@ and every release blocker maps to this strategy.
   normalized reconciliation, extension, and additional Application ownership. The Application
   lifecycle decision recorded below settles its target
   shape by retaining subject-first synchronous lifecycle notifications and using
-  separate preparation methods for the verified Toolkit/app-frontend asynchronous
-  readiness need. Startup preparation supplies one result to completion; obsolete
-  awaitable notification hooks are removed without compatibility aliases. Executable implementation and
+  `prepareStart` for verified consumer startup readiness. Startup preparation supplies
+  one result to completion; obsolete awaitable notification hooks are removed without compatibility aliases. Executable implementation and
   migration evidence remain required before this part of the gate passes. Broader
   Application ownership work remains tracked by [#190][issue-190].
 - Complete the [production-runtime authorship audit][issue-329] for every in-scope path
@@ -778,28 +775,29 @@ and every release blocker maps to this strategy.
 - Specify Application as Marionette's first promise-based public lifecycle contract
   and add transition-table or model-based tests. Preserve Marionette lifecycle
   notifications with the subject first and ignore all notification return values.
-  Await only `prepareStart(options, context)`, `prepareStop(options, context)`,
-  and `prepareDestroy(options, context)` after each synchronous before notification.
+  Await only `prepareStart(options, context)` after each synchronous before notification.
   Pass the resolved startup result as one unchanged third argument to `onStart` /
-  `start`; stop and destroy preparation values are readiness-only. Public operation
-  promises retain boolean results. Asynchronous notification work owns its error
-  handling. A synchronous before-notification throw, preparation throw, or preparation
+  `start`. Start/restart promises retain boolean results; stop and destroy return
+  synchronous booleans. Asynchronous notification work owns its error handling.
+  For start/restart, a synchronous before-notification throw, preparation throw, or preparation
   rejection rejects the operation before its target is reached and restores the
   last stable state. A synchronous completion-hook throw
-  rejects the operation after retaining the target state already reached. Repeated
-  calls of the same operation kind share the active operation. Before destruction, a
+  rejects the operation after retaining the target state already reached. Compatible repeated
+  start calls share the active operation. Before destruction, a
   different operation kind supersedes it before its target state is reached. Once
   destruction begins it is terminal, and stale readiness completion cannot mutate
   state or emit an invalidated completion event. Do not add Toolkit's `beforeStart`,
   `triggerStart`, or `finallyStart` extension seams.
-- Give each Application preparation method a standard operation context with an
-  `AbortSignal`. Supersession aborts before replacement readiness begins unless the
-  winning operation adopts the in-flight readiness phase; adopted stop readiness keeps
-  the same context and signal. Cancellation follows the ordinary supersession result
+- Make stop and destroy synchronous: cancel readiness, stop descendants and destroy selected UI
+  before returning successfully. Cleanup failures throw and abort remaining work.
+  Use synchronous notifications for cleanup; permission and required
+  saves and asynchronous disposal precede teardown explicitly.
+- Give `prepareStart` a standard operation context with an
+  `AbortSignal`. Supersession aborts before replacement readiness begins. Cancellation follows the ordinary supersession result
   rather than the failure path. Before notifications receive no context. A
-  `before:start` or `before:stop` notification that supersedes its pending operation
-  prevents that preparation from beginning; destruction remains terminal. Verify
-  arguments, abort and transfer ordering,
+  `before:start` notification that supersedes its pending operation
+  prevents its preparation from beginning; destruction remains terminal. Verify
+  arguments and abort ordering,
   repeated-call sharing, and migration for consumer readiness work that cooperatively
   stops on abort.
 - Strengthen Application as the single non-renderable lifecycle and ownership scope,

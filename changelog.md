@@ -2,6 +2,18 @@
 
 > The docs now have directions, so the agent can stop asking for a map of the maps.
 
+* Retain the active root and children while `Application.restart()` reruns
+  preparation; each restart supersedes older preparation. Change hosts with
+  explicit stop/start.
+* Simplify Application readiness to one pending preparation. Stop cannot be
+  superseded during cleanup; `onStop` may begin a new run after cleanup. Repeated
+  start ignores new options; restart retains its host and forwards options.
+* Add optional `Application.viewEvents` using ordinary `listenTo` lifetime and
+  once-per-selected-View registration.
+* Make `Application.stop()` synchronous and remove `prepareStop`. Perform required
+  saves or navigation permission before stopping; remove Promise chaining on stop.
+* Make `Application.destroy()` and `removeChildApp()` synchronous. Remove
+  `prepareDestroy`; complete required asynchronous finalization before destruction.
 * Preserve native Error reporting and point coded diagnostics to their public error
   pages, carrying forward the post-RC.1 fixes from #583.
 * Ship consumer documentation at usable package-relative paths, with complete

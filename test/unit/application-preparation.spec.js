@@ -49,52 +49,23 @@ describe('Application preparation', () => {
     expect(calls[3][1][2]).toBe(result);
   });
 
-  for (const [operation, before, prepare] of [
-    ['start', 'onBeforeStart', 'prepareStart'],
-    ['stop', 'onBeforeStop', 'prepareStop'],
-    ['destroy', 'onBeforeDestroy', 'prepareDestroy']
-  ]) {
-    it(`${operation} ignores notification Promises and awaits only its preparation method`, async() => {
-      const notification = gate();
-      const ready = gate();
-      const prepareWork = vi.fn(() => ready.promise);
-      const app = application({ [before]() { return notification.promise; }, [prepare]: prepareWork });
-      if (operation === 'stop') { await app.start(); }
-      const options = { source: 'test' };
-      app.on(`before:${operation}`, () => notification.promise);
-      const finished = vi.fn();
-      const pending = app[operation](options).then(finished);
-      await Promise.resolve();
-      expect(prepareWork).toHaveBeenCalledWith(options, { signal: expect.any(AbortSignal) });
-      expect(finished).not.toHaveBeenCalled();
-      ready.resolve();
-      await pending;
-      expect(finished).toHaveBeenCalledWith(true);
-      notification.resolve();
-    });
-  }
-
-  for (const [operation, prepare, completion] of [
-    ['stop', 'prepareStop', 'onStop'],
-    ['destroy', 'prepareDestroy', 'onDestroy']
-  ]) {
-    it(`${operation} discards preparation results and keeps two completion arguments`, async() => {
-      const onCompletion = vi.fn();
-      const event = vi.fn();
-      const result = { readiness: 'complete' };
-      const options = { source: 'test' };
-      const app = application({
-        [prepare]() { return Promise.resolve(result); },
-        [completion]: onCompletion
-      });
-      app.on(operation, event);
-      await app.start();
-      expect(await app[operation](options)).toBe(true);
-      expect(onCompletion).toHaveBeenCalledExactlyOnceWith(app, options);
-      expect(event).toHaveBeenCalledExactlyOnceWith(app, options);
-    });
-  }
-
+  it('start ignores notification Promises and awaits only its preparation method', async() => {
+    const notification = gate();
+    const ready = gate();
+    const prepareWork = vi.fn(() => ready.promise);
+    const app = application({ onBeforeStart() { return notification.promise; }, prepareStart: prepareWork });
+    const options = { source: 'test' };
+    app.on('before:start', () => notification.promise);
+    const finished = vi.fn();
+    const pending = app.start(options).then(finished);
+    await Promise.resolve();
+    expect(prepareWork).toHaveBeenCalledWith(options, { signal: expect.any(AbortSignal) });
+    expect(finished).not.toHaveBeenCalled();
+    ready.resolve();
+    await pending;
+    expect(finished).toHaveBeenCalledWith(true);
+    notification.resolve();
+  });
   for (const listener of ['method', 'event']) {
     it(`does not begin preparation after the before:start ${listener} supersedes startup`, async() => {
       const prepareStart = vi.fn();
@@ -108,59 +79,15 @@ describe('Application preparation', () => {
     });
   }
 
-  for (const replacementKind of ['restart', 'destroy']) {
-    it(`starts a fresh stop phase when a before:stop listener requests ${replacementKind}`, async() => {
-      const prepareStop = vi.fn();
-      const beforeStop = vi.fn();
-      const beforeDestroy = vi.fn();
-      const app = application({ prepareStop });
-      const options = { source: 'original' };
-      const replacementOptions = { source: 'replacement' };
-      let replacement;
-      app.on('before:stop', beforeStop);
-      app.on('before:destroy', beforeDestroy);
-      app.once('before:stop', () => { replacement = app[replacementKind](replacementOptions); });
-      await app.start();
-      expect(await app.stop(options)).toBe(false);
-      expect(await replacement).toBe(true);
-      expect(beforeStop.mock.calls).toEqual([[app, options], [app, replacementOptions]]);
-      expect(prepareStop).toHaveBeenCalledExactlyOnceWith(replacementOptions, { signal: expect.any(AbortSignal) });
-      expect(beforeDestroy).toHaveBeenCalledTimes(replacementKind === 'destroy' ? 1 : 0);
-      expect(app.isRunning()).toBe(replacementKind === 'restart');
-      expect(app.isDestroyed()).toBe(replacementKind === 'destroy');
-    });
-  }
-
-  it('does not begin stop preparation after its notification starts a replacement operation', async() => {
-    const prepareStop = vi.fn();
-    const app = application({ prepareStop });
-    await app.start();
-    let replacement;
-    app.once('before:stop', () => { replacement = app.start(); });
-    expect(await app.stop()).toBe(false);
-    expect(await replacement).toBe(true);
-    expect(prepareStop).not.toHaveBeenCalled();
-    expect(app.isRunning()).toBe(true);
+  it('start rejects a synchronous notification failure before preparation', async() => {
+    const error = new Error('notification failed');
+    const prepareWork = vi.fn();
+    const app = application({ onBeforeStart() { throw error; }, prepareStart: prepareWork });
+    await expect(app.start()).rejects.toBe(error);
+    expect(prepareWork).not.toHaveBeenCalled();
+    expect(app.isRunning()).toBe(false);
+    expect(app.isDestroyed()).toBe(false);
   });
-
-  for (const [operation, before, prepare] of [
-    ['start', 'onBeforeStart', 'prepareStart'],
-    ['stop', 'onBeforeStop', 'prepareStop'],
-    ['destroy', 'onBeforeDestroy', 'prepareDestroy']
-  ]) {
-    it(`${operation} rejects a synchronous notification failure before preparation`, async() => {
-      const error = new Error('notification failed');
-      const prepareWork = vi.fn();
-      const app = application({ [before]() { throw error; }, [prepare]: prepareWork });
-      if (operation === 'stop') { await app.start(); }
-      await expect(app[operation]()).rejects.toBe(error);
-      expect(prepareWork).not.toHaveBeenCalled();
-      expect(app.isRunning()).toBe(operation === 'stop');
-      expect(app.isDestroyed()).toBe(false);
-      app[before] = undefined;
-    });
-  }
-
   it('forwards synchronous results and uses undefined when no preparation method exists', async() => {
     const onStart = vi.fn();
     const value = { id: 'session' };

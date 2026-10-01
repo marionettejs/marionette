@@ -38,11 +38,11 @@ describe('Application child declarations', () => {
     await expect(child.start()).resolves.toBe(true);
     await expect(app.restart()).resolves.toBe(true);
     expect(app.getChildApp('editor')).toBe(child);
-    expect(child.isRunning()).toBe(false);
+    expect(child.isRunning()).toBe(true);
     await expect(child.start()).resolves.toBe(true);
-    await expect(app.stop()).resolves.toBe(true);
+    expect(app.stop()).toBe(true);
     expect(child.isRunning()).toBe(false);
-    await expect(app.destroy()).resolves.toBe(true);
+    expect(app.destroy()).toBe(true);
     expect(child.isDestroyed()).toBe(true);
   });
 
@@ -131,7 +131,7 @@ describe('Application child declarations', () => {
   it('uses the existing removal lifecycle without reconstructing a declared child', async() => {
     const app = own(new Application({ childApps: { editor: Application } }));
     const child = app.getChildApp('editor');
-    await expect(app.removeChildApp('editor')).resolves.toBe(child);
+    expect(app.removeChildApp('editor')).toBe(child);
     expect(child.isDestroyed()).toBe(true);
     await app.restart();
     expect(app.hasChildApp('editor')).toBe(false);

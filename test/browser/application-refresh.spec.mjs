@@ -21,15 +21,13 @@ test('Application refresh preserves editor focus and draft while only latest res
     const { Collection } = await import('@mnjs/data');
     const items = new Collection([{ id: 1, name: 'Original' }]);
     const pending = new Map();
-    let denyStop = true;
     const result = new ResultsFeature({
       region: { el: document.querySelector('#content') }, items,
       loadItems(query, { signal }) {
         const request = { signal, ...Promise.withResolvers() };
         pending.set(query, request);
         return request.promise;
-      },
-      beforeStop() { if (denyStop) { throw new Error('Keep editing'); } }
+      }
     });
     await result.start();
     const query = document.createElement('input');
@@ -38,14 +36,13 @@ test('Application refresh preserves editor focus and draft while only latest res
     status.setAttribute('role', 'status');
     document.body.prepend(query, status);
     const fixture = {
-      application: result, refresh: (...args) => result.refresh(...args), cancel: () => result.cancel(), items, pending,
+      application: result, refresh: (...args) => result.restart({ query: args[0] }), cancel: () => result.restart(), items, pending,
       layout: result.getView(), row: document.querySelector('li'),
-      editor: document.querySelector('textarea'),
-      allowStop() { denyStop = false; }
+      editor: document.querySelector('textarea')
     };
     query.addEventListener('input', () => {
       status.textContent = 'Loading';
-      fixture.refreshing = result.refresh(query.value).then(committed => {
+      fixture.refreshing = result.restart({ query: query.value }).then(committed => {
         if (committed) { status.textContent = 'Ready'; }
         return committed;
       }, error => { status.textContent = error.message; return false; });
@@ -78,12 +75,10 @@ test('Application refresh preserves editor focus and draft while only latest res
     await page.getByLabel('Filter').fill('retry');
     await page.evaluate(() => window.refreshExample.pending.get('retry').resolve([{ id: 1, name: 'Recovered' }]));
     await expect(page.locator('li')).toHaveText('Recovered');
-    assert.equal(await page.evaluate(() => window.refreshExample.application.stop().then(() => false, () => true)), true);
     await expect(page.getByLabel('Draft')).toHaveValue('Unsaved editing');
     await page.getByLabel('Filter').fill('teardown');
     await page.evaluate(async() => {
       const f = window.refreshExample;
-      f.allowStop();
       await f.application.stop();
       f.pending.get('teardown').resolve([{ id: 1, name: 'Too late' }]);
       await f.refreshing;
@@ -93,7 +88,6 @@ test('Application refresh preserves editor focus and draft while only latest res
   } finally {
     await page.evaluate(async() => {
       const f = window.refreshExample;
-      f.allowStop();
       f.pending.forEach(request => request.resolve([]));
       await f.application.destroy();
       f.items.destroy();
