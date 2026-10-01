@@ -1,0 +1,25 @@
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_d9c046ab8d3a25 8099
+docs/agents.md
+  s_930f3c9a37745c::t_5717c3c652326a 139,141-143,153-155
+docs/events.class.md
+  s_930f3c9a37745c::t_a61fcde0699e09 430-432,439-440,444-445
+docs/routing.md
+  s_930f3c9a37745c::t_cad5bcc7b6fbb3 127-128
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c4776d93172ad146a0e9f8f523ab30fe9e74af21",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "unknown"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
