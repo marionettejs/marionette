@@ -6,8 +6,8 @@ const stopWords = new Set(['a', 'an', 'and', 'the', 'to', 'in', 'of', 'for', 'wi
   'can', 'could', 'should', 'would', 'does', 'did', 'what', 'which', 'when', 'where', 'why',
   'will', 'be', 'been', 'being', 'am', 'are', 'was', 'were', 'as', 'if', 'or', 'also']);
 
-export function searchSections(sections, files, query) {
-  if (!sections.length) { return []; }
+export function prepareSectionSearch(sections, files) {
+  if (!sections.length) { return () => []; }
   const compounds = new Map();
   const tokenize = text => words(text).flatMap(word => {
     const tokens = parts(word);
@@ -32,27 +32,39 @@ export function searchSections(sections, files, query) {
     return { section, frequency, length: tokens.length,
       heading: new Set(tokenize(section.heading)), context: new Set(tokenize(section.ancestors.join(' '))) };
   });
-  // Use the corpus spelling for identifier components, regardless of query case.
-  const terms = [...new Set(words(query).flatMap(word => compounds.get(word.toLowerCase()) ?? [word.toLowerCase()]))]
-    .filter(term => !stopWords.has(term));
-  if (!terms.length) { return []; }
   const averageLength = documents.reduce((sum, document) => sum + document.length, 0) / documents.length || 1;
-  const weights = new Map(terms.map(term => {
-    const count = documents.filter(document => document.frequency.has(term)).length;
-    return [term, Math.log(1 + (documents.length - count + 0.5) / (count + 0.5))];
-  }));
-  // BM25 saturation and length normalization, with extra weight for the heading
-  // and light ancestor context. Constants are fixed for every page and query.
-  return documents.map(({ section, frequency, length, heading, context }) => {
-    const matchedTerms = terms.filter(term => frequency.has(term));
-    const score = matchedTerms.reduce((sum, term) => {
-      const count = frequency.get(term);
-      const body = count * 2.2 / (count + 1.2 * (0.25 + 0.75 * length / averageLength));
-      return sum + weights.get(term) * (body + Number(heading.has(term)) * 2);
-    }, 0) + terms.filter(term => context.has(term)).reduce((sum, term) => sum + weights.get(term) * 0.25, 0);
-    return { ...section, characters: section.end - section.start, matchedTerms, score };
-  }).filter(section => section.matchedTerms.length)
-    .sort((a, b) => b.score - a.score ||
-      a.characters - b.characters || a.id.localeCompare(b.id, 'en'))
-    .slice(0, 5);
+  const documentFrequency = new Map();
+  for (const document of documents) {
+    for (const term of document.frequency.keys()) {
+      documentFrequency.set(term, (documentFrequency.get(term) ?? 0) + 1);
+    }
+  }
+  return query => {
+    // Use the corpus spelling for identifier components, regardless of query case.
+    const terms = [...new Set(words(query).flatMap(word => compounds.get(word.toLowerCase()) ?? [word.toLowerCase()]))]
+      .filter(term => !stopWords.has(term));
+    if (!terms.length) { return []; }
+    const weights = new Map(terms.map(term => {
+      const count = documentFrequency.get(term) ?? 0;
+      return [term, Math.log(1 + (documents.length - count + 0.5) / (count + 0.5))];
+    }));
+    // BM25 saturation and length normalization, with extra weight for the heading
+    // and light ancestor context. Constants are fixed for every page and query.
+    return documents.map(({ section, frequency, length, heading, context }) => {
+      const matchedTerms = terms.filter(term => frequency.has(term));
+      const score = matchedTerms.reduce((sum, term) => {
+        const count = frequency.get(term);
+        const body = count * 2.2 / (count + 1.2 * (0.25 + 0.75 * length / averageLength));
+        return sum + weights.get(term) * (body + Number(heading.has(term)) * 2);
+      }, 0) + terms.filter(term => context.has(term)).reduce((sum, term) => sum + weights.get(term) * 0.25, 0);
+      return { ...section, characters: section.end - section.start, matchedTerms, score };
+    }).filter(section => section.matchedTerms.length)
+      .sort((a, b) => b.score - a.score ||
+        a.characters - b.characters || a.id.localeCompare(b.id, 'en'))
+      .slice(0, 5);
+  };
+}
+
+export function searchSections(sections, files, query) {
+  return prepareSectionSearch(sections, files)(query);
 }

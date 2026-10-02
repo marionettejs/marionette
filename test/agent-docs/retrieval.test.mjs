@@ -5,7 +5,7 @@ import test from 'node:test';
 import { documentSections, isConsumerPage } from '../../scripts/docs/sections.mjs';
 import { skillRoutes } from '../../scripts/docs/agent-routes.mjs';
 import { symbolIndex } from '../../scripts/docs/symbols.mjs';
-import { searchSections } from '../../skills/marionette/scripts/search.mjs';
+import { prepareSectionSearch, searchSections } from '../../skills/marionette/scripts/search.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 
@@ -171,4 +171,20 @@ test('canonical task routes match the skill and point at installed consumer page
       assert.ok(sections.some(section => section.id === href), `${href}: task route must preserve an existing heading`);
     }
   }
+});
+
+test('prepared section search reads the corpus once and serves repeated queries', () => {
+  const text = '# Manual\n\n## Events\nUse listenTo for events.\n\n## UI\nUse getUI to read controls.\n';
+  let reads = 0;
+  const files = new Map([['manual.md', { content: { toString() { reads++; return text; } } }]]);
+  const sections = documentSections('manual.md', text);
+  const search = prepareSectionSearch(sections, files);
+  const preparedReads = reads;
+  assert.equal(search('listenTo')[0].heading, 'Events');
+  assert.equal(search('getUI')[0].heading, 'UI');
+  assert.deepEqual(search('unmentioned'), []);
+  assert.deepEqual(search('the'), []);
+  assert.equal(reads, preparedReads);
+  assert.ok(preparedReads > 0);
+  assert.deepEqual(prepareSectionSearch([], files)('listenTo'), []);
 });
