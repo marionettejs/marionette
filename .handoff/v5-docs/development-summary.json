@@ -1,0 +1,142 @@
+{
+  "baselineHead": "1eb1f56fd9bba481ee833fd7df53a9a2edd9f800",
+  "baselineContentSha256": "c25b901d10f5294ebaec59eea32cc32a0cef36041fa566783a2634fdb7b4164f",
+  "candidateHead": "1eb1f56fd9bba481ee833fd7df53a9a2edd9f800",
+  "candidateSourceDirty": true,
+  "candidateContentSha256": "a3f828091ebedca964a983df8e872f635f6ed286f47b441dd31fe64a6d19e57e",
+  "interpretation": "Development diagnostics, not held-out or reader efficacy evidence. Metadata bytes include pretty printed CLI provenance.",
+  "symbols": [
+    {
+      "query": "View.modelEvents",
+      "baselineBytes": 10899,
+      "candidateBytes": 1432
+    },
+    {
+      "query": "Application.viewEvents",
+      "baselineBytes": 9313,
+      "candidateBytes": 1568
+    },
+    {
+      "query": "View.getUI",
+      "baselineBytes": 4048,
+      "candidateBytes": 1424
+    },
+    {
+      "query": "CollectionView.setComparator",
+      "baselineBytes": 5007,
+      "candidateBytes": 2202
+    },
+    {
+      "query": "View.ui",
+      "baselineBytes": 10871,
+      "candidateBytes": 1877
+    },
+    {
+      "query": "View.regions",
+      "baselineBytes": 10457,
+      "candidateBytes": 1604
+    },
+    {
+      "query": "CollectionView.emptyView",
+      "baselineBytes": 361,
+      "candidateBytes": 356
+    },
+    {
+      "query": "DataApiContract.subscribe",
+      "baselineBytes": 4233,
+      "candidateBytes": 2392
+    },
+    {
+      "query": "ViewInstance.getUI",
+      "baselineBytes": 3932,
+      "candidateBytes": 2112
+    },
+    {
+      "query": "Application.restart",
+      "baselineBytes": 3837,
+      "candidateBytes": 5315
+    }
+  ],
+  "queries": [
+    {
+      "query": "getUI",
+      "baselineLocationRank": 1,
+      "candidateLocationRank": 1
+    },
+    {
+      "query": "bindUIElements",
+      "baselineLocationRank": 2,
+      "candidateLocationRank": 2
+    },
+    {
+      "query": "delegateEvents",
+      "baselineLocationRank": 1,
+      "candidateLocationRank": 1
+    },
+    {
+      "query": "event currentTarget delegateTarget",
+      "baselineLocationRank": 5,
+      "candidateLocationRank": 1
+    },
+    {
+      "query": "initialize options",
+      "baselineLocationRank": 5,
+      "candidateLocationRank": 5
+    },
+    {
+      "query": "childViewEvents arguments",
+      "baselineLocationRank": 1,
+      "candidateLocationRank": 1
+    },
+    {
+      "query": "preserve editable rows sort",
+      "baselineLocationRank": 1,
+      "candidateLocationRank": 1
+    },
+    {
+      "query": "setComparator viewComparator",
+      "baselineLocationRank": 1,
+      "candidateLocationRank": 1
+    },
+    {
+      "query": "observeCollection",
+      "baselineLocationRank": 4,
+      "candidateLocationRank": 4
+    },
+    {
+      "query": "my click handler runs twice",
+      "baselineLocationRank": null,
+      "candidateLocationRank": 1
+    },
+    {
+      "query": "change view model after creation",
+      "baselineLocationRank": null,
+      "candidateLocationRank": 4
+    },
+    {
+      "query": "which element received the delegated click",
+      "baselineLocationRank": null,
+      "candidateLocationRank": 1
+    },
+    {
+      "query": "do model changes automatically update the screen",
+      "baselineLocationRank": null,
+      "candidateLocationRank": null
+    },
+    {
+      "query": "move a view without destroying it",
+      "baselineLocationRank": null,
+      "candidateLocationRank": null
+    },
+    {
+      "query": "retry loading without losing my draft",
+      "baselineLocationRank": null,
+      "candidateLocationRank": null
+    },
+    {
+      "query": "update one item in a list",
+      "baselineLocationRank": 3,
+      "candidateLocationRank": 3
+    }
+  ]
+}

@@ -22,9 +22,20 @@ export function symbolIndex(inventory, semantics, sections) {
     if (!Object.hasOwn(contracts, id)) { throw new Error(`Unknown API contract: ${id}`); }
     return id;
   });
-  const members = (signatures = {}, operations = {}, fallback) => Object.fromEntries(
-    Object.entries(signatures).map(([name, signature]) =>
-      [name, { signature, contracts: known(Object.hasOwn(operations, name) ? operations[name] : fallback) }]));
+  const members = (value, signatures = {}, mappings = {}) => Object.fromEntries(
+    Object.entries(signatures).map(([name, signature]) => {
+      if (!Object.hasOwn(mappings, name)) { throw new Error(`Missing member contracts: ${value.name}.${name}`); }
+      const ids = known(mappings[name]);
+      const primarySections = ids.flatMap(id => {
+        const contract = semantics.contracts.find(item => item.id === id);
+        const applicable = contract.docs.filter(doc => !doc.exports || doc.exports.includes(value.name));
+        const specific = applicable.filter(doc => doc.members?.includes(name));
+        const docs = specific.length ? specific : contract.members?.includes(name) ?
+          applicable.filter(doc => !doc.members) : [];
+        return docs.map(doc => sectionIds.get(`${doc.file}\0${plainHeading(doc.heading)}`)[0]);
+      });
+      return [name, { signature, contracts: ids, primarySections: [...new Set(primarySections)] }];
+    }));
   const symbols = inventory.entrypoints.flatMap(entry => entry.exports.map(value => ({
     entrypoint: entry.name,
     name: value.name,
@@ -32,11 +43,11 @@ export function symbolIndex(inventory, semantics, sections) {
     signature: value.signature,
     contracts: known(value.contracts),
     ...value.kind === 'value' ? {
-      static: members(value.members, value.operationContracts?.static, value.contracts),
+      static: members(value, value.members, value.memberContracts?.static),
     } : {
-      members: members(value.members, value.operationContracts?.static, value.contracts),
+      members: members(value, value.members, value.memberContracts?.static),
     },
-    instance: members(value.instance, value.operationContracts?.instance, value.contracts),
+    instance: members(value, value.instance, value.memberContracts?.instance),
   })));
-  return { schemaVersion: 1, contracts, symbols };
+  return { schemaVersion: 2, contracts, symbols };
 }

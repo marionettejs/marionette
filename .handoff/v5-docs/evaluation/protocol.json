@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen; not executed",
+  "attempts": 4,
+  "budgetSecondsPerAttempt": 600,
+  "schedule": [
+    {
+      "attempt": 1,
+      "task": "reader_local_editor",
+      "condition": "baseline"
+    },
+    {
+      "attempt": 2,
+      "task": "reader_retained_dashboard",
+      "condition": "candidate"
+    },
+    {
+      "attempt": 3,
+      "task": "reader_local_editor",
+      "condition": "candidate"
+    },
+    {
+      "attempt": 4,
+      "task": "reader_retained_dashboard",
+      "condition": "baseline"
+    }
+  ],
+  "controls": [
+    "Four fresh isolated reader contexts; no conversation, findings, implementation notes, or earlier attempt output shared.",
+    "Same selected reader model/version, reasoning setting, tool availability and dependencies for every attempt; record exact settings before execution.",
+    "Identical task requirements and zero authored application JS/TS across conditions; only installed documentation/helper artifacts differ.",
+    "Condition artifact and starter/evaluator hashes recorded before execution.",
+    "Do not reveal evaluator assertions or architectural rubric to the reader beyond the neutral prompt and interfaces.",
+    "Wall-clock budget begins with task delivery; enforce 600 seconds without implicit extensions.",
+    "No retry, recovery attempt or model switch. Preserve timed-out/partial work and errors.",
+    "No model reader trials until expressly authorized.",
+    "Evaluate behavioral outcomes with the same black-box checks and inspect public submitted code for ownership/cancellation choices.",
+    "Report all four outcomes individually, tool/read count, elapsed time, timeout status, completed outcomes, and architecture findings. Do not infer general superiority from two tasks/one attempt per cell."
+  ],
+  "counterbalancing": "Baseline precedes candidate for local editor; candidate precedes baseline for retained dashboard. Each condition appears once in each half of the sequence.",
+  "retrievalProtocol": "After artifacts are frozen, run each of the 12 reserved questions exactly once per condition. Save raw responses before scoring. Never tune using these queries after observing the held-out result."
+}

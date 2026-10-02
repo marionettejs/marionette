@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "baselineRevision": "1eb1f56f",
+  "frozenBeforeCandidateEdits": true,
+  "independence": "Authored from current public documentation and helper interface only; no development query fixtures or prior audit files inspected. Reserved from implementation agents.",
+  "scoring": {
+    "searchCallsPerConditionPerQuestion": 1,
+    "retrieve": "Use the unmodified ordinary --search query, retain complete helper JSON, inspect returned section text and advertised section links only.",
+    "retrievalMetrics": [
+      "acceptable location at rank 1",
+      "acceptable location within first 3 results",
+      "required facts supported by returned section text",
+      "required facts reachable with one explicit linked section read"
+    ],
+    "factScoring": "Each required fact earns 1 only when supported; a qualified/alternative location is acceptable if its actual returned content supports the same fact. Report partial facts rather than all-or-nothing topic matching.",
+    "acceptableLocations": "Alternatives are not an exhaustive whitelist. Full-page entries accept any relevant subsection containing the required facts. Multiple sections may jointly cover facts. Do not demand a single canonical answer location.",
+    "limitations": "Retrieval coverage is not reader effectiveness. No queries or scoring are revised after seeing candidate retrieval."
+  },
+  "questions": [
+    {
+      "id": "q01",
+      "topic": "local_interaction",
+      "query": "How should a small expandable details panel handle its own button click and update its controls?",
+      "requiredFacts": [
+        "A View may own local interaction and local state; an Application is not required for a local control.",
+        "Use View DOM events with a callback/method; bounded updates to its own controls are appropriate."
+      ],
+      "acceptableLocations": [
+        "docs/api/view.md#local-interaction-and-feature-coordination",
+        "docs/api/shared/view-bindings.md#dom-events",
+        "docs/architecture.md#choose-a-responsibility",
+        "docs/architecture.md#let-views-and-regions-manage-presentation"
+      ]
+    },
+    {
+      "id": "q02",
+      "topic": "model_observation",
+      "query": "My title model changes elsewhere, but the View still shows the old title. How do I keep the display in sync?",
+      "requiredFacts": [
+        "Configure the appropriate DataApi for the observable source.",
+        "Declare modelEvents (for example change:title or change mapped to render); data changes alone do not render a View.",
+        "Model/collection bindings borrow their sources and are released when the View is destroyed."
+      ],
+      "acceptableLocations": [
+        "docs/api/shared/view-bindings.md#data-bindings",
+        "docs/guides/local-editing.md",
+        "docs/api/runtime.md#configure-an-isolated-runtime",
+        "docs/integrations/setup.md#configure-once"
+      ]
+    },
+    {
+      "id": "q03",
+      "topic": "replace_model",
+      "query": "How do I switch an existing editor View to another model without leaving the old model subscribed?",
+      "requiredFacts": [
+        "Call undelegateEntityEvents before changing the model/source.",
+        "Assign the replacement source, then call delegateEntityEvents to bind it.",
+        "Delegation alone does not release the prior subscription; rebinding does not transfer ownership of the supplied model."
+      ],
+      "acceptableLocations": [
+        "docs/api/shared/view-bindings.md#data-bindings"
+      ]
+    },
+    {
+      "id": "q04",
+      "topic": "list_identity",
+      "query": "I want to sort and temporarily hide rows while keeping the notes typed into each row. Which list operations preserve those rows?",
+      "requiredFacts": [
+        "CollectionView sort/setComparator moves existing rows; filter/setFilter detaches and retains excluded row Views.",
+        "Restoring the filter restores retained rows and nodes, but detachment can lose focus.",
+        "Full CollectionView render or collection reset rebuilds managed rows; do not use them merely to apply criteria."
+      ],
+      "acceptableLocations": [
+        "docs/guides/lists.md#own-the-controls-and-repeated-rows",
+        "docs/guides/lists.md#update-without-rebuilding-everything",
+        "docs/api/collection-view.md"
+      ]
+    },
+    {
+      "id": "q05",
+      "topic": "list_criteria",
+      "query": "A row changed from unavailable to available. Its text updated, but it is still hidden by the list filter. What should trigger the filter again?",
+      "requiredFacts": [
+        "A native Model attribute change does not automatically rerun the parent CollectionView filter/sort.",
+        "Explicitly call filter() and/or sort() after changing an attribute used by those criteria.",
+        "Row modelEvents may rerender the row independently from parent presentation criteria."
+      ],
+      "acceptableLocations": [
+        "docs/guides/lists.md#update-without-rebuilding-everything",
+        "docs/api/collection-view.md"
+      ]
+    },
+    {
+      "id": "q06",
+      "topic": "region_transfer",
+      "query": "How can I move a live editor from the sidebar to the main panel without destroying its draft?",
+      "requiredFacts": [
+        "Call the current Region detachView to remove DOM/release ownership while retaining the View.",
+        "Show the detached View in the receiving Region; a View must first be detached before another owner adopts it.",
+        "The detached View retains its state/listeners; keep a reference and adopt or destroy it later."
+      ],
+      "acceptableLocations": [
+        "docs/api/region.md#construction-and-options",
+        "docs/api/region.md#showing-a-view",
+        "docs/api/region.md#empty-detach-reset-and-destroy",
+        "docs/api/view.md#named-regions"
+      ]
+    },
+    {
+      "id": "q07",
+      "topic": "layout_update",
+      "query": "Updating a status label by rendering my page View removes the editor in its child area. How do I keep the editor alive?",
+      "requiredFacts": [
+        "Rerendering a containing View resets its Regions and destroys child Views.",
+        "Update only the changed data/child Region or the local status control, preserving the containing shell and independent editor.",
+        "A detached child can be retained deliberately when reconstruction is intended, but retention must be owned explicitly."
+      ],
+      "acceptableLocations": [
+        "docs/api/view.md#rendering-and-status",
+        "docs/architecture.md#let-views-and-regions-manage-presentation",
+        "docs/guides/retained-restart.md#end-the-run-deliberately",
+        "docs/api/shared/view-bindings.md#data-bindings"
+      ]
+    },
+    {
+      "id": "q08",
+      "topic": "await_readiness",
+      "query": "Where should loading go if the feature must not become ready until it finishes? Will an async onStart delay activation?",
+      "requiredFacts": [
+        "prepareStart is the awaited lifecycle hook and may return a value or Promise.",
+        "Its current successful result is supplied to onStart(app, options, result).",
+        "Notification hooks such as onStart do not await returned Promises; callers handle start/restart rejection."
+      ],
+      "acceptableLocations": [
+        "docs/api/application.md#prepare-before-showing-ui",
+        "docs/api/application.md#preparation-cancellation-and-failure",
+        "docs/architecture.md#prepare-a-feature-then-activate-its-ui"
+      ]
+    },
+    {
+      "id": "q09",
+      "topic": "retained_restart",
+      "query": "Reloading the dashboard should keep the current page and unfinished notes visible, including if loading fails. How should its lifecycle work?",
+      "requiredFacts": [
+        "restart repeats preparation while retaining the active root, children, state and subscriptions.",
+        "Create/connect the shell only when absent; apply successful prepared results to the changed source or Region in onStart.",
+        "A failed active restart rejects but leaves the active feature/UI intact; expose error feedback without stopping it.",
+        "stop/start reconstructs UI and is a different lifetime choice."
+      ],
+      "acceptableLocations": [
+        "docs/guides/retained-restart.md",
+        "docs/api/application.md#lifecycle-methods-and-results",
+        "docs/api/application.md#preparation-cancellation-and-failure",
+        "docs/api/application.md#readiness-and-ongoing-effects",
+        "docs/architecture.md#choose-what-survives-an-operation"
+      ]
+    },
+    {
+      "id": "q10",
+      "topic": "obsolete_preparation",
+      "query": "Two reloads finish out of order, and the service ignores abort. How do I keep the older result from replacing the new one?",
+      "requiredFacts": [
+        "A newer restart supersedes pending preparation, aborts its signal, and resolves the earlier call false.",
+        "Only the current successful preparation result reaches onStart; apply prepared data there rather than mutating live state in the service.",
+        "Pass the signal to dependencies; additional side effects after an await require cancellation checks.",
+        "The completed preparation signal is not a lifetime signal for unrelated later operations."
+      ],
+      "acceptableLocations": [
+        "docs/api/application.md#preparation-cancellation-and-failure",
+        "docs/guides/retained-restart.md#let-preparation-discard-obsolete-results",
+        "docs/architecture.md#prepare-a-feature-then-activate-its-ui"
+      ]
+    },
+    {
+      "id": "q11",
+      "topic": "provider_scope",
+      "query": "One embedded feature needs different rendering and observable state settings. Can I configure it without changing the rest of the app?",
+      "requiredFacts": [
+        "createMarionette returns an isolated family of constructors with configurable providers and Radio.",
+        "Configure that runtime or appropriately scoped subclasses before constructing consumers, and use its constructors.",
+        "DataApi and StateApi are configured separately; imported adapters alone do not install them.",
+        "Provider setters are not a live migration API and do not rebuild existing consumers."
+      ],
+      "acceptableLocations": [
+        "docs/api/runtime.md#configure-an-isolated-runtime",
+        "docs/api/runtime.md#choose-a-configuration-scope",
+        "docs/api/runtime.md#isolation-and-composition",
+        "docs/api/shared/view-bindings.md#class-configuration"
+      ]
+    },
+    {
+      "id": "q12",
+      "topic": "subscription_cleanup",
+      "query": "My feature survives panel replacement and can stop and start again. Which subscriptions are cleaned up automatically, and which do I need to release?",
+      "requiredFacts": [
+        "Native object destruction removes incoming callbacks and outgoing listenTo subscriptions/bookkeeping; a retained listener needs no per-destroyed-View cleanup handler.",
+        "Application stop retains subscriptions to surviving sources; release subscriptions whose useful lifetime ends earlier explicitly.",
+        "External listeners/timers/resources need cleanup at their owning lifetime unless their integration guarantees cleanup.",
+        "Restart invokes onStart again without onStop; install ongoing effects once per active run and release them on stop."
+      ],
+      "acceptableLocations": [
+        "docs/api/shared/events.md#cleanup",
+        "docs/api/application.md#readiness-and-ongoing-effects",
+        "docs/architecture.md#clean-up-at-the-ownership-boundary"
+      ]
+    }
+  ]
+}

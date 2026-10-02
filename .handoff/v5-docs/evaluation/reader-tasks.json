@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "baselineRevision": "1eb1f56f",
+  "starterPolicy": {
+    "authoredApplicationJavaScriptOrTypeScript": false,
+    "allowedStarterContent": [
+      "package manifest with exact dependency versions",
+      "build/test runner configuration",
+      "mount HTML",
+      "documented service interface and deterministic service fixture",
+      "black-box evaluator owned separately from the reader"
+    ],
+    "prohibitedStarterContent": [
+      "application source",
+      "preselected class hierarchy",
+      "skeleton methods naming ownership boundaries",
+      "architecture instructions beyond user-visible outcomes"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "reader_local_editor",
+      "prompt": "Build a small title editor using the installed Marionette package. The supplied record starts with a title. Typing edits a draft and updates its preview without changing the saved record. Save calls the supplied service. While saving, prevent duplicate submissions and show progress. Failure preserves the draft and permits retry. Success displays the service-accepted title and updates the saved record. Closing the editor during a request removes its UI; a late response must not update the saved record or removed UI. Reopening starts from the current saved title. Keep keyboard focus stable while typing. Use the installed documentation as needed.",
+      "serviceContract": {
+        "record": {
+          "id": "record-1",
+          "title": "Initial title"
+        },
+        "save": "saveTitle(id, title, { signal }) returns Promise<{title}>; may return a normalized title, reject, or ignore abort and settle later",
+        "mount": "#feature; host opens and closes the editor through the submitted public interface"
+      },
+      "requiredOutcomes": [
+        "Draft input and preview remain consistent while saved record is unchanged.",
+        "Input node and focus survive normal typing.",
+        "One service call per pending save; pending state is visible.",
+        "Rejected save retains the draft and saved record and permits retry.",
+        "Accepted server title commits to both saved record and visible editor.",
+        "Close removes editor and invalidates pending completion even if abort is ignored.",
+        "Reopen uses current saved value with no duplicate handlers/subscriptions."
+      ],
+      "rubric": {
+        "behaviorWeight": 7,
+        "architectureWeight": 3,
+        "architectureChecks": [
+          "Local interaction remains at an owner with the editor lifetime; any broader coordinator has a concrete outcome-based reason.",
+          "Provider configuration is explicit and persistence is supplied by the service, with no invented @mnjs/data save API.",
+          "Framework ownership/bindings handle ordinary teardown; explicit cancellation covers only application-owned asynchronous work."
+        ]
+      }
+    },
+    {
+      "id": "reader_retained_dashboard",
+      "prompt": "Build a dashboard using the installed Marionette package. It loads a summary before becoming ready and displays it beside an editable notes area. Reload fetches another summary while the dashboard stays usable. Notes and their DOM identity must survive successful, failed, and overlapping reloads. A failed reload shows an error while keeping the previous summary. If responses finish out of order, only the newest request may commit. A shared event source announces an external refresh request; one event must cause one reload even after several reloads or a stop and start. Stopping removes the dashboard and prevents pending work from recreating it. Starting again loads anew and creates a fresh notes area. Permanent disposal also releases subscriptions. Use the installed documentation as needed.",
+      "serviceContract": {
+        "load": "loadSummary({signal}) returns Promise<{openItems:number}>; may reject or ignore abort",
+        "events": "refreshSource implements compatible on/off and emits refresh with no arguments",
+        "mount": "#feature; expose start(), reload(), stop(), destroy() through the submitted public interface; promises must make readiness observable"
+      },
+      "requiredOutcomes": [
+        "Initial readiness waits for summary; initial failure is observable to caller.",
+        "Summary and notes are displayed after successful startup.",
+        "Active reload retains notes node, value, and usable UI throughout pending and completion states.",
+        "Reload failure retains last accepted summary and displays feedback.",
+        "Newest overlapping reload wins even when transport ignores abort.",
+        "External refresh yields one reload after repeated reloads and stop/start cycles.",
+        "Stop synchronously removes UI and prevents pending completion from reviving it; subsequent start loads anew.",
+        "Destroy releases shared-source subscriptions and owned UI."
+      ],
+      "rubric": {
+        "behaviorWeight": 8,
+        "architectureWeight": 4,
+        "architectureChecks": [
+          "Readiness and active UI ownership follow the installed lifecycle contract; any substitute concurrency implementation needs a concrete requirement that the existing contract does not meet.",
+          "Repeated readiness does not reconstruct retained shell or notes; changed presentation updates at the relevant boundary.",
+          "Subscriptions and external resources have explicit lifetimes, without blanket removal of still-required surviving subscriptions.",
+          "Framework-owned presentation and native subscriptions use documented lifecycle cleanup; borrowed data/source is not disposed by a borrower."
+        ]
+      }
+    }
+  ]
+}

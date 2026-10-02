@@ -59,7 +59,9 @@ Direct Markdown reading is supported. If using the installed skill's helper, cho
 node <skill>/scripts/docs.mjs --section docs/api/view.md#local-interaction-and-feature-coordination
 ```
 
-Replace `<skill>` with the installed or copied skill directory. A section link reads that contract directly. You can also select a named section with `--page docs/api/shared/view-bindings.md --section 'UI bindings'`. Use `--symbol Export.member` for signatures, `--search 'query'` when the location is unknown, or `--page SOURCE` for a full page. `--list` lists pages; it is optional. An external package store needs `--package-root <physical-directory>`.
+Replace `<skill>` with the installed or copied skill directory. A section link reads that contract directly. You can also select a named section with `--page docs/api/shared/view-bindings.md --section 'UI bindings'`. Use `--symbol Export.member` for signatures and reviewed `primarySections`, `--search 'query'` when the location is unknown, or `--page SOURCE` for a full page. `--list` lists pages; it is optional. An external package store needs `--package-root <physical-directory>`.
+
+A symbol result separates reviewed `primarySections` from incidental code mentions in `sections`. An empty primary list means no precise member location has been assigned; the related contracts remain available.
 
 The helper checks the bundled manifest and hashes and reports the installed version and source revision. These identify the docs read; they do not verify the implementation.
 

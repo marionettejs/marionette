@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "1eb1f56fd9bba481ee833fd7df53a9a2edd9f800",
+  "destinationRepository": "marionettejs/marionette",
+  "temporaryBranch": "handoff/v5-docs-20261002",
+  "scope": "Source checkpoint plus temporary evaluation handoff; no artifact publication or reader-trial authorization.",
+  "files": [
+    {
+      "path": ".handoff/v5-docs/README.md",
+      "bytes": 4810,
+      "sha256": "8bf89cf59d7bc8d06298a272787b6bbc72436d2c5a1cd0bc15aeeb14f67af852"
+    },
+    {
+      "path": ".handoff/v5-docs/development-summary.json",
+      "bytes": 3636,
+      "sha256": "c8a8d09245d5916cf3cd6c4b94fa40b1103d3eeec829c8ac0fbb7aa9a78ebba0"
+    },
+    {
+      "path": ".handoff/v5-docs/development.json",
+      "bytes": 3117,
+      "sha256": "d587580f9956c7f50c6c30ec109c87032846cc57c3d598ce8e4e70fb55341754"
+    },
+    {
+      "path": ".handoff/v5-docs/evaluation/FROZEN.sha256",
+      "bytes": 254,
+      "sha256": "09c9a7552bb70fef53754ba20d4d3f5d06a9b167f2b73a4dd393acd2a37a9f6a"
+    },
+    {
+      "path": ".handoff/v5-docs/evaluation/held-out-questions.json",
+      "bytes": 11529,
+      "sha256": "6c6af9e433cff72f37cb6ab49a748b9da4bc1352231783fa36c64175e9d973b0"
+    },
+    {
+      "path": ".handoff/v5-docs/evaluation/launch-settings.pending.json",
+      "bytes": 1472,
+      "sha256": "4531ae6c7b5817306e068c533703985641d58e08d5faeb6f0cad4fb6ea791186"
+    },
+    {
+      "path": ".handoff/v5-docs/evaluation/protocol.json",
+      "bytes": 2202,
+      "sha256": "2bbfe6fa27aee299c4aa3d8ebd5a7aa03d3c8bbeb4624a82984b537f8d8acfcb"
+    },
+    {
+      "path": ".handoff/v5-docs/evaluation/reader-tasks.json",
+      "bytes": 5660,
+      "sha256": "a2f9fbd37f14ccd06688e4d13d31ff402e21d63417a653fd76f8e6611233bbb2"
+    },
+    {
+      "path": ".handoff/v5-docs/measure.mjs",
+      "bytes": 1897,
+      "sha256": "6a0d6147b3d7625708f9b3baa4b1c0ac7aae24cde9eeac73dd6979bf549d2adc"
+    },
+    {
+      "path": "config/api-contracts/inventory.json",
+      "bytes": 415463,
+      "sha256": "fd28b8b974a54ec233322933459473401baa4546b289466efe5fbca1e621a222"
+    },
+    {
+      "path": "config/api-contracts/semantics.json",
+      "bytes": 118139,
+      "sha256": "b662c286ac547cb5aaa2f03392b0dcf13320de5321945ae2d31c1d4d6812e12f"
+    },
+    {
+      "path": "docs/agents.md",
+      "bytes": 5031,
+      "sha256": "b9005666d81d62c350e77f67bf1221e8f949b96496a154793c94f5236b3269d4"
+    },
+    {
+      "path": "docs/api/shared/view-bindings.md",
+      "bytes": 13983,
+      "sha256": "f5b2466f37b99c9772708ba42c45ee8935a55423f6f9594f936173a17703041c"
+    },
+    {
+      "path": "docs/quick-start.md",
+      "bytes": 3451,
+      "sha256": "6b98f95c65929a4d6d9ab38174674fad1ccd28709c1eabb85e9f845312b2d588"
+    },
+    {
+      "path": "docs/readme.md",
+      "bytes": 5324,
+      "sha256": "f9ce550f1304812ba03d20259dcd629d1285310a833d86c1d55a291da63c5499"
+    },
+    {
+      "path": "plugins/marionette/skills/marionette/SKILL.md",
+      "bytes": 4288,
+      "sha256": "1fd6e188a63b9a202e50b02073cae38a378f59dd32e883817a52fcd4965d7f01"
+    },
+    {
+      "path": "plugins/marionette/skills/marionette/scripts/symbols.mjs",
+      "bytes": 5802,
+      "sha256": "e31dfb9011a56c9933f5d0909a51657028021efae023194f529028d31dcf996c"
+    },
+    {
+      "path": "scripts/api-contracts/README.md",
+      "bytes": 5344,
+      "sha256": "47d9965b7dacfe6e9c90894b9f60f3e9fb958c1bb18fb6cf342530ebc86f45c4"
+    },
+    {
+      "path": "scripts/api-contracts/inventory.mjs",
+      "bytes": 18593,
+      "sha256": "7085d498091d708058306da5ab87d62bea75ad88d220dd95eabde4bbf775f705"
+    },
+    {
+      "path": "scripts/docs/symbols.mjs",
+      "bytes": 2637,
+      "sha256": "0c8c5504ebd1c4da34f054ac47be80099b4197e6c7d38a9c670c952256cb8361"
+    },
+    {
+      "path": "skills/marionette/SKILL.md",
+      "bytes": 4288,
+      "sha256": "1fd6e188a63b9a202e50b02073cae38a378f59dd32e883817a52fcd4965d7f01"
+    },
+    {
+      "path": "skills/marionette/scripts/symbols.mjs",
+      "bytes": 5802,
+      "sha256": "e31dfb9011a56c9933f5d0909a51657028021efae023194f529028d31dcf996c"
+    },
+    {
+      "path": "test/agent-docs/lookup.test.mjs",
+      "bytes": 24435,
+      "sha256": "4764e53bb995503ab701cd80f69b442246a3d4893a6c6f45f7ce2c9312154d2d"
+    },
+    {
+      "path": "test/agent-docs/retrieval.test.mjs",
+      "bytes": 13562,
+      "sha256": "5a673e753e25bcf0a5a8c31b4d3181043b3a7fd403f7609b53c4e0e1013b7bed"
+    },
+    {
+      "path": "test/agent-docs/symbols.test.mjs",
+      "bytes": 6014,
+      "sha256": "04ae4543b9406559e73f9ab6049533edcd0a9bbb4bf3d025bfe06a2efb3464e3"
+    },
+    {
+      "path": "test/tooling/api-contracts.test.mjs",
+      "bytes": 15183,
+      "sha256": "8421235f048900b7c889179f28dfa83582a8844450c6bf87550251b97f960d67"
+    }
+  ]
+}

@@ -67,4 +67,8 @@ Open the address Vite prints. You should see “Hello, Marionette”. `npm run b
 
 The View describes the content. The Region renders and mounts it, then owns replacement and destruction. Calling `region.show(anotherView)` replaces the previous View; `region.empty()` destroys the displayed View.
 
-The Lit DOM adapter is configured once before creating Views. The default renderer calls each template function with its data. Read [setup](integrations/setup.md) when adding observable data. Before adding service calls or coordinating panels, read [ownership and lifetimes](architecture.md). The [records lesson](records.md) applies those concepts in a runnable feature.
+The Lit DOM adapter is configured once before creating Views. The default renderer calls each template function with its data.
+
+From here, [handle DOM events](api/shared/view-bindings.md#dom-events) and [update a View's local data](guides/local-editing.md). A View can save its own model when its data or API layer supplies persistence. Add [observable data](integrations/setup.md) or [compose Views with Regions](architecture.md#choose-a-responsibility) as needed; optional `@mnjs/data` supplies observation, with fetching and persistence provided separately.
+
+When the feature needs readiness or an independent lifetime, continue with [Application preparation](architecture.md#prepare-a-feature-then-activate-its-ui) and [retained restart](guides/retained-restart.md). The [records lesson](records.md) combines these concepts in a runnable feature.

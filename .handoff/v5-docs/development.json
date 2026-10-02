@@ -1,0 +1,117 @@
+{
+  "scope": "Development diagnostics, not held-out effectiveness evidence. Nine existing regression cases and five previously observed ordinary-language misses are reproduced here; two general workflow questions complete the set.",
+  "symbols": [
+    "View.modelEvents",
+    "Application.viewEvents",
+    "View.getUI",
+    "CollectionView.setComparator",
+    "View.ui",
+    "View.regions",
+    "CollectionView.emptyView",
+    "DataApiContract.subscribe",
+    "ViewInstance.getUI",
+    "Application.restart"
+  ],
+  "questions": [
+    {
+      "query": "getUI",
+      "locations": [
+        "docs/api/shared/view-bindings.md#ui-bindings"
+      ]
+    },
+    {
+      "query": "bindUIElements",
+      "locations": [
+        "docs/api/shared/view-bindings.md#ui-bindings"
+      ]
+    },
+    {
+      "query": "delegateEvents",
+      "locations": [
+        "docs/api/shared/view-bindings.md#dom-events"
+      ]
+    },
+    {
+      "query": "event currentTarget delegateTarget",
+      "locations": [
+        "docs/api/shared/view-bindings.md#dom-events"
+      ]
+    },
+    {
+      "query": "initialize options",
+      "locations": [
+        "docs/api/shared/common.md#options-and-initialization"
+      ]
+    },
+    {
+      "query": "childViewEvents arguments",
+      "locations": [
+        "docs/api/shared/view-bindings.md#child-events"
+      ]
+    },
+    {
+      "query": "preserve editable rows sort",
+      "locations": [
+        "docs/guides/lists.md#own-the-controls-and-repeated-rows"
+      ]
+    },
+    {
+      "query": "setComparator viewComparator",
+      "locations": [
+        "docs/api/collection-view.md#sorting"
+      ]
+    },
+    {
+      "query": "observeCollection",
+      "locations": [
+        "docs/api/providers/data.md#dataapi"
+      ]
+    },
+    {
+      "query": "my click handler runs twice",
+      "locations": [
+        "docs/api/shared/view-bindings.md#dom-events"
+      ]
+    },
+    {
+      "query": "change view model after creation",
+      "locations": [
+        "docs/api/shared/view-bindings.md#data-bindings"
+      ]
+    },
+    {
+      "query": "which element received the delegated click",
+      "locations": [
+        "docs/api/shared/view-bindings.md#dom-events"
+      ]
+    },
+    {
+      "query": "do model changes automatically update the screen",
+      "locations": [
+        "docs/api/shared/view-bindings.md#templates-and-data",
+        "docs/api/shared/view-bindings.md#data-bindings"
+      ]
+    },
+    {
+      "query": "move a view without destroying it",
+      "locations": [
+        "docs/api/region.md#empty-detach-reset-and-destroy"
+      ]
+    },
+    {
+      "query": "retry loading without losing my draft",
+      "locations": [
+        "docs/guides/retained-restart.md#construct-the-shell-once",
+        "docs/guides/retained-restart.md#let-preparation-discard-obsolete-results",
+        "docs/api/application.md#restartoptions"
+      ]
+    },
+    {
+      "query": "update one item in a list",
+      "locations": [
+        "docs/guides/lists.md#update-without-rebuilding-everything",
+        "docs/api/collection-view.md#rendering-and-collection-updates"
+      ]
+    }
+  ]
+}

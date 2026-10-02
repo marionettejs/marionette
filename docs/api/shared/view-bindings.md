@@ -60,7 +60,9 @@ Normalization uses the View's original selector map unless an explicit map is pr
 
 ## DOM events
 
-`events` maps `'event selector'` to a callback or View method name. Omit the selector to listen on the root. Callbacks run with the View as `this` and receive the DOM event. With the native delegator, a selector matches the nearest matching descendant on the event path, exposed as `event.delegateTarget`; `focus` and `blur` use capture. The root is not a selector match.
+`events` maps `'event selector'` to a callback or View method name. For example, `events: { 'click .save': 'save' }` calls the View's `save` handler for a delegated click. Omit the selector to listen on the root. Callbacks run with the View as `this` and receive the DOM event.
+
+With the native delegator, `event.currentTarget` is the View's root element. `event.delegateTarget` is the nearest matching descendant on the event path: use it to read the control matched by the selector, even when a click originated inside that control. The root is not a selector match. `focus` and `blur` use capture.
 
 `triggers` maps the same DOM keys to a View event name or `{ event, preventDefault, stopPropagation }`. A trigger calls `view.triggerMethod(eventName, view, domEvent, ...extraArguments)`. Both prevention flags default to `true`; set either to `false` to allow that browser behavior. `events` handlers do not receive these automatic prevention calls.
 
@@ -71,15 +73,17 @@ Both maps may be functions evaluated on the View. `@ui` selectors are resolved b
 | `delegateEvents(events?)` → `this` | Removes existing View/Behavior DOM handlers, refreshes child event maps, then binds the explicit event map or current `events`, plus current `triggers` and Behavior DOM handlers. Use after changing declarations. |
 | `undelegateEvents()` → `this` | Releases View and Behavior DOM handlers. |
 
-Both methods are no-ops while destroying/destroyed. Construction delegates automatically; destruction releases handlers automatically. Detaching a live View preserves its DOM bindings. Rendering does not reread changed event declarations.
+Both methods are no-ops while destroying/destroyed. Construction delegates automatically; destruction releases handlers automatically. Calling `delegateEvents()` again replaces the bindings rather than adding another copy of each handler. Detaching a live View preserves its DOM bindings. Rendering does not reread changed event declarations.
 
 ## Data bindings
 
 `modelEvents` and `collectionEvents` map source event names to callback functions or View method names; either map may be returned from a function. Bindings use the configured `Data.subscribe`, preserve source arguments, and invoke callbacks with the View as `this`. A plain object/array can supply template data, but the default DataApi requires an `on`/`off` source when an event map is present. Use the appropriate adapter for observable data.
 
-`delegateEntityEvents()` binds current model/collection declarations, including Behaviors, and returns the View. `undelegateEntityEvents()` releases those subscriptions and returns the View. Construction binds them after `initialize`; destruction releases them. Before replacing a source or rebinding a map, call `undelegateEntityEvents()`, assign the new source/declarations, then call `delegateEntityEvents()`. Delegation alone does not release a previous subscription.
+`delegateEntityEvents()` binds current model/collection declarations, including Behaviors, and returns the View. `undelegateEntityEvents()` releases those subscriptions and returns the View. Construction binds them after `initialize`; destruction releases them.
 
-For a small View, `modelEvents: { change: 'render' }` rerenders when an observable model changes. On a layout View, that also resets its Regions and destroys their children; see [View rendering](../view.md#rendering-and-status).
+Replacing a View's model or collection after construction does not change its existing subscriptions. Call `undelegateEntityEvents()` before assigning the new source or event map, then call `delegateEntityEvents()` to observe it. Delegation alone does not release a previous subscription. Render explicitly if the new source should be displayed immediately.
+
+Observable model changes do not automatically update the View's rendered contents. Choose the response in `modelEvents` or `collectionEvents`: for a small View, `modelEvents: { change: 'render' }` rerenders on change. On a layout View, that also resets its Regions and destroys their children; see [View rendering](../view.md#rendering-and-status).
 
 These bindings do not own or destroy the model/collection. State bindings have separate ownership and delivery rules: see [state](state.md).
 

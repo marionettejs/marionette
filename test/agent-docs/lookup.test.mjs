@@ -259,9 +259,11 @@ const regionInventory = { entrypoints: [{ name: 'marionette', exports: [
   { name: 'Region', kind: 'value', signature: 'RegionConstructor', contracts: ['region'],
     members: { extend: '() => RegionConstructor' },
     instance: { detachView: '() => View | undefined', show: '(view: View) => this', reset: '() => this' },
-    operationContracts: { instance: { detachView: ['region'], reset: [] } } },
-  { name: 'RegionInstance', kind: 'type', signature: 'RegionInstance', contracts: ['region'], instance: { detachView: '() => View' } },
-  { name: 'ShowOptions', kind: 'type', signature: 'ShowOptions', contracts: ['region'], members: { replaceElement: 'boolean' } },
+    memberContracts: { static: { extend: ['region'] }, instance: { detachView: ['region'], show: ['region'], reset: [] } } },
+  { name: 'RegionInstance', kind: 'type', signature: 'RegionInstance', contracts: ['region'], instance: { detachView: '() => View' },
+    memberContracts: { instance: { detachView: ['region'] } } },
+  { name: 'ShowOptions', kind: 'type', signature: 'ShowOptions', contracts: ['region'], members: { replaceElement: 'boolean' },
+    memberContracts: { static: { replaceElement: ['region'] } } },
 ] }, { name: '@mnjs/utils', exports: [
   { name: 'show', kind: 'value', signature: '(view: View) => void', contracts: ['region'] },
 ] }] };
@@ -341,9 +343,9 @@ test('symbol lookup reports absent names honestly and rejects malformed queries 
   await writeFile(symbols, '{}');
   assert.match(data.run('--symbol', 'Region').stderr, /hash mismatch/);
   for (const [bytes, error] of [['{}', /Unsupported documentation symbol index/],
-    [JSON.stringify({ schemaVersion: 1, contracts: {}, symbols: [{ entrypoint: 'marionette', name: 'Region', signature: 'x', contracts: ['region'] }] }), /Invalid documentation symbol index/],
-    [JSON.stringify({ schemaVersion: 1, contracts: { region: { sections: ['docs/routing.md#L99'], diagnostics: [] } }, symbols: [] }), /Invalid documentation symbol index/],
-    ...[5, null, []].map(map => [JSON.stringify({ schemaVersion: 1, contracts: {}, symbols: [{ entrypoint: 'marionette', name: 'Region', signature: 'x', contracts: [], static: map }] }), /Invalid documentation symbol index/])]) {
+    [JSON.stringify({ schemaVersion: 2, contracts: {}, symbols: [{ entrypoint: 'marionette', name: 'Region', signature: 'x', contracts: ['region'] }] }), /Invalid documentation symbol index/],
+    [JSON.stringify({ schemaVersion: 2, contracts: { region: { sections: ['docs/routing.md#L99'], diagnostics: [] } }, symbols: [] }), /Invalid documentation symbol index/],
+    ...[5, null, []].map(map => [JSON.stringify({ schemaVersion: 2, contracts: {}, symbols: [{ entrypoint: 'marionette', name: 'Region', signature: 'x', contracts: [], static: map }] }), /Invalid documentation symbol index/])]) {
     await writeFile(symbols, bytes);
     data.manifest.assets.find(asset => asset.source === 'docs-symbols.json').sha256 = hash(bytes);
     await data.rehash();

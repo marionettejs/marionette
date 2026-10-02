@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "status": "blocked_for_launch",
+  "readerTrialsAuthorizedForThisTurn": false,
+  "frozenProtocol": "protocol.json",
+  "missingLaunchRequirements": [
+    "Exact executable runner and invocation capable of launching four fresh isolated contexts.",
+    "Exact reader model/version and reasoning configuration, identical across conditions.",
+    "Per-attempt token or monetary ceiling and one aggregate ceiling covering all four attempts, including tool/model overhead.",
+    "Metering mechanism that measures the selected ceiling and terminates work before exceeding it; a requested budget in the prompt is insufficient.",
+    "Executable 600-second wall-clock timeout and supervisor that preserves partial artifacts when terminating.",
+    "Verified isolation of context, output directories, artifact conditions, and neutral starter/evaluator inputs."
+  ],
+  "pendingSettings": {
+    "runner": null,
+    "model": null,
+    "reasoningEffort": null,
+    "perAttemptTokenCeiling": null,
+    "aggregateTokenCeiling": null,
+    "perAttemptSpendCeiling": null,
+    "aggregateSpendCeiling": null,
+    "meteringMechanism": null,
+    "timeoutEnforcement": null
+  },
+  "releaseCondition": "Launch only after exact settings and enforcing runner are recorded and verified, with authorization matching that concrete bounded execution. Do not treat protocol preparation or read-only retrieval as reader-trial authorization.",
+  "frozenArtifactsUnchanged": true
+}

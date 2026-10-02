@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "005633c3131490468ebbe5d777abe23fe853d7788ed55e8cc0c541e57bc74a8f",
+  "semanticsSha256": "e13c573050d7534a578aff8b4cb41a0bed0e020fadc5f4f07d1a6cc40272b79b",
   "entrypoints": [
     {
       "name": "marionette",
@@ -158,7 +158,7 @@
           "call": [
             "(this: object, options?: ApplicationOptions | undefined): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "apply": [
                 "class-configuration"
@@ -183,6 +183,12 @@
               "bindRequests": [
                 "owner-bind-requests"
               ],
+              "channelName": [],
+              "childApps": [
+                "application-composition"
+              ],
+              "cid": [],
+              "cidPrefix": [],
               "createState": [],
               "destroy": [
                 "application-lifecycle"
@@ -258,11 +264,21 @@
               "onStop": [
                 "application-lifecycle"
               ],
+              "options": [],
               "preinitialize": [
                 "application-composition"
               ],
               "prepareStart": [
                 "application-lifecycle"
+              ],
+              "Radio": [],
+              "radioEvents": [],
+              "radioRequests": [],
+              "region": [
+                "application-composition"
+              ],
+              "regionClass": [
+                "application-composition"
               ],
               "removeChildApp": [
                 "application-composition"
@@ -279,6 +295,9 @@
               "start": [
                 "application-lifecycle"
               ],
+              "state": [],
+              "State": [],
+              "stateEvents": [],
               "stop": [
                 "application-lifecycle"
               ],
@@ -296,6 +315,9 @@
               ],
               "unbindRequests": [
                 "owner-bind-requests"
+              ],
+              "viewEvents": [
+                "application-composition"
               ]
             }
           }
@@ -323,7 +345,7 @@
           "call": [
             "(this: object, ...args: Args): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "apply": [
                 "type-shapes"
@@ -445,7 +467,7 @@
             "unbindEvents",
             "unbindRequests"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "addChildApp": [
                 "type-shapes"
@@ -454,6 +476,18 @@
                 "type-shapes"
               ],
               "bindRequests": [
+                "type-shapes"
+              ],
+              "channelName": [
+                "type-shapes"
+              ],
+              "childApps": [
+                "type-shapes"
+              ],
+              "cid": [
+                "type-shapes"
+              ],
+              "cidPrefix": [
                 "type-shapes"
               ],
               "createState": [
@@ -537,10 +571,28 @@
               "onStop": [
                 "type-shapes"
               ],
+              "options": [
+                "type-shapes"
+              ],
               "preinitialize": [
                 "type-shapes"
               ],
               "prepareStart": [
+                "type-shapes"
+              ],
+              "Radio": [
+                "type-shapes"
+              ],
+              "radioEvents": [
+                "type-shapes"
+              ],
+              "radioRequests": [
+                "type-shapes"
+              ],
+              "region": [
+                "type-shapes"
+              ],
+              "regionClass": [
                 "type-shapes"
               ],
               "removeChildApp": [
@@ -556,6 +608,15 @@
                 "type-shapes"
               ],
               "start": [
+                "type-shapes"
+              ],
+              "state": [
+                "type-shapes"
+              ],
+              "State": [
+                "type-shapes"
+              ],
+              "stateEvents": [
                 "type-shapes"
               ],
               "stop": [
@@ -574,6 +635,9 @@
                 "type-shapes"
               ],
               "unbindRequests": [
+                "type-shapes"
+              ],
+              "viewEvents": [
                 "type-shapes"
               ]
             }
@@ -598,7 +662,37 @@
             "viewEvents": "?object | (() => object) | undefined"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "channelName": [
+                "type-shapes"
+              ],
+              "childApps": [
+                "type-shapes"
+              ],
+              "radioEvents": [
+                "type-shapes"
+              ],
+              "radioRequests": [
+                "type-shapes"
+              ],
+              "region": [
+                "type-shapes"
+              ],
+              "regionClass": [
+                "type-shapes"
+              ],
+              "state": [
+                "type-shapes"
+              ],
+              "stateEvents": [
+                "type-shapes"
+              ],
+              "viewEvents": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "ApplicationRestartOptions",
@@ -611,7 +705,13 @@
             "region": "?RegionInstance<RegionOptions> | undefined"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "region": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "ApplicationStartOptions",
@@ -624,7 +724,13 @@
             "region": "?RegionInstance<RegionOptions> | undefined"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "region": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "Behavior",
@@ -737,70 +843,71 @@
           "call": [
             "(this: object, options: BehaviorOptions | undefined, view: BehaviorHost<ArrayLike<Element>>): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "apply": [
-                "behavior",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "call": [
-                "behavior",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "extend": [
-                "behavior",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setEventDelegator": [
-                "behavior",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setStateApi": [
-                "behavior",
-                "sync-failure-boundary",
                 "class-configuration"
               ]
             },
             "instance": {
               "$": [
-                "behavior",
-                "sync-failure-boundary",
                 "ui"
               ],
               "bindEvents": [
-                "behavior",
-                "sync-failure-boundary",
                 "owner-bind-events"
               ],
               "bindRequests": [
-                "behavior",
-                "sync-failure-boundary",
                 "owner-bind-requests"
               ],
               "bindUIElements": [
-                "behavior",
-                "sync-failure-boundary",
                 "ui"
+              ],
+              "cid": [
+                "behavior",
+                "sync-failure-boundary"
+              ],
+              "cidPrefix": [
+                "behavior",
+                "sync-failure-boundary"
+              ],
+              "collectionEvents": [
+                "behavior"
               ],
               "createState": [
                 "behavior",
                 "sync-failure-boundary"
               ],
               "delegateEntityEvents": [
-                "behavior",
-                "sync-failure-boundary"
+                "behavior"
               ],
               "destroy": [
                 "behavior",
                 "sync-failure-boundary"
               ],
-              "getOption": [
+              "el": [
                 "behavior",
-                "sync-failure-boundary",
+                "sync-failure-boundary"
+              ],
+              "EventDelegator": [
+                "behavior",
+                "sync-failure-boundary"
+              ],
+              "events": [
+                "behavior"
+              ],
+              "getOption": [
                 "owner-get-option"
               ],
               "getState": [
@@ -808,8 +915,6 @@
                 "sync-failure-boundary"
               ],
               "getUI": [
-                "behavior",
-                "sync-failure-boundary",
                 "ui"
               ],
               "initialize": [
@@ -817,86 +922,82 @@
                 "sync-failure-boundary"
               ],
               "listenTo": [
-                "behavior",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "listenToOnce": [
-                "behavior",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "mergeOptions": [
-                "behavior",
-                "sync-failure-boundary",
                 "owner-merge-options"
               ],
+              "modelEvents": [
+                "behavior"
+              ],
               "normalizeMethods": [
-                "behavior",
-                "sync-failure-boundary",
                 "owner-normalize-methods"
               ],
               "normalizeUIKeys": [
-                "behavior",
-                "sync-failure-boundary",
                 "ui"
               ],
               "normalizeUIString": [
-                "behavior",
-                "sync-failure-boundary",
                 "ui"
               ],
               "normalizeUIValues": [
-                "behavior",
-                "sync-failure-boundary",
                 "ui"
               ],
               "off": [
-                "behavior",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "on": [
-                "behavior",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "once": [
-                "behavior",
-                "sync-failure-boundary",
                 "owner-events"
               ],
-              "stopListening": [
+              "options": [
                 "behavior",
-                "sync-failure-boundary",
+                "sync-failure-boundary"
+              ],
+              "state": [
+                "behavior",
+                "sync-failure-boundary"
+              ],
+              "State": [
+                "behavior",
+                "sync-failure-boundary"
+              ],
+              "stateEvents": [
+                "behavior",
+                "sync-failure-boundary"
+              ],
+              "stopListening": [
                 "owner-events"
               ],
               "trigger": [
-                "behavior",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "triggerMethod": [
-                "behavior",
-                "sync-failure-boundary",
                 "owner-trigger-method"
               ],
+              "triggers": [
+                "behavior"
+              ],
+              "ui": [
+                "ui"
+              ],
               "unbindEvents": [
-                "behavior",
-                "sync-failure-boundary",
                 "owner-bind-events"
               ],
               "unbindRequests": [
-                "behavior",
-                "sync-failure-boundary",
                 "owner-bind-requests"
               ],
               "unbindUIElements": [
-                "behavior",
-                "sync-failure-boundary",
                 "ui"
               ],
               "undelegateEntityEvents": [
+                "behavior"
+              ],
+              "view": [
                 "behavior",
                 "sync-failure-boundary"
               ]
@@ -926,7 +1027,7 @@
           "call": [
             "(this: object, ...args: Args): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "apply": [
                 "type-shapes"
@@ -944,7 +1045,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "BehaviorDefinitions",
@@ -953,7 +1054,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "BehaviorHost",
@@ -979,9 +1080,21 @@
             "on",
             "triggerMethod"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "$": [
+                "type-shapes"
+              ],
+              "collection": [
+                "type-shapes"
+              ],
+              "Data": [
+                "type-shapes"
+              ],
+              "el": [
+                "type-shapes"
+              ],
+              "model": [
                 "type-shapes"
               ],
               "off": [
@@ -991,6 +1104,9 @@
                 "type-shapes"
               ],
               "triggerMethod": [
+                "type-shapes"
+              ],
+              "ui": [
                 "type-shapes"
               ]
             }
@@ -1077,7 +1193,7 @@
             "unbindUIElements",
             "undelegateEntityEvents"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "$": [
                 "type-shapes"
@@ -1091,6 +1207,15 @@
               "bindUIElements": [
                 "type-shapes"
               ],
+              "cid": [
+                "type-shapes"
+              ],
+              "cidPrefix": [
+                "type-shapes"
+              ],
+              "collectionEvents": [
+                "type-shapes"
+              ],
               "createState": [
                 "type-shapes"
               ],
@@ -1098,6 +1223,15 @@
                 "type-shapes"
               ],
               "destroy": [
+                "type-shapes"
+              ],
+              "el": [
+                "type-shapes"
+              ],
+              "EventDelegator": [
+                "type-shapes"
+              ],
+              "events": [
                 "type-shapes"
               ],
               "getOption": [
@@ -1121,6 +1255,9 @@
               "mergeOptions": [
                 "type-shapes"
               ],
+              "modelEvents": [
+                "type-shapes"
+              ],
               "normalizeMethods": [
                 "type-shapes"
               ],
@@ -1142,6 +1279,18 @@
               "once": [
                 "type-shapes"
               ],
+              "options": [
+                "type-shapes"
+              ],
+              "state": [
+                "type-shapes"
+              ],
+              "State": [
+                "type-shapes"
+              ],
+              "stateEvents": [
+                "type-shapes"
+              ],
               "stopListening": [
                 "type-shapes"
               ],
@@ -1149,6 +1298,12 @@
                 "type-shapes"
               ],
               "triggerMethod": [
+                "type-shapes"
+              ],
+              "triggers": [
+                "type-shapes"
+              ],
+              "ui": [
                 "type-shapes"
               ],
               "unbindEvents": [
@@ -1161,6 +1316,9 @@
                 "type-shapes"
               ],
               "undelegateEntityEvents": [
+                "type-shapes"
+              ],
+              "view": [
                 "type-shapes"
               ]
             }
@@ -1183,7 +1341,31 @@
             "ui": "?UIBindings | undefined"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "collectionEvents": [
+                "type-shapes"
+              ],
+              "events": [
+                "type-shapes"
+              ],
+              "modelEvents": [
+                "type-shapes"
+              ],
+              "state": [
+                "type-shapes"
+              ],
+              "stateEvents": [
+                "type-shapes"
+              ],
+              "triggers": [
+                "type-shapes"
+              ],
+              "ui": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "BehaviorOptionsDefinition",
@@ -1196,7 +1378,13 @@
             "behaviorClass": "BehaviorConstructor"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "behaviorClass": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "Bindings",
@@ -1205,7 +1393,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "Channel",
@@ -1245,8 +1433,11 @@
             "trigger",
             "triggerMethod"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
+              "channelName": [
+                "type-shapes"
+              ],
               "listenTo": [
                 "type-shapes"
               ],
@@ -1301,7 +1492,16 @@
             "preventRender": "?boolean | undefined"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "index": [
+                "type-shapes"
+              ],
+              "preventRender": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "CollectionChild",
@@ -1329,9 +1529,24 @@
             "render",
             "triggerMethod"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
+              "cid": [
+                "type-shapes"
+              ],
               "destroy": [
+                "type-shapes"
+              ],
+              "Dom": [
+                "type-shapes"
+              ],
+              "el": [
+                "type-shapes"
+              ],
+              "model": [
+                "type-shapes"
+              ],
+              "monitorViewEvents": [
                 "type-shapes"
               ],
               "off": [
@@ -1562,63 +1777,41 @@
           "call": [
             "(this: object, options?: CollectionViewConfiguration<CollectionChild, never> | undefined): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "apply": [
-                "collection-view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "call": [
-                "collection-view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "extend": [
-                "collection-view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setDataApi": [
-                "collection-view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setDomApi": [
-                "collection-view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setEventDelegator": [
-                "collection-view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setRenderer": [
-                "collection-view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setStateApi": [
-                "collection-view",
-                "sync-failure-boundary",
                 "class-configuration"
               ]
             },
             "instance": {
               "$": [
-                "collection-view",
-                "sync-failure-boundary",
                 "ui"
               ],
               "addChildView": [
-                "collection-view",
-                "manual-children",
-                "sync-failure-boundary"
+                "manual-children"
               ],
               "attachElContent": [
-                "collection-view",
-                "sync-failure-boundary",
                 "serialization"
               ],
               "attachHtml": [
@@ -1626,21 +1819,27 @@
                 "sync-failure-boundary"
               ],
               "bindEvents": [
-                "collection-view",
-                "sync-failure-boundary",
                 "owner-bind-events"
               ],
               "bindRequests": [
-                "collection-view",
-                "sync-failure-boundary",
                 "owner-bind-requests"
               ],
               "bindUIElements": [
-                "collection-view",
-                "sync-failure-boundary",
                 "ui"
               ],
               "buildChildView": [
+                "collection-view",
+                "sync-failure-boundary"
+              ],
+              "children": [
+                "collection-view",
+                "sync-failure-boundary"
+              ],
+              "cid": [
+                "collection-view",
+                "sync-failure-boundary"
+              ],
+              "cidPrefix": [
                 "collection-view",
                 "sync-failure-boundary"
               ],
@@ -1648,13 +1847,14 @@
                 "collection-view",
                 "sync-failure-boundary"
               ],
-              "delegateEntityEvents": [
+              "Data": [
                 "collection-view",
                 "sync-failure-boundary"
               ],
+              "delegateEntityEvents": [
+                "collection-view"
+              ],
               "delegateEvents": [
-                "collection-view",
-                "sync-failure-boundary",
                 "dom-events"
               ],
               "destroy": [
@@ -1662,22 +1862,28 @@
                 "sync-failure-boundary"
               ],
               "detachChildView": [
-                "collection-view",
-                "manual-children",
-                "sync-failure-boundary"
+                "manual-children"
               ],
               "detachHtml": [
                 "collection-view",
                 "sync-failure-boundary"
               ],
-              "filter": [
+              "Dom": [
                 "collection-view",
-                "sync-failure-boundary",
+                "sync-failure-boundary"
+              ],
+              "el": [
+                "collection-view",
+                "sync-failure-boundary"
+              ],
+              "EventDelegator": [
+                "collection-view",
+                "sync-failure-boundary"
+              ],
+              "filter": [
                 "collection-presentation"
               ],
               "getComparator": [
-                "collection-view",
-                "sync-failure-boundary",
                 "collection-presentation"
               ],
               "getEmptyRegion": [
@@ -1685,13 +1891,9 @@
                 "sync-failure-boundary"
               ],
               "getFilter": [
-                "collection-view",
-                "sync-failure-boundary",
                 "collection-presentation"
               ],
               "getOption": [
-                "collection-view",
-                "sync-failure-boundary",
                 "owner-get-option"
               ],
               "getState": [
@@ -1699,13 +1901,9 @@
                 "sync-failure-boundary"
               ],
               "getTemplate": [
-                "collection-view",
-                "sync-failure-boundary",
                 "serialization"
               ],
               "getUI": [
-                "collection-view",
-                "sync-failure-boundary",
                 "ui"
               ],
               "initialize": [
@@ -1721,8 +1919,6 @@
                 "sync-failure-boundary"
               ],
               "isEmpty": [
-                "collection-view",
-                "sync-failure-boundary",
                 "collection-presentation"
               ],
               "isRendered": [
@@ -1730,77 +1926,61 @@
                 "sync-failure-boundary"
               ],
               "listenTo": [
-                "collection-view",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "listenToOnce": [
-                "collection-view",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "mergeOptions": [
-                "collection-view",
-                "sync-failure-boundary",
                 "owner-merge-options"
               ],
               "mixinTemplateContext": [
-                "collection-view",
-                "sync-failure-boundary",
                 "serialization"
               ],
-              "normalizeMethods": [
+              "monitorViewEvents": [
                 "collection-view",
-                "sync-failure-boundary",
+                "sync-failure-boundary"
+              ],
+              "normalizeMethods": [
                 "owner-normalize-methods"
               ],
               "normalizeUIKeys": [
-                "collection-view",
-                "sync-failure-boundary",
                 "ui"
               ],
               "normalizeUIString": [
-                "collection-view",
-                "sync-failure-boundary",
                 "ui"
               ],
               "normalizeUIValues": [
-                "collection-view",
-                "sync-failure-boundary",
                 "ui"
               ],
               "off": [
-                "collection-view",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "on": [
-                "collection-view",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "once": [
-                "collection-view",
-                "sync-failure-boundary",
                 "owner-events"
+              ],
+              "options": [
+                "collection-view",
+                "sync-failure-boundary"
               ],
               "preinitialize": [
                 "collection-view",
                 "sync-failure-boundary"
               ],
-              "removeChildView": [
+              "RegionClass": [
                 "collection-view",
-                "manual-children",
                 "sync-failure-boundary"
               ],
+              "removeChildView": [
+                "manual-children"
+              ],
               "removeComparator": [
-                "collection-view",
-                "sync-failure-boundary",
                 "collection-presentation"
               ],
               "removeFilter": [
-                "collection-view",
-                "sync-failure-boundary",
                 "collection-presentation"
               ],
               "render": [
@@ -1808,82 +1988,59 @@
                 "sync-failure-boundary"
               ],
               "renderAttributes": [
-                "collection-view",
-                "sync-failure-boundary",
                 "root-attributes"
               ],
               "serializeCollection": [
-                "collection-view",
-                "sync-failure-boundary",
                 "serialization"
               ],
               "serializeData": [
-                "collection-view",
-                "sync-failure-boundary",
                 "serialization"
               ],
               "serializeModel": [
-                "collection-view",
-                "sync-failure-boundary",
                 "serialization"
               ],
               "setComparator": [
-                "collection-view",
-                "sync-failure-boundary",
                 "collection-presentation"
               ],
               "setFilter": [
-                "collection-view",
-                "sync-failure-boundary",
                 "collection-presentation"
               ],
               "sort": [
-                "collection-view",
-                "sync-failure-boundary",
                 "collection-presentation"
               ],
-              "stopListening": [
+              "state": [
                 "collection-view",
-                "sync-failure-boundary",
+                "sync-failure-boundary"
+              ],
+              "State": [
+                "collection-view",
+                "sync-failure-boundary"
+              ],
+              "stopListening": [
                 "owner-events"
               ],
               "swapChildViews": [
-                "collection-view",
-                "manual-children",
-                "sync-failure-boundary"
+                "manual-children"
               ],
               "trigger": [
-                "collection-view",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "triggerMethod": [
-                "collection-view",
-                "sync-failure-boundary",
                 "owner-trigger-method"
               ],
               "unbindEvents": [
-                "collection-view",
-                "sync-failure-boundary",
                 "owner-bind-events"
               ],
               "unbindRequests": [
-                "collection-view",
-                "sync-failure-boundary",
                 "owner-bind-requests"
               ],
               "unbindUIElements": [
-                "collection-view",
-                "sync-failure-boundary",
                 "ui"
               ],
               "undelegateEntityEvents": [
-                "collection-view",
-                "sync-failure-boundary"
+                "collection-view"
               ],
               "undelegateEvents": [
-                "collection-view",
-                "sync-failure-boundary",
                 "dom-events"
               ]
             }
@@ -1928,7 +2085,97 @@
             "viewFilter": "?Filter<Child, CollectionViewInstance<Child, CollectionViewConfiguration<Child, never>, unknown, unknown, ArrayLike<Element>>>"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "attributes": [
+                "type-shapes"
+              ],
+              "behaviors": [
+                "type-shapes"
+              ],
+              "childView": [
+                "type-shapes"
+              ],
+              "childViewContainer": [
+                "type-shapes"
+              ],
+              "childViewEventPrefix": [
+                "type-shapes"
+              ],
+              "childViewEvents": [
+                "type-shapes"
+              ],
+              "childViewOptions": [
+                "type-shapes"
+              ],
+              "childViewTriggers": [
+                "type-shapes"
+              ],
+              "className": [
+                "type-shapes"
+              ],
+              "collection": [
+                "type-shapes"
+              ],
+              "collectionEvents": [
+                "type-shapes"
+              ],
+              "el": [
+                "type-shapes"
+              ],
+              "emptyView": [
+                "type-shapes"
+              ],
+              "emptyViewOptions": [
+                "type-shapes"
+              ],
+              "events": [
+                "type-shapes"
+              ],
+              "id": [
+                "type-shapes"
+              ],
+              "model": [
+                "type-shapes"
+              ],
+              "modelEvents": [
+                "type-shapes"
+              ],
+              "RegionClass": [
+                "type-shapes"
+              ],
+              "sortWithCollection": [
+                "type-shapes"
+              ],
+              "state": [
+                "type-shapes"
+              ],
+              "stateEvents": [
+                "type-shapes"
+              ],
+              "tagName": [
+                "type-shapes"
+              ],
+              "template": [
+                "type-shapes"
+              ],
+              "templateContext": [
+                "type-shapes"
+              ],
+              "triggers": [
+                "type-shapes"
+              ],
+              "ui": [
+                "type-shapes"
+              ],
+              "viewComparator": [
+                "type-shapes"
+              ],
+              "viewFilter": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "CollectionViewConstructor",
@@ -1953,7 +2200,7 @@
           "call": [
             "(this: object, ...args: Args): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "apply": [
                 "type-shapes"
@@ -2131,7 +2378,7 @@
             "undelegateEntityEvents",
             "undelegateEvents"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "$": [
                 "type-shapes"
@@ -2143,6 +2390,12 @@
                 "type-shapes"
               ],
               "attachHtml": [
+                "type-shapes"
+              ],
+              "attributes": [
+                "type-shapes"
+              ],
+              "behaviors": [
                 "type-shapes"
               ],
               "bindEvents": [
@@ -2157,7 +2410,46 @@
               "buildChildView": [
                 "type-shapes"
               ],
+              "children": [
+                "type-shapes"
+              ],
+              "childView": [
+                "type-shapes"
+              ],
+              "childViewContainer": [
+                "type-shapes"
+              ],
+              "childViewEventPrefix": [
+                "type-shapes"
+              ],
+              "childViewEvents": [
+                "type-shapes"
+              ],
+              "childViewOptions": [
+                "type-shapes"
+              ],
+              "childViewTriggers": [
+                "type-shapes"
+              ],
+              "cid": [
+                "type-shapes"
+              ],
+              "cidPrefix": [
+                "type-shapes"
+              ],
+              "className": [
+                "type-shapes"
+              ],
+              "collection": [
+                "type-shapes"
+              ],
+              "collectionEvents": [
+                "type-shapes"
+              ],
               "createState": [
+                "type-shapes"
+              ],
+              "Data": [
                 "type-shapes"
               ],
               "delegateEntityEvents": [
@@ -2173,6 +2465,24 @@
                 "type-shapes"
               ],
               "detachHtml": [
+                "type-shapes"
+              ],
+              "Dom": [
+                "type-shapes"
+              ],
+              "el": [
+                "type-shapes"
+              ],
+              "emptyView": [
+                "type-shapes"
+              ],
+              "emptyViewOptions": [
+                "type-shapes"
+              ],
+              "EventDelegator": [
+                "type-shapes"
+              ],
+              "events": [
                 "type-shapes"
               ],
               "filter": [
@@ -2197,6 +2507,9 @@
                 "type-shapes"
               ],
               "getUI": [
+                "type-shapes"
+              ],
+              "id": [
                 "type-shapes"
               ],
               "initialize": [
@@ -2226,6 +2539,15 @@
               "mixinTemplateContext": [
                 "type-shapes"
               ],
+              "model": [
+                "type-shapes"
+              ],
+              "modelEvents": [
+                "type-shapes"
+              ],
+              "monitorViewEvents": [
+                "type-shapes"
+              ],
               "normalizeMethods": [
                 "type-shapes"
               ],
@@ -2247,7 +2569,13 @@
               "once": [
                 "type-shapes"
               ],
+              "options": [
+                "type-shapes"
+              ],
               "preinitialize": [
+                "type-shapes"
+              ],
+              "RegionClass": [
                 "type-shapes"
               ],
               "removeChildView": [
@@ -2283,16 +2611,43 @@
               "sort": [
                 "type-shapes"
               ],
+              "sortWithCollection": [
+                "type-shapes"
+              ],
+              "state": [
+                "type-shapes"
+              ],
+              "State": [
+                "type-shapes"
+              ],
+              "stateEvents": [
+                "type-shapes"
+              ],
               "stopListening": [
                 "type-shapes"
               ],
               "swapChildViews": [
                 "type-shapes"
               ],
+              "tagName": [
+                "type-shapes"
+              ],
+              "template": [
+                "type-shapes"
+              ],
+              "templateContext": [
+                "type-shapes"
+              ],
               "trigger": [
                 "type-shapes"
               ],
               "triggerMethod": [
+                "type-shapes"
+              ],
+              "triggers": [
+                "type-shapes"
+              ],
+              "ui": [
                 "type-shapes"
               ],
               "unbindEvents": [
@@ -2309,6 +2664,12 @@
               ],
               "undelegateEvents": [
                 "type-shapes"
+              ],
+              "viewComparator": [
+                "type-shapes"
+              ],
+              "viewFilter": [
+                "type-shapes"
               ]
             }
           }
@@ -2323,7 +2684,7 @@
           "call": [
             "(): { Application: ApplicationConstructor<{}, [options?: ApplicationOptions | undefined], object, {}>; Behavior: BehaviorConstructor<{}, [options: BehaviorOptions | undefined, view: BehaviorHost<ArrayLike<Element>>], unknown, {}>; CollectionView: CollectionViewConstructor<{}, [options?: CollectionViewConfiguration<CollectionChild, never> | undefined], unknown, {}, ArrayLike<Element>>; DataApi: DefaultDataApi; DomApi: { notifyAttach(_el: Element): void; notifyDetach(_el: Element): void; createElement(tagName: string): HTMLElement; createBuffer(): DocumentFragment; getDocumentEl(el: Element): Element | null; findEl(el: DocumentFragment | Element | Document, selector: string): NodeListOf<Element>; hasEl(el: Node, childEl: Node | null | undefined): boolean; detachEl(el: Node): void; replaceEl(newEl: Node, oldEl: Node): void; setContents(el: Element, html: string | null | undefined): void; setAttributes(el: Element, attrs: unknown): void; appendContents(el: Node, contents: Node): void; moveEl(el: Node, parent: DocumentFragment | Element, before?: Node | null): void; hasContents(el: Node | null | undefined): boolean; detachContents(el: Node): void; }; Events: Events; MarionetteError: MarionetteErrorConstructor; MnObject: MnObjectConstructor<{}, [options?: object | undefined], object, {}>; Radio: RadioApi; Region: RegionConstructor<{}, [options?: RegionOptions | undefined], {}>; StateApi: StateApi<unknown>; VERSION: string; View: ViewConstructor<{}, [options?: ViewConfiguration | undefined], unknown, {}, ArrayLike<Element>>; extend: MarionetteExtend; monitorViewEvents: (view: ViewLifecycle) => void; setDataApi<Mixin extends object>(mixin?: Overlay<DataApi<never, never, never>, Mixin>): void; setDomApi<Mixin extends object>(mixin?: Overlay<DomApi<ArrayLike<Element>, never>, Mixin>): void; setEventDelegator<Adapter extends Delegator>(delegator: Adapter): void; setRenderer(renderer?: Renderer<never, never, never> | undefined): void; setStateApi<Mixin extends object>(mixin?: Overlay<StateApi<never>, Mixin>): void; }"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "DataApi",
@@ -2351,7 +2712,7 @@
             "serialize",
             "subscribe"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "get": [
                 "provider.static-consumers",
@@ -2409,7 +2770,7 @@
             "serialize",
             "subscribe"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "get": [
                 "type-shapes"
@@ -2446,7 +2807,13 @@
             "delegateTarget": "?Element | undefined"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "delegateTarget": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "DelegateOptions",
@@ -2464,9 +2831,18 @@
           "callableMembers": [
             "handler"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
+              "eventName": [
+                "type-shapes"
+              ],
               "handler": [
+                "type-shapes"
+              ],
+              "rootEl": [
+                "type-shapes"
+              ],
+              "selector": [
                 "type-shapes"
               ]
             }
@@ -2513,7 +2889,7 @@
             "setAttributes",
             "setContents"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "appendContents": [
                 "dom-api"
@@ -2604,7 +2980,7 @@
             "setAttributes",
             "setContents"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "appendContents": [
                 "type-shapes"
@@ -2661,7 +3037,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "DOMTriggers",
@@ -2670,7 +3046,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "EventCallback",
@@ -2682,7 +3058,7 @@
           "call": [
             "(...args: never[]): unknown"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "EventDelegator",
@@ -2697,7 +3073,7 @@
           "callableMembers": [
             "delegate"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "delegate": [
                 "type-shapes"
@@ -2712,7 +3088,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "Events",
@@ -2741,7 +3117,7 @@
             "trigger",
             "triggerMethod"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "listenTo": [
                 "events"
@@ -2797,7 +3173,7 @@
             "trigger",
             "triggerMethod"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "listenTo": [
                 "type-shapes"
@@ -2841,7 +3217,7 @@
             "off",
             "on"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "off": [
                 "type-shapes"
@@ -2868,7 +3244,7 @@
           "call": [
             "(this: Function & { prototype: object; }, protoProps?: object | undefined, staticProps?: object | undefined): Function"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "call": [
                 "extend"
@@ -2887,7 +3263,13 @@
             "signal": "AbortSignal"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "signal": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "MarionetteError",
@@ -2919,12 +3301,39 @@
           "call": [
             "(this: MarionetteErrorInstance, options: {}): MarionetteErrorInstance"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "instance": {
               "captureStackTrace": [
                 "error"
               ],
+              "code": [
+                "error"
+              ],
+              "description": [
+                "error"
+              ],
+              "fileName": [
+                "error"
+              ],
+              "lineNumber": [
+                "error"
+              ],
+              "message": [
+                "error"
+              ],
+              "name": [
+                "error"
+              ],
+              "number": [
+                "error"
+              ],
               "toString": [
+                "error"
+              ],
+              "url": [
+                "error"
+              ],
+              "urlRoot": [
                 "error"
               ]
             }
@@ -2960,12 +3369,39 @@
           "call": [
             "(this: MarionetteErrorInstance, options: {}): MarionetteErrorInstance"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "instance": {
               "captureStackTrace": [
                 "type-shapes"
               ],
+              "code": [
+                "type-shapes"
+              ],
+              "description": [
+                "type-shapes"
+              ],
+              "fileName": [
+                "type-shapes"
+              ],
+              "lineNumber": [
+                "type-shapes"
+              ],
+              "message": [
+                "type-shapes"
+              ],
+              "name": [
+                "type-shapes"
+              ],
+              "number": [
+                "type-shapes"
+              ],
               "toString": [
+                "type-shapes"
+              ],
+              "url": [
+                "type-shapes"
+              ],
+              "urlRoot": [
                 "type-shapes"
               ]
             }
@@ -2995,12 +3431,39 @@
             "captureStackTrace",
             "toString"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "captureStackTrace": [
                 "type-shapes"
               ],
+              "code": [
+                "type-shapes"
+              ],
+              "description": [
+                "type-shapes"
+              ],
+              "fileName": [
+                "type-shapes"
+              ],
+              "lineNumber": [
+                "type-shapes"
+              ],
+              "message": [
+                "type-shapes"
+              ],
+              "name": [
+                "type-shapes"
+              ],
+              "number": [
+                "type-shapes"
+              ],
               "toString": [
+                "type-shapes"
+              ],
+              "url": [
+                "type-shapes"
+              ],
+              "urlRoot": [
                 "type-shapes"
               ]
             }
@@ -3096,39 +3559,39 @@
           "call": [
             "(this: object, options?: object | undefined): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "apply": [
-                "object",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "call": [
-                "object",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "extend": [
-                "object",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setStateApi": [
-                "object",
-                "sync-failure-boundary",
                 "class-configuration"
               ]
             },
             "instance": {
               "bindEvents": [
-                "object",
-                "sync-failure-boundary",
                 "owner-bind-events"
               ],
               "bindRequests": [
-                "object",
-                "sync-failure-boundary",
                 "owner-bind-requests"
+              ],
+              "channelName": [
+                "object",
+                "sync-failure-boundary"
+              ],
+              "cid": [
+                "object",
+                "sync-failure-boundary"
+              ],
+              "cidPrefix": [
+                "object",
+                "sync-failure-boundary"
               ],
               "createState": [
                 "object",
@@ -3143,8 +3606,6 @@
                 "sync-failure-boundary"
               ],
               "getOption": [
-                "object",
-                "sync-failure-boundary",
                 "owner-get-option"
               ],
               "getState": [
@@ -3160,63 +3621,67 @@
                 "sync-failure-boundary"
               ],
               "listenTo": [
-                "object",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "listenToOnce": [
-                "object",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "mergeOptions": [
-                "object",
-                "sync-failure-boundary",
                 "owner-merge-options"
               ],
               "normalizeMethods": [
-                "object",
-                "sync-failure-boundary",
                 "owner-normalize-methods"
               ],
               "off": [
-                "object",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "on": [
-                "object",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "once": [
-                "object",
-                "sync-failure-boundary",
                 "owner-events"
               ],
-              "stopListening": [
+              "options": [
                 "object",
-                "sync-failure-boundary",
+                "sync-failure-boundary"
+              ],
+              "Radio": [
+                "object",
+                "sync-failure-boundary"
+              ],
+              "radioEvents": [
+                "object",
+                "sync-failure-boundary"
+              ],
+              "radioRequests": [
+                "object",
+                "sync-failure-boundary"
+              ],
+              "state": [
+                "object",
+                "sync-failure-boundary"
+              ],
+              "State": [
+                "object",
+                "sync-failure-boundary"
+              ],
+              "stateEvents": [
+                "object",
+                "sync-failure-boundary"
+              ],
+              "stopListening": [
                 "owner-events"
               ],
               "trigger": [
-                "object",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "triggerMethod": [
-                "object",
-                "sync-failure-boundary",
                 "owner-trigger-method"
               ],
               "unbindEvents": [
-                "object",
-                "sync-failure-boundary",
                 "owner-bind-events"
               ],
               "unbindRequests": [
-                "object",
-                "sync-failure-boundary",
                 "owner-bind-requests"
               ]
             }
@@ -3245,7 +3710,7 @@
           "call": [
             "(this: object, ...args: Args): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "apply": [
                 "type-shapes"
@@ -3319,12 +3784,21 @@
             "unbindEvents",
             "unbindRequests"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "bindEvents": [
                 "type-shapes"
               ],
               "bindRequests": [
+                "type-shapes"
+              ],
+              "channelName": [
+                "type-shapes"
+              ],
+              "cid": [
+                "type-shapes"
+              ],
+              "cidPrefix": [
                 "type-shapes"
               ],
               "createState": [
@@ -3369,6 +3843,27 @@
               "once": [
                 "type-shapes"
               ],
+              "options": [
+                "type-shapes"
+              ],
+              "Radio": [
+                "type-shapes"
+              ],
+              "radioEvents": [
+                "type-shapes"
+              ],
+              "radioRequests": [
+                "type-shapes"
+              ],
+              "state": [
+                "type-shapes"
+              ],
+              "State": [
+                "type-shapes"
+              ],
+              "stateEvents": [
+                "type-shapes"
+              ],
               "stopListening": [
                 "type-shapes"
               ],
@@ -3397,7 +3892,7 @@
           "call": [
             "(view: ViewLifecycle): void"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "Radio",
@@ -3449,9 +3944,12 @@
             "tuneIn",
             "tuneOut"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "channel": [
+                "radio"
+              ],
+              "Channel": [
                 "radio"
               ],
               "debugLog": [
@@ -3561,9 +4059,12 @@
             "tuneIn",
             "tuneOut"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "channel": [
+                "type-shapes"
+              ],
+              "Channel": [
                 "type-shapes"
               ],
               "debugLog": [
@@ -3734,43 +4235,47 @@
           "call": [
             "(this: object, options?: RegionOptions | undefined): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "apply": [
-                "region",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "call": [
-                "region",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "extend": [
-                "region",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setDomApi": [
-                "region",
-                "sync-failure-boundary",
                 "class-configuration"
               ]
             },
             "instance": {
+              "allowMissingEl": [
+                "region",
+                "sync-failure-boundary"
+              ],
               "attachHtml": [
                 "region",
                 "sync-failure-boundary"
               ],
               "bindEvents": [
-                "region",
-                "sync-failure-boundary",
                 "owner-bind-events"
               ],
               "bindRequests": [
-                "region",
-                "sync-failure-boundary",
                 "owner-bind-requests"
+              ],
+              "cid": [
+                "region",
+                "sync-failure-boundary"
+              ],
+              "cidPrefix": [
+                "region",
+                "sync-failure-boundary"
+              ],
+              "currentView": [
+                "region",
+                "sync-failure-boundary"
               ],
               "destroy": [
                 "region",
@@ -3788,6 +4293,14 @@
                 "region",
                 "sync-failure-boundary"
               ],
+              "Dom": [
+                "region",
+                "sync-failure-boundary"
+              ],
+              "el": [
+                "region",
+                "sync-failure-boundary"
+              ],
               "empty": [
                 "region",
                 "sync-failure-boundary"
@@ -3801,8 +4314,6 @@
                 "sync-failure-boundary"
               ],
               "getOption": [
-                "region",
-                "sync-failure-boundary",
                 "owner-get-option"
               ],
               "getOwner": [
@@ -3830,41 +4341,39 @@
                 "sync-failure-boundary"
               ],
               "listenTo": [
-                "region",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "listenToOnce": [
-                "region",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "mergeOptions": [
-                "region",
-                "sync-failure-boundary",
                 "owner-merge-options"
               ],
               "normalizeMethods": [
-                "region",
-                "sync-failure-boundary",
                 "owner-normalize-methods"
               ],
               "off": [
-                "region",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "on": [
-                "region",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "once": [
-                "region",
-                "sync-failure-boundary",
                 "owner-events"
               ],
+              "options": [
+                "region",
+                "sync-failure-boundary"
+              ],
+              "parentEl": [
+                "region",
+                "sync-failure-boundary"
+              ],
               "removeView": [
+                "region",
+                "sync-failure-boundary"
+              ],
+              "replaceElement": [
                 "region",
                 "sync-failure-boundary"
               ],
@@ -3877,28 +4386,18 @@
                 "sync-failure-boundary"
               ],
               "stopListening": [
-                "region",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "trigger": [
-                "region",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "triggerMethod": [
-                "region",
-                "sync-failure-boundary",
                 "owner-trigger-method"
               ],
               "unbindEvents": [
-                "region",
-                "sync-failure-boundary",
                 "owner-bind-events"
               ],
               "unbindRequests": [
-                "region",
-                "sync-failure-boundary",
                 "owner-bind-requests"
               ]
             }
@@ -3916,7 +4415,7 @@
           ],
           "instance": {},
           "callableInstanceMembers": [],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "RegionConstructor",
@@ -3941,7 +4440,7 @@
           "call": [
             "(this: object, ...args: Args): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "apply": [
                 "type-shapes"
@@ -3959,7 +4458,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "RegionInstance",
@@ -4045,8 +4544,11 @@
             "unbindEvents",
             "unbindRequests"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
+              "allowMissingEl": [
+                "type-shapes"
+              ],
               "attachHtml": [
                 "type-shapes"
               ],
@@ -4054,6 +4556,15 @@
                 "type-shapes"
               ],
               "bindRequests": [
+                "type-shapes"
+              ],
+              "cid": [
+                "type-shapes"
+              ],
+              "cidPrefix": [
+                "type-shapes"
+              ],
+              "currentView": [
                 "type-shapes"
               ],
               "destroy": [
@@ -4066,6 +4577,12 @@
                 "type-shapes"
               ],
               "detachView": [
+                "type-shapes"
+              ],
+              "Dom": [
+                "type-shapes"
+              ],
+              "el": [
                 "type-shapes"
               ],
               "empty": [
@@ -4119,7 +4636,16 @@
               "once": [
                 "type-shapes"
               ],
+              "options": [
+                "type-shapes"
+              ],
+              "parentEl": [
+                "type-shapes"
+              ],
               "removeView": [
+                "type-shapes"
+              ],
+              "replaceElement": [
                 "type-shapes"
               ],
               "reset": [
@@ -4160,7 +4686,22 @@
             "replaceElement": "?boolean | (() => boolean) | undefined"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "allowMissingEl": [
+                "type-shapes"
+              ],
+              "el": [
+                "type-shapes"
+              ],
+              "parentEl": [
+                "type-shapes"
+              ],
+              "replaceElement": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "RegionOwner",
@@ -4176,8 +4717,11 @@
           "callableMembers": [
             "stopListening"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
+              "monitorViewEvents": [
+                "type-shapes"
+              ],
               "stopListening": [
                 "type-shapes"
               ]
@@ -4194,7 +4738,7 @@
           "call": [
             "(this: Receiver, template: Template, data: Data): Output"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "Requests",
@@ -4215,7 +4759,7 @@
             "request",
             "stopReplying"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "reply": [
                 "type-shapes"
@@ -4242,7 +4786,7 @@
           "call": [
             "<Mixin extends object>(mixin?: Overlay<DataApi<never, never, never>, Mixin>): void"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "setDomApi",
@@ -4254,7 +4798,7 @@
           "call": [
             "<Mixin extends object>(mixin?: Overlay<DomApi<ArrayLike<Element>, never>, Mixin>): void"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "setEventDelegator",
@@ -4266,7 +4810,7 @@
           "call": [
             "<Adapter extends Delegator>(delegator: Adapter): void"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "setRenderer",
@@ -4278,7 +4822,7 @@
           "call": [
             "(renderer?: Renderer<never, never, never> | undefined): void"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "setStateApi",
@@ -4290,7 +4834,7 @@
           "call": [
             "<Mixin extends object>(mixin?: Overlay<StateApi<never>, Mixin>): void"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "ShowOptions",
@@ -4304,7 +4848,16 @@
             "replaceElement": "?boolean | undefined"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "allowMissingEl": [
+                "type-shapes"
+              ],
+              "replaceElement": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "StateApi",
@@ -4321,7 +4874,7 @@
             "disposeOwned",
             "subscribe"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "disposeOwned": [
                 "provider.custom-state-consumers"
@@ -4347,7 +4900,7 @@
             "disposeOwned",
             "subscribe"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "disposeOwned": [
                 "type-shapes"
@@ -4383,9 +4936,21 @@
             "render",
             "triggerMethod"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
+              "cid": [
+                "type-shapes"
+              ],
               "destroy": [
+                "type-shapes"
+              ],
+              "Dom": [
+                "type-shapes"
+              ],
+              "el": [
+                "type-shapes"
+              ],
+              "monitorViewEvents": [
                 "type-shapes"
               ],
               "off": [
@@ -4410,7 +4975,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "TriggerOptions",
@@ -4425,7 +4990,19 @@
             "stopPropagation": "?boolean | undefined"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "event": [
+                "type-shapes"
+              ],
+              "preventDefault": [
+                "type-shapes"
+              ],
+              "stopPropagation": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "UIBindings",
@@ -4434,7 +5011,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "UISelectors",
@@ -4443,7 +5020,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "VERSION",
@@ -4452,7 +5029,7 @@
           "contracts": [
             "version"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "View",
@@ -4641,96 +5218,99 @@
           "call": [
             "(this: object, options?: ViewConfiguration | undefined): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "apply": [
-                "view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "call": [
-                "view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "extend": [
-                "view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setDataApi": [
-                "view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setDomApi": [
-                "view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setEventDelegator": [
-                "view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setRenderer": [
-                "view",
-                "sync-failure-boundary",
                 "class-configuration"
               ],
               "setStateApi": [
-                "view",
-                "sync-failure-boundary",
                 "class-configuration"
               ]
             },
             "instance": {
               "$": [
-                "view",
-                "sync-failure-boundary",
                 "ui"
               ],
               "addRegion": [
-                "view",
-                "sync-failure-boundary",
                 "view-regions"
               ],
               "addRegions": [
-                "view",
-                "sync-failure-boundary",
                 "view-regions"
               ],
               "attachElContent": [
-                "view",
-                "sync-failure-boundary",
                 "serialization"
               ],
+              "attributes": [
+                "root-attributes"
+              ],
+              "behaviors": [
+                "view"
+              ],
               "bindEvents": [
-                "view",
-                "sync-failure-boundary",
                 "owner-bind-events"
               ],
               "bindRequests": [
-                "view",
-                "sync-failure-boundary",
                 "owner-bind-requests"
               ],
               "bindUIElements": [
-                "view",
-                "sync-failure-boundary",
                 "ui"
+              ],
+              "childViewEventPrefix": [
+                "view"
+              ],
+              "childViewEvents": [
+                "view"
+              ],
+              "childViewTriggers": [
+                "view"
+              ],
+              "cid": [
+                "view",
+                "sync-failure-boundary"
+              ],
+              "cidPrefix": [
+                "view",
+                "sync-failure-boundary"
+              ],
+              "className": [
+                "root-attributes"
+              ],
+              "collection": [
+                "serialization"
+              ],
+              "collectionEvents": [
+                "view"
               ],
               "createState": [
                 "view",
                 "sync-failure-boundary"
               ],
-              "delegateEntityEvents": [
+              "Data": [
                 "view",
                 "sync-failure-boundary"
               ],
+              "delegateEntityEvents": [
+                "view"
+              ],
               "delegateEvents": [
-                "view",
-                "sync-failure-boundary",
                 "dom-events"
               ],
               "destroy": [
@@ -4738,33 +5318,36 @@
                 "sync-failure-boundary"
               ],
               "detachChildView": [
-                "view",
-                "sync-failure-boundary",
                 "view-regions"
+              ],
+              "Dom": [
+                "view",
+                "sync-failure-boundary"
+              ],
+              "el": [
+                "view",
+                "sync-failure-boundary"
               ],
               "emptyRegions": [
-                "view",
-                "sync-failure-boundary",
                 "view-regions"
               ],
-              "getChildView": [
+              "EventDelegator": [
                 "view",
-                "sync-failure-boundary",
+                "sync-failure-boundary"
+              ],
+              "events": [
+                "dom-events"
+              ],
+              "getChildView": [
                 "view-regions"
               ],
               "getOption": [
-                "view",
-                "sync-failure-boundary",
                 "owner-get-option"
               ],
               "getRegion": [
-                "view",
-                "sync-failure-boundary",
                 "view-regions"
               ],
               "getRegions": [
-                "view",
-                "sync-failure-boundary",
                 "view-regions"
               ],
               "getState": [
@@ -4772,19 +5355,16 @@
                 "sync-failure-boundary"
               ],
               "getTemplate": [
-                "view",
-                "sync-failure-boundary",
                 "serialization"
               ],
               "getUI": [
-                "view",
-                "sync-failure-boundary",
                 "ui"
               ],
               "hasRegion": [
-                "view",
-                "sync-failure-boundary",
                 "view-regions"
+              ],
+              "id": [
+                "root-attributes"
               ],
               "initialize": [
                 "view",
@@ -4803,72 +5383,66 @@
                 "sync-failure-boundary"
               ],
               "listenTo": [
-                "view",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "listenToOnce": [
-                "view",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "mergeOptions": [
-                "view",
-                "sync-failure-boundary",
                 "owner-merge-options"
               ],
               "mixinTemplateContext": [
-                "view",
-                "sync-failure-boundary",
                 "serialization"
               ],
-              "normalizeMethods": [
+              "model": [
+                "serialization"
+              ],
+              "modelEvents": [
+                "view"
+              ],
+              "monitorViewEvents": [
                 "view",
-                "sync-failure-boundary",
+                "sync-failure-boundary"
+              ],
+              "normalizeMethods": [
                 "owner-normalize-methods"
               ],
               "normalizeUIKeys": [
-                "view",
-                "sync-failure-boundary",
                 "ui"
               ],
               "normalizeUIString": [
-                "view",
-                "sync-failure-boundary",
                 "ui"
               ],
               "normalizeUIValues": [
-                "view",
-                "sync-failure-boundary",
                 "ui"
               ],
               "off": [
-                "view",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "on": [
-                "view",
-                "sync-failure-boundary",
                 "owner-events"
               ],
               "once": [
-                "view",
-                "sync-failure-boundary",
                 "owner-events"
+              ],
+              "options": [
+                "view",
+                "sync-failure-boundary"
               ],
               "preinitialize": [
                 "view",
                 "sync-failure-boundary"
               ],
+              "regionClass": [
+                "view-regions"
+              ],
+              "regions": [
+                "view-regions"
+              ],
               "removeRegion": [
-                "view",
-                "sync-failure-boundary",
                 "view-regions"
               ],
               "removeRegions": [
-                "view",
-                "sync-failure-boundary",
                 "view-regions"
               ],
               "render": [
@@ -4876,67 +5450,70 @@
                 "sync-failure-boundary"
               ],
               "renderAttributes": [
-                "view",
-                "sync-failure-boundary",
                 "root-attributes"
               ],
               "serializeCollection": [
-                "view",
-                "sync-failure-boundary",
                 "serialization"
               ],
               "serializeData": [
-                "view",
-                "sync-failure-boundary",
                 "serialization"
               ],
               "serializeModel": [
-                "view",
-                "sync-failure-boundary",
                 "serialization"
               ],
               "showChildView": [
-                "view",
-                "sync-failure-boundary",
                 "view-regions"
               ],
-              "stopListening": [
-                "view",
-                "sync-failure-boundary",
-                "owner-events"
-              ],
-              "trigger": [
-                "view",
-                "sync-failure-boundary",
-                "owner-events"
-              ],
-              "triggerMethod": [
-                "view",
-                "sync-failure-boundary",
-                "owner-trigger-method"
-              ],
-              "unbindEvents": [
-                "view",
-                "sync-failure-boundary",
-                "owner-bind-events"
-              ],
-              "unbindRequests": [
-                "view",
-                "sync-failure-boundary",
-                "owner-bind-requests"
-              ],
-              "unbindUIElements": [
-                "view",
-                "sync-failure-boundary",
-                "ui"
-              ],
-              "undelegateEntityEvents": [
+              "state": [
                 "view",
                 "sync-failure-boundary"
               ],
-              "undelegateEvents": [
+              "State": [
                 "view",
-                "sync-failure-boundary",
+                "sync-failure-boundary"
+              ],
+              "stateEvents": [
+                "view",
+                "sync-failure-boundary"
+              ],
+              "stopListening": [
+                "owner-events"
+              ],
+              "tagName": [
+                "view",
+                "sync-failure-boundary"
+              ],
+              "template": [
+                "serialization"
+              ],
+              "templateContext": [
+                "serialization"
+              ],
+              "trigger": [
+                "owner-events"
+              ],
+              "triggerMethod": [
+                "owner-trigger-method"
+              ],
+              "triggers": [
+                "dom-events"
+              ],
+              "ui": [
+                "ui"
+              ],
+              "unbindEvents": [
+                "owner-bind-events"
+              ],
+              "unbindRequests": [
+                "owner-bind-requests"
+              ],
+              "unbindUIElements": [
+                "ui"
+              ],
+              "undelegateEntityEvents": [
+                "view"
+              ],
+              "undelegateEvents": [
                 "dom-events"
               ]
             }
@@ -4974,7 +5551,76 @@
             "ui": "?UIBindings | undefined"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "attributes": [
+                "type-shapes"
+              ],
+              "behaviors": [
+                "type-shapes"
+              ],
+              "childViewEventPrefix": [
+                "type-shapes"
+              ],
+              "childViewEvents": [
+                "type-shapes"
+              ],
+              "childViewTriggers": [
+                "type-shapes"
+              ],
+              "className": [
+                "type-shapes"
+              ],
+              "collection": [
+                "type-shapes"
+              ],
+              "collectionEvents": [
+                "type-shapes"
+              ],
+              "el": [
+                "type-shapes"
+              ],
+              "events": [
+                "type-shapes"
+              ],
+              "id": [
+                "type-shapes"
+              ],
+              "model": [
+                "type-shapes"
+              ],
+              "modelEvents": [
+                "type-shapes"
+              ],
+              "regionClass": [
+                "type-shapes"
+              ],
+              "regions": [
+                "type-shapes"
+              ],
+              "state": [
+                "type-shapes"
+              ],
+              "stateEvents": [
+                "type-shapes"
+              ],
+              "tagName": [
+                "type-shapes"
+              ],
+              "template": [
+                "type-shapes"
+              ],
+              "templateContext": [
+                "type-shapes"
+              ],
+              "triggers": [
+                "type-shapes"
+              ],
+              "ui": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "ViewConstructor",
@@ -4999,7 +5645,7 @@
           "call": [
             "(this: object, ...args: Args): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "apply": [
                 "type-shapes"
@@ -5157,7 +5803,7 @@
             "undelegateEntityEvents",
             "undelegateEvents"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "$": [
                 "type-shapes"
@@ -5171,6 +5817,12 @@
               "attachElContent": [
                 "type-shapes"
               ],
+              "attributes": [
+                "type-shapes"
+              ],
+              "behaviors": [
+                "type-shapes"
+              ],
               "bindEvents": [
                 "type-shapes"
               ],
@@ -5180,7 +5832,34 @@
               "bindUIElements": [
                 "type-shapes"
               ],
+              "childViewEventPrefix": [
+                "type-shapes"
+              ],
+              "childViewEvents": [
+                "type-shapes"
+              ],
+              "childViewTriggers": [
+                "type-shapes"
+              ],
+              "cid": [
+                "type-shapes"
+              ],
+              "cidPrefix": [
+                "type-shapes"
+              ],
+              "className": [
+                "type-shapes"
+              ],
+              "collection": [
+                "type-shapes"
+              ],
+              "collectionEvents": [
+                "type-shapes"
+              ],
               "createState": [
+                "type-shapes"
+              ],
+              "Data": [
                 "type-shapes"
               ],
               "delegateEntityEvents": [
@@ -5195,7 +5874,19 @@
               "detachChildView": [
                 "type-shapes"
               ],
+              "Dom": [
+                "type-shapes"
+              ],
+              "el": [
+                "type-shapes"
+              ],
               "emptyRegions": [
+                "type-shapes"
+              ],
+              "EventDelegator": [
+                "type-shapes"
+              ],
+              "events": [
                 "type-shapes"
               ],
               "getChildView": [
@@ -5222,6 +5913,9 @@
               "hasRegion": [
                 "type-shapes"
               ],
+              "id": [
+                "type-shapes"
+              ],
               "initialize": [
                 "type-shapes"
               ],
@@ -5246,6 +5940,15 @@
               "mixinTemplateContext": [
                 "type-shapes"
               ],
+              "model": [
+                "type-shapes"
+              ],
+              "modelEvents": [
+                "type-shapes"
+              ],
+              "monitorViewEvents": [
+                "type-shapes"
+              ],
               "normalizeMethods": [
                 "type-shapes"
               ],
@@ -5267,7 +5970,16 @@
               "once": [
                 "type-shapes"
               ],
+              "options": [
+                "type-shapes"
+              ],
               "preinitialize": [
+                "type-shapes"
+              ],
+              "regionClass": [
+                "type-shapes"
+              ],
+              "regions": [
                 "type-shapes"
               ],
               "removeRegion": [
@@ -5294,13 +6006,37 @@
               "showChildView": [
                 "type-shapes"
               ],
+              "state": [
+                "type-shapes"
+              ],
+              "State": [
+                "type-shapes"
+              ],
+              "stateEvents": [
+                "type-shapes"
+              ],
               "stopListening": [
+                "type-shapes"
+              ],
+              "tagName": [
+                "type-shapes"
+              ],
+              "template": [
+                "type-shapes"
+              ],
+              "templateContext": [
                 "type-shapes"
               ],
               "trigger": [
                 "type-shapes"
               ],
               "triggerMethod": [
+                "type-shapes"
+              ],
+              "triggers": [
+                "type-shapes"
+              ],
+              "ui": [
                 "type-shapes"
               ],
               "unbindEvents": [
@@ -5342,8 +6078,20 @@
             "on",
             "triggerMethod"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
+              "cid": [
+                "type-shapes"
+              ],
+              "Dom": [
+                "type-shapes"
+              ],
+              "el": [
+                "type-shapes"
+              ],
+              "monitorViewEvents": [
+                "type-shapes"
+              ],
               "off": [
                 "type-shapes"
               ],
@@ -5385,7 +6133,7 @@
           "call": [
             "<Receiver extends Listener>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined): Receiver"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "Bindings",
@@ -5394,7 +6142,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "bindRequests",
@@ -5406,7 +6154,7 @@
           "call": [
             "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyChannel | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined): Receiver"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "buildEventArgs",
@@ -5419,7 +6167,7 @@
             "<Listener>(name: object | EventName, callback: unknown, context: unknown, listener: Listener): EventArgs<Listener>[]",
             "(name?: object | EventName, callback?: unknown, context?: unknown): EventArgs<undefined>[]"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "CallableParent",
@@ -5431,7 +6179,7 @@
           "call": [
             "(...args: never[]): unknown"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "callHandler",
@@ -5445,7 +6193,7 @@
             "<Context, Result>(callback: (this: Context, ...args: never[]) => Result, context: Context, args: IArguments): Result",
             "<Context, Result>(callback: (this: Context) => Result, context: Context): Result"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "Constructed",
@@ -5454,7 +6202,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "EventCallback",
@@ -5466,7 +6214,7 @@
           "call": [
             "(...args: never[]): unknown"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "EventMap",
@@ -5475,7 +6223,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "EventMethods",
@@ -5504,7 +6252,7 @@
             "trigger",
             "triggerMethod"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "listenTo": [
                 "type-shapes"
@@ -5560,7 +6308,7 @@
             "trigger",
             "triggerMethod"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "listenTo": [
                 "events"
@@ -5616,7 +6364,7 @@
             "trigger",
             "triggerMethod"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "listenTo": [
                 "type-shapes"
@@ -5660,7 +6408,7 @@
             "off",
             "on"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "off": [
                 "type-shapes"
@@ -5688,7 +6436,7 @@
             "<Parent extends Function & { prototype: object; }, Props extends { constructor: (...args: never[]) => unknown; }, Statics extends object = {}>(this: Parent, prototypeProperties: Props & ThisType<Merge<ParentInstance<Parent>, Props>>, staticProperties?: (Statics & ThisType<Extension<Parent, Props, Statics>>) | undefined): Extension<Parent, Props, Statics>",
             "<Parent extends CallableParent, Props extends object = {}, Statics extends object = {}>(this: Parent, prototypeProperties?: (Props & ThisType<Merge<ParentInstance<Parent>, Props>>) | undefined, staticProperties?: (Statics & ThisType<Extension<Parent, Props, Statics>>) | undefined): Extension<Parent, Props, Statics>"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "call": [
                 "extend"
@@ -5708,7 +6456,7 @@
             "<Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>",
             "(this: object, optionName: PropertyKey | null | undefined): unknown"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "getValue",
@@ -5720,7 +6468,7 @@
           "call": [
             "(object?: unknown, property?: unknown, fallback?: unknown): unknown"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "isString",
@@ -5732,7 +6480,7 @@
           "call": [
             "(value: unknown): boolean"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "MarionetteError",
@@ -5764,12 +6512,39 @@
           "call": [
             "(this: MarionetteErrorInstance, options: {}): MarionetteErrorInstance"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "instance": {
               "captureStackTrace": [
                 "error"
               ],
+              "code": [
+                "error"
+              ],
+              "description": [
+                "error"
+              ],
+              "fileName": [
+                "error"
+              ],
+              "lineNumber": [
+                "error"
+              ],
+              "message": [
+                "error"
+              ],
+              "name": [
+                "error"
+              ],
+              "number": [
+                "error"
+              ],
               "toString": [
+                "error"
+              ],
+              "url": [
+                "error"
+              ],
+              "urlRoot": [
                 "error"
               ]
             }
@@ -5805,12 +6580,39 @@
           "call": [
             "(this: MarionetteErrorInstance, options: {}): MarionetteErrorInstance"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "instance": {
               "captureStackTrace": [
                 "type-shapes"
               ],
+              "code": [
+                "type-shapes"
+              ],
+              "description": [
+                "type-shapes"
+              ],
+              "fileName": [
+                "type-shapes"
+              ],
+              "lineNumber": [
+                "type-shapes"
+              ],
+              "message": [
+                "type-shapes"
+              ],
+              "name": [
+                "type-shapes"
+              ],
+              "number": [
+                "type-shapes"
+              ],
               "toString": [
+                "type-shapes"
+              ],
+              "url": [
+                "type-shapes"
+              ],
+              "urlRoot": [
                 "type-shapes"
               ]
             }
@@ -5840,12 +6642,39 @@
             "captureStackTrace",
             "toString"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "captureStackTrace": [
                 "type-shapes"
               ],
+              "code": [
+                "type-shapes"
+              ],
+              "description": [
+                "type-shapes"
+              ],
+              "fileName": [
+                "type-shapes"
+              ],
+              "lineNumber": [
+                "type-shapes"
+              ],
+              "message": [
+                "type-shapes"
+              ],
+              "name": [
+                "type-shapes"
+              ],
+              "number": [
+                "type-shapes"
+              ],
               "toString": [
+                "type-shapes"
+              ],
+              "url": [
+                "type-shapes"
+              ],
+              "urlRoot": [
                 "type-shapes"
               ]
             }
@@ -5858,7 +6687,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "mergeOptions",
@@ -5871,7 +6700,7 @@
             "(this: unknown, options?: null | undefined, keys?: unknown): void",
             "(this: object, options: unknown, keys: readonly unknown[]): void"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "normalizeBindings",
@@ -5883,7 +6712,7 @@
           "call": [
             "(context: unknown, bindings: object): EventMap"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "normalizeMethods",
@@ -5897,7 +6726,7 @@
             "(this: unknown, hash: object): EventMap",
             "(this: unknown, hash?: OptionalBindings): EventMap | undefined"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "onceWrap",
@@ -5909,7 +6738,7 @@
           "call": [
             "<Context, Args extends unknown[], Result>(callback: (this: Context, ...args: Args) => Result, offCallback: (callback: OnceCallback<Context, Args, Result>) => unknown): OnceCallback<Context, Args, Result>"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "resolveMethod",
@@ -5921,7 +6750,7 @@
           "call": [
             "(context: unknown, method: unknown, name: string): EventCallback"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "setProperty",
@@ -5933,7 +6762,7 @@
           "call": [
             "(target: unknown, key: unknown, value: unknown): void"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "triggerMethod",
@@ -5945,7 +6774,7 @@
           "call": [
             "(this: TriggerTarget, event: string, ...args: unknown[]): unknown"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "unbindEvents",
@@ -5957,7 +6786,7 @@
           "call": [
             "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined): Receiver"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "unbindRequests",
@@ -5969,7 +6798,7 @@
           "call": [
             "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined): Receiver"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "uniqueId",
@@ -5981,7 +6810,7 @@
           "call": [
             "(prefix?: string | undefined): string"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         }
       ]
     },
@@ -6043,8 +6872,11 @@
             "trigger",
             "triggerMethod"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "instance": {
+              "channelName": [
+                "radio"
+              ],
               "listenTo": [
                 "radio"
               ],
@@ -6128,8 +6960,11 @@
             "trigger",
             "triggerMethod"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "instance": {
+              "channelName": [
+                "type-shapes"
+              ],
               "listenTo": [
                 "type-shapes"
               ],
@@ -6182,7 +7017,7 @@
           "call": [
             "(): RadioApi"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "Radio",
@@ -6234,9 +7069,12 @@
             "tuneIn",
             "tuneOut"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "channel": [
+                "radio"
+              ],
+              "Channel": [
                 "radio"
               ],
               "debugLog": [
@@ -6346,9 +7184,12 @@
             "tuneIn",
             "tuneOut"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "channel": [
+                "type-shapes"
+              ],
+              "Channel": [
                 "type-shapes"
               ],
               "debugLog": [
@@ -6427,7 +7268,7 @@
             "request",
             "stopReplying"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "reply": [
                 "requests"
@@ -6533,7 +7374,7 @@
           "call": [
             "(this: object, models?: ModelInput<ModelInstance> | readonly ModelInput<ModelInstance>[] | null | undefined, options?: CollectionOptions<ModelInstance> | null | undefined): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "extend": [
                 "native-collection"
@@ -6564,6 +7405,9 @@
               "isDestroyed": [
                 "native-collection"
               ],
+              "length": [
+                "native-collection"
+              ],
               "listenTo": [
                 "native-collection"
               ],
@@ -6571,6 +7415,12 @@
                 "native-collection"
               ],
               "map": [
+                "native-collection"
+              ],
+              "model": [
+                "native-collection"
+              ],
+              "models": [
                 "native-collection"
               ],
               "move": [
@@ -6620,7 +7470,13 @@
             "kind": "\"reset\" | \"update\" | \"reorder\""
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "kind": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "CollectionOptions",
@@ -6633,7 +7489,13 @@
             "model": "?(new (attributes?: ModelAttributes | undefined, options?: unknown) => M) | undefined"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "model": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "DataApi",
@@ -6660,7 +7522,7 @@
             "serialize",
             "subscribe"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "get": [
                 "provider.native-consumers"
@@ -6696,7 +7558,7 @@
           "call": [
             "(...args: never[]): unknown"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "EventSource",
@@ -6725,7 +7587,7 @@
             "trigger",
             "triggerMethod"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "listenTo": [
                 "type-shapes"
@@ -6818,13 +7680,22 @@
           "call": [
             "(this: object, attributes?: Partial<ModelAttributes> | null | undefined, options?: unknown): void"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "extend": [
                 "native-model"
               ]
             },
             "instance": {
+              "attributes": [
+                "native-model"
+              ],
+              "changed": [
+                "native-model"
+              ],
+              "cid": [
+                "native-model"
+              ],
               "clear": [
                 "native-model"
               ],
@@ -6835,6 +7706,12 @@
                 "native-model"
               ],
               "has": [
+                "native-model"
+              ],
+              "id": [
+                "native-model"
+              ],
+              "idAttribute": [
                 "native-model"
               ],
               "initialize": [
@@ -6889,7 +7766,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "ModelInput",
@@ -6924,7 +7801,79 @@
             "unset": "unknown"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "attributes": [
+                "type-shapes"
+              ],
+              "changed": [
+                "type-shapes"
+              ],
+              "cid": [
+                "type-shapes"
+              ],
+              "clear": [
+                "type-shapes"
+              ],
+              "destroy": [
+                "type-shapes"
+              ],
+              "get": [
+                "type-shapes"
+              ],
+              "has": [
+                "type-shapes"
+              ],
+              "id": [
+                "type-shapes"
+              ],
+              "idAttribute": [
+                "type-shapes"
+              ],
+              "initialize": [
+                "type-shapes"
+              ],
+              "isDestroyed": [
+                "type-shapes"
+              ],
+              "listenTo": [
+                "type-shapes"
+              ],
+              "listenToOnce": [
+                "type-shapes"
+              ],
+              "off": [
+                "type-shapes"
+              ],
+              "on": [
+                "type-shapes"
+              ],
+              "once": [
+                "type-shapes"
+              ],
+              "reset": [
+                "type-shapes"
+              ],
+              "set": [
+                "type-shapes"
+              ],
+              "stopListening": [
+                "type-shapes"
+              ],
+              "toObject": [
+                "type-shapes"
+              ],
+              "trigger": [
+                "type-shapes"
+              ],
+              "triggerMethod": [
+                "type-shapes"
+              ],
+              "unset": [
+                "type-shapes"
+              ]
+            }
+          }
         },
         {
           "name": "MutationOptions",
@@ -6933,7 +7882,7 @@
           "contracts": [
             "type-shapes"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "StateApi",
@@ -6950,7 +7899,7 @@
             "disposeOwned",
             "subscribe"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "disposeOwned": [
                 "provider.native-consumers"
@@ -6971,7 +7920,7 @@
           "call": [
             "(this: TriggerTarget, event: string, ...args: unknown[]): unknown"
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         }
       ]
     },
@@ -7019,7 +7968,7 @@
             "serialize",
             "subscribe"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "disposeOwned": [
                 "provider.backbone-consumers"
@@ -7088,7 +8037,7 @@
             "findEl",
             "setContents"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "appendContents": [
                 "jquery-dom"
@@ -7158,7 +8107,7 @@
               "subscribe": "<TActor extends XStateActor<{ context: object; }>>(actor: TActor, eventName: string, callback: (payload: unknown) => void, context?: unknown) => () => void"
             }
           ],
-          "operationContracts": {}
+          "memberContracts": {}
         },
         {
           "name": "XStateActorApiOptions",
@@ -7174,9 +8123,12 @@
           "callableMembers": [
             "select"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "select": [
+                "type-shapes"
+              ],
+              "snapshotEvent": [
                 "type-shapes"
               ]
             }
@@ -7193,7 +8145,13 @@
             "snapshotEvent": "?string | undefined"
           },
           "callableMembers": [],
-          "operationContracts": {}
+          "memberContracts": {
+            "static": {
+              "snapshotEvent": [
+                "type-shapes"
+              ]
+            }
+          }
         }
       ]
     },
@@ -7227,7 +8185,7 @@
           "callableMembers": [
             "setContents"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "setContents": [
                 "morphdom-dom"
@@ -7271,7 +8229,7 @@
             "notifyDetach",
             "setContents"
           ],
-          "operationContracts": {
+          "memberContracts": {
             "static": {
               "notifyAttach": [
                 "lit-html-dom"
@@ -7336,6 +8294,57 @@
         {
           "file": "docs/packages/adapters.md",
           "heading": "TypeScript"
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "UI bindings",
+          "members": [
+            "getUI",
+            "ui"
+          ],
+          "exports": [
+            "ViewInstance",
+            "CollectionViewInstance",
+            "ViewConfiguration"
+          ]
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "DOM interaction and UI",
+          "members": [
+            "getUI",
+            "ui"
+          ],
+          "exports": [
+            "BehaviorInstance",
+            "BehaviorOptions"
+          ]
+        },
+        {
+          "file": "docs/api/providers/data.md",
+          "heading": "DataApi",
+          "members": [
+            "get",
+            "has",
+            "key",
+            "models",
+            "serialize",
+            "subscribe",
+            "observeCollection"
+          ],
+          "exports": [
+            "DataApiContract"
+          ]
+        },
+        {
+          "file": "docs/api/providers/dom.md",
+          "heading": "EventDelegator",
+          "members": [
+            "delegate"
+          ],
+          "exports": [
+            "EventDelegator"
+          ]
         }
       ]
     },
@@ -7412,6 +8421,32 @@
         {
           "file": "docs/api/shared/events.md",
           "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Data bindings",
+          "members": [
+            "modelEvents",
+            "collectionEvents",
+            "delegateEntityEvents",
+            "undelegateEntityEvents"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Child events",
+          "members": [
+            "childViewEvents",
+            "childViewTriggers",
+            "childViewEventPrefix"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Behavior composition",
+          "members": [
+            "behaviors"
+          ]
         }
       ]
     },
@@ -7425,7 +8460,13 @@
         },
         {
           "file": "docs/api/behavior.md",
-          "heading": "Host events and data"
+          "heading": "Host events and data",
+          "members": [
+            "modelEvents",
+            "collectionEvents",
+            "delegateEntityEvents",
+            "undelegateEntityEvents"
+          ]
         },
         {
           "file": "docs/api/behavior.md",
@@ -7438,6 +8479,14 @@
         {
           "file": "docs/api/view.md",
           "heading": "Construction and options"
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "DOM interaction and UI",
+          "members": [
+            "events",
+            "triggers"
+          ]
         }
       ]
     },
@@ -7494,6 +8543,14 @@
         {
           "file": "docs/api/shared/events.md",
           "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Data bindings",
+          "members": [
+            "delegateEntityEvents",
+            "undelegateEntityEvents"
+          ]
         }
       ]
     },
@@ -8122,11 +9179,18 @@
       "docs": [
         {
           "file": "docs/api/shared/view-bindings.md",
-          "heading": "UI bindings"
+          "heading": "UI bindings",
+          "exports": [
+            "View",
+            "CollectionView"
+          ]
         },
         {
           "file": "docs/api/behavior.md",
-          "heading": "DOM interaction and UI"
+          "heading": "DOM interaction and UI",
+          "exports": [
+            "Behavior"
+          ]
         }
       ]
     },
@@ -8146,11 +9210,24 @@
       "docs": [
         {
           "file": "docs/api/collection-view.md",
-          "heading": "Sorting"
+          "heading": "Sorting",
+          "members": [
+            "sort",
+            "getComparator",
+            "setComparator",
+            "removeComparator"
+          ]
         },
         {
           "file": "docs/api/collection-view.md",
-          "heading": "Filtering"
+          "heading": "Filtering",
+          "members": [
+            "filter",
+            "getFilter",
+            "setFilter",
+            "removeFilter",
+            "isEmpty"
+          ]
         }
       ]
     },
@@ -8160,23 +9237,51 @@
       "docs": [
         {
           "file": "docs/api/application.md",
-          "heading": "Child Applications"
+          "heading": "Child Applications",
+          "members": [
+            "childApps",
+            "addChildApp",
+            "removeChildApp",
+            "getChildApp",
+            "getChildApps",
+            "hasChildApp",
+            "getName"
+          ]
         },
         {
           "file": "docs/api/application.md",
-          "heading": "Root View and Region"
+          "heading": "Root View and Region",
+          "members": [
+            "region",
+            "regionClass",
+            "getRegion",
+            "getView",
+            "setView",
+            "showView"
+          ]
         },
         {
           "file": "docs/api/application.md",
-          "heading": "Lifecycle hooks and events"
+          "heading": "Lifecycle hooks and events",
+          "members": [
+            "isRunning",
+            "isDestroyed"
+          ]
         },
         {
           "file": "docs/api/application.md",
-          "heading": "Construction and options"
+          "heading": "Construction and options",
+          "members": [
+            "initialize",
+            "preinitialize"
+          ]
         },
         {
           "file": "docs/api/application.md",
-          "heading": "View events"
+          "heading": "View events",
+          "members": [
+            "viewEvents"
+          ]
         }
       ]
     },
@@ -9006,7 +10111,7 @@
     "docs/api/shared/common.md": "8982228a2345240414e35ba4f0967e95530f5966fe1254efd9a09575706d5b6a",
     "docs/api/shared/events.md": "d32469eb9dab26b77b94615c8bc337fc360536dd3e0489e12ad1ebb086f685f0",
     "docs/api/shared/state.md": "51b4ff2bee1d7b908801062778efc3d45c1873a9f3d4f454360cdd3476a20f25",
-    "docs/api/shared/view-bindings.md": "7bb193ccf1541859eabf927f45217febd8b0251ab4c9f74c0fdfc218ded5b167",
+    "docs/api/shared/view-bindings.md": "f5b2466f37b99c9772708ba42c45ee8935a55423f6f9594f936173a17703041c",
     "docs/api/view.md": "b988f7f08e79d06d5be6bced589fdd1afc84c60d6d3d27a8fc62eaecc1b9e4e6",
     "docs/guides/typescript.md": "e16331e21119a302bf96da56e03d7ba73db6d777ddacdc962fcb3449b4391aef",
     "docs/packages/adapters.md": "48304620efe6bc04c6a59647053bd0b692925a5c4ae99bb172d218ef4cb60c8a",
