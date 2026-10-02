@@ -1,100 +1,51 @@
 ---
 name: marionette
-description: Build, debug, review, or test Marionette v5 applications using version-matched docs, including v4-to-v5 migration and @mnjs integrations. For changes to the library itself, follow its repository guidance.
+description: Build, debug, review, or test Marionette v5 applications using their installed, version-matched documentation.
 ---
 
-# Build with Marionette
+# Marionette applications
 
-Use the application's installed contract and preserve compatible integration
-choices. This skill does not authorize dependency upgrades.
+For application work, locate `marionette/package.json` with Node's `require.resolve` from the application workspace and read its version. For rendering, observation or persistence changes, check the configured renderer or data provider. For framework changes, follow repository guidance.
 
-## Locate matching docs
-
-Reuse the application's recorded package and integration facts until dependencies,
-configuration, or workspace change. Resolve new facts from the application
-workspace, not a neighboring package. Use matching installed Markdown or MCP;
-plugin setup and reading both sources are unnecessary for routine work.
-
-The read-only helper requires Node 24 or later. For a plugin, installed, or copied
-skill, use `scripts/docs.mjs` beside this `SKILL.md`. Replace the paths below with
-the absolute skill and application directories. The helper resolves hoisted
-packages by walking parents from `--project`; these commands work from any cwd:
-
-```sh
-node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --page docs/quick-start.md
-node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --search getUI
-node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --symbol Region.detachView
-```
-
-For package-only use, the skill directory is `<package-root>/dist/agent-skill/`;
-with a local install, the helper is
-`node_modules/marionette/dist/agent-skill/scripts/docs.mjs`.
-
-Search returns section IDs, sizes, and ancestry; use `--section '<returned-id>'`
-for a complete section. For an exact export or member name, `--symbol` returns its
-signature and section IDs for its reviewed contracts.
-Use `--list` only when the page path is unknown. Installed Markdown is also
-readable directly; earlier packages may not have the helper or section index.
-
-For missing docs, custom artifacts, or MCP configuration, consult
-`docs/agent-retrieval.md` in the matching package/source. With no physical
-`node_modules`, the helper accepts `--package-root` for the actual package directory.
-Keep the exact release/source identity: current website docs, `master`, and an
-equal prerelease version label do not establish a match. Missing docs do not
-authorize upgrading the application.
-
-## Select the relevant contract
-
-Use a source path below with `--page`. This table is generated from the canonical
-application task guide; read one guide before following links for open questions.
+Choose one task or exact API section below directly from the installed package. Documentation paths are relative to that package, not this skill. Follow additional references when the task needs them. If docs are absent, obtain the exact release or known source revision; do not substitute current website contracts.
 
 <!-- task-routes:start -->
 | Task | Packaged page |
 | --- | --- |
-| Compose an application or paginated feed | `docs/application-composition.md` |
-| Build a first screen | `docs/quick-start.md` |
-| Start a new project | `docs/development.md` |
-| Edit and save a form | `docs/forms-and-accessibility.md` |
-| Render a changing list | `docs/list-composition.md` |
-| Show or update a piece of UI | `docs/view.rendering.md` |
-| Replace part of a screen | `docs/marionette.region.md` |
-| Navigate between screens | `docs/routing.md` |
-| Own asynchronous feature work | `docs/application-effects.md` |
-| Refresh data without restarting a feature | `docs/application-refresh.md` |
-| Choose an integration | `docs/choosing-integrations.md` |
-| Host a screen in another framework | `docs/hosting-views.md` |
-| Add local or shared state | `docs/marionette.state.md` |
-| Handle DOM or child events | `docs/dom.interactions.md`, `docs/events.md` |
-| Own a widget or subscription | `docs/resource-cleanup.md`, `docs/task-recipes.md` |
-| Diagnose a framework error | `docs/troubleshooting.md` |
-| Migrate from v4 | `docs/agent-tools.md`, `upgradeGuide.md` |
+| Install and render a first View | `docs/quick-start.md` |
+| Migrate an existing v4 application | `docs/guides/migration.md` |
+| Test interaction, readiness, or teardown | `docs/guides/testing.md` |
+| Choose ownership and lifetimes | `docs/architecture.md` |
+| Bind a DOM event or trigger | `docs/api/shared/view-bindings.md#dom-events` |
+| Read or rebind named DOM elements | `docs/api/shared/view-bindings.md#ui-bindings` |
+| Edit a model or retain a draft | `docs/guides/local-editing.md` |
+| Prepare, start, restart, or stop a feature | `docs/api/application.md` |
+| Restart while retaining a draft or shell | `docs/guides/retained-restart.md` |
+| Enhance existing markup | `docs/guides/existing-html.md` |
+| Embed a feature in another UI | `docs/guides/existing-ui.md` |
+| Connect URLs and destination lifetimes | `docs/guides/routing.md` |
+| Show, replace, or retain child UI | `docs/api/region.md` |
+| Render, filter, or sort repeated children | `docs/guides/lists.md` |
+| Share observable data and state | `docs/api/shared/state.md` |
+| Connect events and clean up subscriptions | `docs/api/shared/events.md` |
+| Connect channels and request/reply handlers | `docs/packages/radio.md` |
+| Configure a renderer or another data layer | `docs/api/runtime.md#choose-a-configuration-scope` |
+| Write typed options, handlers, or lifecycle hooks | `docs/guides/typescript.md` |
+| Check types, lint, or diagnose a failure | `docs/tooling.md` |
+| Integrate an imperative control | `docs/guides/widgets.md` |
+| Check keyboard, focus, or rendering safety | `docs/guides/accessibility-rendering.md` |
+| Build and deploy an application | `docs/guides/production.md` |
+| Apply the concepts in a composed feature | `docs/records.md` |
 <!-- task-routes:end -->
 
-For one unfamiliar API, prefer `--symbol` or `--search` and `--section` over a
-complete reference. Stop discovery once setup, updates, and cleanup are clear;
-use an interaction check to identify what to read next.
+## Apply and verify
 
-DataApi, StateApi, renderer, DomApi, EventDelegator, and router are independent
-choices; a Backbone router does not require Backbone data. Register configuration
-before consumers. Use templates, named Regions, and public lifecycle APIs; domain
-records belong in data sources, not child View traversal. For application design,
-read the complete paginated feature in `docs/application-composition.md`.
-Feed loading, pagination/retry, route activation, and workflow coordination
-generally belong to a feature Application; cleanup capability alone does not make
-a View the right workflow owner. Loading-then-display normally belongs in
-Application readiness; Views own DOM and emit intent to their owner. Plain
-helpers serve those owners rather than supplying a parallel feature lifecycle.
-For teaching or personalized examples, use the corresponding section of
-`docs/development.md`.
+Local interaction can stay in a View. An asynchronous call alone does not require an Application. A View may save its own model if the configured data layer supplies it; optional `@mnjs/data` supplies observation, with fetching and persistence provided separately, and does not supply `Model.save()`.
 
-## Completion
+Application preparation establishes readiness. Use restart to prepare new data while retaining a running feature; commit the prepared result in onStart and construct retained UI once. Use explicit operations for ongoing work that has a separate lifetime. Coordinate shared decisions at their owning lifetime. Use `docs/architecture.md` when choosing ownership. Verify changed interaction, replacement, cancellation or teardown as relevant; distinguish executed checks from source inspection.
 
-Complete the requested behavior against the installed package and continue through
-failures caused by the change within the authorized scope. Use the application's
-checks for the affected interaction and ownership boundaries. Exercise focus,
-events, editable state, replacement, or cleanup when the change depends on them;
-use a real browser for browser-dependent behavior. Reproduce uncertain contracts
-through public package APIs. A read-only review stays read-only.
+## Optional lookup
 
-Report actual results and untested boundaries. Record changed integration decisions
-in the application's notes, keeping API details in the docs.
+Read Markdown directly, or run `node <skill>/scripts/docs.mjs --section docs/path.md#heading-anchor` from the application directory. Replace `<skill>` with this skill directory and use a section link from the docs or a returned lookup ID. `--page SOURCE --section 'Heading'` reads a named section. Use `--symbol Export.member` for signatures and primary section IDs in `primarySections`, `--search 'query'` for an unknown location, or `--page SOURCE` for a full page. `--list` is optional page discovery. External package stores need `--package-root <physical-directory>`. The helper verifies installed documentation hashes and reports version/revision.
+
+Only when using the plugin's hosted connection, follow the installed `docs/tooling.md#hosted-documentation-mcp` identity checks. Installed Markdown remains authoritative. The copied skill works without MCP.

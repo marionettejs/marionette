@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { cp, lstat, readFile, readdir, writeFile } from 'node:fs/promises';
+import { cp, lstat, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { promisify } from 'node:util';
 
@@ -21,9 +21,22 @@ const externalGraph = (lock, names) => Object.fromEntries(Object.entries(lock.pa
   }]));
 
 // A portable consumer project beside its exact tarballs. This never publishes.
-export async function buildDevelopmentKit({ source, toolingLock, artifactDir, packages, sourceCommit, npmCli }) {
+export async function buildDevelopmentKit({ source, toolingLock, artifactDir, packages, sourceCommit, npmCli, sourceFiles }) {
+  if (!Array.isArray(sourceFiles) || !sourceFiles.length || !sourceFiles.includes('package.json') || new Set(sourceFiles).size !== sourceFiles.length) {
+    throw new Error('Development fixture requires an explicit unique sourceFiles list including package.json.');
+  }
+  const core = packages.find(entry => entry.name === 'marionette');
+  if (!core || typeof core.version !== 'string' || !core.version) {
+    throw new Error('Development fixture requires the selected Marionette package version.');
+  }
   const destination = resolve(artifactDir, 'starter');
-  await cp(source, destination, { recursive: true, errorOnExist: true, force: false });
+  await mkdir(destination);
+  for (const file of sourceFiles) {
+    if (!/^[a-zA-Z0-9._-]+$/.test(file) || file === '.' || file === '..') {
+      throw new Error(`Invalid development fixture file: ${file}`);
+    }
+    await writeFile(resolve(destination, file), await readRegularFile(resolve(source, file)));
+  }
   const manifestPath = resolve(destination, 'package.json');
   const lockPath = resolve(destination, 'package-lock.json');
   const manifest = await readJson(manifestPath);
@@ -31,6 +44,9 @@ export async function buildDevelopmentKit({ source, toolingLock, artifactDir, pa
   await cp(toolingLock, lockPath);
   const before = externalGraph(await readJson(lockPath), names);
   manifest.dependencies = Object.fromEntries(packages.map(entry => [entry.name, `file:../${entry.tarball.file}`]));
+  manifest.allowScripts = Object.fromEntries(Object.entries(manifest.allowScripts ?? {})
+    .filter(([name]) => !name.startsWith('marionette@')));
+  manifest.allowScripts[`marionette@${core.version}`] = false;
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
   await execute(process.execPath, [npmCli, 'install', '--package-lock-only', '--ignore-scripts'], {
     cwd: destination, timeout: 60_000, maxBuffer: 1024 * 1024,
@@ -53,9 +69,11 @@ export async function buildDevelopmentKit({ source, toolingLock, artifactDir, pa
   const report = { sourceCommit, files };
   const bytes = `${JSON.stringify(report, null, 2)}\n`;
   await writeFile(resolve(artifactDir, 'development-starter.json'), bytes);
-  await writeFile(resolve(artifactDir, 'START-HERE.md'), `# Develop against this candidate
+  await writeFile(resolve(artifactDir, 'START-HERE.md'), `# Validate this candidate
 
-Source: ${sourceCommit}. These tarballs are a development candidate, not a new npm release.
+Source: ${sourceCommit}. These tarballs are an unpublished development candidate.
+The starter directory is a release validation fixture with fixed test scenarios.
+For a new application, use the installed documentation quick start.
 Keep the five tarballs beside the starter directory. From this extracted artifact:
 
 \`\`\`sh
@@ -74,7 +92,7 @@ npm run dev
 Use the Node/npm profile in release-evidence.json. The starter lockfile selects these
 exact local tarballs, including their integrity hashes, with no npm version lookup
 for Marionette packages. The documentation in node_modules/marionette/docs
-belongs to this same source. Start with docs/development.md and docs/troubleshooting.md.
+belongs to this same source. Start with docs/readme.md and docs/quick-start.md.
 Validation status is recorded in candidate-validation.json when certification finishes.
 `);
   await execute('tar', ['-czf', resolve(artifactDir, 'development-starter.tar.gz'), '-C', artifactDir,

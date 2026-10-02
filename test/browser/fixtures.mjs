@@ -45,13 +45,13 @@ export const test = base.extend({
       }
       if (entry.id === 'core') {
         assets.set('/marionette.umd.js', join(entry.directory, entry.manifest.browser));
-        for (const file of ['workspace.ts', 'workspace-views.ts', 'notes.ts', 'setup.ts']) {
-          assets.set(`/starter/${file}`, join(entry.directory, 'starter', file));
-        }
       }
     }
+    for (const file of ['workspace.ts', 'workspace-views.ts', 'notes.ts', 'setup.ts']) {
+      assets.set(`/consumer-fixture/${file}`, resolve(root, 'test/fixtures/data-package-starter', file));
+    }
     const litRoot = dirname(fileURLToPath(import.meta.resolve('lit-html')));
-    for (const name of ['lit-html.js', 'async-directive.js', 'directive.js', 'directive-helpers.js']) {
+    for (const name of ['lit-html.js', 'async-directive.js', 'directive.js', 'directive-helpers.js', 'directives/live.js']) {
       assets.set(`/lit/${name}`, resolve(litRoot, name));
     }
     const html = `<!doctype html><script type="importmap">${JSON.stringify({ imports })}</script><main id="content"></main>`;

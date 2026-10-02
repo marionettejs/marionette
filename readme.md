@@ -13,124 +13,20 @@ jobs. Views render content and handle interactions. Regions give those Views a p
 to appear, change, and leave. Applications bring features together and coordinate
 the work that starts and stops with them.
 
-Start with native DOM APIs, plain objects, and function templates. Choose other data,
-state, and rendering tools as your application needs them.
-
-For a first screen, read the [quick start](docs/quick-start.md): one complete module
-covering a View, managed rows, selection events, and teardown. For an existing
-application, use the [task table](docs/agents.md#read-for-the-task) to read only the
-contract needed for the change.
-
-## A place for the next change
-
-Adding a detail panel, updating a list, or stopping a feature should have a
-recognizable approach:
-
-- **Build a screen** with a [View](docs/marionette.view.md).
-- **Replace part of it** through a named [Region](docs/marionette.region.md).
-- **Repeat rows or cards** with a [CollectionView](docs/marionette.collectionview.md).
-- **Share an interaction** through a [Behavior](docs/marionette.behavior.md).
-- **Start and stop a feature** with an [Application](docs/marionette.application.md).
-
-Those same patterns give an agent a place to make a change and give you something
-specific to review. Marionette v5 is being developed with agent-led work in mind:
-consistent APIs, public types, and guidance that connects a task to the code it needs.
-
-We're optimistic about agents. We've also read the diffs.
-
-## Trying v5
-
-The v5 pre-release is under active development. These guides describe the current
-source; published prereleases can lag behind it. Registry commands below require
-the named version to be published. Stable v5 will ship only after
-the public contract, migration, application usability, packaging, browser, performance,
-and stabilization gates in the [project roadmap](https://github.com/marionettejs/marionette/blob/master/ROADMAP.md) pass. Comparative
-agent advantages require separate evidence and are not a condition of stability.
-
-## Install
-
-```sh
-npm install marionette@5.0.0-rc.2
-```
-
-Add the mount element to the page:
-
-```html
-<div id="app"></div>
-```
-
-```js
-import { View } from 'marionette';
-
-const GreetingView = View.extend({
-  el() {
-    return document.querySelector('#app');
-  },
-  template: () => '<h1>Hello</h1>'
-});
-
-new GreetingView().render();
-```
-
-Marionette core has no required peer dependencies. Install optional peers only when
-the application uses their corresponding integration:
-
-- [Observable Model and Collection sources](docs/data.api.md#optional-mnjsdata-sources)
-- [Backbone data and event integration](docs/optional-backbone.md)
-- [jQuery DOM adapter](docs/installation.md#jquery-dom-adapter-is-optional)
-
-Applications that use Underscore directly, such as with `_.template`, must declare
-`underscore` as their own dependency.
-
-See [installation](docs/installation.md) for package entrypoints and supported setup.
-
 ## Documentation
 
-For a focused API lookup from your application directory (Node 24+):
+Start with the [v5 documentation index](docs/readme.md), [quick start](docs/quick-start.md), or [API index](docs/api.md). The reference is organized by class and shared contracts; runnable lessons demonstrate selected workflows.
 
-```sh
-node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --search 'getUI'
-```
-
-Use a returned section ID with `--section` on the same helper. It ships inside the
-package; no skill installation or MCP connection is required. See
-[focused retrieval](docs/agent-retrieval.md) for hoisted package paths and provenance.
-
-
-- [Quick start: a complete interactive screen](docs/quick-start.md)
-- [Build with an agent](docs/agents.md)
-- [Install the Marionette agent plugin or skill](docs/agent-tools.md)
-- [Choose integrations](docs/choosing-integrations.md)
-- [Documentation index](docs/readme.md)
-- [Installation and package entrypoints](docs/installation.md)
-- [Classes and their jobs](docs/classes.md)
-- [Rendering and templates](docs/view.rendering.md)
-- [State and observation](docs/marionette.state.md)
-- [Data and integrations](docs/data.api.md)
-- [Lifecycle and cleanup](docs/view.lifecycle.md)
-- [Upgrade guide](upgradeGuide.md)
-
-Builds containing these documentation resources include the matching consumer
-guides under `docs/`; earlier published alphas may not include them.
-Read `docs/quick-start.md` for a first screen or `docs/agents.md` for task routing.
-`docs-manifest.json` records source revision and content hashes. These paths are
-relative to the installed `marionette` package; read the needed page directly
-instead of enumerating the documentation bundle.
-
-The API reference is being reconciled for stable v5 in
-[issue #147](https://github.com/marionettejs/marionette/issues/147). Until that
-work is complete, the repository's v5 guides above are canonical; the hosted
-`/docs/current` site describes earlier releases.
+For agent-led application work, use the [agent entrypoint](docs/agents.md).
+[Consumer tooling](docs/tooling.md) covers lint, types and installed documentation
+lookup; the [testing guide](docs/guides/testing.md) supplies a runnable test recipe.
 
 ## Development
 
 Found an awkward API, a missing example, or a bug that survives a convincing test
 suite? Bring a small reproduction. Contributions should start from a focused public
 issue that describes the intended behavior and its runtime cost. See
-[CONTRIBUTING.md](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md) and the [v5 roadmap](https://github.com/marionettejs/marionette/blob/master/ROADMAP.md).
-
-The [maintainer guide](https://github.com/marionettejs/marionette/blob/master/docs/maintainers/readme.md) maps each change to the relevant
-source and validation commands.
+[CONTRIBUTING.md](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md)
 
 ## License
 

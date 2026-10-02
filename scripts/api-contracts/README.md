@@ -2,8 +2,15 @@
 
 This is the compact contract record for core, utils, Radio, native data and every
 adapter entrypoint. The existing guides remain the canonical explanations.
-The JSON is documentation metadata, packaged under `config/api-contracts/`;
-it is never imported by production modules.
+The JSON in `config/api-contracts/` is maintainer verification metadata. It is
+excluded from consumer documentation resources and never imported by production
+modules.
+
+The documentation exporter derives `docs-symbols.json` from these records and the
+consumer section index. It contains signatures and links to canonical reference
+sections for the installed lookup helper. The exporter checks the semantic digest;
+the inventory checker verifies source and evidence drift. Partial documentation
+groups remain partial; an index link does not complete their coverage.
 
 - [inventory.json](../../config/api-contracts/inventory.json) derives exports, signatures, inherited public
   methods, constructor options, child-query protocols and emitter sites from the
@@ -14,16 +21,27 @@ it is never imported by production modules.
 - [semantics.json](../../config/api-contracts/semantics.json) records result, timing, ownership, mutation,
   repeat-call and destruction boundaries, diagnostic codes, public event arguments,
   and exact guide headings and behavioral tests. Export-wide profiles describe
-  composition; profiles with `members` refine the named operations. Multiple
-  profiles apply together. `operationContracts` resolves those profiles for each
-  callable static/instance member. Inherited Events and helper methods use the same
-  contracts as their standalone exports.
+  composition; profiles with `members` refine named methods and properties.
+  `memberContracts` applies export-wide and named profiles together for every declared
+  static/instance member. Documentation references can scope `members` and `exports`
+  within grouped contracts; these select primary section IDs independently of
+  incidental code mentions. Complete
+  export contracts and documentation references remain in the inventory. Inherited
+  Events and helper methods use the same contracts as their standalone exports.
 
-[The compact consumer reference](../../docs/compact-reference.md) is generated from
-selected reviewed semantic profiles, public exports, and diagnostics. It links to
-the canonical examples and introduces no second set of API facts. The same checker
-rejects edits or stale output in that page; update the reviewed profile or generator
-and regenerate it. Consistency does not establish measured agent usefulness.
+The [reference index](../../docs/api.md) links to the canonical human references.
+The checker generates only the machine-readable inventory; it does not generate
+a second prose reference.
+
+Every semantic profile has a `documentation.status`: `documented`, `partial`, or
+`missing`. `documented` means the cited sections describe that contract; it is a
+reviewed coverage decision, not proof of reader effectiveness. `partial` requires
+the available references plus a concrete `reason` describing the remaining gap.
+`missing` requires a reason and an empty `docs` array. Missing prose does not
+remove signature, semantic, diagnostic, or behavioral test validation. The
+inventory exposes these decisions as `documentationCoverage`, and the checker
+reports all gaps even when the inventory is consistent. Counts are contract
+groups, not a percentage of public API coverage or a release acceptance gate.
 
 Signatures are generated; semantics are deliberate review decisions. Emitter
 sites retain dynamic expressions because event forwarding, native provider event

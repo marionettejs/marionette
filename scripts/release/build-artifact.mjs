@@ -244,8 +244,11 @@ const evidence = {
 };
 
 evidence.reports.developmentStarter = await buildDevelopmentKit({
-  source: resolve(root, '.package/starter'), toolingLock: resolve(root, 'test/fixtures/data-package-starter/package-lock.json'), artifactDir: outputDir, packages,
-  sourceCommit, npmCli: process.env.npm_execpath
+  source: resolve(root, 'test/fixtures/data-package-starter'), toolingLock: resolve(root, 'test/fixtures/data-package-starter/package-lock.json'), artifactDir: outputDir, packages,
+  sourceCommit, npmCli: process.env.npm_execpath,
+  sourceFiles: ['package.json', 'AGENTS.md', 'playwright.config.mjs', 'workspace.browser.spec.mjs',
+    'gitignore', 'index.html', 'main.ts', 'setup.ts', 'workspace.ts', 'workspace-views.ts',
+    'notes.ts', 'workspace.test.mjs', 'readme.md', 'tsconfig.json', 'eslint.config.mjs', 'vite.config.mjs'],
 });
 
 const finalCommit = run('git', ['rev-parse', 'HEAD']);

@@ -23,6 +23,7 @@ for (const [index, directory] of packageRoots.entries()) {
   write(`${directory}/src/index.ts`.replace(/^\//, ''), `export interface Options { label?: string; }
 export class Owner {
   private _secret = 1;
+  label = '';
   initialize(options?: Options): void { void options; }
   render(): this { return this; }
   onReady?(): void;
@@ -38,6 +39,7 @@ write('test/unit/contract.spec.js', 'import { it } from \'vitest\';\nit(\'render
 const base = { id: 'owners', entrypoints: entryNames, exports: ['Owner', 'Alias'], result: 'Owner instance.',
   timing: 'Synchronous.', ownership: 'Caller owns the instance.', mutation: 'render returns its receiver.', repetition: 'Repeatable.',
   destruction: 'No destroy operation.', diagnostics: ['MN0003'], docs: [{ file: 'docs/contract.md', heading: 'Contract' }],
+  documentation: { status: 'documented' },
   tests: [{ file: 'test/unit/contract.spec.js', title: 'renders the public output' }] };
 const semantics = { contracts: [base, { ...base, id: 'types', kind: 'type', exports: ['*'] }] };
 
@@ -81,6 +83,52 @@ test('fails on unaccounted exports, stale members and unused semantic groups', (
   assert.throws(() => generateInventory(temporary, { contracts: [...semantics.contracts, { ...base, id: 'unused', exports: ['Absent'] }] }), /Unused contract/);
 });
 
+test('routes declared properties and methods through member scopes while preserving full export evidence', () => {
+  const scoped = { ...base, id: 'labels', members: ['label'] };
+  const inventory = generateInventory(temporary, { contracts: [...semantics.contracts, scoped] });
+  const owner = inventory.entrypoints[0].exports.find(value => value.name === 'Owner');
+  assert.deepEqual(owner.contracts, ['owners', 'labels']);
+  assert.deepEqual(owner.memberContracts.instance.label, ['owners', 'labels']);
+  assert.deepEqual(owner.memberContracts.instance.render, ['owners']);
+  assert.equal(owner.instance.label, 'string');
+  assert.deepEqual(Object.keys(owner.memberContracts.instance), Object.keys(owner.instance));
+  const grouped = generateInventory(temporary, { contracts: [{ ...base,
+    docs: [{ ...base.docs[0], exports: ['Owner'], members: ['render'] }] }, semantics.contracts[1]] });
+  assert.deepEqual(grouped.entrypoints[0].exports.find(value => value.name === 'Owner').memberContracts.instance.render,
+    ['owners']);
+});
+
+test('rejects stale or misplaced documentation member and export selectors', () => {
+  const generate = docs => generateInventory(temporary, { contracts: [{ ...base, docs }, semantics.contracts[1]] });
+  assert.throws(() => generate([{ ...base.docs[0], members: ['render', 'missing'] }]), /Unused documentation scope/);
+  assert.throws(() => generate([{ ...base.docs[0], exports: ['Owner', 'Missing'] }]), /Documentation scope outside contract/);
+  assert.throws(() => generateInventory(temporary, { contracts: [base, { ...semantics.contracts[1],
+    docs: [{ ...base.docs[0], exports: ['Options', 'Missing'] }] }] }), /Unused documentation scope/);
+  assert.throws(() => generate([{ ...base.docs[0], members: [] }]), /Invalid documentation members/);
+  assert.throws(() => generateInventory(temporary, { contracts: [{ ...base, members: ['render'],
+    docs: [{ ...base.docs[0], members: ['label'] }] }, semantics.contracts[1]] }), /Documentation scope outside contract/);
+});
+
+test('validates documentation member scopes on factory returned adapter protocols', () => {
+  const file = 'packages/adapters/src/index.ts';
+  const original = readFileSync(resolve(temporary, file), 'utf8');
+  const factory = { ...base, id: 'factory', entrypoints: ['@mnjs/adapters'], exports: ['createAdapter'],
+    members: ['subscribe', 'enabled'],
+    docs: [{ ...base.docs[0], exports: ['createAdapter'], members: ['subscribe', 'enabled'] }] };
+  try {
+    write(file, `${original}\nexport function createAdapter() { return { subscribe(): void {}, enabled: true }; }\n`);
+    const inventory = generateInventory(temporary, { contracts: [...semantics.contracts, factory] });
+    const adapter = inventory.entrypoints.find(entry => entry.name === '@mnjs/adapters').exports
+      .find(entry => entry.name === 'createAdapter');
+    assert.deepEqual(adapter.returns, [{ enabled: 'boolean', subscribe: '() => void' }]);
+    assert.throws(() => generateInventory(temporary, { contracts: [...semantics.contracts,
+      { ...factory, members: undefined, docs: [{ ...factory.docs[0], members: ['subscribe', 'missing'] }] }] }),
+    /Unused documentation scope/);
+  } finally {
+    write(file, original);
+  }
+});
+
 test('rejects absent or ambiguous exact tests, removed headings, incomplete semantics and retired diagnostics', () => {
   const check = override => validateSemantics(temporary, { contracts: [{ ...base, ...override }] }, publicEntrypoints(temporary));
   assert.throws(() => check({ tests: [{ ...base.tests[0], title: 'absent' }] }), /Missing or ambiguous public test/);
@@ -97,6 +145,47 @@ test('finds actual test AST nodes and rejects prose markers and duplicate titles
   assert.equal(titles.size, 1);
   assert.equal(titles.get('real').length, 2);
   assert.equal(collectTestTitles('it(\'options\', { timeout: 1000 }, async () => {});').get('options').length, 1);
+});
+
+test('records honest documentation gaps without relaxing behavioral evidence', () => {
+  const check = override => validateSemantics(temporary, { contracts: [{ ...base, ...override }] }, publicEntrypoints(temporary));
+  assert.throws(() => check({ documentation: undefined }), /documentation coverage/);
+  assert.throws(() => check({ documentation: { status: 'complete' } }), /documentation coverage/);
+  assert.throws(() => check({ documentation: { status: 'partial' } }), /gap reason/);
+  assert.throws(() => check({ documentation: { status: 'missing', reason: 'Reference not written.' } }), /disagrees with references/);
+  assert.throws(() => check({ docs: [] }), /disagrees with references/);
+  assert.throws(() => check({ docs: [], documentation: { status: 'partial', reason: 'Some prose exists.' } }), /disagrees with references/);
+  const missing = { docs: [], documentation: { status: 'missing', reason: 'Reference not written.' } };
+  assert.doesNotThrow(() => check(missing));
+  assert.throws(() => check({ ...missing, tests: [] }), /Incomplete references/);
+  assert.throws(() => check({ ...missing, tests: [{ ...base.tests[0], title: 'absent' }] }), /Missing or ambiguous public test/);
+  assert.throws(() => check({ ...missing, diagnostics: ['MN0001'] }), /Unknown or retired diagnostic/);
+  assert.throws(() => check({ ...missing, destruction: '' }), /Missing destruction/);
+  assert.throws(() => check({ documentation: { status: 'partial', reason: 'Needs argument details.' },
+    docs: [{ ...base.docs[0], heading: 'Absent' }] }), /Missing documentation heading/);
+  const generated = generateInventory(temporary, { contracts: [{ ...base, ...missing }, semantics.contracts[1]] });
+  assert.deepEqual(generated.documentationCoverage[0], { id: 'owners', ...missing.documentation, docs: [] });
+  assert.equal(generated.entrypoints[0].exports.find(entry => entry.name === 'Owner').instance.render, '() => Owner');
+});
+
+test('documentation, diagnostic, and coverage edits invalidate the inventory evidence', () => {
+  const before = generateInventory(temporary, semantics);
+  const doc = readFileSync(resolve(temporary, 'docs/contract.md'), 'utf8');
+  const diagnostics = readFileSync(resolve(temporary, 'config/diagnostics/catalog.json'), 'utf8');
+  try {
+    write('docs/contract.md', `${doc}\nUpdated return value.\n`);
+    assert.notDeepEqual(generateInventory(temporary, semantics).evidence, before.evidence);
+    write('docs/contract.md', doc);
+    write('config/diagnostics/catalog.json', { diagnostics: [{ code: 'MN0003', status: 'active', slug: 'changed-invariant' }] });
+    assert.notDeepEqual(generateInventory(temporary, semantics).evidence, before.evidence);
+    const partial = generateInventory(temporary, { contracts: [{ ...base,
+      documentation: { status: 'partial', reason: 'Needs context behavior.' } }, semantics.contracts[1]] });
+    assert.notEqual(partial.semanticsSha256, before.semanticsSha256);
+    assert.equal(partial.documentationCoverage[0].status, 'partial');
+  } finally {
+    write('docs/contract.md', doc);
+    write('config/diagnostics/catalog.json', diagnostics);
+  }
 });
 
 test('registers shared behavioral cases only with their importing executable runner', () => {
@@ -141,8 +230,8 @@ test('the committed real inventory matches and keeps metadata out of production 
     assert.doesNotMatch(JSON.stringify(entry.conditions), /(?:api-contracts|eslint)/);
   }
   const resources = JSON.parse(readFileSync(resolve(repository, 'docs-site/resources.json'), 'utf8'));
-  for (const file of ['inventory.json', 'semantics.json']) {
-    assert.ok(resources.includes(`config/api-contracts/${file}`));
+  for (const file of ['config/api-contracts/inventory.json', 'config/api-contracts/semantics.json',
+    'scripts/api-contracts/README.md']) {
+    assert.ok(!resources.includes(file), `Maintainer evidence must stay outside consumer resources: ${file}`);
   }
-  assert.ok(resources.includes('scripts/api-contracts/README.md'));
 });

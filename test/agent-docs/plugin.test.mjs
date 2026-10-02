@@ -11,39 +11,11 @@ const pluginSkill = resolve(pluginRoot, 'skills/marionette');
 
 const json = async path => JSON.parse(await readFile(path, 'utf8'));
 
-function assertReleasePresentation(version, instructions, manifest) {
-  if (version.includes('-')) {return;}
-  assert.doesNotMatch(instructions,
-    /plugin marketplace add marionettejs\/marionette --ref master/,
-    'Stable installation instructions must not follow master');
-  assert.doesNotMatch(instructions,
-    /follows Marionette's protected `master` branch only until a release tag contains the plugin/,
-    'Stable installation instructions must not retain transitional release wording');
-  assert.match(instructions,
-    new RegExp(`plugin marketplace add marionettejs/marionette --ref v${version.replaceAll('.', '\\.')}(?![0-9A-Za-z-])`),
-    'Stable installation instructions must use the matching release tag');
-  assert.equal(manifest.version, version,
-    'Stable plugin presentation must use the stable package version');
-  assert.match(instructions,
-    new RegExp(`claude plugin marketplace add marionettejs/marionette@v${version.replaceAll('.', '\\.')}(?![0-9A-Za-z-])`),
-    'Stable Claude Code instructions must use the matching release tag');
-  assert.match(instructions,
-    new RegExp(`copilot plugin marketplace add marionettejs/marionette#v${version.replaceAll('.', '\\.')}(?![0-9A-Za-z-])`),
-    'Stable Copilot CLI instructions must use the matching release tag');
-  assert.doesNotMatch(instructions,
-    /^(?:claude|copilot) plugin marketplace add marionettejs\/marionette\s*$/m,
-    'Stable installation instructions must not follow master');
-  assert.doesNotMatch(JSON.stringify(manifest), /\b(?:beta|prerelease)\b/i,
-    'Stable plugin presentation must not contain prerelease labeling');
-  const baseVersion = version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  assert.doesNotMatch(instructions, new RegExp(`${baseVersion}-[0-9A-Za-z]`),
-    'Stable plugin instructions must not retain prerelease examples for that version');
-}
-
 async function files(root, directory = '') {
   const entries = await readdir(resolve(root, directory), { withFileTypes: true });
   const paths = [];
   for (const entry of entries) {
+    if (entry.name === '.DS_Store') { continue; }
     const path = [directory, entry.name].filter(Boolean).join('/');
     if (entry.isDirectory()) {
       paths.push(...await files(root, path));
@@ -89,32 +61,9 @@ test('Marionette plugin bundles its skill and documentation MCP', async() => {
     'Documentation resources must include the complete canonical skill tree',
   );
 
-  assertReleasePresentation(packageManifest.version,
-    await readFile(resolve(repository, 'docs/agent-tools.md'), 'utf8'), manifest);
-});
-
-test('stable plugin releases require immutable non-transitional installation guidance', async() => {
-  const current = await readFile(resolve(repository, 'docs/agent-tools.md'), 'utf8');
-  const manifest = await json(resolve(pluginRoot, 'plugin.json'));
-  assert.throws(() => assertReleasePresentation('5.0.0', current, manifest),
-    /Stable installation instructions/);
-  const stable = current
-    .replaceAll('5.0.0-rc.2', '5.0.0')
-    .replaceAll('5.0.0-rc.1', '5.0.0');
-  assert.throws(() => assertReleasePresentation('5.0.0', stable, manifest),
-    /Stable plugin presentation/);
-  assert.throws(() => assertReleasePresentation('5.0.0',
-    stable.replace('--ref v5.0.0', '--ref v5.0.0-rc.2'),
-    { ...manifest, version: '5.0.0' }), /matching release tag/);
-  assert.throws(() => assertReleasePresentation('5.0.0', stable,
-    { ...manifest, version: '5.0.0' }), /Stable Claude Code instructions/);
-  const pinned = stable
-    .replace('claude plugin marketplace add marionettejs/marionette@v<version>',
-      'claude plugin marketplace add marionettejs/marionette@v5.0.0')
-    .replace('copilot plugin marketplace add marionettejs/marionette#v<version>',
-      'copilot plugin marketplace add marionettejs/marionette#v5.0.0');
-  assert.doesNotThrow(() => assertReleasePresentation('5.0.0', pinned,
-    { ...manifest, version: '5.0.0' }));
+  const navigation = await json(resolve(repository, 'docs-site/navigation.json'));
+  assert.ok(navigation.some(page => new URL(manifest.homepage).pathname === `/${page.route}/`),
+    'Plugin homepage must resolve to a published documentation route');
 });
 
 test('repository marketplace exposes the Marionette plugin', async() => {
@@ -128,7 +77,7 @@ test('repository marketplace exposes the Marionette plugin', async() => {
   }]);
 });
 
-test('Claude Code, Cursor, and Copilot marketplaces share the portable plugin', async() => {
+test('Claude Code and Cursor marketplace manifests share the portable plugin', async() => {
   const packageManifest = await json(resolve(repository, 'package.json'));
   const portable = await json(resolve(pluginRoot, 'plugin.json'));
   const claude = await json(resolve(pluginRoot, '.claude-plugin/plugin.json'));

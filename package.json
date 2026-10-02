@@ -41,7 +41,6 @@
     "readme.md",
     "license.txt",
     "changelog.md",
-    "upgradeGuide.md",
     "llms.txt"
   ],
   "sideEffects": false,
@@ -63,12 +62,13 @@
     "build:data": "npm --prefix packages/data run build",
     "check:browser-profile": "node scripts/checks/browser-profile.mjs",
     "check:diagnostics": "node scripts/diagnostics/check-catalog.mjs",
-    "check:docs-examples": "node --test test/docs/executable-examples.test.mjs && node scripts/docs/check-executable-examples.mjs",
+    "check:docs-examples": "node test/docs/reference-examples.mjs",
+    "check:docs-installed": "node test/docs/installed-package.mjs",
     "check:release-promotion": "node scripts/release/preflight.mjs",
     "check:release-profile": "node scripts/checks/release-profile.mjs",
     "coverage": "vitest run --coverage",
     "docs:build": "node scripts/docs/build.mjs",
-    "docs:check": "node scripts/docs/agent-routes.mjs && node --test test/docs/export.test.mjs && npm run check:docs-examples && npm run docs:build && node scripts/docs/check-links.mjs",
+    "docs:check": "node scripts/docs/agent-routes.mjs && node --test test/docs/export.test.mjs && npm run check:docs-examples && npm run docs:build && node scripts/docs/check-links.mjs && npm run docs:package && npm run check:docs-installed",
     "lint:base": "eslint --config eslint.config.mjs .",
     "lint": "npm run lint:base -- --max-warnings=0",
     "lint:ci": "npm run lint:base -- --max-warnings=0",
@@ -83,7 +83,6 @@
     "test": "vitest run",
     "test:agent-benchmark-contract": "node --test test/agent-benchmark/*.test.mjs",
     "test:browser": "playwright test",
-    "test:docs-routing": "npm run build && node --test test/browser/docs-routing.test.mjs",
     "test:dist": "node test/dist/validate.mjs",
     "test:fixtures": "node test/fixtures/run.mjs",
     "test:performance": "node --test test/performance/*.test.mjs",
@@ -118,7 +117,8 @@
     "check:api-contracts": "node scripts/api-contracts/check.mjs",
     "performance:browser": "npm run build && node scripts/performance/browser.mjs",
     "test:browser-performance": "node scripts/performance/browser.mjs --profile validation",
-    "performance:retention": "npm run build && node scripts/performance/retention.mjs"
+    "performance:retention": "npm run build && node scripts/performance/retention.mjs",
+    "test:docs-production": "node test/docs/production-package.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"

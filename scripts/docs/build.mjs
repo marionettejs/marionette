@@ -2,7 +2,8 @@ import { readFile, rm, mkdir, writeFile, copyFile } from 'fs/promises';
 import { dirname, relative, resolve } from 'path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'url';
-import { marked, Renderer } from 'marked';
+import { marked } from 'marked';
+import { addHeadingIds, escapeHtml, markdownRenderer, textFromHeading } from './headings.mjs';
 import { loadDiagnosticCatalog } from '../diagnostics/catalog.mjs';
 
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -11,7 +12,6 @@ const pagesDir = resolve(siteDir, 'pages');
 const outputDir = resolve(rootDir, '.docs-site');
 const canonicalOrigin = 'https://docs.marionettejs.com';
 const docRoutes = new Map();
-const markdownRenderer = new Renderer();
 let packageVersion;
 const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: rootDir, encoding: 'utf8' }).trim();
 const sourceDirty = Boolean(execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: rootDir, encoding: 'utf8' }).trim());
@@ -46,62 +46,12 @@ export function diagnosticPage(diagnostic) {
 | Category | ${diagnostic.category} |
 | Severity | ${diagnostic.severity}${historical} |
 | Objects | ${objects} |
-| Surfaces | ${surfaces}${historical} |
-| Benchmark category | ${diagnostic.benchmarkCategory} |${replacement}
+| Surfaces | ${surfaces}${historical} |${replacement}
 
 ## Remediation
 
 ${diagnostic.remediation}
 `;
-}
-
-markdownRenderer.html = token => escapeHtml(token.raw);
-
-function decodeEntities(value) {
-  const named = {
-    amp: '&',
-    apos: '\'',
-    gt: '>',
-    lt: '<',
-    quot: '"',
-  };
-
-  return value.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (entity, code) => {
-    if (code[0] === '#') {
-      const radix = code[1].toLowerCase() === 'x' ? 16 : 10;
-      const digits = radix === 16 ? code.slice(2) : code.slice(1);
-      return String.fromCodePoint(parseInt(digits, radix));
-    }
-
-    return named[code.toLowerCase()] || entity;
-  });
-}
-
-function textFromHeading(value) {
-  return decodeEntities(value.replace(/<[^>]+>/g, ''));
-}
-
-function createSlugger() {
-  const occurrences = new Map();
-
-  return value => {
-    const base = textFromHeading(value)
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s/g, '-');
-    const occurrence = occurrences.get(base) || 0;
-    occurrences.set(base, occurrence + 1);
-    return occurrence ? `${base}-${occurrence}` : base;
-  };
-}
-
-function addHeadingIds(html) {
-  const slug = createSlugger();
-
-  return html.replace(/<h([1-6])>([\s\S]*?)<\/h\1>/g, (heading, level, contents) => {
-    return `<h${level} id="${slug(contents)}">${contents}</h${level}>`;
-  });
 }
 
 function rewriteDocLinks(html, sourcePath) {
@@ -134,14 +84,6 @@ function renderMarkdown(markdown, sourcePath) {
   });
   const linked = sourcePath ? rewriteDocLinks(rendered, sourcePath) : rendered;
   return addHeadingIds(linked);
-}
-
-function escapeHtml(value) {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }
 
 function pageTemplate({ body, canonicalPath, title }) {

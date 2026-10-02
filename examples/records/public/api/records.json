@@ -1,0 +1,5 @@
+[
+  { "id": "garden", "title": "Community garden", "description": "Coordinate the spring planting schedule and shared tools." },
+  { "id": "library", "title": "Library afternoon", "description": "Prepare the reading room for the weekly gathering." },
+  { "id": "walk", "title": "Riverside walk", "description": "Choose a meeting point and a route for the weekend walk." }
+]

@@ -19,6 +19,8 @@ export default [
       'dist/**',
       'node_modules/**',
       'packages/*/dist/**',
+      'examples/*/dist/**',
+      'test/fixtures/*/dist/**',
       'src/version.js',
       'test/tmp/**',
     ],

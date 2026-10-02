@@ -1,6 +1,14 @@
+### Unreleased
+
 ### v5.0.0-rc.2
 
-> The docs now have directions, so the agent can stop asking for a map of the maps.
+> Rebuilt framework documentation, focused agent lookup and automatic listener cleanup.
+
+* Native Marionette destruction now clears incoming event subscriptions after
+  final destroy notifications, including native `listenTo` bookkeeping. Remove
+  handlers whose only job is `stopListening(source)` when that source is destroyed.
+  Application `stop()` retains subscriptions to surviving sources. External data
+  and event sources still follow their own destruction contracts.
 
 * Retain the active root and children while `Application.restart()` reruns
   preparation; each restart supersedes older preparation. Change hosts with
@@ -16,15 +24,13 @@
   `prepareDestroy`; complete required asynchronous finalization before destruction.
 * Preserve native Error reporting and point coded diagnostics to their public error
   pages, carrying forward the post-RC.1 fixes from #583.
-* Ship consumer documentation at usable package-relative paths, with complete
-  quick-start and managed-list recipes and declaration examples from #582.
-* Route skills and guides from one task table; explain update choices, child event
-  arguments, UI lookup, and derived form status beside their examples.
-* Add offline section search and complete section reads over a hash-verified index.
-  Separate recurring retrieval guidance from one-time client setup and give the
-  generated contract reference named, focused sections.
-* Prepare matching package/plugin versions. Publication remains disabled; these
-  checks do not establish independent agent usability or stable-release acceptance.
+* Rebuild the consumer docs around class and shared API references, lifecycle,
+  application composition, migration, testing and optional integrations. Deliver
+  the corpus at usable package-relative paths with executable recipes and declarations.
+* Route skills and guides from one task table, with exact symbol lookup, offline
+  section search and complete section reads over hash-verified indexes.
+* Align all five packages and the agent plugin to rc.2. Candidate certification
+  remains separate from consumer stabilization and stable-release usability acceptance.
 
 ### v5.0.0-rc.1
 
@@ -65,7 +71,7 @@
   update development dependencies and reduce routine PR package work while
   retaining complete manual release certification.
 
-Breaking beta changes are detailed in [the upgrade guide](upgradeGuide.md).
+Breaking beta changes are detailed in [the upgrade guide](docs/guides/migration.md).
 Recover with all five beta.5 packages and their matching consumer code and lockfile;
 reverting package versions alone does not restore the previous application contract.
 Stable publication remains disabled. This prerelease uses npm `latest`; `next`

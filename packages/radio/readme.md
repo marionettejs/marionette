@@ -31,45 +31,15 @@ their own default instance; do not mix the two formats to share a channel regist
 
 Radio, utils, data, adapters, and core are versioned and released together.
 
-## Standalone messaging
+## Version-matched reference
 
-```js
-import { Channel, Requests } from '@mnjs/radio';
+The matching `marionette` candidate includes the canonical reference. If core
+is installed, open `node_modules/marionette/docs/packages/radio.md` for channel
+scope, all event and request/reply methods, cleanup, standalone composition,
+logging, and TypeScript contracts. Core remains unnecessary for standalone Radio
+use.
 
-const local = new Channel('editor');
-local.on('save', () => console.log('Saved'));
-local.reply('title', 'Untitled');
-
-const service = Object.assign({}, Requests);
-service.reply('ready', true);
-```
-
-`new Channel(name)` creates an independent Events-and-Requests object. It is not
-registered with Radio; call its `reset()` to remove its handlers and owned
-listeners. Two standalone channels with the same name are still separate objects.
-`Radio.reset()` only covers channels obtained through `Radio.channel(name)`.
-
-The named `Channel` export is `Radio.Channel`. Use `new isolatedRadio.Channel(name)`
-when a standalone channel should share a particular Radio instance's logging
-configuration. `Requests` adds only request/reply methods to its receiver; it uses
-the default Radio's warning configuration.
-
-## Logging
-
-Assign `radio.log(channelName, eventName, ...args)` to receive activity from
-`tuneIn()`, and `radio.debugLog(warning, eventName, channelName)` to receive
-diagnostics. The defaults write to the console.
-
-```js
-const radio = createRadio();
-radio.log = (channel, event, ...args) => console.log({ channel, event, args });
-radio.debugLog = (warning, event, channel) => console.warn({ warning, event, channel });
-radio.setDebug();
-radio.tuneIn('app');
-```
-
-Each Radio instance owns its hooks. They run with that Radio as `this`, and
-existing channels use the current hook, even when it is replaced after `tuneIn()`.
-`setDebug(false)` suppresses warning delivery to custom hooks too. Standalone
-channels use their constructor's Radio configuration; the shared default
-Requests mixin uses the default Radio. Hook exceptions propagate to the caller.
+Application and MnObject owner bindings are documented separately in
+`node_modules/marionette/docs/api/shared/common.md#declarative-radio-bindings`.
+General project information is available on the
+[Marionette website](https://marionettejs.com/).

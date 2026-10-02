@@ -41,7 +41,7 @@ export function contentDigest(pages) {
 }
 
 async function readSource(repository, source) {
-  if (typeof source !== 'string' || !/^[a-zA-Z0-9._/-]+\.(?:md|json|m?js|ya?ml)$/.test(source) ||
+  if (typeof source !== 'string' || !/^[a-zA-Z0-9._/-]+\.(?:md|json|m?js|ya?ml|html|css)$/.test(source) ||
       source.startsWith('/') || source.split('/').some(part => !part || part === '.' || part === '..')) {
     throw new Error(`Invalid documentation resource: ${source}`);
   }
@@ -73,12 +73,8 @@ export async function exportDocs() {
   const policy = JSON.parse(await readFile(resolve(root, 'config/release-promotion.json'), 'utf8'));
   const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
   const assetSources = JSON.parse(await readFile(resolve(root, 'docs-site/resources.json'), 'utf8'));
-  const contractSources = ['config/api-contracts/inventory.json', 'config/api-contracts/semantics.json'];
   if (!Array.isArray(assetSources) || !assetSources.includes('config/diagnostics/catalog.json')) {
     throw new Error('Documentation resources must include the diagnostic catalog.');
-  }
-  if (!contractSources.every(source => assetSources.includes(source))) {
-    throw new Error('Documentation resources must include the API contract inventory and semantics.');
   }
   const sourceRevision = git(['rev-parse', 'HEAD']);
   const sourceDirty = Boolean(git(['status', '--porcelain', '--untracked-files=all']));
@@ -89,12 +85,15 @@ export async function exportDocs() {
   const assetContents = await readResources(root, assetSources, navigation.map(page => page.source));
   const sections = contents.filter(({ page }) => isConsumerPage(page))
     .flatMap(({ page, bytes }) => documentSections(page.source, bytes.toString('utf8')));
-  const [inventory, semantics] = contractSources.map(source =>
-    JSON.parse(assetContents.find(asset => asset.source === source).bytes.toString('utf8')));
-  const symbols = symbolIndex(inventory, semantics, sections);
   assetContents.push({ source: 'docs-sections.json',
-    bytes: Buffer.from(`${JSON.stringify({ schemaVersion: 1, sections })}\n`) },
-  { source: 'docs-symbols.json', bytes: Buffer.from(`${JSON.stringify(symbols)}\n`) });
+    bytes: Buffer.from(`${JSON.stringify({ schemaVersion: 1, sections })}\n`) });
+  const inventory = JSON.parse(await readSource(root, 'config/api-contracts/inventory.json'));
+  const semantics = JSON.parse(await readSource(root, 'config/api-contracts/semantics.json'));
+  if (inventory.semanticsSha256 !== sha256(JSON.stringify(semantics))) {
+    throw new Error('Public contract inventory is stale. Run node scripts/api-contracts/check.mjs after reviewing the metadata.');
+  }
+  assetContents.push({ source: 'docs-symbols.json',
+    bytes: Buffer.from(`${JSON.stringify(symbolIndex(inventory, semantics, sections))}\n`) });
   const assets = assetContents.map(({ source, bytes }) => ({ source, sha256: sha256(bytes) }));
   const manifest = {
     schemaVersion: 1,

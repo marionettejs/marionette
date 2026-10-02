@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "contracts": [
     {
       "id": "type-shapes",
@@ -26,8 +26,99 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/typescript.md",
-          "heading": "TypeScript in an application"
+          "file": "docs/api/runtime.md",
+          "heading": "TypeScript"
+        },
+        {
+          "file": "docs/api/view.md",
+          "heading": "TypeScript"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "TypeScript"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "TypeScript"
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Types and entrypoints"
+        },
+        {
+          "file": "docs/guides/typescript.md",
+          "heading": "Constructors, instances, options, and state"
+        },
+        {
+          "file": "docs/guides/typescript.md",
+          "heading": "Local DOM interactions"
+        },
+        {
+          "file": "docs/guides/typescript.md",
+          "heading": "Readiness results and lifecycle completion"
+        },
+        {
+          "file": "docs/guides/typescript.md",
+          "heading": "Typed data and provider boundaries"
+        },
+        {
+          "file": "docs/packages/utils.md",
+          "heading": "Types and entrypoints"
+        },
+        {
+          "file": "docs/packages/adapters.md",
+          "heading": "TypeScript"
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "UI bindings",
+          "members": [
+            "getUI",
+            "ui"
+          ],
+          "exports": [
+            "ViewInstance",
+            "CollectionViewInstance",
+            "ViewConfiguration"
+          ]
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "DOM interaction and UI",
+          "members": [
+            "getUI",
+            "ui"
+          ],
+          "exports": [
+            "BehaviorInstance",
+            "BehaviorOptions"
+          ]
+        },
+        {
+          "file": "docs/api/providers/data.md",
+          "heading": "DataApi",
+          "members": [
+            "get",
+            "has",
+            "key",
+            "models",
+            "serialize",
+            "subscribe",
+            "observeCollection"
+          ],
+          "exports": [
+            "DataApiContract"
+          ]
+        },
+        {
+          "file": "docs/api/providers/dom.md",
+          "heading": "EventDelegator",
+          "members": [
+            "delegate"
+          ],
+          "exports": [
+            "EventDelegator"
+          ]
         }
       ],
       "tests": [
@@ -36,7 +127,10 @@
           "title": "builds the default exports and explicit runtimes through one class-family contract"
         }
       ],
-      "kind": "type"
+      "kind": "type",
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "runtime-isolation",
@@ -60,12 +154,20 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/runtime-isolation.md",
-          "heading": "Configuration method contract"
+          "file": "docs/api/runtime.md",
+          "heading": "Choose a configuration scope"
         },
         {
-          "file": "docs/utils.md",
-          "heading": "extend"
+          "file": "docs/api/runtime.md",
+          "heading": "Isolation and composition"
+        },
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Define a class"
+        },
+        {
+          "file": "docs/api/providers/dom.md",
+          "heading": "EventDelegator"
         }
       ],
       "tests": [
@@ -85,7 +187,10 @@
           "file": "test/unit/utils/extend.spec.js",
           "title": "backs every exported Marionette pseudo-class"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "version",
@@ -104,8 +209,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/utils.md",
-          "heading": "VERSION"
+          "file": "docs/api/runtime.md",
+          "heading": "Defaults and exports"
         }
       ],
       "tests": [
@@ -113,7 +218,10 @@
           "file": "test/unit/create-marionette.spec.js",
           "title": "builds the default exports and explicit runtimes through one class-family contract"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "object",
@@ -128,24 +236,20 @@
       "ownership": "Supplied state is borrowed; createState results are owned. Radio bindings belong to the owner.",
       "mutation": "Construction initializes configured options before initialize; it does not render DOM.",
       "repetition": "Each construction creates an independent owner; destroy is guarded against repeat cleanup.",
-      "destruction": "Destroy releases owned listeners and state subscriptions. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
+      "destruction": "Destroy releases owned listeners and state subscriptions; synchronous exceptions abort. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/marionette.mnobject.md",
-          "heading": "Instantiating a MnObject"
+          "file": "docs/api/mnobject.md",
+          "heading": "Construction and options"
         },
         {
-          "file": "docs/marionette.mnobject.md",
-          "heading": "Destroying a MnObject"
+          "file": "docs/api/mnobject.md",
+          "heading": "Destruction and ownership"
         },
         {
-          "file": "docs/events.class.md",
-          "heading": "MnObject Events"
-        },
-        {
-          "file": "docs/events.md",
-          "heading": "Terminal subscription cleanup"
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
         }
       ],
       "tests": [
@@ -174,7 +278,10 @@
           ],
           "timing": "Before and after successful synchronous teardown; hook return promises are not awaited."
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "view",
@@ -193,20 +300,50 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/marionette.view.md",
-          "heading": "Method results and side effects"
+          "file": "docs/api/view.md",
+          "heading": "Rendering and status"
         },
         {
-          "file": "docs/view.lifecycle.md",
-          "heading": "Destroying a View"
+          "file": "docs/api/view.md",
+          "heading": "Lifecycle hooks and events"
         },
         {
-          "file": "docs/events.class.md",
-          "heading": "View Events"
+          "file": "docs/api/view.md",
+          "heading": "Named Regions"
         },
         {
-          "file": "docs/events.md",
-          "heading": "Terminal subscription cleanup"
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Root attributes"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Data bindings",
+          "members": [
+            "modelEvents",
+            "collectionEvents",
+            "delegateEntityEvents",
+            "undelegateEntityEvents"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Child events",
+          "members": [
+            "childViewEvents",
+            "childViewTriggers",
+            "childViewEventPrefix"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Behavior composition",
+          "members": [
+            "behaviors"
+          ]
         }
       ],
       "tests": [
@@ -251,7 +388,10 @@
           ],
           "timing": "Synchronous transition notifications; DOM events depend on tracked attachment, rendering and monitoring."
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "behavior",
@@ -270,16 +410,38 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/marionette.behavior.md",
-          "heading": "Behavior Lifecycle"
+          "file": "docs/api/behavior.md",
+          "heading": "Declare and construct"
         },
         {
-          "file": "docs/marionette.behavior.md",
-          "heading": "Host Communication and Event Proxies"
+          "file": "docs/api/behavior.md",
+          "heading": "Host events and data",
+          "members": [
+            "modelEvents",
+            "collectionEvents",
+            "delegateEntityEvents",
+            "undelegateEntityEvents"
+          ]
         },
         {
-          "file": "docs/events.class.md",
-          "heading": "Behavior Events"
+          "file": "docs/api/behavior.md",
+          "heading": "Destruction and nested Behaviors"
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "Reuse a local interaction"
+        },
+        {
+          "file": "docs/api/view.md",
+          "heading": "Construction and options"
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "DOM interaction and UI",
+          "members": [
+            "events",
+            "triggers"
+          ]
         }
       ],
       "tests": [
@@ -316,7 +478,10 @@
           ],
           "timing": "Host events proxy to Behaviors; direct Behavior destruction emits no independent destroy event."
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "region",
@@ -326,11 +491,11 @@
       "exports": [
         "Region"
       ],
-      "result": "show/empty/reset/destroy return the Region; detachView returns the released View or undefined; ownership queries return owner/name or undefined.",
+      "result": "show returns the Region, or undefined when an allowed missing element skips the show; empty/reset/destroy return the Region; detachView returns the released View or undefined; ownership queries return owner/name or undefined.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "show adopts a View; detach releases ownership without destroying it; empty/replacement destroy the current View.",
       "mutation": "show renders and inserts a View; detach removes it; replaceElement state is independent of attachment.",
-      "repetition": "Showing the same View and repeating empty/destroy are deterministic no-ops when already satisfied.",
+      "repetition": "Showing the current View does not render it or repeat show events. With no current View, live empty clears the resolved element contents without empty events; element validation still applies. Repeated destroy is a no-op, and empty/reset become no-ops after completed destruction.",
       "destruction": "Once destruction begins, show/detach cannot acquire/release a new View; cleanup failures abort without retry. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
       "diagnostics": [
         "MN0003",
@@ -338,20 +503,24 @@
       ],
       "docs": [
         {
-          "file": "docs/marionette.region.md",
-          "heading": "Lifecycle transition contract"
+          "file": "docs/api/region.md",
+          "heading": "Showing a View"
         },
         {
-          "file": "docs/marionette.region.md",
-          "heading": "Reading Region ownership"
+          "file": "docs/api/region.md",
+          "heading": "Empty, detach, reset, and destroy"
         },
         {
-          "file": "docs/events.class.md",
-          "heading": "Region Events"
+          "file": "docs/api/region.md",
+          "heading": "Properties and queries"
         },
         {
-          "file": "docs/events.md",
-          "heading": "Terminal subscription cleanup"
+          "file": "docs/api/region.md",
+          "heading": "Lifecycle events and hooks"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
         }
       ],
       "tests": [
@@ -407,7 +576,10 @@
           ],
           "timing": "Only when removing a current View; after event follows detach/destruction."
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "collection-view",
@@ -429,20 +601,36 @@
       ],
       "docs": [
         {
-          "file": "docs/marionette.collectionview.md",
-          "heading": "Managing Children"
+          "file": "docs/api/collection-view.md",
+          "heading": "Rendering and collection updates"
         },
         {
-          "file": "docs/data.api.md",
-          "heading": "Collection observations"
+          "file": "docs/api/collection-view.md",
+          "heading": "Lifecycle and extension points"
         },
         {
-          "file": "docs/events.class.md",
-          "heading": "CollectionView Events"
+          "file": "docs/api/providers/data.md",
+          "heading": "Collection identity and observation"
         },
         {
-          "file": "docs/events.md",
-          "heading": "Terminal subscription cleanup"
+          "file": "docs/api/collection-view.md",
+          "heading": "Sorting"
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Find and inspect children"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Data bindings",
+          "members": [
+            "delegateEntityEvents",
+            "undelegateEntityEvents"
+          ]
         }
       ],
       "tests": [
@@ -547,7 +735,10 @@
           ],
           "timing": "Around rendering the selected children."
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "manual-children",
@@ -560,14 +751,14 @@
       "result": "addChildView/removeChildView/detachChildView return their supplied child or unchanged missing input; swapChildViews returns the owner.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "Manually added children are owned until removed/detached; detach preserves the child.",
-      "mutation": "Manual child order is preserved during managed replacement; swap moves existing child elements and keeps identity.",
+      "mutation": "Same-key source replacement is inserted at the previous child position before configured sorting; unaffected manual children retain identity. Source order and comparator rules determine final placement. Swap moves existing child elements and keeps identity.",
       "repetition": "Swapping a child with itself leaves it in place; ownership conflicts are rejected before adoption.",
       "destruction": "Destroy owns manual children too; additions to a destroyed owner cannot adopt new children.",
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/marionette.collectionview.md",
-          "heading": "Self-Managed `children`"
+          "file": "docs/api/collection-view.md",
+          "heading": "Manage View instances directly"
         }
       ],
       "tests": [
@@ -589,7 +780,10 @@
         "removeChildView",
         "detachChildView",
         "swapChildViews"
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "sync-failure-boundary",
@@ -612,8 +806,20 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/view.lifecycle.md",
-          "heading": "Synchronous failures"
+          "file": "docs/api/view.md",
+          "heading": "Lifecycle hooks and events"
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "Empty, detach, reset, and destroy"
+        },
+        {
+          "file": "docs/api/mnobject.md",
+          "heading": "Destruction and ownership"
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Lifecycle and extension points"
         }
       ],
       "tests": [
@@ -625,7 +831,10 @@
           "file": "test/unit/events-parity.spec.js",
           "title": "propagates handler errors and stops the current dispatch"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "events",
@@ -645,12 +854,20 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/events.md",
-          "heading": "Events API"
+          "file": "docs/api/shared/events.md",
+          "heading": "Subscribe and unsubscribe"
         },
         {
-          "file": "docs/events.md",
-          "heading": "Terminal subscription cleanup"
+          "file": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Names, maps, and callback context"
         }
       ],
       "tests": [
@@ -678,7 +895,10 @@
           "file": "test/unit/destroy-listener-cleanup.spec.js",
           "title": "delivers final notifications and releases incoming and outgoing subscriptions"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "radio",
@@ -700,12 +920,24 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/radio.md",
-          "heading": "Channel Lifecycle"
+          "file": "docs/packages/radio.md",
+          "heading": "Imports and registry scope"
         },
         {
-          "file": "docs/radio.md",
-          "heading": "Requests and Replies"
+          "file": "docs/packages/radio.md",
+          "heading": "Lifetime and cleanup"
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Channel events"
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Standalone channels and Requests"
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Logging"
         }
       ],
       "tests": [
@@ -721,7 +953,10 @@
           "file": "test/unit/radio-public.spec.js",
           "title": "keeps debug switches and hooks local to each Radio instance"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "requests",
@@ -740,8 +975,12 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/radio.md",
-          "heading": "Requests and Replies"
+          "file": "docs/packages/radio.md",
+          "heading": "Requests and replies"
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Standalone channels and Requests"
         }
       ],
       "tests": [
@@ -761,7 +1000,10 @@
           "file": "test/unit/requests.spec.js",
           "title": "keeps literal map keys, result identity, payloads, and invocation order"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "extend",
@@ -781,8 +1023,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/utils.md",
-          "heading": "extend"
+          "file": "docs/packages/utils.md",
+          "heading": "Constructors and errors"
         }
       ],
       "tests": [
@@ -798,7 +1040,10 @@
           "file": "test/unit/utils/extend.spec.js",
           "title": "backs every exported Marionette pseudo-class"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "error",
@@ -818,12 +1063,12 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/api/errors.md",
+          "heading": "MarionetteError"
         },
         {
-          "file": "docs/diagnostic-catalog.md",
-          "heading": "Diagnostic catalog"
+          "file": "docs/api/errors.md",
+          "heading": "Find a diagnostic"
         }
       ],
       "tests": [
@@ -839,7 +1084,10 @@
           "file": "test/unit/modules-error.spec.js",
           "title": "requires construction with new"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "get-value",
@@ -858,8 +1106,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Value and method resolution"
         }
       ],
       "tests": [
@@ -867,7 +1115,10 @@
           "file": "test/unit/utils/get-value.spec.js",
           "title": "uses the fallback only when the property value is undefined"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "get-option",
@@ -886,8 +1137,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/common.md",
-          "heading": "`getOption`"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -899,7 +1150,10 @@
           "file": "test/unit/common/get-option.spec.js",
           "title": "reads numeric and empty keys on a Marionette owner"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "merge-options",
@@ -918,8 +1172,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -927,7 +1181,10 @@
           "file": "test/unit/common/merge-options.spec.js",
           "title": "merges only own enumerable string options and safely owns __proto__"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "normalize-methods",
@@ -950,8 +1207,8 @@
       ],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Value and method resolution"
         }
       ],
       "tests": [
@@ -959,7 +1216,10 @@
           "file": "test/unit/common/normalize-methods.spec.js",
           "title": "throws a stable diagnostic when a named handler does not exist"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "bind-events",
@@ -979,8 +1239,12 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/api/shared/common.md",
+          "heading": "Binding helpers"
+        },
+        {
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -988,7 +1252,10 @@
           "file": "test/unit/common/bind-events.spec.js",
           "title": "rejects an own enumerable __proto__ event before binding"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "bind-requests",
@@ -1008,8 +1275,12 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/api/shared/common.md",
+          "heading": "Binding helpers"
+        },
+        {
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -1017,7 +1288,10 @@
           "file": "test/unit/common/bind-request.spec.js",
           "title": "selectively removes caller-owned replies without disturbing other replies"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "is-string",
@@ -1036,8 +1310,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Small standalone helpers"
         }
       ],
       "tests": [
@@ -1045,7 +1319,10 @@
           "file": "test/unit/utils/is-string.spec.js",
           "title": "matches Underscore string-tag classification"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "set-property",
@@ -1064,8 +1341,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Small standalone helpers"
         }
       ],
       "tests": [
@@ -1073,7 +1350,10 @@
           "file": "test/unit/utils/set-property.spec.js",
           "title": "defines __proto__ without changing the target prototype"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "unique-id",
@@ -1092,8 +1372,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Small standalone helpers"
         }
       ],
       "tests": [
@@ -1101,7 +1381,10 @@
           "file": "test/unit/utils/unique-id.spec.js",
           "title": "increments one shared sequence and prepends string prefixes"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "event-arguments",
@@ -1120,8 +1403,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Event-building helpers"
         }
       ],
       "tests": [
@@ -1129,7 +1412,10 @@
           "file": "test/unit/utils/build-event-args.spec.js",
           "title": "preserves whitespace in literal event names"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "call-handler",
@@ -1148,8 +1434,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Event-building helpers"
         }
       ],
       "tests": [
@@ -1157,7 +1443,10 @@
           "file": "test/unit/utils/call-handler.spec.js",
           "title": "applies callbacks with more than three arguments"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "once-wrapper",
@@ -1176,8 +1465,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/packages/utils.md",
+          "heading": "Event-building helpers"
         }
       ],
       "tests": [
@@ -1185,7 +1474,10 @@
           "file": "test/unit/utils/once-wrap.spec.js",
           "title": "unbinds before invoking the callback and memoizes its result"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "trigger-method",
@@ -1205,8 +1497,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/events.md",
-          "heading": "`triggerMethod`"
+          "file": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks"
         }
       ],
       "tests": [
@@ -1230,7 +1522,10 @@
           "file": "test/unit/events-single-dispatch.spec.js",
           "title": "keeps payload identity, all-listener arguments, and per-call return values"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "dom-api",
@@ -1249,8 +1544,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/dom.api.md",
-          "heading": "Native API methods"
+          "file": "docs/api/providers/dom.md",
+          "heading": "DomApi"
         }
       ],
       "tests": [
@@ -1262,7 +1557,10 @@
           "file": "test/unit/region-lifecycle.spec.js",
           "title": "shows a View in template content without reporting attachment"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "monitor-view-events",
@@ -1281,8 +1579,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/events.md",
-          "heading": "Lifecycle Events"
+          "file": "docs/api/view.md",
+          "heading": "Lifecycle hooks and events"
         }
       ],
       "tests": [
@@ -1290,7 +1588,10 @@
           "file": "test/unit/view-lifecycle.spec.js",
           "title": "propagates nested attachment through detached, reentrant, and repeated transitions"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "jquery-dom",
@@ -1309,8 +1610,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/dom.api.md",
-          "heading": "Optional jQuery adapter"
+          "file": "docs/packages/adapters.md",
+          "heading": "jQuery"
         }
       ],
       "tests": [
@@ -1322,7 +1623,10 @@
           "file": "test/unit/jquery-dom-api.spec.js",
           "title": "detaches elements without removing listeners with the jQuery DomApi"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "provider.static-consumers",
@@ -1343,12 +1647,12 @@
       ],
       "docs": [
         {
-          "file": "docs/data.api.md",
-          "heading": "Adapter contract"
+          "file": "docs/api/providers/data.md",
+          "heading": "DataApi"
         },
         {
-          "file": "docs/choosing-integrations.md",
-          "heading": "Make the decision in this order"
+          "file": "docs/api/collection-view.md",
+          "heading": "Rendering and collection updates"
         }
       ],
       "tests": [
@@ -1360,7 +1664,10 @@
           "file": "test/unit/data-api-integration.spec.js",
           "title": "diagnoses declarative events on unobservable plain data"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "provider.native-consumers",
@@ -1380,12 +1687,20 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/data.api.md",
-          "heading": "Optional `@mnjs/data` sources"
+          "file": "docs/packages/data.md",
+          "heading": "Providers"
         },
         {
-          "file": "docs/marionette.state.md",
-          "heading": "Borrowed and owned sources"
+          "file": "docs/packages/data.md",
+          "heading": "Destruction and ownership"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Membership and ordering"
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Rendering and collection updates"
         }
       ],
       "tests": [
@@ -1401,7 +1716,10 @@
           "file": "test/unit/data-package/api-integration.spec.js",
           "title": "supplies modelEvents, collectionEvents, and owned state disposal"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "provider.backbone-consumers",
@@ -1420,12 +1738,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/adapters/readme.md",
+          "file": "docs/packages/adapters.md",
           "heading": "Backbone"
-        },
-        {
-          "file": "docs/optional-backbone.md",
-          "heading": "Native event identity and load order"
         }
       ],
       "tests": [
@@ -1445,7 +1759,10 @@
           "file": "test/unit/backbone-adapter.spec.js",
           "title": "configures only the selected runtime"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "provider.actor-consumers",
@@ -1464,11 +1781,7 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/data.api.md",
-          "heading": "XState actors"
-        },
-        {
-          "file": "packages/adapters/readme.md",
+          "file": "docs/packages/adapters.md",
           "heading": "XState actors"
         }
       ],
@@ -1493,7 +1806,10 @@
           "file": "test/unit/xstate-adapter.spec.js",
           "title": "stops only factory-owned state actors"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "provider.custom-state-consumers",
@@ -1507,18 +1823,22 @@
       "result": "Custom provider state/data retains opaque source identity and provider-owned event vocabulary.",
       "timing": "Native provider notifications drive configured callbacks; valid cleanup callbacks are required.",
       "ownership": "Multiple owners may borrow a state source; factory state alone is owned.",
-      "mutation": "A custom immutable store adapter can update list/detail contents while retaining child Views, focus and draft DOM.",
+      "mutation": "A custom immutable-store DataApi can read stable opaque source references and publish source events without replacing their Views; retaining input nodes, focus and drafts additionally depends on the View renderer and update strategy.",
       "repetition": "Destroying one owner releases only its subscriptions; remaining consumers continue.",
       "destruction": "Successful cleanup removes externally tracked subscriptions and precedes owned-source disposal; synchronous failures abort without rollback or attempt-all cleanup.",
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/data.api.md",
-          "heading": "Adapter contract"
+          "file": "docs/api/providers/data.md",
+          "heading": "StateApi"
         },
         {
-          "file": "docs/marionette.state.md",
-          "heading": "StateApi"
+          "file": "docs/api/shared/state.md",
+          "heading": "Ownership and disposal"
+        },
+        {
+          "file": "docs/api/providers/data.md",
+          "heading": "Collection identity and observation"
         }
       ],
       "tests": [
@@ -1538,7 +1858,11 @@
           "file": "test/unit/state-owner.spec.js",
           "title": "passes adapter event names and callback arguments through unchanged"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "partial",
+        "reason": "Provider ownership, opaque references and renderer-dependent retention are documented. A complete custom immutable-store integration demonstrating notification translation and retained DOM is still absent; the existing unit test is evidence of feasibility, not a consumer recipe."
+      }
     },
     {
       "id": "application-lifecycle",
@@ -1557,24 +1881,40 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/marionette.application.md",
-          "heading": "Application Lifecycle"
+          "file": "docs/api/application.md",
+          "heading": "Lifecycle methods and results"
         },
         {
-          "file": "docs/marionette.application.md",
-          "heading": "Application Ownership"
+          "file": "docs/api/application.md",
+          "heading": "Preparation, cancellation, and failure"
         },
         {
-          "file": "docs/events.class.md",
-          "heading": "Application Events"
+          "file": "docs/api/application.md",
+          "heading": "Lifecycle hooks and events"
         },
         {
-          "file": "docs/marionette.application.md",
-          "heading": "Starting an Application"
+          "file": "docs/api/application.md",
+          "heading": "Child Applications"
         },
         {
-          "file": "docs/events.md",
-          "heading": "Terminal subscription cleanup"
+          "file": "docs/api/application.md",
+          "heading": "Root View and Region"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "State and Radio"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Destination binding order"
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Restart from start completion"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
         }
       ],
       "tests": [
@@ -1703,7 +2043,10 @@
         "onStart",
         "onStop",
         "onDestroy"
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "native-model",
@@ -1722,12 +2065,28 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/data/readme.md",
-          "heading": "Mutation semantics"
+          "file": "docs/packages/data.md",
+          "heading": "Read and mutate attributes"
         },
         {
-          "file": "docs/events.md",
-          "heading": "Terminal subscription cleanup"
+          "file": "docs/packages/data.md",
+          "heading": "Model events"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Destruction and ownership"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Model"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Collection"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
         }
       ],
       "tests": [
@@ -1747,7 +2106,10 @@
           "file": "test/unit/destroy-listener-cleanup.spec.js",
           "title": "delivers final notifications and releases incoming and outgoing subscriptions"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "native-collection",
@@ -1766,12 +2128,24 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/data/readme.md",
-          "heading": "Mutation semantics"
+          "file": "docs/packages/data.md",
+          "heading": "Read and iterate"
         },
         {
-          "file": "docs/events.md",
-          "heading": "Terminal subscription cleanup"
+          "file": "docs/packages/data.md",
+          "heading": "Membership and ordering"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Collection events"
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Destruction and ownership"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
         }
       ],
       "tests": [
@@ -1795,7 +2169,10 @@
           "file": "test/unit/destroy-listener-cleanup.spec.js",
           "title": "delivers final notifications and releases incoming and outgoing subscriptions"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "morphdom-dom",
@@ -1814,7 +2191,11 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/adapters/readme.md",
+          "file": "docs/packages/adapters.md",
+          "heading": "DOM contents"
+        },
+        {
+          "file": "docs/packages/adapters.md",
           "heading": "Morphdom"
         }
       ],
@@ -1824,7 +2205,10 @@
           "title": "${kind}: replaces initial contents, preserves root and survivor, and commits synchronously",
           "runner": "test/unit/dom-adapters.spec.js"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "lit-html-dom",
@@ -1843,7 +2227,11 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/adapters/readme.md",
+          "file": "docs/packages/adapters.md",
+          "heading": "DOM contents"
+        },
+        {
+          "file": "docs/packages/adapters.md",
           "heading": "Lit HTML"
         }
       ],
@@ -1853,7 +2241,10 @@
           "title": "${kind}: replaces initial contents, preserves root and survivor, and commits synchronously",
           "runner": "test/unit/dom-adapters.spec.js"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "owner-events",
@@ -1877,12 +2268,20 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/events.md",
-          "heading": "Events API"
+          "file": "docs/api/shared/events.md",
+          "heading": "Subscribe and unsubscribe"
         },
         {
-          "file": "docs/events.md",
-          "heading": "Terminal subscription cleanup"
+          "file": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Names, maps, and callback context"
         }
       ],
       "tests": [
@@ -1919,7 +2318,10 @@
         "listenTo",
         "listenToOnce",
         "stopListening"
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "owner-trigger-method",
@@ -1943,8 +2345,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/events.md",
-          "heading": "`triggerMethod`"
+          "file": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks"
         }
       ],
       "tests": [
@@ -1971,7 +2373,10 @@
       ],
       "members": [
         "triggerMethod"
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "owner-get-option",
@@ -1988,15 +2393,15 @@
       ],
       "result": "Returns a defined option before the receiver property for string, number, and symbol keys, including 0 and the empty string; undefined options fall back. Omitted, null, and undefined keys return undefined.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
-      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "ownership": "No ownership transfer; this operation only reads or copies option values.",
       "mutation": "Reads options and receiver; does not call an option function.",
-      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
-      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "repetition": "Each call reads the current options and receiver.",
+      "destruction": "No subscriptions or disposal are added by this operation.",
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/common.md",
-          "heading": "`getOption`"
+          "file": "docs/api/shared/common.md",
+          "heading": "Options and initialization"
         }
       ],
       "tests": [
@@ -2011,7 +2416,10 @@
       ],
       "members": [
         "getOption"
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "owner-merge-options",
@@ -2028,15 +2436,19 @@
       ],
       "result": "Returns undefined after copying selected defined options.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
-      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "ownership": "No ownership transfer; this operation only reads or copies option values.",
       "mutation": "Copies selected own enumerable options onto the receiver; safely owns __proto__.",
-      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
-      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "repetition": "Each call copies the current selected defined options.",
+      "destruction": "No subscriptions or disposal are added by this operation.",
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/api/shared/common.md",
+          "heading": "Options and initialization"
+        },
+        {
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -2047,7 +2459,10 @@
       ],
       "members": [
         "mergeOptions"
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "owner-normalize-methods",
@@ -2073,8 +2488,12 @@
       ],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/api/shared/common.md",
+          "heading": "Options and initialization"
+        },
+        {
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -2085,7 +2504,10 @@
       ],
       "members": [
         "normalizeMethods"
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "owner-bind-events",
@@ -2109,8 +2531,12 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/api/shared/common.md",
+          "heading": "Binding helpers"
+        },
+        {
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -2122,7 +2548,10 @@
       "members": [
         "bindEvents",
         "unbindEvents"
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "owner-bind-requests",
@@ -2146,8 +2575,12 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "packages/utils/readme.md",
-          "heading": "Helpers"
+          "file": "docs/api/shared/common.md",
+          "heading": "Binding helpers"
+        },
+        {
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods"
         }
       ],
       "tests": [
@@ -2159,7 +2592,10 @@
       "members": [
         "bindRequests",
         "unbindRequests"
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "root-attributes",
@@ -2171,7 +2607,10 @@
         "CollectionView"
       ],
       "members": [
-        "renderAttributes"
+        "renderAttributes",
+        "attributes",
+        "id",
+        "className"
       ],
       "result": "Returns the View.",
       "timing": "Synchronous; returned callback promises do not delay the operation.",
@@ -2182,8 +2621,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/marionette.view.md",
-          "heading": "Refreshing Root Attributes"
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Root attributes"
         }
       ],
       "tests": [
@@ -2195,7 +2634,10 @@
           "file": "test/unit/view-render-attributes.spec.js",
           "title": "does not evaluate declarations while destroying or destroyed"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "view-regions",
@@ -2216,7 +2658,9 @@
         "emptyRegions",
         "getChildView",
         "showChildView",
-        "detachChildView"
+        "detachChildView",
+        "regions",
+        "regionClass"
       ],
       "result": "Queries return registrations/snapshots, supplied child or optional current child as declared; snapshots cannot mutate the owner.",
       "timing": "Synchronous; returned callback promises do not delay the operation.",
@@ -2227,8 +2671,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/marionette.view.md",
-          "heading": "Method results and side effects"
+          "file": "docs/api/view.md",
+          "heading": "Named Regions"
         }
       ],
       "tests": [
@@ -2252,7 +2696,10 @@
           "file": "test/unit/view-get-region.spec.js",
           "title": "renders before overridable getRegion and preserves its result"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "dom-events",
@@ -2265,7 +2712,9 @@
       ],
       "members": [
         "delegateEvents",
-        "undelegateEvents"
+        "undelegateEvents",
+        "events",
+        "triggers"
       ],
       "result": "Returns the View. With the default native EventDelegator, event.delegateTarget is the matched selector element, event.currentTarget is the listener host (the View root), and event.target is the originating node. Use delegateTarget to read the matched control.",
       "timing": "Synchronous; returned callback promises do not delay the operation.",
@@ -2276,8 +2725,12 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/dom.interactions.md",
-          "heading": "EventDelegator Adapter"
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "DOM events"
+        },
+        {
+          "file": "docs/api/providers/dom.md",
+          "heading": "EventDelegator"
         }
       ],
       "tests": [
@@ -2289,7 +2742,10 @@
           "file": "test/unit/view-dom-delegation.spec.js",
           "title": "treats delegation calls on a destroyed View as chainable no-ops"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "ui",
@@ -2308,7 +2764,8 @@
         "unbindUIElements",
         "normalizeUIKeys",
         "normalizeUIString",
-        "normalizeUIValues"
+        "normalizeUIValues",
+        "ui"
       ],
       "result": "Queries return the configured adapter collection; UI names resolve selectors before binding and element collections after binding.",
       "timing": "Synchronous; returned callback promises do not delay the operation.",
@@ -2319,12 +2776,19 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/dom.interactions.md",
-          "heading": "Organizing a View with `ui`"
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "UI bindings",
+          "exports": [
+            "View",
+            "CollectionView"
+          ]
         },
         {
-          "file": "docs/marionette.behavior.md",
-          "heading": "UI resolution and binding"
+          "file": "docs/api/behavior.md",
+          "heading": "DOM interaction and UI",
+          "exports": [
+            "Behavior"
+          ]
         }
       ],
       "tests": [
@@ -2336,7 +2800,10 @@
           "file": "test/unit/behavior-ui-contract.spec.js",
           "title": "rebinds Behavior UI to replacement elements after host rerender"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "serialization",
@@ -2353,7 +2820,11 @@
         "serializeModel",
         "serializeCollection",
         "mixinTemplateContext",
-        "attachElContent"
+        "attachElContent",
+        "template",
+        "templateContext",
+        "model",
+        "collection"
       ],
       "result": "Returns configured template/data/context or fluent content-attachment result as declared.",
       "timing": "Synchronous; returned callback promises do not delay the operation.",
@@ -2364,12 +2835,8 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/view.rendering.md",
-          "heading": "Serializing Data"
-        },
-        {
-          "file": "docs/view.rendering.md",
-          "heading": "Adding Context Data"
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Templates and data"
         }
       ],
       "tests": [
@@ -2381,7 +2848,10 @@
           "file": "test/unit/data-api-integration.spec.js",
           "title": "serializes a plain array for a View template"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "collection-presentation",
@@ -2411,12 +2881,25 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/marionette.collectionview.md",
-          "heading": "Sorting the `children`"
+          "file": "docs/api/collection-view.md",
+          "heading": "Sorting",
+          "members": [
+            "sort",
+            "getComparator",
+            "setComparator",
+            "removeComparator"
+          ]
         },
         {
-          "file": "docs/marionette.collectionview.md",
-          "heading": "Filtering the `children`"
+          "file": "docs/api/collection-view.md",
+          "heading": "Filtering",
+          "members": [
+            "filter",
+            "getFilter",
+            "setFilter",
+            "removeFilter",
+            "isEmpty"
+          ]
         }
       ],
       "tests": [
@@ -2432,7 +2915,10 @@
           "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",
           "title": "reattaches a filtered child when detachHtml retains its element"
         }
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "application-composition",
@@ -2455,20 +2941,52 @@
       ],
       "docs": [
         {
-          "file": "docs/marionette.application.md",
-          "heading": "Application Lifecycle"
+          "file": "docs/api/application.md",
+          "heading": "Child Applications",
+          "members": [
+            "childApps",
+            "addChildApp",
+            "removeChildApp",
+            "getChildApp",
+            "getChildApps",
+            "hasChildApp",
+            "getName"
+          ]
         },
         {
-          "file": "docs/marionette.application.md",
-          "heading": "Application Ownership"
+          "file": "docs/api/application.md",
+          "heading": "Root View and Region",
+          "members": [
+            "region",
+            "regionClass",
+            "getRegion",
+            "getView",
+            "setView",
+            "showView"
+          ]
         },
         {
-          "file": "docs/events.class.md",
-          "heading": "Application Events"
+          "file": "docs/api/application.md",
+          "heading": "Lifecycle methods and results",
+          "members": [
+            "isRunning",
+            "isDestroyed"
+          ]
         },
         {
-          "file": "docs/marionette.application.md",
-          "heading": "`setView(view)`"
+          "file": "docs/api/application.md",
+          "heading": "Construction and options",
+          "members": [
+            "initialize",
+            "preinitialize"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "View events",
+          "members": [
+            "viewEvents"
+          ]
         }
       ],
       "tests": [
@@ -2531,8 +3049,15 @@
         "setView",
         "showView",
         "isRunning",
-        "isDestroyed"
-      ]
+        "isDestroyed",
+        "viewEvents",
+        "childApps",
+        "region",
+        "regionClass"
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     },
     {
       "id": "class-configuration",
@@ -2556,12 +3081,16 @@
       "diagnostics": [],
       "docs": [
         {
-          "file": "docs/runtime-isolation.md",
-          "heading": "Configuration method contract"
+          "file": "docs/api/runtime.md",
+          "heading": "Choose a configuration scope"
         },
         {
-          "file": "docs/utils.md",
-          "heading": "extend"
+          "file": "docs/api/shared/common.md",
+          "heading": "Define a class"
+        },
+        {
+          "file": "docs/api/runtime.md",
+          "heading": "Isolation and composition"
         }
       ],
       "tests": [
@@ -2591,7 +3120,10 @@
         "setDataApi",
         "setStateApi",
         "setEventDelegator"
-      ]
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     }
   ]
 }

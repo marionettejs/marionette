@@ -42,7 +42,7 @@ test('packed guides keep source bytes and resolve at repository-relative paths',
   const unpack = file => execFileSync('tar', ['-xOf', tarball, `package/${file}`], { encoding: 'utf8' });
   assert.deepEqual(JSON.parse(unpack('package.json')), {
     ...JSON.parse(pkg),
-    files: ['dist/', 'readme.md', 'upgradeGuide.md', 'license.txt', 'docs/view.md', 'docs/guide(v2).md', 'docs-manifest.json', 'starter/'],
+    files: ['dist/', 'readme.md', 'upgradeGuide.md', 'license.txt', 'docs/view.md', 'docs/guide(v2).md', 'docs-manifest.json'],
   });
   assert.equal(await readFile(resolve(root, 'package.json'), 'utf8'), pkg);
   assert.equal(unpack('readme.md'), source);

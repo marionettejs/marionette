@@ -74,13 +74,33 @@ export function validateSemantics(root, semantics, entrypoints) {
       }
     }
     if (!contract.entrypoints?.length || contract.entrypoints.some(name => !names.has(name)) ||
-        !contract.exports?.length || !contract.docs?.length || !contract.tests?.length || !Array.isArray(contract.diagnostics)) {
+        !contract.exports?.length || !Array.isArray(contract.docs) || !contract.tests?.length || !Array.isArray(contract.diagnostics)) {
       throw new Error(`Incomplete references: ${contract.id}`);
+    }
+    const coverage = contract.documentation;
+    if (!coverage || !['documented', 'partial', 'missing'].includes(coverage.status)) {
+      throw new Error(`Missing or invalid documentation coverage: ${contract.id}`);
+    }
+    if (coverage.status !== 'documented' && (typeof coverage.reason !== 'string' || !coverage.reason.trim())) {
+      throw new Error(`Missing documentation gap reason: ${contract.id}`);
+    }
+    if ((coverage.status === 'missing') !== (contract.docs.length === 0)) {
+      throw new Error(`Documentation coverage disagrees with references: ${contract.id}`);
     }
     for (const code of contract.diagnostics) {
       if (!diagnostics.has(code)) { throw new Error(`Unknown or retired diagnostic ${code}: ${contract.id}`); }
     }
     for (const doc of contract.docs) {
+      for (const field of ['members', 'exports']) {
+        if (doc[field] !== undefined && (!Array.isArray(doc[field]) || !doc[field].length ||
+            doc[field].some(name => typeof name !== 'string' || !name))) {
+          throw new Error(`Invalid documentation ${field}: ${contract.id}`);
+        }
+      }
+      if (doc.exports?.some(name => !contract.exports.includes('*') && !contract.exports.includes(name)) ||
+          doc.members?.some(name => contract.members && !contract.members.includes(name))) {
+        throw new Error(`Documentation scope outside contract: ${contract.id}`);
+      }
       const text = readFileSync(resolve(root, doc.file), 'utf8');
       const heading = text.split('\n').findIndex(line => /^#{1,6} /.test(line) && line.replace(/^#+ /, '').trim() === doc.heading);
       if (heading < 0) { throw new Error(`Missing documentation heading: ${doc.file} ${doc.heading}`); }
@@ -157,6 +177,9 @@ export function generateInventory(root, semantics) {
   }
   const matched = new Set();
   const matchedMembers = new Map();
+  const matchedDocs = new Set();
+  const matchedDocMembers = new Map();
+  const matchedDocExports = new Map();
   const surfaces = entrypoints.filter(entry => entry.kind === 'runtime').map(entry => {
     const source = program.getSourceFile(resolve(root, entry.source));
     if (!source) { throw new Error(`Missing public source: ${entry.source}`); }
@@ -202,9 +225,9 @@ export function generateInventory(root, semantics) {
           record.returns = calls.map(signature => members(checker.getReturnTypeOfSignature(signature)));
         }
       }
+      const available = new Set([...Object.keys(properties), ...Object.keys(record.instance || {}),
+        ...(record.returns || []).flatMap(value => Object.keys(value))]);
       for (const contract of contracts.filter(item => item.members)) {
-        const available = new Set([...Object.keys(properties), ...Object.keys(record.instance || {}),
-          ...(record.returns || []).flatMap(value => Object.keys(value))]);
         const known = matchedMembers.get(contract.id) || new Set();
         for (const member of contract.members.filter(name => available.has(name))) { known.add(member); }
         matchedMembers.set(contract.id, known);
@@ -212,8 +235,27 @@ export function generateInventory(root, semantics) {
           throw new Error(`No matching members for ${contract.id} on ${entry.name}#${symbol.name}`);
         }
       }
-      record.operationContracts = Object.fromEntries([
-        ['static', record.callableMembers || []], ['instance', record.callableInstanceMembers || []]
+      for (const contract of contracts) {
+        contract.docs.forEach((doc, index) => {
+          const key = `${contract.id}:${index}`;
+          if (!doc.exports || doc.exports.includes(symbol.name)) {
+            const names = matchedDocExports.get(key) || new Set();
+            names.add(symbol.name);
+            matchedDocExports.set(key, names);
+            const memberNames = matchedDocMembers.get(key) || new Set();
+            for (const name of doc.members || []) {
+              if (available.has(name)) { memberNames.add(name); }
+            }
+            matchedDocMembers.set(key, memberNames);
+          }
+          if ((!doc.exports || doc.exports.includes(symbol.name)) && (!doc.members || doc.members.some(name =>
+            available.has(name)))) {
+            matchedDocs.add(key);
+          }
+        });
+      }
+      record.memberContracts = Object.fromEntries([
+        ['static', Object.keys(properties)], ['instance', Object.keys(record.instance || {})]
       ].filter(([, names]) => names.length).map(([placement, names]) => [placement,
         Object.fromEntries(names.map(name => [name, contracts.filter(contract =>
           !contract.members || contract.members.includes(name)).map(contract => contract.id)]))]));
@@ -228,6 +270,14 @@ export function generateInventory(root, semantics) {
         throw new Error(`Unknown semantic member: ${contract.id}.${member}`);
       }
     }
+    contract.docs.forEach((doc, index) => {
+      const key = `${contract.id}:${index}`;
+      if ((doc.members || doc.exports) && (!matchedDocs.has(key) ||
+          doc.members?.some(name => !matchedDocMembers.get(key)?.has(name)) ||
+          doc.exports?.some(name => !matchedDocExports.get(key)?.has(name)))) {
+        throw new Error(`Unused documentation scope: ${contract.id} ${doc.file} ${doc.heading}`);
+      }
+    });
   }
   const sources = Object.fromEntries(program.getSourceFiles().filter(file =>
     !file.isDeclarationFile && /^(src|packages\/[^/]+\/src)\//.test(localPath(file.fileName)))
@@ -246,8 +296,9 @@ export function generateInventory(root, semantics) {
     }
     visit(source);
   }
-  return { schemaVersion: 1, authority: 'authored TypeScript and explicit public behavioral evidence',
+  return { schemaVersion: 2, authority: 'authored TypeScript and explicit public behavioral evidence',
     semanticsSha256: digest(JSON.stringify(semantics)), entrypoints: surfaces,
+    documentationCoverage: semantics.contracts.map(({ id, documentation, docs }) => ({ id, ...documentation, docs })),
     diagnostics: readJson(resolve(root, 'config/diagnostics/catalog.json')).diagnostics
       .filter(item => item.status === 'active').map(({ code, slug, objects }) => ({ code, slug, objects })),
     toolingEntrypoints: entrypoints.filter(entry => entry.kind === 'development-tooling'),

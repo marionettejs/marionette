@@ -62,8 +62,14 @@ for (const [name, integrity, lock, expected] of [
     const npmCli = join(directory, 'npm.mjs');
     await writeFile(npmCli, `import { writeFileSync } from 'node:fs';
 writeFileSync('package-lock.json', ${JSON.stringify(JSON.stringify({ packages: { ...external, ...lock } }))});`);
-    await assert.rejects(buildDevelopmentKit({ source, toolingLock: join(source, 'package-lock.json'), artifactDir, sourceCommit: 'selected', npmCli,
-      packages: [{ name: 'marionette', tarball: { file: 'candidate.tgz', integrity } }]
+    await assert.rejects(buildDevelopmentKit({ source, toolingLock: join(source, 'package-lock.json'), artifactDir, sourceCommit: 'selected', npmCli, sourceFiles: ['package.json'],
+      packages: [{ name: 'marionette', version: '5.0.0-test.1', tarball: { file: 'candidate.tgz', integrity } }]
     }), expected);
+  });
+}
+
+for (const sourceFiles of [undefined, [], ['readme.md'], ['package.json', 'package.json']]) {
+  test(`development kit requires an explicit source list: ${JSON.stringify(sourceFiles)}`, async() => {
+    await assert.rejects(buildDevelopmentKit({ sourceFiles }), /explicit unique sourceFiles list/);
   });
 }

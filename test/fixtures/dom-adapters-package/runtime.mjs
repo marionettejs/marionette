@@ -16,7 +16,8 @@ try {
     assert.throws(() => require.resolve(peer), { code: 'MODULE_NOT_FOUND' }, `${peer} leaked into fixture`);
   }
 
-  const { View, Region } = format === 'esm' ? await import('marionette') : require('marionette');
+  const core = format === 'esm' ? await import('marionette') : require('marionette');
+  const { View, Region } = core;
   const specifier = `@mnjs/adapters/dom/${provider}`;
   const adapter = format === 'esm' ? (await import(specifier)).default : require(specifier);
   assert.equal(typeof adapter.setContents, 'function', `${format} adapter did not export DOM operations`);
@@ -63,6 +64,12 @@ try {
   if (provider === 'lit-html') {
     assert.deepEqual(log, ['connected', 'disconnected', 'connected', 'disconnected']);
     assert.equal(root.querySelector('button'), button);
+  }
+  if (provider === 'lit-html') {
+    const data = format === 'esm' ? await import('@mnjs/data') : require('@mnjs/data');
+    const { verifyLitIntegration } = await import('./integration.mjs');
+    verifyLitIntegration(core, data, adapter);
+    console.log(`Validated external Lit host and CollectionView subscription accounting (${format})`);
   }
   console.log(`Validated isolated ${provider} ${format} package`);
 } finally {

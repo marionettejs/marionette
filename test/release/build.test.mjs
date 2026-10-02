@@ -19,6 +19,15 @@ async function buildFixture(t, { version = '5.0.0-test.1', manifestMutation } = 
   await writeFile(resolve(candidate.root, '.gitignore'), 'dist/\n.package/\nnode_modules/\ntest/tmp/\n');
   await mkdir(resolve(candidate.root, 'test/fixtures/data-package-starter'), { recursive: true });
   await writeFile(resolve(candidate.root, 'test/fixtures/data-package-starter/package-lock.json'), JSON.stringify({ packages: {} }));
+  await writeFile(resolve(candidate.root, 'test/fixtures/data-package-starter/package.json'), JSON.stringify({ name: 'validation-fixture', private: true, allowScripts: { 'marionette@0.0.0': true, 'fsevents@2.3.3': true } }));
+  for (const file of ['AGENTS.md', 'playwright.config.mjs', 'workspace.browser.spec.mjs', 'gitignore',
+    'index.html', 'main.ts', 'setup.ts', 'workspace.ts', 'workspace-views.ts', 'notes.ts',
+    'workspace.test.mjs', 'readme.md', 'tsconfig.json', 'eslint.config.mjs', 'vite.config.mjs']) {
+    await writeFile(resolve(candidate.root, 'test/fixtures/data-package-starter', file), 'fixture');
+  }
+  await mkdir(resolve(candidate.root, 'test/fixtures/data-package-starter/node_modules'), { recursive: true });
+  await writeFile(resolve(candidate.root, 'test/fixtures/data-package-starter/node_modules/local-only.js'), 'not a release input');
+  await writeFile(resolve(candidate.root, 'test/fixtures/data-package-starter/unlisted.txt'), 'not a release input');
   await mkdir(resolve(candidate.root, 'scripts/performance'), { recursive: true });
   await writeFile(resolve(candidate.root, 'scripts/performance/bundle-size.mjs'), 'console.log(JSON.stringify({ fixture: \'bundle measured\' }));\n');
   git(candidate.root, ['add', '.']);
@@ -40,13 +49,11 @@ if (args[0] === 'run') {
   if (args[1] === 'build') { mkdirSync('dist', { recursive: true }); writeFileSync('dist/built.js', 'built from source');
     mkdirSync('.package', { recursive: true });
     const staged = JSON.parse(readFileSync('package.json'));
-    staged.files = [...new Set([...(staged.files || []), 'docs-manifest.json', 'starter/'])];
+    staged.files = [...new Set([...(staged.files || []), 'docs-manifest.json'])];
     if (process.env.RELEASE_TEST_STAGE_FILES) { staged.files.push('test/'); }
     writeFileSync('.package/package.json', JSON.stringify(staged));
     writeFileSync('.package/docs-manifest.json', JSON.stringify({ pages: [], assets: [] }));
     if (process.env.RELEASE_TEST_STALE_STAGE) { writeFileSync('.package/package.json', JSON.stringify({ name: 'marionette', version: '0.0.0' })); }
-    mkdirSync('.package/starter', { recursive: true });
-    writeFileSync('.package/starter/package.json', JSON.stringify({ name: 'starter', private: true }));
   }
   else if (args[1] === 'test:dist') { assert.equal(readFileSync('dist/built.js', 'utf8'), 'built from source'); }
   else { throw new Error('Unexpected npm run: ' + args); }
@@ -102,6 +109,12 @@ for (const version of ['5.0.0-test.1', '5.0.0']) {
     assert.equal(files.length, 17);
     assert.ok(files.includes('START-HERE.md'));
     assert.ok(files.includes('starter'));
+    const fixtureFiles = await readdir(resolve(candidate.output, 'starter'));
+    assert.equal(fixtureFiles.includes('node_modules'), false);
+    assert.equal(fixtureFiles.includes('unlisted.txt'), false);
+    const fixtureManifest = JSON.parse(await readFile(resolve(candidate.output, 'starter/package.json'), 'utf8'));
+    assert.deepEqual(fixtureManifest.allowScripts, { 'fsevents@2.3.3': true, [`marionette@${version}`]: false });
+    assert.match(await readFile(resolve(candidate.output, 'START-HERE.md'), 'utf8'), /release validation fixture/);
     for (const entry of evidence.packages) {
       assert.ok(files.includes(entry.tarball.file));
       assert.equal(entry.tarball.sha512, hash(await readFile(resolve(candidate.output, entry.tarball.file))));

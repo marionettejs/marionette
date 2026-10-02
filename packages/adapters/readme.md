@@ -235,3 +235,10 @@ Release the previous owner first; one element cannot have two active View owners
 Lit event handlers use Lit's normal element receiver; use closures when a
 handler needs application or View state. Do not independently replace Lit's
 contents or switch content adapters after rendering.
+
+## Version-matched reference
+
+When the matching Marionette candidate is installed, locate its `package.json` with
+`require.resolve('marionette/package.json')`. Read `docs/packages/adapters.md` beside
+that file for the five adapter subpaths, provider configuration, ownership and
+cleanup, optional peers, and exported types.

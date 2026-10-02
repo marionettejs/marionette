@@ -9,7 +9,7 @@ const shownMentions = 5;
 
 export function validateSymbolIndex(index, sectionIds) {
   const contracts = index?.contracts;
-  if (index?.schemaVersion !== 1 || !Array.isArray(index.symbols) || !isMap(contracts)) {
+  if (index?.schemaVersion !== 2 || !Array.isArray(index.symbols) || !isMap(contracts)) {
     throw new Error('Unsupported documentation symbol index.');
   }
   for (const contract of Object.values(contracts)) {
@@ -19,22 +19,24 @@ export function validateSymbolIndex(index, sectionIds) {
   const known = ids => Array.isArray(ids) && ids.every(id => typeof id === 'string' && Object.hasOwn(contracts, id));
   for (const symbol of index.symbols) {
     if (typeof symbol?.entrypoint !== 'string' || typeof symbol.name !== 'string' ||
-        typeof symbol.signature !== 'string' || !known(symbol.contracts)) { throw invalid(); }
+        !['value', 'type'].includes(symbol.kind) || typeof symbol.signature !== 'string' || !known(symbol.contracts)) { throw invalid(); }
     for (const [key] of accesses) {
       if (symbol[key] !== undefined && (!isMap(symbol[key]) || !Object.values(symbol[key]).every(member =>
-        typeof member?.signature === 'string' && known(member.contracts)))) { throw invalid(); }
+        typeof member?.signature === 'string' && known(member.contracts) &&
+        Array.isArray(member.primarySections) && member.primarySections.every(id => sectionIds.has(id) &&
+          member.contracts.some(contract => contracts[contract].sections.includes(id)))))) { throw invalid(); }
     }
   }
 }
 
 // Sections on the member's contract pages whose own text, before any subsection,
 // uses it in code, in contract order; headings naming the member come first.
-// Link text and event names such as `before:destroy` do not document the method.
-function mentions(key, contractIds, index, sections, files) {
-  const name = new RegExp(`(?<![\\w$:])${key.replaceAll('$', '\\$')}(?![\\w$:])`);
+// A trailing declaration colon is allowed; event fragments and link text are not.
+function mentions(key, contractIds, index, sections, files, primarySections) {
+  const name = new RegExp(`(?<![\\w$:])${key.replaceAll('$', '\\$')}(?![\\w$]|:[\\w$])`);
   const pages = [...new Set(contractIds.flatMap(id => index.contracts[id].sections.map(section => section.split('#')[0])))];
   const hits = sections.flatMap((section, position) => {
-    if (section.depth === 0 || !pages.includes(section.source)) { return []; }
+    if (section.depth === 0 || !pages.includes(section.source) || primarySections.includes(section.id)) { return []; }
     const next = sections[position + 1];
     const own = files.get(section.source).content.toString('utf8')
       .slice(section.start, next?.source === section.source ? next.start : section.end)
@@ -57,8 +59,9 @@ export function findSymbols(index, sections, files, query) {
   const [, name, member] = parts;
   const members = (symbol, key) => accesses.flatMap(([property, access]) => {
     const operation = symbol[property] && Object.hasOwn(symbol[property], key) && symbol[property][key];
-    return operation ? [{ entrypoint: symbol.entrypoint, name: symbol.name, member: key, access, ...operation,
-      ...mentions(key, operation.contracts, index, sections, files) }] : [];
+    if (!operation) { return []; }
+    const found = mentions(key, operation.contracts, index, sections, files, operation.primarySections);
+    return [{ entrypoint: symbol.entrypoint, name: symbol.name, member: key, access, ...operation, ...found }];
   });
   const exports = index.symbols.filter(symbol => symbol.name === name);
   let matches;
@@ -78,13 +81,7 @@ export function findSymbols(index, sections, files, query) {
         index.symbols.filter(symbol => symbol.kind !== 'value').flatMap(symbol => members(symbol, name)),
     ];
   }
-  const byId = new Map(sections.map(section => [section.id, section]));
-  const contracts = Object.fromEntries([...new Set(matches.flatMap(match => match.contracts))].map(id => [id, {
-    diagnostics: index.contracts[id].diagnostics,
-    sections: index.contracts[id].sections.map(sectionId => {
-      const { heading, ancestors, start, end } = byId.get(sectionId);
-      return { id: sectionId, heading, ancestors, characters: end - start };
-    }),
-  }]));
+  const contracts = Object.fromEntries([...new Set(matches.flatMap(match => match.contracts))]
+    .map(id => [id, index.contracts[id]]));
   return { query, matches, contracts };
 }

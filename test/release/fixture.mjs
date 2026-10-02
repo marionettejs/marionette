@@ -52,7 +52,7 @@ async function fixture(t, { publication = { stable: false, prerelease: null }, v
   await writeFile(resolve(root, '.gitignore'), 'test/tmp/\n');
   git(root, ['init', '-q']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.name=Release CLI tests', '-c', 'user.email=release-tests@example.invalid',
+  git(root, ['-c', 'commit.gpgsign=false', '-c', 'user.name=Release CLI tests', '-c', 'user.email=release-tests@example.invalid',
     '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'test fixture']);
   const commit = git(root, ['rev-parse', 'HEAD']);
   const profileBytes = await readFile(resolve(root, 'config/release-profile.json'));

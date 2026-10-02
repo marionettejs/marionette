@@ -1,5 +1,5 @@
 import { cp, readFile, rm, writeFile } from 'node:fs/promises';
-import { posix, resolve } from 'node:path';
+import { basename, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const start = '<!-- task-routes:start -->';
@@ -12,8 +12,10 @@ export function skillRoutes(guide, skill) {
   }
   const rows = table.trim().split('\n').slice(2).map(line => {
     const [, task, links] = line.split('|');
-    const sources = [...links.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)].map(([, href]) =>
-      `\`${posix.normalize(posix.join('docs', href.split('#')[0]))}\``);
+    const sources = [...links.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)].map(([, href]) => {
+      const [source, fragment] = href.split('#');
+      return `\`${posix.normalize(posix.join('docs', source))}${fragment ? `#${fragment}` : ''}\``;
+    });
     if (!sources.length) { throw new Error(`AGENT_ROUTES: no guide for ${task.trim()}`); }
     return `| ${task.trim()} | ${sources.join(', ')} |`;
   });
@@ -30,7 +32,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     await writeFile(path, generated);
     const destination = resolve(root, 'plugins/marionette/skills/marionette');
     await rm(destination, { recursive: true, force: true });
-    await cp(resolve(root, 'skills/marionette'), destination, { recursive: true });
+    await cp(resolve(root, 'skills/marionette'), destination, { recursive: true, filter: entry => basename(entry) !== '.DS_Store' });
   } else if (skill !== generated) {
     throw new Error('AGENT_ROUTES: run node scripts/docs/agent-routes.mjs --write');
   }

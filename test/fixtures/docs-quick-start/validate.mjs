@@ -1,84 +1,43 @@
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
 import { JSDOM } from 'jsdom';
 
-const documentUrl = new URL('../../../docs/quick-start.md', import.meta.url);
-const source = await readFile(documentUrl, 'utf8');
+const require = createRequire(import.meta.url);
+const packageRoot = new URL('./', pathToFileURL(require.resolve('marionette/package.json')));
+const source = await readFile(new URL('docs/quick-start.md', packageRoot), 'utf8');
+const html = [...source.matchAll(/```html\n([\s\S]*?)```/g)];
+const javascript = [...source.matchAll(/```js\n([\s\S]*?)```/g)];
+assert.equal(html.length, 1, 'Quick start contains one complete document');
+assert.equal(javascript.length, 1, 'Quick start contains one complete entry module');
+const dom = new JSDOM(html[0][1], { url: 'https://example.test/' });
+for (const key of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'DocumentFragment']) {
+  globalThis[key] = dom.window[key];
+}
 const output = new URL('./dist/', import.meta.url);
 await mkdir(output, { recursive: true });
-async function example(marker, name) {
-  assert.equal(source.split(marker).length, 2);
-  const code = source.slice(source.indexOf(marker) + marker.length).match(/^\s*```javascript\n([\s\S]*?)\n```/);
-  assert.ok(code);
-  const url = new URL(name, output);
-  await writeFile(url, code[1]);
-  return import(url);
+// Add exports solely to inspect the objects created by the unchanged doc fence.
+const script = new URL('main.mjs', output);
+await writeFile(script, `${javascript[0][1]}\nexport { region, WelcomeView };\n`);
+try {
+  assert.throws(() => require.resolve('@mnjs/data'), { code: 'MODULE_NOT_FOUND' },
+    'The first UI must work without the optional data package');
+  const { region, WelcomeView } = await import(script);
+  const first = region.currentView;
+  assert.equal(document.querySelector('#app h1')?.textContent, 'Hello, Marionette');
+  assert.equal(first.isRendered(), true);
+  assert.equal(first.isAttached(), true);
+  const replacement = new WelcomeView();
+  region.show(replacement);
+  assert.equal(first.isDestroyed(), true);
+  assert.equal(region.currentView, replacement);
+  assert.equal(document.querySelectorAll('#app h1').length, 1);
+  region.empty();
+  assert.equal(replacement.isDestroyed(), true);
+  assert.equal(document.querySelector('#app').children.length, 0);
+  region.destroy();
+} finally {
+  dom.window.close();
 }
-const dom = new JSDOM('<!doctype html><main id="app"></main><main id="feature"></main>');
-globalThis.window = dom.window;
-globalThis.document = dom.window.document;
-const { Region } = await import('marionette');
-const { region, screen } = await example('<!-- executable-example: quick-start-screen -->', 'screen.mjs');
-assert.equal(screen.el.querySelectorAll('li').length, 2);
-const rows = screen.getChildView('rows');
-const first = rows.children.findByIndex(0);
-let selectedChild;
-rows.on('selected', (record, child) => { selectedChild = child; });
-screen.el.querySelector('button').click();
-assert.equal(selectedChild, first);
-assert.equal(screen.el.querySelector('output').textContent, 'First post');
-rows.collection.push({ label: 'Third post' });
-assert.equal(rows.children.length, 2);
-rows.render();
-assert.equal(rows.children.length, 3);
-assert.equal(first.isDestroyed(), true);
-rows.collection.push({ label: '<img src=x onerror=alert(1)>' });
-screen.render();
-const rebuilt = screen.getChildView('rows');
-assert.equal(rebuilt.children.length, 4);
-assert.equal(rebuilt.el.querySelectorAll('img').length, 0);
-assert.equal(rebuilt.el.lastElementChild.textContent, '<img src=x onerror=alert(1)>');
-region.destroy();
-assert.equal(screen.isDestroyed(), true);
-assert.equal(rows.isDestroyed(), true);
-
-const { Search } = await example('<!-- executable-example: quick-start-behavior -->', 'behavior.mjs');
-const search = new Search();
-const searchRegion = new Region({ el: '#app' });
-searchRegion.show(search);
-const queries = [];
-let clearedControl;
-search.on('query:changed', (value, control) => {
-  queries.push(value);
-  clearedControl = control;
-});
-const input = search.getUI('query')[0];
-input.value = 'hello';
-input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
-const clearButton = search.el.querySelector('button');
-clearButton.querySelector('span').click();
-assert.equal(clearedControl, clearButton, 'delegateTarget identifies the matched button for a nested click');
-assert.deepEqual(queries, ['hello', '']);
-assert.equal(input.value, '');
-searchRegion.destroy();
-
-const { Feature } = await example('<!-- executable-example: quick-start-application -->', 'application.mjs');
-const feature = new Feature({ region: { el: document.querySelector('#feature') }, channelName: 'first-feature' });
-await feature.start();
-assert.equal(feature.isRunning(), true);
-assert.equal(document.querySelector('#feature').textContent, 'Ready');
-const other = new Feature({ region: { el: document.querySelector('#app') }, channelName: 'other-feature' });
-await other.start();
-const otherView = other.getView();
-const previous = feature.getView();
-feature.refresh();
-assert.equal(previous.isDestroyed(), true);
-assert.equal(other.getView(), otherView);
-assert.equal(otherView.isDestroyed(), false);
-await other.destroy();
-await feature.destroy();
-assert.equal(feature.isDestroyed(), true);
-feature.refresh();
-assert.equal(document.querySelector('#feature').textContent, '');
-dom.window.close();
-console.log('Quick-start documentation examples passed.');
+console.log('Installed quick-start HTML and entry module passed: render, replacement, cleanup, no optional data.');

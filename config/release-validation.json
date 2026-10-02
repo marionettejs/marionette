@@ -26,8 +26,8 @@
       "title": "imported template content attaches parent and child once"
     },
     {
-      "file": "beta-starter.spec.mjs",
-      "title": "beta starter preserves draft focus, rejects stale selection and releases handlers"
+      "file": "consumer-workspace.spec.mjs",
+      "title": "consumer workspace preserves draft focus, rejects stale selection and releases handlers"
     },
     {
       "file": "collection-removal-survivors.spec.mjs",
@@ -54,8 +54,8 @@
       "title": "packed data models collections and state"
     },
     {
-      "file": "docs-form.spec.mjs",
-      "title": "documented form preserves keyboard, validation, draft, focus, retry and teardown behavior"
+      "file": "native-form.spec.mjs",
+      "title": "Native form delegation preserves validation keyboard submission focus and teardown"
     },
     {
       "file": "dom-adapters.spec.mjs",
@@ -198,8 +198,8 @@
       "title": "replacement Regions release detached children without disturbing a later owner"
     },
     {
-      "file": "starter-development.spec.mjs",
-      "title": "installed TypeScript starter releases old owners across repeated Vite edits"
+      "file": "development-kit.spec.mjs",
+      "title": "installed TypeScript consumer fixture releases old owners across repeated Vite edits"
     },
     {
       "file": "view-render-attributes.spec.mjs",
@@ -208,18 +208,6 @@
     {
       "file": "application-child-activation.spec.mjs",
       "title": "Application optional children activate explicitly and stop beneath a stopped owner"
-    },
-    {
-      "file": "application-effects.spec.mjs",
-      "title": "Application effects release synchronously on stop and reactivate on start"
-    },
-    {
-      "file": "application-refresh.spec.mjs",
-      "title": "Application refresh preserves editor focus and draft while only latest results commit"
-    },
-    {
-      "file": "application-refresh.spec.mjs",
-      "title": "canonical feed routes retry to its Application and preserves a sibling draft during pagination"
     },
     {
       "file": "application-start-region.spec.mjs",
@@ -242,16 +230,60 @@
       "title": "restart completion explicitly replaces roots without stop notifications"
     },
     {
-      "file": "docs-interaction-boundaries.spec.mjs",
-      "title": "documented row handles actual hover boundaries and nested clicks"
+      "file": "interaction-boundaries.spec.mjs",
+      "title": "Native View handles actual hover boundaries and nested clicks"
     },
     {
-      "file": "docs-interaction-boundaries.spec.mjs",
+      "file": "interaction-boundaries.spec.mjs",
       "title": "Morphdom rerender can retain a loaded iframe and its browsing state"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented local editing retains focus and cleans up borrowed-model listeners"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented existing HTML preserves native controls until the View is destroyed"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented restart retains unfinished input and focus"
     },
     {
       "file": "destroy-listener-cleanup.spec.mjs",
       "title": "a surviving owner releases replaced screens after their final notifications"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented draft save preserves input through failure and retry"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented draft teardown aborts a pending browser save"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented asynchronous navigation retains its shell through readiness and errors"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented host mount preserves the host and ends detached interaction"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented navigation handles direct links, history, focus and listener cleanup"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented list retains row input through sorting and filtering"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented accessible toggle supports keyboard and explicit replacement focus"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented dialog closes before render, detach and destroy"
     },
     {
       "file": "application-retained-restart.spec.mjs",
@@ -274,26 +306,8 @@
     "data-package-starter",
     "data-package-types",
     "data-package-vite",
-    "docs-application-guides",
-    "docs-application-state",
-    "docs-basics-contract",
-    "docs-behavior-host",
-    "docs-collectionview-child-ownership",
-    "docs-common-contract",
-    "docs-dom-api",
-    "docs-entity-events",
-    "docs-hosted-view",
-    "docs-list-composition",
     "docs-package",
-    "docs-prerendered-content",
     "docs-quick-start",
-    "docs-radio-owner",
-    "docs-region-lifecycle",
-    "docs-routing",
-    "docs-utils-contract",
-    "docs-view-child-region",
-    "docs-view-dom-interactions",
-    "docs-view-render-attributes",
     "dom-adapters-package",
     "esm-node",
     "jquery-dom-api",
