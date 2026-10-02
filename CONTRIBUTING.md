@@ -71,6 +71,14 @@ for direct root packs and Git installs; use `.package` for the documented candid
 Local packing does not establish registry publication. Release evidence and version
 labels must come from the actual published artifact.
 
+Context7 indexing is configured in root `context7.json`. Include supported release
+tags in `previousVersions` during release preparation so consumers can request
+immutable documentation. The website's [Context7 workflow](https://github.com/marionettejs/marionettejs.com/blob/main/.github/workflows/context7.yml)
+requests a refresh after verified documentation deployments and collects index
+and usage snapshots. Confirm completed indexing and version-matched snippets.
+These measurements guide documentation improvements; they do not establish
+release readiness or agent efficiency.
+
 ## Repository layout
 
 Core production source lives under `src/`:

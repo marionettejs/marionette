@@ -2,31 +2,31 @@
   "$schema": "https://context7.com/schema/context7.json",
   "url": "https://context7.com/marionettejs/marionette",
   "public_key": "pk_dDwor65yx2DOyaFDDOmVU",
-  "projectTitle": "Marionette JavaScript — v5 development",
-  "description": "Marionette v5 UI composition: Views, Regions, CollectionViews, lifecycle, and independent data, state, DOM and rendering integrations. Development source; published packages can differ.",
+  "projectTitle": "Marionette JavaScript — v5",
+  "description": "Marionette v5 JavaScript framework for Views, Regions, CollectionViews and Applications, with explicit lifecycles and configurable rendering, DOM, state and data providers.",
   "branch": "master",
+  "previousVersions": [
+    { "tag": "v5.0.0-rc.2" }
+  ],
   "folders": [
     "docs"
-  ],
-  "excludeFolders": [
-    "**/node_modules",
-    "**/dist",
-    "**/test",
-    "**/src"
   ],
   "excludeFiles": [
     "AGENTS.md",
     "CONTRIBUTING.md",
     "ROADMAP.md",
+    "SECURITY.md",
     "changelog.md",
     "license.txt"
   ],
   "rules": [
-    "Identify the installed package version and source revision before choosing documentation. This branch describes v5 development; published package content may differ.",
-    "Start with docs/agents.md and the relevant task/reference. Inspect the configured renderer and data providers before choosing an adapter; preserve an existing compatible integration.",
-    "@mnjs/data is optional and incomplete as an application data layer. API access and persistence need an API layer or another data solution.",
-    "Routing is an application integration. The router owns URLs; application code owns navigation and cancellation; Marionette owns feature and View lifecycle.",
-    "For v4 upgrades, read docs/guides/migration.md with its before/after context. APIs shown as v4 examples are not v5 contracts.",
-    "Use public package exports. Verify interaction, replacement, asynchronous completion and cleanup against the installed artifact. Choose ownership from the lifetime of the work; an asynchronous call alone does not require an Application."
+    "Match docs to the installed Marionette version; use its release tag for published packages. master may differ. Check source revision when investigating a mismatch.",
+    "Read the relevant task or API section; use docs/agents.md to find it. Inspect renderer/data providers only for integration changes, and preserve compatible existing choices.",
+    "Keep local interaction and model edits in their View. Choose ownership by the work's lifetime; async alone does not require Application. Register child Applications for ownership; start them explicitly. Regions own child UI.",
+    "Use Application for readiness and shared coordination: prepareStart loads required data using its signal; synchronous onStart applies it. Await start/restart; stop/destroy are synchronous. Active restart retains UI; construct retained shells once.",
+    "Prefer optional @mnjs/data for observable Models and Collections when suitable. It is incomplete as an application data layer: fetching and persistence require an API layer or another provider; it has no Model.save().",
+    "For v4 upgrades, read docs/guides/migration.md. APIs shown as v4 examples are not v5 contracts.",
+    "For routing, read docs/guides/routing.md. The router owns URLs, application code owns navigation and cancellation, and Marionette owns feature and View lifecycle.",
+    "Use public package exports. Verify the task's affected behavior against the installed artifact, including replacement, cancellation or teardown when relevant."
   ]
 }
