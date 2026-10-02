@@ -1,0 +1,28 @@
+test/fixtures/backbone-adapter/package.json
+  s_930f3c9a37745c::t_b3aadd8ffe55af 9
+docs/packages/adapters.md
+  s_930f3c9a37745c::t_218470039204c6 7,21
+  s_930f3c9a37745c::t_232f122d25e2a8 22
+packages/adapters/package.json
+  s_930f3c9a37745c::t_43223f9ea4133a 79
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_2ba7b19577a117 10493
+test/fixtures/backbone-adapter/package-lock.json
+  s_930f3c9a37745c::t_3c5795f4341611 9,13-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0b08f76a21a48a56b08144c8cef30b8611af195f",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
