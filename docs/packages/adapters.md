@@ -4,7 +4,7 @@ Optional integrations for existing data sources and DOM libraries. Import the su
 
 | Subpath | Default export | Peer used by the application |
 | --- | --- | --- |
-| `@mnjs/adapters/backbone` | `BackboneApi` | Backbone `^1.4.0`; TypeScript also needs `@types/backbone` `^1.4.23`. |
+| `@mnjs/adapters/backbone` | `BackboneApi` | Backbone `^1.3.1`; TypeScript also needs `@types/backbone` `^1.4.23`. |
 | `@mnjs/adapters/xstate` | `createXStateActorApi` | XState v5 actors; the integration is tested with `5.33.2`. It uses structural actor interfaces and does not import XState. |
 | `@mnjs/adapters/dom/jquery` | `JQueryDomApi` | jQuery `^4.0.0`; TypeScript also needs `@types/jquery` `^4.0.1`. |
 | `@mnjs/adapters/dom/morphdom` | `MorphdomDomApi` | Morphdom `^2.7.8`. |
@@ -17,6 +17,8 @@ Data and state configuration are independent. Choosing a data adapter does not r
 ## Backbone
 
 `BackboneApi` implements both DataApi and StateApi without modifying Backbone sources or prototypes. Configure a CollectionView and its child View class when both consume Backbone data. Configure StateApi separately for owners whose state uses Backbone.
+
+Backbone 1.3.1 is the runtime minimum: collection observation reads the added and removed model arrays from the `update` event's `options.changes` payload. Backbone 1.2.3 emits `update` without that payload and cannot supply this contract. The Backbone data adapter does not require jQuery; the jQuery DOM adapter has its own peer requirement.
 
 ```js
 import Backbone from 'backbone';
