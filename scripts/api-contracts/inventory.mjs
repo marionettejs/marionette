@@ -225,9 +225,9 @@ export function generateInventory(root, semantics) {
           record.returns = calls.map(signature => members(checker.getReturnTypeOfSignature(signature)));
         }
       }
+      const available = new Set([...Object.keys(properties), ...Object.keys(record.instance || {}),
+        ...(record.returns || []).flatMap(value => Object.keys(value))]);
       for (const contract of contracts.filter(item => item.members)) {
-        const available = new Set([...Object.keys(properties), ...Object.keys(record.instance || {}),
-          ...(record.returns || []).flatMap(value => Object.keys(value))]);
         const known = matchedMembers.get(contract.id) || new Set();
         for (const member of contract.members.filter(name => available.has(name))) { known.add(member); }
         matchedMembers.set(contract.id, known);
@@ -244,12 +244,12 @@ export function generateInventory(root, semantics) {
             matchedDocExports.set(key, names);
             const memberNames = matchedDocMembers.get(key) || new Set();
             for (const name of doc.members || []) {
-              if (Object.hasOwn(properties, name) || Object.hasOwn(record.instance || {}, name)) { memberNames.add(name); }
+              if (available.has(name)) { memberNames.add(name); }
             }
             matchedDocMembers.set(key, memberNames);
           }
           if ((!doc.exports || doc.exports.includes(symbol.name)) && (!doc.members || doc.members.some(name =>
-            Object.hasOwn(properties, name) || Object.hasOwn(record.instance || {}, name)))) {
+            available.has(name)))) {
             matchedDocs.add(key);
           }
         });

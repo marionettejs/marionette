@@ -13,7 +13,7 @@ These guides target **5.0.0-rc.2**. Use the docs bundled with the release candid
 1. [Render a View in a Region](quick-start.md).
 2. [Handle DOM events](api/shared/view-bindings.md#dom-events), then [edit local data](guides/local-editing.md). A View can save its own model when its data or API layer provides persistence.
 3. [Add observable data](integrations/setup.md) and [compose Views with Regions](architecture.md#choose-a-responsibility), or [display a list](guides/lists.md). Optional `@mnjs/data` supplies observation; fetching and persistence require a separate API layer or another data solution.
-4. When the feature needs readiness or an independent lifetime, [prepare and activate an Application](architecture.md#prepare-a-feature-then-activate-its-ui). [Retained restart](guides/retained-restart.md) repeats readiness while preserving the shell and local input. [Records](records.md) brings these pieces together.
+4. When the feature needs readiness or an independent lifetime, [prepare and activate an Application](architecture.md#prepare-a-feature-then-activate-its-ui). [Retained restart](guides/retained-restart.md) repeats readiness while preserving the shell and local input. Child Applications are started or restarted explicitly. [Records](records.md) brings these pieces together.
 
 ## Common tasks
 

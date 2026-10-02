@@ -10,7 +10,10 @@ const version = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).
 const packages = releasePackages.map(pkg => ({ name: pkg.name, version,
   file: `${pkg.name.replace(/^@/, '').replace('/', '-')}-${version}.tgz` }));
 const docs = readFileSync(resolve(root, 'docs/quick-start.md'), 'utf8');
-const setup = docs.match(/```sh\n([\s\S]*?)```/)[1];
+const project = docs.split('## Create the project\n')[1]?.split('\n## ')[0];
+const setupBlock = project?.match(/```sh\n([\s\S]*?)```/);
+assert.ok(setupBlock, 'Quick start Create the project requires a sh setup block');
+const setup = setupBlock[1];
 
 test('quick-start certification replaces exact release npm specs with supplied artifact bytes', () => {
   const command = artifactSetupCommand(setup, packages);

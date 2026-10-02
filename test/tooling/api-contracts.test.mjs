@@ -109,6 +109,26 @@ test('rejects stale or misplaced documentation member and export selectors', () 
     docs: [{ ...base.docs[0], members: ['label'] }] }, semantics.contracts[1]] }), /Documentation scope outside contract/);
 });
 
+test('validates documentation member scopes on factory returned adapter protocols', () => {
+  const file = 'packages/adapters/src/index.ts';
+  const original = readFileSync(resolve(temporary, file), 'utf8');
+  const factory = { ...base, id: 'factory', entrypoints: ['@mnjs/adapters'], exports: ['createAdapter'],
+    members: ['subscribe', 'enabled'],
+    docs: [{ ...base.docs[0], exports: ['createAdapter'], members: ['subscribe', 'enabled'] }] };
+  try {
+    write(file, `${original}\nexport function createAdapter() { return { subscribe(): void {}, enabled: true }; }\n`);
+    const inventory = generateInventory(temporary, { contracts: [...semantics.contracts, factory] });
+    const adapter = inventory.entrypoints.find(entry => entry.name === '@mnjs/adapters').exports
+      .find(entry => entry.name === 'createAdapter');
+    assert.deepEqual(adapter.returns, [{ enabled: 'boolean', subscribe: '() => void' }]);
+    assert.throws(() => generateInventory(temporary, { contracts: [...semantics.contracts,
+      { ...factory, members: undefined, docs: [{ ...factory.docs[0], members: ['subscribe', 'missing'] }] }] }),
+    /Unused documentation scope/);
+  } finally {
+    write(file, original);
+  }
+});
+
 test('rejects absent or ambiguous exact tests, removed headings, incomplete semantics and retired diagnostics', () => {
   const check = override => validateSemantics(temporary, { contracts: [{ ...base, ...override }] }, publicEntrypoints(temporary));
   assert.throws(() => check({ tests: [{ ...base.tests[0], title: 'absent' }] }), /Missing or ambiguous public test/);
