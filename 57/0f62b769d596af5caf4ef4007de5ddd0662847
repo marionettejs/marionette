@@ -1,0 +1,65 @@
+docs/readme.md
+  s_930f3c9a37745c::t_e8338f640ba8c5 3
+docs/guides/lists.md
+  s_930f3c9a37745c::t_0ff69e3b40c690 93
+examples/records/scripts/build-local-packages.mjs
+  s_930f3c9a37745c::t_0ff69e3b40c690 4-6,13,19
+test/docs/quick-start.mjs
+  s_930f3c9a37745c::t_a0e899cabe6351 16-32,104-105,190
+test/agent-docs/symbols.test.mjs
+  s_930f3c9a37745c::t_0ff69e3b40c690 89-92
+test/README.md
+  s_930f3c9a37745c::t_a0e899cabe6351 60-61,68-69
+  s_930f3c9a37745c::t_88c70a94a7ce1a 62-64
+plugins/marionette/skills/marionette/scripts/symbols.mjs
+  s_930f3c9a37745c::t_0ff69e3b40c690 22
+docs/guides/testing.md
+  s_930f3c9a37745c::t_0ff69e3b40c690 196
+skills/marionette/scripts/symbols.mjs
+  s_930f3c9a37745c::t_0ff69e3b40c690 22
+docs/api/application.md
+  s_930f3c9a37745c::t_0ff69e3b40c690 125-126,128
+docs/guides/production.md
+  s_930f3c9a37745c::t_ba8cc5f4943799 7
+  s_930f3c9a37745c::t_e045cc93c4c29e 29
+  s_930f3c9a37745c::t_02e08dd05074ad 30
+docs/integrations/setup.md
+  s_930f3c9a37745c::t_ba8cc5f4943799 7,10
+docs/guides/existing-ui.md
+  s_930f3c9a37745c::t_0ff69e3b40c690 7
+docs/records.md
+  s_930f3c9a37745c::t_e8338f640ba8c5 9,71
+docs/guides/routing.md
+  s_930f3c9a37745c::t_e8338f640ba8c5 111,136,142,151
+docs/quick-start.md
+  s_930f3c9a37745c::t_ba8cc5f4943799 5,7,11,18,22
+test/docs/quick-start.test.mjs
+  s_930f3c9a37745c::t_10b5717d60bfeb 1-39
+docs/guides/migration.md
+  s_930f3c9a37745c::t_0ff69e3b40c690 66
+  s_930f3c9a37745c::t_838b25b9418ea4 7
+config/api-contracts/inventory.json
+  s_930f3c9a37745c::t_3f69bcaa51cb9d 10478,10493,10496
+docs/packages/adapters.md
+  s_930f3c9a37745c::t_114b7fd5701edd 3
+docs/packages/utils.md
+  s_930f3c9a37745c::t_ab87ce6cca160b 3
+examples/records/tests/records.spec.js
+  s_930f3c9a37745c::t_a7133432ef3a83 337
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "570f62b769d596af5caf4ef4007de5ddd0662847",
+  "prompts": {},
+  "sessions": {
+    "s_930f3c9a37745c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0e76a-023f-7740-a6fe-9b6e8dfa8ece",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
