@@ -68,6 +68,57 @@
         {
           "file": "docs/packages/adapters.md",
           "heading": "TypeScript"
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "UI bindings",
+          "members": [
+            "getUI",
+            "ui"
+          ],
+          "exports": [
+            "ViewInstance",
+            "CollectionViewInstance",
+            "ViewConfiguration"
+          ]
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "DOM interaction and UI",
+          "members": [
+            "getUI",
+            "ui"
+          ],
+          "exports": [
+            "BehaviorInstance",
+            "BehaviorOptions"
+          ]
+        },
+        {
+          "file": "docs/api/providers/data.md",
+          "heading": "DataApi",
+          "members": [
+            "get",
+            "has",
+            "key",
+            "models",
+            "serialize",
+            "subscribe",
+            "observeCollection"
+          ],
+          "exports": [
+            "DataApiContract"
+          ]
+        },
+        {
+          "file": "docs/api/providers/dom.md",
+          "heading": "EventDelegator",
+          "members": [
+            "delegate"
+          ],
+          "exports": [
+            "EventDelegator"
+          ]
         }
       ],
       "tests": [
@@ -267,6 +318,32 @@
         {
           "file": "docs/api/shared/events.md",
           "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Data bindings",
+          "members": [
+            "modelEvents",
+            "collectionEvents",
+            "delegateEntityEvents",
+            "undelegateEntityEvents"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Child events",
+          "members": [
+            "childViewEvents",
+            "childViewTriggers",
+            "childViewEventPrefix"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Behavior composition",
+          "members": [
+            "behaviors"
+          ]
         }
       ],
       "tests": [
@@ -338,7 +415,13 @@
         },
         {
           "file": "docs/api/behavior.md",
-          "heading": "Host events and data"
+          "heading": "Host events and data",
+          "members": [
+            "modelEvents",
+            "collectionEvents",
+            "delegateEntityEvents",
+            "undelegateEntityEvents"
+          ]
         },
         {
           "file": "docs/api/behavior.md",
@@ -351,6 +434,14 @@
         {
           "file": "docs/api/view.md",
           "heading": "Construction and options"
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "DOM interaction and UI",
+          "members": [
+            "events",
+            "triggers"
+          ]
         }
       ],
       "tests": [
@@ -532,6 +623,14 @@
         {
           "file": "docs/api/shared/events.md",
           "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Data bindings",
+          "members": [
+            "delegateEntityEvents",
+            "undelegateEntityEvents"
+          ]
         }
       ],
       "tests": [
@@ -2508,7 +2607,10 @@
         "CollectionView"
       ],
       "members": [
-        "renderAttributes"
+        "renderAttributes",
+        "attributes",
+        "id",
+        "className"
       ],
       "result": "Returns the View.",
       "timing": "Synchronous; returned callback promises do not delay the operation.",
@@ -2556,7 +2658,9 @@
         "emptyRegions",
         "getChildView",
         "showChildView",
-        "detachChildView"
+        "detachChildView",
+        "regions",
+        "regionClass"
       ],
       "result": "Queries return registrations/snapshots, supplied child or optional current child as declared; snapshots cannot mutate the owner.",
       "timing": "Synchronous; returned callback promises do not delay the operation.",
@@ -2608,7 +2712,9 @@
       ],
       "members": [
         "delegateEvents",
-        "undelegateEvents"
+        "undelegateEvents",
+        "events",
+        "triggers"
       ],
       "result": "Returns the View. With the default native EventDelegator, event.delegateTarget is the matched selector element, event.currentTarget is the listener host (the View root), and event.target is the originating node. Use delegateTarget to read the matched control.",
       "timing": "Synchronous; returned callback promises do not delay the operation.",
@@ -2658,7 +2764,8 @@
         "unbindUIElements",
         "normalizeUIKeys",
         "normalizeUIString",
-        "normalizeUIValues"
+        "normalizeUIValues",
+        "ui"
       ],
       "result": "Queries return the configured adapter collection; UI names resolve selectors before binding and element collections after binding.",
       "timing": "Synchronous; returned callback promises do not delay the operation.",
@@ -2670,11 +2777,18 @@
       "docs": [
         {
           "file": "docs/api/shared/view-bindings.md",
-          "heading": "UI bindings"
+          "heading": "UI bindings",
+          "exports": [
+            "View",
+            "CollectionView"
+          ]
         },
         {
           "file": "docs/api/behavior.md",
-          "heading": "DOM interaction and UI"
+          "heading": "DOM interaction and UI",
+          "exports": [
+            "Behavior"
+          ]
         }
       ],
       "tests": [
@@ -2706,7 +2820,11 @@
         "serializeModel",
         "serializeCollection",
         "mixinTemplateContext",
-        "attachElContent"
+        "attachElContent",
+        "template",
+        "templateContext",
+        "model",
+        "collection"
       ],
       "result": "Returns configured template/data/context or fluent content-attachment result as declared.",
       "timing": "Synchronous; returned callback promises do not delay the operation.",
@@ -2764,11 +2882,24 @@
       "docs": [
         {
           "file": "docs/api/collection-view.md",
-          "heading": "Sorting"
+          "heading": "Sorting",
+          "members": [
+            "sort",
+            "getComparator",
+            "setComparator",
+            "removeComparator"
+          ]
         },
         {
           "file": "docs/api/collection-view.md",
-          "heading": "Filtering"
+          "heading": "Filtering",
+          "members": [
+            "filter",
+            "getFilter",
+            "setFilter",
+            "removeFilter",
+            "isEmpty"
+          ]
         }
       ],
       "tests": [
@@ -2811,23 +2942,51 @@
       "docs": [
         {
           "file": "docs/api/application.md",
-          "heading": "Child Applications"
+          "heading": "Child Applications",
+          "members": [
+            "childApps",
+            "addChildApp",
+            "removeChildApp",
+            "getChildApp",
+            "getChildApps",
+            "hasChildApp",
+            "getName"
+          ]
         },
         {
           "file": "docs/api/application.md",
-          "heading": "Root View and Region"
+          "heading": "Root View and Region",
+          "members": [
+            "region",
+            "regionClass",
+            "getRegion",
+            "getView",
+            "setView",
+            "showView"
+          ]
         },
         {
           "file": "docs/api/application.md",
-          "heading": "Lifecycle hooks and events"
+          "heading": "Lifecycle methods and results",
+          "members": [
+            "isRunning",
+            "isDestroyed"
+          ]
         },
         {
           "file": "docs/api/application.md",
-          "heading": "Construction and options"
+          "heading": "Construction and options",
+          "members": [
+            "initialize",
+            "preinitialize"
+          ]
         },
         {
           "file": "docs/api/application.md",
-          "heading": "View events"
+          "heading": "View events",
+          "members": [
+            "viewEvents"
+          ]
         }
       ],
       "tests": [
@@ -2890,7 +3049,11 @@
         "setView",
         "showView",
         "isRunning",
-        "isDestroyed"
+        "isDestroyed",
+        "viewEvents",
+        "childApps",
+        "region",
+        "regionClass"
       ],
       "documentation": {
         "status": "documented"

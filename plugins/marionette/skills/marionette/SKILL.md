@@ -46,6 +46,6 @@ Application preparation establishes readiness. Use restart to prepare new data w
 
 ## Optional lookup
 
-Read Markdown directly, or run `node <skill>/scripts/docs.mjs --section docs/path.md#heading-anchor` from the application directory. Replace `<skill>` with this skill directory and use a section link from the docs or a returned lookup ID. `--page SOURCE --section 'Heading'` reads a named section. Use `--symbol Export.member` for signatures, `--search 'query'` for an unknown location, or `--page SOURCE` for a full page. `--list` is optional page discovery. External package stores need `--package-root <physical-directory>`. The helper verifies installed documentation hashes and reports version/revision.
+Read Markdown directly, or run `node <skill>/scripts/docs.mjs --section docs/path.md#heading-anchor` from the application directory. Replace `<skill>` with this skill directory and use a section link from the docs or a returned lookup ID. `--page SOURCE --section 'Heading'` reads a named section. Use `--symbol Export.member` for signatures and primary section IDs in `primarySections`, `--search 'query'` for an unknown location, or `--page SOURCE` for a full page. `--list` is optional page discovery. External package stores need `--package-root <physical-directory>`. The helper verifies installed documentation hashes and reports version/revision.
 
 Only when using the plugin's hosted connection, follow the installed `docs/tooling.md#hosted-documentation-mcp` identity checks. Installed Markdown remains authoritative. The copied skill works without MCP.

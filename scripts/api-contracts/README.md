@@ -21,10 +21,13 @@ groups remain partial; an index link does not complete their coverage.
 - [semantics.json](../../config/api-contracts/semantics.json) records result, timing, ownership, mutation,
   repeat-call and destruction boundaries, diagnostic codes, public event arguments,
   and exact guide headings and behavioral tests. Export-wide profiles describe
-  composition; profiles with `members` refine the named operations. Multiple
-  profiles apply together. `operationContracts` resolves those profiles for each
-  callable static/instance member. Inherited Events and helper methods use the same
-  contracts as their standalone exports.
+  composition; profiles with `members` refine named methods and properties.
+  `memberContracts` applies export-wide and named profiles together for every declared
+  static/instance member. Documentation references can scope `members` and `exports`
+  within grouped contracts; these select primary section IDs independently of
+  incidental code mentions. Complete
+  export contracts and documentation references remain in the inventory. Inherited
+  Events and helper methods use the same contracts as their standalone exports.
 
 The [reference index](../../docs/api.md) links to the canonical human references.
 The checker generates only the machine-readable inventory; it does not generate

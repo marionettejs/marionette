@@ -23,6 +23,7 @@ for (const [index, directory] of packageRoots.entries()) {
   write(`${directory}/src/index.ts`.replace(/^\//, ''), `export interface Options { label?: string; }
 export class Owner {
   private _secret = 1;
+  label = '';
   initialize(options?: Options): void { void options; }
   render(): this { return this; }
   onReady?(): void;
@@ -80,6 +81,32 @@ test('fails on unaccounted exports, stale members and unused semantic groups', (
   assert.throws(() => generateInventory(temporary, { contracts: [{ ...base, members: ['missing'] }, semantics.contracts[1]] }), /No matching members/);
   assert.throws(() => generateInventory(temporary, { contracts: [{ ...base, members: ['render', 'missing'] }, semantics.contracts[1]] }), /Unknown semantic member/);
   assert.throws(() => generateInventory(temporary, { contracts: [...semantics.contracts, { ...base, id: 'unused', exports: ['Absent'] }] }), /Unused contract/);
+});
+
+test('routes declared properties and methods through member scopes while preserving full export evidence', () => {
+  const scoped = { ...base, id: 'labels', members: ['label'] };
+  const inventory = generateInventory(temporary, { contracts: [...semantics.contracts, scoped] });
+  const owner = inventory.entrypoints[0].exports.find(value => value.name === 'Owner');
+  assert.deepEqual(owner.contracts, ['owners', 'labels']);
+  assert.deepEqual(owner.memberContracts.instance.label, ['owners', 'labels']);
+  assert.deepEqual(owner.memberContracts.instance.render, ['owners']);
+  assert.equal(owner.instance.label, 'string');
+  assert.deepEqual(Object.keys(owner.memberContracts.instance), Object.keys(owner.instance));
+  const grouped = generateInventory(temporary, { contracts: [{ ...base,
+    docs: [{ ...base.docs[0], exports: ['Owner'], members: ['render'] }] }, semantics.contracts[1]] });
+  assert.deepEqual(grouped.entrypoints[0].exports.find(value => value.name === 'Owner').memberContracts.instance.render,
+    ['owners']);
+});
+
+test('rejects stale or misplaced documentation member and export selectors', () => {
+  const generate = docs => generateInventory(temporary, { contracts: [{ ...base, docs }, semantics.contracts[1]] });
+  assert.throws(() => generate([{ ...base.docs[0], members: ['render', 'missing'] }]), /Unused documentation scope/);
+  assert.throws(() => generate([{ ...base.docs[0], exports: ['Owner', 'Missing'] }]), /Documentation scope outside contract/);
+  assert.throws(() => generateInventory(temporary, { contracts: [base, { ...semantics.contracts[1],
+    docs: [{ ...base.docs[0], exports: ['Options', 'Missing'] }] }] }), /Unused documentation scope/);
+  assert.throws(() => generate([{ ...base.docs[0], members: [] }]), /Invalid documentation members/);
+  assert.throws(() => generateInventory(temporary, { contracts: [{ ...base, members: ['render'],
+    docs: [{ ...base.docs[0], members: ['label'] }] }, semantics.contracts[1]] }), /Documentation scope outside contract/);
 });
 
 test('rejects absent or ambiguous exact tests, removed headings, incomplete semantics and retired diagnostics', () => {

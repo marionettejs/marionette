@@ -67,4 +67,6 @@ Open the address Vite prints. You should see “Hello, Marionette”. `npm run b
 
 The View describes the content. The Region renders and mounts it, then owns replacement and destruction. Calling `region.show(anotherView)` replaces the previous View; `region.empty()` destroys the displayed View.
 
-The Lit DOM adapter is configured once before creating Views. The default renderer calls each template function with its data. Read [setup](integrations/setup.md) when adding observable data. Before adding service calls or coordinating panels, read [ownership and lifetimes](architecture.md). The [records lesson](records.md) applies those concepts in a runnable feature.
+The Lit DOM adapter is configured once before creating Views. The default renderer calls each template function with its data.
+
+Continue with the [learning progression](readme.md#learn-as-the-feature-grows) for local interaction, data, composition, and Application readiness.

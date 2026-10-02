@@ -259,9 +259,11 @@ const regionInventory = { entrypoints: [{ name: 'marionette', exports: [
   { name: 'Region', kind: 'value', signature: 'RegionConstructor', contracts: ['region'],
     members: { extend: '() => RegionConstructor' },
     instance: { detachView: '() => View | undefined', show: '(view: View) => this', reset: '() => this' },
-    operationContracts: { instance: { detachView: ['region'], reset: [] } } },
-  { name: 'RegionInstance', kind: 'type', signature: 'RegionInstance', contracts: ['region'], instance: { detachView: '() => View' } },
-  { name: 'ShowOptions', kind: 'type', signature: 'ShowOptions', contracts: ['region'], members: { replaceElement: 'boolean' } },
+    memberContracts: { static: { extend: ['region'] }, instance: { detachView: ['region'], show: ['region'], reset: [] } } },
+  { name: 'RegionInstance', kind: 'type', signature: 'RegionInstance', contracts: ['region'], instance: { detachView: '() => View' },
+    memberContracts: { instance: { detachView: ['region'] } } },
+  { name: 'ShowOptions', kind: 'type', signature: 'ShowOptions', contracts: ['region'], members: { replaceElement: 'boolean' },
+    memberContracts: { static: { replaceElement: ['region'] } } },
 ] }, { name: '@mnjs/utils', exports: [
   { name: 'show', kind: 'value', signature: '(view: View) => void', contracts: ['region'] },
 ] }] };
@@ -285,10 +287,26 @@ test('symbol lookup returns exact export signatures, members and reviewed contra
   assert.deepEqual(output.matches[0].staticMembers, ['extend']);
   assert.deepEqual(output.matches[0].instanceMembers, ['detachView', 'show', 'reset']);
   assert.deepEqual(output.contracts.region.diagnostics, ['MN0003']);
-  assert.deepEqual(output.contracts.region.sections.map(section => [section.heading, section.ancestors]),
-    [['Region ownership', ['Region']]]);
-  const section = data.run('--section', output.contracts.region.sections[0].id);
+  assert.deepEqual(output.contracts.region.sections, ['docs/routing.md#region-ownership']);
+  const section = data.run('--section', output.contracts.region.sections[0]);
   assert.match(section.stdout, /A Region owns one View\./);
+});
+
+test('copied helper reads primary contract section IDs and retains diagnostic references', async t => {
+  const { symbolIndex } = await import('../../scripts/docs/symbols.mjs');
+  const scoped = { contracts: [{ ...regionSemantics.contracts[0],
+    docs: [{ ...regionSemantics.contracts[0].docs[0], members: ['detachView'] }] }] };
+  const data = await sectionFixture(t, regionPage, sections => ({
+    'docs-symbols.json': JSON.stringify(symbolIndex(regionInventory, scoped, sections)),
+  }));
+  const result = data.run('--symbol', 'Region.detachView');
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(result.stdout);
+  assert.deepEqual(output.matches[0].primarySections, ['docs/routing.md#region-ownership']);
+  assert.deepEqual(output.contracts.region, {
+    sections: ['docs/routing.md#region-ownership'], diagnostics: ['MN0003'],
+  });
+  assert.match(data.run('--section', output.matches[0].primarySections[0]).stdout, /A Region owns one View\./);
 });
 
 test('member lookup names the sections that use it, most specific and named headings first', async t => {
@@ -341,9 +359,9 @@ test('symbol lookup reports absent names honestly and rejects malformed queries 
   await writeFile(symbols, '{}');
   assert.match(data.run('--symbol', 'Region').stderr, /hash mismatch/);
   for (const [bytes, error] of [['{}', /Unsupported documentation symbol index/],
-    [JSON.stringify({ schemaVersion: 1, contracts: {}, symbols: [{ entrypoint: 'marionette', name: 'Region', signature: 'x', contracts: ['region'] }] }), /Invalid documentation symbol index/],
-    [JSON.stringify({ schemaVersion: 1, contracts: { region: { sections: ['docs/routing.md#L99'], diagnostics: [] } }, symbols: [] }), /Invalid documentation symbol index/],
-    ...[5, null, []].map(map => [JSON.stringify({ schemaVersion: 1, contracts: {}, symbols: [{ entrypoint: 'marionette', name: 'Region', signature: 'x', contracts: [], static: map }] }), /Invalid documentation symbol index/])]) {
+    [JSON.stringify({ schemaVersion: 2, contracts: {}, symbols: [{ entrypoint: 'marionette', name: 'Region', signature: 'x', contracts: ['region'] }] }), /Invalid documentation symbol index/],
+    [JSON.stringify({ schemaVersion: 2, contracts: { region: { sections: ['docs/routing.md#L99'], diagnostics: [] } }, symbols: [] }), /Invalid documentation symbol index/],
+    ...[5, null, []].map(map => [JSON.stringify({ schemaVersion: 2, contracts: {}, symbols: [{ entrypoint: 'marionette', name: 'Region', signature: 'x', contracts: [], static: map }] }), /Invalid documentation symbol index/])]) {
     await writeFile(symbols, bytes);
     data.manifest.assets.find(asset => asset.source === 'docs-symbols.json').sha256 = hash(bytes);
     await data.rehash();

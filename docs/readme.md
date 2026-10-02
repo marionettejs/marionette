@@ -4,9 +4,16 @@ These guides target **5.0.0-rc.2**. This prerelease is being verified as local c
 
 ## Choose a starting point
 
-- New project: [quick start](quick-start.md), then [architecture](architecture.md) for feature composition. [Records](records.md) is a composed lesson.
+- New project: [quick start](quick-start.md) for the first render; use the optional progression below as the feature grows.
 - Existing application: choose a task or class reference below; follow additional contracts when needed.
 - Agent work: [task routing and lookup](agents.md), with optional [skill/plugin setup](tooling.md#agent-installation).
+
+### Learn as the feature grows
+
+1. [Render a View in a Region](quick-start.md).
+2. [Handle DOM events](api/shared/view-bindings.md#dom-events), then [edit local data](guides/local-editing.md). A View can save its own model when its data or API layer provides persistence.
+3. [Add observable data](integrations/setup.md) and [compose Views with Regions](architecture.md#choose-a-responsibility), or [display a list](guides/lists.md). Optional `@mnjs/data` supplies observation; fetching and persistence require a separate API layer or another data solution.
+4. When the feature needs readiness or an independent lifetime, [prepare and activate an Application](architecture.md#prepare-a-feature-then-activate-its-ui). [Retained restart](guides/retained-restart.md) repeats readiness while preserving the shell and local input. [Records](records.md) brings these pieces together.
 
 ## Common tasks
 

@@ -116,7 +116,11 @@ test('real consumer questions retrieve the required contract without reading a f
     ['getUI', 'docs/api/shared/view-bindings.md', 'UI bindings', ['NodeList', '[0]', 'snapshots']],
     ['bindUIElements', 'docs/api/shared/view-bindings.md', 'UI bindings', ['Behavior', 'existing contents']],
     ['delegateEvents', 'docs/api/shared/view-bindings.md', 'DOM events', ['no-ops while destroying/destroyed', 'delegates automatically']],
-    ['event currentTarget delegateTarget', 'docs/api/shared/view-bindings.md', 'DOM events', ['event.delegateTarget', 'nearest matching descendant']],
+    ['event currentTarget delegateTarget', 'docs/api/shared/view-bindings.md', 'DOM events', ['`event.currentTarget` is the View\'s root element', '`event.delegateTarget` is the nearest matching descendant']],
+    ['which element received the delegated click', 'docs/api/shared/view-bindings.md', 'DOM events', ['read the control matched by the selector', 'click originated inside that control']],
+    ['my click handler runs twice', 'docs/api/shared/view-bindings.md', 'DOM events', ['Removes existing View/Behavior DOM handlers']],
+    ['change view model after creation', 'docs/api/shared/view-bindings.md', 'Data bindings', ['does not change its existing subscriptions', 'Call `undelegateEntityEvents()` before assigning', 'then call `delegateEntityEvents()`', 'Render explicitly']],
+    ['modelEvents render', 'docs/api/shared/view-bindings.md', 'Data bindings', ['do not automatically update', 'resets its Regions and destroys their children', 'do not own or destroy the model/collection']],
     ['initialize options', 'docs/api/shared/common.md', 'Options and initialization', ['initialize', 'options']],
     ['childViewEvents arguments', 'docs/api/shared/view-bindings.md', 'Child events', ['No child argument is added', 'original event arguments']],
     ['preserve editable rows sort', 'docs/guides/lists.md', 'Own the controls and repeated rows', ['Sorting moves the existing rows', 'input values']],
@@ -137,11 +141,13 @@ test('real consumer questions retrieve the required contract without reading a f
 test('symbol index resolves every reviewed contract heading to exactly one consumer section', () => {
   const sections = documentSections('docs/region.md', '# Region\n\n## `show(view)`\nShow.\n\n## Again\nOne.\n\n## Again\nTwo.\n');
   const inventory = contracts => ({ entrypoints: [{ name: 'marionette', exports: [{ name: 'Region', kind: 'value',
-    signature: 'RegionConstructor', contracts, instance: { show: '(view) => this' } }] }] });
+    signature: 'RegionConstructor', contracts, instance: { show: '(view) => this' },
+    memberContracts: { instance: { show: contracts } } }] }] });
   const semantics = heading => ({ contracts: [{ id: 'region', docs: [{ file: 'docs/region.md', heading }], diagnostics: [] }] });
   const index = symbolIndex(inventory(['region']), semantics('`show(view)`'), sections);
   assert.deepEqual(index.contracts.region.sections, ['docs/region.md#showview']);
-  assert.deepEqual(index.symbols[0].instance.show.contracts, ['region'], 'members inherit the export contracts');
+  assert.deepEqual(index.symbols[0].instance.show.contracts, ['region'], 'declared member contracts remain available');
+  assert.deepEqual(index.symbols[0].instance.show.primarySections, [], 'broad fallback is not an explicit primary section');
   assert.throws(() => symbolIndex(inventory(['region']), semantics('Missing'), sections), /matches 0/);
   assert.throws(() => symbolIndex(inventory(['region']), semantics('Again'), sections), /matches 2/);
   assert.throws(() => symbolIndex(inventory(['absent']), semantics('`show(view)`'), sections), /Unknown API contract: absent/);

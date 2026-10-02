@@ -91,6 +91,16 @@ export function validateSemantics(root, semantics, entrypoints) {
       if (!diagnostics.has(code)) { throw new Error(`Unknown or retired diagnostic ${code}: ${contract.id}`); }
     }
     for (const doc of contract.docs) {
+      for (const field of ['members', 'exports']) {
+        if (doc[field] !== undefined && (!Array.isArray(doc[field]) || !doc[field].length ||
+            doc[field].some(name => typeof name !== 'string' || !name))) {
+          throw new Error(`Invalid documentation ${field}: ${contract.id}`);
+        }
+      }
+      if (doc.exports?.some(name => !contract.exports.includes('*') && !contract.exports.includes(name)) ||
+          doc.members?.some(name => contract.members && !contract.members.includes(name))) {
+        throw new Error(`Documentation scope outside contract: ${contract.id}`);
+      }
       const text = readFileSync(resolve(root, doc.file), 'utf8');
       const heading = text.split('\n').findIndex(line => /^#{1,6} /.test(line) && line.replace(/^#+ /, '').trim() === doc.heading);
       if (heading < 0) { throw new Error(`Missing documentation heading: ${doc.file} ${doc.heading}`); }
@@ -167,6 +177,9 @@ export function generateInventory(root, semantics) {
   }
   const matched = new Set();
   const matchedMembers = new Map();
+  const matchedDocs = new Set();
+  const matchedDocMembers = new Map();
+  const matchedDocExports = new Map();
   const surfaces = entrypoints.filter(entry => entry.kind === 'runtime').map(entry => {
     const source = program.getSourceFile(resolve(root, entry.source));
     if (!source) { throw new Error(`Missing public source: ${entry.source}`); }
@@ -222,8 +235,27 @@ export function generateInventory(root, semantics) {
           throw new Error(`No matching members for ${contract.id} on ${entry.name}#${symbol.name}`);
         }
       }
-      record.operationContracts = Object.fromEntries([
-        ['static', record.callableMembers || []], ['instance', record.callableInstanceMembers || []]
+      for (const contract of contracts) {
+        contract.docs.forEach((doc, index) => {
+          const key = `${contract.id}:${index}`;
+          if (!doc.exports || doc.exports.includes(symbol.name)) {
+            const names = matchedDocExports.get(key) || new Set();
+            names.add(symbol.name);
+            matchedDocExports.set(key, names);
+            const memberNames = matchedDocMembers.get(key) || new Set();
+            for (const name of doc.members || []) {
+              if (Object.hasOwn(properties, name) || Object.hasOwn(record.instance || {}, name)) { memberNames.add(name); }
+            }
+            matchedDocMembers.set(key, memberNames);
+          }
+          if ((!doc.exports || doc.exports.includes(symbol.name)) && (!doc.members || doc.members.some(name =>
+            Object.hasOwn(properties, name) || Object.hasOwn(record.instance || {}, name)))) {
+            matchedDocs.add(key);
+          }
+        });
+      }
+      record.memberContracts = Object.fromEntries([
+        ['static', Object.keys(properties)], ['instance', Object.keys(record.instance || {})]
       ].filter(([, names]) => names.length).map(([placement, names]) => [placement,
         Object.fromEntries(names.map(name => [name, contracts.filter(contract =>
           !contract.members || contract.members.includes(name)).map(contract => contract.id)]))]));
@@ -238,6 +270,14 @@ export function generateInventory(root, semantics) {
         throw new Error(`Unknown semantic member: ${contract.id}.${member}`);
       }
     }
+    contract.docs.forEach((doc, index) => {
+      const key = `${contract.id}:${index}`;
+      if ((doc.members || doc.exports) && (!matchedDocs.has(key) ||
+          doc.members?.some(name => !matchedDocMembers.get(key)?.has(name)) ||
+          doc.exports?.some(name => !matchedDocExports.get(key)?.has(name)))) {
+        throw new Error(`Unused documentation scope: ${contract.id} ${doc.file} ${doc.heading}`);
+      }
+    });
   }
   const sources = Object.fromEntries(program.getSourceFiles().filter(file =>
     !file.isDeclarationFile && /^(src|packages\/[^/]+\/src)\//.test(localPath(file.fileName)))
