@@ -4,10 +4,10 @@ Continue from the [quick start](../quick-start.md). This page adds `@mnjs/data` 
 
 ## Add observable data
 
-From the example project, install the data tarball supplied alongside the other candidate packages:
+From the example project, install the data package at the same release candidate version as core:
 
 ```sh
-npm install --ignore-scripts --save-exact ../marionette-v5-artifacts/mnjs-data-5.0.0-rc.2.tgz
+npm install --ignore-scripts --save-exact @mnjs/data@5.0.0-rc.2
 ```
 
 Use a different source with its compatible provider when it better fits your application. Views using plain template data do not require this package.

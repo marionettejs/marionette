@@ -4,7 +4,7 @@ Deploy the application bundle with its configured providers and verify it throug
 
 ## Keep the installed candidate coherent
 
-These docs target **5.0.0-rc.2**, a prerelease verified as local candidate tarballs. Follow the [quick start](../quick-start.md) to obtain matching packages; keep the lockfile and use the documentation bundled with that installation. An installed candidate check establishes local packaging behavior, not registry publication or a stable-release guarantee.
+These docs target **5.0.0-rc.2**, a prerelease. Follow the [quick start](../quick-start.md) to install matching package versions; keep the lockfile and use the documentation bundled with that installation. Verify your application against that exact installation before deployment.
 
 Use named ESM imports from `marionette` and the documented adapter subpaths. Build against installed packages rather than repository source aliases. Include the template engine required by the chosen adapter. `@mnjs/data` is optional and incomplete as an application data layer: API access and persistence need an API layer or another data solution. See [setup](../integrations/setup.md).
 
@@ -25,6 +25,8 @@ See the [Application failure contract](../api/application.md#preparation-cancell
 Use [retained restart](retained-restart.md) to repeat preparation while preserving the active page. Create retained shells once and update only the source or child Region that changed. Embedded features follow the [existing UI ownership boundary](existing-ui.md); their host must end the feature before removing its mounting content.
 
 ## Serve direct links deliberately
+
+Serve the application and API over HTTPS in production. Relative fetch URLs use the application's origin.
 
 For path-based navigation, serve the application entry for recognized document routes, including direct visits and reloads. Keep asset and API handling separate: a missing JavaScript file or API resource must retain its appropriate error response rather than receiving application HTML. Test an unknown document route according to your chosen server/client not-found policy. Fragment routing does not require a separate server path for each fragment. The [navigation guide](routing.md) covers URL ownership.
 

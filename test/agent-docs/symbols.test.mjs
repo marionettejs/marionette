@@ -86,6 +86,10 @@ test('symbol schema rejects missing, unknown and unrelated primary section metad
   assert.doesNotThrow(() => validateSymbolIndex(index, sections));
   assert.throws(() => validateSymbolIndex({ ...index, schemaVersion: 1 }, sections),
     /Unsupported documentation symbol index/);
+  for (const kind of [undefined, 'unexpected']) {
+    assert.throws(() => validateSymbolIndex({ ...index, symbols: [{ ...index.symbols[0], kind }] }, sections),
+      /Invalid documentation symbol index/);
+  }
   for (const value of [undefined, 'docs/owner.md#owner', ['docs/owner.md#missing'], ['docs/owner.md#unrelated']]) {
     index.symbols[0].instance.property.primarySections = value;
     assert.throws(() => validateSymbolIndex(index, sections), /Invalid documentation symbol index/);

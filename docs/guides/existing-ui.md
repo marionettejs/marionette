@@ -4,7 +4,7 @@ A page shell, custom element, or another UI framework can host a Marionette feat
 
 ## Mount a View in a host-owned element
 
-This small feature needs local interaction and a lifetime, so a Region owns its View. No Application or data provider is required. Install the rendering packages from [setup](../integrations/setup.md).
+This small feature needs local interaction and a lifetime, so a Region owns its View. No Application or data provider is required. Install the rendering packages from the [quick start](../quick-start.md).
 
 ```js
 import { Region, View } from 'marionette';

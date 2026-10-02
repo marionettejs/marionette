@@ -13,6 +13,23 @@ const execute = promisify(execFile);
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const quote = value => `'${value.replaceAll(/'/g, '\'\\\'\'')}'`;
 
+// Certification exercises the documented npm recipe with the exact unpublished
+// package bytes. The resulting report distinguishes this from a registry install.
+export function artifactSetupCommand(command, packages) {
+  for (const name of releasePackages.filter(pkg => pkg.name !== '@mnjs/data').map(pkg => pkg.name)) {
+    const matches = packages.filter(pkg => pkg.name === name);
+    assert.equal(matches.length, 1, `One candidate artifact required: ${name}`);
+    const pkg = matches[0];
+    const spec = `${name}@${pkg.version}`;
+    const escape = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = new RegExp(`(^|\\s)${escape(spec)}(?=\\s|$)`, 'g');
+    assert.equal([...command.matchAll(pattern)].length, 1, `Quick start must pin ${spec} exactly once`);
+    command = command.replace(pattern, (_, prefix) => `${prefix}${quote(`../marionette-v5-artifacts/${pkg.file}`)}`);
+  }
+  assert(!command.includes('@mnjs/data@'), 'Quick start keeps observable data optional');
+  return command;
+}
+
 export async function verifyQuickStart({ packageRoot, artifactDirectory, browser = false }) {
   const report = { schemaVersion: 1, passed: false, node: process.version,
     startedAt: new Date().toISOString(), commands: [], packages: [], browsers: [] };
@@ -84,7 +101,8 @@ export async function verifyQuickStart({ packageRoot, artifactDirectory, browser
     report.source = { quickStartSha256: hash(source), htmlSha256: hash(html[0]), javascriptSha256: hash(javascript[0]),
       harnessSha256: hash(await readFile(import.meta.filename)) };
     report.stage = 'setup';
-    await run(commands[0], workspace);
+    report.source.setupCommand = commands[0];
+    await run(artifactSetupCommand(commands[0], report.packages), workspace);
     const project = join(workspace, 'marionette-example');
     await writeFile(join(project, 'index.html'), html[0]);
     await writeFile(join(project, 'main.js'), javascript[0]);
@@ -169,7 +187,7 @@ export async function verifyQuickStart({ packageRoot, artifactDirectory, browser
     }
     if (workspace) { await rm(workspace, { recursive: true, force: true }); }
     report.finishedAt = new Date().toISOString();
-    report.limits = `Supplied local candidate bytes and documented consumer commands${browser ? ', with Vite in Chromium, Firefox and WebKit' : '; browser execution was not requested'}. Does not verify registry publication, website deployment, or reader effectiveness.`;
+    report.limits = `Documented npm setup with exact Marionette version specs substituted by supplied candidate tarballs${browser ? ', with Vite in Chromium, Firefox and WebKit' : '; browser execution was not requested'}. Does not verify registry installation, publication, website deployment, or reader effectiveness.`;
   }
   return report;
 }

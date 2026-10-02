@@ -6,7 +6,7 @@ The [runnable example](../examples/records/README.md) loads records, selects one
 
 The source is included with these docs; the commands here use the repository checkout. For an application using installed packages, follow the [quick start](quick-start.md) and [setup reference](integrations/setup.md).
 
-Requires Node 24 or newer. From the repository root:
+Requires Node 24 or newer. From the framework repository root:
 
 ```sh
 npm ci --ignore-scripts
@@ -68,7 +68,7 @@ Lit interpolation renders record strings as text; no example-specific escaping h
 
 ## Check changes
 
-Stop the preview server first; these checks start their own server from this checkout. From the repository root:
+Stop the preview server first; these checks start their own server from this checkout. From the framework repository root:
 
 ```sh
 npx playwright install chromium firefox webkit

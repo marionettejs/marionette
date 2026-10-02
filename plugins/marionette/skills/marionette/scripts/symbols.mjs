@@ -19,7 +19,7 @@ export function validateSymbolIndex(index, sectionIds) {
   const known = ids => Array.isArray(ids) && ids.every(id => typeof id === 'string' && Object.hasOwn(contracts, id));
   for (const symbol of index.symbols) {
     if (typeof symbol?.entrypoint !== 'string' || typeof symbol.name !== 'string' ||
-        typeof symbol.signature !== 'string' || !known(symbol.contracts)) { throw invalid(); }
+        !['value', 'type'].includes(symbol.kind) || typeof symbol.signature !== 'string' || !known(symbol.contracts)) { throw invalid(); }
     for (const [key] of accesses) {
       if (symbol[key] !== undefined && (!isMap(symbol[key]) || !Object.values(symbol[key]).every(member =>
         typeof member?.signature === 'string' && known(member.contracts) &&

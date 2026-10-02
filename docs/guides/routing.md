@@ -108,6 +108,7 @@ const PageApplication = Application.extend({
   },
   onStart(_app, _options, page) {
     this.showView(new ContentView({ model: page }));
+    document.title = page.title;
   },
 });
 
@@ -132,11 +133,13 @@ const NavigationApplication = Application.extend({
     child.stop();
     const region = this.getView().getRegion('content');
     if (route !== '#home' && route !== '#about') {
+      document.title = 'Page not found';
       region.show(new MessageView({ model: {
         title: 'Page not found', body: 'Choose Home or About.',
       } }));
       return true;
     }
+    document.title = 'Loading page…';
     region.show(new MessageView({ model: {
       title: 'Loading page…', body: 'Please wait.',
     } }));
@@ -145,6 +148,7 @@ const NavigationApplication = Application.extend({
     } catch (error) {
       child.stop();
       this.currentRoute = undefined;
+      document.title = 'Could not load page';
       const errorView = new ErrorView({ model: { message: error.message } });
       this.listenTo(errorView, { retry: this.onHashChange });
       region.show(errorView);

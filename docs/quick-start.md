@@ -2,26 +2,24 @@
 
 This guide targets Marionette 5.0.0-rc.2 with Node 24 or newer. The [documentation index](readme.md) identifies this prerelease candidate.
 
-## Obtain the development candidate
+## Install the release candidate
 
-Obtain the five matching `5.0.0-rc.2` candidate tarballs from the maintainer: `marionette`, `@mnjs/utils`, `@mnjs/radio`, `@mnjs/adapters`, and `@mnjs/data`. Put them together in a directory named `marionette-v5-artifacts` in your workspace. The packages are already built; you do not need a framework checkout.
-
-This guide uses supplied local artifacts. A registry installation path for this candidate has not been verified.
+Use matching `5.0.0-rc.2` versions of `marionette` and the companion packages: `@mnjs/utils`, `@mnjs/radio`, `@mnjs/adapters`, and optional `@mnjs/data`. Pin the versions explicitly when installing this prerelease.
 
 ## Create the project
 
-From the directory containing `marionette-v5-artifacts`, create the project beside it:
+Create a project directory:
 
 ```sh
 mkdir marionette-example
 cd marionette-example
 npm init -y
 npm pkg set type=module scripts.dev="vite" scripts.build="vite build"
-npm install --ignore-scripts --save-exact ../marionette-v5-artifacts/marionette-5.0.0-rc.2.tgz ../marionette-v5-artifacts/mnjs-utils-5.0.0-rc.2.tgz ../marionette-v5-artifacts/mnjs-radio-5.0.0-rc.2.tgz ../marionette-v5-artifacts/mnjs-adapters-5.0.0-rc.2.tgz lit-html@3.3.3
+npm install --ignore-scripts --save-exact marionette@5.0.0-rc.2 @mnjs/utils@5.0.0-rc.2 @mnjs/radio@5.0.0-rc.2 @mnjs/adapters@5.0.0-rc.2 lit-html@3.3.3
 npm install --ignore-scripts --save-dev --save-exact vite@8.3.0
 ```
 
-This first UI uses `marionette`, the Lit adapter from `@mnjs/adapters`, and `lit-html`. Core also depends on `@mnjs/utils` and `@mnjs/radio`; installing their local tarballs keeps those dependencies on the same candidate. `@mnjs/data` is optional and is added in the [data setup guide](integrations/setup.md).
+This first UI uses `marionette`, the Lit adapter from `@mnjs/adapters`, and `lit-html`. Core also depends on `@mnjs/utils` and `@mnjs/radio`; the command pins those dependencies to the same release candidate. `@mnjs/data` is optional and is added in the [data setup guide](integrations/setup.md).
 
 Create `index.html`:
 

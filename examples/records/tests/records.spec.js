@@ -334,7 +334,7 @@ test('reload failure retains the layout, selection and records, then retry updat
   const root = await page.locator('.records').elementHandle();
   const list = await page.getByRole('list', { name: 'Records', exact: true }).elementHandle();
   await page.getByRole('button', { name: 'Reload records', exact: true }).click();
-  await expect(page.getByRole('alert')).toBeVisible();
+  await expect(page.getByRole('alert')).toHaveText('Could not load records.');
   await expect(page.getByRole('region', { name: 'Record details', exact: true })).toContainText('Second record description.');
   expect(await root.evaluate(element => element.isConnected)).toBe(true);
   expect(await list.evaluate(element => element.isConnected)).toBe(true);

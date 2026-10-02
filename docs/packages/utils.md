@@ -1,6 +1,6 @@
 # @mnjs/utils
 
-Shared utilities for components that need Marionette's conventions without importing its UI classes. Marionette, Radio, and native data use these same implementations. Add `@mnjs/utils` as a direct dependency when your code imports it, using the same candidate version as core; see [installation](../quick-start.md#obtain-the-development-candidate).
+Shared utilities for components that need Marionette's conventions without importing its UI classes. Marionette, Radio, and native data use these same implementations. Add `@mnjs/utils` as a direct dependency when your code imports it, using the same candidate version as core; see [installation](../quick-start.md#install-the-release-candidate).
 
 ## Component methods
 

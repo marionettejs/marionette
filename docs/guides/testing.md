@@ -193,9 +193,7 @@ test('stop cancels pending readiness and an obsolete result cannot show UI', asy
 
 The render spy checks that a disposed editor no longer reacts to its borrowed Model. Unchanged DOM alone could miss a leaked callback because a destroyed View ignores rendering. For a View that updates through another public handler, observe that handler or its external effect instead.
 
-Run the test file with the DOM preload:
-
-Run from the application root:
+Run from the application root with the DOM preload:
 
 ```sh
 node --import ./test/dom.mjs --test --test-reporter=tap ./test/app.test.mjs

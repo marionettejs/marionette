@@ -122,10 +122,10 @@ Parent stop traverses children in registration order, including descendants bene
 | `restart({ region })` | Forwards the option to hooks while retaining the current destination. |
 | `getRegion()` | Returns the current destination or `undefined`. |
 | `setView(view)` | Owns a prepared root without rendering/mounting it and returns it. Replacing a prepared root destroys that root. |
-| `getView()` | Returns the prepared root, otherwise the displayed root, or `undefined`. |
-| `showView(view?, options?)` | Selects a supplied root and shows it through the destination with Region `ShowOptions`. Returns the root, or `undefined` if none exists. A destination is required when a root exists. |
+| `getView()` | Returns this Application's prepared root, otherwise its displayed root, or `undefined`. |
+| `showView(view?, options?)` | Selects a supplied root and shows it through the destination with Region `ShowOptions`. Returns the root, or `undefined` if none exists. A destination is required when a root exists. If the root is already displayed, returns it without showing again; supplied options have no effect. |
 
-`setView` → the root's `showChildView` → `showView` allows composition before attachment. A prepared replacement leaves the displayed root in place until shown. Display transfers ownership to Region; Application tracks its displayed root. Stop/destroy clean prepared and displayed roots. Restart does neither automatically.
+`setView` → the root's `showChildView` → `showView` allows composition before attachment. A prepared replacement leaves the displayed root in place until shown. Display transfers ownership to Region; Application tracks its displayed root. Stop/destroy clean prepared and displayed roots. Restart does neither automatically. `Region.empty()` clears displayed content and its Application association; it does not stop the Application or destroy a separate prepared root.
 
 A selected View must be live and unowned (`MN0007` for destroyed, `MN0003` for another owner). Selecting the same root is harmless. Reselecting the displayed root destroys any prepared replacement. Content shown directly through a Region is Region-owned and cannot be adopted. During/after Application destruction, set/show methods return their supplied View without adopting it; its caller remains responsible.
 

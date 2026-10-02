@@ -4,7 +4,7 @@ Upgrade one application and its messaging participants together. Start from a wo
 
 ## 1. Replace installation and configure integrations
 
-Replace `backbone.marionette` with the matching `marionette` v5 candidate. Follow [candidate installation](../quick-start.md#obtain-the-development-candidate) for the current package artifacts and companion versions. If you already use named imports, change their package path. Replace default namespace imports with named imports: `import { Application, View, MnObject, Radio } from 'marionette'`. The former namespace's `Object` alias becomes `MnObject`.
+Replace `backbone.marionette` with the matching `marionette` v5 candidate. Follow [candidate installation](../quick-start.md#install-the-release-candidate) for the current package artifacts and companion versions. If you already use named imports, change their package path. Replace default namespace imports with named imports: `import { Application, View, MnObject, Radio } from 'marionette'`. The former namespace's `Object` alias becomes `MnObject`.
 
 Core supplies native DOM operations and accepts plain objects and static arrays. Backbone, jQuery, and Underscore are no longer required by core. Remove a dependency only when the application itself no longer uses it.
 
@@ -63,6 +63,6 @@ Check the installation and actual entrypoint first, then exercise representative
 2. Local edits and collection membership/order changes update through the chosen data provider. Existing Backbone persistence still uses its intended API.
 3. Events and Radio requests reach every intended participant. Check event maps and former whitespace-separated names.
 4. Replacing a panel destroys the old View while surviving shared data remains usable. Stopping and starting a feature recreates its root; restart preserves the intended controls through loading, failure, and the chosen successful update.
-5. Destroying the owner removes its UI and releases its subscriptions. A surviving listener receives the final `destroy` notification, then the destroyed Marionette source releases incoming listeners automatically. Extra destroy-to-`stopListening(source)` handlers are unnecessary for Marionette sources; external sources keep their own cleanup contracts.
+5. Successful owner destruction removes its UI and releases its subscriptions. A surviving listener receives the final `destroy` notification, then the destroyed Marionette source releases incoming listeners automatically. Extra destroy-to-`stopListening(source)` handlers are unnecessary for Marionette sources; external sources keep their own cleanup contracts.
 
 Remove manual root/registered-child destruction that duplicates Application ownership. Continue releasing application-owned timers, external subscriptions, and operations outside preparation according to their lifetime; framework cleanup cannot infer those resources. Use public behavior checks rather than private event registry assertions. See [event cleanup](../api/shared/events.md#cleanup) and the class references when deciding who disposes a resource.

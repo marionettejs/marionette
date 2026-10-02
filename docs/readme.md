@@ -1,6 +1,6 @@
 # Marionette v5 documentation
 
-These guides target **5.0.0-rc.2**. This prerelease is being verified as local candidate tarballs. Use the docs bundled with the candidate you installed. The reference and learning paths below can be read independently. The reference index links the supported classes and shared contracts.
+These guides target **5.0.0-rc.2**. Use the docs bundled with the release candidate you installed. The reference and learning paths below can be read independently. The reference index links the supported classes and shared contracts.
 
 ## Choose a starting point
 
