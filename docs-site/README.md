@@ -92,10 +92,10 @@ version strings alone do not establish the same contract. It does not run code o
 an application's architecture. Verify catalog identity, document hashes, focused
 retrieval and explicit version-mismatch rejection after each deployment.
 
-`context7.json` currently selects library `master`, not this feature branch or an
-immutable release. Its rules label development content and require installed-version
-selection. After reviewed changes reach that branch, register/refresh the desired
-release through the library-owner workflow and verify returned version/source and
-representative contracts. A refresh request is not evidence of correct retrieval.
+`context7.json` selects library `master` and declares supported release tags in
+`previousVersions`. Its rules require matching the installed package version;
+`master` may differ from a published release. After configuration changes merge,
+refresh the library and verify the requested version and representative contracts.
+A refresh request is not evidence of correct retrieval.
 Context7 is optional; do not make installed documentation or the website depend on
 its availability. See [Context7's owner documentation](https://context7.com/docs/library-owners).
