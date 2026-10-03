@@ -107,9 +107,12 @@ jobs:
         if: always()
         with:
           name: tooling-node-24
+          # Keep rendered reports; c8's raw V8 data is only needed during generation.
           path: |
             coverage/tooling/
+            !coverage/tooling/tmp/
           if-no-files-found: warn
+          retention-days: 7
 
   browsers:
     name: Browsers (Node 24)

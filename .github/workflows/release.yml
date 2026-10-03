@@ -157,6 +157,7 @@ jobs:
             test/tmp/browser/results/
             test/tmp/browser/results.xml
             coverage/
+            !coverage/tooling/tmp/
           if-no-files-found: warn
           retention-days: 30
 

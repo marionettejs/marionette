@@ -115,7 +115,7 @@ Each suite uploads the following repository report paths:
 | Artifact | Uploaded paths |
 | --- | --- |
 | `coverage-node-24` | `coverage/`, `test/tmp/unit-results.xml` |
-| `tooling-node-24` | `coverage/tooling/` |
+| `tooling-node-24` | `coverage/tooling/`, excluding temporary `coverage/tooling/tmp/` data; retained for 7 days |
 | `browsers-node-24` | `test/tmp/browser/results.json`, `test/tmp/browser/results.xml`, `test/tmp/browser/report/`, `test/tmp/browser/results/`, `test/tmp/performance/browser-report.json` |
 | `agent-reference-node-24` | `test/tmp/agent-reference-app/`, `test/tmp/agent-reference/reference-report.json`, `test/tmp/agent-reference/artifacts/artifact-input.json`, `test/tmp/agent-fixtures/fixture-controls.json` |
 | `fixtures-node-24` | `test/tmp/fixture-reports/` |
