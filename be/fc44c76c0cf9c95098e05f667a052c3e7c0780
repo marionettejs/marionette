@@ -1,0 +1,16 @@
+.github/workflows/ci.yml
+  h_0f06c286dda36f 110,113,115
+.github/workflows/release.yml
+  h_0f06c286dda36f 160
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "befc44c76c0cf9c95098e05f667a052c3e7c0780",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
