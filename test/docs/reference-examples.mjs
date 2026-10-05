@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { assertions as migrationAssertions, preparations as migrationPreparations } from './framework-migration-checks.mjs';
 import { assertions as accessibilityAssertions } from './accessibility-guide-checks.mjs';
 import { assertions as widgetAssertions } from './widget-guide-checks.mjs';
 import { assertions as listAssertions, preparations as listPreparations } from './list-guide-checks.mjs';
@@ -33,6 +34,7 @@ const pages = ['api', 'packages', 'integrations', 'guides'].flatMap(section =>
   // This multi-file Node test recipe is executed by consumer-testing.mjs in the installed check.
   .filter(path => path !== 'docs/guides/testing.md');
 const preparations = {
+  ...migrationPreparations,
   ...listPreparations,
   ...getPreparations(installed),
   ...restartPreparations,
@@ -48,6 +50,7 @@ globalThis.fetch = async (url, options) => {
 `,
 };
 const assertions = {
+  ...migrationAssertions,
   ...accessibilityAssertions,
   ...widgetAssertions,
   ...listAssertions,

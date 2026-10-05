@@ -144,6 +144,12 @@
     "section": "Integration guides"
   },
   {
+    "source": "docs/guides/framework-migration.md",
+    "route": "docs/guides/framework-migration",
+    "title": "Migrate from another UI framework",
+    "section": "Guides"
+  },
+  {
     "source": "docs/guides/migration.md",
     "route": "docs/guides/migration",
     "title": "Migrate from Marionette v4",

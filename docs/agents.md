@@ -18,6 +18,7 @@ If installed docs are absent, obtain the exact release or known source revision.
 | Task | Start with |
 | --- | --- |
 | Install and render a first View | [Quick start](quick-start.md) |
+| Migrate from another UI framework | [Framework migration](guides/framework-migration.md) |
 | Migrate an existing v4 application | [Migration guide](guides/migration.md) |
 | Test interaction, readiness, or teardown | [Consumer testing](guides/testing.md) |
 | Choose ownership and lifetimes | [Architecture](architecture.md) |
