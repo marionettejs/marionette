@@ -47,17 +47,36 @@ Use [architecture](../architecture.md) to define the target tree from domain
 lifetimes and user journeys. The old source is evidence for business rules and
 edge cases; its folders and component boundaries do not decide the final tree.
 
-For a record workspace, a possible target is:
+For a record workspace, distinguish lifetime ownership from screen placement:
 
 ```text
-WorkspaceApplication — navigation, session, shared service access
-└─ ShellView — persistent navigation and destination Region
-   └─ RecordApplication — record readiness, draft and workflow decisions
-      └─ RecordPageView — editor and summary Regions
-         ├─ TitleEditorView — input interaction, borrowed draft
-         └─ SummaryView — presentation of the latest loaded title
+Lifetime owners
+WorkspaceApplication
+├─ ShellView — persistent root UI
+└─ registered RecordApplication
+   ├─ draft — shared workflow state
+   └─ RecordPageView — feature root UI
 RecordService — transport, serialization and persistence contracts
+
+Screen placement
+ShellView
+└─ destination Region ← RecordApplication.showView()
+   └─ RecordPageView
+      ├─ editor Region → TitleEditorView (borrows draft)
+      └─ summary Region → SummaryView (latest loaded title)
 ```
+
+WorkspaceApplication registers RecordApplication and explicitly starts/stops it;
+registration alone neither starts nor awaits a child. ShellView owns the destination
+Region used to place the feature's root View. Emptying that Region removes UI but
+does not stop the Application or end its ongoing authority: the feature owner must
+stop or destroy it when ending the run. After showing the ShellView instance `shell`, pass
+`shell.getRegion('destination')` as `region` to the child instance's
+`start({ region, id })`. The
+[asynchronous routing example](routing.md#route-to-asynchronous-features) shows the
+complete shell-to-child handoff;
+[child Application ownership](../api/application.md#child-applications) explains
+registration and cleanup.
 
 An Application coordinates a feature lifetime; a View owns presentation and local
 interaction; a Region places and disposes its child. Use CollectionView for repeated
@@ -75,8 +94,10 @@ For every source or operation, record:
 | Retention | Restart preserves shell/input; Region replacement destroys its outgoing View; stop destroys root UI but retains Application state. |
 | Cancellation and release | Pass preparation signal to transport. Give ongoing saves their own cancellation/concurrency policy and end external effects at their owner. |
 
-`start()` and `restart()` resolve `true` on success, `false` when superseded, and
-reject for a current preparation failure. `stop()` and `destroy()` are synchronous;
+`start()` and `restart()` resolve `true` on success, `false` when superseded or
+cancelled, or when a stopping/terminal owner prevents activation. Current
+preparation or startup-callback failures reject; synchronous failures do not roll
+back completed work. `stop()` and `destroy()` are synchronous;
 notification hooks do not await Promises. The preparation signal ends with that
 operation, so it is not an ongoing feature-lifetime signal. Avoid application side
 effects during preparation that could commit after cancellation. See
@@ -86,7 +107,7 @@ effects during preparation that could commit after cancellation. See
 A supplied state source is borrowed; `createState()` establishes owned state.
 Declare what survives panel replacement, route exit, stop, and reload separately.
 Choose one writer or an explicit conflict policy for each shared mutation. Model
-observation and server persistence are separate capabilities: optional `@mnjs/data`
+observation and server persistence are separate capabilities: optional [@mnjs/data](../packages/data.md)
 has no `Model.save()` or `fetch()` contract. Do not assume Backbone methods.
 
 ## 3. Choose the migration strategy deliberately
@@ -100,7 +121,9 @@ Choose **leaf-first** when a leaf has a clean DOM/data boundary and its replacem
 will be reused unchanged in the target tree. A date picker or independent panel
 may qualify. Do not start there merely because leaves are small: dependencies on
 old stores, parent effects, or component conventions can turn every leaf into a
-compatibility project.
+compatibility project. Build those leaves inside the replacement shell when
+coexistence is unnecessary; hosting a leaf in the running original requires the
+bridge ownership and deletion criteria below.
 
 Choose a **native feature-family replacement** when the old tree obscures ownership
 or when no production coexistence is required. Establish the shell, service boundary,
@@ -141,7 +164,9 @@ The native replacement below separates readiness from local interaction. It uses
 Lit for safe text interpolation and stable input updates, and observable state
 from `@mnjs/data`. Follow [setup](../integrations/setup.md) for matching companion
 packages. `GET /records/42.json` returns `{ "title": string }`; API access stays in
-`loadRecord`, which can move into the application's service module.
+`loadRecord`, which can move into the application's service module. See
+[production deployment](production.md#serve-direct-links-deliberately) for HTTPS
+and direct-link requirements.
 
 ```js
 import { Application, View } from 'marionette';
@@ -209,12 +234,29 @@ page and editor stay owned by their Regions, and unfinished input survives. The
 editor's `ui` map gives its owned control one name instead of repeated
 `querySelector` calls. Read `getUI('title')[0]` after binding; bindings rebind on
 render and are snapshots, so do not keep a stale element across replacement.
+The editor observes title changes so external updates also appear. Its rerender
+retains the input through the chosen Lit integration and `live()` binding; verify
+focus and caret behavior before substituting another renderer.
+
+Calling `start({ id: next })` on an active Application resolves `true` without
+repeating preparation or applying the new options. This example supports restart
+only for its current record; a different-id restart would retain the old draft
+beside the new loaded title.
 
 A route to another record needs a deliberate draft policy: retain drafts by id,
 ask before discarding, or stop/start to reconstruct. Do not use this same-record
-reload as an implicit navigation policy. For initial readiness failure, the caller
+reload as an implicit navigation policy. This example resets the draft from loaded
+data after stop/start, although the Application retains its state source. Preserving
+drafts across reconstruction requires an explicit policy, such as drafts keyed by id.
+For initial readiness failure, the caller
 handles rejection and stops the failed run before error presentation; the
 [routing example](routing.md#route-to-asynchronous-features) supplies that boundary.
+`reloadRecord` reports current lifecycle rejections, including startup-callback
+failures; it is not a load-only error classifier. Reporting feedback does not roll
+back partial updates or establish safe recovery from callback bugs. Follow the
+[Application failure contract](../api/application.md#preparation-cancellation-and-failure)
+when deciding the application's recovery and diagnostic policy.
+
 This example has no save operation: adding one requires the service's write
 contract and a decision about cancellation, duplicate submissions, conflict, and
 which surviving owner receives completion. See [local editing](local-editing.md).
@@ -249,8 +291,13 @@ counts are progress measures, never completion claims.
 
 ## 6. Audit the final replacement
 
-Re-run the full journey matrix against the production entrypoint and controlled
-backend, with all intentional behavior changes documented. Audit source imports,
+The replacement is complete when every required journey passes its recorded
+expectation, updated for documented intentional changes, and every baseline bug
+has a recorded disposition. No required route remains unimplemented; checkpoint
+failures are resolved or recorded as intentional behavior changes. Re-run the full
+journey matrix and backend contract checks against the production entrypoint and controlled backend, including the interruption and
+failure cases. Review changed expectations independently from implementation.
+Audit source imports,
 dynamic imports, route lazy chunks, build plugins, manifests/lockfile, and the
 actual generated bundle/module graph. Remove the old framework, adapters, stores,
 bridges, obsolete entrypoints, unused styles, and dependencies when no required
@@ -272,7 +319,7 @@ is a reference to inspect, not proof of parity for another application.
 - Pilot representative risk, then complete related behavior in broad batches.
 - Review architecture and test changes separately from integrated behavior results.
 - Record decisions, exact evidence, incomplete routes and open failures at checkpoints.
-- Finish parity and prove old-framework removal in imports, dependencies and bundles.
+- Complete every required journey against recorded expectations, documenting intentional changes; resolve open failures and prove old-framework removal in imports, dependencies and bundles.
 
 ## Further reading
 
