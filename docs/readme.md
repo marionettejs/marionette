@@ -17,6 +17,7 @@ These guides target **5.0.0-rc.2**. Use the docs bundled with the release candid
 
 ## Common tasks
 
+- [Migrate from another framework](guides/framework-migration.md): preserve journeys and design native ownership.
 - [Migrate from v4](guides/migration.md): update configuration and lifecycle boundaries.
 - [Test an application](guides/testing.md): run interaction, replacement, readiness and teardown checks.
 - [Use TypeScript](guides/typescript.md): typed options, DOM handlers, state and lifecycle results.

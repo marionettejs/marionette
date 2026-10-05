@@ -41,6 +41,7 @@ Version-matched Markdown for the installed package. Choose the relevant task or 
 ## Integration and learning guides
 
 - [Renderer and data setup](docs/integrations/setup.md)
+- [Migrate from another UI framework](docs/guides/framework-migration.md)
 - [Migrate from v4](docs/guides/migration.md)
 - [Test an application](docs/guides/testing.md)
 - [Use TypeScript](docs/guides/typescript.md)

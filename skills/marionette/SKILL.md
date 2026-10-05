@@ -13,6 +13,7 @@ Choose one task or exact API section below directly from the installed package. 
 | Task | Packaged page |
 | --- | --- |
 | Install and render a first View | `docs/quick-start.md` |
+| Migrate from another UI framework | `docs/guides/framework-migration.md` |
 | Migrate an existing v4 application | `docs/guides/migration.md` |
 | Test interaction, readiness, or teardown | `docs/guides/testing.md` |
 | Choose ownership and lifetimes | `docs/architecture.md` |
