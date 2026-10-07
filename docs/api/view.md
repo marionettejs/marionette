@@ -86,7 +86,7 @@ For template selection, serialization, `renderAttributes`, and renderer customiz
 
 ## Named Regions
 
-A `regions` map accepts a selector string, Region constructor, Region instance, or options object such as `{ el: '.content', replaceElement: true }`. An options object can include `regionClass`. String selectors resolve inside the View's root by default; `@ui.name` is accepted in selectors and the `el` field. Full Region options are in [Region](region.md).
+A `regions` map accepts a selector string, Region constructor, Region instance, or options object such as `{ el: '.content', replaceElement: true }`. An options object can include `regionClass`. Supply options as own enumerable properties; inherited and non-enumerable option properties are not copied. Use a Region subclass for prototype defaults. String selectors resolve inside the View's root by default; `@ui.name` is accepted in selectors and the `el` field. Full Region options are in [Region](region.md). Registration copies the definition map and options objects before resolving UI selectors, so shared declarations remain unchanged and each View uses its own UI map. Supplied Region instances and constructors retain their identity.
 
 Regions are created before `initialize`; their elements can resolve later when content exists. A Region has one owner/name and must belong to the same Marionette runtime. Names must be nonempty strings. Re-registering the same instance under its existing name is harmless; a different definition under an occupied name throws. Remove the old Region before replacing its definition.
 

@@ -322,9 +322,15 @@ const RegionsMixin = {
 
     for (const name of Object.keys(regions)) { assertRegionName(name); }
 
-    // Normalize region selectors hash to allow
-    // a user to use the @ui. syntax.
-    regions = this.normalizeUIValues(regions, 'el');
+    // Normalize private copies so shared declarations retain their @ui selectors.
+    const definitions: RegionDefinitions = {};
+    for (const name of Object.keys(regions)) {
+      const definition = regions[name];
+      setRegion(definitions,
+        typeof definition === 'object' && !(definition instanceof Region) ? { ...definition } : definition,
+        name);
+    }
+    regions = this.normalizeUIValues(definitions, 'el');
 
     assertRegionDefinitionsCanRegister(this, regions);
 

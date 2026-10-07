@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "d9ab33dc5d863c531f1ac34fe97229f9404c88c8297dc25e3ecce1c15d9335ca",
+  "semanticsSha256": "aac615cfce472ad2a9ffbe2a11761e6106b5506d2260f5cc0ca409b0c9519822",
   "entrypoints": [
     {
       "name": "marionette",
@@ -10463,7 +10463,7 @@
     "src/modules/common/view.ts": "cd62997f30b7120e61f5067f876e612793dba629dfe942b46f156c861273c67e",
     "src/modules/object.ts": "23dacb7eacf2448ccbb690caa92195b49b992def43e4ef7cb598b50c03224100",
     "src/modules/region.ts": "73ed7de92d3c0c33c1e89b62bdf929e855960976cf6625204084fa6790282ae9",
-    "src/modules/view.ts": "8252fd94d9422d18e710418327e3726a98503f0081bf950390e265cabd49d966",
+    "src/modules/view.ts": "0412ca663eb8fc8a41fa03d6bb8ea9dfa85dc66402bbb1a08e7db1fd2c4c2786",
     "src/runtime-id.ts": "3636769dee054da16eaa2171f2badc2a71a528dedb41ea1d4ac3342e09060087",
     "src/runtime/data-api.ts": "f962aeba9bc33e10a1db3fc0c098d05a23bc54250d781f5df371bd11da419b66",
     "src/runtime/dom-api.ts": "6dcaec5e6e4c7e14c84da32daeb8ff5b8f85ae24ec1f82ab9af2054ed9166475",
@@ -10488,7 +10488,7 @@
     "docs/api/shared/events.md": "d32469eb9dab26b77b94615c8bc337fc360536dd3e0489e12ad1ebb086f685f0",
     "docs/api/shared/state.md": "51b4ff2bee1d7b908801062778efc3d45c1873a9f3d4f454360cdd3476a20f25",
     "docs/api/shared/view-bindings.md": "f1dc8acd160f1bf8b59f5cf0ac3b4582122135d0481fafa8c246475e05a10130",
-    "docs/api/view.md": "b988f7f08e79d06d5be6bced589fdd1afc84c60d6d3d27a8fc62eaecc1b9e4e6",
+    "docs/api/view.md": "157b5b3c68ea68b73dc63f747c1b8e938cba7a0c773f43e0962d4746b44f8108",
     "docs/guides/typescript.md": "e16331e21119a302bf96da56e03d7ba73db6d777ddacdc962fcb3449b4391aef",
     "docs/packages/adapters.md": "dba85df98bde4e8df589bc3e44b291656c51419d0607145664929b1ccf84b761",
     "docs/packages/data.md": "6a24f4e1c6441f1a73ec9a483422b269ff8613ee1cb9d86dcd2b8966e7096d52",

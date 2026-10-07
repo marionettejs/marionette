@@ -1,5 +1,8 @@
 ### Unreleased
 
+* Resolve Region UI selectors from per-registration copies of shared maps and
+  options objects, preventing one View from changing another View's selectors.
+
 ### v5.0.0-rc.2
 
 > Rebuilt framework documentation, focused agent lookup and automatic listener cleanup.

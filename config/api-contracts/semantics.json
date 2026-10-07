@@ -294,7 +294,7 @@
       "result": "Constructor returns the configured View; method-specific query/optional/fluent results are listed in the generated members.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "View owns its Regions and Behaviors, and owns only factory-created state. A Region or CollectionView can own the View.",
-      "mutation": "render replaces template contents and refreshes UI bindings; renderAttributes explicitly refreshes root attributes. Named Region lookup does not render; getChildView renders an unrendered parent before reading its child.",
+      "mutation": "render replaces template contents and refreshes UI bindings; renderAttributes explicitly refreshes root attributes. Named Region lookup does not render; getChildView renders an unrendered parent before reading its child. Region registration copies own enumerable properties from supplied definition maps and options objects before resolving UI selectors, without mutating those declarations; supplied Region instances and constructors retain their identity.",
       "repetition": "render may repeat while live; rendering after destruction is a no-op.",
       "destruction": "destroy releases owned composition and removes its element; before:destroy precedes destroy. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
       "diagnostics": [],
