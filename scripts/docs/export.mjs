@@ -5,7 +5,8 @@ import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { releaseChannel } from '../release/publication.mjs';
 import { documentSections, isConsumerPage } from './sections.mjs';
-import { symbolIndex } from './symbols.mjs';
+import { checkDiagnosticSections } from './diagnostics.mjs';
+import { assertPrimarySections, symbolIndex } from './symbols.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 export const sha256 = value => createHash('sha256').update(value).digest('hex');
@@ -69,6 +70,7 @@ export async function readResources(repository, sources, pageSources = []) {
 export async function exportDocs() {
   const navigation = JSON.parse(await readFile(resolve(root, 'docs-site/navigation.json'), 'utf8'));
   validateNavigation(navigation);
+  await checkDiagnosticSections(root);
   const pkg = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
   const policy = JSON.parse(await readFile(resolve(root, 'config/release-promotion.json'), 'utf8'));
   const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
@@ -92,8 +94,10 @@ export async function exportDocs() {
   if (inventory.semanticsSha256 !== sha256(JSON.stringify(semantics))) {
     throw new Error('Public contract inventory is stale. Run node scripts/api-contracts/check.mjs after reviewing the metadata.');
   }
+  const symbols = symbolIndex(inventory, semantics, sections);
+  assertPrimarySections(symbols);
   assetContents.push({ source: 'docs-symbols.json',
-    bytes: Buffer.from(`${JSON.stringify(symbolIndex(inventory, semantics, sections))}\n`) });
+    bytes: Buffer.from(`${JSON.stringify(symbols)}\n`) });
   const assets = assetContents.map(({ source, bytes }) => ({ source, sha256: sha256(bytes) }));
   const manifest = {
     schemaVersion: 1,

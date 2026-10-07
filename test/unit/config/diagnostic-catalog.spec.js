@@ -20,6 +20,7 @@ describe('diagnostic catalog validation', function() {
       objects: ['Region', 'View'],
       remediation: 'Use a declared Region name.',
       docsAnchor: '/errors/MN0001/',
+      docsSection: `docs/api/errors.md#${(overrides.code || 'MN0001').toLowerCase()}`,
       surfaces: ['lint', 'runtime', 'test'],
       benchmarkCategory: 'ownership',
       ...overrides,
@@ -29,7 +30,7 @@ describe('diagnostic catalog validation', function() {
   function createCatalog(diagnostics = [createDiagnostic()]) {
     return {
       $schema: './catalog.schema.json',
-      schemaVersion: 2,
+      schemaVersion: 3,
       diagnostics,
     };
   }
@@ -67,6 +68,11 @@ describe('diagnostic catalog validation', function() {
 
     expect(() => validate(catalog))
       .to.throw(DiagnosticCatalogValidationError, 'MN0001 docsAnchor must be /errors/MN0001/');
+  });
+
+  it('requires the packaged section to match its diagnostic code', function() {
+    const catalog = createCatalog([createDiagnostic({ docsSection: 'docs/api/errors.md#mn0002' })]);
+    expect(() => validate(catalog)).toThrow('MN0001 docsSection must be docs/api/errors.md#mn0001');
   });
 
   it('requires unique diagnostic identifiers', function() {

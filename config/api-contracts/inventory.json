@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "122dffd83054926b5919b1a9606a1d0f7e4a62c3a4d8d9c808727c6912376b2d",
+  "semanticsSha256": "c0dc6447d38a51fd0bdc215c875d5e74b6790db377a1f08192717ec75e407520",
   "entrypoints": [
     {
       "name": "marionette",
@@ -183,17 +183,27 @@
               "bindRequests": [
                 "owner-bind-requests"
               ],
-              "channelName": [],
+              "channelName": [
+                "application-composition"
+              ],
               "childApps": [
                 "application-composition"
               ],
-              "cid": [],
-              "cidPrefix": [],
-              "createState": [],
+              "cid": [
+                "application-composition"
+              ],
+              "cidPrefix": [
+                "application-composition"
+              ],
+              "createState": [
+                "application-composition"
+              ],
               "destroy": [
                 "application-lifecycle"
               ],
-              "getChannel": [],
+              "getChannel": [
+                "application-composition"
+              ],
               "getChildApp": [
                 "application-composition"
               ],
@@ -209,7 +219,9 @@
               "getRegion": [
                 "application-composition"
               ],
-              "getState": [],
+              "getState": [
+                "application-composition"
+              ],
               "getView": [
                 "application-composition"
               ],
@@ -264,16 +276,24 @@
               "onStop": [
                 "application-lifecycle"
               ],
-              "options": [],
+              "options": [
+                "application-composition"
+              ],
               "preinitialize": [
                 "application-composition"
               ],
               "prepareStart": [
                 "application-lifecycle"
               ],
-              "Radio": [],
-              "radioEvents": [],
-              "radioRequests": [],
+              "Radio": [
+                "application-composition"
+              ],
+              "radioEvents": [
+                "application-composition"
+              ],
+              "radioRequests": [
+                "application-composition"
+              ],
               "region": [
                 "application-composition"
               ],
@@ -295,9 +315,15 @@
               "start": [
                 "application-lifecycle"
               ],
-              "state": [],
-              "State": [],
-              "stateEvents": [],
+              "state": [
+                "application-composition"
+              ],
+              "State": [
+                "application-composition"
+              ],
+              "stateEvents": [
+                "application-composition"
+              ],
               "stop": [
                 "application-lifecycle"
               ],
@@ -8689,7 +8715,16 @@
           "heading": "DOM interaction and UI",
           "members": [
             "getUI",
-            "ui"
+            "ui",
+            "events",
+            "triggers",
+            "EventDelegator",
+            "$",
+            "bindUIElements",
+            "unbindUIElements",
+            "normalizeUIKeys",
+            "normalizeUIString",
+            "normalizeUIValues"
           ],
           "exports": [
             "BehaviorInstance",
@@ -8720,6 +8755,1422 @@
           ],
           "exports": [
             "EventDelegator"
+          ]
+        },
+        {
+          "file": "docs/api/view.md",
+          "heading": "Rendering and status",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration"
+          ],
+          "members": [
+            "render",
+            "isAttached",
+            "isRendered",
+            "isDestroyed",
+            "destroy"
+          ]
+        },
+        {
+          "file": "docs/api/view.md",
+          "heading": "Lifecycle hooks and events",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionChild",
+            "SupportedView",
+            "ViewLifecycle"
+          ],
+          "members": [
+            "monitorViewEvents"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Data bindings",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "modelEvents",
+            "collectionEvents",
+            "delegateEntityEvents",
+            "undelegateEntityEvents"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Child events",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "childViewEvents",
+            "childViewTriggers",
+            "childViewEventPrefix"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Behavior composition",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "behaviors"
+          ]
+        },
+        {
+          "file": "docs/api/view.md",
+          "heading": "Construction and options",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration"
+          ],
+          "members": [
+            "cid",
+            "cidPrefix",
+            "options",
+            "initialize",
+            "preinitialize",
+            "el",
+            "tagName"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Class configuration",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "Data",
+            "Dom",
+            "EventDelegator"
+          ]
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Create or supply state",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration",
+            "BehaviorInstance",
+            "BehaviorOptions",
+            "MnObjectInstance"
+          ],
+          "members": [
+            "state",
+            "createState",
+            "getState"
+          ]
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Observe state",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration",
+            "BehaviorInstance",
+            "BehaviorOptions",
+            "MnObjectInstance"
+          ],
+          "members": [
+            "stateEvents"
+          ]
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Configure the StateApi",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration",
+            "BehaviorInstance",
+            "BehaviorOptions",
+            "MnObjectInstance"
+          ],
+          "members": [
+            "State"
+          ]
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Subscribe and unsubscribe",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration",
+            "RegionInstance",
+            "RegionOptions",
+            "ShowOptions",
+            "BehaviorInstance",
+            "BehaviorOptions",
+            "MnObjectInstance",
+            "ApplicationInstance",
+            "ApplicationOptions",
+            "ModelInput",
+            "EventsContract",
+            "EventMethods",
+            "EventSource",
+            "RadioApi",
+            "Channel",
+            "ChannelConstructor"
+          ],
+          "members": [
+            "on",
+            "off",
+            "once",
+            "listenTo",
+            "listenToOnce",
+            "stopListening"
+          ]
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration",
+            "RegionInstance",
+            "RegionOptions",
+            "ShowOptions",
+            "BehaviorInstance",
+            "BehaviorOptions",
+            "MnObjectInstance",
+            "ApplicationInstance",
+            "ApplicationOptions",
+            "ModelInput",
+            "EventsContract",
+            "EventMethods",
+            "EventSource",
+            "RadioApi",
+            "Channel",
+            "ChannelConstructor"
+          ],
+          "members": [
+            "trigger",
+            "triggerMethod"
+          ]
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration",
+            "RegionInstance",
+            "RegionOptions",
+            "ShowOptions",
+            "BehaviorInstance",
+            "BehaviorOptions",
+            "MnObjectInstance",
+            "ApplicationInstance",
+            "ApplicationOptions"
+          ],
+          "members": [
+            "on",
+            "off",
+            "once",
+            "trigger",
+            "listenTo",
+            "listenToOnce",
+            "stopListening"
+          ]
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Names, maps, and callback context",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration",
+            "RegionInstance",
+            "RegionOptions",
+            "ShowOptions",
+            "BehaviorInstance",
+            "BehaviorOptions",
+            "MnObjectInstance",
+            "ApplicationInstance",
+            "ApplicationOptions"
+          ],
+          "members": [
+            "on",
+            "off",
+            "once",
+            "trigger",
+            "listenTo",
+            "listenToOnce",
+            "stopListening"
+          ]
+        },
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Options and initialization",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration",
+            "RegionInstance",
+            "RegionOptions",
+            "ShowOptions",
+            "BehaviorInstance",
+            "BehaviorOptions",
+            "MnObjectInstance",
+            "ApplicationInstance",
+            "ApplicationOptions"
+          ],
+          "members": [
+            "getOption",
+            "mergeOptions",
+            "normalizeMethods"
+          ]
+        },
+        {
+          "file": "docs/packages/utils.md",
+          "heading": "Component methods",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration",
+            "RegionInstance",
+            "RegionOptions",
+            "ShowOptions",
+            "BehaviorInstance",
+            "BehaviorOptions",
+            "MnObjectInstance",
+            "ApplicationInstance",
+            "ApplicationOptions"
+          ],
+          "members": [
+            "mergeOptions",
+            "normalizeMethods",
+            "bindEvents",
+            "unbindEvents",
+            "bindRequests",
+            "unbindRequests"
+          ]
+        },
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Binding helpers",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration",
+            "RegionInstance",
+            "RegionOptions",
+            "ShowOptions",
+            "BehaviorInstance",
+            "BehaviorOptions",
+            "MnObjectInstance",
+            "ApplicationInstance",
+            "ApplicationOptions"
+          ],
+          "members": [
+            "bindEvents",
+            "unbindEvents",
+            "bindRequests",
+            "unbindRequests"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Root attributes",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "renderAttributes",
+            "attributes",
+            "id",
+            "className"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "DOM events",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "delegateEvents",
+            "undelegateEvents",
+            "events",
+            "triggers"
+          ]
+        },
+        {
+          "file": "docs/api/providers/dom.md",
+          "heading": "EventDelegator",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "delegateEvents",
+            "undelegateEvents",
+            "events",
+            "triggers"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "UI bindings",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "$",
+            "getUI",
+            "bindUIElements",
+            "unbindUIElements",
+            "normalizeUIKeys",
+            "normalizeUIString",
+            "normalizeUIValues",
+            "ui"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Templates and data",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration",
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "getTemplate",
+            "serializeData",
+            "serializeModel",
+            "serializeCollection",
+            "mixinTemplateContext",
+            "attachElContent",
+            "template",
+            "templateContext",
+            "model",
+            "collection"
+          ]
+        },
+        {
+          "file": "docs/api/view.md",
+          "heading": "Named Regions",
+          "exports": [
+            "ViewInstance",
+            "ViewConfiguration"
+          ],
+          "members": [
+            "hasRegion",
+            "getRegion",
+            "getRegions",
+            "addRegion",
+            "addRegions",
+            "removeRegion",
+            "removeRegions",
+            "emptyRegions",
+            "getChildView",
+            "showChildView",
+            "detachChildView",
+            "regions",
+            "regionClass"
+          ]
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Lifecycle and extension points",
+          "exports": [
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "render",
+            "isAttached",
+            "isRendered",
+            "isDestroyed",
+            "destroy",
+            "monitorViewEvents",
+            "buildChildView",
+            "attachHtml",
+            "detachHtml"
+          ]
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Find and inspect children",
+          "exports": [
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "children"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Data bindings",
+          "exports": [
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "delegateEntityEvents",
+            "undelegateEntityEvents"
+          ]
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Construction and options",
+          "exports": [
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "cid",
+            "cidPrefix",
+            "options",
+            "initialize",
+            "preinitialize",
+            "el",
+            "tagName",
+            "RegionClass",
+            "childView",
+            "childViewOptions",
+            "childViewContainer",
+            "sortWithCollection",
+            "viewComparator",
+            "viewFilter"
+          ]
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Empty presentation",
+          "exports": [
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "getEmptyRegion",
+            "emptyView",
+            "emptyViewOptions"
+          ]
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Manage View instances directly",
+          "exports": [
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "addChildView",
+            "removeChildView",
+            "detachChildView",
+            "swapChildViews"
+          ]
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Sorting",
+          "exports": [
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "sort",
+            "getComparator",
+            "setComparator",
+            "removeComparator"
+          ]
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Filtering",
+          "exports": [
+            "CollectionViewInstance",
+            "CollectionViewConfiguration"
+          ],
+          "members": [
+            "filter",
+            "getFilter",
+            "setFilter",
+            "removeFilter"
+          ]
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Empty presentation",
+          "exports": [
+            "CollectionViewInstance"
+          ],
+          "members": [
+            "isEmpty"
+          ]
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "Empty, detach, reset, and destroy",
+          "exports": [
+            "RegionInstance",
+            "RegionOptions",
+            "ShowOptions"
+          ],
+          "members": [
+            "empty",
+            "detachView",
+            "reset",
+            "destroy"
+          ]
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "Properties and queries",
+          "exports": [
+            "RegionInstance",
+            "RegionOptions",
+            "ShowOptions"
+          ],
+          "members": [
+            "currentView",
+            "hasView",
+            "getOwner",
+            "getName",
+            "isSwappingView",
+            "isReplaced",
+            "isDestroyed",
+            "el",
+            "options",
+            "cid",
+            "cidPrefix",
+            "Dom"
+          ]
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "`show(view, options?)`",
+          "exports": [
+            "RegionInstance",
+            "RegionOptions",
+            "ShowOptions"
+          ],
+          "members": [
+            "show"
+          ]
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "Construction and options",
+          "exports": [
+            "RegionInstance",
+            "RegionOptions",
+            "ShowOptions"
+          ],
+          "members": [
+            "allowMissingEl",
+            "parentEl",
+            "replaceElement",
+            "initialize"
+          ]
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "Customization and inherited methods",
+          "exports": [
+            "RegionInstance",
+            "RegionOptions",
+            "ShowOptions"
+          ],
+          "members": [
+            "getEl",
+            "attachHtml",
+            "detachHtml",
+            "removeView",
+            "destroyView"
+          ]
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "Declare and construct",
+          "exports": [
+            "BehaviorInstance",
+            "BehaviorOptions"
+          ],
+          "members": [
+            "cid",
+            "cidPrefix",
+            "options",
+            "initialize",
+            "view",
+            "el"
+          ]
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "Host events and data",
+          "exports": [
+            "BehaviorInstance",
+            "BehaviorOptions"
+          ],
+          "members": [
+            "modelEvents",
+            "collectionEvents",
+            "delegateEntityEvents",
+            "undelegateEntityEvents"
+          ]
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "Destruction and nested Behaviors",
+          "exports": [
+            "BehaviorInstance",
+            "BehaviorOptions"
+          ],
+          "members": [
+            "destroy"
+          ]
+        },
+        {
+          "file": "docs/api/mnobject.md",
+          "heading": "Construction and options",
+          "exports": [
+            "MnObjectInstance"
+          ],
+          "members": [
+            "cid",
+            "cidPrefix",
+            "initialize",
+            "options"
+          ]
+        },
+        {
+          "file": "docs/api/mnobject.md",
+          "heading": "Destruction and ownership",
+          "exports": [
+            "MnObjectInstance"
+          ],
+          "members": [
+            "destroy",
+            "isDestroyed"
+          ]
+        },
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Declarative Radio bindings",
+          "exports": [
+            "MnObjectInstance",
+            "ApplicationInstance",
+            "ApplicationOptions"
+          ],
+          "members": [
+            "channelName",
+            "radioEvents",
+            "radioRequests",
+            "getChannel",
+            "Radio"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Child Applications",
+          "exports": [
+            "ApplicationInstance",
+            "ApplicationOptions"
+          ],
+          "members": [
+            "childApps",
+            "addChildApp",
+            "removeChildApp",
+            "getChildApp",
+            "getChildApps",
+            "hasChildApp",
+            "getName"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Root View and Region",
+          "exports": [
+            "ApplicationInstance",
+            "ApplicationOptions"
+          ],
+          "members": [
+            "region",
+            "regionClass",
+            "getRegion",
+            "getView",
+            "setView",
+            "showView"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Lifecycle methods and results",
+          "exports": [
+            "ApplicationInstance",
+            "ApplicationOptions"
+          ],
+          "members": [
+            "isRunning",
+            "isDestroyed"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Construction and options",
+          "exports": [
+            "ApplicationInstance",
+            "ApplicationOptions"
+          ],
+          "members": [
+            "initialize",
+            "preinitialize",
+            "cid",
+            "cidPrefix",
+            "options"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "View events",
+          "exports": [
+            "ApplicationInstance",
+            "ApplicationOptions"
+          ],
+          "members": [
+            "viewEvents"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "State and Radio",
+          "exports": [
+            "ApplicationInstance",
+            "ApplicationOptions"
+          ],
+          "members": [
+            "state",
+            "createState",
+            "getState",
+            "stateEvents",
+            "State"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Lifecycle methods and results",
+          "exports": [
+            "ApplicationInstance"
+          ],
+          "members": [
+            "start",
+            "stop",
+            "restart",
+            "destroy",
+            "prepareStart",
+            "onBeforeStart",
+            "onBeforeStop",
+            "onBeforeDestroy",
+            "onStart",
+            "onStop",
+            "onDestroy"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Preparation, cancellation, and failure",
+          "exports": [
+            "ApplicationInstance"
+          ],
+          "members": [
+            "start",
+            "stop",
+            "restart",
+            "destroy",
+            "prepareStart",
+            "onBeforeStart",
+            "onBeforeStop",
+            "onBeforeDestroy",
+            "onStart",
+            "onStop",
+            "onDestroy"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Lifecycle hooks and events",
+          "exports": [
+            "ApplicationInstance"
+          ],
+          "members": [
+            "start",
+            "stop",
+            "restart",
+            "destroy",
+            "prepareStart",
+            "onBeforeStart",
+            "onBeforeStop",
+            "onBeforeDestroy",
+            "onStart",
+            "onStop",
+            "onDestroy"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Child Applications",
+          "exports": [
+            "ApplicationInstance"
+          ],
+          "members": [
+            "start",
+            "stop",
+            "restart",
+            "destroy",
+            "prepareStart",
+            "onBeforeStart",
+            "onBeforeStop",
+            "onBeforeDestroy",
+            "onStart",
+            "onStop",
+            "onDestroy"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Root View and Region",
+          "exports": [
+            "ApplicationInstance"
+          ],
+          "members": [
+            "start",
+            "stop",
+            "restart",
+            "destroy",
+            "prepareStart",
+            "onBeforeStart",
+            "onBeforeStop",
+            "onBeforeDestroy",
+            "onStart",
+            "onStop",
+            "onDestroy"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "State and Radio",
+          "exports": [
+            "ApplicationInstance"
+          ],
+          "members": [
+            "start",
+            "stop",
+            "restart",
+            "destroy",
+            "prepareStart",
+            "onBeforeStart",
+            "onBeforeStop",
+            "onBeforeDestroy",
+            "onStart",
+            "onStop",
+            "onDestroy"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Destination binding order",
+          "exports": [
+            "ApplicationInstance"
+          ],
+          "members": [
+            "start",
+            "stop",
+            "restart",
+            "destroy",
+            "prepareStart",
+            "onBeforeStart",
+            "onBeforeStop",
+            "onBeforeDestroy",
+            "onStart",
+            "onStop",
+            "onDestroy"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Restart from start completion",
+          "exports": [
+            "ApplicationInstance"
+          ],
+          "members": [
+            "start",
+            "stop",
+            "restart",
+            "destroy",
+            "prepareStart",
+            "onBeforeStart",
+            "onBeforeStop",
+            "onBeforeDestroy",
+            "onStart",
+            "onStop",
+            "onDestroy"
+          ]
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup",
+          "exports": [
+            "ApplicationInstance"
+          ],
+          "members": [
+            "start",
+            "stop",
+            "restart",
+            "destroy",
+            "prepareStart",
+            "onBeforeStart",
+            "onBeforeStop",
+            "onBeforeDestroy",
+            "onStart",
+            "onStop",
+            "onDestroy"
+          ]
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Read and mutate attributes",
+          "exports": [
+            "ModelInput"
+          ],
+          "members": [
+            "get",
+            "has",
+            "set",
+            "unset",
+            "clear",
+            "reset",
+            "toObject"
+          ]
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Destruction and ownership",
+          "exports": [
+            "ModelInput"
+          ],
+          "members": [
+            "destroy",
+            "isDestroyed"
+          ]
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Model configuration and properties",
+          "exports": [
+            "ModelInput"
+          ],
+          "members": [
+            "attributes",
+            "changed",
+            "cid",
+            "id",
+            "idAttribute",
+            "initialize"
+          ]
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Imports and registry scope",
+          "exports": [
+            "RadioApi",
+            "Channel",
+            "ChannelConstructor"
+          ],
+          "members": [
+            "channel",
+            "Channel",
+            "channelName"
+          ]
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Lifetime and cleanup",
+          "exports": [
+            "RadioApi",
+            "Channel",
+            "ChannelConstructor"
+          ],
+          "members": [
+            "reset"
+          ]
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Logging",
+          "exports": [
+            "RadioApi",
+            "Channel",
+            "ChannelConstructor"
+          ],
+          "members": [
+            "debugLog",
+            "log",
+            "setDebug",
+            "tuneIn",
+            "tuneOut"
+          ]
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Requests and replies",
+          "exports": [
+            "RadioApi",
+            "Channel",
+            "Requests",
+            "ChannelConstructor"
+          ],
+          "members": [
+            "request",
+            "reply",
+            "replyOnce",
+            "stopReplying"
+          ]
+        },
+        {
+          "file": "docs/api/errors.md",
+          "heading": "MarionetteError",
+          "exports": [
+            "MarionetteErrorInstance",
+            "MarionetteErrorConstructor"
+          ],
+          "members": [
+            "captureStackTrace",
+            "code",
+            "description",
+            "fileName",
+            "lineNumber",
+            "message",
+            "name",
+            "number",
+            "toString",
+            "url",
+            "urlRoot"
+          ]
+        },
+        {
+          "file": "docs/api/providers/dom.md",
+          "heading": "DomApi",
+          "exports": [
+            "DomApiContract"
+          ],
+          "members": [
+            "appendContents",
+            "createBuffer",
+            "createElement",
+            "detachContents",
+            "detachEl",
+            "findEl",
+            "getDocumentEl",
+            "hasContents",
+            "hasEl",
+            "moveEl",
+            "notifyAttach",
+            "notifyDetach",
+            "replaceEl",
+            "setAttributes",
+            "setContents"
+          ]
+        },
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Define a class",
+          "exports": [
+            "ApplicationConstructor",
+            "BehaviorConstructor",
+            "CollectionViewConstructor",
+            "MnObjectConstructor",
+            "RegionConstructor",
+            "ViewConstructor"
+          ],
+          "members": [
+            "call",
+            "apply"
+          ]
+        },
+        {
+          "file": "docs/api/providers/data.md",
+          "heading": "StateApi",
+          "exports": [
+            "StateApiContract"
+          ],
+          "members": [
+            "subscribe",
+            "disposeOwned"
+          ]
+        },
+        {
+          "file": "docs/api/providers/dom.md",
+          "heading": "EventDelegator",
+          "exports": [
+            "DelegateOptions",
+            "DelegatedEvent"
+          ],
+          "members": [
+            "rootEl",
+            "eventName",
+            "handler",
+            "selector",
+            "delegateTarget"
+          ]
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "Declare and construct",
+          "exports": [
+            "BehaviorOptionsDefinition"
+          ],
+          "members": [
+            "behaviorClass"
+          ]
+        },
+        {
+          "file": "docs/api/behavior.md",
+          "heading": "Host events and data",
+          "exports": [
+            "BehaviorHost"
+          ],
+          "members": [
+            "$",
+            "collection",
+            "Data",
+            "el",
+            "model",
+            "off",
+            "on",
+            "triggerMethod",
+            "ui"
+          ]
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Manage View instances directly",
+          "exports": [
+            "ChildRenderOptions"
+          ],
+          "members": [
+            "index",
+            "preventRender"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Preparation, cancellation, and failure",
+          "exports": [
+            "LifecycleContext"
+          ],
+          "members": [
+            "signal"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "Root View and Region",
+          "exports": [
+            "ApplicationStartOptions",
+            "ApplicationRestartOptions"
+          ],
+          "members": [
+            "region"
+          ]
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "TypeScript types",
+          "exports": [
+            "RegionOwner"
+          ],
+          "members": [
+            "monitorViewEvents",
+            "stopListening"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "DOM events",
+          "exports": [
+            "TriggerOptions"
+          ],
+          "members": [
+            "event",
+            "preventDefault",
+            "stopPropagation"
+          ]
+        },
+        {
+          "file": "docs/api/providers/data.md",
+          "heading": "Collection identity and observation",
+          "exports": [
+            "CollectionChange"
+          ],
+          "members": [
+            "kind"
+          ]
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Collection configuration and properties",
+          "exports": [
+            "CollectionOptions"
+          ],
+          "members": [
+            "model"
+          ]
+        },
+        {
+          "file": "docs/packages/adapters.md",
+          "heading": "XState actors",
+          "exports": [
+            "XStateActorApiOptions",
+            "XStateActorEventOptions"
+          ],
+          "members": [
+            "select",
+            "snapshotEvent"
+          ]
+        },
+        {
+          "file": "docs/api/view.md",
+          "heading": "Rendering and status",
+          "exports": [
+            "CollectionChild",
+            "SupportedView"
+          ],
+          "members": [
+            "render",
+            "destroy"
+          ]
+        },
+        {
+          "file": "docs/api/view.md",
+          "heading": "Construction and options",
+          "exports": [
+            "CollectionChild",
+            "SupportedView",
+            "ViewLifecycle"
+          ],
+          "members": [
+            "cid",
+            "el"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Class configuration",
+          "exports": [
+            "CollectionChild",
+            "SupportedView",
+            "ViewLifecycle"
+          ],
+          "members": [
+            "Dom"
+          ]
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Subscribe and unsubscribe",
+          "exports": [
+            "CollectionChild",
+            "SupportedView",
+            "ViewLifecycle"
+          ],
+          "members": [
+            "on",
+            "off"
+          ]
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks",
+          "exports": [
+            "CollectionChild",
+            "SupportedView",
+            "ViewLifecycle"
+          ],
+          "members": [
+            "triggerMethod"
+          ]
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Cleanup",
+          "exports": [
+            "CollectionChild",
+            "SupportedView",
+            "ViewLifecycle"
+          ],
+          "members": [
+            "on",
+            "off"
+          ]
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Names, maps, and callback context",
+          "exports": [
+            "CollectionChild",
+            "SupportedView",
+            "ViewLifecycle"
+          ],
+          "members": [
+            "on",
+            "off"
+          ]
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Lifecycle and extension points",
+          "members": [
+            "model"
+          ],
+          "exports": [
+            "CollectionChild"
           ]
         }
       ]
@@ -8762,15 +10213,59 @@
       "docs": [
         {
           "file": "docs/api/mnobject.md",
-          "heading": "Construction and options"
+          "heading": "Construction and options",
+          "members": [
+            "cid",
+            "cidPrefix",
+            "initialize",
+            "options"
+          ]
         },
         {
           "file": "docs/api/mnobject.md",
-          "heading": "Destruction and ownership"
+          "heading": "Destruction and ownership",
+          "members": [
+            "destroy",
+            "isDestroyed"
+          ]
         },
         {
           "file": "docs/api/shared/events.md",
           "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Create or supply state",
+          "members": [
+            "state",
+            "createState",
+            "getState"
+          ]
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Observe state",
+          "members": [
+            "stateEvents"
+          ]
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Configure the StateApi",
+          "members": [
+            "State"
+          ]
+        },
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Declarative Radio bindings",
+          "members": [
+            "channelName",
+            "radioEvents",
+            "radioRequests",
+            "getChannel",
+            "Radio"
+          ]
         }
       ]
     },
@@ -8780,11 +10275,21 @@
       "docs": [
         {
           "file": "docs/api/view.md",
-          "heading": "Rendering and status"
+          "heading": "Rendering and status",
+          "members": [
+            "render",
+            "isAttached",
+            "isRendered",
+            "isDestroyed",
+            "destroy"
+          ]
         },
         {
           "file": "docs/api/view.md",
-          "heading": "Lifecycle hooks and events"
+          "heading": "Lifecycle hooks and events",
+          "members": [
+            "monitorViewEvents"
+          ]
         },
         {
           "file": "docs/api/view.md",
@@ -8823,6 +10328,51 @@
           "members": [
             "behaviors"
           ]
+        },
+        {
+          "file": "docs/api/view.md",
+          "heading": "Construction and options",
+          "members": [
+            "cid",
+            "cidPrefix",
+            "options",
+            "initialize",
+            "preinitialize",
+            "el",
+            "tagName"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Class configuration",
+          "members": [
+            "Data",
+            "Dom",
+            "EventDelegator"
+          ]
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Create or supply state",
+          "members": [
+            "state",
+            "createState",
+            "getState"
+          ]
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Observe state",
+          "members": [
+            "stateEvents"
+          ]
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Configure the StateApi",
+          "members": [
+            "State"
+          ]
         }
       ]
     },
@@ -8832,7 +10382,15 @@
       "docs": [
         {
           "file": "docs/api/behavior.md",
-          "heading": "Declare and construct"
+          "heading": "Declare and construct",
+          "members": [
+            "cid",
+            "cidPrefix",
+            "options",
+            "initialize",
+            "view",
+            "el"
+          ]
         },
         {
           "file": "docs/api/behavior.md",
@@ -8846,7 +10404,10 @@
         },
         {
           "file": "docs/api/behavior.md",
-          "heading": "Destruction and nested Behaviors"
+          "heading": "Destruction and nested Behaviors",
+          "members": [
+            "destroy"
+          ]
         },
         {
           "file": "docs/api/behavior.md",
@@ -8861,7 +10422,31 @@
           "heading": "DOM interaction and UI",
           "members": [
             "events",
-            "triggers"
+            "triggers",
+            "EventDelegator"
+          ]
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Create or supply state",
+          "members": [
+            "state",
+            "createState",
+            "getState"
+          ]
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Observe state",
+          "members": [
+            "stateEvents"
+          ]
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Configure the StateApi",
+          "members": [
+            "State"
           ]
         }
       ]
@@ -8876,11 +10461,31 @@
         },
         {
           "file": "docs/api/region.md",
-          "heading": "Empty, detach, reset, and destroy"
+          "heading": "Empty, detach, reset, and destroy",
+          "members": [
+            "empty",
+            "detachView",
+            "reset",
+            "destroy"
+          ]
         },
         {
           "file": "docs/api/region.md",
-          "heading": "Properties and queries"
+          "heading": "Properties and queries",
+          "members": [
+            "currentView",
+            "hasView",
+            "getOwner",
+            "getName",
+            "isSwappingView",
+            "isReplaced",
+            "isDestroyed",
+            "el",
+            "options",
+            "cid",
+            "cidPrefix",
+            "Dom"
+          ]
         },
         {
           "file": "docs/api/region.md",
@@ -8889,6 +10494,34 @@
         {
           "file": "docs/api/shared/events.md",
           "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "`show(view, options?)`",
+          "members": [
+            "show"
+          ]
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "Construction and options",
+          "members": [
+            "allowMissingEl",
+            "parentEl",
+            "replaceElement",
+            "initialize"
+          ]
+        },
+        {
+          "file": "docs/api/region.md",
+          "heading": "Customization and inherited methods",
+          "members": [
+            "getEl",
+            "attachHtml",
+            "detachHtml",
+            "removeView",
+            "destroyView"
+          ]
         }
       ]
     },
@@ -8902,7 +10535,18 @@
         },
         {
           "file": "docs/api/collection-view.md",
-          "heading": "Lifecycle and extension points"
+          "heading": "Lifecycle and extension points",
+          "members": [
+            "render",
+            "isAttached",
+            "isRendered",
+            "isDestroyed",
+            "destroy",
+            "monitorViewEvents",
+            "buildChildView",
+            "attachHtml",
+            "detachHtml"
+          ]
         },
         {
           "file": "docs/api/providers/data.md",
@@ -8914,7 +10558,10 @@
         },
         {
           "file": "docs/api/collection-view.md",
-          "heading": "Find and inspect children"
+          "heading": "Find and inspect children",
+          "members": [
+            "children"
+          ]
         },
         {
           "file": "docs/api/shared/events.md",
@@ -8926,6 +10573,51 @@
           "members": [
             "delegateEntityEvents",
             "undelegateEntityEvents"
+          ]
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Construction and options",
+          "members": [
+            "cid",
+            "cidPrefix",
+            "options",
+            "initialize",
+            "preinitialize",
+            "el",
+            "RegionClass"
+          ]
+        },
+        {
+          "file": "docs/api/shared/view-bindings.md",
+          "heading": "Class configuration",
+          "members": [
+            "Data",
+            "Dom",
+            "EventDelegator"
+          ]
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Empty presentation",
+          "members": [
+            "getEmptyRegion"
+          ]
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Create or supply state",
+          "members": [
+            "state",
+            "createState",
+            "getState"
+          ]
+        },
+        {
+          "file": "docs/api/shared/state.md",
+          "heading": "Configure the StateApi",
+          "members": [
+            "State"
           ]
         }
       ]
@@ -8968,11 +10660,23 @@
       "docs": [
         {
           "file": "docs/api/shared/events.md",
-          "heading": "Subscribe and unsubscribe"
+          "heading": "Subscribe and unsubscribe",
+          "members": [
+            "on",
+            "off",
+            "once",
+            "listenTo",
+            "listenToOnce",
+            "stopListening"
+          ]
         },
         {
           "file": "docs/api/shared/events.md",
-          "heading": "Trigger events and hooks"
+          "heading": "Trigger events and hooks",
+          "members": [
+            "trigger",
+            "triggerMethod"
+          ]
         },
         {
           "file": "docs/api/shared/events.md",
@@ -8990,11 +10694,19 @@
       "docs": [
         {
           "file": "docs/packages/radio.md",
-          "heading": "Imports and registry scope"
+          "heading": "Imports and registry scope",
+          "members": [
+            "channel",
+            "Channel",
+            "channelName"
+          ]
         },
         {
           "file": "docs/packages/radio.md",
-          "heading": "Lifetime and cleanup"
+          "heading": "Lifetime and cleanup",
+          "members": [
+            "reset"
+          ]
         },
         {
           "file": "docs/packages/radio.md",
@@ -9006,7 +10718,44 @@
         },
         {
           "file": "docs/packages/radio.md",
-          "heading": "Logging"
+          "heading": "Logging",
+          "members": [
+            "debugLog",
+            "log",
+            "setDebug",
+            "tuneIn",
+            "tuneOut"
+          ]
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Subscribe and unsubscribe",
+          "members": [
+            "on",
+            "off",
+            "once",
+            "listenTo",
+            "listenToOnce",
+            "stopListening"
+          ]
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks",
+          "members": [
+            "trigger",
+            "triggerMethod"
+          ]
+        },
+        {
+          "file": "docs/packages/radio.md",
+          "heading": "Requests and replies",
+          "members": [
+            "request",
+            "reply",
+            "replyOnce",
+            "stopReplying"
+          ]
         }
       ]
     },
@@ -9016,7 +10765,13 @@
       "docs": [
         {
           "file": "docs/packages/radio.md",
-          "heading": "Requests and replies"
+          "heading": "Requests and replies",
+          "members": [
+            "request",
+            "reply",
+            "replyOnce",
+            "stopReplying"
+          ]
         },
         {
           "file": "docs/packages/radio.md",
@@ -9030,7 +10785,10 @@
       "docs": [
         {
           "file": "docs/packages/utils.md",
-          "heading": "Constructors and errors"
+          "heading": "Constructors and errors",
+          "members": [
+            "call"
+          ]
         }
       ]
     },
@@ -9040,7 +10798,20 @@
       "docs": [
         {
           "file": "docs/api/errors.md",
-          "heading": "MarionetteError"
+          "heading": "MarionetteError",
+          "members": [
+            "captureStackTrace",
+            "code",
+            "description",
+            "fileName",
+            "lineNumber",
+            "message",
+            "name",
+            "number",
+            "toString",
+            "url",
+            "urlRoot"
+          ]
         },
         {
           "file": "docs/api/errors.md",
@@ -9192,7 +10963,24 @@
       "docs": [
         {
           "file": "docs/api/providers/dom.md",
-          "heading": "DomApi"
+          "heading": "DomApi",
+          "members": [
+            "appendContents",
+            "createBuffer",
+            "createElement",
+            "detachContents",
+            "detachEl",
+            "findEl",
+            "getDocumentEl",
+            "hasContents",
+            "hasEl",
+            "moveEl",
+            "notifyAttach",
+            "notifyDetach",
+            "replaceEl",
+            "setAttributes",
+            "setContents"
+          ]
         }
       ]
     },
@@ -9212,7 +11000,14 @@
       "docs": [
         {
           "file": "docs/packages/adapters.md",
-          "heading": "jQuery"
+          "heading": "jQuery",
+          "members": [
+            "appendContents",
+            "detachContents",
+            "detachEl",
+            "findEl",
+            "setContents"
+          ]
         }
       ]
     },
@@ -9222,7 +11017,16 @@
       "docs": [
         {
           "file": "docs/api/providers/data.md",
-          "heading": "DataApi"
+          "heading": "DataApi",
+          "members": [
+            "get",
+            "has",
+            "key",
+            "models",
+            "observeCollection",
+            "serialize",
+            "subscribe"
+          ]
         },
         {
           "file": "docs/api/collection-view.md",
@@ -9236,7 +11040,17 @@
       "docs": [
         {
           "file": "docs/packages/data.md",
-          "heading": "Providers"
+          "heading": "Providers",
+          "members": [
+            "get",
+            "has",
+            "key",
+            "models",
+            "observeCollection",
+            "serialize",
+            "subscribe",
+            "disposeOwned"
+          ]
         },
         {
           "file": "docs/packages/data.md",
@@ -9258,7 +11072,17 @@
       "docs": [
         {
           "file": "docs/packages/adapters.md",
-          "heading": "Backbone"
+          "heading": "Backbone",
+          "members": [
+            "get",
+            "has",
+            "key",
+            "models",
+            "observeCollection",
+            "serialize",
+            "subscribe",
+            "disposeOwned"
+          ]
         }
       ]
     },
@@ -9268,7 +11092,17 @@
       "docs": [
         {
           "file": "docs/packages/adapters.md",
-          "heading": "XState actors"
+          "heading": "XState actors",
+          "members": [
+            "get",
+            "has",
+            "key",
+            "models",
+            "observeCollection",
+            "serialize",
+            "subscribe",
+            "disposeOwned"
+          ]
         }
       ]
     },
@@ -9288,6 +11122,17 @@
         {
           "file": "docs/api/providers/data.md",
           "heading": "Collection identity and observation"
+        },
+        {
+          "file": "docs/api/providers/data.md",
+          "heading": "StateApi",
+          "exports": [
+            "StateApi"
+          ],
+          "members": [
+            "subscribe",
+            "disposeOwned"
+          ]
         }
       ]
     },
@@ -9339,7 +11184,16 @@
       "docs": [
         {
           "file": "docs/packages/data.md",
-          "heading": "Read and mutate attributes"
+          "heading": "Read and mutate attributes",
+          "members": [
+            "get",
+            "has",
+            "set",
+            "unset",
+            "clear",
+            "reset",
+            "toObject"
+          ]
         },
         {
           "file": "docs/packages/data.md",
@@ -9347,11 +11201,18 @@
         },
         {
           "file": "docs/packages/data.md",
-          "heading": "Destruction and ownership"
+          "heading": "Destruction and ownership",
+          "members": [
+            "destroy",
+            "isDestroyed"
+          ]
         },
         {
           "file": "docs/packages/data.md",
-          "heading": "Model"
+          "heading": "Model",
+          "members": [
+            "extend"
+          ]
         },
         {
           "file": "docs/packages/data.md",
@@ -9360,6 +11221,38 @@
         {
           "file": "docs/api/shared/events.md",
           "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Subscribe and unsubscribe",
+          "members": [
+            "on",
+            "off",
+            "once",
+            "listenTo",
+            "listenToOnce",
+            "stopListening"
+          ]
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks",
+          "members": [
+            "trigger",
+            "triggerMethod"
+          ]
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Model configuration and properties",
+          "members": [
+            "attributes",
+            "changed",
+            "cid",
+            "id",
+            "idAttribute",
+            "initialize"
+          ]
         }
       ]
     },
@@ -9369,11 +11262,26 @@
       "docs": [
         {
           "file": "docs/packages/data.md",
-          "heading": "Read and iterate"
+          "heading": "Read and iterate",
+          "members": [
+            "get",
+            "at",
+            "indexOf",
+            "forEach",
+            "map",
+            "toArray"
+          ]
         },
         {
           "file": "docs/packages/data.md",
-          "heading": "Membership and ordering"
+          "heading": "Membership and ordering",
+          "members": [
+            "add",
+            "remove",
+            "reset",
+            "sort",
+            "move"
+          ]
         },
         {
           "file": "docs/packages/data.md",
@@ -9381,11 +11289,52 @@
         },
         {
           "file": "docs/packages/data.md",
-          "heading": "Destruction and ownership"
+          "heading": "Destruction and ownership",
+          "members": [
+            "destroy",
+            "isDestroyed"
+          ]
         },
         {
           "file": "docs/api/shared/events.md",
           "heading": "Cleanup"
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Subscribe and unsubscribe",
+          "members": [
+            "on",
+            "off",
+            "once",
+            "listenTo",
+            "listenToOnce",
+            "stopListening"
+          ]
+        },
+        {
+          "file": "docs/api/shared/events.md",
+          "heading": "Trigger events and hooks",
+          "members": [
+            "trigger",
+            "triggerMethod"
+          ]
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Collection",
+          "members": [
+            "extend"
+          ]
+        },
+        {
+          "file": "docs/packages/data.md",
+          "heading": "Collection configuration and properties",
+          "members": [
+            "model",
+            "models",
+            "length",
+            "initialize"
+          ]
         }
       ]
     },
@@ -9399,7 +11348,10 @@
         },
         {
           "file": "docs/packages/adapters.md",
-          "heading": "Morphdom"
+          "heading": "Morphdom",
+          "members": [
+            "setContents"
+          ]
         }
       ]
     },
@@ -9413,7 +11365,12 @@
         },
         {
           "file": "docs/packages/adapters.md",
-          "heading": "Lit HTML"
+          "heading": "Lit HTML",
+          "members": [
+            "notifyAttach",
+            "notifyDetach",
+            "setContents"
+          ]
         }
       ]
     },
@@ -9423,11 +11380,22 @@
       "docs": [
         {
           "file": "docs/api/shared/events.md",
-          "heading": "Subscribe and unsubscribe"
+          "heading": "Subscribe and unsubscribe",
+          "members": [
+            "on",
+            "off",
+            "once",
+            "listenTo",
+            "listenToOnce",
+            "stopListening"
+          ]
         },
         {
           "file": "docs/api/shared/events.md",
-          "heading": "Trigger events and hooks"
+          "heading": "Trigger events and hooks",
+          "members": [
+            "trigger"
+          ]
         },
         {
           "file": "docs/api/shared/events.md",
@@ -9601,7 +11569,13 @@
             "filter",
             "getFilter",
             "setFilter",
-            "removeFilter",
+            "removeFilter"
+          ]
+        },
+        {
+          "file": "docs/api/collection-view.md",
+          "heading": "Empty presentation",
+          "members": [
             "isEmpty"
           ]
         }
@@ -9649,7 +11623,10 @@
           "heading": "Construction and options",
           "members": [
             "initialize",
-            "preinitialize"
+            "preinitialize",
+            "cid",
+            "cidPrefix",
+            "options"
           ]
         },
         {
@@ -9657,6 +11634,28 @@
           "heading": "View events",
           "members": [
             "viewEvents"
+          ]
+        },
+        {
+          "file": "docs/api/application.md",
+          "heading": "State and Radio",
+          "members": [
+            "state",
+            "createState",
+            "getState",
+            "stateEvents",
+            "State"
+          ]
+        },
+        {
+          "file": "docs/api/shared/common.md",
+          "heading": "Declarative Radio bindings",
+          "members": [
+            "channelName",
+            "radioEvents",
+            "radioRequests",
+            "getChannel",
+            "Radio"
           ]
         }
       ]
@@ -10474,11 +12473,11 @@
     "src/utils/subscribe-bindings.ts": "4337d7226b96fa2af73ad96136eced7af866a6d8130ea860ab076f2a77b7e4df"
   },
   "evidence": {
-    "config/diagnostics/catalog.json": "76cc4270e2ec939078cc3c8537d66e45bf0a58010fe25eeef81ab21f58886997",
+    "config/diagnostics/catalog.json": "89ca537fe5cacaef35d30f25aeb4d1ed4e1e8802c80c540f3672533c7b0145c4",
     "docs/api/application.md": "0a4f4ea3aa44d58940130e1938dc5c53f3a1d46dfb4b5d10353a0999487249a0",
     "docs/api/behavior.md": "45df12d32d15caf9d69849957f476bc90d6c0ab1a89186384618943f68c0ee48",
     "docs/api/collection-view.md": "a6ef68cdf1c8fd77fd47a0ff835e51a1714d23352c8d0c13d28bf83df586d94f",
-    "docs/api/errors.md": "f0dd3a19d442003e171ca373c50e8d6aace0d97896a8324babb8c779d8060954",
+    "docs/api/errors.md": "f4efcdd5da9dcf053b936fab32d6e200f8223f799e2517dee7753823b89946b2",
     "docs/api/mnobject.md": "89cfe4ac212de4ac5fd966cb427c1391749a2be623ccc9b6f16bb4c3497313bc",
     "docs/api/providers/data.md": "bfdc9fcac45390611b75d28d7cc12fd256325463355fd338abfc6be503844275",
     "docs/api/providers/dom.md": "7445ee9633d751c9220c9c725040383632f56d06f946f9a60181023ce42a3b8c",

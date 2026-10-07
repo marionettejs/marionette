@@ -19,6 +19,10 @@ test('reviewed property, grouped, inherited and provider routes lead to their au
   const index = symbolIndex(inventory, semantics, sections);
   validateSymbolIndex(index, new Set(sections.map(section => section.id)));
   for (const [query, location] of [
+    ['Region.show', 'docs/api/region.md#showview-options'],
+    ['RegionInstance.show', 'docs/api/region.md#showview-options'],
+    ['Model.set', 'docs/packages/data.md#read-and-mutate-attributes'],
+    ['Channel.reply', 'docs/packages/radio.md#requests-and-replies'],
     ['View.modelEvents', 'docs/api/shared/view-bindings.md#data-bindings'],
     ['Application.viewEvents', 'docs/api/application.md#view-events'],
     ['View.getUI', 'docs/api/shared/view-bindings.md#ui-bindings'],
@@ -27,6 +31,8 @@ test('reviewed property, grouped, inherited and provider routes lead to their au
     ['View.regions', 'docs/api/view.md#named-regions'],
     ['CollectionView.setComparator', 'docs/api/collection-view.md#sorting'],
     ['CollectionView.setFilter', 'docs/api/collection-view.md#filtering'],
+    ['CollectionView.isEmpty', 'docs/api/collection-view.md#empty-presentation'],
+    ['CollectionViewInstance.isEmpty', 'docs/api/collection-view.md#empty-presentation'],
     ['Application.getView', 'docs/api/application.md#root-view-and-region'],
     ['Application.isRunning', 'docs/api/application.md#lifecycle-methods-and-results'],
     ['Application.isDestroyed', 'docs/api/application.md#lifecycle-methods-and-results'],
@@ -52,9 +58,15 @@ test('reviewed property, grouped, inherited and provider routes lead to their au
   assert(routed.matches[0].contracts.includes('view'));
   assert(routed.matches[0].contracts.includes('sync-failure-boundary'));
   assert(routed.contracts.view.sections.includes('docs/api/view.md#rendering-and-status'));
-  const unclassified = findSymbols(index, sections, files, 'View.cid').matches[0];
-  assert.deepEqual(unclassified.primarySections, [], 'broad references must not claim a precise reviewed route');
-  assert(unclassified.contracts.length > 0, 'general guidance remains accessible for unclassified members');
+  assert.deepEqual(findSymbols(index, sections, files, 'View.cid').matches[0].primarySections,
+    ['docs/api/view.md#construction-and-options']);
+  for (const symbol of index.symbols) {
+    for (const key of ['static', 'instance', 'members']) {
+      for (const [name, member] of Object.entries(symbol[key] ?? {})) {
+        assert(member.primarySections.length, `${symbol.name}.${name} requires a reviewed route`);
+      }
+    }
+  }
   assert.deepEqual(findSymbols(index, sections, files, 'View.unknownProperty').matches, []);
   const view = index.symbols.find(value => value.name === 'View');
   assert(view.contracts.includes('view') && view.contracts.includes('sync-failure-boundary'));
@@ -94,4 +106,11 @@ test('symbol schema rejects missing, unknown and unrelated primary section metad
     index.symbols[0].instance.property.primarySections = value;
     assert.throws(() => validateSymbolIndex(index, sections), /Invalid documentation symbol index/);
   }
+});
+
+test('publication rejects an indexed member without a primary contract route', async() => {
+  const { assertPrimarySections } = await import('../../scripts/docs/symbols.mjs');
+  assert.throws(() => assertPrimarySections({ symbols: [{ name: 'Region', instance: {
+    show: { primarySections: [] },
+  } }] }), /DOC_SYMBOL_ROUTE: Region.show/);
 });

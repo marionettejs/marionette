@@ -340,6 +340,11 @@ export function validateDiagnosticCatalog(catalog, {
       errors.push(`${diagnostic.code} docsAnchor must be /errors/${diagnostic.code}/`);
     }
 
+    const docsSection = `docs/api/errors.md#${diagnostic.code.toLowerCase()}`;
+    if (diagnostic.docsSection !== docsSection) {
+      errors.push(`${diagnostic.code} docsSection must be ${docsSection}`);
+    }
+
     addSortedArrayErrors(diagnostic, 'objects', errors);
     addSortedArrayErrors(diagnostic, 'surfaces', errors);
   }

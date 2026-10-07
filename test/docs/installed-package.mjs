@@ -62,13 +62,14 @@ try {
   assert(lookup(['--page', 'docs/guides/migration.md']).includes('# Migrate from v4 to v5'));
   assert(lookup(['--page', 'docs/guides/testing.md']).includes('node --import'));
   assert(lookup(['--page', 'docs/guides/typescript.md']).includes('LifecycleContext'));
-  assert.equal(JSON.parse(lookup(['--diagnostic', 'MN0003'])).diagnostic.code, 'MN0003');
+  const diagnostic = JSON.parse(lookup(['--diagnostic', 'MN0003'])).diagnostic;
+  assert.equal(diagnostic.code, 'MN0003');
+  assert(lookup(['--section', diagnostic.docsSection]).includes(diagnostic.remediation));
   const symbols = query => JSON.parse(lookup(['--symbol', query]));
   const detached = symbols('Region.detachView');
   assert.equal(detached.matches[0].entrypoint, 'marionette');
-  assert(detached.matches[0].sections.some(hit => hit.heading === 'Empty, detach, reset, and destroy'));
-  assert(lookup(['--section', detached.matches[0].sections.find(hit =>
-    hit.heading === 'Empty, detach, reset, and destroy').id]).includes('keeps the View alive'));
+  assert(detached.matches[0].primarySections.includes('docs/api/region.md#empty-detach-reset-and-destroy'));
+  assert(lookup(['--section', detached.matches[0].primarySections[0]]).includes('keeps the View alive'));
   for (const [query, entrypoint] of [['RegionInstance.detachView', 'marionette'], ['Model.set', '@mnjs/data'],
     ['bindEvents', '@mnjs/utils'], ['channel', '@mnjs/radio']]) {
     assert(symbols(query).matches.some(hit => hit.entrypoint === entrypoint), query);

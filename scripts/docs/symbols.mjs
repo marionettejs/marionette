@@ -51,3 +51,13 @@ export function symbolIndex(inventory, semantics, sections) {
   })));
   return { schemaVersion: 2, contracts, symbols };
 }
+
+export function assertPrimarySections(index) {
+  for (const symbol of index.symbols) {
+    for (const key of ['static', 'instance', 'members']) {
+      for (const [name, member] of Object.entries(symbol[key] ?? {})) {
+        if (!member.primarySections.length) { throw new Error(`DOC_SYMBOL_ROUTE: ${symbol.name}.${name}`); }
+      }
+    }
+  }
+}

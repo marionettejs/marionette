@@ -13,7 +13,7 @@
       "const": "./catalog.schema.json"
     },
     "schemaVersion": {
-      "const": 2
+      "const": 3
     },
     "diagnostics": {
       "type": "array",
@@ -41,7 +41,8 @@
         "remediation",
         "docsAnchor",
         "surfaces",
-        "benchmarkCategory"
+        "benchmarkCategory",
+        "docsSection"
       ],
       "properties": {
         "code": {
@@ -135,6 +136,10 @@
         },
         "replacementCode": {
           "$ref": "#/definitions/code"
+        },
+        "docsSection": {
+          "type": "string",
+          "pattern": "^docs/api/errors\\.md#mn[0-9]{4}$"
         }
       },
       "allOf": [

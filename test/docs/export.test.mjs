@@ -49,10 +49,10 @@ test('Markdown references ignore code examples and identify malformed URLs', asy
 test('export CLI labels stable and prerelease documentation from the selected policy', async() => {
   const directory = await mkdtemp(resolve(tmpdir(), 'marionette-doc-channel-'));
   try {
-    for (const path of ['scripts/docs', 'scripts/release', 'docs-site', 'docs', 'config/diagnostics', 'config/api-contracts']) {
+    for (const path of ['scripts/docs', 'scripts/release', 'docs-site', 'docs', 'docs/api', 'config/diagnostics', 'config/api-contracts']) {
       await mkdir(resolve(directory, path), { recursive: true });
     }
-    for (const path of ['scripts/docs/export.mjs', 'scripts/docs/sections.mjs', 'scripts/docs/headings.mjs', 'scripts/docs/symbols.mjs', 'scripts/release/publication.mjs', 'config/release-promotion.json']) {
+    for (const path of ['scripts/docs/export.mjs', 'scripts/docs/sections.mjs', 'scripts/docs/headings.mjs', 'scripts/docs/symbols.mjs', 'scripts/docs/diagnostics.mjs', 'scripts/release/publication.mjs', 'config/release-promotion.json']) {
       await cp(new URL(`../../${path}`, import.meta.url), resolve(directory, path));
     }
     await cp(new URL('../../node_modules/marked', import.meta.url), resolve(directory, 'node_modules/marked'), { recursive: true });
@@ -61,7 +61,8 @@ test('export CLI labels stable and prerelease documentation from the selected po
     policy.npm.prereleaseTag = 'next';
     await writeFile(policyPath, JSON.stringify(policy));
     await writeFile(resolve(directory, 'docs/guide.md'), '# Guide\n');
-    await writeFile(resolve(directory, 'config/diagnostics/catalog.json'), '{}');
+    await writeFile(resolve(directory, 'config/diagnostics/catalog.json'), '{"diagnostics":[]}');
+    await writeFile(resolve(directory, 'docs/api/errors.md'), '<!-- diagnostics:start -->\n\n\n\n<!-- diagnostics:end -->\n');
     const semantics = JSON.stringify({ contracts: [] });
     await writeFile(resolve(directory, 'config/api-contracts/inventory.json'), JSON.stringify({ entrypoints: [], semanticsSha256: sha256(semantics) }));
     await writeFile(resolve(directory, 'config/api-contracts/semantics.json'), semantics);
@@ -171,7 +172,7 @@ test('exports every current guide with exact bytes and reproducible provenance',
         [entry.source, { content: await readFile(new URL(`../../.docs-export/${entry.source}`, import.meta.url)) }])));
       const lookup = query => findSymbols(index, sections, consumerFiles, query);
       const detached = lookup('Region.detachView');
-      assert(detached.matches[0].sections.some(section => section.heading === 'Empty, detach, reset, and destroy'));
+      assert(detached.matches[0].primarySections.includes('docs/api/region.md#empty-detach-reset-and-destroy'));
       assert(lookup('RegionInstance.detachView').matches.some(match => match.entrypoint === 'marionette'));
       assert(lookup('Model.set').matches.some(match => match.entrypoint === '@mnjs/data'));
       assert(lookup('bindEvents').matches.some(match => match.entrypoint === '@mnjs/utils' && match.name === 'bindEvents'));

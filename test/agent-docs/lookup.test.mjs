@@ -373,10 +373,19 @@ test('symbol lookup reports absent names honestly and rejects malformed queries 
 });
 
 async function diagnosticFixture(t) {
+  const errors = await readFile(resolve(repository, 'docs/api/errors.md'), 'utf8');
   const data = await fixture(t);
   const source = 'config/diagnostics/catalog.json';
   const path = resolve(data.docs, source);
   const catalog = JSON.parse(await readFile(resolve(repository, source), 'utf8'));
+  const { documentSections } = await import('../../scripts/docs/sections.mjs');
+  const errorSource = 'docs/api/errors.md';
+  await mkdir(resolve(data.docs, 'docs/api'), { recursive: true });
+  await writeFile(resolve(data.docs, errorSource), errors);
+  data.manifest.pages.push({ source: errorSource, title: 'Errors', section: 'Reference', sha256: hash(errors) });
+  const sectionContent = JSON.stringify({ schemaVersion: 1, sections: documentSections(errorSource, errors) });
+  await writeFile(resolve(data.docs, 'docs-sections.json'), sectionContent);
+  data.manifest.assets.push({ source: 'docs-sections.json', sha256: hash(sectionContent) });
   await mkdir(dirname(path), { recursive: true });
   const asset = { source, sha256: '' };
   data.manifest.assets.push(asset);
@@ -453,8 +462,8 @@ test('diagnostic lookup requires its verified catalog asset without another sour
 test('diagnostic lookup rejects unsupported catalog schemas and invalid or duplicate records', async t => {
   const data = await diagnosticFixture(t);
   const entry = data.catalog.diagnostics.find(diagnostic => diagnostic.code === 'MN0003');
-  for (const catalog of [null, {}, { schemaVersion: 1, diagnostics: [entry] },
-    { schemaVersion: 2, diagnostics: {} }, { schemaVersion: 2, diagnostics: [] }]) {
+  for (const catalog of [null, {}, { schemaVersion: 1, diagnostics: [entry] }, { schemaVersion: 2, diagnostics: [entry] },
+    { schemaVersion: 3, diagnostics: {} }, { schemaVersion: 3, diagnostics: [] }]) {
     await data.saveCatalog(catalog);
     const result = data.run('--diagnostic', entry.code);
     assert.equal(result.status, 1);
@@ -466,7 +475,7 @@ test('diagnostic lookup rejects unsupported catalog schemas and invalid or dupli
     [{ ...entry, objects: [] }], [{ ...entry, surfaces: [null] }],
     [{ ...entry, docsAnchor: '/errors/MN0007/' }],
     [{ ...entry, status: 'deprecated' }], [{ ...entry, replacementCode: 'MN0007' }]]) {
-    await data.saveCatalog({ schemaVersion: 2, diagnostics });
+    await data.saveCatalog({ schemaVersion: 3, diagnostics });
     const result = data.run('--diagnostic', entry.code);
     assert.equal(result.status, 1);
     assert.equal(result.stdout, '');

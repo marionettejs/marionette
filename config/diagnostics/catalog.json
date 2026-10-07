@@ -1,6 +1,6 @@
 {
   "$schema": "./catalog.schema.json",
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "diagnostics": [
     {
       "code": "MN0001",
@@ -17,7 +17,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "view"
+      "benchmarkCategory": "view",
+      "docsSection": "docs/api/errors.md#mn0001"
     },
     {
       "code": "MN0002",
@@ -33,7 +34,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "region"
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0002"
     },
     {
       "code": "MN0003",
@@ -52,7 +54,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "ownership"
+      "benchmarkCategory": "ownership",
+      "docsSection": "docs/api/errors.md#mn0003"
     },
     {
       "code": "MN0004",
@@ -68,7 +71,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "region"
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0004"
     },
     {
       "code": "MN0005",
@@ -84,7 +88,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "region"
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0005"
     },
     {
       "code": "MN0006",
@@ -100,7 +105,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "region"
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0006"
     },
     {
       "code": "MN0007",
@@ -118,7 +124,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "lifecycle"
+      "benchmarkCategory": "lifecycle",
+      "docsSection": "docs/api/errors.md#mn0007"
     },
     {
       "code": "MN0008",
@@ -136,7 +143,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "region"
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0008"
     },
     {
       "code": "MN0009",
@@ -157,7 +165,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "communication"
+      "benchmarkCategory": "communication",
+      "docsSection": "docs/api/errors.md#mn0009"
     },
     {
       "code": "MN0010",
@@ -178,7 +187,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "communication"
+      "benchmarkCategory": "communication",
+      "docsSection": "docs/api/errors.md#mn0010"
     },
     {
       "code": "MN0011",
@@ -194,7 +204,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "collection-view"
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0011"
     },
     {
       "code": "MN0012",
@@ -210,7 +221,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "collection-view"
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0012"
     },
     {
       "code": "MN0013",
@@ -226,7 +238,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "collection-view"
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0013"
     },
     {
       "code": "MN0014",
@@ -242,7 +255,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "collection-view"
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0014"
     },
     {
       "code": "MN0015",
@@ -258,7 +272,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "collection-view"
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0015"
     },
     {
       "code": "MN0016",
@@ -276,7 +291,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "behavior"
+      "benchmarkCategory": "behavior",
+      "docsSection": "docs/api/errors.md#mn0016"
     },
     {
       "code": "MN0017",
@@ -292,7 +308,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "communication"
+      "benchmarkCategory": "communication",
+      "docsSection": "docs/api/errors.md#mn0017"
     },
     {
       "code": "MN0018",
@@ -310,7 +327,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "view"
+      "benchmarkCategory": "view",
+      "docsSection": "docs/api/errors.md#mn0018"
     },
     {
       "code": "MN0019",
@@ -331,7 +349,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "communication"
+      "benchmarkCategory": "communication",
+      "docsSection": "docs/api/errors.md#mn0019"
     },
     {
       "code": "MN0020",
@@ -347,7 +366,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "region"
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0020"
     },
     {
       "code": "MN0021",
@@ -363,7 +383,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "communication"
+      "benchmarkCategory": "communication",
+      "docsSection": "docs/api/errors.md#mn0021"
     },
     {
       "code": "MN0022",
@@ -379,7 +400,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "collection-view"
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0022"
     },
     {
       "code": "MN0023",
@@ -397,7 +419,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "view"
+      "benchmarkCategory": "view",
+      "docsSection": "docs/api/errors.md#mn0023"
     },
     {
       "code": "MN0024",
@@ -413,7 +436,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "collection-view"
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0024"
     },
     {
       "code": "MN0025",
@@ -429,7 +453,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "collection-view"
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0025"
     },
     {
       "code": "MN0026",
@@ -450,7 +475,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "communication"
+      "benchmarkCategory": "communication",
+      "docsSection": "docs/api/errors.md#mn0026"
     },
     {
       "code": "MN0027",
@@ -468,7 +494,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "view"
+      "benchmarkCategory": "view",
+      "docsSection": "docs/api/errors.md#mn0027"
     },
     {
       "code": "MN0028",
@@ -484,7 +511,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "region"
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0028"
     },
     {
       "code": "MN0029",
@@ -501,7 +529,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "view"
+      "benchmarkCategory": "view",
+      "docsSection": "docs/api/errors.md#mn0029"
     },
     {
       "code": "MN0030",
@@ -518,7 +547,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "ownership"
+      "benchmarkCategory": "ownership",
+      "docsSection": "docs/api/errors.md#mn0030"
     },
     {
       "code": "MN0031",
@@ -534,7 +564,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "ownership"
+      "benchmarkCategory": "ownership",
+      "docsSection": "docs/api/errors.md#mn0031"
     },
     {
       "code": "MN0032",
@@ -550,7 +581,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "ownership"
+      "benchmarkCategory": "ownership",
+      "docsSection": "docs/api/errors.md#mn0032"
     },
     {
       "code": "MN0033",
@@ -571,7 +603,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "view"
+      "benchmarkCategory": "view",
+      "docsSection": "docs/api/errors.md#mn0033"
     },
     {
       "code": "MN0034",
@@ -587,7 +620,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "state"
+      "benchmarkCategory": "state",
+      "docsSection": "docs/api/errors.md#mn0034"
     },
     {
       "code": "MN0035",
@@ -606,7 +640,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "ownership"
+      "benchmarkCategory": "ownership",
+      "docsSection": "docs/api/errors.md#mn0035"
     },
     {
       "code": "MN0036",
@@ -624,7 +659,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "cleanup"
+      "benchmarkCategory": "cleanup",
+      "docsSection": "docs/api/errors.md#mn0036"
     },
     {
       "code": "MN0037",
@@ -644,7 +680,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "state"
+      "benchmarkCategory": "state",
+      "docsSection": "docs/api/errors.md#mn0037"
     },
     {
       "code": "MN0038",
@@ -664,7 +701,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "cleanup"
+      "benchmarkCategory": "cleanup",
+      "docsSection": "docs/api/errors.md#mn0038"
     },
     {
       "code": "MN0039",
@@ -680,7 +718,8 @@
       "surfaces": [
         "runtime"
       ],
-      "benchmarkCategory": "collection-view"
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0039"
     },
     {
       "code": "MN0040",
@@ -701,7 +740,8 @@
       "surfaces": [
         "lint"
       ],
-      "benchmarkCategory": "lifecycle"
+      "benchmarkCategory": "lifecycle",
+      "docsSection": "docs/api/errors.md#mn0040"
     }
   ]
 }
