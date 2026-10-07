@@ -19,6 +19,40 @@ See [adapters](../packages/adapters.md) for installation, provider behavior, and
 
 Replace every `backbone.radio` import with the selected runtime's Radio in the same upgrade, including publishers and requesters outside Marionette classes. The old and new buses have independent channels, so leaving either participant on the old bus disconnects communication. Default-runtime code can import `Radio` from `marionette`; isolated runtime code must use that runtime's `Radio`. Replace `Radio.DEBUG = true` with `Radio.setDebug()`. See [Radio](../packages/radio.md) for registry scope and request/reply methods.
 
+### Import and configure existing Backbone data
+
+This upgrade retains Backbone persistence. Change every Radio participant together:
+
+```diff
+-import Mn from 'backbone.marionette';
+-import Radio from 'backbone.radio';
++import { View, Radio, setDataApi } from 'marionette';
++import BackboneApi from '@mnjs/adapters/backbone';
++setDataApi(BackboneApi);
+
+-const Editor = Mn.View.extend({ modelEvents: { change: 'render' } });
++const Editor = View.extend({ modelEvents: { change: 'render' } });
+```
+
+### Replace jQuery event assumptions
+
+Native delegated events require explicit cancellation. `getUI()` still returns a
+collection, so select its element before using DOM properties:
+
+```diff
+ onSave(event) {
+-  const title = this.getUI('title').val();
++  event.preventDefault();
++  const title = this.getUI('title')[0].value;
+   this.model.save({ title });
+-  return false;
+ }
+```
+
+This example assumes the Backbone provider above and a single named input. Add
+`event.stopPropagation()` when stopping propagation was part of the intended v4
+behavior; cancelling a form submission alone does not require it.
+
 ## 2. Update Views and composition
 
 The root remains fixed for each View's lifetime. Resolve selector strings to actual elements before supplying `el`; unwrap an existing jQuery element with `[0]`. To use a different root, destroy the old View and construct a new one. Regions still accept selector strings as mount points.

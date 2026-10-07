@@ -1,52 +1,31 @@
 ---
 name: marionette
-description: Build, debug, review, or test Marionette v5 applications using their installed, version-matched documentation.
+description: Find installed Marionette guidance for application development, debugging, and v4 migration.
 ---
 
 # Marionette applications
 
-For application work, locate `marionette/package.json` with Node's `require.resolve` from the application workspace and read its version. For rendering, observation or persistence changes, check the configured renderer or data provider. For framework changes, follow repository guidance.
+Run `node <skill>/scripts/locate.mjs --project <application-directory>`, replacing
+`<skill>` with this skill directory. It reads package metadata without importing
+application code. Use `--package-root <physical-directory>` for an external store.
 
-Choose one task or exact API section below directly from the installed package. Documentation paths are relative to that package, not this skill. Follow additional references when the task needs them. If docs are absent, obtain the exact release or known source revision; do not substitute current website contracts.
+Read the returned `skillPath` and follow that installed skill. Use its scripts and
+package-relative documentation, so instructions match the application version.
+The plugin version identifies this loader, not the framework release. For framework
+changes, follow that repository's guidance.
 
-<!-- task-routes:start -->
-| Task | Packaged page |
-| --- | --- |
-| Install and render a first View | `docs/quick-start.md` |
-| Migrate from another UI framework | `docs/guides/framework-migration.md` |
-| Migrate an existing v4 application | `docs/guides/migration.md` |
-| Test interaction, readiness, or teardown | `docs/guides/testing.md` |
-| Choose ownership and lifetimes | `docs/architecture.md` |
-| Bind a DOM event or trigger | `docs/api/shared/view-bindings.md#dom-events` |
-| Read or rebind named DOM elements | `docs/api/shared/view-bindings.md#ui-bindings` |
-| Edit a model or retain a draft | `docs/guides/local-editing.md` |
-| Prepare, start, restart, or stop a feature | `docs/api/application.md` |
-| Restart while retaining a draft or shell | `docs/guides/retained-restart.md` |
-| Enhance existing markup | `docs/guides/existing-html.md` |
-| Embed a feature in another UI | `docs/guides/existing-ui.md` |
-| Connect URLs and destination lifetimes | `docs/guides/routing.md` |
-| Show, replace, or retain child UI | `docs/api/region.md` |
-| Render, filter, or sort repeated children | `docs/guides/lists.md` |
-| Share observable data and state | `docs/api/shared/state.md` |
-| Connect events and clean up subscriptions | `docs/api/shared/events.md` |
-| Connect channels and request/reply handlers | `docs/packages/radio.md` |
-| Configure a renderer or another data layer | `docs/api/runtime.md#choose-a-configuration-scope` |
-| Write typed options, handlers, or lifecycle hooks | `docs/guides/typescript.md` |
-| Check types, lint, or diagnose a failure | `docs/tooling.md` |
-| Integrate an imperative control | `docs/guides/widgets.md` |
-| Check keyboard, focus, or rendering safety | `docs/guides/accessibility-rendering.md` |
-| Build and deploy an application | `docs/guides/production.md` |
-| Apply the concepts in a composed feature | `docs/records.md` |
-<!-- task-routes:end -->
+If the result identifies `backbone.marionette` 4.x, preserve its v4 contracts while
+working on the existing application. For an upgrade, choose an exact v5 target and
+read that target's packaged migration guide; do not interpret v5 instructions as
+v4 APIs. Older releases require their own version-specific guidance. If both packages are installed, determine which entrypoint the feature
+imports before selecting its guidance. Do not install or upgrade dependencies just
+to obtain a skill unless the task authorizes it.
 
-## Apply and verify
+If an installed release has no packaged skill, use its own documentation or obtain
+its exact release/source revision. For a new project, select the intended release
+before loading guidance. Do not substitute this repository's current docs.
 
-Local interaction can stay in a View. An asynchronous call alone does not require an Application. A View may save its own model if the configured data layer supplies it; optional `@mnjs/data` supplies observation, with fetching and persistence provided separately, and does not supply `Model.save()`.
-
-Application preparation establishes readiness. Use restart to prepare new data while retaining a running feature; commit the prepared result in onStart and construct retained UI once. Use explicit operations for ongoing work that has a separate lifetime. Coordinate shared decisions at their owning lifetime. Use `docs/architecture.md` when choosing ownership. Verify changed interaction, replacement, cancellation or teardown as relevant; distinguish executed checks from source inspection.
-
-## Optional lookup
-
-Read Markdown directly, or run `node <skill>/scripts/docs.mjs --section docs/path.md#heading-anchor` from the application directory. Replace `<skill>` with this skill directory and use a section link from the docs or a returned lookup ID. `--page SOURCE --section 'Heading'` reads a named section. Use `--symbol Export.member` for signatures and primary section IDs in `primarySections`, `--search 'query'` for an unknown location, or `--page SOURCE` for a full page. `--list` is optional page discovery. External package stores need `--package-root <physical-directory>`. The helper verifies installed documentation hashes and reports version/revision.
-
-Only when using the plugin's hosted connection, follow the installed `docs/tooling.md#hosted-documentation-mcp` identity checks. Installed Markdown remains authoritative. The copied skill works without MCP.
+The plugin also connects the hosted documentation MCP. Read `marionette://catalog`
+and compare its package version and source revision with the installed artifact.
+Use installed documentation when they differ. Where present, the installed
+`docs/tooling.md#hosted-documentation-mcp` explains the request identity protocol.

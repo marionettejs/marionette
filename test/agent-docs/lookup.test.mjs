@@ -473,3 +473,29 @@ test('diagnostic lookup rejects unsupported catalog schemas and invalid or dupli
     assert.match(result.stderr, /Invalid or duplicate diagnostic catalog entry/);
   }
 });
+
+test('v4-only applications receive migration guidance instead of a missing-v5 error', async t => {
+  const data = await fixture(t);
+  await rm(data.packageRoot, { recursive: true });
+  const legacy = resolve(data.app, 'node_modules/backbone.marionette');
+  await mkdir(legacy);
+  await writeFile(resolve(legacy, 'package.json'), JSON.stringify({ name: 'backbone.marionette', version: '4.1.3' }));
+  const result = data.run();
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /backbone.marionette 4.1.3 \(v4\)/);
+  assert.match(result.stderr, /exact v5 target/);
+});
+
+test('legacy detection runs only after looking for the installed v5 package', async t => {
+  const data = await fixture(t);
+  const legacy = resolve(data.app, 'src/node_modules/backbone.marionette');
+  await mkdir(legacy, { recursive: true });
+  await writeFile(resolve(legacy, 'package.json'), 'not json');
+  assert.equal(data.run().status, 0);
+  await rm(data.packageRoot, { recursive: true });
+  await writeFile(resolve(legacy, 'package.json'), JSON.stringify({ name: 'backbone.marionette', version: '3.5.1' }));
+  const result = data.run();
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /backbone.marionette 3.5.1/);
+  assert.doesNotMatch(result.stderr, /Use its v4 documentation/);
+});

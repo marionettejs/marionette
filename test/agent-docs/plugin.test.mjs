@@ -28,11 +28,9 @@ async function files(root, directory = '') {
 
 test('Marionette plugin bundles its skill and documentation MCP', async() => {
   const manifest = await json(resolve(pluginRoot, 'plugin.json'));
-  const packageManifest = await json(resolve(repository, 'package.json'));
   assert.equal(manifest.$schema, 'https://agent-plugins.org/schemas/1.0.0/plugin.schema.json');
   assert.equal(manifest.name, 'marionette');
-  assert.equal(manifest.version, packageManifest.version,
-    'Plugin and Marionette releases must use the same version');
+  assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
   assert.equal(manifest.extensions['com.openai'].interface.developerName, 'Marionette.js');
   assert.deepEqual(manifest.extensions['com.openai'].interface.capabilities, ['Read']);
 
@@ -44,15 +42,7 @@ test('Marionette plugin bundles its skill and documentation MCP', async() => {
   });
 
   const canonicalFiles = await files(canonicalSkill);
-  assert.deepEqual(await files(pluginSkill), canonicalFiles,
-    'Plugin skill paths differ from the canonical skill');
-  for (const path of canonicalFiles) {
-    assert.deepEqual(
-      await readFile(resolve(pluginSkill, path)),
-      await readFile(resolve(canonicalSkill, path)),
-      `Plugin skill differs from canonical ${path}`,
-    );
-  }
+  assert.deepEqual(await files(pluginSkill), ['SKILL.md', 'agents/openai.yaml', 'scripts/locate.mjs']);
 
   const resources = await json(resolve(repository, 'docs-site/resources.json'));
   assert.deepEqual(
@@ -78,12 +68,10 @@ test('repository marketplace exposes the Marionette plugin', async() => {
 });
 
 test('Claude Code and Cursor marketplace manifests share the portable plugin', async() => {
-  const packageManifest = await json(resolve(repository, 'package.json'));
   const portable = await json(resolve(pluginRoot, 'plugin.json'));
   const claude = await json(resolve(pluginRoot, '.claude-plugin/plugin.json'));
   assert.equal(claude.name, portable.name);
-  assert.equal(claude.version, packageManifest.version,
-    'Claude Code plugin and Marionette releases must use the same version');
+  assert.equal(claude.version, portable.version, 'Plugin manifests share their independent version');
   assert.equal(claude.description, portable.description);
   assert.equal(claude.author.name, portable.author.name);
 
@@ -107,4 +95,47 @@ test('Claude Code and Cursor marketplace manifests share the portable plugin', a
     assert.deepEqual(await json(resolve(repository, path)), expectedMarketplace,
       `${path} must point to the shared plugin`);
   }
+});
+
+test('plugin loader selects installed guidance without importing application code', async t => {
+  const { mkdtemp, mkdir, rm, writeFile, symlink } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const { spawnSync } = await import('node:child_process');
+  const root = await mkdtemp(resolve(tmpdir(), 'marionette-plugin-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const app = resolve(root, 'app');
+  const store = resolve(root, 'store/marionette');
+  await mkdir(resolve(app, 'src/feature'), { recursive: true });
+  await mkdir(resolve(app, 'node_modules'), { recursive: true });
+  await mkdir(resolve(store, 'skills/marionette'), { recursive: true });
+  await writeFile(resolve(store, 'package.json'), JSON.stringify({ name: 'marionette', version: '5.0.0-rc.2', main: 'explode.js' }));
+  await writeFile(resolve(store, 'explode.js'), 'throw new Error("must not import");');
+  await writeFile(resolve(store, 'skills/marionette/SKILL.md'), 'Instructions from installed release');
+  await symlink(store, resolve(app, 'node_modules/marionette'), 'dir');
+  const run = (...args) => spawnSync(process.execPath, [resolve(pluginSkill, 'scripts/locate.mjs'), ...args], {
+    cwd: resolve(app, 'src/feature'), encoding: 'utf8',
+  });
+  const installed = run();
+  assert.equal(installed.status, 0, installed.stderr);
+  const selected = JSON.parse(installed.stdout).packages[0];
+  assert.equal(selected.packageVersion, '5.0.0-rc.2');
+  assert.equal(await readFile(selected.skillPath, 'utf8'), 'Instructions from installed release');
+  assert.deepEqual(JSON.parse(run('--package-root', store).stdout).packages, [selected]);
+  const legacy = resolve(app, 'node_modules/backbone.marionette');
+  await mkdir(legacy);
+  await writeFile(resolve(legacy, 'package.json'), JSON.stringify({ name: 'backbone.marionette', version: '4.1.3' }));
+  assert.deepEqual(JSON.parse(run().stdout).packages.map(item => item.packageName).sort(), ['backbone.marionette', 'marionette']);
+  await rm(resolve(app, 'node_modules/marionette'));
+  const v4 = JSON.parse(run().stdout).packages[0];
+  assert.equal(v4.packageName, 'backbone.marionette');
+  assert.match(v4.guidance, /v4 contracts/);
+  assert.equal(v4.skillPath, undefined);
+  await writeFile(resolve(legacy, 'package.json'), JSON.stringify({ name: 'backbone.marionette', version: '3.5.1' }));
+  assert.match(JSON.parse(run().stdout).packages[0].guidance, /3.5.1/);
+  assert.doesNotMatch(JSON.parse(run().stdout).packages[0].guidance, /Use the installed v4 contracts/);
+  await rm(legacy, { recursive: true });
+  assert.deepEqual(JSON.parse(run().stdout).packages, []);
+  await rm(resolve(store, 'skills'), { recursive: true });
+  assert.match(JSON.parse(run('--package-root', store).stdout).packages[0].guidance, /No packaged skill/);
+  assert.equal(run('--unknown', store).status, 1);
 });

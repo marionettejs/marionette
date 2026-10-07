@@ -13,6 +13,7 @@ async function installedPackage(project) {
   if (!(await stat(directory)).isDirectory()) {
     throw new Error('--project must name a directory.');
   }
+  const searched = [];
   while (true) {
     const candidate = resolve(directory, 'node_modules/marionette');
     try {
@@ -20,8 +21,20 @@ async function installedPackage(project) {
     } catch (error) {
       if (error.code !== 'ENOENT') { throw error; }
     }
+    searched.push(directory);
     const parent = dirname(directory);
     if (parent === directory) {
+      for (const location of searched) {
+        let legacy;
+        try { legacy = await json(resolve(location, 'node_modules/backbone.marionette/package.json')); } catch (error) {
+          if (error.code === 'ENOENT') { continue; }
+          throw error;
+        }
+        const guidance = legacy.version.startsWith('4.') ?
+          '(v4). Use its v4 documentation; for migration choose an exact v5 target and read that target’s packaged migration guide.' :
+          '— use documentation for this installed release; the v4-to-v5 guide does not cover it.';
+        throw new Error(`Found backbone.marionette ${legacy.version} ${guidance}`);
+      }
       throw new Error('No installed marionette found. Use the application workspace or --package-root for its physical package directory.');
     }
     directory = parent;

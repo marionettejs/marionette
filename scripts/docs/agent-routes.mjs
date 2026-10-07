@@ -1,5 +1,5 @@
-import { cp, readFile, rm, writeFile } from 'node:fs/promises';
-import { basename, posix, resolve } from 'node:path';
+import { readFile, writeFile } from 'node:fs/promises';
+import { posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const start = '<!-- task-routes:start -->';
@@ -30,9 +30,6 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const generated = skillRoutes(await readFile(resolve(root, 'docs/agents.md'), 'utf8'), skill);
   if (process.argv.includes('--write')) {
     await writeFile(path, generated);
-    const destination = resolve(root, 'plugins/marionette/skills/marionette');
-    await rm(destination, { recursive: true, force: true });
-    await cp(resolve(root, 'skills/marionette'), destination, { recursive: true, filter: entry => basename(entry) !== '.DS_Store' });
   } else if (skill !== generated) {
     throw new Error('AGENT_ROUTES: run node scripts/docs/agent-routes.mjs --write');
   }
