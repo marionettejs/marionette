@@ -119,7 +119,7 @@ test('real consumer questions retrieve the required contract without reading a f
     ['event currentTarget delegateTarget', 'docs/api/shared/view-bindings.md', 'DOM events', ['`event.currentTarget` is the View\'s root element', '`event.delegateTarget` is the nearest matching descendant']],
     ['which element received the delegated click', 'docs/api/shared/view-bindings.md', 'DOM events', ['read the control matched by the selector', 'click originated inside that control']],
     ['my click handler runs twice', 'docs/api/shared/view-bindings.md', 'DOM events', ['Removes existing View/Behavior DOM handlers']],
-    ['change view model after creation', 'docs/api/shared/view-bindings.md', 'Data bindings', ['does not change its existing subscriptions', 'Call `undelegateEntityEvents()` before assigning', 'then call `delegateEntityEvents()`', 'Render explicitly']],
+    ['change view model after creation', 'docs/api/shared/view-bindings.md', 'Data bindings', ['does not change its existing subscriptions', 'Assign the new source or event map', 'then call `delegateEntityEvents()` to release the old bindings', 'Repeated delegation replaces bindings rather than accumulating them', 'Render explicitly']],
     ['modelEvents render', 'docs/api/shared/view-bindings.md', 'Data bindings', ['do not automatically update', 'resets its Regions and destroys their children', 'do not own or destroy the model/collection']],
     ['initialize options', 'docs/api/shared/common.md', 'Options and initialization', ['initialize', 'options']],
     ['childViewEvents arguments', 'docs/api/shared/view-bindings.md', 'Child events', ['No child argument is added', 'original event arguments']],

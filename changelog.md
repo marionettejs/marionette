@@ -4,6 +4,9 @@
   options objects, preventing one View from changing another View's selectors.
 * Keep Regions usable after an allowed missing selector: later explicit operations
   retry the original selector, including ordinary reset and destruction.
+* Make View, CollectionView, and Behavior entity-event delegation replace previous
+  bindings. Explicit undelegation is no longer required before rebinding changed
+  sources or declarations; destruction releases the current bindings.
 
 ### v5.0.0-rc.2
 

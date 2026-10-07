@@ -21,6 +21,10 @@ export interface EntityEventHost {
 export default {
   // Handle `modelEvents`, and `collectionEvents` configuration
   _delegateEntityEvents(this: EntityEventHost, model: unknown, collection: unknown, Data: SubscriptionApi) {
+    if (this._modelEventCleanup || this._collectionEventCleanup) {
+      this._undelegateEntityEvents();
+    }
+
     if (model != null) {
       this._modelEvents = getValue(this, 'modelEvents') as Bindings | undefined;
       if (this._modelEvents) {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "06fafd4d661cab13706dc84b68bbb51d9ef36bd2e62428bead785233c1a7fba9",
+  "semanticsSha256": "122dffd83054926b5919b1a9606a1d0f7e4a62c3a4d8d9c808727c6912376b2d",
   "entrypoints": [
     {
       "name": "marionette",
@@ -10445,7 +10445,7 @@
     "src/index.ts": "edc0027cf2f2c3cd24ce210cf38f8c3ad9db32d7164de2f67d8f344053acc1a1",
     "src/mixins/behaviors.ts": "720633138c31d36c3c9e9367c1cd9ef4a9b8514b2e5cfcb88e04bfdea7566991",
     "src/mixins/common.ts": "375340ed4f7c5db6c3bd9dc9d73c73b49e69347e3451c0db7dd646ae714f5156",
-    "src/mixins/delegate-entity-events.ts": "778dc193ff0b32611e6a9112e133f961c2f522c6864ea847c70e7d676fb41c9c",
+    "src/mixins/delegate-entity-events.ts": "f89d5c75825ee525585f12aaff9028c8c7ff97c73fada081d32b2061dfc34701",
     "src/mixins/destroy.ts": "23e3f523677b1567469f206f911c3f425dc6604ff6fdb40055be1b1078b31418",
     "src/mixins/radio.ts": "ab9d427c6d8de5279bc89abb9299f7ff679052fc383ed29ee94fa5efc1e33726",
     "src/mixins/state.ts": "7a22d8fe4bd58378f75c540294cb02a46853e8df65daf5d24ea8d3a4f521757d",
@@ -10476,7 +10476,7 @@
   "evidence": {
     "config/diagnostics/catalog.json": "76cc4270e2ec939078cc3c8537d66e45bf0a58010fe25eeef81ab21f58886997",
     "docs/api/application.md": "0a4f4ea3aa44d58940130e1938dc5c53f3a1d46dfb4b5d10353a0999487249a0",
-    "docs/api/behavior.md": "1d60b523fe3279bbff968bbe27be474a6f7ebaebdfb60f110e7395c3344bd31a",
+    "docs/api/behavior.md": "45df12d32d15caf9d69849957f476bc90d6c0ab1a89186384618943f68c0ee48",
     "docs/api/collection-view.md": "a6ef68cdf1c8fd77fd47a0ff835e51a1714d23352c8d0c13d28bf83df586d94f",
     "docs/api/errors.md": "f0dd3a19d442003e171ca373c50e8d6aace0d97896a8324babb8c779d8060954",
     "docs/api/mnobject.md": "89cfe4ac212de4ac5fd966cb427c1391749a2be623ccc9b6f16bb4c3497313bc",
@@ -10487,7 +10487,7 @@
     "docs/api/shared/common.md": "8982228a2345240414e35ba4f0967e95530f5966fe1254efd9a09575706d5b6a",
     "docs/api/shared/events.md": "d32469eb9dab26b77b94615c8bc337fc360536dd3e0489e12ad1ebb086f685f0",
     "docs/api/shared/state.md": "51b4ff2bee1d7b908801062778efc3d45c1873a9f3d4f454360cdd3476a20f25",
-    "docs/api/shared/view-bindings.md": "f1dc8acd160f1bf8b59f5cf0ac3b4582122135d0481fafa8c246475e05a10130",
+    "docs/api/shared/view-bindings.md": "2e33651d6e04d88cc40809013f36a881247085be1b72b1f174ec21098cf37128",
     "docs/api/view.md": "37bfc4e31632def67518f88c59124919b3e922c3b8b1e7740d2ccf4a1f45ddb0",
     "docs/guides/typescript.md": "e16331e21119a302bf96da56e03d7ba73db6d777ddacdc962fcb3449b4391aef",
     "docs/packages/adapters.md": "dba85df98bde4e8df589bc3e44b291656c51419d0607145664929b1ccf84b761",

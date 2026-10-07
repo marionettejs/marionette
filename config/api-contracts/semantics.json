@@ -295,7 +295,7 @@
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "View owns its Regions and Behaviors, and owns only factory-created state. A Region or CollectionView can own the View.",
       "mutation": "render replaces template contents and refreshes UI bindings; renderAttributes explicitly refreshes root attributes. Named Region lookup does not render; getChildView renders an unrendered parent before reading its child. Region registration copies own enumerable properties from supplied definition maps and options objects before resolving UI selectors, without mutating those declarations; supplied Region instances and constructors retain their identity.",
-      "repetition": "render may repeat while live; rendering after destruction is a no-op.",
+      "repetition": "render may repeat while live; rendering after destruction is a no-op. Entity-event delegation releases previous bindings before subscribing to the current sources and declarations.",
       "destruction": "destroy releases owned composition and removes its element; before:destroy precedes destroy. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
       "diagnostics": [],
       "docs": [
@@ -405,7 +405,7 @@
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "Host owns top-level and nested Behaviors; direct Behavior destruction does not destroy its host.",
       "mutation": "Host preinitialize runs before Behavior construction; Behavior initialize precedes host initialize; bindings participate in host lifecycle.",
-      "repetition": "One Behavior instance survives host render and attachment transitions.",
+      "repetition": "One Behavior instance survives host render and attachment transitions. Entity-event delegation releases previous bindings before subscribing to the current sources and declarations.",
       "destruction": "Direct destroy releases its participation; host destroy cleans remaining Behaviors once.",
       "diagnostics": [],
       "docs": [
@@ -606,7 +606,7 @@
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "Managed children belong to the CollectionView; stable unchanged model sources preserve child identity; same-key replacement recreates a child.",
       "mutation": "Structural updates add/remove affected children and reorder survivor elements; reset destructively replaces the list. Filters affect presentation.",
-      "repetition": "Explicit live render destroys all existing children and reconstructs collection-derived children; structural source updates reconcile survivors without an explicit render. Comparator ties preserve documented order.",
+      "repetition": "Explicit live render destroys all existing children and reconstructs collection-derived children; structural source updates reconcile survivors without an explicit render. Comparator ties preserve documented order. Entity-event delegation releases previous bindings before subscribing to the current sources and declarations.",
       "destruction": "destroy releases collection observation and destroys owned children; queued updates cannot resurrect a destroyed owner. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
       "diagnostics": [
         "MN0003",

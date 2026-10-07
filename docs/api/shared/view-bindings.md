@@ -79,9 +79,9 @@ Both methods are no-ops while destroying/destroyed. Construction delegates autom
 
 `modelEvents` and `collectionEvents` map source event names to callback functions or View method names; either map may be returned from a function. Bindings use the configured `Data.subscribe`, preserve source arguments, and invoke callbacks with the View as `this`. A plain object/array can supply template data, but the default DataApi requires an `on`/`off` source when an event map is present. Use the appropriate adapter for observable data.
 
-`delegateEntityEvents()` binds current model/collection declarations, including Behaviors, and returns the View. `undelegateEntityEvents()` releases those subscriptions and returns the View. Construction binds them after `initialize`; destruction releases them.
+`delegateEntityEvents()` releases previous model/collection bindings, then binds current declarations, including Behaviors, and returns the View. `undelegateEntityEvents()` releases those subscriptions and returns the View. Construction binds them after `initialize`; destruction releases them.
 
-Replacing a View's model or collection after construction does not change its existing subscriptions. Call `undelegateEntityEvents()` before assigning the new source or event map, then call `delegateEntityEvents()` to observe it. Delegation alone does not release a previous subscription. Render explicitly if the new source should be displayed immediately.
+Replacing a View's model or collection after construction does not change its existing subscriptions. Assign the new source or event map, then call `delegateEntityEvents()` to release the old bindings and observe the current declarations. Repeated delegation replaces bindings rather than accumulating them. Use `undelegateEntityEvents()` when observation should stop without rebinding. Render explicitly if the new source should be displayed immediately.
 
 Observable model changes do not automatically update the View's rendered contents. Choose the response in `modelEvents` or `collectionEvents`: for a small View, `modelEvents: { change: 'render' }` rerenders on change. On a layout View, that also resets its Regions and destroys their children; see [View rendering](../view.md#rendering-and-status).
 
