@@ -2,6 +2,13 @@
 
 Upgrade one application and its messaging participants together. Start from a working v4 application with checks for its important interactions, then change installation and integration setup before changing feature ownership. This guide covers common v4 application code; custom providers and low-level overrides should also be checked against their [reference contracts](../api.md).
 
+For an agent-assisted upgrade, give the agent this guide and the
+[agent entrypoint](../agents.md), plus the application's entrypoint and existing
+behavior checks. Have it inspect the installed candidate's docs, migrate one
+representative feature, and run the checks in section 4 before repeating the
+changes elsewhere. Keep data-layer replacement separate from the framework
+upgrade unless the application needs both.
+
 ## 1. Replace installation and configure integrations
 
 Replace `backbone.marionette` with the matching `marionette` v5 candidate. Follow [candidate installation](../quick-start.md#install-the-release-candidate) for the current package artifacts and companion versions. If you already use named imports, change their package path. Replace default namespace imports with named imports: `import { Application, View, MnObject, Radio } from 'marionette'`. The former namespace's `Object` alias becomes `MnObject`.

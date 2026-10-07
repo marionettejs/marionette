@@ -2,24 +2,84 @@
 <p align="center">
   <img title="Marionette" alt="Marionette logo" src="https://github.com/marionettejs/marionette/raw/master/marionette-mark.svg" width="140" height="145" />
 </p>
-<p align="center">Pull a few strings. Give your interface some structure.</p>
+<p align="center">Built for agent-led development.</p>
 <p align="center">
   <a href="https://github.com/marionettejs/marionette/actions/workflows/ci.yml"><img src="https://github.com/marionettejs/marionette/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI status" /></a>
   <a href="https://www.npmjs.com/package/marionette"><img src="https://img.shields.io/npm/v/marionette.svg" alt="npm version" /></a>
 </p>
 
-Marionette is a JavaScript library for building interfaces whose parts have clear
-jobs. Views render content and handle interactions. Regions give those Views a place
-to appear, change, and leave. Applications bring features together and coordinate
-the work that starts and stops with them.
+Marionette v5 is a JavaScript library built for agent-led development. It gives
+coding agents a consistent structure for building interfaces, version-matched
+contracts to work from, and tools to check the code they produce.
+
+## Why Marionette for agent-led development?
+
+- **Clear places for behavior.** Views render content and handle local interactions.
+  Regions own View replacement and destruction. Applications coordinate feature
+  readiness and lifetime. These boundaries give an agent a repeatable way to
+  compose features and make changes without inventing their ownership from scratch.
+- **The relevant contract in context.** Documentation and an agent skill ship with
+  the package. API and diagnostic lookup lead to specific contracts; documentation
+  MCP access connects those references to supported agent clients.
+- **Feedback on generated code.** TypeScript declarations, an ESLint rule against
+  private framework access, and stable diagnostic codes help agents catch mistakes.
+  Runnable examples and public behavior checks show how to verify interaction, cancellation, replacement, and cleanup.
+
+Start with the [agent entrypoint](docs/agents.md).
+[Consumer tooling](docs/tooling.md) covers skill/plugin installation, documentation
+MCP access, lint, types, and installed documentation lookup.
+
+Core has native DOM support and requires neither Backbone nor jQuery. Data and
+rendering adapters connect your preferred integrations; an existing Backbone
+application can keep its Models and persistence.
+
+## Try v5
+
+v5 is a release candidate. Use Node 24 or newer for development and build tooling.
+Install matching candidate versions in your browser application:
+
+```sh
+npm install --save-exact marionette@5.0.0-rc.2 @mnjs/utils@5.0.0-rc.2 @mnjs/radio@5.0.0-rc.2 @mnjs/adapters@5.0.0-rc.2 lit-html@3.3.3
+```
+
+Given `<div id="app"></div>` in your page, this module shows a dismissible panel:
+
+```js
+import { Region, View, setDomApi } from 'marionette';
+import LitDomApi from '@mnjs/adapters/dom/lit-html';
+import { html } from 'lit-html';
+
+setDomApi(LitDomApi);
+
+const Notice = View.extend({
+  template: () => html`
+    <p>Your report is ready.</p>
+    <button type="button">Dismiss</button>`,
+  triggers: { 'click button': 'dismiss' }
+});
+
+const region = new Region({ el: '#app' });
+const notice = new Notice();
+region.listenTo(notice, 'dismiss', () => region.empty());
+region.show(notice);
+```
+
+The View turns a click into intent. The Region renders and mounts the View;
+`empty()` destroys it and releases its event connections. Showing another View in
+that Region also destroys the previous one. No separate DOM removal or event
+unbinding is needed.
+
+The [quick start](docs/quick-start.md) supplies the complete HTML and Vite setup.
+Continue with the [Records lesson](docs/records.md) to combine a list, detail panel,
+and asynchronous feature lifecycle. Upgrading an existing application? Use the
+[v4-to-v5 migration guide](docs/guides/migration.md).
 
 ## Documentation
 
 Start with the [v5 documentation index](docs/readme.md), [quick start](docs/quick-start.md), or [API index](docs/api.md). The reference is organized by class and shared contracts; runnable lessons demonstrate selected workflows.
 
-For agent-led application work, use the [agent entrypoint](docs/agents.md).
-[Consumer tooling](docs/tooling.md) covers lint, types and installed documentation
-lookup; the [testing guide](docs/guides/testing.md) supplies a runnable test recipe.
+The [testing guide](docs/guides/testing.md) supplies a runnable recipe for checking
+interaction, replacement, readiness, and teardown.
 
 ## Development
 

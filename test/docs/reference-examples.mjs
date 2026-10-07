@@ -33,6 +33,7 @@ const pages = ['api', 'packages', 'integrations', 'guides'].flatMap(section =>
     .sort().map(name => `docs/${section}/${name}`))
   // This multi-file Node test recipe is executed by consumer-testing.mjs in the installed check.
   .filter(path => path !== 'docs/guides/testing.md');
+pages.push('readme.md');
 const preparations = {
   ...migrationPreparations,
   ...listPreparations,
@@ -41,6 +42,9 @@ const preparations = {
   ...typescriptPreparations,
   ...draftSavePreparations,
   ...navigationPreparations,
+  'readme-1': `
+document.body.innerHTML = '<div id="app"></div>';
+`,
   'api-application-1': `
 const fetches = [];
 globalThis.fetch = async (url, options) => {
@@ -50,6 +54,17 @@ globalThis.fetch = async (url, options) => {
 `,
 };
 const assertions = {
+  'readme-1': `
+assert.equal(document.querySelector('#app').contains(notice.el), true);
+assert.match(notice.el.textContent, /Your report is ready/);
+let destroyed = 0;
+notice.on('destroy', () => destroyed++);
+notice.el.querySelector('button').click();
+assert.equal(destroyed, 1);
+assert.equal(notice.isDestroyed(), true);
+assert.equal(document.querySelector('#app').childElementCount, 0);
+region.destroy();
+`,
   ...migrationAssertions,
   ...accessibilityAssertions,
   ...widgetAssertions,
@@ -488,7 +503,7 @@ try {
     const fences = [...markdown.matchAll(/```(js|javascript|ts|typescript)\n([\s\S]*?)```/g)];
     for (const [index, [, language, source]] of fences.entries()) {
       const typescript = language === 'ts' || language === 'typescript';
-      const name = `${path.slice(5, -3).replaceAll('/', '-')}-${index + 1}`;
+      const name = `${path.replace(/^docs\//, '').slice(0, -3).replaceAll('/', '-')}-${index + 1}`;
       const file = join(output, `${name}.${typescript ? 'mts' : 'mjs'}`);
       writeFileSync(file, source);
       if (name === 'integrations-setup-1') { writeFileSync(join(output, 'setup.js'), source); }
