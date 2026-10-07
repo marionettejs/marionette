@@ -274,7 +274,7 @@ Object.assign(Region.prototype, CommonMixin, {
   },
 
   _ensureElement(this: RegionInternals, options: ShowOptions = {}) {
-    this._setEl(this.el);
+    this._setEl(this.el ?? this._initEl);
 
     if (!this.el) {
       const allowMissingEl = typeof options.allowMissingEl === 'undefined' ? !!getValue(this, 'allowMissingEl') : !!options.allowMissingEl;

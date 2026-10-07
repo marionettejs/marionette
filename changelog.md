@@ -2,6 +2,8 @@
 
 * Resolve Region UI selectors from per-registration copies of shared maps and
   options objects, preventing one View from changing another View's selectors.
+* Keep Regions usable after an allowed missing selector: later explicit operations
+  retry the original selector, including ordinary reset and destruction.
 
 ### v5.0.0-rc.2
 

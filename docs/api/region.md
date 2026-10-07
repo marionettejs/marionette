@@ -55,9 +55,9 @@ On a successful show, the Region:
 
 Showing the current View again does not rerender it or repeat show events. A destroyed View cannot be shown. A View already owned by an Application, Region, or CollectionView must first be detached from that owner. A View adopting existing attached markup does not receive another attach notification just because a Region shows it.
 
-An unmatched selector produces `MN0005` unless allowed; no configured element produces `MN0004`. A destroyed incoming View produces `MN0007`, and an already owned View produces `MN0003`. `allowMissingEl` skips that show attempt; it does not establish automatic recovery when a target appears later.
+An unmatched selector produces `MN0005` unless allowed; no configured element produces `MN0004`. A destroyed incoming View produces `MN0007`, and an already owned View produces `MN0003`. `allowMissingEl` skips that show attempt without taking ownership of the View. A later explicit operation retries an unresolved selector; the Region does not watch for DOM changes.
 
-In this prerelease, an unmatched lookup clears the cached `el`, and subsequent element-dependent operations, including `empty()`, `reset()`, and `show()`, throw `MN0004`. Resolve the target before creating a Region when it is not yet available.
+An unmatched lookup clears the cached `el` but retains the original selector. A later `show()` retries that selector and applies its missing-element options. With no current View, `empty()` also needs to resolve the element; `reset()` and `destroy()` use that emptying path. When a current View exists, cleanup releases it using the resolved element without another selector lookup. A skipped show leaves the Region usable for cleanup or a later explicit show.
 
 Operations are synchronous. Lifecycle callbacks that throw interrupt the operation; Region does not roll back partially completed work.
 
@@ -67,10 +67,10 @@ Operations are synchronous. Lifecycle callbacks that throw interrupt the operati
 | --- | --- | --- |
 | `empty(options?)` | Destroys the current View and releases ownership. With no View, clears the Region element's contents. Keeps the Region usable and its resolved element cached. | Region |
 | `detachView()` | Removes the current View from the DOM, releases ownership and parent event forwarding, and keeps the View alive. Emits the Region's empty events. | Detached View, or `undefined` |
-| `reset(options?)` | Empties, then restores the original `el` reference. An initial selector is queried again on the next operation; an initial Element is reused. Requires emptying to succeed; see the [missing-selector limitation](#showing-a-view). | Region |
+| `reset(options?)` | Empties, then restores the original `el` reference. An initial selector is queried again on the next operation; an initial Element is reused. Requires emptying to succeed under the supplied missing-element options. | Region |
 | `destroy(options?)` | Runs destroy notifications around reset/empty cleanup, unlinks a named View-owned Region, and releases its incoming and outgoing event subscriptions. | Region |
 
-`empty()`, `reset()`, and `destroy()` use `ShowOptions` for element checking. The first lookup by `empty()` without options tolerates an unmatched selector when there is no child; supplying `allowMissingEl: false` makes that check strict. These options are not passed to the outgoing View's `destroy()`.
+`empty()`, `reset()`, and `destroy()` use `ShowOptions` for element checking. `empty()` without options tolerates an unmatched selector when there is no child; supplying `allowMissingEl: false` makes that check strict. These options are not passed to the outgoing View's `destroy()`.
 
 Keep a reference to a detached View and either give it a new owner or destroy it when finished. Detachment preserves the View's own listeners and state; its [View owner](view.md) stops forwarding its events. See [event cleanup](shared/events.md#cleanup) for native destruction and subscription ownership.
 
@@ -93,7 +93,7 @@ Use a placeholder that has a parent node: replacement exchanges nodes in that pa
 | `isSwappingView()` | True during replacement, including `before:show`, empty, and `show` callbacks. False after a successful show finishes. |
 | `isReplaced()` | Whether the placeholder is currently replaced by the View's root. |
 | `isDestroyed()` | False before destruction completes; true before `destroy` notifications run. |
-| `el` | Initial selector/Element, resolved Element after lookup, or `undefined` after an unmatched lookup. A successful `reset()` restores the initial reference; see the [missing-selector limitation](#showing-a-view). |
+| `el` | Initial selector/Element, resolved Element after lookup, or `undefined` after an unmatched lookup. A successful `reset()` restores the initial reference. An unresolved selector is retried on the next element-dependent operation. |
 | `options` | Merged constructor options. See [common options](shared/common.md). |
 | `cid`, `cidPrefix` | Unique instance identifier and its class-level prefix (`'mnr'` by default). |
 | `Dom` | DOM provider used for lookup, insertion, detachment, and replacement. Configure through `setDomApi`. |

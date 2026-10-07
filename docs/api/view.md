@@ -104,7 +104,7 @@ Regions are created before `initialize`; their elements can resolve later when c
 | `removeRegion(name)` | Destroys and unregisters the Region, including its current child; returns the destroyed Region. |
 | `removeRegions()` | Destroys/unregisters every Region; returns a map of the destroyed Regions. |
 
-The child operations and `removeRegion` throw for a missing Region. Region registration/removal emits no View `add:region` or `remove:region` events; observe the Region's lifecycle when needed. Rendering an existing layout resets Regions and destroys their children, so render a smaller child when the surrounding composition should remain alive. The current [missing-selector limitation](region.md#showing-a-view) can also make this reset fail after an allowed missing-element lookup.
+The child operations and `removeRegion` throw for a missing Region. Region registration/removal emits no View `add:region` or `remove:region` events; observe the Region's lifecycle when needed. Rendering an existing layout resets Regions and destroys their children, so render a smaller child when the surrounding composition should remain alive. An allowed missing-element lookup leaves the Region usable for this reset and for parent destruction.
 
 ## Lifecycle hooks and events
 
