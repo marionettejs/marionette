@@ -1,6 +1,6 @@
 # Build a records feature
 
-The [runnable example](../examples/records/README.md) loads records, selects one to display its detail, reloads while retaining the layout, retries failures, and closes/reopens the feature.
+Build a feature that loads records and shows the selected record beside its list. The [runnable example](../examples/records/README.md) also reloads without replacing the layout, retries failures, and closes/reopens the feature. The excerpts below come from that example; follow the source links for the complete modules.
 
 ## Run it
 
@@ -20,7 +20,57 @@ Open <http://127.0.0.1:5193>. Select a record, close the feature, then open it a
 
 [index.html](../examples/records/index.html) contains the page heading, controls, and empty content container. MainApplication's onStart attaches PageView to `#app` with `setView(new PageView({ el }))`. PageView uses `template: false`: its existing markup supplies the DOM, so no render or show call is needed. Its Regions and event triggers work normally.
 
+In [page.js](../examples/records/src/page.js):
+
+```js
+import { View } from 'marionette';
+
+export const PageView = View.extend({
+  template: false,
+  regions: { content: '.js-content' },
+  triggers: {
+    'click .js-open': 'open:records',
+    'click .js-close': 'close:records'
+  },
+  childViewTriggers: { retry: 'retry:records', reload: 'reload:records' }
+});
+```
+
 The parent owns that View and the registered Records child. The page lasts for the document's lifetime; child stop/restart leaves it mounted. Stopping the parent destroys PageView and removes its element. Starting this parent again, or starting another parent, requires supplying the page markup again.
+
+Inside [MainApplication](../examples/records/src/main-application.js), `childApps`
+registers the feature and `viewEvents` connects the page's intent to its lifecycle.
+The following is an excerpt from the object passed to `Application.extend(...)`:
+
+```js
+  childApps: { records: RecordsApplication },
+  viewEvents: {
+    'open:records': 'openRecords',
+    'retry:records': 'restartRecords',
+    'reload:records': 'restartRecords',
+    'close:records': 'closeRecords'
+  },
+  onStart() {
+    if (this.getView()) { return; }
+    this.setView(new PageView({ el: this.getOption('el') }));
+    this.openRecords();
+  },
+  openRecords() {
+    return this.getChildApp('records').start({ region: this.getView().getRegion('content') })
+      .catch(error => this.showRecordsError(error));
+  },
+  restartRecords() {
+    return this.getChildApp('records').restart()
+      .catch(error => this.showRecordsError(error));
+  },
+  closeRecords() {
+    return this.getChildApp('records').stop();
+  }
+```
+
+`showRecordsError` is the failure handler described below. Notice that registration
+and startup are separate: Open starts the child in the page's content Region;
+Close stops that child while leaving the page available.
 
 ## Prepare, then display
 
@@ -30,13 +80,115 @@ The parent owns that View and the registered Records child. The page lasts for t
 2. `prepareStart(options, { signal })` awaits the API, and returns a Collection built from the response.
 3. `onStart(app, options, collection)` uses that Collection directly. It creates RecordsLayout and its status View only when needed, then calls `showList` and `showDetail` to apply the prepared content. `showList` wires the new list’s intent listeners. `showView` mounts an initially prepared layout; showing the existing layout again leaves it intact.
 
+The preparation and commit methods are part of the same Application definition.
+`recordsApi` comes from [records-api.js](../examples/records/src/records-api.js);
+`Collection` comes from `@mnjs/data`, and the Views come from
+[records-views.js](../examples/records/src/records-views.js).
+
+Excerpt from [RecordsApplication](../examples/records/src/records-application.js),
+inside its `Application.extend(...)` definition:
+
+```js
+  async prepareStart(options, { signal }) {
+    const records = await recordsApi.list({ signal });
+    return new Collection(records);
+  },
+  onStart(app, options, collection) {
+    this.records = collection;
+    const state = this.getState();
+    if (!(this.getView() instanceof RecordsLayout)) {
+      const layout = this.setView(new RecordsLayout());
+      layout.showChildView('status', new RecordsStatus({ model: state }));
+    }
+    this.showList();
+    this.showDetail();
+    state.set({ count: collection.length, loading: false, error: '' });
+    this.showView();
+  }
+```
+
 `start()` remains pending until preparation completes. Closing during preparation cancels that start. Marionette prevents its obsolete result from reaching `onStart`, even when a service ignores cancellation. A superseded start resolves false rather than entering the error path. The Application needs no separate run flag or request controller for this initial load.
 
 `start()` opens the feature and is idempotent while running. Reload and Retry call `restart()` to repeat preparation. The page and ready records layout remain mounted during an active restart. Success replaces the list and detail Regions with the prepared records; it does not render the whole layout. Selection follows the same record ID; an absent record shows empty detail. The [retained-restart guide](guides/retained-restart.md) demonstrates updating an observable source while retaining child View and input identity too.
 
+[RecordsLayout](../examples/records/src/records-views.js) defines the three mount
+points used above. Replacing the list or detail leaves this shell in place:
+
+```js
+export const RecordsLayout = View.extend({
+  className: 'records',
+  template: () => html`
+    <h2>Records</h2>
+    <div class="js-status"></div>
+    <div class="records-columns">
+      <div class="js-list"></div>
+      <section class="js-detail" aria-label="Record details"></section>
+    </div>`,
+  childViewTriggers: { retry: 'retry', reload: 'reload' },
+  regions: {
+    status: '.js-status',
+    list: '.js-list',
+    detail: '.js-detail'
+  }
+});
+```
+
 ## Follow one selection
 
-A row emits `select`; RecordsList forwards `select:record`. The Application changes its selectedId state. Rows observe that state to display selection, and the Application's `stateEvents` handler shows a DetailView through the detail Region.
+In [records-views.js](../examples/records/src/records-views.js), a row emits `select`
+and RecordsList forwards `select:record`. Each row receives the same selection state
+through `childViewOptions`:
+
+```js
+const RecordRow = View.extend({
+  tagName: 'li',
+  modelEvents: { change: 'render' },
+  stateEvents: { 'change:selectedId': 'render' },
+  templateContext() {
+    return { selected: this.getState().get('selectedId') === this.model.id };
+  },
+  template: ({ title, selected }) => html`
+    <button type="button" aria-pressed=${selected}>${title}</button>`,
+  triggers: { 'click button': 'select' }
+});
+
+export const RecordsList = CollectionView.extend({
+  tagName: 'ul',
+  attributes: { 'aria-label': 'Records' },
+  childView: RecordRow,
+  childViewOptions() { return { state: this.getState() }; },
+  childViewTriggers: { select: 'select:record' }
+});
+```
+
+The Application owns a `Model` with `selectedId`, `count`, `loading`, and `error`.
+Its `stateEvents: { 'change:selectedId': 'showDetail' }` connects a selection change
+to the detail Region. These methods connect the list's intent and choose the detail.
+
+Another excerpt from [RecordsApplication](../examples/records/src/records-application.js),
+inside its `Application.extend(...)` definition:
+
+```js
+  showList() {
+    const state = this.getState();
+    const list = this.getView().showChildView('list', new RecordsList({ collection: this.records, state }));
+    this.listenTo(list, { 'select:record': row => state.set('selectedId', row.model.id) });
+  },
+  showDetail() {
+    const model = this.records.get(this.getState().get('selectedId'));
+    const detail = model ? new DetailView({ model }) : new EmptyDetailView();
+    this.getView().showChildView('detail', detail);
+  }
+```
+
+```text
+Row button → select → list's select:record → selectedId changes
+                                             ├─ rows update selection (via shared state)
+                                             └─ detail Region shows the selected record
+```
+
+The callback receives the emitting row, so it can read `row.model.id`. The Views
+need no reference to the Application or to one another.
 
 The Application chooses DetailView for a selected record or EmptyDetailView when selection is empty. Each View renders one presentation. The list never reaches into the detail markup. Selection keeps the page, list, and rows mounted.
 
