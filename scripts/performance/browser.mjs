@@ -164,7 +164,7 @@ export async function serveFixture(entryPath) {
       response.setHeader('content-type', 'text/javascript; charset=utf-8');
       response.end(await readFile(asset));
     } catch (error) {
-      response.writeHead(500);
+      response.writeHead(500, { 'content-type': 'text/plain; charset=utf-8', 'x-content-type-options': 'nosniff' });
       response.end(error.message);
     }
   });

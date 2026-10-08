@@ -25,8 +25,18 @@ function decodeEntities(value) {
   });
 }
 
+// Text extraction only; callers still escape HTML at the output boundary.
+export function stripHeadingTags(value) {
+  let previous;
+  do {
+    previous = value;
+    value = value.replace(/<[^>]*>/g, '');
+  } while (value !== previous);
+  return value;
+}
+
 export function textFromHeading(value) {
-  return decodeEntities(value.replace(/<[^>]+>/g, ''));
+  return decodeEntities(stripHeadingTags(value));
 }
 
 export function createSlugger() {

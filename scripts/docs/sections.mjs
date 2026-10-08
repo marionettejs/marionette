@@ -1,9 +1,9 @@
 import { marked } from 'marked';
-import { createSlugger, markdownRenderer } from './headings.mjs';
+import { createSlugger, markdownRenderer, stripHeadingTags } from './headings.mjs';
 
 export const isConsumerPage = page => page.section !== 'Maintaining Marionette';
-export const plainHeading = text => text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-  .replace(/<[^>]+>/g, '').replace(/[`*_~]/g, '');
+export const plainHeading = text => stripHeadingTags(text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1'))
+  .replace(/[`*_~]/g, '');
 
 // Build-time only. Consumers read verified offsets without a Markdown dependency.
 export function documentSections(source, markdown) {

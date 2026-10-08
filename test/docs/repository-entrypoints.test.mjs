@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import test from 'node:test';
 import { marked } from 'marked';
+import { textFromHeading } from '../../scripts/docs/headings.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const entrypoints = ['AGENTS.md', 'CONTRIBUTING.md', 'ROADMAP.md', 'test/README.md', 'readme.md'];
@@ -27,7 +28,7 @@ test('repository entrypoint links resolve without requiring the full documentati
         const counts = new Map();
         await Promise.all(marked.walkTokens(marked.lexer(contents), token => {
           if (token.type !== 'heading') { return; }
-          const name = marked.parseInline(token.text).replace(/<[^>]*>/g, '')
+          const name = textFromHeading(marked.parseInline(token.text))
             .toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, '').trim().replace(/\s/g, '-');
           const count = counts.get(name) || 0;
           counts.set(name, count + 1);

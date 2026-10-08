@@ -114,3 +114,18 @@ test('publication rejects an indexed member without a primary contract route', a
     show: { primarySections: [] },
   } }] }), /DOC_SYMBOL_ROUTE: Region.show/);
 });
+
+
+test('symbol lookup treats dollar signs literally and rejects regex expressions', () => {
+  const source = 'docs/dollars.md';
+  const content = '# Owner\n\n## Literal\n`$value`\n\n## Other\n`value`\n';
+  const sections = documentSections(source, content);
+  const files = new Map([[source, { content: Buffer.from(content) }]]);
+  const index = { schemaVersion: 2, contracts: { owner: { sections: [sections[0].id], diagnostics: [] } },
+    symbols: [{ entrypoint: 'marionette', name: 'Owner', kind: 'value', signature: 'Owner', contracts: ['owner'],
+      instance: { $value: { signature: 'unknown', contracts: ['owner'], primarySections: [] } } }] };
+  assert.deepEqual(findSymbols(index, sections, files, 'Owner.$value').matches[0].sections.map(value => value.heading), ['Literal']);
+  for (const query of ['Owner.(a+)+$', 'Owner.*', 'Owner.value|other']) {
+    assert.throws(() => findSymbols(index, sections, files, query), /Symbol lookup takes/);
+  }
+});

@@ -5,8 +5,8 @@ import test from 'node:test';
 import { marked } from 'marked';
 import { JSDOM } from 'jsdom';
 import { diagnosticPage } from '../../scripts/docs/build.mjs';
-import { addHeadingIds, markdownRenderer } from '../../scripts/docs/headings.mjs';
-import { documentSections, isConsumerPage } from '../../scripts/docs/sections.mjs';
+import { addHeadingIds, markdownRenderer, stripHeadingTags } from '../../scripts/docs/headings.mjs';
+import { documentSections, isConsumerPage, plainHeading } from '../../scripts/docs/sections.mjs';
 
 function assertSectionAnchors(source, markdown) {
   const document = new JSDOM(addHeadingIds(marked.parse(markdown, { renderer: markdownRenderer }))).window.document;
@@ -59,4 +59,12 @@ test('section anchors stay unique for suffix collisions, empty headings and inva
   assertSectionAnchors('docs/anchors.md', '# A\n\n## A\n\n## A-1\n\n## !!!\n\n## ???\n\n## &#x110000;\n');
   const document = new JSDOM(addHeadingIds(marked.parse('# A\n\n## A\n\n## A-1\n\n## !!!\n\n## ???\n', { renderer: markdownRenderer }))).window.document;
   assert.deepEqual([...document.querySelectorAll('h1, h2')].map(heading => heading.id), ['a', 'a-1', 'a-1-1', 'section', 'section-1']);
+});
+
+
+test('heading extraction removes nested tag fragments without reintroducing tags', () => {
+  const nested = '<scr<script>ipt>Example</scr</script>ipt>';
+  assert.equal(stripHeadingTags(nested), 'ipt>Exampleipt>');
+  assert.equal(plainHeading(`**${nested}**`), 'ipt>Exampleipt>');
+  assertSectionAnchors('docs/nested.md', `# ${nested}\n`);
 });

@@ -68,7 +68,7 @@ export const test = base.extend({
         const source = await readFile(asset, 'utf8');
         response.end(asset.endsWith('.ts') ? ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2024, module: ts.ModuleKind.ESNext } }).outputText : source);
       } catch (error) {
-        response.writeHead(500);
+        response.writeHead(500, { 'content-type': 'text/plain; charset=utf-8', 'x-content-type-options': 'nosniff' });
         response.end(error.message);
       }
     });

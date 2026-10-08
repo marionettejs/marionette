@@ -6,6 +6,7 @@ import { describe, test } from 'node:test';
 import {
   measureBrowserPerformance,
   sameMeasurementInputs,
+  serveFixture,
   summarize,
   validateBrowserPerformanceContract
 } from '../../scripts/performance/browser.mjs';
@@ -75,4 +76,18 @@ describe('browser performance evidence', () => {
       maxMilliseconds: 5
     });
   });
+});
+
+
+test('fixture failures are served as plain text even when paths contain HTML', async() => {
+  const server = await serveFixture(resolve(root, 'test/tmp/missing-<img src=x onerror=alert(1)>.js'));
+  try {
+    const response = await fetch(`${server.url}/workloads.js`);
+    assert.equal(response.status, 500);
+    assert.equal(response.headers.get('content-type'), 'text/plain; charset=utf-8');
+    assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
+    assert.match(await response.text(), /<img src=x onerror=alert\(1\)>/);
+  } finally {
+    await server.close();
+  }
 });
