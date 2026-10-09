@@ -40,8 +40,14 @@ into public evidence. The independent agent study remains deferred. Final exact
   the rename/import window; do not change protection to implement this freeze.
   Drain all pre-rename source docs-sync runs before the first rename. The workflow
   now requires the canonical repository name, so events in `marionette-develop`
-  cannot dispatch another sync after the rename. Keep the freeze through import
-  verification; do not manually dispatch website sync during the window.
+  cannot dispatch another sync after the source rename. The intentional import
+  merge into destination master does match that guard and triggers a new sync
+  against the now-imported v5 tree. Before that merge, verify destination dispatch
+  configuration; the preflight did not find its dispatch credential there. Stop
+  for separate credential/configuration approval if it is still absent. Do not
+  copy credentials or disable workflows under the repository-rename approval.
+  Keep the freeze through import and its sync verification; do not manually
+  dispatch website sync during the window.
 - [ ] Re-read both repository IDs, heads, open PRs and competing local work before
   acting. Neither repository had an open PR at preflight; that observation is
   not a lock or proof of current inactivity. Ask the coordinating maintainer to
@@ -79,6 +85,12 @@ into public evidence. The independent agent study remains deferred. Final exact
    are enabled. Re-read those rules at action time. Obtain the required eligible
    review and satisfy checks; never use admin bypass or push directly to master.
    Use a **merge commit**, not squash or rebase, so both histories remain reachable.
+   Before merging, satisfy the destination dispatch-configuration gate above.
+   After merging, wait for the triggered source and website sync workflows to
+   finish, inspect the resulting reading-copy PR and confirm its auto-merge
+   remains off. Verify the sync uses the imported v5 revision and its diff does
+   not introduce legacy v4 reading copies or unrelated content; an unchanged
+   publication file is also a valid no-op. Do not merge that website PR.
 7. Import the 9 existing v5 tags with explicit, individually checked refspecs only
    after checking destination tag-triggered workflows/rules and comparing target
    IDs. Do not recreate tags, overwrite collisions, push a wildcard or publish a

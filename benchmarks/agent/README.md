@@ -9,8 +9,9 @@ No model, runner/permissions profile, acceptance policy, counts, budgets, pilot,
 or evaluation series has been selected. `series-decisions.json` records these
 inputs as uncollected. The independent maintenance study and its frozen policy/resource
 envelope are [deferred until after stable production, not passed](https://github.com/marionettejs/marionette-develop/issues/574#issuecomment-6081796044).
-[Issue #574](https://github.com/marionettejs/marionette-develop/issues/574) records current
-release acceptance and evidence gaps; comparative framework research is separate.
+[Issue #574](https://github.com/marionettejs/marionette-develop/issues/574) records accepted
+pre-cutover evidence and its limits; comparative framework research is separate.
+Track new work in the [canonical issue tracker](https://github.com/marionettejs/marionette/issues).
 
 ## Task isolation
 
