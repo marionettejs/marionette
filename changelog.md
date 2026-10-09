@@ -32,7 +32,8 @@ at the time it shipped; older prerelease APIs may have been superseded.
 Changes since RC2:
 
 * Honor CollectionView's `RegionClass` constructor option for its empty Region,
-  including prototype precedence, `initialize` overrides, and Region recreation.
+  including its precedence over the prototype value, `initialize` overrides,
+  and Region recreation.
 * Resolve Region UI selectors from per-registration copies of shared maps and
   options objects, preventing one View from changing another View's selectors.
 * Keep Regions usable after an allowed missing selector: later explicit operations

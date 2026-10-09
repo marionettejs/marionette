@@ -5,6 +5,7 @@
     "prerelease": null
   },
   "repository": "marionettejs/marionette",
+  "repositoryId": "2965621",
   "defaultBranch": "master",
   "workflow": "release.yml",
   "environment": "stable-release",

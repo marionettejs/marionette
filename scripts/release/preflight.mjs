@@ -9,7 +9,7 @@ const policy = await readJson('config/release-promotion.json');
 const packageJson = await readJson('package.json');
 
 function parseArguments() {
-  const allowed = new Set(['--mode', '--repository', '--ref', '--event', '--certification-run-id']);
+  const allowed = new Set(['--mode', '--repository', '--repository-id', '--ref', '--event', '--certification-run-id']);
   const parsed = new Map();
 
   for (let index = 0; index < args.length; index += 2) {
@@ -45,6 +45,9 @@ function fail(message) {
 function validatePolicy() {
   if (policy.repository !== 'marionettejs/marionette') {
     fail(`unexpected repository ${policy.repository}`);
+  }
+  if (policy.repositoryId !== '2965621') {
+    fail('policy repository ID must be 2965621');
   }
   if (policy.defaultBranch !== 'master') {
     fail(`unexpected default branch ${policy.defaultBranch}`);
@@ -85,6 +88,7 @@ const enabled = publicationEnabled(policy, packageJson.version);
 
 const mode = readArgument('--mode', 'dry-run');
 const repository = readArgument('--repository', policy.repository);
+const repositoryId = parsedArgs.get('--repository-id');
 const ref = readArgument('--ref', `refs/heads/${policy.defaultBranch}`);
 const event = readArgument('--event', 'local');
 const certificationRunId = parsedArgs.get('--certification-run-id');
@@ -95,9 +99,15 @@ if (!['dry-run', 'publish'].includes(mode)) {
 if (repository !== policy.repository) {
   fail(`workflow repository ${repository} does not match ${policy.repository}`);
 }
+if (repositoryId !== undefined && repositoryId !== policy.repositoryId) {
+  fail(`workflow repository ID ${repositoryId} does not match ${policy.repositoryId}`);
+}
 if (mode === 'publish') {
   if (!enabled) {
     fail(`publication is disabled for ${packageJson.version}; authorize that release channel in the checked-in policy`);
+  }
+  if (repositoryId === undefined) {
+    fail(`publication requires explicit workflow repository ID ${policy.repositoryId}`);
   }
   if (event !== 'workflow_dispatch') {
     fail('publication is allowed only from workflow_dispatch');

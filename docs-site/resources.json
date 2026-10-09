@@ -1,6 +1,7 @@
 [
   "config/diagnostics/catalog.json",
   "config/diagnostics/catalog.schema.json",
+  "config/release-profile.json",
   "skills/marionette/SKILL.md",
   "skills/marionette/agents/openai.yaml",
   "skills/marionette/scripts/docs.mjs",

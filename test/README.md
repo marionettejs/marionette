@@ -229,13 +229,29 @@ on the same merged source commit, an explicit publish dispatch with that certifi
 run ID, and approval of the `stable-release` environment. Validation never grants
 publication permission.
 
-Before publishing, verify that all five npm trusted publishers are bound to the
-canonical `marionettejs/marionette` repository ID `2965621`, with workflow
-`release.yml` and environment `stable-release`. The former v5 repository is now
-`marionettejs/marionette-develop` (ID `306411262`). Matching repository names and a
-"Valid" status in npm settings do not establish the immutable repository binding;
-that binding remains an unresolved publication gate until authenticated readback
-or provider confirmation verifies the canonical repository ID.
+Publication preflight and both publication job conditions require the canonical
+GitHub repository ID `2965621` as well as `marionettejs/marionette`. The former v5
+repository is now `marionettejs/marionette-develop` (ID `306411262`); reusing the
+canonical name cannot authorize that repository. Publish preflight requires the
+actual `GITHUB_REPOSITORY_ID` explicitly and never defaults it from policy.
+
+Before publishing, verify all five npm trusted publishers in authenticated npm
+settings: organization/user `marionettejs`, repository `marionette`, workflow
+`release.yml`, environment `stable-release`, and direct `npm publish` permission
+(required by this workflow).
+The five configurations were replaced after the repository swap under separate
+settings approval. Verify the saved fields and the pending connections' first-publish
+deadlines before publication. A new connection may remain pending validation until its first
+successful publication.
+npm's [documented configuration fields](https://docs.npmjs.com/trusted-publishers/#for-github-actions) do
+not expose an immutable repository-ID readback. A matching name or "Valid" status
+does not prove how npm binds IDs internally; the repository-ID enforcement above
+is our independently verifiable GitHub-side guard. Settings verification and
+publication approval remain separate from passing this guard.
+
+After publication creates `v5.0.0`, add that existing tag to Context7's
+`previousVersions` when it becomes a historical documentation version. Do not
+advertise the tag during release preparation.
 
 ## Dependency maintenance
 
