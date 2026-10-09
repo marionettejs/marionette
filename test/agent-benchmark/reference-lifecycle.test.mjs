@@ -27,27 +27,41 @@ test('async panel preserves current load failures', async() => {
   try { await assert.rejects(panel.open('current'), error => error === failure); } finally { panel.destroy(); }
 });
 
-for (const cancel of ['stop', 'destroy']) {
-  test(`async session releases a subscription acquired during synchronous ${cancel}`, async() => {
-    let closed = 0;
-    let released = 0;
-    const provider = {
-      subscribe(onMessage) { onMessage('ready'); return () => { released++; }; },
-      close() { closed++; }
+for (const cancel of ['stop', 'destroy', 'start']) {
+  test(`async session unsubscribes before closing after synchronous ${cancel}`, async() => {
+    const calls = [];
+    let acquired = 0;
+    let cancellation;
+    const provider = label => {
+      let closed = false;
+      return {
+        subscribe(onMessage) {
+          if (label === 'first') { onMessage('ready'); }
+          return () => {
+            assert.equal(closed, false, 'unsubscribe must precede provider close');
+            calls.push(`${label}:unsubscribe`);
+          };
+        },
+        close() { assert.equal(closed, false); closed = true; calls.push(`${label}:close`); }
+      };
     };
-    const session = createSession(() => Promise.resolve(provider), () => session[cancel]());
+    const session = createSession(() => Promise.resolve(provider(++acquired === 1 ? 'first' : 'replacement')),
+      () => { cancellation = session[cancel](); });
     try {
       assert.equal(await session.start(), false);
-      assert.equal(closed, 1);
-      assert.equal(released, 1);
-    } finally { session.destroy(); }
-    assert.equal(closed, 1);
-    assert.equal(released, 1);
+      await cancellation;
+      assert.deepEqual(calls, ['first:unsubscribe', 'first:close']);
+      await session.stop();
+      assert.deepEqual(calls, cancel === 'start' ?
+        ['first:unsubscribe', 'first:close', 'replacement:unsubscribe', 'replacement:close'] :
+        ['first:unsubscribe', 'first:close']);
+    } finally { await session.destroy(); }
+    assert.equal(calls.length, cancel === 'start' ? 4 : 2);
   });
 }
 
 for (const [ownership, createWorkspace] of [['owned', ownedWorkspace], ['borrowed', borrowedWorkspace]]) {
-  for (const event of ['before:start', 'start']) {
+  for (const event of ['before:start', 'start', 'resolved']) {
     test(`${ownership} workspace cancels child startup when parent restarts at child ${event}`, async() => {
       const readiness = Promise.withResolvers();
       let calls = 0;
@@ -58,9 +72,21 @@ for (const [ownership, createWorkspace] of [['owned', ownedWorkspace], ['borrowe
         subscribe() { subscriptions++; return () => { subscriptions--; }; }
       });
       let replacement;
-      workspace.child.once(event, () => { replacement = workspace.app.restart(); });
+      let cancellation;
+      if (event === 'resolved') {
+        workspace.child.once('before:start', () => {
+          // Join the actual pending child start before the parent awaits it. The
+          // extra microtask runs after that await, but before the parent commits.
+          cancellation = workspace.child.start().then(() => {
+            queueMicrotask(() => { replacement = workspace.app.restart(); });
+          });
+        });
+      } else {
+        workspace.child.once(event, () => { replacement = workspace.app.restart(); });
+      }
       try {
         assert.equal(await workspace.app.start(), false);
+        await cancellation;
         assert.equal(calls, 2);
         assert.equal(workspace.app.isRunning(), false);
         assert.equal(workspace.child.isRunning(), false);
@@ -75,4 +101,19 @@ for (const [ownership, createWorkspace] of [['owned', ownedWorkspace], ['borrowe
       assert.equal(subscriptions, 0);
     });
   }
+}
+
+for (const [ownership, createWorkspace] of [['owned', ownedWorkspace], ['borrowed', borrowedWorkspace]]) {
+  test(`${ownership} workspace reports a destroyed required child explicitly`, async() => {
+    const state = { dispose() {} };
+    const workspace = createWorkspace(document.createElement('main'), ownership === 'owned' ? () => state : state, {}, {
+      ready() { return Promise.resolve(); },
+      subscribe() { throw new Error('Canceled startup must not subscribe'); }
+    });
+    workspace.child.destroy();
+    try {
+      await assert.rejects(workspace.app.start(), /^Error: Editor startup canceled$/);
+      assert.equal(workspace.app.isRunning(), false);
+    } finally { workspace.app.destroy(); }
+  });
 }

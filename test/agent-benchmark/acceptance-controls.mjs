@@ -10,14 +10,24 @@ if (!prepared || !destination || process.argv.length !== 4) { throw new Error('S
 const source = resolve(prepared);
 const output = resolve(destination);
 const record = JSON.parse(await readFile(join(source, 'attempt.json'), 'utf8'));
-assert.ok(['borrowed-workspace-state', 'async-session', 'filter-projects'].includes(record.taskId));
+assert.ok(['borrowed-workspace-state', 'async-session', 'async-panel', 'filter-projects'].includes(record.taskId));
 const original = await readFile(join(source, 'workspace/solution.mjs'), 'utf8');
 const replaceOnce = (text, before, after) => {
   assert.equal(text.split(before).length, 2, `Expected one reference anchor for ${record.taskId}: ${JSON.stringify(before)}`);
   return text.replace(before, after);
 };
 const variants = {
+  'async-panel': [
+    { id: 'current-panel', change: text => text, passes: true },
+    { id: 'rejects-stale-load', change: text => replaceOnce(text,
+      '        if (destroyed || token !== generation) { return false; }', ''), passes: false, failure: /obsolete load/ }
+  ],
   'borrowed-workspace-state': [
+    { id: 'disconnects-before-parent-commit', change: text => replaceOnce(replaceOnce(text,
+      '      context.signal.addEventListener(\'abort\', () => child.stop(), { once: true });',
+      '      const cancel = () => child.stop();\n      context.signal.addEventListener(\'abort\', cancel, { once: true });'),
+    '      const started = await child.start();',
+    '      const started = await child.start();\n      context.signal.removeEventListener(\'abort\', cancel);'), passes: false, failure: /true !== false/ },
     { id: 'retained-view-reference', change: text => text, passes: true },
     { id: 'current-region-view', change: text => replaceOnce(text, '      return view;', '      return child.getView();'), passes: true },
     { id: 'disposes-borrowed-state', change: text => replaceOnce(text,
@@ -25,6 +35,12 @@ const variants = {
       '  Workspace.prototype.createState = () => sharedState;\n  const app = new Workspace();'), passes: false, failure: /Borrowed state must not be disposed/ }
   ],
   'async-session': [
+    { id: 'closes-before-unsubscribe', change: text => replaceOnce(replaceOnce(replaceOnce(text,
+      '      const release = provider.subscribe(onMessage);',
+      '      current = provider;\n      const release = provider.subscribe(onMessage);'),
+    '        release();\n        provider.close();', '        release();'),
+    '      // Publish ownership only after synchronous subscription callbacks finish.\n      current = provider;', ''),
+    passes: false, failure: /unsubscribe must precede provider close/ },
     { id: 'immediate-acquisition', change: text => text, passes: true },
     { id: 'microtask-acquisition', change: text => replaceOnce(text, 'await acquire()', 'await Promise.resolve().then(() => acquire())'), passes: true },
     { id: 'skips-stale-acquisition', change: text => replaceOnce(text,
@@ -54,7 +70,9 @@ export function createSession(...args) {
   };
 }
 `, passes: true },
-    { id: 'leaks-stale-provider', change: text => replaceOnce(text, '        provider.close();', ''), passes: false, failure: /0 !== 1/ }
+    { id: 'leaks-stale-provider', change: text => replaceOnce(text,
+      '      const provider = await acquire();\n      if (destroyed || token !== generation) {\n        provider.close();',
+      '      const provider = await acquire();\n      if (destroyed || token !== generation) {'), passes: false, failure: /0 !== 1/ }
   ],
   'filter-projects': [
     { id: 'collection-filter', change: text => text, passes: true },

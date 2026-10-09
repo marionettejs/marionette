@@ -144,7 +144,11 @@ import { Application } from 'marionette';
 const Feature = Application.extend({
   childApps: { results: Application },
   async prepareStart(options, { signal }) {
-    const started = await this.getChildApp('results').start();
+    const child = this.getChildApp('results');
+    if (!child) { throw new Error('Required child is missing'); }
+    if (child.isRunning()) { return; }
+    signal.addEventListener('abort', () => child.stop(), { once: true });
+    const started = await child.start();
     signal.throwIfAborted();
     if (!started) { throw new Error('Required child did not start'); }
   },
@@ -153,6 +157,8 @@ const Feature = Application.extend({
 const feature = new Feature();
 await feature.start();
 ```
+
+This recipe explicitly cancels a child started for the pending parent attempt, including the interval after the child starts but before the parent commits. It preserves an already-running child during restart. Keep the abort listener connected until the attempt settles; a committed preparation's signal is not aborted by later lifecycle operations. This is the recipe's coordination policy, not automatic rollback by Application.
 
 Use the child's `restart()` in preparation only when it should reprepare too; `start()` preserves an already-running child. Parent stop cancels pending child readiness. A rejected parent preparation does not roll back already-started children; explicitly stop or destroy the parent when abandoning that startup.
 

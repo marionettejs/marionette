@@ -550,6 +550,23 @@ for (const cancelParent of [true, false]) {
   pendingFeature.destroy();
   assert.equal(pendingChild.isDestroyed(), true);
 }
+const missingFeature = new Feature();
+missingFeature.getChildApp('results').destroy();
+await assert.rejects(missingFeature.start(), /Required child is missing/);
+missingFeature.destroy();
+const racedFeature = new Feature();
+const racedChild = racedFeature.getChildApp('results');
+let cancellation;
+racedChild.once('before:start', () => {
+  cancellation = racedChild.start().then(() => {
+    queueMicrotask(() => racedFeature.stop());
+  });
+});
+assert.equal(await racedFeature.start(), false);
+await cancellation;
+assert.equal(racedFeature.isRunning(), false);
+assert.equal(racedChild.isRunning(), false);
+racedFeature.destroy();
 `,
   'api-region-1': 'assert.equal(retained, view); assert.equal(first.hasView(), false); assert.equal(second.hasView(), false); assert.equal(view.isDestroyed(), true);',
   'api-shared-view-bindings-1': 'assert.equal(greeting.el.textContent, \'Hello, Sam\'); assert.equal(greeting.isDestroyed(), true);',

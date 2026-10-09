@@ -29,12 +29,14 @@ export function createSession(acquire, onMessage) {
         provider.close();
         return false;
       }
-      current = provider;
       const release = provider.subscribe(onMessage);
       if (destroyed || token !== generation) {
         release();
+        provider.close();
         return false;
       }
+      // Publish ownership only after synchronous subscription callbacks finish.
+      current = provider;
       unsubscribe = release;
       return true;
     },

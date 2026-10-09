@@ -84,3 +84,36 @@ test('stale provider acquisition and active subscription both release resources'
     assert.equal(acquiredProvider.listeners.size, 0);
   });
 });
+
+for (const cancel of ['stop', 'destroy', 'start']) {
+  test(`async session unsubscribes before closing after synchronous ${cancel}`, async() => {
+    const calls = [];
+    let acquired = 0;
+    let cancellation;
+    const provider = label => {
+      let closed = false;
+      return {
+        subscribe(onMessage) {
+          if (label === 'first') { onMessage('ready'); }
+          return () => {
+            assert.equal(closed, false, 'unsubscribe must precede provider close');
+            calls.push(`${label}:unsubscribe`);
+          };
+        },
+        close() { assert.equal(closed, false); closed = true; calls.push(`${label}:close`); }
+      };
+    };
+    const session = solution.createSession(() => Promise.resolve(provider(++acquired === 1 ? 'first' : 'replacement')),
+      () => { cancellation = session[cancel](); });
+    try {
+      assert.equal(await session.start(), false);
+      await cancellation;
+      assert.deepEqual(calls, ['first:unsubscribe', 'first:close']);
+      await session.stop();
+      assert.deepEqual(calls, cancel === 'start' ?
+        ['first:unsubscribe', 'first:close', 'replacement:unsubscribe', 'replacement:close'] :
+        ['first:unsubscribe', 'first:close']);
+    } finally { await session.destroy(); }
+    assert.equal(calls.length, cancel === 'start' ? 4 : 2);
+  });
+}

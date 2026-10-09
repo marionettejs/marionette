@@ -34,22 +34,14 @@ export function createStateWorkspace(el, sharedState, domain, lifecycle) {
       await lifecycle.ready(context.signal);
       if (context.signal.aborted) { return; }
       const child = this.getChildApp('editor');
+      if (!child) { throw new Error('Editor startup canceled'); }
       if (child.isRunning()) { return; }
-      const cancel = () => child.stop();
-      const releaseCancellation = () => context.signal.removeEventListener('abort', cancel);
-      context.signal.addEventListener('abort', cancel, { once: true });
-      try {
-        const started = await child.start();
-        if (!started && !context.signal.aborted) { throw new Error('Editor startup canceled'); }
-        // Keep cancellation connected until the parent commits this start.
-        return releaseCancellation;
-      } catch (error) {
-        releaseCancellation();
-        throw error;
-      }
+      // Keep cancellation connected through the parent's pending commit.
+      context.signal.addEventListener('abort', () => child.stop(), { once: true });
+      const started = await child.start();
+      if (!started && !context.signal.aborted) { throw new Error('Editor startup canceled'); }
     },
-    onStart(application, options, releaseCancellation) {
-      releaseCancellation?.();
+    onStart() {
       if (!unsubscribe) { unsubscribe = lifecycle.subscribe(); }
     },
     onStop: releaseSession,
