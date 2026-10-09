@@ -202,6 +202,26 @@ A full render runs: `before:render` → old-row destruction → new-row addition
 
 DOM extension points perform placement only; ownership and lifecycle remain the job of the enclosing operations. Keep the fixed root. Shared `getTemplate`, serialization, UI, delegation, attributes, Behavior composition, child events and their methods are defined in [View runtime](shared/view-bindings.md). Class setters `setRenderer`, `setDomApi`, `setDataApi`, `setStateApi`, and `setEventDelegator` use its [configuration contracts](shared/view-bindings.md#class-configuration). Inherited object APIs are in [common methods](shared/common.md), [events](shared/events.md), and [state](shared/state.md).
 
+### Compose manual children after rendering
+
+Do not call `addChildView()` from `onBeforeRender` or a `before:render` listener. It renders an unrendered list before adopting the child, so that callback reenters itself. Even with a one-time callback, the outer render destroys the newly adopted child. On a later full render, children added during `before:render` are also included in the following old-row destruction. `{ preventRender: true }` does not avoid either problem: it defers the child's presentation, not the parent's initial render or adoption.
+
+Prepare collection inputs before rendering. For manual children, compose in `onRender` or a `render` listener, after the full-render child destruction and container setup:
+
+```js
+import { CollectionView, View } from 'marionette';
+
+const ManualList = CollectionView.extend({
+  onRender() {
+    this.addChildView(new View({ template: () => 'Ready' }));
+  },
+});
+
+const list = new ManualList().render();
+```
+
+This creates a fresh child after each full render; the next full render, a collection reset, or parent destruction destroys it. A collection reset does not emit `render`, so a manual child composed in `onRender` is not recreated afterward. Do not invoke another full parent render from the completion callback. For collection-backed rows, configure `collection` and `childView` instead of manually recreating those rows. See the related [View composition boundary](view.md#compose-children-after-rendering).
+
 ## TypeScript
 
 Import `CollectionViewConfiguration`, `CollectionViewInstance`, `CollectionViewConstructor`, `CollectionChild`, and `ChildRenderOptions` from `marionette`. Configuration describes accepted options; `ChildRenderOptions` contains `index` and `preventRender`. `CollectionChild` describes a managed View with container identity. Instance generics describe child type, options, state, collection source and query type. Constructor inference carries supplied child/source types and subclass properties through `extend`; normal applications can use that inference as in the example.

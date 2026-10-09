@@ -142,6 +142,28 @@ Lifecycle callbacks are synchronous. A thrown callback interrupts the operation;
 
 Set `monitorViewEvents: false` on the class to disable descendant attachment propagation and generated `dom:refresh`/`dom:remove` notifications. This is a class property, not a recognized constructor option. Ordinary application code should retain monitoring. `monitorViewEvents(view)` is the exported installer used by Marionette; it returns `undefined` and installs handlers only once, unless monitoring is disabled before installation. Native View and CollectionView construction installs it automatically. A custom integration must satisfy `ViewLifecycle`, including event methods, rendered/attached flags and immediate-child traversal. The installer propagates existing lifecycle events; it does not watch external DOM changes.
 
+### Compose children after rendering
+
+Use `onBeforeRender` or a `before:render` listener to prepare template inputs or inspect the existing UI. Avoid operations that render an unrendered parent: `showChildView()`, `getChildView()`, `detachChildView()`, and `emptyRegions()` each reenter the same notification. An unconditional callback recurses; a one-time callback can complete an inner render. If it shows a child, the outer render then resets the Region and destroys that child. Showing children here is also unsafe on later renders, because existing Region children are still reset after `before:render`. `getRegion()` itself is a pure lookup and does not render.
+
+Compose children in `onRender` or a `render` listener, after the parent's template and Regions are ready:
+
+```js
+import { View } from 'marionette';
+
+const Page = View.extend({
+  template: () => '<section class="content"></section>',
+  regions: { content: '.content' },
+  onRender() {
+    this.showChildView('content', new View({ template: () => 'Ready' }));
+  },
+});
+
+const page = new Page().render();
+```
+
+Each full parent render destroys the previous child and composes a new one; parent destruction destroys the current child. Do not call the parent's `render()` again from that completion callback. For `template: false`, no render notification occurs: compose explicitly after establishing the existing markup, as in [existing elements](#existing-elements). CollectionView has a corresponding [manual-child boundary](collection-view.md#compose-manual-children-after-rendering).
+
 ## Configuration and inherited API
 
 The class methods `setRenderer`, `setDomApi`, `setDataApi`, `setStateApi`, and `setEventDelegator` return the receiving class. Their [configuration contracts](shared/view-bindings.md#class-configuration) apply to subclasses as well. Configure before constructing Views.

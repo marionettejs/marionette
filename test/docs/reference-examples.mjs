@@ -469,6 +469,88 @@ items.destroy();
 mount.remove();
 `,
   'api-view-1': 'assert.equal(page.isDestroyed(), true); assert.equal(child.isDestroyed(), true); assert.equal(document.body.contains(el), false);',
+  'api-view-2': `
+const first = page.getChildView('content');
+assert.equal(page.el.contains(first.el), true);
+let renders = 0;
+page.on('render', () => renders++);
+page.render();
+assert.equal(renders, 1);
+assert.equal(first.isDestroyed(), true);
+const current = page.getChildView('content');
+assert.notEqual(current, first);
+assert.equal(page.el.contains(current.el), true);
+page.destroy();
+assert.equal(current.isDestroyed(), true);
+`,
+  'api-collection-view-2': `
+assert.equal(list.children.length, 1);
+const first = list.children.findByIndex(0);
+assert.equal(list.el.contains(first.el), true);
+let renders = 0;
+list.on('render', () => renders++);
+list.render();
+assert.equal(renders, 1);
+assert.equal(first.isDestroyed(), true);
+assert.equal(list.children.length, 1);
+const current = list.children.findByIndex(0);
+assert.notEqual(current, first);
+assert.equal(list.el.contains(current.el), true);
+list.destroy();
+assert.equal(current.isDestroyed(), true);
+const { Collection, DataApi } = await import('@mnjs/data');
+const items = new Collection([{ id: 1 }]);
+const Row = View.extend({ template: () => 'Row' }).setDataApi(DataApi);
+const BackedList = ManualList.extend({ childView: Row }).setDataApi(DataApi);
+const backed = new BackedList({ collection: items }).render();
+assert.equal(backed.children.length, 2);
+const manual = backed.children.find(view => view.model === undefined);
+assert.ok(manual);
+assert.equal(manual.el.textContent, 'Ready');
+let resetRenders = 0;
+backed.on('render', () => resetRenders++);
+items.reset([{ id: 2 }]);
+assert.equal(manual.isDestroyed(), true);
+assert.equal(backed.children.length, 1);
+assert.equal(resetRenders, 0);
+backed.destroy();
+items.destroy();
+`,
+  'api-application-2': `
+const child = feature.getChildApp('results');
+assert.equal(feature.isRunning(), true);
+assert.equal(child.isRunning(), true);
+let starts = 0;
+child.on('start', () => starts++);
+assert.equal(await feature.restart(), true);
+assert.equal(starts, 0);
+assert.equal(feature.stop(), true);
+assert.equal(child.isRunning(), false);
+assert.equal(child.isDestroyed(), false);
+feature.destroy();
+assert.equal(child.isDestroyed(), true);
+for (const cancelParent of [true, false]) {
+  const ready = Promise.withResolvers();
+  const PendingChild = Application.extend({ prepareStart() { return ready.promise; } });
+  const PendingFeature = Feature.extend({ childApps: { results: PendingChild } });
+  const pendingFeature = new PendingFeature();
+  const pendingChild = pendingFeature.getChildApp('results');
+  const pending = pendingFeature.start();
+  if (cancelParent) {
+    pendingFeature.stop();
+    assert.equal(await pending, false);
+  } else {
+    pendingChild.stop();
+    await assert.rejects(pending, /Required child did not start/);
+  }
+  ready.resolve();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(pendingFeature.isRunning(), false);
+  assert.equal(pendingChild.isRunning(), false);
+  pendingFeature.destroy();
+  assert.equal(pendingChild.isDestroyed(), true);
+}
+`,
   'api-region-1': 'assert.equal(retained, view); assert.equal(first.hasView(), false); assert.equal(second.hasView(), false); assert.equal(view.isDestroyed(), true);',
   'api-shared-view-bindings-1': 'assert.equal(greeting.el.textContent, \'Hello, Sam\'); assert.equal(greeting.isDestroyed(), true);',
   'api-shared-common-1': 'assert.equal(panel.el.getAttribute(\'aria-label\'), \'Settings\'); panel.destroy();',

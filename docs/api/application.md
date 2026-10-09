@@ -125,6 +125,41 @@ Registration owns lifetime, not readiness. Parent start does not start or await 
 
 Parent stop traverses children in registration order, including descendants beneath stopped intermediate owners. Child instances remain registered for reuse. Parent destruction stops descendants before `before:destroy`, which can inspect stopped, live children; it then destroys children in registration order. Descendant start/restart is blocked during an ancestor's stop or terminal phase. There are no Application add/remove-child notification events.
 
+### Child operations during lifecycle notifications
+
+These phase rules apply to both method hooks and event listeners: `onBefore…` / `on('before:…', callback)`, and `onStop` / `on('stop', callback)`. Hooks run first; listeners then run synchronously in registration order. A notification is not an awaited coordination step.
+
+| Parent notification | Child operation and consequence |
+| --- | --- |
+| `before:start` | An explicit child `start()` or `restart()` can begin, but its Promise is not awaited by the parent, even if the callback returns it. An explicit child `stop()` completes synchronously; it does not cancel parent startup. |
+| `before:stop` | The parent is already stopping. Descendant `start()` and `restart()` resolve `false`, including from descendant cleanup callbacks. Explicitly stopping a child early is safe; normal parent teardown still stops the remaining descendants. |
+| `before:destroy` | Descendants have already been stopped and are about to be destroyed. Inspect or release external resources here; descendant activation resolves `false`. New child registration is ignored and leaves the supplied instance owned by the caller. |
+| `stop` after ordinary stop | Cleanup has finished, so an explicitly requested next run can start if no ancestor is still stopping. A child can run while its parent remains stopped; starting the parent does not start children automatically. When an ancestor is stopping this parent, descendant activation still resolves `false` during the parent's `stop` callback. During destruction, terminal ownership still blocks activation. |
+
+When child readiness is required for parent success, await it in `prepareStart`, check the preparation signal after the await, and handle a canceled child result explicitly:
+
+```js
+import { Application } from 'marionette';
+
+const Feature = Application.extend({
+  childApps: { results: Application },
+  async prepareStart(options, { signal }) {
+    const started = await this.getChildApp('results').start();
+    signal.throwIfAborted();
+    if (!started) { throw new Error('Required child did not start'); }
+  },
+});
+
+const feature = new Feature();
+await feature.start();
+```
+
+Use the child's `restart()` in preparation only when it should reprepare too; `start()` preserves an already-running child. Parent stop cancels pending child readiness. A rejected parent preparation does not roll back already-started children; explicitly stop or destroy the parent when abandoning that startup.
+
+Calling parent `stop()` from its `before:start` callback is supported cancellation, but it does not cancel the remaining notification listeners. A later listener can still perform side effects or independently start a child after that stop has finished. Keep required child activation in `prepareStart`, which only begins if the parent preparation is still current, instead of distributing dependent lifecycle actions across notification callbacks. Starting an optional child from a notification remains explicit independent work: handle its Promise and rejection yourself.
+
+Do not unconditionally call the same Application's `restart()` from its `before:start` callback: restart emits `before:start` again and supersedes the outer attempt. A conditional redirect must terminate; for ordinary refresh, request restart from the coordinating caller. A repeated `start()` during initial preparation joins that pending preparation instead. These rules do not prohibit synchronous preparation of state or inspection in before hooks.
+
 ## Root View and Region
 
 | API | Contract |

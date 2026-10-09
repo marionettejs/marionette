@@ -187,6 +187,30 @@ describe('Application child lifecycle', () => {
     expect(child.isRunning()).toBe(false);
   });
 
+  for (const notification of ['hook', 'listener']) {
+    for (const method of ['start', 'restart']) {
+      it(`blocks descendant ${method} from an intermediate stop ${notification} until ancestor cleanup completes`, async() => {
+        const app = owner();
+        const parent = app.addChildApp('parent', new Application());
+        const child = parent.addChildApp('child', new Application());
+        let attempted;
+        const activate = () => { attempted = child[method](); };
+        if (notification === 'hook') { parent.onStop = activate; } else { parent.on('stop', activate); }
+        await app.start();
+        await parent.start();
+        await child.start();
+
+        expect(app.stop()).toBe(true);
+        expect(await attempted).toBe(false);
+        expect(app.isRunning()).toBe(false);
+        expect(parent.isRunning()).toBe(false);
+        expect(child.isRunning()).toBe(false);
+        expect(await child[method]()).toBe(true);
+        expect(child.isRunning()).toBe(true);
+      });
+    }
+  }
+
   for (const method of ['stop', 'destroy']) {
     it(`${method} cancels a child whose independent startup is pending`, async() => {
       const ready = gate();
