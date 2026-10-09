@@ -47,7 +47,9 @@ model.set('label', 'Archive');
 
 For event maps, use Backbone's map form with the context as the following argument. Standalone subscriptions do not add framework ownership; call the returned disposer when finished.
 
-A standalone `sort` reports `reorder`, retaining surviving child Views and DOM. `update` reports added/removed models; removals destroy those children. Merges retain the model and do not request a child rerender through collection observation—use the child's model events. `reset` reports `reset` and rebuilds children. Sort events accompanying add/remove/merge are handled through the following update.
+A standalone `sort` reports `reorder`, retaining surviving child Views and DOM. `update` reports added/removed models; removals destroy those children. Merges retain the model and do not request a child rerender through collection observation—use the child's model events. `reset` reports `reset` and rebuilds children. Sorts preceded by native add/remove events are handled through the following update, so structural changes produce one notification. Option flags alone do not suppress an explicit sort. A reorder-only `set()` also reports `reorder`.
+
+A sorted merge-only `set()` reports `reorder` followed by `update`: Backbone does not distinguish its sort from a standalone sort before emitting the later update. With `sortWithCollection: true`, this causes two parent sort/filter/render-children passes and two `render:children` notifications, without rerendering retained child templates. With `sortWithCollection: false`, the reorder is ignored and the update still reconciles filtering. Consumers should not assume one parent lifecycle notification per merged collection operation.
 
 Multiple consumers can share a source. Destroying one consumer removes its subscriptions and children while survivors continue receiving updates. Even factory-owned Backbone state is not destroyed by this adapter: source-wide `off()`, `stopListening()`, and persistence-capable `Model.destroy()` are not called.
 

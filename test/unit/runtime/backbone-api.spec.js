@@ -2,8 +2,7 @@ import { vi, describe, it, expect } from 'vitest';
 import '../../setup/backbone.js';
 import Backbone from 'backbone';
 import BackboneApi from '@mnjs/adapters/backbone';
-import { View } from 'marionette';
-import { CollectionView } from 'marionette';
+import { createMarionette, View, CollectionView } from 'marionette';
 
 describe('BackboneApi', function() {
   it('maps Backbone model and collection data', function() {
@@ -78,10 +77,10 @@ describe('BackboneApi', function() {
       changes: { added: [added], removed: [removed], merged: [updated] }
     });
 
-    expect(callback).toHaveBeenCalledTimes(4);
+    expect(callback).toHaveBeenCalledTimes(7);
     expect(callback.mock.calls.at(0)).toEqual([{ kind: 'reorder' }]);
     expect(callback.mock.calls.at(1)).toEqual([{ kind: 'reorder' }]);
-    expect(callback.mock.calls[2]).toEqual([{ kind: 'reset' }]);
+    expect(callback.mock.calls[5]).toEqual([{ kind: 'reset' }]);
     expect(callback.mock.calls.at(-1)).toEqual([{
       kind: 'update',
       added: [added],
@@ -91,10 +90,10 @@ describe('BackboneApi', function() {
 
     cleanup();
     collection.trigger('reset', collection, {});
-    expect(callback).toHaveBeenCalledTimes(4);
+    expect(callback).toHaveBeenCalledTimes(7);
   });
 
-  it('retains the v4 notification boundary for a reorder-only set', function() {
+  it('reports a reorder-only set without requiring a rerender', function() {
     const first = new Backbone.Model({ id: 1 });
     const second = new Backbone.Model({ id: 2 });
     const collection = new Backbone.Collection([first, second]);
@@ -109,15 +108,13 @@ describe('BackboneApi', function() {
     collection.set([second, first]);
 
     expect(collection.models).to.deep.equal([second, first]);
-    expect(callback).not.toHaveBeenCalled();
-    expect(view.el.textContent).to.equal('12');
-    view.render();
+    expect(callback).toHaveBeenCalledExactlyOnceWith({ kind: 'reorder' });
     expect(view.el.textContent).to.equal('21');
     view.destroy();
     cleanup();
   });
 
-  it('reports sorted additions and merges once, while preserving explicit sorts', function() {
+  it('reports sorted additions once and preserves merge and explicit sort notifications', function() {
     const collection = new Backbone.Collection([{ id: 1, rank: 1 }, { id: 2, rank: 2 }], {
       comparator: 'rank'
     });
@@ -130,17 +127,116 @@ describe('BackboneApi', function() {
     expect(callback.mock.calls.at(0)[0].added).to.deep.equal([collection.get(3)]);
 
     collection.set([{ id: 1, rank: -1 }], { remove: false });
-    expect(callback).toHaveBeenCalledTimes(2);
-    expect(callback.mock.calls.at(1)[0]).to.deep.equal({
+    expect(callback).toHaveBeenCalledTimes(3);
+    expect(callback.mock.calls[1][0]).to.deep.equal({ kind: 'reorder' });
+    expect(callback.mock.calls.at(2)[0]).to.deep.equal({
       kind: 'update', added: [], removed: [],
       updated: []
     });
     expect(collection.pluck('id')).to.deep.equal([1, 3, 2]);
 
     collection.sort();
-    expect(callback).toHaveBeenCalledTimes(3);
-    expect(callback.mock.calls[2][0]).to.deep.equal({ kind: 'reorder' });
+    expect(callback).toHaveBeenCalledTimes(4);
+    expect(callback.mock.calls[3][0]).to.deep.equal({ kind: 'reorder' });
     cleanup();
+  });
+
+  it.each([{ add: true }, { remove: true }, { merge: true }, { add: true, remove: true, merge: true }])(
+    'observes explicit sorts with mutation-shaped options %j', function(options) {
+      const runtime = createMarionette();
+      runtime.setDataApi(BackboneApi);
+      const collection = new Backbone.Collection([{ id: 1, rank: 1 }, { id: 2, rank: 2 }], { comparator: 'rank' });
+      const callback = vi.fn();
+      const context = {};
+      const cleanup = BackboneApi.observeCollection(collection, callback, context);
+      const onRender = vi.fn();
+      const Child = runtime.View.extend({ template: ({ id }) => String(id), onRender });
+      const view = new runtime.CollectionView({ collection, childView: Child }).render();
+      const children = view.children.toArray();
+      onRender.mockClear();
+
+      collection.get(1).set('rank', 3, { silent: true });
+      collection.sort(options);
+
+      expect(callback).toHaveBeenCalledExactlyOnceWith({ kind: 'reorder' });
+      expect(callback.mock.contexts).toEqual([context]);
+      expect(view.el.textContent).to.equal('21');
+      expect(view.children.toArray()).to.deep.equal([children[1], children[0]]);
+      expect(onRender).not.toHaveBeenCalled();
+      view.destroy();
+      cleanup();
+      cleanup();
+      collection.add({ id: 3, rank: 0 });
+      collection.remove(1);
+      collection.sort(options);
+      expect(callback).toHaveBeenCalledTimes(1);
+    }
+  );
+
+  it('does not confuse a standalone model change with a pending collection update', function() {
+    const collection = new Backbone.Collection([{ id: 1, rank: 1 }, { id: 2, rank: 2 }], { comparator: 'rank' });
+    const callback = vi.fn();
+    const cleanup = BackboneApi.observeCollection(collection, callback);
+    const options = { add: true, remove: false, merge: true };
+
+    collection.get(1).set('rank', 3, options);
+    collection.sort(options);
+
+    expect(collection.pluck('id')).to.deep.equal([2, 1]);
+    expect(callback).toHaveBeenCalledExactlyOnceWith({ kind: 'reorder' });
+    cleanup();
+  });
+
+  it('reports mixed sorted sets and removals once per structural update', function() {
+    const collection = new Backbone.Collection([{ id: 1, rank: 1 }, { id: 2, rank: 2 }], { comparator: 'rank' });
+    const callback = vi.fn();
+    const cleanup = BackboneApi.observeCollection(collection, callback);
+    const removed = collection.get(1);
+
+    collection.set([{ id: 2, rank: 3 }, { id: 3, rank: 0 }]);
+    expect(callback).toHaveBeenCalledExactlyOnceWith({
+      kind: 'update', added: [collection.get(3)], removed: [removed], updated: []
+    });
+    callback.mockClear();
+    const third = collection.get(3);
+    collection.set([{ id: 2, rank: -1 }]);
+    expect(callback).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [], removed: [third], updated: [] });
+    callback.mockClear();
+    const second = collection.get(2);
+    collection.remove(second);
+    expect(callback).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [], removed: [second], updated: [] });
+    cleanup();
+  });
+
+  it.each([true, false])('preserves merge filtering and child renders with sortWithCollection=%s', function(sortWithCollection) {
+    const runtime = createMarionette();
+    runtime.setDataApi(BackboneApi);
+    const collection = new Backbone.Collection([
+      { id: 1, rank: 1, visible: true }, { id: 2, rank: 2, visible: true }
+    ], { comparator: 'rank' });
+    const onRender = vi.fn();
+    const onRenderChildren = vi.fn();
+    const Child = runtime.View.extend({ template: ({ id }) => String(id), onRender });
+    const view = new runtime.CollectionView({ collection, childView: Child, sortWithCollection,
+      viewFilter: child => child.model.get('visible') }).render();
+    view.on('render:children', onRenderChildren);
+    const children = view.children.toArray();
+    onRender.mockClear();
+    onRenderChildren.mockClear();
+
+    collection.set([{ id: 1, rank: 3, visible: false }], { remove: false });
+
+    expect(view.el.textContent).to.equal('2');
+    expect(view.children.toArray()).to.deep.equal([children[1]]);
+    expect(children[0].isDestroyed()).to.equal(false);
+    expect(onRender).not.toHaveBeenCalled();
+    expect(onRenderChildren).toHaveBeenCalledTimes(sortWithCollection ? 2 : 1);
+    onRenderChildren.mockClear();
+    collection.sort({ add: true });
+    expect(onRenderChildren).toHaveBeenCalledTimes(sortWithCollection ? 1 : 0);
+    expect(view.el.textContent).to.equal('2');
+    expect(onRender).not.toHaveBeenCalled();
+    view.destroy();
   });
 
 });
