@@ -86,7 +86,7 @@ test('stale provider acquisition and active subscription both release resources'
 });
 
 for (const cancel of ['stop', 'destroy', 'start']) {
-  test(`async session unsubscribes before closing after synchronous ${cancel}`, async() => {
+  test(`async session unsubscribes before closing after synchronous ${cancel}`, { timeout: 3000 }, async() => {
     const calls = [];
     let acquired = 0;
     let cancellation;

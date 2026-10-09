@@ -112,7 +112,7 @@ for (const [ownership, createWorkspace] of [['owned', ownedWorkspace], ['borrowe
     });
     workspace.child.destroy();
     try {
-      await assert.rejects(workspace.app.start(), /^Error: Editor startup canceled$/);
+      await assert.rejects(workspace.app.start(), /^Error: Required editor is missing$/);
       assert.equal(workspace.app.isRunning(), false);
     } finally { workspace.app.destroy(); }
   });
