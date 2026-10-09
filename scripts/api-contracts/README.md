@@ -90,4 +90,4 @@ record authorizes a new runtime guard, ownership mechanism or API.
 This inventory records the public API and available behavioral evidence. It does
 not establish real-world adoption, measured agent improvement, or stable-release
 readiness. Current release acceptance and evidence gaps are recorded separately in
-[#574](https://github.com/marionettejs/marionette/issues/574).
+[#574](https://github.com/marionettejs/marionette-develop/issues/574).

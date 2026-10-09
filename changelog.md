@@ -1,3 +1,10 @@
+Historical v5 issue and PR numbers through the repository cutover refer to
+[`marionettejs/marionette-develop`](https://github.com/marionettejs/marionette-develop).
+Existing commit hashes and subjects are unchanged; bare `#N` references in those
+commits belong to that development history. See the
+[cutover checklist](https://github.com/marionettejs/marionette/blob/master/REPOSITORY_CUTOVER.md) and
+[immutable evidence relocation map](https://github.com/marionettejs/marionette/blob/master/evidence/repository-relocation.json).
+
 For the current v4 → v5 changes and replacements, see the
 [migration guide](docs/guides/migration.md). Entries below describe each release
 at the time it shipped; older prerelease APIs may have been superseded.
@@ -35,7 +42,7 @@ at the time it shipped; older prerelease APIs may have been superseded.
 * Make `Application.destroy()` and `removeChildApp()` synchronous. Remove
   `prepareDestroy`; complete required asynchronous finalization before destruction.
 * Preserve native Error reporting and point coded diagnostics to their public error
-  pages, carrying forward the post-RC.1 fixes from #583.
+  pages, carrying forward the post-RC.1 fixes from [#583](https://github.com/marionettejs/marionette-develop/pull/583).
 * Rebuild the consumer docs around class and shared API references, lifecycle,
   application composition, migration, testing and optional integrations. Deliver
   the corpus at usable package-relative paths with executable recipes and declarations.
@@ -318,4 +325,4 @@ runtime API. Agent-effectiveness benchmarks remain unscored.
 * Removed dependencies
 
 ## For previous iterations
-[backbone.marionette Changelog](https://github.com/marionettejs/backbone.marionette/blob/master/changelog.md)
+[backbone.marionette Changelog](https://github.com/marionettejs/backbone.marionette/blob/a8ca523cfd1ffb8dc4a2095c34d590aa7701110a/changelog.md)

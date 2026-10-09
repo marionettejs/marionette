@@ -4,7 +4,7 @@ Marionette is community-maintained. Focused bug reports, contract tests,
 documentation corrections, and implementation pull requests are welcome.
 
 Current stable-v5 acceptance and evidence gaps are recorded in
-[issue #574](https://github.com/marionettejs/marionette/issues/574). The
+[issue #574](https://github.com/marionettejs/marionette-develop/issues/574). The
 [release test guide](test/README.md#exact-release-candidates) describes certification.
 Stable-v5 work must be reproducible from public artifacts and must state its
 production runtime-cost boundary.
