@@ -128,3 +128,44 @@ test('owned state survives deferred Application restart and session cleanup', as
   assert.equal(sources.length, 4);
   sources.forEach(state => assert.equal(state.disposed, 1));
 });
+
+for (const event of ['before:start', 'start', 'resolved']) {
+  test(`owned workspace cancels child startup when parent restarts at child ${event}`, async() => {
+    const readiness = Promise.withResolvers();
+    let calls = 0;
+    let subscriptions = 0;
+    const state = { dispose() {} };
+    const workspace = solution.createStateWorkspace(document.createElement('main'), () => state, {}, {
+      ready() { return ++calls === 1 ? Promise.resolve() : readiness.promise; },
+      subscribe() { subscriptions++; return () => { subscriptions--; }; }
+    });
+    let replacement;
+    let cancellation;
+    if (event === 'resolved') {
+      workspace.child.once('before:start', () => {
+        // Join the actual pending child start before the parent awaits it. The
+        // extra microtask runs after that await, but before the parent commits.
+        cancellation = workspace.child.start().then(() => {
+          queueMicrotask(() => { replacement = workspace.app.restart(); });
+        });
+      });
+    } else {
+      workspace.child.once(event, () => { replacement = workspace.app.restart(); });
+    }
+    try {
+      assert.equal(await workspace.app.start(), false);
+      await cancellation;
+      assert.equal(calls, 2);
+      assert.equal(workspace.app.isRunning(), false);
+      assert.equal(workspace.child.isRunning(), false);
+      assert.equal(workspace.child.getView(), undefined);
+      assert.equal(subscriptions, 0);
+      readiness.resolve();
+      assert.equal(await replacement, true);
+      assert.equal(workspace.child.isRunning(), true);
+      assert.equal(workspace.child.getView().isDestroyed(), false);
+      assert.equal(subscriptions, 1);
+    } finally { workspace.app.destroy(); }
+    assert.equal(subscriptions, 0);
+  });
+}

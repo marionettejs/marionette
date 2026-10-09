@@ -53,3 +53,18 @@ test('out-of-order completion, stop, failures and destroy are deterministic', as
   assert.equal(await app.open('unused'), false);
   assert.equal(requests.has('unused'), false);
 });
+
+for (const cancel of ['open', 'stop', 'destroy']) {
+  test(`async panel ignores rejected loads after ${cancel}`, async() => {
+    const obsolete = Promise.withResolvers();
+    const el = document.createElement('main');
+    const panel = solution.createAsyncPanel(el, id => id === 'old' ? obsolete.promise : Promise.resolve('current'));
+    const pending = panel.open('old');
+    try {
+      if (cancel === 'open') { await panel.open('new'); } else { panel[cancel](); }
+      obsolete.reject(new Error('obsolete load'));
+      assert.equal(await pending, false);
+      assert.equal(el.textContent, cancel === 'open' ? 'current' : '');
+    } finally { panel.destroy(); }
+  });
+}

@@ -71,6 +71,19 @@ once. An operator must freeze and enforce the full evaluation policy before scor
 collection. Passing known solutions is a tooling control and cannot substitute for
 independent agent implementation or maintenance results.
 
+## Acceptance revisions
+
+The current async-panel, async-session, owned-workspace-state and
+borrowed-workspace-state cases additionally cover stale load rejection,
+unsubscribe-before-close during reentrant cancellation, and child startup
+cancellation through the parent's pending commit. `evaluator.json` lists every
+required named case. These are prompt-outcome checks for the current prototype.
+
+Attempts seal evaluator and acceptance-source hashes. Use fresh attempt directories
+for this revision: earlier results do not certify these added cases and are not
+directly comparable with current totals. Historical results and original unfinished
+fixtures remain unchanged; do not regrade them as if they used the new acceptance.
+
 ## Run the prototypes
 
 Use the repository's Node/npm versions, run `npm ci --ignore-scripts`, and build once

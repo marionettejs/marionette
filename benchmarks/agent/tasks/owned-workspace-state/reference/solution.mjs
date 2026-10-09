@@ -39,7 +39,12 @@ export function createStateWorkspace(el, makeState, domain, lifecycle) {
     async prepareStart(options, context) {
       await lifecycle.ready(context.signal);
       if (context.signal.aborted) { return; }
-      const started = await this.getChildApp('editor')?.start();
+      const child = this.getChildApp('editor');
+      if (!child) { throw new Error('Required editor is missing'); }
+      if (child.isRunning()) { return; }
+      // Keep cancellation connected through the parent's pending commit.
+      context.signal.addEventListener('abort', () => child.stop(), { once: true });
+      const started = await child.start();
       if (!started && !context.signal.aborted) { throw new Error('Editor startup canceled'); }
     },
     onStart() {

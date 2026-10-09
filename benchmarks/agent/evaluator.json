@@ -27,19 +27,31 @@
       "exclusive overlays release dismissal listeners on every public empty path"
     ],
     "async-panel": [
-      "out-of-order completion, stop, failures and destroy are deterministic"
+      "out-of-order completion, stop, failures and destroy are deterministic",
+      "async panel ignores rejected loads after open",
+      "async panel ignores rejected loads after stop",
+      "async panel ignores rejected loads after destroy"
     ],
     "async-session": [
-      "stale provider acquisition and active subscription both release resources"
+      "stale provider acquisition and active subscription both release resources",
+      "async session unsubscribes before closing after synchronous stop",
+      "async session unsubscribes before closing after synchronous destroy",
+      "async session unsubscribes before closing after synchronous start"
     ],
     "scoped-message-presenter": [
       "independent evented presenters release only owned subscriptions"
     ],
     "owned-workspace-state": [
-      "owned state survives deferred Application restart and session cleanup"
+      "owned state survives deferred Application restart and session cleanup",
+      "owned workspace cancels child startup when parent restarts at child before:start",
+      "owned workspace cancels child startup when parent restarts at child start",
+      "owned workspace cancels child startup when parent restarts at child resolved"
     ],
     "borrowed-workspace-state": [
-      "borrowed state survives deferred Application restart and canceled destroy"
+      "borrowed state survives deferred Application restart and canceled destroy",
+      "borrowed workspace cancels child startup when parent restarts at child before:start",
+      "borrowed workspace cancels child startup when parent restarts at child start",
+      "borrowed workspace cancels child startup when parent restarts at child resolved"
     ],
     "composed-lifecycle-repair": [
       "working startup, edits, refresh errors and repeated resource cycles survive repair",
