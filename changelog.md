@@ -2,8 +2,8 @@ Historical v5 issue and PR numbers through the repository cutover refer to
 [`marionettejs/marionette-develop`](https://github.com/marionettejs/marionette-develop).
 Existing commit hashes and subjects are unchanged; bare `#N` references in those
 commits belong to that development history. See the
-[cutover checklist](https://github.com/marionettejs/marionette/blob/master/REPOSITORY_CUTOVER.md) and
-[immutable evidence relocation map](https://github.com/marionettejs/marionette/blob/master/evidence/repository-relocation.json).
+[cutover checklist](https://github.com/marionettejs/marionette-develop/blob/cdab74bf19d705900432fa94001dd6ca88af1a85/REPOSITORY_CUTOVER.md) and
+[immutable evidence relocation map](https://github.com/marionettejs/marionette-develop/blob/cdab74bf19d705900432fa94001dd6ca88af1a85/evidence/repository-relocation.json).
 
 For the current v4 → v5 changes and replacements, see the
 [migration guide](docs/guides/migration.md). Entries below describe each release
