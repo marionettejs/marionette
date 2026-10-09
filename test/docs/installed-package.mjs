@@ -1,14 +1,17 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { parseArgs } from 'node:util';
 import { releasePackages } from '../../scripts/release/packages.mjs';
 
 // Verify the normal staged package, not a separate documentation-only candidate.
 // Run after docs:package and the package builds. No registry Marionette is used.
+// --artifact-dir consumes tarballs packed with the source toolchain on another Node.
 const root = resolve(import.meta.dirname, '../..');
+const { values } = parseArgs({ options: { 'artifact-dir': { type: 'string' } } });
 const directory = realpathSync(mkdtempSync(join(tmpdir(), 'marionette-installed-docs-')));
 const artifacts = join(directory, 'artifacts');
 mkdirSync(artifacts);
@@ -18,17 +21,26 @@ const run = (command, args, cwd = directory) => execFileSync(command, args, {
   env: { ...process.env, NODE_PATH: '', NODE_OPTIONS: '--no-global-search-paths' },
 });
 const npm = args => run(process.execPath, [process.env.npm_execpath, ...args]);
-const report = { passed: false };
+const report = { passed: false, node: process.versions.node };
 
 try {
   assert(process.env.npm_execpath, 'Run through npm run check:docs-installed');
-  const packs = releasePackages.map(entry => {
+  report.npm = npm(['--version']).trim();
+  const packs = values['artifact-dir'] ? readdirSync(values['artifact-dir'])
+    .filter(file => file.endsWith('.tgz')).map(filename => {
+      const path = join(artifacts, filename);
+      cpSync(resolve(values['artifact-dir'], filename), path);
+      const manifest = JSON.parse(run('tar', ['-xOf', path, 'package/package.json']));
+      return { name: manifest.name, filename, sha256: hash(readFileSync(path)),
+        files: run('tar', ['-tf', path]).trim().split('\n').map(file => file.replace(/^package\//, '')) };
+    }) : releasePackages.map(entry => {
     const source = entry.id === 'core' ? '.package' : entry.directory;
     const [packed] = JSON.parse(npm(['pack', join(root, source), '--ignore-scripts', '--json', '--pack-destination', artifacts]));
     assert.equal(packed.name, entry.name);
     return { name: packed.name, filename: packed.filename,
       sha256: hash(readFileSync(join(artifacts, packed.filename))), files: packed.files.map(file => file.path) };
   });
+  assert.deepEqual(packs.map(pack => pack.name).sort(), releasePackages.map(entry => entry.name).sort());
   const core = packs.find(pack => pack.name === 'marionette');
   assert(!core.files.some(path => /^(starter|planning|benchmarks|test)\//.test(path)));
   for (const path of ['docs/agents.md', 'docs/packages/data.md', 'skills/marionette/SKILL.md', 'docs-symbols.json']) {
@@ -39,6 +51,15 @@ try {
     ...packs.map(pack => join(artifacts, pack.filename)), 'lit-html@3.3.3', 'eslint@10.11.0', 'typescript@6.0.3',
     'backbone@1.6.1', '@types/backbone@1.4.23', 'jquery@4.0.0', '@types/jquery@4.0.1',
     'morphdom@2.7.8', 'xstate@5.33.2', 'jsdom@30.1.0']);
+
+  const runtimeFixtures = ['esm-node/validate.mjs', 'cjs-node/validate.cjs',
+    'data-package-esm/validate.mjs', 'data-package-cjs/validate.cjs', 'cjs-adapters/validate.cjs'];
+  for (const fixture of runtimeFixtures) {
+    const target = join(directory, fixture);
+    mkdirSync(join(directory, fixture.split('/')[0]), { recursive: true });
+    cpSync(join(root, 'test/fixtures', fixture), target);
+    run(process.execPath, [target]);
+  }
 
   const packageJson = run(process.execPath, ['-p', 'require.resolve(\'marionette/package.json\')']).trim();
   const packageRoot = join(directory, 'node_modules/marionette');
@@ -106,7 +127,7 @@ try {
     contentSha256: manifest.contentSha256, pages: manifest.pages.length, assets: manifest.assets.length,
     packages: packs.map(({ files, ...pack }) => pack),
     discovery: ['package resolution', 'list', 'search', 'section', 'page', 'diagnostic', 'symbol'],
-    consumerTooling: tooling, consumerTesting: testing, typescriptGuide, quickStart,
+    runtimeFixtures, consumerTooling: tooling, consumerTesting: testing, typescriptGuide, quickStart,
     examplesExecuted: examples.examples.filter(example => example.executed).length,
     typeFixtures: examples.typescript.contractFixtures, typescriptExamples: examples.typescript.examples,
     limits: 'Local tarballs, JSDOM recipes and quick-start production build; not registry publication, live website, browser interaction, or teaching effectiveness.',

@@ -1,6 +1,6 @@
 # Install and render a View
 
-This guide targets Marionette 5.0.0-rc.2 with Node 24 or newer. The [documentation index](readme.md) identifies this prerelease candidate.
+This guide targets Marionette 5.0.0-rc.2 and is verified on the supported Node LTS lines: Node 22.22.2+ (22.x) or 24.15.0+ (24.x). Use the latest patch of either line. Newer Node versions may install; Node 26 remains advisory until its LTS support is verified. The [documentation index](readme.md) identifies this prerelease candidate.
 
 ## Install the release candidate
 

@@ -25,6 +25,16 @@ readiness, cancellation, and restart. Reviewer prompts must carry this distincti
 
 Run `npm run test:docs-production -- --artifact-dir /absolute/path/to/five-tarballs --report /absolute/path/to/production-report.json` to install and build the delivered records example in isolation. It checks a subdirectory deployment through an explicit local HTTP hosting policy, browser failure/retry and cancellation, keyboard/focus, and an upgrade to a second hashed build. It does not verify a remote CDN or production account configuration.
 
+## Consumer Node LTS checks
+
+The Documentation workflow builds with the pinned source toolchain, then runs
+`npm run check:docs-installed -- --artifact-dir <five-tarball-directory>` on
+Node 22.22.2, latest 22.x, 24.15.0 and latest 24.x.
+It installs all five tarballs and checks ESM/CommonJS behavior, packaged helpers,
+executable documentation and consumer lint, test, TypeScript and Vite recipes.
+Node 26 remains a separate advisory lane; new LTS lines require verification
+before the consumer support policy changes.
+
 ## Choose the smallest useful check
 
 | Contract | Location | Command |

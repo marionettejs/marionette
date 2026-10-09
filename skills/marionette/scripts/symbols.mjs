@@ -33,7 +33,8 @@ export function validateSymbolIndex(index, sectionIds) {
 // uses it in code, in contract order; headings naming the member come first.
 // A trailing declaration colon is allowed; event fragments and link text are not.
 function mentions(key, contractIds, index, sections, files, primarySections) {
-  const name = new RegExp(`(?<![\\w$:])${RegExp.escape(key)}(?![\\w$]|:[\\w$])`);
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const name = new RegExp(`(?<![\\w$:])${escaped}(?![\\w$]|:[\\w$])`);
   const pages = [...new Set(contractIds.flatMap(id => index.contracts[id].sections.map(section => section.split('#')[0])))];
   const hits = sections.flatMap((section, position) => {
     if (section.depth === 0 || !pages.includes(section.source) || primarySections.includes(section.id)) { return []; }

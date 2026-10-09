@@ -27,7 +27,7 @@ const root = resolve(import.meta.dirname, '../..');
 const consumer = process.argv[2] ? resolve(process.argv[2]) : root;
 const output = process.argv[2] ? join(consumer, 'reference-examples') : join(root, 'test/tmp/docs-reference');
 const installed = process.argv[2] ? join(consumer, 'node_modules/marionette') : root;
-const require = createRequire(join(root, 'package.json'));
+const require = createRequire(join(consumer, 'package.json'));
 const pages = ['api', 'packages', 'integrations', 'guides'].flatMap(section =>
   readdirSync(join(installed, 'docs', section), { recursive: true }).filter(name => name.endsWith('.md'))
     .sort().map(name => `docs/${section}/${name}`))
@@ -472,7 +472,7 @@ mount.remove();
   'api-shared-events-1': 'assert.equal(listener.selectedView, source); assert.equal(source.isDestroyed(), true); assert.equal(listener.isDestroyed(), true);',
   'api-shared-state-1': 'assert.equal(disclosure.el.getAttribute(\'aria-expanded\'), \'true\'); assert.equal(disclosure.getState().isDestroyed(), true);',
 };
-const report = { passed: false, examples: [], environment: process.argv[2] ? 'Installed package with repository-supplied JSDOM and TypeScript.' : 'Local built packages with JSDOM and TypeScript.' };
+const report = { passed: false, examples: [], environment: process.argv[2] ? 'Installed package with consumer-installed JSDOM and TypeScript.' : 'Local built packages with JSDOM and TypeScript.' };
 const hash = value => createHash('sha256').update(value).digest('hex');
 report.probeSha256 = hash(readFileSync(import.meta.filename));
 report.tools = Object.fromEntries(['typescript', 'jsdom'].map(name => [name, JSON.parse(readFileSync(require.resolve(`${name}/package.json`), 'utf8')).version]));
@@ -524,7 +524,7 @@ try {
     compilerOptions: { target: 'ES2024', module: 'NodeNext', moduleResolution: 'NodeNext', strict: true, skipLibCheck: false, types: [], outDir: './compiled' },
     files: [...typed.map(example => example.file), ...typeFixtures.map(fixture => fixture.file)],
   }, null, 2));
-  run([join(root, 'node_modules/typescript/bin/tsc'), '-p', join(output, 'tsconfig.json')], 'typescript');
+  run([require.resolve('typescript/bin/tsc'), '-p', join(output, 'tsconfig.json')], 'typescript');
   report.typescript = { passed: true, examples: typed.length, contractFixtures: typeFixtures.length };
   assert.deepEqual(report.examples.map(example => example.name).sort(), Object.keys(assertions).sort(), 'Reference fences changed; update their outcome checks');
   const bootstrap = join(output, 'bootstrap.mjs');

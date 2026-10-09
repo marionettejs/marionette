@@ -6,7 +6,7 @@ Build a feature that loads records and shows the selected record beside its list
 
 The source is included with these docs; the commands here use the repository checkout. For an application using installed packages, follow the [quick start](quick-start.md) and [setup reference](integrations/setup.md).
 
-Requires Node 24 or newer. From the framework repository root:
+This repository example uses the pinned Node 24 contributor toolchain. Packaged applications follow the [consumer Node LTS policy](quick-start.md). From the framework repository root:
 
 ```sh
 npm ci --ignore-scripts

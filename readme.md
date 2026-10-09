@@ -35,7 +35,7 @@ application can keep its Models and persistence.
 
 ## Try v5
 
-v5 is a release candidate. Use Node 24 or newer for development and build tooling.
+v5 is a release candidate. Packaged applications are verified on Node 22.22.2+ (22.x) and 24.15.0+ (24.x); use the latest patch of either LTS line. Newer Node versions may install; Node 26 is checked separately as advisory. For framework development or Git installs, select the pinned [source toolchain](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository).
 Install matching candidate versions in your browser application:
 
 ```sh

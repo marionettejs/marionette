@@ -1,6 +1,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import process from 'node:process';
+import { releasePackages } from '../release/packages.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const profile = await readJson('config/release-profile.json');
@@ -72,8 +73,12 @@ async function validateSource() {
   if (packageJson.packageManager !== `npm@${profile.source.npm}`) {
     fail(`packageManager is ${packageJson.packageManager}; expected npm@${profile.source.npm}`);
   }
-  if (packageJson.engines?.node !== profile.source.consumerNodeRange) {
-    fail(`engines.node is ${packageJson.engines?.node}; expected ${profile.source.consumerNodeRange}`);
+  for (const entry of releasePackages) {
+    const path = `${entry.directory}/package.json`;
+    const manifest = entry.id === 'core' ? packageJson : await readJson(path);
+    if (manifest.engines?.node !== profile.source.consumerNodeRange) {
+      fail(`${path} engines.node is ${manifest.engines?.node}; expected ${profile.source.consumerNodeRange}`);
+    }
   }
   if (packageLock.lockfileVersion !== profile.source.lockfileVersion) {
     fail(`lockfileVersion is ${packageLock.lockfileVersion}; expected ${profile.source.lockfileVersion}`);

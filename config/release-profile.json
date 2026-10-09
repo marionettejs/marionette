@@ -6,7 +6,7 @@
     "advisoryNodeMajor": "26",
     "advisoryWorkflow": "node-current.yml",
     "advisoryJob": "package-smoke",
-    "consumerNodeRange": ">=24",
+    "consumerNodeRange": "^22.22.2 || >=24.15.0",
     "lockfileVersion": 3
   },
   "hosts": [

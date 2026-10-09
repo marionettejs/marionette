@@ -23,6 +23,16 @@ npm run check:release-profile
 npm ci
 ```
 
+Consumer LTS compatibility is checked separately from this pinned source toolchain.
+See the [quick start](docs/quick-start.md) for the verified consumer versions.
+The Node 22.22.2 and 24.15.0 floors are tested support boundaries for the complete
+consumer experience, including the documented JSDOM 30 testing recipe; they are
+not intrinsic browser-runtime API requirements. A future development-dependency
+bump must not silently raise these floors: changing consumer support requires an
+explicit policy review and installed-artifact verification. Newer Node versions
+may install the packages; the LTS matrix records the verified set, with Node 26
+checked separately as advisory. All five manifests must match `consumerNodeRange`.
+
 `npm ci` builds the packages and checks the core distributions through `prepare`.
 Generated `dist/` directories and `src/version.js` are ignored by Git; edit source files
 and their co-located TypeScript contracts. Declarations are generated for all five
@@ -32,7 +42,9 @@ once before packing local packages; supplying an artifact directory or all five
 tarballs skips rebuilding.
 
 `npm pack` and npm Git installs
-run `prepare` automatically; installing a published tarball uses its compiled files.
+run `prepare` automatically under your selected Node/npm; npm does not select the
+pinned source versions for you. Use the source toolchain above for these builds.
+Installing a published tarball uses its compiled files.
 If npm uses `strict-allow-scripts`, approve Marionette's `prepare` lifecycle for a
 Git dependency. Tarball consumers can deny scripts because the package is prebuilt.
 

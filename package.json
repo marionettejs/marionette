@@ -5,7 +5,7 @@
   "type": "module",
   "homepage": "https://marionettejs.com/",
   "engines": {
-    "node": ">=24"
+    "node": "^22.22.2 || >=24.15.0"
   },
   "packageManager": "npm@11.17.0",
   "browser": "dist/marionette.umd.js",

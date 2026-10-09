@@ -49,11 +49,64 @@ jobs:
       - name: Build and validate documentation
         run: npm run docs:check
 
+      - name: Pack consumer artifacts with the source toolchain
+        run: |
+          mkdir -p test/tmp/consumer-artifacts
+          npm pack ./.package ./packages/utils ./packages/radio ./packages/data ./packages/adapters --ignore-scripts --pack-destination test/tmp/consumer-artifacts
+
+      - name: Upload consumer artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: consumer-artifacts
+          path: test/tmp/consumer-artifacts/*.tgz
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Upload Pages artifact
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && vars.DOCS_PAGES_ENABLED == 'true'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: .docs-site
+
+  consumer-lts:
+    name: Consumer Node ${{ matrix.node }}
+    needs: build
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22.22.2', '22', '24.15.0', '24']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Download prebuilt consumer artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: consumer-artifacts
+          path: test/tmp/consumer-artifacts
+
+      - name: Setup consumer Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+          check-latest: true
+
+      - name: Verify installed packages on consumer LTS
+        run: npm run check:docs-installed -- --artifact-dir test/tmp/consumer-artifacts
+        env:
+          npm_config_engine_strict: 'true'
+
+      - name: Upload consumer evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: consumer-node-${{ matrix.node }}
+          path: test/tmp/docs-installed/report.json
+          if-no-files-found: error
+          retention-days: 30
 
   deploy:
     name: Deploy

@@ -30,7 +30,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=24"
+    "node": "^22.22.2 || >=24.15.0"
   },
   "scripts": {
     "build": "node ../../build/clean.js && rollup -c rollup.config.mjs && node ../../build/declarations.mjs utils",
