@@ -14,7 +14,6 @@
   "excludeFiles": [
     "AGENTS.md",
     "CONTRIBUTING.md",
-    "ROADMAP.md",
     "SECURITY.md",
     "changelog.md",
     "license.txt"

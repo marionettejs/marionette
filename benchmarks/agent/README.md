@@ -3,13 +3,14 @@
 This directory contains Fieldnotes, a runnable public reference application, sixteen
 draft tasks (thirteen implementation exercises and three repairs), hidden
 public-API acceptance cases, known reference solutions, and a local evaluator. This is an unscored prototype, not a completed
-release evaluation or evidence of agent effectiveness.
+independent maintenance evaluation or evidence of agent effectiveness.
 
 No model, runner/permissions profile, acceptance policy, counts, budgets, pilot,
 or evaluation series has been selected. `series-decisions.json` records these
-inputs as uncollected. Follow the [evaluation plan](evaluation-plan.md) to prepare
-release usability evidence; comparative framework research is a separate project.
-The [roadmap](../../ROADMAP.md#demonstrated-usability) owns the release requirements.
+inputs as uncollected. The independent maintenance study and its frozen policy/resource
+envelope are [deferred until after stable production, not passed](https://github.com/marionettejs/marionette/issues/574#issuecomment-6081796044).
+[Issue #574](https://github.com/marionettejs/marionette/issues/574) records current
+release acceptance and evidence gaps; comparative framework research is separate.
 
 ## Task isolation
 
@@ -51,16 +52,17 @@ Its requirement for two independent tasks per capability is a fixture-diversity
 check, not a release task floor, sample-size rule, or proof of application coverage.
 The composed repair task adds lifecycle races to a working headless session.
 [Its coverage and handoff plan](tasks/composed-lifecycle-repair/README.md) records
-what it reuses and what remains uncollected. A release evaluation still needs
-independent attempts, successive changes, fresh-agent handoffs, and the
-public application and migration evidence specified in the roadmap.
+what it reuses and what remains uncollected. The deferred study still needs
+independent attempts, successive changes and fresh-agent handoffs. Required public
+application and migration evidence remains separate in
+[#574](https://github.com/marionettejs/marionette/issues/574).
 
 ## Evaluation policy
 
-Use the [evaluation plan](evaluation-plan.md) for pilot selection, frozen acceptance,
-model/runner profiles, attempt reporting, budgets, and stabilization. The earlier
-paired-baseline classifications and prescribed statistical improvement thresholds
-are retired. No historical revision is required for a usability evaluation.
+The deferred study's policy and resource decisions are tracked in
+[#128](https://github.com/marionettejs/marionette/issues/128), with independent
+maintenance outcomes in [#146](https://github.com/marionettejs/marionette/issues/146).
+The prototype does not authorize paid runs or establish evaluation acceptance.
 
 `series-decisions.json` is an uncollected planning record, not an enforced runner
 configuration. The loader checks that it identifies every prototype task exactly

@@ -62,7 +62,8 @@ isolate the filesystem: the current local evaluator is not a sandbox.
 For a later successive-change/handoff pilot:
 
 1. Freeze the exact candidate tarballs, updated public docs, starter, prompt,
-   acceptance and runner profile under the [evaluation plan](../../evaluation-plan.md).
+   acceptance and runner profile under the deferred study's
+   [policy and resource decisions](https://github.com/marionettejs/marionette/issues/128).
    Authorize model/version, permissions, count, spend/time and assistance limits.
 2. Give agent A only the declared prompt, installed workspace and public docs under
    enforced filesystem/network isolation. Stop its processes before acceptance.

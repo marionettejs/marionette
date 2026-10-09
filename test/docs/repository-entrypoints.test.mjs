@@ -6,7 +6,7 @@ import { marked } from 'marked';
 import { textFromHeading } from '../../scripts/docs/headings.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
-const entrypoints = ['AGENTS.md', 'CONTRIBUTING.md', 'ROADMAP.md', 'test/README.md', 'readme.md'];
+const entrypoints = ['AGENTS.md', 'CONTRIBUTING.md', 'test/README.md', 'readme.md'];
 
 test('repository entrypoint links resolve without requiring the full documentation corpus', async() => {
   for (const source of [...entrypoints, 'SECURITY.md', 'changelog.md', 'docs-site/README.md']) {

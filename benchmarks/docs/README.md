@@ -2,10 +2,10 @@
 
 These focused tasks test whether an agent can use the distributed skill and
 matching package documentation to implement an application change. They are
-editorial regression trials. They can inform the usability pilot described in the
-[evaluation plan](../agent/evaluation-plan.md), but do not complete the frozen release
-evaluation or establish comparative accuracy, model superiority, or complete
-application quality.
+editorial regression trials. They can inform the
+[deferred independent maintenance study](https://github.com/marionettejs/marionette/issues/146),
+but do not complete it or establish comparative accuracy, model superiority, or
+complete application quality.
 
 ## Run an independent attempt
 

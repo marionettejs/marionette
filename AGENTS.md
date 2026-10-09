@@ -13,8 +13,10 @@ survey is not a prerequisite.
   package exports, independently of the source folders.
 - The [API index](docs/api.md) routes to class and provider references.
   [CONTRIBUTING.md](CONTRIBUTING.md) explains source, package and review workflow.
-- [ROADMAP.md](ROADMAP.md) owns project strategy and release acceptance;
-  [config/release-profile.json](config/release-profile.json) pins the toolchain.
+- [Issue #574](https://github.com/marionettejs/marionette/issues/574) records current
+  stable-v5 acceptance and evidence gaps. The [release test guide](test/README.md#exact-release-candidates)
+  describes certification; [config/release-profile.json](config/release-profile.json)
+  pins the toolchain.
 
 ## Make the smallest complete change
 

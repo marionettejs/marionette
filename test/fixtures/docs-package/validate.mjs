@@ -76,7 +76,7 @@ assert.ok(manifest.assets.every(asset => !asset.source.startsWith('config/api-co
 assert.ok(manifest.pages.every(page => page.section !== 'Maintaining Marionette'));
 assert.ok(manifest.assets.every(asset => !asset.source.startsWith('benchmarks/')),
   'Maintainer trial evidence must not enter the consumer package');
-const maintainerAssets = new Set(['ROADMAP.md', 'test/README.md']);
+const maintainerAssets = new Set(['test/README.md']);
 assert.ok(manifest.assets.every(asset => !maintainerAssets.has(asset.source) && !asset.source.startsWith('test/unit/')),
   'Maintainer planning and test guidance must not enter the consumer package');
 assert.ok(entries.every(entry => !/^(?:planning|test|benchmarks)\//.test(entry.source)),
