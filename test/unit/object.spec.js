@@ -1,4 +1,7 @@
-import MnObject from '../../src/object';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import Backbone from 'backbone';
+import '../setup/backbone.js';
+import { MnObject } from 'marionette';
 
 describe('marionette object', function() {
 
@@ -16,10 +19,9 @@ describe('marionette object', function() {
           'bar': 'onBar'
         },
 
-        onBar: this.sinon.stub()
+        onBar: vi.fn()
       });
 
-      this.sinon.spy(Obj.prototype, '_initRadio');
 
       const model = new Backbone.Model();
 
@@ -51,23 +53,44 @@ describe('marionette object', function() {
       expect(object.cid).to.contain('mno');
     });
 
-    it('should init the RadioMixin', function() {
-      expect(object._initRadio).to.have.been.called;
+    it('configures its public Radio channel', function() {
+      expect(object.getChannel().channelName).to.equal('foo');
     });
 
     it('should support triggering events on itself', function() {
-      const fooHandler = this.sinon.spy();
+      const fooHandler = vi.fn();
       object.on('foo', fooHandler);
 
       object.trigger('foo', options);
 
-      expect(fooHandler).to.have.been.calledOnce.and.calledWith(options);
+      expect(fooHandler).toHaveBeenCalledTimes(1);
+      expect(fooHandler.mock.calls.map(args => args.slice(0, 1))).toContainEqual([options]);
     });
 
     it('should support binding to evented objects', function() {
       options.model.trigger('bar', options);
 
-      expect(object.onBar).to.have.been.calledOnce.and.calledWith(options);
+      expect(object.onBar).toHaveBeenCalledTimes(1);
+      expect(object.onBar.mock.calls.map(args => args.slice(0, 1))).toContainEqual([options]);
+    });
+
+    it('resolves state lazily while initialize uses configured options and Radio', function() {
+      const calls = [];
+      const state = {};
+      const Custom = MnObject.extend({
+        channelName: 'construction-order',
+        createState(stateOptions) { calls.push(['state', stateOptions]); return state; },
+        initialize(initializeOptions, extra) {
+          calls.push(['initialize', initializeOptions, extra]);
+          expect(this.getState()).to.equal(state);
+          expect(this.getChannel().channelName).to.equal('construction-order');
+          expect(this.getOption('label')).to.equal('example');
+        }
+      });
+      const constructorOptions = { label: 'example' };
+      const owner = new Custom(constructorOptions, 'extra');
+      expect(calls).to.deep.equal([['initialize', constructorOptions, 'extra'], ['state', constructorOptions]]);
+      expect(owner.options).to.deep.equal(constructorOptions);
     });
   });
 });

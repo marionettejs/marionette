@@ -1,10 +1,46 @@
+import '../setup/fixtures.js';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 'use strict';
 
 import _ from 'underscore';
-import Application from '../../src/application';
-import View from '../../src/view';
+import { Application } from 'marionette';
+import { View } from 'marionette';
 
 describe('Marionette Application', function() {
+
+  describe('#preinitialize', function() {
+    it('prepares instance configuration before Region, Radio, and State setup', async function() {
+      const options = { el: document.createElement('main'), label: 'Editor' };
+      const ConfiguredApplication = Application.extend({
+        preinitialize(receivedOptions) {
+          expect(receivedOptions).to.equal(options);
+          expect(this.options.label).to.equal('Editor');
+          expect(this.cid).to.be.a('string');
+          expect(this.getRegion()).toBeUndefined();
+          expect(this.getChannel()).toBeUndefined();
+          this.region = { el: receivedOptions.el };
+          this.channelName = this.cid;
+          this.state = { label: receivedOptions.label };
+        },
+        initialize() {
+          expect(this.getRegion().el).to.equal(options.el);
+          expect(this.getChannel().channelName).to.equal(this.cid);
+          expect(this.getState()).to.equal(this.state);
+          expect(this.getState().label).to.equal('Editor');
+        }
+      });
+      const app = new ConfiguredApplication(options);
+      await app.destroy();
+    });
+  });
+
+  it('propagates a preinitialize error before evaluating Region and Radio configuration', function() {
+    const error = new Error('early configuration failed');
+    const region = vi.fn(); const channelName = vi.fn(); const createState = vi.fn();
+    const BrokenApplication = Application.extend({ preinitialize() { throw error; }, region, channelName, createState });
+    expect(() => new BrokenApplication()).toThrow(error);
+    expect(region).not.toHaveBeenCalled(); expect(channelName).not.toHaveBeenCalled(); expect(createState).not.toHaveBeenCalled();
+  });
 
   describe('#initialize', () => {
     describe('when instantiating an app with specified options', function() {
@@ -14,14 +50,14 @@ describe('Marionette Application', function() {
 
       beforeEach(function() {
         appOptions = {fooOption: 'foo'};
-        initializeStub = this.sinon.stub(Application.prototype, 'initialize');
-        this.sinon.spy(Application.prototype, '_initRadio');
+        initializeStub = vi.spyOn(Application.prototype, 'initialize').mockImplementation(() => undefined);
       });
 
       it('should pass all arguments to the initialize method', function() {
         app = new Application(appOptions, 'fooArg');
 
-        expect(initializeStub).to.have.been.calledOn(app).and.calledWith(appOptions, 'fooArg');
+        expect(initializeStub.mock.contexts).toContain(app);
+        expect(initializeStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([appOptions, 'fooArg']);
       });
 
       it('should have a cidPrefix', function() {
@@ -33,13 +69,32 @@ describe('Marionette Application', function() {
       it('should have a cid', function() {
         app = new Application(appOptions);
 
-        expect(app.cid).to.exist;
+        expect(app.cid).to.not.equal(null).and.not.equal(undefined);
       });
 
-      it('should init the RadioMixin', function() {
-        app = new Application(appOptions);
+      it('configures its public Radio channel', function() {
+        app = new Application({ ...appOptions, channelName: 'public-application' });
 
-        expect(app._initRadio).to.have.been.called;
+        expect(app.getChannel().channelName).to.equal('public-application');
+      });
+
+      it('resolves state lazily while initialize uses configured options and Radio', function() {
+        const calls = [];
+        const state = {};
+        const Custom = Application.extend({
+          channelName: 'construction-order',
+          createState(options) { calls.push(['state', options]); return state; },
+          initialize(options, extra) {
+            calls.push(['initialize', options, extra]);
+            expect(this.getState()).to.equal(state);
+            expect(this.getChannel().channelName).to.equal('construction-order');
+            expect(this.getOption('label')).to.equal('example');
+          }
+        });
+        const options = { label: 'example' };
+        const owner = new Custom(options, 'extra');
+        expect(calls).to.deep.equal([['initialize', options, 'extra'], ['state', options]]);
+        expect(owner.options).to.deep.equal(options);
       });
     });
   });
@@ -53,10 +108,10 @@ describe('Marionette Application', function() {
       app = new Application();
     });
 
-    it('should return current application context', function() {
-      const result = app.start(fooOptions);
+    it('should resolve when the application starts', async function() {
+      const result = await app.start(fooOptions);
 
-      expect(result).to.have.been.equal(app);
+      expect(result).toBe(true);
     });
   });
 
@@ -68,8 +123,8 @@ describe('Marionette Application', function() {
 
     beforeEach(function() {
       fooOptions = {foo: 'bar'};
-      beforeStartStub = this.sinon.stub();
-      onBeforeStartStub = this.sinon.stub();
+      beforeStartStub = vi.fn();
+      onBeforeStartStub = vi.fn();
 
       const FooApp = Application.extend({
         onBeforeStart: onBeforeStartStub
@@ -82,15 +137,17 @@ describe('Marionette Application', function() {
     it('should run the onBeforeStart callback', function() {
       fooApp.start(fooOptions);
 
-      expect(beforeStartStub).to.have.been.called;
-      expect(onBeforeStartStub).to.have.been.called;
+      expect(beforeStartStub).toHaveBeenCalled();
+      expect(onBeforeStartStub).toHaveBeenCalled();
     });
 
     it('should pass the startup option to the onBeforeStart callback', function() {
       fooApp.start(fooOptions);
 
-      expect(beforeStartStub).to.have.been.calledOnce.and.calledWith(fooApp, fooOptions);
-      expect(onBeforeStartStub).to.have.been.calledOnce.and.calledWith(fooApp, fooOptions);
+      expect(beforeStartStub).toHaveBeenCalledTimes(1);
+      expect(beforeStartStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([fooApp, fooOptions]);
+      expect(onBeforeStartStub).toHaveBeenCalledTimes(1);
+      expect(onBeforeStartStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([fooApp, fooOptions]);
     });
   });
 
@@ -102,8 +159,8 @@ describe('Marionette Application', function() {
 
     beforeEach(function() {
       fooOptions = {foo: 'bar'};
-      startStub = this.sinon.stub();
-      onStartStub = this.sinon.stub();
+      startStub = vi.fn();
+      onStartStub = vi.fn();
 
       const FooApp = Application.extend({
         onStart: onStartStub
@@ -113,18 +170,20 @@ describe('Marionette Application', function() {
       fooApp.on('start', startStub);
     });
 
-    it('should run the onStart callback', function() {
-      fooApp.start(fooOptions);
+    it('should run the onStart callback', async function() {
+      await fooApp.start(fooOptions);
 
-      expect(startStub).to.have.been.called;
-      expect(onStartStub).to.have.been.called;
+      expect(startStub).toHaveBeenCalled();
+      expect(onStartStub).toHaveBeenCalled();
     });
 
-    it('should pass the startup option to the callback', function() {
-      fooApp.start(fooOptions);
+    it('should pass the startup option to the callback', async function() {
+      await fooApp.start(fooOptions);
 
-      expect(startStub).to.have.been.calledOnce.and.calledWith(fooApp, fooOptions);
-      expect(onStartStub).to.have.been.calledOnce.and.calledWith(fooApp, fooOptions);
+      expect(startStub).toHaveBeenCalledTimes(1);
+      expect(startStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([fooApp, fooOptions]);
+      expect(onStartStub).toHaveBeenCalledTimes(1);
+      expect(onStartStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([fooApp, fooOptions]);
     });
   });
 
@@ -140,7 +199,7 @@ describe('Marionette Application', function() {
     });
 
     it('should get the region selector with getRegion', function() {
-      expect(app.getRegion().$el).to.have.length(1);
+      expect(app.getRegion().el).to.equal('#fixtures');
     });
   });
 
@@ -162,7 +221,7 @@ describe('Marionette Application', function() {
 
       appRegion = app.getRegion();
 
-      showViewInRegionSpy = this.sinon.spy(appRegion, 'show');
+      showViewInRegionSpy = vi.spyOn(appRegion, 'show');
     });
 
     describe('when additional arguments was passed', function() {
@@ -175,7 +234,7 @@ describe('Marionette Application', function() {
       it('should call show method in region with additional arguments', function() {
         app.showView(view, fooArgs);
 
-        expect(showViewInRegionSpy).to.have.been.calledWith(view, fooArgs);
+        expect(showViewInRegionSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([view, fooArgs]);
       });
     });
 
@@ -183,7 +242,7 @@ describe('Marionette Application', function() {
       it('should call show method in region', function() {
         app.showView(view);
 
-        expect(showViewInRegionSpy).to.have.been.called;
+        expect(showViewInRegionSpy).toHaveBeenCalled();
       });
     });
   });

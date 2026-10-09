@@ -1,17 +1,69 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import Backbone from 'backbone';
+import { setFixtures } from '../setup/fixtures.js';
+import '../setup/backbone.js';
 import _ from 'underscore';
-import Behavior from '../../src/behavior';
-import Region from '../../src/region';
-import View from '../../src/view';
-import CollectionView from '../../src/collection-view';
-import { bindEvents } from '../../src/backbone.marionette';
+import { Behavior, Region, View, CollectionView } from 'marionette';
 
 describe('Behavior', function() {
   describe('when instantiating a behavior with some options', function() {
     it('should merge the options into instance options', function() {
       const createOptions = {foo: 'bar'};
-      const behavior = new Behavior(createOptions);
+      const behavior = new Behavior(createOptions, new View());
 
       expect(behavior.options).to.eql(createOptions);
+    });
+  });
+
+  describe('setEventDelegator', function() {
+    let behavior;
+
+    function buildViewWithBehavior(BehaviorClass) {
+      const CapturedBehavior = BehaviorClass.extend({
+        initialize(...args) {
+          behavior = this;
+          BehaviorClass.prototype.initialize.apply(this, args);
+        }
+      });
+      const FooView = View.extend({ behaviors: [CapturedBehavior] });
+
+      const view = new FooView({
+        el: document.createElement('div')
+      });
+
+
+      return view;
+    }
+
+    it('should set EventDelegator on behavior delegated events', function() {
+      const delegate = vi.fn().mockReturnValue(() => {});
+      const MyBehavior = Behavior.extend({
+        events: {
+          'click .foo': 'onFooClick'
+        },
+        onFooClick() {}
+      });
+
+      MyBehavior.setEventDelegator({ delegate });
+      const view = buildViewWithBehavior(MyBehavior);
+
+      expect(delegate).toHaveBeenCalledTimes(1);
+      expect(delegate.mock.calls.at(0)[0])
+        .to.include({
+          eventName: 'click',
+          selector: '.foo',
+          rootEl: view.el
+        });
+    });
+
+    it('should keep $ proxied through the host view', function() {
+      const MyBehavior = Behavior.extend({});
+      const view = buildViewWithBehavior(MyBehavior);
+      view.$ = vi.fn().mockReturnValue(['host-view-dom']);
+
+      expect(behavior.$('.foo')).to.eql(['host-view-dom']);
+      expect(view.$).toHaveBeenCalledTimes(1);
+      expect(view.$.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['.foo']);
     });
   });
 
@@ -24,9 +76,9 @@ describe('Behavior', function() {
       const Baz = Behavior.extend({});
 
       behaviorSpies = {
-        foo: this.sinon.spy(Behavior),
-        bar: this.sinon.spy(Bar),
-        baz: this.sinon.spy(Baz)
+        foo: vi.fn(function(...args) { return new Behavior(...args); }),
+        bar: vi.fn(function(...args) { return new Bar(...args); }),
+        baz: vi.fn(function(...args) { return new Baz(...args); })
       };
     });
 
@@ -42,7 +94,7 @@ describe('Behavior', function() {
           /* eslint-disable no-unused-vars */
           const fooView = new FooView();
 
-          expect(behaviorSpies.foo).to.have.been.calledOnce;
+          expect(behaviorSpies.foo).toHaveBeenCalledTimes(1);
         });
       });
 
@@ -57,8 +109,8 @@ describe('Behavior', function() {
           /* eslint-disable no-unused-vars */
           const fooView = new FooView();
 
-          expect(behaviorSpies.foo).to.have.been.calledOnce;
-          expect(behaviorSpies.bar).to.have.been.calledOnce;
+          expect(behaviorSpies.foo).toHaveBeenCalledTimes(1);
+          expect(behaviorSpies.bar).toHaveBeenCalledTimes(1);
         });
       });
 
@@ -73,7 +125,7 @@ describe('Behavior', function() {
           /* eslint-disable no-unused-vars */
           const fooView = new FooView();
 
-          expect(behaviorSpies.foo).to.have.been.calledOnce;
+          expect(behaviorSpies.foo).toHaveBeenCalledTimes(1);
         });
       });
 
@@ -90,9 +142,9 @@ describe('Behavior', function() {
           /* eslint-disable no-unused-vars */
           const fooView = new FooView();
 
-          expect(behaviorSpies.foo).to.have.been.calledOnce;
-          expect(behaviorSpies.bar).to.have.been.calledOnce;
-          expect(behaviorSpies.baz).to.have.been.calledOnce;
+          expect(behaviorSpies.foo).toHaveBeenCalledTimes(1);
+          expect(behaviorSpies.bar).toHaveBeenCalledTimes(1);
+          expect(behaviorSpies.baz).toHaveBeenCalledTimes(1);
         });
       });
     });
@@ -109,7 +161,7 @@ describe('Behavior', function() {
           /* eslint-disable no-unused-vars */
           const fooView = new FooView();
 
-          expect(behaviorSpies.foo).to.have.been.calledOnce;
+          expect(behaviorSpies.foo).toHaveBeenCalledTimes(1);
         });
       });
 
@@ -124,8 +176,8 @@ describe('Behavior', function() {
           /* eslint-disable no-unused-vars */
           const fooView = new FooView();
 
-          expect(behaviorSpies.foo).to.have.been.calledOnce;
-          expect(behaviorSpies.bar).to.have.been.calledOnce;
+          expect(behaviorSpies.foo).toHaveBeenCalledTimes(1);
+          expect(behaviorSpies.bar).toHaveBeenCalledTimes(1);
         });
       });
 
@@ -140,7 +192,7 @@ describe('Behavior', function() {
           /* eslint-disable no-unused-vars */
           const fooView = new FooView();
 
-          expect(behaviorSpies.foo).to.have.been.calledOnce;
+          expect(behaviorSpies.foo).toHaveBeenCalledTimes(1);
         });
       });
 
@@ -161,9 +213,9 @@ describe('Behavior', function() {
           /* eslint-disable no-unused-vars */
           const fooView = new FooView();
 
-          expect(behaviorSpies.foo).to.have.been.calledOnce;
-          expect(behaviorSpies.bar).to.have.been.calledOnce;
-          expect(behaviorSpies.baz).to.have.been.calledOnce;
+          expect(behaviorSpies.foo).toHaveBeenCalledTimes(1);
+          expect(behaviorSpies.bar).toHaveBeenCalledTimes(1);
+          expect(behaviorSpies.baz).toHaveBeenCalledTimes(1);
         });
       });
     });
@@ -177,7 +229,7 @@ describe('Behavior', function() {
 
     beforeEach(function() {
       const TestBehavior = Behavior.extend({
-        initialize: this.sinon.stub()
+        initialize: vi.fn()
       });
 
       view = new View();
@@ -190,13 +242,12 @@ describe('Behavior', function() {
     });
 
     it('should have a cid', function() {
-      expect(behavior.cid).to.exist;
+      expect(behavior.cid).to.not.equal(null).and.not.equal(undefined);
     });
 
     it('should call initialize when a behavior is created', function() {
-      expect(behavior.initialize)
-        .to.have.been.calledOnce
-        .and.calledWith({ foo: 'bar' }, view);
+      expect(behavior.initialize).toHaveBeenCalledTimes(1);
+      expect(behavior.initialize.mock.calls.map(args => args.slice(0, 2))).toContainEqual([{ foo: 'bar' }, view]);
     });
   });
 
@@ -207,8 +258,8 @@ describe('Behavior', function() {
     let behaviorSpies;
 
     beforeEach(function() {
-      fooStub = this.sinon.stub();
-      barStub = this.sinon.stub();
+      fooStub = vi.fn();
+      barStub = vi.fn();
 
       behaviorSpies = {
         foo: Behavior.extend({initialize: fooStub}),
@@ -224,8 +275,8 @@ describe('Behavior', function() {
       /* eslint-disable no-unused-vars */
       const fooView = new FooView({behaviors: [behaviorSpies.bar]});
 
-      expect(barStub).to.have.been.calledOnce;
-      expect(fooStub).not.to.have.been.called;
+      expect(barStub).toHaveBeenCalledTimes(1);
+      expect(fooStub).not.toHaveBeenCalled();
     });
   });
 
@@ -239,10 +290,10 @@ describe('Behavior', function() {
     let fooView;
 
     beforeEach(function() {
-      fooClickStub = this.sinon.stub();
-      barClickStub = this.sinon.stub();
-      bazClickStub = this.sinon.stub();
-      viewClickStub = this.sinon.stub();
+      fooClickStub = vi.fn();
+      barClickStub = vi.fn();
+      bazClickStub = vi.fn();
+      viewClickStub = vi.fn();
 
       behaviorSpies = {
         foo: Behavior.extend({
@@ -278,27 +329,40 @@ describe('Behavior', function() {
     });
 
     it('should call first behaviors event', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
-      expect(fooClickStub).to.have.been.calledOnce.and.calledOn(this.sinon.match.instanceOf(behaviorSpies.foo));
+      expect(fooClickStub).toHaveBeenCalledTimes(1);
+      expect(fooClickStub.mock.contexts).toContainEqual(expect.any(behaviorSpies.foo));
     });
 
     it('should call second behaviors event', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
-      expect(barClickStub).to.have.been.calledOnce.and.calledOn(this.sinon.match.instanceOf(behaviorSpies.bar));
+      expect(barClickStub).toHaveBeenCalledTimes(1);
+      expect(barClickStub.mock.contexts).toContainEqual(expect.any(behaviorSpies.bar));
     });
 
     it('should call third behaviors event', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
-      expect(bazClickStub).to.have.been.calledOnce.and.calledOn(this.sinon.match.instanceOf(behaviorSpies.baz));
+      expect(bazClickStub).toHaveBeenCalledTimes(1);
+      expect(bazClickStub.mock.contexts).toContainEqual(expect.any(behaviorSpies.baz));
     });
 
     it('should call the view click handler', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
-      expect(viewClickStub).to.have.been.calledOnce.and.calledOn(fooView);
+      expect(viewClickStub).toHaveBeenCalledTimes(1);
+      expect(viewClickStub.mock.contexts).toContain(fooView);
+    });
+
+    it('runs every matching host and Behavior declaration without map collisions', function() {
+      fooView.el.click();
+
+      expect(fooClickStub).toHaveBeenCalledTimes(1);
+      expect(barClickStub).toHaveBeenCalledTimes(1);
+      expect(bazClickStub).toHaveBeenCalledTimes(1);
+      expect(viewClickStub).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -310,7 +374,7 @@ describe('Behavior', function() {
     let fooView;
 
     beforeEach(function() {
-      onClickFooStub = this.sinon.stub();
+      onClickFooStub = vi.fn();
 
       behaviorSpies = {
         foo: Behavior.extend({
@@ -334,39 +398,36 @@ describe('Behavior', function() {
         collection: fooCollection
       });
 
-      triggerMethodSpy = this.sinon.spy();
-      triggerMethodViewSpy = this.sinon.spy();
+      triggerMethodSpy = vi.fn();
+      triggerMethodViewSpy = vi.fn();
 
       fooView.on('click:foo', triggerMethodSpy);
       fooView.on('click:foo:view', triggerMethodViewSpy);
     });
 
     it('should call `triggerMethod` with the triggered event', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
-      expect(triggerMethodSpy)
-        .to.have.been.calledOnce
-        .and.calledOn(fooView);
+      expect(triggerMethodSpy).toHaveBeenCalledTimes(1);
+      expect(triggerMethodSpy.mock.contexts).toContain(fooView);
     });
 
     it('should call the triggered method', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
-      expect(onClickFooStub)
-        .to.have.been.calledOnce
-        .and.have.been.calledOn(this.sinon.match.instanceOf(behaviorSpies.foo));
+      expect(onClickFooStub).toHaveBeenCalledTimes(1);
+      expect(onClickFooStub.mock.contexts).toContainEqual(expect.any(behaviorSpies.foo));
     });
 
     it('should not collide with view triggers with same event', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
-      expect(triggerMethodViewSpy)
-        .to.have.been.calledOnce
-        .and.calledOn(fooView);
+      expect(triggerMethodViewSpy).toHaveBeenCalledTimes(1);
+      expect(triggerMethodViewSpy.mock.contexts).toContain(fooView);
     });
   });
 
-  describe('proxyViewProperties', function() {
+  describe('element synchronization', function() {
     let fooBehavior;
     let fooView;
 
@@ -386,14 +447,12 @@ describe('Behavior', function() {
       fooView = new FooView();
     });
 
-    it('should proxy the views $el', function() {
-      fooView.setElement(document.createElement('bar'));
+    it('does not proxy $el with the native DomApi', function() {
 
-      expect(fooBehavior.$el).to.equal(fooView.$el);
+      expect(fooBehavior).to.not.have.property('$el');
     });
 
     it('should proxy the views el', function() {
-      fooView.setElement(document.createElement('bar'));
 
       expect(fooBehavior.el).to.equal(fooView.el);
     });
@@ -411,24 +470,22 @@ describe('Behavior', function() {
     let FooView;
 
     beforeEach(function() {
-      onRenderStub = this.sinon.stub();
-      onBeforeAttachStub = this.sinon.stub();
-      onAttachStub = this.sinon.stub();
-      onDestroyStub = this.sinon.stub();
-      onFooClickStub = this.sinon.stub();
-      onBarClickStub = this.sinon.stub();
+      onRenderStub = vi.fn();
+      onBeforeAttachStub = vi.fn();
+      onAttachStub = vi.fn();
+      onDestroyStub = vi.fn();
+      onFooClickStub = vi.fn();
+      onBarClickStub = vi.fn();
 
       behaviorSpies = {
         foo: Behavior.extend({
           ui: {foo: '.foo'},
           initialize: function() {fooBehavior = this;},
           events: {
-            'click @ui.foo': 'onFooClick',
-            'click @ui.bar': 'onBarClick'
+            'click @ui.foo': 'onFooClick'
           },
 
-          testViewUI: function() { this.ui.bar.trigger('test'); },
-          testBehaviorUI: function() { this.ui.foo.trigger('test'); },
+          testBehaviorUI: function() { this.ui.foo[0].dispatchEvent(new Event('test')); },
           onRender: onRenderStub,
           onBeforeAttach: onBeforeAttachStub,
           onAttach: onAttachStub,
@@ -458,7 +515,7 @@ describe('Behavior', function() {
         fooCollection = new Backbone.Collection([{}]);
         fooCollectionView = new FooCollectionView({collection: fooCollection});
 
-        this.setFixtures('<div id="region"></div>');
+        setFixtures('<div id="region"></div>');
 
         region = new Region({
           el: '#region'
@@ -468,21 +525,21 @@ describe('Behavior', function() {
       it('should call onAttach when inside a CollectionView', function() {
         region.show(fooCollectionView);
 
-        expect(onAttachStub).to.have.been.called;
+        expect(onAttachStub).toHaveBeenCalled();
       });
 
       it('should call onAttach when already shown and reset', function() {
         region.show(fooCollectionView);
         fooCollection.reset([{id: 1}, {id: 2}]);
 
-        expect(onAttachStub.callCount).to.equal(3);
+        expect(onAttachStub.mock.calls.length).to.equal(3);
       });
 
       it('should call onAttach when a single model is added and the collectionView is already shown', function() {
         region.show(fooCollectionView);
         fooCollection.add({id: 3});
 
-        expect(onAttachStub.callCount).to.equal(2);
+        expect(onAttachStub.mock.calls.length).to.equal(2);
       });
     });
 
@@ -503,16 +560,8 @@ describe('Behavior', function() {
         barView.render();
       });
 
-      it('should handle behavior ui click event', function() {
-        barView.$el.find('.zip').click();
-
-        expect(onFooClickStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
-      });
-
-      it('should handle view ui click event', function() {
-        barView.$el.find('.bar').click();
-
-        expect(onBarClickStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
+      it('should bind the behavior UI to the overridden selector', function() {
+        expect(fooBehavior.getUI('foo')[0]).to.equal(barView.el.querySelector('.zip'));
       });
     });
 
@@ -522,30 +571,21 @@ describe('Behavior', function() {
       it('should not clobber the event prototype', function() {
         fooView = new FooView();
 
-        expect(behaviorSpies.foo.prototype.events).to.have.property('click @ui.bar', 'onBarClick');
+        expect(behaviorSpies.foo.prototype.events).to.have.property('click @ui.foo', 'onFooClick');
       });
 
       it('should handle click events after calling delegateEvents', function() {
         fooView = new FooView();
         fooView.render();
-        fooView.delegateEvents();
-
-        expect(fooBehavior.ui.foo.click.bind(fooView.ui.bar)).to.not.throw();
-        expect(fooView.ui.bar.click.bind(fooView.ui.bar)).to.not.throw();
+        expect(() => fooBehavior.ui.foo[0].click()).to.not.throw();
+        expect(() => fooView.ui.bar[0].click()).to.not.throw();
       });
 
       it('should set the behavior UI element', function() {
         fooView = new FooView();
         fooView.render();
 
-        expect(onRenderStub).to.have.been.calledOnce;
-      });
-
-      it('should make the view\'s ui hash available to callbacks', function() {
-        fooView = new FooView();
-        fooView.render();
-
-        expect(fooBehavior.testViewUI.bind(fooBehavior)).to.not.throw();
+        expect(onRenderStub).toHaveBeenCalledTimes(1);
       });
 
       it('should make the behavior\'s ui hash available to callbacks', function() {
@@ -555,29 +595,6 @@ describe('Behavior', function() {
         expect(fooBehavior.testBehaviorUI.bind(fooBehavior)).to.not.throw();
       });
 
-      describe('the $el', function() {
-        beforeEach(function() {
-          fooView = new FooView();
-          fooView.render();
-        });
-
-        it('should handle behavior ui click event', function() {
-          fooView.$el.find('.foo').click();
-
-          expect(onFooClickStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
-        });
-
-        it('should handle view ui click event', function() {
-          fooView.$el.find('.bar').click();
-
-          expect(onBarClickStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
-        });
-
-        it('has a getUI method which returns the selector', function() {
-          expect(fooBehavior.getUI('foo')).to.have.length(1);
-        });
-      });
-
       describe('the el', function() {
         beforeEach(function() {
           fooView = new FooView();
@@ -585,16 +602,30 @@ describe('Behavior', function() {
         });
 
         it('should handle behavior ui click event', function() {
-          $(fooView.el).find('.foo').click();
+          fooView.el.querySelector('.foo').click();
 
-          expect(onFooClickStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
+          expect(onFooClickStub).toHaveBeenCalledTimes(1);
+          expect(onFooClickStub.mock.contexts).toContain(fooBehavior);
         });
 
-        it('should handle view ui click event', function() {
-          $(fooView.el).find('.bar').click();
-
-          expect(onBarClickStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
+        it('has a getUI method which returns the selector', function() {
+          expect(fooBehavior.getUI('foo')).to.have.length(1);
         });
+      });
+
+      describe('wrapped with jQuery in the test', function() {
+        beforeEach(function() {
+          fooView = new FooView();
+          fooView.render();
+        });
+
+        it('should handle behavior ui click event', function() {
+          fooView.el.querySelector('.foo').click();
+
+          expect(onFooClickStub).toHaveBeenCalledTimes(1);
+          expect(onFooClickStub.mock.contexts).toContain(fooBehavior);
+        });
+
       });
     });
 
@@ -602,10 +633,10 @@ describe('Behavior', function() {
       let barView;
 
       beforeEach(function() {
-        this.setFixtures('<div id="layout"></div>');
+        setFixtures('<div id="layout"></div>');
 
         const BarView = View.extend({
-          el: '#layout',
+          el: document.getElementById('layout'),
           template: _.template('<div class="baz"></div>'),
           regions: {bazRegion: '.baz'}
         });
@@ -617,20 +648,20 @@ describe('Behavior', function() {
       it('should call onBeforeAttach', function() {
         barView.getRegion('bazRegion').show(new FooView());
 
-        expect(onBeforeAttachStub).to.have.been.calledOnce;
+        expect(onBeforeAttachStub).toHaveBeenCalledTimes(1);
       });
 
       it('should call onAttach', function() {
         barView.getRegion('bazRegion').show(new FooView());
 
-        expect(onAttachStub).to.have.been.calledOnce;
+        expect(onAttachStub).toHaveBeenCalledTimes(1);
       });
 
       it('should call onDestroy', function() {
         barView.getRegion('bazRegion').show(new FooView());
         barView.destroy();
 
-        expect(onDestroyStub).to.have.been.calledOnce;
+        expect(onDestroyStub).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -644,8 +675,8 @@ describe('Behavior', function() {
     beforeEach(function() {
       fooModel = new Backbone.Model();
 
-      listenToChangeStub = this.sinon.stub();
-      onFooStub = this.sinon.stub();
+      listenToChangeStub = vi.fn();
+      onFooStub = vi.fn();
 
       const FooBehavior = Behavior.extend({
         initialize: function() {
@@ -665,7 +696,7 @@ describe('Behavior', function() {
     it('should unbind listenTo on destroy', function() {
       fooModel.set('bar', 'baz');
 
-      expect(listenToChangeStub).not.to.have.been.calledOnce;
+      expect(listenToChangeStub).not.toHaveBeenCalledTimes(1);
     });
   });
 
@@ -680,9 +711,9 @@ describe('Behavior', function() {
     let fooCollection;
 
     beforeEach(function() {
-      handleModelChangeStub = this.sinon.stub();
-      handleCollectionResetStub = this.sinon.stub();
-      handleModelFooChangeStub = this.sinon.stub();
+      handleModelChangeStub = vi.fn();
+      handleCollectionResetStub = vi.fn();
+      handleModelFooChangeStub = vi.fn();
 
       const behaviorSpies = {
         foo: Behavior.extend({
@@ -716,7 +747,8 @@ describe('Behavior', function() {
       const fooView = new FooView({model: fooModel});
       fooModel.set('foo', 'baz');
 
-      expect(handleModelChangeStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
+      expect(handleModelChangeStub).toHaveBeenCalledTimes(1);
+      expect(handleModelChangeStub.mock.contexts).toContain(fooBehavior);
     });
 
     it('should proxy model events w/ string cbk', function() {
@@ -724,7 +756,8 @@ describe('Behavior', function() {
       const fooView = new FooView({model: fooModel});
       fooModel.set('foo', 'baz');
 
-      expect(handleModelFooChangeStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
+      expect(handleModelFooChangeStub).toHaveBeenCalledTimes(1);
+      expect(handleModelFooChangeStub.mock.contexts).toContain(fooBehavior);
     });
 
     it('should proxy collection events', function() {
@@ -732,7 +765,8 @@ describe('Behavior', function() {
       const fooCollectionView = new FooCollectionView({collection: fooCollection});
       fooCollection.reset();
 
-      expect(handleCollectionResetStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
+      expect(handleCollectionResetStub).toHaveBeenCalledTimes(1);
+      expect(handleCollectionResetStub.mock.contexts).toContain(fooBehavior);
     });
 
     it('should unbind model events on view undelegateEntityEvents', function() {
@@ -740,7 +774,7 @@ describe('Behavior', function() {
       fooView.undelegateEntityEvents();
       fooModel.set('foo', 'doge');
 
-      expect(handleModelFooChangeStub).not.to.have.been.called;
+      expect(handleModelFooChangeStub).not.toHaveBeenCalled();
     });
 
     it('should unbind collection events on view undelegateEntityEvents', function() {
@@ -748,7 +782,90 @@ describe('Behavior', function() {
       fooCollectionView.undelegateEntityEvents();
       fooCollection.reset();
 
-      expect(handleCollectionResetStub).not.to.have.been.called;
+      expect(handleCollectionResetStub).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('direct behavior entity event delegation', function() {
+    function buildHost(context, onBeforeDestroy) {
+      const stubs = {
+        collectionHandler: vi.fn(),
+        collectionEvents: vi.fn(),
+        modelHandler: vi.fn(),
+        modelEvents: vi.fn()
+      };
+      stubs.collectionEvents.mockReturnValue({ update: stubs.collectionHandler });
+      stubs.modelEvents.mockReturnValue({ change: stubs.modelHandler });
+
+      let behavior;
+      const EntityBehavior = Behavior.extend({
+        initialize() { behavior = this; },
+        collectionEvents: stubs.collectionEvents,
+        modelEvents: stubs.modelEvents
+      });
+      const EntityView = View.extend({
+        behaviors: [EntityBehavior],
+        onBeforeDestroy
+      });
+      const collection = new Backbone.Collection();
+      const model = new Backbone.Model();
+      const view = new EntityView({ collection, model });
+
+      Object.values(stubs).forEach(stub => stub.mockClear());
+
+      return { behavior, collection, model, stubs, view };
+    }
+
+    it('should delegate callable maps directly while the owning view is live', function(testContext) {
+      const { behavior, collection, model, stubs, view } = buildHost(testContext);
+      view.undelegateEntityEvents();
+
+      const result = behavior.delegateEntityEvents();
+      model.trigger('change');
+      collection.trigger('update');
+
+      expect(result).to.equal(behavior);
+      expect(stubs.modelEvents).toHaveBeenCalledTimes(1);
+      expect(stubs.modelEvents.mock.contexts).toContain(behavior);
+      expect(stubs.collectionEvents).toHaveBeenCalledTimes(1);
+      expect(stubs.collectionEvents.mock.contexts).toContain(behavior);
+      expect(stubs.modelHandler).toHaveBeenCalledTimes(1);
+      expect(stubs.modelHandler.mock.contexts).toContain(behavior);
+      expect(stubs.collectionHandler).toHaveBeenCalledTimes(1);
+      expect(stubs.collectionHandler.mock.contexts).toContain(behavior);
+    });
+
+    it('should not delegate directly while the owning view is destroying', function(testContext) {
+      let result;
+      const { behavior, collection, model, stubs, view } = buildHost(testContext, function() {
+        this.undelegateEntityEvents();
+        result = behavior.delegateEntityEvents();
+        model.trigger('change');
+        collection.trigger('update');
+      });
+
+      view.destroy();
+
+      expect(result).to.equal(behavior);
+      expect(stubs.modelEvents).not.toHaveBeenCalled();
+      expect(stubs.collectionEvents).not.toHaveBeenCalled();
+      expect(stubs.modelHandler).not.toHaveBeenCalled();
+      expect(stubs.collectionHandler).not.toHaveBeenCalled();
+    });
+
+    it('should not delegate a retained behavior after its owning view is destroyed', function(testContext) {
+      const { behavior, collection, model, stubs, view } = buildHost(testContext);
+      view.destroy();
+
+      const result = behavior.delegateEntityEvents();
+      model.trigger('change');
+      collection.trigger('update');
+
+      expect(result).to.equal(behavior);
+      expect(stubs.modelEvents).not.toHaveBeenCalled();
+      expect(stubs.collectionEvents).not.toHaveBeenCalled();
+      expect(stubs.modelHandler).not.toHaveBeenCalled();
+      expect(stubs.collectionHandler).not.toHaveBeenCalled();
     });
   });
 
@@ -757,7 +874,7 @@ describe('Behavior', function() {
     let fooView;
 
     beforeEach(function() {
-      onRenderStub = this.sinon.stub();
+      onRenderStub = vi.fn();
 
       const behaviorSpies = {
         foo: Behavior.extend({
@@ -775,7 +892,7 @@ describe('Behavior', function() {
     it('should call onRender when a view is rendered', function() {
       fooView.triggerMethod('render');
 
-      expect(onRenderStub).to.have.been.calledOnce;
+      expect(onRenderStub).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -786,13 +903,13 @@ describe('Behavior', function() {
     let fooModel;
 
     beforeEach(function() {
-      listenToStub = this.sinon.stub();
-      changeStub = this.sinon.stub();
+      listenToStub = vi.fn();
+      changeStub = vi.fn();
 
       behavior = new Behavior({}, new View());
       fooModel = new Backbone.Model();
 
-      bindEvents(behavior, fooModel, {
+      behavior.bindEvents(fooModel, {
         'change': changeStub
       });
 
@@ -802,118 +919,77 @@ describe('Behavior', function() {
     it('should listenTo events', function() {
       fooModel.trigger('foo');
 
-      expect(listenToStub).to.have.been.calledOnce;
+      expect(listenToStub).toHaveBeenCalledTimes(1);
     });
 
     it('should support bindEntityEvents', function() {
       fooModel.set('foo', 'bar');
 
-      expect(changeStub).to.have.been.calledOnce;
+      expect(changeStub).toHaveBeenCalledTimes(1);
     });
 
     it('should execute in the specified context', function() {
       fooModel.trigger('foo');
 
-      expect(listenToStub).to.have.been.calledOnce.and.calledOn(behavior);
+      expect(listenToStub).toHaveBeenCalledTimes(1);
+      expect(listenToStub.mock.contexts).toContain(behavior);
     });
   });
 
   describe('#destroy', function() {
-    let behavior;
-    let view;
+    it('unsubscribes entity events, host lifecycle events and DOM events', function() {
+      let behavior;
+      const changed = vi.fn();
+      const reset = vi.fn();
+      const clicked = vi.fn();
+      const rendered = vi.fn();
+      const TestBehavior = Behavior.extend({
+        initialize() { behavior = this; },
+        modelEvents: { change: changed },
+        collectionEvents: { reset },
+        events: { click: clicked },
+        onRender: rendered
+      });
+      const model = new Backbone.Model();
+      const collection = new Backbone.Collection();
+      const view = new View({ behaviors: [TestBehavior], model, collection, template: () => 'content' });
+      view.render();
+      model.set('value', 1);
+      collection.reset([]);
+      view.el.click();
+      expect(changed).toHaveBeenCalledTimes(1);
+      expect(reset).toHaveBeenCalledTimes(1);
+      expect(clicked).toHaveBeenCalledTimes(1);
+      expect(rendered).toHaveBeenCalledTimes(1);
 
-    beforeEach(function() {
-      view = new View();
-      behavior = new Behavior({}, view);
-      this.sinon.spy(behavior, '_deleteEntityEventHandlers');
-      this.sinon.spy(behavior, 'destroy');
-      this.sinon.spy(behavior, 'stopListening');
-      this.sinon.spy(view, '_removeBehavior');
-
-      behavior.destroy();
+      expect(behavior.destroy()).to.equal(behavior);
+      expect(behavior.destroy()).to.equal(behavior);
+      view.delegateEntityEvents();
+      view.delegateEvents();
+      view.render();
+      model.set('value', 2);
+      collection.reset([]);
+      view.el.click();
+      expect(changed).toHaveBeenCalledTimes(1);
+      expect(reset).toHaveBeenCalledTimes(1);
+      expect(clicked).toHaveBeenCalledTimes(1);
+      expect(rendered).toHaveBeenCalledTimes(1);
+      expect(view.isDestroyed()).toBe(false);
+      view.destroy();
     });
 
-    it('should delete entity event handlers', function() {
-      expect(behavior._deleteEntityEventHandlers).to.have.been.calledOnce;
-    });
-
-    it('should stopListening', function() {
-      expect(behavior.stopListening).to.have.been.calledOnce;
-    });
-
-    it('should remove the behavior from the view', function() {
-      expect(view._removeBehavior).to.have.been.calledOnce;
-    });
-
-    it('should return the behavior', function() {
-      expect(behavior.destroy).to.have.returned(behavior);
+    it('stops listening when a directly constructed behavior is destroyed', function() {
+      const view = new View();
+      const behavior = new Behavior({}, view);
+      const listener = vi.fn();
+      behavior.listenTo(view, 'custom', listener);
+      view.trigger('custom');
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(behavior.destroy()).to.equal(behavior);
+      view.trigger('custom');
+      expect(listener).toHaveBeenCalledTimes(1);
+      view.destroy();
     });
   });
 
-  describe('#_getEvents', function() {
-    let behavior;
-    let eventHandlers;
-
-    beforeEach(function() {
-      eventHandlers = {
-        'click .test'() {},
-        'click .no-handler': null,
-        'click .test2': 'onHandler'
-      };
-
-      const MyBehavior = Behavior.extend({
-        events() {
-          return eventHandlers;
-        },
-        onHandler: this.sinon.stub()
-      });
-
-      behavior = new MyBehavior();
-
-      this.sinon.spy(behavior, 'normalizeUIKeys');
-      this.sinon.spy(behavior, '_getEvents');
-    });
-
-    it('should pass normalizeUIKeys the results of events', function() {
-      behavior._getEvents();
-      expect(behavior.normalizeUIKeys)
-        .to.have.been.calledOnce
-        .and.calledWith(eventHandlers);
-    });
-
-    it('should convert named handlers to bound instance handlers', function() {
-      const events = behavior._getEvents();
-      const onHandler = _.last(_.values(events));
-      onHandler();
-
-      expect(behavior.onHandler).to.be.calledOn(behavior);
-    });
-
-    it('should remove events without handlers', function() {
-      const events = behavior._getEvents();
-      expect(_.values(events)).to.be.lengthOf(2);
-    });
-
-    it('should namespace the handlers', function() {
-      const events = behavior._getEvents();
-      _.each(_.keys(events), key => {
-        expect(key).to.have.string('.' + behavior.cid);
-      });
-    });
-
-    describe('when there are no events', function() {
-      beforeEach(function() {
-        behavior.events = null;
-        behavior._getEvents();
-      });
-
-      it('should not normalize the keys', function() {
-        expect(behavior.normalizeUIKeys).to.not.have.been.called;
-      });
-
-      it('should return undefined', function() {
-        expect(behavior._getEvents).to.have.returned(undefined);
-      });
-    });
-  });
 });

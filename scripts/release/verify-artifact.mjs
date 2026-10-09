@@ -1,0 +1,204 @@
+import { verifyDevelopmentKit } from '../docs/development-kit.mjs';
+import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { appendFile, readFile } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
+import process from 'node:process';
+import { publicationEnabled } from './publication.mjs';
+import { readArguments } from './arguments.mjs';
+import { validatePackageInventory } from './packages.mjs';
+import { verifyCandidateValidation } from './validation.mjs';
+
+const root = resolve(import.meta.dirname, '../..');
+const args = readArguments({
+  'artifact-dir': { type: 'string', default: 'release' },
+  'source-commit': { type: 'string' },
+  'workflow-run-id': { type: 'string' },
+  repository: { type: 'string' },
+  'require-validation': { type: 'boolean', default: false },
+});
+
+function sha512(buffer) {
+  return createHash('sha512').update(buffer).digest('hex');
+}
+
+function sha256(buffer) {
+  return createHash('sha256').update(buffer).digest('hex');
+}
+
+function assertEqual(actual, expected, label) {
+  if (actual !== expected) {
+    throw new Error(`${label} mismatch: received ${actual}; expected ${expected}.`);
+  }
+}
+
+function run(command, commandArgs) {
+  const result = spawnSync(command, commandArgs, {
+    cwd: root,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+  if (result.status !== 0) {
+    process.stderr.write(result.stderr);
+    throw new Error(`${command} exited with status ${result.status}.`);
+  }
+
+  return result.stdout.trim();
+}
+
+async function getNpmVersion() {
+  const npmExecPath = process.env.npm_execpath;
+  if (!npmExecPath) {
+    throw new Error('Run release:verify through npm so the npm CLI can be located.');
+  }
+
+  const npmPackagePath = resolve(dirname(npmExecPath), '..', 'package.json');
+  const npmPackage = JSON.parse(await readFile(npmPackagePath, 'utf8'));
+  return npmPackage.version;
+}
+
+const artifactDir = resolve(root, args['artifact-dir']);
+const evidencePath = resolve(artifactDir, 'release-evidence.json');
+const evidenceBytes = await readFile(evidencePath);
+const evidence = JSON.parse(evidenceBytes);
+if (evidence.schemaVersion !== 3) {
+  throw new Error(`Unsupported evidence schemaVersion ${evidence.schemaVersion}.`);
+}
+
+function artifactPath(fileName) {
+  if (typeof fileName !== 'string' || !fileName || fileName === '.' || fileName === '..' ||
+      fileName.includes('/') || fileName.includes('\\') || fileName.includes(':')) {
+    throw new Error(`Release artifact must use a contained file name: ${fileName}`);
+  }
+  return resolve(artifactDir, fileName);
+}
+
+const checksum = (await readFile(artifactPath('release-evidence.sha512'), 'utf8')).trim();
+assertEqual(checksum, `${sha512(evidenceBytes)}  release-evidence.json`, 'evidence checksum');
+
+validatePackageInventory(evidence.packages);
+
+for (const packageEvidence of evidence.packages) {
+  const label = packageEvidence.name;
+  const tarballPath = artifactPath(packageEvidence.tarball.file);
+  const tarball = await readFile(tarballPath);
+  assertEqual(tarball.length, packageEvidence.tarball.size, `${label} tarball size`);
+  assertEqual(sha256(tarball), packageEvidence.tarball.sha256, `${label} tarball SHA-256`);
+  assertEqual(sha512(tarball), packageEvidence.tarball.sha512, `${label} tarball SHA-512`);
+  assertEqual(
+    `sha512-${createHash('sha512').update(tarball).digest('base64')}`,
+    packageEvidence.tarball.integrity,
+    `${label} tarball npm integrity`,
+  );
+
+  const packageManifestBytes = await readFile(artifactPath(packageEvidence.manifestReport.file));
+  const packageManifest = JSON.parse(packageManifestBytes);
+  assertEqual(
+    sha512(packageManifestBytes),
+    packageEvidence.manifestReport.sha512,
+    `${label} package manifest SHA-512`,
+  );
+  assertEqual(packageManifest.name, packageEvidence.name, `${label} package manifest name`);
+  assertEqual(packageManifest.version, packageEvidence.version, `${label} package manifest version`);
+  assertEqual(packageManifest.filename, packageEvidence.tarball.file, `${label} package manifest filename`);
+  assertEqual(packageManifest.integrity, packageEvidence.tarball.integrity, `${label} package manifest integrity`);
+  assertEqual(packageManifest.shasum, packageEvidence.tarball.shasum, `${label} package manifest shasum`);
+
+  const tarPackage = spawnSync('tar', [
+    '-xOf',
+    tarballPath,
+    'package/package.json',
+  ], { encoding: 'utf8', maxBuffer: 1024 * 1024 });
+  if (tarPackage.error) {
+    throw tarPackage.error;
+  }
+  if (tarPackage.status !== 0) {
+    process.stderr.write(tarPackage.stderr);
+    throw new Error(`tar exited with status ${tarPackage.status}.`);
+  }
+  if (JSON.stringify(JSON.parse(tarPackage.stdout)) !== JSON.stringify(packageEvidence.manifest)) {
+    throw new Error(`${label} packed package.json does not match the evidence manifest.`);
+  }
+}
+
+const bundleReportPath = artifactPath(evidence.reports.bundle.file);
+const bundleReportBytes = await readFile(bundleReportPath);
+JSON.parse(bundleReportBytes);
+assertEqual(sha512(bundleReportBytes), evidence.reports.bundle.sha512, 'bundle report SHA-512');
+
+const releaseProfileBytes = await readFile(resolve(root, 'config/release-profile.json'));
+const promotionPolicyBytes = await readFile(resolve(root, 'config/release-promotion.json'));
+const promotionPolicy = JSON.parse(promotionPolicyBytes.toString('utf8'));
+const checkedOutCommit = run('git', ['rev-parse', 'HEAD']);
+assertEqual(checkedOutCommit, evidence.source.commit, 'checked-out source commit');
+await verifyDevelopmentKit(artifactDir, evidence.reports.developmentStarter, evidence.source.commit);
+
+assertEqual(
+  run('git', ['rev-parse', `${checkedOutCommit}:config/release-profile.json`]),
+  evidence.releaseProfile.revision,
+  'release profile revision',
+);
+assertEqual(
+  run('git', ['rev-parse', `${checkedOutCommit}:config/release-promotion.json`]),
+  evidence.promotionPolicy.revision,
+  'promotion policy revision',
+);
+assertEqual(sha512(releaseProfileBytes), evidence.releaseProfile.sha512, 'release profile SHA-512');
+assertEqual(JSON.stringify(evidence.releaseProfile.profile), JSON.stringify(JSON.parse(releaseProfileBytes)), 'embedded release profile');
+assertEqual(sha512(promotionPolicyBytes), evidence.promotionPolicy.sha512, 'promotion policy SHA-512');
+assertEqual(process.versions.node, evidence.toolchain.node, 'Node version');
+assertEqual(await getNpmVersion(), evidence.toolchain.npm, 'npm version');
+assertEqual(
+  JSON.stringify(promotionPolicy.publication),
+  JSON.stringify(evidence.promotionPolicy.publication),
+  'publication authorization policy',
+);
+// Verification also accepts disabled dry-run candidates; validate the policy shape.
+publicationEnabled(promotionPolicy, evidence.release.version);
+assertEqual(evidence.release.prerelease, evidence.release.version.includes('-'), 'prerelease classification');
+assertEqual(evidence.release.version, JSON.parse(await readFile(resolve(root, 'package.json'))).version, 'source package version');
+assertEqual(evidence.release.tag, `v${evidence.release.version}`, 'release tag');
+assertEqual(
+  evidence.release.npmTag,
+  evidence.release.prerelease ? promotionPolicy.npm.prereleaseTag : promotionPolicy.npm.stableTag,
+  'npm dist-tag',
+);
+for (const packageEvidence of evidence.packages) {
+  assertEqual(packageEvidence.version, evidence.release.version, `${packageEvidence.name} release version`);
+}
+
+const expectedCommit = args['source-commit'];
+const expectedWorkflowRunId = args['workflow-run-id'];
+const expectedRepository = args.repository;
+if (expectedCommit) {
+  assertEqual(evidence.source.commit, expectedCommit, 'source commit');
+}
+if (expectedRepository) {
+  assertEqual(evidence.source.repository, expectedRepository, 'source repository');
+}
+if (expectedWorkflowRunId) {
+  assertEqual(evidence.workflow?.runId, expectedWorkflowRunId, 'certification workflow run ID');
+}
+
+for (const packageEvidence of evidence.packages) {
+  console.log(`Verified ${packageEvidence.tarball.file} at ${packageEvidence.tarball.sha512}.`);
+}
+
+if (args['require-validation']) {
+  await verifyCandidateValidation(artifactDir, evidenceBytes);
+  console.log('Complete candidate validation verified.');
+}
+
+if (process.env.GITHUB_OUTPUT) {
+  for (const packageEvidence of evidence.packages) {
+    await appendFile(process.env.GITHUB_OUTPUT, `${packageEvidence.id}_tarball=${packageEvidence.tarball.file}\n`);
+  }
+  await appendFile(process.env.GITHUB_OUTPUT, `version=${evidence.release.version}\n`);
+  await appendFile(process.env.GITHUB_OUTPUT, `tag=${evidence.release.tag}\n`);
+  await appendFile(process.env.GITHUB_OUTPUT, `npm_tag=${evidence.release.npmTag}\n`);
+  await appendFile(process.env.GITHUB_OUTPUT, `prerelease=${evidence.release.prerelease}\n`);
+}

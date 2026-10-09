@@ -1,0 +1,226 @@
+import { spawnSync } from 'node:child_process';
+import { appendFile, readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import process from 'node:process';
+import { readArguments } from './arguments.mjs';
+import { releasePackages, validatePackageInventory } from './packages.mjs';
+import { decideNpmActions } from './npm-actions.mjs';
+
+const root = resolve(import.meta.dirname, '../..');
+const args = readArguments({
+  mode: { type: 'string', default: 'dry-run' },
+  'artifact-dir': { type: 'string', default: 'release' },
+});
+
+function run(command, commandArgs, options = {}) {
+  const result = spawnSync(command, commandArgs, {
+    cwd: root,
+    encoding: 'utf8',
+    env: options.env || process.env,
+    maxBuffer: 1024 * 1024,
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  return result;
+}
+
+async function writeOutput(name, value) {
+  if (process.env.GITHUB_OUTPUT) {
+    await appendFile(process.env.GITHUB_OUTPUT, `${name}=${value}\n`);
+  }
+}
+
+function registryObject(result) {
+  if (result.status !== 0) { return null; }
+  try {
+    const value = JSON.parse(result.stdout);
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+const mode = args.mode;
+if (!['dry-run', 'publish', 'npm-decision', 'verify-npm'].includes(mode)) {
+  throw new Error(`Unsupported target-check mode ${mode}.`);
+}
+
+const artifactDir = resolve(root, args['artifact-dir']);
+const evidence = JSON.parse(await readFile(resolve(artifactDir, 'release-evidence.json'), 'utf8'));
+if (evidence.schemaVersion !== 3 || !Array.isArray(evidence.packages)) {
+  throw new Error(`Unsupported evidence schemaVersion ${evidence.schemaVersion}.`);
+}
+validatePackageInventory(evidence.packages);
+const packageNames = new Map(releasePackages.map(({ id, name }) => [id, name]));
+
+const npmExecPath = process.env.npm_execpath;
+if (!npmExecPath) {
+  throw new Error('Run release:targets through npm so the npm CLI can be located.');
+}
+
+const verification = run(process.execPath, [resolve(root, 'scripts/release/verify-artifact.mjs'),
+  '--artifact-dir', artifactDir, '--require-validation']);
+if (verification.status !== 0) {
+  throw new Error(`Release candidate is not verified: ${verification.stderr}`);
+}
+
+const npmAttempts = mode === 'verify-npm' ? 12 : 1;
+const npmStates = [];
+const channelViolations = [];
+for (const packageEvidence of evidence.packages) {
+  const packageName = packageNames.get(packageEvidence.id);
+  let state;
+  let npmError;
+  for (let attempt = 1; attempt <= npmAttempts; attempt += 1) {
+    const npmResult = run(process.execPath, [
+      npmExecPath,
+      'view',
+      `${packageName}@${packageEvidence.version}`,
+      'dist.integrity',
+      '--json',
+    ]);
+    npmError = undefined;
+    if (npmResult.status === 0) {
+      const publishedIntegrity = JSON.parse(npmResult.stdout);
+      state = publishedIntegrity === packageEvidence.tarball.integrity ? 'exact' : 'conflict';
+    } else if (/E404|404 Not Found/.test(npmResult.stderr)) {
+      state = 'available';
+    } else {
+      state = 'unavailable';
+      npmError = npmResult;
+    }
+
+    if (state === 'exact' || state === 'conflict' || attempt === npmAttempts) {
+      break;
+    }
+    console.warn(`${packageName} npm integrity is ${state}; retrying in 5 seconds (${attempt}/${npmAttempts}).`);
+    await new Promise(resolveDelay => setTimeout(resolveDelay, 5000));
+  }
+  if (npmError) {
+    process.stderr.write(npmError.stderr);
+    throw new Error(`${packageName} npm view exited with status ${npmError.status} after ${npmAttempts} attempts.`);
+  }
+  npmStates.push({ packageEvidence, packageName, state });
+  if (mode === 'verify-npm' && state === 'exact') {
+    const { npmTag, version } = evidence.release;
+    let tagsResult;
+    let matches = false;
+    for (let attempt = 1; attempt <= npmAttempts; attempt += 1) {
+      tagsResult = run(process.execPath, [npmExecPath, 'view', packageName, 'dist-tags', '--json']);
+      matches = registryObject(tagsResult)?.[npmTag] === version;
+      if (matches || attempt === npmAttempts) { break; }
+      console.warn(`${packageName} npm ${npmTag} is not yet verified; retrying in 5 seconds (${attempt}/${npmAttempts}).`);
+      await new Promise(resolveDelay => setTimeout(resolveDelay, 5000));
+    }
+    if (tagsResult.status !== 0) {
+      throw new Error(`${packageName} npm dist-tag lookup failed: ${tagsResult.stderr}`);
+    }
+    if (!matches) {
+      channelViolations.push(`${packageName}: ${npmTag} must point to ${version}`);
+    }
+    let provenanceAvailable = false;
+    for (let attempt = 1; attempt <= npmAttempts; attempt += 1) {
+      const result = run(process.execPath, [npmExecPath, 'view', `${packageName}@${version}`, 'dist.attestations', '--json']);
+      const attestations = registryObject(result);
+      provenanceAvailable = attestations?.provenance?.predicateType === 'https://slsa.dev/provenance/v1' &&
+        typeof attestations.url === 'string' &&
+        attestations.url.startsWith('https://registry.npmjs.org/-/npm/v1/attestations/');
+      if (provenanceAvailable || attempt === npmAttempts) { break; }
+      console.warn(`${packageName} npm provenance metadata is not yet available; retrying in 5 seconds (${attempt}/${npmAttempts}).`);
+      await new Promise(resolveDelay => setTimeout(resolveDelay, 5000));
+    }
+    if (!provenanceAvailable) {
+      throw new Error(`${packageName}@${version} is missing published npm SLSA provenance metadata after ${npmAttempts} attempts.`);
+    }
+  }
+}
+
+const repositoryUrl = `https://github.com/${evidence.source.repository}.git`;
+const tagResult = run('git', [
+  'ls-remote',
+  '--tags',
+  repositoryUrl,
+  `refs/tags/${evidence.release.tag}`,
+  `refs/tags/${evidence.release.tag}^{}`,
+]);
+if (tagResult.status !== 0) {
+  process.stderr.write(tagResult.stderr);
+  throw new Error(`git ls-remote exited with status ${tagResult.status}.`);
+}
+const tagLines = tagResult.stdout.trim().split('\n').filter(Boolean);
+let tagState = 'available';
+if (tagLines.length) {
+  const peeledTag = tagLines.find(line => line.endsWith('^{}'));
+  const tagCommit = (peeledTag || tagLines[0]).split(/\s+/)[0];
+  tagState = tagCommit === evidence.source.commit ? 'exact' : 'conflict';
+}
+
+const releaseResult = run('gh', [
+  'api',
+  `repos/${evidence.source.repository}/releases/tags/${evidence.release.tag}`,
+  '--jq',
+  '.id',
+], {
+  env: {
+    ...process.env,
+    GH_TOKEN: process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '',
+  },
+});
+let releaseState;
+if (releaseResult.status === 0) {
+  releaseState = 'exists';
+} else if (/HTTP 404|Not Found/.test(releaseResult.stderr)) {
+  releaseState = 'available';
+} else {
+  process.stderr.write(releaseResult.stderr);
+  throw new Error(`gh api exited with status ${releaseResult.status}.`);
+}
+
+await writeOutput('tag_state', tagState);
+await writeOutput('release_state', releaseState);
+for (const { packageEvidence, state } of npmStates) {
+  await writeOutput(`${packageEvidence.id}_npm_state`, state);
+}
+if (mode === 'npm-decision') {
+  const actions = decideNpmActions(npmStates);
+  for (const { name, value } of actions) {
+    await writeOutput(name, value);
+  }
+}
+
+console.log(JSON.stringify({
+  packages: npmStates.map(({ packageEvidence, packageName, state }) => ({
+    package: `${packageName}@${packageEvidence.version}`,
+    npm: state,
+  })),
+  tag: tagState,
+  release: releaseState,
+}, null, 2));
+
+if (mode === 'publish') {
+  const unavailable = [
+    ...npmStates.map(({ packageName, state }) =>
+      [`${packageName} npm version`, state, ['available', 'exact']]),
+    ['Git tag', tagState, ['available', 'exact']],
+    ['GitHub release', releaseState, ['available', 'exists']],
+  ].filter(([, state, allowed]) => !allowed.includes(state));
+
+  if (unavailable.length) {
+    const summary = unavailable.map(([target, state]) => `${target}: ${state}`).join(', ');
+    throw new Error(`Publication targets conflict with the verified artifact (${summary}).`);
+  }
+}
+if (mode === 'verify-npm') {
+  const incomplete = npmStates.filter(({ state }) => state !== 'exact');
+  if (incomplete.length) {
+    throw new Error(`Published npm integrity is not exact for ${incomplete
+      .map(({ packageName }) => packageName).join(', ')}.`);
+  }
+  if (channelViolations.length) {
+    throw new Error(`Published npm channels violate release policy (${channelViolations.join('; ')}). ` +
+      'Inspect the registry and correct dist-tags through an authorized release operation, then rerun verification.');
+  }
+}

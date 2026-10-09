@@ -1,0 +1,13 @@
+{
+  "name": "marionette-jquery-dom-api-types-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json"
+  },
+  "dependencies": {
+    "@types/jquery": "4.0.1",
+    "jquery": "4.0.0",
+    "typescript": "7.0.2"
+  }
+}

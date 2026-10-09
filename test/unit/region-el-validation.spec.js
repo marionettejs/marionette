@@ -1,0 +1,58 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { JSDOM } from 'jsdom';
+
+import { Region, View } from 'marionette';
+import { MarionetteError } from '@mnjs/utils';
+
+describe('Region el validation', function() {
+  let document;
+  let previousDocument;
+  let previousWindow;
+
+  beforeEach(function() {
+    previousDocument = global.document;
+    previousWindow = global.window;
+
+    const dom = new JSDOM('<!doctype html><html><body><div id="region"></div></body></html>');
+    document = dom.window.document;
+    global.document = document;
+    global.window = dom.window;
+  });
+
+  afterEach(function() {
+    global.document = previousDocument;
+    global.window = previousWindow;
+  });
+
+  it('accepts a DOM element', function() {
+    const el = document.createElement('div');
+    const region = new Region({ el });
+
+    expect(region.el).to.equal(el);
+  });
+
+  it('accepts a selector string and resolves it via DomApi', function() {
+    const el = document.getElementById('region');
+    const region = new Region({ el: '#region' });
+
+    const view = new View({ template: () => 'shown' });
+    expect(region.show(view)).to.equal(region);
+    expect(view.el.parentNode).to.equal(el);
+    expect(region.el).to.equal(el);
+  });
+
+  it('accepts construction without an el option', function() {
+    expect(() => new Region()).to.not.throw();
+    expect(() => new Region({})).to.not.throw();
+  });
+
+  it('requires an element before showing a View', function() {
+    const region = new Region();
+
+    expect(() => region.show(new View())).to.throw(MarionetteError).and.include({
+      code: 'MN0004',
+      name: 'RegionError',
+    });
+  });
+
+});

@@ -1,0 +1,568 @@
+// View
+// ----
+
+import type { Bindings } from '@mnjs/utils';
+import { MarionetteError, getValue, uniqueId } from '@mnjs/utils';
+import extend from '../utils/extend.ts';
+import monitorViewEvents from './common/monitor-view-events.ts';
+import buildRegion from './common/build-region.ts';
+import ViewMixin, { ViewOptions } from '../mixins/view.ts';
+import Region from './region.ts';
+import { setEventDelegator } from '../runtime/event-delegator.ts';
+import { setRenderer } from '../runtime/renderer.ts';
+import { setDomApi } from '../runtime/dom-api.ts';
+import { setDataApi } from '../runtime/data-api.ts';
+import { setStateApi } from '../runtime/state-api.ts';
+import { runtimeId } from '../runtime-id.ts';
+
+import type { ViewMixinHost } from '../mixins/view.ts';
+import type { DOMEvents, DOMTriggers } from '../mixins/view-events.ts';
+import type { UISelectors, UIBindings } from '../mixins/ui.ts';
+import type { BehaviorDefinitions, BehaviorInstance } from '../mixins/behaviors.ts';
+import type { EventCallback } from '@mnjs/utils';
+import type CommonMixin from '../mixins/common.ts';
+import type { DomApi } from '../runtime/dom-api.ts';
+import type { DataApi } from '../runtime/data-api.ts';
+import type { StateApi } from '../runtime/state-api.ts';
+import type { EventDelegator } from '../runtime/event-delegator.ts';
+import type { Renderer } from '../runtime/renderer.ts';
+import type { SupportedView } from './common/view.ts';
+import type { RegionInstance, RegionInternals, ShowOptions } from './region.ts';
+import type { RegionDefinition, RegionClass } from './common/build-region.ts';
+import type { Constructed, Merge, ArgumentsFor, DefaultOptions, OptionsFor, StateFor, SuppliedState } from './object.ts';
+
+/**
+ * Configure a component with data-first templates and managed child Regions.
+ * @example
+ * // This example uses the optional Lit adapter for text interpolation.
+ * import { View } from 'marionette';
+ * import LitDomApi from '@mnjs/adapters/dom/lit-html';
+ * import { html } from 'lit-html';
+ * const Ready = View.extend({ template: () => html`Ready` }).setDomApi(LitDomApi);
+ * const Screen = View.extend({
+ *   template: ({ title }) => html`<h1>${title}</h1><div class="body"></div>`,
+ *   regions: { body: '.body' },
+ *   onRender() { this.showChildView('body', new Ready()); }
+ * }).setDomApi(LitDomApi);
+ * const screen = new Screen({ model: { title: 'Posts' } });
+ * // Show through a Region; destroy that Region at teardown.
+ */
+export interface ViewConfiguration {
+  el?: Element | (() => Element);
+  tagName?: string | (() => string);
+  id?: string | null | (() => string | null | undefined);
+  className?: string | null | (() => string | null | undefined);
+  attributes?: Record<string, unknown> | (() => Record<string, unknown>);
+  model?: unknown;
+  collection?: unknown;
+  events?: DOMEvents | (() => DOMEvents);
+  triggers?: DOMTriggers | (() => DOMTriggers);
+  ui?: UIBindings;
+  behaviors?: BehaviorDefinitions | (() => BehaviorDefinitions);
+  regions?: Record<string, RegionDefinition> | (() => Record<string, RegionDefinition>);
+  regionClass?: RegionClass;
+  childViewEvents?: Record<string, EventCallback | string> | (() => Record<string, EventCallback | string>);
+  childViewTriggers?: Record<string, string> | (() => Record<string, string>);
+  childViewEventPrefix?: string | false | (() => string | false);
+  modelEvents?: Bindings | (() => Bindings);
+  collectionEvents?: Bindings | (() => Bindings);
+  stateEvents?: Bindings | (() => Bindings);
+  state?: unknown;
+  template?: unknown;
+  templateContext?: object | (() => object);
+}
+
+type Common = typeof CommonMixin;
+import type { ViewFluent } from './common/chainable-methods.ts';
+
+export interface ViewInstance<Options extends object = ViewConfiguration, State = unknown,
+  Query extends ArrayLike<Element> = ArrayLike<Element>> extends Common, ViewFluent<{}> {
+  cid: string;
+  cidPrefix: string;
+  options: Options;
+  readonly el: Element;
+  tagName: string | (() => string);
+  id?: ViewConfiguration['id'];
+  className?: ViewConfiguration['className'];
+  attributes?: ViewConfiguration['attributes'];
+  model?: unknown;
+  collection?: unknown;
+  events?: ViewConfiguration['events'];
+  triggers?: ViewConfiguration['triggers'];
+  ui?: UIBindings | Record<string, Query>;
+  behaviors?: ViewConfiguration['behaviors'];
+  regions: Record<string, RegionDefinition> | (() => Record<string, RegionDefinition>);
+  regionClass: RegionClass;
+  childViewEvents?: ViewConfiguration['childViewEvents'];
+  childViewTriggers?: ViewConfiguration['childViewTriggers'];
+  childViewEventPrefix?: ViewConfiguration['childViewEventPrefix'];
+  modelEvents?: Bindings | (() => Bindings);
+  collectionEvents?: Bindings | (() => Bindings);
+  stateEvents?: Bindings | (() => Bindings);
+  state?: unknown;
+  template?: unknown;
+  templateContext?: ViewConfiguration['templateContext'];
+  Dom: Partial<DomApi<Query>>;
+  Data: Partial<DataApi>;
+  State: Partial<StateApi<never>>;
+  EventDelegator: EventDelegator;
+  _renderHtml?: Renderer<never, never, never>;
+  monitorViewEvents?: boolean;
+  preinitialize(options?: Options): void;
+  initialize(options?: Options): void;
+  createState(options?: Options): unknown;
+  getState(): State;
+  $(selector: string): Query;
+  isDestroyed(): boolean;
+  isRendered(): boolean;
+  isAttached(): boolean;
+  _removeBehavior(behavior: BehaviorInstance): void;
+  _getImmediateChildren(): SupportedView[];
+  getUI(name: string): Query | undefined;
+  normalizeUIString(value: string, bindings?: UISelectors): string;
+  normalizeUIKeys<Value>(hash: Record<string, Value> | null | undefined, bindings?: UISelectors): Record<string, Value>;
+  normalizeUIValues<Hash extends object>(hash: Hash, property?: string, bindings?: UISelectors): Hash;
+  getTemplate(): unknown;
+  serializeData(): unknown;
+  serializeModel(): unknown;
+  serializeCollection(): unknown[];
+  mixinTemplateContext(data: unknown): unknown;
+  attachElContent(html: unknown): void;
+  addRegion(name: string, definition: RegionDefinition): RegionInstance;
+  addRegions(regions?: Record<string, RegionDefinition> | null): Record<string, RegionInstance> | undefined;
+  removeRegion(name: string): RegionInstance;
+  removeRegions(): Record<string, RegionInstance>;
+  emptyRegions(): Record<string, RegionInstance>;
+  hasRegion(name: string): boolean;
+  getRegion(name: string): RegionInstance | undefined;
+  getRegions(): Record<string, RegionInstance>;
+  showChildView<Child extends SupportedView>(name: string, view: Child, options?: ShowOptions): Child;
+  detachChildView(name: string): SupportedView | undefined;
+  getChildView(name: string): SupportedView | undefined;
+}
+
+type ViewResult<Props, Args extends unknown[], State, Query extends ArrayLike<Element>> =
+  Extract<keyof ViewInstance, keyof Props> extends never ?
+    ViewInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, Query> & Props :
+    Merge<Omit<ViewInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, Query>, keyof ViewFluent<{}>>,
+      Extract<'options' | 'el', keyof Props> extends never ? Props : Omit<Props, 'options' | 'el'>> & ViewFluent<Props>;
+export type ViewConstructor<Props extends object = {}, Args extends unknown[] = [options?: ViewConfiguration],
+  State = unknown, Statics extends object = {}, Query extends ArrayLike<Element> = ArrayLike<Element>> = {
+  new <Provided extends Args = Args>(...args: Provided): Constructed<Props, ViewResult<Props, Provided, SuppliedState<Provided[0], State>, Query>>;
+  (this: object, ...args: Args): void;
+} & Merge<{
+  prototype: ViewResult<Props, Args, State, Query>;
+  call(receiver: object, ...args: Args): void;
+  apply(receiver: object, args: Args | IArguments): void;
+  setRenderer: typeof setRenderer;
+  setDomApi: typeof setDomApi;
+  setEventDelegator: typeof setEventDelegator;
+  setDataApi: typeof setDataApi;
+  setStateApi: typeof setStateApi;
+  extend<Added extends object = {}, AddedStatics extends object = {}>(
+    this: Added extends { constructor: (...args: never[]) => unknown } ? object : (this: object, ...args: never[]) => unknown,
+    prototypeProperties?: Added & ThisType<ViewResult<Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>,
+      StateFor<Merge<Props, Added>>, Query>>,
+    staticProperties?: AddedStatics & ThisType<ViewConstructor<Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>,
+      StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query>>
+  ): ViewConstructor<Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>,
+    StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query>;
+}, Statics>;
+
+type RegionMap = Record<string, RegionInternals>;
+type RegionDefinitions = Record<string, RegionDefinition>;
+type ViewInternals = ViewInstance & ViewMixinHost & {
+  [runtimeId]?: object;
+  regions: RegionDefinitions;
+  _regions: RegionMap;
+  _initRegions(): void;
+  _reInitRegions(): void;
+  _addRegions(regions: RegionDefinitions): RegionMap;
+  _addRegion(region: RegionInternals, name: string): void;
+  _removeReferences(name: string): void;
+  _getRegions(): RegionMap;
+  _isElAttached(): boolean;
+  _getEl(): Element;
+};
+
+const classErrorName = 'RegionError';
+
+function assertRegionName(name: string) {
+  if (name.length > 0) { return; }
+
+  throw new MarionetteError({
+    code: 'MN0032',
+    name: classErrorName,
+    message: 'A Region name must be a non-empty string.'
+  });
+}
+
+function setRegion<Value>(regions: Record<string, Value>, definition: Value, name: string) {
+  assertRegionName(name);
+
+  Object.defineProperty(regions, name, {
+    configurable: true,
+    enumerable: true,
+    value: definition,
+    writable: true
+  });
+  return regions;
+}
+
+function getOwnRegion(regions: RegionMap, name: string): RegionInternals | undefined {
+  assertRegionName(name);
+  return regions[name];
+}
+
+function getRequiredRegion(region: RegionInstance | undefined, name: string) {
+  if (region) { return region; }
+
+  throw new MarionetteError({
+    code: 'MN0020',
+    name: classErrorName,
+    message: `Region "${name}" does not exist.`
+  });
+}
+
+function getRegionForChild(view: ViewInternals, name: string) {
+  assertRegionName(name);
+
+  if (!view._isRendered) {
+    view.render();
+  }
+  return getRequiredRegion(view.getRegion(name), name);
+}
+
+function throwRegionRegistrationConflict(message: string) {
+  throw new MarionetteError({
+    code: 'MN0030',
+    name: classErrorName,
+    message
+  });
+}
+
+function isSameRegionRegistration(view: ViewInternals, region: RegionInternals, name: string) {
+  return region._parentView === view && region._name === name &&
+    getOwnRegion(view._regions, name) === region;
+}
+
+function assertRegionCanRegister(view: ViewInternals, region: RegionInternals, name: string) {
+  if (isSameRegionRegistration(view, region, name)) { return; }
+
+  if (region._parentView !== undefined) {
+    throwRegionRegistrationConflict('A Region instance cannot be registered with more than one owner or name.');
+  }
+
+  if (region._isDestroying || region._isDestroyed) {
+    throwRegionRegistrationConflict('A destroying or destroyed Region cannot be registered.');
+  }
+
+  if (getOwnRegion(view._regions, name)) {
+    throwRegionRegistrationConflict(`Region name "${name}" is already registered.`);
+  }
+}
+
+function assertRegionDefinitionsCanRegister(view: ViewInternals, definitions: RegionDefinitions) {
+  const seenRegions = new Set();
+
+  for (const name of Object.keys(definitions)) {
+    const definition = definitions[name];
+    if (!(definition instanceof Region)) {
+      if (getOwnRegion(view._regions, name)) {
+        throwRegionRegistrationConflict(`Region name "${name}" is already registered.`);
+      }
+      continue;
+    }
+
+    if (seenRegions.has(definition)) {
+      throwRegionRegistrationConflict('A Region instance cannot be registered under more than one name.');
+    }
+
+    seenRegions.add(definition);
+    assertRegionCanRegister(view, definition as RegionInternals, name);
+  }
+}
+
+// MixinOptions
+// - regions
+// - regionClass
+
+const RegionsMixin = {
+  regionClass: Region,
+
+  // Internal method to initialize the regions that have been defined in a
+  // `regions` attribute on this View.
+  _initRegions(this: ViewInternals) {
+
+    // init regions hash
+    this.regions = this.regions || {};
+    this._regions = Object.create(null);
+
+    this.addRegions(getValue(this, 'regions') as RegionDefinitions | undefined);
+  },
+
+  // Empty each Region and restore its initial element reference. Selector-based
+  // Regions resolve against the new template when their next operation needs it.
+  _reInitRegions(this: ViewInternals) {
+    for (const name of Object.keys(this._regions)) { this._regions[name].reset(); }
+  },
+
+  // Add a single region, by name, to the View
+  addRegion(this: ViewInternals, name: string, definition: RegionDefinition) {
+    const regions = setRegion({}, definition, name);
+    return this.addRegions(regions)![name];
+  },
+
+  // Add multiple regions as a {name: definition, name2: def2} object literal
+  addRegions(this: ViewInternals, regions?: RegionDefinitions | null) {
+    // If there's nothing to add, stop here.
+    if (regions == null || Object.keys(regions).length === 0) {
+      return;
+    }
+
+    for (const name of Object.keys(regions)) { assertRegionName(name); }
+
+    // Normalize private copies so shared declarations retain their @ui selectors.
+    const definitions: RegionDefinitions = {};
+    for (const name of Object.keys(regions)) {
+      const definition = regions[name];
+      setRegion(definitions,
+        typeof definition === 'object' && !(definition instanceof Region) ? { ...definition } : definition,
+        name);
+    }
+    regions = this.normalizeUIValues(definitions, 'el');
+
+    assertRegionDefinitionsCanRegister(this, regions);
+
+    // Add the regions definitions to the regions property
+    const allRegions = {};
+    for (const name of Object.keys(this.regions)) { setRegion(allRegions, this.regions[name], name); }
+    for (const name of Object.keys(regions)) { setRegion(allRegions, regions[name], name); }
+    this.regions = allRegions;
+
+    return this._addRegions(regions);
+  },
+
+  // internal method to build and add regions
+  _addRegions(this: ViewInternals, regionDefinitions: RegionDefinitions) {
+    const defaults = {
+      [runtimeId]: this[runtimeId],
+      regionClass: this.regionClass,
+      parentEl: () => getValue(this, 'el') as Element
+    };
+
+    const regions: RegionMap = {};
+    for (const name of Object.keys(regionDefinitions)) {
+      const region = buildRegion(regionDefinitions[name], defaults);
+      this._addRegion(region, name);
+      setRegion(regions, region, name);
+    }
+    return regions;
+  },
+
+  _addRegion(this: ViewInternals, region: RegionInternals, name: string) {
+    // Repeating the completed identity is safe even during teardown: this path does not mutate.
+    if (isSameRegionRegistration(this, region, name)) { return; }
+
+    assertRegionCanRegister(this, region, name);
+
+    region._parentView = this;
+    region._name = name;
+
+    this._regions[name] = region;
+  },
+
+  // Remove a single region from the View, by name
+  removeRegion(this: ViewInternals, name: string) {
+    const region = getRequiredRegion(getOwnRegion(this._regions, name), name);
+
+    region.destroy();
+
+    return region;
+  },
+
+  // Remove all regions from the View
+  removeRegions(this: ViewInternals) {
+    const regions = this._getRegions();
+    for (const name of Object.keys(regions)) {
+      regions[name].destroy();
+    }
+
+    return regions;
+  },
+
+  // Called in a region's destroy
+  _removeReferences(this: ViewInternals, name: string) {
+    delete this.regions[name];
+    delete this._regions[name];
+  },
+
+  // Render the parent if needed, then empty each Region while keeping its registration.
+  emptyRegions(this: ViewInternals) {
+    if (!this._isRendered) {
+      this.render();
+    }
+    const regions = this.getRegions();
+    for (const name of Object.keys(regions)) { regions[name].empty(); }
+    return regions;
+  },
+
+  // Checks to see if view contains region
+  // Accepts the region name
+  // hasRegion('main')
+  hasRegion(this: ViewInternals, name: string) {
+    return !!getOwnRegion(this._regions, name);
+  },
+
+  // Provides access to regions
+  // Accepts the region name
+  // getRegion('main')
+  getRegion(this: ViewInternals, name: string) {
+    return getOwnRegion(this._regions, name);
+  },
+
+  _getRegions(this: ViewInternals) {
+    const regions: RegionMap = {};
+    for (const name of Object.keys(this._regions)) { setRegion(regions, this._regions[name], name); }
+    return regions;
+  },
+
+  // Get all regions
+  getRegions(this: ViewInternals) {
+    return this._getRegions();
+  },
+
+  showChildView(this: ViewInternals, name: string, view: SupportedView, options?: ShowOptions) {
+    const region = getRegionForChild(this, name);
+    region.show(view, options);
+    return view;
+  },
+
+  detachChildView(this: ViewInternals, name: string) {
+    return getRegionForChild(this, name).detachView();
+  },
+
+  getChildView(this: ViewInternals, name: string) {
+    return getRegionForChild(this, name).currentView;
+  }
+
+};
+
+// View
+// ---------
+
+const ViewClassOptions = [
+  'attributes',
+  'behaviors',
+  'childViewEventPrefix',
+  'childViewEvents',
+  'childViewTriggers',
+  'className',
+  'collection',
+  'collectionEvents',
+  'el',
+  'events',
+  'id',
+  'model',
+  'modelEvents',
+  'regionClass',
+  'regions',
+  'stateEvents',
+  'tagName',
+  'template',
+  'templateContext',
+  'triggers',
+  'ui'
+];
+
+// Used by _getImmediateChildren
+function childReducer(children: SupportedView[], region: RegionInternals) {
+  if (region.currentView) {
+    children.push(region.currentView);
+  }
+
+  return children;
+}
+
+// Initialize a View's element, events, State, Behaviors, and named Regions.
+// Construction does not evaluate its template; render() or an owning Region does.
+const View = function(this: ViewInternals, options?: ViewConfiguration) {
+  this.cid = uniqueId(this.cidPrefix);
+  this._setOptions(options, ViewClassOptions);
+
+  (this.preinitialize as Function).apply(this, arguments);
+  this.mergeOptions(options, ViewOptions);
+
+  this._initViewEvents();
+
+  this.el = this._getEl();
+  this._isRendered = this.Dom.hasContents!(this.el);
+  this._isAttached = this._isElAttached();
+  if (this._isRendered) { this.bindUIElements(); }
+  this.delegateEvents();
+  if (this._isAttached && this.monitorViewEvents !== false) {
+    this.Dom.notifyAttach?.(this.el);
+  }
+
+  monitorViewEvents(this);
+
+  this._initState(options);
+
+  this._initBehaviors();
+  this._initRegions();
+  this._buildEventProxies();
+
+  (this.initialize as Function).apply(this, arguments);
+
+  if (this._isDestroyed || this._isDestroying) { return; }
+
+  this._initStateEvents();
+  this.delegateEntityEvents();
+
+  this._triggerEventOnBehaviors('initialize', this, options);
+};
+
+Object.assign(View, { extend, setRenderer, setDomApi, setEventDelegator, setDataApi, setStateApi });
+
+Object.assign(View.prototype, ViewMixin, RegionsMixin, {
+  cidPrefix: 'mnv',
+
+  // If a template is available, renders it into the view's `el`
+  // Re-inits regions and binds UI.
+  render(this: ViewInternals) {
+    if (this._isDestroyed) { return this; }
+
+    const template = this.getTemplate();
+
+    if (template === false) { return this; }
+
+    this.triggerMethod('before:render', this);
+
+    // Existing rendered content (including prerendered DOM) requires Region reset
+    // before replacing the template; this destroys any current child Views.
+    if (this._isRendered) {
+      this._reInitRegions();
+    }
+
+    this._renderTemplate(template);
+    this.bindUIElements();
+
+    this._isRendered = true;
+    this.triggerMethod('render', this);
+
+    return this;
+  },
+
+  // called by ViewMixin destroy
+  _removeChildren(this: ViewInternals) {
+    this.removeRegions();
+  },
+
+  _getImmediateChildren(this: ViewInternals) {
+    const children: SupportedView[] = [];
+    for (const name of Object.keys(this._regions)) { childReducer(children, this._regions[name]); }
+    return children;
+  }
+});
+
+export default View as unknown as ViewConstructor;

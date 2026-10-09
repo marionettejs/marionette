@@ -1,0 +1,12 @@
+{
+  "packageVersion": "5.0.0-alpha.2",
+  "sourceRevision": "5bb66c7f1559ae3902db06847a378e9e5c3907a7",
+  "sourceDirty": true,
+  "contentSha256": "36a974040fa13f483e68a213029e313c96339dd16384343a39e40964ac373f00",
+  "tasks": [
+    "latest-navigation",
+    "editable-list",
+    "widget-lifetime"
+  ],
+  "instructions": "Acceptance tests are withheld until each implementation attempt finishes."
+}

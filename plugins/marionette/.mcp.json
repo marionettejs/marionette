@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "marionette-docs": {
+      "type": "http",
+      "url": "https://mcp.marionettejs.com/mcp"
+    }
+  }
+}

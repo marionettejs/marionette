@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 2,
+  "publication": {
+    "stable": false,
+    "prerelease": "5.0.0-rc.2"
+  },
+  "repository": "marionettejs/marionette",
+  "defaultBranch": "master",
+  "workflow": "release.yml",
+  "environment": "stable-release",
+  "artifactRetentionDays": 90,
+  "npm": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public",
+    "stableTag": "latest",
+    "prereleaseTag": "latest",
+    "trustedPublisher": {
+      "provider": "github-actions",
+      "workflow": "release.yml",
+      "environment": "stable-release"
+    }
+  }
+}

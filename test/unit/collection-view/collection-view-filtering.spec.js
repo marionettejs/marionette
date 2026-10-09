@@ -1,10 +1,14 @@
+import '../../setup/fixtures.js';
+import { vi, describe, it, expect, beforeEach, beforeAll as before } from 'vitest';
+import '../../setup/backbone.js';
 // Anything viewFilter related
 
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/collection-view';
-import Region from '../../../src/region';
-import View from '../../../src/view';
+import { DataApi } from 'marionette';
+import { CollectionView } from 'marionette';
+import { Region } from 'marionette';
+import { View } from 'marionette';
 
 function renderModels(models) {
   return _.map(models, model => `<li>${ model.get('num') }</li>`);
@@ -49,9 +53,9 @@ describe('CollectionView - Filtering', function() {
       tagName: 'ul',
       childView: MyChildView,
       emptyView: MyEmptyView,
-      onBeforeFilter: this.sinon.stub(),
-      onFilter: this.sinon.stub(),
-      onRenderChildren: this.sinon.stub()
+      onBeforeFilter: vi.fn(),
+      onFilter: vi.fn(),
+      onRenderChildren: vi.fn()
     });
   });
 
@@ -67,29 +71,15 @@ describe('CollectionView - Filtering', function() {
 
       it('should render the entire collection', function() {
         const nums = renderModels(collection.models);
-        expect(myCollectionView.$el.html()).to.equal(nums.join(''));
+        expect(myCollectionView.el.innerHTML).to.equal(nums.join(''));
       });
 
       it('should not call "before:filter" event', function() {
-        expect(myCollectionView.onBeforeFilter).to.not.have.been.called;
+        expect(myCollectionView.onBeforeFilter).not.toHaveBeenCalled();
       });
 
       it('should not call "filter" event', function() {
-        expect(myCollectionView.onFilter).to.not.have.been.called;
-      });
-    });
-
-    describe('when viewFilter is invalid', function() {
-      let myCollectionView;
-
-      const viewFilter = 47;
-
-      beforeEach(function() {
-        myCollectionView = new MyCollectionView({ collection, viewFilter });
-      });
-
-      it('should throw InvalidViewFilterError', function() {
-        expect(myCollectionView.render.bind(myCollectionView)).to.throw('"viewFilter" must be a function, predicate object literal, a string indicating a model attribute, or falsy');
+        expect(myCollectionView.onFilter).not.toHaveBeenCalled();
       });
     });
 
@@ -106,21 +96,60 @@ describe('CollectionView - Filtering', function() {
 
       it('should render only the filtered collection', function() {
         const nums = renderModels(collectionOddModels);
-        expect(myCollectionView.$el.html()).to.equal(nums.join(''));
+        expect(myCollectionView.el.innerHTML).to.equal(nums.join(''));
       });
 
       it('should call "before:filter" event', function() {
-        expect(myCollectionView.onBeforeFilter)
-          .to.have.been.calledOnce
-          .and.calledWith(myCollectionView);
+        expect(myCollectionView.onBeforeFilter).toHaveBeenCalledTimes(1);
+        expect(myCollectionView.onBeforeFilter.mock.calls.map(args => args.slice(0, 1))).toContainEqual([myCollectionView]);
       });
 
       it('should call "filter" event', function() {
-        const calledWith = myCollectionView.onFilter.firstCall.args;
-        expect(myCollectionView.onFilter).to.have.been.calledOnce;
+        const calledWith = myCollectionView.onFilter.mock.calls.at(0);
+        expect(myCollectionView.onFilter).toHaveBeenCalledTimes(1);
         expect(calledWith[0]).to.equal(myCollectionView);
         expect(_.map(calledWith[1], 'model')).to.have.same.members(collectionOddModels);
         expect(_.map(calledWith[2], 'model')).to.have.same.members(collectionEvenModels);
+      });
+
+      it('uses the CollectionView receiver and a dense initial-length snapshot', function() {
+        const calls = [];
+        let expectedLength;
+        let mutationView;
+        const mutationFilter = function(view, index, children) {
+          calls.push([this, view, index, children]);
+          if (index === 0) {
+            expectedLength = children.length;
+            mutationView = {};
+            children.push(mutationView);
+          }
+          if (index === expectedLength - 1) {
+            expect(children.pop()).to.equal(mutationView);
+          }
+          return true;
+        };
+        const mutationCollection = new Backbone.Collection([
+          { num: 1 },
+          { num: 2 },
+          { num: 3 },
+        ]);
+        const mutationCollectionView = new MyCollectionView({
+          collection: mutationCollection,
+          viewFilter: mutationFilter,
+        });
+
+        try {
+          mutationCollectionView.render();
+
+          expect(calls).to.have.lengthOf(expectedLength);
+          expect(calls.map(call => call[0]))
+            .to.deep.equal(Array(expectedLength).fill(mutationCollectionView));
+          expect(calls.map(call => call[2])).to.deep.equal([0, 1, 2]);
+          expect(calls.every(call => call[3] === calls[0][3]))
+            .toBe(true);
+        } finally {
+          mutationCollectionView.destroy();
+        }
       });
     });
 
@@ -137,7 +166,7 @@ describe('CollectionView - Filtering', function() {
 
       it('should render only the filtered collection', function() {
         const nums = renderModels(collectionEvenModels);
-        expect(myCollectionView.$el.html()).to.equal(nums.join(''));
+        expect(myCollectionView.el.innerHTML).to.equal(nums.join(''));
       });
 
       describe('when children has a view without a model', function() {
@@ -148,6 +177,75 @@ describe('CollectionView - Filtering', function() {
         it('should filter without error', function() {
           expect(myCollectionView.filter.bind(myCollectionView)).to.not.throw();
         });
+      });
+
+      it('snapshots own enumerable string predicates with strict attribute equality', function() {
+        const expected = {};
+        const inherited = { inherited: true };
+        const predicate = Object.create(inherited);
+        const readExpected = vi.fn().mockReturnValue(expected);
+        Object.defineProperties(predicate, {
+          expected: {
+            configurable: true,
+            enumerable: true,
+            get: readExpected,
+          },
+          hidden: {
+            get() {
+              throw new Error('hidden predicate was read');
+            },
+          },
+          [Symbol('ignored')]: {
+            enumerable: true,
+            get() {
+              throw new Error('symbol predicate was read');
+            },
+          },
+        });
+        const predicateCollection = new Backbone.Collection([
+          { expected, num: 1 },
+          { expected: {}, num: 2 },
+          { num: 3 },
+        ]);
+        const predicateView = new MyCollectionView({
+          collection: predicateCollection,
+          viewFilter: predicate,
+        });
+
+        try {
+          predicateView.render();
+          Object.defineProperty(predicate, 'expected', {
+            enumerable: true,
+            value: {},
+          });
+
+          expect(predicateView.children.pluck('model'))
+            .to.deep.equal([predicateCollection.at(0)]);
+          expect(readExpected).toHaveBeenCalledTimes(1);
+        } finally {
+          predicateView.destroy();
+        }
+      });
+
+      it('requires an undefined predicate key to be present', function() {
+        const present = { optional: undefined }; const absent = {};
+        const List = CollectionView.extend({ childView: View.extend({template: false}), viewFilter: { optional: undefined } });
+        List.setDataApi(DataApi);
+        const owner = new List({collection: [absent, present]}).render();
+        expect(owner.children.map(child => child.model)).toEqual([present]);
+        owner.destroy();
+      });
+
+      it('does not read absent filtered attributes', function() {
+        for (const predicate of [{optional: undefined}, 'optional']) {
+          const get = vi.fn(() => { throw new Error('missing attribute was read'); });
+          const has = vi.fn(() => false);
+          const List = CollectionView.extend({ childView: View.extend({template: false}), viewFilter: predicate });
+          List.setDataApi({...DataApi, get, has});
+          const model = {}; const owner = new List({collection: [model]}).render();
+          expect(owner.children.length).toBe(0); expect(has).toHaveBeenCalledWith(model, 'optional'); expect(get).not.toHaveBeenCalled();
+          owner.destroy();
+        }
       });
     });
 
@@ -164,7 +262,19 @@ describe('CollectionView - Filtering', function() {
 
       it('should render only the filtered collection', function() {
         const nums = renderModels(collectionOddModels);
-        expect(myCollectionView.$el.html()).to.equal(nums.join(''));
+        expect(myCollectionView.el.innerHTML).to.equal(nums.join(''));
+      });
+
+      it('does not read absent filtered attributes', function() {
+        for (const predicate of [{optional: undefined}, 'optional']) {
+          const get = vi.fn(() => { throw new Error('missing attribute was read'); });
+          const has = vi.fn(() => false);
+          const List = CollectionView.extend({ childView: View.extend({template: false}), viewFilter: predicate });
+          List.setDataApi({...DataApi, get, has});
+          const model = {}; const owner = new List({collection: [model]}).render();
+          expect(owner.children.length).toBe(0); expect(has).toHaveBeenCalledWith(model, 'optional'); expect(get).not.toHaveBeenCalled();
+          owner.destroy();
+        }
       });
 
       describe('when children has a view without a model', function() {
@@ -199,7 +309,7 @@ describe('CollectionView - Filtering', function() {
 
     it('should render only the filtered collection', function() {
       const nums = renderModels(collectionEvenModels);
-      expect(myCollectionView.$el.html()).to.equal(nums.join(''));
+      expect(myCollectionView.el.innerHTML).to.equal(nums.join(''));
     });
   });
 
@@ -212,7 +322,7 @@ describe('CollectionView - Filtering', function() {
           collection
         });
 
-        this.sinon.spy(myCollectionView, 'filter');
+        vi.spyOn(myCollectionView, 'filter');
 
         myCollectionView.destroy();
 
@@ -220,15 +330,15 @@ describe('CollectionView - Filtering', function() {
       });
 
       it('should not filter the children', function() {
-        expect(myCollectionView.onBeforeFilter).to.not.have.been.called;
+        expect(myCollectionView.onBeforeFilter).not.toHaveBeenCalled();
       });
 
       it('should not render the children', function() {
-        expect(myCollectionView.onRenderChildren).to.not.have.been.called;
+        expect(myCollectionView.onRenderChildren).not.toHaveBeenCalled();
       });
 
       it('should return the collectionView', function() {
-        expect(myCollectionView.filter).to.have.returned(myCollectionView);
+        expect(myCollectionView.filter).toHaveReturnedWith(myCollectionView);
       });
     });
 
@@ -238,23 +348,22 @@ describe('CollectionView - Filtering', function() {
       beforeEach(function() {
         myCollectionView = new MyCollectionView();
 
-        this.sinon.spy(myCollectionView, 'filter');
+        vi.spyOn(myCollectionView, 'filter');
 
         myCollectionView.filter();
       });
 
       it('should not filter the children', function() {
-        expect(myCollectionView.onBeforeFilter).to.not.have.been.called;
+        expect(myCollectionView.onBeforeFilter).not.toHaveBeenCalled();
       });
 
       it('should render no children', function() {
-        expect(myCollectionView.onRenderChildren)
-          .to.have.been.calledOnce
-          .and.calledWith(myCollectionView, []);
+        expect(myCollectionView.onRenderChildren).toHaveBeenCalledTimes(1);
+        expect(myCollectionView.onRenderChildren.mock.calls.map(args => args.slice(0, 2))).toContainEqual([myCollectionView, []]);
       });
 
       it('should return the collectionView', function() {
-        expect(myCollectionView.filter).to.have.returned(myCollectionView);
+        expect(myCollectionView.filter).toHaveReturnedWith(myCollectionView);
       });
     });
 
@@ -267,7 +376,7 @@ describe('CollectionView - Filtering', function() {
           viewFilter: 'isOdd'
         });
 
-        this.sinon.spy(myCollectionView, 'filter');
+        vi.spyOn(myCollectionView, 'filter');
       });
 
       describe('when the collectionView has not been rendered', function() {
@@ -276,17 +385,16 @@ describe('CollectionView - Filtering', function() {
         });
 
         it('should not filter the children', function() {
-          expect(myCollectionView.onBeforeFilter).to.not.have.been.called;
+          expect(myCollectionView.onBeforeFilter).not.toHaveBeenCalled();
         });
 
         it('should render no children', function() {
-          expect(myCollectionView.onRenderChildren)
-            .to.have.been.calledOnce
-            .and.calledWith(myCollectionView, []);
+          expect(myCollectionView.onRenderChildren).toHaveBeenCalledTimes(1);
+          expect(myCollectionView.onRenderChildren.mock.calls.map(args => args.slice(0, 2))).toContainEqual([myCollectionView, []]);
         });
 
         it('should return the collectionView', function() {
-          expect(myCollectionView.filter).to.have.returned(myCollectionView);
+          expect(myCollectionView.filter).toHaveReturnedWith(myCollectionView);
         });
       });
 
@@ -296,34 +404,30 @@ describe('CollectionView - Filtering', function() {
         beforeEach(function() {
           myCollectionView.render();
 
-          myCollectionView.onRenderChildren.reset();
-          myCollectionView.onBeforeFilter.reset();
+          myCollectionView.onRenderChildren.mockClear();
+          myCollectionView.onBeforeFilter.mockClear();
 
           filteredViews = myCollectionView.children.filter(view => {
             return isOdd(view.model.get('num'));
           });
 
-          this.sinon.spy(myCollectionView.children, '_set');
 
           myCollectionView.filter();
         });
 
         it('should filter the children', function() {
-          expect(myCollectionView.onBeforeFilter).to.have.been.calledOnce;
+          expect(myCollectionView.onBeforeFilter).toHaveBeenCalledTimes(1);
         });
 
-        it('should set the children', function() {
-          expect(myCollectionView.children._set)
-            .to.have.been.calledOnce.and.calledWith(filteredViews);
-        });
+        it('exposes the filtered children through the public collection', function() { expect(myCollectionView.children.toArray()).toEqual(filteredViews); });
 
         it('should render the children', function() {
-          expect(myCollectionView.onRenderChildren)
-            .to.have.been.calledOnce.and.calledWith(myCollectionView, filteredViews);
+          expect(myCollectionView.onRenderChildren).toHaveBeenCalledTimes(1);
+          expect(myCollectionView.onRenderChildren.mock.calls.map(args => args.slice(0, 2))).toContainEqual([myCollectionView, filteredViews]);
         });
 
         it('should return the collectionView', function() {
-          expect(myCollectionView.filter).to.have.returned(myCollectionView);
+          expect(myCollectionView.filter).toHaveReturnedWith(myCollectionView);
         });
       });
     });
@@ -338,15 +442,15 @@ describe('CollectionView - Filtering', function() {
         viewFilter: 'isOdd'
       });
 
-      this.sinon.spy(myCollectionView, 'filter');
+      vi.spyOn(myCollectionView, 'filter');
     });
 
     it('should return the collectionView instance', function() {
-      this.sinon.spy(myCollectionView, 'setFilter');
+      vi.spyOn(myCollectionView, 'setFilter');
 
       myCollectionView.setFilter();
 
-      expect(myCollectionView.setFilter).to.have.returned(myCollectionView);
+      expect(myCollectionView.setFilter).toHaveReturnedWith(myCollectionView);
     });
 
     describe('when setting with a new viewFilter', function() {
@@ -362,7 +466,7 @@ describe('CollectionView - Filtering', function() {
       });
 
       it('should re-filter the view', function() {
-        expect(myCollectionView.filter).to.have.been.calledOnce;
+        expect(myCollectionView.filter).toHaveBeenCalledTimes(1);
       });
 
       describe('when setting with the current viewFilter', function() {
@@ -372,7 +476,7 @@ describe('CollectionView - Filtering', function() {
 
         // Note: This is nested inside the first setFilter
         it('should not re-filter the view', function() {
-          expect(myCollectionView.filter).to.have.been.calledOnce;
+          expect(myCollectionView.filter).toHaveBeenCalledTimes(1);
         });
       });
     });
@@ -389,7 +493,7 @@ describe('CollectionView - Filtering', function() {
       });
 
       it('should not re-filter the view', function() {
-        expect(myCollectionView.filter).to.not.have.been.called;
+        expect(myCollectionView.filter).not.toHaveBeenCalled();
       });
     });
   });
@@ -399,20 +503,19 @@ describe('CollectionView - Filtering', function() {
 
     beforeEach(function() {
       myCollectionView = new CollectionView();
-      this.sinon.spy(myCollectionView, 'setFilter');
-      this.sinon.spy(myCollectionView, 'removeFilter');
+      vi.spyOn(myCollectionView, 'setFilter');
+      vi.spyOn(myCollectionView, 'removeFilter');
 
       myCollectionView.removeFilter('foo');
     });
 
     it('should call setFilter', function() {
-      expect(myCollectionView.setFilter)
-        .to.be.calledOnce
-        .and.to.be.calledWith(null, 'foo');
+      expect(myCollectionView.setFilter).toHaveBeenCalledTimes(1);
+      expect(myCollectionView.setFilter.mock.calls.map(args => args.slice(0, 2))).toContainEqual([null, 'foo']);
     });
 
     it('should return the collectionView instance', function() {
-      expect(myCollectionView.removeFilter).to.have.returned(myCollectionView);
+      expect(myCollectionView.removeFilter).toHaveReturnedWith(myCollectionView);
     });
   });
 
@@ -426,7 +529,7 @@ describe('CollectionView - Filtering', function() {
 
       myCollectionView.render();
 
-      this.sinon.spy(myCollectionView, 'isEmpty');
+      vi.spyOn(myCollectionView, 'isEmpty');
     });
 
     describe('when all children are filtered', function() {
@@ -435,11 +538,11 @@ describe('CollectionView - Filtering', function() {
       });
 
       it('should call isEmpty', function() {
-        expect(myCollectionView.isEmpty).to.have.been.calledOnce;
+        expect(myCollectionView.isEmpty).toHaveBeenCalledTimes(1);
       });
 
       it('should show the empty view', function() {
-        expect(myCollectionView.$el.text()).to.equal('Empty');
+        expect(myCollectionView.el.textContent).to.equal('Empty');
       });
     });
 
@@ -449,16 +552,17 @@ describe('CollectionView - Filtering', function() {
       });
 
       it('should pass isEmpty false in the 1st argument', function() {
-        expect(myCollectionView.isEmpty).to.have.been.calledOnce;
+        expect(myCollectionView.isEmpty).toHaveBeenCalledTimes(1);
       });
 
       it('should not show the empty view', function() {
-        expect(myCollectionView.$el.text()).to.not.equal('Empty');
+        expect(myCollectionView.el.textContent).to.not.equal('Empty');
       });
     });
   });
 
   describe('when attaching a collectionview with filtered children', function() {
+    let allChildren;
     let myCollectionView;
     let myRegion;
 
@@ -468,27 +572,29 @@ describe('CollectionView - Filtering', function() {
 
       myCollectionView = new MyCollectionView({ collection, viewFilter });
 
+      allChildren = [];
+      myCollectionView.on('add:child', (_owner, child) => allChildren.push(child));
       myCollectionView.render();
     });
 
     it('should trigger attach on attached children', function() {
-      const attachedChild = myCollectionView._children.findByIndex(1);
+      const attachedChild = allChildren[1];
 
-      attachedChild.onAttach = this.sinon.stub();
+      attachedChild.onAttach = vi.fn();
 
       myRegion.show(myCollectionView);
 
-      expect(attachedChild.onAttach).to.have.been.calledOnce;
+      expect(attachedChild.onAttach).toHaveBeenCalledTimes(1);
     });
 
     it('should not trigger attach on children filtered out', function() {
-      const detachedChild = myCollectionView._children.findByIndex(2);
+      const detachedChild = allChildren[2];
 
-      detachedChild.onAttach = this.sinon.stub();
+      detachedChild.onAttach = vi.fn();
 
       myRegion.show(myCollectionView);
 
-      expect(detachedChild.onAttach).to.not.have.been.called;
+      expect(detachedChild.onAttach).not.toHaveBeenCalled();
     });
   });
 });

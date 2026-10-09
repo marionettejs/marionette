@@ -1,0 +1,236 @@
+[
+  {
+    "source": "docs/readme.md",
+    "route": "docs",
+    "title": "Marionette v5 documentation",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/quick-start.md",
+    "route": "docs/quick-start",
+    "title": "Install and render a View",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/architecture.md",
+    "route": "docs/architecture",
+    "title": "Building features with Marionette v5",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/agents.md",
+    "route": "docs/agents",
+    "title": "Agent workflow",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/api.md",
+    "route": "docs/api",
+    "title": "API reference",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/api/application.md",
+    "route": "docs/api/application",
+    "title": "Application",
+    "section": "Core classes"
+  },
+  {
+    "source": "docs/api/view.md",
+    "route": "docs/api/view",
+    "title": "View",
+    "section": "Core classes"
+  },
+  {
+    "source": "docs/api/collection-view.md",
+    "route": "docs/api/collection-view",
+    "title": "CollectionView",
+    "section": "Core classes"
+  },
+  {
+    "source": "docs/api/region.md",
+    "route": "docs/api/region",
+    "title": "Region",
+    "section": "Core classes"
+  },
+  {
+    "source": "docs/api/behavior.md",
+    "route": "docs/api/behavior",
+    "title": "Behavior",
+    "section": "Core classes"
+  },
+  {
+    "source": "docs/api/mnobject.md",
+    "route": "docs/api/mnobject",
+    "title": "MnObject",
+    "section": "Core classes"
+  },
+  {
+    "source": "docs/api/shared/common.md",
+    "route": "docs/api/shared/common",
+    "title": "Shared class utilities",
+    "section": "Shared class contracts"
+  },
+  {
+    "source": "docs/api/shared/events.md",
+    "route": "docs/api/shared/events",
+    "title": "Events",
+    "section": "Shared class contracts"
+  },
+  {
+    "source": "docs/api/shared/state.md",
+    "route": "docs/api/shared/state",
+    "title": "State",
+    "section": "Shared class contracts"
+  },
+  {
+    "source": "docs/api/shared/view-bindings.md",
+    "route": "docs/api/shared/view-bindings",
+    "title": "Rendering and View bindings",
+    "section": "Shared class contracts"
+  },
+  {
+    "source": "docs/api/errors.md",
+    "route": "docs/api/errors",
+    "title": "Errors and diagnostics",
+    "section": "Shared class contracts"
+  },
+  {
+    "source": "docs/api/runtime.md",
+    "route": "docs/api/runtime",
+    "title": "Runtime configuration",
+    "section": "Runtime configuration"
+  },
+  {
+    "source": "docs/api/providers/dom.md",
+    "route": "docs/api/providers/dom",
+    "title": "Rendering and DOM providers",
+    "section": "Provider interfaces"
+  },
+  {
+    "source": "docs/api/providers/data.md",
+    "route": "docs/api/providers/data",
+    "title": "Data and state providers",
+    "section": "Provider interfaces"
+  },
+  {
+    "source": "docs/packages/data.md",
+    "route": "docs/packages/data",
+    "title": "@mnjs/data: Model and Collection",
+    "section": "Companion packages"
+  },
+  {
+    "source": "docs/packages/radio.md",
+    "route": "docs/packages/radio",
+    "title": "@mnjs/radio: channels and requests",
+    "section": "Companion packages"
+  },
+  {
+    "source": "docs/packages/utils.md",
+    "route": "docs/packages/utils",
+    "title": "@mnjs/utils: shared utilities",
+    "section": "Companion packages"
+  },
+  {
+    "source": "docs/packages/adapters.md",
+    "route": "docs/packages/adapters",
+    "title": "@mnjs/adapters: optional integrations",
+    "section": "Companion packages"
+  },
+  {
+    "source": "docs/integrations/setup.md",
+    "route": "docs/integrations/setup",
+    "title": "Setup and data",
+    "section": "Integration guides"
+  },
+  {
+    "source": "docs/guides/framework-migration.md",
+    "route": "docs/guides/framework-migration",
+    "title": "Migrate from another UI framework",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/migration.md",
+    "route": "docs/guides/migration",
+    "title": "Migrate from Marionette v4",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/testing.md",
+    "route": "docs/guides/testing",
+    "title": "Test an application",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/typescript.md",
+    "route": "docs/guides/typescript",
+    "title": "Use TypeScript in an application",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/local-editing.md",
+    "route": "docs/guides/local-editing",
+    "title": "Edit a View’s own model",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/retained-restart.md",
+    "route": "docs/guides/retained-restart",
+    "title": "Restart readiness while retaining UI",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/existing-html.md",
+    "route": "docs/guides/existing-html",
+    "title": "Add behavior to existing HTML",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/existing-ui.md",
+    "route": "docs/guides/existing-ui",
+    "title": "Integrate with existing UI",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/routing.md",
+    "route": "docs/guides/routing",
+    "title": "Connect navigation to feature ownership",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/lists.md",
+    "route": "docs/guides/lists",
+    "title": "Show, sort, and filter a list",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/widgets.md",
+    "route": "docs/guides/widgets",
+    "title": "Integrate an imperative control",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/accessibility-rendering.md",
+    "route": "docs/guides/accessibility-rendering",
+    "title": "Accessibility and rendering",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/production.md",
+    "route": "docs/guides/production",
+    "title": "Build and deploy an application",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/records.md",
+    "route": "docs/records",
+    "title": "Build a records feature",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/tooling.md",
+    "route": "docs/tooling",
+    "title": "Check and debug an application",
+    "section": "Development tools"
+  }
+]

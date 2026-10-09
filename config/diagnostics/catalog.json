@@ -1,0 +1,747 @@
+{
+  "$schema": "./catalog.schema.json",
+  "schemaVersion": 3,
+  "diagnostics": [
+    {
+      "code": "MN0001",
+      "slug": "view-el-must-be-dom-element",
+      "status": "retired",
+      "category": "dom",
+      "severity": "error",
+      "objects": [
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
+      "docsAnchor": "/errors/MN0001/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view",
+      "docsSection": "docs/api/errors.md#mn0001"
+    },
+    {
+      "code": "MN0002",
+      "slug": "region-el-type-invalid",
+      "status": "retired",
+      "category": "dom",
+      "severity": "error",
+      "objects": [
+        "Region"
+      ],
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
+      "docsAnchor": "/errors/MN0002/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0002"
+    },
+    {
+      "code": "MN0003",
+      "slug": "view-already-owned",
+      "status": "active",
+      "category": "ownership",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "CollectionView",
+        "Region",
+        "View"
+      ],
+      "remediation": "Use the owning Application to display its prepared root. Detach a displayed view from its Region or CollectionView before adopting it elsewhere, or create a new view instance.",
+      "docsAnchor": "/errors/MN0003/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "ownership",
+      "docsSection": "docs/api/errors.md#mn0003"
+    },
+    {
+      "code": "MN0004",
+      "slug": "region-el-required",
+      "status": "active",
+      "category": "dom",
+      "severity": "error",
+      "objects": [
+        "Region"
+      ],
+      "remediation": "Configure the Region with an el selector or DOM element before using it.",
+      "docsAnchor": "/errors/MN0004/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0004"
+    },
+    {
+      "code": "MN0005",
+      "slug": "region-el-not-found",
+      "status": "active",
+      "category": "dom",
+      "severity": "error",
+      "objects": [
+        "Region"
+      ],
+      "remediation": "Render the parent View before direct selector-backed Region operations, ensure the selector resolves within its parent element, or explicitly allow a missing element where supported.",
+      "docsAnchor": "/errors/MN0005/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0005"
+    },
+    {
+      "code": "MN0006",
+      "slug": "region-view-required",
+      "status": "retired",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Region"
+      ],
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
+      "docsAnchor": "/errors/MN0006/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0006"
+    },
+    {
+      "code": "MN0007",
+      "slug": "region-view-destroyed",
+      "status": "active",
+      "category": "lifecycle",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Region",
+        "View"
+      ],
+      "remediation": "Create a new View instance instead of attempting to show a destroyed view.",
+      "docsAnchor": "/errors/MN0007/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "lifecycle",
+      "docsSection": "docs/api/errors.md#mn0007"
+    },
+    {
+      "code": "MN0008",
+      "slug": "region-definition-invalid",
+      "status": "retired",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Region",
+        "View"
+      ],
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
+      "docsAnchor": "/errors/MN0008/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0008"
+    },
+    {
+      "code": "MN0009",
+      "slug": "event-bindings-invalid",
+      "status": "retired",
+      "category": "communication",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ],
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
+      "docsAnchor": "/errors/MN0009/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "communication",
+      "docsSection": "docs/api/errors.md#mn0009"
+    },
+    {
+      "code": "MN0010",
+      "slug": "request-bindings-invalid",
+      "status": "retired",
+      "category": "communication",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ],
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
+      "docsAnchor": "/errors/MN0010/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "communication",
+      "docsSection": "docs/api/errors.md#mn0010"
+    },
+    {
+      "code": "MN0011",
+      "slug": "collection-view-child-view-required",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Configure childView with a View class or a function that returns a View class.",
+      "docsAnchor": "/errors/MN0011/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0011"
+    },
+    {
+      "code": "MN0012",
+      "slug": "collection-view-child-view-invalid",
+      "status": "retired",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
+      "docsAnchor": "/errors/MN0012/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0012"
+    },
+    {
+      "code": "MN0013",
+      "slug": "collection-view-container-not-found",
+      "status": "active",
+      "category": "dom",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Ensure childViewContainer resolves to an element within the rendered CollectionView.",
+      "docsAnchor": "/errors/MN0013/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0013"
+    },
+    {
+      "code": "MN0014",
+      "slug": "collection-view-filter-invalid",
+      "status": "retired",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
+      "docsAnchor": "/errors/MN0014/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0014"
+    },
+    {
+      "code": "MN0015",
+      "slug": "collection-view-swap-non-children",
+      "status": "active",
+      "category": "ownership",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Pass two views currently owned by the CollectionView to swapChildViews.",
+      "docsAnchor": "/errors/MN0015/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0015"
+    },
+    {
+      "code": "MN0016",
+      "slug": "behavior-definition-invalid",
+      "status": "retired",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Behavior",
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
+      "docsAnchor": "/errors/MN0016/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "behavior",
+      "docsSection": "docs/api/errors.md#mn0016"
+    },
+    {
+      "code": "MN0017",
+      "slug": "radio-channel-name-required",
+      "status": "active",
+      "category": "communication",
+      "severity": "error",
+      "objects": [
+        "Radio"
+      ],
+      "remediation": "Pass a non-empty channel name when creating or accessing a Radio channel.",
+      "docsAnchor": "/errors/MN0017/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "communication",
+      "docsSection": "docs/api/errors.md#mn0017"
+    },
+    {
+      "code": "MN0018",
+      "slug": "ui-reference-invalid",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Behavior",
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Use @ui.<name> with a non-empty own key whose value is a string selector, or replace the reference with a literal selector.",
+      "docsAnchor": "/errors/MN0018/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view",
+      "docsSection": "docs/api/errors.md#mn0018"
+    },
+    {
+      "code": "MN0019",
+      "slug": "handler-not-callable",
+      "status": "active",
+      "category": "communication",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ],
+      "remediation": "Provide a function or the string name of a callable method on the binding context.",
+      "docsAnchor": "/errors/MN0019/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "communication",
+      "docsSection": "docs/api/errors.md#mn0019"
+    },
+    {
+      "code": "MN0020",
+      "slug": "named-region-not-found",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "View"
+      ],
+      "remediation": "Define the named Region before using child-View or Region-removal operations, or use getRegion or hasRegion for optional lookup.",
+      "docsAnchor": "/errors/MN0020/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0020"
+    },
+    {
+      "code": "MN0021",
+      "slug": "radio-channel-not-found",
+      "status": "active",
+      "category": "communication",
+      "severity": "error",
+      "objects": [
+        "Radio"
+      ],
+      "remediation": "Create the named channel with Radio.channel(name) before resetting it, or call Radio.reset() with no arguments to reset all existing channels.",
+      "docsAnchor": "/errors/MN0021/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "communication",
+      "docsSection": "docs/api/errors.md#mn0021"
+    },
+    {
+      "code": "MN0022",
+      "slug": "collection-view-empty-view-invalid",
+      "status": "retired",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
+      "docsAnchor": "/errors/MN0022/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0022"
+    },
+    {
+      "code": "MN0023",
+      "slug": "ui-elements-unavailable",
+      "status": "active",
+      "category": "lifecycle",
+      "severity": "error",
+      "objects": [
+        "Behavior",
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Declare a ui map, then render the View or explicitly bind its UI elements before calling getUI; bind them again before calling getUI after unbinding.",
+      "docsAnchor": "/errors/MN0023/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view",
+      "docsSection": "docs/api/errors.md#mn0023"
+    },
+    {
+      "code": "MN0024",
+      "slug": "child-container-argument-invalid",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Pass nonnegative integer counts. Reducing an empty child container requires an initial value.",
+      "docsAnchor": "/errors/MN0024/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0024"
+    },
+    {
+      "code": "MN0025",
+      "slug": "child-container-method-not-callable",
+      "status": "retired",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
+      "docsAnchor": "/errors/MN0025/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0025"
+    },
+    {
+      "code": "MN0026",
+      "slug": "entity-event-name-unsafe",
+      "status": "active",
+      "category": "communication",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ],
+      "remediation": "Rename an own __proto__ entry in an entity-event map before binding or selectively unbinding it.",
+      "docsAnchor": "/errors/MN0026/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "communication",
+      "docsSection": "docs/api/errors.md#mn0026"
+    },
+    {
+      "code": "MN0027",
+      "slug": "feature-name-invalid",
+      "status": "retired",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Behavior",
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "The v5 feature registry is removed. Configure child event prefixes per View, trigger behavior per trigger, and application values through State or explicit configuration.",
+      "docsAnchor": "/errors/MN0027/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view",
+      "docsSection": "docs/api/errors.md#mn0027"
+    },
+    {
+      "code": "MN0028",
+      "slug": "region-destroyed-operation",
+      "status": "retired",
+      "category": "lifecycle",
+      "severity": "error",
+      "objects": [
+        "Region"
+      ],
+      "remediation": "Calls to show, empty, or reset after Region destruction are lifecycle-safe no-ops. Use a live Region when the operation must take effect.",
+      "docsAnchor": "/errors/MN0028/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region",
+      "docsSection": "docs/api/errors.md#mn0028"
+    },
+    {
+      "code": "MN0029",
+      "slug": "view-destroyed-set-element",
+      "status": "retired",
+      "category": "lifecycle",
+      "severity": "error",
+      "objects": [
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Calls to setElement after View or CollectionView destruction begins are lifecycle-safe no-ops. Use a live instance when element replacement must take effect.",
+      "docsAnchor": "/errors/MN0029/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view",
+      "docsSection": "docs/api/errors.md#mn0029"
+    },
+    {
+      "code": "MN0030",
+      "slug": "region-registration-conflict",
+      "status": "active",
+      "category": "ownership",
+      "severity": "error",
+      "objects": [
+        "Region",
+        "View"
+      ],
+      "remediation": "Register a live, unowned Region under an unused name; remove an existing named Region before replacing it and use a fresh Region instance for a different owner.",
+      "docsAnchor": "/errors/MN0030/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "ownership",
+      "docsSection": "docs/api/errors.md#mn0030"
+    },
+    {
+      "code": "MN0031",
+      "slug": "application-registration-conflict",
+      "status": "active",
+      "category": "ownership",
+      "severity": "error",
+      "objects": [
+        "Application"
+      ],
+      "remediation": "Register a live, unowned Application instance under an unused non-empty string name; use hasChildApp before constructing a dynamic child when allocation must be avoided.",
+      "docsAnchor": "/errors/MN0031/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "ownership",
+      "docsSection": "docs/api/errors.md#mn0031"
+    },
+    {
+      "code": "MN0032",
+      "slug": "region-name-invalid",
+      "status": "active",
+      "category": "ownership",
+      "severity": "error",
+      "objects": [
+        "View"
+      ],
+      "remediation": "Pass a non-empty string name to a named Region operation.",
+      "docsAnchor": "/errors/MN0032/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "ownership",
+      "docsSection": "docs/api/errors.md#mn0032"
+    },
+    {
+      "code": "MN0033",
+      "slug": "merge-options-keys-invalid",
+      "status": "retired",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ],
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
+      "docsAnchor": "/errors/MN0033/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view",
+      "docsSection": "docs/api/errors.md#mn0033"
+    },
+    {
+      "code": "MN0034",
+      "slug": "state-key-invalid",
+      "status": "retired",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "StateApi"
+      ],
+      "remediation": "The concrete v5 alpha State key validation is removed. Use the selected source's native key contract.",
+      "docsAnchor": "/errors/MN0034/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "state",
+      "docsSection": "docs/api/errors.md#mn0034"
+    },
+    {
+      "code": "MN0035",
+      "slug": "state-ownership-conflict",
+      "status": "retired",
+      "category": "ownership",
+      "severity": "error",
+      "objects": [
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "View"
+      ],
+      "remediation": "The concrete v5 alpha State ownership rule is removed. Supplied sources are borrowed and may be shared by multiple owners; createState results are owned and disposed by their owner.",
+      "docsAnchor": "/errors/MN0035/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "ownership",
+      "docsSection": "docs/api/errors.md#mn0035"
+    },
+    {
+      "code": "MN0036",
+      "slug": "event-delegator-contract-invalid",
+      "status": "retired",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Behavior",
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
+      "docsAnchor": "/errors/MN0036/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "cleanup",
+      "docsSection": "docs/api/errors.md#mn0036"
+    },
+    {
+      "code": "MN0037",
+      "slug": "adapter-observation-unsupported",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "View"
+      ],
+      "remediation": "Configure a StateApi or DataApi that can observe the selected source, or remove the declarative event map.",
+      "docsAnchor": "/errors/MN0037/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "state",
+      "docsSection": "docs/api/errors.md#mn0037"
+    },
+    {
+      "code": "MN0038",
+      "slug": "adapter-cleanup-invalid",
+      "status": "retired",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "View"
+      ],
+      "remediation": "DataApi and StateApi adapters must return cleanup functions. Core no longer wraps or validates cleanup on each registration.",
+      "docsAnchor": "/errors/MN0038/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "cleanup",
+      "docsSection": "docs/api/errors.md#mn0038"
+    },
+    {
+      "code": "MN0039",
+      "slug": "collection-data-contract-invalid",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Return an ordered array with unique stable keys and emit a valid reorder, reset, or update structural record.",
+      "docsAnchor": "/errors/MN0039/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view",
+      "docsSection": "docs/api/errors.md#mn0039"
+    },
+    {
+      "code": "MN0040",
+      "slug": "private-framework-member-access",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ],
+      "remediation": "Use the documented public Marionette API instead of reading or calling this private framework member.",
+      "docsAnchor": "/errors/MN0040/",
+      "surfaces": [
+        "lint"
+      ],
+      "benchmarkCategory": "lifecycle",
+      "docsSection": "docs/api/errors.md#mn0040"
+    }
+  ]
+}

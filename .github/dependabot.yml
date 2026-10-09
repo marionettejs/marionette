@@ -1,0 +1,47 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      typescript-eslint:
+        patterns: ['@typescript-eslint/*']
+      vitest:
+        patterns: ['vitest', '@vitest/*']
+      mutation:
+        patterns: ['@stryker-mutator/*']
+      tooling-updates:
+        dependency-type: development
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: marionette
+      - dependency-name: '@mnjs/*'
+      # Remove when @rollup/plugin-babel supports Babel 8 and the build is validated.
+      - dependency-name: '@babel/*'
+        update-types: [version-update:semver-major]
+      # Remove after typescript-eslint and compiler-API tooling support TypeScript 7.
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+  - package-ecosystem: npm
+    directories: ['/test/fixtures/*']
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    groups:
+      consumer-dependencies:
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: marionette
+      - dependency-name: '@mnjs/*'
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ['*']
+        update-types: [minor, patch]

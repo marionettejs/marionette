@@ -1,0 +1,20 @@
+:root { font-family: system-ui, sans-serif; color: #183047; background: #f4f7fa; }
+body { margin: 0; }
+#app { max-width: 960px; margin: 3rem auto; padding: 0 1.5rem; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+header h1 { font-size: 1rem; }
+nav { display: flex; gap: .5rem; }
+button { font: inherit; cursor: pointer; padding: .65rem .9rem; border: 1px solid #afbdca; border-radius: .35rem; background: white; color: inherit; }
+button:hover { background: #e5edf5; }
+button:focus-visible { outline: 3px solid #1771b9; outline-offset: 3px; }
+button[aria-pressed="true"] { background: #174f7e; color: white; }
+.records { background: white; padding: 1.5rem; border-radius: .75rem; }
+.records h2 { margin-top: 0; }
+.records-columns { display: grid; grid-template-columns: minmax(12rem, 1fr) 2fr; gap: 2rem; }
+ul { margin: 0; padding: 0; list-style: none; }
+li + li { margin-top: .5rem; }
+li button { width: 100%; text-align: left; }
+section h3 { margin-top: 0; }
+[role="status"] { color: #526779; }
+[role="alert"] { color: #a32626; }
+@media (max-width: 600px) { header { align-items: flex-start; flex-direction: column; } .records-columns { grid-template-columns: 1fr; } }

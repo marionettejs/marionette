@@ -20,7 +20,18 @@ node_modules
 # Testing
 coverage
 test/tmp
+test/fixtures/*/dist/
 .nyc_output
+.docs-site
 
 # Users Environment Variables
 .lock-wscript
+
+# Generated package outputs
+/dist/
+/packages/*/dist/
+/src/version.js
+
+/.package/
+/.docs-export/
+/.docs-export-tmp/

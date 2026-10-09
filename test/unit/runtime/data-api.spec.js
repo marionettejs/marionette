@@ -1,0 +1,82 @@
+import { vi, describe, it, expect } from 'vitest';
+import { DataApi, View } from 'marionette';
+const setDataApi = View.setDataApi;
+import { MarionetteError } from '@mnjs/utils';
+
+describe('DataApi', function() {
+  describe('#setDataApi', function() {
+    it('returns the receiving class and overlays own properties', function() {
+      const inherited = { inherited: true };
+      const mixin = Object.assign(Object.create(inherited), { get: vi.fn() });
+      const MyObject = function() {};
+      MyObject.prototype.Data = DataApi;
+      MyObject.setDataApi = setDataApi;
+
+      expect(MyObject.setDataApi(mixin)).to.equal(MyObject);
+      expect(MyObject.prototype.Data.get).to.equal(mixin.get);
+      expect(MyObject.prototype.Data).to.not.have.property('inherited');
+      expect(MyObject.prototype.Data).to.not.equal(DataApi);
+    });
+
+    it('isolates repeated overlays to the receiving class', function() {
+      const Parent = function() {};
+      Parent.prototype.Data = DataApi;
+      const Child = function() {};
+      Child.prototype = Object.create(Parent.prototype);
+      Child.setDataApi = setDataApi;
+
+      Child.setDataApi({ first: true });
+      Child.setDataApi({ second: true });
+
+      expect(Child.prototype.Data).to.include({ first: true, second: true });
+      expect(Parent.prototype.Data).to.equal(DataApi);
+    });
+  });
+
+  it('uses plain object and array data without adaptation', function() {
+    const present = { value: undefined };
+    const models = [{ name: 'one' }, { name: 'two' }];
+
+    expect(DataApi.key(models[0])).to.equal(models[0]);
+    expect(DataApi.get(models[0], 'name')).to.equal('one');
+    expect(DataApi.get({}, 'constructor')).toBeUndefined();
+    expect(DataApi.get({ constructor: 'value' }, 'constructor')).to.equal('value');
+    expect(DataApi.has(present, 'value')).toBe(true);
+    expect(DataApi.has({}, 'value')).toBe(false);
+    expect(DataApi.has({}, 'constructor')).toBe(false);
+    expect(DataApi.has(null, 'value')).toBe(false);
+    expect(DataApi.has(undefined, 'value')).toBe(false);
+    expect(DataApi.serialize(models[0])).to.equal(models[0]);
+    expect(DataApi.models(models)).to.equal(models);
+    expect(DataApi.items).toBeUndefined();
+  });
+
+  it('subscribes to Marionette-compatible events with idempotent teardown', function() {
+    const entity = { on: vi.fn(), off: vi.fn() };
+    const callback = vi.fn();
+    const context = {};
+    const cleanup = DataApi.subscribe(entity, 'change', callback, context);
+
+    expect(entity.on).toHaveBeenCalledTimes(1);
+    expect(entity.on.mock.calls.map(args => args.slice(0, 3))).toContainEqual(['change', callback, context]);
+    cleanup();
+    cleanup();
+    expect(entity.off).toHaveBeenCalledTimes(1);
+    expect(entity.off.mock.calls.map(args => args.slice(0, 3))).toContainEqual(['change', callback, context]);
+  });
+
+  it('treats plain collections as non-observable', function() {
+    const cleanup = DataApi.observeCollection([]);
+    expect(cleanup).to.be.a('function');
+    expect(() => cleanup()).to.not.throw();
+  });
+
+  it('diagnoses event observation on plain values', function() {
+    expect(() => DataApi.subscribe({}, 'change', () => {}))
+      .to.throw(MarionetteError)
+      .and.include({ code: 'MN0037' });
+    expect(() => DataApi.observeCollection({ models: [] }, () => {}))
+      .to.throw(MarionetteError)
+      .and.include({ code: 'MN0037' });
+  });
+});

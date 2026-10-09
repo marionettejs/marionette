@@ -1,0 +1,11 @@
+import { View } from 'marionette';
+
+const FormView = View.extend({
+  _applicationCache: new Map(),
+
+  renderCachedValue() {
+    return this._applicationCache.get('value');
+  }
+});
+
+new FormView().renderCachedValue();

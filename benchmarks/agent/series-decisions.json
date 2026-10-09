@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 2,
+  "status": "uncollected",
+  "purpose": "release-usability",
+  "candidateRevision": null,
+  "model": null,
+  "runner": null,
+  "permissions": null,
+  "documentationAccess": null,
+  "acceptancePolicy": null,
+  "budgets": null,
+  "pilot": null,
+  "analysisPlan": null,
+  "stabilization": null,
+  "tasks": [
+    {
+      "id": "nested-workspace",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "nested-notice",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "filter-projects",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "rank-projects",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "save-shortcut",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "connection-status",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "overlay-switch",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "overlay-dismiss",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "async-panel",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "async-session",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "scoped-message-presenter",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "owned-workspace-state",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "borrowed-workspace-state",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "composed-lifecycle-repair",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "render-resource",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "attach-resource",
+      "predeclaredRuns": null
+    }
+  ]
+}

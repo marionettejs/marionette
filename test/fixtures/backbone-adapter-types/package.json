@@ -1,0 +1,14 @@
+{
+  "name": "marionette-backbone-adapter-types-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json"
+  },
+  "dependencies": {
+    "@types/backbone": "1.4.23",
+    "@types/jquery": "4.0.1",
+    "backbone": "1.6.1",
+    "typescript": "7.0.2"
+  }
+}

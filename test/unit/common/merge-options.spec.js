@@ -1,4 +1,5 @@
-import mergeOptions from '../../../src/common/merge-options';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { mergeOptions } from '@mnjs/utils';
 
 describe('mergeOptions', function() {
   let target;
@@ -13,9 +14,10 @@ describe('mergeOptions', function() {
     };
   });
 
-  describe('when calling with undefined options', function() {
-    it('should return instantly without merging anything', function() {
-      expect(mergeOptions()).to.be.undefined;
+  describe('when calling with nullish options', function() {
+    it('should return instantly without validating keys', function() {
+      expect(mergeOptions()).toBeUndefined();
+      expect(mergeOptions(null)).toBeUndefined();
     });
   });
 
@@ -57,5 +59,90 @@ describe('mergeOptions', function() {
 
       expect(target).to.contain.keys('color', 'size');
     });
+  });
+
+  it('traverses array-like key collections with a captured length and live values', function() {
+    const reads = [];
+    const keyValues = ['color'];
+    keyValues.length = 3;
+    keyValues[2] = 'size';
+    const keys = new Proxy(keyValues, {
+      get(collection, key, receiver) {
+        reads.push(key);
+
+        if (key === '0') {
+          collection[1] = 'country';
+          collection[2] = 'hungry';
+          collection.push('ignored');
+        }
+
+        return Reflect.get(collection, key, receiver);
+      }
+    });
+
+    target.myOptions = keys;
+    target.initialize({
+      color: 'blue',
+      country: 'USA',
+      hungry: true,
+      ignored: true
+    });
+
+    expect(target).to.include({ color: 'blue', country: 'USA', hungry: true });
+    expect(target).to.not.have.property('ignored');
+    expect(reads.filter(key => /^\d+$/.test(key))).to.deep.equal(['0', '1', '2']);
+  });
+
+  it('reads deleted array-like entries densely', function() {
+    const reads = [];
+    const keys = new Proxy(['color', 'size'], {
+      get(collection, key, receiver) {
+        reads.push(key);
+
+        if (key === '0') {
+          delete collection[1];
+        }
+
+        return Reflect.get(collection, key, receiver);
+      }
+    });
+
+    target.myOptions = keys;
+    target.initialize({ color: 'blue', size: 'large' });
+
+    expect(target.color).to.equal('blue');
+    expect(target).to.not.have.property('size');
+    expect(reads.filter(key => /^\d+$/.test(key))).to.deep.equal(['0', '1']);
+  });
+
+  it('skips requested options with undefined values', function() {
+    target.myOptions = ['color'];
+    target.color = 'blue';
+
+    target.initialize({ color: undefined });
+
+    expect(target.color).to.equal('blue');
+  });
+
+  it('merges only own enumerable string options and safely owns __proto__', function() {
+    const symbol = Symbol('ignored');
+    const protoValue = { polluted: true };
+    const options = Object.assign(Object.create({ color: 'inherited' }), {
+      size: 'large',
+      [symbol]: 'symbol'
+    });
+    Object.defineProperty(options, 'country', { value: 'hidden' });
+    Object.defineProperty(options, '__proto__', { enumerable: true, value: protoValue });
+
+    target.myOptions = ['color', 'size', 'country', symbol, '__proto__'];
+    target.initialize(options);
+
+    expect(target.size).to.equal('large');
+    expect(target).to.not.have.property('color');
+    expect(target).to.not.have.property('country');
+    expect(target).to.not.have.property(symbol);
+    expect(Object.getPrototypeOf(target)).to.equal(Object.prototype);
+    expect(Object.hasOwn(target, '__proto__')).toBe(true);
+    expect(Object.getOwnPropertyDescriptor(target, '__proto__').value).to.equal(protoValue);
   });
 });

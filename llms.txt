@@ -1,0 +1,61 @@
+# Marionette v5
+
+Version-matched Markdown for `marionette` v5, whose core requires neither Backbone nor jQuery; Backbone Models and Collections integrate through optional adapters. `backbone.marionette` is the legacy package: check the installed name and version before choosing contracts. Choose the relevant task or exact reference directly; use the index for browsing.
+
+- [Documentation index](docs/readme.md)
+- [Agent workflow](docs/agents.md)
+- [Install and render a View](docs/quick-start.md)
+- [Ownership and lifetimes](docs/architecture.md)
+- [API index](docs/api.md)
+
+## Core classes
+
+- [Application reference](docs/api/application.md)
+- [View reference](docs/api/view.md)
+- [CollectionView reference](docs/api/collection-view.md)
+- [Region reference](docs/api/region.md)
+- [Behavior reference](docs/api/behavior.md)
+- [MnObject reference](docs/api/mnobject.md)
+
+## Shared contracts and configuration
+
+- [Common class methods](docs/api/shared/common.md)
+- [Events](docs/api/shared/events.md)
+- [State](docs/api/shared/state.md)
+- [Errors and diagnostics](docs/api/errors.md)
+- [Rendering and View bindings](docs/api/shared/view-bindings.md)
+- [Runtime configuration](docs/api/runtime.md)
+
+## Provider interfaces
+
+- [Rendering and DOM providers](docs/api/providers/dom.md)
+- [Data and state providers](docs/api/providers/data.md)
+
+## Companion packages
+
+- [@mnjs/data: Model and Collection](docs/packages/data.md)
+- [@mnjs/radio: channels and requests](docs/packages/radio.md)
+- [@mnjs/utils: shared utilities](docs/packages/utils.md)
+- [@mnjs/adapters: optional integrations](docs/packages/adapters.md)
+
+## Integration and learning guides
+
+- [Renderer and data setup](docs/integrations/setup.md)
+- [Migrate from another UI framework](docs/guides/framework-migration.md)
+- [Migrate from v4](docs/guides/migration.md)
+- [Test an application](docs/guides/testing.md)
+- [Use TypeScript](docs/guides/typescript.md)
+- [Local model editing](docs/guides/local-editing.md)
+- [Retained restart](docs/guides/retained-restart.md)
+- [Existing HTML](docs/guides/existing-html.md)
+- [Integrate with existing UI](docs/guides/existing-ui.md)
+- [Navigation and feature ownership](docs/guides/routing.md)
+- [Lists](docs/guides/lists.md)
+- [Imperative controls](docs/guides/widgets.md)
+- [Accessibility and rendering](docs/guides/accessibility-rendering.md)
+- [Production](docs/guides/production.md)
+- [Records lesson](docs/records.md)
+
+## Development tools
+
+- [Check and debug an application](docs/tooling.md)

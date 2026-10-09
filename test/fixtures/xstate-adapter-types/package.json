@@ -1,0 +1,12 @@
+{
+  "name": "marionette-xstate-adapter-types-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json"
+  },
+  "dependencies": {
+    "typescript": "7.0.2",
+    "xstate": "5.33.2"
+  }
+}

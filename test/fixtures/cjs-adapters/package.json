@@ -1,0 +1,14 @@
+{
+  "name": "marionette-cjs-adapters-fixture",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "validate": "node validate.cjs"
+  },
+  "dependencies": {
+    "backbone": "^1.4.0",
+    "jquery": "^4.0.0",
+    "jsdom": "^30.1.1",
+    "xstate": "5.33.2"
+  }
+}

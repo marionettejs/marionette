@@ -1,0 +1,31 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "url": "https://context7.com/marionettejs/marionette",
+  "public_key": "pk_dDwor65yx2DOyaFDDOmVU",
+  "projectTitle": "Marionette JavaScript — v5",
+  "description": "Marionette v5 (npm: marionette) provides Views, Regions, CollectionViews and Applications. Core requires neither Backbone nor jQuery; optional adapters integrate Backbone Models and Collections.",
+  "branch": "master",
+  "previousVersions": [
+    { "tag": "v5.0.0-rc.2" }
+  ],
+  "folders": [
+    "docs"
+  ],
+  "excludeFiles": [
+    "AGENTS.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "changelog.md",
+    "license.txt"
+  ],
+  "rules": [
+    "Check the installed package first: marionette is v5; backbone.marionette is legacy. Match docs to that version and its release tag; master may differ. V5 core requires neither Backbone nor jQuery; Backbone Models and Collections use optional adapters.",
+    "Read the relevant task or API section; use docs/agents.md to find it. Inspect renderer/data providers only for integration changes, and preserve compatible existing choices.",
+    "Keep local interaction and model edits in their View. Choose ownership by the work's lifetime; async alone does not require Application. Register child Applications for ownership; start them explicitly. Regions own child UI.",
+    "Use Application for readiness and shared coordination: prepareStart loads required data using its signal; synchronous onStart applies it. Await start/restart; stop/destroy are synchronous. Active restart retains UI; construct retained shells once.",
+    "Prefer optional @mnjs/data for observable Models and Collections when suitable. It is incomplete as an application data layer: fetching and persistence require an API layer or another provider; it has no Model.save().",
+    "Shared API names do not guarantee shared behavior: verify v5 contracts. Keep v4 contracts for installed backbone.marionette 4.x; for upgrades read docs/guides/migration.md.",
+    "For routing, read docs/guides/routing.md. The router owns URLs, application code owns navigation and cancellation, and Marionette owns feature and View lifecycle.",
+    "Use public package exports. Verify the task's affected behavior against the installed artifact, including replacement, cancellation or teardown when relevant."
+  ]
+}

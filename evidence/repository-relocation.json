@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sourceRepositoryId": 306411262,
+  "sourceRevision": "5170d87568e050cb4ad0bd08b5ba48d3ee6d605c",
+  "relocation": {
+    "from": "https://github.com/marionettejs/marionette/issues/127",
+    "to": "https://github.com/marionettejs/marionette-develop/issues/127"
+  },
+  "scope": "Only historical trackingIssueUrl fields in the listed immutable benchmark contracts. This mapping does not recertify evidence or alter original provenance.",
+  "files": [
+    {
+      "path": "evidence/performance-budget-amendments/BA0001/prototype-contract.json",
+      "sha256": "636c9246d075352cf9a938891abf41fa88dbf01160cef7462edc46367980719e"
+    },
+    {
+      "path": "evidence/performance-budget-amendments/BA0002/prototype-contract.json",
+      "sha256": "5b2c2d4c9ab7f678448876914222a99bccad33f4438a012a89edaac9f6504a17"
+    },
+    {
+      "path": "evidence/performance-budget-amendments/BA0003/prototype-contract.json",
+      "sha256": "5a484d639179198c76378b4418c2bea32198098600611d0ca9f5263c36af2fd3"
+    },
+    {
+      "path": "evidence/performance-budget-amendments/BA0004/prototype-contract.json",
+      "sha256": "14dc09d94aebc78b776ee17c5a28436e2438b83323326cc5a1244ce2b7d1cec8"
+    },
+    {
+      "path": "evidence/performance-budget-amendments/BA0005/prototype-contract.json",
+      "sha256": "c7f1c58e9ae39d655828ad622c85b0ee779ddbdb0427ed19fd598a1bfa4a8c27"
+    },
+    {
+      "path": "evidence/performance-budget-amendments/BA0006/prototype-contract.json",
+      "sha256": "b8b1cb69354ae2b0c4323658c51a9c6237a834965697c4816522e9f6924eac2b"
+    },
+    {
+      "path": "evidence/performance-budget-amendments/BA0007/prototype-contract.json",
+      "sha256": "004ce4407457000cf04c47088fa8f9712c63f1c42b8e761577132e6b47272e7b"
+    },
+    {
+      "path": "evidence/performance-budget-amendments/BA0008/prototype-contract.json",
+      "sha256": "a117f353c4e68bdca9fef97640241b877cb79aeb4868b1ef1727e5eab251e1a6"
+    },
+    {
+      "path": "evidence/performance-budget-amendments/BA0009/prototype-contract.json",
+      "sha256": "f6624314cb3e209048e69e380a95d5c2ca6cb1b33e054a3e38d0ba1e28a7b212"
+    },
+    {
+      "path": "evidence/performance-budget-amendments/BA0010/prototype-contract.json",
+      "sha256": "bf8ccea3760724d3d426b57b0a6778e34715479571fd973d581515e52bc38c22"
+    }
+  ]
+}

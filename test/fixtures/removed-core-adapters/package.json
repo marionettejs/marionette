@@ -1,0 +1,8 @@
+{
+  "name": "marionette-removed-core-adapters-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node validate.mjs"
+  }
+}

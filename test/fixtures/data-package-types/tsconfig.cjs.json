@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "files": [
+    "validate.cts"
+  ],
+  "compilerOptions": {
+    "types": []
+  }
+}

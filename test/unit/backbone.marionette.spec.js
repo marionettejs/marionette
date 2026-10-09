@@ -1,30 +1,26 @@
+import { vi, describe, it, expect, afterEach } from 'vitest';
 import _ from 'underscore';
 
-import * as Mn from '../../src/backbone.marionette';
-import Marionette from '../../src/backbone.marionette';
+import * as Mn from 'marionette';
 
 import {version} from '../../package.json';
 
-import extend from '../../src/utils/extend';
+import { extend } from 'marionette';
 
-import monitorViewEvents from '../../src/common/monitor-view-events';
+import { monitorViewEvents } from 'marionette';
 
-import Events from '../../src/mixins/events';
+import { Events } from '@mnjs/utils';
 
-import MnObject from '../../src/object';
-import View from '../../src/view';
-import CollectionView from '../../src/collection-view';
-import Behavior from '../../src/behavior';
-import Region from '../../src/region';
-import Application from '../../src/application';
+import { MnObject } from 'marionette';
+import { View } from 'marionette';
+import { CollectionView } from 'marionette';
+import { Behavior } from 'marionette';
+import { Region } from 'marionette';
+import { Application } from 'marionette';
 
-import DomApi from '../../src/config/dom';
-
-import {
-  isEnabled,
-  setEnabled
-} from '../../src/config/features';
-
+import { DomApi } from 'marionette';
+import { DataApi } from 'marionette';
+import { StateApi } from 'marionette';
 
 describe('backbone.marionette', function() {
   describe('Named Exports', function() {
@@ -35,12 +31,12 @@ describe('backbone.marionette', function() {
       Region,
       Behavior,
       Application,
-      isEnabled,
-      setEnabled,
       monitorViewEvents,
       Events,
       extend,
       DomApi,
+      DataApi,
+      StateApi,
     };
 
     _.each(namedExports, (val, key) => {
@@ -48,32 +44,9 @@ describe('backbone.marionette', function() {
         expect(Mn[key]).to.equal(val);
       });
     });
-  });
 
-  describe('Default Export', function() {
-    const namedExports = {
-      View,
-      CollectionView,
-      MnObject,
-      Region,
-      Behavior,
-      Application,
-      isEnabled,
-      setEnabled,
-      monitorViewEvents,
-      Events,
-      extend,
-      DomApi,
-    };
-
-    _.each(namedExports, (val, key) => {
-      it(`should have key ${ key }`, function() {
-        expect(Marionette[key]).to.equal(val);
-      });
-    });
-
-    it('should have key Object', function() {
-      expect(Marionette.Object).to.equal(MnObject);
+    it('does not expose the internal Requests mixin', function() {
+      expect(Mn.Requests).toBeUndefined();
     });
   });
 
@@ -83,90 +56,22 @@ describe('backbone.marionette', function() {
     });
   });
 
-  describe('Proxied Utilities', function() {
-    let context;
+  describe('Common method utilities', function() {
+    it('does not expose duplicate target-first root utilities', function() {
+      const removedUtilities = [
+        'bindEvents',
+        'unbindEvents',
+        'bindRequests',
+        'unbindRequests',
+        'mergeOptions',
+        'getOption',
+        'isEnabled',
+        'normalizeMethods',
+        'setEnabled',
+        'triggerMethod'
+      ];
 
-    beforeEach(function() {
-      context = new MnObject();
-    });
-
-    it('should proxy bindEvents', function() {
-      const entity = new MnObject();
-      const eventHandler = this.sinon.stub();
-      const events = { 'foo': eventHandler };
-
-      Mn.bindEvents(context, entity, events);
-      entity.trigger('foo');
-
-      expect(eventHandler)
-        .to.have.been.calledOnce
-        .and.calledOn(context);
-    });
-
-    it('should proxy unbindEvents', function() {
-      this.sinon.spy(context, 'stopListening');
-
-      const entity = new MnObject();
-      context.listenTo(entity, 'foo', _.noop);
-
-      Mn.unbindEvents(context, entity);
-
-      expect(context.stopListening)
-        .to.have.been.calledOnce
-        .and.calledOn(context)
-        .and.calledWith(entity);
-    });
-
-    it('should proxy bindRequests', function() {
-      const replyFooStub = this.sinon.stub();
-      const channel = { reply: this.sinon.stub() };
-
-      Mn.bindRequests(context, channel, {'foo': replyFooStub});
-
-      expect(channel.reply)
-        .to.have.been.calledOnce
-        .and.calledWith({'foo': replyFooStub}, context);
-    });
-
-    it('should proxy unbindRequests', function() {
-      const channel = { stopReplying: this.sinon.stub() };
-
-      Mn.unbindRequests(context, channel);
-
-      expect(channel.stopReplying)
-        .to.have.been.calledOnce
-        .and.calledWith(null, null, context);
-    });
-
-    it('should proxy mergeOptions', function() {
-      context.foo = 'bar';
-
-      Mn.mergeOptions(context, { foo: 'baz' }, ['foo']);
-
-      expect(context.foo).to.equal('baz');
-    });
-
-    it('should proxy getOption', function() {
-      context.options.foo = 'bar';
-
-      expect(Mn.getOption(context, 'foo')).to.equal('bar');
-    });
-
-    it('should proxy normalizeMethods', function() {
-      context.onFoo = this.sinon.stub();
-
-      expect(Mn.normalizeMethods(context, { foo: 'onFoo' })).to.deep.equal({ foo: context.onFoo });
-    });
-
-    it('should proxy triggerMethod', function() {
-      context.onFoo = this.sinon.stub();
-
-      Mn.triggerMethod(context, 'foo', 'bar');
-
-      expect(context.onFoo)
-        .to.have.been.calledOnce
-        .and.calledOn(context)
-        .and.calledWith('bar');
+      removedUtilities.forEach(name => expect(Mn).to.not.have.property(name));
     });
   });
 
@@ -183,25 +88,91 @@ describe('backbone.marionette', function() {
 
     _.each(DomClasses, function(Class, key) {
       it(`should setDomApi on ${ key }`, function() {
-        this.sinon.spy(Class, 'setDomApi');
+        vi.spyOn(Class, 'setDomApi');
         Mn.setDomApi(fakeDomApi);
 
-        expect(Class.setDomApi)
-          .to.be.calledOnce
-          .and.calledWith(fakeDomApi);
+        expect(Class.setDomApi).toHaveBeenCalledTimes(1);
+        expect(Class.setDomApi.mock.calls.map(args => args.slice(0, 1))).toContainEqual([fakeDomApi]);
       });
     });
   });
 
-  describe('#setRenderer', function() {
-    let renderer;
+  describe('#setDataApi', function() {
+    const DataClasses = {
+      CollectionView,
+      View
+    };
 
-    beforeEach(function() {
-      renderer = View.prototype._renderHtml;
+    const fakeDataApi = {
+      foo: 'bar'
+    };
+
+    _.each(DataClasses, function(Class, key) {
+      it(`should setDataApi on ${ key }`, function() {
+        _.each(DataClasses, DataClass => {
+          vi.spyOn(DataClass, 'setDataApi').mockImplementation(() => undefined).mockReturnValue(DataClass);
+        });
+        Mn.setDataApi(fakeDataApi);
+
+        expect(Class.setDataApi).toHaveBeenCalledTimes(1);
+        expect(Class.setDataApi.mock.calls.map(args => args.slice(0, 1))).toContainEqual([fakeDataApi]);
+      });
+    });
+  });
+
+  describe('#setStateApi', function() {
+    const StateClasses = { Application, Behavior, CollectionView, MnObject, View };
+    const fakeStateApi = { subscribe() {} };
+
+    _.each(StateClasses, function(Class, key) {
+      it(`should setStateApi on ${ key }`, function() {
+        _.each(StateClasses, StateClass => {
+          vi.spyOn(StateClass, 'setStateApi').mockImplementation(() => undefined).mockReturnValue(StateClass);
+        });
+        Mn.setStateApi(fakeStateApi);
+        expect(Class.setStateApi).toHaveBeenCalledTimes(1);
+        expect(Class.setStateApi.mock.calls.map(args => args.slice(0, 1))).toContainEqual([fakeStateApi]);
+      });
     });
 
+    it('allows one combined adapter or independent adapter objects', function() {
+      const combinedSubscribe = vi.fn().mockReturnValue(() => {});
+      const CombinedView = View.extend({
+        stateEvents: { change() {} },
+        template: data => data.label
+      });
+      const combined = {
+        subscribe: combinedSubscribe,
+        serialize() { return { label: 'combined' }; }
+      };
+      CombinedView.setStateApi(combined);
+      CombinedView.setDataApi(combined);
+      const combinedSource = {};
+      const combinedView = new CombinedView({ state: combinedSource, model: {} });
+      combinedView.render();
+      expect(combinedSubscribe.mock.calls.map(args => args.slice(0, 1))).toContainEqual([combinedSource]);
+      expect(combinedView.el.textContent).to.equal('combined');
+      combinedView.destroy();
+
+      const stateSubscribe = vi.fn().mockReturnValue(() => {});
+      const SplitView = View.extend({
+        stateEvents: { change() {} },
+        template: data => data.label
+      });
+      SplitView.setStateApi({ subscribe: stateSubscribe });
+      SplitView.setDataApi({ serialize() { return { label: 'split' }; } });
+      const splitSource = {};
+      const splitView = new SplitView({ state: splitSource, model: {} });
+      splitView.render();
+      expect(stateSubscribe.mock.calls.map(args => args.slice(0, 1))).toContainEqual([splitSource]);
+      expect(splitView.el.textContent).to.equal('split');
+      splitView.destroy();
+    });
+  });
+
+  describe('#setRenderer', function() {
     afterEach(function() {
-      Mn.setRenderer(renderer);
+      Mn.setRenderer();
     });
 
     const RendererClasses = {
@@ -213,12 +184,35 @@ describe('backbone.marionette', function() {
 
     _.each(RendererClasses, function(Class, key) {
       it(`should setRenderer on ${ key }`, function() {
-        this.sinon.spy(Class, 'setRenderer');
+        vi.spyOn(Class, 'setRenderer');
 
         Mn.setRenderer(fakeRenderer);
-        expect(Class.setRenderer)
-          .to.be.calledOnce
-          .and.calledWith(fakeRenderer);
+        expect(Class.setRenderer).toHaveBeenCalledTimes(1);
+        expect(Class.setRenderer.mock.calls.map(args => args.slice(0, 1))).toContainEqual([fakeRenderer]);
+      });
+    });
+  });
+
+  describe('#setEventDelegator', function() {
+    const DelegatorClasses = {
+      Behavior,
+      CollectionView,
+      View
+    };
+
+    const fakeEventDelegator = {
+      delegate() {
+        return function cleanup() {};
+      }
+    };
+
+    _.each(DelegatorClasses, function(Class, key) {
+      it(`should setEventDelegator on ${ key }`, function() {
+        vi.spyOn(Class, 'setEventDelegator');
+
+        Mn.setEventDelegator(fakeEventDelegator);
+        expect(Class.setEventDelegator).toHaveBeenCalledTimes(1);
+        expect(Class.setEventDelegator.mock.calls.map(args => args.slice(0, 1))).toContainEqual([fakeEventDelegator]);
       });
     });
   });

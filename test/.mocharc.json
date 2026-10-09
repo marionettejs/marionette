@@ -1,9 +1,0 @@
-{
-  "checkLeaks": true,
-  "file": "./test/setup/node.js",
-  "recursive": true,
-  "reporter": "dot",
-  "require": "@babel/register",
-  "spec": "./test/unit/",
-  "ui": "bdd"
-}

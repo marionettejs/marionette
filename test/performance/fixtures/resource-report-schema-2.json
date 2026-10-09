@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 2,
+  "workload": {
+    "attachDetachCycles": 100,
+    "mountDestroyCycles": 1000
+  },
+  "created": {
+    "viewInstances": 5001,
+    "regionInstances": 2001,
+    "behaviorInstances": 1000,
+    "collectionViewInstances": 1000
+  },
+  "retention": {
+    "collectionSubscriptionsWhileMounted": 1,
+    "modelSubscriptionsWhileMounted": 1,
+    "domListenersWhileMounted": 2,
+    "externalSubscriptionsAfterDestroy": 0,
+    "domListenersAfterDestroy": 0,
+    "callbacksAfterDestroy": 0,
+    "childViewsAfterDestroy": 0,
+    "regionViewsAfterEmpty": 0,
+    "regionsAfterHostDestroy": 0,
+    "managedDomChildrenAfterEmpty": 0,
+    "managedRootsConnectedAfterDestroy": 0,
+    "liveInstancesAfterDestroy": 0,
+    "detachedViewDestroyedWithFormerRegion": false,
+    "destroyedBehaviorRetainsHostReference": true
+  }
+}

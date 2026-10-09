@@ -1,0 +1,372 @@
+import { Events, extend } from '@mnjs/utils';
+import Model from './model.ts';
+
+import type { EventMethods as EventSource, Merge, Constructed, CallableParent } from '@mnjs/utils';
+import type { ModelInstance as ModelType, ModelAttributes, MutationOptions } from './model.ts';
+
+type CollectionExtend<Base extends ModelType, Props extends object, Statics extends object> = {
+  extend<Added extends { constructor: (...args: never[]) => unknown }, AddedStatics extends object = {}>(
+    this: Function & { prototype: object },
+    prototypeProperties: Added & ThisType<Merge<CollectionInstance<Base>, Merge<Props, Added>>>,
+    staticProperties?: AddedStatics & ThisType<CollectionExtension<Base, Merge<Props, Added>, Merge<Statics, AddedStatics>>>
+  ): CollectionExtension<Base, Merge<Props, Added>, Merge<Statics, AddedStatics>>;
+  extend<Added extends object = {}, AddedStatics extends object = {}>(
+    this: CallableParent,
+    prototypeProperties?: Added & ThisType<Merge<CollectionInstance<Base>, Merge<Props, Added>>>,
+    staticProperties?: AddedStatics & ThisType<CollectionExtension<Base, Merge<Props, Added>, Merge<Statics, AddedStatics>>>
+  ): CollectionExtension<Base, Merge<Props, Added>, Merge<Statics, AddedStatics>>;
+}['extend'];
+
+// Supplied Models retain their identity; raw attributes use the factory.
+type ConfiguredModel<Factory> = Factory extends new (...args: never[]) => infer M
+  ? M extends ModelType ? M : never : never;
+type ExtendedCollectionInstance<M extends ModelType, Props extends object> = 'model' extends keyof Props
+  ? Merge<CollectionInstance<M | ConfiguredModel<Props['model']>>, Omit<Props, 'model'>>
+  : Merge<CollectionInstance<M>, Props>;
+
+type DefaultModel<M extends ModelType, Props extends object, Base extends ModelType> = 'model' extends keyof Props
+  ? ConfiguredModel<Props['model']>
+  : [M] extends [never] ? Base
+    : M extends ModelType<infer Attributes> ? ModelType<Attributes> : never;
+
+type CollectionConstructor<Base extends ModelType, Props extends object, Statics extends object> =
+  Props extends { constructor: (...args: infer Args) => unknown }
+    ? {
+        new (...args: Args): Constructed<Props, ExtendedCollectionInstance<Base, Props>>;
+        (this: ThisParameterType<Props['constructor']>, ...args: Args): ReturnType<Props['constructor']>;
+        prototype: Merge<CollectionInstance<Base>, Props>;
+        extend: 'extend' extends keyof Statics ? Statics['extend'] : CollectionExtend<Base, Props, Statics>;
+      }
+    : {
+        new <M extends Base = never, Factory extends ModelType = DefaultModel<M, Props, Base>>(
+          models?: ModelInput<M> | ReadonlyArray<ModelInput<M>> | null,
+          options?: CollectionOptions<Factory> | null
+        ): Merge<CollectionInstance<M | Factory>, Omit<Props, 'model'>>;
+        (this: object, models?: ModelInput<Base> | ReadonlyArray<ModelInput<Base>> | null, options?: CollectionOptions<Base> | null): void;
+        prototype: Merge<CollectionInstance<Base>, Props>;
+        extend: 'extend' extends keyof Statics ? Statics['extend'] : CollectionExtend<Base, Props, Statics>;
+      };
+
+type CollectionExtension<Base extends ModelType, Props extends object, Statics extends object> =
+  [keyof Statics] extends [never] ? CollectionConstructor<Base, Props, Statics>
+    : CollectionConstructor<Base, Props, Statics> & Omit<Statics, 'prototype' | 'extend'>;
+
+export type ModelInput<M extends ModelType = ModelType> = M | ([M] extends [never] ? ModelAttributes : M['attributes']);
+
+export interface CollectionOptions<M extends ModelType = ModelType> {
+  model?: new (attributes?: ModelAttributes, options?: unknown) => M;
+}
+
+export type CollectionChange<M extends ModelType = ModelType> =
+  | { kind: 'reset' }
+  | { kind: 'reorder' }
+  | {
+      kind: 'update';
+      added: M[];
+      removed: M[];
+      updated: Array<{ previous: M; current: M }>;
+    };
+
+export interface Collection<M extends ModelType = ModelType> extends EventSource, Iterable<M> {
+  readonly models: M[];
+  readonly length: number;
+  model: new (attributes?: ModelAttributes, options?: unknown) => M;
+
+  initialize(
+    models?: ModelInput<M> | ReadonlyArray<ModelInput<M>> | null,
+    options?: CollectionOptions<M> | null
+  ): void;
+  at(index: number): M | undefined;
+  get(identity: unknown): M | undefined;
+  indexOf(model: M): number;
+  forEach(callback: (model: M, index: number, models: M[]) => void, context?: unknown): void;
+  map<Result>(callback: (model: M, index: number, models: M[]) => Result, context?: unknown): Result[];
+  add(model: ModelInput<M> | null, options?: MutationOptions | null): M | undefined;
+  add(models: ReadonlyArray<ModelInput<M>>, options?: MutationOptions | null): M[];
+  remove(identities: ReadonlyArray<unknown>, options?: MutationOptions | null): M[];
+  remove(identity: unknown, options?: MutationOptions | null): M | undefined;
+  reset(models?: ModelInput<M> | ReadonlyArray<ModelInput<M>> | null, options?: MutationOptions | null): this;
+  move(identity: unknown, index: number, options?: MutationOptions | null): M | undefined;
+  sort(comparator?: string | ((left: M, right: M) => number), options?: MutationOptions | null): this;
+  toArray(): ModelAttributes[];
+  isDestroyed(): boolean;
+  destroy(options?: unknown): this;
+  [Symbol.iterator](): ReturnType<M[][typeof Symbol.iterator]>;
+}
+
+export type CollectionInstance<M extends ModelType = ModelType> = Collection<M>;
+
+interface CollectionInstanceRuntime extends CollectionInstance {
+  models: ModelType[];
+  length: number;
+  _isDestroyed: boolean;
+  comparator?: string | ((left: ModelType, right: ModelType) => number);
+  _prepareModel(model: ModelInput): ModelType;
+  _bindModel(model: ModelType): void;
+  _unbindModel(model: ModelType): void;
+  _bindModels(models: ModelType[]): void;
+  _replaceBindings(previousModels: ModelType[], currentModels: ModelType[]): void;
+  _onModelEvent(eventName: string, model: ModelType, ...args: unknown[]): void;
+}
+
+function asArray<Input>(models: Input | ReadonlyArray<Input> | null | undefined): ReadonlyArray<Input> {
+  if (models == null) { return []; }
+  return Array.isArray(models) ? models : [models as Input];
+}
+
+function normalizeOptions<Options>(options: Options | null | undefined): Options | Record<string, never> {
+  return options == null ? {} : options;
+}
+
+function sameValueZero(left: unknown, right: unknown) {
+  // Match the equality used when deduplicating ids.
+  return left === right || Number.isNaN(left) && Number.isNaN(right);
+}
+
+function assertUniqueModels(models: ModelType[]) {
+  const knownModels = new Set();
+  const knownIds = new Set();
+
+  for (const model of models) {
+    if (knownModels.has(model) || model.id != null && knownIds.has(model.id)) {
+      throw new TypeError('@mnjs/data Collection models must have unique instances and ids.');
+    }
+    knownModels.add(model);
+    if (model.id != null) { knownIds.add(model.id); }
+  }
+}
+
+function indexModels(models: ModelType[]) {
+  const identities = new Map<unknown, ModelType>();
+  for (const model of models) { identities.set(model.cid, model); }
+  // Exact instances win over ids, which win over cids. Preserve the first id
+  // match if an application temporarily gives multiple models the same id.
+  for (let index = models.length; index--;) {
+    const model = models[index];
+    if (model.id != null) { identities.set(model.id, model); }
+  }
+  for (const model of models) { identities.set(model, model); }
+  return identities;
+}
+
+function replaceModels(collection: CollectionInstanceRuntime, models: ModelInput | ReadonlyArray<ModelInput> | null) {
+  const preparedModels = asArray(models).map(model => collection._prepareModel(model));
+  assertUniqueModels(preparedModels);
+  collection._replaceBindings(collection.models, preparedModels);
+  collection.models = preparedModels;
+  collection.length = preparedModels.length;
+}
+
+// The constructor and generic instance interface share the public name.
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const Collection = function(this: CollectionInstanceRuntime, models: ModelInput | ReadonlyArray<ModelInput> | null = [], options: CollectionOptions | null = {}) {
+  options = normalizeOptions(options);
+  this.models = [];
+  this.length = 0;
+  if (options.model) { this.model = options.model; }
+  replaceModels(this, models);
+  this.initialize(models, options);
+} as unknown as CollectionExtension<ModelType, {}, {}>;
+
+(Collection as unknown as { extend: typeof extend }).extend = extend;
+
+Object.assign(Collection.prototype, Events, {
+  model: Model,
+  _isDestroyed: false,
+
+  initialize() {},
+
+  _prepareModel(model: ModelInput) {
+    const ModelClass = this.model;
+    return model instanceof Model ? model : new ModelClass(model);
+  },
+
+  _bindModel(model: ModelType) {
+    model.on('all', this._onModelEvent, this);
+  },
+
+  _unbindModel(model: ModelType) {
+    model.off('all', this._onModelEvent, this);
+  },
+
+  _bindModels(models: ModelType[]) {
+    for (const model of models) { this._bindModel(model); }
+  },
+
+  _replaceBindings(previousModels: ModelType[], currentModels: ModelType[]) {
+    let added = currentModels;
+    let removed = previousModels;
+    if (previousModels.length && currentModels.length) {
+      const previous = new Set(previousModels);
+      const current = new Set(currentModels);
+      added = currentModels.filter(model => !previous.has(model));
+      removed = previousModels.filter(model => !current.has(model));
+    }
+
+    this._bindModels(added);
+    for (const model of removed) { this._unbindModel(model); }
+  },
+
+  _onModelEvent(eventName: string, model: ModelType, ...args: unknown[]) {
+    if (eventName === 'destroy') { this.remove(model, args[0] as MutationOptions); }
+    this.triggerMethod(eventName, model, ...args);
+  },
+
+  at(index: number) {
+    return this.models.at(index);
+  },
+
+  get(identity: unknown) {
+    if (identity == null) { return undefined; }
+    if (identity instanceof Model && this.models.includes(identity)) { return identity; }
+    return this.models.find(model => sameValueZero(model.id, identity)) ||
+      this.models.find(model => model.cid === identity);
+  },
+
+  indexOf(model: ModelType) {
+    return this.models.indexOf(model);
+  },
+
+  forEach(callback: (model: ModelType, index: number, models: ModelType[]) => void, context?: unknown) {
+    this.models.forEach(callback, context);
+  },
+
+  map<Result>(callback: (model: ModelType, index: number, models: ModelType[]) => Result, context?: unknown) {
+    return this.models.map(callback, context);
+  },
+
+  add(models: ModelInput | ReadonlyArray<ModelInput> | null, options: MutationOptions | null = {}) {
+    options = normalizeOptions(options);
+    if (this._isDestroyed) { return Array.isArray(models) ? [] : undefined; }
+    const added: ModelType[] = [];
+    const knownModels = new Set(this.models);
+    const knownIds = new Set(
+      this.models.filter(model => model.id != null).map(model => model.id)
+    );
+    for (const candidate of asArray(models)) {
+      if (!(candidate instanceof Model) && candidate != null && typeof candidate === 'object') {
+        const idAttribute = this.model.prototype.idAttribute;
+        const rawId = Object.hasOwn(candidate, idAttribute) ? (candidate as ModelAttributes)[idAttribute] : undefined;
+        if (rawId != null && knownIds.has(rawId)) { continue; }
+      }
+      const model = this._prepareModel(candidate);
+      if (knownModels.has(model) || model.id != null && knownIds.has(model.id)) { continue; }
+      added.push(model);
+      knownModels.add(model);
+      if (model.id != null) { knownIds.add(model.id); }
+    }
+    if (!added.length) { return Array.isArray(models) ? added : undefined; }
+    this._bindModels(added);
+
+    const at = Number.isInteger(options.at) ?
+      Math.max(0, Math.min(options.at as number, this.models.length)) : this.models.length;
+    this.models.splice(at, 0, ...added);
+    this.length = this.models.length;
+
+    const change: CollectionChange = { kind: 'update', added, removed: [], updated: [] };
+    for (const model of added) { this.triggerMethod('add', model, this, options); }
+    this.triggerMethod('update', this, { ...options, changes: change });
+    return Array.isArray(models) ? added : added[0];
+  },
+
+  remove(models: unknown, options: MutationOptions | null = {}) {
+    options = normalizeOptions(options);
+    if (this._isDestroyed) { return Array.isArray(models) ? [] : undefined; }
+    const removed: ModelType[] = [];
+    const removing = new Set<ModelType>();
+    const candidates = asArray(models);
+    const identities = candidates.length > 1 ? indexModels(this.models) : undefined;
+    for (const candidate of candidates) {
+      const model = identities ? identities.get(candidate) : this.get(candidate);
+      if (!model || removing.has(model)) { continue; }
+      removed.push(model);
+      removing.add(model);
+    }
+    if (!removed.length) { return Array.isArray(models) ? removed : undefined; }
+    const nextModels = this.models.filter(model => !removing.has(model));
+    for (const model of removed) { this._unbindModel(model); }
+    this.models = nextModels;
+    this.length = this.models.length;
+
+    const change: CollectionChange = { kind: 'update', added: [], removed, updated: [] };
+    for (const model of removed) { this.triggerMethod('remove', model, this, options); }
+    this.triggerMethod('update', this, { ...options, changes: change });
+    return Array.isArray(models) ? removed : removed[0];
+  },
+
+  reset(models: ModelInput | ReadonlyArray<ModelInput> | null = [], options: MutationOptions | null = {}) {
+    options = normalizeOptions(options);
+    if (this._isDestroyed) { return this; }
+    replaceModels(this, models);
+
+    this.triggerMethod('reset', this, options);
+    return this;
+  },
+
+  move(model: unknown, index: number, options: MutationOptions | null = {}) {
+    options = normalizeOptions(options);
+    const currentModel = this.get(model);
+    if (!currentModel || this._isDestroyed) { return undefined; }
+    if (!Number.isInteger(index)) {
+      throw new TypeError('@mnjs/data Collection.move() requires an integer index.');
+    }
+    const previousIndex = this.models.indexOf(currentModel);
+    const nextIndex = Math.max(0, Math.min(index, this.models.length - 1));
+    if (previousIndex === nextIndex) { return currentModel; }
+    this.models.splice(previousIndex, 1);
+    this.models.splice(nextIndex, 0, currentModel);
+    this.triggerMethod('sort', this, options);
+    return currentModel;
+  },
+
+  sort(this: CollectionInstanceRuntime, comparator: string | ((left: ModelType, right: ModelType) => number) | undefined = this.comparator, options: MutationOptions | null = {}) {
+    options = normalizeOptions(options);
+    if (this._isDestroyed) { return this; }
+    if (typeof comparator === 'string') {
+      this.models.sort((left, right) => {
+        // Attribute ordering follows JavaScript relational coercion.
+        const leftValue = left.get(comparator) as string | number | bigint;
+        const rightValue = right.get(comparator) as string | number | bigint;
+        return leftValue < rightValue ? -1 : leftValue > rightValue ? 1 : 0;
+      });
+    } else if (typeof comparator === 'function') {
+      this.models.sort(comparator.bind(this));
+    } else {
+      return this;
+    }
+    this.triggerMethod('sort', this, options);
+    return this;
+  },
+
+  toArray() {
+    return this.models.map(model => model.toObject());
+  },
+
+  isDestroyed() {
+    return this._isDestroyed;
+  },
+
+  destroy(options?: unknown) {
+    if (this._isDestroyed) { return this; }
+    this._isDestroyed = true;
+    for (let index = this.models.length; index--;) { this._unbindModel(this.models[index]); }
+    this.triggerMethod('destroy', this, options);
+    this.stopListening();
+    this.off();
+    return this;
+  }
+} satisfies ThisType<CollectionInstanceRuntime> & Pick<CollectionInstanceRuntime,
+  'model' | '_isDestroyed' | 'initialize' | '_prepareModel' | '_bindModel' |
+  '_unbindModel' | '_bindModels' | '_replaceBindings' |
+  '_onModelEvent' | 'at' | 'get' | 'indexOf' | 'forEach' | 'map' |
+  'reset' | 'move' | 'sort' | 'toArray' |
+  'isDestroyed' | 'destroy'> & {
+  add(models: ModelInput | ReadonlyArray<ModelInput> | null, options?: MutationOptions | null): ModelType | ModelType[] | undefined;
+  remove(models: unknown, options?: MutationOptions | null): ModelType | ModelType[] | undefined;
+});
+
+Collection.prototype[Symbol.iterator] = function(this: CollectionInstanceRuntime) {
+  return this.models[Symbol.iterator]();
+};
+
+export default Collection;

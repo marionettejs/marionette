@@ -1,0 +1,12 @@
+{
+  "name": "marionette-jquery-dom-api-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node validate.mjs"
+  },
+  "dependencies": {
+    "jquery": "4.0.0",
+    "jsdom": "^30.1.1"
+  }
+}

@@ -1,9 +1,11 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import '../../setup/backbone.js';
 // Anything viewComparator related
 
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/collection-view';
-import View from '../../../src/view';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
 
 describe('CollectionView - Sorting', function() {
   let collection;
@@ -31,9 +33,9 @@ describe('CollectionView - Sorting', function() {
     MyCollectionView = CollectionView.extend({
       tagName: 'ul',
       childView: MyChildView,
-      onBeforeSort: this.sinon.stub(),
-      onSort: this.sinon.stub(),
-      onRenderChildren: this.sinon.stub()
+      onBeforeSort: vi.fn(),
+      onSort: vi.fn(),
+      onRenderChildren: vi.fn()
     });
   });
 
@@ -67,32 +69,33 @@ describe('CollectionView - Sorting', function() {
 
 
       it('should not sort the collection', function() {
-        expect(myCollectionView.$el.text()).to.equal(noSortText);
+        expect(myCollectionView.el.textContent).to.equal(noSortText);
       });
 
       it('should not call "before:sort" event', function() {
-        expect(myCollectionView.onBeforeSort).to.not.be.called;
+        expect(myCollectionView.onBeforeSort).not.toHaveBeenCalled();
       });
 
       it('should not call "sort" event', function() {
-        expect(myCollectionView.onSort).to.not.be.called;
+        expect(myCollectionView.onSort).not.toHaveBeenCalled();
       });
 
       describe('when resorting the collection', function() {
         beforeEach(function() {
-          this.sinon.spy(myCollectionView, 'sort');
           collection.comparator = 'sort';
           collection.sort();
         });
 
-        it('should not call sort', function() {
-          expect(myCollectionView.sort).to.not.be.called;
+        it('should reconcile the source order without sort events', function() {
+          expect(myCollectionView.onBeforeSort).not.toHaveBeenCalled();
+          expect(myCollectionView.onSort).not.toHaveBeenCalled();
+          expect(myCollectionView.el.textContent).to.equal(sortText);
         });
 
-        it('should not resort the children on sort', function() {
+        it('should not apply a presentation sort', function() {
           myCollectionView.sort();
 
-          expect(myCollectionView.$el.text()).to.equal(noSortText);
+          expect(myCollectionView.el.textContent).to.equal(sortText);
         });
       });
     });
@@ -109,19 +112,17 @@ describe('CollectionView - Sorting', function() {
 
 
         it('should sort the collection by the collection index', function() {
-          expect(myCollectionView.$el.text()).to.equal(noSortText);
+          expect(myCollectionView.el.textContent).to.equal(noSortText);
         });
 
         it('should call "before:sort" event', function() {
-          expect(myCollectionView.onBeforeSort)
-            .to.have.been.calledOnce
-            .and.calledWith(myCollectionView);
+          expect(myCollectionView.onBeforeSort).toHaveBeenCalledTimes(1);
+          expect(myCollectionView.onBeforeSort.mock.calls.map(args => args.slice(0, 1))).toContainEqual([myCollectionView]);
         });
 
         it('should call "sort" event', function() {
-          expect(myCollectionView.onSort)
-            .to.have.been.calledOnce
-            .and.calledWith(myCollectionView);
+          expect(myCollectionView.onSort).toHaveBeenCalledTimes(1);
+          expect(myCollectionView.onSort.mock.calls.map(args => args.slice(0, 1))).toContainEqual([myCollectionView]);
         });
 
         describe('when resorting the collection', function() {
@@ -131,7 +132,7 @@ describe('CollectionView - Sorting', function() {
 
             myCollectionView.render();
 
-            expect(myCollectionView.$el.text()).to.equal(sortText);
+            expect(myCollectionView.el.textContent).to.equal(sortText);
           });
         });
       });
@@ -147,11 +148,11 @@ describe('CollectionView - Sorting', function() {
         });
 
         it('should not call "before:sort" event', function() {
-          expect(myCollectionView.onBeforeSort).to.not.be.called;
+          expect(myCollectionView.onBeforeSort).not.toHaveBeenCalled();
         });
 
         it('should not call "sort" event', function() {
-          expect(myCollectionView.onSort).to.not.be.called;
+          expect(myCollectionView.onSort).not.toHaveBeenCalled();
         });
       });
     });
@@ -169,19 +170,17 @@ describe('CollectionView - Sorting', function() {
       });
 
       it('should sort the collectionView by the viewComparator', function() {
-        expect(myCollectionView.$el.text()).to.equal(altSortText);
+        expect(myCollectionView.el.textContent).to.equal(altSortText);
       });
 
       it('should call "before:sort" event', function() {
-        expect(myCollectionView.onBeforeSort)
-          .to.have.been.calledOnce
-          .and.calledWith(myCollectionView);
+        expect(myCollectionView.onBeforeSort).toHaveBeenCalledTimes(1);
+        expect(myCollectionView.onBeforeSort.mock.calls.map(args => args.slice(0, 1))).toContainEqual([myCollectionView]);
       });
 
       it('should call "sort" event', function() {
-        expect(myCollectionView.onSort)
-          .to.have.been.calledOnce
-          .and.calledWith(myCollectionView);
+        expect(myCollectionView.onSort).toHaveBeenCalledTimes(1);
+        expect(myCollectionView.onSort.mock.calls.map(args => args.slice(0, 1))).toContainEqual([myCollectionView]);
       });
     });
 
@@ -190,9 +189,9 @@ describe('CollectionView - Sorting', function() {
       let viewComparator;
 
       beforeEach(function() {
-        viewComparator = this.sinon.stub();
+        viewComparator = vi.fn();
 
-        viewComparator.returns('sort');
+        viewComparator.mockReturnValue('sort');
 
         myCollectionView = new MyCollectionView({
           viewComparator: function(val) {
@@ -205,7 +204,7 @@ describe('CollectionView - Sorting', function() {
       });
 
       it('should call it with the context of the collectionView', function() {
-        expect(viewComparator).to.be.calledOn(myCollectionView);
+        expect(viewComparator.mock.contexts).toContain(myCollectionView);
       });
     });
   });
@@ -230,7 +229,7 @@ describe('CollectionView - Sorting', function() {
 
     it('should sort by the return of getComparator', function() {
 
-      expect(myCollectionView.$el.text()).to.equal(altSortText);
+      expect(myCollectionView.el.textContent).to.equal(altSortText);
     });
   });
 
@@ -240,19 +239,19 @@ describe('CollectionView - Sorting', function() {
         collection
       });
       myCollectionView.render();
-      myCollectionView.onSort.reset();
+      myCollectionView.onSort.mockClear();
       myCollectionView.sort();
 
-      expect(myCollectionView.onSort).to.have.been.calledOnce;
+      expect(myCollectionView.onSort).toHaveBeenCalledTimes(1);
     });
 
     it('should return the collectionView instance', function() {
       const myCollectionView = new CollectionView();
-      this.sinon.spy(myCollectionView, 'sort');
+      vi.spyOn(myCollectionView, 'sort');
 
       myCollectionView.sort();
 
-      expect(myCollectionView.sort).to.have.returned(myCollectionView);
+      expect(myCollectionView.sort).toHaveReturnedWith(myCollectionView);
     });
 
     describe('when the view is destroyed', function() {
@@ -263,7 +262,7 @@ describe('CollectionView - Sorting', function() {
           collection
         });
 
-        this.sinon.spy(myCollectionView, 'sort');
+        vi.spyOn(myCollectionView, 'sort');
 
         myCollectionView.destroy();
 
@@ -271,15 +270,15 @@ describe('CollectionView - Sorting', function() {
       });
 
       it('should not sort the children', function() {
-        expect(myCollectionView.onBeforeSort).to.not.have.been.called;
+        expect(myCollectionView.onBeforeSort).not.toHaveBeenCalled();
       });
 
       it('should not render the children', function() {
-        expect(myCollectionView.onRenderChildren).to.not.have.been.called;
+        expect(myCollectionView.onRenderChildren).not.toHaveBeenCalled();
       });
 
       it('should return the collectionView', function() {
-        expect(myCollectionView.sort).to.have.returned(myCollectionView);
+        expect(myCollectionView.sort).toHaveReturnedWith(myCollectionView);
       });
     });
 
@@ -289,35 +288,133 @@ describe('CollectionView - Sorting', function() {
       beforeEach(function() {
         myCollectionView = new MyCollectionView();
 
-        this.sinon.spy(myCollectionView, 'sort');
+        vi.spyOn(myCollectionView, 'sort');
 
         myCollectionView.sort();
       });
 
       it('should not sort the children', function() {
-        expect(myCollectionView.onBeforeSort).to.not.have.been.called;
+        expect(myCollectionView.onBeforeSort).not.toHaveBeenCalled();
       });
 
       it('should render no children', function() {
-        expect(myCollectionView.onRenderChildren)
-          .to.have.been.calledOnce
-          .and.calledWith(myCollectionView, []);
+        expect(myCollectionView.onRenderChildren).toHaveBeenCalledTimes(1);
+        expect(myCollectionView.onRenderChildren.mock.calls.map(args => args.slice(0, 2))).toContainEqual([myCollectionView, []]);
       });
 
       it('should return the collectionView', function() {
-        expect(myCollectionView.sort).to.have.returned(myCollectionView);
+        expect(myCollectionView.sort).toHaveReturnedWith(myCollectionView);
       });
+    });
+  });
+
+  describe('default source ordering', function() {
+    it('reads one source snapshot when sorting an existing list', function() {
+      const view = new MyCollectionView({ collection }).render();
+      const models = vi.spyOn(view.Data, 'models');
+
+      view.sort();
+
+      expect(models).toHaveBeenCalledTimes(1);
+      expect(models.mock.calls.map(args => args.slice(0, 1))).toContainEqual([collection]);
+      expect(view.el.textContent).to.equal(noSortText);
+      view.destroy();
+    });
+
+    it('uses one source snapshot to validate and sort a collection change', function() {
+      const view = new MyCollectionView({ collection }).render();
+      const models = vi.spyOn(view.Data, 'models');
+      const added = collection.add({ index: 5, sort: 6, altSort: 0 }, { at: 2 });
+
+      expect(models).toHaveBeenCalledTimes(1);
+      expect(view.children.findByIndex(2).model).to.equal(added);
+      view.destroy();
+    });
+
+    it('reads the source after before:sort changes its order silently', function() {
+      const view = new MyCollectionView({ collection }).render();
+      view.once('before:sort', () => {
+        collection.comparator = 'sort';
+        collection.sort({ silent: true });
+      });
+
+      view.sort();
+
+      expect(view.el.textContent).to.equal(sortText);
+      view.destroy();
+    });
+
+    it('does not read the source when before:sort destroys the view', function() {
+      const view = new MyCollectionView({ collection }).render();
+      const models = vi.spyOn(view.Data, 'models');
+      view.once('before:sort', () => view.destroy());
+
+      view.sort();
+
+      expect(models).not.toHaveBeenCalled();
+      expect(view.isDestroyed()).toBe(true);
+    });
+
+    it('preserves an overridden source comparator', function() {
+      const comparator = vi.fn(function(child) {
+        return -child.model.get('index');
+      });
+      const CustomList = MyCollectionView.extend({ viewComparator: comparator });
+      const view = new CustomList({ collection }).render();
+
+      expect(view.children.map(child => child.model.get('index'))).to.deep.equal([4, 3, 2, 1, 0]);
+      expect(comparator.mock.contexts).toContain(view);
+      view.destroy();
+    });
+
+    it('preserves a replacement of the base prototype comparator', function() {
+      const comparator = vi.fn(function(child) { return -child.model.get('index'); });
+      vi.spyOn(CollectionView.prototype, 'getComparator').mockReturnValue(comparator);
+      const view = new MyCollectionView({ collection }).render();
+
+      expect(view.children.map(child => child.model.get('index'))).to.deep.equal([4, 3, 2, 1, 0]);
+      expect(comparator.mock.contexts).toContain(view);
+      view.destroy();
+    });
+
+    it('preserves a getComparator wrapper around the source comparator', function() {
+      const comparator = vi.fn();
+      const CustomList = MyCollectionView.extend({
+        getComparator() {
+          const sourceComparator = CollectionView.prototype.getComparator.call(this);
+          return child => {
+            comparator(child);
+            return -sourceComparator.call(this, child);
+          };
+        }
+      });
+      const view = new CustomList({ collection }).render();
+
+      expect(view.children.map(child => child.model.get('index'))).to.deep.equal([4, 3, 2, 1, 0]);
+      expect(comparator.mock.calls.length).to.equal(collection.length);
+      view.destroy();
+    });
+
+    it('keeps children without a source model before the source children', function() {
+      const view = new MyCollectionView({ collection }).render();
+      const child = new View({ template: false });
+
+      view.addChildView(child);
+
+      expect(view.children.first()).to.equal(child);
+      expect(view.children.rest().map(current => current.model)).to.deep.equal(collection.models);
+      view.destroy();
     });
   });
 
   describe('#setComparator', function() {
     it('should return the collectionView instance', function() {
       const myCollectionView = new CollectionView();
-      this.sinon.spy(myCollectionView, 'setComparator');
+      vi.spyOn(myCollectionView, 'setComparator');
 
       myCollectionView.setComparator();
 
-      expect(myCollectionView.setComparator).to.have.returned(myCollectionView);
+      expect(myCollectionView.setComparator).toHaveReturnedWith(myCollectionView);
     });
 
     describe('when setting with a new viewComparator', function() {
@@ -328,7 +425,7 @@ describe('CollectionView - Sorting', function() {
           viewComparator: 'sort'
         });
 
-        this.sinon.spy(myCollectionView, 'sort');
+        vi.spyOn(myCollectionView, 'sort');
         myCollectionView.setComparator('altSort');
       });
 
@@ -337,14 +434,14 @@ describe('CollectionView - Sorting', function() {
       });
 
       it('should sort the collectionView', function() {
-        expect(myCollectionView.sort).to.be.calledOnce;
+        expect(myCollectionView.sort).toHaveBeenCalledTimes(1);
       });
 
       describe('when setting with the same viewComparator', function() {
         it('should not sort the collectionView', function() {
-          myCollectionView.sort.resetHistory();
+          myCollectionView.sort.mockClear();
           myCollectionView.setComparator('altSort');
-          expect(myCollectionView.sort).to.not.be.called;
+          expect(myCollectionView.sort).not.toHaveBeenCalled();
         });
       });
     });
@@ -357,7 +454,7 @@ describe('CollectionView - Sorting', function() {
           viewComparator: 'sort'
         });
 
-        this.sinon.spy(myCollectionView, 'sort');
+        vi.spyOn(myCollectionView, 'sort');
         myCollectionView.setComparator('altSort', { preventRender: true });
       });
 
@@ -367,7 +464,7 @@ describe('CollectionView - Sorting', function() {
 
       it('should not sort the collectionView', function() {
 
-        expect(myCollectionView.sort).to.not.be.called;
+        expect(myCollectionView.sort).not.toHaveBeenCalled();
       });
     });
   });
@@ -377,20 +474,19 @@ describe('CollectionView - Sorting', function() {
 
     beforeEach(function() {
       myCollectionView = new CollectionView();
-      this.sinon.spy(myCollectionView, 'setComparator');
-      this.sinon.spy(myCollectionView, 'removeComparator');
+      vi.spyOn(myCollectionView, 'setComparator');
+      vi.spyOn(myCollectionView, 'removeComparator');
 
       myCollectionView.removeComparator('foo');
     });
 
     it('should call setComparator', function() {
-      expect(myCollectionView.setComparator)
-        .to.be.calledOnce
-        .and.to.be.calledWith(null, 'foo');
+      expect(myCollectionView.setComparator).toHaveBeenCalledTimes(1);
+      expect(myCollectionView.setComparator.mock.calls.map(args => args.slice(0, 2))).toContainEqual([null, 'foo']);
     });
 
     it('should return the collectionView instance', function() {
-      expect(myCollectionView.removeComparator).to.have.returned(myCollectionView);
+      expect(myCollectionView.removeComparator).toHaveReturnedWith(myCollectionView);
     });
   });
 });

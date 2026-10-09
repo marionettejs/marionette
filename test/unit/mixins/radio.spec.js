@@ -1,132 +1,69 @@
-import _ from 'underscore';
-import Backbone from 'backbone';
-import Radio from 'backbone.radio';
-import RadioMixin from '../../../src/mixins/radio';
+import { describe, expect, it, vi } from 'vitest';
+import { createMarionette } from 'marionette';
 
-describe('Radio Mixin on Marionette.Object', function() {
-  let radioObject;
-  let channelFoo;
-
-  beforeEach(function() {
-    radioObject = _.extend({
-      // Simulate implementation
-      initialize() {
-        this._initRadio();
-      },
-      bindEvents: this.sinon.stub(),
-      bindRequests: this.sinon.stub(),
-    }, Backbone.Events, RadioMixin);
-
-    channelFoo = Radio.channel('foo');
+describe('MnObject Radio ownership', () => {
+  it.each([undefined, null, false, 0, ''])('does not resolve bindings for missing channel %s', channelName => {
+    const runtime = createMarionette();
+    const radioEvents = vi.fn(() => { throw new Error('events read'); });
+    const radioRequests = vi.fn(() => { throw new Error('requests read'); });
+    const owner = new runtime.MnObject({ channelName, radioEvents, radioRequests });
+    expect(owner.getChannel()).toBeUndefined();
+    expect(radioEvents).not.toHaveBeenCalled();
+    expect(radioRequests).not.toHaveBeenCalled();
+    owner.destroy();
   });
 
-  describe('when a channelName is not defined', function() {
-    beforeEach(function() {
-      radioObject.initialize();
+  it.each([false, true])('binds events and requests with callable declarations %s', callable => {
+    const runtime = createMarionette();
+    const onChanged = vi.fn();
+    const getValue = vi.fn().mockReturnValue('value');
+    const events = { changed: 'onChanged' };
+    const requests = { value: 'getValue' };
+    const Owner = runtime.MnObject.extend({ onChanged, getValue });
+    const owner = new Owner({
+      channelName: callable ? () => 'owned' : 'owned',
+      radioEvents: callable ? () => events : events,
+      radioRequests: callable ? () => requests : requests
     });
-
-    it('should not have a Radio channel', function() {
-      expect(radioObject.getChannel()).to.be.undefined;
-    });
-
-    it('should not bind radioEvents', function() {
-      expect(radioObject.bindEvents).to.not.have.been.called;
-    });
-
-    it('should not bind radioRequests', function() {
-      expect(radioObject.bindRequests).to.not.have.been.called;
-    });
+    const channel = runtime.Radio.channel('owned');
+    expect(owner.getChannel()).toBe(channel);
+    channel.trigger('changed', 'before');
+    expect(channel.request('value', 'argument')).toBe('value');
+    expect(onChanged).toHaveBeenCalledExactlyOnceWith('before');
+    expect(getValue).toHaveBeenCalledExactlyOnceWith('argument');
+    expect(getValue.mock.contexts[0] === owner).toBe(true);
+    const unrelated = vi.fn();
+    channel.on('changed', unrelated);
+    channel.reply('unrelated', 'retained');
+    owner.destroy();
+    channel.trigger('changed', 'after');
+    expect(onChanged).toHaveBeenCalledTimes(1);
+    expect(unrelated).toHaveBeenCalledTimes(1);
+    expect(channel.request('value')).toBeUndefined();
+    expect(channel.request('unrelated')).toBe('retained');
+    runtime.Radio.reset();
   });
 
-  describe('when a channelName is defined', function() {
-    describe('on the object', function() {
-      it('should have the named Radio channel', function() {
-        radioObject.channelName = 'foo';
-        radioObject.initialize();
-
-        expect(radioObject.getChannel()).to.eql(channelFoo);
-      });
+  it('resolves channel, events, and requests in order on the owner', () => {
+    const runtime = createMarionette();
+    const calls = [];
+    const declaration = (name, value) => function() { calls.push([name, this, arguments.length]); return value; };
+    const owner = new runtime.MnObject({
+      channelName: declaration('channel', 'owned'),
+      radioEvents: declaration('events', {}),
+      radioRequests: declaration('requests', {})
     });
-
-    describe('as a function', function() {
-      it('should have the named Radio channel', function() {
-        radioObject.channelName = this.sinon.stub().returns('foo');
-        radioObject.initialize();
-
-        expect(radioObject.getChannel()).to.eql(channelFoo);
-      });
-    });
+    expect(calls.map(([name]) => name)).toEqual(['channel', 'events', 'requests']);
+    expect(calls.every(([, context, count]) => context === owner && count === 0)).toBe(true);
+    owner.destroy();
   });
 
-  describe('when a radioEvents is defined', function() {
-    beforeEach(function() {
-      radioObject.channelName = 'foo';
-    });
-
-    describe('on the object', function() {
-      it('should bind events to the channel', function() {
-        radioObject.radioEvents = {'bar': 'onBar'};
-        radioObject.initialize();
-
-        expect(radioObject.bindEvents).to.have.been.calledOnce
-          .and.to.have.been.calledWith(channelFoo, {'bar': 'onBar'});
-      });
-    });
-
-    describe('as a function', function() {
-      it('should bind events to the channel', function() {
-        radioObject.radioEvents = this.sinon.stub().returns({'bar': 'onBar'});
-        radioObject.initialize();
-
-        expect(radioObject.bindEvents).to.have.been.calledOnce
-          .and.to.have.been.calledWith(channelFoo, {'bar': 'onBar'});
-      });
-    });
-  });
-
-  describe('when a radioRequests is defined', function() {
-    beforeEach(function() {
-      radioObject.channelName = 'foo';
-    });
-
-    describe('on the object', function() {
-      it('should bind requests to the channel', function() {
-        radioObject.radioRequests = {'baz': 'getBaz'};
-        radioObject.initialize();
-
-        expect(radioObject.bindRequests).to.have.been.calledOnce
-          .and.to.have.been.calledWith(channelFoo, {'baz': 'getBaz'});
-      });
-    });
-
-    describe('as a function', function() {
-      it('should bind requests to the channel', function() {
-        radioObject.radioRequests = this.sinon.stub().returns({'baz': 'getBaz'});
-        radioObject.initialize();
-
-        expect(radioObject.bindRequests).to.have.been.calledOnce
-          .and.to.have.been.calledWith(channelFoo, {'baz': 'getBaz'});
-      });
-    });
-  });
-
-  describe('when an Object is destroyed', function() {
-    let fooChannel;
-
-    beforeEach(function() {
-      radioObject.channelName = 'foo'
-      radioObject.initialize();
-
-      fooChannel = radioObject.getChannel();
-
-      this.sinon.spy(fooChannel, 'stopReplying');
-
-      radioObject.trigger('destroy');
-    });
-
-    it('should stopReplying to the object', function() {
-      expect(fooChannel.stopReplying).to.have.been.calledOnce
-        .and.to.have.been.calledWith(null, null, radioObject);
-    });
+  it('propagates declaration errors before resolving later options', () => {
+    const runtime = createMarionette();
+    const error = new Error('events failed');
+    const radioRequests = vi.fn();
+    expect(() => new runtime.MnObject({ channelName: 'owned', radioEvents() { throw error; }, radioRequests })).toThrow(error);
+    expect(radioRequests).not.toHaveBeenCalled();
+    runtime.Radio.reset();
   });
 });

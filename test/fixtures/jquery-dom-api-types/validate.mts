@@ -1,0 +1,59 @@
+import $ from 'jquery';
+import { View, CollectionView, createMarionette, setDomApi } from 'marionette';
+import JQueryDomApi from '@mnjs/adapters/dom/jquery';
+
+const host = document.createElement('div');
+const fragment = document.createDocumentFragment();
+const result: JQuery<HTMLElement> = JQueryDomApi.findEl(host, '.child');
+class JQueryView extends View {
+  declare $el: JQuery<Element>;
+  initialize() { this.$el = $(this.el); }
+}
+JQueryView.setDomApi(JQueryDomApi);
+const wrapped: JQuery<Element> = new JQueryView({ el: host }).$el;
+
+JQueryDomApi.detachEl(host);
+JQueryDomApi.setContents(host, '<span>child</span>');
+JQueryDomApi.appendContents(host, fragment);
+JQueryDomApi.appendContents(host, '<span>child</span>');
+JQueryDomApi.appendContents(host, wrapped);
+JQueryDomApi.appendContents(host, [document.createElement('span')]);
+// @ts-expect-error Appended collections must contain DOM nodes.
+JQueryDomApi.appendContents(host, [1]);
+JQueryDomApi.detachContents(host);
+
+// @ts-expect-error findEl returns a jQuery collection, not a DOM element.
+const element: Element = JQueryDomApi.findEl(host, '.child');
+// @ts-expect-error A selector must be a string.
+JQueryDomApi.findEl(host, 1);
+// @ts-expect-error The adapter does not expose arbitrary jQuery methods.
+JQueryDomApi.addClass('active');
+
+void result;
+void wrapped;
+void element;
+
+// Configure the installed root and isolated runtimes with the real DOM adapter.
+setDomApi(JQueryDomApi);
+const runtime = createMarionette();
+runtime.setDomApi(JQueryDomApi);
+View.setDomApi(JQueryDomApi);
+runtime.CollectionView.setDomApi(JQueryDomApi);
+const item = new View({ el: host, template: false, model: { label: 'jQuery' } });
+const label: string = item.options.model.label;
+const itemElement: Element = item.el;
+const itemQuery: JQuery<HTMLElement> = JQueryDomApi.findEl(itemElement, '.child');
+const list = new CollectionView({ collection: [{ label: 'jQuery' }], childView: View });
+const isolatedItem = new runtime.View({ template: false });
+const isolatedList = new runtime.CollectionView({ collection: [], childView: runtime.View });
+// @ts-expect-error Configured DOM queries must contain elements, not numbers.
+setDomApi({ ...JQueryDomApi, findEl() { return [1]; } });
+
+// @ts-expect-error Native views do not provide $el.
+new View().$el;
+wrapped.addClass('application-owned');
+void label;
+void itemQuery;
+void list;
+void isolatedItem;
+void isolatedList;

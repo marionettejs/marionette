@@ -1,0 +1,322 @@
+{
+  "schemaVersion": 1,
+  "browserTests": [
+    {
+      "file": "adapters-package.spec.mjs",
+      "title": "packed adapters preserve Backbone and jQuery contracts"
+    },
+    {
+      "file": "application-prepared-view.spec.mjs",
+      "title": "Application composes a detached root and preserves focused content across a header update"
+    },
+    {
+      "file": "application-prepared-view.spec.mjs",
+      "title": "preparing a replacement preserves the displayed screen until Region adoption"
+    },
+    {
+      "file": "application-prepared-view.spec.mjs",
+      "title": "Applications sharing a borrowed Region stop only their own displayed root"
+    },
+    {
+      "file": "attachment-owner-document.spec.mjs",
+      "title": "direct template content attaches parent and child once"
+    },
+    {
+      "file": "attachment-owner-document.spec.mjs",
+      "title": "imported template content attaches parent and child once"
+    },
+    {
+      "file": "consumer-workspace.spec.mjs",
+      "title": "consumer workspace preserves draft focus, rejects stale selection and releases handlers"
+    },
+    {
+      "file": "collection-removal-survivors.spec.mjs",
+      "title": "active filter: removal, reorder, and swap preserve survivor state"
+    },
+    {
+      "file": "collection-removal-survivors.spec.mjs",
+      "title": "custom comparator: removal, reorder, and swap preserve survivor state"
+    },
+    {
+      "file": "collection-removal-survivors.spec.mjs",
+      "title": "default collection order: removal, reorder, and swap preserve survivor state"
+    },
+    {
+      "file": "collection-removal-survivors.spec.mjs",
+      "title": "sort override: removal, reorder, and swap preserve survivor state"
+    },
+    {
+      "file": "collection-removal-survivors.spec.mjs",
+      "title": "unsorted: removal, reorder, and swap preserve survivor state"
+    },
+    {
+      "file": "data-package.spec.mjs",
+      "title": "packed data models collections and state"
+    },
+    {
+      "file": "native-form.spec.mjs",
+      "title": "Native form delegation preserves validation keyboard submission focus and teardown"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "DOM contract registry matches the named browser cases"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "asset server rejects paths outside its explicit asset map"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "jquery: undefined template output renders empty initially and clears previous contents"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: CollectionView releases subscriptions across detach, reattach, and destruction"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: View releases subscriptions across detach, reattach, and destruction"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: a View can adopt contents rendered directly by the DOM adapter"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: a reentrant destroy does not release directives before the outer destroy commits"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: cleanup runs when a terminal destroy handler throws"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: composes with a preselected jQuery DomApi"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: connects and disconnects directives through Region attachment"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: descendants follow CollectionView detach and reattach"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: descendants follow View detach and reattach"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: destroy releases subscriptions after the first content render throws"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: destroys Region children before parent rendering"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: disconnected elements can be adopted by a new View without stale Lit parts"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: monitoring opt-out leaves connection notifications to the application"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: preserves its root through detach/reattach and destroy"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: repeated installation and subclass installation retain public method behavior"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: replaces initial contents, preserves root and survivor, and commits synchronously"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: undefined template output renders empty initially and clears previous contents"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "morphdom: composes with a preselected jQuery DomApi"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "morphdom: destroys Region children before parent rendering"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "morphdom: preserves its root through detach/reattach and destroy"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "morphdom: replaces initial contents, preserves root and survivor, and commits synchronously"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "morphdom: undefined template output renders empty initially and clears previous contents"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "native: undefined template output renders empty initially and clears previous contents"
+    },
+    {
+      "file": "event-delegator-focus.spec.mjs",
+      "title": "blur allows target propagation and releases triggers on destroy"
+    },
+    {
+      "file": "event-delegator-focus.spec.mjs",
+      "title": "blur stops target propagation and releases triggers on destroy"
+    },
+    {
+      "file": "event-delegator-focus.spec.mjs",
+      "title": "focus allows target propagation and releases triggers on destroy"
+    },
+    {
+      "file": "event-delegator-focus.spec.mjs",
+      "title": "focus stops target propagation and releases triggers on destroy"
+    },
+    {
+      "file": "ownership-boundaries.spec.mjs",
+      "title": "uncaught framework errors retain their message and stack in browser reporting"
+    },
+    {
+      "file": "ownership-boundaries.spec.mjs",
+      "title": "utility-extended errors retain native browser exception reporting"
+    },
+    {
+      "file": "ownership-boundaries.spec.mjs",
+      "title": "framework errors preserve native identity and usable stacks with the platform fallback"
+    },
+    {
+      "file": "ownership-boundaries.spec.mjs",
+      "title": "host and Behavior delegation survives rerender and releases independent ownership"
+    },
+    {
+      "file": "ownership-boundaries.spec.mjs",
+      "title": "replacement Regions release detached children without disturbing a later owner"
+    },
+    {
+      "file": "development-kit.spec.mjs",
+      "title": "installed TypeScript consumer fixture releases old owners across repeated Vite edits"
+    },
+    {
+      "file": "view-render-attributes.spec.mjs",
+      "title": "root attribute refresh preserves browser state"
+    },
+    {
+      "file": "application-child-activation.spec.mjs",
+      "title": "Application optional children activate explicitly and stop beneath a stopped owner"
+    },
+    {
+      "file": "application-start-region.spec.mjs",
+      "title": "registered child follows a recreated parent layout Region across stop/start"
+    },
+    {
+      "file": "application-start-region.spec.mjs",
+      "title": "a borrowed shell survives canceled loading and explicit controller reset"
+    },
+    {
+      "file": "application-state-events.spec.mjs",
+      "title": "Application state events stop synchronously and seed fresh UI on start"
+    },
+    {
+      "file": "application-state-events.spec.mjs",
+      "title": "restart completion can stop its newly mounted root"
+    },
+    {
+      "file": "application-restart-completion.spec.mjs",
+      "title": "restart completion explicitly replaces roots without stop notifications"
+    },
+    {
+      "file": "interaction-boundaries.spec.mjs",
+      "title": "Native View handles actual hover boundaries and nested clicks"
+    },
+    {
+      "file": "interaction-boundaries.spec.mjs",
+      "title": "Morphdom rerender can retain a loaded iframe and its browsing state"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented local editing retains focus and cleans up borrowed-model listeners"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented existing HTML preserves native controls until the View is destroyed"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented restart retains unfinished input and focus"
+    },
+    {
+      "file": "destroy-listener-cleanup.spec.mjs",
+      "title": "a surviving owner releases replaced screens after their final notifications"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented draft save preserves input through failure and retry"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented draft teardown aborts a pending browser save"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented asynchronous navigation retains its shell through readiness and errors"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented host mount preserves the host and ends detached interaction"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented navigation handles direct links, history, focus and listener cleanup"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented list retains row input through sorting and filtering"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented accessible toggle supports keyboard and explicit replacement focus"
+    },
+    {
+      "file": "docs-guides.spec.mjs",
+      "title": "Documented dialog closes before render, detach and destroy"
+    },
+    {
+      "file": "application-retained-restart.spec.mjs",
+      "title": "retained restart keeps loading and failed UI interactive and commits only latest preparation"
+    }
+  ],
+  "fixtures": [
+    "adapters-package-vite",
+    "attachment-owner-document",
+    "backbone-adapter",
+    "backbone-adapter-types",
+    "cjs-adapters",
+    "cjs-node",
+    "collection-removal-survivors",
+    "consumer-lint",
+    "core-no-underscore",
+    "core-types",
+    "data-package-cjs",
+    "data-package-esm",
+    "data-package-starter",
+    "data-package-types",
+    "data-package-vite",
+    "docs-package",
+    "docs-quick-start",
+    "dom-adapters-package",
+    "esm-node",
+    "jquery-dom-api",
+    "jquery-dom-api-types",
+    "no-default-export",
+    "removed-core-adapters",
+    "standalone-packages",
+    "utils-package",
+    "vite",
+    "xstate-adapter-types"
+  ]
+}

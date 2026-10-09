@@ -1,0 +1,8 @@
+{
+  "name": "marionette-esm-node-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node validate.mjs"
+  }
+}

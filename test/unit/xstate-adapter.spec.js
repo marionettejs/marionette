@@ -1,0 +1,305 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { assign, createActor, createMachine, emit } from 'xstate';
+import { createMarionette } from 'marionette';
+import createXStateActorApi from '@mnjs/adapters/xstate';
+
+const childMachine = createMachine({
+  context: ({ input }) => ({ id: input.id, label: input.label }),
+  on: {
+    rename: {
+      actions: assign({ label: ({ event }) => event.label })
+    },
+    announce: {
+      actions: emit(({ context }) => ({ type: 'announced', label: context.label }))
+    }
+  }
+});
+
+const parentMachine = createMachine({
+  context: ({ input }) => ({ models: input.models, unrelated: 0 }),
+  on: {
+    replace: {
+      actions: assign({ models: ({ event }) => event.models })
+    },
+    updateUnrelated: {
+      actions: assign({ unrelated: ({ context }) => context.unrelated + 1 })
+    }
+  }
+});
+
+function createChild(id, label) {
+  return createActor(childMachine, { input: { id, label } }).start();
+}
+
+function createParent(models) {
+  return createActor(parentMachine, { input: { models } }).start();
+}
+
+describe('XState actor adapter', function() {
+  let actors;
+
+  beforeEach(function() {
+    actors = [];
+  });
+
+  afterEach(function() {
+    actors.forEach(actor => actor.stop());
+  });
+
+  function track(actor) {
+    actors.push(actor);
+    return actor;
+  }
+
+  it('renders and reconciles stable child actor references through public APIs', function() {
+    const first = track(createChild(1, 'one'));
+    const second = track(createChild(2, 'two'));
+    const parent = track(createParent([first, second]));
+    const ActorApi = createXStateActorApi({
+      select: snapshot => snapshot.context.models,
+      snapshotEvent: 'actor:snapshot'
+    });
+    const runtime = createMarionette();
+    const ChildView = runtime.View.extend({
+      template: context => context.label,
+      modelEvents: { 'actor:snapshot': 'render', announced: 'onAnnounced' },
+      onAnnounced(event) { this.announcement = event.label; }
+    });
+    const ListView = runtime.CollectionView.extend({ childView: ChildView });
+    ChildView.setDataApi(ActorApi);
+    ListView.setDataApi(ActorApi);
+    const view = new ListView({ collection: parent }).render();
+    const firstView = view.children.findByModel(first);
+    const secondView = view.children.findByModel(second);
+
+    expect(view.el.textContent).to.equal('onetwo');
+    first.send({ type: 'rename', label: 'updated' });
+    first.send({ type: 'announce' });
+    expect(firstView.el.textContent).to.equal('updated');
+    expect(firstView.announcement).to.equal('updated');
+
+    const third = track(createChild(3, 'three'));
+    parent.send({ type: 'replace', models: [second, first, third] });
+    expect(view.children.toArray().map(child => child.model))
+      .to.deep.equal([second, first, third]);
+    expect(view.children.findByModel(first)).to.equal(firstView);
+    expect(view.children.findByModel(second)).to.equal(secondView);
+
+    parent.send({ type: 'replace', models: [third, first] });
+    expect(secondView.isDestroyed()).toBe(true);
+    view.destroy();
+    expect(parent.getSnapshot().status).to.equal('active');
+    expect(first.getSnapshot().status).to.equal('active');
+  });
+
+  it('ignores unrelated parent snapshots and supports multiple observers', function() {
+    const first = track(createChild(1, 'one'));
+    const parent = track(createParent([first]));
+    let keyCalls = 0;
+    const ActorApi = createXStateActorApi({
+      select: snapshot => snapshot.context.models
+    });
+    const originalKey = ActorApi.key;
+    ActorApi.key = actor => {
+      keyCalls++;
+      return originalKey(actor);
+    };
+    const firstObserver = vi.fn();
+    const secondObserver = vi.fn();
+    const stopFirst = ActorApi.observeCollection(parent, firstObserver);
+    const stopSecond = ActorApi.observeCollection(parent, secondObserver);
+    keyCalls = 0;
+
+    parent.send({ type: 'updateUnrelated' });
+    expect(firstObserver).not.toHaveBeenCalled();
+    expect(secondObserver).not.toHaveBeenCalled();
+    expect(keyCalls).to.equal(0);
+
+    const second = track(createChild(2, 'two'));
+    parent.send({ type: 'replace', models: [first, second] });
+    stopFirst();
+    stopFirst();
+    parent.send({ type: 'replace', models: [first] });
+
+    expect(firstObserver).toHaveBeenCalledTimes(1);
+    expect(secondObserver).toHaveBeenCalledTimes(2);
+    stopSecond();
+  });
+
+  it('reports a pure actor reorder and ignores equivalent selected arrays', function() {
+    const first = track(createChild(1, 'one'));
+    const second = track(createChild(2, 'two'));
+    const parent = track(createParent([first, second]));
+    const ActorApi = createXStateActorApi({ select: snapshot => snapshot.context.models });
+    const context = {};
+    const callback = vi.fn();
+    const cleanup = ActorApi.observeCollection(parent, callback, context);
+
+    parent.send({ type: 'replace', models: [first, second] });
+    expect(callback).not.toHaveBeenCalled();
+    parent.send({ type: 'replace', models: [second, first] });
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback.mock.contexts).toContain(context);
+    expect(callback.mock.calls.at(0)).to.deep.equal([{ kind: 'reorder' }]);
+    cleanup();
+  });
+
+  it('requires an ordered selection of distinct actor references', function() {
+    const actor = track(createChild(1, 'one'));
+    const parent = track(createParent([actor]));
+    expect(() => createXStateActorApi({ select: () => [actor, actor] })
+      .observeCollection(parent, () => {}))
+      .to.throw(TypeError, 'duplicate actor reference');
+    expect(() => createXStateActorApi({ select: () => [undefined] })
+      .observeCollection(parent, () => {}))
+      .to.throw(TypeError, 'missing actor at index 0');
+  });
+
+  it('subscribes to snapshots and emitted events with native payloads', function() {
+    const actor = track(createChild(1, 'one'));
+    const ActorApi = createXStateActorApi({
+      select: () => [],
+      snapshotEvent: 'actor:snapshot'
+    });
+    const context = {};
+    const snapshots = vi.fn();
+    const announcements = vi.fn();
+    const stopSnapshots = ActorApi.subscribe(actor, 'actor:snapshot', snapshots, context);
+    const stopAnnouncements = ActorApi.subscribe(actor, 'announced', announcements, context);
+
+    expect(snapshots).not.toHaveBeenCalled();
+    actor.send({ type: 'rename', label: 'updated' });
+    actor.send({ type: 'announce' });
+    expect(snapshots.mock.contexts).toContain(context);
+    expect(snapshots.mock.calls.at(-1)[0].context.label).to.equal('updated');
+    expect(announcements).toHaveBeenCalledTimes(1);
+    expect(announcements.mock.contexts).toContain(context);
+    expect(announcements.mock.calls.at(0)).to.deep.equal([{ type: 'announced', label: 'updated' }]);
+
+    stopSnapshots();
+    stopSnapshots();
+    stopAnnouncements();
+    actor.send({ type: 'rename', label: 'late' });
+    actor.send({ type: 'announce' });
+    expect(snapshots.mock.calls.at(-1)[0].context.label).to.equal('updated');
+    expect(announcements).toHaveBeenCalledTimes(1);
+  });
+
+  it('forwards unconfigured event names without reserving a domain event', function() {
+    const actor = track(createChild(1, 'one'));
+    const ActorApi = createXStateActorApi({ select: () => [] });
+    const snapshotEvent = vi.fn();
+    const cleanup = ActorApi.subscribe(actor, 'announced', snapshotEvent);
+
+    actor.send({ type: 'announce' });
+
+    expect(snapshotEvent).toHaveBeenCalledTimes(1);
+    expect(snapshotEvent.mock.calls.map(args => args.slice(0, 1))).toContainEqual([{
+      type: 'announced',
+      label: 'one'
+    }]);
+    cleanup();
+  });
+
+  it('reads actor context and preserves actor-reference identity', function() {
+    const actor = track(createChild(1, 'one'));
+    const ActorApi = createXStateActorApi();
+
+    expect(ActorApi.key(actor)).to.equal(actor);
+    expect(ActorApi.get(actor, 'label')).to.equal('one');
+    expect(ActorApi.get(actor, 'missing')).toBeUndefined();
+    expect(ActorApi.has(actor, 'label')).toBe(true);
+    expect(ActorApi.has(actor, 'missing')).toBe(false);
+    expect(ActorApi.serialize(actor)).to.equal(actor.getSnapshot().context);
+    expect(ActorApi).to.not.have.property('models');
+    expect(ActorApi).to.not.have.property('observeCollection');
+  });
+
+  it('treats a respawned actor with the same id as a new model identity', function() {
+    const first = track(createActor(childMachine, {
+      id: 'shared-id',
+      input: { id: 1, label: 'first' }
+    }).start());
+    const replacement = track(createActor(childMachine, {
+      id: 'shared-id',
+      input: { id: 1, label: 'replacement' }
+    }).start());
+    const parent = track(createParent([first]));
+    const ActorApi = createXStateActorApi({
+      select: snapshot => snapshot.context.models
+    });
+    const runtime = createMarionette();
+    const ChildView = runtime.View.extend({ template: context => context.label });
+    const ListView = runtime.CollectionView.extend({ childView: ChildView });
+    ChildView.setDataApi(ActorApi);
+    ListView.setDataApi(ActorApi);
+    const view = new ListView({ collection: parent }).render();
+    const firstView = view.children.first();
+
+    parent.send({ type: 'replace', models: [replacement] });
+
+    expect(firstView.isDestroyed()).toBe(true);
+    expect(view.children.first().model).to.equal(replacement);
+    expect(view.el.textContent).to.equal('replacement');
+    view.destroy();
+  });
+
+  it('stops only factory-owned state actors', function() {
+    const borrowed = track(createChild(1, 'borrowed'));
+    const owned = track(createChild(2, 'owned'));
+    const ActorApi = createXStateActorApi();
+    const runtime = createMarionette();
+    const Borrower = runtime.MnObject.extend({ state: borrowed });
+    const Owner = runtime.MnObject.extend({ createState: () => owned });
+    Borrower.setStateApi(ActorApi);
+    Owner.setStateApi(ActorApi);
+
+    new Borrower().destroy();
+    const owner = new Owner();
+    owner.getState();
+    owner.destroy();
+
+    expect(borrowed.getSnapshot().status).to.equal('active');
+    expect(owned.getSnapshot().status).to.equal('stopped');
+  });
+
+  it('releases owned actor subscriptions before stopping the actor', function() {
+    const calls = [];
+    const actor = {
+      getSnapshot: () => ({ context: {} }),
+      subscribe() {
+        calls.push('subscribe');
+        return { unsubscribe() { calls.push('unsubscribe'); } };
+      },
+      on() { return { unsubscribe() {} }; },
+      stop() { calls.push('stop'); }
+    };
+    const ActorApi = createXStateActorApi({ snapshotEvent: 'actor:snapshot' });
+    const runtime = createMarionette();
+    const Owner = runtime.MnObject.extend({
+      createState: () => actor,
+      stateEvents: { 'actor:snapshot': 'onSnapshot' },
+      onSnapshot() {}
+    });
+    Owner.setStateApi(ActorApi);
+
+    new Owner().destroy();
+
+    expect(calls).to.deep.equal(['subscribe', 'unsubscribe', 'stop']);
+  });
+
+  it('diagnoses malformed actor sources and snapshots', function() {
+    const ActorApi = createXStateActorApi({ select: snapshot => snapshot.models });
+    const noSnapshot = { subscribe() { return () => {}; } };
+    const noContext = { getSnapshot: () => ({}), subscribe() { return () => {}; } };
+    const primitiveContext = { getSnapshot: () => ({ context: 'invalid' }) };
+    expect(() => ActorApi.models(noSnapshot)).to.throw(TypeError, 'missing synchronous snapshot');
+    expect(() => ActorApi.models(null)).to.throw(TypeError, 'missing synchronous snapshot');
+    expect(() => ActorApi.serialize(noContext)).to.throw(TypeError, 'object snapshot context');
+    expect(() => ActorApi.serialize(primitiveContext)).to.throw(TypeError, 'object snapshot context');
+    expect(() => createXStateActorApi({ select: () => [], snapshotEvent: '' }))
+      .to.throw(TypeError, 'snapshotEvent must be a non-empty string');
+
+  });
+
+});

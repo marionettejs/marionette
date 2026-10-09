@@ -1,134 +1,233 @@
-Marionette has a few guidelines to facilitate your contribution and streamline
-the process of getting changes merged in and released.
+# Contributing to Marionette
 
-1. [Setting up Marionette locally](#setting-up-marionette-locally)
-2. [Reporting a bug](#reporting-a-bug)
-3. [Submitting patches and fixes](#submitting-patches-and-fixes)
-4. [Running Tests](#running-tests)
+Marionette is community-maintained. Focused bug reports, contract tests,
+documentation corrections, and implementation pull requests are welcome.
 
+Accepted pre-cutover stable-v5 evidence and its limits are recorded in
+[issue #574](https://github.com/marionettejs/marionette-develop/issues/574). Track new work in the
+[canonical issue tracker](https://github.com/marionettejs/marionette/issues). The
+[release test guide](test/README.md#exact-release-candidates) describes certification.
+Stable-v5 work must be reproducible from public artifacts and must state its
+production runtime-cost boundary.
 
-## Setting up Marionette locally
+## Set up the repository
 
-* Fork the Marionette repo.
-* `git clone` your fork onto your computer.
-* Run `yarn install` to make sure you have all Marionette dependencies locally.
-* Run `yarn build` to build source files.
+1. Fork and clone `marionettejs/marionette`.
+2. Create a focused branch from `master`.
+3. Select the exact Node and npm versions in the
+   [source and release profile](config/release-profile.json).
+4. Run `npm run check:release-profile` to verify the source toolchain.
+5. Install the pinned dependency graph with `npm ci`.
+6. Choose the [checks for your change](test/README.md#choose-the-smallest-useful-check)
+   before opening a pull request.
 
-## Reporting a bug
+```sh
+npm run check:release-profile
+npm ci
+```
 
-In order to best help out with bugs, we need to know the following information
-in your bug submission:
+Consumer LTS compatibility is checked separately from this pinned source toolchain.
+See the [quick start](docs/quick-start.md) for the verified consumer versions.
+The Node 22.22.2 and 24.15.0 floors are tested support boundaries for the complete
+consumer experience, including the documented JSDOM 30 testing recipe; they are
+not intrinsic browser-runtime API requirements. A future development-dependency
+bump must not silently raise these floors: changing consumer support requires an
+explicit policy review and installed-artifact verification. Newer Node versions
+may install the packages; the LTS matrix records the verified set, with Node 26
+checked separately as advisory. All five manifests must match `consumerNodeRange`.
 
-* Marionette version #.
-* Backbone version #.
+`npm ci` builds the packages and checks the core distributions through `prepare`.
+Generated `dist/` directories and `src/version.js` are ignored by Git; edit source files
+and their co-located TypeScript contracts. Declarations are generated for all five
+packages; do not maintain separate handwritten copies. After source edits, run
+`npm run build` before distribution or browser checks. The fixture runner builds
+once before packing local packages; supplying an artifact directory or all five
+tarballs skips rebuilding.
 
-Including this information in a submission will help us test the problem and
-ensure that the bug is both reproduced and corrected on the platforms /
-versions that you are having issues with.
+`npm pack` and npm Git installs
+run `prepare` automatically under your selected Node/npm; npm does not select the
+pinned source versions for you. Use the source toolchain above for these builds.
+Installing a published tarball uses its compiled files.
+If npm uses `strict-allow-scripts`, approve Marionette's `prepare` lifecycle for a
+Git dependency. Tarball consumers can deny scripts because the package is prebuilt.
 
-<a name="format-desc"></a>**Provide A Meaningful Description**
+`npm run size` reports bundle sizes and checks production artifacts and module
+graphs. Size growth and new adapters do not require budget approval during v5
+development. `npm run performance:timing` records informative hosted timings.
+The [performance configuration](config/performance.json) records measurement
+inputs; package correctness checks still fail on broken artifacts.
 
-It is very important to provide a meaningful description with your bug reports
-and pull requests. A good format for these descriptions will include the
-following things:
+The full coverage and fixture commands take longer than a focused test. Run the
+smallest useful test while developing, then run the checks required by the linked
+issue before requesting review.
 
-1. The problem you are facing (in as much detail as is necessary to describe
-the problem to someone who doesn't know anything about the system you're
-building)
+## Prepare candidate packages
 
-2. A summary of the proposed solution
+From the framework checkout, using the toolchain in the release profile:
 
-3. A description of how this solution solves the problem, in more detail than
-item #2
+```sh
+npm ci --ignore-scripts
+npm run build
+mkdir -p ../marionette-v5-artifacts
+npm pack ./.package ./packages/utils ./packages/radio ./packages/adapters ./packages/data --ignore-scripts --pack-destination ../marionette-v5-artifacts
+```
 
-4. Any additional discussion on possible problems this might introduce,
-questions that you have related to the changes, etc.
+Supply the five matching versioned tarballs together in `marionette-v5-artifacts`.
+Consumers can place this directory in their own workspace and follow the
+[quick start](docs/quick-start.md) without a framework checkout. The data package
+is supplied for later integration and is optional for the first UI.
 
-For a PR, we need at least the first 2 items to understand why you are changing
-the code. If not, we will ask that you add the necessary information.
+The build prepares `.package` with the core runtime and selected consumer docs at
+their repository-relative paths. Release and fixture tooling use this same staged
+core package. Its generated `package.json` includes `docs-manifest.json` and the
+consumer skill. The source manifest keeps a narrow runtime-and-root-guides allowlist
+for direct root packs and Git installs; use `.package` for the documented candidate.
 
-Please refrain from giving code examples in altJS languages like CoffeeScript,
-etc. Marionette is written in plain-old JavaScript and is generally easier for all
-members in the community to read.
+Local packing does not establish registry publication. Release evidence and version
+labels must come from the actual published artifact.
 
-### When you don't have a bug fix
+Context7 indexing is configured in root `context7.json`. Include supported release
+tags in `previousVersions` during release preparation so consumers can request
+immutable documentation. The website's [Context7 workflow](https://github.com/marionettejs/marionettejs.com/blob/main/.github/workflows/context7.yml)
+requests a refresh after verified documentation deployments and collects index
+and usage snapshots. Confirm completed indexing and version-matched snippets.
+These measurements guide documentation improvements; they do not establish
+release readiness or agent efficiency.
 
-If you are stuck in a scenario that fails in your app, but you don't know how to
-fix it, submit a failing spec to show the failing scenario. Follow the
-guidelines for a pull request submission, but don't worry about fixing the
-problem. A failing spec to show that a problem exists is a very very very
-helpful pull request for us.
+## Repository layout
 
-We'll even accept a failing test pasted into the ticket description instead of a
-PR. That would at least get us started on creating the failing test in the code.
+Core production source lives under `src/`:
 
-## Submitting patches and fixes
+- `src/modules/` owns framework classes and their module-level contracts;
+- `src/mixins/` owns capabilities composed into those classes;
+- `src/runtime/` owns configurable runtime protocols and defaults;
+- `src/utils/` owns small shared implementation helpers;
+- `src/create-marionette.ts` and `src/runtime-id.ts` own runtime construction and
+  private identity. Runtime identity is not a configurable adapter.
 
-See [Github's documentation for pull
-requests](https://help.github.com/articles/using-pull-requests).
+Separately published packages keep their production source under
+`packages/<name>/src/`. Data/state integrations live in
+`packages/adapters/src/data/`; DOM integrations live in `src/dom/` within that
+package. Shared helpers, Events, and `MarionetteError` live in
+`packages/utils/src/`; Radio and Requests live in `packages/radio/src/`.
+Public imports are defined by the package exports, independently of the
+internal source folders. Unit specs remain under `test/unit/` because Marionette tests
+usually exercise lifecycle, ownership, and composition contracts across several source
+files. Browser, package-fixture, performance, documentation, source, and release tests
+remain in their named `test/` suites. Do not introduce a second adjacent-test convention
+or restore obsolete root-level source paths.
 
-Pull requests are by far the best way to contribute to Marionette. They are by
-far the easiest way to demonstrate issues and your proposed resolution. To
-really help us evaluate your pull request and bring it into Marionette, please
-provide as much information as possible and follow the guidelines below:
+## Working on the library
 
-1. Determine the branch as your base: `next` or `master`
-2. Provide a brief summary of what your pull request is doing
-3. Reference any relevant Github issue numbers
-4. Include any extra detail you feel will help provide context
+Use [AGENTS.md](AGENTS.md) for a short contributor orientation and the
+[API index](docs/api.md) for the affected public contract. Edit authored TypeScript
+beside its implementation; [declaration generation](build/declarations.mjs) builds
+the ESM and CommonJS consumer shapes. Verify changes with the relevant unit and
+declaration consumers from the [test guide](test/README.md).
 
-### Determining your branch
+## Report a bug
 
-When submitting your pull request, you need to determine whether to base off
-`next` or `master`:
+For suspected vulnerabilities, follow the private [security reporting policy](SECURITY.md).
 
-* If you're submitting a bug fix, base off `next`
-* If you're submitting a new feature, base off `next`
-* If you're submitting documentation for a new feature, base off `next`
-* If you're submitting documentation for the current release, base off `master`
+Use the [bug report form](https://github.com/marionettejs/marionette/issues/new/choose)
+and include:
 
-### Submitting a Great Patch
+- the Marionette version or commit;
+- Node, package-manager, bundler, and browser versions when relevant;
+- a minimal public reproduction;
+- expected and actual behavior;
+- whether the behavior differs from a previous Marionette version.
 
-We want Marionette to provide a great experience to developers and help you
-write great applications using it. To help us achieve this goal, please follow
-these guidelines when submitting your patches.
+Do not include private application code, customer data, or credentials.
 
-#### Solving Issues
+## Propose a change
 
-When you're submitting a bug fix, include spec tests, where applicable, showing
-the issue and the resolution. We strive to maintain 100% code coverage in our
-testing.
+Use the bug report or feature request form to describe the problem, desired
+behavior, and any alternatives. Discuss public API, lifecycle, or architecture
+changes before implementing them.
 
-#### Coding Guidelines
+Maintainers use the detailed v5 task form to define architecture and stable-release
+work. Those tasks identify:
 
-The Marionette coding conventions are provided in the ESLint configuration
-included in the repository. Most IDEs and text editors will provide, or allow
-for, a plugin for ESLint to read the `.eslintrc` file.
-For areas where the configuration provides no guidance, try to stick to the
-conventions in the file you're editing.
+- the observed failure or ambiguity;
+- the canonical public behavior;
+- allowed and excluded scope;
+- static, development/test, production, or opt-in runtime cost;
+- acceptance criteria and exact evidence;
+- documentation, diagnostic, type, and package impact;
+- rollback or deprecation conditions.
 
-#### How we Approve Pull Requests
+## Open a pull request
 
-We utilise Github's review approach. When receiving your pull request, we will
-comment inline and provide guidance to help you get your pull request merged
-into Marionette. This is not a one-way process and we're more than happy to
-discuss the context of your decisions.
+Base pull requests on `master` and use the repository pull request template. Keep one
+logical behavior per pull request and remove obsolete tests, docs, or paths when a new
+behavior becomes canonical.
 
-Once two Marionette.js members approve the pull request, we will then merge it
-into the base branch.
+Pull requests should:
 
-Please remember that Marionette is a community-maintained project and, as such,
-many of us are working on this in our spare time. If we haven't commented on
-your pull request, please be patient. We may be available on our Gitter channel
-to discuss further.
+- link the focused issue when applicable;
+- include tests for behavior changes and edge cases;
+- list the commands actually run;
+- measure bundle, hot-path, allocation, and retention impact when required;
+- keep development, test, lint, and benchmark modules out of production entrypoints;
+- avoid compatibility aliases or dual paths without a verified consumer and removal
+  condition.
 
-## Running Tests
+## Code and test style
 
-* via command-line by running `yarn test`
-* in the browser by running `yarn test-browser`
+Follow the existing file style and ESLint configuration. Tests and fixtures must
+use public APIs only: no private reads, calls, overrides, spies, stubs, or assertions.
+Use observable outcomes and supported package entrypoints. See [the test guide](test/README.md)
+and [AGENTS.md](AGENTS.md) for commands, suite organization, and reports.
 
-To see the test matrix - run `yarn coverage`
+Every production file defaults to full coverage. Reviewed unreachable defensive
+paths have explicit absolute uncovered limits in `config/coverage-exceptions.json`;
+reports retain those gaps. Tooling has a separate complete source inventory and
+coverage report. New public subpaths require consumer and package fixtures.
 
-## Writing Tests and Code Style
+## Review
 
-[More information]('test/unit/README.md')
+Maintainers review correctness, public contracts, runtime cost, tests, documentation,
+and release evidence. Automated review is supporting evidence, not a substitute for
+the issue contract or maintainer judgment.
+
+Use the [View lifecycle contract](docs/api/view.md#lifecycle-hooks-and-events)
+when proposing tests or reviewing lifecycle changes. Registration, constructor,
+render, and teardown exceptions abort the synchronous operation; valid adapters and
+working cleanup callbacks are required. Coverage, retention checks, public API usage,
+and mutation survivors do not create a recovery requirement. Do not add constructor
+or partial-registration rollback, cleanup that attempts every callback and rethrows
+the first error, per-instance recovery bookkeeping, or hot-path guards for unsupported
+callback mutation without an explicit maintainer decision. Present any new consumer
+case with its complexity and performance tradeoff before implementing it. Existing
+ownership/idempotence guards and documented asynchronous Application cancellation and
+restart remain supported.
+
+Include this instruction in human and automated reviewer prompts:
+
+> Review against the documented lifecycle and failure contracts. Separate a defect in
+> a supported workflow from a proposed synchronous recovery feature. Do not request
+> rollback, attempt-all cleanup, recovery bookkeeping, or unsupported reentrant
+> mutation guards solely to make a test or mutant pass. Explain any real consumer
+> case and runtime cost so the maintainer can decide before implementation.
+
+## Runtime checks and types
+
+Trust documented argument shapes in library code. Express callbacks, arrays,
+configuration objects, and adapter methods in the public and internal types;
+avoid repeating those shape checks on every invocation. When a private contract
+is known, tighten its type instead of accepting `unknown` and silently skipping
+invalid values. Runtime dispatch between supported alternatives still belongs in
+code, such as a View constructor versus a function that returns one.
+
+Keep checks for facts types cannot establish: ownership conflicts, duplicate or
+changing keys, unresolved named handlers, missing DOM lookup results, and a data
+source incompatible with its configured adapter. Platform feature detection and
+idempotent cleanup also serve runtime behavior. A friendly error alone is not a
+reason to retain a shape check. Unsupported JavaScript arguments have no promised
+error type or recovery behavior.
+
+When removing a shape diagnostic, retire its catalog code, remove tests that
+promise that diagnostic, and cover the contract with TypeScript consumer tests.
+Keep behavioral tests for valid inputs and runtime invariants. Do not add guards
+solely to protect against hypothetical mistakes made by agents.

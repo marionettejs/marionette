@@ -1,0 +1,7 @@
+{
+  "name": "marionette-data-package-cjs-fixture",
+  "private": true,
+  "scripts": {
+    "validate": "node validate.cjs"
+  }
+}

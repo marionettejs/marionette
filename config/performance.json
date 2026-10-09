@@ -1,0 +1,337 @@
+{
+  "schemaVersion": 1,
+  "baseline": {
+    "sourceCommit": "31151c9cb5cb1e11d30da4332f58ca8b56cf2fe4",
+    "brotliQuality": 11,
+    "totalBrotliBytes": 49500
+  },
+  "toolchain": {
+    "releaseProfile": {
+      "path": "config/release-profile.json",
+      "sha256": "917d9e06ffe360273f19e2789cd256b6a60d2e3ef80a57ccfe44682d7c9b11a0",
+      "node": "24.19.0",
+      "npm": "11.17.0",
+      "lockfileVersion": 3,
+      "canonicalHost": {
+        "id": "linux-x64",
+        "runner": "ubuntu-24.04",
+        "platform": "linux",
+        "architecture": "x64"
+      }
+    },
+    "lockedDependencies": {
+      "backbone": "1.6.1",
+      "jsdom": "30.1.1",
+      "rollup": "4.64.0"
+    },
+    "commands": {
+      "deterministic": [
+        "npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04",
+        "npm ci",
+        "npm run size"
+      ],
+      "hostedTiming": [
+        "npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04",
+        "npm ci",
+        "npm run performance:timing"
+      ]
+    }
+  },
+  "thresholds": {
+    "hostedTimingWarningPercent": 10
+  },
+  "runtimeArtifacts": [
+    {
+      "name": "Main ES module",
+      "path": "dist/marionette.js",
+      "baselineBrotliBytes": 12776
+    },
+    {
+      "name": "Main CommonJS",
+      "path": "dist/marionette.cjs",
+      "baselineBrotliBytes": 12932
+    },
+    {
+      "name": "Main UMD",
+      "path": "dist/marionette.umd.js",
+      "baselineBrotliBytes": 13197
+    },
+    {
+      "name": "Main minified UMD",
+      "path": "dist/marionette.min.js",
+      "baselineBrotliBytes": 10001,
+      "additionalShippedArtifact": true
+    },
+    {
+      "name": "Backbone shim ES module",
+      "path": "packages/adapters/dist/backbone.js",
+      "baselineBrotliBytes": 121
+    },
+    {
+      "name": "Backbone shim CommonJS",
+      "path": "packages/adapters/dist/backbone.cjs",
+      "baselineBrotliBytes": 135
+    },
+    {
+      "name": "jQuery DomApi ES module",
+      "path": "packages/adapters/dist/dom/jquery.js",
+      "baselineBrotliBytes": 169
+    },
+    {
+      "name": "jQuery DomApi CommonJS",
+      "path": "packages/adapters/dist/dom/jquery.cjs",
+      "baselineBrotliBytes": 169
+    },
+    {
+      "name": "XState actor adapter ES module",
+      "path": "packages/adapters/dist/xstate.js",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "XState actor adapter CommonJS",
+      "path": "packages/adapters/dist/xstate.cjs",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Morphdom DOM adapter ES module",
+      "path": "packages/adapters/dist/dom/morphdom.js",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Morphdom DOM adapter CommonJS",
+      "path": "packages/adapters/dist/dom/morphdom.cjs",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Lit HTML DOM adapter ES module",
+      "path": "packages/adapters/dist/dom/lit-html.js",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Lit HTML DOM adapter CommonJS",
+      "path": "packages/adapters/dist/dom/lit-html.cjs",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Data ES module",
+      "path": "packages/data/dist/index.js",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Data CommonJS",
+      "path": "packages/data/dist/index.cjs",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Utils ES module",
+      "path": "packages/utils/dist/index.js",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Utils CommonJS",
+      "path": "packages/utils/dist/index.cjs",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Radio ES module",
+      "path": "packages/radio/dist/index.js",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Radio CommonJS",
+      "path": "packages/radio/dist/index.cjs",
+      "baselineBrotliBytes": 0
+    }
+  ],
+  "productionGraphs": [
+    {
+      "subpath": ".",
+      "input": "src/index.ts",
+      "output": "dist/marionette.js",
+      "baselineModules": [
+        "config/dom.js",
+        "config/event-delegator.js",
+        "config/features.js",
+        "config/renderer.js",
+        "index.js",
+        "mixins/behaviors.js",
+        "mixins/common.js",
+        "mixins/delegate-entity-events.js",
+        "mixins/destroy.js",
+        "mixins/events.js",
+        "mixins/radio.js",
+        "mixins/requests.js",
+        "mixins/template-render.js",
+        "mixins/ui.js",
+        "mixins/view-events.js",
+        "mixins/view.js",
+        "modules/application.js",
+        "modules/behavior.js",
+        "modules/child-view-container.js",
+        "modules/collection-view.js",
+        "modules/common/bind-events.js",
+        "modules/common/bind-requests.js",
+        "modules/common/get-option.js",
+        "modules/common/merge-options.js",
+        "modules/common/monitor-view-events.js",
+        "modules/common/normalize-methods.js",
+        "modules/common/radio.js",
+        "modules/common/trigger-method.js",
+        "modules/common/view.js",
+        "modules/object.js",
+        "modules/radio.js",
+        "modules/view-region.js",
+        "utils/build-event-args.js",
+        "utils/call-handler.js",
+        "utils/error.js",
+        "utils/extend.js",
+        "utils/make-callback.js",
+        "utils/once-wrap.js",
+        "utils/proxy.js",
+        "version.js"
+      ],
+      "baselineExternalImports": [
+        "underscore"
+      ]
+    },
+    {
+      "subpath": "@mnjs/adapters/backbone",
+      "input": "packages/adapters/src/data/backbone.ts",
+      "output": "packages/adapters/dist/backbone.js",
+      "baselineModules": [
+        "packages/adapters/src/backbone-api.js",
+        "packages/adapters/src/backbone.js"
+      ],
+      "baselineExternalImports": [
+        "backbone",
+        "marionette",
+        "underscore"
+      ]
+    },
+    {
+      "subpath": "@mnjs/adapters/dom/jquery",
+      "input": "packages/adapters/src/dom/jquery.ts",
+      "output": "packages/adapters/dist/dom/jquery.js",
+      "baselineModules": [
+        "packages/adapters/src/dom/jquery.js"
+      ],
+      "baselineExternalImports": [
+        "jquery"
+      ]
+    },
+    {
+      "subpath": "@mnjs/adapters/xstate",
+      "input": "packages/adapters/src/data/xstate.ts",
+      "output": "packages/adapters/dist/xstate.js",
+      "baselineModules": [],
+      "baselineExternalImports": []
+    },
+    {
+      "subpath": "@mnjs/adapters/dom/morphdom",
+      "input": "packages/adapters/src/dom/morphdom.ts",
+      "output": "packages/adapters/dist/dom/morphdom.js",
+      "baselineModules": [],
+      "baselineExternalImports": []
+    },
+    {
+      "subpath": "@mnjs/adapters/dom/lit-html",
+      "input": "packages/adapters/src/dom/lit-html.ts",
+      "output": "packages/adapters/dist/dom/lit-html.js",
+      "baselineModules": [],
+      "baselineExternalImports": []
+    },
+    {
+      "subpath": "@mnjs/data",
+      "input": "packages/data/src/index.ts",
+      "output": "packages/data/dist/index.js",
+      "baselineModules": [],
+      "baselineExternalImports": []
+    },
+    {
+      "subpath": "@mnjs/utils",
+      "input": "packages/utils/src/index.ts",
+      "output": "packages/utils/dist/index.js",
+      "baselineModules": [],
+      "baselineExternalImports": []
+    },
+    {
+      "subpath": "@mnjs/radio",
+      "input": "packages/radio/src/index.ts",
+      "output": "packages/radio/dist/index.js",
+      "baselineModules": [],
+      "baselineExternalImports": []
+    }
+  ],
+  "forbiddenExternalImports": [
+    "underscore"
+  ],
+  "forbiddenProductionModulePrefixes": [
+    ".github/",
+    "benchmarks/",
+    "docs/",
+    "docs-site/",
+    "dist/eslint/",
+    "dist/agent-skill/",
+    "eslint-rules/",
+    "node_modules/",
+    "scripts/",
+    "skills/",
+    "test/",
+    "tools/",
+    "config/diagnostics/",
+    "config/release/"
+  ],
+  "forbiddenProductionModules": [
+    "config/performance.json",
+    "config/release-profile.json",
+    "config/release-promotion.json"
+  ],
+  "deterministicResources": {
+    "schemaVersion": 2,
+    "attachDetachCycles": 100,
+    "mountDestroyCycles": 1000
+  },
+  "timing": {
+    "harnessSchemaVersion": 1,
+    "harnessRevision": "b089fb375f08384a93be8ac789b7734d20f058162b54325837f3ec747b26c06b",
+    "sampleCount": 20,
+    "warmupBatches": 5,
+    "cases": [
+      {
+        "id": "view-construct-destroy",
+        "iterationsPerSample": 200
+      },
+      {
+        "id": "view-render-rerender",
+        "iterationsPerSample": 100
+      },
+      {
+        "id": "region-show-empty",
+        "iterationsPerSample": 50
+      },
+      {
+        "id": "collection-view-render-destroy",
+        "iterationsPerSample": 10
+      },
+      {
+        "id": "collection-view-add-remove",
+        "iterationsPerSample": 20
+      },
+      {
+        "id": "behavior-mount-event-destroy",
+        "iterationsPerSample": 100
+      },
+      {
+        "id": "native-collection-view-render-destroy",
+        "iterationsPerSample": 10
+      },
+      {
+        "id": "native-collection-view-add-remove",
+        "iterationsPerSample": 20
+      }
+    ],
+    "controlledRunner": {
+      "status": "pending-pr-b"
+    }
+  }
+}

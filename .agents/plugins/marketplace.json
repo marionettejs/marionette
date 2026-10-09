@@ -1,0 +1,20 @@
+{
+  "name": "marionettejs",
+  "interface": {
+    "displayName": "Marionette.js"
+  },
+  "plugins": [
+    {
+      "name": "marionette",
+      "source": {
+        "source": "local",
+        "path": "./plugins/marionette"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

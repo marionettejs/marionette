@@ -1,5 +1,9 @@
-import View from '../../../src/view';
-import Region from '../../../src/region';
+import { describe, it, expect, beforeEach } from 'vitest';
+import _ from 'underscore';
+import { setFixtures } from '../../setup/fixtures.js';
+import $ from 'jquery';
+import { View } from 'marionette';
+import { Region } from 'marionette';
 
 describe('Region', function() {
   describe('.buildRegion', function() {
@@ -69,8 +73,8 @@ describe('Region', function() {
           };
         });
 
-        it('throws a `NoElError`', function() {
-          expect(buildRegion).to.throw('An "el" must be specified for a region.');
+        it('allows the region to be created without resolving an el', function() {
+          expect(buildRegion).to.not.throw();
         });
       });
     });
@@ -97,34 +101,34 @@ describe('Region', function() {
           describe('with `parentEl` also defined', function() {
             describe('including the selector', function() {
               beforeEach(function() {
-                this.setFixtures('<div id="parent"><div id="child">text</div></div>');
-                const parentEl = $('#parent');
+                setFixtures('<div id="parent"><div id="child">text</div></div>');
+                const parentEl = $('#parent')[0];
                 definition = _.defaults({parentEl: parentEl, el: '#child' }, definition);
                 region = view.addRegion(_.uniqueId('region_'), definition);
               });
 
-              it('returns the jQuery(el)', function() {
-                expect(region.getEl(region.el).text()).to.equal($(region.el).text());
+              it('returns the element from the parent', function() {
+                expect(region.getEl(region.el).textContent).to.equal($(region.el).text());
               });
             });
 
             describe('excluding the selector', function() {
               beforeEach(function() {
-                this.setFixtures('<div id="parent"></div><div id="not-child">text</div>');
-                const parentEl = $('#parent');
+                setFixtures('<div id="parent"></div><div id="not-child">text</div>');
+                const parentEl = $('#parent')[0];
                 definition = _.defaults({parentEl: parentEl, el: '#not-child' }, definition);
                 region = view.addRegion(_.uniqueId('region_'), definition);
               });
 
-              it('returns the jQuery(el)', function() {
-                expect(region.getEl(region.el).text()).to.not.equal($(region.el).text());
+              it('does not return elements outside the parent', function() {
+                expect(region.getEl(region.el)).toBeUndefined();
               });
             });
 
             describe('including multiple instances of the selector', function() {
               beforeEach(function() {
-                this.setFixtures('<div id="parent"><div class="child">text</div><div class="child">text</div></div>');
-                const parentEl = $('#parent');
+                setFixtures('<div id="parent"><div class="child">text</div><div class="child">text</div></div>');
+                const parentEl = $('#parent')[0];
                 definition = _.defaults({parentEl: parentEl, el: '.child' }, definition);
                 region = view.addRegion(_.uniqueId('region_'), definition);
               });
@@ -132,7 +136,7 @@ describe('Region', function() {
               it('should ensure a jQuery(el) of length 1', function() {
                 // calls _ensureElement
                 region.empty();
-                expect(region.$el.length).to.equal(1);
+                expect(region.el).to.equal(document.querySelector('.child'));
               });
             });
           });
@@ -160,54 +164,18 @@ describe('Region', function() {
 
           describe('with `parentEl` also defined', function() {
             beforeEach(function() {
-              const parentEl = $('<div id="not-actual-parent"></div>');
+              const parentEl = $('<div id="not-actual-parent"></div>')[0];
               definition = _.defaults({parentEl: parentEl}, definition);
               region = view.addRegion(_.uniqueId('region_'), definition);
             });
 
-            it('returns the jQuery(el)', function() {
-              expect(region.getEl(el)).to.deep.equal($(el));
+            it('does not return elements outside the parent', function() {
+              expect(region.getEl('#baz-region')).toBeUndefined();
             });
 
           });
         });
 
-        describe('when el is a jQuery object', function() {
-          let el;
-          let region;
-
-          beforeEach(function() {
-            el = $('<div id="baz-region">');
-            new DefaultRegionClass({el: el});
-            const definition = {el: el};
-            region = view.addRegion(_.uniqueId('region_'), definition);
-          });
-
-          it('uses the default region class', function() {
-            expect(region).to.be.an.instanceof(DefaultRegionClass);
-          });
-
-          it('uses the el', function() {
-            expect(region.el).to.equal(el[0]);
-          });
-        });
-      });
-
-      describe('when el is an empty jQuery object', function() {
-        let buildRegion;
-
-        beforeEach(function() {
-          const el = $('i-am-not-real');
-          const definition = {el: el};
-
-          buildRegion = function() {
-            view.addRegion(_.uniqueId('region_'), definition);
-          };
-        });
-
-        it('throws a `NoElError`', function() {
-          expect(buildRegion).to.throw('An "el" must be specified for a region.');
-        });
       });
 
       describe('with `regionClass` defined', function() {
@@ -224,7 +192,7 @@ describe('Region', function() {
             const baseDefinition = {regionClass: BazRegion};
             const region1Definition = _.defaults({el: fooSelector}, baseDefinition);
             const region2Definition = _.defaults({el: el}, baseDefinition);
-            const region3Definition = _.defaults({el: $el}, baseDefinition);
+            const region3Definition = _.defaults({el: $el[0]}, baseDefinition);
 
             region1 = view.addRegion(_.uniqueId('region_'), region1Definition);
             region2 = view.addRegion(_.uniqueId('region_'), region2Definition);
@@ -269,8 +237,8 @@ describe('Region', function() {
               };
             });
 
-            it('throws a `NoElError`', function() {
-              expect(buildRegion).to.throw('An "el" must be specified for a region.');
+            it('allows the region to be created without resolving an el', function() {
+              expect(buildRegion).to.not.throw();
             });
           });
         });
@@ -294,6 +262,43 @@ describe('Region', function() {
           expect(region.getOption('myRegionOption')).to.equal(42);
           expect(region.getOption('myOtherRegionOption')).to.equal('foobar');
         });
+
+        it('merges only own region defaults and definition options', function() {
+          let capturedOptions;
+          const protoValue = { polluted: true };
+          const CapturingRegion = Region.extend({
+            initialize(options) {
+              capturedOptions = options;
+            }
+          });
+          const defaults = Object.assign(Object.create({ inheritedDefault: true }), {
+            regionClass: CapturingRegion,
+            defaultOption: true
+          });
+          const definition = Object.assign(Object.create({ inheritedDefinition: true }), {
+            el: fooSelector,
+            definitionOption: true
+          });
+          Object.defineProperty(definition, '__proto__', {
+            enumerable: true,
+            value: protoValue
+          });
+
+          view.regionClass = defaults.regionClass;
+          view.addRegion('owned-options', definition);
+
+          expect(capturedOptions).to.include({
+            definitionOption: true,
+            el: fooSelector
+          });
+          expect(capturedOptions).to.not.have.property('inheritedDefault');
+          expect(capturedOptions).to.not.have.property('inheritedDefinition');
+          expect(capturedOptions).to.not.have.property('regionClass');
+          expect(Object.getPrototypeOf(capturedOptions)).to.equal(Object.prototype);
+          expect(Object.hasOwn(capturedOptions, '__proto__')).toBe(true);
+          expect(Object.getOwnPropertyDescriptor(capturedOptions, '__proto__').value)
+            .to.equal(protoValue);
+        });
       });
     });
 
@@ -309,18 +314,5 @@ describe('Region', function() {
       });
     });
 
-    describe('with a missing regionConfig', function() {
-      let buildRegion;
-
-      beforeEach(function() {
-        buildRegion = function() {
-          view.addRegion(_.uniqueId('region_'));
-        };
-      });
-
-      it('throws an error', function() {
-        expect(buildRegion).to.throw('Improper region configuration type.');
-      });
-    });
   });
 });

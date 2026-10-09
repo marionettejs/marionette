@@ -1,8 +1,11 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { setFixtures } from '../setup/fixtures.js';
+import * as Marionette from 'marionette';
+import '../setup/backbone.js';
 import Backbone from 'backbone';
-import Region from '../../src/region';
-import View from '../../src/view';
+import { Region, View, Behavior } from 'marionette';
 
-describe('item view', function() {
+describe('view', function() {
   'use strict';
 
   let modelData;
@@ -15,7 +18,7 @@ describe('item view', function() {
     model = new Backbone.Model(modelData);
 
     template = 'foobar';
-    templateStub = this.sinon.stub().returns(template);
+    templateStub = vi.fn().mockReturnValue(template);
   });
 
   // Fixes https://github.com/marionettejs/backbone.marionette/issues/3527
@@ -26,14 +29,34 @@ describe('item view', function() {
         initialize() {
           this.listenTo(model, 'foo', this.onFoo);
         },
-        onFoo: this.sinon.stub()
+        onFoo: vi.fn()
       });
 
       const view = new TestView({ model });
 
       model.trigger('foo');
 
-      expect(view.onFoo).to.have.been.calledOnce;
+      expect(view.onFoo).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('when modelEvents contains an own __proto__ event', function() {
+    it('throws before delegating to a Backbone model', function() {
+      const modelOn = vi.spyOn(model, 'on');
+      const modelEvents = {};
+      Object.defineProperty(modelEvents, '__proto__', {
+        enumerable: true,
+        value: vi.fn()
+      });
+      const TestView = View.extend({
+        template: false,
+        modelEvents
+      });
+
+      expect(() => new TestView({ model }))
+        .to.throw('Entity event maps cannot include an own "__proto__" event name.')
+        .with.property('code', 'MN0026');
+      expect(modelOn).not.toHaveBeenCalled();
     });
   });
 
@@ -41,9 +64,9 @@ describe('item view', function() {
     let view;
 
     beforeEach(function() {
-      this.setFixtures('<div id="foo"><span class="element">bar</span></div>');
+      setFixtures('<div id="foo"><span class="element">bar</span></div>');
       view = new View({
-        el: '#foo',
+        el: document.getElementById('foo'),
         ui: {
           element: '.element'
         }
@@ -51,11 +74,11 @@ describe('item view', function() {
     });
 
     it('should be rendered', function() {
-      expect(view.isRendered()).to.be.true;
+      expect(view.isRendered()).toBe(true);
     });
 
     it('should be attached', function() {
-      expect(view.isAttached()).to.be.true;
+      expect(view.isAttached()).toBe(true);
     });
 
     it('should contain the DOM content', function() {
@@ -63,7 +86,7 @@ describe('item view', function() {
     });
 
     it('should bind ui elements', function() {
-      expect(view.ui.element.text()).to.contain('bar');
+      expect(view.ui.element[0].textContent).to.contain('bar');
     });
   });
 
@@ -71,18 +94,18 @@ describe('item view', function() {
     let view;
 
     beforeEach(function() {
-      this.setFixtures('<div id="foo"><span class="element">bar</span></div>');
+      setFixtures('<div id="foo"><span class="element">bar</span></div>');
       view = new View({
-        el: '#nonexistent'
+        el: document.querySelector('#nonexistent')
       });
     });
 
     it('should not be rendered', function() {
-      expect(view.isRendered()).to.be.false;
+      expect(view.isRendered()).toBe(false);
     });
 
     it('should not be attached', function() {
-      expect(view.isAttached()).to.be.false;
+      expect(view.isAttached()).toBe(false);
     });
   });
 
@@ -110,8 +133,8 @@ describe('item view', function() {
     let view;
 
     beforeEach(function() {
-      onBeforeRenderStub = this.sinon.stub();
-      onRenderStub = this.sinon.stub();
+      onBeforeRenderStub = vi.fn();
+      onRenderStub = vi.fn();
 
       TestView = View.extend({
         template: false,
@@ -125,11 +148,12 @@ describe('item view', function() {
 
       view = new TestView();
 
-      marionetteRendererSpy = this.sinon.spy(view, '_renderHtml');
-      serializeDataSpy = this.sinon.spy(view, 'serializeData');
-      mixinTemplateContextSpy = this.sinon.spy(view, 'mixinTemplateContext');
-      attachElContentSpy = this.sinon.spy(view, 'attachElContent');
-      bindUIElementsSpy = this.sinon.spy(view, 'bindUIElements');
+      marionetteRendererSpy = vi.fn();
+      TestView.setRenderer(marionetteRendererSpy);
+      serializeDataSpy = vi.spyOn(view, 'serializeData');
+      mixinTemplateContextSpy = vi.spyOn(view, 'mixinTemplateContext');
+      attachElContentSpy = vi.spyOn(view, 'attachElContent');
+      bindUIElementsSpy = vi.spyOn(view, 'bindUIElements');
 
       view.render();
     });
@@ -139,50 +163,50 @@ describe('item view', function() {
     });
 
     it('should not call an "onBeforeRender" method on the view', function() {
-      expect(onBeforeRenderStub).to.not.have.been.called;
+      expect(onBeforeRenderStub).not.toHaveBeenCalled();
     });
 
     it('should not call an "onRender" method on the view', function() {
-      expect(onRenderStub).to.not.have.been.called;
+      expect(onRenderStub).not.toHaveBeenCalled();
     });
 
     it('should not call bindUIElements', function() {
-      expect(bindUIElementsSpy).to.not.have.been.called;
+      expect(bindUIElementsSpy).not.toHaveBeenCalled();
     });
 
     it('should not add in data or template context', function() {
-      expect(serializeDataSpy).to.not.have.been.called;
-      expect(mixinTemplateContextSpy).to.not.have.been.called;
+      expect(serializeDataSpy).not.toHaveBeenCalled();
+      expect(mixinTemplateContextSpy).not.toHaveBeenCalled();
     });
 
     it('should not render a template', function() {
-      expect(marionetteRendererSpy).to.not.have.been.called;
+      expect(marionetteRendererSpy).not.toHaveBeenCalled();
     });
 
     it('should not attach any html content', function() {
-      expect(attachElContentSpy).to.not.have.been.called;
+      expect(attachElContentSpy).not.toHaveBeenCalled();
     });
 
     it('should not claim isRendered', function() {
-      expect(view.isRendered()).to.be.false;
+      expect(view.isRendered()).toBe(false);
     });
 
     describe('and there is prerendered content', function() {
       let elView;
 
       beforeEach(function() {
-        this.setFixtures('<div id="foo">bar</div>');
-        elView = new TestView({ el: '#foo' });
+        setFixtures('<div id="foo">bar</div>');
+        elView = new TestView({ el: document.getElementById('foo') });
       });
 
       it('should stay rendered', function() {
-        expect(elView.isRendered()).to.be.true;
+        expect(elView.isRendered()).toBe(true);
       });
     });
   });
 
 
-  describe('when destroying an item view', function() {
+  describe('when destroying a view', function() {
     let onBeforeDestroyStub;
     let onDestroyStub;
     let TestView;
@@ -192,13 +216,13 @@ describe('item view', function() {
     let triggerSpy;
 
     beforeEach(function() {
-      onBeforeDestroyStub = this.sinon.spy(function() {
+      onBeforeDestroyStub = vi.fn(function() {
         return {
           isRendered: this.isRendered(),
           isDestroyed: this.isDestroyed()
         };
       });
-      onDestroyStub = this.sinon.spy(function() {
+      onDestroyStub = vi.fn(function() {
         return {
           isRendered: this.isRendered(),
           isDestroyed: this.isDestroyed()
@@ -214,64 +238,64 @@ describe('item view', function() {
       view = new TestView();
       view.render();
 
-      removeSpy = this.sinon.spy(view, '_removeElement');
-      stopListeningSpy = this.sinon.spy(view, 'stopListening');
-      triggerSpy = this.sinon.spy(view, 'trigger');
+      removeSpy = vi.spyOn(view.Dom, 'detachEl');
+      stopListeningSpy = vi.spyOn(view, 'stopListening');
+      triggerSpy = vi.spyOn(view, 'trigger');
 
-      this.sinon.spy(view, 'destroy');
+      vi.spyOn(view, 'destroy');
       view.destroy();
     });
 
     it('should remove the views EL from the DOM', function() {
-      expect(removeSpy).to.have.been.calledOnce;
+      expect(removeSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should unbind any listener to custom view events', function() {
-      expect(stopListeningSpy).to.have.been.calledOnce;
+      expect(stopListeningSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should trigger "before:destroy"', function() {
-      expect(triggerSpy).to.have.been.calledWith('before:destroy');
+      expect(triggerSpy.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['before:destroy']);
     });
 
     it('should trigger "destroy"', function() {
-      expect(triggerSpy).to.have.been.calledWith('destroy');
+      expect(triggerSpy.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['destroy']);
     });
 
     it('should call "onBeforeDestroy" if provided', function() {
-      expect(onBeforeDestroyStub).to.have.been.called;
+      expect(onBeforeDestroyStub).toHaveBeenCalled();
     });
 
     it('should call "onDestroy" if provided', function() {
-      expect(onDestroyStub).to.have.been.called;
+      expect(onDestroyStub).toHaveBeenCalled();
     });
 
     it('should return the view', function() {
-      expect(view.destroy).to.have.returned(view);
+      expect(view.destroy).toHaveReturnedWith(view);
     });
 
     it('should not be destroyed when "onBeforeDestroy" is called', function() {
-      expect(onBeforeDestroyStub.lastCall.returnValue.isDestroyed).not.to.be.ok;
+      expect(onBeforeDestroyStub.mock.results.at(-1).value.isDestroyed).not.toBeTruthy();
     });
 
     it('should be rendered when "onBeforeDestroy" is called', function() {
-      expect(onBeforeDestroyStub.lastCall.returnValue.isRendered).to.be.true;
+      expect(onBeforeDestroyStub.mock.results.at(-1).value.isRendered).toBe(true);
     });
 
     it('should be destroyed when "onDestroy" is called', function() {
-      expect(onDestroyStub.lastCall.returnValue.isDestroyed).to.be.true;
+      expect(onDestroyStub.mock.results.at(-1).value.isDestroyed).toBe(true);
     });
 
     it('should not be rendered when "onDestroy" is called', function() {
-      expect(onDestroyStub.lastCall.returnValue.isRendered).to.be.false;
+      expect(onDestroyStub.mock.results.at(-1).value.isRendered).toBe(false);
     });
 
     it('should be marked destroyed', function() {
-      expect(view).to.have.property('_isDestroyed', true);
+      expect(view.isDestroyed()).toBe(true);
     });
 
     it('should be marked not rendered', function() {
-      expect(view).to.have.property('_isRendered', false);
+      expect(view.isRendered()).toBe(false);
     });
   });
 
@@ -283,14 +307,14 @@ describe('item view', function() {
     let TestRegion;
 
     beforeEach(function() {
-      onDomRefreshStub = this.sinon.stub();
+      onDomRefreshStub = vi.fn();
 
       TestView = View.extend({
         template: templateStub,
         onDomRefresh: onDomRefreshStub
       });
 
-      this.setFixtures('<div id="region"></div>');
+      setFixtures('<div id="region"></div>');
       TestRegion = Region.extend({
         el: '#region'
       });
@@ -302,35 +326,18 @@ describe('item view', function() {
     });
 
     it('should trigger a dom:refresh event', function() {
-      expect(onDomRefreshStub).to.have.been.calledTwice;
-    });
-  });
-
-  describe('has a valid inheritance chain back to Backbone.View', function() {
-    let constructor;
-
-    beforeEach(function() {
-      constructor = this.sinon.spy(Backbone.View.prototype, 'constructor');
-    });
-
-    it('calls the parent Backbone.Views constructor function on instantiation with the proper parameters', function() {
-      const options = {foo: 'bar'};
-      const customParam = {foo: 'baz'};
-
-      new View(options, customParam);
-      expect(constructor).to.have.been.calledWith(options, customParam);
+      expect(onDomRefreshStub).toHaveBeenCalledTimes(2);
     });
   });
 
   describe('when instantiating a View', function() {
     it('should trigger `initialize` on the behaviors', function() {
-      this.sinon.stub(View.prototype, '_triggerEventOnBehaviors');
+      const onInitialize = vi.fn();
+      const TestBehavior = Behavior.extend({ onInitialize });
+      const myView = new View({ foo: 'bar', behaviors: [TestBehavior] });
 
-      const myView = new View({ foo: 'bar' });
-
-      // _triggerEventOnBehaviors comes from Behaviors mixin
-      expect(myView._triggerEventOnBehaviors)
-        .to.be.calledOnce.and.calledWith('initialize', myView, { foo: 'bar' });
+      expect(onInitialize).toHaveBeenCalledTimes(1);
+      expect(onInitialize).toHaveBeenCalledWith(myView, myView.options);
     });
   });
 

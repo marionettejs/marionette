@@ -1,145 +1,96 @@
 <h1 align="center">Marionette.js</h1>
 <p align="center">
-  <img title="backbone marionette" src='https://github.com/marionettejs/backbone.marionette/raw/master/marionette-logo.png' />
+  <img title="Marionette" alt="Marionette logo" src="https://github.com/marionettejs/marionette/raw/master/marionette-mark.svg" width="140" height="145" />
 </p>
-<p align="center">The Backbone Framework</p>
+<p align="center">Built for agent-led development.</p>
 <p align="center">
-  <a title='Build Status' href="https://github.com/marionettejs/backbone.marionette/actions/workflows/ci.yml">
-    <img src='https://github.com/marionettejs/backbone.marionette/actions/workflows/ci.yml/badge.svg?branch=master' />
-  </a>
-  <a href='https://coveralls.io/r/marionettejs/backbone.marionette'>
-    <img src='https://img.shields.io/coveralls/marionettejs/backbone.marionette.svg' alt='Coverage Status' />
-  </a>
-  <a href='https://gitter.im/marionettejs/backbone.marionette?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge'>
-    <img src='https://badges.gitter.im/Join%20Chat.svg' alt='Gitter Chat' />
-  </a>
+  <a href="https://github.com/marionettejs/marionette/actions/workflows/ci.yml"><img src="https://github.com/marionettejs/marionette/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI status" /></a>
+  <a href="https://www.npmjs.com/package/marionette"><img src="https://img.shields.io/npm/v/marionette.svg" alt="npm version" /></a>
 </p>
-# Marionette v5
 
-Marionette is dropping its dependency on Backbone. That library is available here: https://github.com/marionettejs/marionette
-Until further notices changes to `backbone.marionette` will be limited to fixes.  All new feature work will take place on `marionette`.
+Marionette v5 is a JavaScript library built for agent-led development. It gives
+coding agents a consistent structure for building interfaces, version-matched
+contracts to work from, and tools to check the code they produce.
 
-## Marionette v4
+The v5 npm package is **`marionette`**; **`backbone.marionette`** is the legacy
+package. Check the installed package name and version before choosing documentation.
+V5 core has native DOM support and requires neither Backbone nor jQuery. Backbone
+Models and Collections integrate through optional adapters, so an existing Backbone
+application can keep its Models and persistence. For v4 upgrades, use the
+[migration guide](docs/guides/migration.md).
 
-Marionette 4 is now available! See our
-[upgrade notes](https://marionettejs.com/docs/v4.0.0/upgrade-v3-v4.html) for the differences between
-v3 and v4. Please let us know if you encounter any issues so we can resolve
-them and
-[help us continue work on Marionette!](https://github.com/marionettejs/backbone.marionette/milestones/v4.x)
+## Why Marionette for agent-led development?
 
-## About Marionette
+- **Clear places for behavior.** Views render content and handle local interactions.
+  Regions own View replacement and destruction. Applications coordinate feature
+  readiness and lifetime. These boundaries give an agent a repeatable way to
+  compose features and make changes without inventing their ownership from scratch.
+- **The relevant contract in context.** Documentation and an agent skill ship with
+  the package. API and diagnostic lookup lead to specific contracts; documentation
+  MCP access connects those references to supported agent clients.
+- **Feedback on generated code.** TypeScript declarations, an ESLint rule against
+  private framework access, and stable diagnostic codes help agents catch mistakes.
+  Runnable examples and public behavior checks show how to verify interaction, cancellation, replacement, and cleanup.
 
-Marionette is a composite application library for Backbone.js that
-aims to simplify the construction of large scale JavaScript applications.
-It is a collection of common design and implementation patterns found in
-applications.
+Start with the [agent entrypoint](docs/agents.md).
+[Consumer tooling](docs/tooling.md) covers skill/plugin installation, documentation
+MCP access, lint, types, and installed documentation lookup.
+
+## Try v5
+
+v5 is a release candidate. Packaged applications are verified on Node 22.22.2+ (22.x) and 24.15.0+ (24.x); use the latest patch of either LTS line. Newer Node versions may install; Node 26 is checked separately as advisory. For framework development or Git installs, select the pinned [source toolchain](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository).
+Install matching candidate versions in your browser application:
+
+```sh
+npm install --save-exact marionette@5.0.0-rc.2 @mnjs/utils@5.0.0-rc.2 @mnjs/radio@5.0.0-rc.2 @mnjs/adapters@5.0.0-rc.2 lit-html@3.3.3
+```
+
+Given `<div id="app"></div>` in your page, this module shows a dismissible panel:
+
+```js
+import { Region, View, setDomApi } from 'marionette';
+import LitDomApi from '@mnjs/adapters/dom/lit-html';
+import { html } from 'lit-html';
+
+setDomApi(LitDomApi);
+
+const Notice = View.extend({
+  template: () => html`
+    <p>Your report is ready.</p>
+    <button type="button">Dismiss</button>`,
+  triggers: { 'click button': 'dismiss' }
+});
+
+const region = new Region({ el: '#app' });
+const notice = new Notice();
+region.listenTo(notice, 'dismiss', () => region.empty());
+region.show(notice);
+```
+
+The View turns a click into intent. The Region renders and mounts the View;
+`empty()` destroys it and releases its event connections. Showing another View in
+that Region also destroys the previous one. No separate DOM removal or event
+unbinding is needed.
+
+The [quick start](docs/quick-start.md) supplies the complete HTML and Vite setup.
+Continue with the [Records lesson](docs/records.md) to combine a list, detail panel,
+and asynchronous feature lifecycle. Upgrading an existing application? Use the
+[v4-to-v5 migration guide](docs/guides/migration.md).
 
 ## Documentation
 
-All of the documentation for Marionette can be found at
+Start with the [v5 documentation index](docs/readme.md), [quick start](docs/quick-start.md), or [API index](docs/api.md). The reference is organized by class and shared contracts; runnable lessons demonstrate selected workflows.
 
-##### [marionettejs.com/docs/current](http://marionettejs.com/docs/current)
+The [testing guide](docs/guides/testing.md) supplies a runnable recipe for checking
+interaction, replacement, readiness, and teardown.
 
-### App Architecture On Backbone's Building Blocks
+## Development
 
-Backbone provides a great set of building blocks for our JavaScript
-applications. It gives us the core constructs that are needed to build
-small apps, organize jQuery DOM events, or create single page apps that
-support mobile devices and large scale enterprise needs. But Backbone is
-not a complete framework. It's a set of building blocks. It leaves
-much of the application design, architecture and scalability to the
-developer, including memory management, view management, and more.
+Found an awkward API, a missing example, or a bug that survives a convincing test
+suite? Bring a small reproduction. Contributions should start from a focused public
+issue that describes the intended behavior and its runtime cost. See
+[CONTRIBUTING.md](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md)
 
-Marionette brings an application architecture to Backbone, along with
-built in view management and memory management. It's designed to be a
-lightweight and flexible library of tools that sits on top of Backbone,
-providing the framework for building a scalable application.
+## License
 
-Like Backbone itself, you're not required to use all of Marionette just
-because you want to use some of it. You can pick and choose which features
-you want to use. This allows you to work with other Backbone
-frameworks and plugins easily. It also means that you are not required
-to engage in an all-or-nothing migration to begin using Marionette.
-
-### Chat with us
-
-Find us [on gitter](https://gitter.im/marionettejs/backbone.marionette).
-
-We're happy to discuss design patterns and learn how you're using Marionette.
-
-
-### Key Benefits
-
-* Scalable: applications built in modules with event-driven architecture
-* Sensible defaults: Underscore templates are used for view rendering
-* Easily modifiable: works with the specific needs of your application
-* Reduce boilerplate: for all views, including specialized types
-* Create: application visuals at runtime with `Region` and `View` objects
-* Nested: `View`s and `CollectionView`s within visual regions
-* Built-in: memory management and zombie-killing for `View`s, `CollectionViews`a and `Region`s
-* Event-driven architecture: utilizing `Backbone.Radio`
-* Flexible: "as-needed" architecture allowing you to pick and choose what you need
-* And much, much more
-
-## Source Code and Downloads
-
-You can
-[download the latest builds directly](https://github.com/marionettejs/backbone.marionette/tree/master/lib)
-or visit the [downloads section on the Marionette website](http://marionettejs.com#download)
-for more downloading options.
-
-#### [MarionetteJS.com](http://marionettejs.com#download)
-
-### NPM and Bower
-
-Marionette is available via bower and npm:
-
-```bash
-# NPM
-npm install backbone.marionette
-
-# Bower
-bower install marionette
-```
-
-## Release Notes And Upgrade Guide
-
-**Changelog**: For change logs and release notes, see the
-[changelog](changelog.md) file.
-
-**Upgrade Guide**: Be sure to read [the upgrade guide](upgradeGuide.md)
-for information on upgrading to the latest version of Marionette.
-
-
-### Annotated Source Code
-
-The source code for Marionette is heavily documented.
-You can read the annotations for all the details of how Marionette works and advice on which methods to override.
-
-##### [View the annotated source code](http://marionettejs.com/annotated-src/backbone.marionette)
-
-## Compatibility and Requirements
-
-MarionetteJS currently works with the following libraries:
-
-* [jQuery](http://jquery.com) v1.8+
-* [Underscore](http://underscorejs.org) v1.8.3 - v1.9.x
-* [Backbone](http://backbonejs.org) v1.3.3
-* [Backbone.Radio](https://github.com/marionettejs/backbone.radio) v2.0.0+
-
-Marionette has not been tested against any other versions of these
-libraries. You may or may not have success if you use a version other
-than what is listed here.
-
-## How to Contribute
-
-If you would like to contribute to Marionette's source code, please read
-the [guidelines for pull requests and contributions](CONTRIBUTING.md).
-Following these guidelines will help make your contributions easier to
-bring into the next release.
-
-### [Github Issues](https://github.com/marionettejs/backbone.marionette/issues)
-
-Report issues with Marionette, submit pull requests to fix problems, or to
-create summarized and documented feature requests (preferably with pull
-requests that implement the feature).
+Marionette is available under the [MIT license](license.txt).

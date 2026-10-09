@@ -1,0 +1,222 @@
+# Agent benchmark prototypes and reference application
+
+This directory contains Fieldnotes, a runnable public reference application, sixteen
+draft tasks (thirteen implementation exercises and three repairs), hidden
+public-API acceptance cases, known reference solutions, and a local evaluator. This is an unscored prototype, not a completed
+independent maintenance evaluation or evidence of agent effectiveness.
+
+No model, runner/permissions profile, acceptance policy, counts, budgets, pilot,
+or evaluation series has been selected. `series-decisions.json` records these
+inputs as uncollected. The independent maintenance study and its frozen policy/resource
+envelope are [deferred until after stable production, not passed](https://github.com/marionettejs/marionette-develop/issues/574#issuecomment-6081796044).
+[Issue #574](https://github.com/marionettejs/marionette-develop/issues/574) records accepted
+pre-cutover evidence and its limits; comparative framework research is separate.
+Track new work in the [canonical issue tracker](https://github.com/marionettejs/marionette/issues).
+
+## Task isolation
+
+Each task is metadata validated by `task.schema.json`. Paths are portable,
+repository-root-relative paths:
+
+- `promptPath` names the public instructions supplied to the agent.
+- `workspacePath` names the original fixture copied into a fresh workspace for one
+  attempt.
+- `acceptance.hiddenTests` maps each hidden acceptance-test source to a target inside
+  the fresh workspace. The harness withholds those sources until the agent has
+  finished, then copies them to their targets without overwriting fixture files.
+- `acceptance.command` is an argument array that the harness runs without a shell after
+  installing the hidden tests, with the fresh workspace as its working directory.
+
+If an acceptance target exists after the attempt, the harness treats the attempt as
+incorrect instead of overwriting agent work.
+
+The contract validator and its filesystem-isolation cases run in CI through
+`npm run test:agent-benchmark-contract`.
+
+Hidden tests are hidden from the agent during an attempt, not from repository users.
+They must remain outside the agent-visible fixture tree in this repository. Every
+workspace tree is symlink-free so it cannot expose withheld files indirectly. Every
+hidden source must also be distinct from every corpus prompt and every file in every
+visible workspace, including through symbolic-link and hard-link aliases. Every attempt
+starts from a clean copy, and benchmark fixtures and tests may use only public Marionette
+package entrypoints and APIs.
+
+An evaluator may mark an attempt fully correct only when all acceptance checks pass.
+An aborted attempt remains an attempted, incorrect run. Architecture violations use
+codes from the shared diagnostic catalog and still count when discovered before an
+abort.
+
+## Capability coverage
+
+`capabilities.json` identifies the current prototype's framework contract areas.
+Its requirement for two independent tasks per capability is a fixture-diversity
+check, not a release task floor, sample-size rule, or proof of application coverage.
+The composed repair task adds lifecycle races to a working headless session.
+[Its coverage and handoff plan](tasks/composed-lifecycle-repair/README.md) records
+what it reuses and what remains uncollected. The deferred study still needs
+independent attempts, successive changes and fresh-agent handoffs. Required public
+application and migration evidence remains separate in
+[#574](https://github.com/marionettejs/marionette-develop/issues/574).
+
+## Evaluation policy
+
+The deferred study's policy and resource decisions are tracked in
+[#128](https://github.com/marionettejs/marionette-develop/issues/128), with independent
+maintenance outcomes in [#146](https://github.com/marionettejs/marionette-develop/issues/146).
+The prototype does not authorize paid runs or establish evaluation acceptance.
+
+`series-decisions.json` is an uncollected planning record, not an enforced runner
+configuration. The loader checks that it identifies every prototype task exactly
+once. An operator must freeze and enforce the full evaluation policy before scored
+collection. Passing known solutions is a tooling control and cannot substitute for
+independent agent implementation or maintenance results.
+
+## Run the prototypes
+
+Use the repository's Node/npm versions, run `npm ci --ignore-scripts`, and build once
+with `npm run build`. The evaluator uses jsdom 30.0.1 and the checked-in transitive
+lock at `support/dependency-lock.json`. Installation is offline and scripts are
+suppressed; if that exact environment is not cached, populate the cache once with
+`node scripts/agent-benchmark/cache-environment.mjs` before running the controls.
+The packages under test always come from the supplied tarballs or one local pack of
+already-built output. No provider or model API is called.
+
+```sh
+# Every known solution must pass, independently, in a fresh installed consumer.
+node scripts/agent-benchmark/run.mjs reference --output /tmp/agent-reference
+
+# Every unfinished fixture must fail an actual acceptance process.
+node scripts/agent-benchmark/run.mjs fixtures --output /tmp/agent-fixtures
+
+# Reuse exact immutable release tarballs; nothing is rebuilt or repacked.
+node scripts/agent-benchmark/run.mjs reference \
+  --manifest /absolute/candidate/release-evidence.json \
+  --output /tmp/agent-candidate-reference
+
+# Filesystem/schema/evaluator unit contracts (offline; no package installs).
+node --test test/agent-benchmark/*.test.mjs
+
+# Installed-consumer failure controls, after the reference command above.
+node test/agent-benchmark/evaluator-controls.mjs /tmp/agent-reference/nested-workspace
+
+# Borrowed-state acceptance accepts both retained and current-Region getters,
+# while still rejecting disposal of borrowed state.
+node test/agent-benchmark/acceptance-controls.mjs \
+  /tmp/agent-reference/borrowed-workspace-state /tmp/borrowed-state-controls
+
+# Runnable application and its three-engine UI check.
+node scripts/agent-benchmark/serve.mjs
+npm exec -- playwright test --config test/agent-benchmark/playwright.config.mjs
+```
+
+The server binds only to `127.0.0.1:4178`; `--port` and `--manifest` are supported.
+See [Fieldnotes](app/README.md) for application behavior and ownership.
+Use a new output directory for every control run. `artifact-input.json` records the
+exact checked package hashes and may be reused with `--manifest`. It is an input
+manifest, not a release approval. Each attempt retains its prompt, fixture, package
+lock, installed consumer, sealed input hashes, submission hash, and acceptance output.
+Reference and unfinished-fixture reports are explicitly `scored: false`.
+
+For an ordinary local **unscored** attempt:
+
+```sh
+node scripts/agent-benchmark/run.mjs prepare --task async-panel --output /tmp/agent-attempt
+# Work only inside the printed workspace, following PROMPT.md.
+node scripts/agent-benchmark/run.mjs evaluate --attempt /tmp/agent-attempt/async-panel
+# If the attempt was abandoned instead:
+node scripts/agent-benchmark/run.mjs evaluate --attempt /tmp/agent-attempt/async-panel --aborted
+```
+
+The evaluator copies the completed submission into a fresh evaluation directory,
+installs hidden acceptance files with exclusive creation, runs the frozen command
+without a shell, captures output, and deletes that evaluation copy. The original
+workspace never receives hidden tests. Occupied hidden targets, links, modified
+pinned dependencies, changed task/evaluator inputs, timeout, zero-test exits, and
+nonzero exits cannot pass. The successful named cases must exactly match
+`evaluator.json`; a passing whole-file wrapper after early process exit is rejected. Evaluation is claimed once with an exclusive lock; results
+are never overwritten. A signaled/timed-out or explicitly aborted attempt remains
+attempted and incorrect. Catalog findings are deduplicated and retained even on abort.
+
+`acceptancePassed` reports executable outcomes. `fullyCorrect` stays `null` for a
+passing submission until an architecture review is supplied to the evaluator API;
+failed/aborted attempts are `false`. Architecture review must assess the explicit
+role requirements (including Behavior composition), code quality, and shared catalog
+rules. These tasks explicitly name some API roles; that is a narrower contract
+exercise, not a universal architecture rubric. Accept valid public-API solutions
+without requiring reference-solution structure. No automatic tool here claims to
+detect every architecture violation.
+
+**This local evaluator is not a security sandbox.** Use it only for trusted local
+work and reference controls. Do not give an agent access to the repository root or
+this output directory's parent: the public repository contains withheld tests and
+solutions. Before scored collection, the selected runner must give each agent only
+its isolated workspace and prompt, prevent network/host filesystem access according
+to the frozen profile, stop all agent processes before evaluation, and run acceptance
+in a separate constrained environment. A fresh directory and reduced child-process
+environment alone do not enforce those permissions or resist malicious Node code.
+
+## Corpus inventory
+
+All tasks have a visible starter, explicit input/output requirements, a separate
+reference solution, and withheld acceptance. Each is independently evaluated.
+
+| Task | Required outcomes |
+| --- | --- |
+| `nested-workspace` | Nested Region replacement, text safety, emptying, teardown |
+| `nested-notice` | Independent navigation/notice ownership and callback cleanup |
+| `filter-projects` | CollectionView filter/reveal identity and immutable domain data |
+| `rank-projects` | Row/draft preservation, sorting, atomic invalid-input rejection |
+| `save-shortcut` | Host-scoped Behavior shortcut, rerender and cleanup |
+| `connection-status` | Behavior provider subscription and latest-state rerender |
+| `overlay-switch` | Shared Region, valid live Views, external positioning/exclusivity |
+| `overlay-dismiss` | Shared Region dismissal and document-listener cleanup |
+| `async-panel` | Out-of-order completion, invalidation, errors, destroyed owner |
+| `async-session` | Async resource acquisition, stale cleanup, plain-service role |
+| `scoped-message-presenter` | Optional MnObject role, independent borrowed-source listeners |
+| `owned-workspace-state` | Nested Applications and separately owned Application/View state |
+| `render-resource` | Resource survives creation, receives the owning View, and releases once before replacement and on destroy |
+| `attach-resource` | Connection receives the owning View, survives attached rerenders, releases on detach/destroy, and reacquires on reattachment |
+| `composed-lifecycle-repair` | Two-stage startup/refresh races, synchronous teardown, active resources, draft and borrowed-state preservation |
+| `borrowed-workspace-state` | Nested ownership rejection and borrowed state/domain survival |
+
+`loadCorpus` validates task isolation, a complete decision inventory, and at least
+two independent tasks for every capability in `capabilities.json`. This proves
+prototype metadata coverage; acceptance/control runs establish their actual case
+behavior. Neither establishes evaluation sample size, agent productivity, or stable
+release readiness.
+
+Acceptance controls also accept freshly prepared `async-session` and `filter-projects`
+reference directories. They verify microtask acquisition and DOM-hidden filtering
+as valid alternatives, while rejecting stale-provider leaks, missing filtering, and
+blank labels. Use a new output directory for each task. These are unscored controls.
+
+## Lifecycle context experiments
+
+`render-resource` and `attach-resource` repair resources released during their own
+creation event. Their acceptance observes acquisition, retained View identity, DOM
+attachment and exactly-once disposal across repeated operations. The render task
+requires release before the next acquisition, not necessarily before DOM replacement.
+Callbacks are synchronous and cleanup succeeds; reentrant callbacks and externally
+destroying the panel View are outside these tasks.
+
+For a context comparison, freeze these prompts and tests and vary only documentation:
+full relevant documents, manually selected sections, or automatically selected sections.
+Record selected source IDs/revisions, omitted sections, input/output/cached tokens and
+elapsed time. Retain all failed attempts. Successful references or a small pilot do not
+establish statistical equivalence, dollar savings or release readiness. An unseen
+migration task is required before generalizing a retrieval improvement.
+
+From the repository root, run lifecycle positive/negative controls against a prepared reference:
+
+```sh
+node test/agent-benchmark/lifecycle-controls.mjs /tmp/agent-reference/render-resource /tmp/render-controls
+node test/agent-benchmark/lifecycle-controls.mjs /tmp/agent-reference/attach-resource /tmp/attach-controls
+```
+
+These two repairs are correlated near-transfer probes of the same event-ordering
+misconception, not independent evidence of broad migration coverage. The attachment
+case additionally requires the connection to survive rerenders. Repeated terminal
+operations also exercise existing framework guards; the discriminating assertions
+are resource survival, callback owner identity, replacement ordering and exactly-once
+disposal. Scores count complete attempts, not individual assertions. Cleanup does
+not depend on which termination hook fires first because release is idempotent.

@@ -1,0 +1,193 @@
+import { describe, it, expect } from 'vitest';
+import fc from 'fast-check';
+import { Application } from 'marionette';
+import { Command, modelSettings } from './settings.js';
+
+// The oracle keeps only consumer-visible stable state and ownership. A command
+// is a bounded interaction with one explicitly held readiness phase, not a copy
+// of Application's operation/phase implementation.
+function fixture() {
+  const real = { trace: [], gates: [], apps: [], automatic: false };
+  real.create = name => {
+    const holds = new Map();
+    const before = (phase, options, context) => {
+      real.trace.push(`${name}:before:${phase}`);
+      const gate = holds.get(phase);
+      holds.delete(phase);
+      if (!gate || real.automatic) { return; }
+      Object.assign(gate, { context, options, entered: true });
+      context.signal.addEventListener('abort', () => real.trace.push(`${name}:abort:${phase}`), { once: true });
+      return gate.promise;
+    };
+    const App = Application.extend({
+      prepareStart(options, context) { return before('start', options, context); },
+      onBeforeStop() { real.trace.push(`${name}:before:stop`); },
+      onBeforeDestroy() { real.trace.push(`${name}:before:destroy`); },
+      onStart() { real.trace.push(`${name}:start`); },
+      onStop() { real.trace.push(`${name}:stop`); },
+      onDestroy() { real.trace.push(`${name}:destroy`); }
+    });
+    const app = new App();
+    real.apps.push(app);
+    return { app, hold(phase) {
+      let resolve;
+      let reject;
+      const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
+      const gate = { promise, resolve, reject, entered: false };
+      holds.set(phase, gate);
+      real.gates.push(gate);
+      return gate;
+    } };
+  };
+  real.owner = real.create('owner');
+  real.children = new Map();
+  return real;
+}
+
+async function until(predicate) {
+  for (let turn = 0; turn < 100 && !predicate(); turn++) { await Promise.resolve(); }
+  expect(predicate(), 'bounded readiness progression').toBe(true);
+}
+
+async function settled(promise) {
+  let done = false;
+  const observed = Promise.resolve(promise).then(value => { done = true; return value; }, error => { done = true; throw error; });
+  // Install rejection observation before progressing deferred work.
+  const outcome = observed.then(value => ({ value }), error => ({ error }));
+  await until(() => done);
+  const result = await outcome;
+  if (result.error) { throw result.error; }
+  return result.value;
+}
+
+function verify(model, real) {
+  expect(real.owner.app.isRunning()).toBe(model.running);
+  expect(real.owner.app.isDestroyed()).toBe(model.destroyed);
+  expect(Object.keys(real.owner.app.getChildApps())).toEqual([...model.children.keys()]);
+  for (const [name, running] of model.children) {
+    const child = real.children.get(name).app;
+    expect(real.owner.app.getChildApp(name)).toBe(child);
+    expect(child.getName()).toBe(name);
+    expect(child.isRunning()).toBe(running);
+    expect(child.isDestroyed()).toBe(false);
+  }
+}
+
+function command(name, args, check, run) {
+  return new Command(name, args, check, async(model, real) => {
+    real.trace.length = 0;
+    await run(model, real);
+    model.completed++;
+    verify(model, real);
+  });
+}
+
+function target(model, method) {
+  if (method === 'destroy') {
+    model.destroyed = true;
+    model.running = false;
+    model.children.clear();
+  } else {
+    model.running = method !== 'stop';
+    if (method === 'stop') {
+      for (const name of model.children.keys()) { model.children.set(name, false); }
+    }
+  }
+}
+
+const method = fc.constantFrom('start', 'stop', 'restart');
+const commands = [
+  method.map(operation => command('transition', [operation], () => true, async(model, real) => {
+    const { app } = real.owner;
+    const unchanged = model.destroyed || (operation === 'start' && model.running);
+    const result = !(model.destroyed && ['start', 'restart'].includes(operation));
+    expect(await settled(app[operation]())).toBe(result);
+    if (!unchanged) { target(model, operation); }
+  })),
+  fc.constantFrom('a', 'b', 'c').map(name => command('register', [name], model =>
+    !model.destroyed && !model.children.has(name), async(model, real) => {
+    const child = real.create(name);
+    real.children.set(name, child);
+    expect(real.owner.app.addChildApp(name, child.app)).toBe(child.app);
+    expect(real.owner.app.addChildApp(name, child.app)).toBe(child.app);
+    model.children.set(name, false);
+  })),
+  fc.constantFrom('a', 'b', 'c').map(name => command('remove', [name], model =>
+    model.children.has(name), async(model, real) => {
+    const child = real.children.get(name).app;
+    expect(await settled(real.owner.app.removeChildApp(name))).toBe(child);
+    expect(child.isDestroyed()).toBe(true);
+    model.children.delete(name);
+  })),
+  fc.tuple(fc.constantFrom('stop', 'restart', 'destroy'), fc.boolean(), fc.boolean())
+    .map(([replacement, rejectLate, lateFirst]) => command('supersedeStart', [replacement, rejectLate, lateFirst], model =>
+      !model.destroyed && !model.running && (replacement !== 'destroy' || model.completed >= 8), async(model, real) => {
+      const { app } = real.owner;
+      const gate = real.owner.hold('start');
+      const first = app.start({ request: 'first' });
+      expect(app.start({ request: 'duplicate' })).toBe(first);
+      await until(() => gate.entered);
+      expect(app.isRunning()).toBe(false);
+      const winner = app[replacement]({ request: 'replacement' });
+      expect(gate.context.signal.aborted).toBe(true);
+      if (replacement !== 'restart') { expect(real.trace.indexOf('owner:abort:start')).toBeLessThan(real.trace.indexOf('owner:before:stop')); }
+      expect(await settled(first)).toBe(false);
+      const release = () => rejectLate ? gate.reject(new Error('obsolete loader')) : gate.resolve();
+      if (lateFirst) { release(); }
+      expect(await settled(winner)).toBe(true);
+      target(model, replacement);
+      const completed = [...real.trace];
+      if (!lateFirst) { release(); }
+      // Await the consumer's old readiness and its already-installed framework
+      // reactions; this must not append a stale start or change stable state.
+      await gate.promise.catch(() => {});
+      await Promise.resolve();
+      expect(real.trace).toEqual(completed);
+      expect(real.trace.filter(event => event === 'owner:start')).toHaveLength(replacement === 'restart' ? 1 : 0);
+    })),
+  fc.tuple(fc.constantFrom('a', 'b', 'c'), method).map(([name, operation]) => command('childTransition', [name, operation],
+    model => model.children.has(name), async(model, real) => {
+      expect(await settled(real.children.get(name).app[operation]())).toBe(true);
+      model.children.set(name, operation !== 'stop');
+    })),
+  fc.constant(null).map(() => command('terminalTeardown', [], model => !model.destroyed && model.completed >= 8, async(model, real) => {
+    expect(real.owner.app.destroy()).toBe(true);
+    expect(real.owner.app.destroy()).toBe(true);
+    expect(await real.owner.app.start()).toBe(false);
+    expect(await real.owner.app.restart()).toBe(false);
+    for (const child of real.children.values()) {
+      expect(child.app.isDestroyed()).toBe(true);
+      expect(await child.app.start()).toBe(false);
+    }
+    target(model, 'destroy');
+  })),
+  fc.constant(null).map(() => command('rejectCurrentStart', [], model => !model.destroyed && !model.running, async(model, real) => {
+    const gate = real.owner.hold('start');
+    const error = new Error('current loader failed');
+    const result = real.owner.app.start().then(value => ({ value }), failure => ({ failure }));
+    await until(() => gate.entered);
+    gate.reject(error);
+    expect(await settled(result)).toEqual({ failure: error });
+    expect(real.trace).not.toContain('owner:start');
+  }))
+];
+
+describe('Application public asynchronous sequences', () => {
+  it('preserves winning readiness, stable state, and child ownership across bounded interleavings', { timeout: 120000 }, async() => {
+    const settings = modelSettings();
+    await fc.assert(fc.asyncProperty(fc.commands([
+      commands[0], commands[1], commands[1], commands[3], commands[3], ...commands
+    ], settings.commands), async sequence => {
+      const real = fixture();
+      const model = { running: false, destroyed: false, children: new Map(), completed: 0 };
+      try {
+        await fc.asyncModelRun(() => ({ model, real }), sequence);
+        verify(model, real);
+      } finally {
+        real.automatic = true;
+        real.gates.forEach(gate => gate.resolve());
+        for (const app of real.apps) { await settled(app.destroy()); }
+      }
+    }), settings.assert);
+  });
+});

@@ -1,0 +1,1231 @@
+import { createHash } from 'node:crypto';
+import { readFile, readdir } from 'node:fs/promises';
+import { dirname, relative, resolve } from 'node:path';
+import process from 'node:process';
+import { pathToFileURL } from 'node:url';
+import { isDeepStrictEqual, promisify } from 'node:util';
+import { brotliCompress, constants } from 'node:zlib';
+import terser from '@rollup/plugin-terser';
+import { rollup } from 'rollup';
+import {
+  compareResources,
+  measureResources,
+  resourceReportRows,
+} from './resources.mjs';
+import {
+  isCoreRuntimeArtifact,
+  isDocumentationArtifact,
+  isToolingArtifact,
+  isToolingExport,
+} from './runtime-scope.mjs';
+
+const compress = promisify(brotliCompress);
+const consumerScenarioIds = [
+  'root-only',
+  'backbone-only',
+  'jquery-dom-api-only',
+  'root-plus-backbone',
+  'root-plus-jquery',
+  'root-plus-backbone-jquery',
+  'view-region',
+  'native-data-list',
+  'application-state',
+];
+const consumerFormatIds = ['esm', 'cjs', 'umd'];
+const consumerCompression = { algorithm: 'brotli', quality: 11 };
+const consumerPeerExternalImports = ['backbone', 'jquery'];
+const consumerBundleContractPath = 'benchmarks/consumer-bundles/contract.json';
+const consumerToolchain = {
+  rollup: '4.64.0',
+  rollupPluginTerser: '1.0.0',
+  terser: '5.51.2',
+};
+
+function getArgument(args, name, fallback) {
+  const index = args.indexOf(name);
+  if (index === -1) {
+    return fallback;
+  }
+
+  const value = args[index + 1];
+  if (!value || value.startsWith('--')) {
+    throw new Error(`Missing value for ${name}`);
+  }
+
+  return value;
+}
+
+function formatBytes(bytes) {
+  if (bytes == null) {
+    return 'Missing';
+  }
+  if (Math.abs(bytes) < 1000) {
+    return `${bytes} B`;
+  }
+
+  return `${(bytes / 1000).toFixed(2)} kB`;
+}
+
+function formatChange(base, current) {
+  if (base == null || current == null) {
+    return 'Not comparable';
+  }
+  const delta = current - base;
+  const prefix = delta > 0 ? '+' : '';
+  const percent = base === 0 ? 100 : (delta / base) * 100;
+  const indicator = delta > 0 ? ' 🔺' : delta < 0 ? ' 🔽' : '';
+
+  return `${prefix}${formatBytes(delta)} (${prefix}${percent.toFixed(2)}%)${indicator}`;
+}
+
+function normalizePath(path) {
+  return path.replaceAll('\\', '/').replace(/^\.\//, '');
+}
+
+async function readJson(file) {
+  return JSON.parse(await readFile(resolve(file), 'utf8'));
+}
+
+export function runtimePath(path) {
+  return typeof path === 'string' && /^(?:\.\/)?dist\/.+\.(?:c|m)?js$/.test(path);
+}
+
+export function collectRuntimePaths(value, paths = new Set()) {
+  if (runtimePath(value)) {
+    paths.add(normalizePath(value));
+    return paths;
+  }
+
+  if (!value || typeof value !== 'object') {
+    return paths;
+  }
+
+  for (const nested of Object.values(value)) {
+    collectRuntimePaths(nested, paths);
+  }
+
+  return paths;
+}
+
+function publicSubpath(packageName, subpath) {
+  return subpath === '.' ? packageName : `${packageName}/${subpath.slice(2)}`;
+}
+
+function packageRuntimePath(directory, path) {
+  return normalizePath(directory ? `${directory}/${path}` : path);
+}
+
+export function runtimeSubpaths(packageJson, packageName = null) {
+  return Object.entries(packageJson.exports || {})
+    .filter(([, value]) => collectRuntimePaths(value).size)
+    .filter(([subpath, value]) => !isToolingExport(
+      packageJson.name,
+      subpath,
+      [...collectRuntimePaths(value)]
+    ))
+    .map(([subpath]) => packageName ? publicSubpath(packageName, subpath) : subpath)
+    .sort();
+}
+
+export async function listRuntimeFiles(directory, root = directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+
+  for (const entry of entries) {
+    const entryPath = resolve(directory, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...await listRuntimeFiles(entryPath, root));
+    } else if (/\.(?:c|m)?js$/.test(entry.name)) {
+      files.push(normalizePath(relative(root, entryPath)));
+    }
+  }
+
+  return files.sort();
+}
+
+function difference(left, right) {
+  const rightSet = new Set(right);
+  return left.filter(value => !rightSet.has(value));
+}
+
+export function validateContract(
+  contract,
+  packageJson,
+  runtimeFiles,
+  runtimePackages = [{ directory: '', packageJson }],
+) {
+  const violations = [];
+  if (contract.schemaVersion !== 1) {
+    violations.push(`Unsupported performance schemaVersion ${contract.schemaVersion}`);
+  }
+  const forbidden = contract.forbiddenExternalImports;
+  if (forbidden !== undefined && (!Array.isArray(forbidden) || !forbidden.length ||
+      !forbidden.every((value, index) => typeof value === 'string' && value.length &&
+        (index === 0 || forbidden[index - 1] < value)))) {
+    violations.push('forbiddenExternalImports must be a sorted, unique array of non-empty strings');
+  }
+
+  const baselineTotal = contract.runtimeArtifacts
+    .reduce((total, artifact) => total + artifact.baselineBrotliBytes, 0);
+  if (baselineTotal !== contract.baseline.totalBrotliBytes) {
+    violations.push(`Artifact baselines total ${baselineTotal}; expected ${contract.baseline.totalBrotliBytes}`);
+  }
+
+  const declaredPaths = new Set(runtimePackages.flatMap(({ directory, packageJson: manifest }) => {
+    const runtimeExports = Object.fromEntries(Object.entries(manifest.exports || {})
+      .filter(([subpath, value]) => !isToolingExport(
+        manifest.name,
+        subpath,
+        [...collectRuntimePaths(value)]
+      )));
+    return [...collectRuntimePaths({
+      browser: manifest.browser,
+      exports: runtimeExports,
+      main: manifest.main,
+      module: manifest.module,
+    })].map(path => packageRuntimePath(directory, path));
+  }));
+  for (const artifact of contract.runtimeArtifacts) {
+    if (artifact.additionalShippedArtifact) {
+      declaredPaths.add(artifact.path);
+    }
+  }
+
+  const configuredPaths = contract.runtimeArtifacts.map(({ path }) => path).sort();
+  const discoveredPaths = runtimeFiles.map(path => {
+    const normalized = normalizePath(path);
+    return normalized.startsWith('dist/') || normalized.startsWith('packages/') ?
+      normalized : `dist/${normalized}`;
+  }).sort();
+  const missingConfiguration = difference([...declaredPaths].sort(), configuredPaths);
+  const undeclaredConfiguration = difference(configuredPaths, [...declaredPaths].sort());
+  const missingRuntimeFiles = difference(configuredPaths, discoveredPaths);
+  const untrackedRuntimeFiles = difference(discoveredPaths, configuredPaths);
+
+  if (missingConfiguration.length) {
+    violations.push(`Declared runtime artifacts missing from the contract: ${missingConfiguration.join(', ')}`);
+  }
+  if (undeclaredConfiguration.length) {
+    violations.push(`Contract artifacts are not package entrypoints or classified additions: ${undeclaredConfiguration.join(', ')}`);
+  }
+  if (missingRuntimeFiles.length) {
+    violations.push(`Configured runtime artifacts are missing: ${missingRuntimeFiles.join(', ')}`);
+  }
+  if (untrackedRuntimeFiles.length) {
+    violations.push(`Shipped runtime artifacts are untracked: ${untrackedRuntimeFiles.join(', ')}`);
+  }
+
+  const configuredSubpaths = contract.productionGraphs.map(({ subpath }) => subpath).sort();
+  const exportedSubpaths = runtimePackages.flatMap(({ directory, packageJson: manifest }) => {
+    return runtimeSubpaths(manifest, directory ? manifest.name : null);
+  }).sort();
+  const missingGraphs = difference(exportedSubpaths, configuredSubpaths);
+  const extraGraphs = difference(configuredSubpaths, exportedSubpaths);
+  if (missingGraphs.length || extraGraphs.length) {
+    violations.push(`Production graph subpaths mismatch exports; missing: ${missingGraphs.join(', ') || 'none'}; extra: ${extraGraphs.join(', ') || 'none'}`);
+  }
+  for (const graph of contract.productionGraphs) {
+    const owningPackage = runtimePackages.find(({ directory, packageJson: manifest }) => {
+      return runtimeSubpaths(manifest, directory ? manifest.name : null).includes(graph.subpath);
+    });
+    const localSubpath = owningPackage && !owningPackage.directory ?
+      graph.subpath : owningPackage ?
+        graph.subpath === owningPackage.packageJson.name ? '.' :
+          `./${graph.subpath.slice(owningPackage.packageJson.name.length + 1)}` : null;
+    const exportedPaths = localSubpath ? new Set([...collectRuntimePaths(
+      owningPackage.packageJson.exports?.[localSubpath]
+    )].map(path => packageRuntimePath(owningPackage.directory, path))) : new Set();
+    if (!exportedPaths.has(graph.output)) {
+      violations.push(
+        `Production graph ${graph.subpath} output ${graph.output} is not exported by that subpath`
+      );
+    }
+  }
+
+  return violations;
+}
+
+export function findForbiddenModules(modules, contract) {
+  return modules.filter(module => {
+    return contract.forbiddenProductionModules.includes(module) ||
+      contract.forbiddenProductionModulePrefixes.some(prefix => module.startsWith(prefix));
+  });
+}
+
+export function findForbiddenExternalImports(externalImports, contract) {
+  const forbiddenExternalImports = Array.isArray(contract.forbiddenExternalImports) ?
+    contract.forbiddenExternalImports : [];
+  return externalImports.filter(externalImport => {
+    return forbiddenExternalImports.some(forbiddenImport => {
+      return externalImport === forbiddenImport || externalImport.startsWith(`${forbiddenImport}/`);
+    });
+  });
+}
+
+async function sha256(file) {
+  return createHash('sha256').update(await readFile(file)).digest('hex');
+}
+
+function sha256Text(value) {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+function sameStringInventory(actual, expected) {
+  return Array.isArray(actual) && isDeepStrictEqual(actual, expected);
+}
+
+export function validateConsumerBundleContract(
+  contract,
+  fixture,
+  packageJson,
+  brotliQuality,
+  fixtureRevision,
+  packageJsons = [packageJson],
+) {
+  const violations = [];
+  if (!contract || !sameStringInventory(Object.keys(contract).sort(), [
+    'fixture',
+    'peerExternalImports',
+    'schemaVersion',
+    'status',
+    'toolchain',
+  ]) || contract.schemaVersion !== 1) {
+    return ['consumerBundles must use schemaVersion 1'];
+  }
+  if (!sameStringInventory(Object.keys(contract.fixture || {}).sort(), [
+    'path',
+    'sha256',
+    'version',
+  ]) || contract.fixture.version !== 'v2' ||
+      contract.fixture.path !== 'benchmarks/consumer-bundles/v2/manifest.json' ||
+      typeof contract.fixture.sha256 !== 'string' ||
+      !/^[a-f\d]{64}$/.test(contract.fixture.sha256)) {
+    violations.push('consumerBundles fixture authority is malformed');
+  }
+  if (contract.status !== 'reporting') {
+    violations.push('consumerBundles status must remain reporting until baselines and ceilings are adopted');
+  }
+  if (fixture?.schemaVersion !== 1 || fixture?.fixtureVersion !== contract.fixture?.version) {
+    violations.push('Consumer bundle fixture metadata does not match the performance contract');
+  }
+  if (fixtureRevision !== contract.fixture.sha256) {
+    violations.push(`Consumer bundle fixture SHA-256 ${fixtureRevision || 'missing'} does not match ${contract.fixture.sha256}`);
+  }
+  const expectedCompression = { algorithm: 'brotli', quality: brotliQuality };
+  if (!isDeepStrictEqual(fixture?.compression, expectedCompression)) {
+    violations.push(`Consumer bundle compression must be Brotli quality ${brotliQuality}`);
+  }
+  const scenarioIds = fixture?.scenarios?.map(({ id }) => id);
+  if (!sameStringInventory(scenarioIds, consumerScenarioIds)) {
+    violations.push(`Consumer bundle scenario inventory must be ${consumerScenarioIds.join(', ')}`);
+  }
+  const formatIds = fixture?.formats?.map(({ id }) => id);
+  if (!sameStringInventory(formatIds, consumerFormatIds)) {
+    violations.push(`Consumer bundle format inventory must be ${consumerFormatIds.join(', ')}`);
+  }
+  const expectedArtifacts = consumerScenarioIds.flatMap(scenario =>
+    consumerFormatIds.map(format => `${scenario}:${format}`));
+  if (!sameStringInventory(fixture?.expectedArtifacts, expectedArtifacts)) {
+    violations.push(`Consumer bundle expected artifact set must be ${expectedArtifacts.join(', ')}`);
+  }
+  const packageNames = packageJsons.map(manifest => manifest.name);
+  const legacySinglePackage = packageNames.length === 1 &&
+    fixture?.packageName === packageNames[0] && !Object.hasOwn(fixture, 'packageNames');
+  if (!legacySinglePackage && !sameStringInventory(fixture?.packageNames, packageNames)) {
+    violations.push(`Consumer bundle fixture packages must be ${packageNames.join(', ')}`);
+  }
+
+  const internalPackages = new Set(packageNames);
+  const runtimePeers = [...new Set(packageJsons.flatMap(manifest => {
+    return Object.keys(manifest.peerDependencies || {});
+  }))]
+    .filter(peer => !peer.startsWith('@types/'))
+    .filter(peer => !internalPackages.has(peer))
+    .sort();
+  if (!sameStringInventory(contract.peerExternalImports, consumerPeerExternalImports)) {
+    violations.push(`Consumer bundle peer externals must be ${consumerPeerExternalImports.join(', ')}`);
+  }
+  const missingPeers = difference(consumerPeerExternalImports, runtimePeers);
+  if (missingPeers.length) {
+    violations.push(`Consumer bundle peers are not declared runtime peers: ${missingPeers.join(', ')}`);
+  }
+  // Other integrations may add optional peers without changing the versioned
+  // scenarios. Exact measured graph checks still reject their runtime imports.
+  const additionalRequiredPeers = [...new Set(packageJsons.flatMap(manifest => {
+    return Object.keys(manifest.peerDependencies || {}).filter(peer =>
+      runtimePeers.includes(peer) && !consumerPeerExternalImports.includes(peer) &&
+      manifest.peerDependenciesMeta?.[peer]?.optional !== true);
+  }))].sort();
+  if (additionalRequiredPeers.length) {
+    violations.push(`Runtime peers outside consumer bundle fixtures must be optional: ${additionalRequiredPeers.join(', ')}`);
+  }
+  if (!isDeepStrictEqual(contract.toolchain, consumerToolchain)) {
+    violations.push('Consumer bundle toolchain metadata is not canonical');
+  }
+  const pinnedTools = {
+    rollup: packageJson.devDependencies?.rollup,
+    rollupPluginTerser: packageJson.devDependencies?.['@rollup/plugin-terser'],
+    terser: packageJson.devDependencies?.terser,
+  };
+  for (const [tool, expectedVersion] of Object.entries(pinnedTools)) {
+    if (contract.toolchain?.[tool] !== expectedVersion) {
+      violations.push(`Locked ${tool} version ${contract.toolchain?.[tool] || 'missing'} does not match ${expectedVersion || 'missing'}`);
+    }
+  }
+
+  const exportedImports = new Set(packageJsons.flatMap(manifest => {
+    return runtimeSubpaths(manifest, manifest.name);
+  }));
+  for (const scenario of fixture?.scenarios || []) {
+    if (!Array.isArray(scenario.publicImports) || !scenario.publicImports.length ||
+        scenario.publicImports.some(publicImport => !exportedImports.has(publicImport))) {
+      violations.push(`Consumer bundle scenario ${scenario.id || 'missing'} has invalid publicImports`);
+    }
+    if (!Array.isArray(scenario.exercisedExports) || !scenario.exercisedExports.length) {
+      violations.push(`Consumer bundle scenario ${scenario.id || 'missing'} must name exercisedExports`);
+    }
+    if (typeof scenario.entry !== 'string' ||
+        typeof scenario.entrySha256 !== 'string' ||
+        !/^[a-f\d]{64}$/.test(scenario.entrySha256)) {
+      violations.push(`Consumer bundle scenario ${scenario.id || 'missing'} has invalid entry metadata`);
+    }
+    if (!Array.isArray(scenario.expectedModules) || !Array.isArray(scenario.expectedExternalImports)) {
+      violations.push(`Consumer bundle scenario ${scenario.id || 'missing'} is missing expected graph metadata`);
+    }
+  }
+  const rootScenario = fixture?.scenarios?.find(({ id }) => id === 'root-only');
+  if (rootScenario && (!sameStringInventory(rootScenario.publicImports, [packageJson.name]) ||
+      !sameStringInventory(rootScenario.expectedModules, [
+        'benchmarks/consumer-bundles/v1/root-only.js',
+        'dist/marionette.js',
+        'packages/radio/dist/index.js',
+        'packages/utils/dist/index.js',
+      ]) ||
+      !sameStringInventory(rootScenario.expectedExternalImports, []))) {
+    violations.push('Consumer bundle root-only scenario must remain isolated from opt-in subpaths and peers');
+  }
+
+  return violations;
+}
+
+async function readRuntimePackages(root) {
+  const packages = await Promise.all(['', 'packages/adapters', 'packages/data', 'packages/utils', 'packages/radio']
+    .map(async directory => {
+      try {
+        const packageJson = await readJson(resolve(root, directory, 'package.json'));
+        return { directory, packageJson };
+      } catch (error) {
+        if (directory && error.code === 'ENOENT') { return null; }
+        throw error;
+      }
+    }));
+  return packages.filter(Boolean);
+}
+
+function consumerPackageResolver(root, runtimePackages, peerExternalImports) {
+  const importPaths = new Map(runtimePackages.flatMap(({ directory, packageJson }) => {
+    return Object.entries(packageJson.exports || {})
+      .filter(([subpath, value]) => !isToolingExport(
+        packageJson.name,
+        subpath,
+        [...collectRuntimePaths(value)]
+      )).map(([subpath, value]) => {
+        const publicImport = publicSubpath(packageJson.name, subpath);
+        const paths = collectRuntimePaths(value);
+        const esmPath = [...paths].find(path => path.endsWith('.js') && !path.endsWith('.umd.js'));
+        return [publicImport, esmPath ? resolve(root, directory, esmPath) : null];
+      });
+  }));
+
+  return {
+    name: 'consumer-package-resolver',
+    resolveId(source) {
+      if (peerExternalImports.some(peer => source === peer || source.startsWith(`${peer}/`))) {
+        return { id: source, external: true };
+      }
+      if (importPaths.has(source)) {
+        const resolved = importPaths.get(source);
+        if (!resolved) {
+          throw new Error(`No ES module runtime path exists for ${source}`);
+        }
+        return resolved;
+      }
+      return null;
+    },
+  };
+}
+
+function consumerGraphViolations(scenario, modules, externalImports, peerExternalImports) {
+  const violations = [];
+  if (!sameStringInventory(modules, scenario.expectedModules)) {
+    violations.push(`${scenario.id} modules differ from fixture metadata; expected ${scenario.expectedModules.join(', ') || 'none'}; measured ${modules.join(', ') || 'none'}`);
+  }
+  if (!sameStringInventory(externalImports, scenario.expectedExternalImports)) {
+    violations.push(`${scenario.id} external imports differ from fixture metadata; expected ${scenario.expectedExternalImports.join(', ') || 'none'}; measured ${externalImports.join(', ') || 'none'}`);
+  }
+  const undeclaredExternals = externalImports.filter(externalImport =>
+    !peerExternalImports.some(peer => externalImport === peer || externalImport.startsWith(`${peer}/`)));
+  if (undeclaredExternals.length) {
+    violations.push(`${scenario.id} contains non-peer external imports: ${undeclaredExternals.join(', ')}`);
+  }
+  if (scenario.id === 'root-only' && (externalImports.length !== 0 ||
+      modules.some(module => module.startsWith('packages/adapters/dist/')))) {
+    violations.push('root-only consumer bundle is not isolated from opt-in subpaths and peers');
+  }
+  return violations;
+}
+
+export async function measureConsumerBundles({ root = '.', contract, brotliQuality } = {}) {
+  const resolvedRoot = resolve(root);
+  const fixturePath = resolve(resolvedRoot, contract.fixture.path);
+  const [fixtureText, runtimePackages] = await Promise.all([
+    readFile(fixturePath, 'utf8'),
+    readRuntimePackages(resolvedRoot),
+  ]);
+  const packageJson = runtimePackages[0].packageJson;
+  const packageJsons = runtimePackages.map(({ packageJson: manifest }) => manifest);
+  const fixture = JSON.parse(fixtureText);
+  const actualFixtureRevision = sha256Text(fixtureText);
+  const violations = validateConsumerBundleContract(
+    contract,
+    fixture,
+    packageJson,
+    brotliQuality,
+    actualFixtureRevision,
+    packageJsons,
+  );
+  const fixtureRoot = dirname(fixturePath);
+  const artifacts = [];
+
+  for (const scenario of fixture.scenarios || []) {
+    let bundle;
+    try {
+      const entryPath = resolve(fixtureRoot, scenario.entry);
+      const entryRevision = await sha256(entryPath);
+      if (entryRevision !== scenario.entrySha256) {
+        violations.push(`${scenario.id} entry SHA-256 ${entryRevision} does not match ${scenario.entrySha256}`);
+        continue;
+      }
+      bundle = await rollup({
+        input: entryPath,
+        plugins: [
+          consumerPackageResolver(resolvedRoot, runtimePackages, contract.peerExternalImports),
+          terser(fixture.minify),
+        ],
+        treeshake: fixture.treeshake,
+      });
+      for (const format of fixture.formats || []) {
+        const generated = await bundle.generate({
+          format: format.rollupFormat,
+          exports: 'named',
+          name: format.rollupFormat === 'umd' ? 'MarionetteConsumerBundle' : undefined,
+          globals: {
+            backbone: 'Backbone',
+            jquery: 'jQuery',
+          },
+        });
+        const chunks = generated.output.filter(item => item.type === 'chunk');
+        const code = chunks.map(chunk => chunk.code).join('\n');
+        const modules = [...new Set(chunks.flatMap(chunk => Object.keys(chunk.modules)))]
+          .map(moduleId => normalizePath(relative(resolvedRoot, moduleId)))
+          .sort();
+        const externalImports = [...new Set(chunks.flatMap(chunk => [
+          ...chunk.imports,
+          ...chunk.dynamicImports,
+        ]))].sort();
+        const compressed = await compress(code, {
+          params: { [constants.BROTLI_PARAM_QUALITY]: fixture.compression.quality },
+        });
+        artifacts.push({
+          id: `${scenario.id}:${format.id}`,
+          scenario: scenario.id,
+          format: format.id,
+          status: 'measured',
+          size: compressed.length,
+          modules,
+          externalImports,
+        });
+        violations.push(...consumerGraphViolations(
+          scenario,
+          modules,
+          externalImports,
+          contract.peerExternalImports
+        ));
+      }
+    } catch (error) {
+      violations.push(`Unable to measure consumer bundle ${scenario.id}: ${error.message}`);
+    } finally {
+      await bundle?.close();
+    }
+  }
+
+  const expectedArtifactCount = consumerScenarioIds.length * consumerFormatIds.length;
+  if (artifacts.length !== expectedArtifactCount) {
+    violations.push(`Consumer bundle artifact inventory measured ${artifacts.length}; expected ${expectedArtifactCount}`);
+  }
+  const measuredArtifacts = artifacts.map(({ scenario, format }) => `${scenario}:${format}`);
+  if (!sameStringInventory(measuredArtifacts, fixture.expectedArtifacts)) {
+    violations.push('Consumer bundle measured artifact set differs from fixture metadata');
+  }
+
+  return {
+    schemaVersion: 1,
+    status: contract.status,
+    fixtureVersion: fixture.fixtureVersion,
+    fixtureRevision: actualFixtureRevision,
+    compression: fixture.compression,
+    toolchain: contract.toolchain,
+    peerExternalImports: contract.peerExternalImports,
+    artifacts,
+    violations: [...new Set(violations)],
+  };
+}
+
+export async function validateToolchain(contract, root) {
+  const violations = [];
+  const profileContract = contract.toolchain.releaseProfile;
+  const profilePath = resolve(root, profileContract.path);
+  const [profile, packageJson, packageLock, nvmrc, profileRevision] = await Promise.all([
+    readJson(profilePath),
+    readJson(resolve(root, 'package.json')),
+    readJson(resolve(root, 'package-lock.json')),
+    readFile(resolve(root, '.nvmrc'), 'utf8'),
+    sha256(profilePath),
+  ]);
+  const canonicalHost = profile.hosts.find(host => host.id === profileContract.canonicalHost.id);
+  const expectedPackageManager = `npm@${profileContract.npm}`;
+
+  if (profileRevision !== profileContract.sha256) {
+    violations.push(`Release profile SHA-256 ${profileRevision} does not match ${profileContract.sha256}`);
+  }
+  if (nvmrc.trim() !== profileContract.node || profile.source.node !== profileContract.node) {
+    violations.push(`Node profile must be ${profileContract.node}`);
+  }
+  if (packageJson.packageManager !== expectedPackageManager || profile.source.npm !== profileContract.npm) {
+    violations.push(`npm profile must be ${expectedPackageManager}`);
+  }
+  if (packageLock.lockfileVersion !== profileContract.lockfileVersion ||
+      profile.source.lockfileVersion !== profileContract.lockfileVersion) {
+    violations.push(`Lockfile version must be ${profileContract.lockfileVersion}`);
+  }
+  if (!canonicalHost || canonicalHost.runner !== profileContract.canonicalHost.runner ||
+      canonicalHost.platform !== profileContract.canonicalHost.platform ||
+      canonicalHost.architecture !== profileContract.canonicalHost.architecture) {
+    violations.push(`Canonical performance host must be ${profileContract.canonicalHost.runner} ${profileContract.canonicalHost.platform}-${profileContract.canonicalHost.architecture}`);
+  }
+
+  for (const [dependency, expectedVersion] of Object.entries(contract.toolchain.lockedDependencies)) {
+    const actualVersion = packageLock.packages[`node_modules/${dependency}`]?.version;
+    if (actualVersion !== expectedVersion) {
+      violations.push(`Locked ${dependency} version ${actualVersion || 'missing'} does not match ${expectedVersion}`);
+    }
+  }
+
+  return violations;
+}
+
+function findRollupConfiguration(root, configurations, graph) {
+  const matches = [];
+  const graphOutput = resolve(root, graph.output);
+  for (const configuration of configurations) {
+    const outputs = Array.isArray(configuration.output) ?
+      configuration.output : [configuration.output];
+    for (const output of outputs) {
+      if (typeof output?.file === 'string' && resolve(root, output.file) === graphOutput) {
+        matches.push({ configuration, output });
+      }
+    }
+  }
+  if (!matches.length) {
+    throw new Error(`No Rollup output found for ${graph.output}`);
+  }
+  if (matches.length > 1) {
+    throw new Error(`Multiple Rollup configurations write ${graph.output}`);
+  }
+
+  const [{ configuration, output }] = matches;
+  if (typeof configuration.input !== 'string') {
+    throw new Error(`Rollup output ${graph.output} must use one string input ${graph.input}`);
+  }
+  if (resolveRollupInput(root, configuration.input) !== resolveRollupInput(root, graph.input)) {
+    throw new Error(`Rollup output ${graph.output} does not use input ${graph.input}`);
+  }
+
+  return { configuration, output };
+}
+
+export function resolveRollupInput(root, input) {
+  if (typeof input === 'string') {
+    return resolve(root, input);
+  }
+  if (Array.isArray(input)) {
+    return input.map(entry => resolve(root, entry));
+  }
+
+  return Object.fromEntries(
+    Object.entries(input).map(([name, entry]) => [name, resolve(root, entry)])
+  );
+}
+
+async function measureGraph(root, configurations, graph, contract) {
+  const { configuration, output } = findRollupConfiguration(root, configurations, graph);
+  const bundle = await rollup({
+    ...configuration,
+    input: resolveRollupInput(root, configuration.input),
+  });
+
+  try {
+    const generated = await bundle.generate(output);
+    const chunks = generated.output.filter(item => item.type === 'chunk');
+    const modules = [...new Set(chunks.flatMap(chunk => Object.keys(chunk.modules)))]
+      .map(moduleId => normalizePath(relative(root, moduleId)))
+      .sort();
+    const externalImports = [...new Set(chunks.flatMap(chunk => chunk.imports))].sort();
+    const policyExternalImports = [...new Set(chunks.flatMap(chunk => {
+      return [...chunk.imports, ...chunk.dynamicImports];
+    }))].sort();
+
+    return {
+      subpath: graph.subpath,
+      input: graph.input,
+      output: graph.output,
+      status: 'measured',
+      modules,
+      externalImports,
+      phase0AddedModules: difference(modules, graph.baselineModules),
+      phase0RemovedModules: difference(graph.baselineModules, modules),
+      phase0AddedExternalImports: difference(externalImports, graph.baselineExternalImports),
+      phase0RemovedExternalImports: difference(graph.baselineExternalImports, externalImports),
+      forbiddenModules: findForbiddenModules(modules, contract),
+      forbiddenExternalImports: findForbiddenExternalImports(policyExternalImports, contract),
+    };
+  } finally {
+    await bundle.close();
+  }
+}
+
+async function measureArtifact(root, quality, artifact) {
+  try {
+    const contents = await readFile(resolve(root, artifact.path));
+    const compressed = await compress(contents, {
+      params: {
+        [constants.BROTLI_PARAM_QUALITY]: quality
+      }
+    });
+
+    return {
+      name: artifact.name,
+      path: artifact.path,
+      status: artifact.untracked ? 'untracked' : 'measured',
+      size: compressed.length,
+      baselineSize: artifact.baselineBrotliBytes ?? null,
+    };
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw error;
+    }
+    return {
+      name: artifact.name,
+      path: artifact.path,
+      status: 'missing',
+      size: null,
+      baselineSize: artifact.baselineBrotliBytes ?? null,
+    };
+  }
+}
+
+export async function measure({
+  root = '.',
+  configPath = 'config/performance.json',
+  checkToolchain = true,
+} = {}) {
+  const resolvedRoot = resolve(root);
+  const resolvedConfigPath = resolve(configPath);
+  const contract = await readJson(resolvedConfigPath);
+  const runtimePackages = await readRuntimePackages(resolvedRoot);
+  const packageJson = runtimePackages[0].packageJson;
+  const runtimeFiles = (await Promise.all(runtimePackages.map(async({ directory }) => {
+    const distDirectory = resolve(resolvedRoot, directory, 'dist');
+    const files = await listRuntimeFiles(distDirectory).catch(error => {
+      if (error.code !== 'ENOENT') { throw error; }
+      return [];
+    });
+    return files.map(path => packageRuntimePath(directory, `dist/${path}`));
+  }))).flat().filter(path => !isDocumentationArtifact(path) && !isToolingArtifact(path)).sort();
+  const violations = validateContract(
+    contract,
+    packageJson,
+    runtimeFiles,
+    runtimePackages,
+  );
+  if (checkToolchain) {
+    violations.push(...await validateToolchain(contract, resolvedRoot));
+  }
+  const quality = contract.baseline.brotliQuality;
+  const configuredPaths = new Set(contract.runtimeArtifacts.map(artifact => artifact.path));
+  const untrackedArtifacts = runtimeFiles
+    .filter(path => !configuredPaths.has(path))
+    .map(path => ({ name: `Untracked ${path}`, path, untracked: true }));
+  const artifactConfigurations = [...contract.runtimeArtifacts, ...untrackedArtifacts];
+  const artifacts = await Promise.all(artifactConfigurations.map(artifact => {
+    return measureArtifact(resolvedRoot, quality, artifact);
+  }));
+  const totalSize = artifacts.reduce((total, artifact) => total + (artifact.size || 0), 0);
+  const coreSize = artifacts
+    .filter(artifact => isCoreRuntimeArtifact(artifact.path))
+    .reduce((total, artifact) => total + (artifact.size || 0), 0);
+  const coreBaselineSize = contract.runtimeArtifacts
+    .filter(artifact => isCoreRuntimeArtifact(artifact.path))
+    .reduce((total, artifact) => total + artifact.baselineBrotliBytes, 0);
+
+  let configurations;
+  try {
+    const configUrl = pathToFileURL(resolve(resolvedRoot, 'rollup.config.mjs'));
+    const { default: rootConfigurations } = await import(configUrl.href);
+    configurations = [...rootConfigurations];
+    for (const { directory } of runtimePackages.slice(1)) {
+      const packageRoot = resolve(resolvedRoot, directory);
+      const packageConfigUrl = pathToFileURL(resolve(packageRoot, 'rollup.config.mjs'));
+      const { default: packageConfigurations } = await import(packageConfigUrl.href);
+      const packageConfigs = Array.isArray(packageConfigurations) ? packageConfigurations : [packageConfigurations];
+      configurations.push(...packageConfigs.map(configuration => ({
+        ...configuration,
+        input: resolveRollupInput(packageRoot, configuration.input),
+        output: (Array.isArray(configuration.output) ?
+          configuration.output : [configuration.output]).map(output => ({
+          ...output,
+          file: resolve(packageRoot, output.file),
+        })),
+      })));
+    }
+  } catch (error) {
+    violations.push(`Unable to load production Rollup configuration: ${error.message}`);
+    configurations = [];
+  }
+
+  const graphs = [];
+  for (const graph of contract.productionGraphs) {
+    try {
+      const result = await measureGraph(resolvedRoot, configurations, graph, contract);
+      graphs.push(result);
+      if (result.forbiddenModules.length) {
+        violations.push(`${graph.subpath} includes forbidden production modules: ${result.forbiddenModules.join(', ')}`);
+      }
+      if (result.forbiddenExternalImports.length) {
+        violations.push(`${graph.subpath} includes forbidden external imports: ${result.forbiddenExternalImports.join(', ')}`);
+      }
+    } catch (error) {
+      graphs.push({
+        subpath: graph.subpath,
+        input: graph.input,
+        output: graph.output,
+        status: 'measurement-error',
+        modules: [],
+        externalImports: [],
+        forbiddenModules: [],
+        forbiddenExternalImports: [],
+        error: error.message,
+      });
+      violations.push(`Unable to measure production graph ${graph.subpath}: ${error.message}`);
+    }
+  }
+
+  const configuredSubpaths = new Set(contract.productionGraphs.map(graph => graph.subpath));
+  for (const subpath of runtimePackages.flatMap(({ directory, packageJson: manifest }) => {
+    return runtimeSubpaths(manifest, directory ? manifest.name : null);
+  })) {
+    if (!configuredSubpaths.has(subpath)) {
+      graphs.push({
+        subpath,
+        status: 'unconfigured',
+        modules: [],
+        externalImports: [],
+        forbiddenModules: [],
+        forbiddenExternalImports: [],
+        error: 'New exported runtime subpath is not defined by the authority contract',
+      });
+    }
+  }
+
+  let consumerBundles = null;
+  try {
+    const consumerBundleContract = await readJson(
+      resolve(resolvedRoot, consumerBundleContractPath)
+    );
+    consumerBundles = await measureConsumerBundles({
+      root: resolvedRoot,
+      contract: consumerBundleContract,
+      brotliQuality: quality,
+    });
+    violations.push(...consumerBundles.violations);
+  } catch (error) {
+    violations.push(`Unable to measure consumer bundles: ${error.message}`);
+  }
+
+  let resources = null;
+  if (contract.deterministicResources) {
+    try {
+      if (contract.deterministicResources.schemaVersion !== 2) {
+        throw new Error('deterministicResources must use public-observable schemaVersion 2');
+      }
+      resources = await measureResources({
+        root: resolvedRoot,
+        attachDetachCycles: contract.deterministicResources.attachDetachCycles,
+        mountDestroyCycles: contract.deterministicResources.mountDestroyCycles,
+      });
+    } catch (error) {
+      violations.push(`Unable to measure deterministic resources: ${error.message}`);
+    }
+  }
+
+  return {
+    schemaVersion: 1,
+    contractPath: normalizePath(relative(resolvedRoot, resolvedConfigPath)),
+    baselineSourceCommit: contract.baseline.sourceCommit,
+    brotliQuality: quality,
+    thresholds: contract.thresholds,
+    artifacts,
+    cumulative: {
+      size: totalSize,
+      baselineSize: contract.baseline.totalBrotliBytes,
+      coreSize,
+      coreBaselineSize,
+    },
+    graphs,
+    consumerBundles,
+    resourcesRequired: Boolean(contract.deterministicResources),
+    resources,
+    violations,
+  };
+}
+
+function consumerArtifactIds(version = 'v2') {
+  // The exact PR base can still contain the archived v1 measurement. Validate
+  // its own six scenarios; v2 adds three and must not invent a size delta.
+  const scenarios = version === 'v1' ? consumerScenarioIds.slice(0, 6) :
+    version === 'v2' ? consumerScenarioIds : [];
+  return scenarios.flatMap(scenario =>
+    consumerFormatIds.map(format => `${scenario}:${format}`));
+}
+
+function validateConsumerBundleReport(report, label, isCurrent) {
+  const violations = [];
+  if (!report || report.schemaVersion !== 1 || report.status !== 'reporting' ||
+      typeof report.fixtureVersion !== 'string' || !report.fixtureVersion ||
+      typeof report.fixtureRevision !== 'string' ||
+      !/^[a-f\d]{64}$/.test(report.fixtureRevision) ||
+      !report.compression || !report.toolchain || !Array.isArray(report.peerExternalImports) ||
+      !Array.isArray(report.artifacts) || !Array.isArray(report.violations)) {
+    return [`${label} consumer bundle report is malformed`];
+  }
+  if (isCurrent && (!isDeepStrictEqual(report.compression, consumerCompression) ||
+      !isDeepStrictEqual(report.toolchain, consumerToolchain) ||
+      !isDeepStrictEqual(report.peerExternalImports, consumerPeerExternalImports))) {
+    violations.push(`${label} consumer bundle metadata is not canonical`);
+  }
+
+  const expectedIds = consumerArtifactIds(isCurrent ? 'v2' : report.fixtureVersion);
+  const actualIds = report.artifacts.map(artifact => artifact?.id);
+  if (!expectedIds.length || !isDeepStrictEqual(actualIds, expectedIds)) {
+    violations.push(`${label} consumer bundle artifact inventory is not canonical`);
+  }
+  for (const artifact of report.artifacts) {
+    const expectedId = `${artifact?.scenario}:${artifact?.format}`;
+    if (artifact?.id !== expectedId || artifact?.status !== 'measured' ||
+        !Number.isSafeInteger(artifact?.size) || artifact.size <= 0) {
+      violations.push(`${label} consumer bundle artifact ${artifact?.id || 'missing'} is malformed`);
+    }
+  }
+  return violations;
+}
+
+export function compareConsumerBundleReports(base, current) {
+  if (!base && !current) {
+    return { bootstrap: false, rows: [], violations: [], unavailable: true };
+  }
+  if (!current) {
+    return {
+      bootstrap: false,
+      rows: [],
+      violations: ['Pull request consumer bundle measurement is missing'],
+    };
+  }
+  const currentReportViolations = validateConsumerBundleReport(current, 'Pull request', true);
+  if (currentReportViolations.some(violation => violation.endsWith('report is malformed'))) {
+    return {
+      bootstrap: !base,
+      rows: [],
+      violations: currentReportViolations,
+    };
+  }
+  if (!base) {
+    return {
+      bootstrap: true,
+      rows: current.artifacts.map(artifact => ({
+        scenario: artifact.scenario,
+        format: artifact.format,
+        id: artifact.id,
+        baseSize: null,
+        currentSize: artifact.size,
+        deltaBytes: null,
+      })),
+      violations: [...currentReportViolations, ...current.violations],
+    };
+  }
+  const baseReportViolations = validateConsumerBundleReport(base, 'Exact base', false);
+  if (baseReportViolations.some(violation => violation.endsWith('report is malformed'))) {
+    return {
+      bootstrap: false,
+      rows: [],
+      violations: baseReportViolations,
+    };
+  }
+  if (base.fixtureVersion !== current.fixtureVersion ||
+      base.fixtureRevision !== current.fixtureRevision ||
+      !isDeepStrictEqual(base.compression, current.compression) ||
+      !isDeepStrictEqual(base.toolchain, current.toolchain) ||
+      !isDeepStrictEqual(base.peerExternalImports, current.peerExternalImports)) {
+    return {
+      bootstrap: false,
+      reason: 'Consumer bundle fixtures or tooling changed; sizes are not comparable.',
+      rows: current.artifacts.map(artifact => ({
+        id: artifact.id,
+        scenario: artifact.scenario,
+        format: artifact.format,
+        baseSize: null,
+        currentSize: artifact.size,
+        deltaBytes: null,
+      })),
+      violations: [
+        ...baseReportViolations,
+        ...currentReportViolations,
+        ...base.violations,
+        ...current.violations,
+      ],
+    };
+  }
+  const baseByKey = new Map(base.artifacts.map(artifact => [
+    artifact.id,
+    artifact,
+  ]));
+  const rows = current.artifacts.map(artifact => {
+    const baseArtifact = baseByKey.get(artifact.id);
+    return {
+      id: artifact.id,
+      scenario: artifact.scenario,
+      format: artifact.format,
+      baseSize: baseArtifact?.size ?? null,
+      currentSize: artifact.size,
+      deltaBytes: baseArtifact ? artifact.size - baseArtifact.size : null,
+    };
+  });
+  const currentKeys = new Set(current.artifacts.map(artifact => artifact.id));
+  const missing = base.artifacts.filter(artifact =>
+    !currentKeys.has(artifact.id));
+  const added = rows.filter(row => row.baseSize == null);
+  const violations = [
+    ...baseReportViolations,
+    ...currentReportViolations,
+    ...base.violations,
+    ...current.violations,
+  ];
+  if (missing.length || added.length) {
+    violations.push('Consumer bundle report inventory differs from the exact base');
+  }
+  return { bootstrap: false, rows, violations };
+}
+
+function graphChange(baseGraph, currentGraph) {
+  if (currentGraph.status !== 'measured') {
+    return currentGraph.error;
+  }
+  if (baseGraph.status !== 'measured') {
+    return 'Base graph was not measurable';
+  }
+  const added = difference(currentGraph.modules, baseGraph.modules);
+  const removed = difference(baseGraph.modules, currentGraph.modules);
+  const externalAdded = difference(currentGraph.externalImports, baseGraph.externalImports);
+  const externalRemoved = difference(baseGraph.externalImports, currentGraph.externalImports);
+  const changes = [];
+  if (added.length) { changes.push(`+${added.join(', +')}`); }
+  if (removed.length) { changes.push(`-${removed.join(', -')}`); }
+  if (externalAdded.length) { changes.push(`external +${externalAdded.join(', +')}`); }
+  if (externalRemoved.length) { changes.push(`external -${externalRemoved.join(', -')}`); }
+  return changes.join('; ') || 'No change';
+}
+
+function compareResourceReports(base, current) {
+  if (!base.resources && !current.resources) {
+    if (base.resourcesRequired || current.resourcesRequired) {
+      return {
+        changes: [],
+        violations: ['Required resource measurements are missing from both reports'],
+      };
+    }
+    return { changes: [], violations: [], unavailable: true };
+  }
+  if (!base.resources) {
+    return {
+      changes: [],
+      violations: ['Exact base resource measurement is missing'],
+    };
+  }
+  if (!current.resources) {
+    return {
+      changes: [],
+      violations: ['Pull request resource measurement is missing'],
+    };
+  }
+
+  return compareResources(base.resources, current.resources);
+}
+
+async function buildReport(baseFile, currentFile) {
+  const base = await readJson(baseFile);
+  const current = await readJson(currentFile);
+  const baseByPath = new Map(base.artifacts.map(result => [result.path, result]));
+  const currentPaths = new Set(current.artifacts.map(result => result.path));
+  const rows = current.artifacts.map(result => {
+    const previous = baseByPath.get(result.path);
+    return `| ${result.name} | ${previous ? formatBytes(previous.size) : 'New'} | ${formatBytes(result.size)} | ${previous ? formatChange(previous.size, result.size) : 'New artifact'} |`;
+  });
+  for (const result of base.artifacts) {
+    if (!currentPaths.has(result.path)) {
+      rows.push(`| ${result.name} | ${formatBytes(result.size)} | Removed | Removed artifact |`);
+    }
+  }
+  const baseGraphs = new Map(base.graphs.map(graph => [graph.subpath, graph]));
+  const graphRows = current.graphs.map(graph => {
+    const baseGraph = baseGraphs.get(graph.subpath);
+    const change = baseGraph ? graphChange(baseGraph, graph) : graph.error || 'New production subpath';
+    const moduleCount = graph.status === 'measured' ? graph.modules.length : 'Unmeasured';
+    return `| \`${graph.subpath}\` | ${moduleCount} | ${graph.externalImports.join(', ') || 'None'} | ${change} |`;
+  });
+  const resourceComparison = compareResourceReports(base, current);
+  const consumerComparison = compareConsumerBundleReports(
+    base.consumerBundles,
+    current.consumerBundles
+  );
+  const consumerSection = consumerComparison.unavailable ? [] : [
+    '',
+    '## Canonical consumer bundles',
+    '',
+    '| Scenario | Format | Base | PR | Change |',
+    '| --- | --- | ---: | ---: | ---: |',
+    ...consumerComparison.rows.map(row =>
+      `| ${row.scenario} | ${row.format} | ${formatBytes(row.baseSize)} | ${formatBytes(row.currentSize)} | ${row.deltaBytes == null ? (consumerComparison.bootstrap ? 'Bootstrap' : 'Not comparable') : formatChange(row.baseSize, row.currentSize)} |`),
+    '',
+    consumerComparison.bootstrap ?
+      'Reporting bootstrap only: no consumer-scenario baseline or ceiling is active.' :
+      'Reporting only: consumer-scenario deltas do not enforce a baseline or ceiling yet.',
+    ...(consumerComparison.reason ? [consumerComparison.reason] : []),
+    ...(consumerComparison.violations.length ? [
+      `Consumer bundle violations: ${consumerComparison.violations.join('; ')}`,
+    ] : []),
+  ];
+  const resourceSection = resourceComparison.unavailable ? [] : [
+    '',
+    '## Observable creation and retention',
+    '',
+    '| Public observation | Base | PR | Result |',
+    '| --- | --- | --- | --- |',
+    ...resourceReportRows(resourceComparison),
+    '',
+    resourceComparison.violations.length ?
+      `Resource observations: ${resourceComparison.violations.join('; ')}` :
+      resourceComparison.reason || 'Consumer-observed creation and retention counts are observations for review, not automatic budgets.',
+  ];
+
+  const markdown = [
+    '<!-- bundle-size-report -->',
+    '## Bundle size report 📦',
+    '',
+    'Sizes are informational during v5 development. New adapters and size changes do not require budget approval.',
+    'Each row is a separate shipped artifact; alternative formats and optional adapters are not a single application download.',
+    '',
+    '| Runtime artifact | Base | PR | Change |',
+    '| --- | ---: | ---: | ---: |',
+    ...rows,
+    '',
+    '| Production subpath | Internal modules | External imports | PR graph change |',
+    '| --- | ---: | --- | --- |',
+    ...graphRows,
+    '',
+    current.violations.length ?
+      `Measurement or package errors: ${current.violations.join('; ')}` :
+      'All current artifacts and production graphs measured successfully.',
+    ...resourceSection,
+    ...consumerSection,
+  ].join('\n');
+
+  return { consumerComparison, markdown, resourceComparison, violations: current.violations };
+}
+
+export async function createReport(baseFile, currentFile) {
+  return (await buildReport(baseFile, currentFile)).markdown;
+}
+
+function writeMeasurement(result, json) {
+  if (json) {
+    console.log(JSON.stringify(result, null, 2));
+    return;
+  }
+
+  for (const artifact of result.artifacts) {
+    console.log(`${artifact.name}: ${formatBytes(artifact.size)} (${formatChange(artifact.baselineSize, artifact.size)} from Phase 0)`);
+  }
+  console.log('Sizes are informational; formats and optional packages are separate artifacts.');
+  for (const graph of result.graphs) {
+    console.log(`${graph.subpath}: ${graph.status === 'measured' ? `${graph.modules.length} internal modules, ${graph.externalImports.length} external imports` : graph.error}`);
+  }
+  if (result.consumerBundles) {
+    console.log(`Consumer bundles: ${result.consumerBundles.artifacts.length} reporting-only scenarios/formats measured from ${result.consumerBundles.fixtureVersion}`);
+  }
+  if (result.resources) {
+    console.log(`Resources: ${Object.keys(result.resources.created).length} observed instance categories; ${result.resources.workload.attachDetachCycles} detach cycles; ${result.resources.workload.mountDestroyCycles} mount/destroy cycles`);
+  }
+}
+
+function positionalPaths(args, index, count, name) {
+  const paths = args.slice(index + 1, index + count + 1);
+  if (paths.length !== count || paths.some(path => !path || path.startsWith('--'))) {
+    throw new Error(`Missing paths for ${name}`);
+  }
+
+  return paths;
+}
+
+export async function main(args = process.argv.slice(2)) {
+  const reportIndex = args.indexOf('--report');
+  if (reportIndex !== -1) {
+    const [baseFile, currentFile] = positionalPaths(args, reportIndex, 2, '--report');
+    const report = await buildReport(baseFile, currentFile);
+    console.log(report.markdown);
+    if (report.violations.length || report.consumerComparison.violations.length ||
+        report.resourceComparison.violations.length) {
+      process.exitCode = 1;
+    }
+    return;
+  }
+
+  const result = await measure({
+    root: getArgument(args, '--root', '.'),
+    configPath: getArgument(args, '--config', 'config/performance.json'),
+    checkToolchain: !args.includes('--artifact-graph-only'),
+  });
+  writeMeasurement(result, args.includes('--json'));
+  if (!args.includes('--no-enforce') && result.violations.length) {
+    for (const violation of result.violations) {
+      console.error(`Performance contract violation: ${violation}`);
+    }
+    process.exitCode = 1;
+  }
+}
+
+const entryUrl = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).href : null;
+if (entryUrl === import.meta.url) {
+  main().catch(error => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

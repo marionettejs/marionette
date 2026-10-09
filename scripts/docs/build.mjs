@@ -1,0 +1,199 @@
+import { readFile, rm, mkdir, writeFile, copyFile } from 'fs/promises';
+import { dirname, relative, resolve } from 'path';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'url';
+import { marked } from 'marked';
+import { addHeadingIds, escapeHtml, markdownRenderer, textFromHeading } from './headings.mjs';
+import { loadDiagnosticCatalog } from '../diagnostics/catalog.mjs';
+
+const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+const siteDir = resolve(rootDir, 'docs-site');
+const pagesDir = resolve(siteDir, 'pages');
+const outputDir = resolve(rootDir, '.docs-site');
+const canonicalOrigin = 'https://docs.marionettejs.com';
+const docRoutes = new Map();
+let packageVersion;
+const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: rootDir, encoding: 'utf8' }).trim();
+const sourceDirty = Boolean(execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: rootDir, encoding: 'utf8' }).trim());
+
+export function diagnosticIndex(diagnostics) {
+  const rows = diagnostics.map(({ code, slug, severity, status }) => {
+    return `| [${code}](/errors/${code}/) | ${slug} | ${status} | ${severity} |`;
+  });
+
+  return [
+    '## Catalog',
+    '',
+    '| Code | Diagnostic | Status | Severity |',
+    '| --- | --- | --- | --- |',
+    ...rows,
+  ].join('\n');
+}
+
+export function diagnosticPage(diagnostic) {
+  const objects = diagnostic.objects.map(object => `\`${object}\``).join(', ');
+  const surfaces = diagnostic.surfaces.map(surface => `\`${surface}\``).join(', ');
+  const historical = diagnostic.status === 'retired' ? ' (historical)' : '';
+  const replacement = diagnostic.replacementCode ?
+    `\n| Replacement | [${diagnostic.replacementCode}](/errors/${diagnostic.replacementCode}/) |` :
+    '';
+
+  return `# ${diagnostic.code}: ${diagnostic.slug}
+
+| Field | Value |
+| --- | --- |
+| Status | ${diagnostic.status} |
+| Category | ${diagnostic.category} |
+| Severity | ${diagnostic.severity}${historical} |
+| Objects | ${objects} |
+| Surfaces | ${surfaces}${historical} |${replacement}
+
+## Remediation
+
+${diagnostic.remediation}
+`;
+}
+
+function rewriteDocLinks(html, sourcePath) {
+  return html.replace(/(<a\b[^>]*\bhref=")([^"]+)(")/gi, (link, prefix, href, suffix) => {
+    if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|#|\/)/i.test(href)) {
+      return link;
+    }
+
+    const hashIndex = href.indexOf('#');
+    const pathPart = hashIndex === -1 ? href : href.slice(0, hashIndex);
+    const hashPart = hashIndex === -1 ? '' : href.slice(hashIndex);
+
+    const target = resolve(dirname(sourcePath), pathPart);
+    const targetRoute = docRoutes.get(target);
+
+    if (!targetRoute) {
+      const repositoryPath = relative(rootDir, target).replaceAll('\\', '/');
+      if (repositoryPath.startsWith('..')) {return link;}
+      return `${prefix}https://github.com/marionettejs/marionette/blob/${sourceRevision}/${repositoryPath}${hashPart}${suffix}`;
+    }
+
+    return `${prefix}/${targetRoute ? `${targetRoute}/` : ''}${hashPart}${suffix}`;
+  });
+}
+
+function renderMarkdown(markdown, sourcePath) {
+  const rendered = marked.parse(markdown, {
+    gfm: true,
+    renderer: markdownRenderer,
+  });
+  const linked = sourcePath ? rewriteDocLinks(rendered, sourcePath) : rendered;
+  return addHeadingIds(linked);
+}
+
+function pageTemplate({ body, canonicalPath, title }) {
+  const canonicalUrl = `${canonicalOrigin}${canonicalPath}`;
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>${escapeHtml(title)} | Marionette</title>
+    <meta name="description" content="Marionette framework documentation">
+    <meta name="marionette-package-version" content="${escapeHtml(packageVersion)}">
+    <meta name="marionette-source-revision" content="${sourceRevision}">
+    <meta name="marionette-source-dirty" content="${sourceDirty}">
+    <link rel="canonical" href="${canonicalUrl}">
+    <link rel="stylesheet" href="/assets/styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/">Marionette</a>
+      <nav aria-label="Documentation">
+        <a href="/development/">Development</a>
+        <a href="/v5/">Stable v5</a>
+        <a href="/releases/">Releases</a>
+        <a href="/errors/">Diagnostics</a>
+      </nav>
+    </header>
+    <main>${body}</main>
+    <footer>Marionette ${escapeHtml(packageVersion)} documentation · source ${sourceRevision}${sourceDirty ? ' + local changes' : ''}</footer>
+  </body>
+</html>
+`;
+}
+
+function titleFromHtml(html, fallback) {
+  const heading = html.match(/<h1 id="[^"]*">([\s\S]*?)<\/h1>/);
+  return heading ? textFromHeading(heading[1]) : fallback;
+}
+
+async function writePage(route, markdown, sourcePath, fallbackTitle) {
+  const body = renderMarkdown(markdown, sourcePath);
+  const canonicalPath = `/${route ? `${route}/` : ''}`;
+  const destination = resolve(outputDir, route, 'index.html');
+  const title = titleFromHtml(body, fallbackTitle);
+
+  await mkdir(dirname(destination), { recursive: true });
+  await writeFile(destination, pageTemplate({ body, canonicalPath, title }));
+}
+
+async function buildDocs() {
+  const packageJson = JSON.parse(await readFile(resolve(rootDir, 'package.json'), 'utf8'));
+  const diagnosticCatalog = await loadDiagnosticCatalog();
+  packageVersion = packageJson.version;
+
+  await rm(outputDir, { force: true, recursive: true });
+  await mkdir(resolve(outputDir, 'assets'), { recursive: true });
+
+  const scaffoldPages = [
+    ['', 'index.md', 'Documentation'],
+    ['v5', 'v5.md', 'Stable v5'],
+    ['releases', 'releases.md', 'Releases'],
+    ['errors', 'errors.md', 'Diagnostics'],
+  ];
+
+  for (const [route, fileName, title] of scaffoldPages) {
+    const sourcePath = resolve(pagesDir, fileName);
+    let markdown = await readFile(sourcePath, 'utf8');
+
+    if (route === 'errors') {
+      markdown = `${markdown.trim()}\n\n${diagnosticIndex(diagnosticCatalog.diagnostics)}\n`;
+    }
+
+    await writePage(route, markdown, null, title);
+  }
+
+  for (const diagnostic of diagnosticCatalog.diagnostics) {
+    const route = diagnostic.docsAnchor.replace(/^\/+|\/+$/g, '');
+    await writePage(route, diagnosticPage(diagnostic), null, diagnostic.code);
+  }
+
+  const developmentDocs = JSON.parse(await readFile(resolve(siteDir, 'navigation.json'), 'utf8'));
+  const docSources = developmentDocs.map(({ route, source }) => ({
+    fileName: source,
+    route: route.replace(/^docs/, 'development'),
+    sourcePath: resolve(rootDir, source),
+  }));
+
+  docSources.forEach(({ route, sourcePath }) => docRoutes.set(sourcePath, route));
+
+  for (const { fileName, route, sourcePath } of docSources) {
+    await writePage(route, await readFile(sourcePath, 'utf8'), sourcePath, fileName);
+  }
+
+  await copyFile(resolve(siteDir, 'assets/styles.css'), resolve(outputDir, 'assets/styles.css'));
+  await copyFile(resolve(siteDir, 'CNAME'), resolve(outputDir, 'CNAME'));
+  await writeFile(resolve(outputDir, '.nojekyll'), '');
+  await writeFile(
+    resolve(outputDir, '404.html'),
+    pageTemplate({
+      body: '<h1 id="not-found">Documentation page not found</h1><p><a href="/">Return to the documentation index.</a></p>',
+      canonicalPath: '/404.html',
+      title: 'Not found',
+    }),
+  );
+
+  const pageCount = docSources.length + scaffoldPages.length + diagnosticCatalog.diagnostics.length;
+  console.log(`Built ${pageCount} documentation pages in .docs-site/.`);
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await buildDocs();
+}

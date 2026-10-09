@@ -1,0 +1,14 @@
+{
+  "name": "marionette-vite-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "vite build --sourcemap && node verify-maps.mjs"
+  },
+  "dependencies": {
+    "vite": "^8.3.1"
+  },
+  "allowScripts": {
+    "fsevents@2.3.3": true
+  }
+}

@@ -1,0 +1,59 @@
+# API reference
+
+These references target **5.0.0-rc.2**. Use the page for the class or contract you need. Class pages define supported APIs and link shared contracts; task guides show how to use them.
+
+## Core classes
+
+| Class | Reference scope |
+| --- | --- |
+| [View](api/view.md) | Construction, rendering, UI bindings, named Regions, lifecycle, ownership, and extension points. |
+| [Region](api/region.md) | Showing, replacing, detaching and emptying Views; element configuration and lifecycle. |
+| [Application](api/application.md) | Preparation, lifecycle results/cancellation, restart, child Applications, root ownership, state and Radio bindings. |
+| [CollectionView](api/collection-view.md) | Collection observation, sorting/filtering, empty presentation, child lookup/ownership, rendering and lifecycle. |
+| [Behavior](api/behavior.md) | Host composition, reusable local interaction, UI/data bindings, forwarded events, and teardown. |
+| [MnObject](api/mnobject.md) | Nonvisual objects, construction, state/Radio bindings, and synchronous destruction. |
+
+## Shared class contracts
+
+These behaviors apply across several classes. Class pages link to the relevant contracts.
+
+- [Common class methods](api/shared/common.md): construction, extension, options and binding helpers.
+- [Events](api/shared/events.md): subscription methods, notification arguments and cleanup.
+- [Errors and diagnostics](api/errors.md): error properties, diagnostic codes, and installed lookup.
+- [State](api/shared/state.md): creating, borrowing, observing and disposing state.
+- [Rendering and View bindings](api/shared/view-bindings.md): templates, UI, DOM/entity events and child event forwarding shared by View and CollectionView.
+
+## Runtime configuration
+
+[Runtime configuration](api/runtime.md) covers defaults, configuration scope, setters, and isolated class families.
+
+## Provider interfaces
+
+Use these contracts when implementing or adapting an integration. For configuration with supplied packages, start with the [setup guide](integrations/setup.md).
+
+- [Rendering and DOM providers](api/providers/dom.md): Renderer, DomApi, and EventDelegator authoring contracts.
+- [Data and state providers](api/providers/data.md): reading, identity, collection notifications, subscriptions, and disposal.
+
+## Companion packages
+
+[@mnjs/data: Model and Collection](packages/data.md) is an optional observable data solution. Its reference covers operations, events, identity, disposal, and exported types. API access and persistence require a separate solution. Marionette can use another data layer through its core provider contracts.
+
+[@mnjs/radio: channels and requests](packages/radio.md) covers channel registries, events, replies, cleanup, logging, and standalone use.
+
+[@mnjs/utils: shared utilities](packages/utils.md) covers standalone component methods, callbacks, object helpers, and exports. Shared Events and class methods remain at their canonical references.
+
+[@mnjs/adapters](packages/adapters.md) covers optional data and DOM integrations, their imports, configuration, observation, and cleanup.
+
+## Integration and task guides
+
+[Renderer and data setup](integrations/setup.md) connects Lit and `@mnjs/data` to Marionette. Integration guides explain configuration and use; package references define the APIs supplied by each package.
+
+[Check and debug an application](tooling.md) covers consumer lint, declaration checks, and diagnostic lookup. [Practical TypeScript](guides/typescript.md) covers options, handlers, state and lifecycle results. [Migration](guides/migration.md) and [consumer testing](guides/testing.md) provide upgrade and verification paths.
+
+[Existing UI](guides/existing-ui.md) and [navigation](guides/routing.md) cover mounting and destination ownership. [Lists](guides/lists.md), [imperative controls](guides/widgets.md), [accessibility/rendering](guides/accessibility-rendering.md), and [production](guides/production.md) provide further task paths.
+
+Class pages link to the relevant [shared configuration contracts](api/shared/view-bindings.md#class-configuration); Region documents its own DOM setter.
+
+For a first runnable result, use the [quick start](quick-start.md). For composition guidance, see [architecture](architecture.md).
+
+Detailed coverage still pending: a complete custom immutable-store integration. The [provider contracts](api/providers/data.md) describe the integration boundary. Application lifecycle details include [destination binding order](api/application.md#destination-binding-order) and [restart from start completion](api/application.md#restart-from-start-completion).

@@ -1,0 +1,43 @@
+name: Bug report
+description: Report a Marionette bug or compatibility regression.
+title: "[Bug]: "
+body:
+  - type: input
+    id: affected-version
+    attributes:
+      label: Affected version
+      description: Which Marionette package version or commit are you using?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Share a small public example or code snippet and the steps needed to reproduce the issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happens instead? Include relevant errors or stack traces.
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Relevant environment
+      description: Include browser, Node, package manager, bundler, or adapter versions when they affect the reproduction.
+    validations:
+      required: false

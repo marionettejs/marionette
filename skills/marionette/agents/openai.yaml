@@ -1,0 +1,6 @@
+interface:
+  display_name: "Marionette"
+  short_description: "Build with installed Marionette documentation"
+  default_prompt: "Use $marionette to inspect this application's installed contract and complete the requested Marionette work."
+policy:
+  allow_implicit_invocation: true

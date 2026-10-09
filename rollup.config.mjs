@@ -1,81 +1,90 @@
-import fs from 'node:fs';
-import babel from '@rollup/plugin-babel';
-import eslint from '@rollup/plugin-eslint';
+import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+import compile from './build/babel.js';
 import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
 
-const { version } = JSON.parse(
-  fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8')
-);
-
-const globals = {
-  'backbone': 'Backbone',
-  'underscore': '_',
-  'backbone.radio': 'Backbone.Radio'
+const bundlePackages = {
+  name: 'bundle-packages',
+  resolveId(source) {
+    if (['@mnjs/utils', '@mnjs/radio'].includes(source)) {
+      return fileURLToPath(new URL(`./packages/${source.split('/')[1]}/src/index.ts`, import.meta.url));
+    }
+  },
 };
-
-const now = new Date();
-const year = now.getFullYear();
-
-const banner = `/**
-* @license
-* MarionetteJS (Backbone.Marionette)
-* ----------------------------------
-* v${version}
-*
-* Copyright (c)${year} Derick Bailey, Muted Solutions, LLC.
-* Distributed under MIT license
-*
-* http://marionettejs.com
-*/\n\n`;
-
-const footer = 'this && this.Marionette && (this.Mn = this.Marionette);';
 
 export default [
   {
-    input: 'src/backbone.marionette.js',
-    external: ['underscore', 'backbone', 'backbone.radio'],
+    input: 'tools/eslint/index.mjs',
+    output: [
+      { file: 'dist/eslint/index.js', format: 'es' },
+      { file: 'dist/eslint/index.cjs', format: 'cjs', exports: 'default' },
+    ],
+    plugins: [{
+      name: 'eslint-declarations',
+      generateBundle() {
+        for (const fileName of ['index.d.ts', 'index.d.cts']) {
+          this.emitFile({ type: 'asset', fileName, source: readFileSync(`tools/eslint/${fileName}`, 'utf8') });
+        }
+      },
+    }],
+  },
+  {
+    input: 'build/version.js',
     output: [
       {
-        file: 'lib/backbone.marionette.js',
-        format: 'umd',
-        name: 'Marionette',
-        exports: 'named',
-        sourcemap: true,
-        globals,
-        banner,
-        footer
+        file: 'src/version.js',
+        format: 'es',
       },
-      {
-        file: 'lib/backbone.marionette.esm.js',
-        format: 'es'
-      }
     ],
     plugins: [
-      eslint({ exclude: ['package.json'] }),
       json(),
-      babel({ babelHelpers: 'bundled' })
+    ],
+  },
+  {
+    input: 'src/index.ts',
+    external: ['@mnjs/utils', '@mnjs/radio'],
+    output: [
+      {
+        file: 'dist/marionette.js',
+        format: 'es',
+        sourcemap: true,
+      },
+      {
+        file: 'dist/marionette.cjs',
+        format: 'cjs',
+        sourcemap: true,
+        esModule: true,
+        exports: 'named',
+      },
+    ],
+    plugins: [
+      compile(),
     ]
   },
   {
-    input: 'src/backbone.marionette.js',
-    external: ['underscore', 'backbone', 'backbone.radio'],
+    input: 'src/index.ts',
     output: [
       {
-        file: 'lib/backbone.marionette.min.js',
+        file: 'dist/marionette.umd.js',
         format: 'umd',
         name: 'Marionette',
         exports: 'named',
         sourcemap: true,
-        globals,
-        banner,
-        footer
-      }
+      },
+      {
+        file: 'dist/marionette.min.js',
+        format: 'umd',
+        name: 'Marionette',
+        exports: 'named',
+        sourcemap: true,
+        plugins: [terser()],
+      },
     ],
     plugins: [
+      bundlePackages,
       json(),
-      babel({ babelHelpers: 'bundled' }),
-      terser({ output: { comments: /@license/ }})
+      compile(),
     ]
-  }
+  },
 ]

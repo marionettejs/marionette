@@ -1,0 +1,247 @@
+import { vi, describe, it, expect } from 'vitest';
+import {
+  Application,
+  Behavior,
+  CollectionView,
+  MnObject,
+  Region,
+  View,
+  extend
+} from 'marionette';
+
+function defineProto(object, value) {
+  Object.defineProperty(object, '__proto__', {
+    configurable: true,
+    enumerable: true,
+    value,
+    writable: true
+  });
+  return object;
+}
+
+describe('extend', function() {
+  it('uses an own constructor and otherwise forwards construction to the parent', function() {
+    const Parent = function(first, second) {
+      this.values = [first, second];
+    };
+    const constructor = vi.fn(function(value) {
+      this.explicitValue = value;
+    });
+    const ExplicitChild = extend.call(Parent, { constructor });
+    const inheritedConstructor = vi.fn();
+    const DefaultChild = extend.call(Parent, Object.assign(
+      Object.create({ constructor: inheritedConstructor }),
+      { ownMethod() {} }
+    ));
+
+    const explicit = new ExplicitChild('explicit');
+    const fallback = new DefaultChild('first', 'second');
+    const returnedObject = {};
+    const ReturningParent = function() {
+      return returnedObject;
+    };
+    const ReturningChild = extend.call(ReturningParent);
+
+    expect(ExplicitChild).to.equal(constructor);
+    expect(explicit.explicitValue).to.equal('explicit');
+    expect(constructor).toHaveBeenCalledTimes(1);
+    expect(fallback.values).to.deep.equal(['first', 'second']);
+    expect(new ReturningChild()).to.equal(returnedObject);
+    expect(inheritedConstructor).not.toHaveBeenCalled();
+  });
+
+  it('owns prototype inputs while preserving the parent prototype chain', function() {
+    const Parent = function() {};
+    const constructorSetter = vi.fn();
+    Object.defineProperty(Parent.prototype, 'constructor', {
+      configurable: true,
+      set: constructorSetter
+    });
+    Parent.prototype.parentMethod = function() {};
+    const protoProps = Object.assign(Object.create({ inheritedMethod() {} }), {
+      ownMethod() {}
+    });
+    const Child = extend.call(Parent, protoProps);
+
+    expect(Object.getPrototypeOf(Child.prototype)).to.equal(Parent.prototype);
+    expect(Child.prototype).to.have.own.property('ownMethod');
+    expect(Child.prototype).to.not.have.property('inheritedMethod');
+    expect(Child.prototype.parentMethod).to.equal(Parent.prototype.parentMethod);
+    expect(Child.prototype.constructor).to.equal(Child);
+    expect(constructorSetter).not.toHaveBeenCalled();
+    expect(Object.getOwnPropertyDescriptor(Child.prototype, 'constructor')).to.deep.equal({
+      configurable: true,
+      enumerable: true,
+      value: Child,
+      writable: true
+    });
+  });
+
+  it('defines child overrides without dispatching through parent setters', function() {
+    const Parent = function() {};
+    const setter = vi.fn();
+    Object.defineProperty(Parent.prototype, 'status', {
+      configurable: true,
+      set: setter
+    });
+
+    const Child = extend.call(Parent, { status: 'child' });
+    const descriptor = Object.getOwnPropertyDescriptor(Child.prototype, 'status');
+
+    expect(setter).not.toHaveBeenCalled();
+    expect(descriptor).to.deep.equal({
+      configurable: true,
+      enumerable: true,
+      value: 'child',
+      writable: true
+    });
+  });
+
+  it('shadows a getter-only inherited property', function() {
+    const Parent = function() {};
+    Object.defineProperty(Parent.prototype, 'status', {
+      configurable: true,
+      get() { return 'parent'; }
+    });
+
+    const Child = extend.call(Parent, { status: 'child' });
+
+    expect(Object.hasOwn(Child.prototype, 'status')).toBe(true);
+    expect(Child.prototype.status).to.equal('child');
+  });
+
+  it('eagerly copies an enumerable accessor value into a data property', function() {
+    const protoProps = {};
+    const getter = vi.fn().mockReturnValue('snapshot');
+    Object.defineProperty(protoProps, 'status', {
+      enumerable: true,
+      get: getter
+    });
+
+    const Child = extend.call(function() {}, protoProps);
+    const descriptor = Object.getOwnPropertyDescriptor(Child.prototype, 'status');
+
+    expect(getter).toHaveBeenCalledTimes(1);
+    expect(descriptor).to.deep.equal({
+      configurable: true,
+      enumerable: true,
+      value: 'snapshot',
+      writable: true
+    });
+  });
+
+  it('does not copy an inherited value after an own key is deleted', function() {
+    const protoProps = Object.create({ status: 'inherited' });
+    Object.defineProperty(protoProps, 'removeStatus', {
+      enumerable: true,
+      get() {
+        delete protoProps.status;
+        return true;
+      }
+    });
+    protoProps.status = 'own';
+
+    const Child = extend.call(function() {}, protoProps);
+
+    expect(Child.prototype).to.not.have.own.property('status');
+  });
+
+  it('copies inherited parent statics, then own static inputs', function() {
+    const Parent = function() {};
+    const inheritedParentStatics = Object.assign(Object.create(Function.prototype), {
+      inheritedParentStatic: 'parent inherited'
+    });
+    Object.setPrototypeOf(Parent, inheritedParentStatics);
+    Parent.parentStatic = 'parent own';
+    Parent.overridden = 'parent';
+    const staticProps = Object.assign(Object.create({ inheritedInput: 'ignored' }), {
+      ownStatic: 'input own',
+      overridden: 'input'
+    });
+    const Child = extend.call(Parent, {}, staticProps);
+
+    expect(Child).to.include({
+      inheritedParentStatic: 'parent inherited',
+      ownStatic: 'input own',
+      overridden: 'input',
+      parentStatic: 'parent own'
+    });
+    expect(Child).to.not.have.property('inheritedInput');
+  });
+
+  it('accepts absent extension inputs', function() {
+    const Parent = function() {};
+
+    [null, undefined].forEach(input => {
+      const Child = extend.call(Parent, input, input);
+
+      expect(Object.getPrototypeOf(Child.prototype)).to.equal(Parent.prototype);
+      expect(Object.keys(Child.prototype)).to.deep.equal(['constructor']);
+    });
+  });
+
+  it('copies symbol properties but omits non-enumerable inputs', function() {
+    const symbol = Symbol('method');
+    const protoProps = { visiblePrototype: true, [symbol]: 'copied' };
+    const staticProps = { visibleStatic: true, [symbol]: 'copied' };
+    Object.defineProperty(protoProps, 'hiddenPrototype', { value: 'ignored' });
+    Object.defineProperty(staticProps, 'hiddenStatic', { value: 'ignored' });
+
+    const Child = extend.call(function() {}, protoProps, staticProps);
+
+    expect(Child.prototype.visiblePrototype).toBe(true);
+    expect(Child.visibleStatic).toBe(true);
+    expect(Child.prototype.hiddenPrototype).toBeUndefined();
+    expect(Child.hiddenStatic).toBeUndefined();
+    expect(Child.prototype[symbol]).to.equal('copied');
+    expect(Child[symbol]).to.equal('copied');
+  });
+
+  it('defines extension __proto__ values without changing prototype chains', function() {
+    const Parent = function() {};
+    const prototypeValue = { prototypeInput: true };
+    const staticValue = { staticInput: true };
+    const protoProps = defineProto({}, prototypeValue);
+    const staticProps = defineProto({}, staticValue);
+
+    const Child = extend.call(Parent, protoProps, staticProps);
+
+    expect(Object.getPrototypeOf(Child.prototype)).to.equal(Parent.prototype);
+    expect(Object.hasOwn(Child.prototype, '__proto__')).toBe(true);
+    expect(Reflect.get(Child.prototype, '__proto__')).to.equal(prototypeValue);
+    expect(Object.getPrototypeOf(Child)).to.equal(Function.prototype);
+    expect(Object.hasOwn(Child, '__proto__')).toBe(true);
+    expect(Reflect.get(Child, '__proto__')).to.equal(staticValue);
+  });
+
+  it('backs every exported Marionette pseudo-class', function() {
+    const classes = { Application, Behavior, CollectionView, MnObject, Region, View };
+
+    Object.entries(classes).forEach(([name, Parent]) => {
+      const staticProps = Object.assign(Object.create({ inherited: 'ignored' }), {
+        className: name
+      });
+      const Child = Parent.extend({ ownedPrototype: name }, staticProps);
+      const Grandchild = Child.extend(
+        { secondGenerationPrototype: name },
+        Object.assign(Object.create({ secondGenerationInherited: 'ignored' }), {
+          secondGenerationStatic: name
+        })
+      );
+
+      expect(Parent.extend).to.equal(extend);
+      expect(Child.extend).to.equal(extend);
+      expect(Object.getPrototypeOf(Child.prototype)).to.equal(Parent.prototype);
+      expect(Child.prototype.ownedPrototype).to.equal(name);
+      expect(Child.className).to.equal(name);
+      expect(Child).to.not.have.property('inherited');
+      expect(Grandchild.extend).to.equal(extend);
+      expect(Object.getPrototypeOf(Grandchild.prototype)).to.equal(Child.prototype);
+      expect(Grandchild.prototype.ownedPrototype).to.equal(name);
+      expect(Grandchild.prototype.secondGenerationPrototype).to.equal(name);
+      expect(Grandchild.className).to.equal(name);
+      expect(Grandchild.secondGenerationStatic).to.equal(name);
+      expect(Grandchild).to.not.have.property('secondGenerationInherited');
+    });
+  });
+});

@@ -1,0 +1,26 @@
+{
+  "name": "marionette-records-example",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "prepare:local": "node scripts/build-local-packages.mjs",
+    "dev": "npm run prepare:local && vite",
+    "build": "npm run prepare:local && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mnjs/adapters": "file:../../packages/adapters",
+    "@mnjs/data": "file:../../packages/data",
+    "@mnjs/radio": "file:../../packages/radio",
+    "@mnjs/utils": "file:../../packages/utils",
+    "lit-html": "3.3.3",
+    "marionette": "file:../.."
+  },
+  "devDependencies": {
+    "vite": "8.3.0"
+  }
+}

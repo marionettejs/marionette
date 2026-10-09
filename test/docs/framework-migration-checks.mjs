@@ -1,0 +1,110 @@
+export const preparations = {
+  'guides-framework-migration-1': `
+const requests = [];
+globalThis.fetch = (url, { signal }) => {
+  const request = Promise.withResolvers();
+  requests.push({ ...request, url, signal });
+  if (requests.length === 1) request.resolve(new Response(JSON.stringify({ title: '<Original>' })));
+  return request.promise;
+};
+`,
+};
+
+export const assertions = {
+  'guides-framework-migration-1': `
+assert.equal(requests[0].url, '/records/42.json');
+const page = app.getView();
+const editor = page.getChildView('editor');
+const summary = page.getChildView('summary');
+const state = app.getState();
+const input = editor.getUI('title')[0];
+assert.equal(input.value, '<Original>');
+assert.equal(summary.el.querySelector('original'), null);
+assert.match(summary.el.textContent, /Loaded title: <Original>/);
+const initialRequestCount = requests.length;
+assert.equal(await app.start({ id: '43' }), true);
+assert.equal(requests.length, initialRequestCount);
+assert.equal(app.recordId, '42');
+input.value = 'Unfinished draft';
+input.dispatchEvent(new window.Event('input', { bubbles: true }));
+assert.equal(state.get('title'), 'Unfinished draft');
+assert.equal(editor.getUI('title')[0], input);
+const retained = () => {
+  assert.equal(app.getView(), page);
+  assert.equal(page.getChildView('editor'), editor);
+  assert.equal(page.getChildView('summary'), summary);
+  assert.equal(editor.getUI('title')[0], input);
+  assert.equal(input.value, 'Unfinished draft');
+};
+const answer = (request, title) => request.resolve(new Response(JSON.stringify({ title })));
+page.el.querySelector('button').click();
+assert.equal(requests.length, 2);
+const clicked = requests.at(-1);
+const newer = app.restart({ id: '42' });
+assert.equal(clicked.signal.aborted, true);
+answer(requests.at(-1), 'Latest');
+assert.equal(await newer, true);
+answer(clicked, 'Obsolete');
+await new Promise(resolve => setImmediate(resolve));
+assert.equal(state.get('loadedTitle'), 'Latest');
+assert.match(summary.el.textContent, /Loaded title: Latest/);
+retained();
+const failed = app.reloadRecord();
+requests.at(-1).resolve(new Response('', { status: 503 }));
+await failed;
+assert.match(summary.el.textContent, /Could not load record/);
+assert.equal(state.get('loadedTitle'), 'Latest');
+assert.match(summary.el.textContent, /Loaded title: Latest/);
+retained();
+const retry = app.reloadRecord();
+answer(requests.at(-1), 'Recovered');
+await retry;
+assert.equal(state.get('error'), '');
+assert.match(summary.el.textContent, /Loaded title: Recovered/);
+assert.equal(summary.el.querySelector('[role=status]').textContent, '');
+retained();
+const pending = app.restart({ id: '42' });
+const stoppedRequest = requests.at(-1);
+app.stop();
+assert.equal(await pending, false);
+assert.equal(stoppedRequest.signal.aborted, true);
+assert.equal(editor.isDestroyed(), true);
+assert.equal(mount.childElementCount, 0);
+assert.equal(state.get('title'), 'Unfinished draft');
+input.value = 'Removed control';
+input.dispatchEvent(new window.Event('input', { bubbles: true }));
+assert.equal(state.get('title'), 'Unfinished draft');
+answer(stoppedRequest, 'Late');
+await new Promise(resolve => setImmediate(resolve));
+assert.equal(state.get('loadedTitle'), 'Recovered');
+const reconstructing = app.start({ id: '42' });
+answer(requests.at(-1), 'Reconstructed');
+assert.equal(await reconstructing, true);
+const nextPage = app.getView();
+const nextEditor = nextPage.getChildView('editor');
+assert.notEqual(nextPage, page);
+assert.notEqual(nextEditor, editor);
+assert.equal(nextEditor.getUI('title')[0].value, 'Reconstructed');
+const beforeClick = requests.length;
+nextPage.el.querySelector('button').click();
+assert.equal(requests.length, beforeClick + 1);
+answer(requests.at(-1), 'One reload');
+await new Promise(resolve => setImmediate(resolve));
+assert.match(nextPage.getChildView('summary').el.textContent, /Loaded title: One reload/);
+app.destroy();
+assert.equal(state.isDestroyed(), true);
+mount.remove();
+
+const failedMount = document.body.appendChild(document.createElement('main'));
+const failedApp = new RecordApplication({ region: { el: failedMount } });
+const failingStart = failedApp.start({ id: '42' });
+requests.at(-1).resolve(new Response('', { status: 503 }));
+await assert.rejects(failingStart, /Could not load record/);
+assert.equal(failedApp.isRunning(), false);
+assert.equal(failedApp.getView(), undefined);
+assert.equal(failedMount.childElementCount, 0);
+failedApp.stop();
+failedApp.destroy();
+failedMount.remove();
+`,
+};

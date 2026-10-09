@@ -1,4 +1,7 @@
-import View from '../../../src/view';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import vm from 'node:vm';
+
+import { View } from 'marionette';
 
 describe('normalizeMethods', function() {
   'use strict';
@@ -7,14 +10,14 @@ describe('normalizeMethods', function() {
 
   beforeEach(function() {
     const MyView = View.extend({
-      foo: this.sinon.stub()
+      foo: vi.fn()
     });
     view = new MyView();
   });
 
   describe('when called with no value', function() {
     it('should return nothing', function() {
-      expect(view.normalizeMethods()).to.be.undefined;
+      expect(view.normalizeMethods()).toBeUndefined();
     });
   });
 
@@ -24,8 +27,7 @@ describe('normalizeMethods', function() {
 
     beforeEach(function() {
       hash = {
-        'foo': 'foo',
-        'bar': 'bar'
+        'foo': 'foo'
       };
       normalizedHash = view.normalizeMethods(hash);
     });
@@ -34,8 +36,170 @@ describe('normalizeMethods', function() {
       expect(normalizedHash).to.have.property('foo');
     });
 
-    it('should ignore strings that dont exist as functions on the context', function() {
-      expect(normalizedHash).not.to.have.property('bar');
+    it('returns a fresh plain hash without changing the source', function() {
+      const handler = vi.fn();
+      const source = { event: handler };
+
+      const result = view.normalizeMethods(source);
+
+      expect(result).to.not.equal(source);
+      expect(Object.getPrototypeOf(result)).to.equal(Object.prototype);
+      expect(result).to.deep.equal(source);
+      expect(source).to.deep.equal({ event: handler });
+    });
+
+    it('preserves own enumerable string-key order', function() {
+      const accessOrder = [];
+      const source = {};
+      Object.defineProperties(source, {
+        first: {
+          enumerable: true,
+          get() {
+            accessOrder.push('first');
+            return view.foo;
+          }
+        },
+        second: {
+          enumerable: true,
+          get() {
+            accessOrder.push('second');
+            return view.foo;
+          }
+        }
+      });
+
+      expect(Object.keys(view.normalizeMethods(source))).to.deep.equal(['first', 'second']);
+      expect(accessOrder).to.deep.equal(['first', 'second']);
+    });
+
+    it('passes callable handlers through unchanged', function() {
+      const handlers = {
+        async: async function() {},
+        class: class Handler {},
+        generator: function*() {},
+        ordinary: vi.fn(),
+        proxy: new Proxy(function() {}, {})
+      };
+
+      const normalized = view.normalizeMethods(handlers);
+
+      Object.keys(handlers).forEach(name => {
+        expect(normalized[name]).to.equal(handlers[name]);
+      });
+    });
+
+    it('resolves primitive, boxed, and string-tagged handler names', function() {
+      const crossRealmBoxed = vm.runInNewContext('new String(\'foo\')');
+      const tagged = {
+        [Symbol.toStringTag]: 'String',
+        toString() {
+          return 'foo';
+        }
+      };
+
+      expect(view.normalizeMethods({
+        primitive: 'foo',
+        boxed: new String('foo'),
+        crossRealmBoxed,
+        tagged
+      })).to.deep.equal({
+        primitive: view.foo,
+        boxed: view.foo,
+        crossRealmBoxed: view.foo,
+        tagged: view.foo
+      });
+    });
+
+    it('uses the string tag reader captured when the module loads', function() {
+      const boxed = new String('foo');
+      const toStringStub = vi.spyOn(Object.prototype, 'toString').mockImplementation(() => undefined)
+        .mockReturnValue('[object Number]');
+      let normalized;
+
+      try {
+        normalized = view.normalizeMethods({ boxed });
+      } finally {
+        toStringStub.mockRestore();
+      }
+
+      expect(normalized).to.deep.equal({ boxed: view.foo });
+    });
+
+    it('resolves own and inherited context methods', function() {
+      const context = Object.create({ inheritedHandler: view.foo });
+      const ownHandler = vi.fn();
+      context.ownHandler = ownHandler;
+
+      expect(view.normalizeMethods.call(context, {
+        inherited: 'inheritedHandler',
+        own: 'ownHandler'
+      })).to.deep.equal({ inherited: view.foo, own: ownHandler });
+    });
+
+    it('ignores inherited, symbol, and non-enumerable input keys', function() {
+      const inheritedGetter = vi.fn().mockImplementation(() => { throw new Error('must not run'); });
+      const source = Object.create(Object.defineProperty({}, 'inherited', {
+        enumerable: true,
+        get: inheritedGetter
+      }));
+      const symbol = Symbol('handler');
+      source.own = view.foo;
+      source[symbol] = view.foo;
+      Object.defineProperty(source, 'hidden', {
+        enumerable: false,
+        value: view.foo
+      });
+
+      expect(view.normalizeMethods(source)).to.deep.equal({ own: view.foo });
+      expect(inheritedGetter).not.toHaveBeenCalled();
+    });
+
+    it('retains a literal own __proto__ key without changing the result prototype', function() {
+      const source = {};
+      Object.defineProperty(source, '__proto__', {
+        enumerable: true,
+        value: view.foo
+      });
+
+      const result = view.normalizeMethods(source);
+
+      expect(Object.getPrototypeOf(result)).to.equal(Object.prototype);
+      expect(Object.hasOwn(result, '__proto__')).to.equal(true);
+      expect(Object.getOwnPropertyDescriptor(result, '__proto__').value).to.equal(view.foo);
+    });
+
+    it('throws a stable diagnostic when a named handler does not exist', function() {
+      expect(() => view.normalizeMethods({bar: 'bar'}))
+        .to.throw('The handler "bar" for "bar" must resolve to a function.')
+        .with.property('code', 'MN0019');
+    });
+
+    it('throws the same diagnostic when a named handler is not callable', function() {
+      view.bar = true;
+
+      expect(() => view.normalizeMethods({bar: 'bar'}))
+        .to.throw('The handler "bar" for "bar" must resolve to a function.')
+        .with.property('code', 'MN0019');
+    });
+
+    it('rejects non-string handler references', function() {
+      view[1] = view.foo;
+
+      expect(() => view.normalizeMethods({found: 1}))
+        .to.throw('The handler "<invalid>" for "found" must resolve to a function.')
+        .with.property('code', 'MN0019');
+    });
+
+    it('formats Symbol handler references in the stable diagnostic', function() {
+      expect(() => view.normalizeMethods({event: Symbol('handler')}))
+        .to.throw('The handler "<invalid>" for "event" must resolve to a function.')
+        .with.property('code', 'MN0019');
+    });
+
+    it('formats unprintable handler references in the stable diagnostic', function() {
+      expect(() => view.normalizeMethods({event: Object.create(null)}))
+        .to.throw('The handler "<invalid>" for "event" must resolve to a function.')
+        .with.property('code', 'MN0019');
     });
   });
 });

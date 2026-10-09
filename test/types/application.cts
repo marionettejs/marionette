@@ -1,0 +1,204 @@
+import { Application, type ApplicationInstance, type ApplicationStartOptions, type ApplicationRestartOptions, type LifecycleContext } from 'marionette';
+import { View } from 'marionette';
+import { Region, type RegionInstance } from 'marionette';
+import type {SupportedView} from 'marionette';
+
+const Child = Application.extend({
+  preinitialize(options: {label: string}) { this.channelName = options.label; },
+  initialize(options: {label: string}) { this.options.label.toUpperCase(); },
+  createState() {return {ready: false};},
+  async prepareStart(options: unknown, context: LifecycleContext) {
+    const signal: AbortSignal = context.signal;
+    if (signal.aborted) {return;}
+    this.isRunning();
+    this.getState().ready = true;
+  },
+  onStart() {this.getState().ready = true;},
+  label() {return this.options.label;}
+}, {role: 'child'});
+const child = new Child({label: 'Editor'});
+const ready: boolean = child.getState().ready;
+const label: string = child.label();
+const staticRole: string = Child.role;
+// @ts-expect-error Explicit initializer options are required.
+new Child();
+// @ts-expect-error The inferred initializer option is a string.
+new Child({label: false});
+// @ts-expect-error The inferred state does not have an unrelated property.
+child.getState().missing;
+
+const root = new Application({region: '#application', channelName: 'application'});
+const sameChild: typeof child = root.addChildApp('editor', child);
+const children: Record<string, ApplicationInstance<object, unknown>> = root.getChildApps();
+const missing: ApplicationInstance<object, unknown> | undefined = root.getChildApp('missing');
+const childName: string | undefined = child.getName();
+// @ts-expect-error getChildApps returns a name-keyed object, not an array.
+const childList: ApplicationInstance[] = root.getChildApps();
+// @ts-expect-error A missing child returns undefined.
+const requiredChild: ApplicationInstance<object, unknown> = root.getChildApp('missing');
+// @ts-expect-error Applications own Applications, not Views.
+root.addChildApp('view', new View());
+
+const view = new View();
+root.setView(view) satisfies typeof view;
+root.showView() satisfies SupportedView | undefined;
+root.showView(undefined, {replaceElement: true}) satisfies SupportedView | undefined;
+const sameView: typeof view = root.showView(view, {replaceElement: true});
+// @ts-expect-error Preparing a root requires a View instance.
+root.setView(new Application());
+// @ts-expect-error Preparing a root is synchronous.
+root.setView(view) satisfies Promise<typeof view>;
+const maybeView: SupportedView | undefined = root.getView();
+const maybeRegion: RegionInstance | undefined = root.getRegion();
+// @ts-expect-error The application may have no configured root Region.
+const requiredRegion: RegionInstance = root.getRegion();
+// @ts-expect-error A root view may not have been shown or may have been emptied.
+const requiredView: SupportedView = root.getView();
+// @ts-expect-error Showing a root view is synchronous and returns that view.
+const asynchronousView: Promise<typeof view> = root.showView(view);
+
+const borrowedRegion = new Region({el: '#borrowed'});
+const borrower = new Application({region: borrowedRegion});
+const customRegion = Region.extend({replaceElement: true});
+new Application({regionClass: customRegion, region: {el: '#custom'}});
+const borrowedState = {count: 1};
+const stateOwner = new Child({label: 'Borrowed', state: borrowedState});
+const count: number = stateOwner.getState().count;
+// @ts-expect-error A supplied state replaces the factory state.
+stateOwner.getState().ready;
+
+async function lifecycle() {
+  const dynamicRegionStart: ApplicationStartOptions = { region: borrowedRegion, source: 'dynamic-region' };
+  const dynamicRegionStarted: Promise<boolean> = root.start(dynamicRegionStart);
+  root.start({region: borrowedRegion, source: 'direct'});
+  root.restart({region: borrowedRegion, source: 'direct'});
+  // @ts-expect-error A startup Region must be a Region instance.
+  root.start({region: 42});
+  // @ts-expect-error Restart rejects every Region value, including booleans.
+  root.restart({region: false});
+  // @ts-expect-error Start borrows an existing Region, never a selector.
+  root.start({region: '#application'});
+  // @ts-expect-error Restart also rejects Region definitions.
+  root.restart({region: {el: '#application'}});
+  // @ts-expect-error A Region class is not an existing instance.
+  root.start({region: Region});
+  const started: boolean = await root.start({source: 'example'});
+  const stopped: boolean = root.stop();
+  const restarted: boolean = await root.restart();
+  const removed: ApplicationInstance<object, unknown> | undefined = root.removeChildApp('editor');
+  const destroyed: boolean = root.destroy();
+  // @ts-expect-error Application destroy is synchronous.
+  const asynchronous: Promise<boolean> = root.destroy();
+  // @ts-expect-error Application destroy returns status, not its receiver.
+  const returnedApplication: ApplicationInstance = await root.destroy();
+}
+
+root.getChannel()?.reply('status', () => root.isRunning());
+const channelName: string | undefined = root.getChannel()?.channelName;
+root.Radio.channel('shared').on('change', (value: number) => value.toFixed());
+// @ts-expect-error Channel access is optional without channelName configuration.
+root.getChannel().request('status');
+
+class NativeApplication extends Application {
+  preinitialize(options?: {region?: string}) { super.preinitialize(options); }
+  async prepareStart(options: unknown, {signal}: LifecycleContext) {
+    if (!signal.aborted) {this.isRunning();}
+  }
+  async start(options?: ApplicationStartOptions) { return super.start(options); }
+}
+const native: Promise<boolean> = new NativeApplication().start();
+
+const configuredEarly: void = child.preinitialize({label: 'Editor'});
+// @ts-expect-error The preinitialize override retains its declared option type.
+child.preinitialize({label: false});
+declare const applicationInstance: ApplicationInstance<{label: string}>;
+// @ts-expect-error Application teardown has no preparation hook.
+applicationInstance.prepareDestroy;
+applicationInstance.preinitialize({label: 'Editor'});
+// @ts-expect-error The public instance hook uses the Application option type.
+applicationInstance.preinitialize({label: 1});
+
+// Preparation results are inferred on extended constructors and inherited hooks.
+interface Session { name: string }
+const PreparedApplication = Application.extend({
+  async prepareStart(options: unknown, {signal}: LifecycleContext): Promise<Session> {
+    signal.throwIfAborted();
+    return {name: 'Editor'};
+  }
+});
+const preparedApplication = new PreparedApplication();
+preparedApplication.prepareStart(undefined, {signal: new AbortController().signal}) satisfies Promise<Session>;
+preparedApplication.onStart?.(preparedApplication, undefined, {name: 'Editor'});
+// @ts-expect-error The completion result matches prepareStart's resolved value.
+preparedApplication.onStart?.(preparedApplication, undefined, {name: 123});
+// @ts-expect-error Preparation does not change the public operation result.
+preparedApplication.start() satisfies Promise<Session>;
+const InheritedPreparation = PreparedApplication.extend({
+  onStart(application: ApplicationInstance<object, object, Session>, options: unknown, session: Session) {
+    session.name.toUpperCase();
+  }
+});
+new InheritedPreparation().prepareStart(undefined, {signal: new AbortController().signal}) satisfies Promise<Session>;
+class NativePreparedApplication extends Application {
+  async prepareStart(options: unknown, {signal}: LifecycleContext): Promise<Session> {
+    signal.throwIfAborted();
+    return {name: 'Native'};
+  }
+  onStart(application: this, options: unknown, session: Session) { session.name.toUpperCase(); }
+}
+new NativePreparedApplication().start() satisfies Promise<boolean>;
+const ReplacementPreparation = PreparedApplication.extend({ prepareStart() { return 42; } });
+const replacementPreparation = new ReplacementPreparation();
+replacementPreparation.onStart?.(replacementPreparation, undefined, 42);
+// @ts-expect-error An overridden preparation method changes the inferred result.
+replacementPreparation.onStart?.(replacementPreparation, undefined, {name: 'Editor'});
+declare const notifications: ApplicationInstance;
+// @ts-expect-error Before notifications do not receive the preparation context.
+notifications.onBeforeStart?.(notifications, undefined, {signal: new AbortController().signal});
+
+const StaticChild = Application.extend({ label() { return 'static'; } });
+const declaredParent = new Application({ childApps: { editor: StaticChild } });
+declaredParent.getChildApp('editor') satisfies ApplicationInstance<object, unknown> | undefined;
+const DeclaredParent = Application.extend({ childApps: { editor: StaticChild } });
+new DeclaredParent().childApps.editor satisfies typeof StaticChild;
+// @ts-expect-error Declarations require constructors, not shared instances.
+new Application({ childApps: { editor: new Application() } });
+class NeedsOptions extends Application {
+  constructor(options: { label: string }) { super(); options.label.toUpperCase(); }
+}
+// @ts-expect-error Child constructors must accept no arguments.
+new Application({ childApps: { editor: NeedsOptions } });
+// @ts-expect-error Factories are not child constructors.
+new Application({ childApps: { editor: () => new Application() } });
+// @ts-expect-error Views are not child Applications.
+new Application({ childApps: { editor: View } });
+
+new Application({ childApps: () => ({ editor: StaticChild }) });
+const FunctionDeclaredParent = Application.extend({
+  childApps() { return { editor: StaticChild }; }
+});
+class NativeDeclaredParent extends Application {
+  get childApps() { return { editor: StaticChild }; }
+}
+new NativeDeclaredParent();
+new FunctionDeclaredParent().getChildApp('editor') satisfies ApplicationInstance<object, unknown> | undefined;
+// @ts-expect-error Declaration functions return constructors, not instances.
+new Application({ childApps: () => ({ editor: new Application() }) });
+
+new NativeDeclaredParent({ childApps: { replacement: StaticChild } });
+new NativeDeclaredParent({ childApps: () => ({ replacement: StaticChild }) });
+
+class NativeMethodDeclaredParent extends Application {
+  // @ts-expect-error Native methods cannot override the declared childApps property; use a getter.
+  childApps() { return { editor: StaticChild }; }
+}
+
+const restartOptions: ApplicationRestartOptions = { filter: 'latest' };
+void applicationInstance.restart(restartOptions);
+void applicationInstance.restart({ region: new Region({ el: '#other' }) });
+
+const DeclaredViewEvents = Application.extend({
+  viewEvents: { selected: 'select' },
+  select(id: string) { this.restart({ id }); }
+});
+new DeclaredViewEvents({ viewEvents: () => ({ ready() {} }) });

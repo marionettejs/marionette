@@ -1,0 +1,284 @@
+import { vi, describe, it, expect, beforeAll as before } from 'vitest';
+import '../setup/backbone.js';
+import Backbone from 'backbone';
+import { createMarionette } from 'marionette';
+
+describe('Backbone adapter', function() {
+  let BackboneApi;
+  let constructors;
+  let prototypeDescriptors;
+  let namespaceDescriptors;
+  let listenerRegisteredBeforeImport;
+  let modelCreatedBeforeImport;
+
+  before(async function() {
+    constructors = {
+      Collection: Backbone.Collection,
+      Model: Backbone.Model,
+      Router: Backbone.Router,
+      View: Backbone.View
+    };
+    prototypeDescriptors = Object.fromEntries(Object.entries(constructors)
+      .map(([name, Constructor]) => [name, Object.getOwnPropertyDescriptors(Constructor.prototype)]));
+    namespaceDescriptors = Object.getOwnPropertyDescriptors(Backbone);
+    modelCreatedBeforeImport = new Backbone.Model({ name: 'before' });
+    listenerRegisteredBeforeImport = [];
+    const onNameChange = (...args) => listenerRegisteredBeforeImport.push(args);
+    modelCreatedBeforeImport.on('change:name', onNameChange);
+
+    BackboneApi = (await import('@mnjs/adapters/backbone')).default;
+  });
+
+  it('exports one combined StateApi and DataApi adapter', function() {
+    expect(BackboneApi).to.have.all.keys(
+      'disposeOwned',
+      'get',
+      'has',
+      'key',
+      'models',
+      'observeCollection',
+      'serialize',
+      'subscribe'
+    );
+  });
+
+  it('does not modify Backbone or its prototypes', function() {
+    expect(Object.getOwnPropertyDescriptors(Backbone)).to.deep.equal(namespaceDescriptors);
+
+    Object.entries(constructors).forEach(([name, Constructor]) => {
+      expect(Backbone[name]).to.equal(Constructor);
+      expect(Object.getOwnPropertyDescriptors(Constructor.prototype))
+        .to.deep.equal(prototypeDescriptors[name]);
+      expect(Constructor.prototype.triggerMethod).toBeUndefined();
+      expect(Constructor.prototype.bind).to.equal(prototypeDescriptors[name].bind?.value);
+      expect(Constructor.prototype.unbind).to.equal(prototypeDescriptors[name].unbind?.value);
+    });
+  });
+
+  it('preserves listeners registered before the adapter is imported', function() {
+    modelCreatedBeforeImport.set('name', 'after');
+
+    expect(listenerRegisteredBeforeImport).to.have.lengthOf(1);
+    expect(listenerRegisteredBeforeImport[0].slice(0, 2))
+      .to.deep.equal([modelCreatedBeforeImport, 'after']);
+  });
+
+  it('supports Marionette listenTo and stopListening with native Backbone objects', function() {
+    const runtime = createMarionette();
+    runtime.setDataApi(BackboneApi);
+    const listener = new runtime.MnObject();
+    const model = new Backbone.Model();
+    const callback = vi.fn();
+
+    listener.listenTo(model, 'change:name', callback);
+    model.set('name', 'first');
+    listener.stopListening(model);
+    model.set('name', 'second');
+
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, 'first']);
+    listener.destroy();
+  });
+
+  it('supports Backbone listenTo and stopListening with Marionette objects', function() {
+    const runtime = createMarionette();
+    const listener = new Backbone.Model();
+    const source = new runtime.MnObject();
+    const callback = vi.fn();
+
+    listener.listenTo(source, 'status', callback);
+    source.trigger('status', 'first');
+    listener.stopListening(source);
+    source.trigger('status', 'second');
+
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['first']);
+    source.destroy();
+  });
+
+  it('preserves native callback arguments for state, model, and collection events', function() {
+    const runtime = createMarionette();
+    runtime.setDataApi(BackboneApi);
+    runtime.setStateApi(BackboneApi);
+    const calls = [];
+    const model = new Backbone.Model({ title: 'before' });
+    const collection = new Backbone.Collection([model]);
+    const state = new Backbone.Model({ ready: false });
+    const EventView = runtime.View.extend({
+      template: false,
+      modelEvents: { 'change:title': 'onTitle' },
+      collectionEvents: { add: 'onAdd' },
+      onTitle(...args) { calls.push(['model', ...args]); },
+      onAdd(...args) { calls.push(['collection', ...args]); }
+    });
+    const StateOwner = runtime.MnObject.extend({
+      stateEvents: { 'change:ready': 'onReady' },
+      onReady(...args) { calls.push(['state', ...args]); }
+    });
+    const view = new EventView({ collection, model });
+    const owner = new StateOwner({ state });
+
+    model.set('title', 'after');
+    const added = collection.add({ id: 2 });
+    state.set('ready', true);
+
+    expect(calls).to.have.lengthOf(3);
+    expect(calls[0].slice(0, 3)).to.deep.equal(['model', model, 'after']);
+    expect(calls[1].slice(0, 3)).to.deep.equal(['collection', added, collection]);
+    expect(calls[2].slice(0, 3)).to.deep.equal(['state', state, true]);
+    expect(calls.map(call => call[3])).to.satisfy(options =>
+      options.every(option => option && typeof option === 'object'));
+    expect(model.triggerMethod).toBeUndefined();
+    expect(collection.triggerMethod).toBeUndefined();
+
+    view.destroy();
+    owner.destroy();
+  });
+
+  it('scopes Application Backbone state events without silencing independent observers', async function() {
+    const runtime = createMarionette();
+    runtime.setStateApi(BackboneApi);
+    const state = new Backbone.Model();
+    const handler = vi.fn();
+    const observer = vi.fn();
+    state.on('change:responseId', observer);
+    const App = runtime.Application.extend({
+      stateEvents: { 'change:responseId': handler },
+      onBeforeStart() { state.set('responseId', null); }
+    });
+    const app = new App({ state });
+    await app.start();
+    expect(handler).not.toHaveBeenCalled();
+    const options = { source: 'editor' };
+    state.set('responseId', 'selected', options);
+    expect(handler).toHaveBeenCalledExactlyOnceWith(state, 'selected', options);
+    expect(handler.mock.contexts).toEqual([app]);
+    await app.restart();
+    expect(app.getState()).toBe(state);
+    expect(handler).toHaveBeenCalledTimes(2);
+    expect(observer).toHaveBeenCalledTimes(3);
+    await app.destroy();
+    state.set('responseId', 'after');
+    expect(handler).toHaveBeenCalledTimes(2);
+    expect(observer).toHaveBeenCalledTimes(4);
+    state.off();
+  });
+
+  it('unsubscribes owned Backbone state without calling Model#destroy', function() {
+    const runtime = createMarionette();
+    runtime.setStateApi(BackboneApi);
+    const state = new Backbone.Model({ ready: false });
+    const destroy = vi.spyOn(state, 'destroy');
+    const onReady = vi.fn();
+    const externalListener = vi.fn();
+    state.on('external', externalListener);
+    const StateOwner = runtime.MnObject.extend({
+      stateEvents: { 'change:ready': onReady },
+      createState() { return state; }
+    });
+    const owner = new StateOwner();
+
+    owner.getState();
+    state.set('ready', true);
+    state.trigger('external');
+    owner.destroy();
+    state.set('ready', false);
+    state.trigger('external');
+
+    expect(onReady).toHaveBeenCalledTimes(1);
+    expect(externalListener).toHaveBeenCalledTimes(2);
+    expect(destroy).not.toHaveBeenCalled();
+  });
+
+  it('reconciles native Backbone collection add, remove, reset, sort, and update events', function() {
+    const runtime = createMarionette();
+    runtime.setDataApi(BackboneApi);
+    const first = new Backbone.Model({ id: 1, order: 2 });
+    const second = new Backbone.Model({ id: 2, order: 1 });
+    const collection = new Backbone.Collection([first], { comparator: 'order' });
+    const ChildView = runtime.View.extend({ template: false });
+    const ListView = runtime.CollectionView.extend({ childView: ChildView });
+    const view = new ListView({ collection });
+
+    view.render();
+    collection.add(second);
+    expect(view.children.map(child => child.model)).to.deep.equal([second, first]);
+
+    collection.remove(first);
+    expect(view.children.map(child => child.model)).to.deep.equal([second]);
+
+    collection.reset([first, second]);
+    expect(view.children.map(child => child.model)).to.deep.equal([second, first]);
+
+    first.set('order', 0);
+    collection.sort();
+    expect(view.children.map(child => child.model)).to.deep.equal([first, second]);
+
+    collection.set([{ id: 1, order: 3 }, { id: 3, order: 2 }], { merge: true, remove: true });
+    expect(view.children.map(child => child.model.id)).to.deep.equal([3, 1]);
+
+    view.destroy();
+  });
+
+  it('leaves merged model rendering to child model events', function() {
+    const runtime = createMarionette();
+    runtime.setDataApi(BackboneApi);
+    const collection = new Backbone.Collection([{ id: 1, title: 'before' }, { id: 2, title: 'same' }]);
+    const rendered = [];
+    const ChildView = runtime.View.extend({
+      template: ({ title }) => `<span>${title}</span>`,
+      modelEvents: { change: 'render' },
+      onRender() { rendered.push(this.model.id); }
+    });
+    const view = new runtime.CollectionView({ collection, childView: ChildView }).render();
+    const unchangedContents = view.children.findByIndex(1).el.firstChild;
+    rendered.length = 0;
+
+    collection.set([{ id: 1, title: 'after' }, { id: 2, title: 'same' }]);
+
+    expect(rendered).to.deep.equal([1]);
+    expect(view.el.textContent).to.equal('aftersame');
+    expect(view.children.findByIndex(1).el.firstChild).to.equal(unchangedContents);
+    view.destroy();
+  });
+
+  it('sorts and filters merged models without rendering retained children', function() {
+    const runtime = createMarionette();
+    runtime.setDataApi(BackboneApi);
+    const collection = new Backbone.Collection([
+      { id: 1, rank: 1, visible: true },
+      { id: 2, rank: 2, visible: true },
+      { id: 3, rank: 3, visible: true }
+    ], { comparator: 'rank' });
+    const onRender = vi.fn();
+    const ChildView = runtime.View.extend({ template: ({ id }) => String(id), onRender });
+    const view = new runtime.CollectionView({
+      collection,
+      childView: ChildView,
+      viewFilter: child => child.model.get('visible')
+    }).render();
+    const first = view.children.findByModel(collection.get(1));
+    onRender.mockClear();
+
+    collection.set([{ id: 1, rank: 4 }, { id: 2, visible: false }], { remove: false });
+
+    expect(view.el.textContent).to.equal('31');
+    expect(view.children.findByModel(collection.get(1))).to.equal(first);
+    expect(onRender).not.toHaveBeenCalled();
+    view.destroy();
+  });
+
+  it('configures only the selected runtime', function() {
+    const first = createMarionette();
+    const second = createMarionette();
+    const model = new Backbone.Model();
+
+    first.setDataApi(BackboneApi);
+    first.setStateApi(BackboneApi);
+
+    expect(first.View.prototype.Data.key(model)).to.equal(model.cid);
+    expect(second.View.prototype.Data.key(model)).to.equal(model);
+    expect(first.MnObject.prototype.State.subscribe).to.equal(BackboneApi.subscribe);
+    expect(second.MnObject.prototype.State.subscribe).to.not.equal(BackboneApi.subscribe);
+  });
+});

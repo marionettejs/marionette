@@ -1,0 +1,128 @@
+import { getValue } from '@mnjs/utils';
+import type { TriggerTarget } from './view-events.ts';
+
+export interface BehaviorInstance {
+  _isDestroyed?: boolean;
+  behaviors?: unknown;
+  destroy(options?: unknown): unknown;
+  _delegateViewEvents(view: TriggerTarget): unknown;
+  _undelegateViewEvents(options?: unknown): unknown;
+  delegateEntityEvents(): unknown;
+  undelegateEntityEvents(options?: unknown): unknown;
+  bindUIElements(): unknown;
+  unbindUIElements(): unknown;
+  triggerMethod(event: string, ...args: unknown[]): unknown;
+}
+
+export type BehaviorConstructor = new (options: never, view: never) => BehaviorInstance;
+export interface BehaviorOptionsDefinition {
+  behaviorClass: BehaviorConstructor;
+  [key: string]: unknown;
+}
+export type BehaviorDefinition = BehaviorConstructor | BehaviorOptionsDefinition;
+export type BehaviorDefinitions = readonly BehaviorDefinition[] | Record<string, BehaviorDefinition>;
+
+export interface BehaviorContainer {
+  behaviors?: BehaviorDefinitions | (() => BehaviorDefinitions);
+  _behaviors?: BehaviorInstance[];
+  _isDestroyed?: boolean;
+}
+
+type BehaviorConstruction = new (options: unknown, view: unknown) => BehaviorInstance;
+
+// MixinOptions
+// - behaviors
+
+function addBehavior(view: BehaviorContainer, behaviorDefinition: BehaviorDefinition) {
+  const options = typeof behaviorDefinition === 'function' ? {} : behaviorDefinition;
+  const BehaviorClass = typeof behaviorDefinition === 'function' ? behaviorDefinition : behaviorDefinition.behaviorClass;
+  const behavior = new (BehaviorClass as BehaviorConstruction)(options, view);
+  if (!behavior._isDestroyed) {
+    view._behaviors!.push(behavior);
+  }
+
+  parseBehaviors(view, getValue(behavior, 'behaviors'));
+}
+
+// Iterate over the behaviors object, for each behavior
+// instantiate it and get its grouped behaviors.
+// This accepts a list of behaviors in either an object or array form
+function parseBehaviors(view: BehaviorContainer, behaviors: unknown) {
+  if (Array.isArray(behaviors)) {
+    for (let index = 0, length = behaviors.length; index < length; index++) {
+      addBehavior(view, behaviors[index]);
+    }
+  } else if (behaviors) {
+    const definitions = behaviors as Record<string, BehaviorDefinition>;
+    for (const name of Object.keys(definitions)) {
+      addBehavior(view, definitions[name]);
+    }
+  }
+}
+
+function eachBehavior(behaviors: BehaviorInstance[] | undefined, iteratee: (behavior: BehaviorInstance) => unknown) {
+  if (behaviors == null) { return; }
+
+  for (let index = 0, length = behaviors.length; index < length; index++) {
+    iteratee(behaviors[index]);
+  }
+}
+
+export default {
+  _initBehaviors(this: BehaviorContainer) {
+    this._behaviors = [];
+
+    parseBehaviors(this, getValue(this, 'behaviors'));
+  },
+
+  _delegateBehaviorViewEvents(this: BehaviorContainer & TriggerTarget) {
+    eachBehavior(this._behaviors, behavior => behavior._delegateViewEvents(this));
+  },
+
+  _undelegateBehaviorViewEvents(this: BehaviorContainer) {
+    eachBehavior(this._behaviors, behavior => behavior._undelegateViewEvents());
+  },
+
+  // delegate modelEvents and collectionEvents
+  _delegateBehaviorEntityEvents(this: BehaviorContainer) {
+    eachBehavior(this._behaviors, behavior => behavior.delegateEntityEvents());
+  },
+
+  // undelegate modelEvents and collectionEvents
+  _undelegateBehaviorEntityEvents(this: BehaviorContainer) {
+    eachBehavior(this._behaviors, behavior => behavior.undelegateEntityEvents());
+  },
+
+  _destroyBehaviors(this: BehaviorContainer, options?: unknown) {
+    // Release each Behavior during host teardown, before the host's destroy event.
+    // Behavior.destroy removes its listeners, DOM/entity subscriptions, and owned State.
+    eachBehavior(this._behaviors, behavior => behavior.destroy(options));
+  },
+
+  // Remove a behavior
+  _removeBehavior(this: BehaviorContainer, behavior: BehaviorInstance) {
+    // Don't worry about the clean up if the view is destroyed
+    if (this._isDestroyed) { return; }
+
+    const remainingBehaviors: BehaviorInstance[] = [];
+    for (let index = 0, length = this._behaviors!.length; index < length; index++) {
+      const currentBehavior = this._behaviors![index];
+      if (currentBehavior !== behavior) {
+        remainingBehaviors.push(currentBehavior);
+      }
+    }
+    this._behaviors = remainingBehaviors;
+  },
+
+  _bindBehaviorUIElements(this: BehaviorContainer) {
+    eachBehavior(this._behaviors, behavior => behavior.bindUIElements());
+  },
+
+  _unbindBehaviorUIElements(this: BehaviorContainer) {
+    eachBehavior(this._behaviors, behavior => behavior.unbindUIElements());
+  },
+
+  _triggerEventOnBehaviors(this: BehaviorContainer, eventName: string, view: unknown, options?: unknown) {
+    eachBehavior(this._behaviors, behavior => behavior.triggerMethod(eventName, view, options));
+  }
+};

@@ -1,0 +1,26 @@
+{
+  "all": true,
+  "include": [
+    "scripts/**/*.mjs",
+    "scripts/**/*.js",
+    "build/**/*.mjs",
+    "build/**/*.js",
+    "test/fixtures/run.mjs",
+    "test/types/run.mjs"
+  ],
+  "exclude-after-remap": true,
+  "report-dir": "coverage/tooling",
+  "temp-directory": "coverage/tooling/tmp",
+  "reporter": [
+    "text",
+    "json",
+    "json-summary",
+    "lcov",
+    "html"
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/*.test.*",
+    "**/*.spec.*"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "status": "reporting",
+  "fixture": {
+    "version": "v2",
+    "path": "benchmarks/consumer-bundles/v2/manifest.json",
+    "sha256": "d3b22d2eadef621768d8279af5f57517b0d91d261940d21fd12a0890b4d99297"
+  },
+  "toolchain": {
+    "rollup": "4.64.0",
+    "rollupPluginTerser": "1.0.0",
+    "terser": "5.51.2"
+  },
+  "peerExternalImports": [
+    "backbone",
+    "jquery"
+  ]
+}

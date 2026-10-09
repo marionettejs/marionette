@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "lib": [
+      "ES2024",
+      "DOM"
+    ],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "skipLibCheck": false,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "types": [],
+    "paths": {
+      "marionette": [
+        "./src/index.ts"
+      ],
+      "@mnjs/utils": [
+        "./packages/utils/src/index.ts"
+      ],
+      "@mnjs/radio": [
+        "./packages/radio/src/index.ts"
+      ]
+    },
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "packages/*/src/**/*.ts"
+  ]
+}

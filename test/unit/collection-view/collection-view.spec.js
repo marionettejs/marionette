@@ -1,32 +1,37 @@
+import { Region, Behavior } from 'marionette';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { setFixtures } from '../../setup/fixtures.js';
+import '../../setup/backbone.js';
 // Life-cycle and base functions
 
 import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/collection-view';
-import View from '../../../src/view';
-import Events from '../../../src/mixins/events';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
+import { Events } from '@mnjs/utils';
 
 describe('CollectionView', function() {
   let MyChildView;
-  let MyBbChildView;
+  let OtherChildView;
 
   beforeEach(function() {
     MyChildView = View.extend({
       template: _.noop,
-      onBeforeRender: this.sinon.stub(),
-      onRender: this.sinon.stub(),
-      onBeforeDestroy: this.sinon.stub(),
-      onDestroy: this.sinon.stub(),
+      onBeforeRender: vi.fn(),
+      onRender: vi.fn(),
+      onBeforeDestroy: vi.fn(),
+      onDestroy: vi.fn(),
     });
 
-    MyBbChildView = Backbone.View.extend({
-      onBeforeRender: this.sinon.stub(),
-      onRender: this.sinon.stub(),
-      onBeforeDestroy: this.sinon.stub(),
-      onDestroy: this.sinon.stub(),
+    OtherChildView = View.extend({
+      template: () => '',
+      onBeforeRender: vi.fn(),
+      onRender: vi.fn(),
+      onBeforeDestroy: vi.fn(),
+      onDestroy: vi.fn(),
     });
-    _.extend(MyBbChildView.prototype, Events);
+    _.extend(OtherChildView.prototype, Events);
   });
 
   describe('#constructor', function() {
@@ -80,12 +85,12 @@ describe('CollectionView', function() {
       });
     });
 
-    it('should setup the lifecycle monitor before initialize', function() {
-      this.sinon.stub(MyCollectionView.prototype, 'initialize').callsFake(function() {
-        expect(this._areViewEventsMonitored).to.be.true;
-      });
-
-      new MyCollectionView();
+    it('allows initialize to observe later attachment', function() {
+      let attached = 0;
+      const List = MyCollectionView.extend({ initialize() { this.on('attach', () => attached++); } });
+      const el = document.createElement('main'); document.body.append(el);
+      const region = new Region({ el }); region.show(new List());
+      expect(attached).toBe(1); region.destroy(); el.remove();
     });
 
     it('should have a valid inheritance chain back to Backbone.View', function() {
@@ -93,31 +98,41 @@ describe('CollectionView', function() {
       const customParam = {foo: 'baz'};
 
       const TestView = MyCollectionView.extend({
-        initialize: this.sinon.stub()
+        initialize: vi.fn()
       })
 
       const testView = new TestView(options, customParam);
 
-      expect(testView.initialize).to.have.been.calledOnce.and.calledWith(options, customParam);
+      expect(testView.initialize).toHaveBeenCalledTimes(1);
+      expect(testView.initialize.mock.calls.map(args => args.slice(0, 2))).toContainEqual([options, customParam]);
     });
 
     it('should call initialize prior to delegateEntityEvents', function() {
-      this.sinon.stub(MyCollectionView.prototype, 'initialize');
-      this.sinon.stub(MyCollectionView.prototype, 'delegateEntityEvents');
+      vi.spyOn(MyCollectionView.prototype, 'initialize').mockImplementation(() => undefined);
+      vi.spyOn(MyCollectionView.prototype, 'delegateEntityEvents').mockImplementation(() => undefined);
 
       const myCollectionView = new MyCollectionView();
 
-      expect(myCollectionView.initialize).to.be.calledBefore(myCollectionView.delegateEntityEvents);
+      expect(myCollectionView.initialize).toHaveBeenCalledBefore(myCollectionView.delegateEntityEvents);
     });
 
-    it('should trigger `initialize` on the behaviors', function() {
-      this.sinon.stub(MyCollectionView.prototype, '_triggerEventOnBehaviors');
+    it('should call initialize prior to constructing the empty Region', function() {
+      vi.spyOn(MyCollectionView.prototype, 'initialize').mockImplementation(() => undefined);
+      vi.spyOn(MyCollectionView.prototype, 'getEmptyRegion');
 
-      const myCollectionView = new MyCollectionView({ foo: 'bar' });
+      const myCollectionView = new MyCollectionView();
 
-      // _triggerEventOnBehaviors comes from Behaviors mixin
-      expect(myCollectionView._triggerEventOnBehaviors)
-        .to.be.calledOnce.and.calledWith('initialize', myCollectionView, { foo: 'bar' });
+      expect(myCollectionView.initialize).toHaveBeenCalledBefore(myCollectionView.getEmptyRegion);
+    });
+
+    it('notifies configured behaviors of parent initialization', function() {
+      const onInitialize = vi.fn();
+      const Observer = Behavior.extend({ onInitialize });
+      const options = { foo: 'bar', behaviors: [Observer] };
+      const owner = new MyCollectionView(options);
+      expect(onInitialize).toHaveBeenCalledOnce();
+      expect(onInitialize).toHaveBeenCalledWith(owner, options);
+      owner.destroy();
     });
   });
 
@@ -126,18 +141,19 @@ describe('CollectionView', function() {
     const model = collection.get(1);
 
     beforeEach(function() {
-      this.sinon.spy(CollectionView.prototype, 'buildChildView');
+      vi.spyOn(CollectionView.prototype, 'buildChildView');
     });
 
     describe('when childView is falsey', function() {
       it('should throw NoChildViewError', function() {
         const myCollectionView = new CollectionView({ collection });
 
-        expect(myCollectionView.render.bind(myCollectionView)).to.throw('A "childView" must be specified');
+        expect(myCollectionView.render.bind(myCollectionView)).to.throw('A "childView" must be specified')
+          .with.property('code', 'MN0011');
       });
     });
 
-    describe('when childView is a type of Backbone.View', function() {
+    describe('when childView is a Marionette View subclass', function() {
       it('should build children from the defined view', function() {
         const MyView = View.extend({ template: _.noop });
         const myCollectionView = new CollectionView({
@@ -146,32 +162,32 @@ describe('CollectionView', function() {
         });
         myCollectionView.render();
 
-        expect(myCollectionView.buildChildView).to.be.calledWith(model, MyView);
+        expect(myCollectionView.buildChildView.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, MyView]);
       });
     });
 
-    describe('when childView is a Backbone.View', function() {
+    describe('when childView is a Marionette View', function() {
       it('should build children from the defined view', function() {
-        let BBView = Backbone.View.extend();
-        _.extend(BBView.prototype, Events);
+        let OtherView = View.extend({ template: () => '' });
+        _.extend(OtherView.prototype, Events);
         const myCollectionView = new CollectionView({
           collection,
-          childView: BBView
+          childView: OtherView
         });
         myCollectionView.render();
 
-        expect(myCollectionView.buildChildView).to.be.calledWith(model, BBView);
+        expect(myCollectionView.buildChildView.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, OtherView]);
       });
     });
 
     describe('when childView is a function returning a view', function() {
       let myCollectionView;
       let childViewStub;
-      let BBView = Backbone.View.extend();
-      _.extend(BBView.prototype, Events);
+      let OtherView = View.extend({ template: () => '' });
+      _.extend(OtherView.prototype, Events);
       beforeEach(function() {
-        childViewStub = this.sinon.stub();
-        childViewStub.returns(BBView);
+        childViewStub = vi.fn();
+        childViewStub.mockReturnValue(OtherView);
 
         myCollectionView = new CollectionView({
           collection,
@@ -181,26 +197,53 @@ describe('CollectionView', function() {
       });
 
       it('should build children from the returned view', function() {
-        expect(myCollectionView.buildChildView).to.be.calledWith(model, BBView);
+        expect(myCollectionView.buildChildView.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, OtherView]);
       });
 
       it('should call childView with the model', function() {
-        expect(childViewStub)
-          .to.have.been.calledOnce
-          .and.calledWith(model);
+        expect(childViewStub).toHaveBeenCalledTimes(1);
+        expect(childViewStub.mock.calls.map(args => args.slice(0, 1))).toContainEqual([model]);
       });
     });
 
-    describe('when childView is not a valid view', function() {
-      it('should throw InvalidChildViewError', function() {
-        const myCollectionView = new CollectionView({
-          collection,
-          childView: 'foo'
-        });
-
-        expect(myCollectionView.render.bind(myCollectionView)).to.throw('"childView" must be a view class or a function that returns a view class');
+    it('resolves a concise childView method for each model', function() {
+      const ChildList = CollectionView.extend({
+        childView(child) {
+          expect(this.collection).to.equal(collection);
+          expect(child).to.equal(model);
+          return MyChildView;
+        }
       });
+      const view = new ChildList({ collection }).render();
+
+      expect(view.children.first()).to.be.instanceOf(MyChildView);
+      view.destroy();
     });
+
+    it('resolves an arrow childView factory', function() {
+      const view = new CollectionView({
+        collection,
+        childView: child => child === model ? MyChildView : OtherChildView
+      }).render();
+
+      expect(view.children.first()).to.be.instanceOf(MyChildView);
+      view.destroy();
+    });
+
+    it('resolves a native class childView method', function() {
+      class ChildList extends CollectionView {
+        childView(child) {
+          expect(this.collection).to.equal(collection);
+          expect(child).to.equal(model);
+          return MyChildView;
+        }
+      }
+      const view = new ChildList({ collection }).render();
+
+      expect(view.children.first()).to.be.instanceOf(MyChildView);
+      view.destroy();
+    });
+
   });
 
   describe('#childViewOptions', function() {
@@ -214,11 +257,11 @@ describe('CollectionView', function() {
       let childView;
 
       beforeEach(function() {
-        childView = MyBbChildView;
+        childView = OtherChildView;
 
-        childViewOptionsStub = this.sinon.stub();
-        childViewOptionsStub.returns(childViewOptions);
-        this.sinon.spy(CollectionView.prototype, 'buildChildView');
+        childViewOptionsStub = vi.fn();
+        childViewOptionsStub.mockReturnValue(childViewOptions);
+        vi.spyOn(CollectionView.prototype, 'buildChildView');
 
         myCollectionView = new CollectionView({
           collection,
@@ -230,13 +273,12 @@ describe('CollectionView', function() {
       });
 
       it('should call buildChildView with childViewOptions results', function() {
-        expect(myCollectionView.buildChildView).to.be.calledWith(model, childView, childViewOptions);
+        expect(myCollectionView.buildChildView.mock.calls.map(args => args.slice(0, 3))).toContainEqual([model, childView, childViewOptions]);
       });
 
       it('should call childViewOptions with child model', function() {
-        expect(childViewOptionsStub)
-          .to.have.been.calledOnce
-          .and.calledWith(model);
+        expect(childViewOptionsStub).toHaveBeenCalledTimes(1);
+        expect(childViewOptionsStub.mock.calls.map(args => args.slice(0, 1))).toContainEqual([model]);
       });
     });
   });
@@ -245,10 +287,10 @@ describe('CollectionView', function() {
     it('should call buildChildView with arguments', function() {
       const collection = new Backbone.Collection([{ id: 1 }]);
       const model = collection.get(1);
-      const childView = MyBbChildView;
+      const childView = OtherChildView;
       const childViewOptions = {};
 
-      this.sinon.spy(CollectionView.prototype, 'buildChildView');
+      vi.spyOn(CollectionView.prototype, 'buildChildView');
 
       const myCollectionView = new CollectionView({
         collection,
@@ -257,45 +299,54 @@ describe('CollectionView', function() {
       });
 
       myCollectionView.render();
-      expect(myCollectionView.buildChildView).to.be.calledWith(model, childView, childViewOptions);
+      expect(myCollectionView.buildChildView.mock.calls.map(args => args.slice(0, 3))).toContainEqual([model, childView, childViewOptions]);
+    });
+
+    it('merges only own child view options', function() {
+      const defaultModel = new Backbone.Model({ id: 'default' });
+      const configuredModel = new Backbone.Model({ id: 'configured' });
+      const protoValue = { polluted: true };
+      const childViewOptions = Object.assign(Object.create({ inherited: true }), {
+        model: configuredModel,
+        owned: true
+      });
+      Object.defineProperty(childViewOptions, '__proto__', {
+        enumerable: true,
+        value: protoValue
+      });
+      let capturedOptions;
+      const ChildView = function(options) {
+        capturedOptions = options;
+      };
+      const collectionView = new CollectionView();
+
+      collectionView.buildChildView(defaultModel, ChildView, childViewOptions);
+
+      expect(capturedOptions).to.include({ model: configuredModel, owned: true });
+      expect(capturedOptions).to.not.have.property('inherited');
+      expect(Object.getPrototypeOf(capturedOptions)).to.equal(Object.prototype);
+      expect(Object.hasOwn(capturedOptions, '__proto__')).toBe(true);
+      expect(Object.getOwnPropertyDescriptor(capturedOptions, '__proto__').value)
+        .to.equal(protoValue);
     });
   });
 
-  describe('#setElement', function() {
-
-    it('should call Backbone.View.setElement with all arguments', function() {
-      const myCollectionView = new CollectionView();
-      const bBSetElement = this.sinon.spy(Backbone.View.prototype, 'setElement');
-
-      myCollectionView.setElement('#foo',2,3,4);
-
-      expect(bBSetElement).to.be.calledWith('#foo',2,3,4);
-    });
-
-    it('should return the collectionView instance', function() {
-      const myCollectionView = new CollectionView();
-      this.sinon.spy(myCollectionView, 'setElement');
-
-      myCollectionView.setElement();
-
-      expect(myCollectionView.setElement).to.have.returned(myCollectionView);
-    });
-
+  describe('element initialization', function() {
 
     describe('when the view does not have an attach el', function() {
       it('should not mark the view as attached', function() {
-        const myCollectionView = new CollectionView({ el: $('<div>') });
+        const myCollectionView = new CollectionView({ el: $('<div>')[0] });
 
-        expect(myCollectionView.isAttached()).to.be.false;
+        expect(myCollectionView.isAttached()).toBe(false);
       });
     });
 
     describe('when the view is given an attach el', function() {
       it('should mark the view as attached', function() {
-        this.setFixtures('<div id="attached"></div>');
-        const myCollectionView = new CollectionView({ el: $('#attached') });
+        setFixtures('<div id="attached"></div>');
+        const myCollectionView = new CollectionView({ el: $('#attached')[0] });
 
-        expect(myCollectionView.isAttached()).to.be.true;
+        expect(myCollectionView.isAttached()).toBe(true);
       });
     });
   });
@@ -305,12 +356,26 @@ describe('CollectionView', function() {
 
     beforeEach(function() {
       const MyCollectionView = CollectionView.extend({
-        onBeforeRender: this.sinon.stub(),
-        onRender: this.sinon.stub(),
+        onBeforeRender: vi.fn(),
+        onRender: vi.fn(),
       });
 
       myCollectionView = new MyCollectionView();
-      this.sinon.spy(myCollectionView, 'render');
+      vi.spyOn(myCollectionView, 'render');
+    });
+
+    it('provides serialized collection data to its template as models', function() {
+      const template = vi.fn(() => '');
+      const view = new CollectionView({
+        collection: new Backbone.Collection(),
+        template,
+      });
+
+      view.render();
+
+      expect(template).toHaveBeenCalledTimes(1);
+      expect(template.mock.calls.map(args => args.slice(0, 1))).toContainEqual([{ models: [] }]);
+      expect(template.mock.calls.at(0)[0]).to.not.have.property('items');
     });
 
     describe('when the view is not destroyed', function() {
@@ -319,43 +384,75 @@ describe('CollectionView', function() {
       });
 
       it('should set isRendered to true', function() {
-        expect(myCollectionView.isRendered()).to.be.true;
+        expect(myCollectionView.isRendered()).toBe(true);
       });
 
       it('should call "before:render" event', function() {
-        expect(myCollectionView.onBeforeRender)
-          .to.have.been.calledOnce
-          .and.calledWith(myCollectionView);
+        expect(myCollectionView.onBeforeRender).toHaveBeenCalledTimes(1);
+        expect(myCollectionView.onBeforeRender.mock.calls.map(args => args.slice(0, 1))).toContainEqual([myCollectionView]);
       });
 
       it('should call "render" event', function() {
-        expect(myCollectionView.onRender)
-          .to.have.been.calledOnce
-          .and.calledWith(myCollectionView);
+        expect(myCollectionView.onRender).toHaveBeenCalledTimes(1);
+        expect(myCollectionView.onRender.mock.calls.map(args => args.slice(0, 1))).toContainEqual([myCollectionView]);
       });
 
       it('should return the collectionView instance', function() {
-        expect(myCollectionView.render).to.have.returned(myCollectionView);
+        expect(myCollectionView.render).toHaveReturnedWith(myCollectionView);
       });
 
     });
 
     describe('when the view is destroyed', function() {
-      beforeEach(function() {
-        myCollectionView.destroy();
+      it('should treat repeated renders as idempotent no-ops', function() {
+        const template = vi.fn(() => '<div class="children"></div>');
+        const childTemplate = vi.fn(() => '<span>Child</span>');
+        const childInitialize = vi.fn();
+        const ChildView = View.extend({
+          initialize: childInitialize,
+          template: childTemplate,
+        });
+        const DestroyedCollectionView = CollectionView.extend({
+          childView: ChildView,
+          childViewContainer: '.children',
+          onBeforeRender: vi.fn(),
+          onRender: vi.fn(),
+          template,
+        });
+        myCollectionView = new DestroyedCollectionView({
+          collection: new Backbone.Collection([{}, {}]),
+        });
         myCollectionView.render();
-      });
+        const childViews = myCollectionView.children.map(view => view);
+        myCollectionView.destroy();
 
-      it('should not call "before:render" event', function() {
-        expect(myCollectionView.onBeforeRender).to.not.have.been.called;
-      });
+        const sentinel = document.createElement('span');
+        sentinel.textContent = 'Unmanaged content';
+        myCollectionView.el.append(sentinel);
+        const destroyedHtml = myCollectionView.el.innerHTML;
+        template.mockClear();
+        childTemplate.mockClear();
+        childInitialize.mockClear();
+        myCollectionView.onBeforeRender.mockClear();
+        myCollectionView.onRender.mockClear();
+        const getTemplate = vi.spyOn(myCollectionView, 'getTemplate');
 
-      it('should not call "render" event', function() {
-        expect(myCollectionView.onRender).to.not.have.been.called;
-      });
+        expect(myCollectionView.render()).to.equal(myCollectionView);
+        expect(myCollectionView.render()).to.equal(myCollectionView);
 
-      it('should return the collectionView instance', function() {
-        expect(myCollectionView.render).to.have.returned(myCollectionView);
+        expect(getTemplate).not.toHaveBeenCalled();
+        expect(template).not.toHaveBeenCalled();
+        expect(childTemplate).not.toHaveBeenCalled();
+        expect(childInitialize).not.toHaveBeenCalled();
+        expect(myCollectionView.onBeforeRender).not.toHaveBeenCalled();
+        expect(myCollectionView.onRender).not.toHaveBeenCalled();
+        expect(myCollectionView.el.innerHTML).to.equal(destroyedHtml);
+        expect(myCollectionView.el.lastChild).to.equal(sentinel);
+        expect(myCollectionView.isRendered()).toBe(false);
+        expect(myCollectionView.isAttached()).toBe(false);
+        expect(myCollectionView.isDestroyed()).toBe(true);
+        expect(myCollectionView.children).to.have.length(0);
+        childViews.forEach(view => expect(view.isDestroyed()).toBe(true));
       });
     });
   });

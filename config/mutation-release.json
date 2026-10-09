@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "description": "Bounded release authorization, channel selection and immutable npm publication decision pilot. No network or publication; scores are evidence, not thresholds.",
+  "concurrency": 2,
+  "budgetMs": 600000,
+  "targets": [
+    { "file": "scripts/release/publication.mjs" },
+    { "file": "scripts/release/npm-actions.mjs" }
+  ],
+  "testFiles": ["test/release/decisions.test.mjs"]
+}

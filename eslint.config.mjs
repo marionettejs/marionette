@@ -1,0 +1,159 @@
+import js from '@eslint/js';
+import vitest from '@vitest/eslint-plugin';
+import typescriptParser from '@typescript-eslint/parser';
+import typescriptPlugin from '@typescript-eslint/eslint-plugin';
+import jsdoc from 'eslint-plugin-jsdoc';
+import globals from 'globals';
+
+export default [
+  {
+    ignores: [
+      '.claude/worktrees/**',
+      '.docs-site/**',
+      '.package/**',
+      '.docs-export/**',
+      '.docs-export-tmp/**',
+      // Preserve submitted trial artifacts exactly as evaluated.
+      'benchmarks/docs/results/**',
+      'coverage/**',
+      'dist/**',
+      'node_modules/**',
+      'packages/*/dist/**',
+      'examples/*/dist/**',
+      'test/fixtures/*/dist/**',
+      'src/version.js',
+      'test/tmp/**',
+    ],
+  },
+  {
+    files: ['**/*.{cjs,js,mjs}', 'src/**/*.ts', 'packages/*/src/**/*.ts'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+    plugins: {
+      jsdoc,
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      'array-bracket-spacing': ['error', 'never'],
+      'block-scoped-var': 'error',
+      'brace-style': ['error', '1tbs', { allowSingleLine: true }],
+      camelcase: ['error', {
+        properties: 'always',
+        allow: [
+          'npm_config_audit',
+          'npm_config_fund',
+          'npm_execpath',
+          'npm_config_package_lock',
+        ],
+      }],
+      curly: ['error', 'all'],
+      'dot-notation': ['error', { allowKeywords: true }],
+      'eol-last': 'error',
+      eqeqeq: ['error', 'allow-null'],
+      'guard-for-in': 'error',
+      indent: ['error', 2, { SwitchCase: 1 }],
+      'key-spacing': ['error', { beforeColon: false, afterColon: true }],
+      'keyword-spacing': 'error',
+      'jsdoc/check-param-names': 'error',
+      'jsdoc/check-syntax': 'error',
+      'jsdoc/check-tag-names': 'error',
+      'jsdoc/check-types': 'error',
+      'jsdoc/require-param': 'error',
+      'jsdoc/require-param-description': 'error',
+      'jsdoc/require-param-type': 'error',
+      'jsdoc/require-returns': 'error',
+      'jsdoc/require-returns-description': 'error',
+      'jsdoc/require-returns-type': 'error',
+      'new-cap': 'error',
+      'no-bitwise': 'error',
+      'no-caller': 'error',
+      'no-eval': 'error',
+      'no-extend-native': 'error',
+      'no-iterator': 'error',
+      'no-loop-func': 'error',
+      'no-multi-spaces': 'error',
+      'no-multi-str': 'error',
+      'no-multiple-empty-lines': 'error',
+      'no-new': 'error',
+      'no-proto': 'error',
+      'no-script-url': 'error',
+      'no-sequences': 'error',
+      'no-shadow': 'error',
+      'no-trailing-spaces': 'error',
+      'no-unused-vars': ['warn', { args: 'none' }],
+      'no-var': 'error',
+      'no-with': 'error',
+      'object-shorthand': ['error', 'methods'],
+      'operator-linebreak': ['error', 'after'],
+      quotes: ['error', 'single'],
+      'space-before-blocks': 'error',
+      'space-before-function-paren': ['error', 'never'],
+      'space-in-parens': ['error', 'never'],
+      'space-infix-ops': 'error',
+      'space-unary-ops': ['error', { nonwords: false, overrides: {} }],
+      'wrap-iife': ['error', 'inside'],
+    },
+  },
+  {
+    files: ['**/*.cjs'],
+    languageOptions: {
+      sourceType: 'commonjs',
+    },
+  },
+  {
+    files: ['test/**/*.{cjs,js,mjs}'],
+    rules: {
+      'new-cap': 'off',
+      'no-new': 'off',
+      'object-shorthand': 'off',
+      'one-var': ['error', 'never'],
+    },
+  },
+  {
+    files: ['src/**/*.ts', 'packages/*/src/**/*.ts'],
+    languageOptions: { parser: typescriptParser },
+    plugins: { '@typescript-eslint': typescriptPlugin },
+    rules: {
+      'no-unused-vars': 'off',
+      'no-shadow': 'off',
+      'no-redeclare': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
+      '@typescript-eslint/no-shadow': 'error',
+      '@typescript-eslint/no-redeclare': 'error',
+    },
+  },
+  {
+    files: ['test/unit/**/*.js'],
+    plugins: { vitest },
+    rules: {
+      'no-restricted-imports': ['error', 'sinon', 'sinon-chai'],
+      'no-restricted-syntax': ['error', {
+        selector: 'MemberExpression[object.type="ThisExpression"][property.name="sinon"]',
+        message: 'Use explicit native Vitest vi.fn/vi.spyOn imports.',
+      }],
+      'vitest/no-disabled-tests': 'error',
+      'vitest/no-focused-tests': 'error',
+      'vitest/valid-describe-callback': 'error',
+      'vitest/valid-expect': 'error',
+      'vitest/valid-expect-in-promise': 'error',
+    },
+  },
+  {
+    files: ['scripts/**/*.mjs', 'build/**/*.mjs', 'test/{tooling,release,docs}/**/*.mjs'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: { project: './tsconfig.tooling.json', tsconfigRootDir: import.meta.dirname },
+    },
+    plugins: { '@typescript-eslint': typescriptPlugin },
+    rules: {
+      '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: false }],
+      '@typescript-eslint/no-misused-promises': 'error',
+    },
+  },
+];

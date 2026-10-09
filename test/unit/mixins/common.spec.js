@@ -1,50 +1,44 @@
-import _ from 'underscore';
-import CommonMixin from '../../../src/mixins/common';
+import { describe, expect, it, vi } from 'vitest';
+import { MnObject, View } from 'marionette';
 
-describe('Common Mixin', function() {
-  describe('#setOptions', function() {
-    let object;
-    const classOptions = [];
-    const options = {
-      foo: 'baz',
-      baz: 'baz'
-    };
+describe('public owner options', () => {
+  it('resolves defaults on the owner and overlays passed options without mutation', () => {
+    const defaults = vi.fn().mockReturnValue({ shared: 'default', retained: true });
+    const Owner = MnObject.extend({ options: defaults });
+    const options = { shared: 'passed', added: true };
+    const owner = new Owner(options);
+    expect(owner.options).toEqual({ shared: 'passed', retained: true, added: true });
+    expect(options).toEqual({ shared: 'passed', added: true });
+    expect(defaults).toHaveBeenCalledExactlyOnceWith();
+    expect(defaults.mock.contexts[0] === owner).toBe(true);
+    owner.destroy();
+  });
 
-    beforeEach(function() {
-      object = _.extend({
-        options() {
-          return {
-            foo: 'bar',
-            bar: 'baz'
-          };
-        }
-      }, CommonMixin);
+  it('copies only own options and preserves an own __proto__ value safely', () => {
+    const defaults = Object.assign(Object.create({ inheritedDefault: true }), { default: true });
+    const passed = Object.assign(Object.create({ inheritedPassed: true }), { passed: true });
+    const value = { polluted: true };
+    Object.defineProperty(passed, '__proto__', { enumerable: true, value });
+    const Owner = MnObject.extend({ options() { return defaults; } });
+    const owner = new Owner(passed);
+    expect(owner.getOption('default')).toBe(true);
+    expect(owner.getOption('passed')).toBe(true);
+    expect(owner.options).not.toHaveProperty('inheritedDefault');
+    expect(owner.options).not.toHaveProperty('inheritedPassed');
+    expect(Object.getPrototypeOf(owner.options)).toBe(Object.prototype);
+    expect(Object.getOwnPropertyDescriptor(owner.options, '__proto__').value).toBe(value);
+    owner.destroy();
+  });
 
-      this.sinon.spy(object, 'mergeOptions');
-
-      object._setOptions(options, classOptions);
+  it('makes declared View options available during initialize', () => {
+    const initialize = vi.fn(function() {
+      expect(this.tagName).toBe('article');
+      expect(this.getOption('label')).toBe('custom');
     });
-
-    it('should not mutate the options argument', function() {
-      expect(options).to.eql({
-        foo: 'baz',
-        baz: 'baz'
-      })
-    });
-
-    // This test covers merge order and options as a function
-    it('should set options on the context', function() {
-      expect(object.options).to.eql({
-        foo: 'baz',
-        bar: 'baz',
-        baz: 'baz'
-      });
-    });
-
-    it('should call mergeOptions', function() {
-      expect(object.mergeOptions)
-        .to.have.been.calledOnce
-        .and.calledWith(options, classOptions);
-    });
+    const Custom = View.extend({ initialize });
+    const view = new Custom({ tagName: 'article', label: 'custom' });
+    expect(initialize).toHaveBeenCalledTimes(1);
+    expect(view.el.tagName).toBe('ARTICLE');
+    view.destroy();
   });
 });

@@ -1,6 +1,7 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import '../setup/backbone.js';
 import Backbone from 'backbone';
-import { setEnabled } from '../../src/config/features';
-import View from '../../src/view';
+import { View } from 'marionette';
 
 describe('view triggers', function() {
   'use strict';
@@ -10,18 +11,31 @@ describe('view triggers', function() {
   let fooHandlerStub;
   let barHandlerStub;
   let fooEvent;
-  let barEvent;
 
   beforeEach(function() {
     triggersHash = {'foo': 'fooHandler'};
     eventsHash = {'bar': 'barHandler'};
 
-    fooHandlerStub = this.sinon.stub();
-    barHandlerStub = this.sinon.stub();
+    fooHandlerStub = vi.fn();
+    barHandlerStub = vi.fn();
 
-    fooEvent = $.Event('foo');
-    barEvent = $.Event('bar');
+    fooEvent = null;
   });
+
+  function trigger(view, eventName) {
+    const event = new window.Event(eventName, {
+      bubbles: true,
+      cancelable: true
+    });
+    const stopPropagation = event.stopPropagation.bind(event);
+    event.propagationStopped = false;
+    event.stopPropagation = function() {
+      event.propagationStopped = true;
+      stopPropagation();
+    };
+    view.el.dispatchEvent(event);
+    return event;
+  }
 
   describe('when DOM events are configured to trigger a view event, and the DOM events are fired', function() {
     let model;
@@ -40,24 +54,19 @@ describe('view triggers', function() {
       });
 
       view.on('fooHandler', fooHandlerStub);
-      view.$el.trigger(fooEvent, ['foo', 'bar']);
+      fooEvent = trigger(view, 'foo');
     });
 
     it('should trigger the first view event', function() {
-      expect(fooHandlerStub).to.have.been.calledOnce;
+      expect(fooHandlerStub).toHaveBeenCalledTimes(1);
     });
 
     it('should include the view in the event', function() {
-      expect(fooHandlerStub.lastCall.args[0]).to.contain(view);
+      expect(fooHandlerStub.mock.calls.at(-1)[0]).to.contain(view);
     });
 
     it('should include the event object in the event', function() {
-      expect(fooHandlerStub.lastCall.args[1]).to.be.an.instanceOf($.Event);
-    });
-
-    it('should include additional triggered event arguments', function() {
-      expect(fooHandlerStub.lastCall.args[2]).to.equal('foo');
-      expect(fooHandlerStub.lastCall.args[3]).to.equal('bar');
+      expect(fooHandlerStub.mock.calls.at(-1)[1]).to.be.an.instanceOf(Event);
     });
   });
 
@@ -75,16 +84,16 @@ describe('view triggers', function() {
       view = new TestView();
       view.on('fooHandler', fooHandlerStub);
 
-      view.$el.trigger(fooEvent);
-      view.$el.trigger(barEvent);
+      fooEvent = trigger(view, 'foo');
+      trigger(view, 'bar');
     });
 
     it('should fire the trigger', function() {
-      expect(fooHandlerStub).to.have.been.calledOnce;
+      expect(fooHandlerStub).toHaveBeenCalledTimes(1);
     });
 
     it('should fire the standard event', function() {
-      expect(barHandlerStub).to.have.been.calledOnce;
+      expect(barHandlerStub).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -94,20 +103,21 @@ describe('view triggers', function() {
     let view;
 
     beforeEach(function() {
-      triggersStub = this.sinon.stub().returns(triggersHash);
+      triggersStub = vi.fn().mockReturnValue(triggersHash);
       TestView = View.extend({triggers: triggersStub});
       view = new TestView();
       view.on('fooHandler', fooHandlerStub);
 
-      view.$el.trigger(fooEvent);
+      fooEvent = trigger(view, 'foo');
     });
 
     it('should call the function', function() {
-      expect(triggersStub).to.have.been.calledOnce.and.calledOn(view);
+      expect(triggersStub).toHaveBeenCalledTimes(1);
+      expect(triggersStub.mock.contexts).toContain(view);
     });
 
     it('should trigger the first view event', function() {
-      expect(fooHandlerStub).to.have.been.calledOnce;
+      expect(fooHandlerStub).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -120,19 +130,19 @@ describe('view triggers', function() {
       view = new TestView();
       view.on('fooHandler', fooHandlerStub);
 
-      view.$el.trigger(fooEvent);
+      fooEvent = trigger(view, 'foo');
     });
 
     it('should stop propagation by default', function() {
-      expect(fooEvent.isPropagationStopped()).to.be.true;
+      expect(fooEvent.propagationStopped).toBe(true);
     });
 
     it('should prevent default by default', function() {
-      expect(fooEvent.isDefaultPrevented()).to.be.true;
+      expect(fooEvent.defaultPrevented).toBe(true);
     });
   });
 
-  describe('when triggers items are manually configured', function() {
+  describe('when trigger entries are manually configured', function() {
     let TestView;
     let view;
 
@@ -141,7 +151,7 @@ describe('view triggers', function() {
         triggers: {
           'foo': {
             event: 'fooHandler',
-            preventDefault: true,
+            preventDefault: false,
             stopPropagation: false
           }
         }
@@ -149,126 +159,13 @@ describe('view triggers', function() {
       view = new TestView();
       view.on('fooHandler', fooHandlerStub);
 
-      view.$el.trigger(fooEvent);
+      fooEvent = trigger(view, 'foo');
     });
 
-    it('should prevent and dont stop the first view event', function() {
-      expect(fooEvent.isDefaultPrevented()).to.be.true;
-      expect(fooEvent.isPropagationStopped()).to.be.false;
-    });
-  });
-
-  describe('when triggersPreventDefault flag is set to false', function() {
-    beforeEach(function() {
-      setEnabled('triggersPreventDefault', false);
-    });
-
-    afterEach(function() {
-      setEnabled('triggersPreventDefault', true);
-    });
-
-    describe('triggers should not prevent events by default', function() {
-      let TestView;
-      let view;
-
-      beforeEach(function() {
-        TestView = View.extend({triggers: triggersHash});
-        view = new TestView();
-        view.on('fooHandler', fooHandlerStub);
-
-        view.$el.trigger(fooEvent);
-      });
-
-      it('should stop propagation by default', function() {
-        expect(fooEvent.isPropagationStopped()).to.be.true;
-      });
-
-      it('should not prevent default by default', function() {
-        expect(fooEvent.isDefaultPrevented()).to.be.false;
-      });
-    });
-
-    describe('when triggers items are manually configured', function() {
-      let TestView;
-      let view;
-
-      beforeEach(function() {
-        TestView = View.extend({
-          triggers: {
-            'foo': {
-              event: 'fooHandler',
-              preventDefault: true,
-              stopPropagation: true
-            }
-          }
-        });
-        view = new TestView();
-        view.on('fooHandler', fooHandlerStub);
-
-        view.$el.trigger(fooEvent);
-      });
-
-      it('should prevent and stop the first view event', function() {
-        expect(fooEvent.isDefaultPrevented()).to.be.true;
-        expect(fooEvent.isPropagationStopped()).to.be.true;
-      });
+    it('should preserve explicitly disabled DOM behavior', function() {
+      expect(fooEvent.defaultPrevented).toBe(false);
+      expect(fooEvent.propagationStopped).toBe(false);
     });
   });
 
-  describe('when triggersStopPropagation flag is set to false', function() {
-    beforeEach(function() {
-      setEnabled('triggersStopPropagation', false);
-    });
-
-    afterEach(function() {
-      setEnabled('triggersStopPropagation', true);
-    });
-
-    describe('triggers should not stop propagation by default', function() {
-      let TestView;
-      let view;
-
-      beforeEach(function() {
-        TestView = View.extend({triggers: triggersHash});
-        view = new TestView();
-        view.on('fooHandler', fooHandlerStub);
-
-        view.$el.trigger(fooEvent);
-      });
-
-      it('should stop propagation by default', function() {
-        expect(fooEvent.isPropagationStopped()).to.be.false;
-      });
-
-      it('should prevent default by default', function() {
-        expect(fooEvent.isDefaultPrevented()).to.be.true;
-      });
-    });
-
-    describe('when triggers items are manually configured', function() {
-      let TestView;
-      let view;
-
-      beforeEach(function() {
-        TestView = View.extend({
-          triggers: {
-            'foo': {
-              event: 'fooHandler',
-              preventDefault: true,
-              stopPropagation: true
-            }
-          }
-        });
-        view = new TestView();
-        view.on('fooHandler', fooHandlerStub);
-
-        view.$el.trigger(fooEvent);
-      });
-
-      it('should prevent and stop the first view event', function() {
-        expect(fooEvent.isDefaultPrevented()).to.be.true;
-        expect(fooEvent.isPropagationStopped()).to.be.true;
-      });
-    });
-  });
 });

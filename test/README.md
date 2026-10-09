@@ -1,0 +1,247 @@
+# Testing Marionette
+
+Tests protect public contracts. Source folders describe implementation; test
+folders describe the behavior a consumer can rely on. New tests should use a
+shallow contract-oriented suite and explicit imports, fixtures, and cleanup.
+Do not move a regression merely to match an internal refactor.
+
+## Stay within the supported lifecycle
+
+Use the [View lifecycle contract](../docs/api/view.md#lifecycle-hooks-and-events)
+as the boundary for runtime tests. Valid adapters must return working cleanup
+callbacks. Synchronous registration, construction, render, and teardown exceptions
+abort the operation; do not write tests promising rollback, remaining cleanup after
+a throw, usable partial instances, or recovery on the next notification.
+
+Public API access is necessary but does not by itself make a scenario supported.
+Retention checks and mutation survivors must not drive new per-instance recovery
+bookkeeping or guards around unsupported mutation during a callback. Present a real
+consumer case and the complexity/performance tradeoff for an explicit maintainer
+decision before expanding the contract. Keep coverage for successful subscription
+release, ordinary ownership/idempotence, and documented asynchronous Application
+readiness, cancellation, and restart. Reviewer prompts must carry this distinction.
+
+## Production bundle from candidate tarballs
+
+Run `npm run test:docs-production -- --artifact-dir /absolute/path/to/five-tarballs --report /absolute/path/to/production-report.json` to install and build the delivered records example in isolation. It checks a subdirectory deployment through an explicit local HTTP hosting policy, browser failure/retry and cancellation, keyboard/focus, and an upgrade to a second hashed build. It does not verify a remote CDN or production account configuration.
+
+## Consumer Node LTS checks
+
+The Documentation workflow builds with the pinned source toolchain, then runs
+`npm run check:docs-installed -- --artifact-dir <five-tarball-directory>` on
+Node 22.22.2, latest 22.x, 24.15.0 and latest 24.x.
+It installs all five tarballs and checks ESM/CommonJS behavior, packaged helpers,
+executable documentation and consumer lint, test, TypeScript and Vite recipes.
+Node 26 remains a separate advisory lane; new LTS lines require verification
+before the consumer support policy changes.
+
+## Choose the smallest useful check
+
+| Contract | Location | Command |
+| --- | --- | --- |
+| Public runtime behavior | `unit/` | `npm test -- test/unit/region-lifecycle.spec.js` |
+| Pure events, Radio, utilities and data | Vitest Node project | `npm test -- --project=node` |
+| DOM and lifecycle behavior | Vitest DOM project | `npm test -- --project=dom` |
+| Real focus, events, DOM adapters and package behavior | `browser/` | `npm run test:browser -- --project=chromium -g 'focus'` |
+| ESM and CommonJS declaration consumers | `types/` | `npm run build && npm run test:types` |
+| Installed ESM/CJS/Vite/TypeScript and executable docs | `fixtures/` | `npm run test:fixtures -- --fixture esm-node` |
+| CLI, release, docs, performance and benchmark infrastructure | `tooling/`, `release/`, `docs/`, `performance/`, `agent-benchmark/` | `npm run test:tooling` |
+| Static production import graph | `source/` | `npm run test:source` |
+| Built ESM/CJS/UMD exports | `dist/` | `npm run test:dist` |
+| Consumer documentation, package discovery and runnable recipes | `docs/`, `agent-docs/` | `npm run docs:check` |
+
+`npm ci` uses the pinned toolchain and builds packages through `prepare`. `npm test`
+is deliberately fast: it runs unit tests without a hidden type/build pretest.
+After source edits, rebuild before directly invoking consumer types, browser or
+distribution checks. `npm run verify` rebuilds and checks lint/types/unit contracts;
+Verification runs each step to completion; CI job time limits bound CI runs.
+`npm run verify -- --full` adds both coverage reports, source/distribution checks,
+real browsers, documentation checks, and every installed fixture.
+`--full` also warms the pinned agent environment and runs the reference app plus
+positive/negative corpus controls. They can be invoked separately with
+`agent:cache`, `test:agent-app`, `agent:reference`, and `agent:fixtures`. These
+commands never invoke a model.
+
+Application authors can use the [consumer testing guide](../docs/guides/testing.md)
+for a small installed-package recipe. Repository docs checks execute the actual
+published-page fences and consumer commands; passing them demonstrates recipe and
+delivery correctness, while independent tasks assess reader effectiveness.
+
+The installed-doc check executes the quick start's project setup commands in a
+clean workspace, substituting each exact Marionette npm version spec with its
+supplied candidate tarball, then builds its HTML and JavaScript. To also check the
+rendered result in Chromium, Firefox and WebKit, run
+`npm exec -- node test/docs/quick-start.mjs .package /absolute/path/to/five-tarballs --browser`
+after `npm run docs:package`. The browser harness stays outside the consumer app.
+Installed-doc checks require registry access for third-party dependencies; they
+install Marionette packages from the supplied local tarballs. The quick-start
+report records the original documented setup, executed commands and exact candidate
+bytes tested. This check does not verify a registry installation.
+
+`npm run lint` never edits files. Use `npm run lint:fix` explicitly. Lint rejects
+focused/disabled unit tests, missing assertions, unawaited async assertions, and
+floating promises in tooling. `npm run check:public-tests` rejects private members,
+private overrides and internal source imports in runtime tests and helpers; review
+must still catch indirect private access that static syntax cannot identify.
+`npm run check:workflows` rejects duplicate YAML keys and runs SHA-256-pinned
+actionlint. Its first run downloads a verified archive into `test/tmp/tools/`;
+subsequent runs reuse and verify that archive. ShellCheck and Pyflakes are not
+implicitly discovered from a developer's PATH.
+
+## Repeat and diagnose
+
+Use `npm test -- <file> -t '<test name>'` for one contract, or `npm run test:watch`.
+For order failures, record and replay the seed:
+
+```sh
+npm test -- --sequence.shuffle --sequence.seed=20260908
+```
+
+Unit CI emits `test/tmp/unit-results.xml`. Playwright emits JSON and JUnit results,
+HTML reports, failure screenshots and traces under `test/tmp/browser/`; retries
+are disabled so flakes remain visible. Run `npx playwright show-report
+test/tmp/browser/report` or open an individual retained trace. Browser tests use
+Chromium, Firefox and WebKit from the checked-in release profile.
+
+## CI jobs
+
+The Node 24 CI suites run in parallel: core checks and unit coverage, tooling
+coverage, browser contracts, agent reference controls, and Linux package fixtures.
+Each job installs and builds its own checkout and uploads its own reports. The
+`Node 24` aggregate check succeeds only when all five suites succeed; a failed,
+cancelled, or skipped suite does not pass the aggregate check. macOS package smoke
+runs alongside these jobs, and Windows package smoke runs on master pushes.
+On PRs, Linux and macOS run `bash test/fixtures/smoke.sh` after `npm ci`: it packs
+the built outputs once without lifecycle scripts and supplies those same five
+tarballs to `cjs-node`, `standalone-packages`, `core-types`, `vite`,
+`cjs-adapters`, and `collection-removal-survivors`. Every selected fixture runs
+even when an earlier fixture fails; any failure fails the smoke job.
+Reports are written to `test/tmp/fixture-reports/smoke-*.json`.
+Master pushes retain the full fixture inventory. Smoke results do not certify a
+release; manual release candidates still require the complete exact-artifact gates.
+
+Each suite uploads the following repository report paths:
+
+| Artifact | Uploaded paths |
+| --- | --- |
+| `coverage-node-24` | `coverage/`, `test/tmp/unit-results.xml` |
+| `tooling-node-24` | `coverage/tooling/`, excluding temporary `coverage/tooling/tmp/` data; retained for 7 days |
+| `browsers-node-24` | `test/tmp/browser/results.json`, `test/tmp/browser/results.xml`, `test/tmp/browser/report/`, `test/tmp/browser/results/`, `test/tmp/performance/browser-report.json` |
+| `agent-reference-node-24` | `test/tmp/agent-reference-app/`, `test/tmp/agent-reference/reference-report.json`, `test/tmp/agent-reference/artifacts/artifact-input.json`, `test/tmp/agent-fixtures/fixture-controls.json` |
+| `fixtures-node-24` | `test/tmp/fixture-reports/` |
+
+Release promotion runs its separate exact-artifact validation when triggered;
+its elapsed time is independent of the regular CI suites.
+
+## Coverage means observable execution
+
+`npm run coverage` reports library coverage at `coverage/library/index.html`, with
+LCOV and JSON summaries alongside it. Every authored production file is included,
+including unexecuted files. Functions remain at 100%. Each file defaults to 100% for
+all metrics; `config/coverage-exceptions.json` records the few private defensive
+branches that valid public operations cannot reach. Limits are absolute uncovered
+counts per file and globally, so adding code cannot dilute them. Ratchet a limit
+down when public tests cover it; any increase needs an explicit reviewed reason.
+Do not hide uncovered code with ignores or test manufactured private states.
+
+`npm run coverage:tooling` separately reports every script/build module, including
+zero-coverage files, at `coverage/tooling/index.html`. It captures subprocess CLI
+execution as well as in-process tests. This report must not inflate the library
+percentage. Review release failure/recovery tests together with the percentage;
+a high count of mocked decisions alone does not prove the command works. The release
+CLI subset has separate minimums of 90% lines/statements, 70% branches, and 100%
+functions in `config/release-coverage.json`; all other tooling remains visible in
+the report, including unexecuted files.
+
+## Public operation models
+
+`npm run check:api-contracts` verifies the source-derived public inventory and its
+explicit semantic/evidence mappings. It runs in normal verification, CI and packed
+candidate validation. Regeneration requires reviewing the changed public contract;
+see `scripts/api-contracts/README.md`. It does not replace behavioral tests.
+
+`npm run test:model` replays deterministic consumer-owned lifecycle models; these
+also run in the normal unit suite. `npm run test:mutation` measures a bounded
+ownership/subscription subset with two workers and a ten-minute deadline. The
+manual Mutation workflow retains complete and partial reports. See
+[model replay and measured survivors](unit/model-based/README.md).
+
+`npm run test:mutation -- --profile release` selects only release authorization,
+channel selection and immutable npm recovery decisions. It uses Node's test runner
+through Stryker's command runner with the same two-worker, ten-minute bound and
+retained source/test/lock hashes. It does not contact npm or GitHub. The separate
+end-to-end release CLI fixtures remain required; this pilot is not evidence for
+every publication failure path. Neither profile enforces a mutation score.
+The empty `scripts/.babelrc` keeps native Node tooling outside the library's Babel
+build presets, including when Stryker parses release scripts with its own Babel.
+
+## Locked consumer fixtures
+
+Each fixture commits its external dependency lock. The runner copies each consumer
+into a unique OS temporary directory outside the checkout, overlays the five exact
+candidate packages, verifies the external dependency graph is unchanged, and uses
+`npm ci`. It strips inherited checkout tool paths and `NODE_PATH`. Concurrent
+attempts own independent install/output/cleanup directories.
+
+Without artifact inputs, the runner builds and packs once. To validate a candidate:
+
+```sh
+npm run test:fixtures -- --artifact-dir release --report test/tmp/fixtures.json
+```
+
+Release hosts may divide the complete inventory deterministically with
+`--shard-index <one-based-index> --shard-total <count>`. Supply both options, do not
+combine them with `--fixture`, and require every shard so their union preserves the
+full fixture contract.
+
+All five explicit tarball flags are also accepted together. Partial/mixed inputs
+fail before installation. Reports include artifact and lock hashes, installed
+graphs, output, stage, status and elapsed time for every attempted fixture.
+To intentionally refresh one external graph, use `npm --prefix
+test/fixtures/<name> update --package-lock-only --ignore-scripts`, review its
+manifest and lock together, then run that fixture. Never delete locks during tests.
+
+## Exact release candidates
+
+From a clean committed checkout:
+
+```sh
+npm run release:artifact -- --output release
+npm run release:validate -- --artifact-dir release
+npm run release:verify -- --artifact-dir release --require-validation
+```
+
+`config/release-validation.json` declares the required browser file/title identities
+and installed-consumer fixtures. Update this inventory when intentionally changing
+the release test surface. Certification requires every declared browser case in
+every engine from the release profile, plus every fixture; a reduced passing report
+cannot silently reduce the release requirements.
+
+
+Candidate validation runs required checks and tests browser/distribution/fixture
+consumers against the original tarballs. Its separate validation record binds logs,
+three-engine browser results, fixture results and lock hashes to the immutable
+release evidence. Failed/incomplete/mismatched evidence cannot be promoted.
+`config/release-promotion.json` separately authorizes stable publication and one
+exact prerelease version. Stable publication remains disabled; read the policy
+for the currently authorized prerelease. Validation never grants publication permission.
+
+## Dependency maintenance
+
+Update related test runner and coverage-provider pins together, with their lockfile
+and actual suite validation. Root development dependencies never belong in a
+published runtime graph. The narrow Stryker override of `typed-rest-client`'s `qs`
+pin selects 6.16.0 to avoid its reported denial-of-service advisories; remove that
+override when Stryker's dependency chain accepts a fixed version natively. Every
+mutation/benchmark run remains development tooling with explicit scope and limits.
+
+Dependabot proposes weekly root tooling updates, with TypeScript ESLint, Vitest,
+and Stryker packages grouped by tool before the remaining development dependency
+minor and patch updates are grouped together. Other root major upgrades remain
+separate. Weekly GitHub Action minor and patch updates are grouped; major upgrades
+remain separate. Monthly consumer-fixture updates preserve review of their independent
+lockfiles. These groups apply to version updates; security updates remain separate.
+Local Marionette package versions are excluded from these automated updates. The
+bot never merges changes; browser profile pins and all affected consumer contracts
+must still pass review and CI.
+Configuration follows GitHub's [Dependabot options reference](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference).

@@ -1,0 +1,32 @@
+import './environment.mjs';
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import { View, Region } from 'marionette';
+import * as solution from '../solution.mjs';
+const host = () => {
+  const el = document.createElement('main');
+  document.body.append(el);
+  return el;
+};
+test('nested replacement, literal content, emptying and final teardown', () => {
+  const app = solution.createWorkspace(host());
+  assert.ok(app.view instanceof View);
+  const region = app.view.getRegion('detail');
+  assert.ok(region instanceof Region);
+  const first = app.showDetail('<b>literal</b>');
+  assert.equal(region.currentView, first);
+  assert.equal(first.el.textContent, '<b>literal</b>');
+  assert.equal(first.el.querySelector('b'), null);
+  const second = app.showDetail('Second');
+  assert.equal(first.isDestroyed(), true);
+  assert.equal(region.currentView, second);
+  app.clear();
+  assert.equal(second.isDestroyed(), true);
+  assert.equal(region.hasView(), false);
+  assert.match(app.view.el.textContent, /Workspace/);
+  const third = app.showDetail('Third');
+  app.destroy();
+  app.destroy();
+  assert.equal(third.isDestroyed(), true);
+  assert.equal(app.view.isDestroyed(), true);
+});

@@ -1,0 +1,9 @@
+import { View } from 'marionette';
+
+const InternalView = View.extend({
+  inspectElement() {
+    return this._getEl();
+  }
+});
+
+new InternalView().inspectElement();

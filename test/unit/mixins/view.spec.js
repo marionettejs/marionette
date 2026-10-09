@@ -1,6 +1,11 @@
-import { setEnabled } from '../../../src/backbone.marionette';
-import CollectionView from '../../../src/collection-view';
-import View from '../../../src/view';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import _ from 'underscore';
+import * as Marionette from 'marionette';
+import '../../setup/backbone.js';
+import Backbone from 'backbone';
+import { Behavior } from 'marionette';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
 
 describe('view mixin', function() {
   'use strict';
@@ -10,7 +15,7 @@ describe('view mixin', function() {
     let view;
 
     beforeEach(function() {
-      initializeStub = sinon.stub();
+      initializeStub = vi.fn();
 
       const MyView = View.extend({
         initialize: initializeStub
@@ -20,11 +25,12 @@ describe('view mixin', function() {
     });
 
     it('should call initialize', function() {
-      expect(initializeStub).to.have.been.calledOnce;
+      expect(initializeStub).toHaveBeenCalledTimes(1);
     });
 
-    it('should set _behaviors', function() {
-      expect(view._behaviors).to.be.eql([]);
+    it('starts as a live unrendered View', function() {
+      expect(view.isDestroyed()).toBe(false);
+      expect(view.isRendered()).toBe(false);
     });
   });
 
@@ -32,14 +38,97 @@ describe('view mixin', function() {
     let destroyStub;
 
     beforeEach(function() {
-      destroyStub = sinon.stub();
+      destroyStub = vi.fn();
       const view = new View();
       view.listenTo(view, 'destroy', destroyStub);
       view.destroy();
     });
 
     it('should trigger the "destroy" event', function() {
-      expect(destroyStub).to.have.been.called;
+      expect(destroyStub).toHaveBeenCalled();
+    });
+  });
+
+  describe('when delegating entity events after destruction starts', function() {
+    function buildHost(context, ViewClass, onBeforeDestroy) {
+      const stubs = {
+        behaviorCollectionHandler: vi.fn(),
+        behaviorCollectionEvents: vi.fn(),
+        behaviorModelHandler: vi.fn(),
+        behaviorModelEvents: vi.fn(),
+        hostCollectionHandler: vi.fn(),
+        hostCollectionEvents: vi.fn(),
+        hostModelHandler: vi.fn(),
+        hostModelEvents: vi.fn()
+      };
+      stubs.behaviorCollectionEvents.mockReturnValue({ update: stubs.behaviorCollectionHandler });
+      stubs.behaviorModelEvents.mockReturnValue({ change: stubs.behaviorModelHandler });
+      stubs.hostCollectionEvents.mockReturnValue({ update: stubs.hostCollectionHandler });
+      stubs.hostModelEvents.mockReturnValue({ change: stubs.hostModelHandler });
+
+      const EntityBehavior = Behavior.extend({
+        collectionEvents: stubs.behaviorCollectionEvents,
+        modelEvents: stubs.behaviorModelEvents
+      });
+      const TestView = ViewClass.extend({
+        behaviors: [EntityBehavior],
+        collectionEvents: stubs.hostCollectionEvents,
+        modelEvents: stubs.hostModelEvents,
+        onBeforeDestroy
+      });
+      const collection = new Backbone.Collection();
+      const model = new Backbone.Model();
+      const view = new TestView({ collection, model });
+
+      Object.values(stubs).forEach(stub => stub.mockClear());
+
+      return { collection, model, stubs, view };
+    }
+
+    function expectResolversNotCalled(stubs) {
+      expect(stubs.behaviorCollectionEvents).not.toHaveBeenCalled();
+      expect(stubs.behaviorModelEvents).not.toHaveBeenCalled();
+      expect(stubs.hostCollectionEvents).not.toHaveBeenCalled();
+      expect(stubs.hostModelEvents).not.toHaveBeenCalled();
+    }
+
+    [
+      ['View', View],
+      ['CollectionView', CollectionView]
+    ].forEach(([name, ViewClass]) => {
+      it(`should not evaluate or bind ${ name } entity events while destroying`, function(testContext) {
+        let result;
+        const { collection, model, stubs, view } = buildHost(testContext, ViewClass, function() {
+          result = this.delegateEntityEvents();
+          model.trigger('change');
+          collection.trigger('update');
+        });
+
+        view.destroy();
+
+        expect(result).to.equal(view);
+        expect(stubs.hostModelHandler).toHaveBeenCalledTimes(1);
+        expect(stubs.hostCollectionHandler).toHaveBeenCalledTimes(1);
+        expect(stubs.behaviorModelHandler).toHaveBeenCalledTimes(1);
+        expect(stubs.behaviorCollectionHandler).toHaveBeenCalledTimes(1);
+        expectResolversNotCalled(stubs);
+      });
+
+      it(`should not evaluate or bind ${ name } entity events after destruction`, function(testContext) {
+        const { collection, model, stubs, view } = buildHost(testContext, ViewClass);
+        view.destroy();
+        const result = view.delegateEntityEvents();
+
+        model.trigger('change');
+        collection.trigger('update');
+
+        expect(result).to.equal(view);
+        expectResolversNotCalled(stubs);
+        expect(stubs.hostModelHandler).not.toHaveBeenCalled();
+        expect(stubs.hostCollectionHandler).not.toHaveBeenCalled();
+        expect(stubs.behaviorModelHandler).not.toHaveBeenCalled();
+        expect(stubs.behaviorCollectionHandler).not.toHaveBeenCalled();
+      });
     });
   });
 
@@ -47,47 +136,43 @@ describe('view mixin', function() {
     let view;
     let onDestroyStub;
     let destroyStub;
+    let detachElSpy;
 
     beforeEach(function() {
       view = new View();
 
-      sinon.spy(view, '_removeElement');
-      sinon.spy(view, '_deleteEntityEventHandlers');
-      sinon.spy(view, 'destroy');
+      detachElSpy = vi.spyOn(view.Dom, 'detachEl');
+      vi.spyOn(view, 'destroy');
 
-      onDestroyStub = sinon.stub();
+      onDestroyStub = vi.fn();
       view.onDestroy = onDestroyStub;
 
-      destroyStub = sinon.stub();
+      destroyStub = vi.fn();
       view.on('destroy', destroyStub);
 
       view.destroy({foo: 'bar'});
     });
 
     it('should trigger the destroy event', function() {
-      expect(destroyStub).to.have.been.calledOnce;
+      expect(destroyStub).toHaveBeenCalledTimes(1);
     });
 
     it('should call an onDestroy method with options argument passed to destroy', function() {
-      expect(onDestroyStub)
-        .to.have.been.calledOnce
-        .and.calledWith(view, {foo: 'bar'});
+      expect(onDestroyStub).toHaveBeenCalledTimes(1);
+      expect(onDestroyStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([view, {foo: 'bar'}]);
     });
 
     it('should remove the view', function() {
-      expect(view._removeElement).to.have.been.calledOnce;
+      expect(detachElSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('should delete entity event handlers', function() {
-      expect(view._deleteEntityEventHandlers).to.have.been.calledOnce;
-    });
 
-    it('should set the view _isDestroyed to true', function() {
-      expect(view).to.be.have.property('_isDestroyed', true);
+    it('should set the destroyed public state', function() {
+      expect(view.isDestroyed()).toBe(true);
     });
 
     it('should return the View', function() {
-      expect(view.destroy).to.have.returned(view);
+      expect(view.destroy).toHaveReturnedWith(view);
     });
 
     describe('and it has already been destroyed', function() {
@@ -96,22 +181,22 @@ describe('view mixin', function() {
       });
 
       it('should return the View', function() {
-        expect(view.destroy).to.have.returned(view);
+        expect(view.destroy).toHaveReturnedWith(view);
       });
     });
 
-    describe('_isDestroyed property', function() {
+    describe('isDestroyed', function() {
       beforeEach(function() {
         view = new View();
       });
 
       it('should be set to false before destroy', function() {
-        expect(view).to.be.have.property('_isDestroyed', false);
+        expect(view.isDestroyed()).toBe(false);
       });
 
       it('should be set to true after destroying', function() {
         view.destroy();
-        expect(view).to.be.have.property('_isDestroyed', true);
+        expect(view.isDestroyed()).toBe(true);
       });
     });
   });
@@ -135,16 +220,16 @@ describe('view mixin', function() {
         }
       });
 
-      destroyStub = sinon.stub();
+      destroyStub = vi.fn();
       view.on('destroy', destroyStub);
 
-      beforeDestroyStub = sinon.stub();
+      beforeDestroyStub = vi.fn();
       view.on('before:destroy', beforeDestroyStub);
 
-      onDestroyStub = sinon.stub();
+      onDestroyStub = vi.fn();
       view.onDestroy = onDestroyStub;
 
-      onBeforeDestroyStub = sinon.stub();
+      onBeforeDestroyStub = vi.fn();
       view.onBeforeDestroy = onBeforeDestroyStub;
 
       view.render();
@@ -152,12 +237,12 @@ describe('view mixin', function() {
 
     });
     it('should trigger the destroy event once', function() {
-      expect(destroyStub).to.have.been.calledOnce;
-      expect(onDestroyStub).to.have.been.calledOnce;
+      expect(destroyStub).toHaveBeenCalledTimes(1);
+      expect(onDestroyStub).toHaveBeenCalledTimes(1);
     });
     it('should trigger the before:destroy event once', function() {
-      expect(beforeDestroyStub).to.have.been.calledOnce;
-      expect(onBeforeDestroyStub).to.have.been.calledOnce;
+      expect(beforeDestroyStub).toHaveBeenCalledTimes(1);
+      expect(onBeforeDestroyStub).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -172,7 +257,7 @@ describe('view mixin', function() {
       presets = {foo: 'foo'};
       options = {foo: 'bar'};
 
-      const presetsStub = sinon.stub().returns(presets);
+      const presetsStub = vi.fn().mockReturnValue(presets);
 
       MyView = View.extend();
       ViewPresets = View.extend({options: presets});
@@ -217,14 +302,14 @@ describe('view mixin', function() {
 
   describe('when destroying a view that is already destroyed', function() {
     let view;
-    let removeSpy;
+    let detachElSpy;
     let destroyStub;
 
     beforeEach(function() {
       view = new View();
 
-      removeSpy = sinon.spy(view, '_removeElement');
-      destroyStub = sinon.stub();
+      detachElSpy = vi.spyOn(view.Dom, 'detachEl');
+      destroyStub = vi.fn();
       view.on('destroy', destroyStub);
 
       view.destroy();
@@ -232,49 +317,15 @@ describe('view mixin', function() {
     });
 
     it('should not trigger the destroy event', function() {
-      expect(destroyStub).to.have.been.calledOnce;
+      expect(destroyStub).toHaveBeenCalledTimes(1);
     });
 
     it('should not remove the view', function() {
-      expect(removeSpy).to.have.been.calledOnce;
+      expect(detachElSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should leave _isDestroyed as true', function() {
-      expect(view).to.be.have.property('_isDestroyed', true);
-    });
-  });
-
-  describe('#delegateEvents', function() {
-    describe('when passing events', function() {
-      let events;
-      let view;
-
-      beforeEach(function() {
-        const FooView = View.extend({
-          events: {
-            'click': 'onClick'
-          },
-          onClick: this.sinon.stub()
-        });
-
-        view = new FooView();
-
-        events = {
-          'click': this.sinon.stub()
-        };
-
-        view.delegateEvents(events);
-
-        view.$el.trigger('click');
-      });
-
-      it('should delegate the passed events', function() {
-        expect(events.click).to.have.been.calledOnce;
-      });
-
-      it('should not delegate instance events', function() {
-        expect(view.onClick).to.not.have.been.called;
-      });
+      expect(view.isDestroyed()).toBe(true);
     });
   });
 
@@ -303,7 +354,7 @@ describe('view mixin', function() {
     let childView;
 
     beforeEach(function() {
-      onChildviewFooClickStub = this.sinon.stub();
+      onChildviewFooClickStub = vi.fn();
 
       MyView = View.extend({
         template: _.template('foo'),
@@ -323,11 +374,11 @@ describe('view mixin', function() {
 
       collectionView.render();
       childView = collectionView.children.findByModel(collection.at(0));
-      childView.$el.click();
+      childView.el.click();
     });
 
     it('should fire the event method once', function() {
-      expect(onChildviewFooClickStub).to.have.been.calledOnce;
+      expect(onChildviewFooClickStub).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -341,7 +392,7 @@ describe('view mixin', function() {
     let superViewOnRattleHandler;
     let childEventsFunction;
 
-    beforeEach(function() {
+    beforeEach(function(testContext) {
       const LayoutView = View.extend({
         template: _.template('<div class="child"></div>'),
 
@@ -355,7 +406,7 @@ describe('view mixin', function() {
           'boom': 'onBoom'
         },
 
-        onBoom: this.sinon.stub(),
+        onBoom: vi.fn(),
 
         childViewTriggers: {
           'whack': 'rattle'
@@ -377,7 +428,7 @@ describe('view mixin', function() {
           rattle: 'onRattle'
         },
 
-        onRattle: this.sinon.stub()
+        onRattle: vi.fn()
       });
 
       superView = new SuperView();
@@ -386,10 +437,10 @@ describe('view mixin', function() {
       layoutView.render();
       superView.render();
 
-      layoutEventHandler = sinon.spy();
+      layoutEventHandler = vi.fn();
       layoutView.on('childview:boom', layoutEventHandler);
 
-      layoutEventOnHandler = sinon.spy();
+      layoutEventOnHandler = vi.fn();
       layoutView.onChildviewBoom = layoutEventOnHandler;
 
       layoutViewOnBoomHandler = layoutView.onBoom;
@@ -400,7 +451,7 @@ describe('view mixin', function() {
         return {
           'boom': layoutViewOnBoomHandler
         };
-      }).bind(this);
+      }).bind(testContext);
     });
 
     describe('when there is not a containing layout', function() {
@@ -409,7 +460,7 @@ describe('view mixin', function() {
       });
 
       it('does not emit the event on the layout', function() {
-        expect(layoutEventHandler).not.to.have.been.called;
+        expect(layoutEventHandler).not.toHaveBeenCalled();
       });
     });
 
@@ -420,41 +471,37 @@ describe('view mixin', function() {
       });
 
       it('emits the event on the layout', function() {
-        expect(layoutEventHandler)
-          .to.have.been.calledWith('foo', 'bar')
-          .and.to.have.been.calledOn(layoutView)
-          .and.calledOnce;
+        expect(layoutEventHandler.mock.calls.map(args => args.slice(0, 2))).toContainEqual(['foo', 'bar']);
+        expect(layoutEventHandler.mock.contexts).toContain(layoutView);
+        expect(layoutEventHandler).toHaveBeenCalledTimes(1);
       });
 
       it('invokes the layout on handler', function() {
-        expect(layoutEventOnHandler)
-          .to.have.been.calledWith('foo', 'bar')
-          .and.to.have.been.calledOn(layoutView)
-          .and.calledOnce;
+        expect(layoutEventOnHandler.mock.calls.map(args => args.slice(0, 2))).toContainEqual(['foo', 'bar']);
+        expect(layoutEventOnHandler.mock.contexts).toContain(layoutView);
+        expect(layoutEventOnHandler).toHaveBeenCalledTimes(1);
       });
 
       it('invokes the layout childViewEvents handler', function() {
-        expect(layoutViewOnBoomHandler)
-          .to.have.been.calledWith('foo', 'bar')
-          .and.to.have.been.calledOn(layoutView)
-          .and.calledOnce;
+        expect(layoutViewOnBoomHandler.mock.calls.map(args => args.slice(0, 2))).toContainEqual(['foo', 'bar']);
+        expect(layoutViewOnBoomHandler.mock.contexts).toContain(layoutView);
+        expect(layoutViewOnBoomHandler).toHaveBeenCalledTimes(1);
       });
     });
 
     describe('when childViewEvents was passed as a function', function() {
       beforeEach(function() {
         // use the function definition of childViewEvents instead of the hash
-        layoutView.childViewEvents = childEventsFunction;
-        layoutView.delegateEvents();
+        layoutView.destroy();
+        layoutView = new layoutView.constructor({ childViewEvents: childEventsFunction });
         layoutView.showChildView('child', childView);
         childView.triggerMethod('boom', 'foo', 'bar');
       });
 
       it('invokes the layout childViewEvents handler', function() {
-        expect(layoutViewOnBoomHandler)
-          .to.have.been.calledWith('foo', 'bar')
-          .and.to.have.been.calledOn(layoutView)
-          .and.calledOnce;
+        expect(layoutViewOnBoomHandler.mock.calls.map(args => args.slice(0, 2))).toContainEqual(['foo', 'bar']);
+        expect(layoutViewOnBoomHandler.mock.contexts).toContain(layoutView);
+        expect(layoutViewOnBoomHandler).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -466,57 +513,36 @@ describe('view mixin', function() {
       });
 
       it('invokes the super trigger handler', function() {
-        expect(superViewOnRattleHandler)
-          .to.have.been.calledWith('foo', 'bar')
-          .to.have.been.calledOn(superView)
-          .and.calledOnce;
+        expect(superViewOnRattleHandler.mock.calls.map(args => args.slice(0, 2))).toContainEqual(['foo', 'bar']);
+        expect(superViewOnRattleHandler.mock.contexts).toContain(superView);
+        expect(superViewOnRattleHandler).toHaveBeenCalledTimes(1);
       });
     });
 
     describe('when childViewEventPrefix is false', function() {
       beforeEach(function() {
+        layoutView.destroy();
+        layoutView = new layoutView.constructor({ childViewEventPrefix: false });
+        layoutView.on('childview:boom', layoutEventHandler);
         layoutView.showChildView('child', childView);
-        layoutView.childViewEventPrefix = false;
-        layoutView.delegateEvents();
         childView.triggerMethod('boom', 'foo', 'bar');
       });
 
       it('should not emit the event on the layout', function() {
-        expect(layoutEventHandler).not.to.have.been.called;
+        expect(layoutEventHandler).not.toHaveBeenCalled();
       });
     });
 
-    describe('when childViewEventPrefix flag is false', function() {
-      let myView;
-
-      beforeEach(function() {
-        setEnabled('childViewEventPrefix', false);
-        myView = new View();
-      });
-
-      afterEach(function() {
-        setEnabled('childViewEventPrefix', true);
-      });
-
-      it('should set childViewEventPrefix to false', function() {
-        expect(myView._eventPrefix).to.be.false;
-      });
-    });
-
-    describe('when childViewEventPrefix flag is true', function() {
-      let myView;
-
-      beforeEach(function() {
-        setEnabled('childViewEventPrefix', true);
-        myView = new View();
-      });
-
-      afterEach(function() {
-        setEnabled('childViewEventPrefix', false);
-      });
-
-      it('should set childViewEventPrefix to "childview"', function() {
-        expect(myView._eventPrefix).to.equal('childview:');
+    describe('when childViewEventPrefix is not configured', function() {
+      it('should disable prefixed child event forwarding', function() {
+        const parent = new View({ template: () => '<div></div>', regions: { child: 'div' } });
+        const child = new View({ template: () => '' });
+        const forwarded = vi.fn();
+        parent.on('childview:custom', forwarded);
+        parent.showChildView('child', child);
+        child.trigger('custom');
+        expect(forwarded).not.toHaveBeenCalled();
+        parent.destroy();
       });
     });
 
@@ -528,45 +554,24 @@ describe('view mixin', function() {
       });
 
       it('destroy should return the view', function() {
-        this.sinon.spy(fooView, 'destroy');
+        vi.spyOn(fooView, 'destroy');
         fooView.destroy();
 
-        expect(fooView.destroy).to.have.returned(fooView);
-      });
-
-      it('setElement should return the view', function() {
-        this.sinon.spy(fooView, 'setElement');
-        fooView.setElement(fooView.$el);
-
-        expect(fooView.setElement).to.have.returned(fooView);
-      });
-
-      it('delegateEvents should return the view', function() {
-        this.sinon.spy(fooView, 'delegateEvents');
-        fooView.delegateEvents();
-
-        expect(fooView.delegateEvents).to.have.returned(fooView);
-      });
-
-      it('undelegateEvents should return the view', function() {
-        this.sinon.spy(fooView, 'undelegateEvents');
-        fooView.undelegateEvents({});
-
-        expect(fooView.undelegateEvents).to.have.returned(fooView);
+        expect(fooView.destroy).toHaveReturnedWith(fooView);
       });
 
       it('delegateEntityEvents should return the view', function() {
-        this.sinon.spy(fooView, 'delegateEntityEvents');
+        vi.spyOn(fooView, 'delegateEntityEvents');
         fooView.delegateEntityEvents();
 
-        expect(fooView.delegateEntityEvents).to.have.returned(fooView);
+        expect(fooView.delegateEntityEvents).toHaveReturnedWith(fooView);
       });
 
       it('undelegateEntityEvents should return the view', function() {
-        this.sinon.spy(fooView, 'undelegateEntityEvents');
+        vi.spyOn(fooView, 'undelegateEntityEvents');
         fooView.undelegateEntityEvents({});
 
-        expect(fooView.undelegateEntityEvents).to.have.returned(fooView);
+        expect(fooView.undelegateEntityEvents).toHaveReturnedWith(fooView);
       });
     });
   });

@@ -1,166 +1,52 @@
-import _ from 'underscore';
-import Backbone from 'backbone';
-import DelegateEntityEventsMixin from '../../../src/mixins/delegate-entity-events';
+import { describe, expect, it, vi } from 'vitest';
+import { View } from 'marionette';
+import { Events } from '@mnjs/utils';
 
-describe('delegate entity events mixin', function() {
-  let obj;
-  let model;
-  let collection;
+function source() { return Object.assign({}, Events); }
 
-  beforeEach(function() {
-    obj = _.extend({
-      bindEvents: this.sinon.stub(),
-      unbindEvents: this.sinon.stub(),
-    }, DelegateEntityEventsMixin);
-
-    model = new Backbone.Model();
-    collection = new Backbone.Collection();
+describe('View entity subscriptions', () => {
+  it('binds model and collection events with the View context and releases both', () => {
+    const model = source();
+    const collection = source();
+    const onModel = vi.fn();
+    const onCollection = vi.fn();
+    const view = new View({ model, collection, modelEvents: { change: onModel }, collectionEvents: { update: onCollection } });
+    model.trigger('change', 'model');
+    collection.trigger('update', 'collection');
+    expect(onModel).toHaveBeenCalledExactlyOnceWith('model');
+    expect(onModel.mock.contexts[0] === view).toBe(true);
+    expect(onCollection).toHaveBeenCalledExactlyOnceWith('collection');
+    view.undelegateEntityEvents();
+    view.undelegateEntityEvents();
+    model.trigger('change');
+    collection.trigger('update');
+    expect(onModel).toHaveBeenCalledTimes(1);
+    expect(onCollection).toHaveBeenCalledTimes(1);
+    view.destroy();
   });
 
-  describe('#_delegateEntityEvents', function() {
-    describe('when passed a model', function() {
-      describe('when modelEvents is an object', function() {
-        beforeEach(function() {
-          obj.modelEvents = { foo: 'onFoo' };
-          obj._delegateEntityEvents(model);
-        });
-
-        it('should cache modelEvents', function() {
-          expect(obj._modelEvents).to.equal(obj.modelEvents);
-        });
-
-        it('should call bindEvents', function() {
-          expect(obj.bindEvents)
-            .to.have.been.calledOnce
-            .to.have.been.calledWith(model, obj.modelEvents);
-        });
-      });
-
-      describe('when modelEvents is a method', function() {
-        const modelEvents = { foo: 'onFoo' };
-
-        beforeEach(function() {
-          obj.modelEvents = this.sinon.stub().returns(modelEvents);
-          obj._delegateEntityEvents(model);
-        });
-
-        it('should cache modelEvents', function() {
-          expect(obj._modelEvents).to.equal(modelEvents);
-        });
-
-        it('should call bindEvents', function() {
-          expect(obj.bindEvents)
-            .to.have.been.calledOnce
-            .to.have.been.calledWith(model, modelEvents);
-        });
-      });
-    });
-
-    describe('when passed a collection', function() {
-      describe('when collectionEvents is an object', function() {
-        beforeEach(function() {
-          obj.collectionEvents = { foo: 'onFoo' };
-          obj._delegateEntityEvents(null, collection);
-        });
-
-        it('should cache collectionEvents', function() {
-          expect(obj._collectionEvents).to.equal(obj.collectionEvents);
-        });
-
-        it('should call bindEvents', function() {
-          expect(obj.bindEvents)
-            .to.have.been.calledOnce
-            .to.have.been.calledWith(collection, obj.collectionEvents);
-        });
-      });
-
-      describe('when collectionEvents is a method', function() {
-        const collectionEvents = { foo: 'onFoo' };
-
-        beforeEach(function() {
-          obj.collectionEvents = this.sinon.stub().returns(collectionEvents);
-          obj._delegateEntityEvents(null, collection);
-        });
-
-        it('should cache modelEvents', function() {
-          expect(obj._collectionEvents).to.equal(collectionEvents);
-        });
-
-        it('should call bindEvents', function() {
-          expect(obj.bindEvents)
-            .to.have.been.calledOnce
-            .to.have.been.calledWith(collection, collectionEvents);
-        });
-      });
-    });
-
-    describe('when entities are not passed', function() {
-      beforeEach(function() {
-        obj._delegateEntityEvents();
-      });
-
-      it('should not call bindEvents', function() {
-        expect(obj.bindEvents).to.not.have.been.called;
-      });
-
-      it('should not cache event handlers', function() {
-        expect(obj).to.not.have.property('_modelEvents');
-        expect(obj).to.not.have.property('_collectionEvents');
-      });
-    });
+  it('replaces subscriptions on redelegation and resolves named/callable event maps', () => {
+    const first = source();
+    const second = source();
+    const handler = vi.fn();
+    const Custom = View.extend({ onChange: handler, modelEvents() { return { change: 'onChange' }; } });
+    const view = new Custom({ model: first });
+    view.undelegateEntityEvents();
+    view.model = second;
+    view.delegateEntityEvents();
+    first.trigger('change', 'old');
+    second.trigger('change', 'new');
+    expect(handler).toHaveBeenCalledExactlyOnceWith('new');
+    view.destroy();
+    second.trigger('change');
+    expect(handler).toHaveBeenCalledTimes(1);
   });
 
-  describe('#_undelegateEntityEvents', function() {
-    describe('when modelEvents have been cached', function() {
-      beforeEach(function() {
-        obj._modelEvents = 'foo';
-        obj._undelegateEntityEvents(model, collection);
-      });
-
-      it('should call unbindEvents', function() {
-        expect(obj.unbindEvents)
-          .to.have.been.calledOnce
-          .to.have.been.calledWith(model, 'foo');
-      });
-
-      it('should remove the cache', function() {
-        expect(obj).to.not.have.property('_modelEvents');
-      });
-    });
-
-    describe('when collectionEvents have been cached', function() {
-      beforeEach(function() {
-        obj._collectionEvents = 'foo';
-        obj._undelegateEntityEvents(model, collection);
-      });
-
-      it('should call unbindEvents', function() {
-        expect(obj.unbindEvents)
-          .to.have.been.calledOnce
-          .to.have.been.calledWith(collection, 'foo');
-      });
-
-      it('should remove the cache', function() {
-        expect(obj).to.not.have.property('_collectionEvents');
-      });
-    });
-
-    describe('when no events are cached', function() {
-      it('should not call unbindEvents', function() {
-        obj._undelegateEntityEvents(model, collection);
-        expect(obj.unbindEvents).to.not.have.been.called;
-      });
-    });
+  it('supports empty resolved maps and missing sources', () => {
+    const view = new View({ modelEvents() { return null; }, collectionEvents() { return undefined; } });
+    expect(view.delegateEntityEvents()).toBe(view);
+    expect(view.undelegateEntityEvents()).toBe(view);
+    view.destroy();
   });
 
-  describe('_deleteEntityEventHandlers', function() {
-    it('should remove cached handlers', function() {
-      obj._modelEvents = 'foo';
-      obj._collectionEvents = 'bar';
-      obj._deleteEntityEventHandlers();
-
-      expect(obj).to.not.have.property('_modelEvents');
-      expect(obj).to.not.have.property('_collectionEvents');
-    });
-  });
 });
