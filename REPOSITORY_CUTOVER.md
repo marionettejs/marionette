@@ -2,7 +2,7 @@
 
 This checklist prepares the approved repository transition. It does not authorize
 publication, deployments, security changes, archival, branch deletion or RC3.
-The preparation PR must remain unmerged until the coordinating parent receives
+The preparation PR must remain unmerged until the coordinating parent grants
 approval. Complete that gate before renaming either repository, so historical
 links and this checklist are present in the accepted v5 source.
 
