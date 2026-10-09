@@ -1,6 +1,6 @@
 # Composed lifecycle repair and handoff prototype
 
-Follow-up to [#539](https://github.com/marionettejs/marionette/issues/539).
+Follow-up to [#539](https://github.com/marionettejs/marionette-develop/issues/539).
 Development/test tooling only: no production imports, new framework APIs, or
 TypeSafe runtime dependency. This is a headless review-session controller with
 an editable draft, not a claim to have migrated a browser application.
@@ -63,7 +63,7 @@ For a later successive-change/handoff pilot:
 
 1. Freeze the exact candidate tarballs, updated public docs, starter, prompt,
    acceptance and runner profile under the deferred study's
-   [policy and resource decisions](https://github.com/marionettejs/marionette/issues/128).
+   [policy and resource decisions](https://github.com/marionettejs/marionette-develop/issues/128).
    Authorize model/version, permissions, count, spend/time and assistance limits.
 2. Give agent A only the declared prompt, installed workspace and public docs under
    enforced filesystem/network isolation. Stop its processes before acceptance.
