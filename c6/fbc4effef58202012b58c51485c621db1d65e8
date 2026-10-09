@@ -1,0 +1,70 @@
+changelog.md
+  h_0f06c286dda36f 12-32
+config/api-contracts/inventory.json
+  h_0f06c286dda36f 8,6513,7221,7694,8331,8406,8466,8562,8602,12479,12492,12495
+config/release-promotion.json
+  h_0f06c286dda36f 4-5
+context7.json
+  h_0f06c286dda36f 9
+docs/api.md
+  h_0f06c286dda36f 3
+docs/api/collection-view.md
+  h_0f06c286dda36f 72
+docs/architecture.md
+  h_0f06c286dda36f 3
+docs/guides/framework-migration.md
+  h_0f06c286dda36f 8-9
+docs/guides/migration.md
+  h_0f06c286dda36f 7,14
+docs/guides/production.md
+  h_0f06c286dda36f 5,7,39
+docs/guides/testing.md
+  h_0f06c286dda36f 5
+docs/integrations/setup.md
+  h_0f06c286dda36f 7,10
+docs/packages/adapters.md
+  h_0f06c286dda36f 3
+docs/packages/utils.md
+  h_0f06c286dda36f 3
+docs/quick-start.md
+  h_0f06c286dda36f 3,5,7,18,22
+docs/readme.md
+  h_0f06c286dda36f 3
+examples/records/README.md
+  h_0f06c286dda36f 7-10,15
+examples/records/package-lock.json
+  h_0f06c286dda36f 27,34-35,51-52,61,65,67,78,91,94,102,128,131,134,139,142,145,150,153
+package-lock.json
+  h_0f06c286dda36f 3,9,16-17,8708,8711,8719
+package.json
+  h_0f06c286dda36f 4,179-180
+packages/adapters/package.json
+  h_0f06c286dda36f 4,81
+packages/adapters/readme.md
+  h_0f06c286dda36f 30,72,129,175,197,241
+packages/data/package.json
+  h_0f06c286dda36f 4,52
+packages/data/readme.md
+  h_0f06c286dda36f 5,14,17,43-47,65,74
+packages/radio/package.json
+  h_0f06c286dda36f 4,52
+packages/radio/readme.md
+  h_0f06c286dda36f 6,36
+packages/utils/package.json
+  h_0f06c286dda36f 4
+packages/utils/readme.md
+  h_0f06c286dda36f 7,76
+test/README.md
+  h_0f06c286dda36f 226-230
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c6fbc4effef58202012b58c51485c621db1d65e8",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
