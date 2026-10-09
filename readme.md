@@ -12,6 +12,13 @@ Marionette v5 is a JavaScript library built for agent-led development. It gives
 coding agents a consistent structure for building interfaces, version-matched
 contracts to work from, and tools to check the code they produce.
 
+The v5 npm package is **`marionette`**; **`backbone.marionette`** is the legacy
+package. Check the installed package name and version before choosing documentation.
+V5 core has native DOM support and requires neither Backbone nor jQuery. Backbone
+Models and Collections integrate through optional adapters, so an existing Backbone
+application can keep its Models and persistence. For v4 upgrades, use the
+[migration guide](docs/guides/migration.md).
+
 ## Why Marionette for agent-led development?
 
 - **Clear places for behavior.** Views render content and handle local interactions.
@@ -28,10 +35,6 @@ contracts to work from, and tools to check the code they produce.
 Start with the [agent entrypoint](docs/agents.md).
 [Consumer tooling](docs/tooling.md) covers skill/plugin installation, documentation
 MCP access, lint, types, and installed documentation lookup.
-
-Core has native DOM support and requires neither Backbone nor jQuery. Data and
-rendering adapters connect your preferred integrations; an existing Backbone
-application can keep its Models and persistence.
 
 ## Try v5
 

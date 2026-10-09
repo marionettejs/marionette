@@ -4,13 +4,34 @@ Use the docs bundled with the application's installed Marionette package. For fr
 
 ## Find the installed contract
 
-From the application directory:
+Check the installed package name and version first: **`marionette`** is the v5
+package; **`backbone.marionette`** is the legacy package. V5 core requires neither
+Backbone nor jQuery; Backbone Models and Collections integrate through optional
+adapters. For installed `backbone.marionette` 4.x, preserve v4 contracts unless
+upgrading; older releases need their own version-specific guidance. If both
+packages are installed, check which entrypoint the feature imports.
+
+From the application directory, resolve the package the feature imports. For v5:
 
 ```sh
 node -p "require.resolve('marionette/package.json')"
 ```
 
-Read that package's version. For rendering, observation or persistence changes, check the configured renderer or data provider. The paths below are relative to its `docs/` directory. Choose one starting page or use an exact API lookup; follow additional references when the task needs their contract.
+For the legacy package instead:
+
+```sh
+node -p "require.resolve('backbone.marionette/package.json')"
+```
+
+Read the selected package's version and use its matching documentation. The paths
+below apply only to v5 and are relative to the installed `marionette` package's
+`docs/` directory. For rendering, observation or persistence changes, check the
+configured renderer or data provider. Choose one starting page or use an exact API
+lookup; follow additional references when the task needs their contract.
+
+Shared API names such as `View.extend`, regions, triggers, `modelEvents`, and
+`CollectionView` remain valid in v5, but do not guarantee shared behavior: verify
+the v5 contract. For v4 upgrades, read the [migration guide](guides/migration.md).
 
 If installed docs are absent, obtain the exact release or known source revision. Current website docs may describe a different version.
 

@@ -1,6 +1,6 @@
 # Marionette v5
 
-Version-matched Markdown for the installed package. Choose the relevant task or exact reference directly; use the index for browsing.
+Version-matched Markdown for `marionette` v5, whose core requires neither Backbone nor jQuery; Backbone Models and Collections integrate through optional adapters. `backbone.marionette` is the legacy package: check the installed name and version before choosing contracts. Choose the relevant task or exact reference directly; use the index for browsing.
 
 - [Documentation index](docs/readme.md)
 - [Agent workflow](docs/agents.md)

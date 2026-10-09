@@ -1,6 +1,9 @@
 # Marionette v5 documentation
 
-These guides target **5.0.0-rc.2**. Use the docs bundled with the release candidate you installed. The reference and learning paths below can be read independently. The reference index links the supported classes and shared contracts.
+These guides target **`marionette` 5.0.0-rc.2**, whose core is independent of
+Backbone and jQuery. Choose the bundled guides for your installed package and
+version; applications using legacy **`backbone.marionette`** need their own
+contracts. When upgrading from v4, start with the [migration guide](guides/migration.md).
 
 ## Choose a starting point
 
