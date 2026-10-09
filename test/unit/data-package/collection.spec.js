@@ -77,12 +77,39 @@ describe('@mnjs/data Collection', function() {
   });
 
   it('deduplicates additions in one linear batch', function() {
+    const add = vi.fn();
+    const remove = vi.fn();
+    const update = vi.fn();
+    collection.on({ add, remove, update });
     const third = new Model({ id: 3 });
     const added = collection.add([third, third, { id: 3 }, { id: 4 }]);
 
     expect(added.map(model => model.id)).to.deep.equal([3, 4]);
     expect(added[0]).to.equal(third);
     expect(collection.map(model => model.id)).to.deep.equal([1, 2, 3, 4]);
+    expect(add).toHaveBeenCalledTimes(2);
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(changes).to.deep.equal([
+      { kind: 'update', added, removed: [], updated: [] }
+    ]);
+
+    const removed = collection.remove([3, 4, 3, 'missing']);
+    expect(removed).to.deep.equal(added);
+    expect(remove).toHaveBeenCalledTimes(2);
+    expect(update).toHaveBeenCalledTimes(2);
+    expect(changes).to.deep.equal([
+      { kind: 'update', added, removed: [], updated: [] },
+      { kind: 'update', added: [], removed, updated: [] }
+    ]);
+
+    expect(collection.add([])).to.deep.equal([]);
+    expect(collection.add([collection.get(1), { id: 1 }])).to.deep.equal([]);
+    expect(collection.remove([])).to.deep.equal([]);
+    expect(collection.remove(['missing'])).to.deep.equal([]);
+    expect(add).toHaveBeenCalledTimes(2);
+    expect(remove).toHaveBeenCalledTimes(2);
+    expect(update).toHaveBeenCalledTimes(2);
+    expect(changes).toHaveLength(2);
   });
 
   it('does not construct models for duplicate raw identities', function() {

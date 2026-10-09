@@ -1,3 +1,7 @@
+For the current v4 → v5 changes and replacements, see the
+[migration guide](docs/guides/migration.md). Entries below describe each release
+at the time it shipped; older prerelease APIs may have been superseded.
+
 ### Unreleased
 
 * Resolve Region UI selectors from per-registration copies of shared maps and

@@ -9,7 +9,7 @@ const root = resolve(import.meta.dirname, '../..');
 const entrypoints = ['AGENTS.md', 'CONTRIBUTING.md', 'ROADMAP.md', 'test/README.md', 'readme.md'];
 
 test('repository entrypoint links resolve without requiring the full documentation corpus', async() => {
-  for (const source of [...entrypoints, 'docs-site/README.md']) {
+  for (const source of [...entrypoints, 'SECURITY.md', 'changelog.md', 'docs-site/README.md']) {
     const markdown = await readFile(resolve(root, source), 'utf8');
     const links = [];
     await Promise.all(marked.walkTokens(marked.lexer(markdown), token => {

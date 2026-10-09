@@ -6,7 +6,7 @@ Deploy the application bundle with its configured providers and verify it throug
 
 These docs target **5.0.0-rc.2**, a prerelease. Follow the [quick start](../quick-start.md) to install matching package versions; keep the lockfile and use the documentation bundled with that installation. Verify your application against that exact installation before deployment.
 
-Use named ESM imports from `marionette` and the documented adapter subpaths. Build against installed packages rather than repository source aliases. Include the template engine required by the chosen adapter. `@mnjs/data` is optional and incomplete as an application data layer: API access and persistence need an API layer or another data solution. See [setup](../integrations/setup.md).
+Use named ESM imports from `marionette` and the documented adapter subpaths. Build against installed packages rather than repository source aliases. Include the template engine required by the chosen adapter. Choose observable data and API access through [setup](../integrations/setup.md).
 
 Configure providers before constructing consumers. A shared setup module suits one class family; class setters such as `View.extend(...).setDomApi(LitDomApi)` suit a configured subclass. Configure CollectionView and its child View classes when both consume that adapter. Use an isolated runtime when independently configured features coexist. [Runtime configuration](../api/runtime.md) explains these scopes; changing providers on live instances does not rebuild them.
 

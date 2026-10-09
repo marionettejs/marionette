@@ -48,7 +48,7 @@ heading.render();
 title.set('title', 'Updated overview');
 ```
 
-The default renderer evaluates the function; Lit inserts its result. DataApi supplies the Model's attributes and subscriptions. Configure StateApi separately if an owner's `stateEvents` or owned-state disposal needs it. The View borrows the Model; its owner manages the Model's lifetime. `@mnjs/data` remains an incomplete observable layer with [separate API/persistence concerns](../integrations/setup.md#observable-data-and-api-access).
+The default renderer evaluates the function; Lit inserts its result. DataApi supplies the Model's attributes and subscriptions. Configure StateApi separately if an owner's `stateEvents` or owned-state disposal needs it. The View borrows the Model; its owner manages the Model's lifetime. See [observable data and API access](../integrations/setup.md#observable-data-and-api-access) for the boundary between observation and persistence.
 
 ## Choose a configuration scope
 

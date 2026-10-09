@@ -2,7 +2,7 @@
 
 Keep an interaction local when it changes the data displayed by that View and needs no broader workflow. This example edits a title as the user types and also reflects changes made elsewhere to the same Model.
 
-Start with the [renderer and data setup](../integrations/setup.md). `@mnjs/data` is optional and supplies observable attributes here; it is incomplete as an application data solution and does not provide fetching or persistence.
+Start with the [renderer and data setup](../integrations/setup.md). `@mnjs/data` is optional and supplies observable attributes here. See that setup page for API access and persistence.
 
 Add a mount to your page:
 

@@ -147,4 +147,4 @@ const current: string | undefined = model.get('title');
 
 `Model.get` can return `undefined` even with typed attributes: Models accept partial attributes and fields can be removed. A View borrows its Model; destroying the View releases its subscription without destroying that source.
 
-`@mnjs/data` is optional and incomplete. It provides local Models, Collections, and adapters, with no native `fetch`, `save`, or server synchronization. It may sit behind an API layer or be replaced with another data solution. Define and validate types at that solution's boundary; choose a compatible [data provider](../api/providers/data.md) for Marionette. Type annotations establish shape, while providers and ownership establish runtime behavior.
+`@mnjs/data` provides local Models, Collections, and adapters, with no native `fetch`, `save`, or server synchronization. It may sit behind an API layer or be replaced with another data solution. Define and validate types at that solution's boundary; choose a compatible [data provider](../api/providers/data.md) for Marionette. Type annotations establish shape, while providers and ownership establish runtime behavior.

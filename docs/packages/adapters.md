@@ -12,7 +12,7 @@ Optional integrations for existing data sources and DOM libraries. Import the su
 
 Each subpath has ESM, CommonJS, and TypeScript entrypoints. These adapters implement the existing [data/state](../api/providers/data.md) or [DOM](../api/providers/dom.md) contracts. Configure them before constructing consumers. [Runtime configuration](../api/runtime.md) explains application-wide, subclass, and isolated scopes. The examples use subclasses to make the affected classes explicit.
 
-Data and state configuration are independent. Choosing a data adapter does not require changing state, Radio, or DOM providers. [@mnjs/data](data.md) remains an optional observable data solution; it is incomplete for application persistence and needs an API layer or a replacement data solution.
+Data and state configuration are independent. Choosing a data adapter does not require changing state, Radio, or DOM providers. See [observable data and API access](../integrations/setup.md#observable-data-and-api-access) when selecting a data solution.
 
 ## Backbone
 

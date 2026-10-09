@@ -2,7 +2,7 @@
 
 [API index](../api.md) · [Setup](../integrations/setup.md) · [Data and state providers](../api/providers/data.md)
 
-`@mnjs/data` is an optional companion package supplying observable Models, ordered Collections, and Marionette providers. It works independently of Marionette core and the DOM. It is a workable but incomplete application data solution: fetching, persistence, validation, and server synchronization belong to an API layer or another data solution. It has no `fetch`, `save`, or HTTP deletion methods. Marionette can use a different source through a compatible provider.
+`@mnjs/data` is an optional companion package supplying observable Models, ordered Collections, and Marionette providers. It works independently of Marionette core and the DOM. Fetching, persistence, validation, and server synchronization belong to an API layer or another data solution. It has no `fetch`, `save`, or HTTP deletion methods. Marionette can use a different source through a compatible provider.
 
 ## Model
 
@@ -118,6 +118,8 @@ const plainItems = items.toArray(); // Attribute objects, not Models.
 | `isDestroyed()` / `destroy(options?)` | Inspect or end the local lifetime; see [destruction](#destruction-and-ownership). |
 
 `add` ignores existing instances or non-null IDs. Construction and `reset` reject duplicate instances or non-null IDs with `TypeError`, before replacing membership. Keep IDs unique when updating Models: a later ID change does not enforce uniqueness; lookup then selects the first current matching member. ID equality follows Map/Set equality. Nullish IDs do not identify members.
+
+Batch related membership changes with `add([...])` or `remove([...])`. Each call that changes membership emits one aggregate `update`, so CollectionView reconciles once per call instead of once per item. Per-Model `add`/`remove` events still fire for changed members. Empty, duplicate-only additions and unmatched removals emit no `update`.
 
 `reset` is a whole-list replacement. With CollectionView it destroys and rebuilds child Views, including children whose Model instances remain. For retained items, update the existing Model with `set`, change membership with `add`/`remove`, and change order with `move`/`sort`. There is no `Collection.set` merge operation. See [CollectionView](../api/collection-view.md) for display filtering, ordering, and child ownership.
 

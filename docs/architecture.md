@@ -15,7 +15,19 @@ Marionette organizes UI around ownership: who prepares a feature, who presents i
 
 A View with Regions is enough for visual composition. Add an Application when a feature needs readiness, coordinated effects, or an independently managed lifetime. A parent Application can own the page and start child features even when the parent has no asynchronous preparation. Registering a child establishes ownership; starting it is an explicit decision.
 
-A View can save an edit to its own model when the chosen data layer provides that operation. An asynchronous call alone does not require an Application. The [View reference](api/view.md#local-interaction-and-feature-coordination) explains this boundary; the model or API layer owns persistence, while an Application coordinates feature readiness and shared workflow decisions.
+A View can save an edit to its own model when the chosen data layer provides that operation. Keep [local interaction](api/view.md#local-interaction-and-feature-coordination) in its View and shared workflow decisions with their feature owner.
+
+## Read the ownership tree
+
+```text
+Feature Application
+├── root View
+│   ├── named Region → detail View
+│   └── named Region → CollectionView → row Views
+└── registered child Application → its own UI
+```
+
+Each owner cleans up its children. For an embedded feature, its **host** is the surrounding UI or owner receiving it; the Application's **destination** is the specific Region used by `showView()`. A Behavior's **host** is the View or CollectionView it augments. A destination supplied as an existing Region is borrowed. Owning a root or registering a child Application does not itself show or start it. Models supplied to Views are borrowed data, not branches of this UI ownership tree.
 
 ## Prepare a feature, then activate its UI
 
@@ -48,7 +60,7 @@ Keep one authority for each shared decision. For example, a feature Application 
 
 Observable data lets several Views respond to the same change. Configure compatible [DataApi and StateApi providers](integrations/setup.md#configure-once); use model/collection bindings or `stateEvents` for the relevant source. Initialize a new View from current data as well as observing subsequent changes. Application `stateEvents` deliver while active and do not replay changes made while stopped.
 
-Plain data is sufficient when observation is unnecessary. The introductory data solution, `@mnjs/data`, provides observable Models and Collections but is incomplete as an application data layer. It may sit alongside an API layer or be replaced by another solution through the [provider contracts](api/providers/data.md). Keep transport and persistence decisions explicit.
+Plain data is sufficient when observation is unnecessary. Use [observable data and API access](integrations/setup.md#observable-data-and-api-access) to choose a data solution and its provider.
 
 State supplied to another object is borrowed. State created through `createState` belongs to its owner; destruction calls the configured provider's disposal method when provided. A View's `model`, `collection`, and state are separate inputs; state is not automatically template data. See [state ownership](api/shared/state.md#ownership-and-disposal).
 

@@ -27,7 +27,7 @@ setStateApi(StateApi);
 setDomApi(LitDomApi);
 ```
 
-These setters configure the default class family. Use [runtime configuration](../api/runtime.md) for class-specific or isolated setup, and the [provider references](../api/providers/data.md) when connecting a different data solution. `DataApi` connects Models and Collections to Views; `StateApi` connects observable state to [state owners](../api/runtime.md#choose-a-configuration-scope). The renderer calls a template function with its data, and the Lit DOM adapter places the result in the View's element.
+These setters configure the default class family. Standalone reference examples instead use `View.extend(...).setDomApi(...)` or `.setDataApi(...)` to keep their configuration local to a subclass. Both scopes are supported; configure the chosen scope before constructing instances. Use [runtime configuration](../api/runtime.md) for class-specific or isolated setup, and the [provider references](../api/providers/data.md) when connecting a different data solution. `DataApi` connects Models and Collections to Views; `StateApi` connects observable state to [state owners](../api/runtime.md#choose-a-configuration-scope). The renderer calls a template function with its data, and the Lit DOM adapter places the result in the View's element.
 
 ```js
 import './setup.js';
@@ -44,9 +44,11 @@ export const DetailView = View.extend({
 
 Ordinary Lit interpolation renders these values as text, including characters such as `<`. No HTML escaping helper is needed. A View supplied with a Model receives its attributes as template data.
 
+A **provider** implements a Marionette contract such as DataApi, StateApi or DomApi. An **adapter** connects a particular library to that contract; for example, `LitDomApi` adapts Lit rendering. Installing an adapter does not configure it.
+
 ## Observable data and API access
 
-`@mnjs/data` is a workable but incomplete observable data layer. Use it alongside an API layer for fetching and persistence, or replace it with another data solution and the corresponding Marionette integration. Models and Collections do not provide an HTTP client, server synchronization, or a complete application data architecture.
+`@mnjs/data` provides local observable Models and Collections. Use it alongside an API layer for fetching and persistence, or replace it with another data solution and the corresponding Marionette integration. Models and Collections do not provide an HTTP client, server synchronization, or a complete application data architecture.
 
 For [initial feature data](../api/application.md#prepare-before-showing-ui), an Application can import its API module directly, await the request in `prepareStart`, and return a Collection built from the response attributes. The successful result reaches `onStart`. If the API layer already supplies a compatible observable source, use it directly.
 

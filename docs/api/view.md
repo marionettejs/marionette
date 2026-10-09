@@ -123,6 +123,19 @@ Each event below uses `triggerMethod`: the corresponding hook runs first, then e
 | `before:destroy` | `onBeforeDestroy` | `(view, options)` while `isDestroyed()` is false, before root/child cleanup. |
 | `destroy` | `onDestroy` | `(view, options)` after root/child cleanup and destroyed state update; event subscriptions are cleared afterward. |
 
+For a newly constructed View with a rendering template shown in an attached Region, the usual successful path is:
+
+```text
+constructed → render → attach → dom:refresh
+                         │
+                         ├── render again → dom:refresh
+                         └── detach → alive, reusable → attach → dom:refresh
+
+live View → before:destroy → detach if attached → child cleanup → destroy
+```
+
+Existing markup can start rendered or attached without emitting those construction-time events. With `template: false`, `View.render()` is a no-op and emits no render events. For an initially empty View, `Region.show()` still marks it rendered, so attachment can emit `dom:refresh`. Detachment keeps the View alive; destruction is terminal.
+
 Showing an initially unrendered detached View in an attached Region normally proceeds through render, then attach, then DOM refresh. A direct destroy normally proceeds through `before:destroy`, detach phases if attached, child destruction, and `destroy`. Managed children receive attach/detach propagation; during parent destruction they are destroyed after the parent root is detached. A CollectionView owner may detach a child before destroying it, so its child ordering differs; see [Region replacement](region.md#replacing-a-collectionview).
 
 Lifecycle callbacks are synchronous. A thrown callback interrupts the operation; these phases describe successful completion, not rollback guarantees.

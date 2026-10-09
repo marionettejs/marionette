@@ -78,6 +78,18 @@ Stop is synchronous and cannot be superseded during cleanup. Start/restart durin
 
 `ApplicationStartOptions` accepts an existing Region and feature options. `ApplicationRestartOptions` forwards feature options, including any `region`, unchanged to hooks, but restart never changes its destination. Stop/destroy forward arbitrary options to notifications and child operations. None of these arguments merge into constructor `options`.
 
+```text
+stopped → start() → prepareStart → active → onStart
+stopped → restart() → prepareStart → active → onStart (retained destination)
+active  → restart() → prepareStart → onStart → active
+                       │
+                       └── preparation rejects → existing active UI retained
+active  → stop() → stopped (root destroyed; Application/state retained)
+live    → destroy() → destroyed (owned UI, children and resources disposed)
+```
+
+An active restart retains its UI during preparation; `onStart` chooses what to update. Initial preparation failure leaves the Application stopped. A newer restart, stop or destroy cancels pending preparation, preventing its obsolete result from reaching `onStart`. This diagram describes successful synchronous callbacks; the failure boundary below still applies.
+
 ## Preparation, cancellation, and failure
 
 `prepareStart(options, { signal })` is the only awaited lifecycle hook. Its result reaches `onStart(app, options, result)` and `start` subscribers. Notification hooks run synchronously and ignore returned Promises. Await required business work before teardown, for example `await app.saveDraft(); app.stop()`.

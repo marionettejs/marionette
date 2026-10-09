@@ -13,7 +13,6 @@ on:
       - 'config/release-profile.json'
       - 'docs/**'
       - 'docs-site/**'
-      - 'upgradeGuide.md'
       - 'package-lock.json'
       - 'package.json'
       - 'scripts/diagnostics/**'

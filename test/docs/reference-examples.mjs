@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { assertions as v4Assertions, preparations as v4Preparations, migrationAfter } from './v4-migration-checks.mjs';
 import { assertions as migrationAssertions, preparations as migrationPreparations } from './framework-migration-checks.mjs';
 import { assertions as accessibilityAssertions } from './accessibility-guide-checks.mjs';
 import { assertions as widgetAssertions } from './widget-guide-checks.mjs';
@@ -36,6 +37,7 @@ const pages = ['api', 'packages', 'integrations', 'guides'].flatMap(section =>
 pages.push('readme.md');
 const preparations = {
   ...migrationPreparations,
+  ...v4Preparations,
   ...listPreparations,
   ...getPreparations(installed),
   ...restartPreparations,
@@ -66,6 +68,7 @@ assert.equal(document.querySelector('#app').childElementCount, 0);
 region.destroy();
 `,
   ...migrationAssertions,
+  ...v4Assertions,
   ...accessibilityAssertions,
   ...widgetAssertions,
   ...listAssertions,
@@ -500,14 +503,16 @@ function run(args, label) {
 try {
   for (const path of pages) {
     const markdown = readFileSync(join(installed, path), 'utf8');
-    const fences = [...markdown.matchAll(/```(js|javascript|ts|typescript)\n([\s\S]*?)```/g)];
-    for (const [index, [, language, source]] of fences.entries()) {
+    const fences = [...markdown.matchAll(/```(js|javascript|ts|typescript|diff)\n([\s\S]*?)```/g)]
+      .filter(([, language]) => language !== 'diff' || path === 'docs/guides/migration.md');
+    for (const [index, [, language, authored]] of fences.entries()) {
+      const source = language === 'diff' ? migrationAfter(authored, index) : authored;
       const typescript = language === 'ts' || language === 'typescript';
       const name = `${path.replace(/^docs\//, '').slice(0, -3).replaceAll('/', '-')}-${index + 1}`;
       const file = join(output, `${name}.${typescript ? 'mts' : 'mjs'}`);
       writeFileSync(file, source);
       if (name === 'integrations-setup-1') { writeFileSync(join(output, 'setup.js'), source); }
-      report.examples.push({ path, fence: index + 1, name, sourceSha256: hash(source), file, typescript });
+      report.examples.push({ path, fence: index + 1, name, sourceSha256: hash(authored), file, typescript });
     }
   }
   assert(report.examples.length, 'No executable reference examples found');
