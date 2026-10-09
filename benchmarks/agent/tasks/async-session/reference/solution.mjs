@@ -7,12 +7,14 @@ export function createSession(acquire, onMessage) {
   const stop = () => {
     generation++;
     if (unsubscribe) {
-      unsubscribe();
+      const release = unsubscribe;
       unsubscribe = undefined;
+      release();
     }
     if (current) {
-      current.close();
+      const provider = current;
       current = undefined;
+      provider.close();
     }
   };
   return {
@@ -27,8 +29,15 @@ export function createSession(acquire, onMessage) {
         provider.close();
         return false;
       }
+      const release = provider.subscribe(onMessage);
+      if (destroyed || token !== generation) {
+        release();
+        provider.close();
+        return false;
+      }
+      // Publish ownership only after synchronous subscription callbacks finish.
       current = provider;
-      unsubscribe = provider.subscribe(onMessage);
+      unsubscribe = release;
       return true;
     },
     stop,
