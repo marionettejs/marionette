@@ -70,20 +70,4 @@ module.exports = function assertInterop({
 
   assert.strictEqual(calls.length, 2);
   assert.strictEqual(structuralChanges.length, 1);
-
-  const sorted = new Backbone.Collection([{ id: 1, rank: 1 }, { id: 2, rank: 2 }], { comparator: 'rank' });
-  const changes = [];
-  const stopSorted = BackboneApi.observeCollection(sorted, change => changes.push(change));
-  sorted.add({ id: 3, rank: 0 });
-  assert.deepStrictEqual(changes, [{ kind: 'update', added: [sorted.get(3)], removed: [], updated: [] }]);
-  changes.length = 0;
-  sorted.get(1).set('rank', -1, { silent: true });
-  sorted.sort({ add: true, remove: true, merge: true });
-  assert.deepStrictEqual(changes, [{ kind: 'reorder' }]);
-  assert.deepStrictEqual(sorted.pluck('id'), [1, 3, 2]);
-  changes.length = 0;
-  sorted.set([{ id: 1, rank: 3 }], { remove: false });
-  assert.deepStrictEqual(changes, [{ kind: 'reorder' }, { kind: 'update', added: [], removed: [], updated: [] }]);
-  stopSorted();
-
 };

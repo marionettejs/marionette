@@ -48,23 +48,18 @@ const BackboneApi = {
 
   observeCollection(collection: Backbone.Collection,
     callback: (change: unknown) => void, context?: unknown): () => void {
-    const pendingUpdates = new WeakSet<object>();
-    const onMutation = function(_: Backbone.Model, _collection: Backbone.Collection, options: object) {
-      pendingUpdates.add(options);
-    };
-    const onSort = function(_: Backbone.Collection, options: object = {}) {
-      // Native add/remove events establish an update will follow; option flags do not.
-      if (pendingUpdates.has(options)) { return; }
+    const onSort = function(_: Backbone.Collection,
+      options: { add?: boolean; remove?: boolean; merge?: boolean } = {}) {
+      // As in v4, handle sorts from add/set through the following update event.
+      if (options.add || options.remove || options.merge) { return; }
       callback.call(context, { kind: 'reorder' });
     };
     const onReset = function() {
       callback.call(context, { kind: 'reset' });
     };
-    const onUpdate = function(_: Backbone.Collection, options: {
+    const onUpdate = function(_: Backbone.Collection, { changes }: {
       changes: { added: Backbone.Model[]; removed: Backbone.Model[]; merged: Backbone.Model[] };
     }) {
-      pendingUpdates.delete(options);
-      const { changes } = options;
       callback.call(context, {
         kind: 'update',
         added: changes.added,
@@ -74,8 +69,6 @@ const BackboneApi = {
       });
     };
     const events = {
-      add: onMutation,
-      remove: onMutation,
       sort: onSort,
       reset: onReset,
       update: onUpdate
