@@ -141,7 +141,7 @@ test('exports every current guide with exact bytes and reproducible provenance',
   const resources = JSON.parse(await readFile(new URL('../../docs-site/resources.json', import.meta.url), 'utf8'));
   assert.deepEqual(manifest.assets.map(asset => asset.source), [...resources, 'docs-sections.json', 'docs-symbols.json']);
   for (const source of ['config/diagnostics/catalog.json', 'skills/marionette/agents/openai.yaml',
-    'skills/marionette/scripts/docs.mjs',
+    'skills/marionette/scripts/docs.mjs', 'config/release-profile.json',
     'examples/records/src/main.js', 'examples/records/README.md']) {
     assert.ok(manifest.assets.some(asset => asset.source === source), `Missing supporting resource: ${source}`);
   }

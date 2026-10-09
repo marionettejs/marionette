@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": ">=24"
+    "node": "24.19.0",
+    "npm": "11.17.0"
   },
   "scripts": {
     "prepare:local": "node scripts/build-local-packages.mjs",

@@ -183,15 +183,38 @@ test('enabled publication requires a manual workflow on the trusted branch', asy
     [['--event', 'workflow_dispatch', '--ref', 'refs/heads/master'], /requires the positive integer run ID/],
     [['--event', 'workflow_dispatch', '--ref', 'refs/heads/master', '--certification-run-id', 'invalid'], /requires the positive integer run ID/],
   ]) {
-    const result = candidate.run('preflight', ['--mode', 'publish', ...args]);
+    const result = candidate.run('preflight', ['--mode', 'publish', '--repository-id', '2965621', ...args]);
     assert.equal(result.status, 1);
     assert.match(result.stderr, error);
   }
   const output = resolve(candidate.directory, 'preflight-output');
-  const result = candidate.run('preflight', ['--mode', 'publish', '--event', 'workflow_dispatch',
+  const result = candidate.run('preflight', ['--mode', 'publish', '--repository-id', '2965621', '--event', 'workflow_dispatch',
     '--ref', 'refs/heads/master', '--certification-run-id', '123'], { GITHUB_OUTPUT: output });
   assert.equal(result.status, 0, result.stderr);
   assert.equal(await readFile(output, 'utf8'), 'mode=publish\npublication_enabled=true\ncertification_run_id=123\n');
+});
+
+test('publication rejects a missing or different immutable repository identity before authorizing output', async t => {
+  const candidate = await fixture(t, { publication: { stable: true, prerelease: null }, version: '5.0.0' });
+  const output = resolve(candidate.directory, 'identity-output');
+  await writeFile(output, '');
+  const args = ['--mode', 'publish', '--repository', 'marionettejs/marionette',
+    '--event', 'workflow_dispatch', '--ref', 'refs/heads/master', '--certification-run-id', '123'];
+  for (const identity of [[], ['--repository-id', '306411262'], ['--repository-id', '02965621']]) {
+    const result = candidate.run('preflight', [...args, ...identity], { GITHUB_OUTPUT: output });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /repository ID.*2965621/);
+    assert.equal(await readFile(output, 'utf8'), '');
+  }
+  const accepted = candidate.run('preflight', [...args, '--repository-id', '2965621']);
+  assert.equal(accepted.status, 0, accepted.stderr);
+  const policyPath = resolve(candidate.root, 'config/release-promotion.json');
+  const policy = JSON.parse(await readFile(policyPath, 'utf8'));
+  policy.repositoryId = '306411262';
+  await writeFile(policyPath, JSON.stringify(policy));
+  const tampered = candidate.run('preflight', [...args, '--repository-id', '306411262']);
+  assert.equal(tampered.status, 1);
+  assert.match(tampered.stderr, /policy repository ID must be 2965621/);
 });
 
 test('npm integrity verification retries propagation delay without publishing a package', async t => {

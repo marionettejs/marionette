@@ -1,5 +1,5 @@
 import { CollectionView, type CollectionViewInstance, type CollectionChild } from 'marionette';
-import { View } from 'marionette';
+import { View, Region } from 'marionette';
 import type { EventsContract as Events } from '@mnjs/utils';
 import type {RegionInstance} from 'marionette';
 
@@ -45,6 +45,14 @@ const sorted: typeof list = list.sort();
 const filtered: typeof list = list.filter();
 const region: RegionInstance = list.getEmptyRegion();
 region.currentView?.render();
+const CustomEmptyRegion = Region.extend({ customRegion: true });
+const customRegionList = new CollectionView({ RegionClass: CustomEmptyRegion });
+const configuredRegionClass: typeof CustomEmptyRegion = customRegionList.RegionClass;
+const customEmptyRegion: RegionInstance = customRegionList.getEmptyRegion();
+const PrototypeRegionList = CollectionView.extend({ RegionClass: CustomEmptyRegion });
+new PrototypeRegionList({ RegionClass: undefined });
+// @ts-expect-error RegionClass must be a constructor, not a factory callback.
+new CollectionView({ RegionClass: () => new Region({ el: document.createElement('div') }) });
 const row = new Item({model: rows[0]});
 const added: typeof row = list.addChildView(row, 1, {preventRender: true});
 const addedOptions: typeof row = list.addChildView(row, {index: 0, preventRender: true});

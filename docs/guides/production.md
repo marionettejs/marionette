@@ -2,9 +2,9 @@
 
 Deploy the application bundle with its configured providers and verify it through the server that will serve users. Marionette manages UI ownership and lifecycle; your bundler and server provide the build and delivery boundaries.
 
-## Keep the installed candidate coherent
+## Keep installed packages coherent
 
-These docs target **5.0.0-rc.2**, a prerelease. Follow the [quick start](../quick-start.md) to install matching package versions; keep the lockfile and use the documentation bundled with that installation. Verify your application against that exact installation before deployment.
+These docs target **5.0.0**. Follow the [quick start](../quick-start.md) to install matching package versions; keep the lockfile and use the documentation bundled with that installation. Verify your application against that exact installation before deployment.
 
 Use named ESM imports from `marionette` and the documented adapter subpaths. Build against installed packages rather than repository source aliases. Include the template engine required by the chosen adapter. Choose observable data and API access through [setup](../integrations/setup.md).
 
@@ -36,4 +36,4 @@ Publish an entry document with the assets it references. Choose caching rules th
 
 Verify a clean load, direct route reload, navigation, missing asset/API responses, failed readiness and retry, and feature removal while preparation is pending. Exercise keyboard interaction and focus in a real browser. Preserve errors with their stack and Marionette diagnostic code so the [installed lookup](../tooling.md#look-up-a-diagnostic) matches the runtime.
 
-This candidate's browser test configuration runs Chromium, Firefox and WebKit through Playwright. Its browser transpilation query is `baseline widely available`. Those choices describe the repository's validation and transpilation profile; they do not establish behavior in every browser/device or supply missing browser APIs. Select and test your application's actual browser targets with its renderer, providers and deployed bundle.
+The framework's browser test configuration runs Chromium, Firefox and WebKit through Playwright. Its browser transpilation query is `baseline widely available`. Those choices describe the repository's validation and transpilation profile; they do not establish behavior in every browser/device or supply missing browser APIs. Select and test your application's actual browser targets with its renderer, providers and deployed bundle.

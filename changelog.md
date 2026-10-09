@@ -9,8 +9,31 @@ For the current v4 → v5 changes and replacements, see the
 [migration guide](docs/guides/migration.md). Entries below describe each release
 at the time it shipped; older prerelease APIs may have been superseded.
 
-### Unreleased
+### v5.0.0
 
+> Native UI lifecycles, explicit ownership, and version-matched tools for application and agent development.
+
+* Release the coordinated `marionette`, `@mnjs/utils`, `@mnjs/radio`,
+  `@mnjs/data`, and `@mnjs/adapters` packages at 5.0.0. Core requires neither
+  Backbone nor jQuery; existing Backbone applications can use the optional adapters.
+  See the [v4 migration guide](docs/guides/migration.md) for package, lifecycle,
+  configuration, and import changes.
+* Ship installed API and diagnostic references, task-based agent guidance,
+  TypeScript declarations, and public-API lint tooling. Documentation lookup uses
+  the installed package's contracts and distinguishes v5 from legacy
+  `backbone.marionette` applications.
+* Document native migrations, application ownership, retained restart, and the
+  runnable records example. Optional `@mnjs/data` supplies observation; fetching
+  and persistence remain application or provider responsibilities.
+* Support packaged consumers on Node 22.22.2+ (22.x) and 24.15.0+ (24.x), with
+  Node 26 advisory. Pin source development and release validation to the checked-in
+  Node/npm profile, and refresh tooling and consumer dependency locks.
+
+Changes since RC2:
+
+* Honor CollectionView's `RegionClass` constructor option for its empty Region,
+  including its precedence over the prototype value, `initialize` overrides,
+  and Region recreation.
 * Resolve Region UI selectors from per-registration copies of shared maps and
   options objects, preventing one View from changing another View's selectors.
 * Keep Regions usable after an allowed missing selector: later explicit operations
@@ -18,6 +41,13 @@ at the time it shipped; older prerelease APIs may have been superseded.
 * Make View, CollectionView, and Behavior entity-event delegation replace previous
   bindings. Explicit undelegation is no longer required before rebinding changed
   sources or declarations; destruction releases the current bindings.
+
+* Tighten Application cancellation recipes and reference controls for stale async
+  results, unsubscribe-before-close ordering, and child startup during a parent
+  restart. Already-running children remain available through retained restart.
+* Clarify Backbone Collection sorting: standalone sorts must not reuse mutation
+  flags, and explicit reorder notifications pass an empty options object. The
+  adapter's mutation-update behavior is unchanged.
 
 ### v5.0.0-rc.2
 

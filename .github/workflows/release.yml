@@ -86,6 +86,7 @@ jobs:
           args=(
             --mode "${PROMOTION_MODE}"
             --repository "${GITHUB_REPOSITORY}"
+            --repository-id "${GITHUB_REPOSITORY_ID}"
             --ref "${GITHUB_REF}"
             --event "${GITHUB_EVENT_NAME}"
           )
@@ -393,6 +394,7 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' &&
       github.repository == 'marionettejs/marionette' &&
+      github.repository_id == '2965621' &&
       github.ref == 'refs/heads/master' &&
       inputs.publish == true &&
       needs.preflight.outputs.mode == 'publish'
@@ -440,6 +442,7 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' &&
       github.repository == 'marionettejs/marionette' &&
+      github.repository_id == '2965621' &&
       github.ref == 'refs/heads/master' &&
       inputs.publish == true &&
       needs.preflight.outputs.mode == 'publish'

@@ -1,6 +1,6 @@
 # @mnjs/adapters
 
-Optional integrations for existing data sources and DOM libraries. Import the subpath you use; the package has no root export. Imports do not configure Marionette or load other adapters. Install the matching Marionette candidate and only the peers needed by your integration; see [candidate installation](../quick-start.md#install-the-release-candidate).
+Optional integrations for existing data sources and DOM libraries. Import the subpath you use; the package has no root export. Imports do not configure Marionette or load other adapters. Install the matching Marionette version and only the peers needed by your integration; see [package installation](../quick-start.md#install-matching-packages).
 
 | Subpath | Default export | Peer used by the application |
 | --- | --- | --- |

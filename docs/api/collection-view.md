@@ -63,13 +63,14 @@ CollectionView accepts View's root, template, data, UI/DOM, entity-event, state,
 | `childViewContainer` | Descendant selector or function returning one; defaults to the root. Resolved after template rendering. A selector with no match throws `MN0013`. |
 | `emptyView` | View/CollectionView class, or function returning a class, `null`, `undefined`, or `false`. Defaults to no empty View. |
 | `emptyViewOptions` | Options object or function called without arguments. Falls back to `childViewOptions`, also called without a model. |
+| `RegionClass` | Region constructor for the list-owned empty Region; defaults to `Region`. A supplied constructor option overrides the prototype value; omission or `undefined` preserves it. |
 | `sortWithCollection` | Boolean, default `true`. Follows source reorder notifications and uses collection order when no custom comparator is selected. |
 | `viewComparator` | Model attribute name, one-argument key function, or two-argument comparison function; default is collection order. `false` disables the comparator. See [sorting](#sorting). |
 | `viewFilter` | Model attribute name, attribute-value object, or predicate; default no filter. See [filtering](#filtering). |
 
 Resolver functions and comparator/filter callbacks run with the CollectionView as `this`. `childView` and `emptyView` constructors are instantiated, not called as resolvers. Use `CollectionView.extend(prototypeProperties?, staticProperties?)` to declare defaults and overrides.
 
-`cid` is generated with the class's `cidPrefix` (`'mncv'` by default). `options` contains merged class and constructor options. `RegionClass` configures the empty Region on the prototype or in `initialize`; despite appearing in the configuration type, passing it as a constructor option does not set that hook in this prerelease.
+`cid` is generated with the class's `cidPrefix` (`'mncv'` by default). `options` contains merged class and constructor options. `RegionClass` is copied before `initialize`, which can still override it before the empty Region is created. Configure it through a constructor option, prototype property, or `initialize`; native subclass fields are initialized after the empty Region has already been created. This hook affects only empty presentation, not ordinary rows or their named Regions.
 
 ## Rendering and collection updates
 
