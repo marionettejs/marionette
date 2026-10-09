@@ -7,12 +7,14 @@ export function createSession(acquire, onMessage) {
   const stop = () => {
     generation++;
     if (unsubscribe) {
-      unsubscribe();
+      const release = unsubscribe;
       unsubscribe = undefined;
+      release();
     }
     if (current) {
-      current.close();
+      const provider = current;
       current = undefined;
+      provider.close();
     }
   };
   return {
@@ -28,7 +30,12 @@ export function createSession(acquire, onMessage) {
         return false;
       }
       current = provider;
-      unsubscribe = provider.subscribe(onMessage);
+      const release = provider.subscribe(onMessage);
+      if (destroyed || token !== generation) {
+        release();
+        return false;
+      }
+      unsubscribe = release;
       return true;
     },
     stop,

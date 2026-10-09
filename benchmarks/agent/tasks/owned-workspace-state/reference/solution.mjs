@@ -39,10 +39,23 @@ export function createStateWorkspace(el, makeState, domain, lifecycle) {
     async prepareStart(options, context) {
       await lifecycle.ready(context.signal);
       if (context.signal.aborted) { return; }
-      const started = await this.getChildApp('editor')?.start();
-      if (!started && !context.signal.aborted) { throw new Error('Editor startup canceled'); }
+      const child = this.getChildApp('editor');
+      if (child.isRunning()) { return; }
+      const cancel = () => child.stop();
+      const releaseCancellation = () => context.signal.removeEventListener('abort', cancel);
+      context.signal.addEventListener('abort', cancel, { once: true });
+      try {
+        const started = await child.start();
+        if (!started && !context.signal.aborted) { throw new Error('Editor startup canceled'); }
+        // Keep cancellation connected until the parent commits this start.
+        return releaseCancellation;
+      } catch (error) {
+        releaseCancellation();
+        throw error;
+      }
     },
-    onStart() {
+    onStart(application, options, releaseCancellation) {
+      releaseCancellation?.();
       if (!unsubscribe) { unsubscribe = lifecycle.subscribe(); }
     },
     onStop: releaseSession,

@@ -12,7 +12,13 @@ export function createAsyncPanel(el, load) {
         return false;
       }
       const token = ++generation;
-      const text = await load(id);
+      let text;
+      try {
+        text = await load(id);
+      } catch (error) {
+        if (destroyed || token !== generation) { return false; }
+        throw error;
+      }
       if (destroyed || token !== generation) {
         return false;
       }
