@@ -8,7 +8,7 @@ links and this checklist are present in the accepted v5 source.
 
 ## Identity and acceptance
 
-Read-only preflight on 2026-10-10 UTC confirmed:
+Read-only preflight on 2026-10-09 UTC confirmed:
 
 | Role | Repository before cutover | Immutable repository ID | `master` |
 | --- | --- | --- | --- |
