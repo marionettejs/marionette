@@ -12,13 +12,11 @@ test('publication jobs require the canonical immutable identity and preflight re
   const workflow = parse(await readFile(resolve(import.meta.dirname, '../../.github/workflows/release.yml'), 'utf8'));
   for (const name of ['publication-targets', 'publish']) {
     const guards = workflow.jobs[name].if.trim().split(/\s*&&\s*/);
-    for (const required of [
+    assert.deepEqual(guards, [
       'github.event_name == \'workflow_dispatch\'', 'github.repository == \'marionettejs/marionette\'',
       'github.repository_id == \'2965621\'', 'github.ref == \'refs/heads/master\'',
       'inputs.publish == true', 'needs.preflight.outputs.mode == \'publish\'',
-    ]) {
-      assert.ok(guards.includes(required), `${name} must require ${required}`);
-    }
+    ], `${name} must enforce the complete publication authorization condition`);
   }
   const preflight = workflow.jobs.preflight.steps.find(step => step.id === 'preflight');
   assert.match(preflight.run, /--repository-id "\$\{GITHUB_REPOSITORY_ID\}"/);

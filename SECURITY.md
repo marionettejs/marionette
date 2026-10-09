@@ -11,9 +11,9 @@ This repository maintains `marionette` and the `@mnjs/data`, `@mnjs/adapters`,
 coordinate fixes and disclosure through the advisory. Ordinary bugs and support
 questions belong in the [issue tracker](https://github.com/marionettejs/marionette/issues).
 
-The current stable release line is v5. Reports about older releases should identify
+This source tree targets the v5 release line. Reports about older releases should identify
 the affected version and, if known, whether the problem reproduces on the current
-stable release; do not upgrade a production application solely to investigate a
+published release; do not upgrade a production application solely to investigate a
 report. This community-maintained
 project does not promise a response deadline or automatic backports. A backport
 or supported-version window must be stated in the relevant release or advisory.
