@@ -69,7 +69,7 @@ CollectionView accepts View's root, template, data, UI/DOM, entity-event, state,
 
 Resolver functions and comparator/filter callbacks run with the CollectionView as `this`. `childView` and `emptyView` constructors are instantiated, not called as resolvers. Use `CollectionView.extend(prototypeProperties?, staticProperties?)` to declare defaults and overrides.
 
-`cid` is generated with the class's `cidPrefix` (`'mncv'` by default). `options` contains merged class and constructor options. `RegionClass` configures the empty Region on the prototype or in `initialize`; despite appearing in the configuration type, passing it as a constructor option does not set that hook in this prerelease.
+`cid` is generated with the class's `cidPrefix` (`'mncv'` by default). `options` contains merged class and constructor options. `RegionClass` configures the empty Region on the prototype or in `initialize`; despite appearing in the configuration type, passing it as a constructor option does not set that hook in this release.
 
 ## Rendering and collection updates
 

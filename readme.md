@@ -38,11 +38,11 @@ MCP access, lint, types, and installed documentation lookup.
 
 ## Try v5
 
-v5 is a release candidate. Packaged applications are verified on Node 22.22.2+ (22.x) and 24.15.0+ (24.x); use the latest patch of either LTS line. Newer Node versions may install; Node 26 is checked separately as advisory. For framework development or Git installs, select the pinned [source toolchain](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository).
-Install matching candidate versions in your browser application:
+Packaged applications are verified on Node 22.22.2+ (22.x) and 24.15.0+ (24.x); use the latest patch of either LTS line. Newer Node versions may install; Node 26 is checked separately as advisory. For framework development or Git installs, select the pinned [source toolchain](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository).
+Install matching package versions in your browser application:
 
 ```sh
-npm install --save-exact marionette@5.0.0-rc.2 @mnjs/utils@5.0.0-rc.2 @mnjs/radio@5.0.0-rc.2 @mnjs/adapters@5.0.0-rc.2 lit-html@3.3.3
+npm install --save-exact marionette@5.0.0 @mnjs/utils@5.0.0 @mnjs/radio@5.0.0 @mnjs/adapters@5.0.0 lit-html@3.3.3
 ```
 
 Given `<div id="app"></div>` in your page, this module shows a dismissible panel:

@@ -4,7 +4,7 @@ The small helpers behind Marionette, available for your own components.
 Marionette and `@mnjs/data` import these same implementations.
 
 ```bash
-npm install @mnjs/utils@5.0.0-rc.2
+npm install --save-exact @mnjs/utils@5.0.0
 ```
 
 Use the same version for all Marionette packages. Core and data
@@ -73,7 +73,7 @@ whitespace.
 
 ## Version-matched reference
 
-When the matching Marionette candidate is installed, locate its package root with
+When the matching Marionette version is installed, locate its package root with
 `require.resolve('marionette/package.json')`. Read `docs/packages/utils.md` under
 that root for all exported helpers, receiver and return contracts, cleanup, and
 TypeScript types. Core remains unnecessary for standalone utils use.

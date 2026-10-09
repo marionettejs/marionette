@@ -5,7 +5,7 @@
   "entrypoints": [
     {
       "name": "marionette",
-      "version": "5.0.0-rc.2",
+      "version": "5.0.0",
       "kind": "runtime",
       "source": "src/index.ts",
       "conditions": {
@@ -6510,7 +6510,7 @@
     },
     {
       "name": "@mnjs/utils",
-      "version": "5.0.0-rc.2",
+      "version": "5.0.0",
       "kind": "runtime",
       "source": "packages/utils/src/index.ts",
       "conditions": {
@@ -7218,7 +7218,7 @@
     },
     {
       "name": "@mnjs/radio",
-      "version": "5.0.0-rc.2",
+      "version": "5.0.0",
       "kind": "runtime",
       "source": "packages/radio/src/index.ts",
       "conditions": {
@@ -7691,7 +7691,7 @@
     },
     {
       "name": "@mnjs/data",
-      "version": "5.0.0-rc.2",
+      "version": "5.0.0",
       "kind": "runtime",
       "source": "packages/data/src/index.ts",
       "conditions": {
@@ -8328,7 +8328,7 @@
     },
     {
       "name": "@mnjs/adapters/backbone",
-      "version": "5.0.0-rc.2",
+      "version": "5.0.0",
       "kind": "runtime",
       "source": "packages/adapters/src/data/backbone.ts",
       "conditions": {
@@ -8403,7 +8403,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/jquery",
-      "version": "5.0.0-rc.2",
+      "version": "5.0.0",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/jquery.ts",
       "conditions": {
@@ -8463,7 +8463,7 @@
     },
     {
       "name": "@mnjs/adapters/xstate",
-      "version": "5.0.0-rc.2",
+      "version": "5.0.0",
       "kind": "runtime",
       "source": "packages/adapters/src/data/xstate.ts",
       "conditions": {
@@ -8559,7 +8559,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/morphdom",
-      "version": "5.0.0-rc.2",
+      "version": "5.0.0",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/morphdom.ts",
       "conditions": {
@@ -8599,7 +8599,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/lit-html",
-      "version": "5.0.0-rc.2",
+      "version": "5.0.0",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/lit-html.ts",
       "conditions": {
@@ -12476,7 +12476,7 @@
     "config/diagnostics/catalog.json": "89ca537fe5cacaef35d30f25aeb4d1ed4e1e8802c80c540f3672533c7b0145c4",
     "docs/api/application.md": "602a37e92b020739cf4ee62228a8f8e3205e94f7399cc62757d28aaa8fc57331",
     "docs/api/behavior.md": "45df12d32d15caf9d69849957f476bc90d6c0ab1a89186384618943f68c0ee48",
-    "docs/api/collection-view.md": "15effc2ca38ec964060d2017b6d7b2f76921abe2904977e50ef623924f1f703a",
+    "docs/api/collection-view.md": "7a50a1e04a995e15ae1c13e02697404b1083d3c20db8fef6194795cb15be2e6b",
     "docs/api/errors.md": "f4efcdd5da9dcf053b936fab32d6e200f8223f799e2517dee7753823b89946b2",
     "docs/api/mnobject.md": "89cfe4ac212de4ac5fd966cb427c1391749a2be623ccc9b6f16bb4c3497313bc",
     "docs/api/providers/data.md": "bfdc9fcac45390611b75d28d7cc12fd256325463355fd338abfc6be503844275",
@@ -12489,10 +12489,10 @@
     "docs/api/shared/view-bindings.md": "2e33651d6e04d88cc40809013f36a881247085be1b72b1f174ec21098cf37128",
     "docs/api/view.md": "170bfb72a2b669f569758f2ef4a4a428f9d63e8486f42b43862273b458fc1cce",
     "docs/guides/typescript.md": "baba4c8483115fd7a6bb16089f38e5666f9c0f632079b531a107ee48b1ed6285",
-    "docs/packages/adapters.md": "71ee0494f684af87084afc5e869cd45597412a77f3fa8bf8d78d33c0ff5018b6",
+    "docs/packages/adapters.md": "c4b60a10fbb121b252c99d51e0a3e99e05843b06f65a3b11609a321d62573e35",
     "docs/packages/data.md": "ed9e5b76a3a67a459c0e88ab092b200790aff7a0aeb9c24f1e8f5129f9a1efe4",
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
-    "docs/packages/utils.md": "17d6eaf219243cb64e7dea9cb5596305b76b5025106f60ae67938fba79b78b82",
+    "docs/packages/utils.md": "158e2051ee438acd7e235f0f29ce45f42ad798bb6d460a871efd29904e2728ec",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
     "test/unit/application-child-declarations.spec.js": "693740783f56c4e24aa886076389378d106839987b7ce442bfefb267ca5a2f84",
     "test/unit/application-child-lifecycle.spec.js": "78296e9b442918bf03a3f9741f00e0884aa043092774e984f0e735757197b1d8",

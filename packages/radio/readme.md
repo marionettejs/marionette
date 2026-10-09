@@ -3,7 +3,7 @@
 Named channels for events and request/reply, usable without Marionette core or a DOM.
 
 ```sh
-npm install @mnjs/radio@5.0.0-rc.2
+npm install --save-exact @mnjs/radio@5.0.0
 ```
 
 ```js
@@ -33,7 +33,7 @@ Radio, utils, data, adapters, and core are versioned and released together.
 
 ## Version-matched reference
 
-The matching `marionette` candidate includes the canonical reference. If core
+The matching `marionette` package includes the canonical reference. If core
 is installed, open `node_modules/marionette/docs/packages/radio.md` for channel
 scope, all event and request/reply methods, cleanup, standalone composition,
 logging, and TypeScript contracts. Core remains unnecessary for standalone Radio

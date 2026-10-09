@@ -1,6 +1,6 @@
 # Building features with Marionette v5
 
-Marionette organizes UI around ownership: who prepares a feature, who presents its data, and who removes it. This guide explains those choices for **5.0.0-rc.2**. Start with the [quick start](quick-start.md) for renderer setup; use the [API reference](api.md) for exact method contracts.
+Marionette organizes UI around ownership: who prepares a feature, who presents its data, and who removes it. This guide explains those choices for **5.0.0**. Start with the [quick start](quick-start.md) for renderer setup; use the [API reference](api.md) for exact method contracts.
 
 ## Choose a responsibility
 

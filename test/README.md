@@ -223,8 +223,19 @@ consumers against the original tarballs. Its separate validation record binds lo
 three-engine browser results, fixture results and lock hashes to the immutable
 release evidence. Failed/incomplete/mismatched evidence cannot be promoted.
 `config/release-promotion.json` separately authorizes stable publication and one
-exact prerelease version. Stable publication remains disabled; read the policy
-for the currently authorized prerelease. Validation never grants publication permission.
+exact prerelease version. The 5.0.0 preparation enables stable publication and
+retires the RC2 authorization. Publication still requires a successful manual dry run
+on the same merged source commit, an explicit publish dispatch with that certification
+run ID, and approval of the `stable-release` environment. Validation never grants
+publication permission.
+
+Before publishing, verify that all five npm trusted publishers are bound to the
+canonical `marionettejs/marionette` repository ID `2965621`, with workflow
+`release.yml` and environment `stable-release`. The former v5 repository is now
+`marionettejs/marionette-develop` (ID `306411262`). Matching repository names and a
+"Valid" status in npm settings do not establish the immutable repository binding;
+that binding remains an unresolved publication gate until authenticated readback
+or provider confirmation verifies the canonical repository ID.
 
 ## Dependency maintenance
 

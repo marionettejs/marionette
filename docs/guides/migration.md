@@ -4,14 +4,14 @@ Upgrade one application and its messaging participants together. Start from a wo
 
 For an agent-assisted upgrade, give the agent this guide and the
 [agent entrypoint](../agents.md), plus the application's entrypoint and existing
-behavior checks. Have it inspect the installed candidate's docs, migrate one
+behavior checks. Have it inspect the installed package's docs, migrate one
 representative feature, and run the checks in section 4 before repeating the
 changes elsewhere. Keep data-layer replacement separate from the framework
 upgrade unless the application needs both.
 
 ## 1. Replace installation and configure integrations
 
-Replace `backbone.marionette` with the matching `marionette` v5 candidate. Follow [candidate installation](../quick-start.md#install-the-release-candidate) for the current package artifacts and companion versions. If you already use named imports, change their package path. Replace default namespace imports with named imports: `import { Application, View, MnObject, Radio } from 'marionette'`. The former namespace's `Object` alias becomes `MnObject`.
+Replace `backbone.marionette` with the matching `marionette` v5 release. Follow [package installation](../quick-start.md#install-matching-packages) for the current package artifacts and companion versions. If you already use named imports, change their package path. Replace default namespace imports with named imports: `import { Application, View, MnObject, Radio } from 'marionette'`. The former namespace's `Object` alias becomes `MnObject`.
 
 Core supplies native DOM operations and accepts plain objects and static arrays. Backbone, jQuery, and Underscore are no longer required by core. Remove a dependency only when the application itself no longer uses it.
 

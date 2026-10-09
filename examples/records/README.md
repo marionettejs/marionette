@@ -4,11 +4,15 @@ Follow the [records lesson](../../docs/records.md) for the ownership and event f
 
 The installed documentation includes this source for reading alongside the lesson. The commands below run from the Marionette repository checkout and use its linked local packages. To create an application from installed packages, start with the [quick start](../../docs/quick-start.md).
 
-Requires Node 24 or newer.
+Use the repository's pinned [source toolchain](https://github.com/marionettejs/marionette/blob/master/config/release-profile.json)
+(Node 24.19.0 and npm 11.17.0). These commands build linked source packages;
+the broader [packaged consumer range](../../docs/quick-start.md) does not select
+the source build toolchain.
 
 From the repository root:
 
 ```sh
+npm run check:release-profile
 npm ci --ignore-scripts
 npm --prefix examples/records ci --ignore-scripts
 npm --prefix examples/records run dev
