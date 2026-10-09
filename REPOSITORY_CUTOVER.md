@@ -25,7 +25,10 @@ into public evidence. The independent agent study remains deferred. Final exact
 ## Preparation and preservation gates
 
 - [ ] Obtain parent approval to merge the preparation PR; satisfy all current
-  checks and review requirements without bypass. Its prospective development
+  checks and review requirements without bypass. Allow its automatic website
+  sync to finish and record the resulting website PR before renaming: the sync
+  clones the current canonical name, which must still identify v5 at that point.
+  Do not merge the website PR or enable its auto-merge. Its prospective development
   links become live when the first rename completes.
 - [ ] Re-read both repository IDs, heads, open PRs and competing local work before
   acting. Claude's inspected cutover conversation proposed a plan but reported no
@@ -118,7 +121,7 @@ an exact mutation; credentials must never appear in evidence or review output.
 | Required v5 checks | `Node 24`, `Package smoke (macOS arm64)`, `Package smoke (Windows x64)`, `Bundle size`, `Build and validate`, `Analyze (javascript-typescript)` | Verify those checks actually run in destination before configuring an approved requirement |
 | `stable-release` | Source requires reviewer `paulfalgout`; self-review prevention is false, admin bypass is true, custom branch policy is `master`; destination has no environments | Propose environment creation and exact reviewer/branch policy for approval before release use; do not implicitly copy bypass settings |
 | Secrets | Source lists `WEBSITE_DOCS_DISPATCH_TOKEN`; destination lists `COVERALLS_REPO_TOKEN` | Obtain separate approval for any destination credential setup; do not copy values or delete legacy credentials |
-| Documentation | Neither repository lists Actions variables; both Pages API reads returned 404 | `DOCS_PAGES_ENABLED` is unset. Do not enable Pages or dispatch a website sync; investigate 404 before claiming a Pages configuration |
+| Documentation | Neither repository lists Actions variables; both Pages API reads returned 404 | `DOCS_PAGES_ENABLED` is unset. Do not enable Pages or manually dispatch a sync; the automatic preparation-merge sync is PR-only as traced below. Investigate 404 before claiming a Pages configuration |
 | npm trusted publishing | Not inspected through authenticated npm settings | Verify all five packages' repository/workflow/environment bindings after the swap; obtain separate approval for any changes, do not assume identity follows a renamed repository |
 
 The source's inherited organization ruleset `21709790` currently has an empty
@@ -126,13 +129,40 @@ rules list; its repository ruleset is `21649624`. Destination currently lists no
 rulesets. Repository IDs, existing environments and settings stay with the
 repository being renamed; they are not transferred by importing Git history.
 
-The preparation PR changes paths that trigger `docs-sync.yml` when merged to the
-source master. That workflow dispatches `library-docs-changed` to the website
-using `WEBSITE_DOCS_DISPATCH_TOKEN`. The parent merge decision must account for
-this external side effect under the separate no-deployment boundary. Do not merge
-or dispatch it as a side effect of preparing this PR. Destination documentation
-and security configuration are separate approvals; the import PR can remain open
-until those boundaries and its required review are satisfied.
+## Automatic documentation-sync effect
+
+Merging this preparation PR changes paths watched by the source
+[`docs-sync.yml`](.github/workflows/docs-sync.yml). It dispatches
+`library-docs-changed` to `marionettejs/marionettejs.com` using the existing
+`WEBSITE_DOCS_DISPATCH_TOKEN`.
+
+At website main `18bf823896bb095a3d893c24d70a500a694add1d`:
+
+- The [receiving workflow](https://github.com/marionettejs/marionettejs.com/blob/18bf823896bb095a3d893c24d70a500a694add1d/.github/workflows/docs-sync.yml)
+  clones current library master, prepares reading-copy changes, builds and checks
+  them locally, validates the resulting publication file and uploads that artifact.
+- Its [publisher](https://github.com/marionettejs/marionettejs.com/blob/18bf823896bb095a3d893c24d70a500a694add1d/scripts/docs-sync/publish.mjs)
+  writes only `content/docs-publication-edits.json` on
+  `automation/library-docs-sync` and creates or updates one ready PR into `main`.
+  It does not update `main`, merge a PR, enable auto-merge or deploy. If the content
+  is unchanged it performs no publication write; failed validation stops before
+  the publish job. The existing target is [website PR #73](https://github.com/marionettejs/marionettejs.com/pull/73),
+  whose auto-merge was disabled at inspection. Recheck that state before merging
+  preparation, since the publisher itself does not reject a pre-enabled auto-merge.
+- The [deployment workflow](https://github.com/marionettejs/marionettejs.com/blob/18bf823896bb095a3d893c24d70a500a694add1d/.github/workflows/deploy.yml)
+  runs only on a push to `main` or a manual workflow dispatch, with a `main` job
+  condition. It publishes the full Cloudflare Pages website and documentation MCP,
+  verifies them, and refreshes Context7 when documentation changed. Neither the
+  sync dispatch nor its branch/PR update triggers that workflow.
+
+The preparation merge therefore needs the requested parent merge approval with
+this automatic PR update understood; it does not itself require deployment
+approval. A later merge of the website sync PR (or manual website deployment)
+requires separate explicit publication approval. Leave its auto-merge disabled.
+Website main currently requires a PR, resolved threads and an up-to-date `verify`
+check through ruleset `22624822`, with no bypass actors. No website merge or
+manual dispatch is part of this cutover preparation. Destination documentation
+credentials and security settings remain separate action-time approvals.
 
 ## Later stable certification
 
