@@ -13,8 +13,9 @@ survey is not a prerequisite.
   package exports, independently of the source folders.
 - The [API index](docs/api.md) routes to class and provider references.
   [CONTRIBUTING.md](CONTRIBUTING.md) explains source, package and review workflow.
-- [Issue #574](https://github.com/marionettejs/marionette-develop/issues/574) records current
-  stable-v5 acceptance and evidence gaps. The [release test guide](test/README.md#exact-release-candidates)
+- [Issue #574](https://github.com/marionettejs/marionette-develop/issues/574) records accepted
+  pre-cutover evidence and its limits. Track new work in the
+  [canonical issue tracker](https://github.com/marionettejs/marionette/issues). The [release test guide](test/README.md#exact-release-candidates)
   describes certification; [config/release-profile.json](config/release-profile.json)
   pins the toolchain.
 

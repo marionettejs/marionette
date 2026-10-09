@@ -6,7 +6,7 @@ Marionette file can preserve the old architecture's problems. Decide who owns da
 UI, readiness, and mutations before choosing the order of implementation.
 
 This guide targets **5.0.0-rc.2**, source
-[`f4243b8334cafe0bd1b06eba85d87e2310cb3618`](https://github.com/marionettejs/marionette-develop/tree/f4243b8334cafe0bd1b06eba85d87e2310cb3618).
+[`f4243b8334cafe0bd1b06eba85d87e2310cb3618`](https://github.com/marionettejs/marionette/tree/f4243b8334cafe0bd1b06eba85d87e2310cb3618).
 Use [matching packages](../quick-start.md#install-the-release-candidate) and their
 installed contracts. For an existing Marionette v4 app, use the separate
 [v4 migration guide](migration.md).

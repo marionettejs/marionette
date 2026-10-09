@@ -1,10 +1,14 @@
-# Repository cutover checklist
+# Repository cutover record — 2026-10-09
 
 This checklist prepares the approved repository transition. It does not authorize
 publication, deployments, security changes, archival, branch deletion or RC3.
-The preparation PR must remain unmerged until the coordinating parent grants
-approval. Complete that gate before renaming either repository, so historical
-links and this checklist are present in the accepted v5 source.
+Status: preparation snapshot for [PR #626](https://github.com/marionettejs/marionette-develop/pull/626).
+The release maintainer, Paul Falgout, must authorize its merge through the
+coordinating task; record that approval on the PR before execution. This dated
+record is not standing repository guidance. Re-read live state at each gate.
+After destination import and exact `5.0.0` certification, mark this record
+completed with the actual IDs and remove the temporary cutover link from the
+shipped changelog. Retain this file as historical evidence, not an active runbook.
 
 ## Identity and acceptance
 
@@ -12,7 +16,7 @@ Read-only preflight on 2026-10-09 UTC confirmed:
 
 | Role | Repository before cutover | Immutable repository ID | `master` |
 | --- | --- | --- | --- |
-| v5 development history | `marionettejs/marionette` | `306411262` | `5170d87568e050cb4ad0bd08b5ba48d3ee6d605c` (PR #625) |
+| v5 development history | `marionettejs/marionette` | `306411262` | `5170d87568e050cb4ad0bd08b5ba48d3ee6d605c` ([PR #625](https://github.com/marionettejs/marionette-develop/pull/625)) |
 | Canonical destination / v4 history | `marionettejs/backbone.marionette` | `2965621` | `a8ca523cfd1ffb8dc4a2095c34d590aa7701110a` |
 
 The source manifests are `5.0.0-rc.2`. Paul accepted the bounded evidence in
@@ -24,15 +28,24 @@ into public evidence. The independent agent study remains deferred. Final exact
 
 ## Preparation and preservation gates
 
-- [ ] Obtain parent approval to merge the preparation PR; satisfy all current
-  checks and review requirements without bypass. Allow its automatic website
-  sync to finish and record the resulting website PR before renaming: the sync
+- [ ] Record release-maintainer authorization on preparation PR #626 and satisfy
+  its current checks and review requirements without bypass. Merge it with a
+  **merge commit**, retaining all reviewed preparation commits and their pinned
+  evidence links as ancestors. Do not squash/rebase or delete its branch.
+  Allow its automatic website sync to finish and record the resulting website PR before renaming: the sync
   clones the current canonical name, which must still identify v5 at that point.
-  Do not merge the website PR or enable its auto-merge. Its prospective development
-  links become live when the first rename completes.
+  Do not merge the website PR or enable its auto-merge. Prospective development
+  links in both reading copies become live when the first rename completes.
+- [ ] Coordinate a freeze on merges to both source and destination master during
+  the rename/import window; do not change protection to implement this freeze.
+  Drain all pre-rename source docs-sync runs before the first rename. The workflow
+  now requires the canonical repository name, so events in `marionette-develop`
+  cannot dispatch another sync after the rename. Keep the freeze through import
+  verification; do not manually dispatch website sync during the window.
 - [ ] Re-read both repository IDs, heads, open PRs and competing local work before
-  acting. Claude's inspected cutover conversation proposed a plan but reported no
-  changes; neither repository had an open PR at preflight. Preserve dirty local
+  acting. Neither repository had an open PR at preflight; that observation is
+  not a lock or proof of current inactivity. Ask the coordinating maintainer to
+  confirm that no other operator is executing cutover work. Preserve dirty local
   work and use an isolated checkout.
 - [ ] Save fresh `git ls-remote --heads --tags` snapshots from both repositories.
   Preflight counted 10 v5 branches / 9 tags and 13 legacy branches / 153 tags,
@@ -92,8 +105,9 @@ import commit: repeat it from the approved post-preparation v5 revision.
 
 ## Historical links and immutable evidence
 
-Numbered v5 issue/PR links and pinned v5 source references resolve through
-`marionette-develop`. Generic issue tracker/new-issue links, current-source links,
+Numbered v5 issue/PR links resolve through `marionette-develop`. Pinned v5 source
+commits remain canonical because the import preserves their exact objects and
+ancestry, consistent with generated documentation links. Generic issue tracker/new-issue links, current-source links,
 package repository identity and publication guards remain
 `marionettejs/marionette`. Existing legacy numbered links follow the legacy
 repository's rename. The legacy changelog is pinned to the original v4 commit,
@@ -105,34 +119,35 @@ new canonical repository. Do not rewrite commit subjects or hashes to fix this.
 
 The ten `evidence/performance-budget-amendments/BA*/prototype-contract.json`
 artifacts retain their exact bytes and old issue #127 URL. The explicit
-[relocation map](evidence/repository-relocation.json) identifies each artifact,
+[relocation map](repository-relocation.json) identifies each artifact,
 its SHA-256 and its relocated historical issue. This is a location map, not a new
 benchmark run, changed budget or renewed certification.
 
-## Settings inventory: separate action-time approval
+## Settings follow-up: separate action-time approval
 
-No settings are changed by this preparation. Re-read live values before proposing
-an exact mutation; credentials must never appear in evidence or review output.
+No live security settings or credentials are changed by this preparation. Keep
+read-only configuration snapshots in the maintainer's local evidence store and
+present exact proposed mutations privately at action time. Re-read live values;
+do not copy secret values or infer that settings follow Git history.
 
-| Area | Observed source / destination | Required follow-up |
-| --- | --- | --- |
-| Actions allowlist | Source selects GitHub-owned actions, disables verified third-party actions, and has an existing explicit pattern list; destination allows all | Propose exact destination restrictions for approval; do not loosen source guards for testing |
-| Master protection | Source ruleset requires six checks and resolved review threads; destination classic protection requires one approval, with no named checks | Retain existing destination approval rule; propose additional v5 check requirements separately, never bypass protection |
-| Required v5 checks | `Node 24`, `Package smoke (macOS arm64)`, `Package smoke (Windows x64)`, `Bundle size`, `Build and validate`, `Analyze (javascript-typescript)` | Verify those checks actually run in destination before configuring an approved requirement |
-| `stable-release` | Source requires reviewer `paulfalgout`; self-review prevention is false, admin bypass is true, custom branch policy is `master`; destination has no environments | Propose environment creation and exact reviewer/branch policy for approval before release use; do not implicitly copy bypass settings |
-| Secrets | Source lists `WEBSITE_DOCS_DISPATCH_TOKEN`; destination lists `COVERALLS_REPO_TOKEN` | Obtain separate approval for any destination credential setup; do not copy values or delete legacy credentials |
-| Documentation | Neither repository lists Actions variables; both Pages API reads returned 404 | `DOCS_PAGES_ENABLED` is unset. Do not enable Pages or manually dispatch a sync; the automatic preparation-merge sync is PR-only as traced below. Investigate 404 before claiming a Pages configuration |
-| npm trusted publishing | Not inspected through authenticated npm settings | Verify all five packages' repository/workflow/environment bindings after the swap; obtain separate approval for any changes, do not assume identity follows a renamed repository |
+- Preserve destination branch protection and reviews. Propose any additional v5
+  required checks separately after verifying they run in the destination.
+- Review Actions restrictions, `stable-release` environment reviewers and branch
+  policy for separate approval before release use. Do not copy bypass settings.
+- Review destination documentation dispatch credentials and Pages configuration
+  separately. The renamed development workflow is stopped by its repository-name
+  guard; decide whether to remove its now-unused dispatch credential only through
+  a separate action-time approval. Do not remove credentials as part of cutover.
+- Verify npm trusted-publisher bindings for all five packages after the swap.
+  Obtain approval for any changes rather than assuming identity follows the name.
 
-The source's inherited organization ruleset `21709790` currently has an empty
-rules list; its repository ruleset is `21649624`. Destination currently lists no
-rulesets. Repository IDs, existing environments and settings stay with the
-repository being renamed; they are not transferred by importing Git history.
+Repository identities, environments and settings stay with each renamed
+repository; importing Git history does not transfer those settings.
 
 ## Automatic documentation-sync effect
 
 Merging this preparation PR changes paths watched by the source
-[`docs-sync.yml`](.github/workflows/docs-sync.yml). It dispatches
+[`docs-sync.yml`](../.github/workflows/docs-sync.yml). It dispatches
 `library-docs-changed` to `marionettejs/marionettejs.com` using the existing
 `WEBSITE_DOCS_DISPATCH_TOKEN`.
 
@@ -155,21 +170,29 @@ At website main `18bf823896bb095a3d893c24d70a500a694add1d`:
   verifies them, and refreshes Context7 when documentation changed. Neither the
   sync dispatch nor its branch/PR update triggers that workflow.
 
-The preparation merge therefore needs the requested parent merge approval with
+The preparation merge therefore needs the release-maintainer approval recorded on PR #626 with
 this automatic PR update understood; it does not itself require deployment
 approval. A later merge of the website sync PR (or manual website deployment)
 requires separate explicit publication approval. Leave its auto-merge disabled.
-Website main currently requires a PR, resolved threads and an up-to-date `verify`
-check through ruleset `22624822`, with no bypass actors. No website merge or
-manual dispatch is part of this cutover preparation. Destination documentation
+Re-read website merge requirements before any separately authorized publication.
+No website merge or manual dispatch is part of this cutover preparation. Destination documentation
 credentials and security settings remain separate action-time approvals.
 
 ## Later stable certification
 
 After import and separately approved configuration, prepare exact `5.0.0` source
 and certify its tarballs with `release:artifact` and `release:validate`, following
-[the release guide](test/README.md#exact-release-candidates). Record the actual
+[the release guide](../test/README.md#exact-release-candidates). Record the actual
 destination source and all artifact integrities. Existing RC2 evidence and the
 accepted gaps remain historical; this cutover does not certify stable bytes.
 Publication, release tags, registry/hosted verification and deployment require
 separate authorization. Keep development history available and unarchived.
+
+## Live issue tracking after import
+
+Existing development issues preserve the accepted pre-cutover evidence. New
+work belongs in the canonical repository. Transferring open development issues,
+including #574, is a separate maintainer decision; do not transfer or duplicate
+issues under this Git-history cutover approval. If transfers are later approved,
+verify GitHub redirects and update live workflow references to the destination
+issue numbers. Keep historical evidence links and their original dates intact.
