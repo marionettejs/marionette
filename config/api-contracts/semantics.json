@@ -2211,7 +2211,7 @@
       ],
       "result": "Constructs a View whose children expose ordered lookups and iterators; operation-specific results remain in generated signatures.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
-      "ownership": "Managed children belong to the CollectionView; stable unchanged model sources preserve child identity; same-key replacement recreates a child.",
+      "ownership": "Managed children belong to the CollectionView; stable unchanged model sources preserve child identity; same-key replacement recreates a child. The empty Region uses the constructor RegionClass option over the prototype default; initialize may override it before creation.",
       "mutation": "Structural updates add/remove affected children and reorder survivor elements; reset destructively replaces the list. Filters affect presentation.",
       "repetition": "Explicit live render destroys all existing children and reconstructs collection-derived children; structural source updates reconcile survivors without an explicit render. Comparator ties preserve documented order. Entity-event delegation releases previous bindings before subscribing to the current sources and declarations.",
       "destruction": "destroy releases collection observation and destroys owned children; queued updates cannot resurrect a destroyed owner. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
@@ -2275,8 +2275,7 @@
             "options",
             "initialize",
             "preinitialize",
-            "el",
-            "RegionClass"
+            "el"
           ]
         },
         {
@@ -2336,6 +2335,22 @@
         {
           "file": "test/unit/destroy-listener-cleanup.spec.js",
           "title": "delivers final notifications and releases incoming and outgoing subscriptions"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-empty.spec.js",
+          "title": "uses the supplied Region to present the empty View"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-empty.spec.js",
+          "title": "lets a supplied constructor option override the prototype Region"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-empty.spec.js",
+          "title": "copies the option before initialize while preserving its override boundary"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-empty.spec.js",
+          "title": "recreates the custom Region and destroys its owned empty Views"
         }
       ],
       "events": [

@@ -121,6 +121,94 @@ describe('CollectionView -  Empty', function() {
     });
   });
 
+  describe('RegionClass constructor option', function() {
+    it('uses the supplied Region to present the empty View', function() {
+      const CustomRegion = Region.extend();
+      const list = new MyCollectionView({ RegionClass: CustomRegion });
+      const region = list.getEmptyRegion();
+
+      expect(region).toBeInstanceOf(CustomRegion);
+      expect(region.el).toBe(list.el);
+      expect(region.replaceElement).toBe(false);
+      list.render();
+      expect(region.currentView).toBeInstanceOf(MyEmptyView);
+      expect(region.currentView.el.textContent).toBe('Empty');
+      list.destroy();
+    });
+
+    it('lets a supplied constructor option override the prototype Region', function() {
+      const PrototypeRegion = Region.extend();
+      const OptionRegion = Region.extend();
+      const List = MyCollectionView.extend({ RegionClass: PrototypeRegion });
+      const list = new List({ RegionClass: OptionRegion });
+
+      expect(list.getEmptyRegion()).toBeInstanceOf(OptionRegion);
+      expect(list.getEmptyRegion()).not.toBeInstanceOf(PrototypeRegion);
+      list.destroy();
+    });
+
+    it.each([{}, { RegionClass: undefined }])('retains the prototype when the option is omitted or undefined: %j', function(options) {
+      const PrototypeRegion = Region.extend();
+      const List = MyCollectionView.extend({ RegionClass: PrototypeRegion });
+      const list = new List(options);
+
+      expect(list.getEmptyRegion()).toBeInstanceOf(PrototypeRegion);
+      list.destroy();
+    });
+
+    it('copies the option before initialize while preserving its override boundary', function() {
+      const OptionRegion = Region.extend();
+      const InitializeRegion = Region.extend();
+      let configuredBeforeInitialize;
+      const List = MyCollectionView.extend({
+        initialize() {
+          configuredBeforeInitialize = this.RegionClass;
+          this.RegionClass = InitializeRegion;
+        }
+      });
+      const list = new List({ RegionClass: OptionRegion });
+
+      expect(configuredBeforeInitialize).toBe(OptionRegion);
+      expect(list.getEmptyRegion()).toBeInstanceOf(InitializeRegion);
+      list.destroy();
+    });
+
+    it('recreates the custom Region and destroys its owned empty Views', function() {
+      const CustomRegion = Region.extend();
+      const list = new MyCollectionView({ RegionClass: CustomRegion });
+      list.render();
+      const firstRegion = list.getEmptyRegion();
+      const firstEmpty = firstRegion.currentView;
+      firstRegion.destroy();
+
+      expect(firstEmpty.isDestroyed()).toBe(true);
+      const replacement = list.getEmptyRegion();
+      expect(replacement).not.toBe(firstRegion);
+      expect(replacement).toBeInstanceOf(CustomRegion);
+      list.render();
+      const replacementEmpty = replacement.currentView;
+      list.destroy();
+      expect(replacement.isDestroyed()).toBe(true);
+      expect(replacementEmpty.isDestroyed()).toBe(true);
+      expect(list.getEmptyRegion()).toBe(replacement);
+    });
+
+    it('keeps the default Region and ordinary rows unchanged without the option', function() {
+      const collection = new Backbone.Collection([{ id: 1 }]);
+      const list = new MyCollectionView({ collection });
+      const region = list.getEmptyRegion();
+      list.render();
+
+      expect(region.constructor).toBe(Region);
+      expect(list.children.length).toBe(1);
+      expect(region.hasView()).toBe(false);
+      collection.reset();
+      expect(list.children.length).toBe(0);
+      expect(region.currentView).toBeInstanceOf(MyEmptyView);
+      list.destroy();
+    });
+  });
+
   describe('#getEmptyRegion', function() {
     let collection;
     let myCollectionView;

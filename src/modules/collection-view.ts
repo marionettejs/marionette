@@ -338,6 +338,7 @@ function modelAttributesMatcher(Data: DataProvider, predicate: Record<string, un
 }
 
 const ClassOptions = [
+  'RegionClass',
   'attributes',
   'behaviors',
   'childView',
