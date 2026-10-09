@@ -6,7 +6,7 @@
     "validate": "node validate.mjs && tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json"
   },
   "devDependencies": {
-    "eslint": "10.11.0",
+    "eslint": "10.12.0",
     "typescript": "7.0.2"
   }
 }
