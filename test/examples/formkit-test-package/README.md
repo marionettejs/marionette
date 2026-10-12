@@ -31,3 +31,8 @@ This bounded consumer check does not reproduce the owner's complete historical
 FormKit coverage. It excludes ongoing nested custom-row work, licensed Pro and
 customer applications. Artifact/source identity, test counts, environment and
 stage outcomes are retained in `test/tmp/formkit-test-package-consumer/report.json`.
+
+The later [nested consumer checkpoint](NESTED-VERIFICATION.md) records the verified
+source delta, frozen eight-case oracle, separate focused coverage and installed
+ESM/CJS/native-browser replay. Its private scoped harness and exact artifacts are
+retained separately; the default fixture above still represents the baab slice.
