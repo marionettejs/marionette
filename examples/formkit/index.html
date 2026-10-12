@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Marionette FormKit — profile example</title>
+    <style>
+      :root { color-scheme: light dark; font: 1rem/1.5 system-ui, sans-serif; }
+      body { max-width: 38rem; margin: 2rem auto; padding: 0 1rem; }
+      label, input, select, textarea { display: block; }
+      input:not([type="checkbox"]), textarea, select { box-sizing: border-box; width: 100%; padding: .6rem; }
+      label { margin-top: 1rem; font-weight: 600; }
+      fieldset { margin: 1.5rem 0; padding: 1rem; }
+      .formkit-messages, [aria-invalid="true"] { color: light-dark(#9c1828, #ffa1b0); }
+      .formkit-messages { margin-top: .4rem; }
+      button { padding: .5rem 1rem; margin: 1rem .5rem 1rem 0; }
+      :focus-visible { outline: 3px solid light-dark(#3153c8, #acbaff); outline-offset: 3px; }
+      pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+    </style>
+  </head>
+  <body>
+    <h1>Edit your profile</h1>
+    <p><a href="./composition.html">Template and Region example</a></p>
+    <p><a href="./schema.html">Native schema and multi-step example</a></p>
+    <p><a href="./composed.html">Composed follow-up planning example</a></p>
+    <p>Try submitting empty, then enter a valid email. The name “taken” simulates a server error.</p>
+    <main id="form"></main>
+    <p id="result" role="status" aria-live="polite"></p>
+    <h2>Current values</h2>
+    <pre id="values"></pre>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

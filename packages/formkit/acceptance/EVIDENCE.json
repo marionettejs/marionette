@@ -1,0 +1,598 @@
+{
+  "schemaVersion": 3,
+  "baseline": "fd45998e35a88c15620ae13c59271f0128ce2157",
+  "branch": "feat/mnjs-formkit-composed-views",
+  "currentCheckpoint": {
+    "checkedCode": "f2c8e62267e6619b7e3a712eb1fcbfaa2a65781a",
+    "productionRuntime": "f2c8e62267e6619b7e3a712eb1fcbfaa2a65781a",
+    "status": "bounded_local_and_two_level_rows_pass_external_and_broader_stages_open",
+    "reconciliation": "GOAL-STATUS.md",
+    "repositoryVerify": {
+      "tests": 2491,
+      "files": 169,
+      "exitCode": 0,
+      "buildTypesLintAndContracts": "passed"
+    },
+    "configuredCoverage": {
+      "exitCode": 0,
+      "productionFormkitFiles": 9,
+      "isolatedExperimentFiles": 1,
+      "allFormkitMetricsPercent": 100,
+      "policyChanged": false,
+      "repositoryPercent": {
+        "statements": 99.97,
+        "branches": 99.82,
+        "functions": 100,
+        "lines": 99.97
+      }
+    },
+    "applicationContracts": {
+      "tests": 7,
+      "independentTests": 7,
+      "timerNegativeControl": "failed as expected when owner cleanup was removed",
+      "document": "APPLICATION-CONTRACTS.md"
+    },
+    "nestedRows": {
+      "document": "NESTED-ROWS.md",
+      "levelsMeasured": 2,
+      "baseline": "baab5619fcf207eb2ec1139d367dcea09c67acd2",
+      "frozenOracleSHA256": "8c37b04cfd7a61eb779ec503bfdf6ff403a25616a4e4fb50566e8875dd366edb",
+      "identicalOracleBaselineFailures": 8,
+      "candidatePasses": 8,
+      "additionalBoundaries": [
+        "cached foreign-form ownership guard",
+        "clear ancestor retirement preserves sibling defaults/exclusions",
+        "independent inner-only reset"
+      ],
+      "independentMutation": "unconditional baseline deletion fails surviving default assertion",
+      "firstCandidate": "7/8; live-input fixture corrected independently; original attempts retained",
+      "publicRuntimeExportsChanged": false
+    },
+    "installed": {
+      "formats": [
+        "ESM",
+        "CommonJS"
+      ],
+      "nestedLifecycleCycles": 6,
+      "existingSchemaComposedLifecycleCycles": 20,
+      "declarationsContentDependencies": "passed",
+      "runtimeVueReactPro": false
+    },
+    "browser": {
+      "engine": "Chromium",
+      "passed": 11,
+      "failed": 0,
+      "otherEnginesAndATSpeech": "not verified",
+      "nativeImmediateInvalidClick": "passes after example reserves required-error space; original failed geometry/event trace retained"
+    },
+    "exampleProductionBuild": {
+      "exitCode": 0,
+      "nestedRoute": "/nested.html"
+    },
+    "documentation": {
+      "pipelineStages": "all passed; installed stage rerun separately after writable process-local npm cache correction",
+      "recipes": 55,
+      "typeFixtures": 20,
+      "typescriptExamples": 15
+    },
+    "boundary": "Final source/test/policy hashes unchanged between passing configured coverage and final repository verification. Earlier failed checks and frozen trials remain chronological evidence. No arbitrary-depth, raw Core graph, server-baseline/error-policy change, host/Pro, strict File/Vue lifetime repair, canonical integration or publication certificate."
+  },
+  "goals": {
+    "G1": {
+      "status": "completed",
+      "evidence": [
+        "Public SchemaView and named real View/CollectionView integration passes 31 ordinary cases with zero runtime faults; one separately handled invalid-owner diagnostic passes and is not ordinary runtime-clean evidence.",
+        "One root, explicit group/list parents, independent same-named forms, duplicate rejection, JSON schemas with separate runtime registrations, stable keyed identity and explicit replacement are covered through public APIs.",
+        "Final unchanged independent 17-case public oracle passes at frozen current runtime hashes. Installed ESM/CommonJS composition, typed DTOs and documentation pass; see independent-review/FINAL-PROGRESS.md and evidence/final-delivery/CHECKPOINT.json."
+      ]
+    },
+    "G2": {
+      "status": "completed",
+      "evidence": [
+        "Public keyed rows pass 40 ordinary integration/boundary cases and the unchanged independent 34-case oracle. Strict source and installed declaration consumers pass.",
+        "Three nested-object rows cover authoritative membership/order, add/insert/reorder/edit/remove, temporary unmount/remount, delayed native work, retained defaults and cleanup. Nested owned arrays and arbitrary direct Core mutations are documented limits.",
+        "Final independent source readback accepts the recorded row/lifetime evidence. Installed real RowView to nested SchemaView to named FieldView/View cycles pass in both advertised formats."
+      ]
+    },
+    "G3": {
+      "status": "completed",
+      "evidence": [
+        "Original four submission failures and eight independent boundary cases were repaired and replayed unchanged; the final integrated independent 17-case public suite passes at current runtime hashes.",
+        "Checked-in submission-lifetime suite passes 18 cases, including native settlement, ignored controls, constraint invalidation, structural changes and stale keyed errors. Meaningful changes after callback capture abort and suppress stale results; explicit retry is required.",
+        "Final combined Chromium replay passes all nine cases with source/artifact/oracle guards true and zero page, console, unhandled, unexpected-network or runner faults. The three representative invented flows establish synthetic capabilities, not actual host or licensed Pro parity."
+      ]
+    },
+    "G4": {
+      "status": "completed_bounded_comparison",
+      "evidence": [
+        "Version8 exact frozen packet independently qualified with public-only documentation access; both fresh unassisted BUILD originals passed8/8 each, graph/source/adherence and matched budget gates before CHANGE.",
+        "Fresh matched CHANGE original Marionette passes11/11 with zero runtime faults; final Vue passes8/11 (BUILD5/8, CHANGE3/3) with10 unhandled errors from its public commit hook null/undefined assumption. Both graph audits pass; all original bytes and3451 frozen inputs remain unchanged.",
+        "Failed original Vue CHANGE is a hard failure, not accepted as successful implementation; no repairs, rescoring, hidden substitute or favorable rerun. The valid bounded paired outcome is established, not broad productivity/superiority or both-stacks-success.",
+        "See independent-review/G4-COHORT3-ORIGINAL-AUDIT.md and G4-COHORT3-CHANGE-AUDIT.md. Earlier task-confounded and read-adherence-failed pairs remain separate histories. G4 uses pre-G6 setup-3 artifacts and does not cover the new portability/default-values goal."
+      ]
+    },
+    "G5": {
+      "status": "completed",
+      "evidence": [
+        "Final npm run verify passes 2459 tests in 165 files; build, declarations, source and distribution checks pass.",
+        "Full configured coverage remeasurement at 4c98c346 passes all 2459 tests: all ten FormKit source files have 100% statements, lines, functions and branches. Existing global exceptions and thresholds are unchanged; see evidence/full-coverage-3/MEASUREMENT.json.",
+        "Final clean installed ESM/CommonJS fixture passes seven runtime exports, strict DTO declarations, ten schema/composed cycles per format and keyed schema/registered View routes, with no Vue/React/Pro dependencies or fallback source imports.",
+        "Docs check passes 84 generated pages, 85 HTML files, 1118 internal links, 55 recipes, 20 type fixtures, 15 TypeScript examples and installed quickstart build.",
+        "Tooling coverage passes 420 tests and the unchanged configured release policy. These tooling thresholds differ from the 100% FormKit source measurement.",
+        "Final Chromium checks cover associated labels/errors, native keyboard input, retained focus/selection, real status/polite and alert/assertive DOM live-region updates, cancellation and cleanup. Screen-reader speech, Firefox and WebKit remain unverified.",
+        "Final continuation at262945b5: verify2473/166PASS; all9production+relocated experiment100%all4 coveragePASS; Chromium10/10PASS; installed ESM/CJS20cycles/types/content/depsPASS; docs/source/distPASS; tooling420/420PASS. Older listed measurements remain historical; see LOCAL-CHECKPOINT.md and evidence/g7-final/MEASUREMENT.json."
+      ]
+    },
+    "G6": {
+      "status": "bounded_runtime_pass_stronger_lifetime_blocked",
+      "evidence": [
+        "Independent pinned Vue/React source review completed47 capability rows and298 function/responsibility entries; five wrapper gaps reproduced before scoped corrections. React runtime is not certified.",
+        "Reviewed v2 first certificate uses explicit root data binding and byte-identical JSON schema, with18 cases. No automatic values alias or ordinary template injection implemented.",
+        "Five scoped corrections and adjacent cases independently pass9/9 using frozen normal installed artifacts; unchanged stronger File replacement probes remain failed in bare Core/MN/Vue and are explicit dependency limits.",
+        "Earlier full coverage attempt reported2467passed/1failed before separating the known Core File boundary; final required checks/100%coverage at the new source checkpoint remain pending. Existing frozen G4 trial results are unchanged.",
+        "First12shared-runtime cases pass (6each); extended14case attempt has12pass2fail: calleritems is shadowed by MNroot nativecontext, and explicitnulltext differs from Vue. These new cases remain unresolved at this checkpoint.",
+        "Extended14normal-installed sharedJSON cases now pass7perstack after independent root/text review; exactsource+schema/oracle hashes retained. Required final delivery checks/coverage remainpending; no Reactruntime/fullhost certificate.",
+        "Final normal installed shared16/16 (eight per stack) passes at262945b5, with byte-identical external JSON and strengthened isolated validation/reset/error-reorder assertions. No automatic root alias, React runtime or complete ecosystem certificate.",
+        "Independent borrowed/direct/native slot and inherited SchemaView caller proofs pass before genuine Vue retained-native-control post-unmount error; minimal unwrapped Vue baseline confirms null node context TypeError. Strict red remains hard failure; stronger shared P12 blocked.",
+        "Final configured coverage2473/166PASS: nine production modules and relocated experiment100%all4 metrics. Repository verification/types/browser/installed/docs/source/dist/tooling passed at same runtime hashes.",
+        "Recommended server-baseline adoption, full error-owner policy and nested custom RowView contracts are concrete but unimplemented/uncertified. They remain requirements, not accepted exclusions; private source-grounded application recommendations retained locally."
+      ]
+    },
+    "G7": {
+      "status": "completed_scoped_cleanup",
+      "evidence": [
+        "Independent function/state/lifetime review accepted removal of unused ListOwner.root, merged root/list registry and redundant FieldView name check; shared pre-node guard and protected seams retained.",
+        "Unexported manifest experiment relocated outside shipped source/declarations. All48 original tests unchanged; explicit type/lint/coverage inventory retained at100%all4. No runtime bundle-size or broad parity claim.",
+        "Final source/artifact hashes match independent review; all repository verify/coverage/Chromium/installed/type/docs/source/dist/tooling checks pass. Known strict File and Vue lifecycle failures remain explicit and unchanged; no thresholds/exceptions lowered."
+      ]
+    }
+  },
+  "externalStages": {
+    "genuineProWidgets": {
+      "status": "blocked",
+      "reason": "No authorized runnable existing licensed bootstrap entrypoint is available; actual registration/mount was not reached."
+    },
+    "actualTCMHost": {
+      "status": "source_reconciled_runtime_unverified",
+      "reason": "Engine/UI and actual host source inspection is available and reconciled. Source-level submit/error transport differences remain separately recorded; actual host execution, remote durability and full customer UI are unverified. Synthetic contracts do not establish live host parity; exact private source details remain outside OSS artifacts."
+    },
+    "release": {
+      "status": "out_of_scope",
+      "reason": "No push, publish, release, merge or deployment authorized."
+    },
+    "sameMetadataFileReplacement": {
+      "status": "blocked",
+      "reason": "Public Core2.1.2 equality retains old File for distinct same-name/size/type/lastModified values; strict wrapper/Core/Vue probes remain failed, no authorized vendor workaround used."
+    },
+    "vueRetainedNativeControlAfterUnmount": {
+      "status": "strict_hard_failure",
+      "reason": "Official Vue2.1.2 retained native input dispatch after app.unmount accesses destroyed null node context; independently reproduced in minimal genuine single text input. Slot/graph/caller assertions pass before the strict failure; stronger shared lifetime certificate blocked."
+    }
+  },
+  "attempts": [
+    {
+      "stage": "row public integration",
+      "result": "passed",
+      "tests": 35,
+      "note": "Strict ESM/CommonJS source consumers pass; installed declarations and coverage remain pending."
+    },
+    {
+      "stage": "submission baseline review",
+      "result": "failed",
+      "testsFailed": 4,
+      "evidence": "composed-views-evaluation/independent-review/g3-baseline"
+    },
+    {
+      "stage": "submission first repair",
+      "result": "failed",
+      "reason": "Observed custom constraint changes could precede scheduled rule evaluation and overtake callback completion.",
+      "evidence": "composed-views-evaluation/independent-review/g3-rule-repaired"
+    },
+    {
+      "stage": "submission public message-boundary repair",
+      "result": "passed",
+      "tests": 15,
+      "note": "Before callback re-settle latest state; after capture abort on semantic values/graph/rule invalidation, suppress late results, explicit retry."
+    },
+    {
+      "stage": "new row nested-remount test setup",
+      "result": "failed",
+      "reason": "DOM assertion preceded documented native rendering settlement; unchanged value assertion passes after actual node settlement and rendering flush. No production fix.",
+      "evidence": "list-row-evaluation/integration-unit2.log"
+    },
+    {
+      "stage": "schema and registry boundary regression",
+      "result": "failed",
+      "reason": "Removing a native resource disposed-update guard allowed a surviving root renderer to resurrect a field after its explicitly referenced group was destroyed.",
+      "evidence": "schema-candidate/BOUNDARIES-REPORT.md"
+    },
+    {
+      "stage": "schema and registry boundary guard restored",
+      "result": "passed",
+      "tests": 31,
+      "note": "Ordinary public cases have zero runtime errors or unhandled rejections. Separately handled diagnostic is not counted as ordinary runtime-clean behavior.",
+      "evidence": "schema-candidate/REPORT.md"
+    },
+    {
+      "stage": "full configured coverage first integrated run",
+      "result": "failed",
+      "testsPassed": 2440,
+      "reason": "All selected tests passed but coverage policy failed with uncovered lines/branches. Policy was not changed.",
+      "evidence": "composed-views-evaluation/evidence/full-coverage-1"
+    },
+    {
+      "stage": "full configured coverage repaired",
+      "result": "passed",
+      "tests": 2459,
+      "files": 165,
+      "note": "100% in all four metrics for ten FormKit files; global exceptions unchanged.",
+      "evidence": "composed-views-evaluation/evidence/full-coverage-2"
+    },
+    {
+      "stage": "final API inventory npm exec invocation",
+      "result": "failed",
+      "reason": "npm exec attempted unrelated node@26 install; strict script policy rejected it. Direct pinned Node used instead.",
+      "evidence": "/tmp/formkit-composed-api-refresh.log"
+    },
+    {
+      "stage": "final API inventory direct invocation",
+      "result": "failed",
+      "reason": "New public exports required semantic contracts; after mapping them, the tool crashed treating ES private fields as public members.",
+      "evidence": "/tmp/formkit-composed-api-refresh3.log"
+    },
+    {
+      "stage": "final verify first attempt",
+      "result": "failed",
+      "reason": "Stopped at check:api-contracts due the inventory private-field bug. Earlier profile and diagnostic checks passed.",
+      "evidence": "/tmp/formkit-composed-final-verify.log"
+    },
+    {
+      "stage": "API inventory ES private-field regression",
+      "result": "failed",
+      "reason": "A public compiler fixture with genuine #private value and method reproduces the tool crash.",
+      "evidence": "composed-views-evaluation/evidence/api-inventory/formkit-api-private-red.log"
+    },
+    {
+      "stage": "API inventory private-field filter repair",
+      "result": "passed",
+      "tests": 13,
+      "note": "Excludes ES private identifiers using the TypeScript AST; verifies real current inventory and all existing scoped routing cases.",
+      "evidence": "composed-views-evaluation/evidence/api-inventory/formkit-api-private-green.log"
+    },
+    {
+      "stage": "final verify second attempt",
+      "result": "failed",
+      "reason": "Build docs packaging rejected contract references to supplementary files outside central consumer navigation. Added concrete README API summaries and routed semantic contracts to those exported sections; detailed guides remain in the FormKit package.",
+      "evidence": "composed-views-evaluation/evidence/api-inventory/formkit-composed-final-verify2.log"
+    },
+    {
+      "stage": "central docs package routes repaired",
+      "result": "passed",
+      "note": "API inventory includes seven runtime exports and composed-view generic types; documentation packaging validates their primary section routes.",
+      "evidence": "composed-views-evaluation/evidence/api-inventory/formkit-composed-docs-package2.log"
+    },
+    {
+      "stage": "final repository verify",
+      "result": "passed",
+      "tests": 2459,
+      "files": 165,
+      "evidence": "composed-views-evaluation/evidence/final-delivery/verify3.log"
+    },
+    {
+      "stage": "linked documentation resource closure",
+      "result": "failed",
+      "reason": "Central consumer documentation export omitted linked schema-views.md/rows.md resources.",
+      "evidence": "composed-views-evaluation/evidence/final-delivery/docs.log"
+    },
+    {
+      "stage": "linked documentation resource closure repaired",
+      "result": "passed",
+      "evidence": "composed-views-evaluation/evidence/final-delivery/docs2.log",
+      "note": "Added the two genuine guide assets to docs-site/resources.json; no checks weakened."
+    },
+    {
+      "stage": "first two tooling coverage attempts",
+      "result": "failed",
+      "reason": "Existing docs symbol/resource-closure checks exposed the recorded documentation packaging defects. Thresholds and exceptions unchanged.",
+      "evidence": "composed-views-evaluation/evidence/final-delivery/tooling-coverage.log and tooling-coverage2.log"
+    },
+    {
+      "stage": "final tooling coverage",
+      "result": "passed",
+      "tests": 420,
+      "evidence": "composed-views-evaluation/evidence/final-delivery/tooling-coverage3.log"
+    },
+    {
+      "stage": "combined browser observer wrapper",
+      "result": "failed",
+      "reason": "ESM module wrapper was incompatible with the Playwright transform; zero cases collected. No product stage ran.",
+      "evidence": "composed-views-evaluation/representative-flow/combined-final"
+    },
+    {
+      "stage": "final Chromium strengthened public DOM semantics",
+      "result": "passed",
+      "tests": 9,
+      "evidence": "composed-views-evaluation/representative-flow/combined-final/run-2",
+      "note": "Generated bodies/fixtures byte-identical to checked-in cases, original6 budgets30s/new3 budgets90s; all runtime and network counts0; source/artifact/oracle guards true."
+    },
+    {
+      "stage": "G4 prelaunch native Reset while pending click",
+      "result": "failed",
+      "reason": "New v5 probe assumed an enabled native reset button during submission; current action buttons intentionally disable. Original brief did not require pending button availability. Independent review accepts v6 as idle genuine native reset plus original pending public-reset cancellation; all earlier expectations retained.",
+      "evidence": "composed-views-evaluation/authoring-protocol/REPORT.md"
+    },
+    {
+      "stage": "G4 final installed v6 control qualification",
+      "result": "passed",
+      "testsPerControl": 11,
+      "positiveAudits": 2,
+      "evidence": "composed-views-evaluation/authoring-protocol/RESULTS-installed.json",
+      "note": "Preparation, not fresh author evidence; prior versions and corrections retained."
+    },
+    {
+      "stage": "G4 original v6 fresh BUILD cohort",
+      "result": "protocol-confounded",
+      "evidence": "composed-views-evaluation/authoring-protocol/original-build-cohort-1/PRESERVATION.json",
+      "observed": {
+        "marionette": {
+          "passed": 6,
+          "failed": 2,
+          "unhandled": 0
+        },
+        "vue": {
+          "passed": 2,
+          "failed": 6,
+          "unhandled": 1
+        },
+        "positiveGraphAuditsPassed": 2
+      },
+      "note": "Independent original replay matches. Undeclared app.instanceId, state/event shape, panel markers, observation timing and availability request keys confound attribution; genuine runtime error retained as hard failure. No acceptance or CHANGE seed."
+    },
+    {
+      "stage": "G4 original v7 fresh BUILD cohort",
+      "result": "failed adherence; behavior preserved",
+      "evidence": "composed-views-evaluation/independent-review/G4-COHORT2-ORIGINAL-AUDIT.md",
+      "observed": {
+        "marionettePassed": 8,
+        "vuePassed": 8,
+        "runtimeFaults": 0,
+        "positiveGraphAuditsPassed": 2
+      },
+      "reason": "Vue disclosed reading full mixed-scope CLAUDE.md beyond the permitted public sections; matched CHANGE held. No private runtime API use found in inspected submitted source. No repair/rescore/coaching."
+    },
+    {
+      "stage": "G4 original matched v8 CHANGE cohort",
+      "result": "valid bounded comparison; Vue original runtime failure",
+      "evidence": "composed-views-evaluation/independent-review/G4-COHORT3-CHANGE-AUDIT.md",
+      "observed": {
+        "marionettePassed": 11,
+        "marionetteUnhandled": 0,
+        "vuePassed": 8,
+        "vueFailed": 3,
+        "vueUnhandled": 10,
+        "graphAuditsPassed": 2
+      },
+      "note": "Exact unassisted originals replayed; Vue final post-own-run commit hook unsafe on lifecycle null/undefined. No repair or rescore. Both matched original BUILDs had independently passed8 before CHANGE."
+    },
+    {
+      "stage": "five portability regression baseline",
+      "result": "failed",
+      "testsFailed": 5,
+      "evidence": "schema-portability-evaluation/regressions-pre-fix/five-red.log"
+    },
+    {
+      "stage": "independent installed corrections",
+      "result": "passed",
+      "tests": 9,
+      "evidence": "independent-review/portability-corrections/installed-replay/supported.log"
+    },
+    {
+      "stage": "strong same-metadata File dependency probe",
+      "result": "failed",
+      "testsFailed": 2,
+      "note": "Also genuine Vue model replacement failed; no waived acceptance.",
+      "evidence": "independent-review/portability-corrections/installed-replay/limitation.log"
+    },
+    {
+      "stage": "new source full coverage attempt",
+      "result": "failed",
+      "testsPassed": 2467,
+      "testsFailed": 1,
+      "note": "New stronger File assertion failed; no coverage certificate for this attempt."
+    },
+    {
+      "stage": "initial correction full configured coverage",
+      "result": "passed",
+      "tests": 2470,
+      "files": 166,
+      "allFormKitMetrics": 100,
+      "note": "All10sourcefiles100%; strongerFile knownfailseparate. Subsequent extendedG6scope/text probes exposed two additional wrapperscope/representation gaps; this is pre-fix/G7checkpoint.",
+      "evidence": "evidence/portability-corrections-baseline/MEASUREMENT.json"
+    },
+    {
+      "stage": "root application namespace and null text correction",
+      "result": "passed",
+      "tests": 81,
+      "note": "Root caller presence wins over native fallbacks except reservednode; nativechildslots remainlocal; ordinarytext String(value) aligns Vue/React source. Three old blank-text assertions updated to documented interpolation output, not removed."
+    },
+    {
+      "stage": "extended shared normal-installed JSON replay",
+      "result": "passed",
+      "tests": 14,
+      "stacks": {
+        "MN": 7,
+        "Vue": 7
+      },
+      "evidence": "schema-portability-evaluation/shared-scope-text-1/run-1.log",
+      "note": "Actual canonical root/leaf graph, validity/errors/ARIA, reorder/focus, callbacks, explicit null/undefined/omission, lexical fallback, reset and repeated teardown; no source aliases or runtime faults."
+    },
+    {
+      "stage": "G7 verify first",
+      "result": "failed",
+      "reason": "stale source/API inventory; regenerated after review",
+      "evidence": "evidence/g7-final/verify1.log"
+    },
+    {
+      "stage": "G7 verify second",
+      "result": "failed",
+      "reason": "unused imports/copied helpers in retained File probe; removed only unused code, strict body unchanged and original bytes retained",
+      "evidence": "evidence/g7-final/verify2.log"
+    },
+    {
+      "stage": "G7 Chromium initial",
+      "result": "unavailable",
+      "reason": "default cache path lacks executable; no assertion ran. Existing /tmp/mnjs-playwright used for next run.",
+      "evidence": "evidence/g7-final/chromium1.log"
+    },
+    {
+      "stage": "G7 final verify/coverage/browser/installed/docs/source/dist/tooling",
+      "result": "passed",
+      "tests": 2473,
+      "files": 166,
+      "note": "Coverage9production+experiment100%all4;Chromium10/10;tooling420/420;seven runtime exports/no experiment artifact;strict known failures not counted as accepted",
+      "evidence": "evidence/g7-final/MEASUREMENT.json"
+    },
+    {
+      "stage": "G6 expanded shared normal installed",
+      "result": "passed",
+      "tests": 16,
+      "note": "Same JSON, eight cases per actual MN/Vue. Stronger separate post-unmount lifetime outcome remains failed.",
+      "evidence": "schema-portability-evaluation/shared-final-1/run-1.log"
+    },
+    {
+      "stage": "G6 actual Vue retained native control after terminal unmount",
+      "result": "failed",
+      "reason": "null node context TypeError in genuine Vue; strict slot/module and minimal baseline preserved",
+      "evidence": "schema-portability-evaluation/shared-final-slot-review/evidence"
+    },
+    {
+      "stage": "Fileadapterguardcandidate",
+      "result": "rejected",
+      "reason": "Fourindependentordinarynormalization/parentcanonicality/legitimateretryfailures;guardnotshipped",
+      "evidence": "independent-review/file-safeguard/FINAL-GUARD-DISPOSITION.md andfile-safeguard-review/FINAL-VERDICT.md"
+    },
+    {
+      "stage": "Opaque native value-prop pipeline regression",
+      "result": "failed_then_fixed",
+      "reason": "Oldrendererignoredsame-metadataFilebeforegenuineinputnormalizer;newpublictestpassesexactlyoneactualproposal. StrictCoreFileidentityfailsremain.",
+      "evidence": "evidence/file-safeguard/file-props-red.log andsmall-value-prop-fixindependentreview"
+    },
+    {
+      "stage": "Filevalueprop finalverification",
+      "result": "passed",
+      "tests": 2474,
+      "files": 167,
+      "note": "Fullcoverageall4 metrics100%FormKit;Chromium10/10;freshinstalledESM/CJSnewnormalizerproof+declarations/dependenciesPASS",
+      "evidence": "evidence/file-safeguard/MEASUREMENT.json"
+    }
+  ],
+  "reviews": [
+    {
+      "stage": "minimal model",
+      "result": "accepted with gates",
+      "evidence": "composed-views-evaluation/independent-review/MODEL-REVIEW.md",
+      "note": "19 combined gates remain to replay after SchemaView/adapter integration."
+    },
+    {
+      "stage": "public row integration",
+      "result": "passed",
+      "tests": 34,
+      "evidence": "list-row-evaluation/integrated34/FINAL-RUN.json",
+      "note": "Unchanged frozen independent oracle routed through public package entry."
+    },
+    {
+      "stage": "submission repair",
+      "result": "passed",
+      "tests": 12,
+      "evidence": "composed-views-evaluation/independent-review/G3-PATCH-REVIEW.md",
+      "note": "Exact original four red assertions plus eight semantic boundaries; broader G3 remains in progress."
+    },
+    {
+      "stage": "integrated public model",
+      "result": "passed",
+      "tests": 17,
+      "evidence": "composed-views-evaluation/independent-review/INTEGRATED-REVIEW.md",
+      "note": "Recorded historical source freeze; current final-checkpoint replay remains pending. Fixture locator correction is disclosed separately."
+    },
+    {
+      "stage": "final source and local delivery readback",
+      "result": "passed",
+      "evidence": "composed-views-evaluation/independent-review/FINAL-PROGRESS.md",
+      "note": "Current runtime17pass, final Chromium9pass including DOMannouncement semantics, installed/type/docs and unchanged configured library/tool coverage reviewed; G4 originals remain."
+    },
+    {
+      "stage": "G4 independent final prelaunch",
+      "result": "approved",
+      "evidence": "composed-views-evaluation/independent-review/G4-FINAL-ELIGIBILITY.md",
+      "note": "Both11 plus both actualgraph audits and genuine runtimefault proof reproduced; all3454 hashes unchanged. Not fresh author acceptance."
+    },
+    {
+      "stage": "G4 task-to-evaluator completeness correction",
+      "result": "protocol defect confirmed",
+      "evidence": "composed-views-evaluation/independent-review/G4-COHORT1-PROTOCOL-REVIEW.md",
+      "note": "Reviewer explicitly corrects earlier eligibility. Controls/graph/fault proofs remain genuine. New task-only contract, unchanged assertions and fresh blank cohort required."
+    },
+    {
+      "stage": "G4 prospective v8 documentation-access qualification",
+      "result": "approved",
+      "evidence": "composed-views-evaluation/independent-review/G4-V8-FINAL-ELIGIBILITY.md",
+      "note": "Exact public-only extraction, source parity and old/new freezes verified. Both unchanged11 controls, both positive Core graph audits and genuine runtime sensitivity proof pass. Approval is prelaunch readiness, not fresh author acceptance."
+    },
+    {
+      "stage": "G4 original v8 BUILD and CHANGE audit",
+      "result": "bounded outcome established; Vue CHANGE hard failure preserved",
+      "evidence": "composed-views-evaluation/independent-review/G4-COHORT3-CHANGE-AUDIT.md",
+      "note": "Adherence, public use, both real graphs and freeze preservation verified. Passing comparison procedure does not relabel Vue original implementation successful."
+    }
+  ],
+  "implementationCheckpoint": "557a78f868efdc41f3a1ef2735c7b37e2cbddb36",
+  "documentationArtifactCheckpoint": "76635f4a2daca5580871cdc9aab00ada9c3881c9",
+  "browserAssertionsCheckpoint": "60d913db",
+  "checkpointRelation": "Runtime source, declarations and public FormKit guides match the tested implementation and frozen setup-3 artifacts; later commits change documentation export resources, browser assertions and this evidence ledger only.",
+  "goalContractVersion": 4,
+  "finalRuntimeCheckpoint": "a9a6e43becf89c6e4c3b13dd060c5f5e059b11df",
+  "checkpointSummary": "LOCAL-CHECKPOINT.md",
+  "followupFileEvaluation": {
+    "status": "completed_guard_rejected_small_wrapper_fix_verified",
+    "runtimeCommit": "a9a6e43becf89c6e4c3b13dd060c5f5e059b11df",
+    "guardCandidate": {
+      "accepted": false,
+      "branch": "experiment/mnjs-formkit-file-safeguard",
+      "commit": "7804108bcd0d8b4f84e64b01fec39f9e4c68a6d2",
+      "independentFailures": 4
+    },
+    "evidence": [
+      "Four independent candidate failures inparentnormalization/canonicality/legitimateretry; experimentpreservedseparatelyanddoesnotship.",
+      "One-line nativevaluepropcomparisonnowforwardsopaqueidentitychanges toactualinputhooks. Independent1/1regressionPASS and strictunchanged2Filefailuresretained. No forcedreplacement, vendorpatch, extraownershipstate or metadataworkaround.",
+      "Finalverify2474/167PASS;fullconfiguredcoverageall9production+experiment100%all4PASS;Chromium10/10PASS;freshinstalledESM/CJSnormalizer1actualproposal+focus/canonicaldata/cleanupandtypes/content/dependenciesPASS. Earlierdocs/toolingmeasurementunchangedsource; notrerunforthisone-linefix.",
+      "Prior28commithandoff/ZIPremainexactlypreserved. Proposeddefaultsandprecisehostinputs arein NEXT-CONTRACTS.md;no policies silentlyaccepted/excluded."
+    ]
+  },
+  "previousCheckpoints": [
+    {
+      "checkedCode": "a545a7b1e58f65ad5facc6bb7291647cab1a402c",
+      "productionRuntime": "a9a6e43becf89c6e4c3b13dd060c5f5e059b11df",
+      "status": "bounded_local_contracts_pass_external_and_broader_stages_open",
+      "reconciliation": "GOAL-STATUS.md",
+      "repositoryVerify": {
+        "tests": 2481,
+        "files": 168,
+        "exitCode": 0
+      },
+      "configuredCoverage": {
+        "exitCode": 0,
+        "productionFormkitFiles": 9,
+        "isolatedExperimentFiles": 1,
+        "allFormkitMetricsPercent": 100,
+        "policyChanged": false
+      },
+      "applicationContracts": {
+        "tests": 7,
+        "independentTests": 7,
+        "timerNegativeControl": "failed as expected when owner cleanup was removed",
+        "document": "APPLICATION-CONTRACTS.md"
+      },
+      "boundary": "Runtime unchanged from6611aa55. Earlier installed/browser/doc/tooling records keep their exact checkpoints. Historical pending/failed/corrected entries below remain chronological evidence. No full roadmap, host, Pro, canonical integration or publication certificate."
+    }
+  ]
+}

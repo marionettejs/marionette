@@ -48,6 +48,8 @@ before the consumer support policy changes.
 | CLI, release, docs, performance and benchmark infrastructure | `tooling/`, `release/`, `docs/`, `performance/`, `agent-benchmark/` | `npm run test:tooling` |
 | Static production import graph | `source/` | `npm run test:source` |
 | Built ESM/CJS/UMD exports | `dist/` | `npm run test:dist` |
+| Native FormKit artifact, ESM/CJS cycles and strict types | `fixtures/formkit-package/` | `npm run test:formkit-package` |
+| Native FormKit example journeys | `formkit/` | `npm run test:formkit-browser` |
 | Consumer documentation, package discovery and runnable recipes | `docs/`, `agent-docs/` | `npm run docs:check` |
 
 `npm ci` uses the pinned toolchain and builds packages through `prepare`. `npm test`
@@ -292,3 +294,23 @@ describes its helper-based tests, unchanged independent application suite,
 retained installation lock and optional browser check. The
 [verification record](examples/formkit-test-package/VERIFICATION.md) distinguishes
 the current consumer and focused regression results from historical coverage.
+
+## Development FormKit ownership
+
+The restored `@mnjs/formkit` development package participates in normal build,
+unit coverage, source and declaration checks, public API inventory, lint and
+documentation delivery. All 24 original suites remain enabled; the unexported
+composition experiment is separately included in coverage, types and lint.
+`npm run check:packages` verifies the explicit owned-package inventory and its
+required inputs without adding development packages to the stable release set.
+
+`npm run verify` runs the installed FormKit fixture, which retains four packed
+artifacts, a captured install lock, exact source/fixture hashes and stage logs in
+`test/tmp/formkit-package/`. Its unchanged runtime assertions exercise public
+ESM/CJS APIs; strict consumers execute both form and row fixtures in `.mts` and
+`.cts`. `npm run test:formkit-browser` installs the example's locked dependencies
+and runs the 11 original native journeys in each configured browser. Select a
+supported local engine with `-- --project chromium`; an explicitly selected
+system executable via `MNJS_TEST_CHROMIUM_EXECUTABLE` is supplemental evidence
+and does not certify the pinned browser. See the
+[new-owner record](../packages/formkit/OWNERSHIP.md) for measurements and limits.

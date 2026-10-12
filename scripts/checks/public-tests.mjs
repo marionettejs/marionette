@@ -6,12 +6,24 @@ import ts from 'typescript';
 const repository = resolve(import.meta.dirname, '../..');
 const { values } = parseArgs({ options: { root: { type: 'string', default: repository } } });
 const root = resolve(values.root);
-const roots = ['test/unit', 'test/types', 'test/browser', 'test/fixtures', 'test/contracts', 'test/setup', 'benchmarks/agent'];
+const roots = ['test/unit', 'test/types', 'test/browser', 'test/formkit', 'test/fixtures', 'test/contracts', 'test/setup', 'benchmarks/agent'];
 const failures = [];
 const intrinsicNames = new Set(['__proto__']);
 
 function isPrivate(name) {
   return /^_[A-Za-z_$][\w$]*$/.test(name) && !intrinsicNames.has(name);
+}
+
+// FormKit documents __raw__ attribute keys: https://formkit.com/essentials/schema
+// Permit schema attribute keys, while keeping member access and spies restricted.
+function isRawSchemaAttribute(node) {
+  if (!/^__raw__[A-Za-z][\w:-]*$/.test(node.text)) { return false; }
+  const property = ts.isComputedPropertyName(node.parent) ? node.parent.parent : node.parent;
+  if (!ts.isPropertyAssignment(property) || !ts.isObjectLiteralExpression(property.parent)) { return false; }
+  const attributes = property.parent.parent;
+  return ts.isPropertyAssignment(attributes) &&
+    ((ts.isIdentifier(attributes.name) || ts.isStringLiteralLike(attributes.name)) && attributes.name.text === 'attrs') &&
+    (property.name === node || (ts.isComputedPropertyName(property.name) && property.name.expression === node));
 }
 
 async function checkFile(file) {
@@ -23,14 +35,14 @@ async function checkFile(file) {
   }
   function visit(node) {
     if ((ts.isMethodDeclaration(node) || ts.isPropertyAssignment(node) || ts.isPropertyDeclaration(node) || ts.isShorthandPropertyAssignment(node)) &&
-        node.name && ts.isIdentifier(node.name) && isPrivate(node.name.text)) {
+        node.name && ts.isIdentifier(node.name) && isPrivate(node.name.text) && !isRawSchemaAttribute(node.name)) {
       reject(node, `Private override ${node.name.text}; exercise the public owner instead.`);
     }
     if (ts.isPropertyAccessExpression(node) && isPrivate(node.name.text)) {
       reject(node, `Private member ${node.name.text}; assert a public outcome instead.`);
     }
     if (ts.isStringLiteralLike(node)) {
-      if (isPrivate(node.text)) {
+      if (isPrivate(node.text) && !isRawSchemaAttribute(node)) {
         reject(node, `Private member name ${node.text}; use public contracts and consumer-owned names.`);
       }
       if ((ts.isImportDeclaration(node.parent) || ts.isExportDeclaration(node.parent) ||

@@ -103,7 +103,7 @@ async function validateReferencedPath({
     [realPath, linkStat, pathStat] = await Promise.all([
       realpath(absolutePath),
       lstat(absolutePath),
-      stat(absolutePath),
+      stat(absolutePath, { bigint: true }),
     ]);
   } catch {
     errors.push(`${label} does not exist: ${path}`);
@@ -132,7 +132,7 @@ async function validateReferencedPath({
 
 function isSameFile(left, right) {
   return left.realPath === right.realPath ||
-    (left.stat.ino !== 0 && right.stat.ino !== 0 &&
+    (left.stat.ino !== 0n && right.stat.ino !== 0n &&
       left.stat.dev === right.stat.dev && left.stat.ino === right.stat.ino);
 }
 
@@ -188,7 +188,7 @@ async function inspectWorkspace(taskId, workspacePath, errors, directory = works
     } else if (entry.isDirectory()) {
       await inspectWorkspace(taskId, workspacePath, errors, entryPath, files);
     } else if (entry.isFile()) {
-      const [fileRealPath, fileStat] = await Promise.all([realpath(entryPath), stat(entryPath)]);
+      const [fileRealPath, fileStat] = await Promise.all([realpath(entryPath), stat(entryPath, { bigint: true })]);
       files.push({ realPath: fileRealPath, stat: fileStat });
     }
   }

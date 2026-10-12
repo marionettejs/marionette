@@ -13,7 +13,7 @@ function write(file, value) {
   mkdirSync(resolve(target, '..'), { recursive: true });
   writeFileSync(target, typeof value === 'string' ? value : JSON.stringify(value));
 }
-const entryNames = ['marionette', '@mnjs/utils', '@mnjs/radio', '@mnjs/data', '@mnjs/adapters'];
+const entryNames = ['marionette', '@mnjs/utils', '@mnjs/radio', '@mnjs/data', '@mnjs/adapters', '@mnjs/formkit'];
 for (const [index, directory] of packageRoots.entries()) {
   write(`${directory}/package.json`.replace(/^\//, ''), { name: entryNames[index], exports: {
     '.': { import: { types: './dist/types/esm/index.d.ts', default: './dist/index.js' },
@@ -23,6 +23,9 @@ for (const [index, directory] of packageRoots.entries()) {
   write(`${directory}/src/index.ts`.replace(/^\//, ''), `export interface Options { label?: string; }
 export class Owner {
   private _secret = 1;
+  #hidden = 1;
+  private internal = 1;
+  protected hiddenMethod(): void {}
   label = '';
   initialize(options?: Options): void { void options; }
   render(): this { return this; }
@@ -45,11 +48,14 @@ const semantics = { contracts: [base, { ...base, id: 'types', kind: 'type', expo
 
 test('inventories aliases, optional callbacks, constructor methods, options and type-only exports from the compiler', () => {
   const inventory = generateInventory(temporary, semantics);
-  assert.equal(inventory.entrypoints.length, 5);
+  assert.equal(inventory.entrypoints.length, 6);
   const exports = inventory.entrypoints[0].exports;
   const owner = exports.find(entry => entry.name === 'Owner');
   assert.deepEqual(owner.callableInstanceMembers, ['initialize', 'onReady', 'render']);
   assert.equal(owner.instance._secret, undefined);
+  assert.equal(owner.instance['#hidden'], undefined);
+  assert.equal(owner.instance.internal, undefined);
+  assert.equal(owner.instance.hiddenMethod, undefined);
   assert.equal(exports.find(entry => entry.name === 'OwnerType').kind, 'type');
   assert.equal(exports.find(entry => entry.name === 'Alias').kind, 'value');
   assert.match(exports.find(entry => entry.name === 'Options').members.label, /string/);
@@ -208,7 +214,7 @@ test('classifies the explicit ESLint export as development tooling without relax
     write('package.json', pkg);
     const inventory = generateInventory(temporary, semantics);
     assert.equal(inventory.toolingEntrypoints[0].name, 'marionette/eslint');
-    assert.equal(inventory.entrypoints.length, 5);
+    assert.equal(inventory.entrypoints.length, 6);
     pkg.exports['./unknown-runtime'] = './dist/new.js';
     write('package.json', pkg);
     assert.throws(() => publicEntrypoints(temporary), /Missing public declarations/);

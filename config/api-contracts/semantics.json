@@ -5138,6 +5138,957 @@
       "documentation": {
         "status": "documented"
       }
+    },
+    {
+      "id": "formkit-native-form",
+      "entrypoints": [
+        "@mnjs/formkit"
+      ],
+      "exports": [
+        "FormView",
+        "SubmissionError"
+      ],
+      "result": "A Marionette-owned native form backed by official FormKit nodes, grouped values, validation, accessible errors and submission state; SubmissionError supplies root and field errors.",
+      "timing": "Construction clears an adopted form\u2019s owned contents before Marionette initializes it. Before callback capture, submit re-settles edits, validation and semantic graph changes to expose one latest coherent snapshot. After capture, meaningful value, graph or constraint changes cancel the attempt and abort its signal; no automatic external callback repeat occurs. Abort settles the public promise without waiting for an uncooperative callback.",
+      "ownership": "The View owns its form DOM, every constructed FormKit node, subscriptions and handlers. Application state and borrowed actors retain their independent owners.",
+      "mutation": "Edits and setValues reconcile native field/schema nodes and controls; schema data and AST updates are explicit. Plain value trees are copied; opaque instances retain identity. Native framework context reacts to node/context changes. Conditions use official schema or explicit feature-owner Region operations; the retired showField/showIf registration API is absent. Pro and arbitrary framework components remain unverified.",
+      "repetition": "Unchanged values do not duplicate change events. Repeated render preserves DOM; concurrent submit returns busy; reset cancels pending work and restores construction-time defaults.",
+      "destruction": "Terminal View teardown aborts submission, removes listeners and subscriptions, and explicitly destroys descendants before the root node. Late requests cannot emit stale completion events.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "API"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/formkit.spec.js",
+          "title": "releases each node, subscriptions, and DOM listeners across repeated mount/destroy"
+        },
+        {
+          "file": "test/unit/formkit.spec.js",
+          "title": "retains node identity and interaction state while accepting external snapshots with feedback suppression"
+        },
+        {
+          "file": "test/unit/formkit-review.spec.js",
+          "title": "reorders explicitly keyed sibling fields without losing values, nodes or focus"
+        },
+        {
+          "file": "test/unit/formkit-review.spec.js",
+          "title": "reuses an adopted form across schema owners and restores the host listener adapter"
+        },
+        {
+          "file": "test/unit/formkit-review.spec.js",
+          "title": "clears submission errors on schema edits while retaining independent validation"
+        },
+        {
+          "file": "test/unit/formkit-owner-submit.spec.js",
+          "title": "removes a hidden async validator from an awaiting submission and ignores its late result after replacement"
+        },
+        {
+          "file": "test/unit/formkit-submission-lifetime.spec.js",
+          "title": "keeps ignored control values and validation outside the canonical callback snapshot"
+        }
+      ],
+      "documentation": {
+        "status": "documented"
+      },
+      "members": [
+        "$",
+        "Data",
+        "Dom",
+        "EventDelegator",
+        "State",
+        "addRegion",
+        "addRegions",
+        "apply",
+        "attachElContent",
+        "attributes",
+        "behaviors",
+        "bindEvents",
+        "bindRequests",
+        "bindUIElements",
+        "call",
+        "childViewEventPrefix",
+        "childViewEvents",
+        "childViewTriggers",
+        "cid",
+        "cidPrefix",
+        "className",
+        "collection",
+        "collectionEvents",
+        "createState",
+        "delegateEntityEvents",
+        "delegateEvents",
+        "destroy",
+        "detachChildView",
+        "el",
+        "emptyRegions",
+        "events",
+        "extend",
+        "fieldErrors",
+        "getChildView",
+        "getOption",
+        "getRegion",
+        "getRegions",
+        "getState",
+        "getTemplate",
+        "getUI",
+        "getValues",
+        "hasRegion",
+        "id",
+        "initialize",
+        "isAttached",
+        "isDestroyed",
+        "isRendered",
+        "listenTo",
+        "listenToOnce",
+        "mergeOptions",
+        "mixinTemplateContext",
+        "model",
+        "modelEvents",
+        "monitorViewEvents",
+        "node",
+        "normalizeMethods",
+        "normalizeUIKeys",
+        "normalizeUIString",
+        "normalizeUIValues",
+        "off",
+        "on",
+        "once",
+        "options",
+        "preinitialize",
+        "regionClass",
+        "regions",
+        "removeRegion",
+        "removeRegions",
+        "render",
+        "renderAttributes",
+        "resetForm",
+        "serializeCollection",
+        "serializeData",
+        "serializeModel",
+        "setDataApi",
+        "setDomApi",
+        "setErrors",
+        "setEventDelegator",
+        "setRenderer",
+        "setSchema",
+        "setSchemaData",
+        "setStateApi",
+        "setValues",
+        "showChildView",
+        "state",
+        "stateEvents",
+        "stopListening",
+        "submit",
+        "tagName",
+        "template",
+        "templateContext",
+        "trigger",
+        "triggerMethod",
+        "triggers",
+        "ui",
+        "unbindEvents",
+        "unbindRequests",
+        "unbindUIElements",
+        "undelegateEntityEvents",
+        "undelegateEvents"
+      ]
+    },
+    {
+      "id": "formkit-schema-foundation",
+      "entrypoints": [
+        "@mnjs/formkit"
+      ],
+      "exports": [
+        "createSchemaRenderer"
+      ],
+      "result": "An explicit-update native schema renderer using the public FormKit compiler and schema sugar, with DOM, conditional/loop scopes, attributes, keys and consumer-supplied native components.",
+      "timing": "Mount, update and setSchema reconcile synchronously. Registry changes schedule updates; scoped slots and native component factories run synchronously.",
+      "ownership": "The renderer owns generated nodes and event listeners, restoring adopted elements\u2019 listener methods at teardown. A supplied component owns its internal resources and must expose terminal destroy. Replacing managed children with trusted HTML destroys them immediately. Registry lookup borrows another node without taking ownership.",
+      "mutation": "Updates reconcile keys and change text, properties and handlers in place; unchanged controls retain identity, focus and selection. Expressions and callbacks are trusted application configuration.",
+      "repetition": "Repeated unchanged updates retain nodes. Component props update without remounting; duplicate iteration keys or unresolved components fail the synchronous operation without rollback.",
+      "destruction": "destroy removes all generated DOM, invokes component cleanup and unregisters event handlers; repeated destroy and updates after disposal are inert.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Public schema renderer"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/formkit-schema.spec.js",
+          "title": "preserves keyed controls and focus during updates and reordering"
+        },
+        {
+          "file": "test/unit/formkit-schema.spec.js",
+          "title": "supports explicit component mount, update and terminal cleanup without a UI framework"
+        },
+        {
+          "file": "test/unit/formkit-review.spec.js",
+          "title": "keeps explicitly keyed standalone controls when sibling positions change"
+        },
+        {
+          "file": "test/unit/formkit-review.spec.js",
+          "title": "applies select values after creating and updating native options"
+        },
+        {
+          "file": "test/unit/formkit-review.spec.js",
+          "title": "destroys component children immediately when trusted HTML takes ownership"
+        }
+      ],
+      "documentation": {
+        "status": "documented"
+      }
+    },
+    {
+      "id": "formkit-type-shapes",
+      "kind": "type",
+      "entrypoints": [
+        "@mnjs/formkit"
+      ],
+      "exports": [
+        "Definition",
+        "FieldDefinition",
+        "FormOptions",
+        "FormState",
+        "GroupDefinition",
+        "RuntimeOptions",
+        "SchemaComponent",
+        "SchemaOptions",
+        "SubmissionContext",
+        "ValueUpdateOptions"
+      ],
+      "members": [
+        "allowHTML",
+        "attributes",
+        "attrs",
+        "behaviors",
+        "childViewEventPrefix",
+        "childViewEvents",
+        "childViewTriggers",
+        "children",
+        "className",
+        "collection",
+        "collectionEvents",
+        "components",
+        "config",
+        "data",
+        "destroy",
+        "el",
+        "element",
+        "errors",
+        "events",
+        "fields",
+        "formProps",
+        "help",
+        "iconLoader",
+        "iconLoaderUrl",
+        "icons",
+        "id",
+        "inputs",
+        "label",
+        "model",
+        "modelEvents",
+        "name",
+        "node",
+        "notify",
+        "options",
+        "plugins",
+        "regionClass",
+        "regions",
+        "resetLabel",
+        "schema",
+        "schemaData",
+        "sectionsSchema",
+        "signal",
+        "slots",
+        "source",
+        "state",
+        "stateEvents",
+        "submit",
+        "submitLabel",
+        "submitted",
+        "submitting",
+        "template",
+        "templateContext",
+        "theme",
+        "triggers",
+        "type",
+        "ui",
+        "update",
+        "valid",
+        "validation",
+        "validationMessages",
+        "validationRules",
+        "value",
+        "values"
+      ],
+      "result": "Typed form values, definitions, native input names, state, update options, submission contexts/results and native schema component contracts.",
+      "timing": "Type checking is static and adds no runtime behavior.",
+      "ownership": "Types do not transfer ownership; the form or renderer owns its resources as documented.",
+      "mutation": "Type annotations perform no conversion or argument validation.",
+      "repetition": "No runtime invocation.",
+      "destruction": "The declarations describe cleanup obligations; they cannot prove consumer callbacks release resources.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "TypeScript"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/formkit.spec.js",
+          "title": "retains node identity and interaction state while accepting external snapshots with feedback suppression"
+        }
+      ],
+      "documentation": {
+        "status": "documented"
+      }
+    },
+    {
+      "id": "formkit-value-types",
+      "kind": "type",
+      "entrypoints": [
+        "@mnjs/formkit"
+      ],
+      "exports": [
+        "FormValues",
+        "NativeType",
+        "SchemaComponentFactory",
+        "SchemaSlot",
+        "SubmitResult",
+        "RemovalPolicy"
+      ],
+      "result": "Typed form values, definitions, native input names, state, update options, submission contexts/results and native schema component contracts.",
+      "timing": "Type checking is static and adds no runtime behavior.",
+      "ownership": "Types do not transfer ownership; the form or renderer owns its resources as documented.",
+      "mutation": "Type annotations perform no conversion or argument validation.",
+      "repetition": "No runtime invocation.",
+      "destruction": "The declarations describe cleanup obligations; they cannot prove consumer callbacks release resources.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "TypeScript"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/formkit.spec.js",
+          "title": "retains node identity and interaction state while accepting external snapshots with feedback suppression"
+        }
+      ],
+      "documentation": {
+        "status": "documented"
+      }
+    },
+    {
+      "id": "formkit-composed-field",
+      "entrypoints": [
+        "@mnjs/formkit"
+      ],
+      "exports": [
+        "FieldView"
+      ],
+      "result": "An official native FormKit input in an ordinary Marionette View and Region, sharing the form schema runtime and grouped value tree.",
+      "timing": "Node creation begins at first render. Mutable input props may be patched before render. Value replacement is synchronous; changed field callbacks are queued after commit and Region placement. Native edits obey official input settlement.",
+      "ownership": "The FieldView owns its input node and native resources. Parents must be live groups of its FormView. Explicit preserve or clear controls value retention when destroyed. Regions own placement; form/group teardown also ends detached descendant Fields.",
+      "mutation": "setValue replaces a snapshot and masks absent clear children even for group replacements; notify:false suppresses field/form changes. setInput shallow-patches mutable props and rejects ownership/identity changes. Actor wiring and business calculations remain with consumers.",
+      "repetition": "Repeated render retains nodes, controls and focus. Unchanged values do not emit change events. Destroyed Views require a new instance for remount.",
+      "destruction": "Marionette terminal destruction releases descendants, subscriptions and listeners once. Late queued changes or setter callbacks cannot resurrect a destroyed input. Preserve retains draft values; clear removes them even below preserved groups.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Compose fields in Marionette Regions"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/formkit-composition-sol.spec.js",
+          "title": "clears an explicitly removed child beneath a preserved group while preserving a hidden draft"
+        },
+        {
+          "file": "test/unit/formkit-composition-review.spec.js",
+          "title": "emits direct FieldView replacements with the requested source and suppresses both APIs for silent writes"
+        }
+      ],
+      "documentation": {
+        "status": "documented"
+      },
+      "members": [
+        "$",
+        "Data",
+        "Dom",
+        "EventDelegator",
+        "State",
+        "addRegion",
+        "addRegions",
+        "apply",
+        "attachElContent",
+        "attributes",
+        "behaviors",
+        "bindEvents",
+        "bindRequests",
+        "bindUIElements",
+        "call",
+        "childViewEventPrefix",
+        "childViewEvents",
+        "childViewTriggers",
+        "cid",
+        "cidPrefix",
+        "className",
+        "collection",
+        "collectionEvents",
+        "createState",
+        "delegateEntityEvents",
+        "delegateEvents",
+        "destroy",
+        "detachChildView",
+        "el",
+        "emptyRegions",
+        "events",
+        "extend",
+        "getChildView",
+        "getOption",
+        "getRegion",
+        "getRegions",
+        "getState",
+        "getTemplate",
+        "getUI",
+        "getValue",
+        "hasRegion",
+        "id",
+        "initialize",
+        "isAttached",
+        "isDestroyed",
+        "isRendered",
+        "listenTo",
+        "listenToOnce",
+        "mergeOptions",
+        "mixinTemplateContext",
+        "model",
+        "modelEvents",
+        "monitorViewEvents",
+        "node",
+        "normalizeMethods",
+        "normalizeUIKeys",
+        "normalizeUIString",
+        "normalizeUIValues",
+        "off",
+        "on",
+        "once",
+        "options",
+        "preinitialize",
+        "regionClass",
+        "regions",
+        "removeRegion",
+        "removeRegions",
+        "render",
+        "renderAttributes",
+        "serializeCollection",
+        "serializeData",
+        "serializeModel",
+        "setDataApi",
+        "setDomApi",
+        "setEventDelegator",
+        "setInput",
+        "setRenderer",
+        "setStateApi",
+        "setValue",
+        "showChildView",
+        "state",
+        "stateEvents",
+        "stopListening",
+        "tagName",
+        "template",
+        "templateContext",
+        "trigger",
+        "triggerMethod",
+        "triggers",
+        "ui",
+        "unbindEvents",
+        "unbindRequests",
+        "unbindUIElements",
+        "undelegateEntityEvents",
+        "undelegateEvents"
+      ]
+    },
+    {
+      "id": "formkit-composed-field-types",
+      "kind": "type",
+      "entrypoints": [
+        "@mnjs/formkit"
+      ],
+      "exports": [
+        "FieldInput",
+        "FieldInputUpdate",
+        "FieldOptions"
+      ],
+      "result": "Typed field ownership, explicit removal policy, native input props and nonstructural prop patches for Marionette composition.",
+      "timing": "Static declarations add no runtime behavior.",
+      "ownership": "Types describe owned FormView group parents and explicit removal; they cannot prove external actor cleanup.",
+      "mutation": "Input prop patches exclude structural keys at compile time; value snapshots use setValue. Props use native official definitions, not framework-specific components.",
+      "repetition": "No runtime invocation.",
+      "destruction": "Field ownership is enforced by the runtime; declarations do not perform cleanup.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "TypeScript"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/formkit-composition-review.spec.js",
+          "title": "emits direct FieldView replacements with the requested source and suppresses both APIs for silent writes"
+        }
+      ],
+      "documentation": {
+        "status": "documented"
+      },
+      "members": [
+        "attributes",
+        "behaviors",
+        "childViewEventPrefix",
+        "childViewEvents",
+        "childViewTriggers",
+        "className",
+        "collection",
+        "collectionEvents",
+        "config",
+        "events",
+        "form",
+        "id",
+        "input",
+        "model",
+        "modelEvents",
+        "name",
+        "parent",
+        "plugins",
+        "preserve",
+        "regionClass",
+        "regions",
+        "removal",
+        "state",
+        "stateEvents",
+        "tagName",
+        "templateContext",
+        "triggers",
+        "type",
+        "ui",
+        "value",
+        "ignore"
+      ]
+    },
+    {
+      "id": "formkit-keyed-row",
+      "exports": [
+        "RowView"
+      ],
+      "result": "An ordinary Marionette View borrows one immutable business-keyed object group in an owned synced list, independent of presentation order.",
+      "timing": "The current keyed row is resolved at first render. Authoritative whole-array writes reconcile existing groups synchronously; native leaf input settlement remains asynchronous.",
+      "ownership": "The list and form own retained Core groups; RowView owns placement and descendant resources. Parent must be a live same-form synced list; each ancestor array must be crossed through its owned RowView group. Business keys are existing nonempty strings unique within each list. Two owned array levels are tested.",
+      "mutation": "FormView.setValues or owning list FieldView.setValue controls array membership and order. Preserve releases placement while retaining the committed object; clear terminally deletes that business row. Direct Core key or array mutation is outside the contract.",
+      "repetition": "Reorder and same-membership reset retain keyed groups and controls. Membership-changing reset ends row placements and requires explicit consumer reconstruction after form:reset. Added rows do not join the construction array baseline. Nested defaults and exclusions follow the full ancestor-key chain; ancestor deletion retires descendant logical state.",
+      "destruction": "Row, intermediate owner, list and form destruction end owned descendants, pending native work and listeners; authoritative key removal also destroys an unmounted retained group and detached nested placements.",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Compose keyed rows"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/formkit-rows.spec.js",
+          "title": "keeps three nested object rows keyed through add, insert, reorder, edit, validation and terminal removal"
+        },
+        {
+          "file": "test/unit/formkit-rows.spec.js",
+          "title": "isolates same-named forms and rows, releases detached descendants and leaves an unrelated host alive"
+        },
+        {
+          "file": "test/unit/formkit-nested-rows.spec.js",
+          "title": "nested repeated keys retain lineage, controls, focus and errors through two-level authoritative reorder"
+        },
+        {
+          "file": "test/unit/formkit-nested-rows.spec.js",
+          "title": "membership-changing construction reset removes added outer and inner rows and allows explicit presentation rebuild"
+        },
+        {
+          "file": "test/unit/formkit-nested-rows.spec.js",
+          "title": "nested removal after callback capture aborts the external attempt and terminal destroy ignores late work"
+        },
+        {
+          "file": "test/unit/formkit-row-boundaries.spec.js",
+          "title": "rejects a foreign form after its parent list has cached row ownership"
+        },
+        {
+          "file": "test/unit/formkit-row-boundaries.spec.js",
+          "title": "retiring an added outer row preserves another lineage's inner defaults and exclusions"
+        }
+      ],
+      "entrypoints": [
+        "@mnjs/formkit"
+      ],
+      "diagnostics": [],
+      "documentation": {
+        "status": "documented"
+      },
+      "members": [
+        "$",
+        "Data",
+        "Dom",
+        "EventDelegator",
+        "State",
+        "addRegion",
+        "addRegions",
+        "apply",
+        "attachElContent",
+        "attributes",
+        "behaviors",
+        "bindEvents",
+        "bindRequests",
+        "bindUIElements",
+        "call",
+        "childViewEventPrefix",
+        "childViewEvents",
+        "childViewTriggers",
+        "cid",
+        "cidPrefix",
+        "className",
+        "collection",
+        "collectionEvents",
+        "createState",
+        "delegateEntityEvents",
+        "delegateEvents",
+        "destroy",
+        "detachChildView",
+        "el",
+        "emptyRegions",
+        "events",
+        "extend",
+        "getChildView",
+        "getOption",
+        "getRegion",
+        "getRegions",
+        "getState",
+        "getTemplate",
+        "getUI",
+        "hasRegion",
+        "id",
+        "initialize",
+        "isAttached",
+        "isDestroyed",
+        "isRendered",
+        "listenTo",
+        "listenToOnce",
+        "mergeOptions",
+        "mixinTemplateContext",
+        "model",
+        "modelEvents",
+        "monitorViewEvents",
+        "node",
+        "normalizeMethods",
+        "normalizeUIKeys",
+        "normalizeUIString",
+        "normalizeUIValues",
+        "off",
+        "on",
+        "once",
+        "options",
+        "preinitialize",
+        "regionClass",
+        "regions",
+        "removeRegion",
+        "removeRegions",
+        "render",
+        "renderAttributes",
+        "serializeCollection",
+        "serializeData",
+        "serializeModel",
+        "setDataApi",
+        "setDomApi",
+        "setEventDelegator",
+        "setRenderer",
+        "setStateApi",
+        "showChildView",
+        "state",
+        "stateEvents",
+        "stopListening",
+        "tagName",
+        "template",
+        "templateContext",
+        "trigger",
+        "triggerMethod",
+        "triggers",
+        "ui",
+        "unbindEvents",
+        "unbindRequests",
+        "unbindUIElements",
+        "undelegateEntityEvents",
+        "undelegateEvents"
+      ]
+    },
+    {
+      "id": "formkit-borrowed-schema-view",
+      "exports": [
+        "SchemaView"
+      ],
+      "result": "A reusable ordinary Marionette View renders native schema inputs under a borrowed live same-form group without creating a second form or artificial layout group.",
+      "timing": "Native resources begin at render; setSchema and setSchemaData update the live renderer explicitly. Native edits follow official settlement; keyed compatible updates retain control identity.",
+      "ownership": "SchemaView owns its renderer, native input resources, subscriptions and DOM listeners. Its node getter exposes the borrowed group, which the View never destroys. Reserved $node data describes the borrowed parent.",
+      "mutation": "Native input resources share the form runtime, keyed baselines and clear masks. Native preserve props retain pinned Core inheritance; explicit forced removal belongs to FieldView. A destroyed resource cannot resurrect through a later renderer update.",
+      "repetition": "Repeated render retains the same renderer; compatible keyed updates preserve focus and selection. Duplicate field ownership rejects predictably. No synchronous callback exception rollback or recovery is promised.",
+      "destruction": "View teardown releases only owned resources. Borrowed-parent or root teardown also ends detached SchemaViews. Later updates are inert.",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Place schemas and named Views in one form"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/formkit-schema-views.spec.js",
+          "title": "SCHEMA-02 FieldView group owns separately placed SchemaView; group destruction cancels pending native work and preserves unrelated sibling"
+        },
+        {
+          "file": "test/unit/formkit-schema-views.spec.js",
+          "title": "SCHEMA-05 duplicate placement rejects deterministically without an extra node; borrowed parent/root teardown ends detached renderers"
+        }
+      ],
+      "entrypoints": [
+        "@mnjs/formkit"
+      ],
+      "diagnostics": [],
+      "documentation": {
+        "status": "documented"
+      },
+      "members": [
+        "$",
+        "Data",
+        "Dom",
+        "EventDelegator",
+        "State",
+        "addRegion",
+        "addRegions",
+        "apply",
+        "attachElContent",
+        "attributes",
+        "behaviors",
+        "bindEvents",
+        "bindRequests",
+        "bindUIElements",
+        "call",
+        "childViewEventPrefix",
+        "childViewEvents",
+        "childViewTriggers",
+        "cid",
+        "cidPrefix",
+        "className",
+        "collection",
+        "collectionEvents",
+        "createState",
+        "delegateEntityEvents",
+        "delegateEvents",
+        "destroy",
+        "detachChildView",
+        "el",
+        "emptyRegions",
+        "events",
+        "extend",
+        "getChildView",
+        "getOption",
+        "getRegion",
+        "getRegions",
+        "getState",
+        "getTemplate",
+        "getUI",
+        "hasRegion",
+        "id",
+        "initialize",
+        "isAttached",
+        "isDestroyed",
+        "isRendered",
+        "listenTo",
+        "listenToOnce",
+        "mergeOptions",
+        "mixinTemplateContext",
+        "model",
+        "modelEvents",
+        "monitorViewEvents",
+        "node",
+        "normalizeMethods",
+        "normalizeUIKeys",
+        "normalizeUIString",
+        "normalizeUIValues",
+        "off",
+        "on",
+        "once",
+        "options",
+        "preinitialize",
+        "regionClass",
+        "regions",
+        "removeRegion",
+        "removeRegions",
+        "render",
+        "renderAttributes",
+        "serializeCollection",
+        "serializeData",
+        "serializeModel",
+        "setDataApi",
+        "setDomApi",
+        "setEventDelegator",
+        "setRenderer",
+        "setSchema",
+        "setSchemaData",
+        "setStateApi",
+        "showChildView",
+        "state",
+        "stateEvents",
+        "stopListening",
+        "tagName",
+        "template",
+        "templateContext",
+        "trigger",
+        "triggerMethod",
+        "triggers",
+        "ui",
+        "unbindEvents",
+        "unbindRequests",
+        "unbindUIElements",
+        "undelegateEntityEvents",
+        "undelegateEvents"
+      ]
+    },
+    {
+      "id": "formkit-named-view-components",
+      "exports": [
+        "createViewComponents"
+      ],
+      "result": "A direct named schema-component registry places actual typed Marionette FieldViews, Views or CollectionViews through real owner Regions.",
+      "timing": "Factories render synchronously; Region show waits one microtask for wrapper placement. Public composition diagnostics are observable runtime failures, except the separately handled negative diagnostic test.",
+      "ownership": "Application callbacks resolve the FormView, actual ordinary Region owner and live Core parent. Each registry resource owns one Region and its actual View; schema DOM position never determines value ownership.",
+      "mutation": "JSON $cmp names select trusted runtime registrations. Compatible field props update through setInput and explicit changed values through setValue; identity and ownership changes require removal before replacement. Arbitrary View updates use the supplied public update callback.",
+      "repetition": "Stable schema keys retain Regions, Views, Core nodes, focus and selection during moves. Omitted mutable field props clear; unchanged values do not repeat writes. No serialized constructors, nested FormView or evaluation of code strings is supported.",
+      "destruction": "Removing a component removes its Region and destroys its View exactly once. Root teardown ends detached resources; no private diagnostic records are exposed.",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Place schemas and named Views in one form"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/formkit-schema-views.spec.js",
+          "title": "SCHEMA-12 public named registry owns real View Regions, keyed identity, omitted prop clearing, condition cancellation and cleanup"
+        },
+        {
+          "file": "test/unit/formkit-schema-views.spec.js",
+          "title": "SCHEMA-19 named actual CollectionView owns RowViews/native SchemaViews with explicit list parent and genuine lifecycle"
+        }
+      ],
+      "entrypoints": [
+        "@mnjs/formkit"
+      ],
+      "diagnostics": [],
+      "documentation": {
+        "status": "documented"
+      }
+    },
+    {
+      "id": "formkit-composed-view-types",
+      "kind": "type",
+      "exports": [
+        "RowOptions",
+        "SchemaViewOptions",
+        "ViewComponentRegistration",
+        "ViewComponentsOptions"
+      ],
+      "result": "Generic DTO-aware options for keyed rows, borrowed schemas and named actual View or CollectionView registration factories.",
+      "timing": "Declarations are static and add no runtime behavior.",
+      "ownership": "Options describe explicit form, parent, row key and ordinary View ownership; they cannot prove callback resource cleanup.",
+      "mutation": "Typed generic factories retain form DTO and specific View inference. Input identity keys, including ignore, are not mutable FieldInputUpdate props.",
+      "repetition": "No runtime invocation.",
+      "destruction": "Declarations describe lifetime obligations; public runtime owners enforce teardown.",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Compose keyed rows",
+          "exports": [
+            "RowOptions"
+          ]
+        },
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Place schemas and named Views in one form",
+          "exports": [
+            "SchemaViewOptions",
+            "ViewComponentRegistration",
+            "ViewComponentsOptions"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/formkit-schema-views.spec.js",
+          "title": "SCHEMA-19 named actual CollectionView owns RowViews/native SchemaViews with explicit list parent and genuine lifecycle"
+        },
+        {
+          "file": "test/unit/formkit-rows.spec.js",
+          "title": "rejects foreign, destroyed, unowned-array and missing-key row parents through public construction"
+        }
+      ],
+      "entrypoints": [
+        "@mnjs/formkit"
+      ],
+      "diagnostics": [],
+      "documentation": {
+        "status": "documented"
+      },
+      "members": [
+        "attributes",
+        "behaviors",
+        "childViewEventPrefix",
+        "childViewEvents",
+        "childViewTriggers",
+        "className",
+        "collection",
+        "collectionEvents",
+        "components",
+        "create",
+        "el",
+        "events",
+        "form",
+        "getForm",
+        "getOwner",
+        "getParent",
+        "id",
+        "kind",
+        "model",
+        "modelEvents",
+        "parent",
+        "regionClass",
+        "regions",
+        "registrations",
+        "removal",
+        "rowKey",
+        "schema",
+        "schemaData",
+        "state",
+        "stateEvents",
+        "tagName",
+        "template",
+        "templateContext",
+        "triggers",
+        "ui",
+        "update"
+      ]
     }
   ]
 }

@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "packages": [
+    {
+      "id": "core",
+      "name": "marionette",
+      "directory": ".",
+      "role": "runtime",
+      "stage": "stable",
+      "buildScript": "build:types",
+      "coverage": [
+        "src/**/*.{js,ts}"
+      ]
+    },
+    {
+      "id": "utils",
+      "name": "@mnjs/utils",
+      "directory": "packages/utils",
+      "role": "runtime",
+      "stage": "stable",
+      "buildScript": "build:utils",
+      "coverage": [
+        "packages/utils/src/**/*.ts"
+      ]
+    },
+    {
+      "id": "radio",
+      "name": "@mnjs/radio",
+      "directory": "packages/radio",
+      "role": "runtime",
+      "stage": "stable",
+      "buildScript": "build:radio",
+      "coverage": [
+        "packages/radio/src/**/*.ts"
+      ]
+    },
+    {
+      "id": "data",
+      "name": "@mnjs/data",
+      "directory": "packages/data",
+      "role": "runtime",
+      "stage": "stable",
+      "buildScript": "build:data",
+      "coverage": [
+        "packages/data/src/**/*.ts"
+      ]
+    },
+    {
+      "id": "adapters",
+      "name": "@mnjs/adapters",
+      "directory": "packages/adapters",
+      "role": "runtime",
+      "stage": "stable",
+      "buildScript": "build:adapters",
+      "coverage": [
+        "packages/adapters/src/**/*.ts"
+      ]
+    },
+    {
+      "id": "formkit",
+      "name": "@mnjs/formkit",
+      "directory": "packages/formkit",
+      "role": "runtime",
+      "stage": "development",
+      "buildScript": "build:formkit",
+      "coverage": [
+        "packages/formkit/src/**/*.ts",
+        "packages/formkit/acceptance/experimental/composition-prototype.ts"
+      ],
+      "verificationScript": "test:formkit-package",
+      "requiredInputs": [
+        "examples/formkit/.gitignore",
+        "examples/formkit/README.md",
+        "examples/formkit/composed.html",
+        "examples/formkit/composed.js",
+        "examples/formkit/composition.html",
+        "examples/formkit/composition.js",
+        "examples/formkit/index.html",
+        "examples/formkit/main.js",
+        "examples/formkit/nested.html",
+        "examples/formkit/nested.js",
+        "examples/formkit/package-lock.json",
+        "examples/formkit/package.json",
+        "examples/formkit/schema.html",
+        "examples/formkit/schema.js",
+        "examples/formkit/vite.config.js",
+        "packages/formkit/acceptance/experimental/composition-prototype.ts",
+        "test/fixtures/formkit-package/run.mjs",
+        "test/fixtures/formkit-package/verify.mjs",
+        "test/formkit/composed-fixture.js",
+        "test/formkit/composed.spec.mjs",
+        "test/formkit/formkit-fixture.js",
+        "test/formkit/formkit.spec.mjs",
+        "test/formkit/playwright.config.mjs",
+        "test/types/formkit-rows.cts",
+        "test/types/formkit-rows.mts",
+        "test/types/formkit.cts",
+        "test/types/formkit.mts",
+        "test/unit/formkit-adversarial-astra.spec.js",
+        "test/unit/formkit-adversarial-sol.spec.js",
+        "test/unit/formkit-application-lifecycle.spec.js",
+        "test/unit/formkit-composition-review.spec.js",
+        "test/unit/formkit-composition-sol.spec.js",
+        "test/unit/formkit-composition.spec.js",
+        "test/unit/formkit-file-value-props.spec.js",
+        "test/unit/formkit-manifest-prototype.spec.js",
+        "test/unit/formkit-nested-rows.spec.js",
+        "test/unit/formkit-official.spec.js",
+        "test/unit/formkit-owner-submit.spec.js",
+        "test/unit/formkit-portability-regressions.spec.js",
+        "test/unit/formkit-readonly-adversarial.spec.js",
+        "test/unit/formkit-regressions.spec.js",
+        "test/unit/formkit-review.spec.js",
+        "test/unit/formkit-row-boundaries.spec.js",
+        "test/unit/formkit-rows.spec.js",
+        "test/unit/formkit-runtime.spec.js",
+        "test/unit/formkit-schema-view-diagnostics.spec.js",
+        "test/unit/formkit-schema-views-boundaries.spec.js",
+        "test/unit/formkit-schema-views.spec.js",
+        "test/unit/formkit-schema.spec.js",
+        "test/unit/formkit-submission-lifetime.spec.js",
+        "test/unit/formkit.spec.js"
+      ]
+    },
+    {
+      "id": "test",
+      "name": "@mnjs/test",
+      "directory": "packages/test",
+      "role": "testing",
+      "stage": "development",
+      "buildScript": "build:test",
+      "coverage": [
+        "packages/test/src/**/*.ts"
+      ]
+    }
+  ]
+}

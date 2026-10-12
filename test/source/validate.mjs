@@ -15,6 +15,11 @@ const [{ default: BackboneApi }, Marionette] = await Promise.all([
 const dom = new JSDOM('<!doctype html>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
+globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
+const formkit = await import('@mnjs/formkit');
+for (const name of ['FormView', 'FieldView', 'RowView', 'SchemaView', 'createSchemaRenderer', 'createViewComponents', 'SubmissionError']) {
+  assert.equal(typeof formkit[name], 'function');
+}
 const { default: jqueryDomApi } = await import('@mnjs/adapters/dom/jquery');
 
 assert.equal(typeof Marionette.View, 'function');

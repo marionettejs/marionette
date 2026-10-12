@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "0921f6f9a7b09efd489d050a0b32369c2c1cdd850c581b31ec92144a8b6f19db",
+  "semanticsSha256": "71af44167197f16b0b6768914cd720406bbd8af49ccb1036c9618640a6a96d62",
   "entrypoints": [
     {
       "name": "marionette",
@@ -8641,6 +8641,2995 @@
           }
         }
       ]
+    },
+    {
+      "name": "@mnjs/formkit",
+      "version": "5.0.0-rc.2",
+      "kind": "runtime",
+      "source": "packages/formkit/src/index.ts",
+      "conditions": {
+        "import": {
+          "types": "./dist/types/esm/index.d.ts",
+          "default": "./dist/index.js"
+        },
+        "require": {
+          "types": "./dist/types/cjs/index.d.ts",
+          "default": "./dist/index.cjs"
+        },
+        "default": "./dist/index.js"
+      },
+      "exports": [
+        {
+          "name": "createSchemaRenderer",
+          "kind": "value",
+          "signature": "(container: Element, options: SchemaOptions) => { update: (nextData?: Scope) => void; setSchema: (schema: FormKitSchemaDefinition) => void; destroy: () => void; }",
+          "contracts": [
+            "formkit-schema-foundation"
+          ],
+          "call": [
+            "(container: Element, options: SchemaOptions): { update: (nextData?: Scope) => void; setSchema: (schema: FormKitSchemaDefinition) => void; destroy: () => void; }"
+          ],
+          "memberContracts": {}
+        },
+        {
+          "name": "createViewComponents",
+          "kind": "value",
+          "signature": "<Values extends object = FormValues>({ getForm, getOwner, getParent, registrations }: ViewComponentsOptions<Values>) => Record<string, SchemaComponentFactory>",
+          "contracts": [
+            "formkit-named-view-components"
+          ],
+          "call": [
+            "<Values extends object = FormValues>({ getForm, getOwner, getParent, registrations }: ViewComponentsOptions<Values>): Record<string, SchemaComponentFactory>"
+          ],
+          "memberContracts": {}
+        },
+        {
+          "name": "Definition",
+          "kind": "type",
+          "signature": "Definition",
+          "contracts": [
+            "formkit-type-shapes"
+          ],
+          "members": {
+            "label": "string",
+            "name": "string",
+            "type": "\"group\" | NativeType"
+          },
+          "callableMembers": [],
+          "memberContracts": {
+            "static": {
+              "label": [
+                "formkit-type-shapes"
+              ],
+              "name": [
+                "formkit-type-shapes"
+              ],
+              "type": [
+                "formkit-type-shapes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FieldDefinition",
+          "kind": "type",
+          "signature": "FieldDefinition",
+          "contracts": [
+            "formkit-type-shapes"
+          ],
+          "members": {
+            "attrs": "?{ autocomplete?: string | undefined; placeholder?: string | undefined; min?: string | number | undefined; max?: string | number | undefined; step?: string | number | undefined; rows?: number | undefined; disabled?: boolean | undefined; readonly?: boolean | undefined; } | undefined",
+            "help": "?string | undefined",
+            "label": "string",
+            "name": "string",
+            "options": "?readonly { label: string; value: string; disabled?: boolean | undefined; }[] | undefined",
+            "type": "NativeType",
+            "validation": "?string | undefined",
+            "validationMessages": "?FormKitValidationMessages | undefined",
+            "value": "?string | number | boolean | undefined"
+          },
+          "callableMembers": [],
+          "memberContracts": {
+            "static": {
+              "attrs": [
+                "formkit-type-shapes"
+              ],
+              "help": [
+                "formkit-type-shapes"
+              ],
+              "label": [
+                "formkit-type-shapes"
+              ],
+              "name": [
+                "formkit-type-shapes"
+              ],
+              "options": [
+                "formkit-type-shapes"
+              ],
+              "type": [
+                "formkit-type-shapes"
+              ],
+              "validation": [
+                "formkit-type-shapes"
+              ],
+              "validationMessages": [
+                "formkit-type-shapes"
+              ],
+              "value": [
+                "formkit-type-shapes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FieldInput",
+          "kind": "type",
+          "signature": "FieldInput",
+          "contracts": [
+            "formkit-composed-field-types"
+          ],
+          "members": {
+            "name": "?undefined",
+            "parent": "?undefined",
+            "preserve": "?undefined",
+            "type": "string"
+          },
+          "callableMembers": [],
+          "memberContracts": {
+            "static": {
+              "name": [
+                "formkit-composed-field-types"
+              ],
+              "parent": [
+                "formkit-composed-field-types"
+              ],
+              "preserve": [
+                "formkit-composed-field-types"
+              ],
+              "type": [
+                "formkit-composed-field-types"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FieldInputUpdate",
+          "kind": "type",
+          "signature": "FieldInputUpdate",
+          "contracts": [
+            "formkit-composed-field-types"
+          ],
+          "members": {
+            "config": "?undefined",
+            "id": "?undefined",
+            "ignore": "?undefined",
+            "name": "?undefined",
+            "parent": "?undefined",
+            "plugins": "?undefined",
+            "preserve": "?undefined",
+            "type": "?undefined",
+            "value": "?undefined"
+          },
+          "callableMembers": [],
+          "memberContracts": {
+            "static": {
+              "config": [
+                "formkit-composed-field-types"
+              ],
+              "id": [
+                "formkit-composed-field-types"
+              ],
+              "ignore": [
+                "formkit-composed-field-types"
+              ],
+              "name": [
+                "formkit-composed-field-types"
+              ],
+              "parent": [
+                "formkit-composed-field-types"
+              ],
+              "plugins": [
+                "formkit-composed-field-types"
+              ],
+              "preserve": [
+                "formkit-composed-field-types"
+              ],
+              "type": [
+                "formkit-composed-field-types"
+              ],
+              "value": [
+                "formkit-composed-field-types"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FieldOptions",
+          "kind": "type",
+          "signature": "FieldOptions<Values>",
+          "contracts": [
+            "formkit-composed-field-types"
+          ],
+          "members": {
+            "attributes": "?Record<string, unknown> | (() => Record<string, unknown>) | undefined",
+            "behaviors": "?BehaviorDefinitions | (() => BehaviorDefinitions) | undefined",
+            "childViewEventPrefix": "?string | false | (() => string | false) | undefined",
+            "childViewEvents": "?Record<string, string | EventCallback> | (() => Record<string, string | EventCallback>) | undefined",
+            "childViewTriggers": "?Record<string, string> | (() => Record<string, string>) | undefined",
+            "className": "?string | (() => string | null | undefined) | null | undefined",
+            "collection": "?unknown",
+            "collectionEvents": "?object | (() => object) | undefined",
+            "events": "?DOMEvents | (() => DOMEvents) | undefined",
+            "form": "FormView<Values>",
+            "id": "?string | (() => string | null | undefined) | null | undefined",
+            "input": "FieldInput",
+            "model": "?unknown",
+            "modelEvents": "?object | (() => object) | undefined",
+            "name": "string",
+            "parent": "?FormKitNode | undefined",
+            "regionClass": "?RegionClass | undefined",
+            "regions": "?Record<string, RegionDefinition> | (() => Record<string, RegionDefinition>) | undefined",
+            "removal": "RemovalPolicy",
+            "state": "?unknown",
+            "stateEvents": "?object | (() => object) | undefined",
+            "tagName": "?string | (() => string) | undefined",
+            "templateContext": "?object | (() => object) | undefined",
+            "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
+            "ui": "?UIBindings | undefined"
+          },
+          "callableMembers": [],
+          "memberContracts": {
+            "static": {
+              "attributes": [
+                "formkit-composed-field-types"
+              ],
+              "behaviors": [
+                "formkit-composed-field-types"
+              ],
+              "childViewEventPrefix": [
+                "formkit-composed-field-types"
+              ],
+              "childViewEvents": [
+                "formkit-composed-field-types"
+              ],
+              "childViewTriggers": [
+                "formkit-composed-field-types"
+              ],
+              "className": [
+                "formkit-composed-field-types"
+              ],
+              "collection": [
+                "formkit-composed-field-types"
+              ],
+              "collectionEvents": [
+                "formkit-composed-field-types"
+              ],
+              "events": [
+                "formkit-composed-field-types"
+              ],
+              "form": [
+                "formkit-composed-field-types"
+              ],
+              "id": [
+                "formkit-composed-field-types"
+              ],
+              "input": [
+                "formkit-composed-field-types"
+              ],
+              "model": [
+                "formkit-composed-field-types"
+              ],
+              "modelEvents": [
+                "formkit-composed-field-types"
+              ],
+              "name": [
+                "formkit-composed-field-types"
+              ],
+              "parent": [
+                "formkit-composed-field-types"
+              ],
+              "regionClass": [
+                "formkit-composed-field-types"
+              ],
+              "regions": [
+                "formkit-composed-field-types"
+              ],
+              "removal": [
+                "formkit-composed-field-types"
+              ],
+              "state": [
+                "formkit-composed-field-types"
+              ],
+              "stateEvents": [
+                "formkit-composed-field-types"
+              ],
+              "tagName": [
+                "formkit-composed-field-types"
+              ],
+              "templateContext": [
+                "formkit-composed-field-types"
+              ],
+              "triggers": [
+                "formkit-composed-field-types"
+              ],
+              "ui": [
+                "formkit-composed-field-types"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FieldView",
+          "kind": "value",
+          "signature": "typeof FieldView",
+          "contracts": [
+            "formkit-composed-field"
+          ],
+          "members": {
+            "apply": "(receiver: object, args: IArguments | [options?: ViewConfiguration | undefined]) => void",
+            "call": "(receiver: object, options?: ViewConfiguration | undefined) => void",
+            "extend": "<Added extends object = {}, AddedStatics extends object = {}>(this: Added extends { constructor: (...args: never[]) => unknown; } ? object : (this: object, ...args: never[]) => unknown, prototypeProperties?: (Added & ThisType<ViewResult<Added, ArgumentsFor<Added, [options?: ViewConfiguration | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, ArrayLike<Element>>>) | undefined, staticProperties?: (AddedStatics & ThisType<ViewConstructor<Added, ArgumentsFor<Added, [options?: ViewConfiguration | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics, ArrayLike<Element>>>) | undefined) => ViewConstructor<Added, ArgumentsFor<Added, [options?: ViewConfiguration | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics, ArrayLike<Element>>",
+            "setDataApi": "<Receiver extends DataApiClass, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<DataApi<never, never, never>>) | null | undefined) => Receiver",
+            "setDomApi": "<Receiver extends { prototype: object; }, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<DomApi<ArrayLike<Element>, never>>) | null | undefined) => Receiver",
+            "setEventDelegator": "<Receiver extends DelegatorClass, Adapter extends EventDelegator>(this: Receiver, delegator: Adapter) => Receiver",
+            "setRenderer": "<Receiver extends { prototype: object; }>(this: Receiver, renderer?: Renderer<never, never, never, unknown> | undefined) => Receiver",
+            "setStateApi": "<Receiver extends StateApiClass, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<StateApi<never>>) | null | undefined) => Receiver"
+          },
+          "callableMembers": [
+            "apply",
+            "call",
+            "extend",
+            "setDataApi",
+            "setDomApi",
+            "setEventDelegator",
+            "setRenderer",
+            "setStateApi"
+          ],
+          "construct": [
+            "<Values extends object = FormValues>(options: FieldOptions<Values>): FieldView<Values>"
+          ],
+          "instance": {
+            "$": "(selector: string) => ArrayLike<Element>",
+            "addRegion": "(name: string, definition: RegionDefinition) => RegionInstance<RegionOptions>",
+            "addRegions": "(regions?: Record<string, RegionDefinition> | null | undefined) => Record<string, RegionInstance<RegionOptions>> | undefined",
+            "attachElContent": "() => void",
+            "attributes": "?Record<string, unknown> | (() => Record<string, unknown>) | undefined",
+            "behaviors": "?BehaviorDefinitions | (() => BehaviorDefinitions) | undefined",
+            "bindEvents": "<Receiver extends Listener>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "bindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyChannel | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "bindUIElements": "() => FieldView<any>",
+            "childViewEventPrefix": "?string | false | (() => string | false) | undefined",
+            "childViewEvents": "?Record<string, string | EventCallback> | (() => Record<string, string | EventCallback>) | undefined",
+            "childViewTriggers": "?Record<string, string> | (() => Record<string, string>) | undefined",
+            "cid": "string",
+            "cidPrefix": "string",
+            "className": "?string | (() => string | null | undefined) | null | undefined",
+            "collection": "?unknown",
+            "collectionEvents": "?object | (() => object) | undefined",
+            "createState": "(options?: (object & ViewConfiguration) | undefined) => unknown",
+            "Data": "Partial<DataApi<never, never, never>>",
+            "delegateEntityEvents": "() => FieldView<any>",
+            "delegateEvents": "(events?: DOMEvents | undefined) => FieldView<any>",
+            "destroy": "(options?: unknown) => FieldView<any>",
+            "detachChildView": "(name: string) => SupportedView | undefined",
+            "Dom": "Partial<DomApi<ArrayLike<Element>, never>>",
+            "el": "Element",
+            "emptyRegions": "() => Record<string, RegionInstance<RegionOptions>>",
+            "EventDelegator": "EventDelegator",
+            "events": "?DOMEvents | (() => DOMEvents) | undefined",
+            "getChildView": "(name: string) => SupportedView | undefined",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
+            "getRegion": "(name: string) => RegionInstance<RegionOptions> | undefined",
+            "getRegions": "() => Record<string, RegionInstance<RegionOptions>>",
+            "getState": "() => unknown",
+            "getTemplate": "() => unknown",
+            "getUI": "(name: string) => ArrayLike<Element> | undefined",
+            "getValue": "() => unknown",
+            "hasRegion": "(name: string) => boolean",
+            "id": "?string | (() => string | null | undefined) | null | undefined",
+            "initialize": "(options?: (object & ViewConfiguration) | undefined) => void",
+            "isAttached": "() => boolean",
+            "isDestroyed": "() => boolean",
+            "isRendered": "() => boolean",
+            "listenTo": "<Receiver>(this: Receiver, source: EventSource | null | undefined, name: string | EventMap, callback?: EventCallback | undefined) => Receiver",
+            "listenToOnce": "<Receiver>(this: Receiver, source: EventSource | null | undefined, name: string | EventMap, callback?: EventCallback | undefined) => Receiver",
+            "mergeOptions": "{ (this: unknown, options?: null | undefined, keys?: unknown): void; (this: object, options: unknown, keys: readonly unknown[]): void; }",
+            "mixinTemplateContext": "(data: unknown) => unknown",
+            "model": "?unknown",
+            "modelEvents": "?object | (() => object) | undefined",
+            "monitorViewEvents": "?boolean | undefined",
+            "node": "FormKitNode",
+            "normalizeMethods": "{ (this: unknown, hash?: false | \"\" | 0 | 0n | null | undefined): undefined; (this: unknown, hash: object): EventMap; (this: unknown, hash?: OptionalBindings): EventMap | undefined; }",
+            "normalizeUIKeys": "<Value>(hash: Record<string, Value> | null | undefined, bindings?: UISelectors | undefined) => Record<string, Value>",
+            "normalizeUIString": "(value: string, bindings?: UISelectors | undefined) => string",
+            "normalizeUIValues": "<Hash extends object>(hash: Hash, property?: string | undefined, bindings?: UISelectors | undefined) => Hash",
+            "off": "{ <Receiver>(this: Receiver, name?: string | null | undefined, callback?: EventCallback | null | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
+            "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
+            "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
+            "options": "object & ViewConfiguration",
+            "preinitialize": "(options?: (object & ViewConfiguration) | undefined) => void",
+            "regionClass": "RegionClass",
+            "regions": "Record<string, RegionDefinition> | (() => Record<string, RegionDefinition>)",
+            "removeRegion": "(name: string) => RegionInstance<RegionOptions>",
+            "removeRegions": "() => Record<string, RegionInstance<RegionOptions>>",
+            "render": "() => FieldView<any>",
+            "renderAttributes": "() => FieldView<any>",
+            "serializeCollection": "() => unknown[]",
+            "serializeData": "() => unknown",
+            "serializeModel": "() => unknown",
+            "setInput": "(props: FieldInputUpdate) => FieldView<any>",
+            "setValue": "(value: unknown, options?: ValueUpdateOptions) => FieldView<any>",
+            "showChildView": "<Child extends SupportedView>(name: string, view: Child, options?: ShowOptions | undefined) => Child",
+            "state": "?unknown",
+            "State": "Partial<StateApi<never>>",
+            "stateEvents": "?object | (() => object) | undefined",
+            "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
+            "tagName": "string | (() => string)",
+            "template": "?unknown",
+            "templateContext": "?object | (() => object) | undefined",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
+            "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
+            "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
+            "ui": "?UIBindings | Record<string, ArrayLike<Element>> | undefined",
+            "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "unbindUIElements": "() => FieldView<any>",
+            "undelegateEntityEvents": "() => FieldView<any>",
+            "undelegateEvents": "() => FieldView<any>"
+          },
+          "callableInstanceMembers": [
+            "$",
+            "addRegion",
+            "addRegions",
+            "attachElContent",
+            "bindEvents",
+            "bindRequests",
+            "bindUIElements",
+            "createState",
+            "delegateEntityEvents",
+            "delegateEvents",
+            "destroy",
+            "detachChildView",
+            "emptyRegions",
+            "getChildView",
+            "getOption",
+            "getRegion",
+            "getRegions",
+            "getState",
+            "getTemplate",
+            "getUI",
+            "getValue",
+            "hasRegion",
+            "initialize",
+            "isAttached",
+            "isDestroyed",
+            "isRendered",
+            "listenTo",
+            "listenToOnce",
+            "mergeOptions",
+            "mixinTemplateContext",
+            "normalizeMethods",
+            "normalizeUIKeys",
+            "normalizeUIString",
+            "normalizeUIValues",
+            "off",
+            "on",
+            "once",
+            "preinitialize",
+            "removeRegion",
+            "removeRegions",
+            "render",
+            "renderAttributes",
+            "serializeCollection",
+            "serializeData",
+            "serializeModel",
+            "setInput",
+            "setValue",
+            "showChildView",
+            "stopListening",
+            "trigger",
+            "triggerMethod",
+            "unbindEvents",
+            "unbindRequests",
+            "unbindUIElements",
+            "undelegateEntityEvents",
+            "undelegateEvents"
+          ],
+          "memberContracts": {
+            "static": {
+              "apply": [
+                "formkit-composed-field"
+              ],
+              "call": [
+                "formkit-composed-field"
+              ],
+              "extend": [
+                "formkit-composed-field"
+              ],
+              "setDataApi": [
+                "formkit-composed-field"
+              ],
+              "setDomApi": [
+                "formkit-composed-field"
+              ],
+              "setEventDelegator": [
+                "formkit-composed-field"
+              ],
+              "setRenderer": [
+                "formkit-composed-field"
+              ],
+              "setStateApi": [
+                "formkit-composed-field"
+              ]
+            },
+            "instance": {
+              "$": [
+                "formkit-composed-field"
+              ],
+              "addRegion": [
+                "formkit-composed-field"
+              ],
+              "addRegions": [
+                "formkit-composed-field"
+              ],
+              "attachElContent": [
+                "formkit-composed-field"
+              ],
+              "attributes": [
+                "formkit-composed-field"
+              ],
+              "behaviors": [
+                "formkit-composed-field"
+              ],
+              "bindEvents": [
+                "formkit-composed-field"
+              ],
+              "bindRequests": [
+                "formkit-composed-field"
+              ],
+              "bindUIElements": [
+                "formkit-composed-field"
+              ],
+              "childViewEventPrefix": [
+                "formkit-composed-field"
+              ],
+              "childViewEvents": [
+                "formkit-composed-field"
+              ],
+              "childViewTriggers": [
+                "formkit-composed-field"
+              ],
+              "cid": [
+                "formkit-composed-field"
+              ],
+              "cidPrefix": [
+                "formkit-composed-field"
+              ],
+              "className": [
+                "formkit-composed-field"
+              ],
+              "collection": [
+                "formkit-composed-field"
+              ],
+              "collectionEvents": [
+                "formkit-composed-field"
+              ],
+              "createState": [
+                "formkit-composed-field"
+              ],
+              "Data": [
+                "formkit-composed-field"
+              ],
+              "delegateEntityEvents": [
+                "formkit-composed-field"
+              ],
+              "delegateEvents": [
+                "formkit-composed-field"
+              ],
+              "destroy": [
+                "formkit-composed-field"
+              ],
+              "detachChildView": [
+                "formkit-composed-field"
+              ],
+              "Dom": [
+                "formkit-composed-field"
+              ],
+              "el": [
+                "formkit-composed-field"
+              ],
+              "emptyRegions": [
+                "formkit-composed-field"
+              ],
+              "EventDelegator": [
+                "formkit-composed-field"
+              ],
+              "events": [
+                "formkit-composed-field"
+              ],
+              "getChildView": [
+                "formkit-composed-field"
+              ],
+              "getOption": [
+                "formkit-composed-field"
+              ],
+              "getRegion": [
+                "formkit-composed-field"
+              ],
+              "getRegions": [
+                "formkit-composed-field"
+              ],
+              "getState": [
+                "formkit-composed-field"
+              ],
+              "getTemplate": [
+                "formkit-composed-field"
+              ],
+              "getUI": [
+                "formkit-composed-field"
+              ],
+              "getValue": [
+                "formkit-composed-field"
+              ],
+              "hasRegion": [
+                "formkit-composed-field"
+              ],
+              "id": [
+                "formkit-composed-field"
+              ],
+              "initialize": [
+                "formkit-composed-field"
+              ],
+              "isAttached": [
+                "formkit-composed-field"
+              ],
+              "isDestroyed": [
+                "formkit-composed-field"
+              ],
+              "isRendered": [
+                "formkit-composed-field"
+              ],
+              "listenTo": [
+                "formkit-composed-field"
+              ],
+              "listenToOnce": [
+                "formkit-composed-field"
+              ],
+              "mergeOptions": [
+                "formkit-composed-field"
+              ],
+              "mixinTemplateContext": [
+                "formkit-composed-field"
+              ],
+              "model": [
+                "formkit-composed-field"
+              ],
+              "modelEvents": [
+                "formkit-composed-field"
+              ],
+              "monitorViewEvents": [
+                "formkit-composed-field"
+              ],
+              "node": [
+                "formkit-composed-field"
+              ],
+              "normalizeMethods": [
+                "formkit-composed-field"
+              ],
+              "normalizeUIKeys": [
+                "formkit-composed-field"
+              ],
+              "normalizeUIString": [
+                "formkit-composed-field"
+              ],
+              "normalizeUIValues": [
+                "formkit-composed-field"
+              ],
+              "off": [
+                "formkit-composed-field"
+              ],
+              "on": [
+                "formkit-composed-field"
+              ],
+              "once": [
+                "formkit-composed-field"
+              ],
+              "options": [
+                "formkit-composed-field"
+              ],
+              "preinitialize": [
+                "formkit-composed-field"
+              ],
+              "regionClass": [
+                "formkit-composed-field"
+              ],
+              "regions": [
+                "formkit-composed-field"
+              ],
+              "removeRegion": [
+                "formkit-composed-field"
+              ],
+              "removeRegions": [
+                "formkit-composed-field"
+              ],
+              "render": [
+                "formkit-composed-field"
+              ],
+              "renderAttributes": [
+                "formkit-composed-field"
+              ],
+              "serializeCollection": [
+                "formkit-composed-field"
+              ],
+              "serializeData": [
+                "formkit-composed-field"
+              ],
+              "serializeModel": [
+                "formkit-composed-field"
+              ],
+              "setInput": [
+                "formkit-composed-field"
+              ],
+              "setValue": [
+                "formkit-composed-field"
+              ],
+              "showChildView": [
+                "formkit-composed-field"
+              ],
+              "state": [
+                "formkit-composed-field"
+              ],
+              "State": [
+                "formkit-composed-field"
+              ],
+              "stateEvents": [
+                "formkit-composed-field"
+              ],
+              "stopListening": [
+                "formkit-composed-field"
+              ],
+              "tagName": [
+                "formkit-composed-field"
+              ],
+              "template": [
+                "formkit-composed-field"
+              ],
+              "templateContext": [
+                "formkit-composed-field"
+              ],
+              "trigger": [
+                "formkit-composed-field"
+              ],
+              "triggerMethod": [
+                "formkit-composed-field"
+              ],
+              "triggers": [
+                "formkit-composed-field"
+              ],
+              "ui": [
+                "formkit-composed-field"
+              ],
+              "unbindEvents": [
+                "formkit-composed-field"
+              ],
+              "unbindRequests": [
+                "formkit-composed-field"
+              ],
+              "unbindUIElements": [
+                "formkit-composed-field"
+              ],
+              "undelegateEntityEvents": [
+                "formkit-composed-field"
+              ],
+              "undelegateEvents": [
+                "formkit-composed-field"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FormOptions",
+          "kind": "type",
+          "signature": "FormOptions<Values>",
+          "contracts": [
+            "formkit-type-shapes"
+          ],
+          "members": {
+            "attributes": "?Record<string, unknown> | (() => Record<string, unknown>) | undefined",
+            "behaviors": "?BehaviorDefinitions | (() => BehaviorDefinitions) | undefined",
+            "childViewEventPrefix": "?string | false | (() => string | false) | undefined",
+            "childViewEvents": "?Record<string, string | EventCallback> | (() => Record<string, string | EventCallback>) | undefined",
+            "childViewTriggers": "?Record<string, string> | (() => Record<string, string>) | undefined",
+            "className": "?string | (() => string | null | undefined) | null | undefined",
+            "collection": "?unknown",
+            "collectionEvents": "?object | (() => object) | undefined",
+            "components": "?Record<string, SchemaComponentFactory> | undefined",
+            "config": "?Partial<FormKitConfig> | undefined",
+            "el": "?HTMLFormElement | undefined",
+            "events": "?DOMEvents | (() => DOMEvents) | undefined",
+            "fields": "?readonly Definition[] | undefined",
+            "formProps": "?Scope | undefined",
+            "iconLoader": "?FormKitIconLoader | undefined",
+            "iconLoaderUrl": "?FormKitIconLoaderUrl | undefined",
+            "icons": "?Record<string, string | undefined> | undefined",
+            "id": "?string | (() => string | null | undefined) | null | undefined",
+            "inputs": "?FormKitLibrary | undefined",
+            "model": "?unknown",
+            "modelEvents": "?object | (() => object) | undefined",
+            "plugins": "?FormKitPlugin[] | undefined",
+            "regionClass": "?RegionClass | undefined",
+            "regions": "?Record<string, RegionDefinition> | (() => Record<string, RegionDefinition>) | undefined",
+            "resetLabel": "?string | undefined",
+            "schema": "?FormKitSchemaDefinition | undefined",
+            "schemaData": "?Scope | undefined",
+            "sectionsSchema": "?FormKitSectionsSchema | undefined",
+            "slots": "?Record<string, SchemaSlot> | undefined",
+            "state": "?unknown",
+            "stateEvents": "?object | (() => object) | undefined",
+            "submit": "?((values: Values, context: SubmissionContext) => unknown) | undefined",
+            "submitLabel": "?string | undefined",
+            "template": "?unknown",
+            "templateContext": "?object | (() => object) | undefined",
+            "theme": "?string | undefined",
+            "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
+            "ui": "?UIBindings | undefined",
+            "validationRules": "?FormKitValidationRules | undefined",
+            "values": "?Partial<Values> | undefined"
+          },
+          "callableMembers": [
+            "iconLoader",
+            "iconLoaderUrl",
+            "submit"
+          ],
+          "memberContracts": {
+            "static": {
+              "attributes": [
+                "formkit-type-shapes"
+              ],
+              "behaviors": [
+                "formkit-type-shapes"
+              ],
+              "childViewEventPrefix": [
+                "formkit-type-shapes"
+              ],
+              "childViewEvents": [
+                "formkit-type-shapes"
+              ],
+              "childViewTriggers": [
+                "formkit-type-shapes"
+              ],
+              "className": [
+                "formkit-type-shapes"
+              ],
+              "collection": [
+                "formkit-type-shapes"
+              ],
+              "collectionEvents": [
+                "formkit-type-shapes"
+              ],
+              "components": [
+                "formkit-type-shapes"
+              ],
+              "config": [
+                "formkit-type-shapes"
+              ],
+              "el": [
+                "formkit-type-shapes"
+              ],
+              "events": [
+                "formkit-type-shapes"
+              ],
+              "fields": [
+                "formkit-type-shapes"
+              ],
+              "formProps": [
+                "formkit-type-shapes"
+              ],
+              "iconLoader": [
+                "formkit-type-shapes"
+              ],
+              "iconLoaderUrl": [
+                "formkit-type-shapes"
+              ],
+              "icons": [
+                "formkit-type-shapes"
+              ],
+              "id": [
+                "formkit-type-shapes"
+              ],
+              "inputs": [
+                "formkit-type-shapes"
+              ],
+              "model": [
+                "formkit-type-shapes"
+              ],
+              "modelEvents": [
+                "formkit-type-shapes"
+              ],
+              "plugins": [
+                "formkit-type-shapes"
+              ],
+              "regionClass": [
+                "formkit-type-shapes"
+              ],
+              "regions": [
+                "formkit-type-shapes"
+              ],
+              "resetLabel": [
+                "formkit-type-shapes"
+              ],
+              "schema": [
+                "formkit-type-shapes"
+              ],
+              "schemaData": [
+                "formkit-type-shapes"
+              ],
+              "sectionsSchema": [
+                "formkit-type-shapes"
+              ],
+              "slots": [
+                "formkit-type-shapes"
+              ],
+              "state": [
+                "formkit-type-shapes"
+              ],
+              "stateEvents": [
+                "formkit-type-shapes"
+              ],
+              "submit": [
+                "formkit-type-shapes"
+              ],
+              "submitLabel": [
+                "formkit-type-shapes"
+              ],
+              "template": [
+                "formkit-type-shapes"
+              ],
+              "templateContext": [
+                "formkit-type-shapes"
+              ],
+              "theme": [
+                "formkit-type-shapes"
+              ],
+              "triggers": [
+                "formkit-type-shapes"
+              ],
+              "ui": [
+                "formkit-type-shapes"
+              ],
+              "validationRules": [
+                "formkit-type-shapes"
+              ],
+              "values": [
+                "formkit-type-shapes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FormState",
+          "kind": "type",
+          "signature": "FormState",
+          "contracts": [
+            "formkit-type-shapes"
+          ],
+          "members": {
+            "errors": "readonly string[]",
+            "submitted": "boolean",
+            "submitting": "boolean",
+            "valid": "boolean"
+          },
+          "callableMembers": [],
+          "memberContracts": {
+            "static": {
+              "errors": [
+                "formkit-type-shapes"
+              ],
+              "submitted": [
+                "formkit-type-shapes"
+              ],
+              "submitting": [
+                "formkit-type-shapes"
+              ],
+              "valid": [
+                "formkit-type-shapes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FormValues",
+          "kind": "type",
+          "signature": "FormValues",
+          "contracts": [
+            "formkit-value-types"
+          ],
+          "memberContracts": {}
+        },
+        {
+          "name": "FormView",
+          "kind": "value",
+          "signature": "typeof FormView",
+          "contracts": [
+            "formkit-native-form"
+          ],
+          "members": {
+            "apply": "(receiver: object, args: IArguments | [options?: ViewConfiguration | undefined]) => void",
+            "call": "(receiver: object, options?: ViewConfiguration | undefined) => void",
+            "extend": "<Added extends object = {}, AddedStatics extends object = {}>(this: Added extends { constructor: (...args: never[]) => unknown; } ? object : (this: object, ...args: never[]) => unknown, prototypeProperties?: (Added & ThisType<ViewResult<Added, ArgumentsFor<Added, [options?: ViewConfiguration | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, ArrayLike<Element>>>) | undefined, staticProperties?: (AddedStatics & ThisType<ViewConstructor<Added, ArgumentsFor<Added, [options?: ViewConfiguration | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics, ArrayLike<Element>>>) | undefined) => ViewConstructor<Added, ArgumentsFor<Added, [options?: ViewConfiguration | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics, ArrayLike<Element>>",
+            "setDataApi": "<Receiver extends DataApiClass, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<DataApi<never, never, never>>) | null | undefined) => Receiver",
+            "setDomApi": "<Receiver extends { prototype: object; }, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<DomApi<ArrayLike<Element>, never>>) | null | undefined) => Receiver",
+            "setEventDelegator": "<Receiver extends DelegatorClass, Adapter extends EventDelegator>(this: Receiver, delegator: Adapter) => Receiver",
+            "setRenderer": "<Receiver extends { prototype: object; }>(this: Receiver, renderer?: Renderer<never, never, never, unknown> | undefined) => Receiver",
+            "setStateApi": "<Receiver extends StateApiClass, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<StateApi<never>>) | null | undefined) => Receiver"
+          },
+          "callableMembers": [
+            "apply",
+            "call",
+            "extend",
+            "setDataApi",
+            "setDomApi",
+            "setEventDelegator",
+            "setRenderer",
+            "setStateApi"
+          ],
+          "construct": [
+            "<Values extends object = FormValues>(options: FormOptions<Values>): FormView<Values>"
+          ],
+          "instance": {
+            "$": "(selector: string) => ArrayLike<Element>",
+            "addRegion": "(name: string, definition: RegionDefinition) => RegionInstance<RegionOptions>",
+            "addRegions": "(regions?: Record<string, RegionDefinition> | null | undefined) => Record<string, RegionInstance<RegionOptions>> | undefined",
+            "attachElContent": "(html: unknown) => void",
+            "attributes": "?Record<string, unknown> | (() => Record<string, unknown>) | undefined",
+            "behaviors": "?BehaviorDefinitions | (() => BehaviorDefinitions) | undefined",
+            "bindEvents": "<Receiver extends Listener>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "bindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyChannel | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "bindUIElements": "() => FormView<any>",
+            "childViewEventPrefix": "?string | false | (() => string | false) | undefined",
+            "childViewEvents": "?Record<string, string | EventCallback> | (() => Record<string, string | EventCallback>) | undefined",
+            "childViewTriggers": "?Record<string, string> | (() => Record<string, string>) | undefined",
+            "cid": "string",
+            "cidPrefix": "string",
+            "className": "?string | (() => string | null | undefined) | null | undefined",
+            "collection": "?unknown",
+            "collectionEvents": "?object | (() => object) | undefined",
+            "createState": "(options?: (object & ViewConfiguration) | undefined) => unknown",
+            "Data": "Partial<DataApi<never, never, never>>",
+            "delegateEntityEvents": "() => FormView<any>",
+            "delegateEvents": "(events?: DOMEvents | undefined) => FormView<any>",
+            "destroy": "(options?: unknown) => FormView<any>",
+            "detachChildView": "(name: string) => SupportedView | undefined",
+            "Dom": "Partial<DomApi<ArrayLike<Element>, never>>",
+            "el": "Element",
+            "emptyRegions": "() => Record<string, RegionInstance<RegionOptions>>",
+            "EventDelegator": "EventDelegator",
+            "events": "?DOMEvents | (() => DOMEvents) | undefined",
+            "getChildView": "(name: string) => SupportedView | undefined",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
+            "getRegion": "(name: string) => RegionInstance<RegionOptions> | undefined",
+            "getRegions": "() => Record<string, RegionInstance<RegionOptions>>",
+            "getState": "() => FormState",
+            "getTemplate": "() => unknown",
+            "getUI": "(name: string) => ArrayLike<Element> | undefined",
+            "getValues": "() => any",
+            "hasRegion": "(name: string) => boolean",
+            "id": "?string | (() => string | null | undefined) | null | undefined",
+            "initialize": "(options?: (object & ViewConfiguration) | undefined) => void",
+            "isAttached": "() => boolean",
+            "isDestroyed": "() => boolean",
+            "isRendered": "() => boolean",
+            "listenTo": "<Receiver>(this: Receiver, source: EventSource | null | undefined, name: string | EventMap, callback?: EventCallback | undefined) => Receiver",
+            "listenToOnce": "<Receiver>(this: Receiver, source: EventSource | null | undefined, name: string | EventMap, callback?: EventCallback | undefined) => Receiver",
+            "mergeOptions": "{ (this: unknown, options?: null | undefined, keys?: unknown): void; (this: object, options: unknown, keys: readonly unknown[]): void; }",
+            "mixinTemplateContext": "(data: unknown) => unknown",
+            "model": "?unknown",
+            "modelEvents": "?object | (() => object) | undefined",
+            "monitorViewEvents": "?boolean | undefined",
+            "node": "FormKitNode",
+            "normalizeMethods": "{ (this: unknown, hash?: false | \"\" | 0 | 0n | null | undefined): undefined; (this: unknown, hash: object): EventMap; (this: unknown, hash?: OptionalBindings): EventMap | undefined; }",
+            "normalizeUIKeys": "<Value>(hash: Record<string, Value> | null | undefined, bindings?: UISelectors | undefined) => Record<string, Value>",
+            "normalizeUIString": "(value: string, bindings?: UISelectors | undefined) => string",
+            "normalizeUIValues": "<Hash extends object>(hash: Hash, property?: string | undefined, bindings?: UISelectors | undefined) => Hash",
+            "off": "{ <Receiver>(this: Receiver, name?: string | null | undefined, callback?: EventCallback | null | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
+            "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
+            "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
+            "options": "object & ViewConfiguration",
+            "preinitialize": "(options?: (object & ViewConfiguration) | undefined) => void",
+            "regionClass": "RegionClass",
+            "regions": "Record<string, RegionDefinition> | (() => Record<string, RegionDefinition>)",
+            "removeRegion": "(name: string) => RegionInstance<RegionOptions>",
+            "removeRegions": "() => Record<string, RegionInstance<RegionOptions>>",
+            "render": "() => FormView<any>",
+            "renderAttributes": "() => FormView<any>",
+            "resetForm": "() => FormView<any>",
+            "serializeCollection": "() => unknown[]",
+            "serializeData": "() => unknown",
+            "serializeModel": "() => unknown",
+            "setErrors": "(errors?: string[], fieldErrors?: Record<string, string[]>) => void",
+            "setSchema": "(schema: FormKitSchemaDefinition) => FormView<any>",
+            "setSchemaData": "(data: Record<string, unknown>) => FormView<any>",
+            "setValues": "(values: Partial<any>, options?: ValueUpdateOptions) => FormView<any>",
+            "showChildView": "<Child extends SupportedView>(name: string, view: Child, options?: ShowOptions | undefined) => Child",
+            "state": "?unknown",
+            "State": "Partial<StateApi<never>>",
+            "stateEvents": "?object | (() => object) | undefined",
+            "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
+            "submit": "(event?: Event | undefined) => Promise<SubmitResult>",
+            "tagName": "string | (() => string)",
+            "template": "?unknown",
+            "templateContext": "?object | (() => object) | undefined",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
+            "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
+            "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
+            "ui": "?UIBindings | Record<string, ArrayLike<Element>> | undefined",
+            "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "unbindUIElements": "() => FormView<any>",
+            "undelegateEntityEvents": "() => FormView<any>",
+            "undelegateEvents": "() => FormView<any>"
+          },
+          "callableInstanceMembers": [
+            "$",
+            "addRegion",
+            "addRegions",
+            "attachElContent",
+            "bindEvents",
+            "bindRequests",
+            "bindUIElements",
+            "createState",
+            "delegateEntityEvents",
+            "delegateEvents",
+            "destroy",
+            "detachChildView",
+            "emptyRegions",
+            "getChildView",
+            "getOption",
+            "getRegion",
+            "getRegions",
+            "getState",
+            "getTemplate",
+            "getUI",
+            "getValues",
+            "hasRegion",
+            "initialize",
+            "isAttached",
+            "isDestroyed",
+            "isRendered",
+            "listenTo",
+            "listenToOnce",
+            "mergeOptions",
+            "mixinTemplateContext",
+            "normalizeMethods",
+            "normalizeUIKeys",
+            "normalizeUIString",
+            "normalizeUIValues",
+            "off",
+            "on",
+            "once",
+            "preinitialize",
+            "removeRegion",
+            "removeRegions",
+            "render",
+            "renderAttributes",
+            "resetForm",
+            "serializeCollection",
+            "serializeData",
+            "serializeModel",
+            "setErrors",
+            "setSchema",
+            "setSchemaData",
+            "setValues",
+            "showChildView",
+            "stopListening",
+            "submit",
+            "trigger",
+            "triggerMethod",
+            "unbindEvents",
+            "unbindRequests",
+            "unbindUIElements",
+            "undelegateEntityEvents",
+            "undelegateEvents"
+          ],
+          "memberContracts": {
+            "static": {
+              "apply": [
+                "formkit-native-form"
+              ],
+              "call": [
+                "formkit-native-form"
+              ],
+              "extend": [
+                "formkit-native-form"
+              ],
+              "setDataApi": [
+                "formkit-native-form"
+              ],
+              "setDomApi": [
+                "formkit-native-form"
+              ],
+              "setEventDelegator": [
+                "formkit-native-form"
+              ],
+              "setRenderer": [
+                "formkit-native-form"
+              ],
+              "setStateApi": [
+                "formkit-native-form"
+              ]
+            },
+            "instance": {
+              "$": [
+                "formkit-native-form"
+              ],
+              "addRegion": [
+                "formkit-native-form"
+              ],
+              "addRegions": [
+                "formkit-native-form"
+              ],
+              "attachElContent": [
+                "formkit-native-form"
+              ],
+              "attributes": [
+                "formkit-native-form"
+              ],
+              "behaviors": [
+                "formkit-native-form"
+              ],
+              "bindEvents": [
+                "formkit-native-form"
+              ],
+              "bindRequests": [
+                "formkit-native-form"
+              ],
+              "bindUIElements": [
+                "formkit-native-form"
+              ],
+              "childViewEventPrefix": [
+                "formkit-native-form"
+              ],
+              "childViewEvents": [
+                "formkit-native-form"
+              ],
+              "childViewTriggers": [
+                "formkit-native-form"
+              ],
+              "cid": [
+                "formkit-native-form"
+              ],
+              "cidPrefix": [
+                "formkit-native-form"
+              ],
+              "className": [
+                "formkit-native-form"
+              ],
+              "collection": [
+                "formkit-native-form"
+              ],
+              "collectionEvents": [
+                "formkit-native-form"
+              ],
+              "createState": [
+                "formkit-native-form"
+              ],
+              "Data": [
+                "formkit-native-form"
+              ],
+              "delegateEntityEvents": [
+                "formkit-native-form"
+              ],
+              "delegateEvents": [
+                "formkit-native-form"
+              ],
+              "destroy": [
+                "formkit-native-form"
+              ],
+              "detachChildView": [
+                "formkit-native-form"
+              ],
+              "Dom": [
+                "formkit-native-form"
+              ],
+              "el": [
+                "formkit-native-form"
+              ],
+              "emptyRegions": [
+                "formkit-native-form"
+              ],
+              "EventDelegator": [
+                "formkit-native-form"
+              ],
+              "events": [
+                "formkit-native-form"
+              ],
+              "getChildView": [
+                "formkit-native-form"
+              ],
+              "getOption": [
+                "formkit-native-form"
+              ],
+              "getRegion": [
+                "formkit-native-form"
+              ],
+              "getRegions": [
+                "formkit-native-form"
+              ],
+              "getState": [
+                "formkit-native-form"
+              ],
+              "getTemplate": [
+                "formkit-native-form"
+              ],
+              "getUI": [
+                "formkit-native-form"
+              ],
+              "getValues": [
+                "formkit-native-form"
+              ],
+              "hasRegion": [
+                "formkit-native-form"
+              ],
+              "id": [
+                "formkit-native-form"
+              ],
+              "initialize": [
+                "formkit-native-form"
+              ],
+              "isAttached": [
+                "formkit-native-form"
+              ],
+              "isDestroyed": [
+                "formkit-native-form"
+              ],
+              "isRendered": [
+                "formkit-native-form"
+              ],
+              "listenTo": [
+                "formkit-native-form"
+              ],
+              "listenToOnce": [
+                "formkit-native-form"
+              ],
+              "mergeOptions": [
+                "formkit-native-form"
+              ],
+              "mixinTemplateContext": [
+                "formkit-native-form"
+              ],
+              "model": [
+                "formkit-native-form"
+              ],
+              "modelEvents": [
+                "formkit-native-form"
+              ],
+              "monitorViewEvents": [
+                "formkit-native-form"
+              ],
+              "node": [
+                "formkit-native-form"
+              ],
+              "normalizeMethods": [
+                "formkit-native-form"
+              ],
+              "normalizeUIKeys": [
+                "formkit-native-form"
+              ],
+              "normalizeUIString": [
+                "formkit-native-form"
+              ],
+              "normalizeUIValues": [
+                "formkit-native-form"
+              ],
+              "off": [
+                "formkit-native-form"
+              ],
+              "on": [
+                "formkit-native-form"
+              ],
+              "once": [
+                "formkit-native-form"
+              ],
+              "options": [
+                "formkit-native-form"
+              ],
+              "preinitialize": [
+                "formkit-native-form"
+              ],
+              "regionClass": [
+                "formkit-native-form"
+              ],
+              "regions": [
+                "formkit-native-form"
+              ],
+              "removeRegion": [
+                "formkit-native-form"
+              ],
+              "removeRegions": [
+                "formkit-native-form"
+              ],
+              "render": [
+                "formkit-native-form"
+              ],
+              "renderAttributes": [
+                "formkit-native-form"
+              ],
+              "resetForm": [
+                "formkit-native-form"
+              ],
+              "serializeCollection": [
+                "formkit-native-form"
+              ],
+              "serializeData": [
+                "formkit-native-form"
+              ],
+              "serializeModel": [
+                "formkit-native-form"
+              ],
+              "setErrors": [
+                "formkit-native-form"
+              ],
+              "setSchema": [
+                "formkit-native-form"
+              ],
+              "setSchemaData": [
+                "formkit-native-form"
+              ],
+              "setValues": [
+                "formkit-native-form"
+              ],
+              "showChildView": [
+                "formkit-native-form"
+              ],
+              "state": [
+                "formkit-native-form"
+              ],
+              "State": [
+                "formkit-native-form"
+              ],
+              "stateEvents": [
+                "formkit-native-form"
+              ],
+              "stopListening": [
+                "formkit-native-form"
+              ],
+              "submit": [
+                "formkit-native-form"
+              ],
+              "tagName": [
+                "formkit-native-form"
+              ],
+              "template": [
+                "formkit-native-form"
+              ],
+              "templateContext": [
+                "formkit-native-form"
+              ],
+              "trigger": [
+                "formkit-native-form"
+              ],
+              "triggerMethod": [
+                "formkit-native-form"
+              ],
+              "triggers": [
+                "formkit-native-form"
+              ],
+              "ui": [
+                "formkit-native-form"
+              ],
+              "unbindEvents": [
+                "formkit-native-form"
+              ],
+              "unbindRequests": [
+                "formkit-native-form"
+              ],
+              "unbindUIElements": [
+                "formkit-native-form"
+              ],
+              "undelegateEntityEvents": [
+                "formkit-native-form"
+              ],
+              "undelegateEvents": [
+                "formkit-native-form"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GroupDefinition",
+          "kind": "type",
+          "signature": "GroupDefinition",
+          "contracts": [
+            "formkit-type-shapes"
+          ],
+          "members": {
+            "children": "readonly Definition[]",
+            "label": "string",
+            "name": "string",
+            "type": "\"group\""
+          },
+          "callableMembers": [],
+          "memberContracts": {
+            "static": {
+              "children": [
+                "formkit-type-shapes"
+              ],
+              "label": [
+                "formkit-type-shapes"
+              ],
+              "name": [
+                "formkit-type-shapes"
+              ],
+              "type": [
+                "formkit-type-shapes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "NativeType",
+          "kind": "type",
+          "signature": "NativeType",
+          "contracts": [
+            "formkit-value-types"
+          ],
+          "memberContracts": {}
+        },
+        {
+          "name": "RemovalPolicy",
+          "kind": "type",
+          "signature": "RemovalPolicy",
+          "contracts": [
+            "formkit-value-types"
+          ],
+          "memberContracts": {}
+        },
+        {
+          "name": "RowOptions",
+          "kind": "type",
+          "signature": "RowOptions<Values>",
+          "contracts": [
+            "formkit-composed-view-types"
+          ],
+          "members": {
+            "attributes": "?Record<string, unknown> | (() => Record<string, unknown>) | undefined",
+            "behaviors": "?BehaviorDefinitions | (() => BehaviorDefinitions) | undefined",
+            "childViewEventPrefix": "?string | false | (() => string | false) | undefined",
+            "childViewEvents": "?Record<string, string | EventCallback> | (() => Record<string, string | EventCallback>) | undefined",
+            "childViewTriggers": "?Record<string, string> | (() => Record<string, string>) | undefined",
+            "className": "?string | (() => string | null | undefined) | null | undefined",
+            "collection": "?unknown",
+            "collectionEvents": "?object | (() => object) | undefined",
+            "el": "?Element | (() => Element) | undefined",
+            "events": "?DOMEvents | (() => DOMEvents) | undefined",
+            "form": "FormView<Values>",
+            "id": "?string | (() => string | null | undefined) | null | undefined",
+            "model": "?unknown",
+            "modelEvents": "?object | (() => object) | undefined",
+            "parent": "FormKitNode",
+            "regionClass": "?RegionClass | undefined",
+            "regions": "?Record<string, RegionDefinition> | (() => Record<string, RegionDefinition>) | undefined",
+            "removal": "RemovalPolicy",
+            "rowKey": "string",
+            "state": "?unknown",
+            "stateEvents": "?object | (() => object) | undefined",
+            "tagName": "?string | (() => string) | undefined",
+            "template": "?unknown",
+            "templateContext": "?object | (() => object) | undefined",
+            "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
+            "ui": "?UIBindings | undefined"
+          },
+          "callableMembers": [],
+          "memberContracts": {
+            "static": {
+              "attributes": [
+                "formkit-composed-view-types"
+              ],
+              "behaviors": [
+                "formkit-composed-view-types"
+              ],
+              "childViewEventPrefix": [
+                "formkit-composed-view-types"
+              ],
+              "childViewEvents": [
+                "formkit-composed-view-types"
+              ],
+              "childViewTriggers": [
+                "formkit-composed-view-types"
+              ],
+              "className": [
+                "formkit-composed-view-types"
+              ],
+              "collection": [
+                "formkit-composed-view-types"
+              ],
+              "collectionEvents": [
+                "formkit-composed-view-types"
+              ],
+              "el": [
+                "formkit-composed-view-types"
+              ],
+              "events": [
+                "formkit-composed-view-types"
+              ],
+              "form": [
+                "formkit-composed-view-types"
+              ],
+              "id": [
+                "formkit-composed-view-types"
+              ],
+              "model": [
+                "formkit-composed-view-types"
+              ],
+              "modelEvents": [
+                "formkit-composed-view-types"
+              ],
+              "parent": [
+                "formkit-composed-view-types"
+              ],
+              "regionClass": [
+                "formkit-composed-view-types"
+              ],
+              "regions": [
+                "formkit-composed-view-types"
+              ],
+              "removal": [
+                "formkit-composed-view-types"
+              ],
+              "rowKey": [
+                "formkit-composed-view-types"
+              ],
+              "state": [
+                "formkit-composed-view-types"
+              ],
+              "stateEvents": [
+                "formkit-composed-view-types"
+              ],
+              "tagName": [
+                "formkit-composed-view-types"
+              ],
+              "template": [
+                "formkit-composed-view-types"
+              ],
+              "templateContext": [
+                "formkit-composed-view-types"
+              ],
+              "triggers": [
+                "formkit-composed-view-types"
+              ],
+              "ui": [
+                "formkit-composed-view-types"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RowView",
+          "kind": "value",
+          "signature": "typeof RowView",
+          "contracts": [
+            "formkit-keyed-row"
+          ],
+          "members": {
+            "apply": "(receiver: object, args: IArguments | [options?: ViewConfiguration | undefined]) => void",
+            "call": "(receiver: object, options?: ViewConfiguration | undefined) => void",
+            "extend": "<Added extends object = {}, AddedStatics extends object = {}>(this: Added extends { constructor: (...args: never[]) => unknown; } ? object : (this: object, ...args: never[]) => unknown, prototypeProperties?: (Added & ThisType<ViewResult<Added, ArgumentsFor<Added, [options?: ViewConfiguration | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, ArrayLike<Element>>>) | undefined, staticProperties?: (AddedStatics & ThisType<ViewConstructor<Added, ArgumentsFor<Added, [options?: ViewConfiguration | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics, ArrayLike<Element>>>) | undefined) => ViewConstructor<Added, ArgumentsFor<Added, [options?: ViewConfiguration | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics, ArrayLike<Element>>",
+            "setDataApi": "<Receiver extends DataApiClass, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<DataApi<never, never, never>>) | null | undefined) => Receiver",
+            "setDomApi": "<Receiver extends { prototype: object; }, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<DomApi<ArrayLike<Element>, never>>) | null | undefined) => Receiver",
+            "setEventDelegator": "<Receiver extends DelegatorClass, Adapter extends EventDelegator>(this: Receiver, delegator: Adapter) => Receiver",
+            "setRenderer": "<Receiver extends { prototype: object; }>(this: Receiver, renderer?: Renderer<never, never, never, unknown> | undefined) => Receiver",
+            "setStateApi": "<Receiver extends StateApiClass, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<StateApi<never>>) | null | undefined) => Receiver"
+          },
+          "callableMembers": [
+            "apply",
+            "call",
+            "extend",
+            "setDataApi",
+            "setDomApi",
+            "setEventDelegator",
+            "setRenderer",
+            "setStateApi"
+          ],
+          "construct": [
+            "<Values extends object = FormValues>(options: RowOptions<Values>): RowView<Values>"
+          ],
+          "instance": {
+            "$": "(selector: string) => ArrayLike<Element>",
+            "addRegion": "(name: string, definition: RegionDefinition) => RegionInstance<RegionOptions>",
+            "addRegions": "(regions?: Record<string, RegionDefinition> | null | undefined) => Record<string, RegionInstance<RegionOptions>> | undefined",
+            "attachElContent": "(html: unknown) => void",
+            "attributes": "?Record<string, unknown> | (() => Record<string, unknown>) | undefined",
+            "behaviors": "?BehaviorDefinitions | (() => BehaviorDefinitions) | undefined",
+            "bindEvents": "<Receiver extends Listener>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "bindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyChannel | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "bindUIElements": "() => RowView<any>",
+            "childViewEventPrefix": "?string | false | (() => string | false) | undefined",
+            "childViewEvents": "?Record<string, string | EventCallback> | (() => Record<string, string | EventCallback>) | undefined",
+            "childViewTriggers": "?Record<string, string> | (() => Record<string, string>) | undefined",
+            "cid": "string",
+            "cidPrefix": "string",
+            "className": "?string | (() => string | null | undefined) | null | undefined",
+            "collection": "?unknown",
+            "collectionEvents": "?object | (() => object) | undefined",
+            "createState": "(options?: (object & ViewConfiguration) | undefined) => unknown",
+            "Data": "Partial<DataApi<never, never, never>>",
+            "delegateEntityEvents": "() => RowView<any>",
+            "delegateEvents": "(events?: DOMEvents | undefined) => RowView<any>",
+            "destroy": "(options?: unknown) => RowView<any>",
+            "detachChildView": "(name: string) => SupportedView | undefined",
+            "Dom": "Partial<DomApi<ArrayLike<Element>, never>>",
+            "el": "Element",
+            "emptyRegions": "() => Record<string, RegionInstance<RegionOptions>>",
+            "EventDelegator": "EventDelegator",
+            "events": "?DOMEvents | (() => DOMEvents) | undefined",
+            "getChildView": "(name: string) => SupportedView | undefined",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
+            "getRegion": "(name: string) => RegionInstance<RegionOptions> | undefined",
+            "getRegions": "() => Record<string, RegionInstance<RegionOptions>>",
+            "getState": "() => unknown",
+            "getTemplate": "() => unknown",
+            "getUI": "(name: string) => ArrayLike<Element> | undefined",
+            "hasRegion": "(name: string) => boolean",
+            "id": "?string | (() => string | null | undefined) | null | undefined",
+            "initialize": "(options?: (object & ViewConfiguration) | undefined) => void",
+            "isAttached": "() => boolean",
+            "isDestroyed": "() => boolean",
+            "isRendered": "() => boolean",
+            "listenTo": "<Receiver>(this: Receiver, source: EventSource | null | undefined, name: string | EventMap, callback?: EventCallback | undefined) => Receiver",
+            "listenToOnce": "<Receiver>(this: Receiver, source: EventSource | null | undefined, name: string | EventMap, callback?: EventCallback | undefined) => Receiver",
+            "mergeOptions": "{ (this: unknown, options?: null | undefined, keys?: unknown): void; (this: object, options: unknown, keys: readonly unknown[]): void; }",
+            "mixinTemplateContext": "(data: unknown) => unknown",
+            "model": "?unknown",
+            "modelEvents": "?object | (() => object) | undefined",
+            "monitorViewEvents": "?boolean | undefined",
+            "node": "FormKitNode",
+            "normalizeMethods": "{ (this: unknown, hash?: false | \"\" | 0 | 0n | null | undefined): undefined; (this: unknown, hash: object): EventMap; (this: unknown, hash?: OptionalBindings): EventMap | undefined; }",
+            "normalizeUIKeys": "<Value>(hash: Record<string, Value> | null | undefined, bindings?: UISelectors | undefined) => Record<string, Value>",
+            "normalizeUIString": "(value: string, bindings?: UISelectors | undefined) => string",
+            "normalizeUIValues": "<Hash extends object>(hash: Hash, property?: string | undefined, bindings?: UISelectors | undefined) => Hash",
+            "off": "{ <Receiver>(this: Receiver, name?: string | null | undefined, callback?: EventCallback | null | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
+            "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
+            "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
+            "options": "object & ViewConfiguration",
+            "preinitialize": "(options?: (object & ViewConfiguration) | undefined) => void",
+            "regionClass": "RegionClass",
+            "regions": "Record<string, RegionDefinition> | (() => Record<string, RegionDefinition>)",
+            "removeRegion": "(name: string) => RegionInstance<RegionOptions>",
+            "removeRegions": "() => Record<string, RegionInstance<RegionOptions>>",
+            "render": "() => RowView<any>",
+            "renderAttributes": "() => RowView<any>",
+            "serializeCollection": "() => unknown[]",
+            "serializeData": "() => unknown",
+            "serializeModel": "() => unknown",
+            "showChildView": "<Child extends SupportedView>(name: string, view: Child, options?: ShowOptions | undefined) => Child",
+            "state": "?unknown",
+            "State": "Partial<StateApi<never>>",
+            "stateEvents": "?object | (() => object) | undefined",
+            "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
+            "tagName": "string | (() => string)",
+            "template": "?unknown",
+            "templateContext": "?object | (() => object) | undefined",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
+            "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
+            "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
+            "ui": "?UIBindings | Record<string, ArrayLike<Element>> | undefined",
+            "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "unbindUIElements": "() => RowView<any>",
+            "undelegateEntityEvents": "() => RowView<any>",
+            "undelegateEvents": "() => RowView<any>"
+          },
+          "callableInstanceMembers": [
+            "$",
+            "addRegion",
+            "addRegions",
+            "attachElContent",
+            "bindEvents",
+            "bindRequests",
+            "bindUIElements",
+            "createState",
+            "delegateEntityEvents",
+            "delegateEvents",
+            "destroy",
+            "detachChildView",
+            "emptyRegions",
+            "getChildView",
+            "getOption",
+            "getRegion",
+            "getRegions",
+            "getState",
+            "getTemplate",
+            "getUI",
+            "hasRegion",
+            "initialize",
+            "isAttached",
+            "isDestroyed",
+            "isRendered",
+            "listenTo",
+            "listenToOnce",
+            "mergeOptions",
+            "mixinTemplateContext",
+            "normalizeMethods",
+            "normalizeUIKeys",
+            "normalizeUIString",
+            "normalizeUIValues",
+            "off",
+            "on",
+            "once",
+            "preinitialize",
+            "removeRegion",
+            "removeRegions",
+            "render",
+            "renderAttributes",
+            "serializeCollection",
+            "serializeData",
+            "serializeModel",
+            "showChildView",
+            "stopListening",
+            "trigger",
+            "triggerMethod",
+            "unbindEvents",
+            "unbindRequests",
+            "unbindUIElements",
+            "undelegateEntityEvents",
+            "undelegateEvents"
+          ],
+          "memberContracts": {
+            "static": {
+              "apply": [
+                "formkit-keyed-row"
+              ],
+              "call": [
+                "formkit-keyed-row"
+              ],
+              "extend": [
+                "formkit-keyed-row"
+              ],
+              "setDataApi": [
+                "formkit-keyed-row"
+              ],
+              "setDomApi": [
+                "formkit-keyed-row"
+              ],
+              "setEventDelegator": [
+                "formkit-keyed-row"
+              ],
+              "setRenderer": [
+                "formkit-keyed-row"
+              ],
+              "setStateApi": [
+                "formkit-keyed-row"
+              ]
+            },
+            "instance": {
+              "$": [
+                "formkit-keyed-row"
+              ],
+              "addRegion": [
+                "formkit-keyed-row"
+              ],
+              "addRegions": [
+                "formkit-keyed-row"
+              ],
+              "attachElContent": [
+                "formkit-keyed-row"
+              ],
+              "attributes": [
+                "formkit-keyed-row"
+              ],
+              "behaviors": [
+                "formkit-keyed-row"
+              ],
+              "bindEvents": [
+                "formkit-keyed-row"
+              ],
+              "bindRequests": [
+                "formkit-keyed-row"
+              ],
+              "bindUIElements": [
+                "formkit-keyed-row"
+              ],
+              "childViewEventPrefix": [
+                "formkit-keyed-row"
+              ],
+              "childViewEvents": [
+                "formkit-keyed-row"
+              ],
+              "childViewTriggers": [
+                "formkit-keyed-row"
+              ],
+              "cid": [
+                "formkit-keyed-row"
+              ],
+              "cidPrefix": [
+                "formkit-keyed-row"
+              ],
+              "className": [
+                "formkit-keyed-row"
+              ],
+              "collection": [
+                "formkit-keyed-row"
+              ],
+              "collectionEvents": [
+                "formkit-keyed-row"
+              ],
+              "createState": [
+                "formkit-keyed-row"
+              ],
+              "Data": [
+                "formkit-keyed-row"
+              ],
+              "delegateEntityEvents": [
+                "formkit-keyed-row"
+              ],
+              "delegateEvents": [
+                "formkit-keyed-row"
+              ],
+              "destroy": [
+                "formkit-keyed-row"
+              ],
+              "detachChildView": [
+                "formkit-keyed-row"
+              ],
+              "Dom": [
+                "formkit-keyed-row"
+              ],
+              "el": [
+                "formkit-keyed-row"
+              ],
+              "emptyRegions": [
+                "formkit-keyed-row"
+              ],
+              "EventDelegator": [
+                "formkit-keyed-row"
+              ],
+              "events": [
+                "formkit-keyed-row"
+              ],
+              "getChildView": [
+                "formkit-keyed-row"
+              ],
+              "getOption": [
+                "formkit-keyed-row"
+              ],
+              "getRegion": [
+                "formkit-keyed-row"
+              ],
+              "getRegions": [
+                "formkit-keyed-row"
+              ],
+              "getState": [
+                "formkit-keyed-row"
+              ],
+              "getTemplate": [
+                "formkit-keyed-row"
+              ],
+              "getUI": [
+                "formkit-keyed-row"
+              ],
+              "hasRegion": [
+                "formkit-keyed-row"
+              ],
+              "id": [
+                "formkit-keyed-row"
+              ],
+              "initialize": [
+                "formkit-keyed-row"
+              ],
+              "isAttached": [
+                "formkit-keyed-row"
+              ],
+              "isDestroyed": [
+                "formkit-keyed-row"
+              ],
+              "isRendered": [
+                "formkit-keyed-row"
+              ],
+              "listenTo": [
+                "formkit-keyed-row"
+              ],
+              "listenToOnce": [
+                "formkit-keyed-row"
+              ],
+              "mergeOptions": [
+                "formkit-keyed-row"
+              ],
+              "mixinTemplateContext": [
+                "formkit-keyed-row"
+              ],
+              "model": [
+                "formkit-keyed-row"
+              ],
+              "modelEvents": [
+                "formkit-keyed-row"
+              ],
+              "monitorViewEvents": [
+                "formkit-keyed-row"
+              ],
+              "node": [
+                "formkit-keyed-row"
+              ],
+              "normalizeMethods": [
+                "formkit-keyed-row"
+              ],
+              "normalizeUIKeys": [
+                "formkit-keyed-row"
+              ],
+              "normalizeUIString": [
+                "formkit-keyed-row"
+              ],
+              "normalizeUIValues": [
+                "formkit-keyed-row"
+              ],
+              "off": [
+                "formkit-keyed-row"
+              ],
+              "on": [
+                "formkit-keyed-row"
+              ],
+              "once": [
+                "formkit-keyed-row"
+              ],
+              "options": [
+                "formkit-keyed-row"
+              ],
+              "preinitialize": [
+                "formkit-keyed-row"
+              ],
+              "regionClass": [
+                "formkit-keyed-row"
+              ],
+              "regions": [
+                "formkit-keyed-row"
+              ],
+              "removeRegion": [
+                "formkit-keyed-row"
+              ],
+              "removeRegions": [
+                "formkit-keyed-row"
+              ],
+              "render": [
+                "formkit-keyed-row"
+              ],
+              "renderAttributes": [
+                "formkit-keyed-row"
+              ],
+              "serializeCollection": [
+                "formkit-keyed-row"
+              ],
+              "serializeData": [
+                "formkit-keyed-row"
+              ],
+              "serializeModel": [
+                "formkit-keyed-row"
+              ],
+              "showChildView": [
+                "formkit-keyed-row"
+              ],
+              "state": [
+                "formkit-keyed-row"
+              ],
+              "State": [
+                "formkit-keyed-row"
+              ],
+              "stateEvents": [
+                "formkit-keyed-row"
+              ],
+              "stopListening": [
+                "formkit-keyed-row"
+              ],
+              "tagName": [
+                "formkit-keyed-row"
+              ],
+              "template": [
+                "formkit-keyed-row"
+              ],
+              "templateContext": [
+                "formkit-keyed-row"
+              ],
+              "trigger": [
+                "formkit-keyed-row"
+              ],
+              "triggerMethod": [
+                "formkit-keyed-row"
+              ],
+              "triggers": [
+                "formkit-keyed-row"
+              ],
+              "ui": [
+                "formkit-keyed-row"
+              ],
+              "unbindEvents": [
+                "formkit-keyed-row"
+              ],
+              "unbindRequests": [
+                "formkit-keyed-row"
+              ],
+              "unbindUIElements": [
+                "formkit-keyed-row"
+              ],
+              "undelegateEntityEvents": [
+                "formkit-keyed-row"
+              ],
+              "undelegateEvents": [
+                "formkit-keyed-row"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RuntimeOptions",
+          "kind": "type",
+          "signature": "RuntimeOptions",
+          "contracts": [
+            "formkit-type-shapes"
+          ],
+          "members": {
+            "components": "?Record<string, SchemaComponentFactory> | undefined",
+            "formProps": "?Scope | undefined",
+            "iconLoader": "?FormKitIconLoader | undefined",
+            "iconLoaderUrl": "?FormKitIconLoaderUrl | undefined",
+            "icons": "?Record<string, string | undefined> | undefined",
+            "inputs": "?FormKitLibrary | undefined",
+            "schema": "?FormKitSchemaDefinition | undefined",
+            "schemaData": "?Scope | undefined",
+            "sectionsSchema": "?FormKitSectionsSchema | undefined",
+            "slots": "?Record<string, SchemaSlot> | undefined",
+            "theme": "?string | undefined"
+          },
+          "callableMembers": [
+            "iconLoader",
+            "iconLoaderUrl"
+          ],
+          "memberContracts": {
+            "static": {
+              "components": [
+                "formkit-type-shapes"
+              ],
+              "formProps": [
+                "formkit-type-shapes"
+              ],
+              "iconLoader": [
+                "formkit-type-shapes"
+              ],
+              "iconLoaderUrl": [
+                "formkit-type-shapes"
+              ],
+              "icons": [
+                "formkit-type-shapes"
+              ],
+              "inputs": [
+                "formkit-type-shapes"
+              ],
+              "schema": [
+                "formkit-type-shapes"
+              ],
+              "schemaData": [
+                "formkit-type-shapes"
+              ],
+              "sectionsSchema": [
+                "formkit-type-shapes"
+              ],
+              "slots": [
+                "formkit-type-shapes"
+              ],
+              "theme": [
+                "formkit-type-shapes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "SchemaComponent",
+          "kind": "type",
+          "signature": "SchemaComponent",
+          "contracts": [
+            "formkit-type-shapes"
+          ],
+          "members": {
+            "destroy": "() => void",
+            "element": "Node",
+            "update": "(props: Scope, data: Scope, children?: FormKitSchemaDefinition | undefined) => void"
+          },
+          "callableMembers": [
+            "destroy",
+            "update"
+          ],
+          "memberContracts": {
+            "static": {
+              "destroy": [
+                "formkit-type-shapes"
+              ],
+              "element": [
+                "formkit-type-shapes"
+              ],
+              "update": [
+                "formkit-type-shapes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "SchemaComponentFactory",
+          "kind": "type",
+          "signature": "SchemaComponentFactory",
+          "contracts": [
+            "formkit-value-types"
+          ],
+          "call": [
+            "(context: { document: Document; props: Scope; data: Scope; children?: FormKitSchemaDefinition | undefined; }): SchemaComponent"
+          ],
+          "memberContracts": {}
+        },
+        {
+          "name": "SchemaOptions",
+          "kind": "type",
+          "signature": "SchemaOptions",
+          "contracts": [
+            "formkit-type-shapes"
+          ],
+          "members": {
+            "allowHTML": "?boolean | undefined",
+            "components": "?Record<string, SchemaComponentFactory> | undefined",
+            "data": "?Scope | undefined",
+            "schema": "FormKitSchemaDefinition",
+            "slots": "?Record<string, SchemaSlot> | undefined"
+          },
+          "callableMembers": [],
+          "memberContracts": {
+            "static": {
+              "allowHTML": [
+                "formkit-type-shapes"
+              ],
+              "components": [
+                "formkit-type-shapes"
+              ],
+              "data": [
+                "formkit-type-shapes"
+              ],
+              "schema": [
+                "formkit-type-shapes"
+              ],
+              "slots": [
+                "formkit-type-shapes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "SchemaSlot",
+          "kind": "type",
+          "signature": "SchemaSlot",
+          "contracts": [
+            "formkit-value-types"
+          ],
+          "call": [
+            "(scope: Scope): Node | FormKitSchemaDefinition | { schema: FormKitSchemaDefinition; data: Scope; }"
+          ],
+          "memberContracts": {}
+        },
+        {
+          "name": "SchemaView",
+          "kind": "value",
+          "signature": "typeof SchemaView",
+          "contracts": [
+            "formkit-borrowed-schema-view"
+          ],
+          "members": {
+            "apply": "(receiver: object, args: IArguments | [options?: ViewConfiguration | undefined]) => void",
+            "call": "(receiver: object, options?: ViewConfiguration | undefined) => void",
+            "extend": "<Added extends object = {}, AddedStatics extends object = {}>(this: Added extends { constructor: (...args: never[]) => unknown; } ? object : (this: object, ...args: never[]) => unknown, prototypeProperties?: (Added & ThisType<ViewResult<Added, ArgumentsFor<Added, [options?: ViewConfiguration | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, ArrayLike<Element>>>) | undefined, staticProperties?: (AddedStatics & ThisType<ViewConstructor<Added, ArgumentsFor<Added, [options?: ViewConfiguration | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics, ArrayLike<Element>>>) | undefined) => ViewConstructor<Added, ArgumentsFor<Added, [options?: ViewConfiguration | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics, ArrayLike<Element>>",
+            "setDataApi": "<Receiver extends DataApiClass, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<DataApi<never, never, never>>) | null | undefined) => Receiver",
+            "setDomApi": "<Receiver extends { prototype: object; }, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<DomApi<ArrayLike<Element>, never>>) | null | undefined) => Receiver",
+            "setEventDelegator": "<Receiver extends DelegatorClass, Adapter extends EventDelegator>(this: Receiver, delegator: Adapter) => Receiver",
+            "setRenderer": "<Receiver extends { prototype: object; }>(this: Receiver, renderer?: Renderer<never, never, never, unknown> | undefined) => Receiver",
+            "setStateApi": "<Receiver extends StateApiClass, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<StateApi<never>>) | null | undefined) => Receiver"
+          },
+          "callableMembers": [
+            "apply",
+            "call",
+            "extend",
+            "setDataApi",
+            "setDomApi",
+            "setEventDelegator",
+            "setRenderer",
+            "setStateApi"
+          ],
+          "construct": [
+            "<Values extends object = FormValues>(options: SchemaViewOptions<Values>): SchemaView<Values>"
+          ],
+          "instance": {
+            "$": "(selector: string) => ArrayLike<Element>",
+            "addRegion": "(name: string, definition: RegionDefinition) => RegionInstance<RegionOptions>",
+            "addRegions": "(regions?: Record<string, RegionDefinition> | null | undefined) => Record<string, RegionInstance<RegionOptions>> | undefined",
+            "attachElContent": "() => void",
+            "attributes": "?Record<string, unknown> | (() => Record<string, unknown>) | undefined",
+            "behaviors": "?BehaviorDefinitions | (() => BehaviorDefinitions) | undefined",
+            "bindEvents": "<Receiver extends Listener>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "bindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyChannel | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "bindUIElements": "() => SchemaView<any>",
+            "childViewEventPrefix": "?string | false | (() => string | false) | undefined",
+            "childViewEvents": "?Record<string, string | EventCallback> | (() => Record<string, string | EventCallback>) | undefined",
+            "childViewTriggers": "?Record<string, string> | (() => Record<string, string>) | undefined",
+            "cid": "string",
+            "cidPrefix": "string",
+            "className": "?string | (() => string | null | undefined) | null | undefined",
+            "collection": "?unknown",
+            "collectionEvents": "?object | (() => object) | undefined",
+            "createState": "(options?: (object & ViewConfiguration) | undefined) => unknown",
+            "Data": "Partial<DataApi<never, never, never>>",
+            "delegateEntityEvents": "() => SchemaView<any>",
+            "delegateEvents": "(events?: DOMEvents | undefined) => SchemaView<any>",
+            "destroy": "(options?: unknown) => SchemaView<any>",
+            "detachChildView": "(name: string) => SupportedView | undefined",
+            "Dom": "Partial<DomApi<ArrayLike<Element>, never>>",
+            "el": "Element",
+            "emptyRegions": "() => Record<string, RegionInstance<RegionOptions>>",
+            "EventDelegator": "EventDelegator",
+            "events": "?DOMEvents | (() => DOMEvents) | undefined",
+            "getChildView": "(name: string) => SupportedView | undefined",
+            "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
+            "getRegion": "(name: string) => RegionInstance<RegionOptions> | undefined",
+            "getRegions": "() => Record<string, RegionInstance<RegionOptions>>",
+            "getState": "() => unknown",
+            "getTemplate": "() => unknown",
+            "getUI": "(name: string) => ArrayLike<Element> | undefined",
+            "hasRegion": "(name: string) => boolean",
+            "id": "?string | (() => string | null | undefined) | null | undefined",
+            "initialize": "(options?: (object & ViewConfiguration) | undefined) => void",
+            "isAttached": "() => boolean",
+            "isDestroyed": "() => boolean",
+            "isRendered": "() => boolean",
+            "listenTo": "<Receiver>(this: Receiver, source: EventSource | null | undefined, name: string | EventMap, callback?: EventCallback | undefined) => Receiver",
+            "listenToOnce": "<Receiver>(this: Receiver, source: EventSource | null | undefined, name: string | EventMap, callback?: EventCallback | undefined) => Receiver",
+            "mergeOptions": "{ (this: unknown, options?: null | undefined, keys?: unknown): void; (this: object, options: unknown, keys: readonly unknown[]): void; }",
+            "mixinTemplateContext": "(data: unknown) => unknown",
+            "model": "?unknown",
+            "modelEvents": "?object | (() => object) | undefined",
+            "monitorViewEvents": "?boolean | undefined",
+            "node": "FormKitNode",
+            "normalizeMethods": "{ (this: unknown, hash?: false | \"\" | 0 | 0n | null | undefined): undefined; (this: unknown, hash: object): EventMap; (this: unknown, hash?: OptionalBindings): EventMap | undefined; }",
+            "normalizeUIKeys": "<Value>(hash: Record<string, Value> | null | undefined, bindings?: UISelectors | undefined) => Record<string, Value>",
+            "normalizeUIString": "(value: string, bindings?: UISelectors | undefined) => string",
+            "normalizeUIValues": "<Hash extends object>(hash: Hash, property?: string | undefined, bindings?: UISelectors | undefined) => Hash",
+            "off": "{ <Receiver>(this: Receiver, name?: string | null | undefined, callback?: EventCallback | null | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
+            "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
+            "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
+            "options": "object & ViewConfiguration",
+            "preinitialize": "(options?: (object & ViewConfiguration) | undefined) => void",
+            "regionClass": "RegionClass",
+            "regions": "Record<string, RegionDefinition> | (() => Record<string, RegionDefinition>)",
+            "removeRegion": "(name: string) => RegionInstance<RegionOptions>",
+            "removeRegions": "() => Record<string, RegionInstance<RegionOptions>>",
+            "render": "() => SchemaView<any>",
+            "renderAttributes": "() => SchemaView<any>",
+            "serializeCollection": "() => unknown[]",
+            "serializeData": "() => unknown",
+            "serializeModel": "() => unknown",
+            "setSchema": "(schema: FormKitSchemaDefinition) => SchemaView<any>",
+            "setSchemaData": "(data: Record<string, unknown>) => SchemaView<any>",
+            "showChildView": "<Child extends SupportedView>(name: string, view: Child, options?: ShowOptions | undefined) => Child",
+            "state": "?unknown",
+            "State": "Partial<StateApi<never>>",
+            "stateEvents": "?object | (() => object) | undefined",
+            "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
+            "tagName": "string | (() => string)",
+            "template": "?unknown",
+            "templateContext": "?object | (() => object) | undefined",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
+            "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
+            "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
+            "ui": "?UIBindings | Record<string, ArrayLike<Element>> | undefined",
+            "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
+            "unbindUIElements": "() => SchemaView<any>",
+            "undelegateEntityEvents": "() => SchemaView<any>",
+            "undelegateEvents": "() => SchemaView<any>"
+          },
+          "callableInstanceMembers": [
+            "$",
+            "addRegion",
+            "addRegions",
+            "attachElContent",
+            "bindEvents",
+            "bindRequests",
+            "bindUIElements",
+            "createState",
+            "delegateEntityEvents",
+            "delegateEvents",
+            "destroy",
+            "detachChildView",
+            "emptyRegions",
+            "getChildView",
+            "getOption",
+            "getRegion",
+            "getRegions",
+            "getState",
+            "getTemplate",
+            "getUI",
+            "hasRegion",
+            "initialize",
+            "isAttached",
+            "isDestroyed",
+            "isRendered",
+            "listenTo",
+            "listenToOnce",
+            "mergeOptions",
+            "mixinTemplateContext",
+            "normalizeMethods",
+            "normalizeUIKeys",
+            "normalizeUIString",
+            "normalizeUIValues",
+            "off",
+            "on",
+            "once",
+            "preinitialize",
+            "removeRegion",
+            "removeRegions",
+            "render",
+            "renderAttributes",
+            "serializeCollection",
+            "serializeData",
+            "serializeModel",
+            "setSchema",
+            "setSchemaData",
+            "showChildView",
+            "stopListening",
+            "trigger",
+            "triggerMethod",
+            "unbindEvents",
+            "unbindRequests",
+            "unbindUIElements",
+            "undelegateEntityEvents",
+            "undelegateEvents"
+          ],
+          "memberContracts": {
+            "static": {
+              "apply": [
+                "formkit-borrowed-schema-view"
+              ],
+              "call": [
+                "formkit-borrowed-schema-view"
+              ],
+              "extend": [
+                "formkit-borrowed-schema-view"
+              ],
+              "setDataApi": [
+                "formkit-borrowed-schema-view"
+              ],
+              "setDomApi": [
+                "formkit-borrowed-schema-view"
+              ],
+              "setEventDelegator": [
+                "formkit-borrowed-schema-view"
+              ],
+              "setRenderer": [
+                "formkit-borrowed-schema-view"
+              ],
+              "setStateApi": [
+                "formkit-borrowed-schema-view"
+              ]
+            },
+            "instance": {
+              "$": [
+                "formkit-borrowed-schema-view"
+              ],
+              "addRegion": [
+                "formkit-borrowed-schema-view"
+              ],
+              "addRegions": [
+                "formkit-borrowed-schema-view"
+              ],
+              "attachElContent": [
+                "formkit-borrowed-schema-view"
+              ],
+              "attributes": [
+                "formkit-borrowed-schema-view"
+              ],
+              "behaviors": [
+                "formkit-borrowed-schema-view"
+              ],
+              "bindEvents": [
+                "formkit-borrowed-schema-view"
+              ],
+              "bindRequests": [
+                "formkit-borrowed-schema-view"
+              ],
+              "bindUIElements": [
+                "formkit-borrowed-schema-view"
+              ],
+              "childViewEventPrefix": [
+                "formkit-borrowed-schema-view"
+              ],
+              "childViewEvents": [
+                "formkit-borrowed-schema-view"
+              ],
+              "childViewTriggers": [
+                "formkit-borrowed-schema-view"
+              ],
+              "cid": [
+                "formkit-borrowed-schema-view"
+              ],
+              "cidPrefix": [
+                "formkit-borrowed-schema-view"
+              ],
+              "className": [
+                "formkit-borrowed-schema-view"
+              ],
+              "collection": [
+                "formkit-borrowed-schema-view"
+              ],
+              "collectionEvents": [
+                "formkit-borrowed-schema-view"
+              ],
+              "createState": [
+                "formkit-borrowed-schema-view"
+              ],
+              "Data": [
+                "formkit-borrowed-schema-view"
+              ],
+              "delegateEntityEvents": [
+                "formkit-borrowed-schema-view"
+              ],
+              "delegateEvents": [
+                "formkit-borrowed-schema-view"
+              ],
+              "destroy": [
+                "formkit-borrowed-schema-view"
+              ],
+              "detachChildView": [
+                "formkit-borrowed-schema-view"
+              ],
+              "Dom": [
+                "formkit-borrowed-schema-view"
+              ],
+              "el": [
+                "formkit-borrowed-schema-view"
+              ],
+              "emptyRegions": [
+                "formkit-borrowed-schema-view"
+              ],
+              "EventDelegator": [
+                "formkit-borrowed-schema-view"
+              ],
+              "events": [
+                "formkit-borrowed-schema-view"
+              ],
+              "getChildView": [
+                "formkit-borrowed-schema-view"
+              ],
+              "getOption": [
+                "formkit-borrowed-schema-view"
+              ],
+              "getRegion": [
+                "formkit-borrowed-schema-view"
+              ],
+              "getRegions": [
+                "formkit-borrowed-schema-view"
+              ],
+              "getState": [
+                "formkit-borrowed-schema-view"
+              ],
+              "getTemplate": [
+                "formkit-borrowed-schema-view"
+              ],
+              "getUI": [
+                "formkit-borrowed-schema-view"
+              ],
+              "hasRegion": [
+                "formkit-borrowed-schema-view"
+              ],
+              "id": [
+                "formkit-borrowed-schema-view"
+              ],
+              "initialize": [
+                "formkit-borrowed-schema-view"
+              ],
+              "isAttached": [
+                "formkit-borrowed-schema-view"
+              ],
+              "isDestroyed": [
+                "formkit-borrowed-schema-view"
+              ],
+              "isRendered": [
+                "formkit-borrowed-schema-view"
+              ],
+              "listenTo": [
+                "formkit-borrowed-schema-view"
+              ],
+              "listenToOnce": [
+                "formkit-borrowed-schema-view"
+              ],
+              "mergeOptions": [
+                "formkit-borrowed-schema-view"
+              ],
+              "mixinTemplateContext": [
+                "formkit-borrowed-schema-view"
+              ],
+              "model": [
+                "formkit-borrowed-schema-view"
+              ],
+              "modelEvents": [
+                "formkit-borrowed-schema-view"
+              ],
+              "monitorViewEvents": [
+                "formkit-borrowed-schema-view"
+              ],
+              "node": [
+                "formkit-borrowed-schema-view"
+              ],
+              "normalizeMethods": [
+                "formkit-borrowed-schema-view"
+              ],
+              "normalizeUIKeys": [
+                "formkit-borrowed-schema-view"
+              ],
+              "normalizeUIString": [
+                "formkit-borrowed-schema-view"
+              ],
+              "normalizeUIValues": [
+                "formkit-borrowed-schema-view"
+              ],
+              "off": [
+                "formkit-borrowed-schema-view"
+              ],
+              "on": [
+                "formkit-borrowed-schema-view"
+              ],
+              "once": [
+                "formkit-borrowed-schema-view"
+              ],
+              "options": [
+                "formkit-borrowed-schema-view"
+              ],
+              "preinitialize": [
+                "formkit-borrowed-schema-view"
+              ],
+              "regionClass": [
+                "formkit-borrowed-schema-view"
+              ],
+              "regions": [
+                "formkit-borrowed-schema-view"
+              ],
+              "removeRegion": [
+                "formkit-borrowed-schema-view"
+              ],
+              "removeRegions": [
+                "formkit-borrowed-schema-view"
+              ],
+              "render": [
+                "formkit-borrowed-schema-view"
+              ],
+              "renderAttributes": [
+                "formkit-borrowed-schema-view"
+              ],
+              "serializeCollection": [
+                "formkit-borrowed-schema-view"
+              ],
+              "serializeData": [
+                "formkit-borrowed-schema-view"
+              ],
+              "serializeModel": [
+                "formkit-borrowed-schema-view"
+              ],
+              "setSchema": [
+                "formkit-borrowed-schema-view"
+              ],
+              "setSchemaData": [
+                "formkit-borrowed-schema-view"
+              ],
+              "showChildView": [
+                "formkit-borrowed-schema-view"
+              ],
+              "state": [
+                "formkit-borrowed-schema-view"
+              ],
+              "State": [
+                "formkit-borrowed-schema-view"
+              ],
+              "stateEvents": [
+                "formkit-borrowed-schema-view"
+              ],
+              "stopListening": [
+                "formkit-borrowed-schema-view"
+              ],
+              "tagName": [
+                "formkit-borrowed-schema-view"
+              ],
+              "template": [
+                "formkit-borrowed-schema-view"
+              ],
+              "templateContext": [
+                "formkit-borrowed-schema-view"
+              ],
+              "trigger": [
+                "formkit-borrowed-schema-view"
+              ],
+              "triggerMethod": [
+                "formkit-borrowed-schema-view"
+              ],
+              "triggers": [
+                "formkit-borrowed-schema-view"
+              ],
+              "ui": [
+                "formkit-borrowed-schema-view"
+              ],
+              "unbindEvents": [
+                "formkit-borrowed-schema-view"
+              ],
+              "unbindRequests": [
+                "formkit-borrowed-schema-view"
+              ],
+              "unbindUIElements": [
+                "formkit-borrowed-schema-view"
+              ],
+              "undelegateEntityEvents": [
+                "formkit-borrowed-schema-view"
+              ],
+              "undelegateEvents": [
+                "formkit-borrowed-schema-view"
+              ]
+            }
+          }
+        },
+        {
+          "name": "SchemaViewOptions",
+          "kind": "type",
+          "signature": "SchemaViewOptions<Values>",
+          "contracts": [
+            "formkit-composed-view-types"
+          ],
+          "members": {
+            "attributes": "?Record<string, unknown> | (() => Record<string, unknown>) | undefined",
+            "behaviors": "?BehaviorDefinitions | (() => BehaviorDefinitions) | undefined",
+            "childViewEventPrefix": "?string | false | (() => string | false) | undefined",
+            "childViewEvents": "?Record<string, string | EventCallback> | (() => Record<string, string | EventCallback>) | undefined",
+            "childViewTriggers": "?Record<string, string> | (() => Record<string, string>) | undefined",
+            "className": "?string | (() => string | null | undefined) | null | undefined",
+            "collection": "?unknown",
+            "collectionEvents": "?object | (() => object) | undefined",
+            "components": "?Record<string, SchemaComponentFactory> | undefined",
+            "events": "?DOMEvents | (() => DOMEvents) | undefined",
+            "form": "FormView<Values>",
+            "id": "?string | (() => string | null | undefined) | null | undefined",
+            "model": "?unknown",
+            "modelEvents": "?object | (() => object) | undefined",
+            "parent": "?FormKitNode | undefined",
+            "regionClass": "?RegionClass | undefined",
+            "regions": "?Record<string, RegionDefinition> | (() => Record<string, RegionDefinition>) | undefined",
+            "schema": "FormKitSchemaDefinition",
+            "schemaData": "?Record<string, unknown> | undefined",
+            "state": "?unknown",
+            "stateEvents": "?object | (() => object) | undefined",
+            "tagName": "?string | (() => string) | undefined",
+            "templateContext": "?object | (() => object) | undefined",
+            "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
+            "ui": "?UIBindings | undefined"
+          },
+          "callableMembers": [],
+          "memberContracts": {
+            "static": {
+              "attributes": [
+                "formkit-composed-view-types"
+              ],
+              "behaviors": [
+                "formkit-composed-view-types"
+              ],
+              "childViewEventPrefix": [
+                "formkit-composed-view-types"
+              ],
+              "childViewEvents": [
+                "formkit-composed-view-types"
+              ],
+              "childViewTriggers": [
+                "formkit-composed-view-types"
+              ],
+              "className": [
+                "formkit-composed-view-types"
+              ],
+              "collection": [
+                "formkit-composed-view-types"
+              ],
+              "collectionEvents": [
+                "formkit-composed-view-types"
+              ],
+              "components": [
+                "formkit-composed-view-types"
+              ],
+              "events": [
+                "formkit-composed-view-types"
+              ],
+              "form": [
+                "formkit-composed-view-types"
+              ],
+              "id": [
+                "formkit-composed-view-types"
+              ],
+              "model": [
+                "formkit-composed-view-types"
+              ],
+              "modelEvents": [
+                "formkit-composed-view-types"
+              ],
+              "parent": [
+                "formkit-composed-view-types"
+              ],
+              "regionClass": [
+                "formkit-composed-view-types"
+              ],
+              "regions": [
+                "formkit-composed-view-types"
+              ],
+              "schema": [
+                "formkit-composed-view-types"
+              ],
+              "schemaData": [
+                "formkit-composed-view-types"
+              ],
+              "state": [
+                "formkit-composed-view-types"
+              ],
+              "stateEvents": [
+                "formkit-composed-view-types"
+              ],
+              "tagName": [
+                "formkit-composed-view-types"
+              ],
+              "templateContext": [
+                "formkit-composed-view-types"
+              ],
+              "triggers": [
+                "formkit-composed-view-types"
+              ],
+              "ui": [
+                "formkit-composed-view-types"
+              ]
+            }
+          }
+        },
+        {
+          "name": "SubmissionContext",
+          "kind": "type",
+          "signature": "SubmissionContext",
+          "contracts": [
+            "formkit-type-shapes"
+          ],
+          "members": {
+            "node": "FormKitNode",
+            "signal": "AbortSignal"
+          },
+          "callableMembers": [],
+          "memberContracts": {
+            "static": {
+              "node": [
+                "formkit-type-shapes"
+              ],
+              "signal": [
+                "formkit-type-shapes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "SubmissionError",
+          "kind": "value",
+          "signature": "typeof SubmissionError",
+          "contracts": [
+            "formkit-native-form"
+          ],
+          "construct": [
+            "(message: string, fieldErrors?: Record<string, string[]>): SubmissionError"
+          ],
+          "instance": {
+            "fieldErrors": "Record<string, string[]>"
+          },
+          "callableInstanceMembers": [],
+          "memberContracts": {
+            "instance": {
+              "fieldErrors": [
+                "formkit-native-form"
+              ]
+            }
+          }
+        },
+        {
+          "name": "SubmitResult",
+          "kind": "type",
+          "signature": "SubmitResult",
+          "contracts": [
+            "formkit-value-types"
+          ],
+          "memberContracts": {}
+        },
+        {
+          "name": "ValueUpdateOptions",
+          "kind": "type",
+          "signature": "ValueUpdateOptions",
+          "contracts": [
+            "formkit-type-shapes"
+          ],
+          "members": {
+            "notify": "?boolean | undefined",
+            "source": "?unknown"
+          },
+          "callableMembers": [],
+          "memberContracts": {
+            "static": {
+              "notify": [
+                "formkit-type-shapes"
+              ],
+              "source": [
+                "formkit-type-shapes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "ViewComponentRegistration",
+          "kind": "type",
+          "signature": "ViewComponentRegistration<Values, Props, Result>",
+          "contracts": [
+            "formkit-composed-view-types"
+          ],
+          "members": {
+            "create": "(context: { form: FormView<Values>; parent: FormKitNode; props: Props; data: Record<string, unknown>; children?: unknown; }) => Result",
+            "kind": "\"view\"",
+            "update": "?((view: Result, props: Props, data: Record<string, unknown>, children?: unknown) => void) | undefined"
+          },
+          "callableMembers": [
+            "create",
+            "update"
+          ],
+          "memberContracts": {
+            "static": {
+              "create": [
+                "formkit-composed-view-types"
+              ],
+              "kind": [
+                "formkit-composed-view-types"
+              ],
+              "update": [
+                "formkit-composed-view-types"
+              ]
+            }
+          }
+        },
+        {
+          "name": "ViewComponentsOptions",
+          "kind": "type",
+          "signature": "ViewComponentsOptions<Values>",
+          "contracts": [
+            "formkit-composed-view-types"
+          ],
+          "members": {
+            "getForm": "() => FormView<Values>",
+            "getOwner": "?(() => ViewInstance<ViewConfiguration, unknown, ArrayLike<Element>>) | undefined",
+            "getParent": "?((props: Record<string, unknown>, data: Record<string, unknown>) => FormKitNode) | undefined",
+            "registrations": "Record<string, ViewComponentRegistration<Values, Record<string, unknown>, ComponentView> | FieldComponentRegistration<Values>>"
+          },
+          "callableMembers": [
+            "getForm",
+            "getOwner",
+            "getParent"
+          ],
+          "memberContracts": {
+            "static": {
+              "getForm": [
+                "formkit-composed-view-types"
+              ],
+              "getOwner": [
+                "formkit-composed-view-types"
+              ],
+              "getParent": [
+                "formkit-composed-view-types"
+              ],
+              "registrations": [
+                "formkit-composed-view-types"
+              ]
+            }
+          }
+        }
+      ]
     }
   ],
   "documentationCoverage": [
@@ -11671,6 +14660,118 @@
           "heading": "Isolation and composition"
         }
       ]
+    },
+    {
+      "id": "formkit-native-form",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "API"
+        }
+      ]
+    },
+    {
+      "id": "formkit-schema-foundation",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Public schema renderer"
+        }
+      ]
+    },
+    {
+      "id": "formkit-type-shapes",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "TypeScript"
+        }
+      ]
+    },
+    {
+      "id": "formkit-value-types",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "TypeScript"
+        }
+      ]
+    },
+    {
+      "id": "formkit-composed-field",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Compose fields in Marionette Regions"
+        }
+      ]
+    },
+    {
+      "id": "formkit-composed-field-types",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "TypeScript"
+        }
+      ]
+    },
+    {
+      "id": "formkit-keyed-row",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Compose keyed rows"
+        }
+      ]
+    },
+    {
+      "id": "formkit-borrowed-schema-view",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Place schemas and named Views in one form"
+        }
+      ]
+    },
+    {
+      "id": "formkit-named-view-components",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Place schemas and named Views in one form"
+        }
+      ]
+    },
+    {
+      "id": "formkit-composed-view-types",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Compose keyed rows",
+          "exports": [
+            "RowOptions"
+          ]
+        },
+        {
+          "file": "packages/formkit/readme.md",
+          "heading": "Place schemas and named Views in one form",
+          "exports": [
+            "SchemaViewOptions",
+            "ViewComponentRegistration",
+            "ViewComponentsOptions"
+          ]
+        }
+      ]
     }
   ],
   "diagnostics": [
@@ -12400,6 +15501,66 @@
         "this",
         "options"
       ]
+    },
+    {
+      "source": "packages/formkit/src/index.ts",
+      "event": "'form:change'",
+      "kind": "literal",
+      "arguments": [
+        "values",
+        "state",
+        "{ source }"
+      ]
+    },
+    {
+      "source": "packages/formkit/src/index.ts",
+      "event": "'form:state'",
+      "kind": "literal",
+      "arguments": [
+        "state"
+      ]
+    },
+    {
+      "source": "packages/formkit/src/index.ts",
+      "event": "'submit:invalid'",
+      "kind": "literal",
+      "arguments": [
+        "this.getValues()"
+      ]
+    },
+    {
+      "source": "packages/formkit/src/index.ts",
+      "event": "'submit:success'",
+      "kind": "literal",
+      "arguments": [
+        "values",
+        "result"
+      ]
+    },
+    {
+      "source": "packages/formkit/src/index.ts",
+      "event": "'submit:error'",
+      "kind": "literal",
+      "arguments": [
+        "error"
+      ]
+    },
+    {
+      "source": "packages/formkit/src/index.ts",
+      "event": "'form:reset'",
+      "kind": "literal",
+      "arguments": [
+        "this.getValues()"
+      ]
+    },
+    {
+      "source": "packages/formkit/src/index.ts",
+      "event": "'field:change'",
+      "kind": "literal",
+      "arguments": [
+        "value",
+        "{ source }"
+      ]
     }
   ],
   "sources": {
@@ -12413,10 +15574,21 @@
     "packages/data/src/collection.ts": "fead862103e9686252b8b431a46fedbb6f720e623fad0a94cd174cc7e49a6900",
     "packages/data/src/index.ts": "69c337a8029e46835a923b38c5eb190de2f715137bae64fade4a6e37bb1e7a1b",
     "packages/data/src/model.ts": "1683287903de89258c304d9f6a3d7c13f3772ded1d955fe64283322b368fd937",
+    "packages/formkit/src/bindings.ts": "b2cb41265425550136cd68e08e66e36450f2f55cda39dd8a2cd146002e1a1420",
+    "packages/formkit/src/composition-input.ts": "b14d31c4ca70a98f1b445fcd17891524364ed1035e9da09098a627bd8a1d6795",
+    "packages/formkit/src/composition.ts": "a93eed4328da76025b3cb9edc50b6816575d047e027a829d6ddf6d2aa81b786f",
+    "packages/formkit/src/index.ts": "bea2c8712642dab0348a0a89faec74b336fc24b19ef56a883aa33add4e38dbc9",
+    "packages/formkit/src/row-ownership.ts": "5a3f3633b6a9dc6990124c267d184903bf0395aece5f9cd9366d99564fcd8fe3",
+    "packages/formkit/src/runtime.ts": "e29e37b854f4b5cc5cf8df00a401536bb0f429cf90ec61f938800d16970f3cd9",
+    "packages/formkit/src/schema-view.ts": "66a35e7237a8148087706c7c80b9bb992c8ce17196e0019d9005cc2fbda69bdf",
+    "packages/formkit/src/schema.ts": "53dcdf470a8e0c10bba55e98286b40185a0efd7fd52fb89c0adac656e67bbabf",
+    "packages/formkit/src/view-components.ts": "2a83e4f61c3a1f3678b899e366a213531d617fbdf1c0b2a14fe47e2fc1bb4194",
     "packages/radio/src/debug.ts": "069c7aab08d8a48eff7a6cc5efe4ff09bac80f12acaa6ddc5721ed18e8065eb6",
     "packages/radio/src/index.ts": "24171247f65ecb3697629883abe9d248395b090d566ea70ac7c1b856d1cd7940",
     "packages/radio/src/radio.ts": "42a799d58d602c0fbbb4fcbc16170e1a89dad55c47d5f00ffaed69c8ee3d877f",
     "packages/radio/src/requests.ts": "68ccf97dbf79da12102c19d91bb9ba63a5fabe28866dd4a862de0df264747382",
+    "packages/test/src/index.ts": "2894205e34d9cb776ea9d9af9b83cf03e9928273b4528bcc543e6581729dc91b",
+    "packages/test/src/scope.ts": "a3771a808b3f1897fdf6a2ea86c0f0f2626b9ad47b6599296f86a2055eef9438",
     "packages/utils/src/bind-events.ts": "475fabcde622df0d6365ee6454c892ea75ebf95f11487ca074ce5508fe118a72",
     "packages/utils/src/bind-requests.ts": "4888ab0880961e2c8eaa131f91031f1dc0f1b39ab11907506bce94b3bb4f2870",
     "packages/utils/src/build-event-args.ts": "229567f225c14e49ec063898daa1ee40ccb7bc72813dd4324f10a921585d5ba6",
@@ -12487,6 +15659,7 @@
     "docs/packages/data.md": "ed9e5b76a3a67a459c0e88ab092b200790aff7a0aeb9c24f1e8f5129f9a1efe4",
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
     "docs/packages/utils.md": "158e2051ee438acd7e235f0f29ce45f42ad798bb6d460a871efd29904e2728ec",
+    "packages/formkit/readme.md": "63a31d5ed6e905ffc0e7320cc785eb0a8dc914ae66b937e1d641b00b5ee3c5bb",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
     "test/unit/application-child-declarations.spec.js": "693740783f56c4e24aa886076389378d106839987b7ce442bfefb267ca5a2f84",
     "test/unit/application-child-lifecycle.spec.js": "78296e9b442918bf03a3f9741f00e0884aa043092774e984f0e735757197b1d8",
@@ -12525,6 +15698,17 @@
     "test/unit/events-literal-names.spec.js": "ed182d2c2d34f11ad702af6d6c69b439faa04745e93256e0ae28cc2c87298bf0",
     "test/unit/events-parity.spec.js": "a0ec7cd3dac3636803ec6ecc6fb7161df2a74fa7d5e6d532477e12539a9bd71c",
     "test/unit/events-single-dispatch.spec.js": "9405ceb5a59c4ebddf3aeb4a902588dcf81a6bc35aca40bde0e8aa41760fb6ce",
+    "test/unit/formkit-composition-review.spec.js": "b5badbb02da0b1ad5abd4129b8e1a25f268d7d1e1bd015ee6a5b57ae67e4f7a6",
+    "test/unit/formkit-composition-sol.spec.js": "a1889eaa6a83a9983022152e3ed886043abf16c0a5924bea0bc0ca1146004690",
+    "test/unit/formkit-nested-rows.spec.js": "8c37b04cfd7a61eb779ec503bfdf6ff403a25616a4e4fb50566e8875dd366edb",
+    "test/unit/formkit-owner-submit.spec.js": "05a206ac1b86b52e6aa1fdb6f084cb821cff4fe994692e2f151a0158a70fc086",
+    "test/unit/formkit-review.spec.js": "24030ef8483b022f0341045ff3aeab781db623f48e363f702dc14e6d3bb3e737",
+    "test/unit/formkit-row-boundaries.spec.js": "fccc66b438ad40660fa782ca92fbba11182dcff05affd490aa875645341ed241",
+    "test/unit/formkit-rows.spec.js": "7cb0306cc77e88afb496bf0a94bd361c54ab479ce31f8f3ff28d038489a9b96e",
+    "test/unit/formkit-schema-views.spec.js": "05acfbfc65475a46dd2ecd7ba4572d21d0e5bd4295de62e3e5b7bf8ffea77d1f",
+    "test/unit/formkit-schema.spec.js": "7719ea3c706aa5d8eda364e460f9f592504ce3e31f1af58ad8dd0570258b4007",
+    "test/unit/formkit-submission-lifetime.spec.js": "a2812c505d3124e538de6659f2b539af77f4bb6fe4480c4320b582a3b2c1bd66",
+    "test/unit/formkit.spec.js": "1428ccb03c047f26df57c079300b6433608e71ecbcea1f357464670ead11cffd",
     "test/unit/jquery-dom-api.spec.js": "4b0187d3ca5dac647394dd906fe6c6ca11764688c12ef864bc4eae867a629ded",
     "test/unit/model-based/application.spec.js": "1b9ffc9b9513276a38726fc4125533458596ca39dfd1d48f34bbc3513900650a",
     "test/unit/modules-error.spec.js": "7d47f9eb477425cce87fc6368c05c4db3532db6c7da54b68911582c1334ddc26",

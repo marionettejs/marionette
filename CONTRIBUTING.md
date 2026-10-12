@@ -34,12 +34,13 @@ not intrinsic browser-runtime API requirements. A future development-dependency
 bump must not silently raise these floors: changing consumer support requires an
 explicit policy review and installed-artifact verification. Newer Node versions
 may install the packages; the LTS matrix records the verified set, with Node 26
-checked separately as advisory. All five manifests must match `consumerNodeRange`.
+checked separately as advisory. The five stable manifests and owned development manifests must match
+`consumerNodeRange`; `npm run check:packages` checks the complete ownership set.
 
 `npm ci` builds the packages and checks the core distributions through `prepare`.
 Generated `dist/` directories and `src/version.js` are ignored by Git; edit source files
-and their co-located TypeScript contracts. Declarations are generated for all five
-packages; do not maintain separate handwritten copies. After source edits, run
+and their co-located TypeScript contracts. Declarations are generated for every owned package, including development FormKit
+and test helpers; do not maintain separate handwritten copies. After source edits, run
 `npm run build` before distribution or browser checks. The fixture runner builds
 once before packing local packages; supplying an artifact directory or all five
 tarballs skips rebuilding.
@@ -231,3 +232,13 @@ When removing a shape diagnostic, retire its catalog code, remove tests that
 promise that diagnostic, and cover the contract with TypeScript consumer tests.
 Keep behavioral tests for valid inputs and runtime invariants. Do not add guards
 solely to protect against hypothetical mistakes made by agents.
+
+## Development package ownership
+
+`config/package-ownership.json` includes all repository packages, their normal
+build commands and covered source. The five stable release targets remain in
+`scripts/release/packages.mjs`. FormKit and test helpers are owned development
+packages and do not join that release set by being built or packed locally.
+Normal verification consumes FormKit artifacts; CI also runs its separate native
+browser lane. The [FormKit compatibility record](packages/formkit/compatibility.md)
+bounds certified behavior and keeps new-owner results separate from archived totals.

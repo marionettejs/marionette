@@ -170,7 +170,7 @@
   {
     "source": "docs/guides/local-editing.md",
     "route": "docs/guides/local-editing",
-    "title": "Edit a View’s own model",
+    "title": "Edit a View\u2019s own model",
     "section": "Guides"
   },
   {
@@ -232,5 +232,29 @@
     "route": "docs/tooling",
     "title": "Check and debug an application",
     "section": "Development tools"
+  },
+  {
+    "source": "packages/formkit/readme.md",
+    "route": "docs/packages/formkit",
+    "title": "FormKit (development)",
+    "section": "Development packages"
+  },
+  {
+    "source": "packages/formkit/rows.md",
+    "route": "docs/packages/formkit/rows",
+    "title": "FormKit row ownership",
+    "section": "Development packages"
+  },
+  {
+    "source": "packages/formkit/schema-views.md",
+    "route": "docs/packages/formkit/schema-views",
+    "title": "FormKit schema Views",
+    "section": "Development packages"
+  },
+  {
+    "source": "packages/formkit/compatibility.md",
+    "route": "docs/packages/formkit/compatibility",
+    "title": "FormKit compatibility",
+    "section": "Development packages"
   }
 ]

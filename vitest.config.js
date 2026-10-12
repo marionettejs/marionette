@@ -16,10 +16,9 @@ const nodeTests = [
 ];
 
 
-const coverageFiles = [
-  'src/**/*.{js,ts}', 'packages/adapters/src/**/*.ts', 'packages/data/src/**/*.ts',
-  'packages/utils/src/**/*.ts', 'packages/radio/src/**/*.ts', 'packages/test/src/**/*.ts'
-];
+// Every owned package participates; the private experiment is explicitly listed.
+const coverageFiles = JSON.parse(readFileSync(new URL('./config/package-ownership.json', import.meta.url), 'utf8'))
+  .packages.flatMap(entry => entry.coverage);
 const coverageExceptions = JSON.parse(readFileSync(new URL('./config/coverage-exceptions.json', import.meta.url), 'utf8'));
 const thresholds = { lines: 100, statements: 100, functions: 100, branches: 100 };
 for (const metric of ['lines', 'statements', 'functions', 'branches']) {
@@ -40,6 +39,13 @@ for (const file of sourceFiles) {
 export default defineConfig({
   resolve: {
     alias: [{
+      // PRIVATE TEST ONLY: never a shipped package export.
+      find: /^@private-test\/formkit-composition-prototype$/,
+      replacement: fileURLToPath(new URL('./packages/formkit/acceptance/experimental/composition-prototype.ts', import.meta.url))
+    }, {
+      find: /^@mnjs\/formkit$/,
+      replacement: fileURLToPath(new URL('./packages/formkit/src/index.ts', import.meta.url))
+    }, {
       find: /^@mnjs\/test$/,
       replacement: fileURLToPath(new URL('./packages/test/src/index.ts', import.meta.url))
     }, {

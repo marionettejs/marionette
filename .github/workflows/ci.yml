@@ -55,6 +55,9 @@ jobs:
           npm run check:public-tests
           npm run check:workflows
 
+      - name: Verify owned packages and FormKit artifact consumers
+        run: npm run check:packages && npm run test:formkit-package
+
       - name: Test source ESM
         run: npm run test:source
 
@@ -75,6 +78,7 @@ jobs:
           path: |
             coverage/
             test/tmp/unit-results.xml
+            test/tmp/formkit-package/
           if-no-files-found: warn
 
   tooling:
@@ -142,6 +146,9 @@ jobs:
       - name: Test supported browsers
         run: npm run test:browser
 
+      - name: Test FormKit native examples
+        run: npm run test:formkit-browser
+
       - name: Validate native browser performance workloads
         run: npm run test:browser-performance
 
@@ -155,6 +162,8 @@ jobs:
             test/tmp/browser/results.xml
             test/tmp/browser/report/
             test/tmp/browser/results/
+            test/tmp/formkit-browser/
+            test/tmp/formkit-browser.json
             test/tmp/performance/browser-report.json
           if-no-files-found: warn
 

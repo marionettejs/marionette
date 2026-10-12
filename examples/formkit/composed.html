@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Composed follow-up planning</title>
+    <style>
+      :root { color-scheme: light dark; font: 1rem/1.5 system-ui, sans-serif; }
+      body { max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }
+      label, input, select, textarea { display: block; }
+      label { font-weight: 600; margin-top: .8rem; }
+      input, select, textarea { box-sizing: border-box; max-width: 100%; width: 100%; padding: .5rem; }
+      button { padding: .5rem .8rem; margin: .5rem .3rem .5rem 0; }
+      [role="tab"][aria-selected="true"] { font-weight: 700; border-bottom: 3px solid currentColor; }
+      [data-priority="urgent"] { border-left: .25rem solid currentColor; padding-left: .7rem; }
+      article { border: 1px solid #888; border-radius: .5rem; padding: 1rem; margin: 1rem 0; }
+      .actions { border-top: 1px solid #888; margin-top: 1.5rem; }
+      [aria-invalid="true"], .formkit-messages, [role="alert"] { color: light-dark(#931c31, #ffa1b0); }
+      :focus-visible { outline: 3px solid light-dark(#3153c8, #acbaff); outline-offset: 3px; }
+      pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+    </style>
+  </head>
+  <body>
+    <h1>Composed follow-up planning</h1>
+    <p>An invented local draft: native fields, schema sections, real Marionette Views and keyed rows share one form.</p>
+    <p>Use the plan title <strong>taken</strong> for a simulated service error. Tabs keep drafts and validation; removing a row or partner details deletes its values.</p>
+    <main id="composed-form"></main>
+    <p id="result" role="status" aria-live="polite"></p>
+    <details><summary>Current collected values</summary><pre id="values"></pre></details>
+    <aside id="unrelated-host"><button type="button">Unrelated host action</button><output>0</output></aside>
+    <script type="module">
+      const host = document.querySelector('#unrelated-host');
+      host.querySelector('button').addEventListener('click', () => { host.querySelector('output').textContent = String(Number(host.querySelector('output').textContent) + 1); });
+    </script>
+    <script type="module" src="./composed.js"></script>
+  </body>
+</html>
