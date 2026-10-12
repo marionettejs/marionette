@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import { createMarionette, Application, View } from 'marionette';
+import { createTestScope, mountApplication, mountView } from '@mnjs/test';
+
+const scope = createTestScope();
+const runtime = createMarionette();
+const Card = runtime.View.extend({ template: () => '<h1>Consumer</h1>' });
+const mounted = scope.own(mountView(new Card(), { regionClass: runtime.Region }));
+assert.equal(mounted.el.textContent, 'Consumer');
+assert.equal(mounted.view.isAttached(), true);
+const detached = mounted.region.detachView();
+scope.defer(() => detached.destroy());
+assert.equal(mounted.el, undefined);
+let commits = 0;
+const Feature = Application.extend({ onStart() { commits++; this.showView(new View({ template: () => 'late' })); } });
+const app = mountApplication(() => new Feature());
+const cleanup = app.cleanup();
+assert.equal(await app.ready, false);
+await cleanup;
+assert.equal(commits, 0);
+await scope.cleanup();
+assert.equal(detached.isDestroyed(), true);
+console.log('Installed ESM: isolation, attachment, ownership and immediate cancellation passed.');

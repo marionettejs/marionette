@@ -1,0 +1,32 @@
+{
+  "name": "mnjs-test-examples",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --project dom",
+    "test:browser": "vitest run --project browser",
+    "test:playwright": "playwright test",
+    "test:cypress": "cypress run --component --browser electron",
+    "dev": "vite --host 127.0.0.1 --port 4187 --strictPort",
+    "test:consumer": "node --import ./dom.js consumer.mjs && node --import ./dom.js consumer.cjs && tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "marionette": "5.0.0",
+    "@mnjs/test": "file:../../../packages/test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/user-event": "14.6.1",
+    "@vitest/browser-playwright": "5.0.3",
+    "cypress": "16.1.1",
+    "jsdom": "30.1.1",
+    "vite": "8.0.3",
+    "vitest": "5.0.3",
+    "@cypress/vue": "7.0.1",
+    "@cypress/vite-dev-server": "8.0.0",
+    "vue": "3.5.30",
+    "playwright": "1.63.0",
+    "typescript": "6.0.3"
+  }
+}

@@ -272,3 +272,23 @@ Local Marionette package versions are excluded from these automated updates. The
 bot never merges changes; browser profile pins and all affected consumer contracts
 must still pass review and CI.
 Configuration follows GitHub's [Dependabot options reference](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference).
+
+## Optional testing helper package
+
+`npm run test:helpers` checks the separate `@mnjs/test` public API. After building,
+`npm run test:helpers:consumer -- --browser` packs it and checks ESM/CommonJS,
+declarations, JSDOM, Vitest Browser Mode and Playwright gallery consumers in an
+isolated temporary workspace using a committed dependency lock and stable
+Marionette 5.0.0. Logs and an artifact-bound report are written to
+`test/tmp/test-package-consumer`; use `--output /absolute/path` to retain a handoff.
+The [package guide](../packages/test/readme.md) documents tool integration and
+its limits. Core low-level tests remain independent of this helper package.
+
+`npm run test:helpers:formkit -- --formkit-tarball /absolute/path/formkit.tgz
+--formkit-sha256 EXPECTED_SHA256 --formkit-manifest /absolute/path/manifest.json`
+checks a verified development FormKit artifact with stable Marionette in a
+separate isolated consumer. The [fixture guide](examples/formkit-test-package/README.md)
+describes its helper-based tests, unchanged independent application suite,
+retained installation lock and optional browser check. The
+[verification record](examples/formkit-test-package/VERIFICATION.md) distinguishes
+the current consumer and focused regression results from historical coverage.
