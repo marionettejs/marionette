@@ -256,5 +256,11 @@
     "route": "docs/packages/formkit/compatibility",
     "title": "FormKit compatibility",
     "section": "Development packages"
+  },
+  {
+    "source": "packages/test/readme.md",
+    "route": "docs/packages/test",
+    "title": "Testing helpers (development)",
+    "section": "Development packages"
   }
 ]

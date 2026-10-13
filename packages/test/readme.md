@@ -6,9 +6,20 @@ test owns. The package exports `mountView`, `mountApplication`, and
 or browser Locators alongside them. Mounting requires a DOM; importing the package
 and creating a cleanup scope do not. Production Marionette does not depend on it.
 
-This initial `0.1.0` package is unpublished. From this repository, run `npm run build`
-and `npm pack ./packages/test --ignore-scripts`, then install the resulting tarball
-as a development dependency alongside Marionette 5.
+This initial `0.1.0` package is unpublished. Build and pack it from the Marionette
+repository:
+
+```sh
+npm run build
+npm pack ./packages/test --ignore-scripts
+```
+
+Then, from your application's directory, install the tarball as a development
+dependency alongside Marionette 5:
+
+```sh
+npm install --save-dev /absolute/path/to/mnjs-test-0.1.0.tgz
+```
 
 ## Mount a View
 
@@ -91,7 +102,7 @@ after startup succeeds.
 
 ```js
 import { afterEach, beforeEach } from 'vitest';
-import { createTestScope } from '@mnjs/test';
+import { createTestScope, mountView } from '@mnjs/test';
 
 let scope;
 beforeEach(() => { scope = createTestScope(); });
@@ -127,23 +138,22 @@ and timers at their chosen lifetime. There is no universal leak detector.
 
 ## Runner examples and compatibility
 
-The [locked examples](https://github.com/marionettejs/marionette/tree/codex/mnjs-test-canonical-20261012/test/examples/test-package)
+The [locked examples](https://github.com/marionettejs/marionette/tree/codex/mnjs-test-canonical-20261012/packages/test/examples)
 include setup and commands. Runners provide test execution and assertions;
 Testing Library supplies DOM queries and simulated interactions; Playwright and
 Cypress automate browsers. Those roles remain outside this package.
 
 | Environment | Evidence and example |
 | --- | --- |
-| Vitest + JSDOM | Verified with Testing Library/user-event in [form.spec.js](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/form.spec.js). |
-| Vitest Browser + Playwright | Same form cases verified in Chromium; [configuration](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/vitest.config.js). |
-| Playwright Test | Verified browser gallery and native input/focus checks; [specs](https://github.com/marionettejs/marionette/tree/codex/mnjs-test-canonical-20261012/test/examples/test-package/playwright). |
-| Cypress component tests | Native example corrected; execution is held and unverified. [Config](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress.config.js), [support](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/support/component.js), [HTML](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/support/component-index.html), [specs](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/component/profile.cy.js). |
+| Vitest + JSDOM | Verified with Testing Library/user-event in [form.spec.js](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/packages/test/examples/form.spec.js). |
+| Vitest Browser + Playwright | Same form cases verified in Chromium; [configuration](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/packages/test/examples/vitest.config.js). |
+| Playwright Test | Verified browser gallery and native input/focus checks; [specs](https://github.com/marionettejs/marionette/tree/codex/mnjs-test-canonical-20261012/packages/test/examples/playwright). |
+| Cypress component tests | Example provided; execution in Cypress is not yet verified. [Config](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/packages/test/examples/cypress.config.js), [support](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/packages/test/examples/cypress/support/component.js), [HTML](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/packages/test/examples/cypress/support/component-index.html), [specs](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/packages/test/examples/cypress/component/profile.cy.js). |
 | Jest, Mocha, Node test runner and other runners | Unverified. Supply a DOM for mounting and await cleanup through your runner's hooks. |
 
 The Cypress support file registers the example command `cy.mountMarionette()`;
 this is not a package export. It mounts Marionette directly, without Vue, and uses
 one mount per test with one `afterEach` cleanup owner. A duplicate command rejects;
 replace Views through the returned Region. Browser instances stay in the browser;
-Playwright's Node tests use Locators. See the
-[verification record](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/VERIFICATION.md)
-for exact versions, checks and limitations.
+Playwright's Node tests use Locators. The example project's manifest and lockfile
+pin the tool versions used by these integrations.

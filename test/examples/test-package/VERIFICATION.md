@@ -1,5 +1,26 @@
 # @mnjs/test verification and handoff
 
+## Consumer example organization — 2026-10-13
+
+Reusable runner examples now live in
+[`packages/test/examples`](../../../packages/test/examples/README.md). Unit tests,
+the packed-consumer verification drivers, this evidence record and cross-package
+FormKit dogfooding remain under `test/`. The helper README is the single API guide,
+registered as a development-package page in the canonical documentation export and
+linked from the application testing guide. The package remains unpublished.
+
+Normal verification and the core CI job now run the existing non-browser packed
+consumer after the build. The private project still installs from a packed and
+extracted helper artifact in an isolated temporary workspace, with no ancestor
+`node_modules` or inherited checkout module search. Reports retain source revision,
+dirty status, source hashes, lock hash, artifact hash and actual browser version.
+Browser checks remain explicit; Cypress execution remains held and unverified.
+
+The native Cypress example's reference pattern is
+[app-frontend's support module](https://github.com/RoundingWell/app-frontend/blob/1f5dc8a5f88253fe21144756d055a07c8aa02d55/test/support/component.js).
+The single cleanup owner and one-mount-per-test policy are specific choices for
+this example. No app-specific implementation was copied into the helper package.
+
 ## Ownership and consumer contract hardening — 2026-10-13
 
 Mounts now capture container ownership and the original Region before exposing a

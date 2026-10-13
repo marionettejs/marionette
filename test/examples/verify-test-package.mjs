@@ -14,8 +14,8 @@ const { values } = parseArgs({ options: {
 const output = resolve(values.output);
 mkdirSync(output, { recursive: true });
 const workspace = mkdtempSync(join(tmpdir(), 'mnjs-test-consumer-'));
-const consumer = join(workspace, 'test/examples/test-package');
-const fixture = join(root, 'test/examples/test-package');
+const consumer = join(workspace, 'packages/test/examples');
+const fixture = join(root, 'packages/test/examples');
 const npmCli = process.env.npm_execpath;
 if (!npmCli) { throw new Error('Run helper consumer verification through npm so its CLI can be located.'); }
 const env = {
@@ -70,6 +70,12 @@ try {
   const originalLock = readFileSync(join(fixture, 'package-lock.json'), 'utf8');
   runNpm('install', ['ci', '--ignore-scripts', '--install-links']);
   assert.equal(readFileSync(join(consumer, 'package-lock.json'), 'utf8'), originalLock);
+  run('installed-copy', process.execPath, ['--input-type=module', '-e',
+    'import assert from "node:assert/strict"; import { createRequire } from "node:module"; import { resolve } from "node:path";' +
+    'const require = createRequire(import.meta.url);' +
+    'for (const name of ["@mnjs/test", "marionette"]) {' +
+    'const path = require.resolve(`${name}/package.json`);' +
+    'assert.equal(path, resolve(`node_modules/${name}/package.json`)); console.log(`${name}: ${path}`); }']);
   run('versions', process.execPath, ['-e', 'const assert=require(\'node:assert/strict\');assert.equal(require(\'marionette/package.json\').version,\'5.0.0\');assert.equal(require(\'@mnjs/test/package.json\').version,\'0.1.0\');assert.equal(require(\'@playwright/test/package.json\').version,\'1.63.0\');console.log(JSON.stringify({marionette:require(\'marionette/package.json\').version,helper:require(\'@mnjs/test/package.json\').version,playwright:require(\'@playwright/test/package.json\').version}));']);
   run('import-without-dom', process.execPath, ['--input-type=module', '-e', 'import assert from \'node:assert/strict\';import * as esm from \'@mnjs/test\';import {createRequire} from \'node:module\';const cjs=createRequire(import.meta.url)(\'@mnjs/test\');assert.deepEqual(Object.keys(esm).sort(),[\'createTestScope\',\'mountApplication\',\'mountView\']);assert.deepEqual(Object.keys(cjs).sort(),Object.keys(esm).sort());await esm.createTestScope().cleanup();']);
   runNpm('runtime-and-types', ['run', 'test:consumer']);

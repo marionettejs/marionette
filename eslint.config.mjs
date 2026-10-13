@@ -107,7 +107,7 @@ export default [
     },
   },
   {
-    files: ['test/**/*.{cjs,js,mjs}'],
+    files: ['test/**/*.{cjs,js,mjs}', 'packages/test/examples/**/*.{cjs,js,mjs}'],
     rules: {
       'new-cap': 'off',
       'no-new': 'off',

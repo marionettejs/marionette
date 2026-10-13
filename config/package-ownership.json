@@ -130,6 +130,7 @@
       "role": "testing",
       "stage": "development",
       "buildScript": "build:test",
+      "verificationScript": "test:helpers:consumer",
       "coverage": [
         "packages/test/src/**/*.ts"
       ]
