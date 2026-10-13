@@ -9,6 +9,9 @@ describe('Marionette form through a supported component harness', () => {
       expect(first.view.isDestroyed()).to.equal(true);
       expect(first.region.isDestroyed()).to.equal(true);
       expect(mounted.view.isAttached()).to.equal(true);
+      expect(mounted.container.matches('[data-cy-root]')).to.equal(true);
+      expect(first.container).to.equal(mounted.container);
+      expect(mounted.container.childElementCount).to.equal(1);
       expect(mounted.container.querySelectorAll('form')).to.have.length(1);
     });
   });
