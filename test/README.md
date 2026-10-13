@@ -282,7 +282,10 @@ isolated temporary workspace using a committed dependency lock and stable
 Marionette 5.0.0. Logs and an artifact-bound report are written to
 `test/tmp/test-package-consumer`; use `--output /absolute/path` to retain a handoff.
 The [package guide](../packages/test/readme.md) documents tool integration and
-its limits. Core low-level tests remain independent of this helper package.
+its limits; reusable [consumer examples](../packages/test/examples/README.md) live
+beside the package. Normal `npm run verify` and core CI run the non-browser packed
+consumer after building. Browser examples are an explicit additional check.
+Core low-level tests remain independent of this helper package.
 
 `npm run test:helpers:formkit -- --formkit-tarball /absolute/path/formkit.tgz
 --formkit-sha256 EXPECTED_SHA256 --formkit-manifest /absolute/path/manifest.json`

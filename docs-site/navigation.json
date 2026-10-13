@@ -232,5 +232,11 @@
     "route": "docs/tooling",
     "title": "Check and debug an application",
     "section": "Development tools"
+  },
+  {
+    "source": "packages/test/readme.md",
+    "route": "docs/packages/test",
+    "title": "Testing helpers (development)",
+    "section": "Development packages"
   }
 ]
