@@ -1,0 +1,55 @@
+{
+  "base": "0f2284ad4bbfe8c82ce82714471697a68c2acaeb",
+  "node": "v24.19.0",
+  "playwright": "1.63.0",
+  "runtime": {
+    "passed": 37,
+    "coverage": {
+      "lines": {
+        "total": 160,
+        "covered": 160,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 204,
+        "covered": 204,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 52,
+        "covered": 52,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 148,
+        "covered": 148,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": "Unknown"
+      }
+    }
+  },
+  "browser": {
+    "passed": 54,
+    "total": 54,
+    "engines": {
+      "chromium": "153.0.8010.12",
+      "firefox": "155.0",
+      "webkit": "26.6"
+    },
+    "headless": true
+  },
+  "consumer": {
+    "esm": "passed",
+    "declarations": "passed"
+  },
+  "scope": "Optional private prototype; portable fixtures only. No full-app migration or release claim."
+}

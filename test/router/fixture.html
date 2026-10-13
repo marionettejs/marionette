@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Isolated router browser fixture</title>
+  <style>
+    body { margin: 24px; font: 16px system-ui; }
+    #panel { height: 240px; overflow: auto; border: 1px solid; margin-top: 24px; }
+    #panel h1 { margin: 0; height: 64px; }
+    #panel button { display: block; height: 64px; width: 100%; }
+    #after { margin-top: 1000px; }
+  </style>
+  <script type="importmap">{"imports":{
+    "marionette":"/vendor/marionette.mjs",
+    "@mnjs/utils":"/vendor/utils.mjs",
+    "@mnjs/radio":"/vendor/radio.mjs",
+    "backbone":"/vendor/backbone-export.mjs",
+    "underscore":"/vendor/underscore-export.mjs"
+  }}</script>
+  <script src="/vendor/underscore.js"></script>
+  <script src="/vendor/backbone.js"></script>
+</head>
+<body>
+  <label>Persistent field <input id="keeper" value="keep my focus"></label>
+  <div id="panel" tabindex="-1"></div>
+  <button id="after">After content</button>
+  <script type="module" src="/test/router/fixture.mjs"></script>
+</body>
+</html>
