@@ -50,7 +50,7 @@ describe('@mnjs/formkit official input integration', () => {
     form.resetForm(); await flush();
     expect(email.value).toBe('');
     expect(email.getAttribute('aria-invalid')).toBeNull();
-    expect(form.getState().submitted).toBe(false);
+    expect(form.getFormState().submitted).toBe(false);
   });
 
   it('uses the official radio, checkbox-group and select value features', async() => {

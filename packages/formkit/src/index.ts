@@ -421,6 +421,14 @@ export class FormView<Values extends object = FormValues> extends View {
     createI18nPlugin({ en }), guardedValidation({ ...rules, ...options.validationRules }, () => this.#submissionChanged()),
     ...options.plugins ?? []] });
     compositions.set(this.node, { options, fields: new Set(), excluded: new Map(),
+      captureNativeEvents: element => {
+        // Logical form ownership also covers controls in external/detached Views.
+        // Capture before their handlers read the DOM; the input hook clears errors.
+        const native = (event: Event) => { this.nativeInput = new WeakRef(event); };
+        const events = ['input', 'change', 'blur'];
+        events.forEach(name => element.addEventListener(name, native, true));
+        return () => events.forEach(name => element.removeEventListener(name, native, true));
+      },
       mutate: operation => {
         const previous = this.lastValues, notify = this.notifyChanges, notifyFields = this.notifyFields, source = this.changeSource;
         this.notifyChanges = false;
@@ -505,17 +513,13 @@ export class FormView<Values extends object = FormValues> extends View {
     const form = this.el as HTMLFormElement;
     form.replaceChildren();
     form.noValidate = true;
-    const native = (event: Event) => { this.nativeInput = new WeakRef(event); };
+    const releaseNative = compositions.get(this.node)!.captureNativeEvents(form);
     const submit = (event: Event) => { event.preventDefault(); void this.submit(event); };
     const reset = (event: Event) => { event.preventDefault(); this.resetForm(); };
-    form.addEventListener('input', native, true);
-    form.addEventListener('change', native, true);
-    form.addEventListener('blur', native, true);
     form.addEventListener('submit', submit);
     form.addEventListener('reset', reset);
     this.formCleanup = () => {
-      form.removeEventListener('input', native, true); form.removeEventListener('change', native, true);
-      form.removeEventListener('blur', native, true); form.removeEventListener('submit', submit);
+      releaseNative(); form.removeEventListener('submit', submit);
       form.removeEventListener('reset', reset); this.nativeInput = undefined;
     };
     if (this.formOptions.template !== undefined) {
@@ -568,7 +572,7 @@ export class FormView<Values extends object = FormValues> extends View {
       node.type === 'input' && inputSources.get(node) === 'user' && !sameValues(node.value, node._value));
   }
 
-  getState(): FormState {
+  getFormState(): FormState {
     return { submitted: this.submitted, submitting: !!this.pending,
       valid: this.node.ledger.value('blocking') === 0,
       errors: this.node.store.reduce<string[]>((errors, message) => {
@@ -622,7 +626,7 @@ export class FormView<Values extends object = FormValues> extends View {
       }
     }
     compositions.get(this.node)?.fields.forEach(field => field.update());
-    const state = this.getState();
+    const state = this.getFormState();
     // Template action controls are ordinary DOM; official input controls inherit
     // disabled from the root. Restore each action's authored disabled state.
     for (const button of this.el.querySelectorAll<HTMLButtonElement>('button[type="submit"], button[type="reset"]')) {
@@ -735,7 +739,7 @@ export class FormView<Values extends object = FormValues> extends View {
         if (![...this.ownedNodes].some(node => node.root === this.node && !node.isSettled)) { break; }
       } while (!pending.signal.aborted);
       if (pending.signal.aborted) { return 'cancelled'; }
-      if (!this.getState().valid) {
+      if (!this.getFormState().valid) {
         this.node.props.onSubmitInvalid?.(this.node);
         if (this.node.props.incompleteMessage !== false) {
           this.node.store.set(createMessage({ key: 'incomplete', type: 'ui', blocking: false,
@@ -827,6 +831,7 @@ export class FieldView<Values extends object = FormValues> extends View {
   private released = false;
   private receipt?: string;
   private previous: unknown;
+  private releaseNative?: () => void;
 
   constructor(options: FieldOptions<Values>) {
     super({ ...options, template: () => '' });
@@ -857,6 +862,7 @@ export class FieldView<Values extends object = FormValues> extends View {
       this.mount = ownedInputFactory(parent, composition.options, composition, () => this.destroy())({ document: this.el.ownerDocument,
         props: { ...input, name, preserve: removal === 'preserve', value: input.value,
           id: input.id ?? `${this.cid}-input` }, data: {} });
+      this.releaseNative = composition.captureNativeEvents(this.el);
       this.el.replaceChildren(this.mount.element);
       this.previous = cloneAny(this.node.value);
       this.receipt = this.node.on('commit', () => {
@@ -901,6 +907,7 @@ export class FieldView<Values extends object = FormValues> extends View {
   private release() {
     this.released = true;
     if (!this.mount) { return; }
+    this.releaseNative!();
     const composition = compositions.get(this.fieldOptions.form.node)!;
     composition.mutate(() => {
       this.node.off(this.receipt!);

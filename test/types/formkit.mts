@@ -18,7 +18,11 @@ const view = new FormView<Profile>({
     if (subscribed) { throw new SubmissionError(email, { email: ['Rejected'] }); }
   }
 });
-const state: FormState = view.getState();
+const state: FormState = view.getFormState();
+const hostState: unknown = view.getState();
+// @ts-expect-error Marionette state is not the form-status snapshot.
+const invalidFormState: FormState = view.getState();
+new FormView({ fields: [], state: { saved: true }, stateEvents: {} });
 const submitted: Promise<SubmitResult> = view.submit();
 const email: string = view.getValues().email;
 new Region({ el: document.body }).show(view);
@@ -34,7 +38,7 @@ schema.destroy();
 new FormView({ fields: [{ name: 'tags', type: 'taglist', label: 'Tags' }] });
 // @ts-expect-error typed values are checked at the submission boundary
 const invalid: number = view.getValues().email;
-void [state, submitted, invalid];
+void [state, hostState, invalidFormState, submitted, invalid];
 
 const advanced = new FormView<Profile>({
   schema: [

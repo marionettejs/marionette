@@ -5149,8 +5149,8 @@
         "SubmissionError"
       ],
       "result": "A Marionette-owned native form backed by official FormKit nodes, grouped values, validation, accessible errors and submission state; SubmissionError supplies root and field errors.",
-      "timing": "Construction clears an adopted form\u2019s owned contents before Marionette initializes it. Before callback capture, submit re-settles edits, validation and semantic graph changes to expose one latest coherent snapshot. After capture, meaningful value, graph or constraint changes cancel the attempt and abort its signal; no automatic external callback repeat occurs. Abort settles the public promise without waiting for an uncooperative callback.",
-      "ownership": "The View owns its form DOM, every constructed FormKit node, subscriptions and handlers. Application state and borrowed actors retain their independent owners.",
+      "timing": "Construction clears an adopted form’s owned contents before Marionette initializes it. Before callback capture, submit re-settles edits, validation and semantic graph changes to expose one latest coherent snapshot. After capture, meaningful value, graph or constraint changes cancel the attempt and abort its signal; no automatic external callback repeat occurs. Abort settles the public promise without waiting for an uncooperative callback.",
+      "ownership": "The View owns its form DOM, every constructed FormKit node, subscriptions and handlers. Application state and borrowed actors retain their independent owners. Inherited getState/stateEvents retain Marionette state ownership; getFormState and form event payloads describe only FormKit status.",
       "mutation": "Edits and setValues reconcile native field/schema nodes and controls; schema data and AST updates are explicit. Plain value trees are copied; opaque instances retain identity. Native framework context reacts to node/context changes. Conditions use official schema or explicit feature-owner Region operations; the retired showField/showIf registration API is absent. Pro and arbitrary framework components remain unverified.",
       "repetition": "Unchanged values do not duplicate change events. Repeated render preserves DOM; concurrent submit returns busy; reset cancels pending work and restores construction-time defaults.",
       "destruction": "Terminal View teardown aborts submission, removes listeners and subscriptions, and explicitly destroys descendants before the root node. Late requests cannot emit stale completion events.",
@@ -5189,6 +5189,18 @@
         {
           "file": "test/unit/formkit-submission-lifetime.spec.js",
           "title": "keeps ignored control values and validation outside the canonical callback snapshot"
+        },
+        {
+          "file": "test/unit/formkit-host-contracts.spec.js",
+          "title": "keeps borrowed Marionette state separate from form status, including empty state bindings"
+        },
+        {
+          "file": "test/unit/formkit-host-contracts.spec.js",
+          "title": "binds the inherited state during construction and releases only borrowed subscriptions"
+        },
+        {
+          "file": "test/unit/formkit-host-contracts.spec.js",
+          "title": "keeps external delayed edits distinct from quiet echoes and unrelated forms"
         }
       ],
       "documentation": {
@@ -5229,6 +5241,7 @@
         "extend",
         "fieldErrors",
         "getChildView",
+        "getFormState",
         "getOption",
         "getRegion",
         "getRegions",
@@ -5307,7 +5320,7 @@
       ],
       "result": "An explicit-update native schema renderer using the public FormKit compiler and schema sugar, with DOM, conditional/loop scopes, attributes, keys and consumer-supplied native components.",
       "timing": "Mount, update and setSchema reconcile synchronously. Registry changes schedule updates; scoped slots and native component factories run synchronously.",
-      "ownership": "The renderer owns generated nodes and event listeners, restoring adopted elements\u2019 listener methods at teardown. A supplied component owns its internal resources and must expose terminal destroy. Replacing managed children with trusted HTML destroys them immediately. Registry lookup borrows another node without taking ownership.",
+      "ownership": "The renderer owns generated nodes and event listeners, restoring adopted elements’ listener methods at teardown. A supplied component owns its internal resources and must expose terminal destroy. Replacing managed children with trusted HTML destroys them immediately. Registry lookup borrows another node without taking ownership.",
       "mutation": "Updates reconcile keys and change text, properties and handlers in place; unchanged controls retain identity, focus and selection. Expressions and callbacks are trusted application configuration.",
       "repetition": "Repeated unchanged updates retain nodes. Component props update without remounting; duplicate iteration keys or unresolved components fail the synchronous operation without rollback.",
       "destruction": "destroy removes all generated DOM, invokes component cleanup and unregisters event handlers; repeated destroy and updates after disposal are inert.",

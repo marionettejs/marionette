@@ -325,7 +325,7 @@ it('cancels a pending request on reset and ignores its late result', async() => 
   expect(signal.aborted).toBe(true);
   finish('late'); await drain();
   expect(success).not.toHaveBeenCalled();
-  expect(form.getState().submitting).toBe(false);
+  expect(form.getFormState().submitting).toBe(false);
 });
 
 it('cancels delayed native input on terminal destruction without a late submit', async() => {
@@ -377,7 +377,7 @@ it('cancels after remote validation accepts while composition is awaiting a dela
   await settle(form);
   const pending = form.submit(); await entered; await drain();
   edit(control, true); accept(true); await pause(5);
-  expect(form.getState().submitting).toBe(true);
+  expect(form.getFormState().submitting).toBe(true);
   expect(control.node.isSettled).toBe(false);
   form.resetForm();
   expect(await pending).toBe('cancelled');

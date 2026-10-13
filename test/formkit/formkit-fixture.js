@@ -1,5 +1,30 @@
 import { Region } from 'marionette';
-import { FieldView, FormView, createSchemaRenderer } from '@mnjs/formkit';
+import { FieldView, FormView, SchemaView, createSchemaRenderer } from '@mnjs/formkit';
+
+export async function mountExternalFields() {
+  const owners = [];
+  const show = view => {
+    const region = new Region({ el: document.body.appendChild(document.createElement('div')) });
+    owners.push(region); region.show(view);
+  };
+  const state = { saved: true }; const origins = [];
+  const form = new FormView({ template: () => '', state, stateEvents: {}, config: { delay: 0 },
+    values: { name: 'Initial', choice: 'Initial', enabled: false, date: '2026-10-13' } });
+  show(form);
+  const field = new FieldView({ form, name: 'name', removal: 'preserve', input: { type: 'text', label: 'External name' } });
+  show(field);
+  const section = new SchemaView({ form, schema: [
+    { $formkit: 'select', name: 'choice', label: 'External choice', options: ['Initial', 'Edited'] },
+    { $formkit: 'checkbox', name: 'enabled', label: 'External enabled' },
+    { $formkit: 'date', name: 'date', label: 'External date' },
+    { $formkit: 'file', name: 'upload', label: 'External upload' }
+  ] });
+  show(section);
+  await form.node.settled;
+  await Promise.resolve();
+  form.on('form:change', (_values, _status, metadata) => origins.push(metadata.source));
+  return { form, field, section, state, origins, destroy() { owners.forEach(owner => owner.destroy()); } };
+}
 export function mount() {
   const values = [];
   const region = new Region({ el: document.body.appendChild(document.createElement('div')) });

@@ -182,6 +182,22 @@ needs a vendor-supported setup or authorized key. The published TypeScript
 signature requires a string key; the React recipe supplies a project key and
 does not document a no-key invocation. Arbitrary substitute keys were not tried. This is a concrete runtime blocker, not a generic license objection.
 
+A bounded local proof on 2026-10-13 explicitly installed Vue 3.5.44 and
+`@formkit/vue` 2.1.2 alongside Pro 0.130.0, without peer overrides or import aliases.
+The Pro root import and Vite 8.3.3 production build succeeded. An ordinary Vue
+FormKit text control mounted and unmounted in system Chromium 154.0.8037.57.
+One `createProPlugin(undefined, { rating })` call on localhost still threw the
+API-key-required error, before any Pro control mounted. Explicit Vue dependencies
+therefore resolve import/build for this proof; they do not establish native
+Marionette Pro compatibility or resolve licensing/bootstrap setup.
+
+The Vue/FormKit proof baseline was 208,433 JavaScript bytes (60,435 gzip); adding
+the Pro rating/bootstrap path produced 286,123 bytes (75,919 gzip), an increase of
+77,690 raw bytes and 15,484 gzip bytes. Both bundles retain Vue and FormKit Vue
+modules. These are measured proof-bundle sizes, not the native package's size or
+a deployed application's budget. Vue remains a private proof dependency and was
+not added to this package's manifest. No existing customer TCM was changed.
+
 All 14 Pro controls remain unverified: autocomplete, dropdown, taglist,
 datepicker, colorpicker, currency, mask, unit, slider, rating, repeater, toggle,
 togglebuttons and transferlist. Their formatting, async options, pointer/keyboard

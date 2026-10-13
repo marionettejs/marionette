@@ -26,6 +26,42 @@ try {
     assert.deepEqual(Object.keys(formkit).sort(), ['FieldView', 'FormView', 'RowView', 'SchemaView', 'SubmissionError', 'createSchemaRenderer', 'createViewComponents']);
     for (const imported of [FieldView, FormView, RowView, SchemaView, SubmissionError, createSchemaRenderer, createViewComponents]) { assert.equal(typeof imported, 'function'); }
     assert.deepEqual(new SubmissionError('Failed', { email: ['Taken'] }).fieldErrors, { email: ['Taken'] });
+    {
+      const hostState = { saved: true };
+      const host = new FormView({ fields: [], state: hostState, stateEvents: {} });
+      assert.equal(host.getState(), hostState);
+      host.render();
+      assert.deepEqual(host.getFormState(), { submitted: false, submitting: false, valid: true, errors: [] });
+      host.destroy();
+      const composed = new FormView({ template: () => '', values: { title: 'Root', left: { title: 'Left' }, right: {} }, config: { delay: 0 } });
+      const composedOwner = new Region({ el: document.body.appendChild(document.createElement('div')) });
+      composedOwner.show(composed);
+      const externalOwner = new Region({ el: document.body.appendChild(document.createElement('div')) });
+      const external = new FieldView({ form: composed, name: 'title', removal: 'preserve', input: { type: 'text' } });
+      externalOwner.show(external);
+      const origins = [];
+      composed.on('form:change', (_values, _state, metadata) => origins.push(metadata.source));
+      composed.setErrors(['Server failure']);
+      const externalInput = external.el.querySelector('input');
+      externalInput.value = 'External'; externalInput.dispatchEvent(new Event('input', { bubbles: true }));
+      await composed.node.settled; await flush();
+      assert.deepEqual(origins, ['user']);
+      assert.deepEqual(composed.getFormState().errors, []);
+      const groups = ['left', 'right'].map(group => {
+        const field = new FieldView({ form: composed, name: group, removal: 'preserve', input: { type: 'group' } });
+        field.render(); return field;
+      });
+      const bridge = createViewComponents({ getForm: () => composed, registrations: { Text: { kind: 'field', create: options => new FieldView(options) } } });
+      const bridgeProps = { name: 'title', input: { type: 'text' } };
+      const mountedBridge = bridge.Text({ document, props: bridgeProps, data: { node: groups[0].node } });
+      composed.el.append(mountedBridge.element); await flush();
+      assert.throws(() => mountedBridge.update({ ...bridgeProps, input: { ...bridgeProps.input, value: 'Wrong' } }, { node: groups[1].node }), /Change the schema key/);
+      assert.deepEqual(composed.getValues(), { title: 'External', left: { title: 'Left' }, right: {} });
+      composedOwner.destroy(); externalOwner.destroy();
+      assert.equal(external.isDestroyed(), true);
+      document.body.replaceChildren();
+      console.log(`${name}: inherited state, external native input and default-parent identity regressions passed.`);
+    }
     const firstFile = new File(['old'], 'same.txt', { lastModified: 1 });
     const replacementFile = new File(['new'], 'same.txt', { lastModified: 1 });
     const processedFile = new File(['processed'], 'processed.txt', { lastModified: 1 });
@@ -72,11 +108,11 @@ try {
       const node = getNode(email.id); await node.settled; await node.ledger.settled('validating'); await flush();
       view.render(); assert.equal(view.el.querySelector('input[type=email]'), email);
       const pending = view.submit(); await flush();
-      assert.equal(view.getState().submitting, true);
+      assert.equal(view.getFormState().submitting, true);
       assert.equal(await view.submit(), 'busy');
       finish(); assert.equal(await pending, 'success');
       assert.equal(saved[0].email, 'ada@example.com'); assert.equal(saved[0].profile.name, 'Ada');
-      view.resetForm(); await flush(); assert.equal(email.value, ''); assert.equal(view.getState().submitted, false);
+      view.resetForm(); await flush(); assert.equal(email.value, ''); assert.equal(view.getFormState().submitted, false);
       region.destroy(); await flush();
       for (const id of ids) { assert.equal(getNode(id), undefined); }
       email.value = 'retained@example.com'; email.dispatchEvent(new Event('input', { bubbles: true })); await flush();

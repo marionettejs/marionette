@@ -91,8 +91,8 @@ describe('@mnjs/formkit native forms', () => {
     expect(reset.defaultPrevented).toBe(true);
     expect(name.value).toBe('Paul');
     expect(view.getValues().email).toBe('paul@example.com');
-    expect(view.getState().submitted).toBe(false);
-    expect(view.getState().errors).toEqual([]);
+    expect(view.getFormState().submitted).toBe(false);
+    expect(view.getFormState().errors).toEqual([]);
     expect(view.el.elements.namedItem('profile.name')).toBe(name);
   });
 
@@ -102,11 +102,11 @@ describe('@mnjs/formkit native forms', () => {
     })).mockResolvedValueOnce('saved');
     const view = mount({ submit, values: { email: 'paul@example.com' } });
     expect(await view.submit()).toBe('error');
-    expect(view.getState().errors).toEqual(['<b>Rejected</b>']);
+    expect(view.getFormState().errors).toEqual(['<b>Rejected</b>']);
     expect(view.el.querySelector('b, img')).toBeNull();
     expect(view.el.elements.namedItem('profile.name').getAttribute('aria-invalid')).toBe('true');
     edit(view, 'profile.name', 'New name');
-    expect(view.getState().errors).toEqual([]);
+    expect(view.getFormState().errors).toEqual([]);
     expect(await view.submit()).toBe('success');
   });
 
@@ -116,7 +116,7 @@ describe('@mnjs/formkit native forms', () => {
     const view = mount({ submit, values: { email: 'paul@example.com' }, submitLabel: 'Save', resetLabel: 'Undo' });
     const promise = view.submit();
     await tick();
-    expect(view.getState().submitting).toBe(true);
+    expect(view.getFormState().submitting).toBe(true);
     expect(view.el.getAttribute('aria-busy')).toBe('true');
     expect(view.el.querySelector('button').textContent).toBe('Save');
     expect(view.el.querySelector('input').disabled).toBe(true);
@@ -125,7 +125,7 @@ describe('@mnjs/formkit native forms', () => {
     expect(view.getValues().email).toBe('paul@example.com');
     finish('ok');
     expect(await promise).toBe('success');
-    expect(view.getState().submitting).toBe(false);
+    expect(view.getFormState().submitting).toBe(false);
     expect(view.el.querySelector('input').disabled).toBe(false);
   });
 
@@ -149,7 +149,7 @@ describe('@mnjs/formkit native forms', () => {
     await tick();
     expect(success).not.toHaveBeenCalled();
     expect(error).not.toHaveBeenCalled();
-    expect(view.getState().errors).toEqual([]);
+    expect(view.getFormState().errors).toEqual([]);
   });
 
   it('awaits async validation independently from input settlement', async() => {
@@ -158,7 +158,7 @@ describe('@mnjs/formkit native forms', () => {
       validationRules: { remote: () => new Promise(resolve => { validate = resolve; }) } });
     const promise = view.submit();
     await tick();
-    expect(view.getState().submitting).toBe(true);
+    expect(view.getFormState().submitting).toBe(true);
     validate(false);
     expect(await promise).toBe('invalid');
   });
@@ -233,9 +233,9 @@ describe('@mnjs/formkit native forms', () => {
   it('reports ordinary thrown errors and unknown thrown values', async() => {
     const view = mount({ fields: [], submit() { throw 'failure'; } });
     expect(await view.submit()).toBe('error');
-    expect(view.getState().errors).toEqual(['Unable to submit.']);
+    expect(view.getFormState().errors).toEqual(['Unable to submit.']);
     view.setErrors();
-    expect(view.getState().errors).toEqual([]);
+    expect(view.getFormState().errors).toEqual([]);
   });
 
   it('rejects ambiguous field paths and allows same names in separate groups', () => {

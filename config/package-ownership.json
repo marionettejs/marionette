@@ -103,6 +103,7 @@
         "test/unit/formkit-composition-sol.spec.js",
         "test/unit/formkit-composition.spec.js",
         "test/unit/formkit-file-value-props.spec.js",
+        "test/unit/formkit-host-contracts.spec.js",
         "test/unit/formkit-manifest-prototype.spec.js",
         "test/unit/formkit-nested-rows.spec.js",
         "test/unit/formkit-official.spec.js",

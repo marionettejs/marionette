@@ -84,7 +84,7 @@ it('validates composed fields and submits one settled snapshot with server error
   const email = edit(view, 'email', 'paul@example.com');
   expect(await view.submit()).toBe('error');
   expect(email.getAttribute('aria-invalid')).toBe('true');
-  expect(view.getState().errors).toEqual(['Rejected']);
+  expect(view.getFormState().errors).toEqual(['Rejected']);
   edit(view, 'email', 'new@example.com'); await tick();
   const saved = vi.fn(); view.on('submit:success', saved);
   const pending = view.submit(); await tick();
@@ -94,7 +94,7 @@ it('validates composed fields and submits one settled snapshot with server error
   expect(await pending).toBe('cancelled'); await tick();
   expect(signal.aborted).toBe(true);
   expect(saved).not.toHaveBeenCalled();
-  expect(view.getState().errors).toEqual([]);
+  expect(view.getFormState().errors).toEqual([]);
 });
 
 it('keeps detached fields active and terminates their runtime when the form owner dies', async() => {

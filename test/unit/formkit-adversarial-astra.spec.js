@@ -62,7 +62,7 @@ it.each(['schema', 'composed'].flatMap(mode => [false, true].map(actorUpdate => 
     checks[0].resolve(true);
     await vi.advanceTimersByTimeAsync(0);
     expect(submitted).toEqual([]);
-    expect(form.getState().submitting).toBe(true);
+    expect(form.getFormState().submitting).toBe(true);
 
     await vi.advanceTimersByTimeAsync(50);
     expect(form.getValues()).toEqual({ name: 'Latest', revision: actorUpdate ? 1 : 0 });

@@ -71,7 +71,7 @@ async function application({ values = original, saveDraft = vi.fn(), submit = vi
   }
   await settle(form);
   function paintErrors() {
-    owner.el.querySelector('[data-errors]').textContent = form.getState().valid ? '' : state.errors.join('\n');
+    owner.el.querySelector('[data-errors]').textContent = form.getFormState().valid ? '' : state.errors.join('\n');
   }
   owner.listenTo(form, 'form:state', paintErrors);
   owner.listenTo(form, 'form:change', (snapshot, _formState, metadata) => {
@@ -144,7 +144,7 @@ it('retains external errors through edits, hides their summary when valid, and c
   const input = native(title, 'Corrected');
   input.focus();
   await settle(form);
-  await vi.waitFor(() => expect(form.getState().valid).toBe(true));
+  await vi.waitFor(() => expect(form.getFormState().valid).toBe(true));
   expect(summary.textContent).toBe('');
   expect(state.errors).toEqual(['External rejection']);
   expect(title.el.querySelector('input')).toBe(input);

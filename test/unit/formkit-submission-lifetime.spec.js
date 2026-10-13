@@ -38,7 +38,7 @@ it.each(['resolve', 'reject'])('cancels obsolete callback %s after a semantic va
   }
   await drain();
   expect(success).not.toHaveBeenCalled(); expect(error).not.toHaveBeenCalled();
-  expect(form.getState().errors).toEqual([]);
+  expect(form.getFormState().errors).toEqual([]);
   callback.mockImplementation(() => 'fresh accepted');
   expect(await form.submit()).toBe('success');
   expect(callback.mock.calls[1][0]).toEqual({ title: 'After' });
@@ -151,7 +151,7 @@ it.each([1, 30])('cancels an observed custom constraint change to %s even when i
   field.setInput({ limit }); response.resolve();
   expect(await attempt).toBe('cancelled');
   await field.node.ledger.settled('validating');
-  expect(form.getState().valid).toBe(limit === 30);
+  expect(form.getFormState().valid).toBe(limit === 30);
 });
 
 it('keeps presentation updates and ignored action churn outside callback cancellation', async() => {
@@ -184,7 +184,7 @@ it('cannot deliver old numeric errors to a replacement business row', async() =>
   expect(first.placement.isDestroyed()).toBe(true);
   response.reject(new SubmissionError('A rejected', { 'rows.0.name': ['A name rejected'] }));
   expect(await attempt).toBe('cancelled'); await drain();
-  expect(form.getState().errors).toEqual([]); expect(second.field.node.context.messages).toEqual({});
+  expect(form.getFormState().errors).toEqual([]); expect(second.field.node.context.messages).toEqual({});
 });
 
 it.each(['reset', 'destroy'])('ends a captured callback on %s and suppresses later failures', async lifetime => {

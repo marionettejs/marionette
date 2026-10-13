@@ -39,7 +39,9 @@ export function createViewComponents<Values extends object = FormValues>({ getFo
     if (!form || form.isDestroyed() || !owner || owner.isDestroyed()) {
       throw new Error('A live form and ordinary Region owner are required.');
     }
-    const parent = getParent ? getParent(props, data) : isNode(data.node) ? data.node : form.node;
+    const resolveParent = (nextProps: Record<string, unknown>, nextData: Record<string, unknown>) =>
+      getParent ? getParent(nextProps, nextData) : isNode(nextData.node) ? nextData.node : form.node;
+    const parent = resolveParent(props, data);
     const wrapper = document.createElement('div');
     wrapper.setAttribute('data-schema-view', name);
     const regionName = `schemaViewBridge${++nextRegion}`;
@@ -98,7 +100,7 @@ export function createViewComponents<Values extends object = FormValues>({ getFo
         if (disposed || view.isDestroyed()) {
           return;
         }
-        if (isField && (!sameValues(identity(next), originalIdentity) || getParent && getParent(next, nextData) !== parent)) {
+        if (isField && (!sameValues(identity(next), originalIdentity) || resolveParent(next, nextData) !== parent)) {
           throw new Error('Change the schema key to replace FieldView identity; dispose first when reusing its group/name.');
         }
         const old = previous;

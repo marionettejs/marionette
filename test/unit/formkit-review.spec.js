@@ -158,12 +158,12 @@ describe('@mnjs/formkit reviewed ownership and native behavior', () => {
     form.setErrors(['Submission'], { name: ['Field submission'] });
     const input = form.el.querySelector('input');
     await edit(input, 'Ada');
-    expect(form.getState().errors).toEqual([]);
+    expect(form.getFormState().errors).toEqual([]);
     expect(form.el.textContent).not.toContain('Field submission');
     await edit(input, '');
     await form.node.at('name').ledger.settled('validating'); await flush();
     expect(form.el.textContent).toContain('Name is required.');
-    expect(form.getState().errors).toEqual([]);
+    expect(form.getFormState().errors).toEqual([]);
   });
 
   it('retains declarative form errors when schema fields are edited', async() => {
@@ -171,7 +171,7 @@ describe('@mnjs/formkit reviewed ownership and native behavior', () => {
       { $formkit: 'text', name: 'name', label: 'Name' }
     ] });
     await edit(form.el.querySelector('input'), 'Ada');
-    expect(form.getState().errors).toEqual(['Declared']);
+    expect(form.getFormState().errors).toEqual(['Declared']);
   });
 
   it('honors the form preserveErrors policy during a schema edit', async() => {
@@ -180,7 +180,7 @@ describe('@mnjs/formkit reviewed ownership and native behavior', () => {
     ] });
     form.setErrors(['Submission']);
     await edit(form.el.querySelector('input'), 'Ada');
-    expect(form.getState().errors).toEqual(['Submission']);
+    expect(form.getFormState().errors).toEqual(['Submission']);
   });
 
   it('consumes a delayed user origin before a later public node input', async() => {
@@ -341,7 +341,7 @@ describe('@mnjs/formkit reviewed ownership and native behavior', () => {
     region.show(form); await flush();
     expect(form.el.querySelector('input')).toBe(input);
     expect(form.getValues()).toEqual({ name: 'Draft' });
-    expect(form.getState().errors).toEqual(['Retry']);
+    expect(form.getFormState().errors).toEqual(['Retry']);
     expect(form.el.textContent).toContain('Check draft');
     await edit(input, 'Resumed');
     expect(form.getValues()).toEqual({ name: 'Resumed' });

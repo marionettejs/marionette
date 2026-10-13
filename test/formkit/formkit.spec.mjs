@@ -1,6 +1,39 @@
 import { test, expect } from '@playwright/test';
 import { resolve } from 'node:path';
 
+test('external owned controls retain native origin and state bindings across input, change and blur', async({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.externalFixture = await fixture.mountExternalFields();
+    window.externalFixture.form.setErrors(['Server failure']);
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  await page.getByRole('textbox', { name: 'External name', exact: true }).fill('Edited');
+  await expect.poll(() => page.evaluate(() => window.externalFixture.form.getFormState().errors)).toEqual([]);
+  await page.getByRole('combobox', { name: 'External choice', exact: true }).selectOption('Edited');
+  await page.getByRole('checkbox', { name: 'External enabled', exact: true }).check();
+  await page.getByLabel('External date', { exact: true }).fill('');
+  await page.getByLabel('External date', { exact: true }).blur();
+  await page.evaluate(() => window.externalFixture.form.setErrors(['Upload failure']));
+  await page.getByLabel('External upload', { exact: true }).setInputFiles({ name: 'new.txt', mimeType: 'text/plain', buffer: Buffer.from('new') });
+  await expect.poll(() => page.evaluate(() => window.externalFixture.form.getFormState().errors)).toEqual([]);
+  await expect.poll(() => page.evaluate(() => {
+    const { form, state, origins } = window.externalFixture;
+    const values = form.getValues();
+    return { statePreserved: form.getState() === state, name: values.name, choice: values.choice,
+      enabled: values.enabled, date: values.date, upload: values.upload[0]?.name, origins };
+  })).toEqual({ statePreserved: true, name: 'Edited', choice: 'Edited', enabled: true, date: '', upload: 'new.txt',
+    origins: ['user', 'user', 'user', 'user', 'user'] });
+  expect(await page.evaluate(() => {
+    const fixture = window.externalFixture;
+    fixture.destroy();
+    return [fixture.form, fixture.field, fixture.section].every(view => view.isDestroyed());
+  })).toBe(true);
+  expect(errors).toEqual([]);
+});
+
 test('decimal edits retain native text and focus while authoritative writes replace pending drafts', async({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -277,14 +310,14 @@ test('official schema form supports conditional fields, steps, files, lists, ser
   await expect(team).toHaveValue('Native team');
   await expect.poll(() => page.evaluate(() => window.formkitExample.form.getValues().registration.team.name)).toBe('Native team');
   await expect.poll(() => page.evaluate(() => window.retryChangeSources)).toEqual(['user']);
-  await expect.poll(() => page.evaluate(() => window.formkitExample.form.getState().errors)).toEqual([]);
+  await expect.poll(() => page.evaluate(() => window.formkitExample.form.getFormState().errors)).toEqual([]);
   await page.getByRole('button', { name: 'Register team', exact: true }).click();
   await expect(page.getByText('Registered Native team.', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Register team', exact: true }).click();
   await expect(team).toBeDisabled();
   await page.getByRole('button', { name: 'Reset and cancel', exact: true }).click();
   await expect(page.locator('#result')).toBeEmpty();
-  expect(await page.evaluate(() => window.formkitExample.form.getState().submitting)).toBe(false);
+  expect(await page.evaluate(() => window.formkitExample.form.getFormState().submitting)).toBe(false);
   const disposed = await page.evaluate(() => {
     const { form, region } = window.formkitExample;
     const root = form.el;

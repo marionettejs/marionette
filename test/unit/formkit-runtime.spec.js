@@ -151,7 +151,7 @@ describe('@mnjs/formkit native schema runtime', () => {
     expect(await retry).toBe('cancelled');
     expect(signals[1].aborted).toBe(true);
     resolve('late'); await flush();
-    expect(form.getState().submitted).toBe(false);
+    expect(form.getFormState().submitted).toBe(false);
     expect(form.el.textContent).not.toContain('Name rejected');
     const final = form.submit(); await flush();
     form.destroy();

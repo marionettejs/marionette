@@ -177,7 +177,7 @@ describe('@mnjs/formkit official plugin and context contracts', () => {
     await flush();
     expect(form.el.textContent).toContain('Global rejection');
     expect(form.el.textContent).toContain('Name rejection');
-    expect(form.getState().errors).toEqual(['Global rejection']);
+    expect(form.getFormState().errors).toEqual(['Global rejection']);
   });
 
   it('keeps a focused partial native date deletion until blur commits it', async() => {
@@ -378,7 +378,7 @@ describe('@mnjs/formkit interrupted async workflows', () => {
     await flush();
     expect(success).toHaveBeenCalledTimes(1);
     expect(success.mock.calls[0][0]).toEqual({ name: 'Current' });
-    expect(form.getState().submitting).toBe(false);
+    expect(form.getFormState().submitting).toBe(false);
     expect(form.el.getAttribute('aria-busy')).toBe('false');
   });
 });
@@ -465,7 +465,7 @@ describe('@mnjs/formkit async validation guard review', () => {
     expect(await form.submit()).toBe('success');
     expect(accept).toHaveBeenCalledTimes(1);
     expect(reject).toHaveBeenCalledTimes(1);
-    expect(form.getState().valid).toBe(true);
+    expect(form.getFormState().valid).toBe(true);
     expect(form.el.textContent).not.toContain('Old rule rejected');
     expect(form.el.querySelector('input').getAttribute('aria-invalid')).toBeNull();
   });
@@ -581,7 +581,7 @@ describe('@mnjs/formkit validation removal', () => {
     await flush();
     expect(remote).toHaveBeenCalledTimes(1);
     expect(submit).toHaveBeenCalledTimes(1);
-    expect(form.getState().valid).toBe(true);
+    expect(form.getFormState().valid).toBe(true);
     expect(form.el.querySelector('input').getAttribute('aria-invalid')).toBeNull();
   });
 });
@@ -601,7 +601,7 @@ describe('@mnjs/formkit obsolete validation rejection', () => {
     fail(new Error('Obsolete request failed'));
     expect(await pending).toBe('success');
     expect(seen).toEqual(['first', 'current']);
-    expect(form.getState().valid).toBe(true);
+    expect(form.getFormState().valid).toBe(true);
   });
 });
 

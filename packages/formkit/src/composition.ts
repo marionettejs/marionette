@@ -12,6 +12,7 @@ export interface Composition {
     options: RuntimeOptions;
     fields: Set<FieldResource>;
     excluded: Map<string, FieldPath>;
+    captureNativeEvents(element: Element): () => void;
     mutate(operation: () => void): void;
     baseline(path: FieldPath, value: unknown): unknown;
     notify(): boolean;

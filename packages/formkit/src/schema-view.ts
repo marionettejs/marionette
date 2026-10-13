@@ -19,6 +19,7 @@ export class SchemaView<Values extends object = FormValues> extends View {
   #renderer?: ReturnType<typeof createSchemaRenderer>;
   #resource?: FieldResource;
   #parentReceipt?: string;
+  #releaseNative?: () => void;
   #disposed = false;
   constructor(options: SchemaViewOptions<Values>) {
     super({
@@ -50,6 +51,7 @@ export class SchemaView<Values extends object = FormValues> extends View {
     const { form, schema, components } = this.#schemaOptions;
     const parent = this.node;
     const composition = compositions.get(form.node)!;
+    this.#releaseNative = composition.captureNativeEvents(this.el);
     this.#resource = {
       // Construction runs inside mutate; refresh cannot observe an unfinished renderer.
       parent, release: () => this.destroy(), update: () => this.#renderer!.update(this.#data())
@@ -95,6 +97,7 @@ export class SchemaView<Values extends object = FormValues> extends View {
       return;
     }
     this.#disposed = true;
+    this.#releaseNative?.();
     const composition = compositions.get(this.#schemaOptions.form.node);
     if (this.#parentReceipt) {
       this.node.off(this.#parentReceipt);

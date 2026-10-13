@@ -207,6 +207,10 @@ ends detached fields. Re-showing a destroyed field requires a new View. Repeated
 `render()` is intentionally stable in every authoring mode; it does not rebuild a
 template's layout. Use Regions for layout changes or create a new form owner.
 
+Native input/change/blur events in owned FieldViews and SchemaViews retain their
+user origin and error-clearing policy in external Regions or detached placements.
+Capture listeners end with the owning View; DOM ancestry does not select the form.
+
 An external actor remains the feature owner's resource. Listen to `field:change`,
 send the actor's real events, and echo snapshots with `notify: false`. The feature
 owner must unsubscribe its actor, cancel its timers, and guard delayed edits against
@@ -286,8 +290,12 @@ construction snapshot. The source checkout's
   current tree synchronously. `notify: false` suppresses value-change events;
   `source` passes through to change events. Supplied paths supersede older delayed
   edits; unrelated paths retain their drafts. Unchanged values emit no change.
-- `getState()`: `{ submitted, submitting, valid, errors }`. `errors` are root
+- `getFormState()`: `{ submitted, submitting, valid, errors }`. `errors` are root
   errors; `valid` reflects blocking messages, including pending validation.
+  Marionette's inherited `getState()` returns the View's borrowed or owned state
+  source and supports ordinary `stateEvents`. These are separate lifetimes.
+  Existing development-package consumers must rename form-status calls from
+  `getState()` to `getFormState()`; form event status payloads are unchanged.
 - `submit(event?)`: resolves to `success`, `invalid`, `error`, `busy` or `cancelled`.
   Awaits values and validation, marks fields submitted, focuses the first enabled invalid
   control, prevents overlapping submissions and calls `submit(values, { node, signal })`.

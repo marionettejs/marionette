@@ -69,7 +69,7 @@ it('removes a hidden async validator from an awaiting submission and ignores its
   fresh.resolve(true);
   expect(await form.submit()).toBe('success');
   expect(submitted.at(-1)).toEqual({ enabled: true, detail: 'Fresh', keep: 'Sibling' });
-  expect(form.getState().errors).toEqual([]);
+  expect(form.getFormState().errors).toEqual([]);
   expect(form.el.querySelector('[aria-invalid="true"]')).toBeNull();
 });
 
@@ -165,7 +165,7 @@ it('cancels the wait for a delayed native input on reset and permits a later sub
   expect(submitted).toEqual([]);
   form.resetForm();
   expect(await pending).toBe('cancelled');
-  expect(form.getState().submitting).toBe(false);
+  expect(form.getFormState().submitting).toBe(false);
   await vi.advanceTimersByTimeAsync(1000);
   expect(form.getValues()).toEqual({ enabled: true, detail: 'Original', keep: 'Sibling' });
   expect(input.value).toBe('Original');
