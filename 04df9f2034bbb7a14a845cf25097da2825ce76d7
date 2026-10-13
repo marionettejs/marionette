@@ -1,0 +1,38 @@
+test/fixtures/adapters-package-vite/package-lock.json
+  h_0f06c286dda36f 702-704
+test/fixtures/attachment-owner-document/package-lock.json
+  h_0f06c286dda36f 374-376
+test/fixtures/backbone-adapter/package-lock.json
+  h_0f06c286dda36f 9,13-15
+test/fixtures/backbone-adapter/package.json
+  h_0f06c286dda36f 9
+test/fixtures/cjs-adapters/package-lock.json
+  h_0f06c286dda36f 392-394
+test/fixtures/collection-removal-survivors/package-lock.json
+  h_0f06c286dda36f 384-386
+test/fixtures/consumer-lint/package-lock.json
+  h_0f06c286dda36f 306-308
+test/fixtures/data-package-starter/package-lock.json
+  h_0f06c286dda36f 975-977,2198-2200
+test/fixtures/data-package-vite/package-lock.json
+  h_0f06c286dda36f 684-686
+test/fixtures/docs-quick-start/package-lock.json
+  h_0f06c286dda36f 389-391
+test/fixtures/dom-adapters-package/package-lock.json
+  h_0f06c286dda36f 719-721
+test/fixtures/jquery-dom-api/package-lock.json
+  h_0f06c286dda36f 381-383
+test/fixtures/vite/package-lock.json
+  h_0f06c286dda36f 684-686
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "04df9f2034bbb7a14a845cf25097da2825ce76d7",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+changelog.md
+  h_0f06c286dda36f 34-35
+config/api-contracts/inventory.json
+  h_0f06c286dda36f 4,1707,1714-1716,1752-1753,1768-1770,10582,12452,12473,12507
+config/api-contracts/semantics.json
+  h_0f06c286dda36f 2214,2278,2338-2353
+docs/api/collection-view.md
+  h_0f06c286dda36f 66,73
+src/modules/collection-view.ts
+  h_0f06c286dda36f 341
+test/types/collection-view.cts
+  h_0f06c286dda36f 2,48-55
+test/types/collection-view.mts
+  h_0f06c286dda36f 2,48-55
+test/unit/collection-view/collection-view-empty.spec.js
+  h_0f06c286dda36f 124-211
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e01500c8180d98c03ff3ebec8108331ddba6406a",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}

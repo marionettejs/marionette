@@ -1,0 +1,66 @@
+config/performance.json
+  h_0f06c286dda36f 24
+package-lock.json
+  h_0f06c286dda36f 33-34,43,47,49,72-74,78-82,89-91,1777-1779,1797-1799,1816-1817,1821-1823,1837-1838,1844-1845,1849-1851,1868,1872-1874,1897-1899,2072-2074,4322-4324,4329-4332,4345,4361-4363,4367-4370,4386-4388,4392-4393,4408-4410,4414-4415,4426-4428,4443-4445,4449-4451,4468-4470,4482-4484,4488-4491,4510-4512,4517-4519,4534-4536,4540,5208-5210,5215,5218,5461-5463,6369-6371,6375-6376,6378-6379,6381,6385,6389,6393,6852-6854,8029-8031,8038,8143-8145,8475-8477,8481-8482
+package.json
+  h_0f06c286dda36f 145-146,155,159,161
+test/fixtures/adapters-package-vite/package-lock.json
+  h_0f06c286dda36f 11,702-704,733-735,741
+test/fixtures/adapters-package-vite/package.json
+  h_0f06c286dda36f 12
+test/fixtures/attachment-owner-document/package-lock.json
+  h_0f06c286dda36f 9,13-15,18-22,29-31,56-58,75-77,93-94,98-100,113-114,120-121,125-127,143,147-149,171-173,190-192,229-231,235,238,278-280,283-284,286-287,289,293,297,301,374-376,413-415,421,425-427,464-466,469-470
+test/fixtures/attachment-owner-document/package.json
+  h_0f06c286dda36f 9
+test/fixtures/cjs-adapters/package-lock.json
+  h_0f06c286dda36f 11,16-18,21-25,32-34,59-61,78-80,96-97,101-103,116-117,123-124,128-130,146,150-152,174-176,193-195,241-243,247,250,296-298,301-302,304-305,307,311,315,319,392-394,431-433,439,449-451,488-490,493-494
+test/fixtures/cjs-adapters/package.json
+  h_0f06c286dda36f 11
+test/fixtures/collection-removal-survivors/package-lock.json
+  h_0f06c286dda36f 10,14-16,19-23,30-32,57-59,76-78,94-95,99-101,114-115,121-122,126-128,144,148-150,172-174,191-193,239-241,245,248,288-290,293-294,296-297,299,303,307,311,384-386,423-425,431,441-443,480-482,485-486
+test/fixtures/collection-removal-survivors/package.json
+  h_0f06c286dda36f 10
+test/fixtures/consumer-lint/package-lock.json
+  h_0f06c286dda36f 9,726-728
+test/fixtures/consumer-lint/package.json
+  h_0f06c286dda36f 9
+test/fixtures/data-package-starter/package-lock.json
+  h_0f06c286dda36f 10-12,14,21-23,27-31,38-40,91-93,111-113,130-131,135-137,151-152,158-159,163-165,182,186-188,211-213,338-340,773-775,779-782,798-800,804-805,820-822,826-827,838-840,855-857,869-871,875-878,897-899,903,975-977,1031-1033,1038,1041,1113-1115,1471-1473,1477-1478,1480-1481,1483,1487,1491,1495,2198-2200,2258-2260,2267,2311-2313,2331-2333,2340,2442-2444,2448-2449
+test/fixtures/data-package-starter/package.json
+  h_0f06c286dda36f 19-20,22-23
+test/fixtures/data-package-vite/package-lock.json
+  h_0f06c286dda36f 9,684-686,709-711,717
+test/fixtures/data-package-vite/package.json
+  h_0f06c286dda36f 9
+test/fixtures/docs-package/package-lock.json
+  h_0f06c286dda36f 8,12-14
+test/fixtures/docs-package/package.json
+  h_0f06c286dda36f 5
+test/fixtures/docs-quick-start/package-lock.json
+  h_0f06c286dda36f 8,13-15,18-21,29-31,56-58,75-77,93-94,98-100,113-114,120-121,125-127,143,147-149,171-173,235-237,241,244,284-286,289-290,292-293,295,299,303,307,389-391,428-430,436,440-442,479-481,484-485
+test/fixtures/docs-quick-start/package.json
+  h_0f06c286dda36f 8
+test/fixtures/dom-adapters-package/package-lock.json
+  h_0f06c286dda36f 9,17-19,22-26,33-35,60-62,79-81,97-98,102-104,117-118,124-125,129-131,147,151-153,175-177,194-196,559-561,565,568,608-610,613-614,616-617,619,623,627,631,719-721,758-760,766,818-820,857-859,862-863
+test/fixtures/dom-adapters-package/package.json
+  h_0f06c286dda36f 9
+test/fixtures/jquery-dom-api/package-lock.json
+  h_0f06c286dda36f 10,14-16,19-23,30-32,57-59,76-78,94-95,99-101,114-115,121-122,126-128,144,148-150,172-174,191-193,230-232,236,239,285-287,290-291,293-294,296,300,304,308,381-383,420-422,428,432-434,471-473,476-477
+test/fixtures/jquery-dom-api/package.json
+  h_0f06c286dda36f 10
+test/fixtures/vite/package-lock.json
+  h_0f06c286dda36f 9,684-686,709-711,717
+test/fixtures/vite/package.json
+  h_0f06c286dda36f 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ca5b07d65a85655ab9e55475825a495312325654",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
