@@ -1,5 +1,35 @@
 # @mnjs/test verification and handoff
 
+## Ownership and consumer contract hardening — 2026-10-13
+
+Mounts now capture container ownership and the original Region before exposing a
+handle. Changing options or overwriting a JavaScript handle property cannot remove
+a borrowed host, retain a helper-created host, or redirect Region destruction.
+Handle identities are readonly in declarations. Cleanup callbacks accept ignored
+return values, including awaited promises, while scope cleanup remains `Promise<void>`.
+
+Synchronous Region construction, View rendering, Application factory and start
+failures remove only helper-created DOM and rethrow the original error. They do
+not invoke framework recovery. A separate replacement/attach regression preserves
+the caller View's element in a borrowed host after its callback throws.
+
+Fourteen new runtime regressions failed against the previous source; the original
+30 cases remained green. The corrected working patch passes all 45 helper cases
+with 100% lines (43), branches (22), functions (13) and statements (58). Strict
+ESM/CJS consumers failed before for value-returning callbacks and writable handle
+identities; the corrected packed declarations pass. Build, lint and public-test
+checks pass. The isolated packed consumer passes ten stages, including four JSDOM,
+four Vitest Browser and three Playwright gallery cases in system Chromium
+154.0.8037.57. These are executed patch checks; exact clean-commit receipts are
+retained separately, including source, lock and tarball hashes.
+
+Independent code review found no blocking behavior or type issue. Consumer docs
+now distinguish verified runner examples from unverified Jest/Mocha/Node-runner
+integration and held Cypress. The fixture pins Vite 8.0.16 for the upstream
+[Windows path advisory](https://github.com/vitejs/vite/security/advisories/GHSA-fx2h-pf6j-xcff);
+lock changes are limited to Vite and its Rolldown dependency chain. No exploit or
+Windows validation is claimed. Cypress was not run or downloaded.
+
 ## Native Cypress example correction — 2026-10-13
 
 The example now follows app-frontend's native container
@@ -139,7 +169,12 @@ four stable-v5 JSDOM form examples. This is bounded assertion-sensitivity eviden
 not a comprehensive mutation score. Saved summaries, hashes and failing/passing
 logs accompany the artifact handoff.
 
-## Remaining limits and blockers
+## Archived source-owner limits and blockers — 2026-10-11
+
+These describe the old environment. Actual FormKit dogfooding and canonical
+integration subsequently passed; see the current records above. The old Vue-based
+Cypress setup and repeated-mount cleanup below have been superseded by the native,
+single-owner example. Cypress execution remains held.
 
 - **Cypress component execution is blocked.** npm installation and supported Vue/Vite
   dependency configuration resolve, but both official binary endpoints

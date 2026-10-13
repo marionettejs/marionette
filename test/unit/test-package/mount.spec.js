@@ -4,7 +4,7 @@ import { Model, Collection, DataApi } from '@mnjs/data';
 import { createTestScope, mountApplication, mountView } from '@mnjs/test';
 
 let scope;
-afterEach(async() => { await scope?.cleanup(); scope = undefined; });
+afterEach(() => { const previous = scope; scope = undefined; return previous?.cleanup(); });
 function own(mount) { scope ??= createTestScope(); return scope.own(mount); }
 const Card = View.extend({ template: () => '<button>Open</button>' });
 

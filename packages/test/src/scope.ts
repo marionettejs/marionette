@@ -1,6 +1,7 @@
-export type Cleanup = () => void | Promise<void>;
+/** Returned values are ignored; returned promises are awaited. */
+export type Cleanup = () => unknown;
 export interface Cleanable {
-  cleanup(): void | Promise<void>;
+  cleanup(): unknown;
 }
 
 export interface TestScope extends Cleanable {

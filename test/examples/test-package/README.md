@@ -1,9 +1,22 @@
 # Executable @mnjs/test examples
 
-See `../../../packages/test/readme.md` for APIs, commands and tool-specific limits.
+See the [package README](../../../packages/test/readme.md) for APIs and compatibility.
 These examples use real public package imports with stable Marionette 5.0.0.
 The helper is installed from the local built package using npm's `--install-links`
 so the consumer uses a copied distribution, not a source alias.
+
+From the repository root:
+
+```sh
+npm run build
+npm --prefix test/examples/test-package ci --ignore-scripts --install-links
+npm --prefix test/examples/test-package test
+npm --prefix test/examples/test-package run test:browser
+npm --prefix test/examples/test-package run test:playwright
+```
+
+Browser checks need an installed Chromium. Cypress execution is currently held;
+its separate `test:cypress` script is retained for a future authorized run.
 
 `fixtures.js` owns asynchronous form saving independently from Application readiness.
 `form.spec.js` runs unchanged in JSDOM and Vitest Browser Mode. Playwright uses its

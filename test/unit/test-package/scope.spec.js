@@ -37,14 +37,14 @@ describe('explicit owned-resource scope', () => {
     const scope = createTestScope();
     const events = [];
     const pending = Promise.withResolvers();
-    scope.defer(() => { events.push('first'); });
-    const resource = { async cleanup() { events.push('begin'); await pending.promise; events.push('end'); } };
+    scope.defer(() => events.push('first'));
+    const resource = { async cleanup() { events.push('begin'); await pending.promise; return events.push('end'); } };
     expect(scope.own(resource)).toBe(resource);
     const cleanup = scope.cleanup();
     await Promise.resolve();
     expect(events).toEqual(['begin']);
     pending.resolve();
-    await cleanup;
+    await expect(cleanup).resolves.toBeUndefined();
     expect(events).toEqual(['begin', 'end', 'first']);
   });
   it('rejects reentrant registration and shares completion during cleanup', async() => {

@@ -2,6 +2,7 @@
   "name": "@mnjs/test",
   "version": "0.1.0",
   "description": "Runner-independent mounting and owned-resource cleanup for Marionette v5 tests",
+  "homepage": "https://github.com/marionettejs/marionette/tree/codex/mnjs-test-canonical-20261012/packages/test#readme",
   "type": "module",
   "exports": {
     ".": {
@@ -34,6 +35,10 @@
     "prepack": "npm run build"
   },
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/marionettejs/marionette/issues"
+  },
+  "keywords": ["marionette", "testing", "lifecycle"],
   "repository": {
     "type": "git",
     "url": "https://github.com/marionettejs/marionette.git",

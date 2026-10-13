@@ -16,9 +16,9 @@ export interface MountOptions {
 }
 
 export interface MountedRegion {
-  container: Element;
-  slot: HTMLElement;
-  region: RegionInstance;
+  readonly container: Element;
+  readonly slot: HTMLElement;
+  readonly region: RegionInstance;
   /** Current root, including a replacement shown through the Region. */
   readonly el: Element | undefined;
   cleanup(): Promise<void>;
@@ -28,31 +28,36 @@ export interface ViewMountOptions extends MountOptions {
   showOptions?: ShowOptions;
 }
 export interface MountedView<View extends SupportedView> extends MountedRegion {
-  view: View;
+  readonly view: View;
 }
 
 export interface ApplicationMountOptions extends MountOptions {
   startOptions?: Omit<ApplicationStartOptions, 'region'> & { region?: never };
 }
 export interface MountedApplication<App> extends MountedRegion {
-  app: App;
+  readonly app: App;
   /** Initial start only: true means started, false means cancelled; failure rejects. */
-  ready: Promise<boolean>;
+  readonly ready: Promise<boolean>;
 }
 
 function mountRegion(options: MountOptions) {
-  const doc = options.container?.ownerDocument ?? options.attachTo?.ownerDocument ?? options.document ?? document;
-  const container = options.container ?? doc.createElement('div');
-  const slot = doc.createElement('div');
-  container.appendChild(slot);
-  if (!options.container) { (options.attachTo === undefined ? doc.body : options.attachTo)?.appendChild(container); }
+  const { container: suppliedContainer, attachTo, document: suppliedDocument } = options;
   const RegionClass = options.regionClass ?? Region;
-  const region = new RegionClass({ el: slot });
-  const scope = createTestScope();
-  scope.defer(() => {
+  const doc = suppliedContainer?.ownerDocument ?? attachTo?.ownerDocument ?? suppliedDocument ?? document;
+  const container = suppliedContainer ?? doc.createElement('div');
+  const slot = doc.createElement('div');
+  function removeDOM() {
     slot.remove();
-    if (!options.container) { container.remove(); }
-  });
+    if (!suppliedContainer) { container.remove(); }
+  }
+  let region: RegionInstance;
+  try {
+    container.appendChild(slot);
+    if (!suppliedContainer) { (attachTo === undefined ? doc.body : attachTo)?.appendChild(container); }
+    region = new RegionClass({ el: slot });
+  } catch (error) { removeDOM(); throw error; }
+  const scope = createTestScope();
+  scope.defer(removeDOM);
   const mounted: MountedRegion = {
     container,
     slot,
@@ -60,14 +65,14 @@ function mountRegion(options: MountOptions) {
     get el() { return region.currentView?.el; },
     cleanup: scope.cleanup
   };
-  return { mounted, scope };
+  return { mounted, scope, region, removeDOM };
 }
 
 // Supplying a View transfers ownership to the new Region, just like Region.show.
 export function mountView<View extends SupportedView>(view: View, options: ViewMountOptions = {}): MountedView<View> {
-  const { mounted, scope } = mountRegion(options);
-  scope.defer(() => { mounted.region.destroy(); });
-  mounted.region.show(view, options.showOptions);
+  const { mounted, scope, region, removeDOM } = mountRegion(options);
+  scope.defer(() => { region.destroy(); });
+  try { region.show(view, options.showOptions); } catch (error) { removeDOM(); throw error; }
   return Object.assign(mounted, { view });
 }
 
@@ -75,10 +80,12 @@ export function mountView<View extends SupportedView>(view: View, options: ViewM
 export function mountApplication<App extends ApplicationInstance<object, unknown>>(
   createApplication: (region: RegionInstance) => App, options: ApplicationMountOptions = {}
 ): MountedApplication<App> {
-  const { mounted, scope } = mountRegion(options);
-  const app = createApplication(mounted.region);
-  // These are dependent teardown steps: a core failure aborts this group.
-  scope.defer(() => { app.destroy(); mounted.region.destroy(); });
-  const ready = app.start({ ...options.startOptions, region: mounted.region });
-  return Object.assign(mounted, { app, ready });
+  const { mounted, scope, region, removeDOM } = mountRegion(options);
+  try {
+    const app = createApplication(region);
+    // These are dependent teardown steps: a core failure aborts this group.
+    scope.defer(() => { app.destroy(); region.destroy(); });
+    const ready = app.start({ ...options.startOptions, region });
+    return Object.assign(mounted, { app, ready });
+  } catch (error) { removeDOM(); throw error; }
 }
