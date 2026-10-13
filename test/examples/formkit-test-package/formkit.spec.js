@@ -8,7 +8,11 @@ import { createTestScope, mountApplication, mountView } from '@mnjs/test';
 
 let scope;
 beforeEach(() => { scope = createTestScope(); });
-afterEach(async() => { await scope.cleanup(); vi.restoreAllMocks(); });
+afterEach(async() => {
+  const previous = scope;
+  scope = undefined;
+  try { await previous?.cleanup(); } finally { vi.restoreAllMocks(); }
+});
 
 const profile = { name: 'Ada', email: 'ada@example.test' };
 function createForm(options = {}) {

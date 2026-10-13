@@ -20,4 +20,21 @@ mountApplication(() => new runtime.Application(), { regionClass: runtime.Region 
 const scope = createTestScope();
 scope.own(editor);
 scope.defer(async () => {});
+scope.defer(() => true);
+scope.defer(() => 1);
+scope.defer(async () => 'ignored');
+scope.own({ cleanup: () => false });
+scope.own({ cleanup: async () => 1 });
+// @ts-expect-error Mount identities are fixed; use region.show() to replace a View.
+editor.region = app.region;
+// @ts-expect-error The original mounted View is a readonly identity.
+editor.view = new Editor();
+// @ts-expect-error The helper owns the original container.
+editor.container = document.body;
+// @ts-expect-error The original slot cannot be reassigned.
+editor.slot = document.createElement('div');
+// @ts-expect-error The original Application is a readonly identity.
+app.app = app.app;
+// @ts-expect-error Readiness always refers to the initial start attempt.
+app.ready = Promise.resolve(true);
 void [text, el, exactView, result, ready, exactApp];

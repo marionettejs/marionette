@@ -6,7 +6,7 @@ import { ProfileFeature, ProfileForm } from './fixtures.js';
 
 let scope;
 beforeEach(() => { scope = createTestScope(); });
-afterEach(async() => { await scope.cleanup(); });
+afterEach(() => { const previous = scope; scope = undefined; return previous?.cleanup(); });
 
 describe('profile feature and form', () => {
   it('validates, focuses the missing field and saves using semantic queries', async() => {

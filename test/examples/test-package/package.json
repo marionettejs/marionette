@@ -11,21 +11,21 @@
     "test:consumer": "node --import ./dom.js consumer.mjs && node --import ./dom.js consumer.cjs && tsc -p tsconfig.json"
   },
   "dependencies": {
-    "marionette": "5.0.0",
-    "@mnjs/test": "file:../../../packages/test"
+    "@mnjs/test": "file:../../../packages/test",
+    "marionette": "5.0.0"
   },
   "devDependencies": {
+    "@cypress/mount-utils": "4.0.0",
+    "@cypress/vite-dev-server": "8.0.0",
     "@playwright/test": "1.63.0",
     "@testing-library/dom": "10.4.1",
     "@testing-library/user-event": "14.6.1",
     "@vitest/browser-playwright": "5.0.3",
     "cypress": "16.1.1",
     "jsdom": "30.1.1",
-    "vite": "8.0.3",
-    "vitest": "5.0.3",
-    "@cypress/mount-utils": "4.0.0",
-    "@cypress/vite-dev-server": "8.0.0",
     "playwright": "1.63.0",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "vite": "8.0.16",
+    "vitest": "5.0.3"
   }
 }

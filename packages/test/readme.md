@@ -1,16 +1,14 @@
 # @mnjs/test
 
-A small, runner-independent test toolkit for Marionette **5.x**. It mounts actual
-Views and Applications through a real Region and cleans explicitly owned resources.
-It supplies no assertions, query language, event simulator, runner or global hooks.
-Production Marionette has no dependency on this optional package and no added runtime cost.
-Install it as a development dependency alongside stable Marionette 5.
+Mount real Marionette **5.x** Views and Applications, then release resources your
+test owns. The package exports `mountView`, `mountApplication`, and
+`createTestScope`. Use your runner's assertions and hooks, Testing Library queries,
+or browser Locators alongside them. Mounting requires a DOM; importing the package
+and creating a cleanup scope do not. Production Marionette does not depend on it.
 
-This is an unpublished initial `0.1.0` artifact. Use the local tarball produced by
-`npm pack ./packages/test --ignore-scripts` after `npm run build`; registry installation
-of `@mnjs/test` has not been verified. The integration fixture uses published
-Marionette `5.0.0`; lifecycle source was compared with canonical commit
-`0f2284ad4bbfe8c82ce82714471697a68c2acaeb`, rather than inferred from RC docs.
+This initial `0.1.0` package is unpublished. From this repository, run `npm run build`
+and `npm pack ./packages/test --ignore-scripts`, then install the resulting tarball
+as a development dependency alongside Marionette 5.
 
 ## Mount a View
 
@@ -21,51 +19,33 @@ import { mountView } from '@mnjs/test';
 const Greeting = View.extend({ template: () => '<h1>Hello</h1>' });
 const mounted = mountView(new Greeting());
 try {
-  // Actual instances and elements work with your existing assertions and queries.
   console.log(mounted.view.isAttached(), mounted.el.textContent);
 } finally {
   await mounted.cleanup();
 }
 ```
 
-`mountView(view, options?)` transfers the supplied live, unowned View to a newly
-created Region, using `Region.show(view, showOptions)`. The returned `view` is the
-original instance. `region.currentView` and the live `el` getter reflect replacement.
-`el` is `undefined` when empty, detached through `detachView()`, or cleaned.
+`mountView(view, options?)` transfers a live, unowned View to a new Region. The
+handle exposes the original `view`, `region`, `container`, and `slot`. Its live `el`
+getter follows `region.currentView`, including replacements, and is `undefined`
+when empty. Handle identities are readonly in TypeScript; the actual View and
+Region retain their public methods. Use `mounted.region.show(nextView)` to replace
+the root. Cleanup destroys the current View and its owned children. Calling
+`region.detachView()` transfers that View back to you to destroy or adopt elsewhere.
 
 | Mount option | Behavior |
 | --- | --- |
-| `container: Element` | Borrow the existing host. Append a new slot; preserve existing siblings. Never remove or reparent the host. |
-| `attachTo: Element` | Append a helper-created host to this destination. |
-| `attachTo: null` | Create a detached host with a parented Region slot; replacement still works. |
-| `document: Document` | Choose the document when there is no supplied container or destination. |
-| `regionClass` | Use your isolated runtime's `Region`; defaults to the standard `Region`. |
-| `showOptions` | View-only initial `Region.show` options, including `replaceElement`. These are not persistent Region defaults. |
+| `container` | Borrow this Element; append a slot and preserve the host and siblings. Takes precedence over `attachTo`. |
+| `attachTo` | Append a helper-created host to this Element; `null` keeps it detached. Defaults to the chosen document's body. |
+| `document` | Fallback Document, after `container.ownerDocument` and `attachTo.ownerDocument`, before the global document. |
+| `regionClass` | Defaults to Marionette's Region. Pass `runtime.Region` for an isolated `createMarionette()` runtime. |
+| `showOptions` | View-only options for the initial `Region.show`, including `replaceElement`. |
 
-Without a container, attachment defaults to the chosen document's body. The document
-is inferred from `container`, then `attachTo`, then `document`, then the global document.
-A container takes precedence over `attachTo`. The returned `container` is the host;
-`slot` is the original Region placeholder (temporarily unparented during replacement).
-Scope semantic queries to `container`, especially after replacement.
-
-The Region destroys its current View, including its owned children, on cleanup.
-Replacing a root follows normal Marionette destruction. Calling
-`mounted.region.detachView()` transfers that View back to the caller; the caller
-must destroy it or pass it to another owner. Borrowed model, collection, state,
-channels and destination elements are not adopted by the helper.
-
-For an isolated runtime, pass its Region explicitly:
-
-```js
-import { createMarionette } from 'marionette';
-import { mountView } from '@mnjs/test';
-const runtime = createMarionette();
-const mounted = mountView(new runtime.View({ template: () => 'Isolated' }), {
-  regionClass: runtime.Region,
-  attachTo: null,
-});
-await mounted.cleanup();
-```
+`container` is the host; `slot` is the original Region placeholder, temporarily
+unparented during replacement. Scope DOM queries to `container`. Ownership is
+captured at mount time; later changes to options or handle properties cannot
+redirect cleanup. Borrowed data, channels, providers and destination elements
+remain borrowed.
 
 ## Mount an Application
 
@@ -74,8 +54,9 @@ import { Application, View } from 'marionette';
 import { mountApplication } from '@mnjs/test';
 
 const Feature = Application.extend({
-  prepareStart(options, { signal }) {
-    return fetch('/profile.json', { signal }).then(response => response.json());
+  async prepareStart(options, { signal }) {
+    const response = await fetch('/profile.json', { signal });
+    return response.json();
   },
   onStart(app, options, profile) {
     this.showView(new View({ template: () => profile.name }));
@@ -83,155 +64,86 @@ const Feature = Application.extend({
 });
 const mounted = mountApplication(region => new Feature({ region }));
 try {
-  const started = await mounted.ready;
-  if (!started) throw new Error('Feature startup was cancelled');
+  if (!await mounted.ready) throw new Error('Startup was cancelled');
   console.log(mounted.app.getView(), mounted.el);
 } finally {
   await mounted.cleanup();
 }
 ```
 
-The factory must return a **fresh, unstarted Application** owned by this mount.
-It may use the supplied Region in its constructor. The helper also supplies that
-Region through initial `start()` options. It cannot verify pending startup through
-public APIs; returning an existing, active, pending or destroyed Application violates
-the factory contract. `startOptions` forwards other initial startup arguments.
-Pass the matching `regionClass` when creating an isolated Application.
+The factory must return a **fresh, unstarted Application**. The helper passes its
+Region to the factory and initial `start()`; `startOptions` forwards other startup
+options. The returned handle adds `app` and `ready` to the mount fields above.
 
-The mount returns immediately with `app`, `region`, `container`, `slot`, `el`, `ready`
-and `cleanup()`. This makes pending preparation accessible: call `app.stop()` or
-`await cleanup()` to cancel it. `ready` is the **actual initial `start()` Promise**:
-`true` for that attempt's successful start, `false` for cancellation, and rejection
-for failure. It does not change after a later restart. Await `app.restart()` explicitly.
-An `onStart` throw rejects after activation; cleanup remains explicit.
+`ready` is the actual initial start Promise: `true` for success, `false` for
+cancellation, rejection for failure. It remains the initial attempt after restart;
+await `app.restart()` explicitly. Cleanup begins in the calling turn and cancels
+pending preparation before destroying the Application and helper Region. You can
+also call `app.stop()` while preparation is pending.
 
-Readiness does not await child startup unless preparation explicitly awaits it.
-It does not await Promises returned by notification hooks, rendering effects,
-network saves or every future task. Observe your feature's own completion boundary
-or wait for its user-visible result. An aborted preparation signal is not a lifetime
-signal after a successful start. Required children started in preparation need
-explicit cancellation coordination; stable v5's Application docs show this policy.
-
-Cleanup starts disposal in the calling turn, cancels pending startup, then destroys
-the Application and helper Region and removes its owned DOM.
-Application destruction owns registered children and its prepared/displayed Views.
-Resources the Application itself borrows remain borrowed. The helper does not reset
-shared runtime providers, Radio channels, runners, timers or global state.
+Readiness covers preparation, including children that preparation explicitly awaits.
+It does not await asynchronous notification hooks, later saves or every future task.
+Observe those operations' own completion boundaries. Coordinate cancellation of
+required child startup explicitly; a preparation signal is not a lifetime signal
+after startup succeeds.
 
 ## Own a test's resources
 
 ```js
 import { afterEach, beforeEach } from 'vitest';
-import { createTestScope, mountView } from '@mnjs/test';
+import { createTestScope } from '@mnjs/test';
+
 let scope;
 beforeEach(() => { scope = createTestScope(); });
-afterEach(async () => { await scope.cleanup(); });
+afterEach(() => {
+  const previous = scope;
+  scope = undefined;
+  return previous?.cleanup();
+});
 
-// Inside a test:
-// const mounted = scope.own(mountView(new MyView()));
+// In a test: scope.own(mountView(new MyView()));
 // scope.defer(() => controller.abort());
-// scope.defer(async () => server.close());
 ```
 
-`own(resource)` registers its `cleanup()` and returns the same resource.
-`defer(callback)` registers an explicit synchronous or asynchronous disposer.
-Disposers are awaited one at a time in reverse registration order. Cleanup is
-idempotent: repeated calls return the same Promise, including the same rejection;
-registration after cleanup begins throws. Do not await that same scope's cleanup
-from one of its own disposers.
+`own(resource)` registers `resource.cleanup()` and returns the same resource.
+`defer(callback)` registers a disposer. Returned values are ignored and promises
+are awaited, one callback at a time in reverse registration order. Cleanup returns
+the same Promise on every call. Registration after cleanup begins throws; create
+a fresh scope for the next test. A disposer must not await its own scope's cleanup.
 
-The scope reports encountered failures in an `AggregateError.errors` array in
-execution order while releasing other registered resources. This is a helper-scope
-contract, **not framework rollback or recovery**. A synchronous Marionette callback
-failure still aborts its individual operation. A partial framework instance is not
-repaired or retried by repeated cleanup. Application and Region teardown are one
-dependent group: an Application teardown failure skips subsequent Region destruction,
-while independently owned fixture DOM is still removed. Render/construction callbacks must work;
-failed synchronous mounting does not promise rollback or a usable partial handle.
+Always await or return cleanup so failures reach your runner. An
+`AggregateError.errors` array preserves encountered failures in execution order
+while other registered disposers run. Application and Region destruction form one
+dependent operation: an Application teardown failure skips Region destruction;
+helper-owned fixture DOM is still removed. Partial framework operations are not retried.
 
-Always await cleanup so errors fail the test. This toolkit detects no universal
-leaks. Explicitly register test-owned listeners, abort controllers, mock servers,
-subscriptions and connections; use runner-specific timer restoration and separate
-retention tooling where appropriate.
+A synchronous mount failure removes only the helper-created slot and host, then
+rethrows the original error. It does not destroy or repair partially initialized
+framework objects. With a borrowed host and `replaceElement`, a failed attach
+callback can leave the View's own element in that host. Async startup failure
+rejects `ready`; cleanup of the returned handle remains your responsibility.
+Register your own listeners, subscriptions and servers, and restore runner mocks
+and timers at their chosen lifetime. There is no universal leak detector.
 
-## Executable integrations
+## Runner examples and compatibility
 
-The repository's [test/examples/test-package](https://github.com/marionettejs/marionette/tree/codex/mnjs-test-canonical-20261012/test/examples/test-package) directory contains the complete
-locked examples. It imports public `@mnjs/test` exports and stable Marionette 5.0.0.
-From the checkout, build first, then run:
+The [locked examples](https://github.com/marionettejs/marionette/tree/codex/mnjs-test-canonical-20261012/test/examples/test-package)
+include setup and commands. Runners provide test execution and assertions;
+Testing Library supplies DOM queries and simulated interactions; Playwright and
+Cypress automate browsers. Those roles remain outside this package.
 
-```sh
-npm run build
-npm --prefix test/examples/test-package ci --ignore-scripts --install-links
-npm --prefix test/examples/test-package test
-npm --prefix test/examples/test-package exec -- playwright install chromium
-npm --prefix test/examples/test-package run test:browser
-npm --prefix test/examples/test-package run test:playwright
-npm --prefix test/examples/test-package exec -- cypress install
-npm --prefix test/examples/test-package run test:cypress
-```
+| Environment | Evidence and example |
+| --- | --- |
+| Vitest + JSDOM | Verified with Testing Library/user-event in [form.spec.js](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/form.spec.js). |
+| Vitest Browser + Playwright | Same form cases verified in Chromium; [configuration](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/vitest.config.js). |
+| Playwright Test | Verified browser gallery and native input/focus checks; [specs](https://github.com/marionettejs/marionette/tree/codex/mnjs-test-canonical-20261012/test/examples/test-package/playwright). |
+| Cypress component tests | Native example corrected; execution is held and unverified. [Config](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress.config.js), [support](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/support/component.js), [HTML](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/support/component-index.html), [specs](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/component/profile.cy.js). |
+| Jest, Mocha, Node test runner and other runners | Unverified. Supply a DOM for mounting and await cleanup through your runner's hooks. |
 
-Browser binaries and operating-system dependencies must be available. The fixture
-is development/test infrastructure; Cypress is not a package dependency.
-
-- **Vitest DOM + Testing Library/user-event:** `form.spec.js` uses scoped semantic
-  queries, validation/focus, keyboard submission, save retry, initial readiness and
-  cleanup during a pending save. The same spec runs in **Vitest Browser Mode** with
-  the Playwright provider. `user-event` simulates interactions; real keyboard/focus
-  coverage additionally lives in the Playwright tests.
-- **Playwright:** `gallery/gallery.js` implements the current framework-neutral
-  `window.mount({ story, props })` / `window.unmount()` protocol. The installed
-  `@playwright/test` **1.63.0** implements `mount(storyId, props)`. Same-story updates
-  preserve the actual View and its draft; unknown stories reject. Browser objects
-  stay in the browser, and Node tests use Locators. Older Playwright installations
-  should use explicit `page.goto()` and story selection until upgraded; do not
-  assume the gallery fixture exists. See the official
-  [component guide](https://playwright.dev/docs/test-components).
-- **Cypress component tests:** the [config](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress.config.js)
-  uses Cypress **16.1.1** and **@cypress/vite-dev-server 8.0.0** through the public
-  custom dev-server function. Marionette mounts directly into `[data-cy-root]`
-  using **@cypress/mount-utils 4.0.0**, with no Vue wrapper or dependency.
-  The [support file](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/support/component.js)
-  registers `cy.mountMarionette(() => new MyView())` and yields the actual
-  `mountView` handle. This is a repository example command, not an `@mnjs/test`
-  export or subpath; installing the package does not register it. Reuse the
-  support file, config and [component HTML](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/support/component-index.html)
-  in your Cypress project. The helper owns its View, Region and slot; Cypress owns
-  the root container. Each test owns one mount: a second command call rejects;
-  use `mounted.region.show(nextView)` for deliberate View replacement. A single
-  `afterEach` captures and clears the handle, then awaits its cleanup, including
-  when cleanup rejects. The command does not silently dispose an earlier mount.
-  See the
-  [component specs](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/component/profile.cy.js).
-  This native pattern follows [app-frontend](https://github.com/RoundingWell/app-frontend/blob/1f5dc8a5f88253fe21144756d055a07c8aa02d55/test/support/component.js);
-  it does not require a named Marionette framework preset.
-  Cypress execution is held, so these component specs (including Region replacement)
-  remain unverified in Cypress. Other runner checks do not replace that evidence.
-  See Cypress's [mount documentation](https://docs.cypress.io/api/commands/mount).
-- **Cypress E2E:** run the real application's dev/build server, `cy.visit()` it and
-  assert user outcomes. E2E tests do not import live browser Views into the Cypress
-  Node process. Use `cy.intercept()` for HTTP scenarios. This recipe is guidance;
-  this fixture executes the component suite only.
-
-## Broader compatibility recipes
-
-These are **untested compatibility guidance**, not additional supported adapters:
-
-- **Jest / Node test runner:** establish a DOM before importing Marionette, then use
-  the same mount API. Register `await scope.cleanup()` in `afterEach` or `t.after`.
-  Restore the DOM and runner mocks yourself. Node module import alone does not
-  require a DOM; mounting does.
-- **MSW:** own the mock server/worker at the suite's chosen lifetime, reset handlers
-  between tests, and supply normal `fetch` to Application preparation. Await
-  `ready` for initial HTTP outcomes; observe separate save outcomes independently.
-- **axe-core:** run axe against the mounted host in a browser. Add actual Tab,
-  Shift+Tab, Enter, Escape and focus-return assertions appropriate to the feature;
-  an axe pass alone does not validate keyboard behavior.
-- **Visual regression:** Playwright supplies `toHaveScreenshot()` comparisons.
-  Choose deterministic story state and wait for fonts/assets/domain completion.
-  Cypress screenshot capture needs a separate comparison plugin or service;
-  capture alone does not compare images. No visual baseline is claimed here.
-
-These fixtures are purpose-built local forms, **not FormKit integration** and not a
-customer-forms migration. FormKit dogfooding requires an owner-approved tested
-artifact transfer from its separate container, with commit/version and checksum.
+The Cypress support file registers the example command `cy.mountMarionette()`;
+this is not a package export. It mounts Marionette directly, without Vue, and uses
+one mount per test with one `afterEach` cleanup owner. A duplicate command rejects;
+replace Views through the returned Region. Browser instances stay in the browser;
+Playwright's Node tests use Locators. See the
+[verification record](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/VERIFICATION.md)
+for exact versions, checks and limitations.
