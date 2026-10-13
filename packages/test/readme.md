@@ -197,13 +197,15 @@ is development/test infrastructure; Cypress is not a package dependency.
   export or subpath; installing the package does not register it. Reuse the
   support file, config and [component HTML](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/support/component-index.html)
   in your Cypress project. The helper owns its View, Region and slot; Cypress owns
-  the root container. Cleanup is awaited after each test and before a repeated
-  mount. Before the next test, an awaited hook disposes any remaining mount and
-  then clears the Cypress-owned container. See the
+  the root container. Each test owns one mount: a second command call rejects;
+  use `mounted.region.show(nextView)` for deliberate View replacement. A single
+  `afterEach` captures and clears the handle, then awaits its cleanup, including
+  when cleanup rejects. The command does not silently dispose an earlier mount.
+  See the
   [component specs](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/component/profile.cy.js).
   This native pattern follows [app-frontend](https://github.com/RoundingWell/app-frontend/blob/1f5dc8a5f88253fe21144756d055a07c8aa02d55/test/support/component.js);
   it does not require a named Marionette framework preset.
-  Cypress execution is held, so these component specs (including repeated mounting)
+  Cypress execution is held, so these component specs (including Region replacement)
   remain unverified in Cypress. Other runner checks do not replace that evidence.
   See Cypress's [mount documentation](https://docs.cypress.io/api/commands/mount).
 - **Cypress E2E:** run the real application's dev/build server, `cy.visit()` it and
