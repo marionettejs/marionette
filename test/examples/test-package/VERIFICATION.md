@@ -2,12 +2,16 @@
 
 ## Native Cypress example correction — 2026-10-13
 
-The example now follows app-frontend's native container and awaited teardown
+The example now follows app-frontend's native container
 pattern, using `@cypress/mount-utils` 4.0.0 and the public custom dev-server
 function from `@cypress/vite-dev-server` 8.0.0. Vue and `@cypress/vue` were removed
 from its manifest and lock. Helper runtime source and package exports are unchanged;
 `cy.mountMarionette` remains an example command registered by the linked support
-file, not a package export. The updated package README changes the tarball hash;
+file, not a package export. Paul's subsequent ownership correction uses one mount
+per test and one `afterEach` cleanup owner, with its handle cleared even when
+cleanup rejects. Duplicate command calls reject; intentional replacement uses
+the returned Region. There is no before-test or hidden replacement cleanup.
+The updated package README changes the tarball hash;
 the artifact hash in the older record below describes its historical README.
 
 On the correction's working patch, full build/declaration checks and lint passed.
@@ -17,7 +21,8 @@ stages, including ESM/CJS imports/runtime, strict types, four JSDOM cases,
 four Vitest Browser cases and three Playwright gallery cases using existing system
 Chromium 154.0.8037.57. Configuration import and a static Vite support-module build
 passed with no Vue modules. Independent source/lock/ownership review accepted the
-correction. These are distinct from Cypress execution: Cypress remains held, and
+initial native correction; a subsequent source review also accepted the single-owner
+follow-up. These are distinct from Cypress execution: Cypress remains held, and
 its updated component specs have not been run. No binary download or alternate
 runner simulation was used to claim a Cypress result.
 

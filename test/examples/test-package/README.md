@@ -17,11 +17,14 @@ and yields the actual `mountView` handle. See the [component specs](cypress/comp
 This command is repository example code, not an `@mnjs/test` export or subpath;
 reuse these support/config files in your own project to register it.
 
-The native container and awaited lifecycle pattern follows
+The native container pattern follows
 [app-frontend's Cypress support](https://github.com/RoundingWell/app-frontend/blob/1f5dc8a5f88253fe21144756d055a07c8aa02d55/test/support/component.js).
 The pinned Cypress 16/Vite-server 8 fixture uses the custom dev-server function
-instead of a named Marionette framework preset. The support code awaits cleanup
-before replacing a mount, after each test and before clearing the next test's root.
+instead of a named Marionette framework preset. Each test owns one mount. A second
+`cy.mountMarionette()` call rejects; intentional View replacement uses the returned
+`mounted.region.show(nextView)`. One `afterEach` hook captures and clears the handle,
+then returns its cleanup Promise, including when cleanup rejects. There is no
+before-test cleanup or automatic replacement teardown inside the command.
 Cypress execution is currently held; source inspection and other runners do not
 certify these component specs.
 

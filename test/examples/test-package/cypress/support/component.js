@@ -1,28 +1,20 @@
-/* global afterEach, Cypress, cy */
+/* global afterEach, Cypress */
 import { getContainerEl, setupHooks } from '@cypress/mount-utils';
 import { mountView } from '@mnjs/test';
 
 let mounted;
-async function cleanup() {
-  await mounted?.cleanup();
+afterEach(() => {
+  const previous = mounted;
   mounted = undefined;
-}
-
-Cypress.on('run:start', () => {
-  if (Cypress.testingType !== 'component') { return; }
-  Cypress.on('test:before:run:async', async() => {
-    await cleanup();
-    getContainerEl().replaceChildren();
-  });
+  return previous?.cleanup();
 });
-afterEach(cleanup);
 
 // Cypress owns the container; the helper owns the View, Region and appended slot.
-Cypress.Commands.add('mountMarionette', createView => cy.then(async() => {
-  await cleanup();
+Cypress.Commands.add('mountMarionette', createView => {
+  if (mounted) { throw new Error('Call mountMarionette only once per test; use the returned Region to replace its View.'); }
   mounted = mountView(createView(), { container: getContainerEl() });
   return mounted;
-}));
+});
 
-// setupHooks' callback is synchronous; async disposal stays in the awaited hooks.
+// Component-test command restrictions; the single afterEach above owns disposal.
 setupHooks();
