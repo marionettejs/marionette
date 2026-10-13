@@ -12417,6 +12417,8 @@
     "packages/radio/src/index.ts": "24171247f65ecb3697629883abe9d248395b090d566ea70ac7c1b856d1cd7940",
     "packages/radio/src/radio.ts": "42a799d58d602c0fbbb4fcbc16170e1a89dad55c47d5f00ffaed69c8ee3d877f",
     "packages/radio/src/requests.ts": "68ccf97dbf79da12102c19d91bb9ba63a5fabe28866dd4a862de0df264747382",
+    "packages/test/src/index.ts": "f6ffa9d1125d02e812c6424f019c6d84abcd4dad885c08ee0b572290bea8ab06",
+    "packages/test/src/scope.ts": "c81f69624f45de1f7be47c3dc2ea37a1444b93fdec7ad91ca558cb9641a187b4",
     "packages/utils/src/bind-events.ts": "475fabcde622df0d6365ee6454c892ea75ebf95f11487ca074ce5508fe118a72",
     "packages/utils/src/bind-requests.ts": "4888ab0880961e2c8eaa131f91031f1dc0f1b39ab11907506bce94b3bb4f2870",
     "packages/utils/src/build-event-args.ts": "229567f225c14e49ec063898daa1ee40ccb7bc72813dd4324f10a921585d5ba6",
