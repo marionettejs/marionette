@@ -1,5 +1,28 @@
 # @mnjs/test verification and handoff
 
+## Native Cypress example correction — 2026-10-13
+
+The example now follows app-frontend's native container and awaited teardown
+pattern, using `@cypress/mount-utils` 4.0.0 and the public custom dev-server
+function from `@cypress/vite-dev-server` 8.0.0. Vue and `@cypress/vue` were removed
+from its manifest and lock. Helper runtime source and package exports are unchanged;
+`cy.mountMarionette` remains an example command registered by the linked support
+file, not a package export. The updated package README changes the tarball hash;
+the artifact hash in the older record below describes its historical README.
+
+On the correction's working patch, full build/declaration checks and lint passed.
+All 30 helper tests passed with 100% coverage: 38/38 lines, 22/22 branches,
+13/13 functions and 48/48 statements. The isolated packed consumer passed ten
+stages, including ESM/CJS imports/runtime, strict types, four JSDOM cases,
+four Vitest Browser cases and three Playwright gallery cases using existing system
+Chromium 154.0.8037.57. Configuration import and a static Vite support-module build
+passed with no Vue modules. Independent source/lock/ownership review accepted the
+correction. These are distinct from Cypress execution: Cypress remains held, and
+its updated component specs have not been run. No binary download or alternate
+runner simulation was used to claim a Cypress result.
+
+## Earlier verified checkpoints
+
 The record below is preserved source-owner evidence from the old environment.
 Current canonical verification on 2026-10-12 passed 2,144 tests across 147 files,
 with both helper modules at 100% in all four coverage metrics. Build, types,

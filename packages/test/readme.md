@@ -156,7 +156,7 @@ retention tooling where appropriate.
 
 ## Executable integrations
 
-The repository's `test/examples/test-package` directory contains the complete
+The repository's [test/examples/test-package](https://github.com/marionettejs/marionette/tree/codex/mnjs-test-canonical-20261012/test/examples/test-package) directory contains the complete
 locked examples. It imports public `@mnjs/test` exports and stable Marionette 5.0.0.
 From the checkout, build first, then run:
 
@@ -172,7 +172,7 @@ npm --prefix test/examples/test-package run test:cypress
 ```
 
 Browser binaries and operating-system dependencies must be available. The fixture
-is development/test infrastructure; Vue and Cypress are not package dependencies.
+is development/test infrastructure; Cypress is not a package dependency.
 
 - **Vitest DOM + Testing Library/user-event:** `form.spec.js` uses scoped semantic
   queries, validation/focus, keyboard submission, save retry, initial readiness and
@@ -187,14 +187,24 @@ is development/test infrastructure; Vue and Cypress are not package dependencies
   should use explicit `page.goto()` and story selection until upgraded; do not
   assume the gallery fixture exists. See the official
   [component guide](https://playwright.dev/docs/test-components).
-- **Cypress component tests:** `cypress.config.js` configures Cypress **16.1.1** with
-  its supported Vue/Vite dev server and `@cypress/vue` shell. The custom
-  `cy.mountMarionette()` command mounts Marionette inside that shell and returns
-  the actual handle; awaited hooks perform cleanup. Marionette is not a built-in
-  Cypress framework configuration. A custom command alone is insufficient; reuse
-  a supported host framework or provide a tested custom dev-server integration.
-  This environment's Cypress binary download was blocked, so these component specs
-  (including repeated mounting) have not been executed here.
+- **Cypress component tests:** the [config](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress.config.js)
+  uses Cypress **16.1.1** and **@cypress/vite-dev-server 8.0.0** through the public
+  custom dev-server function. Marionette mounts directly into `[data-cy-root]`
+  using **@cypress/mount-utils 4.0.0**, with no Vue wrapper or dependency.
+  The [support file](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/support/component.js)
+  registers `cy.mountMarionette(() => new MyView())` and yields the actual
+  `mountView` handle. This is a repository example command, not an `@mnjs/test`
+  export or subpath; installing the package does not register it. Reuse the
+  support file, config and [component HTML](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/support/component-index.html)
+  in your Cypress project. The helper owns its View, Region and slot; Cypress owns
+  the root container. Cleanup is awaited after each test and before a repeated
+  mount. Before the next test, an awaited hook disposes any remaining mount and
+  then clears the Cypress-owned container. See the
+  [component specs](https://github.com/marionettejs/marionette/blob/codex/mnjs-test-canonical-20261012/test/examples/test-package/cypress/component/profile.cy.js).
+  This native pattern follows [app-frontend](https://github.com/RoundingWell/app-frontend/blob/1f5dc8a5f88253fe21144756d055a07c8aa02d55/test/support/component.js);
+  it does not require a named Marionette framework preset.
+  Cypress execution is held, so these component specs (including repeated mounting)
+  remain unverified in Cypress. Other runner checks do not replace that evidence.
   See Cypress's [mount documentation](https://docs.cypress.io/api/commands/mount).
 - **Cypress E2E:** run the real application's dev/build server, `cy.visit()` it and
   assert user outcomes. E2E tests do not import live browser Views into the Cypress

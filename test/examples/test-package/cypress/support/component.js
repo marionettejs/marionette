@@ -1,23 +1,28 @@
-/* global beforeEach, afterEach, Cypress, cy */
-import { defineComponent, h, onMounted, ref } from 'vue';
-import { mount } from '@cypress/vue';
+/* global afterEach, Cypress, cy */
+import { getContainerEl, setupHooks } from '@cypress/mount-utils';
 import { mountView } from '@mnjs/test';
 
 let mounted;
-beforeEach(async() => { await mounted?.cleanup(); mounted = undefined; });
-afterEach(async() => { await mounted?.cleanup(); mounted = undefined; });
+async function cleanup() {
+  await mounted?.cleanup();
+  mounted = undefined;
+}
 
-// Cypress's supported Vue/Vite harness owns the shell; Marionette owns its children.
-Cypress.Commands.add('mountMarionette', createView => {
-  const Shell = defineComponent({
-    setup() {
-      const host = ref();
-      onMounted(() => { mounted = mountView(createView(), { container: host.value }); });
-      return () => h('div', { ref: host });
-    }
+Cypress.on('run:start', () => {
+  if (Cypress.testingType !== 'component') { return; }
+  Cypress.on('test:before:run:async', async() => {
+    await cleanup();
+    getContainerEl().replaceChildren();
   });
-  return cy.then(async() => {
-    await mounted?.cleanup();
-    mounted = undefined;
-  }).then(() => mount(Shell)).then(() => mounted);
 });
+afterEach(cleanup);
+
+// Cypress owns the container; the helper owns the View, Region and appended slot.
+Cypress.Commands.add('mountMarionette', createView => cy.then(async() => {
+  await cleanup();
+  mounted = mountView(createView(), { container: getContainerEl() });
+  return mounted;
+}));
+
+// setupHooks' callback is synchronous; async disposal stays in the awaited hooks.
+setupHooks();
