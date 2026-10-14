@@ -5,8 +5,8 @@ import { pathToFileURL } from 'node:url';
 
 // Run in the isolated, installed consumer. Recipes retain their public imports.
 const readme = readFileSync('node_modules/@mnjs/test/readme.md', 'utf8');
-function blocks(heading, language, count) {
-  const section = readme.split(`## ${heading}\n`)[1]?.split('\n## ')[0];
+function blocks(heading, language, count, level = 2) {
+  const section = readme.split(`${'#'.repeat(level)} ${heading}\n`)[1]?.split(new RegExp(`\\n#{1,${level}} `))[0];
   assert(section, `Missing README section: ${heading}`);
   const found = [...section.matchAll(new RegExp('```' + language + '\\n([\\s\\S]*?)\\n```', 'g'))]
     .map(match => match[1]);
@@ -14,9 +14,9 @@ function blocks(heading, language, count) {
   return found;
 }
 const neutral = [
-  ...blocks('Mount a View', 'js', 1),
-  ...blocks('Mount an Application', 'js', 2),
-  ...blocks('Own a test\'s resources', 'js', 1)
+  ...blocks('Mount a View', 'js', 1, 3),
+  ...blocks('Mount an Application', 'js', 2, 3),
+  ...blocks('Own a test\'s resources', 'js', 1, 3)
 ];
 for (const [index, source] of neutral.entries()) {
   const before = [...document.body.childNodes];
