@@ -49,7 +49,7 @@ describe('actual @mnjs/formkit through @mnjs/test', () => {
     await expect(form.submit()).resolves.toBe('invalid');
     expect(submit).not.toHaveBeenCalled();
     expect(document.activeElement).toBe(query.getByRole('textbox', { name: 'Name' }));
-    expect(form.getState().valid).toBe(false);
+    expect(form.getFormState().valid).toBe(false);
     await user.type(query.getByRole('textbox', { name: 'Name' }), 'Grace');
     await user.type(query.getByRole('textbox', { name: 'Email' }), 'grace@example.test');
     await expect(form.submit()).resolves.toBe('success');
@@ -108,12 +108,12 @@ describe('actual @mnjs/formkit through @mnjs/test', () => {
     await expect(form.submit()).resolves.toBe('error');
     expect(failures).toEqual([error]);
     expect(failures[0]).toBe(error);
-    expect(form.getState().errors).toEqual(['Unable to save.']);
+    expect(form.getFormState().errors).toEqual(['Unable to save.']);
     expect(within(mounted.container).getByText('Use another email.')).toBeDefined();
     expect(form.getValues()).toEqual(profile);
     await expect(form.submit()).resolves.toBe('success');
     expect(attempts).toBe(2);
-    expect(form.getState().errors).toEqual([]);
+    expect(form.getFormState().errors).toEqual([]);
   });
 
   it('reset cancels pending submission and restores the construction snapshot', async() => {
@@ -129,12 +129,12 @@ describe('actual @mnjs/formkit through @mnjs/test', () => {
     form.setValues({ name: 'Edited' });
     const submitting = form.submit();
     await expect(entered.promise).resolves.toEqual({ ...profile, name: 'Edited' });
-    expect(form.getState().submitting).toBe(true);
+    expect(form.getFormState().submitting).toBe(true);
     form.resetForm();
     expect(signal.aborted).toBe(true);
     await expect(submitting).resolves.toBe('cancelled');
     expect(form.getValues()).toEqual(profile);
-    expect(form.getState()).toMatchObject({ submitting: false, submitted: false, errors: [] });
+    expect(form.getFormState()).toMatchObject({ submitting: false, submitted: false, errors: [] });
     expect(within(mounted.container).getByRole('textbox', { name: 'Name' }).value).toBe('Ada');
     expect(resets).toEqual([profile]);
     pending.resolve('obsolete');

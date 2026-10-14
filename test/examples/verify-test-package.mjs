@@ -22,6 +22,7 @@ const env = {
   ...process.env,
   NPM_CONFIG_CACHE: process.env.NPM_CONFIG_CACHE ?? join(root, 'test/tmp/npm-cache'),
   NODE_PATH: '',
+  CYPRESS_INSTALL_BINARY: '0',
   NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --no-global-search-paths`,
   PATH: (process.env.PATH || '').split(delimiter).filter(path => !path.includes('node_modules')).join(delimiter)
 };
@@ -78,6 +79,10 @@ try {
     'assert.equal(path, resolve(`node_modules/${name}/package.json`)); console.log(`${name}: ${path}`); }']);
   run('versions', process.execPath, ['-e', 'const assert=require(\'node:assert/strict\');assert.equal(require(\'marionette/package.json\').version,\'5.0.0\');assert.equal(require(\'@mnjs/test/package.json\').version,\'0.1.0\');assert.equal(require(\'@playwright/test/package.json\').version,\'1.63.0\');console.log(JSON.stringify({marionette:require(\'marionette/package.json\').version,helper:require(\'@mnjs/test/package.json\').version,playwright:require(\'@playwright/test/package.json\').version}));']);
   run('import-without-dom', process.execPath, ['--input-type=module', '-e', 'import assert from \'node:assert/strict\';import * as esm from \'@mnjs/test\';import {createRequire} from \'node:module\';const cjs=createRequire(import.meta.url)(\'@mnjs/test\');assert.deepEqual(Object.keys(esm).sort(),[\'createTestScope\',\'mountApplication\',\'mountView\']);assert.deepEqual(Object.keys(cjs).sort(),Object.keys(esm).sort());await esm.createTestScope().cleanup();']);
+  cpSync(join(root, 'test/examples/optional-test-peers.mjs'), join(consumer, 'optional-test-peers.mjs'));
+  run('optional-peer-isolation', process.execPath, ['optional-test-peers.mjs']);
+  cpSync(join(root, 'test/examples/test-readme.mjs'), join(consumer, 'test-readme.mjs'));
+  run('readme-recipes', process.execPath, ['--import', './dom.js', 'test-readme.mjs']);
   runNpm('runtime-and-types', ['run', 'test:consumer']);
   runNpm('vitest-dom', ['test']);
   if (values.browser) {

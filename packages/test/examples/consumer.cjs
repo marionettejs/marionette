@@ -1,3 +1,5 @@
+const cypressAdapter = require('@mnjs/test/cypress');
+const { createGallery } = require('@mnjs/test/playwright');
 const assert = require('node:assert/strict');
 const { View, Application } = require('marionette');
 const { mountView, mountApplication } = require('@mnjs/test');
@@ -22,3 +24,7 @@ async function run() {
   console.log('Installed CommonJS: replacement, borrowed host and readiness passed.');
 }
 run().catch(error => { console.error(error); process.exitCode = 1; });
+
+assert.deepEqual(Object.keys(cypressAdapter).sort(), ['mount', 'mountApplication', 'setupCypress', 'unmount']);
+assert.equal(typeof createGallery, 'function');
+assert.equal(typeof globalThis.Cypress, 'undefined');

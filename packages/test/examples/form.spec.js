@@ -1,16 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { describe, expect } from 'vitest';
+import { test as it } from '@mnjs/test/vitest';
 import { within, waitFor } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
-import { createTestScope, mountApplication, mountView } from '@mnjs/test';
 import { ProfileFeature, ProfileForm } from './fixtures.js';
 
-let scope;
-beforeEach(() => { scope = createTestScope(); });
-afterEach(() => { const previous = scope; scope = undefined; return previous?.cleanup(); });
-
 describe('profile feature and form', () => {
-  it('validates, focuses the missing field and saves using semantic queries', async() => {
-    const mounted = scope.own(mountView(new ProfileForm()));
+  it('validates, focuses the missing field and saves using semantic queries', async({ mounts }) => {
+    const mounted = mounts.mountView(new ProfileForm());
     const query = within(mounted.container);
     const user = userEvent.setup({ document: mounted.container.ownerDocument });
     await user.click(query.getByRole('button', { name: 'Save profile' }));
@@ -26,12 +22,12 @@ describe('profile feature and form', () => {
     expect(mounted.view.savedProfile).toEqual({ name: 'Ada', email: 'ada@example.test' });
   });
 
-  it('shows a save failure, preserves the draft and supports retry', async() => {
+  it('shows a save failure, preserves the draft and supports retry', async({ mounts }) => {
     let attempt = 0;
-    const mounted = scope.own(mountView(new ProfileForm({
+    const mounted = mounts.mountView(new ProfileForm({
       profile: { name: 'Ada', email: 'ada@example.test' },
       async save(profile) { if (++attempt === 1) { throw new Error('Try again'); } return profile; }
-    })));
+    }));
     const query = within(mounted.container);
     const user = userEvent.setup();
     await user.click(query.getByRole('button', { name: 'Save profile' }));
@@ -41,12 +37,12 @@ describe('profile feature and form', () => {
     await waitFor(() => expect(query.getByRole('status').textContent).toBe('Profile saved.'));
   });
 
-  it('makes preparation readiness and cancellation observable', async() => {
+  it('makes preparation readiness and cancellation observable', async({ mounts }) => {
     const load = Promise.withResolvers();
     let signal;
-    const mounted = scope.own(mountApplication(() => new ProfileFeature({
+    const mounted = mounts.mountApplication(() => new ProfileFeature({
       loadProfile(context) { signal = context.signal; return load.promise; }
-    })));
+    }));
     expect(mounted.el).toBeUndefined();
     mounted.app.stop();
     await expect(mounted.ready).resolves.toBe(false);
@@ -56,13 +52,13 @@ describe('profile feature and form', () => {
     expect(mounted.el).toBeUndefined();
   });
 
-  it('mounts the prepared form and cancels its distinct pending save on cleanup', async() => {
+  it('mounts the prepared form and cancels its distinct pending save on cleanup', async({ mounts }) => {
     const pendingSave = Promise.withResolvers();
     let saveSignal;
-    const mounted = scope.own(mountApplication(() => new ProfileFeature({
+    const mounted = mounts.mountApplication(() => new ProfileFeature({
       async loadProfile() { return { name: 'Ada', email: 'ada@example.test' }; },
       save(profile, { signal }) { saveSignal = signal; return pendingSave.promise; }
-    })));
+    }));
     await expect(mounted.ready).resolves.toBe(true);
     const form = mounted.app.getView();
     const query = within(mounted.container);

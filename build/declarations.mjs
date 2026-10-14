@@ -16,6 +16,7 @@ rmSync(esm, { recursive: true, force: true });
 rmSync(cjs, { recursive: true, force: true });
 execFileSync(process.execPath, [join(root, 'node_modules/typescript/bin/tsc'),
   '-p', join(packageRoot, 'tsconfig.declarations.json')], { stdio: 'inherit' });
+if (packageName === 'test') { cpSync(join(packageRoot, 'types/cypress.d.ts'), join(esm, 'cypress.d.ts')); }
 if (!packageName) { cpSync(join(root, 'src/version.d.ts'), join(esm, 'version.d.ts')); }
 
 // Published declarations use JavaScript imports in separate ESM and CommonJS scopes.

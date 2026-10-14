@@ -11,6 +11,8 @@ export interface MountOptions {
   /** Defaults to the chosen document's body. null creates a detached host. */
   attachTo?: Element | null;
   document?: Document;
+  /** Replace the slot with each View root; useful for direct-child layout. */
+  replaceElement?: boolean;
   /** Use the matching runtime's Region for isolated Marionette instances. */
   regionClass?: RegionConstructor;
 }
@@ -32,11 +34,13 @@ export interface MountedView<View extends SupportedView> extends MountedRegion {
 }
 
 export interface ApplicationMountOptions extends MountOptions {
+  /** Defaults to true. false leaves startup to the caller and resolves ready false. */
+  start?: boolean;
   startOptions?: Omit<ApplicationStartOptions, 'region'> & { region?: never };
 }
 export interface MountedApplication<App> extends MountedRegion {
   readonly app: App;
-  /** Initial start only: true means started, false means cancelled; failure rejects. */
+  /** Initial start only: true means started, false means skipped/cancelled; failure rejects. */
   readonly ready: Promise<boolean>;
 }
 
@@ -54,7 +58,7 @@ function mountRegion(options: MountOptions) {
   try {
     container.appendChild(slot);
     if (!suppliedContainer) { (attachTo === undefined ? doc.body : attachTo)?.appendChild(container); }
-    region = new RegionClass({ el: slot });
+    region = new RegionClass({ el: slot, ...(options.replaceElement === undefined ? {} : { replaceElement: options.replaceElement }) });
   } catch (error) { removeDOM(); throw error; }
   const scope = createTestScope();
   scope.defer(removeDOM);
@@ -85,7 +89,7 @@ export function mountApplication<App extends ApplicationInstance<object, unknown
     const app = createApplication(region);
     // These are dependent teardown steps: a core failure aborts this group.
     scope.defer(() => { app.destroy(); region.destroy(); });
-    const ready = app.start({ ...options.startOptions, region });
+    const ready = options.start === false ? Promise.resolve(false) : app.start({ ...options.startOptions, region });
     return Object.assign(mounted, { app, ready });
   } catch (error) { removeDOM(); throw error; }
 }

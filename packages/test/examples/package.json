@@ -8,7 +8,7 @@
     "test:playwright": "playwright test",
     "test:cypress": "cypress run --component --browser electron",
     "dev": "vite --host 127.0.0.1 --port 4187 --strictPort",
-    "test:consumer": "node --import ./dom.js consumer.mjs && node --import ./dom.js consumer.cjs && tsc -p tsconfig.json"
+    "test:consumer": "node --import ./dom.js consumer.mjs && node --import ./dom.js consumer.cjs && tsc -p tsconfig.json && tsc -p cypress/tsconfig.json"
   },
   "dependencies": {
     "@mnjs/test": "file:..",

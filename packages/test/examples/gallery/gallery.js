@@ -1,25 +1,20 @@
-import { mountApplication, mountView } from '@mnjs/test';
+import { createGallery } from '@mnjs/test/playwright';
 import { ProfileFeature, ProfileForm } from '../fixtures.js';
 
-const root = document.querySelector('#root');
-let mounted;
-let currentStory;
-window.unmount = async() => {
-  await mounted?.cleanup();
-  mounted = undefined;
-  currentStory = undefined;
-};
-window.mount = async({ story, props = {} }) => {
-  if (!['profile/Editable', 'profile/Prepared'].includes(story)) { throw new Error(`Unknown story: ${story}`); }
-  if (mounted && currentStory === story) {
-    (mounted.view ?? mounted.app.getView()).setTitle(props.title);
-    return;
+const gallery = createGallery({
+  'profile/Editable'(props = {}, mounts) {
+    const mounted = mounts.mountView(new ProfileForm({ profile: { name: 'Ada', email: 'ada@example.test' } }));
+    mounted.view.setTitle(props.title);
+    return { update(next = {}) { mounted.view.setTitle(next.title); } };
+  },
+  async 'profile/Prepared'(props = {}, mounts) {
+    const mounted = mounts.mountApplication(region => new ProfileFeature({
+      region, async loadProfile() { return { name: 'Ada', email: 'ada@example.test' }; }
+    }));
+    if (!await mounted.ready) { throw new Error('Story startup cancelled'); }
+    mounted.app.getView().setTitle(props.title);
+    return { update(next = {}) { mounted.app.getView().setTitle(next.title); } };
   }
-  await window.unmount();
-  const profile = { name: 'Ada', email: 'ada@example.test' };
-  mounted = story === 'profile/Editable' ? mountView(new ProfileForm({ profile }), { container: root }) :
-    mountApplication(() => new ProfileFeature({ async loadProfile() { return profile; } }), { container: root });
-  if (mounted.ready && !await mounted.ready) { throw new Error('Story startup cancelled'); }
-  (mounted.view ?? mounted.app.getView()).setTitle(props.title);
-  currentStory = story;
-};
+}, { container: document.querySelector('#root') });
+
+Object.assign(window, gallery);

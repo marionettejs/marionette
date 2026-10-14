@@ -13,6 +13,11 @@ const Feature = Application.extend({ result() { return 7; } });
 const app = mountApplication(region => new Feature({ region }), { startOptions: { account: 7 } });
 const result: number = app.app.result();
 const ready: Promise<boolean> = app.ready;
+const shell = mountApplication(region => new Feature({ region }), { start: false, replaceElement: true });
+const skipped: Promise<boolean> = shell.ready;
+// @ts-expect-error Startup choice must be a boolean.
+mountApplication(() => new Feature(), { start: 'manual' });
+void skipped;
 const exactApp: MountedApplication<InstanceType<typeof Feature>> = app;
 // @ts-expect-error The mount chooses the destination; callers cannot override it.
 mountApplication(() => new Feature(), { startOptions: { region: app.region } });
@@ -40,3 +45,7 @@ app.app = app.app;
 // @ts-expect-error Readiness always refers to the initial start attempt.
 app.ready = Promise.resolve(true);
 void [text, el, exactView, result, ready, exactApp];
+
+// @ts-expect-error Neutral imports do not introduce optional Cypress globals.
+let absentRunner: Cypress.Chainable;
+void absentRunner;

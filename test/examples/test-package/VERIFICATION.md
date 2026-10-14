@@ -1,5 +1,60 @@
 # @mnjs/test verification and handoff
 
+## Optional runner integrations — 2026-10-14
+
+The unpublished package now exposes `/cypress`, `/playwright` and ESM-only
+`/vitest` entries alongside the neutral helpers. Runner contexts own their mounts
+and project disposers. Every mount begins cancellation before asynchronous project
+cleanup is awaited. Reentrant teardown returns the already-published completion
+promise. Neutral `start: false` leaves Application startup to the caller;
+`replaceElement` sets the Region default without overriding a custom Region class
+when omitted. Runner contexts default to direct-child rendering.
+
+Cypress setup and command registration are explicit. Queued factories await prior
+cleanup; Application mounting requires a startup choice. The genuine mount-utils
+hook callback does not await cleanup, so asynchronous disposal belongs to returned
+Mocha hook promises. The browser gallery supports named stories and explicit
+state-preserving updaters; obsolete setup/update completions reject. Typed direct
+calls retain story names and required, optional or defaulted prop parameters.
+Absent props remain `undefined`, including through Playwright 1.63's fixture.
+
+Independent design, code and consumer reviews drove regressions for custom Region
+defaults, async updates completing after unmount, typed stories, omitted props and
+reentrant cleanup. The latter two have retained failing-before execution logs.
+Fresh helper coverage passes **75 tests plus one intentional expected failure**:
+100% statements (178), branches (75), functions (45) and lines (135). The expected
+failure verifies that the actual Vitest fixture tears down a failing test body.
+
+The final working-patch packed consumer passes **13 stages**, including imports
+with all optional runner peers removed, isolated genuine Cypress declarations,
+strict ESM/CommonJS consumers, five JSDOM tests, five Vitest Browser tests and four
+Playwright tests in system Chromium 154.0.8037.57. The verifier executes four neutral
+README recipes directly, extracts its Vitest and Playwright recipes for the real
+runners, and type-checks its Cypress command declarations. No source alias or
+ancestor module installation supplies the installed consumer. The package contains
+32 allowed files; examples, tests and runner binaries are excluded. Root dependency
+changes add only mount-utils 4.0.0; the example lock changes no dependency versions,
+resolutions or integrity values.
+
+Actual FormKit dogfooding passes 16 DOM and nine browser tests against the existing
+verified artifact from `f6fa52addb453f842124f5e1f34bf35c770fa9bd`, SHA-256
+`2a625cfd3fd18b393671a5b818f27c4a5ae001672a4c3e9afd86e8712c779052`.
+Seven obsolete fixture calls now use its documented `getFormState()` API, matching
+the already-verified FormKit branch fixtures; all assertions remain intact. The
+FormKit branch, framework implementation and website are unchanged.
+
+**Actual Cypress execution remains held and unverified.** The queue/hook tests use
+a modeled boundary and the real mount-utils package; they are not Cypress runner
+results. No Cypress CLI, binary installation or download ran. Other browser engines
+and runner versions remain outside this evidence. The existing test branch is the
+only authorized push target; no PR, merge, publication or deployment is included.
+
+Primary runner references and the acceptance ledger are recorded in the execution
+receipt. These follow [Cypress's mount contract](https://docs.cypress.io/api/commands/mount),
+[Vitest fixtures](https://vitest.dev/guide/test-context), and
+[Playwright's component gallery](https://playwright.dev/docs/test-components).
+Earlier sections below describe historical checkpoints and superseded examples.
+
 ## Consumer example organization — 2026-10-13
 
 Reusable runner examples now live in

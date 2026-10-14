@@ -136,6 +136,7 @@
     "@babel/core": "7.29.7",
     "@babel/plugin-transform-typescript": "7.29.9",
     "@babel/preset-env": "7.29.7",
+    "@cypress/mount-utils": "4.0.0",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.63.0",
     "@reduxjs/toolkit": "2.13.0",

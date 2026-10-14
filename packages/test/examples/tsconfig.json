@@ -1,7 +1,20 @@
 {
   "compilerOptions": {
-    "target": "ES2024", "lib": ["ES2024", "DOM"], "module": "NodeNext",
-    "moduleResolution": "NodeNext", "strict": true, "noEmit": true, "types": [], "skipLibCheck": false
+    "target": "ES2024",
+    "lib": [
+      "ES2024",
+      "DOM"
+    ],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noEmit": true,
+    "types": [],
+    "skipLibCheck": false
   },
-  "include": ["consumer.mts", "consumer.cts"]
+  "include": [
+    "consumer.mts",
+    "consumer.cts",
+    "runner-consumer.mts"
+  ]
 }

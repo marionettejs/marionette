@@ -9,6 +9,25 @@ function own(mount) { scope ??= createTestScope(); return scope.own(mount); }
 const Card = View.extend({ template: () => '<button>Open</button>' });
 
 describe('real Region mounting', () => {
+  it('preserves the Region class replacement default unless explicitly overridden', () => {
+    const Replacement = Region.extend({ replaceElement: true });
+    const inherited = own(mountView(new Card(), { regionClass: Replacement }));
+    expect(inherited.el.parentElement).toBe(inherited.container);
+    const overridden = own(mountView(new Card(), { regionClass: Replacement, replaceElement: false }));
+    expect(overridden.el.parentElement).toBe(overridden.slot);
+  });
+  it('keeps direct-child layout across replacements when requested', async() => {
+    const mounted = own(mountView(new Card(), { replaceElement: true }));
+    expect(mounted.container.firstElementChild).toBe(mounted.view.el);
+    const replacement = new Card();
+    mounted.region.show(replacement);
+    expect(mounted.container.firstElementChild).toBe(replacement.el);
+    expect(mounted.container.children).toHaveLength(1);
+    expect(mounted.slot.isConnected).toBe(false);
+    await mounted.cleanup();
+    expect(replacement.isDestroyed()).toBe(true);
+    expect(mounted.container.children).toHaveLength(0);
+  });
   it('keeps a borrowed container in place when attachTo is also supplied', async() => {
     const original = document.body.appendChild(document.createElement('section'));
     const destination = document.body.appendChild(document.createElement('section'));
@@ -169,6 +188,19 @@ describe('real Region mounting', () => {
 });
 
 describe('Application mounting', () => {
+  it('lets the caller show and start an Application explicitly without an extra layout slot', async() => {
+    const starts = [];
+    const Feature = Application.extend({ onStart() { starts.push('start'); } });
+    const mounted = own(mountApplication(region => new Feature({ region }), { start: false, replaceElement: true }));
+    await expect(mounted.ready).resolves.toBe(false);
+    expect(starts).toEqual([]);
+    mounted.app.showView(new Card());
+    expect(mounted.container.firstElementChild).toBe(mounted.app.getView().el);
+    await expect(mounted.app.start()).resolves.toBe(true);
+    expect(starts).toEqual(['start']);
+    await mounted.cleanup();
+    expect(mounted.app.isDestroyed()).toBe(true);
+  });
   it('cancels immediately ready startup when cleanup is requested in the same turn', async() => {
     const commit = vi.fn();
     const Feature = Application.extend({ onStart: commit });
