@@ -58,3 +58,20 @@ test('release filter examples include infrastructure and exclude ordinary edits'
     assert.ok(!paths.some(pattern => matchesGlob(path, pattern)), `${path} should use regular CI`);
   }
 });
+
+
+test('npm publication dry runs exercise absent versions and leave occupied versions to the target report', async() => {
+  const workflow = parse(await readFile(resolve(import.meta.dirname, '../../.github/workflows/release.yml'), 'utf8'));
+  const steps = workflow.jobs['promotion-dry-run'].steps;
+  const inspection = steps.find(step => step.id === 'dry_run_targets');
+  assert.match(inspection.run, /release:targets -- --mode dry-run/);
+  const publications = steps.filter(step => step.run?.startsWith('npm publish'));
+  assert.equal(publications.length, 5);
+  for (const id of ['utils', 'radio', 'core', 'data', 'adapters']) {
+    const step = publications.find(candidate => candidate.run.includes(`outputs.${id}_tarball`));
+    assert.equal(step.if, `steps.dry_run_targets.outputs.${id}_npm_state == 'available'`);
+    assert.ok(steps.indexOf(inspection) < steps.indexOf(step));
+    assert.match(step.run, /--dry-run/);
+    assert.match(step.run, /--ignore-scripts/);
+  }
+});
