@@ -272,11 +272,13 @@ jobs:
           --require-validation
 
       - name: Inspect immutable publication targets
+        id: dry_run_targets
         run: npm run release:targets -- --mode dry-run --artifact-dir release
         env:
           GH_TOKEN: ${{ github.token }}
 
       - name: Exercise utils npm publication without publishing
+        if: steps.dry_run_targets.outputs.utils_npm_state == 'available'
         run: >-
           npm publish
           "./release/${{ needs.build.outputs.utils_tarball }}"
@@ -286,6 +288,7 @@ jobs:
           --tag "${{ needs.build.outputs.npm_tag }}"
 
       - name: Exercise radio npm publication without publishing
+        if: steps.dry_run_targets.outputs.radio_npm_state == 'available'
         run: >-
           npm publish
           "./release/${{ needs.build.outputs.radio_tarball }}"
@@ -295,6 +298,7 @@ jobs:
           --tag "${{ needs.build.outputs.npm_tag }}"
 
       - name: Exercise core npm publication without publishing
+        if: steps.dry_run_targets.outputs.core_npm_state == 'available'
         run: >-
           npm publish
           "./release/${{ needs.build.outputs.core_tarball }}"
@@ -304,6 +308,7 @@ jobs:
           --tag "${{ needs.build.outputs.npm_tag }}"
 
       - name: Exercise data npm publication without publishing
+        if: steps.dry_run_targets.outputs.data_npm_state == 'available'
         run: >-
           npm publish
           "./release/${{ needs.build.outputs.data_tarball }}"
@@ -313,6 +318,7 @@ jobs:
           --tag "${{ needs.build.outputs.npm_tag }}"
 
       - name: Exercise adapters npm publication without publishing
+        if: steps.dry_run_targets.outputs.adapters_npm_state == 'available'
         run: >-
           npm publish
           "./release/${{ needs.build.outputs.adapters_tarball }}"
