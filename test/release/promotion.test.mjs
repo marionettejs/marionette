@@ -364,3 +364,19 @@ test('a missing release opening fails the dry run before external calls', async 
   assert.match(result.stderr, /must start with a release-specific opening blockquote/);
   assert.deepEqual(await candidate.calls(), []);
 });
+
+
+test('post-release target inspection reports occupied versions without attempting publication', async t => {
+  const candidate = await promotion(t);
+  await candidate.update({ npm: { '@mnjs/utils': 'available', marionette: 'conflict' }, remoteTag: 'a'.repeat(40) });
+  const result = candidate.exec('check-targets', 'dry-run');
+  assert.equal(result.status, 0, result.stderr);
+  const report = JSON.parse(result.stdout);
+  assert.deepEqual(report.packages.map(entry => entry.npm), ['available', 'exact', 'conflict', 'exact', 'exact']);
+  assert.equal(report.tag, 'conflict');
+  const outputs = await readFile(candidate.output, 'utf8');
+  for (const [id, state] of [['utils', 'available'], ['radio', 'exact'], ['core', 'conflict'], ['data', 'exact'], ['adapters', 'exact']]) {
+    assert.match(outputs, new RegExp(`${id}_npm_state=${state}`));
+  }
+  assert.ok((await candidate.calls()).filter(call => call.tool === 'npm').every(call => call.args[0] === 'view'));
+});
