@@ -1,0 +1,80 @@
+build/declarations.mjs
+  h_0f06c286dda36f 8
+package-lock.json
+  h_0f06c286dda36f 13-14,2595-2598,8750-8767
+package.json
+  h_0f06c286dda36f 60,121-123,178-179
+packages/router/DESIGN.md
+  h_0f06c286dda36f 1-185
+packages/router/PROVENANCE.md
+  h_0f06c286dda36f 1-57
+packages/router/package.json
+  h_0f06c286dda36f 1-73
+packages/router/readme.md
+  h_0f06c286dda36f 1-52
+packages/router/rollup.config.mjs
+  h_0f06c286dda36f 1-11
+packages/router/src/drivers/memory.ts
+  h_0f06c286dda36f 1-385
+packages/router/src/drivers/navigation.ts
+  h_0f06c286dda36f 1-24
+packages/router/src/index.ts
+  h_0f06c286dda36f 1-4
+packages/router/src/matcher.ts
+  h_0f06c286dda36f 1-515
+packages/router/src/outlet.ts
+  h_0f06c286dda36f 1-2
+packages/router/src/outlet/is-equal.ts
+  h_0f06c286dda36f 1-18
+packages/router/src/outlet/route-outlet.ts
+  h_0f06c286dda36f 1-130
+packages/router/src/router.ts
+  h_0f06c286dda36f 1-481
+packages/router/src/types.ts
+  h_0f06c286dda36f 1-68
+packages/router/tsconfig.declarations.json
+  h_0f06c286dda36f 1-22
+test/router/conformance/index.js
+  h_0f06c286dda36f 1-462
+test/router/conformance/router.js
+  h_0f06c286dda36f 1-363
+test/router/package.mjs
+  h_0f06c286dda36f 1-54
+test/types/router.cts
+  h_0f06c286dda36f 1-38
+test/types/router.mts
+  h_0f06c286dda36f 1-38
+test/types/run.mjs
+  h_0f06c286dda36f 2,15,19-22
+test/types/tsconfig.consumer.json
+  h_0f06c286dda36f 65-67
+test/unit/router/drivers.spec.js
+  h_0f06c286dda36f 1-397
+test/unit/router/helpers.js
+  h_0f06c286dda36f 1-13
+test/unit/router/matching.spec.js
+  h_0f06c286dda36f 1-713
+test/unit/router/outlet.spec.js
+  h_0f06c286dda36f 1-438
+test/unit/router/regressions.spec.js
+  h_0f06c286dda36f 1-325
+test/unit/router/router-conformance.spec.js
+  h_0f06c286dda36f 1-13
+test/unit/router/router.spec.js
+  h_0f06c286dda36f 1-1274
+tsconfig.json
+  h_0f06c286dda36f 24-29
+vitest.config.js
+  h_0f06c286dda36f 9,22,44-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1a26e38ba0b431ca272d91ef643e2dfdc306833f",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
