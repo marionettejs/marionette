@@ -47,7 +47,46 @@ try {
       owner.destroy();
       assert.equal(outlet.isDestroyed(), true);
     }
-    console.log('Outlet ESM/CJS extension and ownership work with Marionette.');
+    // Compare plain Application readiness with selection of the same workflow.
+    // This process uses installed distributions, with no Vitest aliases or mocks.
+    async function initialReplacement(Outlet) {
+      const first = Promise.withResolvers();
+      const replacement = Promise.withResolvers();
+      const replacing = Promise.withResolvers();
+      let runs = 0;
+      let restarts;
+      let stops = 0;
+      const Page = Application.extend({
+        prepareStart() {
+          runs++;
+          if (runs === 1) {
+            queueMicrotask(() => { restarts = this.restart(); replacing.resolve(); });
+            return first.promise;
+          }
+          return replacement.promise;
+        },
+      });
+      const owner = new Application();
+      const page = owner.addChildApp('page', new Page());
+      page.on('stop', () => stops++);
+      const outlet = Outlet ? new Outlet({ owner }) : null;
+      const initial = outlet ? outlet.show('page') : page.start();
+      await replacing.promise;
+      replacement.resolve();
+      assert.equal(await initial, outlet ? undefined : false);
+      assert.equal(await restarts, true);
+      assert.equal(page.isRunning(), true);
+      assert.equal(stops, 0);
+      assert.equal(runs, 2);
+      if (outlet) assert.equal(outlet.getCurrent(), page);
+      first.resolve();
+      owner.destroy();
+      assert.equal(page.isDestroyed(), true);
+    }
+    await initialReplacement(null);
+    await initialReplacement(RouteOutlet);
+    await initialReplacement(cjs.RouteOutlet);
+    console.log('Outlet ESM/CJS extension, ownership, and child-restart parity with plain Application passed.');
   `);
 } finally {
   rmSync(fixture, { recursive: true, force: true });

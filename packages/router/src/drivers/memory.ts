@@ -310,7 +310,7 @@ class MemoryHistory {
   }
 
   #start(init: Init, navigation = new Navigation()) {
-    this.#supersedeOthers(navigation);
+    this.#supersedeOthers();
     this.#active.add(navigation);
     navigation.dispatching = true;
     this.#dispatch(createEvent(navigation, init, this.#destination(init)));
@@ -345,9 +345,8 @@ class MemoryHistory {
     return { url, key: '', index: -1, getState: () => structuredClone(state) };
   }
 
-  #supersedeOthers(navigation: Navigation) {
+  #supersedeOthers() {
     for (const other of this.#active) {
-      if (other === navigation) {continue;}
       other.abort();
       this.#active.delete(other);
     }

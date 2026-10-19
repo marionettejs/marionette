@@ -393,9 +393,9 @@ function decodeParams(names: string[], groups: Record<string, string | undefined
     for (const name of names) {
       if (groups[name] !== undefined) {params[name] = decodeURIComponent(groups[name]!);}
     }
-  } catch (error) {
-    if (error instanceof URIError) {return null;}
-    throw error;
+  } catch {
+    // URLPattern groups are strings; native decoding fails only on malformed URI data.
+    return null;
   }
   return params;
 }

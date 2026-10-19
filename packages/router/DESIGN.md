@@ -153,6 +153,32 @@ for reconstruction of list pages. This branch keeps that behavior pending a deci
 on `reconstruct`/another explicit name. Silently calling Application.restart() would
 change retention and failure behavior for existing callers. No rename alias is added.
 
+## Proposed minimal naming decision
+
+For this extraction, retain `RouteOutlet` and describe it consistently as selecting
+one registered child Application. A rename to `ChildAppSelector` would be more
+literal and fits `getChildApp`/`addChildApp`, but changes every import/construction
+site while adding no behavior. It is a reasonable private-package decision before
+release, not a reason to add both names or move the primitive into core today.
+
+For the operation flag, prefer **`reconstruct: true`** over `restart: true` in a
+future approved API change. Marionette already says reconstruction is stop/start,
+whereas restart is retained preparation. `recreate` could imply a new Application
+instance; this operation reuses the registered instance and rebuilds its UI.
+A host that wants retained preparation can explicitly await the child's existing
+`restart()`; the selector needs no second restart mechanism.
+
+Proposed shape (not implemented pending the decision):
+
+```js
+await pages.show('page', { key: { id }, reconstruct: true, options });
+```
+
+This would be one breaking private-package rename, with coordinated updates to the
+source app's intentional reconstruction callers, docs and tests. Do not silently
+change those callers to retained restart, and do not add an old/new flag alias.
+This branch leaves `RouteOutlet` and `restart` unchanged until that choice is made.
+
 ## What app-frontend established
 
 The source app routes AppFrame → workspace → area → page/detail with plain

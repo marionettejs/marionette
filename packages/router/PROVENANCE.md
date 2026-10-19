@@ -15,7 +15,12 @@ No commits from it are merged here. app-frontend's separate
 ## Deliberate changes
 
 - Authored TypeScript, generated ESM/CommonJS declarations and distributions,
-  repository Vitest/public-entrypoint tests. The matcher remains internal.
+  repository Vitest/public-entrypoint tests. The matcher remains internal. Public
+  edge-contract tests cover grouped paths, queued traversal races, driver event
+  semantics and outlet lifetimes without coverage exclusions.
+- Removed two redundant private branches: a newly arriving navigation cannot yet
+  be in the active set, and native decoding of URLPattern string groups only
+  reports malformed URI data. No accepted input or error policy changes.
 - A callable MnObject-based outlet constructor supports Marionette `.extend()`
   and constructor delegation. Required owner subscriptions precede `initialize`;
   destruction does not depend on an overridable `onDestroy` hook.
