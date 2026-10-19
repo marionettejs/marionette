@@ -1,0 +1,24 @@
+packages/router/DESIGN.md
+  h_0f06c286dda36f 156-181
+packages/router/PROVENANCE.md
+  h_0f06c286dda36f 18-23
+packages/router/src/drivers/memory.ts
+  h_0f06c286dda36f 313,348
+packages/router/src/matcher.ts
+  h_0f06c286dda36f 396-398
+test/router/package.mjs
+  h_0f06c286dda36f 50-89
+test/unit/router/edge-contracts.spec.js
+  h_0f06c286dda36f 1-247
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e1884c0657ac08dae5e883d14d879913e054348e",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
