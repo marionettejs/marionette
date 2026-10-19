@@ -6,6 +6,7 @@ const nodeTests = [
   // These suites supply their own JSDOM window and document.
   'test/unit/{region-detach-contents,region-el-validation,view-el,view-render-attributes}.spec.js',
   'test/unit/events-*.spec.js',
+  'test/unit/router/*.spec.js',
   'test/unit/radio*.spec.js',
   'test/unit/requests.spec.js',
   'test/unit/modules-error.spec.js',
@@ -18,7 +19,7 @@ const nodeTests = [
 
 const coverageFiles = [
   'src/**/*.{js,ts}', 'packages/adapters/src/**/*.ts', 'packages/data/src/**/*.ts',
-  'packages/utils/src/**/*.ts', 'packages/radio/src/**/*.ts'
+  'packages/utils/src/**/*.ts', 'packages/radio/src/**/*.ts', 'packages/router/src/**/*.ts'
 ];
 const coverageExceptions = JSON.parse(readFileSync(new URL('./config/coverage-exceptions.json', import.meta.url), 'utf8'));
 const thresholds = { lines: 100, statements: 100, functions: 100, branches: 100 };
@@ -40,6 +41,12 @@ for (const file of sourceFiles) {
 export default defineConfig({
   resolve: {
     alias: [{
+      find: /^@mnjs\/router\/outlet$/,
+      replacement: fileURLToPath(new URL('./packages/router/src/outlet.ts', import.meta.url))
+    }, {
+      find: /^@mnjs\/router$/,
+      replacement: fileURLToPath(new URL('./packages/router/src/index.ts', import.meta.url))
+    }, {
       find: /^@mnjs\/data$/,
       replacement: fileURLToPath(new URL('./packages/data/src/index.ts', import.meta.url))
     }, {

@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, copyFileSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -12,10 +12,14 @@ try {
     ['marionette', '.'],
     ['@mnjs/utils', 'packages/utils'],
     ['@mnjs/radio', 'packages/radio'],
+    ['@mnjs/router', 'packages/router'],
     ['@mnjs/data', 'packages/data'],
     ['@mnjs/adapters', 'packages/adapters']
   ]) {
-    symlinkSync(resolve(root, directory), join(consumer, 'node_modules', name), 'junction');
+    const installed = join(consumer, 'node_modules', name);
+    mkdirSync(installed, { recursive: true });
+    copyFileSync(resolve(root, directory, 'package.json'), join(installed, 'package.json'));
+    cpSync(resolve(root, directory, 'dist'), join(installed, 'dist'), { recursive: true });
   }
   for (const file of readdirSync(import.meta.dirname)) {
     if (/\.[mc]ts$/.test(file) || file === 'tsconfig.consumer.json') {
