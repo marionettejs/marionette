@@ -6,6 +6,8 @@ Do not include exploit details, credentials or private application data in a pub
 issue. Include the affected package and exact version, a minimal reproduction,
 the expected trust boundary and the observed impact. Redact sensitive data.
 
+Public security contact: [marionettejs@gmail.com](mailto:marionettejs@gmail.com).
+
 This repository maintains `marionette` and the `@mnjs/data`, `@mnjs/adapters`,
 `@mnjs/utils` and `@mnjs/radio` packages. Maintainers review private reports and
 coordinate fixes and disclosure through the advisory. Ordinary bugs and support
