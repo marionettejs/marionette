@@ -56,6 +56,33 @@ test('Marionette plugin bundles its skill and documentation MCP', async() => {
     'Plugin homepage must resolve to a published documentation route');
 });
 
+test('plugin branding ships square icons and preserves the Marionette artwork', async() => {
+  const manifest = await json(resolve(pluginRoot, 'plugin.json'));
+  const presentation = manifest.extensions['com.openai'].interface;
+  assert.ok(presentation.shortDescription.length <= 30);
+  const original = await readFile(resolve(repository, 'marionette-mark.svg'), 'utf8');
+  const originalPaths = original.match(/<path\b[^>]*\/>/g);
+  assert.ok(originalPaths.length > 0);
+
+  for (const field of ['logo', 'composerIcon']) {
+    const path = presentation[field];
+    assert.match(path, /^\.\/assets\/[^/]+\.svg$/, `${field} must be bundled under assets`);
+    const svg = await readFile(resolve(pluginRoot, path), 'utf8');
+    assert.ok(Buffer.byteLength(svg) <= 5 * 1024 * 1024);
+    const root = svg.match(/<svg\b([^>]*)>/)[1];
+    const dimension = name => Number(root.match(new RegExp(`${name}="([^"]+)"`))[1]);
+    const width = dimension('width');
+    const height = dimension('height');
+    assert.ok(Number.isFinite(width) && width >= 48);
+    assert.equal(width, height, `${field} must be square`);
+    const viewBox = root.match(/viewBox="([^"]+)"/)[1].split(/\s+/).map(Number);
+    assert.deepEqual(viewBox, [-5, 0, 290, 290], 'Center the original 280 by 290 canvas without stretching');
+    assert.deepEqual(svg.match(/<path\b[^>]*\/>/g), originalPaths, 'Keep the original paths and crimson colors');
+    assert.match(svg, /<rect x="-5" width="290" height="290" fill="#FFF"\/>/,
+      'Use a light tile so the original artwork remains visible in dark themes');
+  }
+});
+
 test('repository marketplace exposes the Marionette plugin', async() => {
   const marketplace = await json(resolve(repository, '.agents/plugins/marketplace.json'));
   assert.equal(marketplace.name, 'marionettejs');
