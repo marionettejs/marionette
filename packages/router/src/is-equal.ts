@@ -1,4 +1,4 @@
-import type { SelectionKey } from './route-outlet.ts';
+import type { SelectionKey } from './child-app-switcher.ts';
 
 /*
  * Structural equality for primitive, array, and plain-object selection keys.

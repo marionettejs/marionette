@@ -1,211 +1,241 @@
-# Router design and integration
+# Routing with Marionette v5
 
-This is a private refinement of Claude's router package. See
-[provenance](PROVENANCE.md) for exact source revisions and deliberate divergence.
-It is a separate, opt-in package; Marionette core does not import or re-export it.
+This private package uses Marionette's nonvisual object conventions and leaves
+application-specific policy with its owners. Router and ChildAppSwitcher are
+MnObjects; Match is plain typed data. [Source provenance](PROVENANCE.md) records
+original revisions and the unresolved publication requirements.
 
-## Comparison with the earlier prototype
-
-| Topic | Earlier `950e4c6` prototype | This branch's starting design |
-| --- | --- | --- |
-| Public surface | `createRoutes` / `createRouter` | `Router` and plain Match |
-| Transport | Injected History API or memory history | Navigation API or memory Driver |
-| Paths | Literal/named segments, first match | Nested tree, ranked URLPattern subset |
-| Readiness result | String outcome records; handled is dispatch completion | Promise<boolean>; awaited handler determines readiness |
-| Authority | signal, `isCurrent`, `runIfCurrent` | Match signal and explicit owner checks |
-| Feature coordination | Host supplies it | Host or optional replaceable RouteOutlet |
-| Lifetime | Terminal `dispose()` | Restartable Router `start()` / `stop()` |
-
-The prototype's source reinforces explicit authority, foreign-state ownership and
-transport separation. Its History driver, reflection and outcome vocabulary are
-not folded into a second runtime path here. The shared safeguards are applied to
-Claude's one package instead.
-
-## Responsibilities and terminology
+## Responsibilities
 
 | Responsibility | Owner |
 | --- | --- |
-| Compile/rank nested routes, build named URLs, choose redirects | `Router` |
-| Browser navigation/history event semantics | Injected `Driver` |
-| Current route decision and cancellation authority | Plain `Match` with `signal` |
-| Prepare a feature, own children, control start/stop readiness | Ordinary `Application` |
-| Select one registered child Application by identity | Optional `RouteOutlet` |
-| Render, place child Views, manage local DOM/focus/scroll | Views and Regions |
-| Loading UI, errors, permissions, analytics, route-specific data | Application/host policy |
+| Compile/rank nested routes, build URLs, plan redirects | Router and its internal matcher |
+| Navigation/history event semantics | Injected Driver |
+| Current route decision and cancellation authority | Match and its AbortSignal |
+| Prepare/start/restart/stop features and own children | Ordinary Application |
+| Switch one group of registered child Applications | Optional ChildAppSwitcher |
+| Render, place child Views, manage DOM/focus/scroll | Views and Regions |
+| Service requests, permissions, loading/errors, analytics | Application policy |
 
-`RouteOutlet` is an Application selector, not a DOM slot or Region. Its name is
-retained to keep this extraction focused. It neither reads a Match nor imposes a
-`showRoute` protocol. An app can replace it completely or use Router alone. There
-are no compulsory RouterApp/SubrouterApp classes and no parallel application
-lifecycle. The outlet is a small complete coordinator for selection, reuse,
-supersession and ownership; host activation remains explicit.
+A small application uses one Router handler. A larger application composes ordinary
+Applications and switchers at the lifetimes that need them. There is no compulsory
+RouterApp, required child activation protocol, global Radio channel, rendering
+adapter or parallel lifecycle framework.
 
-This follows Marionette's [architecture](../../docs/architecture.md),
+See Marionette's [architecture](../../docs/architecture.md),
 [Application](../../docs/api/application.md), [MnObject](../../docs/api/mnobject.md)
-and [routing guide](../../docs/guides/routing.md). `@mnjs/utils` supplies Events.
-The `/outlet` entry alone imports Marionette. It supports `.extend()`, normal
-initialization/destruction hooks and callable constructor delegation. Required
-ownership setup cannot be skipped by overriding `initialize` or `onDestroy`.
+and [events](../../docs/api/shared/events.md) contracts.
 
-## Route and navigation contract
+## Construction, options and extension
 
-Named and unnamed route nodes form a tree. Relative children append to a parent;
-absolute paths start at the root. Named nodes match themselves; unnamed nodes
-supply prefixes and inherited metadata. Route names and parameter names within a
-branch are unique. Metadata merges root to leaf, and branch entries retain their
-own metadata and parameters.
+Router uses a callable MnObject constructor rather than a native class inheriting
+MnObject. Marionette's `.extend()` forwards through `parent.apply`; custom
+constructors may delegate with `Parent.call(this, options)` when needed.
+Ordinary applications should use `initialize` rather than override construction.
 
-Paths use a supported URLPattern pathname subset: static segments, named and
-unnamed parameters, regular-expression constraints, optional groups, and wildcard
-or repeated parameters. The package's tokenizer builds URLs and ranks candidates;
-it is not a promise to support every URLPattern grammar form (for example quoted
-or arbitrary Unicode parameter names). Ranking compares segments: static,
-parameter, optional, wildcard; ties use definition order. Query values are exposed
-as URLSearchParams. Matching decodes parameters; generation encodes them. Trailing
-slashes normalize away except at `/`. Generation rejects missing/invalid values,
-dot segments, static-route collisions and parameter values that would change
-under matching/normalization. Mount/unmount changes the table without navigation;
-call `refresh()` to dispatch it.
+Required private routing state exists before `initialize`. MnObject first merges
+class `options` and supplied options; matching/configuration can then be used safely
+inside a subclass's initialization. Routes compile before construction returns.
+The implementation uses no temporary replacement of the user's `initialize` hook.
 
-Aliases declare the canonical route's parameter names and an optional compatibility
-window. `preserve` keeps the alias URL; default `canonicalize` replaces it before
-activation. Redirect callbacks return a named target or same-origin URL, optionally
-asynchronously. Every alias/redirect hop counts toward `maxRedirects` (default 5).
-A bound failure rejects and reports `route:error`; the router does no compile-time
-analysis of all potentially overlapping route patterns.
-
-`navigate()` returns `{ committed, finished }` synchronously. Each property is a
-Promise<boolean>. `committed` concerns URL commitment; `finished` awaits the handler
-and all redirect targets. `start()`, `refresh()` and `back()` return their readiness
-Promise directly. Failure rejects; supersession/cancellation yields `false`.
-A stopped router may restart. `refresh()` replaces the current entry; it currently
-takes no arguments. `back()` follows its own traversal's redirects, including target
-failure, instead of treating another navigation's result as success.
-
-`route` announces a committed current Match before the handler. `route:ready`
-announces a still-current fulfilled handler; `route:error` announces a current
-failure. Pure `match(url)` does no redirect or history work and has null navigation
-fields. A live handler receives an ActiveMatch with an AbortSignal, also in its
-context. A match's signal aborts on supersession or stop, including after readiness.
-
-Cancellation after an asynchronous wait is checked before readiness/error delivery.
-This branch preserves existing settlement timing: stop aborts authority immediately,
-but a handler or redirect that ignores cancellation may keep `finished` pending until
-it settles. Prompt abort settlement would be a separate behavior decision. Callers
-must pass/check the signal before effects after awaits; no router can undo arbitrary
-side effects in app code. Synchronous callback failures abort their operation; there
-is no new rollback or attempt-all cleanup policy.
-
-Entry state is a plain object (including a null-prototype object), or null/undefined
-where allowed. It carries a reserved `@mnjs/router` ownership marker, stripped from
-Match state. Nested values still use the driver's structured-clone semantics.
-Same-path replacements preserve omitted state; pushes/different-path replacements
-start empty. The memory driver and native adapter share the public Driver contract.
-The native adapter requires an active document Navigation object. There is no DOM,
-link interception or History API polyfill in core Router itself; native navigation
-supplies link events and the router requests manual focus/scroll handling.
-
-## Child selection and readiness
-
-Register children through Application ownership, then use the optional selector:
+Configure `routes`, `driver`, `handler`, `intercept`, `notFound`, `persistParams` and
+`maxRedirects` through constructor options or class/prototype defaults. Constructor
+options take precedence through `getOption`. Class `options` merge shallowly, as
+other Marionette objects do; no second options store or deep-merging system exists.
+A `routes()` factory runs in Router context once per instance. Ordinary route arrays
+are not mutated by compilation.
 
 ```js
-async function activate(match, owner, pages) {
-  const page = await pages.show('page', {
-    key: { id: match.params.id },
-    options: { id: match.params.id, region: owner.getView().getRegion('content') },
-  });
-  if (!page || match.signal.aborted) return;
-  return page.showRoute(match);
-}
+const CatalogRouter = Router.extend({
+  routes() {
+    return [
+      { name: 'home', path: '/' },
+      { name: 'item', path: '/items/:id' },
+    ];
+  },
+  handler(match, { signal }) {
+    return catalog.activate(match, { signal });
+  },
+  onRouteReady(match) {
+    catalog.announceReady(match);
+  },
+});
+const router = new CatalogRouter();
 ```
 
-The returned child is authoritative: `undefined` means this selection was canceled
-or superseded. Do not re-read the registered child to bypass that result. Return
-and await detail activation if the detail is required for page readiness; an
-Application `onStart` notification itself does not await returned Promises.
-A page that has no per-match activation needs no `showRoute` method.
+Handlers and policy callbacks use the Router as context where specified by the
+typed options. Shared callbacks remain functions; there is no additional string
+handler resolver or routing configuration language.
 
-Reuse requires the same child instance, registration name and structural key. A
-new key or `restart: true` stops the previous child synchronously and starts the
-new selection. Stop/start reconstructs UI. `Application.restart()` instead retains
-the running feature while preparing again; a retained restart of the owner therefore
-does not abandon selection. If a child replaces its initial preparation with its
-own restart, the original `show()` resolves `undefined` for the superseded start
-and leaves that replacement running. `getCurrent()` identifies selection, not a
-promise of readiness. A host that requires replacement readiness must await the
-child-owned restart explicitly; the outlet does not infer private pending work.
-Likewise, an independently stopped selection stays selected until the next
-selection/stop operation. Application cancellation already stops its descendants.
-A stopped owner may still prepare registered children,
-as Marionette permits. Owner stop cancels pending child starts; a second stop of an
-already-stopped owner can stop children without emitting owner stop notifications.
-Owner destruction destroys the outlet, and destroying the outlet leaves child
-ownership with the Application. A destroyed outlet cannot start more children.
+## Lifetime and notifications
 
-Startup failure stops the partially prepared selection and reports the original
-failure. The existing `onCleanupError(error, app)` callback reports cleanup failure
-while preserving that asynchronous startup error. This does not add synchronous
-registration/constructor rollback or a general recovery engine.
+`start()` acquires one Driver subscription and awaits the initial dispatch.
+Repeated start joins its initial readiness. `stop()` is synchronous, returns true,
+removes that subscription and aborts navigation authority. It retains the object
+and its Marionette event subscriptions, so it can start again.
 
-**Naming decision still open:** the source app deliberately uses `restart: true`
-for reconstruction of list pages. This branch keeps that behavior pending a decision
-on `reconstruct`/another explicit name. Silently calling Application.restart() would
-change retention and failure behavior for existing callers. No rename alias is added.
+`destroy()` is synchronous and terminal. It blocks further routing and stops
+resources before user destruction notifications, then uses normal MnObject
+cleanup for incoming/outgoing subscriptions, configured Radio and owned state.
+Repeated destruction returns the same object. Application fields do not establish
+automatic ownership: the owner must stop/destroy a Router it creates.
 
-## Proposed minimal naming decision
+While stopped or destroyed, `navigate()` returns canceled committed/finished
+Promises; `refresh()` and `back()` resolve false; `canGoBack` is false and
+`updateState()` returns false without writing browser state. Pure matching, URL
+building and route-table inspection/configuration remain available. Active
+`updateState()` returns true. `getCurrent()` identifies the last committed Match;
+its signal is aborted when the run ends.
 
-For this extraction, retain `RouteOutlet` and describe it consistently as selecting
-one registered child Application. A rename to `ChildAppSelector` would be more
-literal and fits `getChildApp`/`addChildApp`, but changes every import/construction
-site while adding no behavior. It is a reasonable private-package decision before
-release, not a reason to add both names or move the primitive into core today.
+| Notification | Hook | Timing |
+| --- | --- | --- |
+| `route(match)` | `onRoute(match)` | Current Match committed, before the awaited handler |
+| `route:ready(match)` | `onRouteReady(match)` | Handler fulfilled and Match remains current |
+| `route:error(error, match)` | `onRouteError(error, match)` | Current handler/redirect failed |
 
-For the operation flag, prefer **`reconstruct: true`** over `restart: true` in a
-future approved API change. Marionette already says reconstruction is stop/start,
-whereas restart is retained preparation. `recreate` could imply a new Application
-instance; this operation reuses the registered instance and rebuilds its UI.
-A host that wants retained preparation can explicitly await the child's existing
-`restart()`; the selector needs no second restart mechanism.
+Hooks run before listeners through `triggerMethod`. Notification return values do
+not cancel navigation and returned Promises are not awaited. A synchronous hook
+exception aborts that operation. Required activation belongs in the explicitly
+awaited handler, not an asynchronous notification hook.
 
-Proposed shape (not implemented pending the decision):
+`navigate()` synchronously returns `{ committed, finished }`, each a
+Promise<boolean>. Commitment concerns the URL; finished awaits the handler and
+redirect destinations. Supersession/cancellation is false; current operational
+failure rejects. `start()`, `refresh()` and `back()` return readiness directly.
+Redirected back follows its own traversal's readiness rather than an unrelated
+navigation result.
+
+Cancellation invalidates authority immediately, including after readiness. A
+handler or redirect that ignores its signal may keep readiness pending until it
+settles. Pass/check the signal before effects after awaits. Cancellation does not
+undo arbitrary application effects. There is no constructor rollback, attempt-all
+teardown or general synchronous recovery policy.
+
+## Route definitions and matching
+
+Named and unnamed nodes form a route tree. Relative children append to their
+parent; absolute children begin at the root. Named nodes match themselves;
+unnamed nodes provide prefixes and inherited metadata. Names are unique, including
+parameter names within a branch. Metadata merges root to leaf; branch entries
+retain their own parameters and metadata.
+
+The supported URLPattern pathname subset includes static segments, named/unnamed
+parameters, regex constraints, optional groups and wildcard/repeated parameters.
+The tokenizer also builds URLs and ranks candidates; it does not promise every
+URLPattern grammar form, such as quoted/arbitrary Unicode parameter names.
+Ranking compares segments: static, parameter, optional, wildcard. Ties use
+definition order. Query values use URLSearchParams. Matching decodes parameters;
+generation encodes them. Trailing slashes normalize away except at `/`.
+
+Generation rejects missing/invalid parameters, dot segments, static-route collisions
+and values that do not round trip through matching. Pure `match(url)` has null
+navigation fields and causes no redirects or history effects. Mount/unmount updates
+the route table without dispatch; call active `refresh()` to dispatch it.
+
+Aliases specify exactly the canonical route's parameter names and an optional
+compatibility window. Default `canonicalize` replaces before activation; `preserve`
+keeps the alias URL. Redirect callbacks return a same-origin URL or named target,
+optionally asynchronously. Alias and redirect hops share `maxRedirects` (default 5).
+
+Entry state is a plain object (including null-prototype objects), or null/undefined
+where permitted. A reserved `@mnjs/router` ownership marker is stripped from Match
+state. Nested values follow structured-clone semantics. Same-path replacement
+preserves omitted state; pushes/different-path replacements start empty.
+
+The native Driver requests manual focus/scroll handling and handles only the URLs
+claimed by the Router. It does not prescribe focus, loading/error UI, authentication,
+service access or server fallback policy. Node tests use the same public contracts
+with memoryDriver; native-browser conformance is separate evidence.
+
+## Child Applications
+
+ChildAppSwitcher is a MnObject that switches one registered child group. It does
+not render, borrow a Region to manipulate, register children itself or read Match.
+An owning Application declares/registers children and explicitly requests a switch:
 
 ```js
-await pages.show('page', { key: { id }, reconstruct: true, options });
+import { Application } from 'marionette';
+import { ChildAppSwitcher } from '@mnjs/router';
+
+const Catalog = Application.extend({
+  childApps: { item: ItemApplication },
+  initialize() {
+    this.pages = new ChildAppSwitcher({ owner: this });
+  },
+  async showRoute(match) {
+    const { id } = match.params;
+    const page = await this.pages.switchTo('item', {
+      key: { id }, options: { id, region: this.getView().getRegion('content') },
+    });
+    if (!page || match.signal.aborted) return;
+    return page.showDetails(match);
+  },
+});
 ```
 
-This would be one breaking private-package rename, with coordinated updates to the
-source app's intentional reconstruction callers, docs and tests. Do not silently
-change those callers to retained restart, and do not add an old/new flag alias.
-This branch leaves `RouteOutlet` and `restart` unchanged until that choice is made.
+`switchTo(name, { key, options, reconstruct })` returns the running Application or
+undefined when superseded/canceled. Reuse requires the same registered instance,
+name and structural key. Changing the key or `reconstruct: true` stops the current
+selection synchronously and starts the selected registered instance. This rebuilds
+UI; it does not remove/add an Application. `Application.restart()` instead retains
+active UI while repeating preparation.
 
-## What app-frontend established
+The returned child is authoritative. Do not re-read registration to bypass an
+undefined result. Return/await required detail activation. Application `onStart`
+is itself a synchronous notification, not an awaited child-start hook. Pages need
+no `showDetails` method if initial preparation supplies all required readiness.
 
-The source app routes AppFrame → workspace → area → page/detail with plain
-Applications and outlets. AppFrame waits for workspace activation; area hosts
-await selection then delegate to page detail. This is evidence for a render-agnostic
-router and an optional selector, rather than compulsory router Application classes.
+Owner stop cancels pending selection; retained owner restart does not abandon it.
+If a child supersedes its own first start with restart, the original switch returns
+undefined and leaves the replacement running. The owner must explicitly await that
+child-owned replacement if its readiness is required. `getCurrent()` identifies
+selection, not a promise that it is running. An independently stopped selection
+can remain selected until the next switch or stop.
 
-The prior behavior/pattern reviews identified host obligations: AppFrame must stop
-its global router; workspace must honor canceled selection; stale patient detail
-work must check authority after imports/awaits; required program sidebar startup
-must be awaited; startup failures need explicit recovery policy. These remain
-consumer responsibilities. This extraction does not edit app-frontend or claim that
-package fixes repair those host paths. An automatic activation callback or larger
-coordinator remains possible if another application demonstrates a need; it is
-not required here.
+Startup failure cleans up the failed selection and rejects with the original error.
+An optional `onCleanupError(error, app)` reports a cleanup failure separately.
+Owner destruction destroys the switcher. Destroying the switcher invalidates it
+and releases its subscriptions while leaving child ownership with the Application.
+A destroyed switcher cannot start more children, even from destruction hooks.
 
-## Bounded follow-up decisions
+## Isolated Marionette runtimes
 
-- A History API driver broadens browser support, but also needs link delegation,
-  state/entry ownership and traversal conformance. It is not an incidental extraction
-  fix and the old prototype is not silently substituted for this package.
-- `refresh({ info })` has a plausible intent-passing use case. It is additive API work,
-  not necessary to correct the existing no-argument refresh contract.
-- `reflect()` needs a first consumer and an explicit current-Match/cancellation/event
-  policy. Neither it nor the older prototype's string outcomes are adopted here.
-- WebKit traversal destination state has historical limits; no speculative adapter
-  workaround or fresh Safari parity claim is included.
-- Before public release: settle source rights/versioning, integrate all release
-  inventory/fixture/size tooling, meet coverage policy, and run native-browser
-  conformance plus actual application integration checks.
+Named imports use Marionette's default family. The package declares no Radio
+channels and does not infer runtime providers from an Application owner. Use the
+normal provider slots on a subclass when working in an isolated runtime:
+
+```js
+const runtime = createMarionette();
+// Configure runtime StateApi before defining these classes when needed.
+const ScopedRouter = Router.extend({
+  Radio: runtime.Radio,
+  State: runtime.MnObject.prototype.State,
+});
+const ScopedSwitcher = ChildAppSwitcher.extend({
+  Radio: runtime.Radio,
+  State: runtime.MnObject.prototype.State,
+});
+```
+
+This uses the runtime's configured MnObject providers without another adapter or
+runtime factory. Radio/state behavior is opt-in through ordinary MnObject
+configuration. Views, Regions and Applications should come from their intended
+runtime family; switching does not replace their ownership/runtime checks.
+
+## Package and validation boundary
+
+`marionette` is a required exact-version peer, following the family integration
+convention. The package does not embed a second framework copy or import an
+application repository, external data layer or renderer. Both public MnObjects are
+exported from the root. There are no old-name aliases or separate adapter entry.
+
+Authored TypeScript generates ESM/CJS and declarations. Public tests cover class
+options/initialization, notifications, cleanup, navigation concurrency, switching,
+UI reconstruction and isolated providers. Package fixtures verify installed ESM/CJS
+behavior with the required peer. Browser conformance, minimum-version operation and
+actual application focus/scroll remain separate checks.
+
+A History API Driver, reflection, richer refresh intent and additional coordination
+hooks require concrete requirements; they are not prerequisites for this package's
+existing behavior. Resolve source rights, release versioning/inventory and native
+browser evidence before publication.

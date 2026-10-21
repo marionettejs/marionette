@@ -1,5 +1,5 @@
 type Chain = { initial: boolean; hops: number; followUp: NavigationResult<boolean> | null };
-type Session = { controller: AbortController; initial: Promise<boolean> | null };
+type Session = { controller: AbortController; initial: Promise<boolean> };
 type Navigation = {
   url: URL; chain: Chain; controller: AbortController; signal: AbortSignal;
   navigationType: DriverEvent['navigationType']; initial: boolean; info: unknown; userInitiated: boolean;
@@ -9,9 +9,9 @@ type Base = Pick<MatcherResult, 'name' | 'params' | 'url' | 'query' | 'meta' | '
 type Plan = { hop: string; base?: never; pending?: never } |
   { hop?: never; base: Base; pending: PromiseLike<RedirectTarget | null | undefined> | null };
 
-import type { EventMethods } from '@mnjs/utils';
-import type { ActiveMatch, Match, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteDefinition, MatcherResult, RedirectTarget } from './types.ts';
-import { Events } from '@mnjs/utils';
+import { MnObject } from 'marionette';
+import type { MnObjectInstance, MnObjectConstructor } from 'marionette';
+import type { ActiveMatch, Match, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteDefinition, MatcherResult, RedirectTarget, Alias } from './types.ts';
 
 import { Matcher } from './matcher.ts';
 import { navigationDriver } from './drivers/navigation.ts';
@@ -93,389 +93,459 @@ function toMatch(base: Base, nav: Pick<Match, 'navigationType' | 'initial' | 'in
   };
 }
 
-export interface Router extends EventMethods {}
+export interface RouterMethods extends RouterOptions {
+  start(): Promise<boolean>;
+  stop(): boolean;
+  navigate(nameOrUrl: string, params?: Params | NavigateOptions, options?: NavigateOptions): NavigationResult<boolean>;
+  url(name: string, params?: Params, options?: { query?: Query }): string;
+  match(url: URL | string): Match | null;
+  getCurrent(): ActiveMatch | null;
+  refresh(): Promise<boolean>;
+  mount(routes: RouteDefinition[], options?: { parent?: string }): () => void;
+  getAliases(): Alias[];
+  getParamNames(name: string): string[];
+  hasRoute(name: string): boolean;
+  readonly canGoBack: boolean;
+  back(): Promise<boolean>;
+  updateState(state: EntryState): boolean;
+}
+export type RouterInstance = MnObjectInstance<RouterOptions> & RouterMethods;
+export type RouterConstructor = MnObjectConstructor<RouterMethods, [options?: RouterOptions]>;
 
-export class Router {
-  #matcher: Matcher;
-  #options: Required<Pick<RouterOptions, 'intercept' | 'persistParams' | 'maxRedirects'>> & RouterOptions;
-  #driverOption: Driver | undefined;
-  #resolvedDriver: Driver | null = null;
-  #session: Session | null = null;
-  #local: AbortController | null = null;
-  #chain: Chain | null = null;
-  #current: ActiveMatch | null = null;
-  #currentController: AbortController | null = null;
-  #traversals = new Set<{ key: string; chain: Chain }>();
-
-  constructor(options: RouterOptions) {
-    const { routes, driver, intercept = () => true, notFound, persistParams = [], handler, maxRedirects = 5 } = options;
-    this.#matcher = new Matcher(routes);
-    this.#driverOption = driver;
-    this.#options = { routes, intercept, notFound, persistParams, handler, maxRedirects };
+type RouterState = {
+  matcher: Matcher | null;
+  resolvedDriver: Driver | null;
+  session: Session | null;
+  local: AbortController | null;
+  chain: Chain | null;
+  current: ActiveMatch | null;
+  currentController: AbortController | null;
+  traversals: Set<{ key: string; chain: Chain }>;
+  closed: boolean;
+};
+const states = new WeakMap<RouterInstance, RouterState>();
+const stateFor = (router: RouterInstance) => states.get(router)!;
+function option<Key extends keyof RouterOptions>(router: RouterInstance, key: Key): RouterOptions[Key] {
+  return router.getOption(key) as RouterOptions[Key];
+}
+function getMatcher(router: RouterInstance) {
+  const internals = stateFor(router);
+  if (!internals.matcher) {
+    const routes = option(router, 'routes')!;
+    internals.matcher = new Matcher(typeof routes === 'function' ? routes.call(router) : routes);
   }
+  return internals.matcher;
+}
+function canceledNavigation(): NavigationResult<boolean> {
+  const canceled = Promise.resolve(false);
+  return { committed: canceled, finished: canceled };
+}
+function stopRouting(router: RouterInstance) {
+  const internals = stateFor(router);
+  const { local, currentController, session } = internals;
+  internals.local = null;
+  internals.currentController = null;
+  internals.session = null;
+  internals.traversals.clear();
+  local?.abort();
+  currentController?.abort();
+  session?.controller.abort();
+}
+function constructRouter(this: RouterInstance, options?: RouterOptions) {
+  states.set(this, {
+    matcher: null, resolvedDriver: null, session: null, local: null, chain: null,
+    current: null, currentController: null, traversals: new Set(), closed: false
+  });
+  // Internal state exists before initialize. Normal MnObject construction merges
+  // options first; a subclass can safely use matching or start from initialize.
+  MnObject.call(this, options);
+  getMatcher(this);
+}
 
-  get #driver() {
-    this.#resolvedDriver ??= this.#driverOption ?? navigationDriver();
-    return this.#resolvedDriver;
+function getDriver(router: RouterInstance): Driver {
+  const internals = stateFor(router);
+  internals.resolvedDriver ??= option(router, 'driver') ?? navigationDriver();
+  return internals.resolvedDriver;
+}
+
+// Omitted state survives a same-path replacement; other navigations start empty.
+function entryState(router: RouterInstance, href: string, history: NavigationOptions['history'], state: unknown) {
+  if (state !== undefined) {return withMarker(state);}
+
+  const entry = getDriver(router).currentEntry;
+  const current = new URL(entry.url);
+  const target = new URL(href, current);
+  const replaces = history === 'replace' || (history === 'auto' && target.href === current.href);
+  const existing = replaces && target.pathname === current.pathname ? entry.getState() : undefined;
+
+  return withMarker(isObject(existing) ? existing : undefined);
+}
+
+function withPersisted(router: RouterInstance, name: string, params: Params) {
+  const internals = stateFor(router);
+  const current = internals.current;
+  if (!current || !option(router, 'persistParams')!.length) {return params;}
+  const names = getMatcher(router).getParamNames(name);
+  const persisted = option(router, 'persistParams')!
+    .filter(key => names.includes(key) && (params[key] === undefined || params[key] === null) && key in current.params)
+    .map(key => [key, current.params[key]]);
+  return { ...Object.fromEntries(persisted), ...params };
+}
+
+function urlTarget(router: RouterInstance, url: string, { query }: NavigateOptions) {
+  const target = new URL(url, getDriver(router).currentEntry.url);
+  if (query !== undefined) {target.search = toSearchParams(query).toString();}
+  return target.href;
+}
+
+function navigateDriver(router: RouterInstance, href: string, options: DriverNavigateOptions, chain: Chain): NavigationResult<boolean> {
+  const internals = stateFor(router);
+  internals.chain = chain;
+  try {
+    return settle(getDriver(router).navigate(href, options), chain);
+  } finally {
+    internals.chain = null;
   }
+}
 
-  start(): Promise<boolean> {
-    if (this.#session) {return this.#session.initial!;}
-    const driver = this.#driver;
-    const session: Session = { controller: new AbortController(), initial: null };
-    this.#session = session;
-    driver.addEventListener('navigate', event => this.#onNavigate(event), { signal: session.controller.signal });
-    session.initial = this.#dispatchInitial(session);
-    return session.initial;
+// A navigation superseded by its own redirect follows the redirect's outcome.
+function settle(result: NavigationResult, chain: Chain): NavigationResult<boolean> {
+  const follow = (ok: boolean, key: 'committed' | 'finished') => (ok || !chain.followUp ? ok : chain.followUp[key]);
+  const committed = outcome(result.committed).then(ok => follow(ok, 'committed'));
+  const finished = outcome(result.finished).then(ok => follow(ok, 'finished'));
+  committed.catch(noop);
+  finished.catch(noop);
+  return { committed, finished };
+}
+
+function takeChain(router: RouterInstance, event: DriverEvent) {
+  const internals = stateFor(router);
+  if (event.navigationType === 'traverse') {
+    const request = [...internals.traversals].find(item => item.key === event.destination.key);
+    if (request) {
+      internals.traversals.delete(request);
+      return request.chain;
+    }
   }
+  const chain = internals.chain ?? newChain();
+  internals.chain = null;
+  return chain;
+}
 
-  stop() {
-    this.#abortLocal();
-    this.#abortCurrent();
-    this.#session?.controller.abort();
-    this.#session = null;
-    this.#traversals.clear();
+function abortLocal(router: RouterInstance) {
+  const internals = stateFor(router);
+  internals.local?.abort();
+  internals.local = null;
+}
+
+function intercepts(router: RouterInstance, event: DriverEvent, url: URL) {
+  if (event.defaultPrevented || event.signal.aborted || !event.canIntercept || event.hashChange || event.navigationType === 'reload') {return false;}
+  if (event.downloadRequest !== null || event.formData !== null) {return false;}
+  return url.origin === new URL(getDriver(router).currentEntry.url).origin;
+}
+
+function claims(router: RouterInstance, url: URL) {
+  if (!option(router, 'intercept')!.call(router, url)) {return false;}
+  return Boolean(getMatcher(router).match(url) ?? option(router, 'notFound')?.within(url));
+}
+
+function onNavigate(router: RouterInstance, event: DriverEvent) {
+  const chain = takeChain(router, event);
+  const url = new URL(event.destination.url);
+  if (!intercepts(router, event, url)) {return;}
+  const nav = navigationFor(router, event, url, chain);
+  const plan = planNavigation(router, nav);
+  if (!plan) {return;}
+  abortLocal(router);
+  event.intercept({ handler: () => execute(router, plan, nav), focusReset: 'manual', scroll: 'manual' });
+}
+
+function navigationFor(router: RouterInstance, event: DriverEvent, url: URL, chain: Chain): Navigation {
+  const internals = stateFor(router);
+  const controller = new AbortController();
+  return {
+    url,
+    chain,
+    controller,
+    signal: AbortSignal.any([event.signal, internals.session!.controller.signal, controller.signal]),
+    navigationType: event.navigationType,
+    initial: chain.initial,
+    info: event.info,
+    userInitiated: event.userInitiated,
+    key: event.destination.key,
+    rawState: event.destination.getState(),
+    match: null,
+  };
+}
+
+async function dispatchInitial(router: RouterInstance, session: Session): Promise<boolean> {
+  const internals = stateFor(router);
+  const entry = getDriver(router).currentEntry;
+  const local = new AbortController();
+  const controller = new AbortController();
+  internals.local = local;
+  const nav: Navigation = {
+    url: new URL(entry.url),
+    chain: newChain(true),
+    controller,
+    signal: AbortSignal.any([local.signal, session.controller.signal, controller.signal]),
+    navigationType: 'push',
+    initial: true,
+    info: undefined,
+    userInitiated: false,
+    key: entry.key,
+    rawState: entry.getState(),
+    match: null,
+  };
+  const plan = planNavigation(router, nav);
+  if (!plan) {return false;}
+  if ('hop' in plan && plan.hop !== undefined) {return hop(router, plan.hop, nav).finished;}
+  try {
+    await run(router, plan, nav);
+  } catch (error) {
+    if (!isCurrent(router, nav)) {return false;}
+    throw error;
   }
+  return nav.chain.followUp ? nav.chain.followUp.finished : isCurrent(router, nav);
+}
 
-  navigate(nameOrUrl: string, params?: Params | NavigateOptions, options?: NavigateOptions): NavigationResult<boolean> {
-    const isUrl = typeof nameOrUrl === 'string' && URL_FORM.test(nameOrUrl);
-    const navigateOptions = ((isUrl ? params : options) ?? {}) as NavigateOptions;
-    const href = isUrl ? this.#urlTarget(nameOrUrl, navigateOptions) : this.url(nameOrUrl, params as Params | undefined, navigateOptions);
-    const { history = 'auto', info, state } = navigateOptions;
-    return this.#navigateDriver(href, { history, info, state: this.#entryState(href, history, state) }, newChain());
-  }
-
-  // Explicit state replaces the entry's state. Omitted, a navigation that replaces the
-  // current entry (explicit replace, or auto to the same URL) on the same path keeps
-  // its plain-object state; a replace to another path starts empty, as the native API does.
-  #entryState(href: string, history: NavigationOptions['history'], state: unknown) {
-    if (state !== undefined) {return withMarker(state);}
-
-    const entry = this.#driver.currentEntry;
-    const current = new URL(entry.url);
-    const target = new URL(href, current);
-    const replaces = history === 'replace' || (history === 'auto' && target.href === current.href);
-    const existing = replaces && target.pathname === current.pathname ? entry.getState() : undefined;
-
-    return withMarker(isObject(existing) ? existing : undefined);
-  }
-
-  url(name: string, params: Params = {}, options: { query?: Query } = {}) {
-    return this.#matcher.url(name, this.#withPersisted(name, params), options);
-  }
-
-  match(url: URL | string) {
-    const result = this.#matcher.match(url);
-    if (!result) {return null;}
-    const idle = { navigationType: null, initial: false, info: undefined, signal: null, userInitiated: false };
-    return toMatch(result, idle, '', undefined);
-  }
-
-  getCurrent() {
-    return this.#current;
-  }
-
-  refresh() {
-    if (!this.#session) {return Promise.resolve(false);}
-    const entry = this.#driver.currentEntry;
-    if (!this.#claims(new URL(entry.url))) {return Promise.resolve(false);}
-    return this.#navigateDriver(entry.url, { history: 'replace', state: entry.getState() }, newChain()).finished;
-  }
-
-  mount(routes: RouteDefinition[], options?: { parent?: string }) {
-    return this.#matcher.mount(routes, options);
-  }
-
-  getAliases() {
-    return this.#matcher.getAliases();
-  }
-
-  getParamNames(name: string) {
-    return this.#matcher.getParamNames(name);
-  }
-
-  hasRoute(name: string) {
-    return this.#matcher.has(name);
-  }
-
-  get canGoBack() {
-    const driver = this.#driver;
-    const { index } = driver.currentEntry;
-    return index > 0 && isMarked(driver.entries()[index - 1].getState());
-  }
-
-  back() {
-    if (!this.canGoBack) {return Promise.resolve(false);}
-    const driver = this.#driver;
-    const request = { key: driver.entries()[driver.currentEntry.index - 1].key, chain: newChain() };
-    this.#traversals.add(request);
+function planNavigation(router: RouterInstance, nav: Navigation): Plan | null {
+  const { url } = nav;
+  if (!option(router, 'intercept')!.call(router, url)) {return null;}
+  const result = getMatcher(router).match(url);
+  if (!result) {return notFoundPlan(router, url);}
+  if (result.alias !== null && result.aliasPolicy === 'canonicalize') {
     try {
-      return this.#settle(driver.back(), request.chain).finished.finally(() => this.#traversals.delete(request));
-    } catch (error) {
-      this.#traversals.delete(request);
-      throw error;
-    }
-  }
-
-  updateState(state: EntryState) {
-    assertState(state);
-    const entry = this.#driver.currentEntry;
-    const stored = entry.getState();
-    const next = { ...(isObject(stored) ? stored : {}), ...state };
-    this.#driver.updateCurrentEntry({ state: next });
-    if (this.#current?.key === entry.key) {this.#current.state = publicState(next);}
-  }
-
-  #withPersisted(name: string, params: Params) {
-    const current = this.#current;
-    if (!current || !this.#options.persistParams.length) {return params;}
-    const names = this.#matcher.getParamNames(name);
-    const persisted = this.#options.persistParams
-      .filter(key => names.includes(key) && (params[key] === undefined || params[key] === null) && key in current.params)
-      .map(key => [key, current.params[key]]);
-    return { ...Object.fromEntries(persisted), ...params };
-  }
-
-  #urlTarget(url: string, { query }: NavigateOptions) {
-    const target = new URL(url, this.#driver.currentEntry.url);
-    if (query !== undefined) {target.search = toSearchParams(query).toString();}
-    return target.href;
-  }
-
-  #navigateDriver(href: string, options: DriverNavigateOptions, chain: Chain): NavigationResult<boolean> {
-    this.#chain = chain;
-    try {
-      return this.#settle(this.#driver.navigate(href, options), chain);
-    } finally {
-      this.#chain = null;
-    }
-  }
-
-  // A navigation superseded by its own redirect resolves with the redirect's outcome.
-  #settle(result: NavigationResult, chain: Chain): NavigationResult<boolean> {
-    const follow = (ok: boolean, key: 'committed' | 'finished') => (ok || !chain.followUp ? ok : chain.followUp[key]);
-    const committed = outcome(result.committed).then(ok => follow(ok, 'committed'));
-    const finished = outcome(result.finished).then(ok => follow(ok, 'finished'));
-    committed.catch(noop);
-    finished.catch(noop);
-    return { committed, finished };
-  }
-
-  #takeChain(event: DriverEvent) {
-    if (event.navigationType === 'traverse') {
-      const request = [...this.#traversals].find(item => item.key === event.destination.key);
-      if (request) {
-        this.#traversals.delete(request);
-        return request.chain;
-      }
-    }
-    const chain = this.#chain ?? newChain();
-    this.#chain = null;
-    return chain;
-  }
-
-  #abortLocal() {
-    this.#local?.abort();
-    this.#local = null;
-  }
-
-  #abortCurrent() {
-    this.#currentController?.abort();
-    this.#currentController = null;
-  }
-
-  #intercepts(event: DriverEvent, url: URL) {
-    if (event.defaultPrevented || event.signal.aborted || !event.canIntercept || event.hashChange || event.navigationType === 'reload') {return false;}
-    if (event.downloadRequest !== null || event.formData !== null) {return false;}
-    return url.origin === new URL(this.#driver.currentEntry.url).origin;
-  }
-
-  #claims(url: URL) {
-    if (!this.#options.intercept(url)) {return false;}
-    return Boolean(this.#matcher.match(url) ?? this.#options.notFound?.within(url));
-  }
-
-  #onNavigate(event: DriverEvent) {
-    const chain = this.#takeChain(event);
-    const url = new URL(event.destination.url);
-    if (!this.#intercepts(event, url)) {return;}
-    const nav = this.#navigationFor(event, url, chain);
-    const plan = this.#plan(nav);
-    if (!plan) {return;}
-    this.#abortLocal();
-    event.intercept({ handler: () => this.#execute(plan, nav), focusReset: 'manual', scroll: 'manual' });
-  }
-
-  #navigationFor(event: DriverEvent, url: URL, chain: Chain): Navigation {
-    const controller = new AbortController();
-    return {
-      url,
-      chain,
-      controller,
-      signal: AbortSignal.any([event.signal, this.#session!.controller.signal, controller.signal]),
-      navigationType: event.navigationType,
-      initial: chain.initial,
-      info: event.info,
-      userInitiated: event.userInitiated,
-      key: event.destination.key,
-      rawState: event.destination.getState(),
-      match: null,
-    };
-  }
-
-  async #dispatchInitial(session: Session): Promise<boolean> {
-    const entry = this.#driver.currentEntry;
-    const local = new AbortController();
-    const controller = new AbortController();
-    this.#local = local;
-    const nav: Navigation = {
-      url: new URL(entry.url),
-      chain: newChain(true),
-      controller,
-      signal: AbortSignal.any([local.signal, session.controller.signal, controller.signal]),
-      navigationType: 'push',
-      initial: true,
-      info: undefined,
-      userInitiated: false,
-      key: entry.key,
-      rawState: entry.getState(),
-      match: null,
-    };
-    const plan = this.#plan(nav);
-    if (!plan) {return false;}
-    if ('hop' in plan && plan.hop !== undefined) {return this.#hop(plan.hop, nav).finished;}
-    try {
-      await this.#run(plan, nav);
-    } catch (error) {
-      if (!this.#isCurrent(nav)) {return false;}
-      throw error;
-    }
-    return nav.chain.followUp ? nav.chain.followUp.finished : this.#isCurrent(nav);
-  }
-
-  /*
-   * A plan is null (not the router's), `{ hop }` (replace the URL first), or
-   * `{ base, pending }` (dispatch; `pending` is an async redirect in flight).
-   */
-  #plan(nav: Navigation): Plan | null {
-    const { url } = nav;
-    if (!this.#options.intercept(url)) {return null;}
-    const result = this.#matcher.match(url);
-    if (!result) {return this.#notFoundPlan(url);}
-    if (result.alias !== null && result.aliasPolicy === 'canonicalize') {
-      try {
-        this.#assertHopAllowed(nav);
-        const canonical = this.#matcher.url(result.name, result.params, { query: result.query });
-        return { hop: `${ canonical }${ url.hash }` };
-      } catch (error) {
-        return { base: result, pending: rejection(error) };
-      }
-    }
-    return this.#redirectPlan(result, nav);
-  }
-
-  #notFoundPlan(url: URL): Plan | null {
-    const { notFound } = this.#options;
-    if (!notFound?.within(url)) {return null;}
-    return { base: notFoundBase(notFound.name, this.#matcher.matchPrefix(url), url), pending: null };
-  }
-
-  #redirectPlan(result: MatcherResult, nav: Navigation): Plan {
-    if (!result.redirect) {return { base: result, pending: null };}
-    const target = this.#callRedirect(result, nav);
-    if (isThenable(target)) {return { base: result, pending: target };}
-    if (target === undefined || target === null) {return { base: result, pending: null };}
-    try {
-      this.#assertHopAllowed(nav);
-      return { hop: this.#targetHref(target) };
+      assertHopAllowed(router, nav);
+      const canonical = getMatcher(router).url(result.name, result.params, { query: result.query });
+      return { hop: `${ canonical }${ url.hash }` };
     } catch (error) {
       return { base: result, pending: rejection(error) };
     }
   }
+  return redirectPlan(router, result, nav);
+}
 
-  #callRedirect(result: MatcherResult, nav: Navigation) {
-    try {
-      return result.redirect!(toMatch(result, nav, nav.key, nav.rawState) as ActiveMatch, { signal: nav.signal });
-    } catch (error) {
-      return rejection(error);
-    }
-  }
+function notFoundPlan(router: RouterInstance, url: URL): Plan | null {
+  const notFound = option(router, 'notFound');
+  if (!notFound?.within(url)) {return null;}
+  return { base: notFoundBase(notFound.name, getMatcher(router).matchPrefix(url), url), pending: null };
+}
 
-  #assertHopAllowed(nav: Navigation) {
-    const { maxRedirects } = this.#options;
-    if (nav.chain.hops >= maxRedirects) {throw new Error(`Redirect limit of ${ maxRedirects } exceeded`);}
-  }
-
-  #targetHref(target: RedirectTarget) {
-    if (typeof target !== 'string') {return this.url(target.name, target.params, { query: target.query });}
-    const base = this.#driver.currentEntry.url;
-    const url = new URL(target, base);
-    if (url.origin !== new URL(base).origin) {throw new Error(`Redirect target must be same-origin: ${ target }`);}
-    return url.href;
-  }
-
-  #hop(href: string, nav: Navigation): NavigationResult<boolean> {
-    const chain: Chain = { initial: nav.chain.initial, hops: nav.chain.hops + 1, followUp: null };
-    return this.#navigateDriver(href, { history: 'replace', state: nav.rawState, info: nav.info }, chain);
-  }
-
-  #execute(plan: Plan, nav: Navigation) {
-    if (plan.hop === undefined) {return this.#run(plan, nav);}
-    nav.chain.followUp = this.#hop(plan.hop, nav);
-  }
-
-  #isCurrent(nav: Navigation) {
-    return !nav.signal.aborted && this.#current === nav.match;
-  }
-
-  async #run(plan: Extract<Plan, { base: Base }>, nav: Navigation) {
-    const match = this.#commit(plan.base, nav);
-    if (!match) {throw new DOMException('Navigation superseded', 'AbortError');}
-    try {
-      if (plan.pending && await this.#redirected(nav, plan.pending)) {return;}
-      await this.#options.handler?.(match, { signal: match.signal });
-    } catch (error) {
-      if (!this.#isCurrent(nav)) {throw new DOMException('Navigation superseded', 'AbortError');}
-      this.trigger('route:error', error, match);
-      throw error;
-    }
-    if (!this.#isCurrent(nav)) {throw new DOMException('Navigation superseded', 'AbortError');}
-    this.trigger('route:ready', match);
-  }
-
-  // True when the navigation was superseded or replaced by the redirect target.
-  async #redirected(nav: Navigation, pending: PromiseLike<RedirectTarget | null | undefined>) {
-    const target = await pending;
-    if (!this.#isCurrent(nav)) {throw new DOMException('Navigation superseded', 'AbortError');}
-    if (target === undefined || target === null) {return false;}
-    this.#assertHopAllowed(nav);
-    nav.chain.followUp = this.#hop(this.#targetHref(target), nav);
-    return true;
-  }
-
-  // Installs the match before anything it triggers can run, so a navigation or
-  // stop() started from an abort or route listener supersedes this one. Returns
-  // null when that happened and the handler must not run.
-  #commit(base: Base, nav: Navigation) {
-    const entry = this.#driver.currentEntry;
-    const previous = this.#currentController;
-    const match = toMatch(base, nav, entry.key, this.#mark(entry)) as ActiveMatch;
-    nav.match = match;
-    this.#current = match;
-    this.#currentController = nav.controller;
-    previous?.abort();
-    if (!this.#isCurrent(nav)) {return null;}
-    this.trigger('route', match);
-    return this.#isCurrent(nav) ? match : null;
-  }
-
-  #mark(entry: DriverEntry) {
-    const stored = entry.getState();
-    if (isMarked(stored) || !(stored === undefined || stored === null || isObject(stored))) {return stored;}
-    const marked = withMarker(stored);
-    this.#driver.updateCurrentEntry({ state: marked });
-    return marked;
+function redirectPlan(router: RouterInstance, result: MatcherResult, nav: Navigation): Plan {
+  if (!result.redirect) {return { base: result, pending: null };}
+  const target = callRedirect(result, nav);
+  if (isThenable(target)) {return { base: result, pending: target };}
+  if (target === undefined || target === null) {return { base: result, pending: null };}
+  try {
+    assertHopAllowed(router, nav);
+    return { hop: targetHref(router, target) };
+  } catch (error) {
+    return { base: result, pending: rejection(error) };
   }
 }
 
-Object.assign(Router.prototype, Events);
+function callRedirect(result: MatcherResult, nav: Navigation) {
+  try {
+    return result.redirect!(toMatch(result, nav, nav.key, nav.rawState) as ActiveMatch, { signal: nav.signal });
+  } catch (error) {
+    return rejection(error);
+  }
+}
+
+function assertHopAllowed(router: RouterInstance, nav: Navigation) {
+  const maxRedirects = option(router, 'maxRedirects')!;
+  if (nav.chain.hops >= maxRedirects) {throw new Error(`Redirect limit of ${ maxRedirects } exceeded`);}
+}
+
+function targetHref(router: RouterInstance, target: RedirectTarget) {
+  if (typeof target !== 'string') {return router.url(target.name, target.params, { query: target.query });}
+  const base = getDriver(router).currentEntry.url;
+  const url = new URL(target, base);
+  if (url.origin !== new URL(base).origin) {throw new Error(`Redirect target must be same-origin: ${ target }`);}
+  return url.href;
+}
+
+function hop(router: RouterInstance, href: string, nav: Navigation): NavigationResult<boolean> {
+  const chain: Chain = { initial: nav.chain.initial, hops: nav.chain.hops + 1, followUp: null };
+  return navigateDriver(router, href, { history: 'replace', state: nav.rawState, info: nav.info }, chain);
+}
+
+function execute(router: RouterInstance, plan: Plan, nav: Navigation) {
+  if (plan.hop === undefined) {return run(router, plan, nav);}
+  nav.chain.followUp = hop(router, plan.hop, nav);
+}
+
+function isCurrent(router: RouterInstance, nav: Navigation) {
+  const internals = stateFor(router);
+  return !nav.signal.aborted && internals.current === nav.match;
+}
+
+async function run(router: RouterInstance, plan: Extract<Plan, { base: Base }>, nav: Navigation) {
+  const match = commit(router, plan.base, nav);
+  if (!match) {throw new DOMException('Navigation superseded', 'AbortError');}
+  try {
+    if (plan.pending && await redirected(router, nav, plan.pending)) {return;}
+    await option(router, 'handler')?.call(router, match, { signal: match.signal });
+  } catch (error) {
+    if (!isCurrent(router, nav)) {throw new DOMException('Navigation superseded', 'AbortError');}
+    router.triggerMethod('route:error', error, match);
+    throw error;
+  }
+  if (!isCurrent(router, nav)) {throw new DOMException('Navigation superseded', 'AbortError');}
+  router.triggerMethod('route:ready', match);
+}
+
+async function redirected(router: RouterInstance, nav: Navigation, pending: PromiseLike<RedirectTarget | null | undefined>) {
+  const target = await pending;
+  if (!isCurrent(router, nav)) {throw new DOMException('Navigation superseded', 'AbortError');}
+  if (target === undefined || target === null) {return false;}
+  assertHopAllowed(router, nav);
+  nav.chain.followUp = hop(router, targetHref(router, target), nav);
+  return true;
+}
+
+// Install current authority before abort listeners or route hooks can reenter.
+// A superseding operation prevents this match's handler from running.
+function commit(router: RouterInstance, base: Base, nav: Navigation) {
+  const internals = stateFor(router);
+  const entry = getDriver(router).currentEntry;
+  const previous = internals.currentController;
+  const match = toMatch(base, nav, entry.key, mark(router, entry)) as ActiveMatch;
+  nav.match = match;
+  internals.current = match;
+  internals.currentController = nav.controller;
+  previous?.abort();
+  if (!isCurrent(router, nav)) {return null;}
+  router.triggerMethod('route', match);
+  return isCurrent(router, nav) ? match : null;
+}
+
+function mark(router: RouterInstance, entry: DriverEntry) {
+  const stored = entry.getState();
+  if (isMarked(stored) || !(stored === undefined || stored === null || isObject(stored))) {return stored;}
+  const marked = withMarker(stored);
+  getDriver(router).updateCurrentEntry({ state: marked });
+  return marked;
+}
+
+export const Router = MnObject.extend({
+  constructor: constructRouter,
+  routes: [],
+  persistParams: [],
+  maxRedirects: 5,
+  intercept: () => true,
+
+  start(this: RouterInstance): Promise<boolean> {
+    const internals = stateFor(this);
+    if (internals.closed) { return Promise.resolve(false); }
+    if (internals.session) {return internals.session.initial;}
+    const driver = getDriver(this);
+    const initial = Promise.withResolvers<boolean>();
+    const session: Session = { controller: new AbortController(), initial: initial.promise };
+    internals.session = session;
+    driver.addEventListener('navigate', event => onNavigate(this, event), { signal: session.controller.signal });
+    dispatchInitial(this, session).then(initial.resolve, initial.reject);
+    return session.initial;
+  },
+
+  stop(this: RouterInstance) {
+    stopRouting(this);
+    return true;
+  },
+
+  navigate(this: RouterInstance, nameOrUrl: string, params?: Params | NavigateOptions, options?: NavigateOptions): NavigationResult<boolean> {
+    const internals = stateFor(this);
+    if (internals.closed || !internals.session) { return canceledNavigation(); }
+    const isUrl = typeof nameOrUrl === 'string' && URL_FORM.test(nameOrUrl);
+    const navigateOptions = ((isUrl ? params : options) ?? {}) as NavigateOptions;
+    const href = isUrl ? urlTarget(this, nameOrUrl, navigateOptions) : this.url(nameOrUrl, params as Params | undefined, navigateOptions);
+    const { history = 'auto', info, state } = navigateOptions;
+    return navigateDriver(this, href, { history, info, state: entryState(this, href, history, state) }, newChain());
+  },
+
+  url(this: RouterInstance, name: string, params: Params = {}, options: { query?: Query } = {}) {
+    return getMatcher(this).url(name, withPersisted(this, name, params), options);
+  },
+
+  match(this: RouterInstance, url: URL | string) {
+    const result = getMatcher(this).match(url);
+    if (!result) {return null;}
+    const idle = { navigationType: null, initial: false, info: undefined, signal: null, userInitiated: false };
+    return toMatch(result, idle, '', undefined);
+  },
+
+  getCurrent(this: RouterInstance) {
+    const internals = stateFor(this);
+    return internals.current;
+  },
+
+  refresh(this: RouterInstance) {
+    const internals = stateFor(this);
+    if (!internals.session) {return Promise.resolve(false);}
+    const entry = getDriver(this).currentEntry;
+    if (!claims(this, new URL(entry.url))) {return Promise.resolve(false);}
+    return navigateDriver(this, entry.url, { history: 'replace', state: entry.getState() }, newChain()).finished;
+  },
+
+  mount(this: RouterInstance, routes: RouteDefinition[], options?: { parent?: string }) {
+    return getMatcher(this).mount(routes, options);
+  },
+
+  getAliases(this: RouterInstance) {
+    return getMatcher(this).getAliases();
+  },
+
+  getParamNames(this: RouterInstance, name: string) {
+    return getMatcher(this).getParamNames(name);
+  },
+
+  hasRoute(this: RouterInstance, name: string) {
+    return getMatcher(this).has(name);
+  },
+
+  back(this: RouterInstance) {
+    const internals = stateFor(this);
+    if (!this.canGoBack) {return Promise.resolve(false);}
+    const driver = getDriver(this);
+    const request = { key: driver.entries()[driver.currentEntry.index - 1].key, chain: newChain() };
+    internals.traversals.add(request);
+    try {
+      return settle(driver.back(), request.chain).finished.finally(() => internals.traversals.delete(request));
+    } catch (error) {
+      internals.traversals.delete(request);
+      throw error;
+    }
+  },
+
+  updateState(this: RouterInstance, state: EntryState) {
+    if (stateFor(this).closed || !stateFor(this).session) { return false; }
+    const internals = stateFor(this);
+    assertState(state);
+    const entry = getDriver(this).currentEntry;
+    const stored = entry.getState();
+    const next = { ...(isObject(stored) ? stored : {}), ...state };
+    getDriver(this).updateCurrentEntry({ state: next });
+    if (internals.current?.key === entry.key) {internals.current.state = publicState(next);}
+    return true;
+  },
+
+  destroy(this: RouterInstance, options?: unknown) {
+    const internals = stateFor(this);
+    if (internals.closed) { return this; }
+    internals.closed = true;
+    stopRouting(this);
+    return MnObject.prototype.destroy.call(this, options);
+  }
+}) as unknown as RouterConstructor;
+
+Object.defineProperty(Router.prototype, 'canGoBack', {
+  configurable: true,
+  get(this: RouterInstance) {
+    const internals = stateFor(this);
+    if (internals.closed || !internals.session) { return false; }
+    const driver = getDriver(this);
+    const { index } = driver.currentEntry;
+    return index > 0 && isMarked(driver.entries()[index - 1].getState());
+  }
+});

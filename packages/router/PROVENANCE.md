@@ -1,62 +1,30 @@
-# Router source provenance
+# Source provenance and publication status
 
-This private development package was extracted from RoundingWell/app-frontend
-`feature/mnjs-router` at **0c730dceffc60bb5c85ceb31be2ee49f6956dcff**, specifically
-`packages/router`. It starts from that JavaScript Navigation API/URLPattern
-implementation, not the earlier Marionette History API prototype.
+This private development package originated from `packages/router` in
+RoundingWell/app-frontend at **0c730dceffc60bb5c85ceb31be2ee49f6956dcff**.
+This factual source record preserves provenance; the public API, documentation and
+examples are generic Marionette v5 routing and contain no application-domain policy.
 
-The receiving branch starts at Marionette master
-**909890031209404fd8a375447abf51cc3a35ebfe**. The existing prototype branch
-`codex/mnjs-router-prototype` at
-**950e4c6dc67ca3e6e378267a95845dc6965eeaa4** was inspected as a comparison only.
-No commits from it are merged here. app-frontend's separate
-`feature/routing-composition` work is not the package source.
+The receiving branch begins at Marionette master
+**909890031209404fd8a375447abf51cc3a35ebfe**. No commits from the separate earlier
+History API prototype at **950e4c6dc67ca3e6e378267a95845dc6965eeaa4** were merged.
+The initial refinement commits are **1a26e38ba0b431ca272d91ef643e2dfdc306833f** and
+**e1884c0657ac08dae5e883d14d879913e054348e**.
 
-## Deliberate changes
+The package has since been revised to use Marionette MnObject construction,
+configuration, extension, notifications and terminal cleanup. ChildAppSwitcher
+replaces the previous coordinator terminology and reconstruction means stop/start
+of the same registered Application. Match remains plain data; Driver, matching,
+redirect, cancellation and readiness machinery remain routing-specific.
 
-- Authored TypeScript, generated ESM/CommonJS declarations and distributions,
-  repository Vitest/public-entrypoint tests. The matcher remains internal. Public
-  edge-contract tests cover grouped paths, queued traversal races, driver event
-  semantics and outlet lifetimes without coverage exclusions.
-- Removed two redundant private branches: a newly arriving navigation cannot yet
-  be in the active set, and native decoding of URLPattern string groups only
-  reports malformed URI data. No accepted input or error policy changes.
-- A callable MnObject-based outlet constructor supports Marionette `.extend()`
-  and constructor delegation. Required owner subscriptions precede `initialize`;
-  destruction does not depend on an overridable `onDestroy` hook.
-- Reuse checks child instance identity, registration name and structural key.
-  Retained owner restart preserves selection, including a restart begun during
-  the first `start` notification. A child-owned restart is left running
-  when its superseded initial selection resolves undefined. Owner stop/destroy still cancels selection.
-- Router-local cancellation produces `false` after outstanding handler/redirect
-  work settles. A `back()` request carries its own redirect/readiness chain
-  through the queued traversal event, correlated by destination entry key.
-- Canonicalizing aliases obey the redirect limit; already-vetoed/aborted events
-  do not execute redirect planning.
-- Named URL generation rejects route/parameter round-trip conflicts. Explicit
-  state validates the documented plain-object contract rather than flattening
-  Date/Map/Set values.
+The original package manifest declared MIT, but its extraction proposal did not
+resolve license notice/copyright provenance. No copyright holder or license grant
+is invented here. The package stays `private: true`. Resolve source rights and
+required license material before public extraction/publication.
 
-`restart: true` still reconstructs the selected child (stop/start), as in the
-source package. Renaming that operation to distinguish it from retained
-`Application.restart()` remains a maintainer decision. There is no compatibility
-alias or second implementation. An adopting app must update its option name
-alongside any eventual package rename.
-
-## Evidence and release boundaries
-
-The source's `UPSTREAM.md` and `docs/router-migration.md`, and the six October 17
-reviews, are historical analysis. The untouched pinned package was independently
-run locally on Node 24.19.0: **276 tests passed**. Current branch checks are separate
-from that baseline; the commands are in [the package readme](readme.md), with results reported for each branch revision.
-
-The earlier WebKit finding concerns redirect forwarding of traversal destination
-state. Ordinary committed traversal reads the current entry and can retain state.
-This branch does not change the driver to guess missing destination state and has
-no fresh native-browser, Safari, focus/scroll, or app-frontend Cypress certification.
-
-The source package manifest declared MIT, but its extraction proposal explicitly
-left the license notice/copyright provenance unresolved. This package stays
-`private: true`; it does not invent a copyright notice or license grant. Resolve
-source rights, the release version/lockstep dependency plan, native-browser evidence,
-and release-tooling integration before any public extraction or publication.
+Historical reports and browser rehearsals are not fresh certification. A recorded
+WebKit traversal destination-state gap concerned redirect forwarding; ordinary
+committed traversal can retain current-entry state. This branch does not guess a
+browser workaround or claim fresh Safari parity. Build, Node, package and UI fixture
+results must identify the tested branch revision; native-browser and real focus/
+scroll evidence remain separate requirements.

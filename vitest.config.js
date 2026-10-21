@@ -41,9 +41,6 @@ for (const file of sourceFiles) {
 export default defineConfig({
   resolve: {
     alias: [{
-      find: /^@mnjs\/router\/outlet$/,
-      replacement: fileURLToPath(new URL('./packages/router/src/outlet.ts', import.meta.url))
-    }, {
       find: /^@mnjs\/router$/,
       replacement: fileURLToPath(new URL('./packages/router/src/index.ts', import.meta.url))
     }, {

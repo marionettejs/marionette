@@ -1,8 +1,8 @@
 import compile from '../../build/babel.js';
 
-export default ['index', 'outlet'].map(entry => ({
+export default ['index'].map(entry => ({
   input: `src/${ entry }.ts`,
-  external: ['@mnjs/utils', 'marionette'],
+  external: ['marionette'],
   output: [
     { file: `dist/${ entry }.js`, sourcemap: true, format: 'es' },
     { file: `dist/${ entry }.cjs`, sourcemap: true, format: 'cjs', exports: 'named' }

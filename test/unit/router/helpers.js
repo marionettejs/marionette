@@ -8,6 +8,6 @@ export function createRouter(options) {
   return router;
 }
 afterEach(() => {
-  for (const router of routers) { router.stop(); }
+  for (const router of routers) { router.destroy(); }
   routers.clear();
 });

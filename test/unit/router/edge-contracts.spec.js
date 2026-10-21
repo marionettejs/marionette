@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Application } from 'marionette';
 import { memoryDriver } from '@mnjs/router';
-import { RouteOutlet } from '@mnjs/router/outlet';
+import { ChildAppSwitcher } from '@mnjs/router';
 import { createRouter } from './helpers.js';
 
 const owners = new Set();
@@ -186,15 +186,15 @@ describe('memory driver queued traversal and event semantics', () => {
   });
 });
 
-describe('outlet selection lifetime boundaries', () => {
+describe('switcher selection lifetime boundaries', () => {
   it('reconstructs a selection when an object key becomes an array key', async() => {
     const owner = own();
     let preparations = 0;
     const Page = Application.extend({ prepareStart() { preparations++; } });
     const page = owner.addChildApp('page', new Page());
-    const outlet = new RouteOutlet({ owner });
-    await outlet.show('page', { key: { id: 'one' } });
-    expect(await outlet.show('page', { key: ['one'] })).toBe(page);
+    const switcher = new ChildAppSwitcher({ owner });
+    await switcher.switchTo('page', { key: { id: 'one' } });
+    expect(await switcher.switchTo('page', { key: ['one'] })).toBe(page);
     expect(preparations).toBe(2);
   });
 
@@ -203,13 +203,13 @@ describe('outlet selection lifetime boundaries', () => {
     await owner.start();
     owner.addChildApp('a', new Application());
     const b = owner.addChildApp('b', new Application());
-    const outlet = new RouteOutlet({ owner });
-    await outlet.show('a');
+    const switcher = new ChildAppSwitcher({ owner });
+    await switcher.switchTo('a');
     let shown;
-    owner.onStop = () => { shown = outlet.show('b'); };
+    owner.onStop = () => { shown = switcher.switchTo('b'); };
     owner.stop();
     expect(await shown).toBe(b);
-    expect(outlet.getCurrent()).toBe(b);
+    expect(switcher.getCurrent()).toBe(b);
     expect(b.isRunning()).toBe(true);
   });
 
@@ -224,9 +224,9 @@ describe('outlet selection lifetime boundaries', () => {
     const page = owner.addChildApp('page', new Page());
     const nested = page.getChildApp('nested');
     nested.onBeforeStop = () => { throw cleanup; };
-    const outlet = new RouteOutlet({ owner });
-    await expect(outlet.show('page')).rejects.toBe(failure);
-    expect(outlet.getCurrent()).toBe(page);
+    const switcher = new ChildAppSwitcher({ owner });
+    await expect(switcher.switchTo('page')).rejects.toBe(failure);
+    expect(switcher.getCurrent()).toBe(page);
     nested.onBeforeStop = () => {};
   });
 
@@ -235,13 +235,13 @@ describe('outlet selection lifetime boundaries', () => {
     const current = owner.addChildApp('current', new Application());
     const latest = owner.addChildApp('latest', new Application());
     owner.addChildApp('obsolete', new Application());
-    const outlet = new RouteOutlet({ owner });
-    await outlet.show('current');
+    const switcher = new ChildAppSwitcher({ owner });
+    await switcher.switchTo('current');
     let shown;
-    current.onBeforeStop = () => { shown = outlet.show('latest'); throw new Error('obsolete stop failed'); };
-    expect(await outlet.show('obsolete')).toBeUndefined();
+    current.onBeforeStop = () => { shown = switcher.switchTo('latest'); throw new Error('obsolete stop failed'); };
+    expect(await switcher.switchTo('obsolete')).toBeUndefined();
     current.onBeforeStop = () => {};
     expect(await shown).toBe(latest);
-    expect(outlet.getCurrent()).toBe(latest);
+    expect(switcher.getCurrent()).toBe(latest);
   });
 });

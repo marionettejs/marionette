@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Application } from 'marionette';
 import { memoryDriver } from '@mnjs/router';
-import { RouteOutlet } from '@mnjs/router/outlet';
+import { ChildAppSwitcher } from '@mnjs/router';
 import { createRouter } from './helpers.js';
 
 const owners = new Set();
@@ -147,31 +147,31 @@ describe('Application selection and extension', () => {
     const page = owner.addChildApp('page', new Application());
     const initialize = vi.fn();
     const onDestroy = vi.fn();
-    const Extended = RouteOutlet.extend({ initialize, onDestroy, label() { return 'selected'; } });
+    const Extended = ChildAppSwitcher.extend({ initialize, onDestroy, label() { return 'selected'; } });
     function construct(options) { Extended.call(this, options); }
     const Delegating = Extended.extend({ constructor: construct });
-    const outlet = new Delegating({ owner });
+    const switcher = new Delegating({ owner });
     expect(initialize).toHaveBeenCalledTimes(1);
-    expect(outlet.label()).toBe('selected');
-    expect(await outlet.show('page')).toBe(page);
+    expect(switcher.label()).toBe('selected');
+    expect(await switcher.switchTo('page')).toBe(page);
     owner.destroy();
     expect(onDestroy).toHaveBeenCalledTimes(1);
-    expect(outlet.isDestroyed()).toBe(true);
-    expect(outlet.getCurrent()).toBeNull();
-    expect(await outlet.show('page')).toBeUndefined();
+    expect(switcher.isDestroyed()).toBe(true);
+    expect(switcher.getCurrent()).toBeNull();
+    expect(await switcher.switchTo('page')).toBeUndefined();
   });
 
   it('starts the replacement instance registered under the same name and key', async() => {
     const owner = ownerFor();
     const first = owner.addChildApp('page', new Application());
-    const outlet = new RouteOutlet({ owner });
-    await outlet.show('page', { key: { id: 'one' } });
+    const switcher = new ChildAppSwitcher({ owner });
+    await switcher.switchTo('page', { key: { id: 'one' } });
     owner.removeChildApp('page');
     const second = owner.addChildApp('page', new Application());
-    expect(await outlet.show('page', { key: { id: 'one' } })).toBe(second);
+    expect(await switcher.switchTo('page', { key: { id: 'one' } })).toBe(second);
     expect(first.isDestroyed()).toBe(true);
     expect(second.isRunning()).toBe(true);
-    expect(outlet.getCurrent()).toBe(second);
+    expect(switcher.getCurrent()).toBe(second);
   });
 
   it('leaves a child-owned replacement of its first preparation running', async() => {
@@ -194,8 +194,8 @@ describe('Application selection and extension', () => {
     const page = owner.addChildApp('page', new Page());
     const stops = vi.fn();
     page.on('stop', stops);
-    const outlet = new RouteOutlet({ owner });
-    const shown = outlet.show('page');
+    const switcher = new ChildAppSwitcher({ owner });
+    const shown = switcher.switchTo('page');
     await replacing.promise;
     replacement.resolve();
     expect(await shown).toBeUndefined();
@@ -204,23 +204,23 @@ describe('Application selection and extension', () => {
     expect(runs).toBe(2);
     expect(stops).not.toHaveBeenCalled();
     expect(page.isRunning()).toBe(true);
-    expect(outlet.getCurrent()).toBe(page);
+    expect(switcher.getCurrent()).toBe(page);
   });
 
   it('retains a selection when its owner restarts itself during the first start notification', async() => {
     const owner = ownerFor();
     const child = owner.addChildApp('page', new Application());
-    const outlet = new RouteOutlet({ owner });
+    const switcher = new ChildAppSwitcher({ owner });
     let shown;
     let restarted;
     owner.once('start', () => {
-      shown = outlet.show('page');
+      shown = switcher.switchTo('page');
       restarted = owner.restart();
     });
     expect(await owner.start()).toBe(true);
     expect(await restarted).toBe(true);
     expect(await shown).toBe(child);
-    expect(outlet.getCurrent()).toBe(child);
+    expect(switcher.getCurrent()).toBe(child);
   });
 
   it('keeps required selection and activation readiness explicit across nested owners', async() => {
@@ -228,14 +228,14 @@ describe('Application selection and extension', () => {
     await owner.start();
     const page = owner.addChildApp('page', new Application());
     const details = page.addChildApp('details', new Application());
-    const pages = new RouteOutlet({ owner });
-    const content = new RouteOutlet({ owner: page });
+    const pages = new ChildAppSwitcher({ owner });
+    const content = new ChildAppSwitcher({ owner: page });
     const pending = gate();
     const entered = gate();
     const { router } = setup({ handler: async match => {
-      const selected = await pages.show('page');
+      const selected = await pages.switchTo('page');
       if (!selected || match.signal.aborted) { return; }
-      const detail = await content.show('details');
+      const detail = await content.switchTo('details');
       if (!detail || match.signal.aborted) { return; }
       entered.resolve();
       await pending.promise;
@@ -303,8 +303,8 @@ describe('selection cancellation ownership', () => {
     const prepare = vi.fn();
     const Page = Application.extend({ onBeforeStart() { this.stop(); }, prepareStart: prepare });
     const page = owner.addChildApp('page', new Page());
-    const outlet = new RouteOutlet({ owner });
-    expect(await outlet.show('page')).toBeUndefined();
+    const switcher = new ChildAppSwitcher({ owner });
+    expect(await switcher.switchTo('page')).toBeUndefined();
     expect(prepare).not.toHaveBeenCalled();
     expect(page.isRunning()).toBe(false);
   });
@@ -312,13 +312,13 @@ describe('selection cancellation ownership', () => {
   it('leaves children owned by their Application when the selector is destroyed', async() => {
     const owner = ownerFor();
     const page = owner.addChildApp('page', new Application());
-    const outlet = new RouteOutlet({ owner });
-    await outlet.show('page');
-    outlet.destroy();
-    expect(outlet.getCurrent()).toBeNull();
+    const switcher = new ChildAppSwitcher({ owner });
+    await switcher.switchTo('page');
+    switcher.destroy();
+    expect(switcher.getCurrent()).toBeNull();
     expect(page.isRunning()).toBe(true);
     expect(owner.getChildApp('page')).toBe(page);
-    expect(await outlet.show('page')).toBeUndefined();
+    expect(await switcher.switchTo('page')).toBeUndefined();
     owner.destroy();
     expect(page.isDestroyed()).toBe(true);
   });

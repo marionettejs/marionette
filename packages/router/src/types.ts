@@ -1,3 +1,5 @@
+import type { RouterInstance } from './router.ts';
+
 export type Params = Record<string, string | number | null | undefined>;
 export type Query = URLSearchParams | Record<string, string | number | null | undefined> | string;
 export type EntryState = Record<string, unknown>;
@@ -61,8 +63,9 @@ export interface MatcherResult extends Pick<Match, 'name' | 'params' | 'query' |
   redirect?: Redirect;
 }
 export interface NavigateOptions extends NavigationOptions { query?: Query }
+export type RouteSource = RouteDefinition[] | ((this: RouterInstance) => RouteDefinition[]);
 export interface RouterOptions {
-  routes: RouteDefinition[]; driver?: Driver; intercept?: (url: URL) => boolean;
+  routes?: RouteSource; driver?: Driver; intercept?: (this: RouterInstance, url: URL) => boolean;
   notFound?: { name: string; within: (url: URL) => boolean }; persistParams?: string[];
-  handler?: (match: ActiveMatch, context: { signal: AbortSignal }) => unknown; maxRedirects?: number;
+  handler?: (this: RouterInstance, match: ActiveMatch, context: { signal: AbortSignal }) => unknown; maxRedirects?: number;
 }

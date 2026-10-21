@@ -160,6 +160,7 @@
     "jquery": "4.0.0",
     "jsdom": "30.1.2",
     "lit-html": "3.3.3",
+    "marionette": "file:.",
     "marked": "18.1.1",
     "morphdom": "2.7.8",
     "rollup": "4.64.5",
