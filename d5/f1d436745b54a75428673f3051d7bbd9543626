@@ -1,0 +1,24 @@
+docs/tooling.md
+  h_0f06c286dda36f 119-121
+plugins/marionette/.claude-plugin/plugin.json
+  h_0f06c286dda36f 3
+plugins/marionette/README.md
+  h_0f06c286dda36f 1-46
+plugins/marionette/assets/marionette-mark.svg
+  h_0f06c286dda36f 1-10
+plugins/marionette/plugin.json
+  h_0f06c286dda36f 4,22,34-36
+test/agent-docs/plugin.test.mjs
+  h_0f06c286dda36f 59-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d5f1d436745b54a75428673f3051d7bbd9543626",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
