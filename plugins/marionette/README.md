@@ -17,8 +17,8 @@ The first command refreshes the marketplace snapshot; the second refreshes the
 existing installed plugin with the same identity. Check the installed version with
 `codex plugin list --marketplace marionettejs`. Check the source with
 `codex plugin marketplace list`. A commit-pinned marketplace
-stays pinned. To switch an existing pin to the current branch, use the CLI's
-remove/add sequence (the plugin keeps its `marionette@marionettejs` identity):
+stays pinned. To switch an existing pin to follow `master` (the development tip,
+not a release channel), use the CLI's remove/add sequence (the plugin keeps its `marionette@marionettejs` identity):
 
 ```sh
 codex plugin marketplace remove marionettejs
@@ -27,8 +27,21 @@ codex plugin add marionette@marionettejs
 ```
 
 For a local-folder marketplace, pull the checkout or replace the copied plugin
-folder that its entry points to. Workspace imports use the admin **Sync now**
-flow. Restart ChatGPT when convenient after refreshing local files and verify the
+folder that its entry points to. Then refresh the installed copy using the CLI's
+remove/add flow; a restart alone can leave cached files unchanged:
+
+```sh
+codex plugin remove marionette@marionettejs
+codex plugin add marionette@marionettejs
+```
+
+This removes the installed plugin cache and installs again from the registered
+marketplace; it does not remove the marketplace registration. The commands are
+supported by
+`codex plugin remove --help` and `codex plugin add --help`.
+
+Workspace imports use the admin **Sync now** flow. Restart the ChatGPT desktop
+app when convenient after refreshing local files, then verify the displayed
 plugin version. Installing or updating this plugin does not upgrade npm packages.
 See [local and Git marketplaces](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli)
 and [workspace updates](https://learn.chatgpt.com/docs/enterprise/plugin-management#keep-plugins-up-to-date).
@@ -44,3 +57,7 @@ Run `node --test test/agent-docs/plugin.test.mjs` from the repository root to ch
 manifest parity, bundled branding, marketplace wiring, and loader behavior.
 The [official icon requirements](https://developers.openai.com/plugins/deploy/submission#icons-and-screenshots)
 require square icons at least 48 by 48, no larger than 5 MiB.
+
+The public plugin listing's `interface.shortDescription` has a
+[30-character submission limit](https://developers.openai.com/plugins/deploy/submission#listing-metadata).
+The skill's `short_description` is a separate metadata field.

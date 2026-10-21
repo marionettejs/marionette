@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="290" height="290" viewBox="-5 0 290 290" role="img" aria-labelledby="title description">
-  <title id="title">Marionettejs mark</title>
-  <desc id="description">Two folded crimson planes composing a geometric M.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="290" height="290" viewBox="-5 0 290 290" role="img" aria-labelledby="marionette-mark-title marionette-mark-description">
+  <title id="marionette-mark-title">Marionettejs mark</title>
+  <desc id="marionette-mark-description">Two folded crimson planes composing a geometric M.</desc>
 
   <!-- A white tile keeps the original crimson artwork visible in both themes. -->
   <rect x="-5" width="290" height="290" fill="#FFF"/>
