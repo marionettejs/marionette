@@ -3,6 +3,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
+import { JSDOM } from 'jsdom';
 
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const pluginRoot = resolve(repository, 'plugins/marionette');
@@ -54,6 +55,50 @@ test('Marionette plugin bundles its skill and documentation MCP', async() => {
   const navigation = await json(resolve(repository, 'docs-site/navigation.json'));
   assert.ok(navigation.some(page => new URL(manifest.homepage).pathname === `/${page.route}/`),
     'Plugin homepage must resolve to a published documentation route');
+});
+
+test('plugin branding ships square icons and preserves the Marionette artwork', async() => {
+  const manifest = await json(resolve(pluginRoot, 'plugin.json'));
+  const presentation = manifest.extensions['com.openai'].interface;
+  // Public plugin listing metadata, separate from skill agents/openai.yaml:
+  // https://developers.openai.com/plugins/deploy/submission#listing-metadata
+  assert.ok(presentation.shortDescription.length <= 30);
+  const path = presentation.logo;
+  assert.match(path, /^\.\/assets\/[^/]+\.svg$/, 'Logo must be bundled under assets');
+  assert.equal(presentation.composerIcon, path, 'Both surfaces use the same artwork');
+  const svg = await readFile(resolve(pluginRoot, path), 'utf8');
+  assert.ok(Buffer.byteLength(svg) <= 5 * 1024 * 1024);
+  const root = new JSDOM(svg, { contentType: 'image/svg+xml' }).window.document.documentElement;
+  const original = new JSDOM(await readFile(resolve(repository, 'marionette-mark.svg'), 'utf8'), {
+    contentType: 'image/svg+xml',
+  }).window.document.documentElement;
+  const dimension = name => {
+    assert.ok(root.hasAttribute(name), `SVG must declare ${name}`);
+    return Number(root.getAttribute(name));
+  };
+  const width = dimension('width');
+  assert.ok(Number.isFinite(width) && width >= 48);
+  assert.equal(width, dimension('height'), 'Icon must be square');
+  const viewBox = root.getAttribute('viewBox').split(/\s+/).map(Number);
+  const originalBox = original.getAttribute('viewBox').split(/\s+/).map(Number);
+  assert.equal(viewBox.length, 4);
+  assert.ok(viewBox.every(Number.isFinite));
+  assert.equal(viewBox[2], viewBox[3], 'Use a square canvas');
+  assert.ok(viewBox[2] >= originalBox[2] && viewBox[3] >= originalBox[3], 'Keep the original canvas visible');
+  assert.deepEqual([viewBox[0] + viewBox[2] / 2, viewBox[1] + viewBox[3] / 2],
+    [originalBox[0] + originalBox[2] / 2, originalBox[1] + originalBox[3] / 2], 'Center the original canvas');
+  const artwork = element => [...element.querySelectorAll('path')].map(node => ({
+    d: node.getAttribute('d'), fill: node.getAttribute('fill'),
+  }));
+  assert.ok(artwork(original).length > 0);
+  assert.deepEqual(artwork(root), artwork(original), 'Keep the original paths and crimson colors');
+  const tile = root.querySelector('rect');
+  assert.ok(tile, 'Include a light tile for dark themes');
+  assert.ok(['#fff', '#ffffff', 'white'].includes(tile.getAttribute('fill').toLowerCase()));
+  assert.deepEqual(['x', 'y', 'width', 'height'].map(name => Number(tile.getAttribute(name) || 0)), viewBox,
+    'Tile must cover the canvas');
+  assert.ok([...root.children].indexOf(tile) < [...root.children].indexOf(root.querySelector('path')),
+    'Draw the light tile before the artwork');
 });
 
 test('repository marketplace exposes the Marionette plugin', async() => {

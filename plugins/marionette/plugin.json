@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "marionette",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Build and debug Marionette applications with version-matched documentation.",
   "author": {
     "name": "Marionette.js",
@@ -19,7 +19,7 @@
     "com.openai": {
       "interface": {
         "displayName": "Marionette",
-        "shortDescription": "Build with version-matched Marionette docs.",
+        "shortDescription": "Versioned Marionette docs",
         "longDescription": "Use installed Marionette documentation to build, review, and debug an application. The bundled skill works with local package documentation.",
         "developerName": "Marionette.js",
         "category": "Developer Tools",
@@ -31,7 +31,9 @@
           "Inspect this application's Marionette contract.",
           "Review ownership and cleanup in this Marionette feature.",
           "Debug this Marionette lifecycle issue."
-        ]
+        ],
+        "logo": "./assets/marionette-mark.svg",
+        "composerIcon": "./assets/marionette-mark.svg"
       }
     }
   }
