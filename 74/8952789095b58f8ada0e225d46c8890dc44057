@@ -1,0 +1,40 @@
+packages/router/DESIGN.md
+  h_0f06c286dda36f 130,136-139,504,506-509,511-515,521-522,526
+packages/router/PROVENANCE.md
+  h_0f06c286dda36f 21-24
+packages/router/readme.md
+  h_0f06c286dda36f 111-116
+packages/router/src/child-app-switcher.ts
+  h_0f06c286dda36f 91-112,114-128,130-135,137-140
+packages/router/src/index.ts
+  h_0f06c286dda36f 1,3
+packages/router/src/router.ts
+  h_0f06c286dda36f 107,152,160,423-442,444-514,516-537
+test/router/conformance/router.js
+  h_0f06c286dda36f 235
+test/router/package.mjs
+  h_0f06c286dda36f 43,50-51,58,62,120
+test/types/router.cts
+  h_0f06c286dda36f 2-5,79-84
+test/types/router.mts
+  h_0f06c286dda36f 2-5,93-98
+test/unit/router/application-lifecycle.spec.js
+  h_0f06c286dda36f 159,161,165-180
+test/unit/router/child-app-switcher.spec.js
+  h_0f06c286dda36f 4,574,577-580
+test/unit/router/marionette-contract.spec.js
+  h_0f06c286dda36f 2-3,91,159-161,163,165,167,169,173-175,177-178,192-193,196-207,251-253,255,259
+test/unit/router/router.spec.js
+  h_0f06c286dda36f 1207,1219,1223,1231,1322
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "748952789095b58f8ada0e225d46c8890dc44057",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
