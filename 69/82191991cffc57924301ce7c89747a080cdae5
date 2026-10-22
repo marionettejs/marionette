@@ -1,0 +1,40 @@
+packages/router/DESIGN.md
+  h_0f06c286dda36f 81-95,111-113,120,126-133,148,154-156,162-163,451-453,458
+packages/router/PROVENANCE.md
+  h_0f06c286dda36f 24-26
+packages/router/readme.md
+  h_0f06c286dda36f 28-30,32,60-70,77-78
+packages/router/src/router.ts
+  h_0f06c286dda36f 14,159,164-177,270-279,281,302,322-325,391-393,395,397-405,408-414
+test/browser/router-native.spec.mjs
+  h_0f06c286dda36f 7,13,34-37,39-43,68,71-74,77-78,80,215-246,248,251,254-255,265,329,331-332,335-337,340,356-378,401-403,411,416-417,419-420,422
+test/router/conformance/router.js
+  h_0f06c286dda36f 222,225
+test/types/router.cts
+  h_0f06c286dda36f 5,40,85-95
+test/types/router.mts
+  h_0f06c286dda36f 5,54,99-109
+test/unit/router/application-lifecycle.spec.js
+  h_0f06c286dda36f 10,50,59-62,72-73,120,124,127,130-133,224,271,280,284,286,291,298-300,302-306,310-313,315-318,322-325,327,329-332,334-335,340-396
+test/unit/router/bookmarks.spec.js
+  h_0f06c286dda36f 63,70-72,80-81
+test/unit/router/edge-contracts.spec.js
+  h_0f06c286dda36f 248-295
+test/unit/router/marionette-contract.spec.js
+  h_0f06c286dda36f 27,35,39,42-43,45,47-48,61,74-75,78,123,133-136,138
+test/unit/router/regressions.spec.js
+  h_0f06c286dda36f 110-114
+test/unit/router/router.spec.js
+  h_0f06c286dda36f 1013,1015,1040,1045-1048,1057
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6982191991cffc57924301ce7c89747a080cdae5",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
