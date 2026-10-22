@@ -127,11 +127,15 @@ the binding even though Application activation did not complete. Prefer preparin
 prerequisites before calling the base Router preparation, as above.
 
 Before startup is requested, and after stop or destroy, `navigate()` returns canceled committed/finished
-Promises; `refresh()` and `back()` resolve false; `canGoBack` is false and
+Promises; `refresh()` and `back()` resolve false; `canGoBack()` is false and
 `updateState()` returns false without writing browser state. Pure matching, URL
 building and route-table inspection/configuration remain available. Active
 `updateState()` returns true. `getCurrent()` identifies the last committed Match;
 its signal is aborted when the run ends.
+
+`canGoBack()` reports whether the previous history entry was marked by this
+router package; `back()` returns its navigation readiness or resolves `false`
+when no such entry is available.
 
 | Notification | Hook | Timing |
 | --- | --- | --- |
@@ -497,41 +501,29 @@ Application `stop()` for disabling the group. Destroy now destroys the group's
 registered pages instead of leaving them with an external owner. Application
 `destroy()` returns `true`, rather than the former MnObject return value.
 
-## Isolated Marionette runtimes
+## Marionette runtime family
 
-Named imports use Marionette's default Application family. An isolated app tree
-must use classes based on that runtime's Application constructor:
+Router and ChildAppSwitcher are ordinary subclasses of Marionette's named
+`Application` export and belong to that default family. Their parent, registered
+children and borrowed Regions must belong to the same family. An isolated
+`createMarionette()` Application tree cannot register these classes as children.
 
-```js
-import { createMarionette } from 'marionette';
-import { createRouterClass, createChildAppSwitcherClass } from '@mnjs/router';
-
-const runtime = createMarionette();
-const ScopedRouter = createRouterClass(runtime.Application);
-const ScopedPages = createChildAppSwitcherClass(runtime.Application);
-const frame = new runtime.Application();
-const router = frame.addChildApp('router', new ScopedRouter({ routes, driver }));
-const pages = frame.addChildApp('content', new ScopedPages());
-pages.addChildApp('item', new runtime.Application());
-```
-
-Configure the runtime's providers before constructing classes/instances as usual.
-Both factories return ordinary extendable Application constructors; they do not
-create another runtime or a second Router instance. Swapping Radio/State properties
-on the default class does not change its runtime identity. Applications and borrowed
-Regions must come from the same runtime family. Radio/state behavior remains opt-in
-through ordinary Application configuration; the package declares no Radio channels.
+Use `.extend()` and normal Application provider configuration to customize them.
+Changing Radio or State providers does not change Application runtime identity,
+and subclassing does not rebase a class into another runtime. This package exposes
+no runtime-bound constructor factory. Radio/state behavior remains opt-in; the
+package declares no Radio channels.
 
 ## Package and validation boundary
 
 `marionette` is a required exact-version peer, following the family integration
 convention. The package does not embed a second framework copy or import an
-application repository, external data layer or renderer. Both Application classes and their runtime-bound constructor factories are
-exported from the root. There are no old-name aliases or separate adapter entry.
+application repository, external data layer or renderer. Both Application classes
+are exported from the root. There are no old-name aliases or separate adapter entry.
 
 Authored TypeScript generates ESM/CJS and declarations. Public tests cover class
 options/initialization, notifications, cleanup, navigation concurrency, switching,
-UI reconstruction and isolated providers. Package fixtures verify installed ESM/CJS
+UI reconstruction, configured providers and the default runtime family boundary. Package fixtures verify installed ESM/CJS
 behavior with the required peer. Focused headless native-navigation tests exercise
 the built router with packed Marionette peers; these do not certify the entire
 Driver contract, minimum browser versions or any consuming application UI.

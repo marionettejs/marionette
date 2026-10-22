@@ -18,6 +18,10 @@ ChildAppSwitcher replaces the previous coordinator terminology, and reconstructi
 means stop/start of the same registered Application. Match remains plain data; Driver, matching,
 redirect, cancellation and readiness machinery remain routing-specific.
 
+Both classes use Marionette's default Application family through ordinary
+`.extend()` construction. Runtime-bound constructor factories have been removed;
+`canGoBack()` is a regular method rather than a prototype-installed getter.
+
 The original package manifest declared MIT, but its extraction proposal did not
 resolve license notice/copyright provenance. No copyright holder or license grant
 is invented here. The package stays `private: true`. Resolve source rights and

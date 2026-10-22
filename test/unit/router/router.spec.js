@@ -1204,7 +1204,7 @@ describe('Router history ownership', () => {
     context.driver.navigate('http://localhost/w1/schedule');
     await context.router.start();
 
-    assert.equal(context.router.canGoBack, false);
+    assert.equal(context.router.canGoBack(), false);
     assert.equal(await context.router.back(), false);
     assert.equal(context.driver.currentEntry.url, 'http://localhost/w1/schedule');
   });
@@ -1216,11 +1216,11 @@ describe('Router history ownership', () => {
     await context.router.start();
 
     await context.router.navigate('worklist', { worklistId: 'a' }).finished;
-    assert.equal(context.router.canGoBack, true);
+    assert.equal(context.router.canGoBack(), true);
 
     context.driver.simulate('http://localhost/w1/worklist/b');
     await tick();
-    assert.equal(context.router.canGoBack, true);
+    assert.equal(context.router.canGoBack(), true);
 
     assert.equal(await context.router.back(), true);
     assert.equal(context.router.getCurrent().params.worklistId, 'a');
@@ -1228,7 +1228,7 @@ describe('Router history ownership', () => {
 
     assert.equal(await context.router.back(), true);
     assert.equal(context.router.getCurrent().name, 'schedule');
-    assert.equal(context.router.canGoBack, false);
+    assert.equal(context.router.canGoBack(), false);
     assert.equal(await context.router.back(), false);
   });
 
@@ -1319,7 +1319,7 @@ describe('Router.updateState', () => {
     context.router.updateState({ note: 'x' });
     await context.router.navigate('worklist', { worklistId: 'a' }).finished;
 
-    assert.equal(context.router.canGoBack, true);
+    assert.equal(context.router.canGoBack(), true);
     await context.router.back();
     assert.deepEqual(context.router.getCurrent().state, { note: 'x' });
   });

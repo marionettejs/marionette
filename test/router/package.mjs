@@ -40,22 +40,26 @@ try {
   run(`
     import assert from 'node:assert/strict';
     import { createRequire } from 'node:module';
-    import { Application, createMarionette } from 'marionette';
+    import { Application } from 'marionette';
     import * as esm from '@mnjs/router';
     const require = createRequire(import.meta.url);
     const cjs = require('@mnjs/router');
     assert.throws(() => require('@mnjs/router/outlet'), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });
     for (const api of [esm, cjs]) {
       const BaseApplication = api === esm ? Application : require('marionette').Application;
+      assert.equal('createRouterClass' in api, false);
+      assert.equal('createChildAppSwitcherClass' in api, false);
       const driver = api.memoryDriver({ url: 'http://localhost/' });
       const Routes = api.Router.extend({
         routes: [{ name: 'home', path: '/' }],
         initialize() { this.initialized = this.url('home'); },
       });
       const router = new Routes({ driver });
+      assert.equal(router instanceof BaseApplication, true);
       assert.equal(router.initialized, '/');
       assert.equal(await router.start(), true);
       assert.equal(router.getCurrent().name, 'home');
+      assert.equal(router.canGoBack(), false);
       router.destroy();
       assert.equal(await router.start(), false);
       assert.equal(await router.navigate('/').finished, false);
@@ -74,14 +78,6 @@ try {
       owner.destroy();
       assert.equal(switcher.isDestroyed(), true);
     }
-    const runtime = createMarionette();
-    const Scoped = esm.createRouterClass(runtime.Application);
-    const scoped = new Scoped({ driver: esm.memoryDriver({ url: 'http://localhost/' }), routes: [] });
-    assert.equal(scoped.Radio, runtime.Radio);
-    assert.equal(scoped.State, runtime.Application.prototype.State);
-    assert.ok(scoped instanceof runtime.Application);
-    scoped.destroy();
-
     // Verify child-owned readiness replacement against a plain Application control.
     async function initialReplacement(Switcher, BaseApplication = Application) {
       const first = Promise.withResolvers();
@@ -121,7 +117,7 @@ try {
     await initialReplacement(null);
     await initialReplacement(esm.ChildAppSwitcher);
     await initialReplacement(cjs.ChildAppSwitcher, require('marionette').Application);
-    console.log('Router/switcher ESM/CJS lifecycle, isolated providers, reconstruction and child-restart control passed.');
+    console.log('Router/switcher ESM/CJS lifecycle, default Application family, reconstruction and child-restart control passed.');
   `);
 } finally {
   rmSync(fixture, { recursive: true, force: true });

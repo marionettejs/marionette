@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, it } from 'vitest';
 import assert from 'node:assert/strict';
 import { createMarionette, Application } from 'marionette';
-import { ChildAppSwitcher, createChildAppSwitcherClass } from '@mnjs/router';
+import { ChildAppSwitcher } from '@mnjs/router';
 
 function deferred() {
   const result = {};
@@ -571,19 +571,14 @@ describe('ChildAppSwitcher', () => {
       assert.equal(switcher.getCurrent(), null);
     });
 
-    it('constructs a selector in an isolated Application runtime', async() => {
+    it('keeps selectors in the default Application family', () => {
       const runtime = createMarionette();
-      const Selector = createChildAppSwitcherClass(runtime.Application);
       const scopedOwner = new runtime.Application();
-      const pages = scopedOwner.addChildApp('pages', new Selector());
-      const page = pages.addChildApp('page', new runtime.Application());
-      await pages.start();
-      assert.equal(await pages.switchTo('page'), page);
-      scopedOwner.stop();
-      assert.equal(page.isRunning(), false);
-      assert.equal(pages.isRunning(), false);
+      const pages = new ChildAppSwitcher();
+      assert.throws(() => scopedOwner.addChildApp('pages', pages), { code: 'MN0031' });
+      assert.equal(scopedOwner.hasChildApp('pages'), false);
+      pages.destroy();
       scopedOwner.destroy();
-      assert.equal(page.isDestroyed(), true);
       assert.equal(pages.isDestroyed(), true);
     });
   });

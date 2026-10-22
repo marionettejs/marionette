@@ -232,7 +232,7 @@ export function routerConformance({ name, createDriver, describe, it, assert }) 
       await h.router.navigate('page', { run: h.run, id: 'one' }).finished;
       await h.router.navigate('page', { run: h.run, id: 'two' }).finished;
 
-      assert.equal(h.router.canGoBack, true);
+      assert.equal(h.router.canGoBack(), true);
       assert.equal(await h.router.back(), true);
       assert.equal(h.driver.currentEntry.url, h.href('page/one'));
       assert.equal(h.last().params.id, 'one');

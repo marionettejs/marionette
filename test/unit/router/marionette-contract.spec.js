@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { Application, MnObject, createMarionette, Radio } from 'marionette';
+import { Application, MnObject, createMarionette, Radio, Region, View } from 'marionette';
+import { createRadio } from '@mnjs/radio';
 import { Model, StateApi } from '@mnjs/data';
 import { JSDOM } from 'jsdom';
 import * as routing from '@mnjs/router';
@@ -87,7 +88,7 @@ describe('Marionette Router construction and lifecycle', () => {
     expect(await router.refresh()).toBe(false);
     expect(await router.back()).toBe(false);
     expect(router.updateState({ tab: 'stopped' })).toBe(false);
-    expect(router.canGoBack).toBe(false);
+    expect(router.canGoBack()).toBe(false);
     expect(router.url('page')).toBe('/page');
     expect(router.match('/page').name).toBe('page');
     expect(await router.start()).toBe(true);
@@ -155,24 +156,26 @@ describe('Marionette Router construction and lifecycle', () => {
     source.destroy();
   });
 
-  it('uses isolated Application Radio and State providers with running-state delivery', async() => {
-    const runtime = createMarionette();
-    runtime.setStateApi(StateApi);
-    const channel = 'router-isolation-contract';
+  it('uses configured Radio and State providers without changing its Application family', async() => {
+    const configuredRadio = createRadio();
+    const channel = 'router-configured-provider-contract';
     const shared = vi.fn();
-    const isolated = vi.fn();
+    const configured = vi.fn();
     const changed = vi.fn();
-    const Router = routing.createRouterClass(runtime.Application).extend({
+    const Router = routing.Router.extend({
       routes,
+      Radio: configuredRadio,
       channelName: channel,
-      radioEvents: { command: isolated },
+      radioEvents: { command: configured },
       createState() { return new Model({ value: 1 }); },
       stateEvents: { 'change:value': changed },
     });
-    const router = own(new Router({ driver: memory() }));
+    Router.setStateApi(StateApi);
+    const owner = own(new Application());
+    const router = owner.addChildApp('router', new Router({ driver: memory() }));
     Radio.on(channel, 'command', shared);
-    runtime.Radio.trigger(channel, 'command');
-    expect(isolated).toHaveBeenCalledTimes(1);
+    configuredRadio.trigger(channel, 'command');
+    expect(configured).toHaveBeenCalledTimes(1);
     expect(shared).not.toHaveBeenCalled();
     router.getState().set('value', 2);
     expect(changed).not.toHaveBeenCalled();
@@ -186,9 +189,21 @@ describe('Marionette Router construction and lifecycle', () => {
     router.getState().set('value', 5);
     expect(changed).toHaveBeenCalledTimes(2);
     router.destroy();
-    runtime.Radio.trigger(channel, 'command');
-    expect(isolated).toHaveBeenCalledTimes(1);
+    configuredRadio.trigger(channel, 'command');
+    expect(configured).toHaveBeenCalledTimes(1);
     Radio.off(channel, 'command', shared);
+  });
+
+  it('does not rebase default-family classes by changing their providers', () => {
+    const runtime = createMarionette();
+    const isolatedOwner = own(new runtime.Application());
+    const Router = routing.Router.extend({ Radio: runtime.Radio, State: runtime.Application.prototype.State });
+    const router = own(new Router({ routes, driver: memory() }));
+    const pages = own(new routing.ChildAppSwitcher());
+    expect(() => isolatedOwner.addChildApp('router', router)).toThrow(/same Marionette runtime/);
+    expect(() => isolatedOwner.addChildApp('pages', pages)).toThrow(/same Marionette runtime/);
+    expect(routing).not.toHaveProperty('createRouterClass');
+    expect(routing).not.toHaveProperty('createChildAppSwitcherClass');
   });
 });
 
@@ -233,17 +248,15 @@ describe('same-instance UI reconstruction', () => {
     const dom = new JSDOM('<main></main>');
     vi.stubGlobal('window', dom.window);
     vi.stubGlobal('document', dom.window.document);
-    const runtime = createMarionette();
-    const owner = new runtime.Application();
-    const region = new runtime.Region({ el: dom.window.document.querySelector('main') });
-    const Page = runtime.Application.extend({
+    const owner = new Application();
+    const region = new Region({ el: dom.window.document.querySelector('main') });
+    const Page = Application.extend({
       onStart() {
-        if (!this.getView()) {this.setView(new runtime.View({ template: () => '<input value="initial">' }));}
+        if (!this.getView()) {this.setView(new View({ template: () => '<input value="initial">' }));}
         this.showView();
       },
     });
-    const Switcher = routing.createChildAppSwitcherClass(runtime.Application);
-    const switcher = owner.addChildApp('pages', new Switcher());
+    const switcher = owner.addChildApp('pages', new routing.ChildAppSwitcher());
     const page = switcher.addChildApp('page', new Page());
     try {
       await switcher.start();

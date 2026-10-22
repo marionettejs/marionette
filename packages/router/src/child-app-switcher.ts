@@ -88,57 +88,53 @@ async function select(switcher: ChildAppSwitcherInstance, intent: object, app: A
   return activate(switcher, intent, selected, options);
 }
 
-// Owns one selectable group of child Applications in the supplied runtime.
-export function createChildAppSwitcherClass(Base: ApplicationConstructor = Application) {
-  function constructSwitcher(this: ChildAppSwitcherInstance, options: ChildAppSwitcherOptions = {}) {
-    const state: State = {
-      onCleanupError: options.onCleanupError ?? (() => {}), selection: null, intent: null, stopping: false
-    };
-    states.set(this, state);
-    // Application's stop guard already blocks descendant activation when these
-    // mandatory listeners invalidate selection, even if user hooks reenter.
-    const invalidate = () => {
-      state.stopping = true;
-      state.intent = null;
-      state.selection = null;
-    };
-    this.on({
-      'before:stop': invalidate,
-      'stop': () => { state.stopping = false; },
-      'before:destroy': invalidate,
-    });
-    Base.call(this, options);
-  }
-  return Base.extend({
-    constructor: constructSwitcher,
-
-    async switchTo(this: ChildAppSwitcherInstance, appName: string, selection: SwitchOptions = {}) {
-      const state = stateFor(this);
-      if (!canSelect(this) || selection.signal?.aborted) { return; }
-      const app = this.getChildApp(appName);
-      if (!app) { throw new Error(`Child application "${ appName }" is not registered`); }
-      const intent = {};
-      state.intent = intent;
-      try {
-        const selected = await select(this, intent, app, appName, selection);
-        return selection.signal?.aborted ? undefined : selected;
-      } catch (error) {
-        if (state.intent !== intent || selection.signal?.aborted) { return; }
-        throw error;
-      }
-    },
-
-    clear(this: ChildAppSwitcherInstance) {
-      if (!canSelect(this)) { return true; }
-      stateFor(this).intent = null;
-      stopSelection(this);
-      return true;
-    },
-
-    getCurrent(this: ChildAppSwitcherInstance) {
-      return currentSelection(this)?.app ?? null;
-    },
-  }) as unknown as ApplicationConstructor<Methods, [options?: ChildAppSwitcherOptions]>;
+// Owns one selectable group of child Applications.
+function constructSwitcher(this: ChildAppSwitcherInstance, options: ChildAppSwitcherOptions = {}) {
+  const state: State = {
+    onCleanupError: options.onCleanupError ?? (() => {}), selection: null, intent: null, stopping: false
+  };
+  states.set(this, state);
+  // Application's stop guard already blocks descendant activation when these
+  // mandatory listeners invalidate selection, even if user hooks reenter.
+  const invalidate = () => {
+    state.stopping = true;
+    state.intent = null;
+    state.selection = null;
+  };
+  this.on({
+    'before:stop': invalidate,
+    'stop': () => { state.stopping = false; },
+    'before:destroy': invalidate,
+  });
+  Application.call(this, options);
 }
+export const ChildAppSwitcher = Application.extend({
+  constructor: constructSwitcher,
 
-export const ChildAppSwitcher = createChildAppSwitcherClass();
+  async switchTo(this: ChildAppSwitcherInstance, appName: string, selection: SwitchOptions = {}) {
+    const state = stateFor(this);
+    if (!canSelect(this) || selection.signal?.aborted) { return; }
+    const app = this.getChildApp(appName);
+    if (!app) { throw new Error(`Child application "${ appName }" is not registered`); }
+    const intent = {};
+    state.intent = intent;
+    try {
+      const selected = await select(this, intent, app, appName, selection);
+      return selection.signal?.aborted ? undefined : selected;
+    } catch (error) {
+      if (state.intent !== intent || selection.signal?.aborted) { return; }
+      throw error;
+    }
+  },
+
+  clear(this: ChildAppSwitcherInstance) {
+    if (!canSelect(this)) { return true; }
+    stateFor(this).intent = null;
+    stopSelection(this);
+    return true;
+  },
+
+  getCurrent(this: ChildAppSwitcherInstance) {
+    return currentSelection(this)?.app ?? null;
+  },
+}) as unknown as ApplicationConstructor<Methods, [options?: ChildAppSwitcherOptions]>;

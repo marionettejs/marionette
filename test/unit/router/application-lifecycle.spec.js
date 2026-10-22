@@ -156,17 +156,28 @@ describe('Router Application ownership', () => {
     assert.equal(page.isRunning(), true);
   });
 
-  it('uses the supplied Application family for isolated child registration', async() => {
+  it('does not rebase the default Application family when provider slots change', () => {
     const runtime = createMarionette();
-    const Router = routing.createRouterClass(runtime.Application);
+    const Router = routing.Router.extend({ Radio: runtime.Radio, State: runtime.Application.prototype.State });
     const owner = own(new runtime.Application());
     const { router } = setup({}, Router);
 
-    assert.equal(owner.addChildApp('navigation', router), router);
-    assert.equal(router instanceof runtime.Application, true);
-    assert.equal(await router.start(), true);
-    owner.destroy();
-    assert.equal(router.isDestroyed(), true);
+    assert.throws(() => owner.addChildApp('navigation', router), { code: 'MN0031' });
+    assert.equal(router instanceof Application, true);
+    assert.equal(router instanceof runtime.Application, false);
+    assert.equal(owner.hasChildApp('navigation'), false);
+  });
+
+  it('exposes canGoBack as an ordinary overridable method', async() => {
+    const Router = routing.Router.extend({ canGoBack() { return false; } });
+    const { router, driver } = setup({}, Router);
+    await router.start();
+    await router.navigate('page').finished;
+
+    assert.equal(driver.currentEntry.index, 1);
+    assert.equal(router.canGoBack(), false);
+    assert.equal(await router.back(), false);
+    assert.equal(driver.currentEntry.index, 1);
   });
 
   it('keeps mandatory cleanup when notification hooks are overridden and blocks abort reentry', async() => {

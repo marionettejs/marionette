@@ -1,6 +1,8 @@
 import { Router, memoryDriver, navigationDriver, type ActiveMatch, type Match, type Driver, type NavigationResult, type RouterOptions, type RouterInstance, type RouteDefinition } from '@mnjs/router';
-import { ChildAppSwitcher, createRouterClass, createChildAppSwitcherClass, type ChildAppSwitcherInstance, type ChildAppSwitcherOptions } from '@mnjs/router';
-import { Application, createMarionette } from 'marionette';
+import { ChildAppSwitcher, type ChildAppSwitcherInstance, type ChildAppSwitcherOptions } from '@mnjs/router';
+// @ts-expect-error Runtime-bound constructor factories are not public package exports.
+import { createRouterClass, createChildAppSwitcherClass } from '@mnjs/router';
+import { Application } from 'marionette';
 
 const driver: Driver = memoryDriver({ url: 'http://localhost/' });
 // @ts-expect-error Memory navigation requires an explicit initial document URL.
@@ -74,16 +76,12 @@ const changed: boolean = catalog.updateState({ selected: 3 });
 catalog.destroy();
 // @ts-expect-error Subclass initialize requires its declared options.
 new CatalogRouter({ driver });
-const runtime = createMarionette();
-const ScopedRouter = createRouterClass(runtime.Application);
-const scopedOwner = new runtime.Application();
-const scopedRouter = scopedOwner.addChildApp('router', new ScopedRouter({ driver }));
-const ScopedPages = createChildAppSwitcherClass(runtime.Application);
-scopedOwner.addChildApp('pages', new ScopedPages());
-const activated: Promise<boolean> = scopedRouter.start();
-const restarted: Promise<boolean> = scopedRouter.restart();
-const disposed: boolean = scopedRouter.destroy();
-void [activated, restarted, disposed];
+const ownedRouter = owner.addChildApp('router', new Router({ driver }));
+const activated: Promise<boolean> = ownedRouter.start();
+const restarted: Promise<boolean> = ownedRouter.restart();
+const available: boolean = ownedRouter.canGoBack();
+const disposed: boolean = ownedRouter.destroy();
+void [activated, restarted, available, disposed];
 switcher.start();
 switcher.switchTo('page', { reconstruct: true, signal: new AbortController().signal });
 const cleared: boolean = switcher.clear();

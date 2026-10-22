@@ -108,7 +108,12 @@ and children while repeating preparation.
 Check the route signal after lazy imports or other awaits, before calling
 `switchTo`. Passing `signal` suppresses an obsolete result without stopping shared
 child preparation, so a newer same-key route can join it. See the complete
-[ownership and isolated-runtime examples](DESIGN.md#child-applications).
+[ownership examples](DESIGN.md#child-applications).
+
+Both classes belong to Marionette's default Application family. Use the named
+`Application`, `Region` and View exports for their owned tree. `.extend()` and
+Radio/State configuration do not move a class into an isolated `createMarionette()`
+family; runtime-bound constructor factories are not part of this package.
 
 The native Driver requires Navigation API, URLPattern and AbortSignal.any.
 Marionette Application readiness uses Promise.withResolvers. Node **24.15+**
