@@ -5,10 +5,10 @@ import type { BranchEntry, RouteDefinition, Params, Query, MatcherResult } from 
 
 type CompiledBranch = Omit<BranchEntry, 'params'> & { names: string[] };
 type Node = { path: string; names: string[]; meta: Record<string, unknown>; branch: CompiledBranch[] };
-type Route = Node & { name: string; pattern: Pattern; redirect?: RouteDefinition['redirect'] };
-type Entry = { route: Route; pattern: CompiledPattern; ranks: number[]; mount: number; seq: number };
-type State = { byName: Map<string, Route>; entries: Entry[]; prefixes: { depth: number; pattern: CompiledPattern }[] };
-type Scope = { index: number; seq: number };
+type Priority = { ranks: number[]; mount: number };
+type Route = Node & Priority & { name: string; pattern: Pattern; compiled: CompiledPattern; redirect?: RouteDefinition['redirect'] };
+type Prefix = Priority & { depth: number; compiled: CompiledPattern };
+type State = { byName: Map<string, Route>; routes: Route[]; prefixes: Prefix[] };
 type Mount = { routes: RouteDefinition[]; parent?: string };
 
 const ROOT: Node = { path: '', names: [], meta: {}, branch: [] };
@@ -18,7 +18,10 @@ function normalizePath(path: string) {
 }
 
 function joinPaths(parentPath: string, path: string) {
-  return normalizePath(path.startsWith('/') ? path : `${ parentPath }/${ path }`);
+  if (path.startsWith('/')) {return normalizePath(path);}
+  // A leading brace group can own its joining slash, including optional ones.
+  const parent = parentPath === '/' ? '' : parentPath;
+  return path.startsWith('{/') ? normalizePathname(`${ parent }${ path }`) : normalizePath(`${ parent }/${ path }`);
 }
 
 /* Route ordering: specificity first, then mount and definition order. */
@@ -31,8 +34,8 @@ function compareRanks(a: number[], b: number[]) {
   return a.length - b.length;
 }
 
-function compareEntries(a: Entry, b: Entry) {
-  return compareRanks(a.ranks, b.ranks) || a.mount - b.mount || a.seq - b.seq;
+function comparePriority(a: Priority, b: Priority) {
+  return compareRanks(a.ranks, b.ranks) || a.mount - b.mount;
 }
 
 /* Compilation */
@@ -43,34 +46,33 @@ function assertDefinition(definition: RouteDefinition) {
   }
 }
 
-function addEntry(state: State, scope: Scope, route: Route) {
-  state.entries.push({
-    route,
-    pattern: route.pattern.compile(route.name),
-    ranks: route.pattern.getRanks(),
-    mount: scope.index,
-    seq: scope.seq++,
+function snapshotRoutes(routes: RouteDefinition[]): RouteDefinition[] {
+  return routes.map(definition => {
+    assertDefinition(definition);
+    return { ...definition, meta: { ...definition.meta }, children: definition.children && snapshotRoutes(definition.children) };
   });
 }
 
-function registerRoute(definition: RouteDefinition, node: Node, pattern: Pattern, state: State, scope: Scope) {
+function registerRoute(definition: RouteDefinition, node: Node, pattern: Pattern, state: State, mount: number) {
   const { name } = definition;
   if (typeof name !== 'string' || !name) {throw new TypeError(`Route name must be a non-empty string (path "${ node.path }")`);}
   if (state.byName.has(name)) {throw new Error(`Duplicate route name "${ name }"`);}
-  const route = { ...node, name, pattern, redirect: definition.redirect };
+  const route = { ...node, name, pattern, compiled: pattern.compile(name), ranks: pattern.getRanks(), mount, redirect: definition.redirect };
   state.byName.set(name, route);
-  addEntry(state, scope, route);
+  state.routes.push(route);
 }
 
-function compileNode(definition: RouteDefinition, parent: Node, state: State, scope: Scope) {
-  assertDefinition(definition);
+function compileNode(definition: RouteDefinition, parent: Node, state: State, mount: number) {
   const path = joinPaths(parent.path, definition.path);
   const pattern = new Pattern(path, definition.name === undefined ? `"${ path }"` : `"${ definition.name }"`);
   const names = pattern.names;
+  const ownNames = definition.path.startsWith('/') ? names : names.filter(item => !parent.names.includes(item));
+  const repeated = ownNames.find(name => parent.branch.some(item => item.names.includes(name)));
+  if (repeated !== undefined) {throw new Error(`Route "${ path }" repeats param "${ repeated }"; param names must be unique within a branch`);}
   const entry = {
     name: definition.name,
     path,
-    names: names.filter(item => !parent.names.includes(item)),
+    names: ownNames,
     meta: { ...definition.meta },
   };
   const node = {
@@ -79,19 +81,18 @@ function compileNode(definition: RouteDefinition, parent: Node, state: State, sc
     meta: { ...parent.meta, ...definition.meta },
     branch: [...parent.branch, entry],
   };
-  if (definition.name !== undefined) {registerRoute(definition, node, pattern, state, scope);} else {state.prefixes.push({ depth: node.branch.length, pattern: pattern.compilePrefix() });}
-  for (const child of definition.children ?? []) {compileNode(child, node, state, scope);}
+  if (definition.name !== undefined) {registerRoute(definition, node, pattern, state, mount);} else {state.prefixes.push({ depth: node.branch.length, compiled: pattern.compilePrefix(), ranks: pattern.getRanks(), mount });}
+  for (const child of definition.children ?? []) {compileNode(child, node, state, mount);}
 }
 
 function compileMount(mount: Mount & { index: number }, state: State) {
   const parent = mount.parent === undefined ? ROOT : state.byName.get(mount.parent)!;
-  const scope = { index: mount.index, seq: 0 };
-  for (const definition of mount.routes) {compileNode(definition, parent, state, scope);}
+  for (const definition of mount.routes) {compileNode(definition, parent, state, mount.index);}
 }
 
 // Mounts whose parent is not (or no longer) registered stay inactive until it returns.
 function compile(mounts: Mount[]) {
-  const state: State = { byName: new Map(), entries: [], prefixes: [] };
+  const state: State = { byName: new Map(), routes: [], prefixes: [] };
   let pending = mounts.map((mount, index) => ({ ...mount, index }));
   while (pending.length) {
     const ready = pending.filter(mount => mount.parent === undefined || state.byName.has(mount.parent));
@@ -99,18 +100,19 @@ function compile(mounts: Mount[]) {
     pending = pending.filter(mount => !ready.includes(mount));
     ready.forEach(mount => compileMount(mount, state));
   }
-  state.entries.sort(compareEntries);
+  // Stable sort preserves definition order after explicit specificity/mount ties.
+  state.routes.sort(comparePriority);
+  state.prefixes.sort((a, b) => b.depth - a.depth || comparePriority(a, b));
   return state;
 }
 
 /* Matching */
 
 function pick(params: Record<string, string>, names: string[]) {
-  return Object.fromEntries(names.filter(name => name in params).map(name => [name, params[name]]));
+  return Object.fromEntries(names.filter(name => Object.hasOwn(params, name)).map(name => [name, params[name]]));
 }
 
-function toResult(entry: Entry, params: Record<string, string>, target: URL): MatcherResult {
-  const { route } = entry;
+function toResult(route: Route, params: Record<string, string>, target: URL): MatcherResult {
   return {
     name: route.name,
     params,
@@ -147,27 +149,29 @@ export class Matcher {
   }
 
   #select(pathname: string) {
-    for (const entry of this.#compiled().entries) {
-      const params = entry.pattern.exec(pathname);
+    for (const route of this.#compiled().routes) {
+      let params = route.compiled.exec(pathname);
+      // An omitted native optional pathname is empty; routing treats it as root.
+      if (params === undefined && pathname === '/') {params = route.compiled.exec('');}
       if (params === undefined) {continue;}
       // A malformed percent-escape cannot be decoded, so the URL matches nothing.
-      return params && { entry, params };
+      return params && { route, params };
     }
     return null;
   }
 
   match(url: URL) {
     const selected = this.#select(normalizePathname(url.pathname));
-    return selected && toResult(selected.entry, selected.params, url);
+    return selected && toResult(selected.route, selected.params, url);
   }
 
   matchPrefix(url: URL) {
     const pathname = normalizePathname(url.pathname);
-    const containing = this.#compiled().prefixes
-      .filter(prefix => prefix.pattern.test(pathname))
-      .sort((a, b) => b.depth - a.depth)[0];
-    if (!containing) {return {};}
-    return containing.pattern.exec(pathname) ?? {};
+    for (const prefix of this.#compiled().prefixes) {
+      const params = prefix.compiled.exec(pathname);
+      if (params !== undefined) {return params ?? {};}
+    }
+    return {};
   }
 
   url(name: string, params: Params = {}, options: { query?: Query } = {}) {
@@ -178,7 +182,7 @@ export class Matcher {
     const matched = this.#select(path);
     // Native pathname matching can preserve literal backslashes that HTTP URLs
     // reinterpret as separators (or a host). Keep rejecting those generated links.
-    if (path.startsWith('//') || path.includes('\\') || matched?.entry.route.name !== name || route.names.some(key => hasValue(params, key) && matched.params[key] !== String(params[key]))) {
+    if (path.startsWith('//') || path.includes('\\') || matched?.route.name !== name || route.names.some(key => hasValue(params, key) && matched.params[key] !== String(params[key]))) {
       throw new Error(`Route "${ name }" params do not round trip through "${ path }"`);
     }
     const search = toSearchParams(options.query).toString();
@@ -197,7 +201,7 @@ export class Matcher {
     const { parent } = options;
     if (!Array.isArray(routes)) {throw new TypeError('mount() requires an array of route definitions');}
     if (parent !== undefined && !this.has(parent)) {throw new Error(`Unknown parent route "${ parent }"`);}
-    const mount = { routes, parent };
+    const mount = { routes: snapshotRoutes(routes), parent };
     const previous = this.#state;
     this.#mounts.push(mount);
     this.#state = null;

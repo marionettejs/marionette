@@ -43,7 +43,10 @@ Configure `routes`, `driver`, `handler`, `intercept`, `notFound`, `persistParams
 options take precedence through `getOption`. Class `options` merge shallowly, as
 other Marionette objects do; no second options store or deep-merging system exists.
 A `routes()` factory runs in Router context once per instance. Ordinary route arrays
-are not mutated by compilation.
+are not mutated by compilation. Registration snapshots arrays, definitions, child
+arrays and top-level metadata. Later caller edits do not change registered routes;
+register/unregister explicitly. Redirect callbacks retain identity, and nested
+metadata values keep their original references (metadata copies remain shallow).
 
 ```js
 const CatalogRouter = Router.extend({
@@ -119,9 +122,12 @@ competing-route ordering, nesting, mounts and generated-URL round-trip
 checks. Pattern tokens and compiled execution stay internal to the package.
 
 Named and unnamed nodes form a route tree. Relative children append to their
-parent; absolute children begin at the root. Named nodes match themselves;
+parent; absolute children begin at the root. A leading slash-owning brace group,
+such as `{/:id}?`, joins directly to its parent: `/items` plus `{/:id}?` becomes
+`/items{/:id}?`. At the root, `{/:lang}?/about` produces `/about` or `/en/about`;
+an entirely omitted optional pathname is matched as `/`. Named nodes match themselves;
 unnamed nodes provide prefixes and inherited metadata. Names are unique, including
-parameter names within a branch. Metadata merges root to leaf; branch entries
+parameter names across all logical ancestors, including absolute-path resets. Metadata merges root to leaf; branch entries
 retain their own parameters and metadata.
 
 The pathname grammar is a deliberately small URLPattern subset:
@@ -156,16 +162,29 @@ user-supplied route regex constraints and their build-time validation are remove
 The internal prefix matcher still uses a native wildcard to collect unnamed-branch
 parameters for not-found decisions; it is not part of the route-definition grammar.
 
-Ranking compares segments: static, parameter, optional. Ties use definition order.
+Ranking compares declared segments: exact static text, mixed required literal
+text with parameters/optional suffixes, bare parameters, then optional-only segments.
+Mount priority breaks specificity ties; stable definition order breaks remaining ties.
+Optional groups are not expanded into separately ranked route variants. For example,
+`{/:lang}?` can shadow `{/:lang}?/about` at `/about`; use explicit unambiguous
+routes rather than relying on the omitted optional prefix to gain static priority.
 Query values use URLSearchParams. Matching decodes parameters; generation encodes
 each parameter as a single value, including any slash it contains. Matching ignores
 trailing path slashes; URL generation omits them except at `/`. Incoming URLs keep
 their original slashes: matching does not redirect or rewrite the browser URL.
 
-Generation rejects missing/invalid parameters, dot segments, static-route collisions
-and values that do not round trip through matching. Pure `match(url)` has null
+For `persistParams`, only omitted own keys inherit. Explicit `null`, `undefined`
+or `''` clears a value; a required parameter then fails generation. Inherited
+prototype properties are never supplied or persisted parameters.
+
+Generation rejects missing/invalid parameters, destructive whole-path dot segments, static-route collisions
+and values that do not round trip through matching. Safe embedded dot values such
+as `..` in `/file-:id` are allowed. Parameter values are own properties; prototype
+names such as `constructor` and `__proto__` round trip as ordinary data. Pure `match(url)` has null
 navigation fields and causes no redirects or history effects. Mount/unmount updates
-the route table without dispatch; call active `refresh()` to dispatch it.
+the route table without dispatch; call active `refresh()` to dispatch it. A child
+mount whose parent is removed remains dormant and reactivates when a route with
+that parent name is registered again; its owner may explicitly unmount it instead.
 
 `match()` preserves a supplied URL object. Absolute URL strings are parsed without
 accessing a Driver. Relative strings resolve against the Driver's current URL,
@@ -174,6 +193,8 @@ navigation subscription and writes no history. Relative matching requires a Driv
 URL even before start. The default Driver requires the document Navigation API;
 in Node, inject a memory Driver or pass an absolute URL. No fallback origin is
 invented. URL generation and route-table inspection remain Driver-independent.
+Importing the package does not construct a URLPattern. Native pattern support is
+required when routes are compiled or generated, rather than for unrelated exports.
 
 Generation uses the same native candidate selection as matching and checks decoded
 parameter values. A native URLPattern normalizes generated pathname text before
@@ -187,7 +208,9 @@ is shared by named URL generation and raw navigation targets.
 route matches and `within` accepts the URL. The Router's normal interception
 rules still apply. The handler receives the configured name, the unchanged URL
 and query, and parameters from the deepest matching unnamed branch prefix (or
-none). Its metadata and branch are empty. A fallback does not capture an unmatched
+none). Equally deep prefixes use specificity, mount priority and stable definition
+order. A winning prefix with malformed parameter encoding yields no parameters;
+it cannot fall through to a shallower prefix. Its metadata and branch are empty. A fallback does not capture an unmatched
 tail or inherit a registered route's metadata/redirect.
 It does not register a route: pure `match()` still returns null, and `url(name)`
 requires a separately registered named route. Use this fallback to show a missing

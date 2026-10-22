@@ -101,7 +101,7 @@ describe('Generated pathname normalization', () => {
       assert.deepEqual(router.match(new URL(path, initialUrl)).params, { id: 'one' });
     }
     for (const id of ['.', '..']) {
-      assert.throws(() => router.url('item', { id }), /dot segment/);
+      assert.throws(() => router.url('item', { id }), /do not round trip/);
     }
   });
 
@@ -109,6 +109,24 @@ describe('Generated pathname normalization', () => {
     it(`continues rejecting generated literal backslashes for ${ path }`, () => {
       const router = createRouter({ routes: [{ name: 'item', path }] });
       assert.throws(() => router.url('item', { id: 'one' }), /do not round trip/);
+    });
+  }
+});
+
+describe('own-property persisted parameters', () => {
+  for (const key of ['constructor', 'toString', '__proto__']) {
+    it(`persists own ${ key } values and respects explicit clearing`, async() => {
+      const driver = memoryDriver({ url: 'https://example.test/one/page' });
+      const router = createRouter({ driver, persistParams: [key], routes: [
+        { name: 'page', path: `/:${ key }/page` }, { name: 'other', path: `/:${ key }/other` },
+      ] });
+      await router.start();
+      assert.equal(router.url('other'), '/one/other');
+      assert.equal(router.url('other', Object.create({ [key]: 'inherited' })), '/one/other');
+      for (const value of [undefined, null, '']) {
+        assert.throws(() => router.url('other', Object.fromEntries([[key, value]])), /missing param/);
+      }
+      assert.equal(router.url('other', Object.fromEntries([[key, 'two']])), '/two/other');
     });
   }
 });

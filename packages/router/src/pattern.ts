@@ -11,24 +11,25 @@ type RankState = { ranks: number[]; current: number | null };
 // pathname whose parameters cannot be decoded (null). The table must not fall
 // through to a lower-ranked route after a decoding failure.
 export interface CompiledPattern {
-  test(pathname: string): boolean;
   exec(pathname: string): Record<string, string> | null | undefined;
 }
 
 const TEXT_STOPS = ':(){}?*+';
 const NAME = /[A-Za-z_$][\w$]*(?![\p{ID_Continue}$\u200C\u200D])/uy;
 
-const STATIC = 3;
+const STATIC = 4;
+const MIXED = 3;
 const PARAM = 2;
 const OPTIONAL = 1;
-const PATHNAME = new URLPattern({ pathname: '*' });
+let pathnamePattern: URLPattern;
 
 export function normalizePathname(pathname: string) {
   return pathname.replace(/\/+$/, '') || '/';
 }
 
 export function canonicalPathname(pathname: string) {
-  return normalizePathname(PATHNAME.exec({ pathname })!.pathname.input);
+  pathnamePattern ??= new URLPattern({ pathname: '*' });
+  return normalizePathname(pathnamePattern.exec({ pathname })!.pathname.input);
 }
 
 /* Path tokenizer for the supported URLPattern pathname subset. */
@@ -109,7 +110,7 @@ function closeSegment(state: RankState) {
 }
 
 function addToSegment(state: RankState, rank: number) {
-  state.current = Math.min(state.current ?? rank, rank);
+  if (state.current === null || state.current === rank) {state.current = rank;} else if (state.current >= MIXED || rank === STATIC) {state.current = MIXED;} else {state.current = Math.max(state.current, rank);}
 }
 
 function collectText(value: string, cap: number, state: RankState) {
@@ -141,22 +142,14 @@ function segmentRanks(tokens: Token[]) {
 /* URL building */
 
 export function hasValue(params: Params, name: string) {
-  return params[name] !== undefined && params[name] !== null && params[name] !== '';
-}
-
-// A dot segment would be resolved away by URL parsing and name another route.
-function encodeSegment(token: ParamToken, routeName: string, segment: string) {
-  if (segment === '.' || segment === '..') {
-    throw new Error(`Route "${ routeName }" param "${ token.name }" cannot contain the dot segment "${ segment }"`);
-  }
-  return encodeURIComponent(segment);
+  return Object.hasOwn(params, name) && params[name] !== undefined && params[name] !== null && params[name] !== '';
 }
 
 function buildParam(token: ParamToken, params: Params, routeName: string) {
   if (!hasValue(params, token.name)) {
     throw new Error(`Route "${ routeName }" is missing param "${ token.name }"`);
   }
-  return encodeSegment(token, routeName, String(params[token.name]));
+  return encodeURIComponent(String(params[token.name]));
 }
 
 function buildGroup(group: GroupToken, params: Params, routeName: string): string {
@@ -172,31 +165,27 @@ function buildTokens(tokens: Token[], params: Params, routeName: string): string
   }).join('');
 }
 
-function createPattern(path: string, name: string) {
+function createPattern(path: string, name: string, declaredPath: string) {
   try {
     return new URLPattern({ pathname: path });
   } catch (error) {
-    throw new Error(`Invalid path "${ path }" for route "${ name }": ${ (error as Error).message }`, { cause: error });
+    throw new Error(`Invalid path "${ declaredPath }" for route "${ name }": ${ (error as Error).message }`, { cause: error });
   }
 }
 
 function decodeParams(names: string[], groups: Record<string, string | undefined>) {
-  const params: Record<string, string> = {};
   try {
-    for (const name of names) {
-      if (groups[name] !== undefined) {params[name] = decodeURIComponent(groups[name]!);}
-    }
+    return Object.fromEntries(names.filter(name => groups[name] !== undefined)
+      .map(name => [name, decodeURIComponent(groups[name]!)]));
   } catch {
     // URLPattern groups are strings; native decoding fails only on malformed URI data.
     return null;
   }
-  return params;
 }
 
-function compilePattern(path: string, name: string, names: string[]): CompiledPattern {
-  const pattern = createPattern(path, name);
+function compilePattern(path: string, name: string, names: string[], declaredPath = path): CompiledPattern {
+  const pattern = createPattern(path, name, declaredPath);
   return {
-    test: pathname => pattern.test({ pathname }),
     exec(pathname) {
       const groups = pattern.exec({ pathname })?.pathname.groups;
       return groups ? decodeParams(names, groups) : undefined;
@@ -226,7 +215,7 @@ export class Pattern {
   }
 
   compilePrefix() {
-    return compilePattern(`${ this.#path }{/*}?`, this.#path, this.names);
+    return compilePattern(`${ this.#path }{/*}?`, this.#path, this.names, this.#path);
   }
 
   build(params: Params, name: string) {

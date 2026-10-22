@@ -177,7 +177,7 @@ function withPersisted(router: RouterInstance, name: string, params: Params) {
   if (!current || !option(router, 'persistParams')!.length) {return params;}
   const names = getMatcher(router).getParamNames(name);
   const persisted = option(router, 'persistParams')!
-    .filter(key => names.includes(key) && (params[key] === undefined || params[key] === null) && key in current.params)
+    .filter(key => names.includes(key) && !Object.hasOwn(params, key) && Object.hasOwn(current.params, key))
     .map(key => [key, current.params[key]]);
   return { ...Object.fromEntries(persisted), ...params };
 }

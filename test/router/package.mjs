@@ -24,6 +24,24 @@ try {
   run(`
     import assert from 'node:assert/strict';
     import { createRequire } from 'node:module';
+    delete globalThis.URLPattern;
+    const esm = await import('@mnjs/router');
+    const cjs = createRequire(import.meta.url)('@mnjs/router');
+    const { Application } = await import('marionette');
+    for (const api of [esm, cjs]) {
+      const driver = api.memoryDriver({ url: 'https://example.test/' });
+      assert.equal(driver.currentEntry.url, 'https://example.test/');
+      const owner = new Application();
+      const switcher = new api.ChildAppSwitcher({ owner });
+      switcher.destroy(); owner.destroy();
+      assert.throws(() => new api.Router({ driver, routes: [{ name: 'item', path: '/item' }] }), /URLPattern/);
+    }
+    console.log('ESM/CJS imports and non-matching exports do not acquire URLPattern.');
+  `);
+
+  run(`
+    import assert from 'node:assert/strict';
+    import { createRequire } from 'node:module';
     import { Application, MnObject, createMarionette } from 'marionette';
     import * as esm from '@mnjs/router';
     const require = createRequire(import.meta.url);

@@ -443,11 +443,11 @@ describe('Router matching: url() rejects values that would not round trip', () =
   it('rejects dot segments', () => {
     const matcher = routerFor(rejectRoutes());
 
-    assert.throws(() => matcher.url('any', { workspace: 'w', value: '.' }), /"\."/);
-    assert.throws(() => matcher.url('any', { workspace: 'w', value: '..' }), /"\.\."/);
-    assert.throws(() => matcher.url('any', { workspace: '..', value: 'x' }), /"\.\."/);
-    assert.throws(() => matcher.url('files', { workspace: 'w', path: '..' }), /"\.\."/);
-    assert.throws(() => matcher.url('files', { workspace: 'w', path: '.' }), /"\."/);
+    assert.throws(() => matcher.url('any', { workspace: 'w', value: '.' }), /do not round trip/);
+    assert.throws(() => matcher.url('any', { workspace: 'w', value: '..' }), /do not round trip/);
+    assert.throws(() => matcher.url('any', { workspace: '..', value: 'x' }), /do not round trip/);
+    assert.throws(() => matcher.url('files', { workspace: 'w', path: '..' }), /do not round trip/);
+    assert.throws(() => matcher.url('files', { workspace: 'w', path: '.' }), /do not round trip/);
   });
 
   it('accepts values that only contain dots', () => {
@@ -546,7 +546,154 @@ describe('Router matching: escapes', () => {
   });
 });
 
+describe('Router matching: leading brace groups', () => {
+  it('joins slash-owning groups at the root and under relative parents', () => {
+    const matcher = routerFor([
+      { name: 'root', path: '{/root/:id}' },
+      { path: '/section', children: [
+        { name: 'child', path: '{/:id}?' },
+        { name: 'absolute', path: '/absolute{/:id}?' },
+        { name: 'escaped', path: '\\{/literal' },
+      ] },
+    ]);
+    for (const [name, params, path] of [
+      ['root', { id: 'one' }, '/root/one'],
+      ['child', { id: 'one' }, '/section/one'],
+      ['child', {}, '/section'],
+      ['absolute', { id: 'one' }, '/absolute/one'],
+      ['escaped', {}, '/section/%7B/literal'],
+    ]) {
+      assert.equal(matcher.url(name, params), path);
+      assert.equal(names(matcher, path), name);
+    }
+    assert.equal(matcher.match('/section//one'), null);
+  });
+
+  it('treats omitted root-only groups as root without rewriting groups before suffixes', () => {
+    for (const [name, params, path] of [
+      ['optionalRoot', {}, '/'], ['optionalRoot', { lang: 'en' }, '/en'],
+      ['about', {}, '/about'], ['about', { lang: 'en' }, '/en/about'],
+    ]) {
+      const matcher = routerFor([{ name, path: name === 'about' ? '{/:lang}?/about' : '{/:lang}?' }]);
+      assert.equal(matcher.url(name, params), path);
+      assert.equal(names(matcher, path), name);
+    }
+    const exactRoot = routerFor([{ name: 'optional', path: '{/:lang}?' }, { name: 'root', path: '/' }]);
+    assert.equal(names(exactRoot, '/'), 'root');
+    assert.equal(exactRoot.url('root'), '/');
+    assert.throws(() => exactRoot.url('optional'), /do not round trip/);
+    const adjacent = routerFor([{ name: 'adjacent', path: '{/:first}?{/:second}?' }]);
+    assert.equal(adjacent.url('adjacent'), '/');
+    assert.equal(names(adjacent, '/'), 'adjacent');
+    const underRoot = routerFor([{ path: '/', children: [{ name: 'child', path: '{/:id}?' }] }]);
+    assert.equal(underRoot.url('child'), '/');
+    assert.equal(underRoot.url('child', { id: 'one' }), '/one');
+    assert.equal(names(underRoot, '/one'), 'child');
+  });
+});
+
+describe('Router matching: not-found prefixes', () => {
+  function fallback(routes, url = 'http://localhost/fixed/value/missing') {
+    return createRouter({ routes, driver: memoryDriver({ url }), notFound: { name: 'missing', within: () => true } });
+  }
+
+  it('breaks equal-depth ties by specificity before definition or mount order', async() => {
+    const matcher = fallback([{ path: '/:area/:value' }]);
+    matcher.mount([{ path: '/fixed/:id' }]);
+    await matcher.start();
+    assert.deepEqual(matcher.getCurrent().params, { id: 'value' });
+    const mixed = fallback([{ path: '/:area/:value' }, { path: '/fixed-:suffix/:id' }], 'http://localhost/fixed-part/value/missing');
+    await mixed.start();
+    assert.deepEqual(mixed.getCurrent().params, { suffix: 'part', id: 'value' });
+  });
+
+  it('retains mount priority after dependent prefixes reactivate', async() => {
+    const matcher = fallback([], 'http://localhost/outer/value/missing');
+    const removeParent = matcher.mount([{ name: 'parent', path: '/outer' }]);
+    matcher.mount([{ path: ':first' }], { parent: 'parent' });
+    matcher.mount([{ path: '/outer', children: [{ path: ':second' }] }]);
+    removeParent();
+    matcher.mount([{ name: 'parent', path: '/outer' }]);
+    await matcher.start();
+    assert.deepEqual(matcher.getCurrent().params, { first: 'value' });
+  });
+
+  it('stops at malformed captures of the deepest prefix without falling back', async() => {
+    const matcher = fallback([{ path: '/:workspace', children: [{ path: 'patient/:patientId' }] }], 'http://localhost/clinic/patient/%FF/missing');
+    await matcher.start();
+    assert.deepEqual(matcher.getCurrent().params, {});
+  });
+});
+
 describe('Router matching: mount', () => {
+  it('snapshots registration arrays, definitions, children and top-level metadata', () => {
+    const nested = { shared: true };
+    const redirect = () => ({ name: 'leaf' });
+    const child = { name: 'leaf', path: 'leaf', meta: { label: 'original', nested }, redirect };
+    const children = [child];
+    const definition = { path: '/scope', children };
+    const routes = [definition];
+    const matcher = routerFor(routes);
+    routes.push({ name: 'injected', path: '/injected' });
+    definition.path = '/changed';
+    children.push({ name: 'extra', path: 'extra' });
+    child.path = 'changed';
+    child.redirect = undefined;
+    child.meta.label = 'changed';
+    nested.shared = false;
+    matcher.mount([{ name: 'unrelated', path: '/unrelated' }]);
+    const result = matcher.match('/scope/leaf');
+    assert.equal(result.name, 'leaf');
+    assert.equal(result.meta.label, 'original');
+    assert.equal(result.meta.nested, nested);
+    assert.equal(result.meta.nested.shared, false);
+    assert.equal(matcher.hasRoute('injected'), false);
+    assert.equal(matcher.hasRoute('extra'), false);
+    assert.equal(matcher.match('/changed/changed'), null);
+    // Pure matching retains the registered callback without invoking it.
+    assert.equal(matcher.match('/scope/leaf').name, 'leaf');
+  });
+
+  it('snapshots later mounts independently and preserves registered redirect callbacks', async() => {
+    const matcher = routerFor([{ name: 'target', path: '/target' }]);
+    const redirect = vi.fn(() => ({ name: 'target' }));
+    const routes = [{ name: 'old', path: '/old', redirect }];
+    const unmount = matcher.mount(routes);
+    routes[0].redirect = undefined;
+    routes[0].path = '/changed';
+    routes.push({ name: 'extra', path: '/extra' });
+    matcher.mount([{ name: 'unrelated', path: '/unrelated' }]);
+    await matcher.start();
+    await matcher.navigate('/old').finished;
+    assert.equal(matcher.getCurrent().name, 'target');
+    assert.equal(redirect.mock.calls.length, 1);
+    assert.equal(matcher.hasRoute('extra'), false);
+    unmount();
+    assert.equal(matcher.hasRoute('old'), false);
+  });
+
+  it('rejects parameter reuse anywhere in logical ancestry after absolute path resets', () => {
+    for (const children of [
+      [{ name: 'leaf', path: '/x/:id' }],
+      [{ path: '/x/:other', children: [{ name: 'leaf', path: 'leaf/:id' }] }],
+    ]) {
+      assert.throws(() => routerFor([{ path: '/:id', children }]), /repeats param "id"/);
+    }
+    const matcher = routerFor([{ path: '/:ancestor', children: [{ name: 'leaf', path: '/x/:id' }] }]);
+    assert.deepEqual(matcher.match('/x/value').branch.map(item => item.params), [{}, { id: 'value' }]);
+  });
+
+  it('preserves mount precedence when a dependent mount is compiled after a replacement parent', () => {
+    const matcher = routerFor();
+    const removeParent = matcher.mount([{ name: 'parent', path: '/outer' }]);
+    matcher.mount([{ name: 'early', path: 'same/:first' }], { parent: 'parent' });
+    matcher.mount([{ name: 'later', path: '/outer/same/:second' }]);
+    removeParent();
+    assert.equal(names(matcher, '/outer/same/value'), 'later');
+    matcher.mount([{ name: 'parent', path: '/outer' }]);
+    assert.equal(names(matcher, '/outer/same/value'), 'early');
+  });
+
   it('adds routes at the root and returns an unmount', () => {
     const matcher = routerFor();
     const unmount = matcher.mount([{ name: 'a', path: '/a' }]);
