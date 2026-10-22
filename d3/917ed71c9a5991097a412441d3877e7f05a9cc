@@ -1,0 +1,48 @@
+packages/router/DESIGN.md
+  h_0f06c286dda36f 3-6,16-17,21-25,28,33,37,76-104,106-127,129,150-151,156-157,233-251,341-342,392-404,408-415,417-424,430-445,448-474,478-479,481-485,489-498,502-503,506-508,510-515,518-523,529
+packages/router/PROVENANCE.md
+  h_0f06c286dda36f 14-18
+packages/router/readme.md
+  h_0f06c286dda36f 4-6,13-14,26-28,31-32,57-61,71-72,82-85,88-92,94,100-111
+packages/router/src/child-app-switcher.ts
+  h_0f06c286dda36f 1-2,6,13,17,20,26,31-41,46,65,71,80-81,91-113,115-129,131-136,138-142,144
+packages/router/src/index.ts
+  h_0f06c286dda36f 1,3
+packages/router/src/router.ts
+  h_0f06c286dda36f 3,13-14,34-38,98,111-112,152,155,157-160,423-425,427-548
+packages/router/src/types.ts
+  h_0f06c286dda36f 2,68
+test/browser/router-native.spec.mjs
+  h_0f06c286dda36f 27,30-34,36,44-53,55,58,91,172-309
+test/router/conformance/router.js
+  h_0f06c286dda36f 132
+test/router/package.mjs
+  h_0f06c286dda36f 33-34,43,49,65,67-69,73,78,81-82,86,93,103-104,107,123
+test/types/router.cts
+  h_0f06c286dda36f 2,36,41,78-90
+test/types/router.mts
+  h_0f06c286dda36f 2,50,55,92-104
+test/unit/router/application-lifecycle.spec.js
+  h_0f06c286dda36f 1-330
+test/unit/router/child-app-switcher.spec.js
+  h_0f06c286dda36f 3-4,33-34,42,176,190,194,198,203-204,206,225-226,229-232,235,239,278-320,484-589
+test/unit/router/edge-contracts.spec.js
+  h_0f06c286dda36f 189-191,197,200-203,206,211,222-223,226,234-238
+test/unit/router/marionette-contract.spec.js
+  h_0f06c286dda36f 31,98,106-109,145,158,165,178-180,182-187,196,201-203,205-206,210-211,219-221,224,245-247,249,257
+test/unit/router/regressions.spec.js
+  h_0f06c286dda36f 152-154,167-169,171-172,196-197,200,213,215-216,219,221,223,232-234,236-237,241,243,259-261,313-315,321,323-327,331-334
+test/unit/router/router.spec.js
+  h_0f06c286dda36f 137,140,548-568,1029,1032,1048,1056
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d3917ed71c9a5991097a412441d3877e7f05a9cc",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
