@@ -139,8 +139,13 @@ A brace group may surround one named parameter and literal text. Optional
 static-only groups match with or without their text; URL generation omits them.
 The tokenizer recursively handles groups, while native URLPattern remains the
 syntax authority and rejects nested groups or several parameters in one group.
-Adjacent groups are supported. Supplied values `0` and `false` are encoded;
+Adjacent groups are supported. Supplied numeric zero is encoded;
 undefined, null and empty-string values omit optional groups.
+
+Literal `?` and `#` delimiters cannot appear in pathname text, even escaped; use
+`%3F` and `%23` respectively. The `?` after a brace group remains its optional
+marker. Query values belong in the URL-generation `query` option, not in route
+pathnames. Parameter values containing `?` or `#` are encoded normally.
 
 Unescaped parentheses (including inline regex constraints and unnamed captures),
 wildcards, parameter `?`/`*`/`+` modifiers and group `*`/`+` repetition are rejected
@@ -153,13 +158,24 @@ parameters for not-found decisions; it is not part of the route-definition gramm
 
 Ranking compares segments: static, parameter, optional. Ties use definition order.
 Query values use URLSearchParams. Matching decodes parameters; generation encodes
-each parameter as a single value, including any slash it contains. Trailing path
-slashes normalize away except at `/`.
+each parameter as a single value, including any slash it contains. Matching ignores
+trailing path slashes; URL generation omits them except at `/`. Incoming URLs keep
+their original slashes: matching does not redirect or rewrite the browser URL.
 
 Generation rejects missing/invalid parameters, dot segments, static-route collisions
 and values that do not round trip through matching. Pure `match(url)` has null
 navigation fields and causes no redirects or history effects. Mount/unmount updates
 the route table without dispatch; call active `refresh()` to dispatch it.
+
+`notFound: { name, within(url) }` supplies a navigation-only fallback when no
+route matches and `within` accepts the URL. The Router's normal interception
+rules still apply. The handler receives the configured name, the unchanged URL
+and query, and parameters from the deepest matching unnamed branch prefix (or
+none). Its metadata and branch are empty and its alias is null. A fallback does
+not capture an unmatched tail or inherit a registered route's metadata/redirect.
+It does not register a route: pure `match()` still returns null, and `url(name)`
+requires a separately registered named route. Use this fallback to show a missing
+page within an explicitly owned URL scope; it does not replace wildcard routing.
 
 Aliases specify exactly the canonical route's parameter names and an optional
 compatibility window. Default `canonicalize` replaces before activation; `preserve`

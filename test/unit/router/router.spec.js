@@ -414,8 +414,24 @@ describe('Router dispatch and events', () => {
     assert.equal(match.name, 'notFound');
     assert.deepEqual(match.params, { workspace: 'w1' });
     assert.equal(match.query.get('x'), '1');
+    assert.deepEqual(match.meta, {});
+    assert.deepEqual(match.branch, []);
+    assert.equal(match.alias, null);
+    assert.equal(context.router.match('/w1/does-not-exist?x=1'), null);
+    assert.equal(context.router.hasRoute('notFound'), false);
+    assert.throws(() => context.router.url('notFound'), /Unknown route/);
     assert.equal(context.driver.currentEntry.url, 'http://localhost/w1/does-not-exist?x=1');
     assert.deepEqual(context.log, ['route:notFound', 'handler:notFound', 'ready:notFound']);
+  });
+
+  it('matches a trailing slash without rewriting the incoming URL', async() => {
+    const url = 'http://localhost/w1/worklist/list-id/?q=one';
+    const context = await started({ url });
+    assert.equal(context.router.getCurrent().name, 'worklist');
+    assert.deepEqual(context.router.getCurrent().params, { workspace: 'w1', worklistId: 'list-id' });
+    assert.equal(context.driver.currentEntry.url, url);
+    assert.equal(context.router.url('worklist', { workspace: 'w1', worklistId: 'list-id' }), '/w1/worklist/list-id');
+    assert.equal(context.router.url('root'), '/');
   });
 
   it('gives notFound the params of the deepest unnamed prefix so persistParams still apply', async() => {

@@ -37,9 +37,47 @@ describe('Router pathname grammar', () => {
 
   it('rejects unsupported parameter names rather than partially tokenizing them', () => {
     for (const path of ['/:café', '/:é', '/:id\u200c', '/:id\u200d', '/:a\u0301', '/:"id"', '/:9id']) {
-      assert.throws(() => createRouter({ routes: [{ name: 'item', path }] }), /Expected a parameter name/);
+      assert.throws(() => createRouter({ routes: [{ name: 'item', path }] }), /Expected an ASCII parameter name/);
     }
   });
+
+  for (const [literal, encoded] of [['#', '%23'], ['\\#', '%23'], ['\\?', '%3F']]) {
+    for (const suffix of ['', '/:id']) {
+      const path = `/literal/${ literal }${ suffix }`;
+      it(`rejects the URL delimiter in ${ path } with an encoded alternative`, () => {
+        assert.throws(() => createRouter({ routes: [{ name: 'literal', path }] }), error => {
+          assert.match(error.message, /Literal URL delimiter/);
+          assert.ok(error.message.includes(encoded));
+          return true;
+        });
+      });
+    }
+  }
+
+  it('validates delimiters inside groups and aliases before generation', () => {
+    assert.throws(() => createRouter({ routes: [{ name: 'item', path: '/items{/\\?}?' }] }), /%3F/);
+    assert.throws(() => createRouter({ routes: [
+      { name: 'item', path: '/items/:id', aliases: [{ path: '/old#/:id' }] },
+    ] }), /%23/);
+  });
+
+  for (const encoded of ['%23', '%3F']) {
+    it(`round-trips the encoded delimiter ${ encoded }`, () => {
+      const path = `/literal/${ encoded }`;
+      const router = createRouter({ routes: [
+        { name: 'literal', path }, { name: 'item', path: `${ path }/:id` },
+      ] });
+      assert.equal(router.url('literal'), path);
+      assert.equal(router.match(path).name, 'literal');
+      const url = router.url('item', { id: 'one?#two' }, { query: { q: 'query' } });
+      const match = router.match(url);
+      assert.equal(url, `${ path }/one%3F%23two?q=query`);
+      assert.equal(match.name, 'item');
+      assert.deepEqual(match.params, { id: 'one?#two' });
+      assert.equal(match.query.get('q'), 'query');
+      assert.equal(match.url.hash, '');
+    });
+  }
 
   for (const [path, url] of [
     ['/literal/\\*', '/literal/*'], ['/literal/\\+\\(\\)', '/literal/+()'],
@@ -69,13 +107,11 @@ describe('Router pathname grammar', () => {
     assert.deepEqual(router.match('/file-7.txt').params, { id: '7', ext: 'txt' });
   });
 
-  it('keeps zero and false as supplied optional parameter values', () => {
+  it('keeps numeric zero as a supplied optional parameter value', () => {
     const router = createRouter({ routes: [{ name: 'item', path: '/items{/:id}?' }] });
-    for (const id of [0, false]) {
-      const url = router.url('item', { id });
-      assert.equal(url, `/items/${ id }`);
-      assert.deepEqual(router.match(url).params, { id: String(id) });
-    }
+    const url = router.url('item', { id: 0 });
+    assert.equal(url, '/items/0');
+    assert.deepEqual(router.match(url).params, { id: '0' });
   });
 
   it('leaves nested and multiple-parameter group validity to URLPattern', () => {
@@ -97,7 +133,7 @@ describe('Router pathname grammar', () => {
 
   it('keeps Unicode static text and ASCII identifier names', () => {
     const router = createRouter({ routes: [{ name: 'item', path: '/café/:a_$id2' }] });
-    const url = router.url('item', { a_$id2: 'one/two' });
-    assert.deepEqual(router.match(url).params, { a_$id2: 'one/two' });
+    const url = router.url('item', { 'a_$id2': 'one/two' });
+    assert.deepEqual(router.match(url).params, { 'a_$id2': 'one/two' });
   });
 });

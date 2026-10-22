@@ -214,7 +214,7 @@ export class Matcher {
     const route = this.#route(name);
     const path = route.pattern.build(params, route.name);
     // Matching and generation share one authority. A static sibling may shadow a
-    // generated parameter value, and normalization can remove repeated segments.
+    // generated parameter value.
     const matched = this.match(path);
     if (matched?.name !== name || route.names.some(key => hasValue(params, key) && matched.params[key] !== String(params[key]))) {
       throw new Error(`Route "${ name }" params do not round trip through "${ path }"`);

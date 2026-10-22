@@ -32,7 +32,7 @@ function readNamed(state: ParseState): ParamToken {
   state.pos++;
   NAME.lastIndex = state.pos;
   const match = NAME.exec(state.path);
-  if (!match) {throw new Error(`Expected a parameter name after ":" in path "${ state.path }"`);}
+  if (!match) {throw new Error(`Expected an ASCII parameter name ([A-Za-z_$][A-Za-z0-9_$]*) after ":" in path "${ state.path }"`);}
   state.pos = NAME.lastIndex;
   return { type: 'param', name: match[0] };
 }
@@ -50,7 +50,11 @@ function readText(state: ParseState): TextToken {
   let value = '';
   while (state.pos < state.path.length && !TEXT_STOPS.includes(state.path[state.pos])) {
     if (state.path[state.pos] === '\\') {state.pos++;}
-    value += state.path[state.pos++] ?? '';
+    const char = state.path[state.pos++];
+    if (char === '?' || char === '#') {
+      throw new Error(`Literal URL delimiter "${ char }" in path "${ state.path }"; use ${ char === '?' ? '%3F' : '%23' } instead`);
+    }
+    value += char ?? '';
   }
   return { type: 'text', value };
 }
