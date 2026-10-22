@@ -1,9 +1,10 @@
 import { describe, it, vi } from 'vitest';
 import assert from 'node:assert/strict';
 
+import { memoryDriver } from '@mnjs/router';
 import { createRouter } from './helpers.js';
 
-const routerFor = (routes = []) => createRouter({ routes });
+const routerFor = (routes = []) => createRouter({ routes, driver: memoryDriver({ url: 'http://localhost/' }) });
 
 const redirectToFlow = () => ({ name: 'patient:flow' });
 

@@ -167,6 +167,22 @@ and values that do not round trip through matching. Pure `match(url)` has null
 navigation fields and causes no redirects or history effects. Mount/unmount updates
 the route table without dispatch; call active `refresh()` to dispatch it.
 
+`match()` preserves a supplied URL object. Absolute URL strings are parsed without
+accessing a Driver. Relative strings resolve against the Driver's current URL,
+including before `start()` or inside `initialize`; matching itself acquires no
+navigation subscription and writes no history. Relative matching requires a Driver
+URL even before start. The default Driver requires the document Navigation API;
+in Node, inject a memory Driver or pass an absolute URL. No fallback origin is
+invented. URL generation and route-table inspection remain Driver-independent.
+
+Generation uses the same native candidate selection as matching and checks decoded
+parameter values. A native URLPattern normalizes generated pathname text before
+selection, including Unicode, spaces and dot segments. Generated network-path
+references (`//host/path`) and literal backslashes are rejected because HTTP URL
+parsing can reinterpret them as a host or separators; use `%5C` for literal data.
+Backslashes inside parameter values are percent-encoded normally. Query conversion
+is shared by named URL generation and raw navigation targets.
+
 `notFound: { name, within(url) }` supplies a navigation-only fallback when no
 route matches and `within` accepts the URL. The Router's normal interception
 rules still apply. The handler receives the configured name, the unchanged URL
@@ -190,7 +206,9 @@ preserves omitted state; pushes/different-path replacements start empty.
 The native Driver requests manual focus/scroll handling and handles only the URLs
 claimed by the Router. It does not prescribe focus, loading/error UI, authentication,
 service access or server fallback policy. Node tests use the same public contracts
-with memoryDriver; native-browser conformance is separate evidence.
+with `memoryDriver({ url })`. Its initial URL is required and must be absolute;
+relative navigation then resolves from its current entry. Native-browser
+conformance is separate evidence.
 
 ## Child Applications
 

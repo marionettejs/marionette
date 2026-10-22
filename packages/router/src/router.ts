@@ -14,6 +14,7 @@ import type { MnObjectInstance, MnObjectConstructor } from 'marionette';
 import type { ActiveMatch, Match, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteDefinition, MatcherResult, RedirectTarget, Alias } from './types.ts';
 
 import { Matcher } from './matcher.ts';
+import { toSearchParams } from './query.ts';
 import { navigationDriver } from './drivers/navigation.ts';
 
 const MARKER = '@mnjs/router';
@@ -34,15 +35,6 @@ function rejection(error: unknown): Promise<never> {
   const promise = Promise.reject(error);
   promise.catch(noop);
   return promise;
-}
-
-function toSearchParams(query?: Query) {
-  if (query === undefined || query === null) {return new URLSearchParams();}
-  if (typeof query === 'string' || query instanceof URLSearchParams) {return new URLSearchParams(query);}
-  const entries = Object.entries(query)
-    .filter(([, value]) => value !== undefined && value !== null)
-    .map(([key, value]) => [key, String(value)]);
-  return new URLSearchParams(entries);
 }
 
 function assertState(state: unknown): asserts state is EntryState | null | undefined {
@@ -469,7 +461,8 @@ export const Router = MnObject.extend({
   },
 
   match(this: RouterInstance, url: URL | string) {
-    const result = getMatcher(this).match(url);
+    const target = url instanceof URL ? url : new URL(url, URL.canParse(url) ? undefined : getDriver(this).currentEntry.url);
+    const result = getMatcher(this).match(target);
     if (!result) {return null;}
     const idle = { navigationType: null, initial: false, info: undefined, signal: null, userInitiated: false };
     return toMatch(result, idle, '', undefined);

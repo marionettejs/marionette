@@ -109,7 +109,7 @@ describe('Router construction', () => {
     const router = createRouter({ routes: baseRoutes() });
 
     assert.equal(router.url('schedule', { workspace: 'w1' }), '/w1/schedule');
-    assert.equal(router.match('/w1/schedule').name, 'schedule');
+    assert.equal(router.match('https://example.test/w1/schedule').name, 'schedule');
     assert.deepEqual(router.getParamNames('patient:flow'), ['workspace', 'patientId', 'flowId']);
     assert.equal(router.getCurrent(), null);
   });
@@ -665,13 +665,13 @@ describe('Router.url and params', () => {
       } }],
     });
 
-    const match = router.match('/moved?q=1');
+    const match = router.match('https://example.test/moved?q=1');
 
     assert.equal(match.name, 'moved');
     assert.equal(match.query.get('q'), '1');
     assert.equal(match.signal, null);
     assert.equal(called, false);
-    assert.equal(router.match('/missing'), null);
+    assert.equal(router.match('https://example.test/missing'), null);
   });
 });
 

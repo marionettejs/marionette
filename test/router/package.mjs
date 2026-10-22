@@ -30,7 +30,7 @@ try {
     const cjs = require('@mnjs/router');
     assert.throws(() => require('@mnjs/router/outlet'), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });
     for (const api of [esm, cjs]) {
-      const driver = api.memoryDriver();
+      const driver = api.memoryDriver({ url: 'http://localhost/' });
       const Routes = api.Router.extend({
         routes: [{ name: 'home', path: '/' }],
         initialize() { this.initialized = this.url('home'); },
@@ -58,7 +58,7 @@ try {
     }
     const runtime = createMarionette();
     const Scoped = esm.Router.extend({ Radio: runtime.Radio, State: runtime.MnObject.prototype.State });
-    const scoped = new Scoped({ driver: esm.memoryDriver(), routes: [] });
+    const scoped = new Scoped({ driver: esm.memoryDriver({ url: 'http://localhost/' }), routes: [] });
     assert.equal(scoped.Radio, runtime.Radio);
     assert.equal(scoped.State, runtime.MnObject.prototype.State);
     assert.ok(scoped instanceof MnObject);

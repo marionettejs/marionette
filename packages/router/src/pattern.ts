@@ -21,9 +21,14 @@ const NAME = /[A-Za-z_$][\w$]*(?![\p{ID_Continue}$\u200C\u200D])/uy;
 const STATIC = 3;
 const PARAM = 2;
 const OPTIONAL = 1;
+const PATHNAME = new URLPattern({ pathname: '*' });
 
 export function normalizePathname(pathname: string) {
   return pathname.replace(/\/+$/, '') || '/';
+}
+
+export function canonicalPathname(pathname: string) {
+  return normalizePathname(PATHNAME.exec({ pathname })!.pathname.input);
 }
 
 /* Path tokenizer for the supported URLPattern pathname subset. */

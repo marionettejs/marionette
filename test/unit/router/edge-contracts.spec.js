@@ -27,7 +27,7 @@ describe('grouped and embedded route parameters', () => {
     ['/item{/part/:id}?', '/item/part/42', { id: '42' }],
   ]) {
     it(`matches and generates ${ path }`, () => {
-      const router = createRouter({ routes: [{ name: 'item', path }] });
+      const router = createRouter({ driver: memoryDriver({ url: 'http://localhost/' }), routes: [{ name: 'item', path }] });
       expect(router.match(url).params).toEqual(params);
       expect(router.url('item', params)).toBe(url);
       expect(router.match('/item/part/42/extra')).toBeNull();
@@ -35,17 +35,17 @@ describe('grouped and embedded route parameters', () => {
   }
 
   it('omits an optional group when no parameter is supplied', () => {
-    const router = createRouter({ routes: [{ name: 'item', path: '/item{/part/:id}?' }] });
+    const router = createRouter({ driver: memoryDriver({ url: 'http://localhost/' }), routes: [{ name: 'item', path: '/item{/part/:id}?' }] });
     expect(router.url('item')).toBe('/item');
     expect(router.match('/item').name).toBe('item');
   });
 
   it('rejects an unfinished escape instead of accepting a different pathname', () => {
-    expect(() => createRouter({ routes: [{ name: 'bad', path: '/bad\\' }] })).toThrow('Invalid path');
+    expect(() => createRouter({ driver: memoryDriver({ url: 'http://localhost/' }), routes: [{ name: 'bad', path: '/bad\\' }] })).toThrow('Invalid path');
   });
 
   it('rejects an alias with parameters when its canonical route has none', () => {
-    expect(() => createRouter({ routes: [{ name: 'item', path: '/item', aliases: [{ path: '/:id' }] }] }))
+    expect(() => createRouter({ driver: memoryDriver({ url: 'http://localhost/' }), routes: [{ name: 'item', path: '/item', aliases: [{ path: '/:id' }] }] }))
       .toThrow('must declare exactly the params: (none)');
   });
 });
@@ -55,7 +55,7 @@ describe('navigation query and entry-state boundaries', () => {
     [null, ''], ['one=two', '?one=two'], [new URLSearchParams('two=three'), '?two=three'],
   ]) {
     it(`replaces raw URL query with ${ String(query) }`, async() => {
-      const router = createRouter({ driver: memoryDriver(), routes: [{ name: 'item', path: '/item' }] });
+      const router = createRouter({ driver: memoryDriver({ url: 'http://localhost/' }), routes: [{ name: 'item', path: '/item' }] });
       await router.start();
       expect(await router.navigate('/item?old=1', { query }).finished).toBe(true);
       expect(router.getCurrent().url.search).toBe(search);
@@ -63,7 +63,7 @@ describe('navigation query and entry-state boundaries', () => {
   }
 
   it('replaces foreign non-object state with an explicit plain-object update', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const listeners = intercept(driver);
     await driver.navigate('/item', { state: new Map([['old', 1]]) }).finished;
     listeners.abort();
@@ -75,7 +75,7 @@ describe('navigation query and entry-state boundaries', () => {
   });
 
   it('propagates a driver back failure without poisoning the next traversal', async() => {
-    const memory = memoryDriver();
+    const memory = memoryDriver({ url: 'http://localhost/' });
     const failure = new Error('driver failed');
     let fail = true;
     let redirect = false;
@@ -100,13 +100,13 @@ describe('navigation query and entry-state boundaries', () => {
 
 describe('memory driver queued traversal and event semantics', () => {
   it('rejects invalid history modes and unsupported listener event types', () => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     expect(() => driver.navigate('/a', { history: 'invalid' })).toThrow(TypeError);
     expect(() => driver.addEventListener('other', () => {})).toThrow(TypeError);
   });
 
   it('rejects unclonable reload state and leaves the current entry intact', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const entry = driver.currentEntry;
     const result = driver.reload({ state: { callback() {} } });
     await expect(result.committed).rejects.toMatchObject({ name: 'DataCloneError' });
@@ -115,7 +115,7 @@ describe('memory driver queued traversal and event semantics', () => {
   });
 
   it('rejects a queued traversal when its forward entry is removed before dispatch', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const listeners = intercept(driver);
     const initial = driver.currentEntry.key;
     await driver.navigate('/a').finished;
@@ -130,7 +130,7 @@ describe('memory driver queued traversal and event semantics', () => {
   });
 
   it('coalesces queued traversals when the first already reaches the destination', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const listeners = intercept(driver);
     const initial = driver.currentEntry.key;
     await driver.navigate('/a').finished;
@@ -144,7 +144,7 @@ describe('memory driver queued traversal and event semantics', () => {
   });
 
   it('does not cancel a navigation when preventDefault is called after dispatch', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const listeners = new AbortController();
     let seen;
     driver.addEventListener('navigate', event => { seen = event; event.intercept(); }, { signal: listeners.signal });
@@ -156,7 +156,7 @@ describe('memory driver queued traversal and event semantics', () => {
   });
 
   it('does not call a listener whose signal an earlier listener aborts during dispatch', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const first = new AbortController();
     const second = new AbortController();
     const late = vi.fn();
@@ -169,7 +169,7 @@ describe('memory driver queued traversal and event semantics', () => {
   });
 
   it('reports listener failures asynchronously while continuing native-style event dispatch', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const listeners = new AbortController();
     const failure = new Error('listener failed');
     const scheduled = [];

@@ -1,7 +1,10 @@
 import { describe, it } from 'vitest';
 import assert from 'node:assert/strict';
 
-import { createRouter } from './helpers.js';
+import { memoryDriver } from '@mnjs/router';
+import { createRouter as createBaseRouter } from './helpers.js';
+
+const createRouter = options => createBaseRouter({ driver: memoryDriver({ url: 'http://localhost/' }), ...options });
 
 describe('Router pathname grammar', () => {
   for (const path of [
@@ -81,7 +84,7 @@ describe('Router pathname grammar', () => {
 
   for (const [path, url] of [
     ['/literal/\\*', '/literal/*'], ['/literal/\\+\\(\\)', '/literal/+()'],
-    ['/literal/\\{\\}', '/literal/{}'], ['/a\\:b', '/a:b'],
+    ['/literal/\\{\\}', '/literal/%7B%7D'], ['/a\\:b', '/a:b'],
   ]) {
     it(`keeps escaped syntax literal in ${ path }`, () => {
       const router = createRouter({ routes: [{ name: 'literal', path }] });

@@ -1,4 +1,5 @@
-import { Pattern, normalizePathname, hasValue } from './pattern.ts';
+import { Pattern, normalizePathname, canonicalPathname, hasValue } from './pattern.ts';
+import { toSearchParams } from './query.ts';
 import type { CompiledPattern } from './pattern.ts';
 import type { AliasDefinition, Alias, BranchEntry, RouteDefinition, Params, Query, MatcherResult } from './types.ts';
 
@@ -11,7 +12,6 @@ type State = { byName: Map<string, Route>; entries: Entry[]; aliases: Alias[]; p
 type Scope = { index: number; seq: number };
 type Mount = { routes: RouteDefinition[]; parent?: string };
 
-const BASE_URL = 'http://localhost';
 const POLICIES = ['canonicalize', 'preserve'];
 const ROOT: Node = { path: '', names: [], meta: {}, branch: [] };
 
@@ -21,19 +21,6 @@ function normalizePath(path: string) {
 
 function joinPaths(parentPath: string, path: string) {
   return normalizePath(path.startsWith('/') ? path : `${ parentPath }/${ path }`);
-}
-
-function toURL(url: URL | string) {
-  return url instanceof URL ? url : new URL(url, BASE_URL);
-}
-
-function toSearchParams(query?: Query) {
-  if (query === undefined || query === null) {return new URLSearchParams();}
-  if (typeof query === 'string' || query instanceof URLSearchParams) {return new URLSearchParams(query);}
-  const entries = Object.entries(query)
-    .filter(([, value]) => value !== undefined && value !== null)
-    .map(([key, value]) => [key, String(value)]);
-  return new URLSearchParams(entries);
 }
 
 /* Route ordering: specificity first, then mount and definition order. */
@@ -189,20 +176,23 @@ export class Matcher {
     return route;
   }
 
-  match(url: URL | string) {
-    const target = toURL(url);
-    const pathname = normalizePathname(target.pathname);
+  #select(pathname: string) {
     for (const entry of this.#compiled().entries) {
       const params = entry.pattern.exec(pathname);
       if (params === undefined) {continue;}
       // A malformed percent-escape cannot be decoded, so the URL matches nothing.
-      return params && toResult(entry, params, target);
+      return params && { entry, params };
     }
     return null;
   }
 
-  matchPrefix(url: URL | string) {
-    const pathname = normalizePathname(toURL(url).pathname);
+  match(url: URL) {
+    const selected = this.#select(normalizePathname(url.pathname));
+    return selected && toResult(selected.entry, selected.params, url);
+  }
+
+  matchPrefix(url: URL) {
+    const pathname = normalizePathname(url.pathname);
     const containing = this.#compiled().prefixes
       .filter(prefix => prefix.pattern.test(pathname))
       .sort((a, b) => b.depth - a.depth)[0];
@@ -212,11 +202,13 @@ export class Matcher {
 
   url(name: string, params: Params = {}, options: { query?: Query } = {}) {
     const route = this.#route(name);
-    const path = route.pattern.build(params, route.name);
+    const path = canonicalPathname(route.pattern.build(params, route.name));
     // Matching and generation share one authority. A static sibling may shadow a
     // generated parameter value.
-    const matched = this.match(path);
-    if (matched?.name !== name || route.names.some(key => hasValue(params, key) && matched.params[key] !== String(params[key]))) {
+    const matched = this.#select(path);
+    // Native pathname matching can preserve literal backslashes that HTTP URLs
+    // reinterpret as separators (or a host). Keep rejecting those generated links.
+    if (path.startsWith('//') || path.includes('\\') || matched?.entry.route.name !== name || route.names.some(key => hasValue(params, key) && matched.params[key] !== String(params[key]))) {
       throw new Error(`Route "${ name }" params do not round trip through "${ path }"`);
     }
     const search = toSearchParams(options.query).toString();

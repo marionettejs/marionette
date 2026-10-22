@@ -2,7 +2,11 @@ import { Router, memoryDriver, navigationDriver, type ActiveMatch, type Match, t
 import { ChildAppSwitcher, type ChildAppSwitcherInstance, type ChildAppSwitcherOptions } from '@mnjs/router';
 import { Application, createMarionette } from 'marionette';
 
-const driver: Driver = memoryDriver();
+const driver: Driver = memoryDriver({ url: 'http://localhost/' });
+// @ts-expect-error Memory navigation requires an explicit initial document URL.
+memoryDriver();
+// @ts-expect-error An options object alone supplies no initial URL.
+memoryDriver({});
 const router = new Router({
   routes: [{ name: 'home', path: '/' }], driver,
   handler(match: ActiveMatch, { signal }) {

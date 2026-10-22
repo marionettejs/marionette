@@ -7,7 +7,7 @@ import { driverConformance } from '../../router/conformance/index.js';
 
 driverConformance({
   name: 'memoryDriver',
-  createDriver: () => ({ driver: memoryDriver() }),
+  createDriver: () => ({ driver: memoryDriver({ url: 'http://localhost/' }) }),
   describe,
   it,
   assert,
@@ -39,7 +39,10 @@ describe('memoryDriver', () => {
     assert.equal(driver.currentEntry.index, 0);
     assert.equal(driver.entries().length, 1);
     assert.equal(driver.currentEntry.getState(), undefined);
-    assert.equal(memoryDriver().currentEntry.url, 'http://localhost/');
+  });
+
+  it('requires an absolute initial document URL', () => {
+    assert.throws(() => memoryDriver({ url: '/relative' }), TypeError);
   });
 
   it('resolves relative URLs against the current entry URL', async() => {
@@ -57,7 +60,7 @@ describe('memoryDriver', () => {
   });
 
   it('dispatches the event and commits synchronously for push, replace and reload', () => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const seen = [];
     driver.addEventListener('navigate', event => {
       seen.push([event.navigationType, driver.currentEntry.url]);
@@ -77,7 +80,7 @@ describe('memoryDriver', () => {
   });
 
   it('queues traversals so the event fires after the call returns', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const events = record(driver);
     await driver.navigate('/a').finished;
     events.length = 0;
@@ -92,7 +95,7 @@ describe('memoryDriver', () => {
   });
 
   it('exposes the destination of non-traverse navigations without an entry', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const events = record(driver);
 
     await driver.navigate('/a', { state: { n: 1 } }).finished;
@@ -103,7 +106,7 @@ describe('memoryDriver', () => {
   });
 
   it('rejects navigation to an invalid URL or uncloneable state without throwing', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const events = record(driver);
 
     const invalid = driver.navigate('http://[bad');
@@ -118,7 +121,7 @@ describe('memoryDriver', () => {
   });
 
   it('rejects back() when there is no previous entry', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const navigation = driver.back();
 
     assert.equal((await rejectionOf(navigation.finished)).name, 'InvalidStateError');
@@ -126,7 +129,7 @@ describe('memoryDriver', () => {
   });
 
   it('does not report unhandled rejections for ignored aborted navigations', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     driver.addEventListener('navigate', event => event.preventDefault());
 
     driver.navigate('/a');
@@ -137,7 +140,7 @@ describe('memoryDriver', () => {
   });
 
   it('aborts the previous navigation when a new one starts inside a listener', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const signals = [];
     driver.addEventListener('navigate', event => {
       signals.push(event.signal);
@@ -158,7 +161,7 @@ describe('memoryDriver', () => {
   });
 
   it('aborts the previous navigation even when the superseding one is canceled', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const events = [];
     driver.addEventListener('navigate', event => {
       events.push({ event, previousAborted: events[0]?.event.signal.aborted });
@@ -180,13 +183,13 @@ describe('memoryDriver', () => {
   });
 
   it('restricts intercept() to the dispatch of interceptable events', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const events = record(driver);
     await driver.navigate('/a').finished;
 
     assert.throws(() => events[0].intercept(), { name: 'InvalidStateError' });
 
-    const blocked = memoryDriver();
+    const blocked = memoryDriver({ url: 'http://localhost/' });
     blocked.addEventListener('navigate', event => {
       assert.throws(() => event.intercept(), { name: 'SecurityError' });
     });
@@ -194,7 +197,7 @@ describe('memoryDriver', () => {
   });
 
   it('supports multiple intercept handlers and waits for all of them', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     const order = [];
     driver.addEventListener('navigate', event => {
       event.intercept({ handler: async() => order.push('first') });
@@ -207,7 +210,7 @@ describe('memoryDriver', () => {
   });
 
   it('reports handler exceptions thrown synchronously as finished rejections', async() => {
-    const driver = memoryDriver();
+    const driver = memoryDriver({ url: 'http://localhost/' });
     driver.addEventListener('navigate', event => event.intercept({
       handler() {
         throw new Error('sync failure');
@@ -235,7 +238,7 @@ describe('memoryDriver', () => {
 
   describe('simulate', () => {
     it('defaults to a user-initiated, interceptable push', async() => {
-      const driver = memoryDriver();
+      const driver = memoryDriver({ url: 'http://localhost/' });
       const events = record(driver);
 
       const navigation = driver.simulate('/link');
@@ -254,7 +257,7 @@ describe('memoryDriver', () => {
     });
 
     it('passes through every option', async() => {
-      const driver = memoryDriver();
+      const driver = memoryDriver({ url: 'http://localhost/' });
       const events = record(driver);
       const formData = new FormData();
 
@@ -279,7 +282,7 @@ describe('memoryDriver', () => {
     });
 
     it('rejects navigation types it cannot simulate', () => {
-      assert.throws(() => memoryDriver().simulate('/a', { navigationType: 'traverse' }), TypeError);
+      assert.throws(() => memoryDriver({ url: 'http://localhost/' }).simulate('/a', { navigationType: 'traverse' }), TypeError);
     });
 
     it('detects fragment-only changes', async() => {
@@ -294,7 +297,7 @@ describe('memoryDriver', () => {
 
   describe('documentNavigations', () => {
     it('starts empty and ignores intercepted navigations', async() => {
-      const driver = memoryDriver();
+      const driver = memoryDriver({ url: 'http://localhost/' });
       record(driver);
 
       await driver.navigate('/a').finished;
@@ -304,7 +307,7 @@ describe('memoryDriver', () => {
     });
 
     it('records navigations no listener intercepted and still commits them', async() => {
-      const driver = memoryDriver();
+      const driver = memoryDriver({ url: 'http://localhost/' });
 
       const navigation = driver.simulate('/logout');
       const entry = await navigation.finished;
@@ -317,7 +320,7 @@ describe('memoryDriver', () => {
     });
 
     it('records listener-declined navigations that cannot be intercepted', async() => {
-      const driver = memoryDriver();
+      const driver = memoryDriver({ url: 'http://localhost/' });
       record(driver);
 
       await driver.simulate('https://other.test/x', { canIntercept: false }).finished;
@@ -327,7 +330,7 @@ describe('memoryDriver', () => {
     });
 
     it('records traversals no listener intercepted', async() => {
-      const driver = memoryDriver();
+      const driver = memoryDriver({ url: 'http://localhost/' });
       await driver.navigate('/a').finished;
 
       await driver.back().finished;
@@ -336,7 +339,7 @@ describe('memoryDriver', () => {
     });
 
     it('is a live array on the driver', async() => {
-      const driver = memoryDriver();
+      const driver = memoryDriver({ url: 'http://localhost/' });
       const { documentNavigations } = driver;
 
       await driver.simulate('/x').finished;

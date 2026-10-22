@@ -5,8 +5,7 @@ type Init = Omit<DriverEvent, 'destination' | 'signal' | 'defaultPrevented' | 'p
 };
 type Flags = Omit<SimulateOptions, 'navigationType' | 'state'>;
 
-export function memoryDriver(options: { url?: string } = {}): MemoryDriver {
-  const { url = 'http://localhost/' } = options;
+export function memoryDriver({ url }: { url: string }): MemoryDriver {
   const history = new MemoryHistory(new URL(url).href);
 
   return {

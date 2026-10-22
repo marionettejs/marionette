@@ -6,7 +6,7 @@ import { routerConformance } from '../../router/conformance/router.js';
 
 routerConformance({
   name: 'memoryDriver',
-  createDriver: () => ({ driver: memoryDriver() }),
+  createDriver: () => ({ driver: memoryDriver({ url: 'http://localhost/' }) }),
   describe,
   it,
   assert,

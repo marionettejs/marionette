@@ -34,8 +34,14 @@ See the [pathname grammar](DESIGN.md#route-definitions-and-matching) for the exa
 subset and URL-generation rules.
 
 The default Driver uses the active document's Navigation API. Inject
-`memoryDriver({ url })` for deterministic tests. Drivers and Match are not coupled
-to rendering, models, services, Regions or application policy.
+`memoryDriver({ url })` with an explicit absolute initial URL for deterministic
+tests. Drivers and Match are not coupled to rendering, models, services, Regions
+or application policy.
+
+`match('/items/42')` resolves against the Driver's current URL, including before
+`start()`, without subscribing or navigating. Outside a browser, provide that Driver
+or pass an absolute URL to `match()`. Absolute matching and `url()` generation need
+no Driver. There is no library-defined fallback origin.
 
 `navigate()` returns `{ committed, finished }` immediately; await `.finished` for
 handler/redirect readiness. Supersession/cancellation yields false; current failure
