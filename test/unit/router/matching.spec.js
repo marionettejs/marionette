@@ -107,6 +107,14 @@ describe('Router matching: compile and match', () => {
     assert.equal(matcher.match('/clinic/worklist/%E0%A4%A'), null);
   });
 
+  it('does not fall through to a lower-ranked route after parameter decoding fails', () => {
+    const matcher = routerFor([
+      { name: 'file', path: '/files/:id' },
+      { name: 'fallback', path: '/:section/%FF' },
+    ]);
+    assert.equal(matcher.match('/files/%FF'), null);
+  });
+
   it('omits unmatched optional params and decodes matched ones', () => {
     const matcher = routerFor(inventory());
     assert.deepEqual(matcher.match('/w/patient/p1/form/f1').params, { workspace: 'w', patientId: 'p1', formId: 'f1' });
@@ -319,6 +327,7 @@ describe('Router matching: aliases', () => {
       aliases: [{ path: '/old/:b/:a' }],
     }]);
     assert.deepEqual(matcher.match('/old/B/A').params, { a: 'A', b: 'B' });
+    assert.deepEqual(Object.keys(matcher.match('/old/B/A').params), ['a', 'b']);
   });
 
   it('ranks alias patterns like any other route', () => {

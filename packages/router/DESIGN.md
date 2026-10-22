@@ -113,6 +113,11 @@ teardown or general synchronous recovery policy.
 
 ## Route definitions and matching
 
+Internally, `pattern.ts` handles one pathname's grammar, encoding, native
+URLPattern execution and prefix patterns. `matcher.ts` owns the route table,
+competing-route ordering, aliases, nesting, mounts and generated-URL round-trip
+checks. Pattern tokens and compiled execution stay internal to the package.
+
 Named and unnamed nodes form a route tree. Relative children append to their
 parent; absolute children begin at the root. Named nodes match themselves;
 unnamed nodes provide prefixes and inherited metadata. Names are unique, including
