@@ -21,6 +21,9 @@ redirect, cancellation and readiness machinery remain routing-specific.
 Both classes use Marionette's default Application family through ordinary
 `.extend()` construction. Runtime-bound constructor factories have been removed;
 `canGoBack()` is a regular method rather than a prototype-installed getter.
+Router inherits Application lifecycle methods and leaves `prepareStart` to
+consumers. Initial route dispatch begins on activation; navigation readiness and
+route errors remain separate from Application startup completion.
 
 The original package manifest declared MIT, but its extraction proposal did not
 resolve license notice/copyright provenance. No copyright holder or license grant

@@ -11,7 +11,7 @@ type Plan = { hop: string; base?: never; pending?: never } |
   { hop?: never; base: Base; pending: PromiseLike<RedirectTarget | null | undefined> | null };
 
 import { Application } from 'marionette';
-import type { ApplicationInstance, ApplicationConstructor, LifecycleContext } from 'marionette';
+import type { ApplicationInstance, ApplicationConstructor } from 'marionette';
 import type { ActiveMatch, Match, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteDefinition, MatcherResult, RedirectTarget } from './types.ts';
 
 import { Matcher } from './matcher.ts';
@@ -156,9 +156,23 @@ function constructRouter(this: RouterInstance, options?: RouterOptions) {
   });
   // Application establishes its stopping guard before notifying listeners, so
   // abort callbacks cannot re-enable routing during ancestor teardown.
-  this.on({ 'before:stop': () => stopRouting(this), 'before:destroy': () => stopRouting(this) });
+  this.on({ start: () => startRouting(this), 'before:stop': () => stopRouting(this), 'before:destroy': () => stopRouting(this) });
   Application.call(this, options);
   getMatcher(this);
+}
+
+function startRouting(router: RouterInstance) {
+  // onStart is an ordinary synchronous Application hook. It may stop/destroy
+  // the app before event listeners run; retained restart keeps its session.
+  const internals = stateFor(router);
+  if (!router.isRunning() || internals.session) {return;}
+  const driver = getDriver(router);
+  const session: Session = { controller: new AbortController() };
+  internals.session = session;
+  driver.addEventListener('navigate', event => onNavigate(router, event), { signal: session.controller.signal });
+  // Activation does not await page work. Each attempt reports its own failure
+  // through route:error; cancellation and redirect-following are observed here.
+  dispatchInitial(router, session).catch(noop);
 }
 
 function getDriver(router: RouterInstance): Driver {
@@ -253,10 +267,18 @@ function onNavigate(router: RouterInstance, event: DriverEvent) {
   const url = new URL(event.destination.url);
   if (!intercepts(router, event, url)) {return;}
   const nav = navigationFor(router, event, url, chain);
-  const plan = planNavigation(router, nav);
-  if (!plan) {return;}
+  let task: () => void | Promise<void>;
+  try {
+    const plan = planNavigation(router, nav);
+    if (!plan) {return;}
+    task = () => execute(router, plan, nav);
+  } catch (error) {
+    // Claim failed planning as a rejected transition rather than letting a
+    // synchronous listener exception fall through to document navigation.
+    task = () => {throw error;};
+  }
   abortLocal(router);
-  event.intercept({ handler: () => execute(router, plan, nav), ...chain.policy });
+  event.intercept({ handler: () => attempt(router, nav, task), ...chain.policy });
 }
 
 function navigationFor(router: RouterInstance, event: DriverEvent, url: URL, chain: Chain): Navigation {
@@ -277,7 +299,7 @@ function navigationFor(router: RouterInstance, event: DriverEvent, url: URL, cha
   };
 }
 
-async function dispatchInitial(router: RouterInstance, session: Session): Promise<boolean> {
+function dispatchInitial(router: RouterInstance, session: Session) {
   const internals = stateFor(router);
   const driver = getDriver(router);
   const entry = driver.currentEntry;
@@ -297,16 +319,10 @@ async function dispatchInitial(router: RouterInstance, session: Session): Promis
     rawState: entry.getState(),
     match: null,
   };
-  const plan = planNavigation(router, nav);
-  if (!plan) {return false;}
-  if ('hop' in plan && plan.hop !== undefined) {return hop(router, plan.hop, nav).finished;}
-  try {
-    await run(router, plan, nav);
-  } catch (error) {
-    if (!isCurrent(router, nav)) {return false;}
-    throw error;
-  }
-  return nav.chain.followUp ? nav.chain.followUp.finished : isCurrent(router, nav);
+  return attempt(router, nav, async() => {
+    const plan = planNavigation(router, nav);
+    if (plan) {await execute(router, plan, nav);}
+  }).then(() => nav.chain.followUp?.finished);
 }
 
 function planNavigation(router: RouterInstance, nav: Navigation): Plan | null {
@@ -372,17 +388,30 @@ function isCurrent(router: RouterInstance, nav: Navigation) {
   return !nav.signal.aborted && internals.current === nav.match;
 }
 
+// One boundary owns each attempt, including planning, commit and notifications.
+// Redirect destinations report their own errors, outside the source attempt.
+async function attempt(router: RouterInstance, nav: Navigation, task: () => void | Promise<void>) {
+  try {
+    await task();
+  } catch (error) {
+    if (nav.signal.aborted || (nav.match && !isCurrent(router, nav))) {
+      throw new DOMException('Navigation superseded', 'AbortError');
+    }
+    try {
+      router.triggerMethod('route:error', error, nav.match);
+    } catch (notificationError) {
+      // Reporting failures remain visible even for automatically dispatched work.
+      queueMicrotask(() => {throw notificationError;});
+    }
+    throw error;
+  }
+}
+
 async function run(router: RouterInstance, plan: Extract<Plan, { base: Base }>, nav: Navigation) {
   const match = commit(router, plan.base, nav);
   if (!match) {throw new DOMException('Navigation superseded', 'AbortError');}
-  try {
-    if (plan.pending && await redirected(router, nav, plan.pending)) {return;}
-    await option(router, 'handler')?.call(router, match, { signal: match.signal });
-  } catch (error) {
-    if (!isCurrent(router, nav)) {throw new DOMException('Navigation superseded', 'AbortError');}
-    router.triggerMethod('route:error', error, match);
-    throw error;
-  }
+  if (plan.pending && await redirected(router, nav, plan.pending)) {return;}
+  await option(router, 'handler')?.call(router, match, { signal: match.signal });
   if (!isCurrent(router, nav)) {throw new DOMException('Navigation superseded', 'AbortError');}
   router.triggerMethod('route:ready', match);
 }
@@ -426,32 +455,6 @@ export const Router = Application.extend({
   persistParams: [],
   maxRedirects: 5,
   intercept: () => true,
-
-  async prepareStart(this: RouterInstance, _options: unknown, { signal }: LifecycleContext) {
-    const internals = stateFor(this);
-    if (internals.session) {return;}
-    const driver = getDriver(this);
-    const session: Session = { controller: new AbortController() };
-    internals.session = session;
-    try {
-      driver.addEventListener('navigate', event => onNavigate(this, event), { signal: session.controller.signal });
-      await dispatchInitial(this, session);
-    } catch (error) {
-      // Superseded preparation may share a retained binding with its replacement.
-      if (!signal.aborted) {stopRouting(this);}
-      throw error;
-    }
-  },
-
-  stop(this: RouterInstance, options?: unknown) {
-    const internals = stateFor(this);
-    const session = internals.session;
-    const stopped = Application.prototype.stop.call(this, options);
-    // Failed subclass preparation can leave resources on a stopped Application.
-    // Preserve a new binding established by an onStop callback.
-    if (session && internals.session === session) {stopRouting(this);}
-    return stopped;
-  },
 
   navigate(this: RouterInstance, nameOrUrl: string, params?: Params | NavigateOptions, options?: NavigateOptions): NavigationResult<boolean> {
     const internals = stateFor(this);

@@ -78,13 +78,21 @@ Router follows Application's `start`, `restart`, `stop`, `destroy` and
 stop/destroy propagate automatically. A field alone does not establish ownership.
 Registration does not start the Router or any other child.
 
-Initial `start()` acquires one Driver subscription and awaits initial dispatch.
-It resolves `true` when Application activation completes, including when the URL
-is unclaimed or an independent navigation supersedes initial routing. Concurrent
-initial starts join the same preparation. An active start resolves `true` without
-repeating work. Failure of initial routing rejects and releases that binding; a
-subsequent start can retry. Canceling startup through stop/destroy resolves it
-`false` promptly, even if handler code ignores cancellation.
+`start()` uses ordinary Application preparation and activation. Concurrent initial
+starts join preparation; active starts resolve `true` without repeating it.
+Preparation and synchronous startup callback failures reject. Stop/destroy cancel
+pending preparation with a prompt `false` result under the Application contract.
+Driver binding and initial URL/state setup run in the activation notification.
+If that synchronous setup throws, `start()` rejects after Application activation;
+stop or destroy the Router when abandoning that run, following Application's
+ordinary callback-failure contract.
+
+Once activated, the Router acquires one Driver subscription and dispatches the
+current URL asynchronously. `start()` does not await that navigation. Current
+routing failures emit `route:error`, including initial failures, and leave the
+Router enabled. Use `refresh()` to retry the current URL. `route:ready` identifies
+successful current route completion; unclaimed and canceled attempts do not emit
+it. These notifications do not form an all-outcomes initial-readiness Promise.
 
 `restart()` repeats preparation while retaining the binding, selected children
 and UI. It does not redispatch the URL, reapply child start options, remount routes
@@ -100,33 +108,29 @@ through the lifecycle binding rather than an overridable `onStop` method.
 Synchronous hook failures follow Application's documented failure boundary and
 may abort remaining cleanup; there is no rollback or attempt-all guarantee.
 
-Router's `prepareStart` supplies binding setup and initial readiness. A specialized
-subclass overriding it must compose the base implementation:
+Router does not override `prepareStart`, `start`, `restart`, `stop` or `destroy`.
+Its internal lifecycle listeners enable and disable routing. A consumer uses
+Application preparation normally, without a Router setup super-call:
 
 ```js
 const CatalogRouter = Router.extend({
   async prepareStart(options, context) {
     await loadCatalogPrerequisites(options, context);
     context.signal.throwIfAborted();
-    return Router.prototype.prepareStart.call(this, options, context);
+    return options;
   },
 });
 ```
 
 Prepare the shell and required feature prerequisites before starting routing.
-For shell-first presentation, start the Router explicitly without awaiting its
-Promise and handle rejection. Do not have a route handler await its own pending
-owner's `start()`; that creates a readiness cycle. Application does not roll back
-children that started before a later parent prerequisite failed; the caller can
-stop or destroy that parent to release the registered subtree.
+The consumer's synchronous `onStart` hook runs before internal `start` listeners,
+so it can commit prepared UI before initial route handling begins. Returned hook
+Promises are not awaited. Subscribe to `route:error` before calling `start()`;
+handle `start()` rejection separately for Application preparation/startup failures.
+Application does not roll back children created or started during failed custom
+preparation; stop or destroy the owner when abandoning such preparation.
 
-The same explicit cleanup applies if a custom Router preparation activates its
-base routing setup and then fails a later prerequisite. Call `stop()` before
-retrying that partial startup, or `destroy()` when abandoning it. Both release
-the binding even though Application activation did not complete. Prefer preparing
-prerequisites before calling the base Router preparation, as above.
-
-Before startup is requested, and after stop or destroy, `navigate()` returns canceled committed/finished
+Until routing is enabled, and after stop or destroy, `navigate()` returns canceled committed/finished
 Promises; `refresh()` and `back()` resolve false; `canGoBack()` is false and
 `updateState()` returns false without writing browser state. Pure matching, URL
 building and route-table inspection/configuration remain available. Active
@@ -141,18 +145,22 @@ when no such entry is available.
 | --- | --- | --- |
 | `route(match)` | `onRoute(match)` | Current Match committed, before the awaited handler |
 | `route:ready(match)` | `onRouteReady(match)` | Handler fulfilled and Match remains current |
-| `route:error(error, match)` | `onRouteError(error, match)` | Current handler/redirect failed |
+| `route:error(error, match)` | `onRouteError(error, match)` | Current routing failed; Match is null when failure precedes Match commitment |
 
 Hooks run before listeners through `triggerMethod`. Notification return values do
 not cancel navigation and returned Promises are not awaited. A synchronous hook
 exception aborts that operation. Required activation belongs in the explicitly
 awaited handler, not an asynchronous notification hook.
+If error notification itself throws, that notification failure is reported through
+the host's ordinary error mechanism. It does not trigger another `route:error`
+or replace the original routing rejection.
 
 `navigate()` synchronously returns `{ committed, finished }`, each a
 Promise<boolean>. Commitment concerns the URL; finished awaits the handler and
 redirect destinations. Supersession/cancellation is false; current operational
 failure rejects. `refresh()` and `back()` return navigation readiness directly;
-`start()` instead reports Application activation.
+`start()` reports only Application activation. Its completion does not imply that
+the automatically dispatched initial route has finished.
 Redirected back follows its own traversal's readiness rather than an unrelated
 navigation result.
 
@@ -440,11 +448,14 @@ const router = frame.addChildApp('router', new Router({
   routes: [{ name: 'item', path: '/items/:id' }],
   handler: match => pages.showRoute(match, contentRegion),
 }));
+router.on('route:error', (error, match) => {
+  console.error('Route failed:', match?.name, error);
+});
 await frame.start();
 await catalog.start();
 await sidebar.start({ region: sidebarRegion });
 await pages.start();
-await router.start();
+await router.start(); // enables routing; route:ready reports completed route work
 // pages.stop() stops content descendants; sidebar remains active.
 // frame.stop()/destroy() also stop/destroy Router and the Catalog subtree.
 ```

@@ -2,7 +2,7 @@ import { Router, memoryDriver, navigationDriver, type ActiveMatch, type Match, t
 import { ChildAppSwitcher, type ChildAppSwitcherInstance, type ChildAppSwitcherOptions } from '@mnjs/router';
 // @ts-expect-error Runtime-bound constructor factories are not public package exports.
 import { createRouterClass, createChildAppSwitcherClass } from '@mnjs/router';
-import { Application } from 'marionette';
+import { Application, type LifecycleContext } from 'marionette';
 
 const driver: Driver = memoryDriver({ url: 'http://localhost/' });
 // @ts-expect-error Memory navigation requires an explicit initial document URL.
@@ -51,7 +51,7 @@ router.listenTo(router, 'route', (match: ActiveMatch) => match.name);
 const owner = new Application();
 const switcher: ChildAppSwitcherInstance = owner.addChildApp('pages', new ChildAppSwitcher());
 const extended = ChildAppSwitcher.extend({
-  initialize(_options: ChildAppSwitcherOptions) { this.switchTo('page'); },
+  initialize(_options: ChildAppSwitcherOptions) { this.getCurrent(); },
   isSelected() { return this.getCurrent() !== null; },
 });
 const child = new extended({});
@@ -96,6 +96,17 @@ const restarted: Promise<boolean> = ownedRouter.restart();
 const available: boolean = ownedRouter.canGoBack();
 const disposed: boolean = ownedRouter.destroy();
 void [activated, restarted, available, disposed];
+const PreparedRouter = Router.extend({
+  async prepareStart(_options: unknown, { signal }: LifecycleContext) {
+    signal.throwIfAborted();
+    return { prepared: true };
+  },
+});
+const preparedRouter = owner.addChildApp('prepared', new PreparedRouter({ driver }));
+preparedRouter.prepareStart(undefined, { signal: new AbortController().signal }) satisfies Promise<{ prepared: boolean }>;
+preparedRouter.onStart?.(preparedRouter, undefined, { prepared: true });
+// @ts-expect-error Ordinary Application startup results preserve the preparation return type.
+preparedRouter.onStart?.(preparedRouter, undefined, { prepared: 'yes' });
 switcher.start();
 switcher.switchTo('page', { reconstruct: true, signal: new AbortController().signal });
 const cleared: boolean = switcher.clear();

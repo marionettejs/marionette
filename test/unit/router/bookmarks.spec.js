@@ -60,14 +60,16 @@ describe('Application-owned bookmark redirects', () => {
   });
 
   for (const initial of [false, true]) {
-    it(`awaits a two-hop bookmark lookup during ${ initial ? 'start' : 'navigate' }`, async() => {
+    it(`observes a two-hop bookmark lookup during ${ initial ? 'initial routing' : 'navigate' }`, async() => {
       const pending = Promise.withResolvers();
       const entered = Promise.withResolvers();
       const lookup = vi.fn((id, context) => { entered.resolve(context); return pending.promise; });
       const context = setup(lookup, initial ? '/legacy/old-7/details?q=one#details' : '/home');
       const { router, driver, routed, handled } = context;
       if (!initial) { await router.start(); routed.length = 0; handled.length = 0; }
-      const ready = initial ? router.start() : router.navigate('/legacy/old-7/details?q=one#details').finished;
+      const initialReady = initial ? new Promise(resolve => router.once('route:ready', resolve)) : null;
+      const ready = initial ? initialReady : router.navigate('/legacy/old-7/details?q=one#details').finished;
+      if (initial) { assert.equal(await router.start(), true); }
       const signal = (await entered.promise).signal;
       assert.equal(signal.aborted, false);
       assert.equal(lookup.mock.calls[0][0], 'old-7');
@@ -75,7 +77,8 @@ describe('Application-owned bookmark redirects', () => {
       assert.deepEqual(routed.map(match => match.name), ['oldItem']);
       assert.deepEqual(handled, []);
       pending.resolve({ workspace: 'w1', itemId: 'new-7' });
-      assert.equal(await ready, true);
+      const outcome = await ready;
+      if (initial) { assert.equal(outcome.name, 'item'); } else { assert.equal(outcome, true); }
       assert.deepEqual(routed.map(match => match.name), ['oldItem', 'item']);
       assert.deepEqual(handled, ['item']);
       assert.deepEqual(router.getCurrent().params, { workspace: 'w1', itemId: 'new-7' });

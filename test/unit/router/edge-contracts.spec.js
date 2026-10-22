@@ -245,3 +245,51 @@ describe('switcher selection lifetime boundaries', () => {
     expect(switcher.getCurrent()).toBe(latest);
   });
 });
+
+
+describe('activation and routing error boundaries', () => {
+  for (const initial of [false, true]) {
+    for (const phase of ['planning', 'route', 'ready']) {
+      it(`reports ${ initial ? 'initial' : 'navigated' } ${ phase } failures once`, async() => {
+        const failure = new Error(`${ phase } failed`);
+        const driver = memoryDriver({ url: `https://routing.example/${ initial ? 'item' : 'outside' }` });
+        const router = createRouter({ driver, routes: [{ name: 'item', path: '/item' }],
+          intercept(url) { if (phase === 'planning' && url.pathname === '/item') { throw failure; } return true; },
+        });
+        const errors = [];
+        const failed = Promise.withResolvers();
+        router.on('route:error', (error, match) => { errors.push({ error, match }); failed.resolve(); });
+        if (phase !== 'planning') {
+          router.on(phase === 'route' ? 'route' : 'route:ready', () => { throw failure; });
+        }
+        expect(await router.start()).toBe(true);
+        if (!initial) { await expect(router.navigate('/item').finished).rejects.toBe(failure); }
+        await failed.promise;
+        expect(errors).toHaveLength(1);
+        expect(errors[0].error).toBe(failure);
+        expect(errors[0].match).toBe(phase === 'planning' ? null : router.getCurrent());
+        expect(router.isRunning()).toBe(true);
+        expect(driver.documentNavigations).toEqual([]);
+      });
+    }
+  }
+
+  it('surfaces an initial error notification failure through the host without reporting twice', async() => {
+    const failure = new Error('route failed');
+    const notificationFailure = new Error('notification failed');
+    const scheduled = [];
+    vi.spyOn(globalThis, 'queueMicrotask').mockImplementation(callback => scheduled.push(callback));
+    const router = createRouter({
+      driver: memoryDriver({ url: 'https://routing.example/item' }),
+      routes: [{ name: 'item', path: '/item' }],
+      handler() { throw failure; },
+    });
+    const errors = vi.fn(error => { expect(error).toBe(failure); throw notificationFailure; });
+    router.on('route:error', errors);
+    expect(await router.start()).toBe(true);
+    expect(errors).toHaveBeenCalledTimes(1);
+    expect(scheduled).toHaveLength(1);
+    expect(scheduled[0]).toThrow(notificationFailure);
+    expect(router.isRunning()).toBe(true);
+  });
+});

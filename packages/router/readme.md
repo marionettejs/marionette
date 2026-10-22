@@ -25,8 +25,11 @@ const CatalogRouter = Router.extend({
 
 const frame = new Application();
 const router = frame.addChildApp('router', new CatalogRouter());
+router.on('route:error', (error, match) => {
+  console.error('Route failed:', match?.name, error);
+});
 await frame.start();
-await router.start();
+await router.start(); // Application activation; initial route work may still be pending
 await router.navigate('item', { id: '42' }).finished;
 frame.stop();       // also stops routing and registered descendants
 frame.destroy();    // also destroys the Router
@@ -54,16 +57,25 @@ or application policy.
 or pass an absolute URL to `match()`. Absolute matching and `url()` generation need
 no Driver. There is no library-defined fallback origin.
 
-`start()` awaits initial routing and resolves Application activation success, even
-when the initial URL is unclaimed. Failed initial routing rejects, releases its
-binding and permits retry. `restart()` retains routing and child identities without
-redispatch; use `refresh()` when the current URL needs handling again.
+`start()` follows the ordinary Application contract: it awaits your `prepareStart`
+and activates. Router adds no preparation or stop override, so a subclass can
+define `prepareStart` without calling a Router setup method. Preparation and
+synchronous startup callback failures reject `start()`.
+
+Activation enables routing and dispatches the current URL asynchronously.
+`start()` does not wait for that route. Observe `route:ready` for successful route
+completion and subscribe to `route:error` before starting. Initial route failure
+leaves routing enabled; use `refresh()` to retry. Unclaimed or canceled routes
+do not emit `route:ready`. `restart()` retains routing and child identities without
+redispatch; `refresh()` explicitly handles the current URL again.
 
 `navigate()` returns `{ committed, finished }` immediately; await `.finished` for
 handler/redirect readiness. Supersession/cancellation yields false; current failure
 rejects. Events `route`, `route:ready` and `route:error` use `triggerMethod` and
 correspond to `onRoute`, `onRouteReady` and `onRouteError`. Hooks are synchronous
 notifications; returned Promises are not awaited. Keep required work in `handler`.
+The error notification covers current routing failures; its Match is absent when
+failure occurs before a Match is committed.
 
 Ordinary intercepted navigations use native focus and scroll after returned
 handler work finishes. `navigate()` accepts independent `focusReset` and `scroll`

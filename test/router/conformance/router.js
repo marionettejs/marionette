@@ -219,8 +219,10 @@ export function routerConformance({ name, createDriver, describe, it, assert }) 
 
     scenario('dispatches the initial entry on start through a redirect', async h => {
       await h.moveTo('source/init');
+      const ready = new Promise(resolve => h.router.once('route:ready', resolve));
 
       assert.equal(await h.router.start(), true);
+      await ready;
       assert.equal(h.driver.currentEntry.url, h.href('page/init'));
       assert.equal(h.last().name, 'page');
       assert.equal(h.last().initial, true);

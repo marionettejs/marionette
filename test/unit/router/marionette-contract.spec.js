@@ -24,7 +24,7 @@ describe('Marionette Router construction and lifecycle', () => {
       initialize(options) {
         initialized(options);
         expect(this.url('page')).toBe('/page');
-        this.initialReadiness = this.start();
+        this.activation = this.start();
       },
     });
     const options = { driver, name: 'example' };
@@ -32,16 +32,20 @@ describe('Marionette Router construction and lifecycle', () => {
     expect(router).toBeInstanceOf(Application);
     expect(initialized).toHaveBeenCalledExactlyOnceWith(options);
     expect(router.getOption('name')).toBe('example');
-    expect(await router.initialReadiness).toBe(true);
+    expect(await router.activation).toBe(true);
     expect(router.getCurrent().name).toBe('home');
   });
 
-  it('returns the same initial readiness promise when a route hook calls start again', async() => {
+  it('treats start from a route hook as an already-active Application without dispatching again', async() => {
     const Router = routing.Router.extend({ routes, onRoute() { this.joined = this.start(); } });
     const router = own(new Router({ driver: memory() }));
+    const routed = vi.fn();
+    router.on('route', routed);
     const initial = router.start();
-    expect(router.joined).toBe(initial);
+    expect(await initial).toBe(true);
     expect(await router.joined).toBe(true);
+    expect(router.isRunning()).toBe(true);
+    expect(routed).toHaveBeenCalledTimes(1);
   });
 
   it('merges class options with supplied options and resolves route factories once', async() => {
@@ -54,7 +58,7 @@ describe('Marionette Router construction and lifecycle', () => {
     expect(factory).toHaveBeenCalledTimes(1);
   });
 
-  it('notifies named hooks before events while only the explicit handler determines readiness', async() => {
+  it('notifies route hooks before events and keeps handler readiness separate from activation', async() => {
     const gate = Promise.withResolvers();
     const notification = Promise.withResolvers();
     const called = [];
@@ -67,10 +71,11 @@ describe('Marionette Router construction and lifecycle', () => {
     const router = own(new Router({ driver: memory() }));
     router.on('route', match => called.push(`event:${ match.name }`));
     router.on('route:ready', match => called.push(`ready-event:${ match.name }`));
-    const ready = router.start();
+    const routeReady = new Promise(resolve => router.once('route:ready', resolve));
+    expect(await router.start()).toBe(true);
     expect(called).toEqual(['hook:home', 'event:home', 'handler:home']);
     gate.resolve();
-    expect(await ready).toBe(true);
+    expect(await routeReady).toBe(router.getCurrent());
     expect(called).toEqual(['hook:home', 'event:home', 'handler:home', 'ready:home', 'ready-event:home']);
     notification.resolve();
   });
@@ -115,7 +120,7 @@ describe('Marionette Router construction and lifecycle', () => {
     expect(changed).toHaveBeenCalledTimes(1);
   });
 
-  it('notifies a named error hook before the event and rejects handler readiness', async() => {
+  it('notifies initial route errors independently of successful Application activation', async() => {
     const error = new Error('activation failed');
     const calls = [];
     const Router = routing.Router.extend({
@@ -125,8 +130,12 @@ describe('Marionette Router construction and lifecycle', () => {
     });
     const router = own(new Router({ driver: memory() }));
     router.on('route:error', (reason, match) => calls.push(['event', reason, match.name]));
-    await expect(router.start()).rejects.toBe(error);
+    const failed = new Promise(resolve => router.once('route:error', resolve));
+    expect(await router.start()).toBe(true);
+    expect(await failed).toBe(error);
+    expect(router.isRunning()).toBe(true);
     expect(calls).toEqual([['hook', error, 'home'], ['event', error, 'home']]);
+    await expect(router.navigate('page').finished).rejects.toBe(error);
   });
 
   it('destroys before user hooks can restart effects and releases subscriptions', async() => {

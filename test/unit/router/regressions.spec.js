@@ -107,7 +107,11 @@ describe('cancellation and redirected readiness', () => {
       });
       const errors = vi.fn();
       router.on('route:error', errors);
-      if (initial) { await expect(router.start()).rejects.toThrow('Redirect limit of 2 exceeded'); } else {
+      if (initial) {
+        const failed = new Promise(resolve => router.once('route:error', resolve));
+        expect(await router.start()).toBe(true);
+        expect((await failed).message).toBe('Redirect limit of 2 exceeded');
+      } else {
         await router.start();
         await expect(router.navigate('/item/123').finished).rejects.toThrow('Redirect limit of 2 exceeded');
       }

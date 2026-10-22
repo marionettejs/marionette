@@ -1010,7 +1010,9 @@ describe('Router.start', () => {
       redirect: async({ params }) => ({ name: 'patient:flow', params: { patientId: 'p1', flowId: params.flowId } }),
     }]);
 
+    const ready = new Promise(resolve => context.router.once('route:ready', resolve));
     assert.equal(await context.router.start(), true);
+    await ready;
 
     assert.deepEqual(context.log, ['route:legacy:flow', 'route:patient:flow', 'handler:patient:flow', 'ready:patient:flow']);
     assert.deepEqual(context.matches.map(match => [match.initial, match.navigationType]), [[true, 'reload'], [true, 'replace']]);
@@ -1035,12 +1037,15 @@ describe('Router.start', () => {
     assert.equal(context.router.getCurrent(), null);
   });
 
-  it('rejects with the handler failure after emitting route:error', async() => {
+  it('reports initial handler failure separately from activation', async() => {
     const context = setup({ handler: () => {
       throw new Error('boom');
     } });
 
-    await assert.rejects(context.router.start(), /boom/);
+    const error = new Promise(resolve => context.router.once('route:error', resolve));
+    assert.equal(await context.router.start(), true);
+    assert.match((await error).message, /boom/);
+    assert.equal(context.router.isRunning(), true);
 
     assert.deepEqual(context.log, ['route:schedule', 'handler:schedule', 'error:schedule:boom']);
   });
@@ -1049,6 +1054,7 @@ describe('Router.start', () => {
     const wait = gate();
     const context = setup({ handler: match => (match.initial ? wait.promise : undefined) });
     const initial = context.router.start();
+    assert.equal(await initial, true);
 
     await context.router.navigate('worklist', { worklistId: 'a' }).finished;
     wait.open();
