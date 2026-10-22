@@ -12,6 +12,7 @@ export function navigationDriver(navigation: Navigation | Omit<Driver, 'capabili
   const source = navigation as Omit<Driver, 'capabilities'>;
   return {
     capabilities: { cancelTraverse: false, interceptsLinks: true },
+    get activation() { return source.activation; },
     get currentEntry() { return source.currentEntry; },
     entries: () => source.entries(),
     navigate: (url, options) => source.navigate(url, options),

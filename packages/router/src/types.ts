@@ -26,6 +26,7 @@ export interface DriverEvent {
 export interface Driver {
   capabilities: { cancelTraverse: boolean; interceptsLinks: boolean };
   readonly currentEntry: DriverEntry;
+  readonly activation?: { readonly navigationType: NavigationType } | null;
   entries(): DriverEntry[];
   navigate(url: string, options?: DriverNavigateOptions): NavigationResult;
   reload(options?: { info?: unknown; state?: unknown }): NavigationResult;

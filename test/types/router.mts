@@ -31,6 +31,12 @@ if (idle) {
   void oldAlias;
 }
 navigationDriver(window.navigation);
+const activationType: Driver['activation'] = navigationDriver(window.navigation).activation;
+memoryDriver({ url: 'https://example.test/', activation: { navigationType: 'reload' } });
+memoryDriver({ url: 'https://example.test/', activation: null });
+// @ts-expect-error Document activation uses the native NavigationType union.
+memoryDriver({ url: 'https://example.test/', activation: { navigationType: 'initial' } });
+void activationType;
 router.listenTo(router, 'route', (match: ActiveMatch) => match.name);
 const owner = new Application();
 const switcher: ChildAppSwitcherInstance = new ChildAppSwitcher({ owner });

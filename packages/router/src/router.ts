@@ -247,7 +247,7 @@ function onNavigate(router: RouterInstance, event: DriverEvent) {
   const plan = planNavigation(router, nav);
   if (!plan) {return;}
   abortLocal(router);
-  event.intercept({ handler: () => execute(router, plan, nav), focusReset: 'manual', scroll: 'manual' });
+  event.intercept({ handler: () => execute(router, plan, nav) });
 }
 
 function navigationFor(router: RouterInstance, event: DriverEvent, url: URL, chain: Chain): Navigation {
@@ -270,7 +270,8 @@ function navigationFor(router: RouterInstance, event: DriverEvent, url: URL, cha
 
 async function dispatchInitial(router: RouterInstance, session: Session): Promise<boolean> {
   const internals = stateFor(router);
-  const entry = getDriver(router).currentEntry;
+  const driver = getDriver(router);
+  const entry = driver.currentEntry;
   const local = new AbortController();
   const controller = new AbortController();
   internals.local = local;
@@ -279,7 +280,7 @@ async function dispatchInitial(router: RouterInstance, session: Session): Promis
     chain: newChain(true),
     controller,
     signal: AbortSignal.any([local.signal, session.controller.signal, controller.signal]),
-    navigationType: 'push',
+    navigationType: driver.activation?.navigationType ?? 'push',
     initial: true,
     info: undefined,
     userInitiated: false,

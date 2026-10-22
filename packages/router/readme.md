@@ -39,7 +39,10 @@ query/hash explicitly. See [bookmark migration](DESIGN.md#old-bookmarks-and-rena
 
 The default Driver uses the active document's Navigation API. Inject
 `memoryDriver({ url })` with an explicit absolute initial URL for deterministic
-tests. Drivers and Match are not coupled to rendering, models, services, Regions
+tests. Its optional `activation: { navigationType: 'reload' }` simulates how the
+document was entered. Initial routing reads the native document activation type
+(or uses `push` when the Driver supplies none); later navigations use their event type.
+Drivers and Match are not coupled to rendering, models, services, Regions
 or application policy.
 
 `match('/items/42')` resolves against the Driver's current URL, including before
@@ -52,6 +55,15 @@ handler/redirect readiness. Supersession/cancellation yields false; current fail
 rejects. Events `route`, `route:ready` and `route:error` use `triggerMethod` and
 correspond to `onRoute`, `onRouteReady` and `onRouteError`. Hooks are synchronous
 notifications; returned Promises are not awaited. Keep required work in `handler`.
+
+Intercepted navigations use the browser's default focus and scroll behavior after
+returned handler work finishes. Return/await child activation and UI work that
+must precede completion. A synchronous `route:ready` listener may focus the new
+content; actual focus changes during navigation are respected by the browser.
+Direct initial dispatch does not trigger native focus/scroll, while its redirect
+hops and `refresh()` do. Views still own application-specific pane and focus policy;
+the Router adds no scroll restoration or focus configuration.
+
 
 `ChildAppSwitcher` is optional composition for applications with independently
 managed children. It switches registered child Applications; Views/Regions retain

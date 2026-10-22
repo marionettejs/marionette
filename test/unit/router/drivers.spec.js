@@ -32,6 +32,17 @@ async function rejectionOf(promise) {
 }
 
 describe('memoryDriver', () => {
+  it('keeps document activation distinct from later same-document navigation types', async() => {
+    const activation = { navigationType: 'traverse' };
+    const driver = memoryDriver({ url: 'https://example.test/', activation });
+    record(driver);
+    assert.equal(driver.activation, activation);
+    await driver.navigate('/next').finished;
+    await driver.reload().finished;
+    await driver.back().finished;
+    assert.equal(driver.activation, activation);
+  });
+
   it('starts at the given URL with a single entry', () => {
     const driver = memoryDriver({ url: 'https://example.test/start?x=1' });
 
@@ -355,6 +366,7 @@ describe('navigationDriver', () => {
     const calls = [];
     const navigation = {
       currentEntry: { key: 'one' },
+      activation: null,
       entries: () => [navigation.currentEntry],
       navigate: (...args) => calls.push(['navigate', ...args]),
       reload: (...args) => calls.push(['reload', ...args]),
@@ -364,6 +376,9 @@ describe('navigationDriver', () => {
       addEventListener: (...args) => calls.push(['addEventListener', ...args]),
     };
     const driver = navigationDriver(navigation);
+    assert.equal(driver.activation, null);
+    navigation.activation = { navigationType: 'traverse' };
+    assert.equal(driver.activation, navigation.activation);
     const listener = () => {};
     const options = { signal: new AbortController().signal };
 

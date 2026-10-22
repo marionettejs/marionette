@@ -249,9 +249,34 @@ where permitted. A reserved `@mnjs/router` ownership marker is stripped from Mat
 state. Nested values follow structured-clone semantics. Same-path replacement
 preserves omitted state; pushes/different-path replacements start empty.
 
-The native Driver requests manual focus/scroll handling and handles only the URLs
-claimed by the Router. It does not prescribe focus, loading/error UI, authentication,
-service access or server fallback policy. Node tests use the same public contracts
+The native Driver handles only URLs claimed by the Router. Interception omits
+`focusReset` and `scroll`, using native after-transition defaults. Its handler
+Promise includes returned route work and synchronous `route:ready` notifications.
+Await child activation and required feature work in the route handler: Application
+`prepareStart` is awaited, but `onStart`/event hook Promises are not. Rendering into
+an attached Region can complete synchronously; this is not a paint, image, font or
+late-layout guarantee.
+
+Successful native completion resets focus unless it actually changed during the
+navigation, and scrolls to a fragment/top or restores history positions. Calling
+`focus()` on an already focused element may not count as a change. Native rejection
+can reset focus without automatic scrolling. Actual native cancellation or
+supersession aborts that transition; `Router.stop()` instead invalidates local route
+work and does not itself abort the browser's event. Required work should observe
+its signal. Direct initial dispatch has no intercepted event, but initial redirect
+hops and `refresh()` use real native navigations. Views retain application-specific
+pane/focus policy; replacement of scrollable DOM needs application-level validation.
+No custom restoration machinery or Router configuration is added.
+
+Initial Match metadata reads `driver.activation?.navigationType`, falling back to
+`push` when activation is absent or null. The native adapter reads activation live;
+it describes how this Document was entered, not the latest same-document event.
+`memoryDriver({ url, activation: { navigationType: 'traverse' } })` can simulate it;
+later memory navigations do not rewrite this document metadata. Initial redirect
+hops retain `initial: true` and report the hop's `replace` type.
+
+The Router does not prescribe loading/error UI, authentication, service access or
+server fallback policy. Node tests use the same public contracts
 with `memoryDriver({ url })`. Its initial URL is required and must be absolute;
 relative navigation then resolves from its current entry. Native-browser
 conformance is separate evidence.
@@ -341,8 +366,9 @@ exported from the root. There are no old-name aliases or separate adapter entry.
 Authored TypeScript generates ESM/CJS and declarations. Public tests cover class
 options/initialization, notifications, cleanup, navigation concurrency, switching,
 UI reconstruction and isolated providers. Package fixtures verify installed ESM/CJS
-behavior with the required peer. Browser conformance, minimum-version operation and
-actual application focus/scroll remain separate checks.
+behavior with the required peer. Focused headless native-navigation tests exercise
+the built router with packed Marionette peers; these do not certify the entire
+Driver contract, minimum browser versions or any consuming application UI.
 
 A History API Driver, reflection, richer refresh intent and additional coordination
 hooks require concrete requirements; they are not prerequisites for this package's

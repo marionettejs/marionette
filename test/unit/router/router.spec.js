@@ -56,8 +56,8 @@ function baseRoutes() {
 }
 
 function setup(options = {}) {
-  const { url = 'http://localhost/w1/schedule', routes = baseRoutes(), handler, ...routerOptions } = options;
-  const driver = memoryDriver({ url });
+  const { url = 'http://localhost/w1/schedule', routes = baseRoutes(), handler, activation, ...routerOptions } = options;
+  const driver = memoryDriver({ url, activation });
   const log = [];
   const matches = [];
   const context = { driver, log, matches, handler };
@@ -226,7 +226,7 @@ describe('Router intercept rules', () => {
     assert.equal(context.driver.documentNavigations.length, 1);
   });
 
-  it('intercepts owned navigations with manual focus and scroll', async() => {
+  it('leaves owned navigation focus and scroll to the native defaults', async() => {
     const context = setup();
     const spy = spyEvents(context.driver);
     await context.router.start();
@@ -236,8 +236,8 @@ describe('Router intercept rules', () => {
 
     assert.deepEqual(context.driver.documentNavigations, []);
     assert.equal(spy.intercepts.length, 1);
-    assert.equal(spy.intercepts[0].focusReset, 'manual');
-    assert.equal(spy.intercepts[0].scroll, 'manual');
+    assert.equal(Object.hasOwn(spy.intercepts[0], 'focusReset'), false);
+    assert.equal(Object.hasOwn(spy.intercepts[0], 'scroll'), false);
     assert.equal(typeof spy.intercepts[0].handler, 'function');
   });
 
@@ -898,6 +898,34 @@ describe('Router asynchronous redirects', () => {
 });
 
 describe('Router.start', () => {
+  for (const navigationType of ['push', 'replace', 'reload', 'traverse']) {
+    it(`reports the document's ${ navigationType } activation on initial dispatch`, async() => {
+      const context = setup({ activation: { navigationType } });
+      await context.router.start();
+      assert.equal(context.matches[0].navigationType, navigationType);
+      assert.equal(context.matches[0].initial, true);
+      context.router.stop();
+      await context.router.start();
+      assert.equal(context.matches[1].navigationType, navigationType);
+    });
+  }
+
+  for (const activation of [undefined, null]) {
+    it(`uses push when document activation is ${ activation }`, async() => {
+      const context = setup({ activation });
+      await context.router.start();
+      assert.equal(context.matches[0].navigationType, 'push');
+    });
+  }
+
+  it('uses the redirect hop type while retaining initial readiness', async() => {
+    const context = setup({ url: 'https://example.test/old-home', activation: { navigationType: 'reload' } });
+    context.router.mount([{ name: 'home', path: '/old-home', redirect: () => ({ name: 'schedule', params: { workspace: 'w1' } }) }]);
+    await context.router.start();
+    assert.equal(context.matches[0].initial, true);
+    assert.equal(context.matches[0].navigationType, 'replace');
+  });
+
   it('dispatches the current URL with initial true and no navigate event (D5 query survives reload)', async() => {
     const context = setup({ url: 'http://localhost/w1/worklist/owned-by?clinicianId=7' });
     const spy = spyEvents(context.driver);
@@ -954,7 +982,7 @@ describe('Router.start', () => {
   });
 
   it('applies asynchronous redirects to the initial URL', async() => {
-    const context = setup({ url: 'http://localhost/w1/flow/f1' });
+    const context = setup({ url: 'http://localhost/w1/flow/f1', activation: { navigationType: 'reload' } });
     context.router.mount([{
       name: 'legacy:flow',
       path: '/:workspace/flow/:flowId',
@@ -964,7 +992,7 @@ describe('Router.start', () => {
     assert.equal(await context.router.start(), true);
 
     assert.deepEqual(context.log, ['route:legacy:flow', 'route:patient:flow', 'handler:patient:flow', 'ready:patient:flow']);
-    assert.equal(context.matches[1].initial, true);
+    assert.deepEqual(context.matches.map(match => [match.initial, match.navigationType]), [[true, 'reload'], [true, 'replace']]);
     assert.equal(context.driver.currentEntry.url, 'http://localhost/w1/patient/p1/flow/f1');
   });
 

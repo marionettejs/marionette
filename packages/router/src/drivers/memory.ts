@@ -1,15 +1,16 @@
-import type { DriverEntry, DriverEvent, MemoryDriver, DriverNavigateOptions, NavigationResult, NavigationType, SimulateOptions } from '../types.ts';
+import type { Driver, DriverEntry, DriverEvent, MemoryDriver, DriverNavigateOptions, NavigationResult, NavigationType, SimulateOptions } from '../types.ts';
 
 type Init = Omit<DriverEvent, 'destination' | 'signal' | 'defaultPrevented' | 'preventDefault' | 'intercept'> & {
   url: string; state?: unknown; target?: DriverEntry;
 };
 type Flags = Omit<SimulateOptions, 'navigationType' | 'state'>;
 
-export function memoryDriver({ url }: { url: string }): MemoryDriver {
+export function memoryDriver({ url, activation }: { url: string; activation?: Driver['activation'] }): MemoryDriver {
   const history = new MemoryHistory(new URL(url).href);
 
   return {
     capabilities: { cancelTraverse: true, interceptsLinks: true },
+    activation,
     get currentEntry() {
       return history.current;
     },
