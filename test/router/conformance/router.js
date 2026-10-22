@@ -36,7 +36,8 @@ export function routerConformance({ name, createDriver, describe, it, assert }) 
       path: `${ root }/:run`,
       children: [
         { name: 'page', path: 'page/:id' },
-        { name: 'canonical', path: 'canonical/:id', aliases: [{ path: `${ root }/:run/legacy/:id` }] },
+        { name: 'canonical', path: 'canonical/:id' },
+        { name: 'legacy', path: 'legacy/:id', redirect: ({ params, query }) => ({ name: 'canonical', params, query }) },
         {
           name: 'source',
           path: 'source/:id',
@@ -155,7 +156,7 @@ export function routerConformance({ name, createDriver, describe, it, assert }) 
       assert.equal(h.last().navigationType, 'replace');
     });
 
-    scenario('canonicalizes an alias URL', async h => {
+    scenario('redirects a named legacy URL', async h => {
       await h.moveTo('start');
       await h.router.start();
 

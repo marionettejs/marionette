@@ -99,11 +99,11 @@ describe('cancellation and redirected readiness', () => {
   });
 
   for (const initial of [false, true]) {
-    it(`bounds canonicalizing alias loops during ${ initial ? 'start' : 'navigate' }`, async() => {
+    it(`bounds synchronous redirect loops during ${ initial ? 'start' : 'navigate' }`, async() => {
       const { router } = setup({
         driver: memoryDriver({ url: initial ? 'http://localhost/item/123' : 'http://localhost/outside' }),
         maxRedirects: 2,
-        routes: [{ name: 'item', path: '/item{/:id}?', aliases: [{ path: '/item/:id' }] }],
+        routes: [{ name: 'item', path: '/item/:id', redirect: ({ params }) => ({ name: 'item', params }) }],
       });
       const errors = vi.fn();
       router.on('route:error', errors);

@@ -33,6 +33,10 @@ and literal escapes. Inline regex, wildcard and repeated parameters are rejected
 See the [pathname grammar](DESIGN.md#route-definitions-and-matching) for the exact
 subset and URL-generation rules.
 
+Old bookmarks use ordinary named routes with synchronous or asynchronous
+`redirect` callbacks. Fetch missing target data in the application and forward
+query/hash explicitly. See [bookmark migration](DESIGN.md#old-bookmarks-and-renamed-features).
+
 The default Driver uses the active document's Navigation API. Inject
 `memoryDriver({ url })` with an explicit absolute initial URL for deterministic
 tests. Drivers and Match are not coupled to rendering, models, services, Regions

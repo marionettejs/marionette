@@ -1,4 +1,4 @@
-import { Router, memoryDriver, navigationDriver, type ActiveMatch, type Match, type Driver, type NavigationResult, type RouterOptions, type RouterInstance } from '@mnjs/router';
+import { Router, memoryDriver, navigationDriver, type ActiveMatch, type Match, type Driver, type NavigationResult, type RouterOptions, type RouterInstance, type RouteDefinition } from '@mnjs/router';
 import { ChildAppSwitcher, type ChildAppSwitcherInstance, type ChildAppSwitcherOptions } from '@mnjs/router';
 import { Application, createMarionette } from 'marionette';
 
@@ -15,12 +15,20 @@ const router = new Router({
     return Promise.resolve();
   },
 });
+// @ts-expect-error Alias route configuration was removed; use a named redirect route.
+const removedAlias: RouteDefinition = { name: 'old', path: '/old', aliases: [] };
+void removedAlias;
+// @ts-expect-error Alias inspection was removed.
+router.getAliases();
 const result: NavigationResult<boolean> = router.navigate('home', {}, { state: { selected: 2 } });
 const readiness: Promise<boolean> = result.finished;
 const idle: Match | null = router.match('/');
 if (idle) {
   // @ts-expect-error Pure matching provides no navigation signal.
   idle.signal.throwIfAborted();
+  // @ts-expect-error Matches no longer expose alias metadata.
+  const oldAlias = idle.alias;
+  void oldAlias;
 }
 navigationDriver(window.navigation);
 router.listenTo(router, 'route', (match: ActiveMatch) => match.name);

@@ -115,7 +115,7 @@ teardown or general synchronous recovery policy.
 
 Internally, `pattern.ts` handles one pathname's grammar, encoding, native
 URLPattern execution and prefix patterns. `matcher.ts` owns the route table,
-competing-route ordering, aliases, nesting, mounts and generated-URL round-trip
+competing-route ordering, nesting, mounts and generated-URL round-trip
 checks. Pattern tokens and compiled execution stay internal to the package.
 
 Named and unnamed nodes form a route tree. Relative children append to their
@@ -187,16 +187,62 @@ is shared by named URL generation and raw navigation targets.
 route matches and `within` accepts the URL. The Router's normal interception
 rules still apply. The handler receives the configured name, the unchanged URL
 and query, and parameters from the deepest matching unnamed branch prefix (or
-none). Its metadata and branch are empty and its alias is null. A fallback does
-not capture an unmatched tail or inherit a registered route's metadata/redirect.
+none). Its metadata and branch are empty. A fallback does not capture an unmatched
+tail or inherit a registered route's metadata/redirect.
 It does not register a route: pure `match()` still returns null, and `url(name)`
 requires a separately registered named route. Use this fallback to show a missing
 page within an explicitly owned URL scope; it does not replace wildcard routing.
 
-Aliases specify exactly the canonical route's parameter names and an optional
-compatibility window. Default `canonicalize` replaces before activation; `preserve`
-keeps the alias URL. Redirect callbacks return a same-origin URL or named target,
-optionally asynchronously. Alias and redirect hops share `maxRedirects` (default 5).
+Redirect callbacks return a same-origin URL or named target, optionally
+asynchronously. Ordinary redirect hops share `maxRedirects` (default 5).
+Synchronous redirects replace the URL before activating the target; an asynchronous
+redirect commits its source while its required lookup is pending. Lookup failures
+remain associated with that source URL. Cancellation invalidates a stale redirect
+result, but application code must pass/check the signal before its own effects.
+
+### Old bookmarks and renamed features
+
+Register an old URL as an ordinary named route with a redirect. Pure `match()`
+returns that old route's own name and parameters; URL generation builds the URL of
+the requested name. An old route may have different parameters from its target.
+Fetch any missing target data in the application's async callback:
+
+```js
+const CatalogRouter = Router.extend({
+  routes() {
+    const forward = (name, match, params = match.params) =>
+      this.url(name, params, { query: match.query }) + match.url.hash;
+    return [
+      { name: 'item', path: '/collections/:collectionId/items/:id' },
+      { name: 'oldItem', path: '/legacy/:legacyId',
+        redirect: async(match, { signal }) => {
+          const item = await lookupItem(match.params.legacyId, { signal });
+          if (signal.aborted) return;
+          return forward('item', match, { collectionId: item.collectionId, id: item.id });
+        },
+      },
+      { name: 'oldDetails', path: '/legacy/:legacyId/details',
+        redirect: match => forward('oldItem', match),
+      },
+    ];
+  },
+});
+```
+
+Here the details bookmark first replaces itself with the legacy lookup URL, then
+replaces that URL with the current item URL after the lookup. An error belongs to
+the intermediate lookup URL. No fetch policy, data source or lookup cache is built
+into the Router.
+
+Query and hash forwarding are explicit application choices. A named redirect
+without `query` does not inherit the source query. Named targets have no hash
+option; return a URL string with the hash when it must survive, as `forward` does.
+
+To migrate from route aliases, replace each `aliases` entry with a separately named
+redirect route. Remove `getAliases()` and `Match.alias` consumers; those APIs and
+the alias types/policies are removed. Keep retirement dates and bookmark policy
+with the application, using ordinary registration/mount/unmount as appropriate.
+There is no automatic alias metadata or `preserve` rendering mode.
 
 Entry state is a plain object (including null-prototype objects), or null/undefined
 where permitted. A reserved `@mnjs/router` ownership marker is stripped from Match

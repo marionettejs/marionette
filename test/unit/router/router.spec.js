@@ -22,6 +22,14 @@ function gate() {
   return result;
 }
 
+function forwardWorkflow(suffix = '') {
+  return ({ params, url }) => {
+    const target = new URL(url);
+    target.pathname = `/${ encodeURIComponent(params.workspace) }/patient/${ encodeURIComponent(params.patientId) }/workflow${ suffix }`;
+    return target.href;
+  };
+}
+
 function baseRoutes() {
   return [
     { name: 'root', path: '/' },
@@ -31,16 +39,16 @@ function baseRoutes() {
       children: [
         { name: 'worklist', path: 'worklist/:worklistId', meta: { isList: true } },
         { name: 'schedule', path: 'schedule', meta: { isList: true } },
+        { name: 'legacy:patient:workflow', path: 'patient/dashboard/:patientId', redirect: forwardWorkflow() },
+        { name: 'legacy:patient:workflow:closed', path: 'patient/archive/:patientId', redirect: forwardWorkflow('/closed') },
         { name: 'patient:flow', path: 'patient/:patientId/flow/:flowId' },
         {
           name: 'patient:workflow',
           path: 'patient/:patientId/workflow',
-          aliases: [{ path: '/:workspace/patient/dashboard/:patientId', until: '2027-09-02' }],
         },
         {
           name: 'patient:workflow:closed',
           path: 'patient/:patientId/workflow/closed',
-          aliases: [{ path: '/:workspace/patient/archive/:patientId', policy: 'preserve' }],
         },
       ],
     },
@@ -262,7 +270,6 @@ describe('Router dispatch and events', () => {
     assert.deepEqual(match.branch.map(entry => entry.name), [undefined, 'patient:flow']);
     assert.deepEqual(match.branch[0].params, { workspace: 'w1' });
     assert.equal(match.branch[1].path, '/:workspace/patient/:patientId/flow/:flowId');
-    assert.equal(match.alias, null);
     assert.equal(match.navigationType, 'push');
     assert.equal(match.initial, false);
     assert.equal(match.info, infoToken);
@@ -416,7 +423,6 @@ describe('Router dispatch and events', () => {
     assert.equal(match.query.get('x'), '1');
     assert.deepEqual(match.meta, {});
     assert.deepEqual(match.branch, []);
-    assert.equal(match.alias, null);
     assert.equal(context.router.match('/w1/does-not-exist?x=1'), null);
     assert.equal(context.router.hasRoute('notFound'), false);
     assert.throws(() => context.router.url('notFound'), /Unknown route/);
@@ -645,17 +651,6 @@ describe('Router.url and params', () => {
     assert.equal(router.url('schedule', { workspace: 'w1' }), '/w1/schedule');
   });
 
-  it('lists aliases with their until dates for compatibility-window guards (D2)', () => {
-    const router = createRouter({ routes: baseRoutes() });
-
-    const aliases = router.getAliases();
-
-    assert.deepEqual(aliases.map(alias => [alias.name, alias.path, alias.until, alias.policy]), [
-      ['patient:workflow', '/:workspace/patient/dashboard/:patientId', '2027-09-02', 'canonicalize'],
-      ['patient:workflow:closed', '/:workspace/patient/archive/:patientId', undefined, 'preserve'],
-    ]);
-    assert.deepEqual(aliases.filter(alias => alias.until && alias.until < '2027-09-03').length, 1);
-  });
 
   it('matches purely, without redirect side effects or navigation fields', () => {
     let called = false;
@@ -675,8 +670,8 @@ describe('Router.url and params', () => {
   });
 });
 
-describe('Router aliases (D2)', () => {
-  it('canonicalizes after commit and dispatches once', async() => {
+describe('Router legacy redirect routes', () => {
+  it('replaces an old bookmark and dispatches only the current route', async() => {
     const context = await started();
     const entries = context.driver.entries().length;
 
@@ -686,13 +681,12 @@ describe('Router aliases (D2)', () => {
     assert.deepEqual(context.log, ['route:patient:workflow', 'handler:patient:workflow', 'ready:patient:workflow']);
     const match = lastRoute(context);
     assert.deepEqual(match.params, { workspace: 'w1', patientId: '9' });
-    assert.equal(match.alias, null);
     assert.equal(match.url.href, 'http://localhost/w1/patient/9/workflow?x=1#frag');
     assert.equal(context.driver.currentEntry.url, 'http://localhost/w1/patient/9/workflow?x=1#frag');
     assert.equal(context.driver.entries().length, entries + 1);
   });
 
-  it('canonicalizes link clicks as well', async() => {
+  it('redirects link clicks as well', async() => {
     const context = await started();
 
     context.driver.simulate('http://localhost/w1/patient/dashboard/9');
@@ -703,7 +697,7 @@ describe('Router aliases (D2)', () => {
     assert.equal(context.matches[0].navigationType, 'replace');
   });
 
-  it('keeps the alias URL and reports match.alias when the policy is preserve', async() => {
+  it('redirects an archive bookmark to the renamed feature', async() => {
     const context = await started();
 
     await context.router.navigate('/w1/patient/archive/9').finished;
@@ -711,12 +705,11 @@ describe('Router aliases (D2)', () => {
     const match = lastRoute(context);
     assert.equal(match.name, 'patient:workflow:closed');
     assert.deepEqual(match.params, { workspace: 'w1', patientId: '9' });
-    assert.equal(match.alias, '/:workspace/patient/archive/:patientId');
-    assert.equal(context.driver.currentEntry.url, 'http://localhost/w1/patient/archive/9');
+    assert.equal(context.driver.currentEntry.url, 'http://localhost/w1/patient/9/workflow/closed');
     assert.equal(context.matches.length, 1);
   });
 
-  it('builds canonical URLs only', async() => {
+  it('builds the current route URL when requested by its current name', async() => {
     const context = await started();
 
     assert.equal(context.router.url('patient:workflow', { patientId: '9' }), '/w1/patient/9/workflow');
@@ -938,7 +931,7 @@ describe('Router.start', () => {
     assert.equal(context.matches.length, 1);
   });
 
-  it('applies alias canonicalization to the initial URL', async() => {
+  it('redirects an initial legacy URL to its current route', async() => {
     const context = setup({ url: 'http://localhost/w1/patient/dashboard/9' });
 
     assert.equal(await context.router.start(), true);

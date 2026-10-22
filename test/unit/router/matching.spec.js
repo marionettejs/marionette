@@ -28,18 +28,20 @@ function inventory() {
               name: 'patient:workflow',
               path: 'workflow',
               meta: { page: 'workflow' },
-              aliases: [{ path: '/:workspace/patient/dashboard/:patientId', until: '2027-09-02' }],
             },
             {
               name: 'patient:workflow:closed',
               path: 'workflow/closed',
-              aliases: [{ path: '/:workspace/patient/archive/:patientId', until: '2027-09-02', policy: 'preserve' }],
             },
             { name: 'patient:flow', path: 'flow/:flowId' },
             { name: 'patient:flow:action', path: 'flow/:flowId/action/:actionId' },
             { name: 'patient:form', path: 'form/:formId{/:responseId}?' },
           ],
         },
+        { name: 'legacy:patient:workflow', path: 'patient/dashboard/:patientId',
+          redirect: ({ params, query }) => ({ name: 'patient:workflow', params, query }) },
+        { name: 'legacy:patient:workflow:closed', path: 'patient/archive/:patientId',
+          redirect: ({ params, query }) => ({ name: 'patient:workflow:closed', params, query }) },
         { name: 'legacy:patient:flow', path: 'flow/:flowId', redirect: redirectToFlow },
         { name: 'legacy:patient:flow:details', path: 'flow/:flowId/details' },
         { name: 'program:action', path: 'program/:programId/action/:actionId' },
@@ -280,74 +282,32 @@ describe('Router matching: ranking', () => {
   });
 });
 
-describe('Router matching: aliases', () => {
-  it('returns the canonical name and params with the alias path and policy', () => {
-    const matcher = routerFor(inventory());
-    const result = matcher.match('/w/patient/dashboard/p1');
-    assert.equal(result.name, 'patient:workflow');
-    assert.deepEqual(result.params, { workspace: 'w', patientId: 'p1' });
-    assert.equal(result.alias, '/:workspace/patient/dashboard/:patientId');
-    assert.equal(matcher.getAliases().find(alias => alias.path === result.alias).policy, 'canonicalize');
-    assert.deepEqual(result.meta, { scope: 'workspace', area: 'patients', page: 'workflow' });
-    assert.equal(result.branch.at(-1).name, 'patient:workflow');
-  });
-
-  it('reports canonical matches with alias null', () => {
-    const matcher = routerFor(inventory());
-    const result = matcher.match('/w/patient/p1/workflow');
-    assert.equal(result.alias, null);
-  });
-
-  it('honors a preserve policy', () => {
-    const matcher = routerFor(inventory());
-    const result = matcher.match('/w/patient/archive/p1');
-    assert.equal(result.name, 'patient:workflow:closed');
-    assert.equal(matcher.getAliases().find(alias => alias.path === result.alias).policy, 'preserve');
-  });
-
-  it('lists every alias with name, path, until and policy', () => {
-    const matcher = routerFor(inventory());
-    assert.deepEqual(matcher.getAliases(), [
-      { name: 'patient:workflow', path: '/:workspace/patient/dashboard/:patientId', until: '2027-09-02', policy: 'canonicalize' },
-      { name: 'patient:workflow:closed', path: '/:workspace/patient/archive/:patientId', until: '2027-09-02', policy: 'preserve' },
-    ]);
-  });
-
-  it('builds canonical URLs, never alias URLs', () => {
-    const matcher = routerFor(inventory());
-    assert.equal(matcher.url('patient:workflow', { workspace: 'w', patientId: 'p1' }), '/w/patient/p1/workflow');
-  });
-
-  it('accepts alias params declared in any order', () => {
-    const matcher = routerFor([{
-      name: 'two',
-      path: '/:a/:b',
-      aliases: [{ path: '/old/:b/:a' }],
-    }]);
-    assert.deepEqual(matcher.match('/old/B/A').params, { a: 'A', b: 'B' });
-    assert.deepEqual(Object.keys(matcher.match('/old/B/A').params), ['a', 'b']);
-  });
-
-  it('ranks alias patterns like any other route', () => {
+describe('Router matching: named redirect routes', () => {
+  it('matches the old route by its own name without following its redirect', () => {
+    const redirect = vi.fn(() => ({ name: 'current' }));
     const matcher = routerFor([
-      { name: 'canonical', path: '/:a/:b', aliases: [{ path: '/old/:a/:b' }] },
-      { name: 'other', path: '/old/new/:c' },
+      { name: 'current', path: '/current/:id' },
+      { name: 'old', path: '/old/:key', redirect },
     ]);
-    assert.equal(names(matcher, '/old/new/z'), 'other');
-    assert.equal(matcher.match('/old/a/b').alias, '/old/:a/:b');
+    const match = matcher.match('/old/value');
+    assert.equal(match.name, 'old');
+    assert.deepEqual(match.params, { key: 'value' });
+    assert.equal(redirect.mock.calls.length, 0);
   });
 
-  it('rejects an alias with missing, extra or renamed params', () => {
-    const base = { name: 'r', path: '/r/:id' };
-    for (const path of ['/old', '/old/:id/:extra', '/old/:other']) {
-      assert.throws(() => routerFor([{ ...base, aliases: [{ path }] }]), /must declare exactly the params: id/);
-    }
+  it('builds the declared URL for both current and legacy names', () => {
+    const matcher = routerFor(inventory());
+    const params = { workspace: 'w', patientId: 'p' };
+    assert.equal(matcher.url('patient:workflow', params), '/w/patient/p/workflow');
+    assert.equal(matcher.url('legacy:patient:workflow', params), '/w/patient/dashboard/p');
   });
 
-  it('rejects a relative alias path, an unknown policy and aliases on unnamed nodes', () => {
-    assert.throws(() => routerFor([{ name: 'r', path: '/r', aliases: [{ path: 'old' }] }]), /absolute path/);
-    assert.throws(() => routerFor([{ name: 'r', path: '/r', aliases: [{ path: '/o', policy: 'x' }] }]), /unknown policy "x"/);
-    assert.throws(() => routerFor([{ path: '/r', aliases: [{ path: '/o' }] }]), /Aliases require a named route/);
+  it('ranks a named legacy route like any other route', () => {
+    const matcher = routerFor([
+      { name: 'old', path: '/old/:id', redirect: () => ({ name: 'current' }) },
+      { name: 'help', path: '/old/help' },
+    ]);
+    assert.equal(matcher.match('/old/help').name, 'help');
   });
 });
 
@@ -420,8 +380,8 @@ describe('Router matching: url() then match() round trips', () => {
     ['nested params', 'patient:flow:action', { workspace: 'w', patientId: 'p1', flowId: 'f1', actionId: 'a1' }],
     ['optional segment omitted', 'patient:form', { workspace: 'w', patientId: 'p1', formId: 'f1' }],
     ['optional segment supplied', 'patient:form', { workspace: 'w', patientId: 'p1', formId: 'f1', responseId: 'r 1' }],
-    ['canonical URL of an aliased route', 'patient:workflow', { workspace: 'w', patientId: 'p1' }],
-    ['canonical URL of a preserved alias route', 'patient:workflow:closed', { workspace: 'w', patientId: 'p1' }],
+    ['current workflow URL', 'patient:workflow', { workspace: 'w', patientId: 'p1' }],
+    ['current closed workflow URL', 'patient:workflow:closed', { workspace: 'w', patientId: 'p1' }],
     ['value equal to a static segment', 'worklist', { workspace: 'w', worklistId: 'programs' }],
     ['value that looks like another route', 'patient:flow', { workspace: 'w', patientId: 'worklist', flowId: 'flow' }],
     ['encoded reserved characters', 'worklist', { workspace: 'a b', worklistId: 'x/y?z#q%1&=+' }],
@@ -439,7 +399,6 @@ describe('Router matching: url() then match() round trips', () => {
 
       assert.equal(result.name, name);
       assert.deepEqual(result.params, params);
-      assert.equal(result.alias, null);
     });
   }
 
@@ -453,16 +412,12 @@ describe('Router matching: url() then match() round trips', () => {
     assert.equal(result.query.get('clinicianId'), 'c1');
   });
 
-  it('matches an alias URL to the canonical name and params', () => {
+  it('matches an old bookmark as its own named redirect route', () => {
     const matcher = routerFor(roundTripRoutes());
-    const params = { workspace: 'w', patientId: 'p 1' };
-
     const result = matcher.match('/w/patient/dashboard/p%201');
-
-    assert.equal(result.name, 'patient:workflow');
-    assert.deepEqual(result.params, params);
-    assert.equal(result.alias, '/:workspace/patient/dashboard/:patientId');
-    assert.equal(matcher.url(result.name, result.params), '/w/patient/p%201/workflow');
+    assert.equal(result.name, 'legacy:patient:workflow');
+    assert.deepEqual(result.params, { workspace: 'w', patientId: 'p 1' });
+    assert.equal(matcher.url(result.name, result.params), '/w/patient/dashboard/p%201');
   });
 
   it('round-trips every named route with generated params', () => {
@@ -673,15 +628,15 @@ describe('Router matching: mount', () => {
     assert.equal(names(matcher, '/a'), 'a');
   });
 
-  it('invalidates compiled state, including aliases and param names', () => {
+  it('invalidates mounted redirect routes and their parameter names', () => {
     const matcher = routerFor();
-    assert.deepEqual(matcher.getAliases(), []);
-    const unmount = matcher.mount([{ name: 'a', path: '/a/:id', aliases: [{ path: '/old/:id', until: '2030-01-01' }] }]);
-    assert.equal(matcher.getAliases().length, 1);
-    assert.equal(names(matcher, '/old/1'), 'a');
+    const unmount = matcher.mount([{ name: 'old', path: '/old/:id', redirect: () => ({ name: 'current' }) }]);
+    assert.deepEqual(matcher.getParamNames('old'), ['id']);
+    assert.equal(names(matcher, '/old/1'), 'old');
     unmount();
-    assert.deepEqual(matcher.getAliases(), []);
+    assert.equal(matcher.hasRoute('old'), false);
     assert.equal(matcher.match('/old/1'), null);
+    assert.throws(() => matcher.getParamNames('old'), /Unknown route/);
   });
 
   it('deactivates mounts under a parent that was unmounted and restores them with it', () => {

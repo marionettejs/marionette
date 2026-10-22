@@ -1,18 +1,16 @@
 import { Pattern, normalizePathname, canonicalPathname, hasValue } from './pattern.ts';
 import { toSearchParams } from './query.ts';
 import type { CompiledPattern } from './pattern.ts';
-import type { AliasDefinition, Alias, BranchEntry, RouteDefinition, Params, Query, MatcherResult } from './types.ts';
+import type { BranchEntry, RouteDefinition, Params, Query, MatcherResult } from './types.ts';
 
 type CompiledBranch = Omit<BranchEntry, 'params'> & { names: string[] };
 type Node = { path: string; names: string[]; meta: Record<string, unknown>; branch: CompiledBranch[] };
-type CompiledAlias = Omit<AliasDefinition, 'policy'> & { policy: 'canonicalize' | 'preserve'; pattern: Pattern };
-type Route = Node & { name: string; pattern: Pattern; redirect?: RouteDefinition['redirect']; aliases: CompiledAlias[] };
-type Entry = { route: Route; alias: CompiledAlias | null; pattern: CompiledPattern; ranks: number[]; mount: number; seq: number };
-type State = { byName: Map<string, Route>; entries: Entry[]; aliases: Alias[]; prefixes: { depth: number; pattern: CompiledPattern }[] };
+type Route = Node & { name: string; pattern: Pattern; redirect?: RouteDefinition['redirect'] };
+type Entry = { route: Route; pattern: CompiledPattern; ranks: number[]; mount: number; seq: number };
+type State = { byName: Map<string, Route>; entries: Entry[]; prefixes: { depth: number; pattern: CompiledPattern }[] };
 type Scope = { index: number; seq: number };
 type Mount = { routes: RouteDefinition[]; parent?: string };
 
-const POLICIES = ['canonicalize', 'preserve'];
 const ROOT: Node = { path: '', names: [], meta: {}, branch: [] };
 
 function normalizePath(path: string) {
@@ -43,34 +41,13 @@ function assertDefinition(definition: RouteDefinition) {
   if (!definition || typeof definition.path !== 'string') {
     throw new TypeError('A route definition requires a string "path"');
   }
-  if (definition.name === undefined && definition.aliases?.length) {
-    throw new Error(`Aliases require a named route (path "${ definition.path }")`);
-  }
 }
 
-function assertAliasParams(path: string, name: string, names: string[], canonicalNames: string[]) {
-  if (names.length === canonicalNames.length && names.every(item => canonicalNames.includes(item))) {return;}
-  throw new Error(`Alias "${ path }" of route "${ name }" must declare exactly the params: ${ canonicalNames.join(', ') || '(none)' }`);
-}
-
-function compileAlias(alias: AliasDefinition, name: string, canonicalNames: string[]): CompiledAlias {
-  if (typeof alias?.path !== 'string' || !alias.path.startsWith('/')) {
-    throw new Error(`Alias of route "${ name }" requires an absolute path starting with "/"`);
-  }
-  const policy = alias.policy ?? 'canonicalize';
-  if (!POLICIES.includes(policy)) {throw new Error(`Alias "${ alias.path }" of route "${ name }" has unknown policy "${ policy }"`);}
-  const path = normalizePath(alias.path);
-  const pattern = new Pattern(path, `alias "${ path }"`);
-  assertAliasParams(path, name, pattern.names, canonicalNames);
-  return { path, until: alias.until, policy, pattern };
-}
-
-function addEntry(state: State, scope: Scope, route: Route, alias: CompiledAlias | null, pattern: Pattern) {
+function addEntry(state: State, scope: Scope, route: Route) {
   state.entries.push({
     route,
-    alias,
-    pattern: pattern.compile(route.name, route.names),
-    ranks: pattern.getRanks(),
+    pattern: route.pattern.compile(route.name),
+    ranks: route.pattern.getRanks(),
     mount: scope.index,
     seq: scope.seq++,
   });
@@ -80,14 +57,9 @@ function registerRoute(definition: RouteDefinition, node: Node, pattern: Pattern
   const { name } = definition;
   if (typeof name !== 'string' || !name) {throw new TypeError(`Route name must be a non-empty string (path "${ node.path }")`);}
   if (state.byName.has(name)) {throw new Error(`Duplicate route name "${ name }"`);}
-  const aliases = (definition.aliases ?? []).map(alias => compileAlias(alias, name, node.names));
-  const route = { ...node, name, pattern, redirect: definition.redirect, aliases };
+  const route = { ...node, name, pattern, redirect: definition.redirect };
   state.byName.set(name, route);
-  addEntry(state, scope, route, null, pattern);
-  for (const alias of aliases) {
-    addEntry(state, scope, route, alias, alias.pattern);
-    state.aliases.push({ name, path: alias.path, until: alias.until, policy: alias.policy });
-  }
+  addEntry(state, scope, route);
 }
 
 function compileNode(definition: RouteDefinition, parent: Node, state: State, scope: Scope) {
@@ -119,7 +91,7 @@ function compileMount(mount: Mount & { index: number }, state: State) {
 
 // Mounts whose parent is not (or no longer) registered stay inactive until it returns.
 function compile(mounts: Mount[]) {
-  const state: State = { byName: new Map(), entries: [], aliases: [], prefixes: [] };
+  const state: State = { byName: new Map(), entries: [], prefixes: [] };
   let pending = mounts.map((mount, index) => ({ ...mount, index }));
   while (pending.length) {
     const ready = pending.filter(mount => mount.parent === undefined || state.byName.has(mount.parent));
@@ -138,7 +110,7 @@ function pick(params: Record<string, string>, names: string[]) {
 }
 
 function toResult(entry: Entry, params: Record<string, string>, target: URL): MatcherResult {
-  const { route, alias } = entry;
+  const { route } = entry;
   return {
     name: route.name,
     params,
@@ -151,8 +123,6 @@ function toResult(entry: Entry, params: Record<string, string>, target: URL): Ma
       params: pick(params, item.names),
       meta: { ...item.meta },
     })),
-    alias: alias ? alias.path : null,
-    aliasPolicy: alias ? alias.policy : null,
     redirect: route.redirect,
   };
 }
@@ -217,10 +187,6 @@ export class Matcher {
 
   getParamNames(name: string) {
     return [...this.#route(name).names];
-  }
-
-  getAliases() {
-    return this.#compiled().aliases.map(alias => ({ ...alias }));
   }
 
   has(name: string) {

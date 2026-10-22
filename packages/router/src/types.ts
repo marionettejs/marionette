@@ -45,21 +45,18 @@ export interface MemoryDriver extends Driver {
 export interface BranchEntry { name: string | undefined; path: string; params: Record<string, string>; meta: Record<string, unknown> }
 export interface Match {
   name: string; params: Record<string, string>; query: URLSearchParams; url: URL;
-  meta: Record<string, unknown>; branch: BranchEntry[]; alias: string | null;
+  meta: Record<string, unknown>; branch: BranchEntry[];
   navigationType: NavigationType | null; initial: boolean; info: unknown; state: unknown;
   key: string; signal: AbortSignal | null; userInitiated: boolean;
 }
 export interface ActiveMatch extends Match { signal: AbortSignal; navigationType: NavigationType }
 export type RedirectTarget = string | { name: string; params?: Params; query?: Query };
 export type Redirect = (match: ActiveMatch, context: { signal: AbortSignal }) => RedirectTarget | null | undefined | Promise<RedirectTarget | null | undefined>;
-export interface AliasDefinition { path: string; until?: string; policy?: 'canonicalize' | 'preserve' }
 export interface RouteDefinition {
   name?: string; path: string; children?: RouteDefinition[]; meta?: Record<string, unknown>;
-  aliases?: AliasDefinition[]; redirect?: Redirect;
+  redirect?: Redirect;
 }
-export interface Alias { name: string; path: string; until: string | undefined; policy: 'canonicalize' | 'preserve' }
-export interface MatcherResult extends Pick<Match, 'name' | 'params' | 'query' | 'url' | 'meta' | 'branch' | 'alias'> {
-  aliasPolicy: 'canonicalize' | 'preserve' | null;
+export interface MatcherResult extends Pick<Match, 'name' | 'params' | 'query' | 'url' | 'meta' | 'branch'> {
   redirect?: Redirect;
 }
 export interface NavigateOptions extends NavigationOptions { query?: Query }

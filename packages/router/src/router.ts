@@ -5,13 +5,13 @@ type Navigation = {
   navigationType: DriverEvent['navigationType']; initial: boolean; info: unknown; userInitiated: boolean;
   key: string; rawState: unknown; match: ActiveMatch | null;
 };
-type Base = Pick<MatcherResult, 'name' | 'params' | 'url' | 'query' | 'meta' | 'branch' | 'alias'>;
+type Base = Pick<MatcherResult, 'name' | 'params' | 'url' | 'query' | 'meta' | 'branch'>;
 type Plan = { hop: string; base?: never; pending?: never } |
   { hop?: never; base: Base; pending: PromiseLike<RedirectTarget | null | undefined> | null };
 
 import { MnObject } from 'marionette';
 import type { MnObjectInstance, MnObjectConstructor } from 'marionette';
-import type { ActiveMatch, Match, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteDefinition, MatcherResult, RedirectTarget, Alias } from './types.ts';
+import type { ActiveMatch, Match, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteDefinition, MatcherResult, RedirectTarget } from './types.ts';
 
 import { Matcher } from './matcher.ts';
 import { toSearchParams } from './query.ts';
@@ -63,7 +63,7 @@ function outcome(promise: Promise<unknown>) {
 }
 
 function notFoundBase(name: string, params: Record<string, string>, url: URL): Base {
-  return { name, params, query: new URLSearchParams(url.search), url, meta: {}, branch: [], alias: null };
+  return { name, params, query: new URLSearchParams(url.search), url, meta: {}, branch: [] };
 }
 
 function toMatch(base: Base, nav: Pick<Match, 'navigationType' | 'initial' | 'info' | 'signal' | 'userInitiated'>, key: string, rawState: unknown): Match {
@@ -74,7 +74,6 @@ function toMatch(base: Base, nav: Pick<Match, 'navigationType' | 'initial' | 'in
     url: base.url,
     meta: base.meta,
     branch: base.branch,
-    alias: base.alias,
     navigationType: nav.navigationType,
     initial: nav.initial,
     info: nav.info,
@@ -94,7 +93,6 @@ export interface RouterMethods extends RouterOptions {
   getCurrent(): ActiveMatch | null;
   refresh(): Promise<boolean>;
   mount(routes: RouteDefinition[], options?: { parent?: string }): () => void;
-  getAliases(): Alias[];
   getParamNames(name: string): string[];
   hasRoute(name: string): boolean;
   readonly canGoBack: boolean;
@@ -306,15 +304,6 @@ function planNavigation(router: RouterInstance, nav: Navigation): Plan | null {
   if (!option(router, 'intercept')!.call(router, url)) {return null;}
   const result = getMatcher(router).match(url);
   if (!result) {return notFoundPlan(router, url);}
-  if (result.alias !== null && result.aliasPolicy === 'canonicalize') {
-    try {
-      assertHopAllowed(router, nav);
-      const canonical = getMatcher(router).url(result.name, result.params, { query: result.query });
-      return { hop: `${ canonical }${ url.hash }` };
-    } catch (error) {
-      return { base: result, pending: rejection(error) };
-    }
-  }
   return redirectPlan(router, result, nav);
 }
 
@@ -483,10 +472,6 @@ export const Router = MnObject.extend({
 
   mount(this: RouterInstance, routes: RouteDefinition[], options?: { parent?: string }) {
     return getMatcher(this).mount(routes, options);
-  },
-
-  getAliases(this: RouterInstance) {
-    return getMatcher(this).getAliases();
   },
 
   getParamNames(this: RouterInstance, name: string) {

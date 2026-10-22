@@ -44,10 +44,6 @@ describe('grouped and embedded route parameters', () => {
     expect(() => createRouter({ driver: memoryDriver({ url: 'http://localhost/' }), routes: [{ name: 'bad', path: '/bad\\' }] })).toThrow('Invalid path');
   });
 
-  it('rejects an alias with parameters when its canonical route has none', () => {
-    expect(() => createRouter({ driver: memoryDriver({ url: 'http://localhost/' }), routes: [{ name: 'item', path: '/item', aliases: [{ path: '/:id' }] }] }))
-      .toThrow('must declare exactly the params: (none)');
-  });
 });
 
 describe('navigation query and entry-state boundaries', () => {

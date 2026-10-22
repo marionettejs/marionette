@@ -18,12 +18,12 @@ describe('Router pathname grammar', () => {
     });
   }
 
-  it('validates child and alias patterns with the same grammar', () => {
+  it('validates child and redirect-route patterns with the same grammar', () => {
     assert.throws(() => createRouter({ routes: [
       { path: '/parent', children: [{ name: 'child', path: ':id+' }] },
     ] }), /Unsupported syntax/);
     assert.throws(() => createRouter({ routes: [
-      { name: 'item', path: '/item/:id', aliases: [{ path: '/old/:id?' }] },
+      { name: 'old', path: '/old/:id?', redirect: () => ({ name: 'item' }) },
     ] }), /Unsupported syntax/);
   });
 
@@ -57,10 +57,10 @@ describe('Router pathname grammar', () => {
     }
   }
 
-  it('validates delimiters inside groups and aliases before generation', () => {
+  it('validates delimiters inside groups and redirect routes before generation', () => {
     assert.throws(() => createRouter({ routes: [{ name: 'item', path: '/items{/\\?}?' }] }), /%3F/);
     assert.throws(() => createRouter({ routes: [
-      { name: 'item', path: '/items/:id', aliases: [{ path: '/old#/:id' }] },
+      { name: 'old', path: '/old#/:id', redirect: () => ({ name: 'item' }) },
     ] }), /%23/);
   });
 

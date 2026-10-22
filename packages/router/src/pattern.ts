@@ -221,9 +221,8 @@ export class Pattern {
     return segmentRanks(this.#tokens);
   }
 
-  compile(name: string, names: string[]) {
-    // Alias captures are decoded in canonical parameter order.
-    return compilePattern(this.#path, name, names);
+  compile(name: string) {
+    return compilePattern(this.#path, name, this.names);
   }
 
   compilePrefix() {
