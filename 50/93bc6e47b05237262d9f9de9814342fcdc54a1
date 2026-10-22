@@ -1,0 +1,46 @@
+packages/router/DESIGN.md
+  h_0f06c286dda36f 170-185,209-211
+packages/router/readme.md
+  h_0f06c286dda36f 37-44
+packages/router/src/drivers/memory.ts
+  h_0f06c286dda36f 8
+packages/router/src/matcher.ts
+  h_0f06c286dda36f 1-2,179,184,189-195,205,208-211
+packages/router/src/pattern.ts
+  h_0f06c286dda36f 24,30-33
+packages/router/src/query.ts
+  h_0f06c286dda36f 1-10
+packages/router/src/router.ts
+  h_0f06c286dda36f 17,464-465
+test/router/package.mjs
+  h_0f06c286dda36f 33,61
+test/types/router.cts
+  h_0f06c286dda36f 5-9
+test/types/router.mts
+  h_0f06c286dda36f 5-9
+test/unit/router/drivers.spec.js
+  h_0f06c286dda36f 10,42-45,63,83,98,109,124,132,143,164,186,192,200,213,241,260,285,300,310,323,333,342
+test/unit/router/edge-contracts.spec.js
+  h_0f06c286dda36f 30,38,44,48,58,66,78,103,109,118,133,147,159,172
+test/unit/router/grammar.spec.js
+  h_0f06c286dda36f 4-7,87
+test/unit/router/matching.spec.js
+  h_0f06c286dda36f 4,7
+test/unit/router/router-conformance.spec.js
+  h_0f06c286dda36f 9
+test/unit/router/router.spec.js
+  h_0f06c286dda36f 112,668,674
+test/unit/router/url-context.spec.js
+  h_0f06c286dda36f 1-114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5093bc6e47b05237262d9f9de9814342fcdc54a1",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
