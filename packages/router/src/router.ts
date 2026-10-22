@@ -1,4 +1,5 @@
-type Chain = { initial: boolean; hops: number; followUp: NavigationResult<boolean> | null };
+type InterceptionPolicy = Readonly<Pick<NavigateOptions, 'focusReset' | 'scroll'>>;
+type Chain = { initial: boolean; hops: number; followUp: NavigationResult<boolean> | null; policy: InterceptionPolicy };
 type Session = { controller: AbortController; initial: Promise<boolean> };
 type Navigation = {
   url: URL; chain: Chain; controller: AbortController; signal: AbortSignal;
@@ -29,7 +30,12 @@ const isThenable = (value: unknown): value is PromiseLike<RedirectTarget | null 
 
 const isMarked = (state: unknown) => isObject(state) && state[MARKER] === true;
 
-const newChain = (initial = false): Chain => ({ initial, hops: 0, followUp: null });
+function newChain(initial = false, { focusReset, scroll }: InterceptionPolicy = {}): Chain {
+  return { initial, hops: 0, followUp: null, policy: {
+    ...(focusReset === undefined ? {} : { focusReset }),
+    ...(scroll === undefined ? {} : { scroll }),
+  } };
+}
 
 function rejection(error: unknown): Promise<never> {
   const promise = Promise.reject(error);
@@ -247,7 +253,7 @@ function onNavigate(router: RouterInstance, event: DriverEvent) {
   const plan = planNavigation(router, nav);
   if (!plan) {return;}
   abortLocal(router);
-  event.intercept({ handler: () => execute(router, plan, nav) });
+  event.intercept({ handler: () => execute(router, plan, nav), ...chain.policy });
 }
 
 function navigationFor(router: RouterInstance, event: DriverEvent, url: URL, chain: Chain): Navigation {
@@ -349,7 +355,7 @@ function targetHref(router: RouterInstance, target: RedirectTarget) {
 }
 
 function hop(router: RouterInstance, href: string, nav: Navigation): NavigationResult<boolean> {
-  const chain: Chain = { initial: nav.chain.initial, hops: nav.chain.hops + 1, followUp: null };
+  const chain: Chain = { initial: nav.chain.initial, hops: nav.chain.hops + 1, followUp: null, policy: nav.chain.policy };
   return navigateDriver(router, href, { history: 'replace', state: nav.rawState, info: nav.info }, chain);
 }
 
@@ -443,7 +449,7 @@ export const Router = MnObject.extend({
     const navigateOptions = ((isUrl ? params : options) ?? {}) as NavigateOptions;
     const href = isUrl ? urlTarget(this, nameOrUrl, navigateOptions) : this.url(nameOrUrl, params as Params | undefined, navigateOptions);
     const { history = 'auto', info, state } = navigateOptions;
-    return navigateDriver(this, href, { history, info, state: entryState(this, href, history, state) }, newChain());
+    return navigateDriver(this, href, { history, info, state: entryState(this, href, history, state) }, newChain(false, navigateOptions));
   },
 
   url(this: RouterInstance, name: string, params: Params = {}, options: { query?: Query } = {}) {
@@ -468,7 +474,7 @@ export const Router = MnObject.extend({
     if (!internals.session) {return Promise.resolve(false);}
     const entry = getDriver(this).currentEntry;
     if (!claims(this, new URL(entry.url))) {return Promise.resolve(false);}
-    return navigateDriver(this, entry.url, { history: 'replace', state: entry.getState() }, newChain()).finished;
+    return navigateDriver(this, entry.url, { history: 'replace', state: entry.getState() }, newChain(false, { focusReset: 'manual', scroll: 'manual' })).finished;
   },
 
   mount(this: RouterInstance, routes: RouteDefinition[], options?: { parent?: string }) {

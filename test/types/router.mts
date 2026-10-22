@@ -36,6 +36,14 @@ memoryDriver({ url: 'https://example.test/', activation: { navigationType: 'relo
 memoryDriver({ url: 'https://example.test/', activation: null });
 // @ts-expect-error Document activation uses the native NavigationType union.
 memoryDriver({ url: 'https://example.test/', activation: { navigationType: 'initial' } });
+router.navigate('/items', { focusReset: 'manual', scroll: 'after-transition' });
+router.navigate('home', {}, { scroll: 'manual' });
+// @ts-expect-error Native scroll behavior has no auto value.
+router.navigate('home', {}, { scroll: 'auto' });
+// @ts-expect-error Focus behavior uses native literal values.
+router.navigate('home', {}, { focusReset: 'preserve' });
+// @ts-expect-error These are intercept options, not native Driver navigate options.
+driver.navigate('/items', { scroll: 'manual' });
 void activationType;
 router.listenTo(router, 'route', (match: ActiveMatch) => match.name);
 const owner = new Application();

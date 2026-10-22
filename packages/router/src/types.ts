@@ -21,7 +21,7 @@ export interface DriverEvent {
   cancelable: boolean;
   readonly defaultPrevented: boolean;
   preventDefault(): void;
-  intercept(options?: { handler?: () => unknown; focusReset?: 'manual'; scroll?: 'manual' }): void;
+  intercept(options?: { handler?: () => unknown; focusReset?: NavigateOptions['focusReset']; scroll?: NavigateOptions['scroll'] }): void;
 }
 export interface Driver {
   capabilities: { cancelTraverse: boolean; interceptsLinks: boolean };
@@ -60,7 +60,9 @@ export interface RouteDefinition {
 export interface MatcherResult extends Pick<Match, 'name' | 'params' | 'query' | 'url' | 'meta' | 'branch'> {
   redirect?: Redirect;
 }
-export interface NavigateOptions extends NavigationOptions { query?: Query }
+export interface NavigateOptions extends NavigationOptions {
+  query?: Query; focusReset?: 'after-transition' | 'manual'; scroll?: 'after-transition' | 'manual';
+}
 export type RouteSource = RouteDefinition[] | ((this: RouterInstance) => RouteDefinition[]);
 export interface RouterOptions {
   routes?: RouteSource; driver?: Driver; intercept?: (this: RouterInstance, url: URL) => boolean;

@@ -102,7 +102,7 @@ for (const focusSource of ['handler notification', 'user']) {
   });
 }
 
-test('push resets viewport, traversal restores it, fragment stays native and refresh replaces', async({ page }) => {
+test('push resets viewport, traversal restores it, fragment stays native and refresh preserves UI', async({ page }) => {
   await example(page);
   await position(page);
   await page.evaluate(() => window.routerExample.router.navigate('/next').finished);
@@ -113,7 +113,7 @@ test('push resets viewport, traversal restores it, fragment stays native and ref
   await expect.poll(async() => (await snapshot(page)).scroll).toBe(900);
   await position(page);
   await page.evaluate(() => window.routerExample.router.refresh());
-  expect(await snapshot(page)).toEqual({ focus: 'BODY', scroll: 0 });
+  expect(await snapshot(page)).toEqual({ focus: 'before', scroll: 700 });
   expect(await page.evaluate(() => window.routerExample.ready.at(-1).type)).toBe('replace');
   await page.evaluate(() => navigation.navigate('#anchor').finished);
   await expect.poll(async() => (await snapshot(page)).scroll).toBeGreaterThan(1000);
@@ -162,7 +162,7 @@ test('superseded native completion does not reset focus, scroll or emit readines
   await example(page);
   await page.evaluate(() => {
     const state = window.routerExample; state.gate('slow');
-    state.pending = state.router.navigate('/slow').finished;
+    state.pending = state.router.navigate('/slow', { focusReset: 'manual', scroll: 'manual' }).finished;
   });
   await expect.poll(() => page.evaluate(() => window.routerExample.entered.includes('slow'))).toBe(true);
   await page.evaluate(async() => { const state = window.routerExample; state.focus = true; await state.router.navigate('/next').finished; });
@@ -203,11 +203,13 @@ test('a canceled native event neither runs the handler nor resets focus or scrol
   await position(page);
   const result = await page.evaluate(async() => {
     navigation.addEventListener('navigate', event => event.preventDefault(), { once: true });
-    return window.routerExample.router.navigate('/blocked').finished;
+    return window.routerExample.router.navigate('/blocked', { focusReset: 'manual', scroll: 'manual' }).finished;
   });
   expect(result).toBe(false);
   expect(await snapshot(page)).toEqual({ focus: 'before', scroll: 700 });
   expect(await page.evaluate(() => window.routerExample.entered)).toEqual(['home']);
+  await page.evaluate(() => window.routerExample.router.navigate('/next').finished);
+  expect(await snapshot(page)).toEqual({ focus: 'BODY', scroll: 0 });
 });
 
 test('cross-document back exposes traverse activation to initial routing', async({ page, candidateServer }) => {
@@ -229,3 +231,57 @@ test('native defaults can reset focus when focusing retained content is a no-op'
   });
   expect(await snapshot(page)).toEqual({ focus: 'BODY', scroll: 0 });
 });
+
+
+test('query replacement explicitly preserves input focus, selection and viewport', async({ page }) => {
+  await example(page);
+  await position(page);
+  await page.evaluate(async() => {
+    const field = document.getElementById('before'); field.value = 'unsaved'; field.setSelectionRange(2, 2);
+    await window.routerExample.router.navigate('/next?filter=one', {
+      history: 'replace', focusReset: 'manual', scroll: 'manual', info: { source: 'filter' }, state: { draft: 1 },
+    }).finished;
+  });
+  expect(await snapshot(page)).toEqual({ focus: 'before', scroll: 700 });
+  expect(await page.locator('#before').inputValue()).toBe('unsaved');
+  expect(await page.evaluate(() => document.getElementById('before').selectionStart)).toBe(2);
+  expect(await page.evaluate(() => window.routerExample.router.getCurrent().info)).toEqual({ source: 'filter' });
+  expect(await page.evaluate(() => window.routerExample.router.getCurrent().state)).toEqual({ draft: 1 });
+  await page.evaluate(() => window.routerExample.router.navigate('/other').finished);
+  expect(await snapshot(page)).toEqual({ focus: 'BODY', scroll: 0 });
+});
+
+for (const policy of [
+  { focusReset: 'manual' }, { scroll: 'manual' },
+  { focusReset: 'after-transition', scroll: 'manual' },
+  { focusReset: 'manual', scroll: 'after-transition' },
+]) {
+  test(`native interception applies independent policy ${JSON.stringify(policy)}`, async({ page }) => {
+    await example(page);
+    await position(page);
+    await page.evaluate(options => window.routerExample.router.navigate('/next', options).finished, policy);
+    expect(await snapshot(page)).toEqual({
+      focus: policy.focusReset === 'manual' ? 'before' : 'BODY',
+      scroll: policy.scroll === 'manual' ? 700 : 0,
+    });
+  });
+}
+
+for (const redirectPath of ['/old', '/async-old']) {
+  test(`${redirectPath} inherits a policy snapshot without affecting later navigation`, async({ page }) => {
+    await example(page);
+    await position(page);
+    await page.evaluate(path => {
+      const state = window.routerExample; state.gate('lookup'); state.gate('next');
+      const options = { focusReset: 'manual', scroll: 'manual' };
+      state.pending = state.router.navigate(path, options).finished;
+      options.focusReset = 'after-transition'; options.scroll = 'after-transition';
+      state.gates.get('lookup').resolve();
+    }, redirectPath);
+    await expect.poll(() => page.evaluate(() => window.routerExample.entered.includes('next'))).toBe(true);
+    await page.evaluate(async() => { const state = window.routerExample; state.gates.get('next').resolve(); await state.pending; });
+    expect(await snapshot(page)).toEqual({ focus: 'before', scroll: 700 });
+    await page.evaluate(() => window.routerExample.router.navigate('/other').finished);
+    expect(await snapshot(page)).toEqual({ focus: 'BODY', scroll: 0 });
+  });
+}

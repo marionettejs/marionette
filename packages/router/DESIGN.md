@@ -273,23 +273,42 @@ state. Nested values follow structured-clone semantics. Same-path replacement
 preserves omitted state; pushes/different-path replacements start empty.
 
 The native Driver handles only URLs claimed by the Router. Interception omits
-`focusReset` and `scroll`, using native after-transition defaults. Its handler
+`focusReset` and `scroll` for ordinary navigations, using native after-transition
+defaults. `navigate()` accepts those native-named options independently, each as
+`'manual'` or `'after-transition'`. For example:
+
+```js
+router.navigate('/items?filter=open', {
+  history: 'replace', focusReset: 'manual', scroll: 'manual',
+});
+```
+
+There is no query/hash inference. Options are snapshotted for that operation and
+its redirect hops; later independent navigations, links and history traversal use
+their own defaults. Policy does not enter history state or user `info`. It applies
+only to events intercepted by this Router; hash-only/document navigations remain
+native. `refresh()` always requests manual focus and scroll while re-dispatching
+the current URL with replacement history, including its redirect hops. Preserving
+focus still requires the application to retain the focused DOM element. Its handler
 Promise includes returned route work and synchronous `route:ready` notifications.
 Await child activation and required feature work in the route handler: Application
 `prepareStart` is awaited, but `onStart`/event hook Promises are not. Rendering into
 an attached Region can complete synchronously; this is not a paint, image, font or
 late-layout guarantee.
 
-Successful native completion resets focus unless it actually changed during the
+With after-transition defaults, successful native completion resets focus unless it actually changed during the
 navigation, and scrolls to a fragment/top or restores history positions. Calling
 `focus()` on an already focused element may not count as a change. Native rejection
 can reset focus without automatic scrolling. Actual native cancellation or
 supersession aborts that transition; `Router.stop()` instead invalidates local route
 work and does not itself abort the browser's event. Required work should observe
 its signal. Direct initial dispatch has no intercepted event, but initial redirect
-hops and `refresh()` use real native navigations. Views retain application-specific
+hops and `refresh()` use real native navigations (refresh preserves focus/scroll).
+An initial fragment may be processed before asynchronously rendered content exists;
+direct startup does not retry that fragment scroll. Applications own any required
+initial-fragment positioning after their content is ready. Views retain application-specific
 pane/focus policy; replacement of scrollable DOM needs application-level validation.
-No custom restoration machinery or Router configuration is added.
+No custom restoration machinery or global focus/scroll policy is added.
 
 Initial Match metadata reads `driver.activation?.navigationType`, falling back to
 `push` when activation is absent or null. The native adapter reads activation live;

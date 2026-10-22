@@ -56,13 +56,17 @@ rejects. Events `route`, `route:ready` and `route:error` use `triggerMethod` and
 correspond to `onRoute`, `onRouteReady` and `onRouteError`. Hooks are synchronous
 notifications; returned Promises are not awaited. Keep required work in `handler`.
 
-Intercepted navigations use the browser's default focus and scroll behavior after
-returned handler work finishes. Return/await child activation and UI work that
+Ordinary intercepted navigations use native focus and scroll after returned
+handler work finishes. `navigate()` accepts independent `focusReset` and `scroll`
+options (`'manual'` or `'after-transition'`); redirects inherit the operation's
+snapshot. Query changes do not imply preservation. `refresh()` re-dispatches the
+current URL with manual focus/scroll and replacement history. Return/await child activation and UI work that
 must precede completion. A synchronous `route:ready` listener may focus the new
 content; actual focus changes during navigation are respected by the browser.
 Direct initial dispatch does not trigger native focus/scroll, while its redirect
-hops and `refresh()` do. Views still own application-specific pane and focus policy;
-the Router adds no scroll restoration or focus configuration.
+hops do. Initial fragments can precede asynchronously rendered content; applications
+own any required positioning once that content exists. Views still own application-specific pane and focus policy;
+the Router adds no custom scroll restoration machinery.
 
 
 `ChildAppSwitcher` is optional composition for applications with independently
