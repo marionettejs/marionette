@@ -1,0 +1,32 @@
+packages/router/DESIGN.md
+  h_0f06c286dda36f 252-279,369-371
+packages/router/readme.md
+  h_0f06c286dda36f 42-45,59-67
+packages/router/src/drivers/memory.ts
+  h_0f06c286dda36f 1,8,13
+packages/router/src/drivers/navigation.ts
+  h_0f06c286dda36f 15
+packages/router/src/router.ts
+  h_0f06c286dda36f 250,273-274,283
+packages/router/src/types.ts
+  h_0f06c286dda36f 29
+test/browser/router-native.spec.mjs
+  h_0f06c286dda36f 1-231
+test/types/router.mts
+  h_0f06c286dda36f 34-39
+test/unit/router/drivers.spec.js
+  h_0f06c286dda36f 35-45,369,379-381
+test/unit/router/router.spec.js
+  h_0f06c286dda36f 59-60,229,239-240,901-928,985,995
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "25830e9a314e0625791bde71b524023d6b347836",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
