@@ -1,0 +1,20 @@
+packages/router/DESIGN.md
+  h_0f06c286dda36f 116-120
+packages/router/src/matcher.ts
+  h_0f06c286dda36f 1-2,7-10,39,76-78,81,85-86,92,97,99,101,109-110,123,196-197,207,210,215
+packages/router/src/pattern.ts
+  h_0f06c286dda36f 1-309
+test/unit/router/matching.spec.js
+  h_0f06c286dda36f 110-117,330
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "18623991f83144d8d315cb7ceba6269f4a03db23",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
