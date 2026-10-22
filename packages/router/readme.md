@@ -1,15 +1,17 @@
 # @mnjs/router
 
 Named, nested routing and child-Application switching for Marionette v5. Router
-and ChildAppSwitcher are MnObjects: they support `.extend()`, options,
-`initialize`, synchronous event hooks and explicit destruction. Match is plain data.
+and ChildAppSwitcher are Applications: they support `.extend()`, options,
+`initialize`, preparation, retained restart and registered-child ownership. Match
+is plain data; navigation completion remains an explicit operation.
 
 This development package is private. Install the matching `marionette` peer;
 [source provenance and publication limits](PROVENANCE.md) remain separate from
 [the API and design](DESIGN.md).
 
 ```js
-import { Router } from '@mnjs/router';
+import { Application } from 'marionette';
+import { Router, ChildAppSwitcher } from '@mnjs/router';
 
 const CatalogRouter = Router.extend({
   routes: [{ name: 'item', path: '/items/:id' }],
@@ -21,11 +23,13 @@ const CatalogRouter = Router.extend({
   },
 });
 
-const router = new CatalogRouter();
+const frame = new Application();
+const router = frame.addChildApp('router', new CatalogRouter());
+await frame.start();
 await router.start();
 await router.navigate('item', { id: '42' }).finished;
-router.stop();       // pause navigation; keep the object and subscriptions
-router.destroy();    // terminal cleanup
+frame.stop();       // also stops routing and registered descendants
+frame.destroy();    // also destroys the Router
 ```
 
 Paths support static text, named parameters, optional brace groups (`/items{/:id}?`)
@@ -50,6 +54,11 @@ or application policy.
 or pass an absolute URL to `match()`. Absolute matching and `url()` generation need
 no Driver. There is no library-defined fallback origin.
 
+`start()` awaits initial routing and resolves Application activation success, even
+when the initial URL is unclaimed. Failed initial routing rejects, releases its
+binding and permits retry. `restart()` retains routing and child identities without
+redispatch; use `refresh()` when the current URL needs handling again.
+
 `navigate()` returns `{ committed, finished }` immediately; await `.finished` for
 handler/redirect readiness. Supersession/cancellation yields false; current failure
 rejects. Events `route`, `route:ready` and `route:error` use `triggerMethod` and
@@ -59,7 +68,8 @@ notifications; returned Promises are not awaited. Keep required work in `handler
 Ordinary intercepted navigations use native focus and scroll after returned
 handler work finishes. `navigate()` accepts independent `focusReset` and `scroll`
 options (`'manual'` or `'after-transition'`); redirects inherit the operation's
-snapshot. Query changes do not imply preservation. `refresh()` re-dispatches the
+snapshot. Invalid values throw a synchronous TypeError before navigation starts.
+Query changes do not imply preservation. `refresh()` re-dispatches the
 current URL with manual focus/scroll and replacement history. Return/await child activation and UI work that
 must precede completion. A synchronous `route:ready` listener may focus the new
 content; actual focus changes during navigation are respected by the browser.
@@ -69,23 +79,36 @@ own any required positioning once that content exists. Views still own applicati
 the Router adds no custom scroll restoration machinery.
 
 
-`ChildAppSwitcher` is optional composition for applications with independently
-managed children. It switches registered child Applications; Views/Regions retain
-rendering and focus. It imposes no router Application base class.
+`ChildAppSwitcher` is an optional Application that owns one selectable group of
+page Applications. Register it in the app tree, register its pages beneath it,
+and explicitly start the group before selecting. Independent sidebars belong
+outside that group.
 
 ```js
+const pages = workspace.addChildApp('content', new ChildAppSwitcher());
+pages.addChildApp('item', new ItemApplication());
+await pages.start();
+
+// Inside an awaited route handler:
 const page = await pages.switchTo('item', {
-  key: { id }, options: { id, region },
+  key: { id }, options: { id, region }, signal: match.signal,
 });
 if (!page || match.signal.aborted) return;
 return page.showDetails(match);
 ```
 
-Same name, instance and key reuse the child. A changed key, or `reconstruct: true`,
-stops/starts that same registered instance and rebuilds its UI.
-`Application.restart()` instead retains active UI while repeating preparation.
-The complete ownership example and isolated-runtime configuration are in
-[DESIGN.md](DESIGN.md).
+Same name, instance and key reuse the child, joining pending preparation. A changed
+key, or `reconstruct: true`, stops/starts that same registered instance and rebuilds
+its UI. A running child ignores new start options; update it explicitly or request
+reconstruction when its host changes. `pages.clear()` stops the selection while
+keeping the group enabled; `pages.stop()` disables the group and stops all its
+children; destruction destroys them. `Application.restart()` retains active UI
+and children while repeating preparation.
+
+Check the route signal after lazy imports or other awaits, before calling
+`switchTo`. Passing `signal` suppresses an obsolete result without stopping shared
+child preparation, so a newer same-key route can join it. See the complete
+[ownership and isolated-runtime examples](DESIGN.md#child-applications).
 
 The native Driver requires Navigation API, URLPattern and AbortSignal.any.
 Marionette Application readiness uses Promise.withResolvers. Node **24.15+**

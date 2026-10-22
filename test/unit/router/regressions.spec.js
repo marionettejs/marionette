@@ -144,13 +144,14 @@ describe('cancellation and redirected readiness', () => {
 describe('Application selection and extension', () => {
   it('supports inherited initialization, methods, destruction hooks, and constructor delegation', async() => {
     const owner = ownerFor();
-    const page = owner.addChildApp('page', new Application());
     const initialize = vi.fn();
     const onDestroy = vi.fn();
     const Extended = ChildAppSwitcher.extend({ initialize, onDestroy, label() { return 'selected'; } });
     function construct(options) { Extended.call(this, options); }
     const Delegating = Extended.extend({ constructor: construct });
-    const switcher = new Delegating({ owner });
+    const switcher = owner.addChildApp('pages', new Delegating());
+    const page = switcher.addChildApp('page', new Application());
+    await switcher.start();
     expect(initialize).toHaveBeenCalledTimes(1);
     expect(switcher.label()).toBe('selected');
     expect(await switcher.switchTo('page')).toBe(page);
@@ -163,11 +164,12 @@ describe('Application selection and extension', () => {
 
   it('starts the replacement instance registered under the same name and key', async() => {
     const owner = ownerFor();
-    const first = owner.addChildApp('page', new Application());
-    const switcher = new ChildAppSwitcher({ owner });
+    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const first = switcher.addChildApp('page', new Application());
+    await switcher.start();
     await switcher.switchTo('page', { key: { id: 'one' } });
-    owner.removeChildApp('page');
-    const second = owner.addChildApp('page', new Application());
+    switcher.removeChildApp('page');
+    const second = switcher.addChildApp('page', new Application());
     expect(await switcher.switchTo('page', { key: { id: 'one' } })).toBe(second);
     expect(first.isDestroyed()).toBe(true);
     expect(second.isRunning()).toBe(true);
@@ -191,10 +193,11 @@ describe('Application selection and extension', () => {
         return replacement.promise;
       },
     });
-    const page = owner.addChildApp('page', new Page());
+    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const page = switcher.addChildApp('page', new Page());
     const stops = vi.fn();
     page.on('stop', stops);
-    const switcher = new ChildAppSwitcher({ owner });
+    await switcher.start();
     const shown = switcher.switchTo('page');
     await replacing.promise;
     replacement.resolve();
@@ -207,17 +210,17 @@ describe('Application selection and extension', () => {
     expect(switcher.getCurrent()).toBe(page);
   });
 
-  it('retains a selection when its owner restarts itself during the first start notification', async() => {
+  it('retains a selection when the group restarts itself during its first start notification', async() => {
     const owner = ownerFor();
-    const child = owner.addChildApp('page', new Application());
-    const switcher = new ChildAppSwitcher({ owner });
+    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const child = switcher.addChildApp('page', new Application());
     let shown;
     let restarted;
-    owner.once('start', () => {
+    switcher.once('start', () => {
       shown = switcher.switchTo('page');
-      restarted = owner.restart();
+      restarted = switcher.restart();
     });
-    expect(await owner.start()).toBe(true);
+    expect(await switcher.start()).toBe(true);
     expect(await restarted).toBe(true);
     expect(await shown).toBe(child);
     expect(switcher.getCurrent()).toBe(child);
@@ -226,16 +229,18 @@ describe('Application selection and extension', () => {
   it('keeps required selection and activation readiness explicit across nested owners', async() => {
     const owner = ownerFor();
     await owner.start();
-    const page = owner.addChildApp('page', new Application());
+    const sidebar = owner.addChildApp('sidebar', new Application());
+    const pages = owner.addChildApp('pages', new ChildAppSwitcher());
+    const page = pages.addChildApp('page', new ChildAppSwitcher());
     const details = page.addChildApp('details', new Application());
-    const pages = new ChildAppSwitcher({ owner });
-    const content = new ChildAppSwitcher({ owner: page });
+    await sidebar.start();
+    await pages.start();
     const pending = gate();
     const entered = gate();
     const { router } = setup({ handler: async match => {
-      const selected = await pages.switchTo('page');
+      const selected = await pages.switchTo('page', { signal: match.signal });
       if (!selected || match.signal.aborted) { return; }
-      const detail = await content.switchTo('details');
+      const detail = await selected.switchTo('details', { signal: match.signal });
       if (!detail || match.signal.aborted) { return; }
       entered.resolve();
       await pending.promise;
@@ -251,6 +256,9 @@ describe('Application selection and extension', () => {
     expect(ready).not.toHaveBeenCalled();
     pending.resolve();
     expect(await result.finished).toBe(true);
+    pages.stop();
+    expect(details.isRunning()).toBe(false);
+    expect(sidebar.isRunning()).toBe(true);
     owner.stop();
     expect(details.isRunning()).toBe(false);
     expect(pages.getCurrent()).toBeNull();
@@ -302,22 +310,28 @@ describe('selection cancellation ownership', () => {
     const owner = ownerFor();
     const prepare = vi.fn();
     const Page = Application.extend({ onBeforeStart() { this.stop(); }, prepareStart: prepare });
-    const page = owner.addChildApp('page', new Page());
-    const switcher = new ChildAppSwitcher({ owner });
+    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const page = switcher.addChildApp('page', new Page());
+    await switcher.start();
     expect(await switcher.switchTo('page')).toBeUndefined();
     expect(prepare).not.toHaveBeenCalled();
     expect(page.isRunning()).toBe(false);
   });
 
-  it('leaves children owned by their Application when the selector is destroyed', async() => {
+  it('destroys the group children while leaving sibling features independent', async() => {
     const owner = ownerFor();
-    const page = owner.addChildApp('page', new Application());
-    const switcher = new ChildAppSwitcher({ owner });
+    const sidebar = owner.addChildApp('sidebar', new Application());
+    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const page = switcher.addChildApp('page', new Application());
+    await sidebar.start();
+    await switcher.start();
     await switcher.switchTo('page');
     switcher.destroy();
     expect(switcher.getCurrent()).toBeNull();
-    expect(page.isRunning()).toBe(true);
-    expect(owner.getChildApp('page')).toBe(page);
+    expect(page.isRunning()).toBe(false);
+    expect(page.isDestroyed()).toBe(true);
+    expect(owner.hasChildApp('pages')).toBe(false);
+    expect(sidebar.isRunning()).toBe(true);
     expect(await switcher.switchTo('page')).toBeUndefined();
     owner.destroy();
     expect(page.isDestroyed()).toBe(true);

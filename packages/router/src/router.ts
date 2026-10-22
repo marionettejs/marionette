@@ -1,6 +1,6 @@
 type InterceptionPolicy = Readonly<Pick<NavigateOptions, 'focusReset' | 'scroll'>>;
 type Chain = { initial: boolean; hops: number; followUp: NavigationResult<boolean> | null; policy: InterceptionPolicy };
-type Session = { controller: AbortController; initial: Promise<boolean> };
+type Session = { controller: AbortController };
 type Navigation = {
   url: URL; chain: Chain; controller: AbortController; signal: AbortSignal;
   navigationType: DriverEvent['navigationType']; initial: boolean; info: unknown; userInitiated: boolean;
@@ -10,8 +10,8 @@ type Base = Pick<MatcherResult, 'name' | 'params' | 'url' | 'query' | 'meta' | '
 type Plan = { hop: string; base?: never; pending?: never } |
   { hop?: never; base: Base; pending: PromiseLike<RedirectTarget | null | undefined> | null };
 
-import { MnObject } from 'marionette';
-import type { MnObjectInstance, MnObjectConstructor } from 'marionette';
+import { Application } from 'marionette';
+import type { ApplicationInstance, ApplicationConstructor, LifecycleContext } from 'marionette';
 import type { ActiveMatch, Match, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteDefinition, MatcherResult, RedirectTarget } from './types.ts';
 
 import { Matcher } from './matcher.ts';
@@ -31,6 +31,11 @@ const isThenable = (value: unknown): value is PromiseLike<RedirectTarget | null 
 const isMarked = (state: unknown) => isObject(state) && state[MARKER] === true;
 
 function newChain(initial = false, { focusReset, scroll }: InterceptionPolicy = {}): Chain {
+  for (const [name, value] of Object.entries({ focusReset, scroll })) {
+    if (value !== undefined && value !== 'manual' && value !== 'after-transition') {
+      throw new TypeError(`${ name } must be "manual" or "after-transition"`);
+    }
+  }
   return { initial, hops: 0, followUp: null, policy: {
     ...(focusReset === undefined ? {} : { focusReset }),
     ...(scroll === undefined ? {} : { scroll }),
@@ -90,9 +95,7 @@ function toMatch(base: Base, nav: Pick<Match, 'navigationType' | 'initial' | 'in
   };
 }
 
-export interface RouterMethods extends RouterOptions {
-  start(): Promise<boolean>;
-  stop(): boolean;
+export interface RouterMethods extends Omit<RouterOptions, keyof ApplicationInstance> {
   navigate(nameOrUrl: string, params?: Params | NavigateOptions, options?: NavigateOptions): NavigationResult<boolean>;
   url(name: string, params?: Params, options?: { query?: Query }): string;
   match(url: URL | string): Match | null;
@@ -105,8 +108,8 @@ export interface RouterMethods extends RouterOptions {
   back(): Promise<boolean>;
   updateState(state: EntryState): boolean;
 }
-export type RouterInstance = MnObjectInstance<RouterOptions> & RouterMethods;
-export type RouterConstructor = MnObjectConstructor<RouterMethods, [options?: RouterOptions]>;
+export type RouterInstance = Omit<ApplicationInstance<RouterOptions, unknown>, keyof RouterMethods> & RouterMethods;
+export type RouterConstructor = ApplicationConstructor<RouterMethods, [options?: RouterOptions]>;
 
 type RouterState = {
   matcher: Matcher | null;
@@ -117,7 +120,6 @@ type RouterState = {
   current: ActiveMatch | null;
   currentController: AbortController | null;
   traversals: Set<{ key: string; chain: Chain }>;
-  closed: boolean;
 };
 const states = new WeakMap<RouterInstance, RouterState>();
 const stateFor = (router: RouterInstance) => states.get(router)!;
@@ -147,14 +149,15 @@ function stopRouting(router: RouterInstance) {
   currentController?.abort();
   session?.controller.abort();
 }
-function constructRouter(this: RouterInstance, options?: RouterOptions) {
+function constructRouter(this: RouterInstance, BaseApplication: ApplicationConstructor, options?: RouterOptions) {
   states.set(this, {
     matcher: null, resolvedDriver: null, session: null, local: null, chain: null,
-    current: null, currentController: null, traversals: new Set(), closed: false
+    current: null, currentController: null, traversals: new Set()
   });
-  // Internal state exists before initialize. Normal MnObject construction merges
-  // options first; a subclass can safely use matching or start from initialize.
-  MnObject.call(this, options);
+  // Application establishes its stopping guard before notifying listeners, so
+  // abort callbacks cannot re-enable routing during ancestor teardown.
+  this.on({ 'before:stop': () => stopRouting(this), 'before:destroy': () => stopRouting(this) });
+  BaseApplication.call(this, options);
   getMatcher(this);
 }
 
@@ -417,120 +420,129 @@ function mark(router: RouterInstance, entry: DriverEntry) {
   return marked;
 }
 
-export const Router = MnObject.extend({
-  constructor: constructRouter,
-  routes: [],
-  persistParams: [],
-  maxRedirects: 5,
-  intercept: () => true,
+export function createRouterClass(BaseApplication: ApplicationConstructor = Application): RouterConstructor {
+  function RouterApplication(this: RouterInstance, options?: RouterOptions) {
+    constructRouter.call(this, BaseApplication, options);
+  }
+  const Router = BaseApplication.extend({
+    constructor: RouterApplication,
+    routes: [],
+    persistParams: [],
+    maxRedirects: 5,
+    intercept: () => true,
 
-  start(this: RouterInstance): Promise<boolean> {
-    const internals = stateFor(this);
-    if (internals.closed) { return Promise.resolve(false); }
-    if (internals.session) {return internals.session.initial;}
-    const driver = getDriver(this);
-    const initial = Promise.withResolvers<boolean>();
-    const session: Session = { controller: new AbortController(), initial: initial.promise };
-    internals.session = session;
-    driver.addEventListener('navigate', event => onNavigate(this, event), { signal: session.controller.signal });
-    dispatchInitial(this, session).then(initial.resolve, initial.reject);
-    return session.initial;
-  },
+    async prepareStart(this: RouterInstance, _options: unknown, { signal }: LifecycleContext) {
+      const internals = stateFor(this);
+      if (internals.session) {return;}
+      const driver = getDriver(this);
+      const session: Session = { controller: new AbortController() };
+      internals.session = session;
+      try {
+        driver.addEventListener('navigate', event => onNavigate(this, event), { signal: session.controller.signal });
+        await dispatchInitial(this, session);
+      } catch (error) {
+        // Superseded preparation may share a retained binding with its replacement.
+        if (!signal.aborted) {stopRouting(this);}
+        throw error;
+      }
+    },
 
-  stop(this: RouterInstance) {
-    stopRouting(this);
-    return true;
-  },
+    stop(this: RouterInstance, options?: unknown) {
+      const internals = stateFor(this);
+      const session = internals.session;
+      const stopped = BaseApplication.prototype.stop.call(this, options);
+      // Failed subclass preparation can leave resources on a stopped Application.
+      // Preserve a new binding established by an onStop callback.
+      if (session && internals.session === session) {stopRouting(this);}
+      return stopped;
+    },
 
-  navigate(this: RouterInstance, nameOrUrl: string, params?: Params | NavigateOptions, options?: NavigateOptions): NavigationResult<boolean> {
-    const internals = stateFor(this);
-    if (internals.closed || !internals.session) { return canceledNavigation(); }
-    const isUrl = typeof nameOrUrl === 'string' && URL_FORM.test(nameOrUrl);
-    const navigateOptions = ((isUrl ? params : options) ?? {}) as NavigateOptions;
-    const href = isUrl ? urlTarget(this, nameOrUrl, navigateOptions) : this.url(nameOrUrl, params as Params | undefined, navigateOptions);
-    const { history = 'auto', info, state } = navigateOptions;
-    return navigateDriver(this, href, { history, info, state: entryState(this, href, history, state) }, newChain(false, navigateOptions));
-  },
+    navigate(this: RouterInstance, nameOrUrl: string, params?: Params | NavigateOptions, options?: NavigateOptions): NavigationResult<boolean> {
+      const internals = stateFor(this);
+      if (!internals.session) { return canceledNavigation(); }
+      const isUrl = typeof nameOrUrl === 'string' && URL_FORM.test(nameOrUrl);
+      const navigateOptions = ((isUrl ? params : options) ?? {}) as NavigateOptions;
+      const chain = newChain(false, navigateOptions);
+      const href = isUrl ? urlTarget(this, nameOrUrl, navigateOptions) : this.url(nameOrUrl, params as Params | undefined, navigateOptions);
+      const { history = 'auto', info, state } = navigateOptions;
+      return navigateDriver(this, href, { history, info, state: entryState(this, href, history, state) }, chain);
+    },
 
-  url(this: RouterInstance, name: string, params: Params = {}, options: { query?: Query } = {}) {
-    return getMatcher(this).url(name, withPersisted(this, name, params), options);
-  },
+    url(this: RouterInstance, name: string, params: Params = {}, options: { query?: Query } = {}) {
+      return getMatcher(this).url(name, withPersisted(this, name, params), options);
+    },
 
-  match(this: RouterInstance, url: URL | string) {
-    const target = url instanceof URL ? url : new URL(url, URL.canParse(url) ? undefined : getDriver(this).currentEntry.url);
-    const result = getMatcher(this).match(target);
-    if (!result) {return null;}
-    const idle = { navigationType: null, initial: false, info: undefined, signal: null, userInitiated: false };
-    return toMatch(result, idle, '', undefined);
-  },
+    match(this: RouterInstance, url: URL | string) {
+      const target = url instanceof URL ? url : new URL(url, URL.canParse(url) ? undefined : getDriver(this).currentEntry.url);
+      const result = getMatcher(this).match(target);
+      if (!result) {return null;}
+      const idle = { navigationType: null, initial: false, info: undefined, signal: null, userInitiated: false };
+      return toMatch(result, idle, '', undefined);
+    },
 
-  getCurrent(this: RouterInstance) {
-    const internals = stateFor(this);
-    return internals.current;
-  },
+    getCurrent(this: RouterInstance) {
+      const internals = stateFor(this);
+      return internals.current;
+    },
 
-  refresh(this: RouterInstance) {
-    const internals = stateFor(this);
-    if (!internals.session) {return Promise.resolve(false);}
-    const entry = getDriver(this).currentEntry;
-    if (!claims(this, new URL(entry.url))) {return Promise.resolve(false);}
-    return navigateDriver(this, entry.url, { history: 'replace', state: entry.getState() }, newChain(false, { focusReset: 'manual', scroll: 'manual' })).finished;
-  },
+    refresh(this: RouterInstance) {
+      const internals = stateFor(this);
+      if (!internals.session) {return Promise.resolve(false);}
+      const entry = getDriver(this).currentEntry;
+      if (!claims(this, new URL(entry.url))) {return Promise.resolve(false);}
+      return navigateDriver(this, entry.url, { history: 'replace', state: entry.getState() }, newChain(false, { focusReset: 'manual', scroll: 'manual' })).finished;
+    },
 
-  mount(this: RouterInstance, routes: RouteDefinition[], options?: { parent?: string }) {
-    return getMatcher(this).mount(routes, options);
-  },
+    mount(this: RouterInstance, routes: RouteDefinition[], options?: { parent?: string }) {
+      return getMatcher(this).mount(routes, options);
+    },
 
-  getParamNames(this: RouterInstance, name: string) {
-    return getMatcher(this).getParamNames(name);
-  },
+    getParamNames(this: RouterInstance, name: string) {
+      return getMatcher(this).getParamNames(name);
+    },
 
-  hasRoute(this: RouterInstance, name: string) {
-    return getMatcher(this).has(name);
-  },
+    hasRoute(this: RouterInstance, name: string) {
+      return getMatcher(this).has(name);
+    },
 
-  back(this: RouterInstance) {
-    const internals = stateFor(this);
-    if (!this.canGoBack) {return Promise.resolve(false);}
-    const driver = getDriver(this);
-    const request = { key: driver.entries()[driver.currentEntry.index - 1].key, chain: newChain() };
-    internals.traversals.add(request);
-    try {
-      return settle(driver.back(), request.chain).finished.finally(() => internals.traversals.delete(request));
-    } catch (error) {
-      internals.traversals.delete(request);
-      throw error;
+    back(this: RouterInstance) {
+      const internals = stateFor(this);
+      if (!this.canGoBack) {return Promise.resolve(false);}
+      const driver = getDriver(this);
+      const request = { key: driver.entries()[driver.currentEntry.index - 1].key, chain: newChain() };
+      internals.traversals.add(request);
+      try {
+        return settle(driver.back(), request.chain).finished.finally(() => internals.traversals.delete(request));
+      } catch (error) {
+        internals.traversals.delete(request);
+        throw error;
+      }
+    },
+
+    updateState(this: RouterInstance, state: EntryState) {
+      if (!stateFor(this).session) { return false; }
+      const internals = stateFor(this);
+      assertState(state);
+      const entry = getDriver(this).currentEntry;
+      const stored = entry.getState();
+      const next = { ...(isObject(stored) ? stored : {}), ...state };
+      getDriver(this).updateCurrentEntry({ state: next });
+      if (internals.current?.key === entry.key) {internals.current.state = publicState(next);}
+      return true;
     }
-  },
+  }) as unknown as RouterConstructor;
 
-  updateState(this: RouterInstance, state: EntryState) {
-    if (stateFor(this).closed || !stateFor(this).session) { return false; }
-    const internals = stateFor(this);
-    assertState(state);
-    const entry = getDriver(this).currentEntry;
-    const stored = entry.getState();
-    const next = { ...(isObject(stored) ? stored : {}), ...state };
-    getDriver(this).updateCurrentEntry({ state: next });
-    if (internals.current?.key === entry.key) {internals.current.state = publicState(next);}
-    return true;
-  },
+  Object.defineProperty(Router.prototype, 'canGoBack', {
+    configurable: true,
+    get(this: RouterInstance) {
+      const internals = stateFor(this);
+      if (!internals.session) { return false; }
+      const driver = getDriver(this);
+      const { index } = driver.currentEntry;
+      return index > 0 && isMarked(driver.entries()[index - 1].getState());
+    }
+  });
+  return Router;
+}
 
-  destroy(this: RouterInstance, options?: unknown) {
-    const internals = stateFor(this);
-    if (internals.closed) { return this; }
-    internals.closed = true;
-    stopRouting(this);
-    return MnObject.prototype.destroy.call(this, options);
-  }
-}) as unknown as RouterConstructor;
-
-Object.defineProperty(Router.prototype, 'canGoBack', {
-  configurable: true,
-  get(this: RouterInstance) {
-    const internals = stateFor(this);
-    if (internals.closed || !internals.session) { return false; }
-    const driver = getDriver(this);
-    const { index } = driver.currentEntry;
-    return index > 0 && isMarked(driver.entries()[index - 1].getState());
-  }
-});
+export const Router = createRouterClass();

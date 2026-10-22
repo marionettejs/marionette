@@ -27,13 +27,11 @@ try {
     delete globalThis.URLPattern;
     const esm = await import('@mnjs/router');
     const cjs = createRequire(import.meta.url)('@mnjs/router');
-    const { Application } = await import('marionette');
     for (const api of [esm, cjs]) {
       const driver = api.memoryDriver({ url: 'https://example.test/' });
       assert.equal(driver.currentEntry.url, 'https://example.test/');
-      const owner = new Application();
-      const switcher = new api.ChildAppSwitcher({ owner });
-      switcher.destroy(); owner.destroy();
+      const switcher = new api.ChildAppSwitcher();
+      switcher.destroy();
       assert.throws(() => new api.Router({ driver, routes: [{ name: 'item', path: '/item' }] }), /URLPattern/);
     }
     console.log('ESM/CJS imports and non-matching exports do not acquire URLPattern.');
@@ -42,12 +40,13 @@ try {
   run(`
     import assert from 'node:assert/strict';
     import { createRequire } from 'node:module';
-    import { Application, MnObject, createMarionette } from 'marionette';
+    import { Application, createMarionette } from 'marionette';
     import * as esm from '@mnjs/router';
     const require = createRequire(import.meta.url);
     const cjs = require('@mnjs/router');
     assert.throws(() => require('@mnjs/router/outlet'), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });
     for (const api of [esm, cjs]) {
+      const BaseApplication = api === esm ? Application : require('marionette').Application;
       const driver = api.memoryDriver({ url: 'http://localhost/' });
       const Routes = api.Router.extend({
         routes: [{ name: 'home', path: '/' }],
@@ -63,34 +62,35 @@ try {
       assert.equal(router.isDestroyed(), true);
       assert.deepEqual(driver.documentNavigations, []);
 
-      const owner = new Application();
-      const page = owner.addChildApp('page', new Application());
+      const owner = new BaseApplication();
       const Extended = api.ChildAppSwitcher.extend({ initialize() { this.initialized = true; } });
-      const switcher = new Extended({ owner });
+      const switcher = owner.addChildApp('pages', new Extended());
+      const page = switcher.addChildApp('page', new BaseApplication());
+      await switcher.start();
       assert.equal(switcher.initialized, true);
       assert.equal(await switcher.switchTo('page'), page);
       assert.equal(await switcher.switchTo('page', { reconstruct: true }), page);
-      assert.equal(owner.getChildApp('page'), page);
+      assert.equal(switcher.getChildApp('page'), page);
       owner.destroy();
       assert.equal(switcher.isDestroyed(), true);
     }
     const runtime = createMarionette();
-    const Scoped = esm.Router.extend({ Radio: runtime.Radio, State: runtime.MnObject.prototype.State });
+    const Scoped = esm.createRouterClass(runtime.Application);
     const scoped = new Scoped({ driver: esm.memoryDriver({ url: 'http://localhost/' }), routes: [] });
     assert.equal(scoped.Radio, runtime.Radio);
-    assert.equal(scoped.State, runtime.MnObject.prototype.State);
-    assert.ok(scoped instanceof MnObject);
+    assert.equal(scoped.State, runtime.Application.prototype.State);
+    assert.ok(scoped instanceof runtime.Application);
     scoped.destroy();
 
     // Verify child-owned readiness replacement against a plain Application control.
-    async function initialReplacement(Switcher) {
+    async function initialReplacement(Switcher, BaseApplication = Application) {
       const first = Promise.withResolvers();
       const replacement = Promise.withResolvers();
       const replacing = Promise.withResolvers();
       let runs = 0;
       let restarted;
       let stops = 0;
-      const Page = Application.extend({
+      const Page = BaseApplication.extend({
         prepareStart() {
           runs++;
           if (runs === 1) {
@@ -100,10 +100,11 @@ try {
           return replacement.promise;
         },
       });
-      const owner = new Application();
+      const owner = Switcher ? new Switcher() : new BaseApplication();
+      await owner.start();
       const page = owner.addChildApp('page', new Page());
       page.on('stop', () => stops++);
-      const switcher = Switcher ? new Switcher({ owner }) : null;
+      const switcher = Switcher ? owner : null;
       const initial = switcher ? switcher.switchTo('page') : page.start();
       await replacing.promise;
       replacement.resolve();
@@ -119,7 +120,7 @@ try {
     }
     await initialReplacement(null);
     await initialReplacement(esm.ChildAppSwitcher);
-    await initialReplacement(cjs.ChildAppSwitcher);
+    await initialReplacement(cjs.ChildAppSwitcher, require('marionette').Application);
     console.log('Router/switcher ESM/CJS lifecycle, isolated providers, reconstruction and child-restart control passed.');
   `);
 } finally {

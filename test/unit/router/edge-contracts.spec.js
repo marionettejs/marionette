@@ -186,26 +186,29 @@ describe('switcher selection lifetime boundaries', () => {
     const owner = own();
     let preparations = 0;
     const Page = Application.extend({ prepareStart() { preparations++; } });
-    const page = owner.addChildApp('page', new Page());
-    const switcher = new ChildAppSwitcher({ owner });
+    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const page = switcher.addChildApp('page', new Page());
+    await switcher.start();
     await switcher.switchTo('page', { key: { id: 'one' } });
     expect(await switcher.switchTo('page', { key: ['one'] })).toBe(page);
     expect(preparations).toBe(2);
   });
 
-  it('preserves a new selection explicitly started from owner stop notification', async() => {
+  it('preserves a group explicitly re-enabled and selected from owner stop notification', async() => {
     const owner = own();
     await owner.start();
-    owner.addChildApp('a', new Application());
-    const b = owner.addChildApp('b', new Application());
-    const switcher = new ChildAppSwitcher({ owner });
+    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    switcher.addChildApp('a', new Application());
+    const b = switcher.addChildApp('b', new Application());
+    await switcher.start();
     await switcher.switchTo('a');
     let shown;
-    owner.onStop = () => { shown = switcher.switchTo('b'); };
+    owner.onStop = () => { shown = switcher.start().then(() => switcher.switchTo('b')); };
     owner.stop();
     expect(await shown).toBe(b);
     expect(switcher.getCurrent()).toBe(b);
     expect(b.isRunning()).toBe(true);
+    owner.onStop = () => {};
   });
 
   it('preserves the startup failure when cleanup fails without an optional cleanup callback', async() => {
@@ -216,10 +219,11 @@ describe('switcher selection lifetime boundaries', () => {
       childApps: { nested: Application },
       async prepareStart() { await this.getChildApp('nested').start(); throw failure; },
     });
-    const page = owner.addChildApp('page', new Page());
+    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const page = switcher.addChildApp('page', new Page());
     const nested = page.getChildApp('nested');
     nested.onBeforeStop = () => { throw cleanup; };
-    const switcher = new ChildAppSwitcher({ owner });
+    await switcher.start();
     await expect(switcher.switchTo('page')).rejects.toBe(failure);
     expect(switcher.getCurrent()).toBe(page);
     nested.onBeforeStop = () => {};
@@ -227,10 +231,11 @@ describe('switcher selection lifetime boundaries', () => {
 
   it('ignores an old replacement failure after stop notification selects a newer child', async() => {
     const owner = own();
-    const current = owner.addChildApp('current', new Application());
-    const latest = owner.addChildApp('latest', new Application());
-    owner.addChildApp('obsolete', new Application());
-    const switcher = new ChildAppSwitcher({ owner });
+    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const current = switcher.addChildApp('current', new Application());
+    const latest = switcher.addChildApp('latest', new Application());
+    switcher.addChildApp('obsolete', new Application());
+    await switcher.start();
     await switcher.switchTo('current');
     let shown;
     current.onBeforeStop = () => { shown = switcher.switchTo('latest'); throw new Error('obsolete stop failed'); };

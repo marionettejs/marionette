@@ -129,7 +129,7 @@ export function routerConformance({ name, createDriver, describe, it, assert }) 
   describe(`router conformance: ${ name }`, () => {
     scenario('dispatches a named navigation', async h => {
       await h.moveTo('start');
-      assert.equal(await h.router.start(), false);
+      assert.equal(await h.router.start(), true);
 
       const navigation = h.router.navigate('page', { run: h.run, id: 'a b' }, { info: { from: 'test' } });
 

@@ -1,4 +1,5 @@
 import type { RouterInstance } from './router.ts';
+import type { ApplicationOptions } from 'marionette';
 
 export type Params = Record<string, string | number | null | undefined>;
 export type Query = URLSearchParams | Record<string, string | number | null | undefined> | string;
@@ -64,7 +65,7 @@ export interface NavigateOptions extends NavigationOptions {
   query?: Query; focusReset?: 'after-transition' | 'manual'; scroll?: 'after-transition' | 'manual';
 }
 export type RouteSource = RouteDefinition[] | ((this: RouterInstance) => RouteDefinition[]);
-export interface RouterOptions {
+export interface RouterOptions extends ApplicationOptions {
   routes?: RouteSource; driver?: Driver; intercept?: (this: RouterInstance, url: URL) => boolean;
   notFound?: { name: string; within: (url: URL) => boolean }; persistParams?: string[];
   handler?: (this: RouterInstance, match: ActiveMatch, context: { signal: AbortSignal }) => unknown; maxRedirects?: number;

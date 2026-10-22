@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, it } from 'vitest';
 import assert from 'node:assert/strict';
-import { Application } from 'marionette';
-import { ChildAppSwitcher } from '@mnjs/router';
+import { createMarionette, Application } from 'marionette';
+import { ChildAppSwitcher, createChildAppSwitcherClass } from '@mnjs/router';
 
 function deferred() {
   const result = {};
@@ -30,7 +30,8 @@ describe('ChildAppSwitcher', () => {
     cleanupErrors = [];
     owner = new Application();
     await owner.start();
-    switcher = new ChildAppSwitcher({ owner, onCleanupError: (error, app) => cleanupErrors.push([error, app]) });
+    switcher = owner.addChildApp('pages', new ChildAppSwitcher({ onCleanupError: (error, app) => cleanupErrors.push([error, app]) }));
+    await switcher.start();
   });
 
   afterEach(() => {
@@ -38,7 +39,7 @@ describe('ChildAppSwitcher', () => {
   });
 
   function addPage(name, Page = RecordingPage) {
-    return owner.addChildApp(name, new Page());
+    return switcher.addChildApp(name, new Page());
   }
 
   function switchTo(name, selection = {}) {
@@ -172,7 +173,7 @@ describe('ChildAppSwitcher', () => {
       assert.equal(switcher.getCurrent(), null);
     });
 
-    it('invalidates pending selection even when its owner is already stopped', async() => {
+    it('does not activate selection while the group is stopped', async() => {
       owner.stop();
       const child = addPage('child');
       let starts = 0;
@@ -186,22 +187,23 @@ describe('ChildAppSwitcher', () => {
       owner.stop();
 
       assert.equal(await selecting, undefined);
-      assert.equal(starts, 1);
+      assert.equal(starts, 0);
       assert.equal(child.isRunning(), false);
     });
 
-    it('leaves a live child selected beneath an already-stopped owner stopped and reusable', async() => {
+    it('requires explicit group startup after its owner stops', async() => {
       owner.stop();
       const child = addPage('child');
       await switchTo('child');
-      assert.equal(child.isRunning(), true);
+      assert.equal(child.isRunning(), false);
 
       owner.stop();
 
       assert.equal(child.isRunning(), false);
-      assert.equal(switcher.getCurrent(), child);
+      assert.equal(switcher.getCurrent(), null);
+      await switcher.start();
       assert.equal(await switchTo('child'), child);
-      assert.equal(child.runs.length, 2);
+      assert.equal(child.runs.length, 1);
     });
 
     it('leaves the owner methods untouched', () => {
@@ -220,20 +222,21 @@ describe('ChildAppSwitcher', () => {
       assert.equal(switcher.getCurrent(), null);
     });
 
-    it('does not invalidate a selection begun while its owner starts', async() => {
-      const Owner = Application.extend({
+    it('only selects after the group has activated, including from its start notification', async() => {
+      const Pages = ChildAppSwitcher.extend({
         childApps: { page: RecordingPage },
-        initialize() {
-          this.switcher = new ChildAppSwitcher({ owner: this });
-        },
         onBeforeStart() {
-          this.shown = this.switcher.switchTo('page');
+          this.early = this.switchTo('page');
+        },
+        onStart() {
+          this.shown = this.switchTo('page');
         },
       });
-      const starting = new Owner();
+      const starting = new Pages();
 
       await starting.start();
 
+      assert.equal(await starting.early, undefined);
       assert.equal(await starting.shown, starting.getChildApp('page'));
       starting.destroy();
     });
@@ -270,6 +273,49 @@ describe('ChildAppSwitcher', () => {
       assert.equal(await selecting, child);
       assert.equal(child.isRunning(), true);
       assert.equal(switcher.getCurrent(), child);
+    });
+
+    it('retains its selected child and pending activation through group restart', async() => {
+      const ready = deferred();
+      const child = addPage('child', RecordingPage.extend({ prepareStart: () => ready.promise }));
+      const selecting = switchTo('child');
+      assert.equal(await switcher.restart(), true);
+      ready.resolve();
+      assert.equal(await selecting, child);
+      assert.equal(switcher.getCurrent(), child);
+      assert.equal(child.runs.length, 1);
+    });
+
+    it('clears the selected page without disabling the group or stopping other children', async() => {
+      const page = addPage('page');
+      const independent = addPage('independent');
+      await independent.start();
+      await switchTo('page');
+      assert.equal(switcher.clear(), true);
+      assert.equal(switcher.isRunning(), true);
+      assert.equal(page.isRunning(), false);
+      assert.equal(independent.isRunning(), true);
+      assert.equal(switcher.getCurrent(), null);
+      assert.equal(await switchTo('page'), page);
+    });
+
+    it('can clear an empty or stopped group without activating it', () => {
+      assert.equal(switcher.clear(), true);
+      switcher.stop();
+      assert.equal(switcher.clear(), true);
+      assert.equal(switcher.isRunning(), false);
+    });
+
+    it('does not start a replacement reentrantly while the group stops', async() => {
+      const current = addPage('current');
+      const next = addPage('next');
+      await switchTo('current');
+      let replacing;
+      current.on('stop', () => { replacing = switchTo('next'); });
+      switcher.stop();
+      assert.equal(await replacing, undefined);
+      assert.equal(next.isRunning(), false);
+      assert.equal(switcher.isRunning(), false);
     });
 
     it('invalidates pending selection and stops the current child on stop()', async() => {
@@ -433,6 +479,112 @@ describe('ChildAppSwitcher', () => {
       assert.equal(await first, undefined);
       await assert.rejects(second, failure);
       assert.equal(switcher.getCurrent(), null);
+    });
+  });
+
+  describe('selection signals and registration', () => {
+    it('does not alter selection for an already aborted request', async() => {
+      const page = addPage('page');
+      const next = addPage('next');
+      await switchTo('page');
+      assert.equal(await switchTo('next', { signal: AbortSignal.abort() }), undefined);
+      assert.equal(switcher.getCurrent(), page);
+      assert.equal(page.isRunning(), true);
+      assert.equal(next.isRunning(), false);
+    });
+
+    it('suppresses an aborted result without stopping shared child preparation', async() => {
+      const ready = deferred();
+      let preparations = 0;
+      const child = addPage('page', RecordingPage.extend({
+        prepareStart() { preparations++; return ready.promise; },
+      }));
+      const controller = new AbortController();
+      const first = switchTo('page', { key: 'same', signal: controller.signal });
+      controller.abort();
+      const second = switchTo('page', { key: 'same' });
+      ready.resolve();
+      assert.equal(await first, undefined);
+      assert.equal(await second, child);
+      assert.equal(preparations, 1);
+      assert.equal(child.isRunning(), true);
+    });
+
+    it('suppresses an aborted caller result after successful activation', async() => {
+      const ready = deferred();
+      const child = addPage('page', Application.extend({ prepareStart: () => ready.promise }));
+      const controller = new AbortController();
+      const selecting = switchTo('page', { signal: controller.signal });
+      controller.abort();
+      ready.resolve();
+      assert.equal(await selecting, undefined);
+      assert.equal(child.isRunning(), true);
+      assert.equal(switcher.getCurrent(), child);
+    });
+
+    it('suppresses an aborted caller error while cleaning failed child startup', async() => {
+      const ready = deferred();
+      const child = addPage('page', Application.extend({ prepareStart: () => ready.promise }));
+      const controller = new AbortController();
+      const selecting = switchTo('page', { signal: controller.signal });
+      controller.abort();
+      ready.reject(new Error('obsolete route'));
+      assert.equal(await selecting, undefined);
+      assert.equal(child.isRunning(), false);
+      assert.equal(switcher.getCurrent(), null);
+    });
+
+    it('does not report a removed or self-destroyed selected registration', async() => {
+      addPage('page');
+      await switchTo('page');
+      switcher.removeChildApp('page');
+      assert.equal(switcher.getCurrent(), null);
+      const replacement = addPage('page');
+      await switchTo('page');
+      replacement.destroy();
+      assert.equal(switcher.getCurrent(), null);
+    });
+
+    it('suppresses readiness after a selected registration is removed during preparation', async() => {
+      const ready = deferred();
+      addPage('page', Application.extend({ prepareStart: () => ready.promise }));
+      const selecting = switchTo('page');
+      switcher.removeChildApp('page');
+      ready.resolve();
+      assert.equal(await selecting, undefined);
+      assert.equal(switcher.getCurrent(), null);
+    });
+
+    it('does not return a child that destroys itself during activation', async() => {
+      const child = addPage('page', Application.extend({ onStart() { this.destroy(); } }));
+      assert.equal(await switchTo('page'), undefined);
+      assert.equal(child.isDestroyed(), true);
+      assert.equal(switcher.getCurrent(), null);
+    });
+
+    it('suppresses a failure from a registration destroyed by its own startup hook', async() => {
+      const child = addPage('page', Application.extend({
+        onStart() { this.destroy(); throw new Error('obsolete page startup'); },
+      }));
+      assert.equal(await switchTo('page'), undefined);
+      assert.equal(child.isDestroyed(), true);
+      assert.equal(switcher.getCurrent(), null);
+    });
+
+    it('constructs a selector in an isolated Application runtime', async() => {
+      const runtime = createMarionette();
+      const Selector = createChildAppSwitcherClass(runtime.Application);
+      const scopedOwner = new runtime.Application();
+      const pages = scopedOwner.addChildApp('pages', new Selector());
+      const page = pages.addChildApp('page', new runtime.Application());
+      await pages.start();
+      assert.equal(await pages.switchTo('page'), page);
+      scopedOwner.stop();
+      assert.equal(page.isRunning(), false);
+      assert.equal(pages.isRunning(), false);
+      scopedOwner.destroy();
+      assert.equal(page.isDestroyed(), true);
+      assert.equal(pages.isDestroyed(), true);
     });
   });
 });

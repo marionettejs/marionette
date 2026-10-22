@@ -1,8 +1,9 @@
 # Routing with Marionette v5
 
-This private package uses Marionette's nonvisual object conventions and leaves
-application-specific policy with its owners. Router and ChildAppSwitcher are
-MnObjects; Match is plain typed data. [Source provenance](PROVENANCE.md) records
+This private package uses Marionette's Application ownership and lifecycle
+conventions and leaves application-specific policy with its owners. Router owns
+routing activity; ChildAppSwitcher owns a selectable child group. Match is plain
+typed data. [Source provenance](PROVENANCE.md) records
 original revisions and the unresolved publication requirements.
 
 ## Responsibilities
@@ -12,28 +13,28 @@ original revisions and the unresolved publication requirements.
 | Compile/rank nested routes, build URLs, plan redirects | Router and its internal matcher |
 | Navigation/history event semantics | Injected Driver |
 | Current route decision and cancellation authority | Match and its AbortSignal |
-| Prepare/start/restart/stop features and own children | Ordinary Application |
-| Switch one group of registered child Applications | Optional ChildAppSwitcher |
+| Prepare/start/restart/stop features and own children | Application, including Router |
+| Own and switch one group of child Applications | Optional ChildAppSwitcher Application |
 | Render, place child Views, manage DOM/focus/scroll | Views and Regions |
 | Service requests, permissions, loading/errors, analytics | Application policy |
 
-A small application uses one Router handler. A larger application composes ordinary
-Applications and switchers at the lifetimes that need them. There is no compulsory
-RouterApp, required child activation protocol, global Radio channel, rendering
-adapter or parallel lifecycle framework.
+A small application uses one Router handler. A larger application registers the
+Router and optional content groups in its Application tree. Use one browser Router
+to own navigation; nesting Applications does not create more browser listeners or
+automatically mount route definitions. There is no global Radio channel, required
+child activation protocol, rendering adapter or parallel lifecycle framework.
 
 See Marionette's [architecture](../../docs/architecture.md),
-[Application](../../docs/api/application.md), [MnObject](../../docs/api/mnobject.md)
+[Application](../../docs/api/application.md)
 and [events](../../docs/api/shared/events.md) contracts.
 
 ## Construction, options and extension
 
-Router uses a callable MnObject constructor rather than a native class inheriting
-MnObject. Marionette's `.extend()` forwards through `parent.apply`; custom
+Router and ChildAppSwitcher use callable Application constructors. Marionette's `.extend()` forwards through `parent.apply`; custom
 constructors may delegate with `Parent.call(this, options)` when needed.
 Ordinary applications should use `initialize` rather than override construction.
 
-Required private routing state exists before `initialize`. MnObject first merges
+Required private routing state exists before `initialize`. Application first merges
 class `options` and supplied options; matching/configuration can then be used safely
 inside a subclass's initialization. Routes compile before construction returns.
 The implementation uses no temporary replacement of the user's `initialize` hook.
@@ -72,18 +73,60 @@ handler resolver or routing configuration language.
 
 ## Lifetime and notifications
 
-`start()` acquires one Driver subscription and awaits the initial dispatch.
-Repeated start joins its initial readiness. `stop()` is synchronous, returns true,
-removes that subscription and aborts navigation authority. It retains the object
-and its Marionette event subscriptions, so it can start again.
+Router follows Application's `start`, `restart`, `stop`, `destroy` and
+`isRunning`. Register it with `owner.addChildApp('router', router)` to make owner
+stop/destroy propagate automatically. A field alone does not establish ownership.
+Registration does not start the Router or any other child.
 
-`destroy()` is synchronous and terminal. It blocks further routing and stops
-resources before user destruction notifications, then uses normal MnObject
-cleanup for incoming/outgoing subscriptions, configured Radio and owned state.
-Repeated destruction returns the same object. Application fields do not establish
-automatic ownership: the owner must stop/destroy a Router it creates.
+Initial `start()` acquires one Driver subscription and awaits initial dispatch.
+It resolves `true` when Application activation completes, including when the URL
+is unclaimed or an independent navigation supersedes initial routing. Concurrent
+initial starts join the same preparation. An active start resolves `true` without
+repeating work. Failure of initial routing rejects and releases that binding; a
+subsequent start can retry. Canceling startup through stop/destroy resolves it
+`false` promptly, even if handler code ignores cancellation.
 
-While stopped or destroyed, `navigate()` returns canceled committed/finished
+`restart()` repeats preparation while retaining the binding, selected children
+and UI. It does not redispatch the URL, reapply child start options, remount routes
+or reconstruct pages. Use `refresh()` to redispatch. A later `stop(); start()`
+creates a new binding and initial dispatch. Router state events follow Application's
+running-state rules.
+
+`stop()` is synchronous, returns `true`, releases the Driver subscription, aborts
+navigation authority and stops all registered descendants. `destroy()` also
+destroys registered children and owned resources, using ordinary Application
+cleanup; repeated destruction returns `true`. Required routing cleanup runs
+through the lifecycle binding rather than an overridable `onStop` method.
+Synchronous hook failures follow Application's documented failure boundary and
+may abort remaining cleanup; there is no rollback or attempt-all guarantee.
+
+Router's `prepareStart` supplies binding setup and initial readiness. A specialized
+subclass overriding it must compose the base implementation:
+
+```js
+const CatalogRouter = Router.extend({
+  async prepareStart(options, context) {
+    await loadCatalogPrerequisites(options, context);
+    context.signal.throwIfAborted();
+    return Router.prototype.prepareStart.call(this, options, context);
+  },
+});
+```
+
+Prepare the shell and required feature prerequisites before starting routing.
+For shell-first presentation, start the Router explicitly without awaiting its
+Promise and handle rejection. Do not have a route handler await its own pending
+owner's `start()`; that creates a readiness cycle. Application does not roll back
+children that started before a later parent prerequisite failed; the caller can
+stop or destroy that parent to release the registered subtree.
+
+The same explicit cleanup applies if a custom Router preparation activates its
+base routing setup and then fails a later prerequisite. Call `stop()` before
+retrying that partial startup, or `destroy()` when abandoning it. Both release
+the binding even though Application activation did not complete. Prefer preparing
+prerequisites before calling the base Router preparation, as above.
+
+Before startup is requested, and after stop or destroy, `navigate()` returns canceled committed/finished
 Promises; `refresh()` and `back()` resolve false; `canGoBack` is false and
 `updateState()` returns false without writing browser state. Pure matching, URL
 building and route-table inspection/configuration remain available. Active
@@ -104,13 +147,14 @@ awaited handler, not an asynchronous notification hook.
 `navigate()` synchronously returns `{ committed, finished }`, each a
 Promise<boolean>. Commitment concerns the URL; finished awaits the handler and
 redirect destinations. Supersession/cancellation is false; current operational
-failure rejects. `start()`, `refresh()` and `back()` return readiness directly.
+failure rejects. `refresh()` and `back()` return navigation readiness directly;
+`start()` instead reports Application activation.
 Redirected back follows its own traversal's readiness rather than an unrelated
 navigation result.
 
 Cancellation invalidates authority immediately, including after readiness. A
-handler or redirect that ignores its signal may keep readiness pending until it
-settles. Pass/check the signal before effects after awaits. Cancellation does not
+handler or redirect that ignores its signal may keep navigation readiness pending
+until it settles. Application startup cancellation has its own prompt completion. Pass/check the signal before effects after awaits. Cancellation does not
 undo arbitrary application effects. There is no constructor rollback, attempt-all
 teardown or general synchronous recovery policy.
 
@@ -185,6 +229,25 @@ navigation fields and causes no redirects or history effects. Mount/unmount upda
 the route table without dispatch; call active `refresh()` to dispatch it. A child
 mount whose parent is removed remains dormant and reactivates when a route with
 that parent name is registered again; its owner may explicitly unmount it instead.
+
+Route registrations have their own lifetime. `mount()` returns an unmount function;
+Application ownership does not infer which registrations belong to a feature.
+Retain and call that function when the feature retires, for example:
+
+```js
+const Catalog = Application.extend({
+  initialize() {
+    this.unmountRoutes = router.mount(catalogRoutes, { parent: 'catalog' });
+  },
+  onDestroy() {
+    this.unmountRoutes();
+  },
+});
+```
+
+This keeps mounts across retained restart and ordinary stop. If routes should exist
+only during activation, explicitly compose mounting/unmounting at that lifetime.
+Stopping an Application does not silently remove routes from another Router.
 
 `match()` preserves a supplied URL object. Absolute URL strings are parsed without
 accessing a Driver. Relative strings resolve against the Driver's current URL,
@@ -275,7 +338,8 @@ preserves omitted state; pushes/different-path replacements start empty.
 The native Driver handles only URLs claimed by the Router. Interception omits
 `focusReset` and `scroll` for ordinary navigations, using native after-transition
 defaults. `navigate()` accepts those native-named options independently, each as
-`'manual'` or `'after-transition'`. For example:
+`'manual'` or `'after-transition'`. Invalid values synchronously throw a TypeError
+before resolving the target or invoking Driver navigation. For example:
 
 ```js
 router.navigate('/items?filter=open', {
@@ -325,84 +389,144 @@ conformance is separate evidence.
 
 ## Child Applications
 
-ChildAppSwitcher is a MnObject that switches one registered child group. It does
-not render, borrow a Region to manipulate, register children itself or read Match.
-An owning Application declares/registers children and explicitly requests a switch:
+ChildAppSwitcher is an Application that owns one selectable child group. It does
+not render, borrow a Region to manipulate, or read Match. Register its pages beneath
+it; persistent sidebars and other independent features stay outside this group:
+
+```text
+Frame Application
+├─ Router
+└─ Catalog Application
+   ├─ Sidebar Application
+   └─ ChildAppSwitcher (content)
+      ├─ Item Application
+      └─ Search Application
+```
 
 ```js
 import { Application } from 'marionette';
-import { ChildAppSwitcher } from '@mnjs/router';
+import { Router, ChildAppSwitcher } from '@mnjs/router';
 
-const Catalog = Application.extend({
-  childApps: { item: ItemApplication },
-  initialize() {
-    this.pages = new ChildAppSwitcher({ owner: this });
-  },
-  async showRoute(match) {
+const CatalogPages = ChildAppSwitcher.extend({
+  async showRoute(match, region) {
+    if (match.name !== 'item') {
+      this.clear();
+      return;
+    }
     const { id } = match.params;
-    const page = await this.pages.switchTo('item', {
-      key: { id }, options: { id, region: this.getView().getRegion('content') },
+    if (!this.hasChildApp('item')) {
+      const { default: ItemApplication } = await import('./item-application.js');
+      if (match.signal.aborted) return;
+      if (!this.hasChildApp('item')) this.addChildApp('item', new ItemApplication());
+    }
+    if (match.signal.aborted) return;
+    const page = await this.switchTo('item', {
+      key: { id }, options: { id, region }, signal: match.signal,
     });
     if (!page || match.signal.aborted) return;
     return page.showDetails(match);
   },
 });
+
+const frame = new Application();
+const catalog = frame.addChildApp('catalog', new Application());
+const sidebar = catalog.addChildApp('sidebar', new SidebarApplication());
+const pages = catalog.addChildApp('content', new CatalogPages());
+const router = frame.addChildApp('router', new Router({
+  routes: [{ name: 'item', path: '/items/:id' }],
+  handler: match => pages.showRoute(match, contentRegion),
+}));
+await frame.start();
+await catalog.start();
+await sidebar.start({ region: sidebarRegion });
+await pages.start();
+await router.start();
+// pages.stop() stops content descendants; sidebar remains active.
+// frame.stop()/destroy() also stop/destroy Router and the Catalog subtree.
 ```
 
-`switchTo(name, { key, options, reconstruct })` returns the running Application or
-undefined when superseded/canceled. Reuse requires the same registered instance,
-name and structural key. Changing the key or `reconstruct: true` stops the current
-selection synchronously and starts the selected registered instance. This rebuilds
-UI; it does not remove/add an Application. `Application.restart()` instead retains
-active UI while repeating preparation.
+`switchTo(name, { key, options, reconstruct, signal })` is an explicit operation
+on a running group. Before start, after stop and during/after destruction it resolves
+undefined without activating a child. Group start does not choose or automatically
+start a page. Registering a page does not start it either.
+
+Selection returns the authoritative running Application, or undefined when
+superseded/canceled. Reuse requires the same registered instance, name and
+structural key. Same-key calls join pending Application preparation; only the
+latest selection request returns the child. A running child ignores new start
+options, including `region`. Update an already-running feature explicitly, or pass
+`reconstruct: true` when a rebuilt host requires stop/start. A changed key also
+stops the selection and starts the same registered instance. This rebuilds UI
+without removing/recreating an Application. Inherited `restart()` retains the
+group's active children and does not repeat selection.
+
+`clear()` invalidates pending selection and stops the selected child while keeping
+the group running. Use it for a fallback that leaves this content level. `stop()`
+disables the group and stops all registered children; `destroy()` destroys them.
+Independent sidebar Applications remain outside the group's stop scope. Do not
+make two groups own the same page: Application ownership permits one owner/name.
+
+The optional signal is checked before selection and before exposing its result.
+Aborting it does not stop child preparation; a newer same-key route must be able
+to join that work. Check route authority after every lazy import or other await,
+then pass the current signal to selection. Returning from an obsolete handler
+cannot undo a selection it already made. Every route handler must select or clear
+each content level it leaves; Application ownership alone does not choose a page.
 
 The returned child is authoritative. Do not re-read registration to bypass an
 undefined result. Return/await required detail activation. Application `onStart`
-is itself a synchronous notification, not an awaited child-start hook. Pages need
-no `showDetails` method if initial preparation supplies all required readiness.
+is a synchronous notification, not an awaited child-start hook. Pages need no
+`showDetails` method when their preparation supplies all required readiness.
 
-Owner stop cancels pending selection; retained owner restart does not abandon it.
-If a child supersedes its own first start with restart, the original switch returns
-undefined and leaves the replacement running. The owner must explicitly await that
-child-owned replacement if its readiness is required. `getCurrent()` identifies
-selection, not a promise that it is running. An independently stopped selection
-can remain selected until the next switch or stop.
+If a child supersedes its own first start with restart, the original selection
+returns undefined and leaves the replacement running. Explicitly await that
+child-owned replacement when its readiness is required. `getCurrent()` identifies
+selection, not guaranteed running state; an independently stopped child can remain
+selected. Removed, replaced or self-destroyed registrations are no longer current.
 
 Startup failure cleans up the failed selection and rejects with the original error.
 An optional `onCleanupError(error, app)` reports a cleanup failure separately.
-Owner destruction destroys the switcher. Destroying the switcher invalidates it
-and releases its subscriptions while leaving child ownership with the Application.
-A destroyed switcher cannot start more children, even from destruction hooks.
+Synchronous cleanup failures retain Application's normal failure boundary.
+
+### Migrating the former helper
+
+Remove the former `{ owner }` option. Register the switcher as a child Application,
+move its selectable pages under it, and await its start before selection. Replace
+helper `stop()` calls that meant only "clear this content" with `clear()`; reserve
+Application `stop()` for disabling the group. Destroy now destroys the group's
+registered pages instead of leaving them with an external owner. Application
+`destroy()` returns `true`, rather than the former MnObject return value.
 
 ## Isolated Marionette runtimes
 
-Named imports use Marionette's default family. The package declares no Radio
-channels and does not infer runtime providers from an Application owner. Use the
-normal provider slots on a subclass when working in an isolated runtime:
+Named imports use Marionette's default Application family. An isolated app tree
+must use classes based on that runtime's Application constructor:
 
 ```js
+import { createMarionette } from 'marionette';
+import { createRouterClass, createChildAppSwitcherClass } from '@mnjs/router';
+
 const runtime = createMarionette();
-// Configure runtime StateApi before defining these classes when needed.
-const ScopedRouter = Router.extend({
-  Radio: runtime.Radio,
-  State: runtime.MnObject.prototype.State,
-});
-const ScopedSwitcher = ChildAppSwitcher.extend({
-  Radio: runtime.Radio,
-  State: runtime.MnObject.prototype.State,
-});
+const ScopedRouter = createRouterClass(runtime.Application);
+const ScopedPages = createChildAppSwitcherClass(runtime.Application);
+const frame = new runtime.Application();
+const router = frame.addChildApp('router', new ScopedRouter({ routes, driver }));
+const pages = frame.addChildApp('content', new ScopedPages());
+pages.addChildApp('item', new runtime.Application());
 ```
 
-This uses the runtime's configured MnObject providers without another adapter or
-runtime factory. Radio/state behavior is opt-in through ordinary MnObject
-configuration. Views, Regions and Applications should come from their intended
-runtime family; switching does not replace their ownership/runtime checks.
+Configure the runtime's providers before constructing classes/instances as usual.
+Both factories return ordinary extendable Application constructors; they do not
+create another runtime or a second Router instance. Swapping Radio/State properties
+on the default class does not change its runtime identity. Applications and borrowed
+Regions must come from the same runtime family. Radio/state behavior remains opt-in
+through ordinary Application configuration; the package declares no Radio channels.
 
 ## Package and validation boundary
 
 `marionette` is a required exact-version peer, following the family integration
 convention. The package does not embed a second framework copy or import an
-application repository, external data layer or renderer. Both public MnObjects are
+application repository, external data layer or renderer. Both Application classes and their runtime-bound constructor factories are
 exported from the root. There are no old-name aliases or separate adapter entry.
 
 Authored TypeScript generates ESM/CJS and declarations. Public tests cover class

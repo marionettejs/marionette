@@ -134,10 +134,10 @@ describe('Router construction', () => {
     assert.equal(router.hasRoute('extra'), false);
   });
 
-  it('throws on start without a driver when the Navigation API is missing', () => {
+  it('rejects startup without a driver when the Navigation API is missing', async() => {
     const router = createRouter({ routes: baseRoutes() });
 
-    assert.throws(() => router.start(), TypeError);
+    await assert.rejects(router.start(), TypeError);
   });
 
   it('defaults the driver to the Navigation API when it exists', async() => {
@@ -545,6 +545,27 @@ describe('Router reentrancy', () => {
 });
 
 describe('Router.navigate', () => {
+  for (const option of ['focusReset', 'scroll']) {
+    for (const value of ['bogus', null, 0]) {
+      it(`rejects invalid ${ option }=${ String(value) } before driver side effects`, async() => {
+        const context = await started();
+        const before = context.driver.currentEntry;
+        const entries = context.driver.entries().length;
+        let calls = 0;
+        const navigate = context.driver.navigate.bind(context.driver);
+        context.driver.navigate = (...args) => { calls++; return navigate(...args); };
+
+        assert.throws(() => context.router.navigate('/w1/worklist/next', { [option]: value }), {
+          name: 'TypeError', message: `${ option } must be "manual" or "after-transition"`,
+        });
+        assert.equal(calls, 0);
+        assert.equal(context.driver.currentEntry, before);
+        assert.equal(context.driver.entries().length, entries);
+        assert.deepEqual(context.log, []);
+      });
+    }
+  }
+
   it('builds the URL from a route name, copying persistParams from the current match', async() => {
     const context = await started();
 
@@ -1005,10 +1026,10 @@ describe('Router.start', () => {
     assert.equal(context.matches[0].initial, true);
   });
 
-  it('resolves false without dispatching for a URL the router does not own', async() => {
+  it('activates without dispatching for a URL the router does not own', async() => {
     const context = setup({ url: 'http://localhost/logout' });
 
-    assert.equal(await context.router.start(), false);
+    assert.equal(await context.router.start(), true);
 
     assert.deepEqual(context.log, []);
     assert.equal(context.router.getCurrent(), null);
@@ -1024,7 +1045,7 @@ describe('Router.start', () => {
     assert.deepEqual(context.log, ['route:schedule', 'handler:schedule', 'error:schedule:boom']);
   });
 
-  it('resolves false when superseded by a navigation', async() => {
+  it('stays activated when initial routing is superseded by a navigation', async() => {
     const wait = gate();
     const context = setup({ handler: match => (match.initial ? wait.promise : undefined) });
     const initial = context.router.start();
@@ -1032,7 +1053,7 @@ describe('Router.start', () => {
     await context.router.navigate('worklist', { worklistId: 'a' }).finished;
     wait.open();
 
-    assert.equal(await initial, false);
+    assert.equal(await initial, true);
     assert.deepEqual(context.log, [
       'route:schedule', 'handler:schedule',
       'route:worklist', 'handler:worklist', 'ready:worklist',

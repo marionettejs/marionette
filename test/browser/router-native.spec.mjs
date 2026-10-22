@@ -24,14 +24,16 @@ async function example(page, { initialRedirect = false, deferStart = false } = {
     const owner = new Application();
     const Page = Application.extend({
       region: '#content',
-      prepareStart() { return gates.get('prepare')?.promise; },
+      prepareStart() { state.preparations++; return gates.get('prepare')?.promise; },
       onStart() { this.showView(new View({ template: () => '<input id="child-input">' })); },
     });
-    owner.addChildApp('page', new Page());
-    const switcher = new ChildAppSwitcher({ owner });
-    const state = window.routerExample = { gates, gate, owner, switcher, entered: [], ready: [], focus: false };
+    const switcher = owner.addChildApp('content', new ChildAppSwitcher());
+    switcher.addChildApp('page', new Page());
+    await owner.start();
+    await switcher.start();
+    const state = window.routerExample = { gates, gate, owner, switcher, entered: [], ready: [], preparations: 0, focus: false };
     if (redirectInitially) { gate('next'); }
-    const router = state.router = new Router({
+    const router = state.router = owner.addChildApp('router', new Router({
       routes: [
         { name: 'home', path: '/', redirect: redirectInitially ? () => '/next' : undefined },
         { name: 'old', path: '/old', redirect: () => '/next' },
@@ -39,12 +41,21 @@ async function example(page, { initialRedirect = false, deferStart = false } = {
         { name: 'page', path: '/:page' },
       ],
       async handler(match) {
-        if (match.params.page === 'child') { await switcher.switchTo('page'); }
+        if (match.params.page === 'lazy-child') {
+          state.loading = true;
+          await gates.get('lazy').promise;
+          match.signal.throwIfAborted();
+          await switcher.switchTo('page', { signal: match.signal });
+        } else if (match.params.page === 'child') {
+          await switcher.switchTo('page', { signal: match.signal });
+        } else {
+          switcher.clear();
+        }
         state.entered.push(match.params.page ?? match.name);
-        await gates.get(match.params.page)?.promise;
+        await gates.get(match.params.page ?? match.name)?.promise;
         if (state.fail) { throw new Error('route failed'); }
       },
-    });
+    }));
     router.on('route:ready', match => {
       state.ready.push({ initial: match.initial, type: match.navigationType, path: match.url.pathname });
       if (state.focus && !match.initial) { document.querySelector('#target').focus({ preventScroll: true }); }
@@ -77,7 +88,7 @@ test('native completion waits for child preparation, attached UI and the returne
     state.finished = false;
     state.pending = state.router.navigate('/child').finished.then(() => { state.finished = true; });
   });
-  await expect.poll(() => page.evaluate(() => window.routerExample.owner.getChildApp('page').isRunning())).toBe(false);
+  await expect.poll(() => page.evaluate(() => window.routerExample.switcher.getChildApp('page').isRunning())).toBe(false);
   expect(await snapshot(page)).toEqual({ focus: 'before', scroll: 700 });
   await page.evaluate(() => window.routerExample.gates.get('prepare').resolve());
   await expect(page.locator('#child-input')).toBeAttached();
@@ -157,6 +168,144 @@ for (const redirectPath of ['/old', '/async-old']) {
     expect(await page.evaluate(() => location.pathname)).toBe('/next');
   });
 }
+
+for (const option of ['focusReset', 'scroll']) {
+  test(`invalid ${option} rejects before native navigation changes the document`, async({ page }) => {
+    await example(page);
+    await position(page);
+    const pageErrors = [];
+    const documentRequests = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    page.on('request', request => {
+      if (request.isNavigationRequest() && request.frame() === page.mainFrame()) { documentRequests.push(request.url()); }
+    });
+    const result = await page.evaluate(name => {
+      const state = window.routerExample;
+      const before = { url: location.href, length: history.length, key: navigation.currentEntry.key };
+      let error;
+      try { state.router.navigate('/next', { [name]: 'bogus' }); } catch (caught) { error = { name: caught.name, message: caught.message }; }
+      return { before, error, after: { url: location.href, length: history.length, key: navigation.currentEntry.key } };
+    }, option);
+    expect(result.error?.name).toBe('TypeError');
+    expect(result.error?.message).toContain(option);
+    expect(result.after).toEqual(result.before);
+    await page.evaluate(() => new Promise(requestAnimationFrame));
+    expect(await snapshot(page)).toEqual({ focus: 'before', scroll: 700 });
+    expect(await page.evaluate(() => window.routerExample.entered)).toEqual(['home']);
+    expect(documentRequests).toEqual([]);
+    expect(pageErrors).toEqual([]);
+    await page.evaluate(() => window.routerExample.router.navigate('/next').finished);
+    expect(await page.evaluate(() => window.routerExample.entered)).toEqual(['home', 'next']);
+  });
+}
+
+for (const operation of ['stop', 'destroy']) {
+  test(`parent ${operation} cancels initial readiness before uncooperative route work completes`, async({ page }) => {
+    await example(page, { deferStart: true });
+    await position(page);
+    await page.evaluate(() => {
+      const state = window.routerExample; state.gate('home');
+      state.start = state.router.start();
+    });
+    await expect.poll(() => page.evaluate(() => window.routerExample.entered)).toEqual(['home']);
+    const result = await page.evaluate(async method => {
+      const state = window.routerExample; const url = location.href;
+      state.owner[method]();
+      return {
+        started: await state.start, running: state.router.isRunning(), destroyed: state.router.isDestroyed(),
+        next: await state.router.navigate('/next').finished, sameUrl: location.href === url,
+      };
+    }, operation);
+    expect(result).toEqual({ started: false, running: false, destroyed: operation === 'destroy', next: false, sameUrl: true });
+    await page.evaluate(async() => {
+      const state = window.routerExample; state.gates.get('home').resolve();
+      await new Promise(requestAnimationFrame);
+    });
+    expect(await page.evaluate(() => window.routerExample.ready)).toEqual([]);
+    expect(await snapshot(page)).toEqual({ focus: 'before', scroll: 700 });
+  });
+
+  test(`parent ${operation} invalidates intercepted work without a late ready notification`, async({ page }) => {
+    await example(page);
+    await position(page);
+    await page.evaluate(() => {
+      const state = window.routerExample; state.gate('slow');
+      state.pending = state.router.navigate('/slow').finished;
+    });
+    await expect.poll(() => page.evaluate(() => window.routerExample.entered.at(-1))).toBe('slow');
+    expect(await page.evaluate(async method => {
+      const state = window.routerExample; state.owner[method](); state.gates.get('slow').resolve();
+      return state.pending;
+    }, operation)).toBe(false);
+    expect(await page.evaluate(() => window.routerExample.ready.map(match => match.path))).toEqual(['/']);
+    expect(await snapshot(page)).toEqual({ focus: 'BODY', scroll: 700 });
+  });
+
+  test(`parent ${operation} prevents a late lazy load from activating a child`, async({ page }) => {
+    await example(page);
+    await page.evaluate(() => {
+      const state = window.routerExample; state.gate('lazy');
+      state.pending = state.router.navigate('/lazy-child').finished;
+    });
+    await expect.poll(() => page.evaluate(() => window.routerExample.loading)).toBe(true);
+    expect(await page.evaluate(async method => {
+      const state = window.routerExample; state.owner[method](); state.gates.get('lazy').resolve();
+      return state.pending;
+    }, operation)).toBe(false);
+    expect(await page.evaluate(() => window.routerExample.preparations)).toBe(0);
+    expect(await page.locator('#child-input').count()).toBe(0);
+    expect(await page.evaluate(() => window.routerExample.ready.map(match => match.path))).toEqual(['/']);
+  });
+}
+
+test('same-key native supersession joins child preparation and waits for the surviving route', async({ page }) => {
+  await example(page);
+  await position(page);
+  await page.evaluate(() => {
+    const state = window.routerExample; state.gate('prepare');
+    state.first = state.router.navigate('/child?filter=one').finished;
+  });
+  await expect.poll(() => page.evaluate(() => window.routerExample.preparations)).toBe(1);
+  await page.evaluate(() => {
+    const state = window.routerExample;
+    state.second = state.router.navigate('/child?filter=two').finished;
+  });
+  expect(await snapshot(page)).toEqual({ focus: 'before', scroll: 700 });
+  expect(await page.evaluate(async() => {
+    const state = window.routerExample; state.gates.get('prepare').resolve();
+    return { first: await state.first, second: await state.second, preparations: state.preparations };
+  })).toEqual({ first: false, second: true, preparations: 1 });
+  expect(await page.locator('#child-input').count()).toBe(1);
+  expect(await page.evaluate(() => window.routerExample.ready.map(match => match.path))).toEqual(['/', '/child']);
+  expect(await snapshot(page)).toEqual({ focus: 'BODY', scroll: 0 });
+});
+
+test('failed initial dispatch can retry and retained restart does not redispatch or rebuild a child', async({ page }) => {
+  await example(page, { deferStart: true });
+  expect(await page.evaluate(async() => {
+    const state = window.routerExample; state.fail = true;
+    const error = await state.router.start().then(() => null, failure => failure.message);
+    return { error, running: state.router.isRunning(), signalAborted: state.router.getCurrent().signal.aborted };
+  })).toEqual({ error: 'route failed', running: false, signalAborted: true });
+  expect(await page.evaluate(async() => {
+    const state = window.routerExample; state.fail = false;
+    return state.router.start();
+  })).toBe(true);
+  await page.evaluate(() => window.routerExample.router.navigate('/child').finished);
+  await position(page, { focus: 'child-input', scroll: 650 });
+  expect(await page.evaluate(async() => {
+    const state = window.routerExample;
+    const input = document.getElementById('child-input'); input.value = 'retained draft';
+    const child = state.switcher.getCurrent(); const ready = state.ready.length;
+    const restarted = await state.router.restart();
+    return { restarted, sameChild: state.switcher.getCurrent() === child, sameInput: document.getElementById('child-input') === input,
+      unchangedReadiness: state.ready.length === ready, preparations: state.preparations };
+  })).toEqual({ restarted: true, sameChild: true, sameInput: true, unchangedReadiness: true, preparations: 1 });
+  expect(await snapshot(page)).toEqual({ focus: 'child-input', scroll: 650 });
+  expect(await page.locator('#child-input').inputValue()).toBe('retained draft');
+  await page.evaluate(() => window.routerExample.router.navigate('/other').finished);
+  expect(await page.evaluate(() => window.routerExample.entered)).toEqual(['home', 'home', 'child', 'other']);
+});
 
 test('superseded native completion does not reset focus, scroll or emit readiness', async({ page }) => {
   await example(page);

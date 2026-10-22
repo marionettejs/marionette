@@ -1,5 +1,5 @@
 import { Router, memoryDriver, navigationDriver, type ActiveMatch, type Match, type Driver, type NavigationResult, type RouterOptions, type RouterInstance, type RouteDefinition } from '@mnjs/router';
-import { ChildAppSwitcher, type ChildAppSwitcherInstance, type ChildAppSwitcherOptions } from '@mnjs/router';
+import { ChildAppSwitcher, createRouterClass, createChildAppSwitcherClass, type ChildAppSwitcherInstance, type ChildAppSwitcherOptions } from '@mnjs/router';
 import { Application, createMarionette } from 'marionette';
 
 const driver: Driver = memoryDriver({ url: 'http://localhost/' });
@@ -33,12 +33,12 @@ if (idle) {
 navigationDriver(window.navigation);
 router.listenTo(router, 'route', (match: ActiveMatch) => match.name);
 const owner = new Application();
-const switcher: ChildAppSwitcherInstance = new ChildAppSwitcher({ owner });
+const switcher: ChildAppSwitcherInstance = owner.addChildApp('pages', new ChildAppSwitcher());
 const extended = ChildAppSwitcher.extend({
   initialize(_options: ChildAppSwitcherOptions) { this.switchTo('page'); },
   isSelected() { return this.getCurrent() !== null; },
 });
-const child = new extended({ owner });
+const child = new extended({});
 const selected: boolean = child.isSelected();
 switcher.switchTo('page', { key: { id: 'one', branch: ['a'] }, options: { id: 'one' } });
 // @ts-expect-error Switcher keys are primitive, arrays or plain objects.
@@ -75,9 +75,19 @@ catalog.destroy();
 // @ts-expect-error Subclass initialize requires its declared options.
 new CatalogRouter({ driver });
 const runtime = createMarionette();
-const ScopedRouter = Router.extend({ Radio: runtime.Radio, State: runtime.MnObject.prototype.State });
-new ScopedRouter({ driver }).destroy();
-switcher.switchTo('page', { reconstruct: true });
+const ScopedRouter = createRouterClass(runtime.Application);
+const scopedOwner = new runtime.Application();
+const scopedRouter = scopedOwner.addChildApp('router', new ScopedRouter({ driver }));
+const ScopedPages = createChildAppSwitcherClass(runtime.Application);
+scopedOwner.addChildApp('pages', new ScopedPages());
+const activated: Promise<boolean> = scopedRouter.start();
+const restarted: Promise<boolean> = scopedRouter.restart();
+const disposed: boolean = scopedRouter.destroy();
+void [activated, restarted, disposed];
+switcher.start();
+switcher.switchTo('page', { reconstruct: true, signal: new AbortController().signal });
+const cleared: boolean = switcher.clear();
+void cleared;
 // @ts-expect-error Reconstruction is explicit; old outlet restart option is removed.
 switcher.switchTo('page', { restart: true });
 void [base, itemUrl, changed];

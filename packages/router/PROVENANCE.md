@@ -11,10 +11,11 @@ History API prototype at **950e4c6dc67ca3e6e378267a95845dc6965eeaa4** were merge
 The initial refinement commits are **1a26e38ba0b431ca272d91ef643e2dfdc306833f** and
 **e1884c0657ac08dae5e883d14d879913e054348e**.
 
-The package has since been revised to use Marionette MnObject construction,
-configuration, extension, notifications and terminal cleanup. ChildAppSwitcher
-replaces the previous coordinator terminology and reconstruction means stop/start
-of the same registered Application. Match remains plain data; Driver, matching,
+The package has since been revised to use Marionette Application construction,
+configuration, preparation, extension, notifications and registered-child ownership.
+Router owns its routing lifetime; ChildAppSwitcher owns a selectable child group.
+ChildAppSwitcher replaces the previous coordinator terminology, and reconstruction
+means stop/start of the same registered Application. Match remains plain data; Driver, matching,
 redirect, cancellation and readiness machinery remain routing-specific.
 
 The original package manifest declared MIT, but its extraction proposal did not
