@@ -124,13 +124,37 @@ unnamed nodes provide prefixes and inherited metadata. Names are unique, includi
 parameter names within a branch. Metadata merges root to leaf; branch entries
 retain their own parameters and metadata.
 
-The supported URLPattern pathname subset includes static segments, named/unnamed
-parameters, regex constraints, optional groups and wildcard/repeated parameters.
-The tokenizer also builds URLs and ranks candidates; it does not promise every
-URLPattern grammar form, such as quoted/arbitrary Unicode parameter names.
-Ranking compares segments: static, parameter, optional, wildcard. Ties use
-definition order. Query values use URLSearchParams. Matching decodes parameters;
-generation encodes them. Trailing slashes normalize away except at `/`.
+The pathname grammar is a deliberately small URLPattern subset:
+
+| Form | Example | Meaning |
+| --- | --- | --- |
+| Static text | `/items/new` | Literal pathname text, including Unicode |
+| Named parameter | `/items/:id` | One nonempty value; ASCII identifier names (`id`, `_id`, `$id2`) |
+| Embedded parameter | `/file-:id.:ext` | Parameters can share a segment with literal text |
+| Required brace group | `/items{/detail/:id}` | Group contents are required |
+| Optional brace group | `/items{/:id}?` | Omit the group when none of its parameters is supplied |
+| Literal escape | `/literal/\\*` in a JS string | Escape reserved syntax for literal matching |
+
+A brace group may surround one named parameter and literal text. Optional
+static-only groups match with or without their text; URL generation omits them.
+The tokenizer recursively handles groups, while native URLPattern remains the
+syntax authority and rejects nested groups or several parameters in one group.
+Adjacent groups are supported. Supplied values `0` and `false` are encoded;
+undefined, null and empty-string values omit optional groups.
+
+Unescaped parentheses (including inline regex constraints and unnamed captures),
+wildcards, parameter `?`/`*`/`+` modifiers and group `*`/`+` repetition are rejected
+during route compilation. Use `{/:id}?` instead of `/:id?`. There is no catchall
+or second URL builder. Quoted and Unicode parameter names are rejected rather
+than partially captured. A small identifier regex only tokenizes parameter names;
+user-supplied route regex constraints and their build-time validation are removed.
+The internal prefix matcher still uses a native wildcard to collect unnamed-branch
+parameters for not-found decisions; it is not part of the route-definition grammar.
+
+Ranking compares segments: static, parameter, optional. Ties use definition order.
+Query values use URLSearchParams. Matching decodes parameters; generation encodes
+each parameter as a single value, including any slash it contains. Trailing path
+slashes normalize away except at `/`.
 
 Generation rejects missing/invalid parameters, dot segments, static-route collisions
 and values that do not round trip through matching. Pure `match(url)` has null

@@ -1,10 +1,10 @@
 import type { Params } from './types.ts';
 
 type TextToken = { type: 'text'; value: string };
-type ParamToken = { type: 'param'; name: string; prefix: string; wildcard: boolean; regex?: string; modifier: string; pattern?: RegExp };
-type GroupToken = { type: 'group'; tokens: Token[]; modifier: string };
+type ParamToken = { type: 'param'; name: string };
+type GroupToken = { type: 'group'; tokens: Token[]; optional: boolean };
 type Token = TextToken | ParamToken | GroupToken;
-type ParseState = { path: string; pos: number; unnamed: number };
+type ParseState = { path: string; pos: number };
 type RankState = { ranks: number[]; current: number | null };
 
 // Execution distinguishes an unmatched pathname (undefined) from a matched
@@ -15,71 +15,35 @@ export interface CompiledPattern {
   exec(pathname: string): Record<string, string> | null | undefined;
 }
 
-const MODIFIERS = '?*+';
-const TEXT_STOPS = ':(*{}';
-const NAME = /[A-Za-z_$][\w$]*/y;
+const TEXT_STOPS = ':(){}?*+';
+const NAME = /[A-Za-z_$][\w$]*(?![\p{ID_Continue}$\u200C\u200D])/uy;
 
 const STATIC = 3;
 const PARAM = 2;
 const OPTIONAL = 1;
-const WILDCARD = 0;
 
 export function normalizePathname(pathname: string) {
   return pathname.replace(/\/+$/, '') || '/';
 }
 
-/* Path tokenizer: text | param | group, mirroring the URLPattern pathname syntax. */
+/* Path tokenizer for the supported URLPattern pathname subset. */
 
-function readModifier(state: ParseState) {
-  const char = state.path[state.pos];
-  if (!char || !MODIFIERS.includes(char)) {return '';}
-  state.pos++;
-  return char;
-}
-
-function skipRegex(state: ParseState) {
-  let depth = 0;
-  while (state.pos < state.path.length) {
-    const char = state.path[state.pos++];
-    if (char === '\\') {state.pos++;} else if (char === '(') {depth++;} else if (char === ')' && --depth === 0) {return;}
-  }
-  throw new Error(`Unterminated "(" in path "${ state.path }"`);
-}
-
-function readRegex(state: ParseState) {
-  const start = state.pos + 1;
-  skipRegex(state);
-  return state.path.slice(start, state.pos - 1);
-}
-
-function paramToken(state: ParseState, name: string, wildcard: boolean): ParamToken {
-  const regex = !wildcard && state.path[state.pos] === '(' ? readRegex(state) : undefined;
-  return { type: 'param', name, prefix: '', wildcard, regex, modifier: readModifier(state) };
-}
-
-function readNamed(state: ParseState) {
+function readNamed(state: ParseState): ParamToken {
   state.pos++;
   NAME.lastIndex = state.pos;
   const match = NAME.exec(state.path);
   if (!match) {throw new Error(`Expected a parameter name after ":" in path "${ state.path }"`);}
   state.pos = NAME.lastIndex;
-  return paramToken(state, match[0], false);
-}
-
-function readUnnamed(state: ParseState) {
-  return paramToken(state, String(state.unnamed++), false);
-}
-
-function readWildcard(state: ParseState) {
-  state.pos++;
-  return paramToken(state, String(state.unnamed++), true);
+  return { type: 'param', name: match[0] };
 }
 
 function readGroup(state: ParseState): GroupToken {
   state.pos++;
   const tokens = readTokens(state, true);
   state.pos++;
-  return { type: 'group', tokens, modifier: readModifier(state) };
+  const optional = state.path[state.pos] === '?';
+  if (optional) {state.pos++;}
+  return { type: 'group', tokens, optional };
 }
 
 function readText(state: ParseState): TextToken {
@@ -91,16 +55,7 @@ function readText(state: ParseState): TextToken {
   return { type: 'text', value };
 }
 
-const READERS: Record<string, (state: ParseState) => Token> = { ':': readNamed, '(': readUnnamed, '*': readWildcard, '{': readGroup };
-
-// A '/' directly before a param belongs to the param, so optional params drop it too.
-function takePrefix(tokens: Token[], token: ParamToken) {
-  const last = tokens.at(-1);
-  if (last?.type !== 'text' || !last.value.endsWith('/')) {return;}
-  last.value = last.value.slice(0, -1);
-  token.prefix = '/';
-  if (!last.value) {tokens.pop();}
-}
+const READERS: Record<string, (state: ParseState) => Token> = { ':': readNamed, '{': readGroup };
 
 function readTokens(state: ParseState, inGroup: boolean): Token[] {
   const tokens: Token[] = [];
@@ -110,16 +65,17 @@ function readTokens(state: ParseState, inGroup: boolean): Token[] {
       if (!inGroup) {throw new Error(`Unexpected "}" in path "${ state.path }"`);}
       return tokens;
     }
-    const token = (READERS[char] ?? readText)(state);
-    if (token.type === 'param') {takePrefix(tokens, token);}
-    tokens.push(token);
+    if ('()*+?'.includes(char)) {
+      throw new Error(`Unsupported syntax "${ char }" in path "${ state.path }"; use named parameters, brace groups and escapes`);
+    }
+    tokens.push((READERS[char] ?? readText)(state));
   }
   if (inGroup) {throw new Error(`Unterminated "{" in path "${ state.path }"`);}
   return tokens;
 }
 
 function tokenize(path: string) {
-  return readTokens({ path, pos: 0, unnamed: 0 }, false);
+  return readTokens({ path, pos: 0 }, false);
 }
 
 function paramNames(tokens: Token[]): string[] {
@@ -137,17 +93,6 @@ function uniqueParamNames(tokens: Token[], label: string) {
 }
 
 /* Ranking: one rank per path segment, compared left to right. */
-
-function paramRank(token: ParamToken) {
-  if (token.wildcard || token.modifier === '*' || token.modifier === '+') {return WILDCARD;}
-  return token.modifier === '?' ? OPTIONAL : PARAM;
-}
-
-function groupCap(group: GroupToken, cap: number) {
-  if (group.modifier === '?') {return Math.min(cap, OPTIONAL);}
-  if (group.modifier === '*' || group.modifier === '+') {return WILDCARD;}
-  return cap;
-}
 
 function closeSegment(state: RankState) {
   if (state.current !== null) {state.ranks.push(state.current);}
@@ -170,10 +115,9 @@ function collectRanks(tokens: Token[], cap: number, state: RankState) {
     if (token.type === 'text') {
       collectText(token.value, cap, state);
     } else if (token.type === 'group') {
-      collectRanks(token.tokens, groupCap(token, cap), state);
+      collectRanks(token.tokens, token.optional ? Math.min(cap, OPTIONAL) : cap, state);
     } else {
-      if (token.prefix) {closeSegment(state);}
-      addToSegment(state, Math.min(cap, paramRank(token)));
+      addToSegment(state, Math.min(cap, PARAM));
     }
   }
 }
@@ -191,49 +135,23 @@ export function hasValue(params: Params, name: string) {
   return params[name] !== undefined && params[name] !== null && params[name] !== '';
 }
 
-function isOptional(token: ParamToken) {
-  return token.modifier === '?' || token.modifier === '*' || token.wildcard === true;
-}
-
-function isRepeated(token: ParamToken) {
-  return token.wildcard || token.modifier === '*' || token.modifier === '+';
-}
-
-// URLPattern compiles regex groups in Unicode mode, so the build-time check does too.
-// Route compilation has already rejected invalid regexes.
-function paramPattern(token: ParamToken) {
-  token.pattern ??= new RegExp(`^(?:${ token.regex })$`, 'u');
-  return token.pattern;
-}
-
 // A dot segment would be resolved away by URL parsing and name another route.
 function encodeSegment(token: ParamToken, routeName: string, segment: string) {
   if (segment === '.' || segment === '..') {
     throw new Error(`Route "${ routeName }" param "${ token.name }" cannot contain the dot segment "${ segment }"`);
   }
-  const encoded = encodeURIComponent(segment);
-  if (token.regex !== undefined && !paramPattern(token).test(encoded)) {
-    throw new Error(`Route "${ routeName }" param "${ token.name }" must match (${ token.regex }): "${ segment }"`);
-  }
-  return encoded;
-}
-
-function encodeValue(token: ParamToken, routeName: string, value: string) {
-  if (!isRepeated(token)) {return encodeSegment(token, routeName, value);}
-  return value.split('/').map(segment => encodeSegment(token, routeName, segment)).join('/');
+  return encodeURIComponent(segment);
 }
 
 function buildParam(token: ParamToken, params: Params, routeName: string) {
   if (!hasValue(params, token.name)) {
-    if (isOptional(token)) {return '';}
     throw new Error(`Route "${ routeName }" is missing param "${ token.name }"`);
   }
-  return token.prefix + encodeValue(token, routeName, String(params[token.name]));
+  return encodeSegment(token, routeName, String(params[token.name]));
 }
 
 function buildGroup(group: GroupToken, params: Params, routeName: string): string {
-  const optional = group.modifier === '?' || group.modifier === '*';
-  if (optional && !paramNames(group.tokens).some(name => hasValue(params, name))) {return '';}
+  if (group.optional && !paramNames(group.tokens).some(name => hasValue(params, name))) {return '';}
   return buildTokens(group.tokens, params, routeName);
 }
 

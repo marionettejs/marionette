@@ -43,7 +43,6 @@ function inventory() {
         { name: 'legacy:patient:flow:details', path: 'flow/:flowId/details' },
         { name: 'program:action', path: 'program/:programId/action/:actionId' },
         { name: 'programs:all', path: 'programs', meta: { area: 'programs', isList: true } },
-        { name: 'catchAll', path: ':rest*' },
       ],
     },
   ];
@@ -210,15 +209,14 @@ describe('Router matching: ranking', () => {
     assert.equal(names(matcher, '/other'), 'workspace');
   });
 
-  it('prefers a named parameter over an optional group and a wildcard', () => {
+  it('prefers a named parameter over an optional group', () => {
     const matcher = routerFor([
-      { name: 'wildcard', path: '/x/*' },
-      { name: 'optional', path: '/x/:id?' },
+      { name: 'optional', path: '/x{/:id}?' },
       { name: 'param', path: '/x/:id' },
     ]);
     assert.equal(names(matcher, '/x/1'), 'param');
     assert.equal(names(matcher, '/x'), 'optional');
-    assert.equal(names(matcher, '/x/1/2'), 'wildcard');
+    assert.equal(matcher.match('/x/1/2'), null);
   });
 
   it('prefers the route without the optional group when both match', () => {
@@ -238,11 +236,10 @@ describe('Router matching: ranking', () => {
     assert.equal(names(matcher, '/a/b/c'), 'earlierStatic');
   });
 
-  it('ranks a wildcard behind everything else', () => {
+  it('leaves unknown paths unmatched without a catchall', () => {
     const matcher = routerFor(inventory());
-    assert.equal(names(matcher, '/w/something/else'), 'catchAll');
+    assert.equal(matcher.match('/w/something/else'), null);
     assert.equal(names(matcher, '/w/programs'), 'programs:all');
-    assert.deepEqual(matcher.match('/w/something/else').params, { workspace: 'w', rest: 'something/else' });
   });
 
   it('falls back to definition order for identical shapes', () => {
@@ -374,10 +371,9 @@ describe('Router matching: url()', () => {
     assert.equal(matcher.url('patient:form', { ...params, responseId: 'r 1' }), '/w/patient/p/form/f/r%201');
   });
 
-  it('builds wildcard params segment by segment', () => {
+  it('encodes slashes inside a single named parameter', () => {
     const matcher = routerFor(inventory());
-    assert.equal(matcher.url('catchAll', { workspace: 'w', rest: 'a b/c' }), '/w/a%20b/c');
-    assert.throws(() => matcher.url('catchAll', { workspace: 'w' }), /do not round trip/);
+    assert.equal(matcher.url('worklist', { workspace: 'w', worklistId: 'a b/c' }), '/w/worklist/a%20b%2Fc');
   });
 
   it('ignores params that are not part of the path', () => {
@@ -414,9 +410,8 @@ describe('Router matching: url() then match() round trips', () => {
   function roundTripRoutes() {
     return [
       ...inventory(),
-      { name: 'item', path: '/:workspace/item/:id(\\d+)' },
-      { name: 'files', path: '/:workspace/files/:path+' },
-      { name: 'star', path: '/:workspace/star/*' },
+      { name: 'item', path: '/:workspace/item/:id' },
+      { name: 'files', path: '/:workspace/files/:path' },
     ];
   }
 
@@ -430,9 +425,9 @@ describe('Router matching: url() then match() round trips', () => {
     ['value that looks like another route', 'patient:flow', { workspace: 'w', patientId: 'worklist', flowId: 'flow' }],
     ['encoded reserved characters', 'worklist', { workspace: 'a b', worklistId: 'x/y?z#q%1&=+' }],
     ['unicode and percent signs', 'worklist', { workspace: 'wé 1', worklistId: '100%' }],
-    ['repeated wildcard', 'catchAll', { workspace: 'w', rest: 'a b/c/é?' }],
-    ['regex constrained param', 'item', { workspace: 'w', id: '42' }],
-    ['one or more segments', 'files', { workspace: 'w', path: 'a/b c/d' }],
+    ['slash-containing scalar', 'files', { workspace: 'w', path: 'a b/c/é?' }],
+    ['numeric param value', 'item', { workspace: 'w', id: '42' }],
+    ['encoded separators', 'files', { workspace: 'w', path: 'a/b c/d' }],
   ];
 
   for (const [label, name, params] of cases) {
@@ -471,7 +466,7 @@ describe('Router matching: url() then match() round trips', () => {
 
   it('round-trips every named route with generated params', () => {
     const matcher = routerFor(roundTripRoutes());
-    for (const name of ['worklist', 'schedule', 'patient:flow', 'program:action', 'programs:all', 'legacy:patient:flow', 'item', 'files', 'star']) {
+    for (const name of ['worklist', 'schedule', 'patient:flow', 'program:action', 'programs:all', 'legacy:patient:flow', 'item', 'files']) {
       const params = Object.fromEntries(matcher.getParamNames(name).map(param => [param, param === 'id' ? '7' : `${ param } v`]));
       const result = matcher.match(matcher.url(name, params));
 
@@ -484,9 +479,7 @@ describe('Router matching: url() then match() round trips', () => {
 describe('Router matching: url() rejects values that would not round trip', () => {
   function rejectRoutes() {
     return [
-      { name: 'item', path: '/:workspace/item/:id(\\d+)' },
-      { name: 'optionalItem', path: '/:workspace/optional{/:id(\\d+)}?' },
-      { name: 'files', path: '/:workspace/files/:path+' },
+      { name: 'files', path: '/:workspace/files/:path' },
       { name: 'any', path: '/:workspace/any/:value' },
     ];
   }
@@ -497,8 +490,8 @@ describe('Router matching: url() rejects values that would not round trip', () =
     assert.throws(() => matcher.url('any', { workspace: 'w', value: '.' }), /"\."/);
     assert.throws(() => matcher.url('any', { workspace: 'w', value: '..' }), /"\.\."/);
     assert.throws(() => matcher.url('any', { workspace: '..', value: 'x' }), /"\.\."/);
-    assert.throws(() => matcher.url('files', { workspace: 'w', path: 'a/../b' }), /"\.\."/);
-    assert.throws(() => matcher.url('files', { workspace: 'w', path: './a' }), /"\."/);
+    assert.throws(() => matcher.url('files', { workspace: 'w', path: '..' }), /"\.\."/);
+    assert.throws(() => matcher.url('files', { workspace: 'w', path: '.' }), /"\."/);
   });
 
   it('accepts values that only contain dots', () => {
@@ -509,23 +502,12 @@ describe('Router matching: url() rejects values that would not round trip', () =
     assert.equal(matcher.url('any', { workspace: 'w', value: '%2E' }), '/w/any/%252E');
   });
 
-  it('rejects values that fail the param regex', () => {
+  it('keeps dot components inside an encoded scalar value', () => {
     const matcher = routerFor(rejectRoutes());
-
-    assert.equal(matcher.url('item', { workspace: 'w', id: 12 }), '/w/item/12');
-    assert.throws(() => matcher.url('item', { workspace: 'w', id: 'abc' }), /param "id".*\\d\+/);
-    assert.throws(() => matcher.url('item', { workspace: 'w', id: '12a' }), /param "id"/);
-    assert.throws(() => matcher.url('optionalItem', { workspace: 'w', id: 'x' }), /param "id"/);
-    assert.equal(matcher.url('optionalItem', { workspace: 'w', id: '5' }), '/w/optional/5');
-    assert.equal(matcher.url('optionalItem', { workspace: 'w' }), '/w/optional');
-  });
-
-  it('checks param regexes in Unicode mode, as URLPattern matches them', () => {
-    const matcher = routerFor([{ name: 'upper', path: '/upper/:code(\\p{Lu}+)' }]);
-
-    assert.equal(matcher.url('upper', { code: 'ABC' }), '/upper/ABC');
-    assert.deepEqual(matcher.match('/upper/ABC').params, { code: 'ABC' });
-    assert.throws(() => matcher.url('upper', { code: 'abc' }), /param "code"/);
+    for (const path of ['a/../b', './a']) {
+      const url = matcher.url('files', { workspace: 'w', path });
+      assert.deepEqual(matcher.match(url).params, { workspace: 'w', path });
+    }
   });
 });
 
@@ -587,28 +569,20 @@ describe('Router matching: compile errors', () => {
     assert.throws(() => routerFor([{ name: 'a', path: '/a/:' }]), /Expected a parameter name/);
     assert.throws(() => routerFor([{ name: 'a', path: '/a{/:b' }]), /Unterminated "\{"/);
     assert.throws(() => routerFor([{ name: 'a', path: '/a}' }]), /Unexpected "\}"/);
-    assert.throws(() => routerFor([{ name: 'a', path: '/a/(\\d+' }]), /Unterminated "\("/);
+    assert.throws(() => routerFor([{ name: 'a', path: '/a/(\\d+' }]), /Unsupported syntax/);
     assert.throws(() => routerFor('nope'), /array of route definitions/);
   });
 
-  it('wraps URLPattern failures with the route name', () => {
-    assert.throws(() => routerFor([{ name: 'bad', path: '/a/(?<x>\\d)' }]), /Invalid path "\/a\/\(\?<x>\\d\)" for route "bad"/);
+  it('wraps URLPattern failures with the route name and cause', () => {
+    assert.throws(() => routerFor([{ name: 'bad', path: '/bad\\' }]), error => {
+      assert.match(error.message, /Invalid path .* for route "bad"/);
+      assert.ok(error.cause instanceof TypeError);
+      return true;
+    });
   });
 });
 
-describe('Router matching: unnamed regex groups and escapes', () => {
-  it('supports regex-constrained params and unnamed groups', () => {
-    const matcher = routerFor([
-      { name: 'numeric', path: '/n/:id(\\d+)' },
-      { name: 'unnamed', path: '/u/(\\d+)/:tail' },
-    ]);
-    assert.equal(names(matcher, '/n/12'), 'numeric');
-    assert.equal(matcher.match('/n/ab'), null);
-    assert.deepEqual(matcher.match('/u/12/x').params, { 0: '12', tail: 'x' });
-    assert.deepEqual(matcher.getParamNames('unnamed'), ['0', 'tail']);
-    assert.equal(matcher.url('unnamed', { 0: 5, tail: 't' }), '/u/5/t');
-  });
-
+describe('Router matching: escapes', () => {
   it('treats an escaped character as literal text', () => {
     const matcher = routerFor([{ name: 'literal', path: '/a\\:b' }]);
     assert.equal(names(matcher, '/a:b'), 'literal');

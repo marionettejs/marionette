@@ -103,7 +103,7 @@ describe('cancellation and redirected readiness', () => {
       const { router } = setup({
         driver: memoryDriver({ url: initial ? 'http://localhost/item/123' : 'http://localhost/outside' }),
         maxRedirects: 2,
-        routes: [{ name: 'item', path: '/item/:id?', aliases: [{ path: '/item/:id' }] }],
+        routes: [{ name: 'item', path: '/item{/:id}?', aliases: [{ path: '/item/:id' }] }],
       });
       const errors = vi.fn();
       router.on('route:error', errors);
@@ -267,12 +267,12 @@ describe('public matching contracts', () => {
     expect(router.match(router.url('item', { id: 'other' })).params).toEqual({ id: 'other' });
   });
 
-  it('rejects repeated trailing segments lost by URL normalization', () => {
-    const { router } = setup({ routes: [{ name: 'file', path: '/file/:path*' }] });
-    expect(() => router.url('file', { path: 'one/' })).toThrow('do not round trip');
-    expect(() => router.url('file', { path: 'one//two' })).toThrow('do not round trip');
-    const url = router.url('file', { path: 'one/two' });
-    expect(router.match(url).params.path).toBe('one/two');
+  it('preserves slash and dot components inside scalar parameter values', () => {
+    const { router } = setup({ routes: [{ name: 'file', path: '/file/:path' }] });
+    for (const path of ['one/', 'one//two', 'one/two', 'a/../b', './a']) {
+      const url = router.url('file', { path });
+      expect(router.match(url).params.path).toBe(path);
+    }
   });
 
   it('takes not-found params from the deepest unnamed prefix, including after mounts change', async() => {

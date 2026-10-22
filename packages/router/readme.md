@@ -28,6 +28,11 @@ router.stop();       // pause navigation; keep the object and subscriptions
 router.destroy();    // terminal cleanup
 ```
 
+Paths support static text, named parameters, optional brace groups (`/items{/:id}?`)
+and literal escapes. Inline regex, wildcard and repeated parameters are rejected.
+See the [pathname grammar](DESIGN.md#route-definitions-and-matching) for the exact
+subset and URL-generation rules.
+
 The default Driver uses the active document's Navigation API. Inject
 `memoryDriver({ url })` for deterministic tests. Drivers and Match are not coupled
 to rendering, models, services, Regions or application policy.

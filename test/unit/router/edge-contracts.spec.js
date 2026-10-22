@@ -24,8 +24,7 @@ describe('grouped and embedded route parameters', () => {
   for (const [path, url, params] of [
     ['/item-:id', '/item-42', { id: '42' }],
     ['/item{/part/:id}', '/item/part/42', { id: '42' }],
-    ['/item{/part/:id}*', '/item/part/42', { id: '42' }],
-    ['/item{/part/:id}+', '/item/part/42', { id: '42' }],
+    ['/item{/part/:id}?', '/item/part/42', { id: '42' }],
   ]) {
     it(`matches and generates ${ path }`, () => {
       const router = createRouter({ routes: [{ name: 'item', path }] });
@@ -35,8 +34,8 @@ describe('grouped and embedded route parameters', () => {
     });
   }
 
-  it('omits a repeatable optional group when no parameter is supplied', () => {
-    const router = createRouter({ routes: [{ name: 'item', path: '/item{/part/:id}*' }] });
+  it('omits an optional group when no parameter is supplied', () => {
+    const router = createRouter({ routes: [{ name: 'item', path: '/item{/part/:id}?' }] });
     expect(router.url('item')).toBe('/item');
     expect(router.match('/item').name).toBe('item');
   });
