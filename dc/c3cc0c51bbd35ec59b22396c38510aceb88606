@@ -1,0 +1,26 @@
+packages/router/DESIGN.md
+  h_0f06c286dda36f 127-157
+packages/router/readme.md
+  h_0f06c286dda36f 31-35
+packages/router/src/pattern.ts
+  h_0f06c286dda36f 4-5,7,18-19,29,31,37,44-46,58,68-71,78,118,120,143,150,154
+test/unit/router/edge-contracts.spec.js
+  h_0f06c286dda36f 27,37-38
+test/unit/router/grammar.spec.js
+  h_0f06c286dda36f 1-103
+test/unit/router/matching.spec.js
+  h_0f06c286dda36f 212,214,219,239,241,374,376,413-414,428-430,469,482,493-494,505,507-510,572,576-581,585
+test/unit/router/regressions.spec.js
+  h_0f06c286dda36f 106,270-275
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dcc3cc0c51bbd35ec59b22396c38510aceb88606",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
