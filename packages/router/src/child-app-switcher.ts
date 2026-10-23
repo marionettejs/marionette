@@ -4,7 +4,7 @@ import { isEqual } from './is-equal.ts';
 
 export type SelectionKey = string | number | boolean | null | undefined | SelectionKey[] | { [name: string]: SelectionKey };
 export interface ChildAppSwitcherOptions extends ApplicationOptions {
-  onCleanupError?: (error: unknown, app: ApplicationInstance<object, unknown>) => void;
+  onCleanupError?: (this: ChildAppSwitcherInstance, error: unknown, app: ApplicationInstance<object, unknown>) => void;
 }
 export interface SwitchOptions {
   key?: SelectionKey;
@@ -20,7 +20,6 @@ interface Methods {
 export type ChildAppSwitcherInstance = ApplicationInstance<ChildAppSwitcherOptions, unknown> & Methods;
 type Selection = { app: ApplicationInstance<object, unknown>; appName: string; key: SelectionKey };
 type State = {
-  onCleanupError: (error: unknown, app: ApplicationInstance<object, unknown>) => void;
   selection: Selection | null;
   intent: object | null;
   stopping: boolean;
@@ -53,7 +52,8 @@ function cleanup(switcher: ChildAppSwitcherInstance, selection: Selection) {
   try {
     stopSelection(switcher);
   } catch (error) {
-    stateFor(switcher).onCleanupError(error, selection.app);
+    const report = switcher.getOption('onCleanupError') as ChildAppSwitcherOptions['onCleanupError'];
+    report?.call(switcher, error, selection.app);
   }
 }
 
@@ -91,7 +91,7 @@ async function select(switcher: ChildAppSwitcherInstance, intent: object, app: A
 // Owns one selectable group of child Applications.
 function constructSwitcher(this: ChildAppSwitcherInstance, options: ChildAppSwitcherOptions = {}) {
   const state: State = {
-    onCleanupError: options.onCleanupError ?? (() => {}), selection: null, intent: null, stopping: false
+    selection: null, intent: null, stopping: false
   };
   states.set(this, state);
   // Application's stop guard already blocks descendant activation when these

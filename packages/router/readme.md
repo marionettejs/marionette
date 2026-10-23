@@ -1,7 +1,7 @@
 # @mnjs/router
 
-Named, nested routing and child-Application switching for Marionette v5. Router
-and ChildAppSwitcher are Applications: they support `.extend()`, options,
+Named, nested routing and child-Application switching for Marionette v5. Router,
+RouteApplication and ChildAppSwitcher are Applications: they support `.extend()`, options,
 `initialize`, preparation, retained restart and registered-child ownership. Match
 is plain data; navigation completion remains an explicit operation.
 
@@ -11,11 +11,11 @@ This development package is private. Install the matching `marionette` peer;
 
 ```js
 import { Application } from 'marionette';
-import { Router, ChildAppSwitcher } from '@mnjs/router';
+import { Router, RouteApplication, ChildAppSwitcher } from '@mnjs/router';
 
 const CatalogRouter = Router.extend({
-  routes: [{ name: 'item', path: '/items/:id' }],
-  handler(match, { signal }) {
+  routes: { item: { path: '/items/:id', handler: 'showItem' } },
+  showItem(match, { signal }) {
     return catalog.showItem(match.params.id, { signal });
   },
   onRouteReady(match) {
@@ -77,6 +77,43 @@ notifications; returned Promises are not awaited. Keep required work in `handler
 The error notification covers current routing failures; its Match is absent when
 failure occurs before a Match is committed.
 
+Route tables accept named hashes or arrays. A hash key supplies the route name;
+its value has no second `name` field. Each route can specify a callback or method
+name as `handler`. The Router is the default controller; an explicit
+`router.mount(routes, { controller: feature })` binds handlers to that feature.
+The matched route's handler runs instead of the global Router handler; the global
+handler is the fallback when that route has none. Return required async work.
+
+Alternatively, `RouteApplication` keeps a feature's definitions on that feature,
+with one shared Router:
+
+```js
+const Catalog = RouteApplication.extend({
+  routes: { item: { path: '/items/:id', handler: 'showItem' } },
+  async prepareStart(_options, { signal }) {
+    await loadCatalogPrerequisites({ signal });
+  },
+  showItem(match, { signal }) {
+    return showCatalogItem(match.params.id, { signal });
+  },
+});
+const featureFrame = new Application();
+const sharedRouter = featureFrame.addChildApp('router', new Router());
+const catalog = featureFrame.addChildApp('catalog', new Catalog({ router: sharedRouter }));
+sharedRouter.on('route:error', error => console.error(error));
+await featureFrame.start();
+await catalog.start();
+await sharedRouter.start();
+const itemHref = sharedRouter.url('item', { id: '42' });
+```
+
+It registers routes after `initialize`, using the feature as controller, and
+unmounts them before destruction. UI stop/restart retain registrations. Registration
+does not start the feature, its children or siblings; handlers explicitly request
+the Application or child-selection operations they need. One Router remains the
+navigation engine. For explicit `mount`, retain and call its returned unmount
+function yourself. See [feature registration](DESIGN.md#feature-route-registration).
+
 Ordinary intercepted navigations use native focus and scroll after returned
 handler work finishes. `navigate()` accepts independent `focusReset` and `scroll`
 options (`'manual'` or `'after-transition'`); redirects inherit the operation's
@@ -122,10 +159,17 @@ Check the route signal after lazy imports or other awaits, before calling
 child preparation, so a newer same-key route can join it. See the complete
 [ownership examples](DESIGN.md#child-applications).
 
-Both classes belong to Marionette's default Application family. Use the named
+These classes belong to Marionette's default Application family. Use the named
 `Application`, `Region` and View exports for their owned tree. `.extend()` and
 Radio/State configuration do not move a class into an isolated `createMarionette()`
 family; runtime-bound constructor factories are not part of this package.
+
+`defineRoutes()` preserves literal route names and pathname parameters for typed
+`url()`/named `navigate()` calls, using the same definitions that run at runtime.
+It adds no second handwritten map. Broad/dynamic tables still use runtime
+validation. JavaScript can use the same helper with optional checkJs/JSDoc feedback.
+See the [typing boundary](DESIGN.md#typing-and-javascript) for `.extend()`, dynamic
+mounts, Radio and templates.
 
 The native Driver requires Navigation API, URLPattern and AbortSignal.any.
 Marionette Application readiness uses Promise.withResolvers. Node **24.15+**

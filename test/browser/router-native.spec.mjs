@@ -92,6 +92,99 @@ async function snapshot(page) {
   return page.evaluate(() => ({ focus: document.activeElement.id || document.activeElement.tagName, scroll: scrollY }));
 }
 
+async function featureExample(page) {
+  await example(page);
+  await page.evaluate(async() => {
+    const { RouteApplication } = await import('/router.js');
+    const { View } = await import('marionette');
+    const state = window.routerExample;
+    state.featureCalls = [];
+    state.featurePreparations = 0;
+    const Feature = RouteApplication.extend({
+      region: '#content',
+      routes: {
+        'feature:item': { path: '/features/:id', handler: 'showItem' },
+        'feature:callback': { path: '/feature-callback/:id', handler(match, context) { return this.renderRoute(match, context, 'function'); } },
+      },
+      prepareStart() { state.featurePreparations++; return state.gates.get('feature-prepare')?.promise; },
+      showItem(match, context) { return this.renderRoute(match, context, 'method'); },
+      async renderRoute(match, { signal }, kind) {
+        state.featureCalls.push({ kind, id: match.params.id, controller: this === state.feature, signal: signal === match.signal });
+        const started = await this.start();
+        if (!started || signal.aborted) { return; }
+        await state.gates.get('feature-ui')?.promise;
+        signal.throwIfAborted();
+        this.showView(new View({ template: () => `<input id="feature-input" value="${match.params.id}"><p id="feature-heading">${match.params.id}</p>` }));
+      },
+    });
+    state.feature = state.owner.addChildApp('feature', new Feature({ router: state.router }));
+    // The earlier feature registration wins until destruction unmounts it.
+    state.router.mount([{ name: 'feature:fallback', path: '/features/:id' }]);
+  });
+}
+
+test('a declarative method handler waits for feature preparation and attached DOM without global redispatch', async({ page }) => {
+  await featureExample(page);
+  expect(await page.evaluate(() => ({ registered: window.routerExample.router.hasRoute('feature:item'), running: window.routerExample.feature.isRunning() })))
+    .toEqual({ registered: true, running: false });
+  await position(page);
+  await page.evaluate(() => {
+    const state = window.routerExample; state.gate('feature-prepare'); state.gate('feature-ui');
+    state.featureFinished = false;
+    state.featurePending = state.router.navigate('feature:item', { id: 42 }).finished.then(result => { state.featureFinished = true; return result; });
+  });
+  await expect.poll(() => page.evaluate(() => window.routerExample.featureCalls.length)).toBe(1);
+  expect(await page.evaluate(() => window.routerExample.feature.isRunning())).toBe(false);
+  expect(await page.locator('#feature-input').count()).toBe(0);
+  expect(await snapshot(page)).toEqual({ focus: 'before', scroll: 700 });
+  await page.evaluate(() => window.routerExample.gates.get('feature-prepare').resolve());
+  await expect.poll(() => page.evaluate(() => window.routerExample.feature.isRunning())).toBe(true);
+  expect(await page.evaluate(() => window.routerExample.featureFinished)).toBe(false);
+  expect(await page.locator('#feature-input').count()).toBe(0);
+  expect(await snapshot(page)).toEqual({ focus: 'before', scroll: 700 });
+  expect(await page.evaluate(async() => {
+    const state = window.routerExample; state.gates.get('feature-ui').resolve(); return state.featurePending;
+  })).toBe(true);
+  expect(await page.locator('#feature-input').inputValue()).toBe('42');
+  expect(await page.locator('#feature-heading').textContent()).toBe('42');
+  expect(await page.evaluate(() => window.routerExample.featureCalls)).toEqual([{ kind: 'method', id: '42', controller: true, signal: true }]);
+  expect(await page.evaluate(() => window.routerExample.entered)).toEqual(['home']);
+  expect(await page.evaluate(() => window.routerExample.ready.map(match => match.path))).toEqual(['/', '/features/42']);
+  expect(await snapshot(page)).toEqual({ focus: 'BODY', scroll: 0 });
+});
+
+test('feature routes survive stop and restart, bind function handlers once and unmount on destruction', async({ page }) => {
+  await featureExample(page);
+  await page.evaluate(() => window.routerExample.router.navigate('feature:item', { id: 1 }).finished);
+  expect(await page.evaluate(() => {
+    const state = window.routerExample; state.feature.stop();
+    return { registered: state.router.hasRoute('feature:item'), routerRunning: state.router.isRunning(), featureRunning: state.feature.isRunning() };
+  })).toEqual({ registered: true, routerRunning: true, featureRunning: false });
+  expect(await page.locator('#feature-input').count()).toBe(0);
+  await page.evaluate(() => window.routerExample.router.navigate('feature:callback', { id: 2 }).finished);
+  expect(await page.evaluate(async() => {
+    const state = window.routerExample; const input = document.getElementById('feature-input'); input.value = 'retained';
+    const ready = state.ready.length; const restarted = await state.feature.restart();
+    return { restarted, sameInput: document.getElementById('feature-input') === input, readyUnchanged: state.ready.length === ready,
+      registered: state.router.hasRoute('feature:item'), preparations: state.featurePreparations };
+  })).toEqual({ restarted: true, sameInput: true, readyUnchanged: true, registered: true, preparations: 3 });
+  expect(await page.locator('#feature-input').inputValue()).toBe('retained');
+  expect(await page.evaluate(() => window.routerExample.featureCalls)).toEqual([
+    { kind: 'method', id: '1', controller: true, signal: true },
+    { kind: 'function', id: '2', controller: true, signal: true },
+  ]);
+  expect(await page.evaluate(() => {
+    const state = window.routerExample; state.feature.destroy();
+    return { featureRegistered: state.owner.hasChildApp('feature'), item: state.router.hasRoute('feature:item'), callback: state.router.hasRoute('feature:callback'),
+      fallback: state.router.hasRoute('feature:fallback'), routerRunning: state.router.isRunning() };
+  })).toEqual({ featureRegistered: false, item: false, callback: false, fallback: true, routerRunning: true });
+  expect(await page.locator('#feature-input').count()).toBe(0);
+  await page.evaluate(() => window.routerExample.router.navigate('/features/3').finished);
+  expect(await page.evaluate(() => window.routerExample.entered)).toEqual(['home', 'feature:fallback']);
+  expect(await page.evaluate(() => window.routerExample.featureCalls.length)).toBe(2);
+  expect(await page.evaluate(() => window.routerExample.ready.map(match => match.path))).toEqual(['/', '/features/1', '/feature-callback/2', '/features/3']);
+});
+
 test('native completion waits for child preparation, attached UI and the returned handler', async({ page }) => {
   await example(page);
   await position(page);

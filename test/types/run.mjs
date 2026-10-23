@@ -22,7 +22,7 @@ try {
     cpSync(resolve(root, directory, 'dist'), join(installed, 'dist'), { recursive: true });
   }
   for (const file of readdirSync(import.meta.dirname)) {
-    if (/\.[mc]ts$/.test(file) || file === 'tsconfig.consumer.json') {
+    if (/\.[mc]ts$/.test(file) || file === 'router-checkjs.js' || file === 'tsconfig.consumer.json') {
       copyFileSync(join(import.meta.dirname, file), join(consumer, file));
     }
   }

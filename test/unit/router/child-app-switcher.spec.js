@@ -336,6 +336,55 @@ describe('ChildAppSwitcher', () => {
   });
 
   describe('failure', () => {
+    async function failDuringCleanup(pages) {
+      const failure = new Error('page failed');
+      const cleanupFailure = new Error('cleanup failed');
+      const Page = Application.extend({
+        childApps: { nested: Application },
+        async prepareStart() {
+          const nested = this.getChildApp('nested');
+          await nested.start();
+          nested.onBeforeStop = () => { throw cleanupFailure; };
+          throw failure;
+        },
+      });
+      const child = pages.addChildApp('page', new Page());
+      await pages.start();
+      const error = await pages.switchTo('page').catch(thrown => thrown);
+      child.getChildApp('nested').onBeforeStop = () => {};
+      return { error, failure, cleanupFailure, child };
+    }
+
+    it.each(['prototype', 'class options', 'constructor override'])(
+      'resolves the cleanup reporter from %s with the switcher receiver', async(configuration) => {
+        const reports = [];
+        function report(error, app) { reports.push([this, error, app]); }
+        const unexpected = () => { throw new Error('lower-priority reporter called'); };
+        const definition = configuration === 'prototype' ? { onCleanupError: report } :
+          { options: { onCleanupError: configuration === 'class options' ? report : unexpected }, onCleanupError: unexpected };
+        const Pages = ChildAppSwitcher.extend(definition);
+        const pages = owner.addChildApp('configured-pages', new Pages(
+          configuration === 'constructor override' ? { onCleanupError: report } : {}
+        ));
+
+        const { error, failure, cleanupFailure, child } = await failDuringCleanup(pages);
+
+        assert.equal(error, failure);
+        assert.equal(reports.length, 1);
+        assert.equal(reports[0][0], pages);
+        assert.equal(reports[0][1], cleanupFailure);
+        assert.equal(reports[0][2], child);
+      }
+    );
+
+    it('preserves the original startup failure when no cleanup reporter is configured', async() => {
+      const pages = owner.addChildApp('unreported-pages', new ChildAppSwitcher());
+
+      const { error, failure } = await failDuringCleanup(pages);
+
+      assert.equal(error, failure);
+    });
+
     it('stops partially started descendants after failed child preparation', async() => {
       const failure = new Error('page failed');
       const child = addPage('child', Application.extend({

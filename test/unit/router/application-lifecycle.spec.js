@@ -1,4 +1,4 @@
-import { afterEach, describe, it } from 'vitest';
+import { afterEach, describe, it, vi } from 'vitest';
 import assert from 'node:assert/strict';
 import { Application, createMarionette } from 'marionette';
 import * as routing from '@mnjs/router';
@@ -415,4 +415,54 @@ describe('Router Application ownership', () => {
     assert.equal(subscriptions(), 2);
     assert.equal(await router.navigate('page').finished, true);
   });
+});
+
+
+describe('Router binding acquisition failures', () => {
+  for (const partiallyBound of [false, true]) {
+    it(`stops failed activation and permits retry after ${ partiallyBound ? 'partial' : 'failed' } binding`, async() => {
+      const failure = new Error('binding failed');
+      const driver = routing.memoryDriver({ url: 'https://routing.example/' });
+      const subscribe = driver.addEventListener.bind(driver);
+      let fail = true;
+      const signals = [];
+      driver.addEventListener = (type, listener, settings) => {
+        signals.push(settings.signal);
+        if (partiallyBound || !fail) { subscribe(type, listener, settings); }
+        if (fail) { throw failure; }
+      };
+      const router = own(new routing.Router({ driver, routes }));
+      let handled = 0;
+      router.on('route', () => { handled++; });
+      await assert.rejects(router.start(), error => error === failure);
+      assert.equal(router.isRunning(), false);
+      assert.equal(signals[0].aborted, true);
+      assert.equal(await router.navigate('page').finished, false);
+      assert.equal(router.getCurrent(), null);
+      fail = false;
+      assert.equal(await router.start(), true);
+      assert.equal(handled, 1);
+      assert.equal(await router.navigate('page').finished, true);
+      assert.equal(handled, 2);
+    });
+  }
+});
+
+
+it('preserves a binding failure and separately reports a synchronous stop notification failure', async() => {
+  const failure = new Error('binding failed');
+  const cleanupFailure = new Error('stop notification failed');
+  const scheduled = [];
+  vi.spyOn(globalThis, 'queueMicrotask').mockImplementation(callback => scheduled.push(callback));
+  const driver = routing.memoryDriver({ url: 'https://routing.example/' });
+  let bindingSignal;
+  driver.addEventListener = (_type, _listener, { signal }) => { bindingSignal = signal; throw failure; };
+  const router = own(new routing.Router({ driver, routes }));
+  const failStop = () => { throw cleanupFailure; };
+  router.on('before:stop', failStop);
+  await assert.rejects(router.start(), error => error === failure);
+  assert.equal(bindingSignal.aborted, true);
+  assert.equal(scheduled.length, 1);
+  assert.throws(scheduled[0], error => error === cleanupFailure);
+  router.off('before:stop', failStop);
 });

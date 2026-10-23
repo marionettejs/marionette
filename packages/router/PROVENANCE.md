@@ -25,6 +25,13 @@ Router inherits Application lifecycle methods and leaves `prepareStart` to
 consumers. Initial route dispatch begins on activation; navigation readiness and
 route errors remain separate from Application startup completion.
 
+Declarative named hashes and per-route handlers now share the same route table
+used for matching and URL generation. Optional RouteApplication owns a feature's
+registrations through ordinary Application destruction; it adds no navigation
+engine or automatic feature activation. Public types describe that API, with
+bounded literal name/parameter inference from `defineRoutes()` and no second
+handwritten route-name map. Runtime matching remains the grammar authority.
+
 The original package manifest declared MIT, but its extraction proposal did not
 resolve license notice/copyright provenance. No copyright holder or license grant
 is invented here. The package stays `private: true`. Resolve source rights and

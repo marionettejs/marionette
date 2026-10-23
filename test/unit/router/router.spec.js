@@ -138,6 +138,15 @@ describe('Router construction', () => {
     const router = createRouter({ routes: baseRoutes() });
 
     await assert.rejects(router.start(), TypeError);
+    assert.equal(router.isRunning(), false);
+    globalThis.navigation = memoryDriver({ url: 'https://routing.example/' });
+    try {
+      assert.equal(await router.start(), true);
+      assert.equal(router.isRunning(), true);
+    } finally {
+      router.stop();
+      delete globalThis.navigation;
+    }
   });
 
   it('defaults the driver to the Navigation API when it exists', async() => {

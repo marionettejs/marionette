@@ -9,6 +9,7 @@ try {
   const modules = join(fixture, 'node_modules');
   const installed = join(modules, '@mnjs/router');
   mkdirSync(installed, { recursive: true });
+  symlinkSync(join(root, 'packages/utils'), join(modules, '@mnjs/utils'), 'junction');
   writeFileSync(join(fixture, 'package.json'), '{"private":true,"type":"module"}\n');
   cpSync(join(root, 'packages/router/package.json'), join(installed, 'package.json'));
   cpSync(join(root, 'packages/router/dist'), join(installed, 'dist'), { recursive: true });
@@ -57,9 +58,19 @@ try {
       const router = new Routes({ driver });
       assert.equal(router instanceof BaseApplication, true);
       assert.equal(router.initialized, '/');
+      const Feature = api.RouteApplication.extend({
+        routes: { item: { path: '/items/:id', handler: 'showItem' } },
+        showItem(match) { this.item = match.params.id; },
+      });
+      const feature = new Feature({ router });
+      assert.equal(router.url('item', { id: 7 }), '/items/7');
       assert.equal(await router.start(), true);
       assert.equal(router.getCurrent().name, 'home');
       assert.equal(router.canGoBack(), false);
+      assert.equal(await router.navigate('item', { id: 7 }).finished, true);
+      assert.equal(feature.item, '7');
+      feature.destroy();
+      assert.equal(router.hasRoute('item'), false);
       router.destroy();
       assert.equal(await router.start(), false);
       assert.equal(await router.navigate('/').finished, false);

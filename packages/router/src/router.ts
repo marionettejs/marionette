@@ -8,12 +8,13 @@ type Navigation = {
 };
 type Base = Pick<MatcherResult, 'name' | 'params' | 'url' | 'query' | 'meta' | 'branch'>;
 type Plan = { hop: string; base?: never; pending?: never } |
-  { hop?: never; base: Base; pending: PromiseLike<RedirectTarget | null | undefined> | null };
+  { hop?: never; base: Base; pending: PromiseLike<RedirectTarget | null | undefined> | null; handler?: RouteHandler };
 
 import { Application } from 'marionette';
 import type { ApplicationInstance, ApplicationConstructor } from 'marionette';
-import type { ActiveMatch, Match, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteDefinition, MatcherResult, RedirectTarget } from './types.ts';
+import type { ActiveMatch, Match, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteTable, MountOptions, RouteHandler, MatcherResult, RedirectTarget } from './types.ts';
 
+import type { NamedRouteArgs, RouteNames } from './route-types.ts';
 import { Matcher } from './matcher.ts';
 import { toSearchParams } from './query.ts';
 import { navigationDriver } from './drivers/navigation.ts';
@@ -101,15 +102,32 @@ export interface RouterMethods extends Omit<RouterOptions, keyof ApplicationInst
   match(url: URL | string): Match | null;
   getCurrent(): ActiveMatch | null;
   refresh(): Promise<boolean>;
-  mount(routes: RouteDefinition[], options?: { parent?: string }): () => void;
+  mount(routes: RouteTable, options?: MountOptions): () => void;
   getParamNames(name: string): string[];
   hasRoute(name: string): boolean;
   canGoBack(): boolean;
   back(): Promise<boolean>;
   updateState(state: EntryState): boolean;
 }
-export type RouterInstance = Omit<ApplicationInstance<RouterOptions, unknown>, keyof RouterMethods> & RouterMethods;
-export type RouterConstructor = ApplicationConstructor<RouterMethods, [options?: RouterOptions]>;
+interface LiteralRouteMethods<Routes extends RouteTable> {
+  url(...args: NamedRouteArgs<Routes, { query?: Query }>): string;
+  navigate(...args: NamedRouteArgs<Routes, NavigateOptions>): NavigationResult<boolean>;
+  navigate(url: `/${ string }` | `${ string }://${ string }`, options?: NavigateOptions): NavigationResult<boolean>;
+}
+type RouteMethods<Routes extends RouteTable> = string extends RouteNames<Routes>
+  ? Pick<RouterMethods, 'url' | 'navigate'> : LiteralRouteMethods<Routes>;
+type GeneralRouterInstance = Omit<ApplicationInstance<RouterOptions, unknown>, keyof RouterMethods> & RouterMethods;
+export type RouterInstance<Routes extends RouteTable = RouteTable> =
+  Omit<GeneralRouterInstance, 'url' | 'navigate'> & RouteMethods<Routes>;
+type CoreRouterConstructor = ApplicationConstructor<RouterMethods, [options?: RouterOptions]>;
+type ConstructedRouter<Routes extends RouteTable, Options extends RouterOptions> =
+  Omit<InstanceType<ApplicationConstructor<RouterMethods, [options: Options]>>, 'url' | 'navigate'> & RouteMethods<Routes>;
+export type RouterConstructor = Omit<CoreRouterConstructor, never> & {
+  new <const Routes extends RouteTable = RouteTable, Options extends RouterOptions = RouterOptions>(
+    options?: Options & { routes?: Routes | ((this: RouterInstance) => Routes) }
+  ): ConstructedRouter<Routes, Options>;
+  (this: object, options?: RouterOptions): void;
+};
 
 type RouterState = {
   matcher: Matcher | null;
@@ -130,7 +148,7 @@ function getMatcher(router: RouterInstance) {
   const internals = stateFor(router);
   if (!internals.matcher) {
     const routes = option(router, 'routes')!;
-    internals.matcher = new Matcher(typeof routes === 'function' ? routes.call(router) : routes);
+    internals.matcher = new Matcher(typeof routes === 'function' ? routes.call(router) : routes, router);
   }
   return internals.matcher;
 }
@@ -166,13 +184,25 @@ function startRouting(router: RouterInstance) {
   // the app before event listeners run; retained restart keeps its session.
   const internals = stateFor(router);
   if (!router.isRunning() || internals.session) {return;}
-  const driver = getDriver(router);
-  const session: Session = { controller: new AbortController() };
-  internals.session = session;
-  driver.addEventListener('navigate', event => onNavigate(router, event), { signal: session.controller.signal });
-  // Activation does not await page work. Each attempt reports its own failure
-  // through route:error; cancellation and redirect-following are observed here.
-  dispatchInitial(router, session).catch(noop);
+  try {
+    const driver = getDriver(router);
+    const session: Session = { controller: new AbortController() };
+    internals.session = session;
+    driver.addEventListener('navigate', event => onNavigate(router, event), { signal: session.controller.signal });
+    // Activation does not await page work. Each attempt reports its own failure
+    // through route:error; cancellation and redirect-following are observed here.
+    dispatchInitial(router, session).catch(noop);
+  } catch (error) {
+    // A failure acquiring our own binding must leave activation retryable.
+    // Consumer notification failures keep the ordinary Application contract.
+    stopRouting(router);
+    try {
+      router.stop();
+    } catch (cleanupError) {
+      queueMicrotask(() => {throw cleanupError;});
+    }
+    throw error;
+  }
 }
 
 function getDriver(router: RouterInstance): Driver {
@@ -340,15 +370,16 @@ function notFoundPlan(router: RouterInstance, url: URL): Plan | null {
 }
 
 function redirectPlan(router: RouterInstance, result: MatcherResult, nav: Navigation): Plan {
-  if (!result.redirect) {return { base: result, pending: null };}
+  const handler = result.handler;
+  if (!result.redirect) {return { base: result, pending: null, handler };}
   const target = callRedirect(result, nav);
-  if (isThenable(target)) {return { base: result, pending: target };}
-  if (target === undefined || target === null) {return { base: result, pending: null };}
+  if (isThenable(target)) {return { base: result, pending: target, handler };}
+  if (target === undefined || target === null) {return { base: result, pending: null, handler };}
   try {
     assertHopAllowed(router, nav);
     return { hop: targetHref(router, target) };
   } catch (error) {
-    return { base: result, pending: rejection(error) };
+    return { base: result, pending: rejection(error), handler };
   }
 }
 
@@ -411,7 +442,7 @@ async function run(router: RouterInstance, plan: Extract<Plan, { base: Base }>, 
   const match = commit(router, plan.base, nav);
   if (!match) {throw new DOMException('Navigation superseded', 'AbortError');}
   if (plan.pending && await redirected(router, nav, plan.pending)) {return;}
-  await option(router, 'handler')?.call(router, match, { signal: match.signal });
+  await (plan.handler ?? option(router, 'handler'))?.call(router, match, { signal: match.signal });
   if (!isCurrent(router, nav)) {throw new DOMException('Navigation superseded', 'AbortError');}
   router.triggerMethod('route:ready', match);
 }
@@ -492,7 +523,7 @@ export const Router = Application.extend({
     return navigateDriver(this, entry.url, { history: 'replace', state: entry.getState() }, newChain(false, { focusReset: 'manual', scroll: 'manual' })).finished;
   },
 
-  mount(this: RouterInstance, routes: RouteDefinition[], options?: { parent?: string }) {
+  mount(this: RouterInstance, routes: RouteTable, options?: MountOptions) {
     return getMatcher(this).mount(routes, options);
   },
 

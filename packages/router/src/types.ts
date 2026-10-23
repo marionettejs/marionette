@@ -54,17 +54,23 @@ export interface Match {
 export interface ActiveMatch extends Match { signal: AbortSignal; navigationType: NavigationType }
 export type RedirectTarget = string | { name: string; params?: Params; query?: Query };
 export type Redirect = (match: ActiveMatch, context: { signal: AbortSignal }) => RedirectTarget | null | undefined | Promise<RedirectTarget | null | undefined>;
+export type RouteHandler = (match: ActiveMatch, context: { signal: AbortSignal }) => unknown;
+export type RouteHash = Record<string, Omit<RouteDefinition, 'name'>>;
+export type RouteTable = readonly RouteDefinition[] | RouteHash;
+export interface MountOptions { parent?: string; controller?: object }
 export interface RouteDefinition {
-  name?: string; path: string; children?: RouteDefinition[]; meta?: Record<string, unknown>;
+  name?: string; path: string; children?: RouteTable; meta?: Record<string, unknown>;
   redirect?: Redirect;
+  handler?: string | RouteHandler;
 }
 export interface MatcherResult extends Pick<Match, 'name' | 'params' | 'query' | 'url' | 'meta' | 'branch'> {
   redirect?: Redirect;
+  handler?: RouteHandler;
 }
 export interface NavigateOptions extends NavigationOptions {
   query?: Query; focusReset?: 'after-transition' | 'manual'; scroll?: 'after-transition' | 'manual';
 }
-export type RouteSource = RouteDefinition[] | ((this: RouterInstance) => RouteDefinition[]);
+export type RouteSource = RouteTable | ((this: RouterInstance) => RouteTable);
 export interface RouterOptions extends ApplicationOptions {
   routes?: RouteSource; driver?: Driver; intercept?: (this: RouterInstance, url: URL) => boolean;
   notFound?: { name: string; within: (url: URL) => boolean }; persistParams?: string[];

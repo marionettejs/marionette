@@ -4,6 +4,8 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "strict": true,
+    "allowJs": true,
+    "checkJs": true,
     "skipLibCheck": false,
     "noEmit": true,
     "types": []
@@ -64,6 +66,9 @@
     "trusted-contracts.mts",
     "trusted-contracts.cts",
     "router.mts",
-    "router.cts"
+    "router.cts",
+    "router-inference.mts",
+    "router-inference.cts",
+    "router-checkjs.js"
   ]
 }

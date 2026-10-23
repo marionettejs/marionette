@@ -48,6 +48,9 @@
     "directory": "packages/router"
   },
   "private": true,
+  "dependencies": {
+    "@mnjs/utils": "5.0.0"
+  },
   "peerDependencies": {
     "marionette": "5.0.0"
   }

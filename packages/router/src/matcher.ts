@@ -1,15 +1,17 @@
 import { Pattern, normalizePathname, canonicalPathname, hasValue } from './pattern.ts';
 import { toSearchParams } from './query.ts';
+import { resolveMethod } from '@mnjs/utils';
 import type { CompiledPattern } from './pattern.ts';
-import type { BranchEntry, RouteDefinition, Params, Query, MatcherResult } from './types.ts';
+import type { BranchEntry, RouteDefinition, RouteTable, RouteHandler, MountOptions, Params, Query, MatcherResult } from './types.ts';
 
+type RegisteredRoute = Omit<RouteDefinition, 'handler' | 'children'> & { handler?: RouteHandler; children?: RegisteredRoute[] };
 type CompiledBranch = Omit<BranchEntry, 'params'> & { names: string[] };
 type Node = { path: string; names: string[]; meta: Record<string, unknown>; branch: CompiledBranch[] };
 type Priority = { ranks: number[]; mount: number };
-type Route = Node & Priority & { name: string; pattern: Pattern; compiled: CompiledPattern; redirect?: RouteDefinition['redirect'] };
+type Route = Node & Priority & { name: string; pattern: Pattern; compiled: CompiledPattern; redirect?: RouteDefinition['redirect']; handler?: RouteHandler };
 type Prefix = Priority & { depth: number; compiled: CompiledPattern };
 type State = { byName: Map<string, Route>; routes: Route[]; prefixes: Prefix[] };
-type Mount = { routes: RouteDefinition[]; parent?: string };
+type Mount = { routes: RegisteredRoute[]; parent?: string };
 
 const ROOT: Node = { path: '', names: [], meta: {}, branch: [] };
 
@@ -46,23 +48,28 @@ function assertDefinition(definition: RouteDefinition) {
   }
 }
 
-function snapshotRoutes(routes: RouteDefinition[]): RouteDefinition[] {
-  return routes.map(definition => {
+function snapshotRoutes(routes: RouteTable, controller: object): RegisteredRoute[] {
+  const array = Array.isArray(routes);
+  const prototype = !array && routes && typeof routes === 'object' ? Object.getPrototypeOf(routes) : undefined;
+  if (!array && prototype !== Object.prototype && prototype !== null) {throw new TypeError('mount() requires an array of route definitions or a route hash');}
+  const definitions: readonly RouteDefinition[] = array ? routes : Object.entries(routes).map(([name, definition]) => ({ ...definition, name }));
+  return definitions.map(definition => {
     assertDefinition(definition);
-    return { ...definition, meta: { ...definition.meta }, children: definition.children && snapshotRoutes(definition.children) };
+    const handler = definition.handler === undefined ? undefined : resolveMethod(controller, definition.handler, definition.name ?? definition.path).bind(controller) as RouteHandler;
+    return { ...definition, handler, meta: { ...definition.meta }, children: definition.children && snapshotRoutes(definition.children, controller) };
   });
 }
 
-function registerRoute(definition: RouteDefinition, node: Node, pattern: Pattern, state: State, mount: number) {
+function registerRoute(definition: RegisteredRoute, node: Node, pattern: Pattern, state: State, mount: number) {
   const { name } = definition;
   if (typeof name !== 'string' || !name) {throw new TypeError(`Route name must be a non-empty string (path "${ node.path }")`);}
   if (state.byName.has(name)) {throw new Error(`Duplicate route name "${ name }"`);}
-  const route = { ...node, name, pattern, compiled: pattern.compile(name), ranks: pattern.getRanks(), mount, redirect: definition.redirect };
+  const route = { ...node, name, pattern, compiled: pattern.compile(name), ranks: pattern.getRanks(), mount, redirect: definition.redirect, handler: definition.handler };
   state.byName.set(name, route);
   state.routes.push(route);
 }
 
-function compileNode(definition: RouteDefinition, parent: Node, state: State, mount: number) {
+function compileNode(definition: RegisteredRoute, parent: Node, state: State, mount: number) {
   const path = joinPaths(parent.path, definition.path);
   const pattern = new Pattern(path, definition.name === undefined ? `"${ path }"` : `"${ definition.name }"`);
   const names = pattern.names;
@@ -126,14 +133,17 @@ function toResult(route: Route, params: Record<string, string>, target: URL): Ma
       meta: { ...item.meta },
     })),
     redirect: route.redirect,
+    handler: route.handler,
   };
 }
 
 export class Matcher {
   #mounts: Mount[] = [];
   #state: State | null = null;
+  #controller: object;
 
-  constructor(routes: RouteDefinition[] = []) {
+  constructor(routes: RouteTable = [], controller: object = {}) {
+    this.#controller = controller;
     this.mount(routes);
   }
 
@@ -197,11 +207,11 @@ export class Matcher {
     return this.#compiled().byName.has(name);
   }
 
-  mount(routes: RouteDefinition[], options: { parent?: string } = {}) {
-    const { parent } = options;
-    if (!Array.isArray(routes)) {throw new TypeError('mount() requires an array of route definitions');}
+  mount(routes: RouteTable, options: MountOptions = {}) {
+    const { parent, controller = this.#controller } = options;
+    const registered = snapshotRoutes(routes, controller);
     if (parent !== undefined && !this.has(parent)) {throw new Error(`Unknown parent route "${ parent }"`);}
-    const mount = { routes: snapshotRoutes(routes), parent };
+    const mount = { routes: registered, parent };
     const previous = this.#state;
     this.#mounts.push(mount);
     this.#state = null;

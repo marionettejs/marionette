@@ -1,7 +1,11 @@
+export { defineRoutes } from './route-types.ts';
+export type { RouteNames, RouteParams } from './route-types.ts';
+export { RouteApplication } from './route-application.ts';
+export type { RouteApplicationInstance, RouteApplicationOptions } from './route-application.ts';
 export { Router } from './router.ts';
 export type { RouterInstance, RouterConstructor } from './router.ts';
 export { ChildAppSwitcher } from './child-app-switcher.ts';
 export type { ChildAppSwitcherInstance, ChildAppSwitcherOptions, SwitchOptions, SelectionKey } from './child-app-switcher.ts';
 export { memoryDriver } from './drivers/memory.ts';
 export { navigationDriver } from './drivers/navigation.ts';
-export type { ActiveMatch, Match, RouteDefinition, RouteSource, BranchEntry, RouterOptions, NavigateOptions, EntryState, Params, Query, Driver, DriverEntry, DriverEvent, MemoryDriver, NavigationOptions, DriverNavigateOptions, NavigationResult, NavigationType, Redirect, RedirectTarget, SimulateOptions } from './types.ts';
+export type { ActiveMatch, Match, RouteDefinition, RouteSource, RouteHandler, RouteHash, RouteTable, MountOptions, BranchEntry, RouterOptions, NavigateOptions, EntryState, Params, Query, Driver, DriverEntry, DriverEvent, MemoryDriver, NavigationOptions, DriverNavigateOptions, NavigationResult, NavigationType, Redirect, RedirectTarget, SimulateOptions } from './types.ts';

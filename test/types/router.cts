@@ -1,5 +1,5 @@
 import { Router, memoryDriver, navigationDriver, type ActiveMatch, type Match, type Driver, type NavigationResult, type RouterOptions, type RouterInstance, type RouteDefinition } from '@mnjs/router';
-import { ChildAppSwitcher, type ChildAppSwitcherInstance, type ChildAppSwitcherOptions } from '@mnjs/router';
+import { ChildAppSwitcher, RouteApplication, defineRoutes, type ChildAppSwitcherInstance, type ChildAppSwitcherOptions, type RouteApplicationOptions, type RouteApplicationInstance, type RouteTable, type RouteHash, type RouteHandler, type MountOptions } from '@mnjs/router';
 // @ts-expect-error Runtime-bound constructor factories are not public package exports.
 import { createRouterClass, createChildAppSwitcherClass } from '@mnjs/router';
 import { Application, type LifecycleContext } from 'marionette';
@@ -100,3 +100,67 @@ void cleared;
 // @ts-expect-error Reconstruction is explicit; old outlet restart option is removed.
 switcher.switchTo('page', { restart: true });
 void [base, itemUrl, changed];
+
+const routeCallback: RouteHandler = (match, { signal }) => {
+  signal.throwIfAborted();
+  return match.params.id;
+};
+const namedRoutes: RouteHash = {
+  'catalog:item': { path: '/catalog/:id', handler: 'showItem', children: {
+    'catalog:detail': { path: 'detail', handler: routeCallback },
+  } },
+};
+const readonlyRoutes: readonly RouteDefinition[] = [{ name: 'list', path: '/list', handler: routeCallback }];
+const declaredTable: RouteTable = readonlyRoutes;
+const hashRouter = new Router({ driver, routes: namedRoutes });
+const callbackRouter = new Router({ driver, routes: () => declaredTable });
+const LiteralRouter = Router.extend({ routes: defineRoutes({ declared: { path: '/declared/:id' } }) });
+const literalRouter = new LiteralRouter({ driver });
+literalRouter.url('declared', { id: 7 });
+// .extend() retains its ordinary broad route contract in this bounded pass.
+literalRouter.url('registered-at-runtime', { arbitrary: 7 });
+const controller = { showItem: routeCallback };
+const mountOptions: MountOptions = { parent: 'catalog:item', controller };
+const unmount: () => void = hashRouter.mount({ mounted: { path: 'mounted', handler: 'showItem' } }, mountOptions);
+hashRouter.mount(readonlyRoutes, { controller });
+// @ts-expect-error A hash key owns its route name; its definition cannot add another name.
+const duplicateHashName: RouteHash = { item: { name: 'other', path: '/item' } };
+// @ts-expect-error Route handlers are callbacks or controller method names.
+const invalidRouteHandler: RouteDefinition = { path: '/item', handler: 42 };
+// @ts-expect-error Nested route definitions accept the same hash/array forms, not strings.
+const invalidChildren: RouteDefinition = { path: '/item', children: 'detail' };
+// @ts-expect-error Controller bindings require an object.
+hashRouter.mount(namedRoutes, { controller: 'controller' });
+
+interface FeatureOptions extends RouteApplicationOptions { prefix: string }
+const Feature = RouteApplication.extend({
+  initialize(options: FeatureOptions) { const prefix: string = options.prefix; void prefix; },
+  routes() {
+    return { featureItem: { path: '/features/:id', handler: 'showItem' } };
+  },
+  async prepareStart(_options: unknown, { signal }: LifecycleContext) {
+    signal.throwIfAborted();
+    return { loaded: true };
+  },
+  showItem(match: ActiveMatch, { signal }: { signal: AbortSignal }) {
+    signal.throwIfAborted();
+    return match.params.id;
+  },
+});
+const featureInstance = new Feature({ router, prefix: 'public' });
+const feature = owner.addChildApp('feature', featureInstance);
+const featureBase: RouteApplicationInstance = feature;
+feature.prepareStart(undefined, { signal: new AbortController().signal }) satisfies Promise<{ loaded: boolean }>;
+type FeatureStartResult = Parameters<NonNullable<typeof feature.onStart>>[2];
+const featureStartResult: FeatureStartResult = { loaded: true };
+// @ts-expect-error Preparation results retain ordinary Application inference.
+const wrongFeatureStartResult: FeatureStartResult = { loaded: 'yes' };
+// @ts-expect-error A RouteApplication requires a shared Router.
+new RouteApplication();
+// @ts-expect-error Supplying routes does not replace the required Router.
+new RouteApplication({ routes: namedRoutes });
+// @ts-expect-error Extended initializer options are still required.
+new Feature({ router });
+new RouteApplication({ router, routes: namedRoutes });
+new RouteApplication({ router, routes: () => readonlyRoutes });
+void [hashRouter, callbackRouter, unmount, duplicateHashName, invalidRouteHandler, invalidChildren, featureBase];

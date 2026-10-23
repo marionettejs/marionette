@@ -81,7 +81,9 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   onStart?(application: this, options: unknown, result: StartResult): unknown;
   onStop?(application: this, options: unknown): unknown;
   onDestroy?(application: this, options: unknown): unknown;
-  addChildApp<Child extends ApplicationInstance<object, unknown>>(name: string, application: Child): Child;
+  addChildApp<Child extends Pick<ApplicationInstance, 'cid' | 'start' | 'stop' | 'destroy' | 'isRunning' | 'isDestroyed' | 'getName'>>(
+    name: string, application: Child
+  ): Child;
   removeChildApp(name: string, options?: unknown): ApplicationInstance<object, unknown> | undefined;
   hasChildApp(name: string): boolean;
   getChildApp(name: string): ApplicationInstance<object, unknown> | undefined;
