@@ -1,5 +1,5 @@
 import type { RouterInstance } from './router.ts';
-import type { ApplicationOptions } from 'marionette';
+import type { ApplicationInstance, ApplicationOptions } from 'marionette';
 
 export type Params = Record<string, string | number | null | undefined>;
 export type Query = URLSearchParams | Record<string, string | number | null | undefined> | string;
@@ -57,7 +57,7 @@ export type Redirect = (match: ActiveMatch, context: { signal: AbortSignal }) =>
 export type RouteHandler = (match: ActiveMatch, context: { signal: AbortSignal }) => unknown;
 export type RouteHash = Record<string, Omit<RouteDefinition, 'name'>>;
 export type RouteTable = readonly RouteDefinition[] | RouteHash;
-export interface MountOptions { parent?: string; controller?: object }
+export interface MountOptions { parent?: string; controller?: object; owner?: ApplicationInstance<object, unknown> }
 export interface RouteDefinition {
   name?: string; path: string; children?: RouteTable; meta?: Record<string, unknown>;
   redirect?: Redirect;

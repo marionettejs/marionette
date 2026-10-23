@@ -43,3 +43,11 @@ committed traversal can retain current-entry state. This branch does not guess a
 browser workaround or claim fresh Safari parity. Build, Node, package and UI fixture
 results must identify the tested branch revision; native-browser and real focus/
 scroll evidence remain separate requirements.
+
+The next cloud review pass starts from the exact handoff commit
+**fd65f60e031b93ea2c1e9544601cdae11f5d6dde** on
+`codex/router-narrow-grammar`. T4 restores the pre-handoff core child type contract;
+N9 adds registration/owner cancellation; N6 adds parent mounting; T2 composes
+known feature catalogs; N2 supplies explicit declarative shared-router defaults;
+N1 demonstrates awaited feature activation while retaining registration across UI
+lifetimes. See [review evidence](REVIEW.md) for checks and remaining limits.

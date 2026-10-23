@@ -164,3 +164,19 @@ new Feature({ router });
 new RouteApplication({ router, routes: namedRoutes });
 new RouteApplication({ router, routes: () => readonlyRoutes });
 void [hashRouter, callbackRouter, unmount, duplicateHashName, invalidRouteHandler, invalidChildren, featureBase];
+
+const ConfiguredFeature = RouteApplication.withRouter(router).extend({
+  routes: namedRoutes,
+  routeParent: 'catalog:item',
+});
+const DeclarativeFrame = Application.extend({ childApps: { feature: ConfiguredFeature } });
+const declarative = new DeclarativeFrame();
+const configured = owner.addChildApp('configured', new ConfiguredFeature());
+configured.start();
+// @ts-expect-error Mount parent names are strings.
+new RouteApplication({ router, routeParent: 7 });
+const fakeChild = { cid: 'fake', start: async() => true, stop: () => true,
+  destroy: () => true, isRunning: () => false, isDestroyed: () => false, getName: () => 'fake' };
+// @ts-expect-error Core ownership still requires the complete Application contract.
+owner.addChildApp('fake', fakeChild);
+void declarative;

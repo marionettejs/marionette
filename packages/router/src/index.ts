@@ -1,7 +1,7 @@
 export { defineRoutes } from './route-types.ts';
-export type { RouteNames, RouteParams } from './route-types.ts';
+export type { RouteNames, RouteParams, RouteCatalog } from './route-types.ts';
 export { RouteApplication } from './route-application.ts';
-export type { RouteApplicationInstance, RouteApplicationOptions } from './route-application.ts';
+export type { RouteApplicationInstance, RouteApplicationOptions, RouteApplicationConstructor, ConfiguredRouteApplicationOptions } from './route-application.ts';
 export { Router } from './router.ts';
 export type { RouterInstance, RouterConstructor } from './router.ts';
 export { ChildAppSwitcher } from './child-app-switcher.ts';

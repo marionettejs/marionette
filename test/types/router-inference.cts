@@ -63,3 +63,27 @@ new CustomRouter();
 // @ts-expect-error The preparation result remains typed in CommonJS consumers.
 custom.onStart?.(custom, undefined, { prepared: 'wrong' });
 void [literalPath, name, child, missingParent, absolute, optional, nullable, count];
+
+// Static feature catalogs compose declarations independently of runtime availability.
+const workspaceRoutes = defineRoutes({ workspace: { path: '/:workspace' } });
+const featureRoutes = defineRoutes({ feature: { path: 'features/:id{/:tab}?' } });
+const nestedRoutes = defineRoutes({ nestedFeature: { path: 'nested/:childId' } });
+type KnownFeatures = import('@mnjs/router').RouteCatalog<[
+  typeof workspaceRoutes,
+  { routes: typeof featureRoutes; parent: 'workspace' },
+  { routes: typeof nestedRoutes; parent: 'feature' },
+]>;
+const shared = new Router<KnownFeatures>();
+shared.mount(workspaceRoutes);
+shared.mount(featureRoutes, { parent: 'workspace' });
+shared.url('feature', { workspace: 'team', id: 7 });
+shared.navigate('nestedFeature', { workspace: 'team', id: 7, childId: 8 });
+// @ts-expect-error Mounted features keep required parent parameters.
+shared.url('feature', { id: 7 });
+// @ts-expect-error Feature params come from their authored table.
+shared.navigate('feature', { workspace: 'team', wrong: 7 });
+// @ts-expect-error Catalog composition does not invent names.
+shared.url('missing');
+const unmountedFeature = shared.mount(nestedRoutes, { parent: 'feature' });
+unmountedFeature();
+shared.url('nestedFeature', { workspace: 'team', id: 7, childId: 8 });

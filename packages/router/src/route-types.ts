@@ -71,6 +71,20 @@ type NamedPath<R extends RouteTable, Name extends string> = TableSpecs<R> extend
 export type RouteParams<R extends RouteTable, Name extends RouteNames<R>> = string extends RouteNames<R>
   ? Params : Name extends string ? PathParams<NamedPath<R, Name>> : never;
 
+type CatalogEntry = RouteTable | { routes: RouteTable; parent?: string };
+type CatalogNode<Entry, Previous extends RouteTable> = Entry extends { routes: infer Routes extends RouteTable }
+  ? { path: Entry extends { parent: infer Parent extends string } ? NamedPath<Previous, Parent> : ''; children: Routes }
+  : Entry extends RouteTable ? { path: ''; children: Entry } : never;
+type ComposeCatalog<Entries extends readonly CatalogEntry[], Previous extends readonly unknown[] = []> =
+  Entries extends readonly [infer Head, ...infer Tail extends readonly CatalogEntry[]]
+    ? ComposeCatalog<Tail, [...Previous, CatalogNode<Head, Extract<Previous, RouteTable>>]>
+    : Previous;
+
+/** Compose known feature tables in mount order without claiming they are mounted.
+ * A parent references a name from an earlier entry. No runtime table is created.
+ */
+export type RouteCatalog<Entries extends readonly CatalogEntry[]> = Extract<ComposeCatalog<Entries>, RouteTable>;
+
 /** A tuple union keeps each literal name paired with its required parameters. */
 export type NamedRouteArgs<R extends RouteTable, Options> = string extends RouteNames<R>
   ? [name: string, params?: Params, options?: Options]

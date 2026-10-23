@@ -8,7 +8,7 @@ type RegisteredRoute = Omit<RouteDefinition, 'handler' | 'children'> & { handler
 type CompiledBranch = Omit<BranchEntry, 'params'> & { names: string[] };
 type Node = { path: string; names: string[]; meta: Record<string, unknown>; branch: CompiledBranch[] };
 type Priority = { ranks: number[]; mount: number };
-type Route = Node & Priority & { name: string; pattern: Pattern; compiled: CompiledPattern; redirect?: RouteDefinition['redirect']; handler?: RouteHandler };
+type Route = Node & Priority & { registration: object; name: string; pattern: Pattern; compiled: CompiledPattern; redirect?: RouteDefinition['redirect']; handler?: RouteHandler };
 type Prefix = Priority & { depth: number; compiled: CompiledPattern };
 type State = { byName: Map<string, Route>; routes: Route[]; prefixes: Prefix[] };
 type Mount = { routes: RegisteredRoute[]; parent?: string };
@@ -64,7 +64,7 @@ function registerRoute(definition: RegisteredRoute, node: Node, pattern: Pattern
   const { name } = definition;
   if (typeof name !== 'string' || !name) {throw new TypeError(`Route name must be a non-empty string (path "${ node.path }")`);}
   if (state.byName.has(name)) {throw new Error(`Duplicate route name "${ name }"`);}
-  const route = { ...node, name, pattern, compiled: pattern.compile(name), ranks: pattern.getRanks(), mount, redirect: definition.redirect, handler: definition.handler };
+  const route = { ...node, registration: definition, name, pattern, compiled: pattern.compile(name), ranks: pattern.getRanks(), mount, redirect: definition.redirect, handler: definition.handler };
   state.byName.set(name, route);
   state.routes.push(route);
 }
@@ -119,8 +119,11 @@ function pick(params: Record<string, string>, names: string[]) {
   return Object.fromEntries(names.filter(name => Object.hasOwn(params, name)).map(name => [name, params[name]]));
 }
 
-function toResult(route: Route, params: Record<string, string>, target: URL): MatcherResult {
+export type RegisteredMatch = MatcherResult & { registration: object };
+
+function toResult(route: Route, params: Record<string, string>, target: URL): RegisteredMatch {
   return {
+    registration: route.registration,
     name: route.name,
     params,
     query: new URLSearchParams(target.search),
@@ -205,6 +208,10 @@ export class Matcher {
 
   has(name: string) {
     return this.#compiled().byName.has(name);
+  }
+
+  hasRegistration(registration: object) {
+    return this.#compiled().routes.some(route => route.registration === registration);
   }
 
   mount(routes: RouteTable, options: MountOptions = {}) {

@@ -112,7 +112,15 @@ unmounts them before destruction. UI stop/restart retain registrations. Registra
 does not start the feature, its children or siblings; handlers explicitly request
 the Application or child-selection operations they need. One Router remains the
 navigation engine. For explicit `mount`, retain and call its returned unmount
-function yourself. See [feature registration](DESIGN.md#feature-route-registration).
+function yourself, or pass `{ owner: feature }` to tie it to destruction.
+Unmounting aborts work belonging to that registration and suppresses stale readiness;
+remounting the same name creates a new identity. `routeParent` on RouteApplication
+passes a named parent through to mount, including its prefix and branch metadata.
+
+For declarative `childApps`, use `RouteApplication.withRouter(sharedRouter).extend(...)`.
+It explicitly configures the shared engine before feature construction. Handlers
+can await an application-defined `startOnRoute(match)` method, check the route
+signal, then switch children and render. See [feature registration](DESIGN.md#feature-route-registration).
 
 Ordinary intercepted navigations use native focus and scroll after returned
 handler work finishes. `navigate()` accepts independent `focusReset` and `scroll`
@@ -166,7 +174,9 @@ family; runtime-bound constructor factories are not part of this package.
 
 `defineRoutes()` preserves literal route names and pathname parameters for typed
 `url()`/named `navigate()` calls, using the same definitions that run at runtime.
-It adds no second handwritten map. Broad/dynamic tables still use runtime
+It adds no second handwritten map. `RouteCatalog<[typeof shellRoutes,
+{ routes: typeof featureRoutes; parent: 'shell' }]>` composes known feature tables
+for `new Router<KnownRoutes>()`, independently of runtime mount availability. Broad/dynamic tables still use runtime
 validation. JavaScript can use the same helper with optional checkJs/JSDoc feedback.
 See the [typing boundary](DESIGN.md#typing-and-javascript) for `.extend()`, dynamic
 mounts, Radio and templates.

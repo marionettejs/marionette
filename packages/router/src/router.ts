@@ -5,6 +5,7 @@ type Navigation = {
   url: URL; chain: Chain; controller: AbortController; signal: AbortSignal;
   navigationType: DriverEvent['navigationType']; initial: boolean; info: unknown; userInitiated: boolean;
   key: string; rawState: unknown; match: ActiveMatch | null;
+  registration?: object;
 };
 type Base = Pick<MatcherResult, 'name' | 'params' | 'url' | 'query' | 'meta' | 'branch'>;
 type Plan = { hop: string; base?: never; pending?: never } |
@@ -16,6 +17,7 @@ import type { ActiveMatch, Match, Params, Query, EntryState, RouterOptions, Navi
 
 import type { NamedRouteArgs, RouteNames } from './route-types.ts';
 import { Matcher } from './matcher.ts';
+import type { RegisteredMatch } from './matcher.ts';
 import { toSearchParams } from './query.ts';
 import { navigationDriver } from './drivers/navigation.ts';
 
@@ -137,6 +139,8 @@ type RouterState = {
   chain: Chain | null;
   current: ActiveMatch | null;
   currentController: AbortController | null;
+  currentNavigation: Navigation | null;
+  pending: Set<Navigation>;
   traversals: Set<{ key: string; chain: Chain }>;
 };
 const states = new WeakMap<RouterInstance, RouterState>();
@@ -170,7 +174,7 @@ function stopRouting(router: RouterInstance) {
 function constructRouter(this: RouterInstance, options?: RouterOptions) {
   states.set(this, {
     matcher: null, resolvedDriver: null, session: null, local: null, chain: null,
-    current: null, currentController: null, traversals: new Set()
+    current: null, currentController: null, currentNavigation: null, pending: new Set(), traversals: new Set()
   });
   // Application establishes its stopping guard before notifying listeners, so
   // abort callbacks cannot re-enable routing during ancestor teardown.
@@ -300,7 +304,7 @@ function onNavigate(router: RouterInstance, event: DriverEvent) {
   let task: () => void | Promise<void>;
   try {
     const plan = planNavigation(router, nav);
-    if (!plan) {return;}
+    if (!plan) {stateFor(router).pending.delete(nav); return;}
     task = () => execute(router, plan, nav);
   } catch (error) {
     // Claim failed planning as a rejected transition rather than letting a
@@ -308,13 +312,13 @@ function onNavigate(router: RouterInstance, event: DriverEvent) {
     task = () => {throw error;};
   }
   abortLocal(router);
-  event.intercept({ handler: () => attempt(router, nav, task), ...chain.policy });
+  event.intercept({ handler: () => waitForAttempt(router, nav, task), ...chain.policy });
 }
 
 function navigationFor(router: RouterInstance, event: DriverEvent, url: URL, chain: Chain): Navigation {
   const internals = stateFor(router);
   const controller = new AbortController();
-  return {
+  const nav: Navigation = {
     url,
     chain,
     controller,
@@ -327,6 +331,8 @@ function navigationFor(router: RouterInstance, event: DriverEvent, url: URL, cha
     rawState: event.destination.getState(),
     match: null,
   };
+  internals.pending.add(nav);
+  return nav;
 }
 
 function dispatchInitial(router: RouterInstance, session: Session) {
@@ -349,7 +355,8 @@ function dispatchInitial(router: RouterInstance, session: Session) {
     rawState: entry.getState(),
     match: null,
   };
-  return attempt(router, nav, async() => {
+  internals.pending.add(nav);
+  return waitForAttempt(router, nav, async() => {
     const plan = planNavigation(router, nav);
     if (plan) {await execute(router, plan, nav);}
   }).then(() => nav.chain.followUp?.finished);
@@ -369,7 +376,8 @@ function notFoundPlan(router: RouterInstance, url: URL): Plan | null {
   return { base: notFoundBase(notFound.name, getMatcher(router).matchPrefix(url), url), pending: null };
 }
 
-function redirectPlan(router: RouterInstance, result: MatcherResult, nav: Navigation): Plan {
+function redirectPlan(router: RouterInstance, result: RegisteredMatch, nav: Navigation): Plan {
+  nav.registration = result.registration;
   const handler = result.handler;
   if (!result.redirect) {return { base: result, pending: null, handler };}
   const target = callRedirect(result, nav);
@@ -423,6 +431,7 @@ function isCurrent(router: RouterInstance, nav: Navigation) {
 // Redirect destinations report their own errors, outside the source attempt.
 async function attempt(router: RouterInstance, nav: Navigation, task: () => void | Promise<void>) {
   try {
+    nav.signal.throwIfAborted();
     await task();
   } catch (error) {
     if (nav.signal.aborted || (nav.match && !isCurrent(router, nav))) {
@@ -435,6 +444,38 @@ async function attempt(router: RouterInstance, nav: Navigation, task: () => void
       queueMicrotask(() => {throw notificationError;});
     }
     throw error;
+  } finally {
+    stateFor(router).pending.delete(nav);
+  }
+}
+
+function waitForAttempt(router: RouterInstance, nav: Navigation, task: () => void | Promise<void>) {
+  return cancellable(attempt(router, nav, task), nav.signal).finally(() => stateFor(router).pending.delete(nav));
+}
+
+// Ownership cancellation settles even when consumer work ignores the signal.
+// The original work remains observed and must check its signal before effects.
+function cancellable(work: void | Promise<void>, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const abort = () => reject(new DOMException('Navigation superseded', 'AbortError'));
+    signal.addEventListener('abort', abort, { once: true });
+    Promise.resolve(work).then(resolve, reject).finally(() => signal.removeEventListener('abort', abort));
+    if (signal.aborted) {abort();}
+  });
+}
+
+function reconcileRegistrations(router: RouterInstance) {
+  const internals = stateFor(router);
+  const removed = [...internals.pending];
+  if (internals.currentNavigation) {removed.push(internals.currentNavigation);}
+  for (const nav of new Set(removed)) {
+    if (!nav.registration || getMatcher(router).hasRegistration(nav.registration)) {continue;}
+    if (internals.currentNavigation === nav) {
+      internals.current = null;
+      internals.currentController = null;
+      internals.currentNavigation = null;
+    }
+    nav.controller.abort();
   }
 }
 
@@ -466,6 +507,7 @@ function commit(router: RouterInstance, base: Base, nav: Navigation) {
   nav.match = match;
   internals.current = match;
   internals.currentController = nav.controller;
+  internals.currentNavigation = nav;
   previous?.abort();
   if (!isCurrent(router, nav)) {return null;}
   router.triggerMethod('route', match);
@@ -524,7 +566,22 @@ export const Router = Application.extend({
   },
 
   mount(this: RouterInstance, routes: RouteTable, options?: MountOptions) {
-    return getMatcher(this).mount(routes, options);
+    const owner = options?.owner;
+    if (owner?.isDestroyed()) {throw new Error('Cannot mount routes for a destroyed owner');}
+    const remove = getMatcher(this).mount(routes, options);
+    let mounted = true;
+    const unmount = () => {
+      if (!mounted) {return;}
+      mounted = false;
+      owner?.off('before:destroy', unmount);
+      this.off('before:destroy', unmount);
+      remove();
+      reconcileRegistrations(this);
+    };
+    owner?.on('before:destroy', unmount);
+    this.on('before:destroy', unmount);
+    if (owner?.isDestroyed()) {unmount();}
+    return unmount;
   },
 
   getParamNames(this: RouterInstance, name: string) {

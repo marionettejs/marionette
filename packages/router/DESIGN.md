@@ -276,6 +276,12 @@ navigation fields and causes no redirects or history effects. Mount/unmount upda
 the route table without dispatch; call active `refresh()` to dispatch it. A child
 mount whose parent is removed remains dormant and reactivates when a route with
 that parent name is registered again; its owner may explicitly unmount it instead.
+Removing a registration aborts its pending/current work and clears a removed current
+Match. It does not abort an unrelated newer navigation. Remounting the same name
+creates a new registration identity; it cannot revive the earlier attempt or emit
+its stale `route:ready`. An unchanged registration survives matcher recompilation.
+Cancellation settles routing completion even if a handler ignores its signal;
+consumer code must still check that signal after awaits before applying effects.
 
 ## Feature route registration
 
@@ -287,44 +293,67 @@ feature context are accepted. It mounts with the feature as controller, and its
 leave them registered. Adding a feature to an app tree does not start it, its
 children or siblings, and does not create another navigation listener.
 
+Configure the engine explicitly for a family of declarative features. This creates
+an ordinary subclass default; it does not search an owner chain or create a Router.
+`new RouteApplication({ router })` remains available, and configured constructors
+also accept an explicit per-instance router override. `routeParent` passes the
+named parent to `mount`, inheriting its URL prefix, params, branch and metadata.
+
 ```js
-const Catalog = RouteApplication.extend({
+const router = new Router({ routes: { workspace: { path: '/:workspace' } } });
+const RoutedFeature = RouteApplication.withRouter(router);
+const Catalog = RoutedFeature.extend({
+  routeParent: 'workspace',
   childApps: { content: ChildAppSwitcher },
-  routes: { item: { path: '/items/:id', handler: 'showItem' } },
+  routes: { item: { path: 'items/:id', handler: 'showItem' } },
   async prepareStart(_options, { signal }) {
     await loadCatalogPrerequisites({ signal });
   },
-  showItem(match, { signal }) {
-    return this.getChildApp('content').switchTo('item', {
+  async startOnRoute(match) {
+    if (!await this.start()) return false;
+    match.signal.throwIfAborted();
+    return true;
+  },
+  async showItem(match, { signal }) {
+    if (!await this.startOnRoute(match)) return;
+    const content = this.getChildApp('content');
+    await content.start();
+    signal.throwIfAborted();
+    const page = await content.switchTo('item', {
       key: { id: match.params.id }, options: { id: match.params.id }, signal,
     });
+    if (!page || signal.aborted) return;
+    return page.showItem(match);
   },
 });
-const catalog = frame.addChildApp('catalog', new Catalog({ router }));
-const content = catalog.getChildApp('content');
-content.addChildApp('item', new ItemApplication());
-await catalog.start();
-await content.start();
+const Frame = Application.extend({ childApps: { catalog: Catalog } });
+const frame = new Frame();
+frame.addChildApp('router', router);
+frame.getChildApp('catalog').getChildApp('content').addChildApp('item', new ItemApplication());
+await frame.start();
 await router.start();
 ```
 
-Handlers still choose their activation policy explicitly. The example starts the
-feature and content group before routing. A handler may instead call and await a
-normal feature `start()` or a keyed child-selection operation when that is needed;
-registration alone never does that work. A stopped feature's routes remain in the
-table until its registration is unmounted.
+`startOnRoute` above is an application-defined method whose work is returned by
+the handler. It makes feature readiness and cancellation precede child switching
+and rendering. Parent Applications remain running across their child routes;
+same-key child selection retains the page. UI stop/start retains route registration.
+Neither registration nor navigation automatically starts siblings.
 
-For an ordinary Application, mount directly and retain the returned cleanup:
+An ordinary Application can use explicit mounting with the same ownership policy:
 
 ```js
-const unmount = router.mount(catalogRoutes, { parent: 'catalog', controller: catalog });
-// When the registration is retired:
-unmount();
+const unmount = router.mount(catalogRoutes, {
+  parent: 'catalog', controller: catalog, owner: catalog,
+});
+unmount(); // optional early retirement; idempotent
 ```
 
-The caller owns explicit-mount cleanup. Use that form to choose a registration
-lifetime other than RouteApplication destruction. Mounting/unmounting does not
-dispatch the current URL; use active `refresh()` when it needs handling again.
+`owner` unmounts before its Application is destroyed. Omitting `owner` leaves
+explicit cleanup with the caller; `controller` alone establishes only handler
+binding. Router destruction releases mounted registrations and owner listeners.
+Mount/unmount does not dispatch the current URL or rewrite browser history; use
+active `refresh()` when it needs handling again.
 
 `match()` preserves a supplied URL object. Absolute URL strings are parsed without
 accessing a Driver. Relative strings resolve against the Driver's current URL,
@@ -616,6 +645,32 @@ Route callbacks still receive the common `ActiveMatch` and `{ signal }`, rather
 than a per-handler inferred Match shape. Method-name strings use runtime
 `resolveMethod` checks. Callback `this` is not inferred from a separate mount's
 controller; named methods retain their normal `.extend()` context.
+
+Known feature tables can form a strict catalog independently of which modules are
+currently mounted. `RouteCatalog` is a type-only composition of the actual tables,
+in parent-before-child mount order:
+
+```ts
+const workspaceRoutes = defineRoutes({ workspace: { path: '/:workspace' } });
+const catalogRoutes = defineRoutes({ item: { path: 'items/:id' } });
+type KnownRoutes = RouteCatalog<[
+  typeof workspaceRoutes,
+  { routes: typeof catalogRoutes; parent: 'workspace' },
+]>;
+const router = new Router<KnownRoutes>();
+router.mount(workspaceRoutes);
+const unmount = router.mount(catalogRoutes, { parent: 'workspace' });
+router.url('item', { workspace: 'team', id: 42 });
+unmount();
+// Still type-correct; runtime now rejects the unavailable name.
+router.url('item', { workspace: 'team', id: 42 });
+```
+
+Import `RouteCatalog` as a type from `@mnjs/router`. Its entries reference feature
+definitions without a duplicate name/parameter map or runtime catalog registry.
+Named parents must occur in earlier entries; dynamic names/paths retain the
+existing broad runtime contract. Conditional feature availability remains a runtime
+check through `hasRoute`, matching and URL generation.
 
 Dynamic mounts do not grow a static route-name union or prove registration
 availability. Code working with arbitrary dynamically registered names can use a
