@@ -723,6 +723,10 @@ package declares no Radio channels.
 
 ## Package and validation boundary
 
+Unsaved-change leave decisions have a separate [bounded proposal](LEAVE-GUARD.md),
+including browser Back/history limits and a future test plan. They are not an
+implemented routing guard API.
+
 `marionette` is a required exact-version peer, following the family integration
 convention. The package does not embed a second framework copy or import an
 application repository, external data layer or renderer. The three Application classes

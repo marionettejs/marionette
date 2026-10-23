@@ -25,7 +25,8 @@
     "readme.md",
     "DESIGN.md",
     "PROVENANCE.md",
-    "REVIEW.md"
+    "REVIEW.md",
+    "LEAVE-GUARD.md"
   ],
   "sideEffects": false,
   "engines": {

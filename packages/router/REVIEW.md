@@ -36,3 +36,40 @@ It does not redefine Application start or driver running. `initial-dispatch.spec
 covers all outcomes, synchronous/asynchronous redirect destinations, ignored work,
 setup failure, session replacement and notification-time observation. ESM/CJS
 consumers narrow the union; the built package fixture observes initial readiness.
+
+## Unsaved changes: design only
+
+[The bounded leave design](LEAVE-GUARD.md) specifies one application-owned decision
+before explicit navigation, a separate cancellable request identity, no early
+child teardown, and a concrete test matrix. It records the native Driver's
+uncancellable traversal limit and rejects implicit history compensation. No guard
+API or implementation is introduced. Chromium download failed with HTTP 403
+`Domain forbidden`; native-browser verification remains unavailable here.
+
+## Final cloud checks
+
+Runtime/type revision: `6d2acce04613be7069a0f359768525a5d6ce97b1`, including the
+T4 follow-up for configured instance compatibility, state and static context.
+The final design commit changes documentation and the private package file list.
+Toolchain: Node 24.19.0, npm 11.17.0 (including nested build commands).
+
+| Check | Result |
+| --- | --- |
+| `npm test` | 2,643 tests passed across 161 files, including 529 router tests. |
+| `npm run build` | Passed, including source checks, all package builds and ESM/CJS declaration consumers. |
+| `npm run lint` | Passed with zero warnings. |
+| `npm run test:router-package` | Built ESM/CJS peer, lifecycle, configured declarative injection and initial dispatch checks passed. |
+| `npm run check:public-tests` | Passed. |
+| `npm run check:api-contracts` | Passed after reviewing regenerated router emitter/source records; no new release-wide semantic coverage claim. |
+| `node --test test/tooling/api-contracts.test.mjs` | 13 tests passed. |
+| `npm run test:source`, `npm run test:dist` | Passed. |
+| Native browsers | Not run: binaries absent; Chromium installation rejected by the download proxy. |
+
+Production cost: each public mount adds a Router destruction listener and, when
+specified, an owner listener. Unmount releases them and checks pending/current
+registration identities against the recompiled matcher; this work scales with the
+registered routes and pending attempts at retirement. Each navigation tracks a
+pending reference and an abort observation until settled/cancelled. The initial
+dispatch adds one promise/context per activation, shared through redirect hops.
+Static catalog/type repair adds no runtime work. No performance benchmark or
+release/browser certification is claimed.
