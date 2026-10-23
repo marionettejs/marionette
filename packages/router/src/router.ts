@@ -490,17 +490,17 @@ function cancellable(work: void | Promise<void>, signal: AbortSignal): Promise<v
 
 function reconcileRegistrations(router: RouterInstance) {
   const internals = stateFor(router);
-  const removed = [...internals.pending];
-  if (internals.currentNavigation) {removed.push(internals.currentNavigation);}
-  for (const nav of new Set(removed)) {
-    if (!nav.registration || getMatcher(router).hasRegistration(nav.registration)) {continue;}
-    if (internals.currentNavigation === nav) {
-      internals.current = null;
-      internals.currentController = null;
-      internals.currentNavigation = null;
-    }
-    nav.controller.abort();
+  const candidates = new Set(internals.pending);
+  if (internals.currentNavigation) {candidates.add(internals.currentNavigation);}
+  // Snapshot retirement and clear current authority before any abort callback
+  // can remount a parent or navigate through a newly active registration.
+  const removed = [...candidates].filter(nav => nav.registration && !getMatcher(router).hasRegistration(nav.registration));
+  if (internals.currentNavigation && removed.includes(internals.currentNavigation)) {
+    internals.current = null;
+    internals.currentController = null;
+    internals.currentNavigation = null;
   }
+  for (const nav of removed) {nav.controller.abort();}
 }
 
 async function run(router: RouterInstance, plan: Extract<Plan, { base: Base }>, nav: Navigation) {

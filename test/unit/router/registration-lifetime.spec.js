@@ -182,6 +182,32 @@ it('parent removal invalidates descendant work and remount restores its relative
   assert.equal(router.getCurrent().params.id, '8');
 });
 
+it('invalidates all retired descendants before an abort listener can remount their parent', async() => {
+  const { driver, dispatch } = heldDriver('/team/pages/2');
+  const router = routerFor({ driver });
+  const removeParent = router.mount({ workspace: { path: '/:workspace' } });
+  let pendingSignal;
+  router.mount({ page: { path: 'pages/:id', redirect(match, { signal }) {
+    if (match.params.id === '2') {pendingSignal = signal;}
+  } } }, { parent: 'workspace' });
+  await router.start();
+  await router.navigate('page', { workspace: 'team', id: 1 }).finished;
+  const current = router.getCurrent();
+  const pending = router.navigate('page', { workspace: 'team', id: 2 });
+  pendingSignal.addEventListener('abort', () => {
+    router.mount({ workspace: { path: '/:workspace', meta: { replacement: true } } });
+  }, { once: true });
+  removeParent();
+  assert.equal(pendingSignal.aborted, true);
+  assert.equal(current.signal.aborted, true);
+  assert.equal(router.getCurrent(), null);
+  assert.equal(router.hasRoute('page'), true);
+  dispatch.resolve();
+  assert.equal(await pending.finished, false);
+  assert.equal(await router.navigate('page', { workspace: 'team', id: 3 }).finished, true);
+  assert.equal(router.getCurrent().meta.replacement, true);
+});
+
 it('injects one configured router into declarative childApps without starting UI or discovering owners', async() => {
   const router = routerFor();
   const calls = [];

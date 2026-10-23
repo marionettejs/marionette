@@ -175,3 +175,11 @@ shared.url('missing');
 const unmountedFeature = shared.mount(nestedRoutes, { parent: 'feature' });
 unmountedFeature();
 shared.url('nestedFeature', { workspace: 'team', id: 7, childId: 8 });
+
+const removeRuntimeOnly = shared.mount(dynamic);
+shared.url('feature', { workspace: 'team', id: 7 });
+// @ts-expect-error A dynamic mount does not broaden the known feature catalog.
+shared.url('runtime', { id: 7 });
+// @ts-expect-error A dynamic mount cannot erase required known feature params.
+shared.url('feature', { id: 7 });
+removeRuntimeOnly();
