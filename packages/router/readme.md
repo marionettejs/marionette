@@ -63,11 +63,24 @@ define `prepareStart` without calling a Router setup method. Preparation and
 synchronous startup callback failures reject `start()`.
 
 Activation enables routing and dispatches the current URL asynchronously.
-`start()` does not wait for that route. Observe `route:ready` for successful route
-completion and subscribe to `route:error` before starting. Initial route failure
-leaves routing enabled; use `refresh()` to retry. Unclaimed or canceled routes
-do not emit `route:ready`. `restart()` retains routing and child identities without
-redispatch; `refresh()` explicitly handles the current URL again.
+`start()` does not wait for that route. Observe its outcome separately:
+
+```js
+await router.start();
+const initial = await router.getInitialDispatch();
+if (initial.status === 'matched') console.log('Ready:', initial.match.name);
+if (initial.status === 'failed') console.error(initial.error);
+```
+
+`getInitialDispatch()` is null before the first activation, then returns the
+latest session's promise. It resolves to `matched`, `unmatched`, `cancelled` or
+`failed`, following redirects to their destination. It never rejects. A matched
+result contains the completed Match; a failed result contains the error and a
+Match when one was committed. Subscribe to `route:error` before starting for
+ordinary route failure notifications too. Initial route failure leaves routing
+enabled; use `refresh()` to retry. Retained `restart()` keeps the same result;
+`stop(); start()` creates a new initial dispatch. The result is a historical
+outcome, separate from the Router's current `isRunning()` state.
 
 `navigate()` returns `{ committed, finished }` immediately; await `.finished` for
 handler/redirect readiness. Supersession/cancellation yields false; current failure

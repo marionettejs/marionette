@@ -100,7 +100,27 @@ current URL asynchronously. `start()` does not await that navigation. Current
 routing failures emit `route:error`, including initial failures, and leave the
 Router enabled. Use `refresh()` to retry the current URL. `route:ready` identifies
 successful current route completion; unclaimed and canceled attempts do not emit
-it. These notifications do not form an all-outcomes initial-readiness Promise.
+it.
+
+`getInitialDispatch()` returns null before activation and the latest activation's
+`Promise<InitialDispatchResult>` afterward. The promise is installed before route
+notifications, follows synchronous/asynchronous redirects, and always resolves:
+
+| status | Meaning | Fields |
+| --- | --- | --- |
+| `matched` | Claimed route and awaited work completed. Includes an explicit notFound handler. | `match` |
+| `unmatched` | The final URL was not claimed. | — |
+| `cancelled` | Stop, destruction, supersession or registration removal invalidated the attempt. | — |
+| `failed` | Setup, planning, redirect, handler or notification failed. | `error`, `match` (null before commit) |
+
+Current failures still emit `route:error` once; observing the result adds no error
+notification. A synchronous Driver setup failure still rejects `start()` and
+leaves routing disabled; it also supplies a failed outcome. Preparation failure
+before activation creates no initial dispatch. Retained restart keeps the same
+promise; stop/start replaces it upon activation. The settled result remains a
+historical snapshot even after later navigation or stop. A Match in that snapshot
+can subsequently have an aborted signal. `refresh()` does not replace the initial
+outcome.
 
 `restart()` repeats preparation while retaining the binding, selected children
 and UI. It does not redispatch the URL, reapply child start options, remount routes

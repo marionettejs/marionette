@@ -52,6 +52,11 @@ export interface Match {
   key: string; signal: AbortSignal | null; userInitiated: boolean;
 }
 export interface ActiveMatch extends Match { signal: AbortSignal; navigationType: NavigationType }
+export type InitialDispatchResult =
+  | { status: 'matched'; match: ActiveMatch }
+  | { status: 'unmatched' }
+  | { status: 'cancelled' }
+  | { status: 'failed'; error: unknown; match: ActiveMatch | null };
 export type RedirectTarget = string | { name: string; params?: Params; query?: Query };
 export type Redirect = (match: ActiveMatch, context: { signal: AbortSignal }) => RedirectTarget | null | undefined | Promise<RedirectTarget | null | undefined>;
 export type RouteHandler = (match: ActiveMatch, context: { signal: AbortSignal }) => unknown;

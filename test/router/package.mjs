@@ -65,10 +65,24 @@ try {
       const feature = new Feature({ router });
       assert.equal(router.url('item', { id: 7 }), '/items/7');
       assert.equal(await router.start(), true);
+      const initial = await router.getInitialDispatch();
+      assert.equal(initial.status, 'matched');
+      assert.equal(initial.match.name, 'home');
       assert.equal(router.getCurrent().name, 'home');
       assert.equal(router.canGoBack(), false);
       assert.equal(await router.navigate('item', { id: 7 }).finished, true);
       assert.equal(feature.item, '7');
+      const Configured = api.RouteApplication.withRouter(router).extend({
+        routes: { injected: { path: '/injected/:id', handler: 'show' } },
+        show(match) { this.shown = match.params.id; },
+      });
+      const Frame = BaseApplication.extend({ childApps: { feature: Configured } });
+      const frame = new Frame();
+      assert.equal(await router.navigate('injected', { id: 8 }).finished, true);
+      assert.equal(frame.getChildApp('feature').shown, '8');
+      frame.destroy();
+      assert.equal(router.hasRoute('injected'), false);
+      assert.equal(router.getCurrent(), null);
       feature.destroy();
       assert.equal(router.hasRoute('item'), false);
       router.destroy();

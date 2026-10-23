@@ -26,3 +26,13 @@ Static catalogs do not prove current registration/permission. Named parents must
 precede dependent entries. No splats, automatic `.extend()` route catalog inference,
 runtime-family rebasing, History API driver, publication or release certification
 is added. Native browser navigation/focus/scroll remains a separate evidence lane.
+
+## P4: initial dispatch outcome
+
+The separate P4 commit adds `getInitialDispatch()` and `InitialDispatchResult`.
+The latest activation has one resolving promise for matched/unmatched/cancelled/
+failed; redirects share its final Match, and retained restart retains its identity.
+It does not redefine Application start or driver running. `initial-dispatch.spec.js`
+covers all outcomes, synchronous/asynchronous redirect destinations, ignored work,
+setup failure, session replacement and notification-time observation. ESM/CJS
+consumers narrow the union; the built package fixture observes initial readiness.

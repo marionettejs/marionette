@@ -1,5 +1,5 @@
 type InterceptionPolicy = Readonly<Pick<NavigateOptions, 'focusReset' | 'scroll'>>;
-type Chain = { initial: boolean; hops: number; followUp: NavigationResult<boolean> | null; policy: InterceptionPolicy };
+type Chain = { initial: boolean; hops: number; followUp: NavigationResult<boolean> | null; policy: InterceptionPolicy; dispatch?: { match: ActiveMatch | null } };
 type Session = { controller: AbortController };
 type Navigation = {
   url: URL; chain: Chain; controller: AbortController; signal: AbortSignal;
@@ -13,7 +13,7 @@ type Plan = { hop: string; base?: never; pending?: never } |
 
 import { Application } from 'marionette';
 import type { ApplicationInstance, ApplicationConstructor } from 'marionette';
-import type { ActiveMatch, Match, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteTable, MountOptions, RouteHandler, MatcherResult, RedirectTarget } from './types.ts';
+import type { ActiveMatch, Match, InitialDispatchResult, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteTable, MountOptions, RouteHandler, MatcherResult, RedirectTarget } from './types.ts';
 
 import type { NamedRouteArgs, RouteNames } from './route-types.ts';
 import { Matcher } from './matcher.ts';
@@ -103,6 +103,7 @@ export interface RouterMethods extends Omit<RouterOptions, keyof ApplicationInst
   url(name: string, params?: Params, options?: { query?: Query }): string;
   match(url: URL | string): Match | null;
   getCurrent(): ActiveMatch | null;
+  getInitialDispatch(): Promise<InitialDispatchResult> | null;
   refresh(): Promise<boolean>;
   mount(routes: RouteTable, options?: MountOptions): () => void;
   getParamNames(name: string): string[];
@@ -141,6 +142,7 @@ type RouterState = {
   currentController: AbortController | null;
   currentNavigation: Navigation | null;
   pending: Set<Navigation>;
+  initialDispatch: Promise<InitialDispatchResult> | null;
   traversals: Set<{ key: string; chain: Chain }>;
 };
 const states = new WeakMap<RouterInstance, RouterState>();
@@ -174,7 +176,7 @@ function stopRouting(router: RouterInstance) {
 function constructRouter(this: RouterInstance, options?: RouterOptions) {
   states.set(this, {
     matcher: null, resolvedDriver: null, session: null, local: null, chain: null,
-    current: null, currentController: null, currentNavigation: null, pending: new Set(), traversals: new Set()
+    current: null, currentController: null, currentNavigation: null, pending: new Set(), initialDispatch: null, traversals: new Set()
   });
   // Application establishes its stopping guard before notifying listeners, so
   // abort callbacks cannot re-enable routing during ancestor teardown.
@@ -188,15 +190,17 @@ function startRouting(router: RouterInstance) {
   // the app before event listeners run; retained restart keeps its session.
   const internals = stateFor(router);
   if (!router.isRunning() || internals.session) {return;}
+  const initial = Promise.withResolvers<InitialDispatchResult>();
+  internals.initialDispatch = initial.promise;
   try {
     const driver = getDriver(router);
     const session: Session = { controller: new AbortController() };
     internals.session = session;
     driver.addEventListener('navigate', event => onNavigate(router, event), { signal: session.controller.signal });
-    // Activation does not await page work. Each attempt reports its own failure
-    // through route:error; cancellation and redirect-following are observed here.
-    dispatchInitial(router, session).catch(noop);
+    // Activation and initial page readiness have distinct observable outcomes.
+    dispatchInitial(router, session).then(initial.resolve, error => initial.resolve({ status: 'failed', error, match: null }));
   } catch (error) {
+    initial.resolve({ status: 'failed', error, match: null });
     // A failure acquiring our own binding must leave activation retryable.
     // Consumer notification failures keep the ordinary Application contract.
     stopRouting(router);
@@ -355,11 +359,30 @@ function dispatchInitial(router: RouterInstance, session: Session) {
     rawState: entry.getState(),
     match: null,
   };
+  nav.chain.dispatch = { match: null };
   internals.pending.add(nav);
-  return waitForAttempt(router, nav, async() => {
-    const plan = planNavigation(router, nav);
-    if (plan) {await execute(router, plan, nav);}
-  }).then(() => nav.chain.followUp?.finished);
+  return initialOutcome(router, nav);
+}
+
+async function initialOutcome(router: RouterInstance, nav: Navigation): Promise<InitialDispatchResult> {
+  try {
+    try {
+      await waitForAttempt(router, nav, async() => {
+        const plan = planNavigation(router, nav);
+        if (plan) {await execute(router, plan, nav);}
+      });
+    } catch (error) {
+      // A redirect cancels its source; its destination owns the final outcome.
+      if (!nav.chain.followUp) {throw error;}
+    }
+    const finished = nav.chain.followUp ? await nav.chain.followUp.finished : !nav.signal.aborted;
+    if (!finished) {return { status: 'cancelled' };}
+    const match = nav.chain.dispatch!.match;
+    return match ? { status: 'matched', match } : { status: 'unmatched' };
+  } catch (error) {
+    if ((error as Error)?.name === 'AbortError') {return { status: 'cancelled' };}
+    return { status: 'failed', error, match: nav.chain.dispatch!.match };
+  }
 }
 
 function planNavigation(router: RouterInstance, nav: Navigation): Plan | null {
@@ -413,7 +436,8 @@ function targetHref(router: RouterInstance, target: RedirectTarget) {
 }
 
 function hop(router: RouterInstance, href: string, nav: Navigation): NavigationResult<boolean> {
-  const chain: Chain = { initial: nav.chain.initial, hops: nav.chain.hops + 1, followUp: null, policy: nav.chain.policy };
+  const chain: Chain = { initial: nav.chain.initial, hops: nav.chain.hops + 1, followUp: null, policy: nav.chain.policy, dispatch: nav.chain.dispatch };
+  if (chain.dispatch) {chain.dispatch.match = null;}
   return navigateDriver(router, href, { history: 'replace', state: nav.rawState, info: nav.info }, chain);
 }
 
@@ -508,6 +532,7 @@ function commit(router: RouterInstance, base: Base, nav: Navigation) {
   internals.current = match;
   internals.currentController = nav.controller;
   internals.currentNavigation = nav;
+  if (nav.chain.dispatch) {nav.chain.dispatch.match = match;}
   previous?.abort();
   if (!isCurrent(router, nav)) {return null;}
   router.triggerMethod('route', match);
@@ -555,6 +580,10 @@ export const Router = Application.extend({
   getCurrent(this: RouterInstance) {
     const internals = stateFor(this);
     return internals.current;
+  },
+
+  getInitialDispatch(this: RouterInstance) {
+    return stateFor(this).initialDispatch;
   },
 
   refresh(this: RouterInstance) {

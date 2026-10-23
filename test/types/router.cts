@@ -180,3 +180,13 @@ const fakeChild = { cid: 'fake', start: async() => true, stop: () => true,
 // @ts-expect-error Core ownership still requires the complete Application contract.
 owner.addChildApp('fake', fakeChild);
 void declarative;
+
+const initialDispatch: Promise<import('@mnjs/router').InitialDispatchResult> | null = router.getInitialDispatch();
+initialDispatch?.then(outcome => {
+  if (outcome.status === 'matched') { const ready: ActiveMatch = outcome.match; void ready; }
+  if (outcome.status === 'failed') { const error: unknown = outcome.error; void error; }
+  if (outcome.status === 'unmatched') {
+    // @ts-expect-error An unmatched initial dispatch has no successful Match.
+    outcome.match;
+  }
+});
