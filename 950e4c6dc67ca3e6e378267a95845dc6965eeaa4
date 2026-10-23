@@ -1,0 +1,60 @@
+packages/router/design.md
+  h_0f06c286dda36f 1-80
+packages/router/license.txt
+  h_0f06c286dda36f 1-21
+packages/router/package.json
+  h_0f06c286dda36f 1-39
+packages/router/readme.md
+  h_0f06c286dda36f 1-110
+packages/router/src/history.ts
+  h_0f06c286dda36f 1-75
+packages/router/src/index.ts
+  h_0f06c286dda36f 1-6
+packages/router/src/router.ts
+  h_0f06c286dda36f 1-167
+packages/router/src/routes.ts
+  h_0f06c286dda36f 1-93
+packages/router/tsconfig.build.json
+  h_0f06c286dda36f 1-21
+packages/router/verification.md
+  h_0f06c286dda36f 1-48
+test/router/backbone-history.mjs
+  h_0f06c286dda36f 1-59
+test/router/browser.mjs
+  h_0f06c286dda36f 1-357
+test/router/consumer.mjs
+  h_0f06c286dda36f 1-37
+test/router/fixture.html
+  h_0f06c286dda36f 1-29
+test/router/fixture.mjs
+  h_0f06c286dda36f 1-138
+test/router/legacy-fixture.mjs
+  h_0f06c286dda36f 1-40
+test/router/owner.mjs
+  h_0f06c286dda36f 1-87
+test/router/routes.mjs
+  h_0f06c286dda36f 1-28
+test/router/types.mts
+  h_0f06c286dda36f 1-30
+test/router/verification.json
+  h_0f06c286dda36f 1-55
+test/router/vitest.config.mjs
+  h_0f06c286dda36f 1-25
+test/unit/router/driver-contract.spec.mjs
+  h_0f06c286dda36f 1-83
+test/unit/router/ownership.spec.mjs
+  h_0f06c286dda36f 1-229
+test/unit/router/router.spec.mjs
+  h_0f06c286dda36f 1-374
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "950e4c6dc67ca3e6e378267a95845dc6965eeaa4",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
