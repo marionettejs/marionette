@@ -120,7 +120,8 @@
     "performance:retention": "npm run build && node scripts/performance/retention.mjs",
     "test:docs-production": "node test/docs/production-package.mjs",
     "build:router": "npm --prefix packages/router run build",
-    "test:router-package": "node test/router/package.mjs"
+    "test:router-package": "node test/router/package.mjs",
+    "test:router-tarball": "node test/router/tarball.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"

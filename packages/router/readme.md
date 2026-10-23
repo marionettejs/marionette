@@ -205,8 +205,11 @@ From the repository root:
 npm test -- test/unit/router
 npm run build
 npm run test:router-package
+npm run test:router-tarball
 ```
 
 Tests use public package imports. Build checks ESM/CJS declarations; package
 fixtures exercise the required peer, lifecycle and switching in both formats.
+The tarball smoke installs the router plus its three packed peers offline in a
+temporary consumer. To test an existing archive, pass its path after `--`.
 Native-browser behavior and real UI focus/scroll require separate validation.

@@ -73,3 +73,46 @@ pending reference and an abort observation until settled/cancelled. The initial
 dispatch adds one promise/context per activation, shared through redirect hops.
 Static catalog/type repair adds no runtime work. No performance benchmark or
 release/browser certification is claimed.
+
+## Installed tarball and focused self-review follow-up
+
+Self-review found one N9 race after `ddb8b5e6`: a pending attempt's abort listener
+could remount its parent before reconciliation inspected a completed current
+descendant. The descendant's registration then appeared active again and its old
+Match survived. A new public held-driver regression failed before the fix.
+Reconciliation now snapshots all retired attempts and clears current authority
+before invoking any abort callback. Remounted/newer attempts retain their own
+authority. All 530 router tests pass after this correction.
+
+Core `addChildApp` still requires the full `ApplicationInstance<object, unknown>`;
+its runtime identity checks are unchanged. Type consumers now also mount a broad
+runtime table on a known static feature catalog and confirm that known params stay
+required and runtime-only names do not silently enter the static union. ESM/CJS
+declaration consumers pass. The parent metadata, declarative configuration,
+registration retention, same-name cancellation and initial-outcome cases remain
+covered; no further contract defect was found in this focused review.
+
+`npm run test:router-tarball -- <archive>` is a repeatable installed-consumer smoke.
+Without a path, it packs the current built router. It locally packs core, utils
+and Radio, then installs all four archives with `--offline --ignore-scripts` in a
+temporary consumer, without symlinks to the checkout. Both ESM and CJS passed:
+explicit shared-router injection through declarative children, parent branch/meta,
+UI stop/start retention, owner cancellation of ignored pending work, same-name
+replacement, fake-child rejection, and matched/unmatched/cancelled/failed initial
+outcomes. The installed files include declarations and the private design/provenance
+records. This is local package evidence, not registry or browser certification.
+
+Tested router archive:
+`/workspace/scratch/router-artifacts/self-review/mnjs-router-0.1.0.tgz`.
+SHA-256: `4b913c35f0bcdd2c36958f20728bf7b449e0f17f7a47224e9a3c971deb889d66`.
+The archive contains the corrected runtime; later evidence-only text is maintained
+in this repository record. Build, lint, public-test checks, type consumers,
+API-inventory consistency, source/distribution and the earlier built-package
+fixture passed again. The browser restriction was not retried or bypassed.
+Leave guards remain a design proposal only.
+
+Corrected runtime/type revision:
+`188de5dac0fcdc448f428f8b9144ae9cc4dd146b`. The complete suite passed again:
+2,644 tests across 161 files, including 530 router tests. Both the supplied-archive
+and default pack-then-install forms of the new tarball smoke passed. The final
+follow-up commit adds only the repeatable fixture, its npm command and evidence.
