@@ -9,15 +9,17 @@ export interface RouteApplicationOptions extends ApplicationOptions {
   routeParent?: string;
   routes?: RouteTable | ((this: RouteApplicationInstance) => RouteTable);
 }
-export type RouteApplicationInstance = Omit<ApplicationInstance<RouteApplicationOptions, unknown>, 'routes'> & {
+export type RouteApplicationInstance = Omit<ApplicationInstance<ConfiguredRouteApplicationOptions, unknown>, 'routes'> & {
   routes: NonNullable<RouteApplicationOptions['routes']>;
 };
 type RouteProperties = Pick<RouteApplicationInstance, 'routes'>;
 export type ConfiguredRouteApplicationOptions = Omit<RouteApplicationOptions, 'router'> & { router?: RouterInstance };
 type ArgumentsFor<Props, Previous extends unknown[]> = Props extends { constructor: (...args: infer Args) => unknown } ? Args
   : Props extends { initialize: (...args: infer Args) => unknown } ? Args : Previous;
-type StateFor<Props> = Props extends { state: infer State } ? State
-  : Props extends { createState: (...args: never[]) => infer State } ? State : object;
+type DefaultStateFor<Props> = Props extends { createState: (...args: never[]) => infer State } ? State : object;
+type StateFor<Props> = 'state' extends keyof Props
+  ? Exclude<Props['state'], undefined> | (undefined extends Props['state'] ? DefaultStateFor<Props> : never)
+  : DefaultStateFor<Props>;
 type FeatureInstance<Props extends object, Args extends unknown[], State, Statics extends object> =
   InstanceType<ApplicationConstructor<Props, Args, State, Statics>>;
 // Application's merged instance pins lifecycle hook receivers to its base shape.
@@ -32,8 +34,9 @@ type FeatureConstructor<Props extends object, Args extends unknown[], State = ob
     new <Provided extends Args = Args>(...args: Provided): OwnedFeature<Props, Provided, State, Statics>;
     (this: object, ...args: Args): void;
     extend<Added extends object = {}, AddedStatics extends object = {}>(
+      this: Added extends { constructor: (...args: never[]) => unknown } ? object : (this: object, ...args: never[]) => unknown,
       prototypeProperties?: Added & ThisType<OwnedFeature<Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>>>,
-      staticProperties?: AddedStatics
+      staticProperties?: AddedStatics & ThisType<FeatureConstructor<Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>>>
     ): FeatureConstructor<Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>>;
   };
 export type RouteApplicationConstructor = FeatureConstructor<RouteProperties, [options: RouteApplicationOptions]> & {

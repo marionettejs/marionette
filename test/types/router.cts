@@ -190,3 +190,15 @@ initialDispatch?.then(outcome => {
     outcome.match;
   }
 });
+
+const configuredBase: RouteApplicationInstance = configured;
+const StatefulFeature = RouteApplication.withRouter(router).extend({ state: { count: 0 } }, {
+  kind: 'feature',
+  label() { return this.kind.toUpperCase(); },
+});
+const statefulFeature = new StatefulFeature();
+const featureCount: number = statefulFeature.getState().count;
+const featureLabel: string = StatefulFeature.label();
+// @ts-expect-error Local declaration repair preserves typed feature state.
+statefulFeature.getState().missing;
+void [configuredBase, featureCount, featureLabel];
