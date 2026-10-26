@@ -47,6 +47,12 @@ export function sameValues(left: unknown, right: unknown): boolean {
 
 const commonProps = new Set([...runtimeProps, 'help', 'label', 'disabled', 'validationVisibility',
   'attrs', 'ignore', 'dirtyBehavior', 'preserve', 'preserveErrors', 'value', 'slots', 'itemKey']);
+function inputProps(props: Scope): Scope {
+  // Official bindings merge this local layer after inherited config classes
+  // and before explicit sectionClass props. Normalize updates as well as mounts.
+  return { ...props, ...Object.fromEntries(Object.entries(props.classes as Scope ?? {})
+    .map(([section, value]) => [`_${section}Class`, value])) };
+}
 function attributes(props: Scope, node?: FormKitNode) {
   const definitionProps = node?.props.definition?.props;
   const known = new Set([...commonProps, ...(Array.isArray(definitionProps) ? definitionProps : Object.keys(definitionProps ?? {}))]);
@@ -87,6 +93,7 @@ export type InputFactoryDecorator = (parent: FormKitNode, factory: (...args: Par
 export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decorate?: InputFactoryDecorator):
   (...args: Parameters<SchemaComponentFactory>) => InputMount {
   return ({ document, props, data, children }) => {
+    props = inputProps(props);
     const start = document.createComment('input'), end = document.createComment('/input');
     const element = document.createDocumentFragment();
     element.append(start, end);
@@ -126,7 +133,7 @@ export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decor
       const slots = scopedSlots(currentChildren, next.slots as Scope ?? {}, () => currentData);
       node = createNode({ parent: next.ignore === true ? null : inherited, name: next.name as string | undefined, index: next.index as number | undefined,
         sync: !!(next.sync || next.dynamic), value: next.value,
-        config: { ...next.config as Partial<FormKitConfig>, ...(next.classes ? { classes: next.classes as FormKitConfig['classes'] } : {}) },
+        config: { ...next.config as Partial<FormKitConfig> },
         plugins: [...parent.plugins, ...inherited.plugins, ...next.plugins as FormKitPlugin[] ?? []],
         props: { ...copyProps(next) as Scope, id, attrs: attributes(next), __root: document, __slots: slots } });
       node.props.attrs = attributes(next, node);
@@ -157,6 +164,7 @@ export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decor
     create(props);
     return { element, get node() { return node; },
       update(next, nextData, nextChildren) {
+        next = inputProps(next);
         currentData = nextData;
         const inherited = next.parent as FormKitNode | undefined ?? parent;
         const index = next.index === undefined ? node.index : Number(next.index);

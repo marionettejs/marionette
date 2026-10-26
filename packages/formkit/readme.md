@@ -194,6 +194,10 @@ default; explicit IDs are the consumer's responsibility.
   parent, name, preserve, ignore, plugins or config changes. Initial `ignore: true`
   controls have independent values/validation and contribute neither to the form;
   their listeners and Views still end with their form owner.
+  `classes` replaces the input's local section-class map, preserving inherited
+  `config.classes`; explicit section props such as `inputClass` apply after it.
+  Omitted sections lose their previous local classes. Schema class updates use
+  the same layers.
 - `removal: 'preserve'` removes the node on destroy but retains its draft value.
   `removal: 'clear'` removes both node and value, including under preserved groups;
   snapshots written through `setValues`, `setValue` or `resetForm` cannot resurrect

@@ -443,11 +443,15 @@ export class FormView<Values extends object = FormValues> extends View {
       },
       notify: () => this.notifyFields,
       write: (node, value, updateOptions) => this.updateValues(() => {
-        const path = node.address.slice(1).map(String);
-        const snapshot = this.getValues() as FormValues;
-        writePath(snapshot, path, cloneAny(value));
-        this.excludeAbsent(snapshot);
-        const supplied = readPath(snapshot, path);
+        let supplied = cloneAny(value);
+        // Ignored inputs are owned resources with independent value trees.
+        if (node.root === this.node) {
+          const path = node.address.slice(1).map(String);
+          const snapshot = this.getValues() as FormValues;
+          writePath(snapshot, path, supplied);
+          this.excludeAbsent(snapshot);
+          supplied = readPath(snapshot, path);
+        }
         settleWrittenValues(node, supplied);
         void node.input(listValues(node, supplied), false);
       }, updateOptions),

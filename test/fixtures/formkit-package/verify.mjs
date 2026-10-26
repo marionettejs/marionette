@@ -27,6 +27,58 @@ try {
     for (const imported of [FieldView, FormView, RowView, SchemaView, SubmissionError, createSchemaRenderer, createViewComponents]) { assert.equal(typeof imported, 'function'); }
     assert.deepEqual(new SubmissionError('Failed', { email: ['Taken'] }).fieldErrors, { email: ['Taken'] });
     {
+      const form = new FormView({ template: () => '', values: { title: 'Canonical' },
+        config: { classes: { input: 'inherited', outer: 'inherited-outer' } },
+        inputs: { customText: { type: 'input', schema: { $el: 'input', attrs: {
+          class: '$classes.input', value: '$_value', onInput: '$handlers.DOMInput'
+        } } } } });
+      form.render(); document.body.append(form.el);
+      const ignored = new FieldView({ form, name: 'scratch', removal: 'preserve',
+        input: { type: 'text', ignore: true, value: 'Initial', config: { delay: 0 } } });
+      ignored.render(); form.el.append(ignored.el); await flush();
+      const changes = []; const roots = [];
+      ignored.on('field:change', (value, metadata) => changes.push({ value, source: metadata.source }));
+      form.on('form:change', values => roots.push(values));
+      ignored.setValue('Changed', { source: 'actor' }); await flush();
+      assert.equal(ignored.getValue(), 'Changed');
+      assert.equal(ignored.el.querySelector('input').value, 'Changed');
+      assert.deepEqual(changes, [{ value: 'Changed', source: 'actor' }]);
+      ignored.setValue('Silent', { notify: false }); await flush();
+      assert.equal(ignored.getValue(), 'Silent'); assert.equal(changes.length, 1);
+      const ignoredInput = ignored.el.querySelector('input');
+      ignoredInput.value = 'Native'; ignoredInput.dispatchEvent(new Event('input', { bubbles: true }));
+      await ignored.node.settled; await flush();
+      assert.deepEqual(changes.at(-1), { value: 'Native', source: 'user' });
+      assert.deepEqual(form.getValues(), { title: 'Canonical' }); assert.deepEqual(roots, []);
+      const custom = new FieldView({ form, name: 'custom', removal: 'preserve',
+        input: { type: 'customText', value: 'Selection', classes: { input: 'before' }, inputClass: 'explicit' } });
+      custom.render(); form.el.append(custom.el); await flush();
+      const input = custom.el.querySelector('input'); input.focus(); input.setSelectionRange(1, 4);
+      assert.equal(input.className, 'formkit-input inherited before explicit');
+      custom.setInput({ classes: { input: 'after' } }); await flush();
+      assert.equal(input.className, 'formkit-input inherited after explicit');
+      custom.setInput({ classes: {} }); await flush();
+      assert.equal(input.className, 'formkit-input inherited explicit');
+      assert.equal(custom.el.querySelector('input'), input); assert.equal(document.activeElement, input);
+      assert.deepEqual([input.selectionStart, input.selectionEnd], [1, 4]);
+      form.destroy(); assert.equal(ignored.isDestroyed(), true); assert.equal(custom.isDestroyed(), true);
+      document.body.replaceChildren();
+      const schema = new FormView({ config: { classes: { outer: 'global' } },
+        schemaData: { localClasses: { inner: 'before' } },
+        schema: [{ $formkit: 'text', name: 'title', classes: '$localClasses' }] });
+      schema.render(); await flush();
+      const control = schema.el.querySelector('input');
+      assert.equal(schema.el.querySelector('.formkit-outer').className, 'formkit-outer global');
+      assert.equal(schema.el.querySelector('.formkit-inner').className, 'formkit-inner before');
+      schema.setSchemaData({ localClasses: { inner: 'after' } }); await flush();
+      assert.equal(schema.el.querySelector('.formkit-inner').className, 'formkit-inner after');
+      schema.setSchemaData({ localClasses: {} }); await flush();
+      assert.equal(schema.el.querySelector('.formkit-inner').className, 'formkit-inner');
+      assert.equal(schema.el.querySelector('.formkit-outer').className, 'formkit-outer global');
+      assert.equal(schema.el.querySelector('input'), control); schema.destroy();
+      console.log(`${name}: ignored writes, notification origins and layered classes in schema/custom controls passed.`);
+    }
+    {
       const hostState = { saved: true };
       const host = new FormView({ fields: [], state: hostState, stateEvents: {} });
       assert.equal(host.getState(), hostState);
