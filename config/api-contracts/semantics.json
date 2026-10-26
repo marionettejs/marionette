@@ -3311,7 +3311,7 @@
       "result": "Native DOM methods return their documented Element/Document/collection/void results.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "DOM operations do not own or destroy framework Views.",
-      "mutation": "Methods synchronously query, create, move, detach or replace DOM contents; notify hooks expose attachment to integrations.",
+      "mutation": "Methods synchronously query, create, move, detach or replace DOM contents; notify hooks expose attachment to integrations. Attachment checks may follow shadow hosts through configured document-root/containment operations; hasEl and selector lookup retain strict tree semantics.",
       "repetition": "Queries observe current DOM; mutation methods operate on supplied nodes each time.",
       "destruction": "Framework owner lifecycle is separate from direct DOM operations.",
       "diagnostics": [],
@@ -3346,6 +3346,18 @@
         {
           "file": "test/unit/region-lifecycle.spec.js",
           "title": "shows a View in template content without reporting attachment"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "strict containment and selector lookup do not cross shadow roots"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "attachment retains configured document-root and containment boundaries"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "detached URL elements keep their host property separate from shadow attachment"
         }
       ],
       "documentation": {
@@ -4177,7 +4189,7 @@
       "ownership": "Framework Views retain their normal ownership; DOM adapters own their rendering integration resources.",
       "mutation": "Reconciles content while preserving the View root and matching survivor elements; owner Regions are cleaned before parent rendering.",
       "repetition": "Repeated rendering updates content within the same root.",
-      "destruction": "Detach/reattach preserves the root; destroy releases rendering resources through normal View lifecycle.",
+      "destruction": "Detach/reattach preserves the root; destroy releases rendering resources through normal View lifecycle. Monitored adoption and Region mounting of Elements inside open/closed shadows connect and disconnect directives; external DOM movement and disabled monitoring require application notifications.",
       "diagnostics": [],
       "docs": [
         {
@@ -4199,6 +4211,14 @@
           "file": "test/contracts/dom-adapters.js",
           "title": "${kind}: replaces initial contents, preserves root and survivor, and commits synchronously",
           "runner": "test/unit/dom-adapters.spec.js"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "Lit View releases subscriptions across adoption, mounting and teardown"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "managed shadow descendants respect attachment and monitoring policy"
         }
       ],
       "documentation": {

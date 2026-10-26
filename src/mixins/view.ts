@@ -11,6 +11,7 @@ import UIMixin from './ui.ts';
 import ViewEvents from './view-events.ts';
 import DomApi from '../runtime/dom-api.ts';
 import DataApi from '../runtime/data-api.ts';
+import isElAttached from '../utils/is-el-attached.ts';
 
 import type { BehaviorContainer } from './behaviors.ts';
 import type { EntityEventHost } from './delegate-entity-events.ts';
@@ -124,8 +125,7 @@ const ViewMixin = {
   },
 
   _isElAttached(this: ViewMixinHost) {
-    const documentEl = this.el && this.Dom.getDocumentEl!(this.el);
-    return !!documentEl && this.Dom.hasEl!(documentEl, this.el);
+    return isElAttached(this.el, this.Dom);
   },
 
 

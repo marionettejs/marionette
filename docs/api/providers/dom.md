@@ -57,6 +57,14 @@ Marionette owns View/Region lifecycle and child cleanup around these operations.
 
 Attachment notifications follow monitored Marionette lifecycle, including construction on an attached root. `monitorViewEvents: false` on the View class disables that monitoring. Integrations such as Lit rely on these notifications for directive connection state, so disabling monitoring also disables that integration behavior. Arbitrary external DOM movement is not observed.
 
+Attachment checks support Element roots inside open or closed shadow trees. They
+use the configured `getDocumentEl` and strict `hasEl` check, then check successive
+shadow hosts when needed. This distinguishes document connectivity from ordinary
+tree containment: `hasEl` and selector lookup do not cross shadow boundaries.
+Pass the actual Element when adopting a View or mounting a Region inside a shadow
+tree; a ShadowRoot is not a View or Region root. This does not add shadow-piercing
+event delegation, custom-element lifecycle callbacks, or external DOM observation.
+
 DOM methods are synchronous; they are not lifecycle preparation hooks. View/Region ownership and notifications remain defined in their class references. `notifyAttach`/`notifyDetach` communicate connection changes, not ownership transfer or a general-purpose resource disposer.
 
 ## EventDelegator

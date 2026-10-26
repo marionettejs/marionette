@@ -27,7 +27,12 @@ const StateOwner = runtime.MnObject.extend({
   onReady() { events.state++; }
 });
 const documentElement = { contains() { return false; } };
-const el = { hasChildNodes() { return false; }, ownerDocument: { documentElement } };
+const el = {
+  nodeType: 1,
+  getRootNode() { return this; },
+  hasChildNodes() { return false; },
+  ownerDocument: { documentElement }
+};
 const view = new TestView({ collection, el, model });
 const owner = new StateOwner();
 const state = owner.getState();
