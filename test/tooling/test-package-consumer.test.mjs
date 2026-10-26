@@ -18,13 +18,13 @@ function fixture() {
     dependencies: { marionette: '5.0.0' }, devDependencies: { '@playwright/test': '1.63.0' }
   }));
   writeFileSync(join(directory, 'packages/test/examples/package-lock.json'), '{}');
-  return { directory, script, output: join(directory, 'report') };
+  return { directory, script, output: join(directory, 'report'), temporary: join(directory, 'tmp') };
 }
 
 test('consumer verification reports missing npm context without leaking a workspace', () => {
-  const { directory, script, output } = fixture();
+  const { directory, script, output, temporary } = fixture();
   try {
-    const env = { ...process.env, TMPDIR: join(directory, 'tmp') };
+    const env = { ...process.env, TMPDIR: temporary, TEMP: temporary, TMP: temporary };
     delete env.npm_execpath;
     const result = spawnSync(process.execPath, [script, '--output', output], { env, encoding: 'utf8' });
     assert.equal(result.status, 1);
@@ -36,7 +36,7 @@ test('consumer verification reports missing npm context without leaking a worksp
 });
 
 test('consumer verification records tracked deletions and still reports a later command failure', () => {
-  const { directory, script, output } = fixture();
+  const { directory, script, output, temporary } = fixture();
   try {
     const deleted = 'packages/test/deleted.js';
     writeFileSync(join(directory, deleted), 'export const removed = true;\n');
@@ -46,9 +46,19 @@ test('consumer verification records tracked deletions and still reports a later 
       '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'fixture'], { cwd: directory });
     unlinkSync(join(directory, deleted));
     const npmCli = join(directory, 'npm.mjs');
-    writeFileSync(npmCli, 'throw new Error("intentional pack stop");\n');
+    writeFileSync(npmCli, [
+      'import assert from \'node:assert/strict\';',
+      'import { realpathSync, readdirSync } from \'node:fs\';',
+      'import { tmpdir } from \'node:os\';',
+      'assert.equal(realpathSync(tmpdir()), realpathSync(process.env.MNJS_TEST_TEMP));',
+      'const entries = readdirSync(process.env.MNJS_TEST_TEMP);',
+      'assert.equal(entries.length, 1);',
+      'assert(entries[0].startsWith(\'mnjs-test-consumer-\'));',
+      'throw new Error("intentional pack stop");'
+    ].join('\n'));
     const result = spawnSync(process.execPath, [script, '--output', output], {
-      env: { ...process.env, TMPDIR: join(directory, 'tmp'), npm_execpath: npmCli }, encoding: 'utf8'
+      env: { ...process.env, TMPDIR: temporary, TEMP: temporary, TMP: temporary,
+        MNJS_TEST_TEMP: temporary, npm_execpath: npmCli }, encoding: 'utf8'
     });
     assert.equal(result.status, 1);
     const report = JSON.parse(readFileSync(join(output, 'report.json'), 'utf8'));
