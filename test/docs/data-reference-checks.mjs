@@ -1,6 +1,12 @@
 // Outcome checks for the canonical data reference fences. The shared reference
 // runner executes the actual Markdown code before these assertions.
 export const assertions = {
+  'api-providers-data-1': `
+assert.deepEqual(summary.titles, ['Draft', 'Draft', 'Ready']);
+assert.equal(source.isDestroyed(), true);
+stopEditor();
+stopInspector();
+`,
   'packages-data-1': `
 assert.deepEqual(changes, ['dark', 'system']);
 assert.deepEqual(preferences.toObject(), { compact: false, theme: 'system' });
