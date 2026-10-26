@@ -3,7 +3,7 @@ import { Application, View } from 'marionette';
 import { unmount } from '@mnjs/test/cypress';
 import { afterMountCleanup } from '../support/cleanup-checks.js';
 
-const probe = Cypress.env('mnjsProbe');
+const probe = Cypress.expose('mnjsProbe');
 let cleaned = false;
 let observedCleanup = false;
 

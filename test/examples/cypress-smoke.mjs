@@ -16,8 +16,8 @@ const scenarios = [
 try {
   for (const scenario of scenarios) {
     const result = await cypress.run({ component: true, browser: 'electron', reporter: 'spec',
-      config: { specPattern: scenario.spec || 'cypress/probes/failure.cy.js', retries: 0 },
-      env: { mnjsProbe: scenario.name } });
+      config: { component: { specPattern: scenario.spec || 'cypress/probes/failure.cy.js' }, retries: 0 },
+      expose: { mnjsProbe: scenario.name } });
     assert(Array.isArray(result.runs), result.message || 'Cypress did not produce test runs.');
     const tests = result.runs.flatMap(run => run.tests);
     report.scenarios.push({ name: scenario.name, cypressVersion: result.cypressVersion,
