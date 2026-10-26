@@ -35,7 +35,7 @@
   "browsers": {
     "playwright": {
       "package": "@playwright/test",
-      "version": "1.64.0",
+      "version": "1.64.1",
       "browserBuilds": [
         {
           "name": "chromium",
