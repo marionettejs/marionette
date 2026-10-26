@@ -12423,6 +12423,7 @@
     "packages/test/src/playwright.ts": "76cc51e38195ad411623c24d7acbf41acecb47cbeb7fb1b36ec778314c990207",
     "packages/test/src/scope.ts": "c81f69624f45de1f7be47c3dc2ea37a1444b93fdec7ad91ca558cb9641a187b4",
     "packages/test/src/session.ts": "c490602391e92f620af99a76fd66f50504ccfa3a70097c095804030349f2c5c5",
+    "packages/test/src/testing-library.ts": "bd68a1e14395aa97d59159559840a3d59e4955129ae3d4f2a05a1e4355ec82c6",
     "packages/test/src/vitest.ts": "5d30b910a2542a9e3da74efb497d2f2af097e4797b1eb7b9700318bcef1e6495",
     "packages/test/types/cypress.d.ts": "2af29efe094397eed73fdcb1441c811934382126574b5bb2cb02929a3faf99a3",
     "packages/utils/src/bind-events.ts": "475fabcde622df0d6365ee6454c892ea75ebf95f11487ca074ce5508fe118a72",

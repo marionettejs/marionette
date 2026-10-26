@@ -1,3 +1,4 @@
+import { withQueries } from '@mnjs/test/testing-library';
 import * as cypressAdapter from '@mnjs/test/cypress';
 import { createGallery } from '@mnjs/test/playwright';
 import assert from 'node:assert/strict';
@@ -8,9 +9,9 @@ const scope = createTestScope();
 const runtime = createMarionette();
 const Card = runtime.View.extend({ template: () => '<h1>Consumer</h1>' });
 const options = { regionClass: runtime.Region };
-const mounted = scope.own(mountView(new Card(), options));
+const mounted = withQueries(scope.own(mountView(new Card(), options)));
 options.container = document.body;
-assert.equal(mounted.el.textContent, 'Consumer');
+assert.equal(mounted.getByRole('heading', { name: 'Consumer' }).textContent, 'Consumer');
 assert.equal(mounted.view.isAttached(), true);
 const detached = mounted.region.detachView();
 scope.defer(() => detached.destroy());

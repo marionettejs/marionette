@@ -1,11 +1,29 @@
 /* global describe, it, cy, expect */
 import { Application, View } from 'marionette';
+import { withQueries } from '@mnjs/test/testing-library';
 import { afterMountCleanup } from '../support/cleanup-checks.js';
 
 const Card = View.extend({ template: () => '<h1>Ready</h1>' });
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
 describe('Marionette lifecycle in the real Cypress queue', () => {
+  it('keeps Testing Library queries live on the Cypress-owned mount', () => {
+    cy.mount(() => new Card()).then(original => {
+      const mounted = withQueries(original);
+      expect(mounted).to.equal(original);
+      expect(mounted.getByRole('heading', { name: 'Ready' })).to.equal(mounted.el.firstElementChild);
+      const replacement = new View({ template: () => '<h1>Updated</h1>' });
+      mounted.region.show(replacement);
+      expect(mounted.el).to.equal(replacement.el);
+      expect(mounted.queryByRole('heading', { name: 'Ready' })).to.equal(null);
+      expect(mounted.getByRole('heading', { name: 'Updated' })).to.equal(replacement.el.firstElementChild);
+      afterMountCleanup(() => {
+        expect(mounted.region.isDestroyed()).to.equal(true);
+        expect(mounted.queryByRole('heading')).to.equal(null);
+      });
+    });
+  });
+
   it('awaits readiness and asynchronous after-test resource cleanup', () => {
     let released = false;
     const Feature = Application.extend({

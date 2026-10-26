@@ -37,6 +37,16 @@
         "default": "./dist/playwright.cjs"
       }
     },
+    "./testing-library": {
+      "import": {
+        "types": "./dist/types/esm/testing-library.d.ts",
+        "default": "./dist/testing-library.js"
+      },
+      "require": {
+        "types": "./dist/types/cjs/testing-library.d.ts",
+        "default": "./dist/testing-library.cjs"
+      }
+    },
     "./vitest": {
       "import": {
         "types": "./dist/types/esm/vitest.d.ts",
@@ -56,6 +66,7 @@
   "peerDependencies": {
     "marionette": "^5.0.0",
     "@cypress/mount-utils": "^4.0.0",
+    "@testing-library/dom": "^10.4.1",
     "cypress": "^16.1.1",
     "vitest": "^5.0.3"
   },
@@ -78,6 +89,9 @@
     "directory": "packages/test"
   },
   "peerDependenciesMeta": {
+    "@testing-library/dom": {
+      "optional": true
+    },
     "@cypress/mount-utils": {
       "optional": true
     },

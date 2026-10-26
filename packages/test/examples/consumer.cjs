@@ -1,3 +1,4 @@
+const { withQueries } = require('@mnjs/test/testing-library');
 const cypressAdapter = require('@mnjs/test/cypress');
 const { createGallery } = require('@mnjs/test/playwright');
 const assert = require('node:assert/strict');
@@ -10,8 +11,8 @@ async function run() {
   const options = {
     container: host, showOptions: { replaceElement: true }
   };
-  const mounted = mountView(new View({ template: () => '<button>CommonJS</button>' }), options);
-  assert.equal(mounted.el.textContent, 'CommonJS');
+  const mounted = withQueries(mountView(new View({ template: () => '<button>CommonJS</button>' }), options));
+  assert.equal(mounted.getByRole('button', { name: 'CommonJS' }).textContent, 'CommonJS');
   options.container = undefined;
   await mounted.cleanup();
   assert.equal(host.isConnected, true);

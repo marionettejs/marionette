@@ -144,6 +144,7 @@
     "@rollup/plugin-terser": "1.0.0",
     "@stryker-mutator/core": "10.0.0",
     "@stryker-mutator/vitest-runner": "10.0.0",
+    "@testing-library/dom": "10.4.1",
     "@types/backbone": "1.4.23",
     "@types/jquery": "4.0.1",
     "@typescript-eslint/eslint-plugin": "8.72.0",

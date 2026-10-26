@@ -40,7 +40,7 @@ for (const file of sourceFiles) {
 export default defineConfig({
   resolve: {
     alias: [{
-      find: /^@mnjs\/test\/(cypress|playwright|vitest)$/,
+      find: /^@mnjs\/test\/(cypress|playwright|vitest|testing-library)$/,
       replacement: fileURLToPath(new URL('./packages/test/src/$1', import.meta.url))
     }, {
       find: /^@mnjs\/test$/,

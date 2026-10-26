@@ -24,14 +24,16 @@ results go to `test-results/playwright`; Cypress screenshots go to
 
 | Example | What it demonstrates |
 | --- | --- |
-| [Vitest form tests](form.spec.js) | Testing Library queries and user-event interactions, validation, focus, saves, readiness and cancellation with the per-test `mounts` fixture. The same tests run in JSDOM and Vitest Browser Mode. |
+| [Vitest form tests](form.spec.js) | The optional Testing Library decorator and user-event interactions, validation, focus, saves, readiness and cancellation with the per-test `mounts` fixture. The same tests run in JSDOM and Vitest Browser Mode. |
+| [Testing Library mounts](testing-library.spec.js) | Bound queries, live replacement roots, asynchronous readiness, detached/foreign-document mounts and borrowed query scopes with existing fixture cleanup. |
 | [Runtime isolation](runtime.spec.js) | Independent `createMarionette()` families and Radio channels, with cleanup registered for the resources this test owns. |
 | [Playwright tests](playwright/profile.spec.js) | Browser interaction through Locators and the [story gallery](gallery/gallery.js). Playwright 1.63.0 supplies the gallery mount fixture. |
 | [Cypress component tests](cypress/component/profile.cy.js) | Explicit `cy.mount` registration, awaited replacement and direct container children. |
 | [ESM](consumer.mjs) / [CommonJS](consumer.cjs) consumers | Public package imports, lifecycle behavior and cleanup; matching TypeScript consumers check declarations. Run with `npm --prefix packages/test/examples run test:consumer`. |
 
-Cypress runtime execution has not yet been verified; current checks cover
-declarations and queue/hook contracts.
+The Cypress smoke executes the component examples and four separate expected-failure
+probes, each followed by a fresh-mount cleanup check. It records actual runner versions
+and results; declaration checks alone do not establish Cypress execution.
 
 ## Use the Cypress example
 

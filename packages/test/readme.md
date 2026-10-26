@@ -3,8 +3,8 @@
 Mount real Marionette **5.x** Views and Applications, then release resources your
 test owns. The package exports `mountView`, `mountApplication`, and
 `createTestScope`. Optional `/cypress`, `/playwright`, and `/vitest` entries adapt
-the lifecycle to their runners. Use your runner's assertions, Testing Library queries,
-or browser Locators alongside them. Mounting requires a DOM; importing the package
+the lifecycle to their runners. `/testing-library` adds standard bound queries to an
+existing mount. Use your runner's assertions or browser Locators alongside them. Mounting requires a DOM; importing the package
 and creating a cleanup scope do not. Production Marionette does not depend on it.
 See the [Marionette testing guide](https://marionettejs.com/docs/guides/testing/)
 for application testing fundamentals.
@@ -33,14 +33,69 @@ fixture and awaited teardown, including concurrent tests and failing assertions.
 import { expect } from 'vitest';
 import { test } from '@mnjs/test/vitest';
 import { View } from 'marionette';
-import { within } from '@testing-library/dom';
+import { withQueries } from '@mnjs/test/testing-library';
 
 const Greeting = View.extend({ template: () => '<h1>Hello</h1>' });
 test('renders a greeting', ({ mounts }) => {
-  const mounted = mounts.mountView(new Greeting());
-  expect(within(mounted.container).getByRole('heading').textContent).toBe('Hello');
+  const mounted = withQueries(mounts.mountView(new Greeting()));
+  expect(mounted.getByRole('heading').textContent).toBe('Hello');
 }); // The fixture awaits teardown, including when the test fails.
 ```
+
+## Testing Library: query an existing mount
+
+Install `@testing-library/dom` alongside the helper, then import `withQueries` from
+`@mnjs/test/testing-library`. It decorates an existing View or Application mount
+in place and returns that same handle with standard `getBy*`, `getAllBy*`,
+`queryBy*`, `queryAllBy*`, `findBy*` and `findAllBy*` methods. Role/name, label,
+missing/multiple-result errors and asynchronous polling follow DOM Testing Library.
+This is an ergonomic wrapper around `within`, not another runner or lifecycle.
+
+```js
+import { expect } from 'vitest';
+import { test } from '@mnjs/test/vitest';
+import { withQueries } from '@mnjs/test/testing-library';
+import { Application, View } from 'marionette';
+
+const Editor = View.extend({ template: () => '<label>Name <input></label>' });
+const Feature = Application.extend({ onStart() { this.showView(new Editor()); } });
+test('queries prepared output', async ({ mounts }) => {
+  const mounted = withQueries(mounts.mountApplication(region => new Feature({ region })));
+  await expect(mounted.ready).resolves.toBe(true);
+  expect(await mounted.findByLabelText('Name')).toBe(mounted.el.querySelector('input'));
+});
+```
+
+Queries bind to the stable `mounted.container`, so `region.show()` replacement and
+`replaceElement` keep working without rebinding. The live `el` getter, concrete
+`view`/`app` types, initial `ready` Promise and `cleanup` function are preserved.
+The decorator never starts an Application, awaits readiness or registers cleanup;
+your existing runner fixture or test scope retains ownership. Always await or
+handle `ready` on Application mounts: `findBy*` waits for queried DOM, not global
+application idleness or unrelated asynchronous work.
+
+`withQueries(mounted, { baseElement })` binds queries to that borrowed HTMLElement,
+for example a portal root. It does not move the mount or change cleanup ownership;
+after cleanup, unrelated content in that query root remains queryable. Detached
+mounts and elements from another document work without global `screen` or registry.
+Query semantics still come from DOM Testing Library and the host DOM; native label
+associations may require an attached host. Detached examples use `aria-label`.
+Decorating again returns the same handle and replaces its query methods with ones
+bound to the newly selected root; omitting `baseElement` restores the container.
+Previously destructured query functions keep their original root.
+
+In Cypress, use `cy.mount(...).then(withQueries)` to decorate the yielded handle,
+or call it inside `.then(mounted => ...)` when you need `baseElement`. Component
+tests can stay in Cypress. Bound `getBy*` calls are synchronous; they do not acquire
+Cypress retry semantics. `findBy*` uses Testing Library polling, and a returned
+Promise is awaited by Cypress's `.then` command. Existing Cypress teardown still
+owns the mount. See the [Cypress lifecycle example](https://github.com/marionettejs/marionette/blob/master/packages/test/examples/cypress/component/lifecycle.cy.js).
+
+Import `userEvent` from `@testing-library/user-event` separately for interactions;
+install/configure `@testing-library/jest-dom` separately if your runner supports
+its matchers. Neither is required by this entrypoint. Existing `within(container)`
+code continues to work; the [form suite](https://github.com/marionettejs/marionette/blob/master/packages/test/examples/form.spec.js)
+now uses the decorator with its existing per-test ownership.
 
 ## Cypress: register cy.mount once
 
@@ -377,12 +432,10 @@ include a prepared Application and native keyboard submission.
 | `@mnjs/test` | Marionette 5.0.0; ESM/CommonJS, DOM-free imports and lifecycle tests. |
 | `@mnjs/test/vitest` | Vitest 5.0.3; ESM fixture, JSDOM and Chromium form suite. |
 | `@mnjs/test/playwright` | Playwright 1.63.0; browser gallery with its built-in fixture and ESM/CommonJS browser helper. |
-| `@mnjs/test/cypress` | Cypress 16.1.1 declarations and mount-utils 4.0.0 queue/hook contract checks. |
+| `@mnjs/test/cypress` | Cypress 16.1.1 / Electron and mount-utils 4.0.0; component lifecycle and expected-failure cleanup probes. |
+| `@mnjs/test/testing-library` | DOM Testing Library 10.4.1; ESM/CommonJS and types, scoped queries, replacement, readiness and existing runner cleanup. |
 
-Cypress runtime execution has not yet been verified; current checks cover
-declarations and queue/hook contracts.
-
-Cypress/mount-utils and Vitest are optional peers. Import the adapter you use;
+Cypress/mount-utils, Vitest and DOM Testing Library are optional peers. Import the adapter you use;
 the neutral entry and browser gallery do not require these runners. The
 [example manifest and lockfile](https://github.com/marionettejs/marionette/tree/master/packages/test/examples)
 record exact tool versions. Other runner versions and integrations have not been

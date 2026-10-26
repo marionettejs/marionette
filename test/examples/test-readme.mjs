@@ -26,6 +26,7 @@ for (const [index, source] of neutral.entries()) {
   assert.deepEqual([...document.body.childNodes], before, `README neutral recipe ${index} leaked DOM`);
 }
 writeFileSync('readme.spec.js', blocks('Vitest: own mounts per test', 'js', 1)[0]);
+writeFileSync('readme-testing-library.spec.js', blocks('Testing Library: query an existing mount', 'js', 1)[0]);
 writeFileSync('cypress/readme-commands.ts', blocks('Cypress: register cy.mount once', 'ts', 1)[0]);
 const [gallery, spec] = blocks('Playwright: mount named browser stories', 'js', 2);
 writeFileSync('gallery/readme.js', gallery);
