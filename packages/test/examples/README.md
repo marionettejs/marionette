@@ -25,6 +25,7 @@ results go to `test-results/playwright`; Cypress screenshots go to
 | Example | What it demonstrates |
 | --- | --- |
 | [Vitest form tests](form.spec.js) | Testing Library queries and user-event interactions, validation, focus, saves, readiness and cancellation with the per-test `mounts` fixture. The same tests run in JSDOM and Vitest Browser Mode. |
+| [Runtime isolation](runtime.spec.js) | Independent `createMarionette()` families and Radio channels, with cleanup registered for the resources this test owns. |
 | [Playwright tests](playwright/profile.spec.js) | Browser interaction through Locators and the [story gallery](gallery/gallery.js). Playwright 1.63.0 supplies the gallery mount fixture. |
 | [Cypress component tests](cypress/component/profile.cy.js) | Explicit `cy.mount` registration, awaited replacement and direct container children. |
 | [ESM](consumer.mjs) / [CommonJS](consumer.cjs) consumers | Public package imports, lifecycle behavior and cleanup; matching TypeScript consumers check declarations. Run with `npm --prefix packages/test/examples run test:consumer`. |
@@ -59,6 +60,22 @@ With Cypress and its browser binary available, the example's command is:
 ```sh
 npm --prefix packages/test/examples run test:cypress
 ```
+
+For artifact-bound runtime verification, install the Cypress binary first, then
+run this from the repository root:
+
+```sh
+npm run test:helpers:consumer -- --cypress
+```
+
+The normal component examples cover mounting, Application readiness, manual startup,
+configured command timeouts and awaited cleanup. The verifier also runs deliberate
+startup, cancellation, timeout and cleanup failures in separate Cypress runs. It
+requires the expected error and a passing following test after teardown. Those
+failure probes are excluded from the normal `test:cypress` command. Runner results
+and screenshots are retained under the verifier's report directory. This optional
+flag requires an installed Cypress binary and its Linux display dependencies;
+the verifier's dependency install does not download browser binaries.
 
 ## Playwright and Vitest ownership
 

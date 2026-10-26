@@ -216,6 +216,8 @@ options. The returned handle adds `app` and `ready` to the mount fields above.
 
 By default the helper starts the Application. `ready` is the actual initial start
 Promise: `true` for success, `false` for cancellation, rejection for failure.
+Always await or handle `mounted.ready`, including inside a gallery story, so startup
+failures reach the test that owns the mount. Cleanup does not consume startup errors.
 Pass `start: false` to leave startup to the caller; then `ready` resolves `false`
 without calling `start()`. It remains the initial attempt after restart;
 await `app.restart()` explicitly. Cleanup begins in the calling turn and cancels
@@ -283,6 +285,11 @@ rejects `ready`; cleanup of the returned handle remains your responsibility.
 Register your own listeners, subscriptions and servers, and restore runner mocks
 and timers at their chosen lifetime. There is no universal leak detector.
 
+Use `createMarionette()` for independent class/provider and Radio families. Pass
+that runtime's `Region` when mounting its Views, and register cleanup for the Radio
+instance your test owns. The [runtime isolation example](https://github.com/marionettejs/marionette/blob/master/packages/test/examples/runtime.spec.js)
+shows this with ordinary `mounts.scope.defer(...)` callbacks and public channel APIs.
+
 ## Lifecycle semantics
 
 ### Runner contexts
@@ -312,9 +319,12 @@ JSDOM and Chromium with Testing Library. It needs no per-file mount tracking or
 A factory runs **inside the queue after prior cleanup finishes**. It receives a
 fresh project scope: register providers/listeners there and return a fresh View.
 Factories are synchronous; put asynchronous Cypress setup in earlier commands.
+Pass a View instance or `() => new MyView()`; a View constructor alone is not a factory.
 The adapter uses `[data-cy-root]`, destroys the previous mount before replacement,
 and awaits cleanup before and after each test. `setupCypress()` is idempotent and
 component-only. Importing this entry registers no commands or hooks.
+After-test cleanup also removes the final mounted UI in Cypress open mode. This
+adapter prioritizes awaited resource release over leaving that UI available for inspection.
 
 `start: true` waits for initial readiness; cancellation rejects the command and
 startup failure preserves its error. `start: false` never calls `app.start()`;
@@ -324,6 +334,9 @@ Queued `unmount()` explicitly awaits the same teardown. Optional `log: false`
 suppresses the mount log. Runner mount options accept `regionClass`,
 `replaceElement`, and initial View `showOptions` or Application `startOptions`;
 the runner chooses the container.
+Mounting and queued cleanup use Cypress's configured `defaultCommandTimeout`.
+Set that option in the project or test configuration when readiness or disposal
+needs more time; later query timeouts do not extend an earlier mount command.
 
 The chain yields a handle, not a DOM query subject. Use `cy.get(...)` or a project
 wrapper ending in `.get('#root')` when a DOM subject is required. The integration
@@ -380,12 +393,16 @@ From the Marionette repository, after building, run the installed consumer check
 ```sh
 npm run test:helpers:consumer
 MNJS_TEST_CHROMIUM_EXECUTABLE=/path/to/chromium npm run test:helpers:consumer -- --browser
+npm run test:helpers:consumer -- --cypress
 ```
 
 These pack the helper and install the locked example project in isolation to check
 ESM/CommonJS imports, strict declarations and DOM interactions. The browser flag
 adds Vitest Browser and Playwright Test. Cypress declarations are checked
 separately from neutral consumers to keep their globals isolated.
+The optional `--cypress` flag requires an installed Cypress binary and runs the
+real component smoke plus explicit failure/cleanup probes. Its runner results are
+recorded separately from modeled queue/hook tests.
 
 Runner conventions follow the [Cypress mount guide](https://docs.cypress.io/api/commands/mount),
 [Vitest fixture guide](https://vitest.dev/guide/test-context) and

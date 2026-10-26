@@ -9,13 +9,20 @@ import { parseArgs } from 'node:util';
 const root = resolve(import.meta.dirname, '../..');
 const { values } = parseArgs({ options: {
   output: { type: 'string', default: join(root, 'test/tmp/test-package-consumer') },
-  browser: { type: 'boolean', default: false }
+  browser: { type: 'boolean', default: false },
+  cypress: { type: 'boolean', default: false }
 } });
 const output = resolve(values.output);
 mkdirSync(output, { recursive: true });
 const workspace = mkdtempSync(join(tmpdir(), 'mnjs-test-consumer-'));
 const consumer = join(workspace, 'packages/test/examples');
 const fixture = join(root, 'packages/test/examples');
+const fixtureManifest = JSON.parse(readFileSync(join(fixture, 'package.json'), 'utf8'));
+const expectedVersions = {
+  marionette: fixtureManifest.dependencies.marionette,
+  helper: JSON.parse(readFileSync(join(root, 'packages/test/package.json'), 'utf8')).version,
+  playwright: fixtureManifest.devDependencies['@playwright/test']
+};
 const npmCli = process.env.npm_execpath;
 if (!npmCli) { throw new Error('Run helper consumer verification through npm so its CLI can be located.'); }
 const env = {
@@ -77,7 +84,16 @@ try {
     'for (const name of ["@mnjs/test", "marionette"]) {' +
     'const path = require.resolve(`${name}/package.json`);' +
     'assert.equal(path, resolve(`node_modules/${name}/package.json`)); console.log(`${name}: ${path}`); }']);
-  run('versions', process.execPath, ['-e', 'const assert=require(\'node:assert/strict\');assert.equal(require(\'marionette/package.json\').version,\'5.0.0\');assert.equal(require(\'@mnjs/test/package.json\').version,\'0.1.0\');assert.equal(require(\'@playwright/test/package.json\').version,\'1.63.0\');console.log(JSON.stringify({marionette:require(\'marionette/package.json\').version,helper:require(\'@mnjs/test/package.json\').version,playwright:require(\'@playwright/test/package.json\').version}));']);
+  run('versions', process.execPath, ['-e', `
+    const assert = require('node:assert/strict');
+    const actual = {
+      marionette: require('marionette/package.json').version,
+      helper: require('@mnjs/test/package.json').version,
+      playwright: require('@playwright/test/package.json').version
+    };
+    assert.deepEqual(actual, JSON.parse(process.argv[1]));
+    console.log(JSON.stringify(actual));
+  `, JSON.stringify(expectedVersions)]);
   run('import-without-dom', process.execPath, ['--input-type=module', '-e', 'import assert from \'node:assert/strict\';import * as esm from \'@mnjs/test\';import {createRequire} from \'node:module\';const cjs=createRequire(import.meta.url)(\'@mnjs/test\');assert.deepEqual(Object.keys(esm).sort(),[\'createTestScope\',\'mountApplication\',\'mountView\']);assert.deepEqual(Object.keys(cjs).sort(),Object.keys(esm).sort());await esm.createTestScope().cleanup();']);
   cpSync(join(root, 'test/examples/optional-test-peers.mjs'), join(consumer, 'optional-test-peers.mjs'));
   run('optional-peer-isolation', process.execPath, ['optional-test-peers.mjs']);
@@ -90,6 +106,13 @@ try {
       'import { chromium } from \'playwright\'; const executable = process.env.MNJS_TEST_CHROMIUM_EXECUTABLE; const browser = await chromium.launch({executablePath: executable}); console.log(JSON.stringify({executable: executable ?? null, version: browser.version()})); await browser.close();']));
     runNpm('vitest-browser', ['run', 'test:browser']);
     runNpm('playwright-gallery', ['run', 'test:playwright']);
+  }
+  if (values.cypress) {
+    cpSync(join(root, 'test/examples/cypress-smoke.mjs'), join(consumer, 'cypress-smoke.mjs'));
+    try { run('cypress-runtime', process.execPath, ['cypress-smoke.mjs']); } finally {
+      const diagnostics = join(consumer, 'test-results/cypress');
+      if (existsSync(diagnostics)) { cpSync(diagnostics, join(output, 'cypress'), { recursive: true }); }
+    }
   }
   report.passed = true;
 } catch (error) {

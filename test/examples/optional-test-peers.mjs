@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, renameSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, realpathSync, renameSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 
 // Run only in the temporary installed consumer. Never move repository dependencies.
-assert(process.cwd().startsWith(join(tmpdir(), 'mnjs-test-consumer-')));
+assert(realpathSync(process.cwd()).startsWith(join(realpathSync(tmpdir()), 'mnjs-test-consumer-')));
 const hidden = mkdtempSync(join(tmpdir(), 'mnjs-test-hidden-peers-'));
 const moved = [];
 try {

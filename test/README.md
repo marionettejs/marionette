@@ -287,3 +287,8 @@ its limits; reusable [consumer examples](../packages/test/examples/README.md) li
 beside the package. Normal `npm run verify` and core CI run the non-browser packed
 consumer after building. Browser examples are an explicit additional check.
 Core low-level tests remain independent of this helper package.
+
+With a Cypress binary and display dependencies already installed, add `--cypress`
+to run the actual component smoke and expected-failure probes from the same packed
+consumer. The report retains the real runner's version, per-test outcomes and
+failure messages. Dependency installation keeps binary downloads disabled.

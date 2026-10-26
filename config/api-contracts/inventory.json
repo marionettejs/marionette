@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "0921f6f9a7b09efd489d050a0b32369c2c1cdd850c581b31ec92144a8b6f19db",
+  "semanticsSha256": "1c537944457c0b915129740de7c2cefa4be87e3c594aff5f331b5b792e1bc9a5",
   "entrypoints": [
     {
       "name": "marionette",
@@ -12418,11 +12418,13 @@
     "packages/radio/src/radio.ts": "42a799d58d602c0fbbb4fcbc16170e1a89dad55c47d5f00ffaed69c8ee3d877f",
     "packages/radio/src/requests.ts": "68ccf97dbf79da12102c19d91bb9ba63a5fabe28866dd4a862de0df264747382",
     "packages/test/src/context.ts": "67d680c3a33dd215085f4e7c31960520aadcdb28784f58e0ed729ac636e65e41",
+    "packages/test/src/cypress.js": "8e2e144a02e5d75c5818b450ce61e75c43e23ecbef186536f99309f83956875c",
     "packages/test/src/index.ts": "56c6ca6e18482a12fbd1f226c15fa97a50eabec4ae5fb91e1241e9b6c972aa5b",
     "packages/test/src/playwright.ts": "76cc51e38195ad411623c24d7acbf41acecb47cbeb7fb1b36ec778314c990207",
     "packages/test/src/scope.ts": "c81f69624f45de1f7be47c3dc2ea37a1444b93fdec7ad91ca558cb9641a187b4",
     "packages/test/src/session.ts": "c490602391e92f620af99a76fd66f50504ccfa3a70097c095804030349f2c5c5",
     "packages/test/src/vitest.ts": "5d30b910a2542a9e3da74efb497d2f2af097e4797b1eb7b9700318bcef1e6495",
+    "packages/test/types/cypress.d.ts": "2af29efe094397eed73fdcb1441c811934382126574b5bb2cb02929a3faf99a3",
     "packages/utils/src/bind-events.ts": "475fabcde622df0d6365ee6454c892ea75ebf95f11487ca074ce5508fe118a72",
     "packages/utils/src/bind-requests.ts": "4888ab0880961e2c8eaa131f91031f1dc0f1b39ab11907506bce94b3bb4f2870",
     "packages/utils/src/build-event-args.ts": "229567f225c14e49ec063898daa1ee40ccb7bc72813dd4324f10a921585d5ba6",

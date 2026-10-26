@@ -279,9 +279,11 @@ export function generateInventory(root, semantics) {
       }
     });
   }
-  const sources = Object.fromEntries(program.getSourceFiles().filter(file =>
+  const sources = Object.fromEntries([...program.getSourceFiles().filter(file =>
     !file.isDeclarationFile && /^(src|packages\/[^/]+\/src)\//.test(localPath(file.fileName)))
-    .map(file => [localPath(file.fileName), digest(file.text)]).sort(([a], [b]) => a.localeCompare(b, 'en')));
+    .map(file => [localPath(file.fileName), digest(file.text)]),
+  ...(semantics.additionalSources || []).map(file => [file, digest(readFileSync(resolve(root, file)))])]
+    .sort(([a], [b]) => a.localeCompare(b, 'en')));
   const eventSites = [];
   for (const source of program.getSourceFiles().filter(file => sources[localPath(file.fileName)])) {
     function visit(node) {

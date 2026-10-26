@@ -1,5 +1,9 @@
 {
   "schemaVersion": 2,
+  "additionalSources": [
+    "packages/test/src/cypress.js",
+    "packages/test/types/cypress.d.ts"
+  ],
   "contracts": [
     {
       "id": "type-shapes",

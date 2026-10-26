@@ -76,6 +76,26 @@ test('source, signature, event payload and assertion edits change the checked in
 
 });
 
+test('tracks explicitly listed JavaScript and declaration sources outside the compiler program', () => {
+  const files = ['support/adapter.js', 'support/adapter.d.ts'];
+  const contract = { ...semantics, additionalSources: files };
+  try {
+    write(files[0], 'export function mount() { return 1; }\n');
+    write(files[1], 'export declare function mount(): number;\n');
+    const before = generateInventory(temporary, contract);
+    for (const file of files) {
+      const original = readFileSync(resolve(temporary, file), 'utf8');
+      write(file, original + '// changed contract source\n');
+      assert.notEqual(generateInventory(temporary, contract).sources[file], before.sources[file]);
+      write(file, original);
+    }
+    rmSync(resolve(temporary, files[0]));
+    assert.throws(() => generateInventory(temporary, contract), /ENOENT/);
+  } finally {
+    for (const file of files) { rmSync(resolve(temporary, file), { force: true }); }
+  }
+});
+
 test('fails on unaccounted exports, stale members and unused semantic groups', () => {
   assert.throws(() => generateInventory(temporary, { contracts: [{ ...base, exports: ['Alias'] }, semantics.contracts[1]] }), /Unmapped public export/);
   assert.throws(() => generateInventory(temporary, { contracts: [{ ...base, members: ['missing'] }, semantics.contracts[1]] }), /No matching members/);
