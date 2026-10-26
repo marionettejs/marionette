@@ -19,12 +19,15 @@ npm --prefix packages/test/examples run test:playwright
 The example project has its own dependency lock. `--install-links` installs
 a copy of the built helper package. Browser checks require an installed Chromium;
 set `MNJS_TEST_CHROMIUM_EXECUTABLE` to use an existing executable. Playwright
-results go to `test-results/playwright`; Cypress screenshots go to
+starts a fresh gallery server on port 4187; stop an existing gallery server before
+the run so it exercises the installed artifact. Playwright results go to
+`test-results/playwright`; Cypress screenshots go to
 `test-results/cypress/screenshots`, relative to the example project.
 
 | Example | What it demonstrates |
 | --- | --- |
 | [Vitest form tests](form.spec.js) | The optional Testing Library decorator and user-event interactions, validation, focus, saves, readiness and cancellation with the per-test `mounts` fixture. The same tests run in JSDOM and Vitest Browser Mode. |
+| [Gallery lifecycle](gallery.spec.js) | Fresh story ownership during asynchronous replacement, project disposal errors and superseded mounts, checked in JSDOM and Chromium. |
 | [Testing Library mounts](testing-library.spec.js) | Bound queries, live replacement roots, asynchronous readiness, detached/foreign-document mounts and borrowed query scopes with existing fixture cleanup. |
 | [Runtime isolation](runtime.spec.js) | Independent `createMarionette()` families and Radio channels, with cleanup registered for the resources this test owns. |
 | [Playwright tests](playwright/profile.spec.js) | Browser interaction through Locators and the [story gallery](gallery/gallery.js). Playwright 1.63.0 supplies the gallery mount fixture. |
@@ -88,9 +91,9 @@ the verifier's dependency install does not download browser binaries.
 The [browser gallery](gallery/gallery.js) uses `createGallery` from
 `@mnjs/test/playwright`. Stories acquire resources through their context and return
 an updater when state should survive `component.update`. Playwright 1.63 supplies
-the Node `mount` fixture and Locators. The [spec](playwright/profile.spec.js) returns
-`window.unmount()` from `afterEach`, because that fixture does not invoke browser
-cleanup automatically.
+the Node `mount` fixture and Locators. The [spec](playwright/profile.spec.js) awaits
+`page.evaluate` in `afterEach` to call and await the browser-side `window.unmount()`,
+because that fixture does not invoke browser cleanup automatically.
 
 The form suite imports `test` from `@mnjs/test/vitest`. Each test receives its own
 `mounts` fixture, which awaits teardown after success or failure. Queries and user

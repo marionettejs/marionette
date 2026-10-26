@@ -14,17 +14,10 @@ const { values } = parseArgs({ options: {
 } });
 const output = resolve(values.output);
 mkdirSync(output, { recursive: true });
-const workspace = mkdtempSync(join(tmpdir(), 'mnjs-test-consumer-'));
-const consumer = join(workspace, 'packages/test/examples');
+let workspace;
+let consumer;
 const fixture = join(root, 'packages/test/examples');
-const fixtureManifest = JSON.parse(readFileSync(join(fixture, 'package.json'), 'utf8'));
-const expectedVersions = {
-  marionette: fixtureManifest.dependencies.marionette,
-  helper: JSON.parse(readFileSync(join(root, 'packages/test/package.json'), 'utf8')).version,
-  playwright: fixtureManifest.devDependencies['@playwright/test']
-};
 const npmCli = process.env.npm_execpath;
-if (!npmCli) { throw new Error('Run helper consumer verification through npm so its CLI can be located.'); }
 const env = {
   ...process.env,
   NPM_CONFIG_CACHE: process.env.NPM_CONFIG_CACHE ?? join(root, 'test/tmp/npm-cache'),
@@ -33,17 +26,7 @@ const env = {
   NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --no-global-search-paths`,
   PATH: (process.env.PATH || '').split(delimiter).filter(path => !path.includes('node_modules')).join(delimiter)
 };
-const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
-const sourceDirty = Boolean(execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: root, encoding: 'utf8' }).trim());
-const sourceFiles = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--',
-  'packages/test', 'test/examples', 'build/declarations.mjs', 'package.json', 'vitest.config.js', 'test/README.md'],
-{ cwd: root, encoding: 'utf8' }).trim().split('\n').filter(Boolean).sort().map(path => ({
-  path, sha256: createHash('sha256').update(readFileSync(join(root, path))).digest('hex')
-}));
-const report = { artifact: undefined, sha256: undefined, sourceRevision,
-  sourceDirty, sourceFiles, sourceFilesSha256: createHash('sha256').update(JSON.stringify(sourceFiles)).digest('hex'),
-  lockSha256: createHash('sha256').update(readFileSync(join(fixture, 'package-lock.json'))).digest('hex'),
-  node: process.version, stages: [], passed: false };
+const report = { artifact: undefined, sha256: undefined, node: process.version, stages: [], passed: false };
 function run(name, command, args, cwd = consumer) {
   const stage = { name, passed: false };
   report.stages.push(stage);
@@ -66,6 +49,28 @@ function assertIsolated(directory) {
   }
 }
 try {
+  if (!npmCli) { throw new Error('Run helper consumer verification through npm so its CLI can be located.'); }
+  const fixtureManifest = JSON.parse(readFileSync(join(fixture, 'package.json'), 'utf8'));
+  const expectedVersions = {
+    marionette: fixtureManifest.dependencies.marionette,
+    helper: JSON.parse(readFileSync(join(root, 'packages/test/package.json'), 'utf8')).version,
+    playwright: fixtureManifest.devDependencies['@playwright/test']
+  };
+  const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+  const sourceDirty = Boolean(execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: root, encoding: 'utf8' }).trim());
+  const sourceFiles = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--',
+    'packages/test', 'test/examples', 'build/declarations.mjs', 'package.json', 'vitest.config.js', 'test/README.md'],
+  { cwd: root, encoding: 'utf8' }).trim().split('\n').filter(Boolean).sort().map(path => {
+    try { return { path, sha256: createHash('sha256').update(readFileSync(join(root, path))).digest('hex') }; } catch (error) {
+      if (error.code === 'ENOENT') { return { path, deleted: true }; }
+      throw error;
+    }
+  });
+  Object.assign(report, { sourceRevision, sourceDirty, sourceFiles,
+    sourceFilesSha256: createHash('sha256').update(JSON.stringify(sourceFiles)).digest('hex'),
+    lockSha256: createHash('sha256').update(readFileSync(join(fixture, 'package-lock.json'))).digest('hex') });
+  workspace = mkdtempSync(join(tmpdir(), 'mnjs-test-consumer-'));
+  consumer = join(workspace, 'packages/test/examples');
   const packed = JSON.parse(runNpm('pack', ['pack', './packages/test', '--ignore-scripts', '--json', '--pack-destination', output], root))[0];
   const artifact = join(output, packed.filename);
   report.artifact = packed.filename;
@@ -116,9 +121,11 @@ try {
   }
   report.passed = true;
 } catch (error) {
-  console.error(error.message);
+  report.error = error.message;
+  console.error(report.error);
   process.exitCode = 1;
 } finally {
-  writeFileSync(join(output, 'report.json'), JSON.stringify(report, null, 2) + '\n');
-  rmSync(workspace, { recursive: true, force: true });
+  try { writeFileSync(join(output, 'report.json'), JSON.stringify(report, null, 2) + '\n'); } finally {
+    if (workspace) { rmSync(workspace, { recursive: true, force: true }); }
+  }
 }

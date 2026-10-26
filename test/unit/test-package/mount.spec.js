@@ -330,17 +330,18 @@ describe('Application mounting', () => {
   it('borrows external state and leaves shared channels and Regions alive', async() => {
     const state = new Model({ count: 0 });
     const external = new Region({ el: document.createElement('div') });
+    scope ??= createTestScope();
+    scope.defer(() => external.destroy());
     const mounted = own(mountApplication(() => new Application({ state, region: external, channelName: 'test-helper' })));
     await mounted.ready;
     const channel = mounted.app.getChannel();
+    scope.defer(() => channel.stopReplying());
     await mounted.cleanup();
     expect(external.isDestroyed()).toBe(false);
     state.set('count', 1);
     expect(state.get('count')).toBe(1);
     channel.reply('borrowed', () => 42);
     expect(channel.request('borrowed')).toBe(42);
-    channel.stopReplying();
-    external.destroy();
   });
 
   it('supports Application runtime isolation', async() => {

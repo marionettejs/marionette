@@ -54,7 +54,7 @@ test('queries a detached foreign-document mount and a borrowed portal root', asy
   expect(portal.isConnected).toBe(true);
   expect(mounted.getByRole('button', { name: 'Confirm' })).toBe(portal.firstElementChild);
   withQueries(mounted);
-  expect(mounted.queryByLabelText('Name')).toBeNull();
+  expect(mounted.queryByRole('button', { name: 'Confirm' })).toBeNull();
 });
 
 afterAll(() => {

@@ -42,7 +42,7 @@ export const ProfileForm = View.extend({
       this.trigger('saved', saved);
     } catch (error) {
       if (this.isDestroyed() || this.saveController.signal.aborted) { return; }
-      alert.textContent = error.message;
+      alert.textContent = error?.message || 'Could not save profile. Try again.';
       status.textContent = '';
     } finally {
       if (!this.isDestroyed() && !this.saveController.signal.aborted) {

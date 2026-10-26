@@ -36,6 +36,17 @@ describe('profile feature and form', () => {
     await waitFor(() => expect(mounted.getByRole('status').textContent).toBe('Profile saved.'));
   });
 
+  it.for([null, undefined])('reports a save rejection without an Error (%s)', async(rejection, { mounts }) => {
+    const mounted = withQueries(mounts.mountView(new ProfileForm({
+      profile: { name: 'Ada', email: 'ada@example.test' },
+      async save() { throw rejection; }
+    })));
+    await userEvent.setup().click(mounted.getByRole('button', { name: 'Save profile' }));
+    await waitFor(() => expect(mounted.getByRole('alert').textContent).toBe('Could not save profile. Try again.'));
+    expect(mounted.getByRole('status').textContent).toBe('');
+    expect(mounted.getByRole('button').disabled).toBe(false);
+  });
+
   it('makes preparation readiness and cancellation observable', async({ mounts }) => {
     const load = Promise.withResolvers();
     let signal;

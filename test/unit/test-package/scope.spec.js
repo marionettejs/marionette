@@ -109,9 +109,11 @@ describe('explicit owned-resource scope', () => {
     const Broken = View.extend({ template: () => 'content', onBeforeDestroy() { throw error; } });
     const mounted = mountView(new Broken());
     const cleanup = mounted.cleanup();
-    await expect(cleanup).rejects.toMatchObject({ errors: [error] });
+    const reported = await cleanup.catch(value => value);
+    expect(reported.errors).toHaveLength(1);
+    expect(reported.errors[0]).toBe(error);
     expect(mounted.container.isConnected).toBe(false);
     expect(mounted.view.isDestroyed()).toBe(false);
-    await expect(mounted.cleanup()).rejects.toMatchObject({ errors: [error] });
+    await expect(mounted.cleanup()).rejects.toBe(reported);
   });
 });

@@ -31,9 +31,10 @@ beforeEach(async() => {
   adapter = await import('@mnjs/test/cypress');
 });
 afterEach(async() => {
-  for (const hook of hooks.after) { await hook().catch(() => {}); }
-  root.remove();
-  vi.unstubAllGlobals();
+  try { for (const hook of hooks.after) { await hook(); } } finally {
+    root.remove();
+    vi.unstubAllGlobals();
+  }
 });
 
 describe('Cypress adapter non-runtime contract', () => {
@@ -176,6 +177,9 @@ describe('Cypress adapter non-runtime contract', () => {
       throw mountFailure;
     }).catch(value => value);
     expect(error.errors[0]).toBe(mountFailure);
-    expect(error.errors[1].errors[0].errors).toEqual([cleanupFailure]);
+    expect(error.errors[1].errors[0].errors).toHaveLength(1);
+    expect(error.errors[1].errors[0].errors[0]).toBe(cleanupFailure);
+    // This negative case explicitly observes its expected teardown rejection.
+    await expect(hooks.after[0]()).rejects.toBe(error.errors[1]);
   });
 });
