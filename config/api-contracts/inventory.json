@@ -12533,7 +12533,7 @@
     "test/unit/radio-public.spec.js": "cc808f986107a14c0aefdfc3db3cac9b966154422d3527a6ee91e0a54d348ab9",
     "test/unit/region-lifecycle.spec.js": "1445b64c438a380f14bd490bb3f106ac0c3a73c0b8b2c744043e49288b71c66c",
     "test/unit/region-missing-selector.spec.js": "214bf1911ddeeb7d06806f12a6973d84b7129110893282352cf0a972e44480c3",
-    "test/unit/requests.spec.js": "a5adacf4d109673d630d0d47c2c44587581108d944ee998ceab35d8493a274ed",
+    "test/unit/requests.spec.js": "ac3de9d1a355c7139ee30d6a106a4f2111f75e9455adc92678d67ad790ed1188",
     "test/unit/runtime/event-delegator.spec.js": "6d75e90b91a4b1441fed3f0c909ac6a0e52634265cad0d1604a779ea8007c65b",
     "test/unit/state-owner.spec.js": "6f5455831330909831bf427ef431dc46bc431239b5d34fdb5ed05df79378437a",
     "test/unit/utils/build-event-args.spec.js": "da1201c4d39e0ab8fb17502dfabe85f7784f5792ae98418b1b2119319dd3867e",

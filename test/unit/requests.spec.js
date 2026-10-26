@@ -152,7 +152,7 @@ describe('Requests', function() {
         [true, 1],
         [{ title: 'Draft' }, { title: 'Draft' }],
         [() => 'original', () => 'replacement']
-      ])(`matches the original value or function of ${method}: %j`, function(original, replacement) {
+      ])(`matches the original value or function of ${method}: %o`, function(original, replacement) {
         const requests = { ...Requests };
         const result = typeof original === 'function' ? original() : original;
         const replacementResult = typeof replacement === 'function' ? replacement() : replacement;
@@ -180,7 +180,7 @@ describe('Requests', function() {
         requests.stopReplying({ preview: value }, other);
         expect(requests.request('preview')).toBe(value);
 
-        requests[method]('preview', value, owner);
+        requests[method]({ preview: value }, owner);
         requests.stopReplying({ preview: value }, owner);
         expect(requests.request('preview')).toBeUndefined();
         requests.stopReplying(undefined, value, owner);
@@ -188,7 +188,7 @@ describe('Requests', function() {
         expect(requests.request('other')).toBe(value);
       });
 
-      it.each([false, 0, '', null, undefined, NaN])(`treats a falsy callback as no filter for ${method}: %j`, function(filter) {
+      it.each([false, 0, '', null, undefined, NaN])(`treats a falsy callback as no filter for ${method}: %o`, function(filter) {
         const requests = { ...Requests };
         requests[method]('preview', 'Draft');
         requests.stopReplying('preview', filter);
