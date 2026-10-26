@@ -90,12 +90,12 @@ or call it inside `.then(mounted => ...)` when you need `baseElement`. Component
 tests can stay in Cypress. Bound `getBy*` calls are synchronous; they do not acquire
 Cypress retry semantics. `findBy*` uses Testing Library polling, and a returned
 Promise is awaited by Cypress's `.then` command. Existing Cypress teardown still
-owns the mount. See the [Cypress lifecycle example](https://github.com/marionettejs/marionette/blob/master/packages/test/examples/cypress/component/lifecycle.cy.js).
+owns the mount. See the [Cypress lifecycle example](https://github.com/marionettejs/marionette/blob/af3db91ca7695d3338279f9f1bd91690bdfb18dd/packages/test/examples/cypress/component/lifecycle.cy.js).
 
 Import `userEvent` from `@testing-library/user-event` separately for interactions;
 install/configure `@testing-library/jest-dom` separately if your runner supports
 its matchers. Neither is required by this entrypoint. Existing `within(container)`
-code continues to work; the [form suite](https://github.com/marionettejs/marionette/blob/master/packages/test/examples/form.spec.js)
+code continues to work; the [form suite](https://github.com/marionettejs/marionette/blob/af3db91ca7695d3338279f9f1bd91690bdfb18dd/packages/test/examples/form.spec.js)
 now uses the decorator with its existing per-test ownership.
 
 ## Cypress: register cy.mount once
@@ -113,7 +113,7 @@ Cypress.Commands.add('mountApplication', mountApplication);
 ```
 
 The component HTML needs `<div data-cy-root></div>`. Use the normal custom-framework
-Vite dev server, as shown in the [example project](https://github.com/marionettejs/marionette/tree/master/packages/test/examples).
+Vite dev server, as shown in the [example project](https://github.com/marionettejs/marionette/tree/af3db91ca7695d3338279f9f1bd91690bdfb18dd/packages/test/examples).
 
 ```js
 // cypress/component/greeting.cy.js, with the support file above
@@ -345,7 +345,7 @@ and timers at their chosen lifetime. There is no universal leak detector.
 
 Use `createMarionette()` for independent class/provider and Radio families. Pass
 that runtime's `Region` when mounting its Views, and register cleanup for the Radio
-instance your test owns. The [runtime isolation example](https://github.com/marionettejs/marionette/blob/master/packages/test/examples/runtime.spec.js)
+instance your test owns. The [runtime isolation example](https://github.com/marionettejs/marionette/blob/af3db91ca7695d3338279f9f1bd91690bdfb18dd/packages/test/examples/runtime.spec.js)
 shows this with ordinary `mounts.scope.defer(...)` callbacks and public channel APIs.
 
 ## Lifecycle semantics
@@ -370,7 +370,7 @@ LIFO; failures are retained in `AggregateError.errors`. Closed contexts reject n
 mounts. Code that acquires resources outside these mount functions must register
 or release them itself.
 
-The runnable [form suite](https://github.com/marionettejs/marionette/blob/master/packages/test/examples/form.spec.js)
+The runnable [form suite](https://github.com/marionettejs/marionette/blob/af3db91ca7695d3338279f9f1bd91690bdfb18dd/packages/test/examples/form.spec.js)
 uses this fixture for validation, focus, failed saves, retry and cancellation in
 JSDOM and Chromium with Testing Library. It needs no per-file mount tracking or
 `beforeEach`/`afterEach` ownership boilerplate.
@@ -429,8 +429,8 @@ handle immediately, then waits for prior disposal before its factory runs.
 Playwright 1.63 navigates on each fixture `mount` call and uses `window.mount` for
 `component.update`. Its fixture does not invoke `window.unmount` at test teardown;
 return that Promise from the `afterEach` above. The
-[gallery](https://github.com/marionettejs/marionette/blob/master/packages/test/examples/gallery/gallery.js)
-and [specs](https://github.com/marionettejs/marionette/tree/master/packages/test/examples/playwright)
+[gallery](https://github.com/marionettejs/marionette/blob/af3db91ca7695d3338279f9f1bd91690bdfb18dd/packages/test/examples/gallery/gallery.js)
+and [specs](https://github.com/marionettejs/marionette/tree/af3db91ca7695d3338279f9f1bd91690bdfb18dd/packages/test/examples/playwright)
 include a prepared Application and native keyboard submission.
 
 ## Tested with
@@ -445,7 +445,7 @@ include a prepared Application and native keyboard submission.
 
 Cypress/mount-utils, Vitest and DOM Testing Library are optional peers. Import the adapter you use;
 the neutral entry and browser gallery do not require these runners. The
-[example manifest and lockfile](https://github.com/marionettejs/marionette/tree/master/packages/test/examples)
+[example manifest and lockfile](https://github.com/marionettejs/marionette/tree/af3db91ca7695d3338279f9f1bd91690bdfb18dd/packages/test/examples)
 record exact tool versions. Other runner versions and integrations have not been
 checked. These checks validate the candidate artifact; they do not confirm npm
 publication.

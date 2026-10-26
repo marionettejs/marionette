@@ -60,6 +60,9 @@
     "license.txt"
   ],
   "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": "^22.22.2 || >=24.15.0"
   },
