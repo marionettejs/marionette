@@ -4,8 +4,19 @@ export const assertions = {
   'api-providers-data-1': `
 assert.deepEqual(summary.titles, ['Draft', 'Draft', 'Ready']);
 assert.equal(source.isDestroyed(), true);
-stopEditor();
-stopInspector();
+const duplicateSource = new Model();
+const owner = {};
+let deliveries = 0;
+const refresh = () => deliveries++;
+const stopFirst = DataApi.subscribe(duplicateSource, 'change', refresh, owner);
+const stopSecond = DataApi.subscribe(duplicateSource, 'change', refresh, owner);
+duplicateSource.set('title', 'Draft');
+assert.equal(deliveries, 2);
+stopFirst();
+duplicateSource.set('title', 'Ready');
+assert.equal(deliveries, 2);
+stopSecond();
+duplicateSource.destroy();
 `,
   'packages-data-1': `
 assert.deepEqual(changes, ['dark', 'system']);
