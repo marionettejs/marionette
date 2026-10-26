@@ -21,10 +21,7 @@ stopSecond();
 duplicateSource.destroy();
 `,
   'api-providers-data-2': `
-const { Model } = await import('@mnjs/data');
-const shared = new Model({ count: 0 });
 const replacement = new Model({ count: 10 });
-const panel = new Panel({ model: shared, state: shared });
 let renders = 0;
 panel.on('render', () => renders++);
 shared.set('count', 1);

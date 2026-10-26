@@ -55,7 +55,7 @@ For string-method event maps, use distinct forwarding methods. These methods cal
 
 ```js
 import { View } from 'marionette';
-import { DataApi, StateApi } from '@mnjs/data';
+import { DataApi, Model, StateApi } from '@mnjs/data';
 
 const Panel = View.extend({
   template: ({ count }) => String(Number(count ?? 0)),
@@ -64,6 +64,9 @@ const Panel = View.extend({
   onModelChange() { this.render(); },
   onStateChange() { this.render(); }
 }).setDataApi(DataApi).setStateApi(StateApi);
+
+const shared = new Model({ count: 0 });
+const panel = new Panel({ model: shared, state: shared });
 ```
 
 This boundary concerns `subscribe`. Native and Backbone `observeCollection` create separate internal callbacks for each observer. Other providers define their own cleanup matching; XState subscriptions use independent unsubscribe handles.

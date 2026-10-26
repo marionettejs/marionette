@@ -55,8 +55,6 @@ The Region owns the list; the list owns its rows and empty View. `region.destroy
 
 CollectionView accepts View's root, template, data, UI/DOM, entity-event, state, Behavior and child-forwarding options. Their shared contracts are in [View runtime](shared/view-bindings.md), [state](shared/state.md), and [View construction](view.md#construction-and-options). It has no named-Region methods or `regions`/`regionClass` options. Custom options use [common option methods](shared/common.md#options-and-initialization).
 
-If `collectionEvents` or `modelEvents` and `stateEvents` share a source/event, use distinct callback functions so entity undelegation or rebinding preserves state observation. See the [provider cleanup limitation](providers/data.md#subscription-cleanup); this is separate from structural `observeCollection` cleanup.
-
 | CollectionView option | Value and default |
 | --- | --- |
 | `collection` | Source understood by the configured DataApi. The default accepts a plain array; the native DataApi accepts a `Collection`. May be omitted for manually managed children. |
