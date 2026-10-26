@@ -42,6 +42,8 @@ export function createGallery(stories: StoryRegistry, options: GalleryOptions): 
         if (!session.owns(active.context)) { throw new Error(`Story was unmounted during update: ${story}`); }
         return;
       }
+      // Replacement disposes the previous context, so its story can no longer update.
+      current = undefined;
       const context = await session.replace({ replaceElement: true, ...options });
       // Own the context before invoking any asynchronous story setup.
       const active = { name: story, context, ready: Promise.resolve().then(() => stories[story](props, context)) };

@@ -13,8 +13,9 @@ function gallery(stories, options = {}) {
   return { gallery: result, container };
 }
 afterEach(async() => {
-  await Promise.all(galleries.splice(0).map(item => item.unmount().catch(() => {})));
-  roots.splice(0).forEach(root => root.remove());
+  try { await Promise.all(galleries.splice(0).map(item => item.unmount())); } finally {
+    roots.splice(0).forEach(root => root.remove());
+  }
 });
 
 describe('Playwright browser gallery lifecycle', () => {
@@ -97,6 +98,65 @@ describe('Playwright browser gallery lifecycle', () => {
     disposal.resolve();
     await replacing;
     expect(second.view.isAttached()).toBe(true);
+  });
+
+  it('starts a fresh story after replacement fails in project disposal without retrying that disposer', async() => {
+    const failure = new Error('project close failed');
+    const views = [];
+    let attempts = 0;
+    let updates = 0;
+    let nextSetups = 0;
+    const { gallery: app } = gallery({
+      initial(props, mounts) {
+        views.push(mounts.mountView(new Card()).view);
+        if (views.length === 1) { mounts.scope.defer(() => { attempts++; throw failure; }); }
+        return { update() { updates++; } };
+      },
+      next() { nextSetups++; }
+    });
+    await app.mount({ story: 'initial' });
+    const error = await app.mount({ story: 'next' }).catch(value => value);
+    expect(error.errors[0].errors[0]).toBe(failure);
+    expect(views[0].isDestroyed()).toBe(true);
+    expect(attempts).toBe(1);
+    expect(nextSetups).toBe(0);
+    await app.mount({ story: 'initial' });
+    expect(views).toHaveLength(2);
+    expect(views[1].isDestroyed()).toBe(false);
+    expect(updates).toBe(0);
+    expect(attempts).toBe(1);
+  });
+
+  it('treats the previous story as a fresh replacement while its disposal is pending', async() => {
+    const disposal = Promise.withResolvers();
+    const disposing = Promise.withResolvers();
+    const views = [];
+    let updates = 0;
+    let nextSetups = 0;
+    const { gallery: app } = gallery({
+      initial(props, mounts) {
+        views.push(mounts.mountView(new Card()).view);
+        if (views.length === 1) { mounts.scope.defer(() => { disposing.resolve(); return disposal.promise; }); }
+        return { update() { updates++; } };
+      },
+      next() { nextSetups++; }
+    });
+    await app.mount({ story: 'initial' });
+    const replacing = app.mount({ story: 'next' }).catch(error => error);
+    await disposing.promise;
+    const remounting = app.mount({ story: 'initial' }).catch(error => error);
+    try {
+      expect(views[0].isDestroyed()).toBe(true);
+      expect(views).toHaveLength(1);
+      expect(nextSetups).toBe(0);
+    } finally { disposal.resolve(); }
+    const [obsolete, remounted] = await Promise.all([replacing, remounting]);
+    expect(obsolete).toMatchObject({ message: 'Mount was replaced or cleaned up before setup completed.' });
+    expect(remounted).toBeUndefined();
+    expect(views).toHaveLength(2);
+    expect(views[1].isDestroyed()).toBe(false);
+    expect(updates).toBe(0);
+    expect(nextSetups).toBe(0);
   });
 
   it('diagnoses unknown stories and missing updaters without losing the current mount', async() => {

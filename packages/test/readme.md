@@ -423,7 +423,8 @@ Unknown story ids and missing update callbacks reject with the story name. Setup
 failure cleans acquired resources; combined setup/cleanup failure reports both.
 An async setup or update that finishes after unmount rejects. User async work still
 needs its own cancellation: cleanup cannot stop arbitrary promises or roll back
-external effects. A replacement waits for prior disposal before its factory runs.
+external effects. Starting a replacement invalidates the previous story's update
+handle immediately, then waits for prior disposal before its factory runs.
 
 Playwright 1.63 navigates on each fixture `mount` call and uses `window.mount` for
 `component.update`. Its fixture does not invoke `window.unmount` at test teardown;
