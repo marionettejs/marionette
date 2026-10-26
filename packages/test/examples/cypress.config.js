@@ -2,7 +2,7 @@ import { defineConfig } from 'cypress';
 import { devServer } from '@cypress/vite-dev-server';
 export default defineConfig({
   video: false,
-  screenshotsFolder: '../../../test/tmp/test-package/cypress/screenshots',
+  screenshotsFolder: './test-results/cypress/screenshots',
   component: {
     // Use Cypress's public custom-server API without a UI-framework preset.
     devServer(config) { return devServer({ ...config, viteConfig: {} }); },

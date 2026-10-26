@@ -16,15 +16,17 @@ npm --prefix packages/test/examples run test:browser
 npm --prefix packages/test/examples run test:playwright
 ```
 
-The private example project has its own dependency lock. `--install-links` installs
+The example project has its own dependency lock. `--install-links` installs
 a copy of the built helper package. Browser checks require an installed Chromium;
-set `MNJS_TEST_CHROMIUM_EXECUTABLE` to use an existing executable.
+set `MNJS_TEST_CHROMIUM_EXECUTABLE` to use an existing executable. Playwright
+results go to `test-results/playwright`; Cypress screenshots go to
+`test-results/cypress/screenshots`, relative to the example project.
 
 | Example | What it demonstrates |
 | --- | --- |
 | [Vitest form tests](form.spec.js) | Testing Library queries and user-event interactions, validation, focus, saves, readiness and cancellation with the per-test `mounts` fixture. The same tests run in JSDOM and Vitest Browser Mode. |
 | [Playwright tests](playwright/profile.spec.js) | Browser interaction through Locators and the [story gallery](gallery/gallery.js). Playwright 1.63.0 supplies the gallery mount fixture. |
-| [Cypress component tests](cypress/component/profile.cy.js) | Explicit `cy.mount` registration, awaited replacement and direct container children. This example has not yet been executed in Cypress. |
+| [Cypress component tests](cypress/component/profile.cy.js) | Explicit `cy.mount` registration, awaited replacement and direct container children. |
 | [ESM](consumer.mjs) / [CommonJS](consumer.cjs) consumers | Public package imports, lifecycle behavior and cleanup; matching TypeScript consumers check declarations. Run with `npm --prefix packages/test/examples run test:consumer`. |
 
 ## Use the Cypress example
@@ -71,4 +73,4 @@ project disposers are awaited.
 
 The repository's packed-consumer verifier additionally extracts the package guide's
 neutral, Vitest and Playwright recipes into the isolated consumer and executes them.
-Cypress guide command declarations are type checked; Cypress runtime execution remains held.
+Cypress guide command declarations are checked separately with the Cypress consumer types.

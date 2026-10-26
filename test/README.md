@@ -280,18 +280,10 @@ Configuration follows GitHub's [Dependabot options reference](https://docs.githu
 declarations, JSDOM, Vitest Browser Mode and Playwright gallery consumers in an
 isolated temporary workspace using a committed dependency lock and stable
 Marionette 5.0.0. Logs and an artifact-bound report are written to
-`test/tmp/test-package-consumer`; use `--output /absolute/path` to retain a handoff.
+`test/tmp/test-package-consumer`; use `--output /absolute/path` to choose another
+report directory.
 The [package guide](../packages/test/readme.md) documents tool integration and
 its limits; reusable [consumer examples](../packages/test/examples/README.md) live
 beside the package. Normal `npm run verify` and core CI run the non-browser packed
 consumer after building. Browser examples are an explicit additional check.
 Core low-level tests remain independent of this helper package.
-
-`npm run test:helpers:formkit -- --formkit-tarball /absolute/path/formkit.tgz
---formkit-sha256 EXPECTED_SHA256 --formkit-manifest /absolute/path/manifest.json`
-checks a verified development FormKit artifact with stable Marionette in a
-separate isolated consumer. The [fixture guide](examples/formkit-test-package/README.md)
-describes its helper-based tests, unchanged independent application suite,
-retained installation lock and optional browser check. The
-[verification record](examples/formkit-test-package/VERIFICATION.md) distinguishes
-the current consumer and focused regression results from historical coverage.

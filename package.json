@@ -121,8 +121,7 @@
     "test:docs-production": "node test/docs/production-package.mjs",
     "build:test": "npm --prefix packages/test run build",
     "test:helpers": "vitest run test/unit/test-package",
-    "test:helpers:consumer": "node test/examples/verify-test-package.mjs",
-    "test:helpers:formkit": "node test/examples/verify-formkit-test-package.mjs"
+    "test:helpers:consumer": "node test/examples/verify-test-package.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"
