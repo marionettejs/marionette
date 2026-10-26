@@ -366,6 +366,9 @@ include a prepared Application and native keyboard submission.
 | `@mnjs/test/playwright` | Playwright 1.63.0; browser gallery with its built-in fixture and ESM/CommonJS browser helper. |
 | `@mnjs/test/cypress` | Cypress 16.1.1 declarations and mount-utils 4.0.0 queue/hook contract checks. |
 
+Cypress runtime execution has not yet been verified; current checks cover
+declarations and queue/hook contracts.
+
 Cypress/mount-utils and Vitest are optional peers. Import the adapter you use;
 the neutral entry and browser gallery do not require these runners. The
 [example manifest and lockfile](https://github.com/marionettejs/marionette/tree/master/packages/test/examples)

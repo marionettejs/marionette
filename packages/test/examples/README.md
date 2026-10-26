@@ -29,6 +29,9 @@ results go to `test-results/playwright`; Cypress screenshots go to
 | [Cypress component tests](cypress/component/profile.cy.js) | Explicit `cy.mount` registration, awaited replacement and direct container children. |
 | [ESM](consumer.mjs) / [CommonJS](consumer.cjs) consumers | Public package imports, lifecycle behavior and cleanup; matching TypeScript consumers check declarations. Run with `npm --prefix packages/test/examples run test:consumer`. |
 
+Cypress runtime execution has not yet been verified; current checks cover
+declarations and queue/hook contracts.
+
 ## Use the Cypress example
 
 Copy the [config](cypress.config.js), [support file](cypress/support/component.js)
