@@ -20,7 +20,7 @@ DataApi lets Views read and observe supplied data. StateApi lets an owner observ
 
 The default supports plain values and static arrays. Explicit entity event maps still need observable sources. The default StateApi does not reuse DataApi's `on`/`off` support automatically.
 
-For either subscription method, scope cleanup to that call's callback/context or subscription handle. Do not destroy shared data or use blanket event/source removal such as `off(eventName)` or `off()` to clear other subscriptions. Callback matching can still group duplicate registrations; see the shipped-provider limitation in [subscription cleanup](#subscription-cleanup). An owner may have multiple subscriptions to the same source. DataApi has no disposal method: View destruction releases observation while leaving its model/collection alive.
+For either subscription method, scope cleanup to that call's callback/context or subscription handle. Preserve registrations with different callbacks and, when a truthy cleanup context is supplied, different contexts. Do not destroy shared data or use blanket event/source removal such as `off(eventName)` or `off()`. Callback matching can still group duplicate registrations; see the shipped-provider limitation and omitted-context caveat in [subscription cleanup](#subscription-cleanup). An owner may have multiple subscriptions to the same source. DataApi has no disposal method: View destruction releases observation while leaving its model/collection alive.
 
 ### Subscription cleanup
 

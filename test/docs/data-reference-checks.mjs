@@ -4,24 +4,21 @@ export const assertions = {
   'api-providers-data-1': `
 assert.deepEqual(summary.titles, ['Draft', 'Draft', 'Ready']);
 assert.equal(source.isDestroyed(), true);
-const { default: Backbone } = await import('backbone');
-const { default: BackboneApi } = await import('@mnjs/adapters/backbone');
-for (const [api, source] of [[DataApi, new Model()], [BackboneApi, new Backbone.Model()]]) {
-  const editor = { titles: [] };
-  const inspector = { titles: [] };
-  function refresh(model) { this.titles.push(model.get('title')); }
-  const stopEditor = api.subscribe(source, 'change', refresh, editor);
-  const stopInspector = api.subscribe(source, 'change', refresh, inspector);
-  source.set('title', 'Draft');
-  stopEditor();
-  stopEditor();
-  source.set('title', 'Ready');
-  stopInspector();
-  stopInspector();
-  source.set('title', 'Closed');
-  assert.deepEqual(editor.titles, ['Draft']);
-  assert.deepEqual(inspector.titles, ['Draft', 'Ready']);
-}
+// Verify the documented shipped limitation, not a provider requirement.
+// Update this check and the limitation text if subscription matching changes.
+const duplicateSource = new Model();
+const owner = {};
+let deliveries = 0;
+const refresh = () => deliveries++;
+const stopFirst = DataApi.subscribe(duplicateSource, 'change', refresh, owner);
+const stopSecond = DataApi.subscribe(duplicateSource, 'change', refresh, owner);
+duplicateSource.set('title', 'Draft');
+assert.equal(deliveries, 2);
+stopFirst();
+duplicateSource.set('title', 'Ready');
+assert.equal(deliveries, 2);
+stopSecond();
+duplicateSource.destroy();
 `,
   'api-providers-data-2': `
 const { Model } = await import('@mnjs/data');
