@@ -9,8 +9,8 @@ and creating a cleanup scope do not. Production Marionette does not depend on it
 See the [Marionette testing guide](https://marionettejs.com/docs/guides/testing/)
 for application testing fundamentals.
 
-This initial `0.1.0` package is unpublished. Build and pack it from the Marionette
-repository:
+To evaluate the `0.1.0` candidate before publication, build and pack it from the
+Marionette repository:
 
 ```sh
 npm run build
@@ -67,7 +67,8 @@ test('queries prepared output', async ({ mounts }) => {
 ```
 
 Queries bind to the stable `mounted.container`, so `region.show()` replacement and
-`replaceElement` keep working without rebinding. The live `el` getter, concrete
+`replaceElement` keep working without rebinding. If you supply a borrowed container,
+queries include all its descendants, including preexisting siblings. The live `el` getter, concrete
 `view`/`app` types, initial `ready` Promise and `cleanup` function are preserved.
 The decorator never starts an Application, awaits readiness or registers cleanup;
 your existing runner fixture or test scope retains ownership. Always await or
@@ -328,7 +329,9 @@ a fresh scope for the next test. A disposer must not await its own scope's clean
 
 Always await or return cleanup so failures reach your runner. An
 `AggregateError.errors` array preserves encountered failures in execution order
-while other registered disposers run. Application and Region destruction form one
+while other registered disposers run. Helper-owned wrapper messages summarize
+failures for runner reporters; user-created aggregate errors retain their own
+message and nested errors. Application and Region destruction form one
 dependent operation: an Application teardown failure skips Region destruction;
 helper-owned fixture DOM is still removed. Partial framework operations are not retried.
 
@@ -354,7 +357,11 @@ and return the same handles. Application mounting starts by default; use
 `{ start: false }` for manual startup. `replaceElement` defaults to `true` in runner
 contexts so the View is a direct child of its container; pass `false` if a slot is
 intentional. Register project disposers with `mounts.scope.defer(...)` or
-`mounts.scope.own(...)`. `mounts.cleanup()` closes this context and is idempotent.
+`mounts.scope.own(...)`. `mounts.cleanup()` closes this context and is idempotent. It returns the same
+Promise, including a cached rejection. Catching a cleanup rejection inside a test
+does not make the fixture's later teardown succeed: it reports that same failure.
+Use an independently owned neutral scope or an expected-failure runner test when
+asserting teardown errors.
 
 Context teardown initiates **all owned mount cleanup immediately**, then awaits
 those results before cleaning the project scope. This aborts pending Application
@@ -439,7 +446,8 @@ Cypress/mount-utils, Vitest and DOM Testing Library are optional peers. Import t
 the neutral entry and browser gallery do not require these runners. The
 [example manifest and lockfile](https://github.com/marionettejs/marionette/tree/master/packages/test/examples)
 record exact tool versions. Other runner versions and integrations have not been
-checked. This package remains unpublished.
+checked. These checks validate the candidate artifact; they do not confirm npm
+publication.
 
 From the Marionette repository, after building, run the installed consumer checks:
 
@@ -454,7 +462,10 @@ ESM/CommonJS imports, strict declarations and DOM interactions. The browser flag
 adds Vitest Browser and Playwright Test. Cypress declarations are checked
 separately from neutral consumers to keep their globals isolated.
 The optional `--cypress` flag requires an installed Cypress binary and runs the
-real component smoke plus explicit failure/cleanup probes. Its runner results are
+real component smoke plus explicit failure/cleanup probes. Command-failure probes
+require a passing fresh-mount test after cleanup. A separate automatic `afterEach`
+failure probe expects Cypress to skip the remaining test according to its native
+hook-failure policy. Its runner results are
 recorded separately from modeled queue/hook tests.
 
 Runner conventions follow the [Cypress mount guide](https://docs.cypress.io/api/commands/mount),

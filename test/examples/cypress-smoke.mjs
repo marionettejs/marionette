@@ -11,7 +11,8 @@ const scenarios = [
   { name: 'startup', error: /mnjs-startup-probe/ },
   { name: 'cancellation', error: /Mounted Application startup was cancelled/ },
   { name: 'timeout', error: /cy\.then[\s\S]*timed out|timed out[\s\S]*cy\.then/i },
-  { name: 'cleanup', error: /Mounted test cleanup failed/ }
+  { name: 'cleanup', error: /mnjs-cleanup-probe/ },
+  { name: 'automatic-afterEach', spec: 'cypress/probes/after-each.cy.js', error: /mnjs-automatic-afterEach-cleanup-probe/ }
 ];
 try {
   for (const scenario of scenarios) {
@@ -27,12 +28,19 @@ try {
         error: test.displayError, attempts: test.attempts.map(attempt => attempt.state) })) });
     assert.equal(result.totalFailed, scenario.failed ?? 1, `${scenario.name}: unexpected runner failure count`);
     assert.equal(result.totalPending, 0, `${scenario.name}: no pending tests`);
-    assert.equal(result.totalSkipped, 0, `${scenario.name}: teardown must not skip the next test`);
+    const hookFailure = scenario.name === 'automatic-afterEach';
+    assert.equal(result.totalSkipped, hookFailure ? 1 : 0, `${scenario.name}: unexpected Cypress skip policy`);
     if (scenario.error) {
-      assert.equal(result.totalPassed, 1, `${scenario.name}: the fresh-test check must pass`);
+      assert.equal(result.totalPassed, hookFailure ? 0 : 1, `${scenario.name}: unexpected passing test count`);
       const failed = tests.filter(test => test.state === 'failed');
       assert.equal(failed.length, 1);
-      assert.deepEqual(failed[0].title, [`reports the ${scenario.name} command failure`]);
+      assert.deepEqual(failed[0].title, [hookFailure ? 'reports automatic afterEach cleanup failure' : `reports the ${scenario.name} command failure`]);
+      if (hookFailure) {
+        const skipped = tests.filter(test => test.state === 'skipped');
+        assert.equal(skipped.length, 1);
+        assert.deepEqual(skipped[0].title, ['is skipped by Cypress after the automatic hook failure']);
+        assert(/after each/i.test(failed[0].displayError || ''), 'The failure must originate in the automatic hook.');
+      }
       assert.equal(failed[0].attempts.length, 1);
       assert.equal(failed[0].attempts[0].state, 'failed');
       assert(scenario.error.test(failed[0].displayError || ''),

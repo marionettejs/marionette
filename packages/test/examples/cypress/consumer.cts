@@ -1,3 +1,4 @@
+import { withQueries } from '@mnjs/test/testing-library';
 import { View, Application } from 'marionette';
 import { mount, mountApplication, unmount, setupCypress } from '@mnjs/test/cypress';
 import type { MountedView, MountedApplication } from '@mnjs/test';
@@ -10,6 +11,13 @@ const view: Cypress.Chainable<MountedView<InstanceType<typeof Editor>>> = mount(
   return new Editor();
 });
 view.then(handle => { const draft: string = handle.view.draft(); return draft; });
+view.then(withQueries).then(handle => {
+  const draft: string = handle.view.draft();
+  const button: HTMLButtonElement = handle.getByRole<HTMLButtonElement>('button');
+  // @ts-expect-error Decorating retains concrete View checking.
+  handle.view.missingMethod();
+  return [draft, button];
+});
 const app = mountApplication(
   (region, scope) => { scope.defer(async () => {}); return new Feature({ region }); }, { start: false }
 );

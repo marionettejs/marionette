@@ -1,4 +1,5 @@
 import { createMountSession } from './session.ts';
+import { withErrorMessages } from './scope.ts';
 import type { TestMounts } from './context.ts';
 import type { MountOptions } from './index.ts';
 export type { TestMounts } from './context.ts';
@@ -51,7 +52,7 @@ export function createGallery(stories: StoryRegistry, options: GalleryOptions): 
       } catch (error) {
         if (session.owns(context)) {
           try { await unmount(); } catch (cleanupError) {
-            throw new AggregateError([error, cleanupError], `Story setup and cleanup failed: ${story}`, { cause: cleanupError });
+            throw new AggregateError([error, cleanupError], withErrorMessages(`Story setup and cleanup failed: ${story}`, [error, cleanupError]), { cause: cleanupError });
           }
         }
         throw error;

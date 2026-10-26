@@ -1,6 +1,7 @@
 /* global Cypress, cy, beforeEach, afterEach */
 import { getContainerEl, setupHooks } from '@cypress/mount-utils';
 import { createMountSession } from './session.ts';
+import { withErrorMessages } from './scope.ts';
 
 const session = createMountSession();
 let configured = false;
@@ -30,7 +31,7 @@ function runMount(create, options) {
     } catch (error) {
       // Teardown can interrupt pending readiness without entering the command queue.
       try { await context.cleanup(); } catch (cleanupError) {
-        throw new AggregateError([error, cleanupError], 'Mount and cleanup failed.', { cause: cleanupError });
+        throw new AggregateError([error, cleanupError], withErrorMessages('Mount and cleanup failed.', [error, cleanupError]), { cause: cleanupError });
       }
       throw error;
     }

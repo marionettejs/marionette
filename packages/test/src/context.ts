@@ -1,3 +1,4 @@
+import { withErrorMessages } from './scope.ts';
 import { createTestScope, mountApplication, mountView } from './index.ts';
 import type { ApplicationMountOptions, MountOptions, MountedRegion, ViewMountOptions } from './index.ts';
 import type { ApplicationInstance, RegionInstance, SupportedView } from 'marionette';
@@ -26,7 +27,7 @@ export function createMountContext(defaults: MountOptions = {}) {
       (async() => {
         const errors = (await Promise.allSettled(pending)).flatMap(result => result.status === 'rejected' ? [result.reason] : []);
         try { await scope.cleanup(); } catch (error) { errors.push(error); }
-        if (errors.length) { throw new AggregateError(errors, 'Mounted test cleanup failed.'); }
+        if (errors.length) { throw new AggregateError(errors, withErrorMessages('Mounted test cleanup failed.', errors)); }
       })().then(deferred.resolve, deferred.reject);
     }
     return completion;

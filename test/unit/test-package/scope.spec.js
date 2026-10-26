@@ -68,11 +68,24 @@ describe('explicit owned-resource scope', () => {
     const cleanup = scope.cleanup();
     const reported = await cleanup.catch(error => error);
     expect(reported).toBeInstanceOf(AggregateError);
+    expect(reported.message).toBe('Test scope cleanup failed. [object Object]; first');
     expect(reported.errors).toHaveLength(2);
     expect(reported.errors[0]).toBe(second);
     expect(reported.errors[1]).toBe(first);
     await expect(scope.cleanup()).rejects.toBe(reported);
     expect(events).toEqual([2, 1]);
+  });
+  it('preserves user aggregates without flattening and tolerates unprintable thrown values', async() => {
+    const scope = createTestScope();
+    const nested = new AggregateError([new Error('private detail')], 'user summary');
+    const opaque = { toString() { throw new Error('cannot stringify'); } };
+    scope.defer(() => { throw opaque; });
+    scope.defer(() => { throw nested; });
+    const reported = await scope.cleanup().catch(error => error);
+    expect(reported.message).toBe('Test scope cleanup failed. user summary; Unprintable thrown value');
+    expect(reported.errors[0]).toBe(nested);
+    expect(reported.errors[1]).toBe(opaque);
+    expect(nested.errors[0].message).toBe('private detail');
   });
   it('surfaces core teardown failure while removing the helper-owned host', async() => {
     const error = new Error('consumer teardown');

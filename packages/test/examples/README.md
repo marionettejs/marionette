@@ -32,7 +32,9 @@ results go to `test-results/playwright`; Cypress screenshots go to
 | [ESM](consumer.mjs) / [CommonJS](consumer.cjs) consumers | Public package imports, lifecycle behavior and cleanup; matching TypeScript consumers check declarations. Run with `npm --prefix packages/test/examples run test:consumer`. |
 
 The Cypress smoke executes the component examples and four separate expected-failure
-probes, each followed by a fresh-mount cleanup check. It records actual runner versions
+command probes, each followed by a fresh-mount cleanup check. A separate automatic
+`afterEach` failure probe checks that Cypress skips the remaining test, matching
+its native hook-failure policy. It records actual runner versions
 and results; declaration checks alone do not establish Cypress execution.
 
 ## Use the Cypress example
@@ -73,7 +75,9 @@ npm run test:helpers:consumer -- --cypress
 The normal component examples cover mounting, Application readiness, manual startup,
 configured command timeouts and awaited cleanup. The verifier also runs deliberate
 startup, cancellation, timeout and cleanup failures in separate Cypress runs. It
-requires the expected error and a passing following test after teardown. Those
+requires the exact command error and a passing following test after teardown.
+The separate automatic `afterEach` probe requires the disposer error in that hook
+and a skipped following test; it does not promise recovery from a failed hook. Those
 failure probes are excluded from the normal `test:cypress` command. Runner results
 and screenshots are retained under the verifier's report directory. This optional
 flag requires an installed Cypress binary and its Linux display dependencies;

@@ -151,6 +151,8 @@ describe('Playwright browser gallery lifecycle', () => {
     });
     const error = await app.mount({ story: 'broken' }).catch(value => value);
     expect(error).toBeInstanceOf(AggregateError);
+    expect(error.message).toContain('setup');
+    expect(error.message).toContain('cleanup');
     expect(error.errors[0]).toBe(failure);
     expect(error.errors[1].errors[0].errors).toEqual([cleanupFailure]);
     expect(view.isDestroyed()).toBe(true);
@@ -239,6 +241,7 @@ describe('Playwright browser gallery lifecycle', () => {
     });
     await app.mount({ story: 'broken' });
     const error = await app.unmount().catch(value => value);
+    expect(error.message).toContain('destroy');
     expect(error.errors[0].errors).toEqual([failure]);
     expect(actions).toEqual(['project cleanup']);
     expect(container.children).toHaveLength(0);

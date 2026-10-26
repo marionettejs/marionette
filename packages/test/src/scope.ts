@@ -10,6 +10,14 @@ export interface TestScope extends Cleanable {
   cleanup(): Promise<void>;
 }
 
+// Keep nested errors intact; runner reporters may print only this wrapper's message.
+export function withErrorMessages(message: string, errors: unknown[]): string {
+  const summaries = errors.map(error => {
+    try { return error instanceof Error ? error.message : String(error); } catch { return 'Unprintable thrown value'; }
+  });
+  return `${message} ${summaries.join('; ')}`;
+}
+
 // This scope knows only its explicitly registered callbacks, never global resources.
 export function createTestScope(): TestScope {
   const callbacks: Cleanup[] = [];
@@ -25,7 +33,7 @@ export function createTestScope(): TestScope {
     while (callbacks.length) {
       try { await callbacks.pop()!(); } catch (error) { errors.push(error); }
     }
-    if (errors.length) { throw new AggregateError(errors, 'Test scope cleanup failed.'); }
+    if (errors.length) { throw new AggregateError(errors, withErrorMessages('Test scope cleanup failed.', errors)); }
   }
 
   return {
