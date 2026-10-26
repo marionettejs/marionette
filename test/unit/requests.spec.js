@@ -145,6 +145,66 @@ describe('Requests', function() {
   });
 
   describe('#stopReplying', function() {
+    for (const method of ['reply', 'replyOnce']) {
+      it.each([
+        ['Draft', 'Published'],
+        [42, 43],
+        [true, 1],
+        [{ title: 'Draft' }, { title: 'Draft' }],
+        [() => 'original', () => 'replacement']
+      ])(`matches the original value or function of ${method}: %j`, function(original, replacement) {
+        const requests = { ...Requests };
+        const result = typeof original === 'function' ? original() : original;
+        const replacementResult = typeof replacement === 'function' ? replacement() : replacement;
+        requests[method]('preview', original);
+        requests.stopReplying('preview', replacement);
+        expect(requests.request('preview')).toBe(result);
+        expect(requests.request('preview')).toBe(method === 'replyOnce' ? undefined : result);
+
+        requests[method]('preview', original);
+        requests.stopReplying('preview', original);
+        expect(requests.request('preview')).toBeUndefined();
+
+        requests[method]('preview', replacement);
+        requests.stopReplying('preview', original);
+        expect(requests.request('preview')).toBe(replacementResult);
+      });
+
+      it(`matches constant ${method} replies by map, value, and context`, function() {
+        const requests = { ...Requests };
+        const value = { title: 'Draft' };
+        const owner = {};
+        const other = {};
+        requests[method]({ preview: value, selected: value }, owner);
+        requests[method]('other', value, other);
+        requests.stopReplying({ preview: value }, other);
+        expect(requests.request('preview')).toBe(value);
+
+        requests[method]('preview', value, owner);
+        requests.stopReplying({ preview: value }, owner);
+        expect(requests.request('preview')).toBeUndefined();
+        requests.stopReplying(undefined, value, owner);
+        expect(requests.request('selected')).toBeUndefined();
+        expect(requests.request('other')).toBe(value);
+      });
+
+      it.each([false, 0, '', null, undefined, NaN])(`treats a falsy callback as no filter for ${method}: %j`, function(filter) {
+        const requests = { ...Requests };
+        requests[method]('preview', 'Draft');
+        requests.stopReplying('preview', filter);
+        expect(requests.request('preview')).toBeUndefined();
+      });
+    }
+
+    it('preserves an undefined once reply until requested and then falls back', function(testContext) {
+      testContext.requests.reply('default', 'fallback');
+      testContext.requests.replyOnce('preview', undefined);
+      testContext.requests.stopReplying('preview', 'different');
+
+      expect(testContext.requests.request('preview')).toBeUndefined();
+      expect(testContext.requests.request('preview')).toBe('fallback');
+    });
+
     it('returns without creating a registry when none exists', function(testContext) {
       expect(testContext.requests.stopReplying('foo')).to.equal(testContext.requests);
 
