@@ -13,7 +13,7 @@ export interface TestScope extends Cleanable {
 // Keep nested errors intact; runner reporters may print only this wrapper's message.
 export function withErrorMessages(message: string, errors: unknown[]): string {
   const summaries = errors.map(error => {
-    try { return error instanceof Error ? error.message : String(error); } catch { return 'Unprintable thrown value'; }
+    try { return String(error instanceof Error ? error.message : error); } catch { return 'Unprintable thrown value'; }
   });
   return `${message} ${summaries.join('; ')}`;
 }

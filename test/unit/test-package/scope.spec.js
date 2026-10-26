@@ -87,6 +87,23 @@ describe('explicit owned-resource scope', () => {
     expect(reported.errors[1]).toBe(opaque);
     expect(nested.errors[0].message).toBe('private detail');
   });
+  it('retains disposer failures when an Error message cannot be converted to text', async() => {
+    const scope = createTestScope();
+    const first = new Error('other disposer');
+    const second = new Error('original disposer');
+    second.message = { toString() { throw new Error('message conversion failed'); } };
+    scope.defer(() => { throw first; });
+    scope.defer(() => { throw second; });
+    const cleanup = scope.cleanup();
+    const reported = await cleanup.catch(error => error);
+    expect(reported).toBeInstanceOf(AggregateError);
+    expect(reported.message).toBe('Test scope cleanup failed. Unprintable thrown value; other disposer');
+    expect(reported.errors).toHaveLength(2);
+    expect(reported.errors[0]).toBe(second);
+    expect(reported.errors[1]).toBe(first);
+    expect(scope.cleanup()).toBe(cleanup);
+    await expect(scope.cleanup()).rejects.toBe(reported);
+  });
   it('surfaces core teardown failure while removing the helper-owned host', async() => {
     const error = new Error('consumer teardown');
     const Broken = View.extend({ template: () => 'content', onBeforeDestroy() { throw error; } });
