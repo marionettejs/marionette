@@ -162,7 +162,7 @@ Import `DataApi` and `StateApi` from `@mnjs/data` and configure Marionette befor
 | `DataApi.subscribe(...)` / `StateApi.subscribe(...)` | Observe compatible `on`/`off` sources, preserving event arguments and context. Missing event methods throw `TypeError`. |
 | `StateApi.disposeOwned(source)` | Calls the source's `destroy()` when present. Native destruction is local cleanup: no server request, and destroying a Collection does not destroy its Models. |
 
-Both providers accept `subscribe(source, name, callback, context?)` and `subscribe(source, eventMap, context?)`. Map values are function callbacks. Both forms return an idempotent cleanup function that removes only those registrations.
+Both providers accept `subscribe(source, name, callback, context?)` and `subscribe(source, eventMap, context?)`. Map values are function callbacks. Both forms return idempotent cleanup using the source's `off` matching: registrations with the same source, event, callback and context are removed together. Use a fresh callback wrapper or distinct owner contexts for independent lifetimes, and call the returned disposer when finished. See [subscription cleanup](../api/providers/data.md#subscription-cleanup) for an example and the omitted-context boundary. `observeCollection` already uses separate internal callbacks for each observer.
 
 Model change events remain separate from structural collection notifications. Use a row's `modelEvents` for attribute changes; changing attributes does not automatically sort or refilter a list. See [Collection events](#collection-events).
 
