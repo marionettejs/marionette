@@ -497,8 +497,11 @@ external effects. Starting a replacement invalidates the previous story's update
 handle immediately, then waits for prior disposal before its factory runs.
 
 Playwright 1.63 navigates on each fixture `mount` call and uses `window.mount` for
-`component.update`. Its fixture does not invoke `window.unmount` at test teardown;
-return that Promise from the `afterEach` above. The
+`component.update`. Before calling the fixture's `mount()` again in the same test,
+await the previous handle's `component.unmount()` so its story's disposers run
+before navigation. Use `component.update(props)` when the existing story should
+remain mounted. The fixture does not invoke `window.unmount` at test teardown;
+return that Promise from the `afterEach` above, which cleans up the final page. The
 [repository gallery](https://github.com/marionettejs/marionette/blob/master/packages/test/examples/gallery/gallery.js)
 and [repository specs](https://github.com/marionettejs/marionette/tree/master/packages/test/examples/playwright)
 include a prepared Application and native keyboard submission.
