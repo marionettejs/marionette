@@ -1,122 +1,169 @@
 import assert from 'node:assert/strict';
 import { test } from './fixtures.mjs';
 
-for (const treeKind of ['light', 'open', 'closed', 'iframe']) {
-  for (const adopts of [true, false]) {
-    for (const hostConnected of [true, false]) {
-      if (treeKind === 'iframe' && !hostConnected) { continue; }
-      test.describe(`${treeKind}: ${adopts ? 'adopted' : 'Region-mounted'} Lit View in ${hostConnected ? 'connected' : 'detached'} host releases subscriptions`, () => {
-        test('Lit View releases subscriptions across adoption, mounting and teardown', async({ page }) => {
-          const result = await page.evaluate(async({ tree, adopted, connected }) => {
-            const { Region, View } = await import('marionette');
-            const { default: LitDomApi } = await import('@mnjs/adapters/dom/lit-html');
-            const { html } = await import('lit-html');
-            const { AsyncDirective } = await import('lit-html/async-directive.js');
-            const { directive } = await import('lit-html/directive.js');
-            const host = document.createElement(tree === 'iframe' ? 'iframe' : 'section');
-            if (connected) { document.body.append(host); }
-            const container = tree === 'iframe' ? host.contentDocument.body :
-              tree === 'light' ? host : host.attachShadow({ mode: tree });
-            const slot = container.ownerDocument.createElement('main');
-            container.append(slot);
-            const el = slot.ownerDocument.createElement('article');
-            if (adopted) { slot.append(el); }
-            const source = new EventTarget();
-            const counts = { active: 0, deliveries: 0, disconnections: 0, attachments: 0, detachments: 0 };
-            const watch = directive(class extends AsyncDirective {
-              receive = () => { this.setValue(`tick:${++counts.deliveries}`); };
-              subscribe() {
-                if (this.listening) { return; }
-                this.listening = true;
-                counts.active++;
-                source.addEventListener('tick', this.receive);
-              }
-              render() {
-                if (this.isConnected) { this.subscribe(); }
-                return 'watching';
-              }
-              reconnected() { this.subscribe(); }
-              disconnected() {
-                counts.disconnections++;
-                if (!this.listening) { return; }
-                this.listening = false;
-                counts.active--;
-                source.removeEventListener('tick', this.receive);
-              }
-            });
-            const Panel = View.extend({
-              template: () => html`<p>${watch()}</p>`,
-              onAttach() { counts.attachments++; },
-              onDetach() { counts.detachments++; }
-            }).setDomApi(LitDomApi);
-            const view = new Panel({ el });
-            const region = new Region({ el: slot });
-            const snapshot = () => ({ ...counts, attached: view.isAttached(),
-              connected: el.isConnected, text: el.textContent });
-            const tick = () => source.dispatchEvent(new Event('tick'));
-            try {
-              view.render();
-              const initial = snapshot();
-              if (!adopted) { region.show(view); }
-              tick();
-              const mounted = snapshot();
-              let detached;
-              let reshown;
-              if (!adopted) {
-                region.detachView();
-                tick();
-                detached = snapshot();
-                region.show(view);
-                tick();
-                reshown = snapshot();
-              }
-              view.destroy();
-              tick();
-              const destroyed = { ...snapshot(), destroyed: view.isDestroyed() };
-              return { initial, mounted, detached, reshown, destroyed };
-            } finally {
-              view.destroy();
-              region.destroy();
-              // Release a leaking baseline directive even when the regression fails.
-              LitDomApi.notifyDetach(el);
-              host.remove();
-            }
-          }, { tree: treeKind, adopted: adopts, connected: hostConnected });
-          const active = hostConnected ? 1 : 0;
-          // Assert teardown first so the adopted regression exposes late DOM writes.
-          assert.deepEqual(result.destroyed, {
-            active: 0, deliveries: hostConnected ? adopts ? 1 : 2 : 0,
-            disconnections: hostConnected ? adopts ? 1 : 2 : 0,
-            attachments: hostConnected && !adopts ? 2 : 0,
-            detachments: hostConnected ? adopts ? 1 : 2 : 0,
-            attached: false, connected: false,
-            text: hostConnected ? adopts ? 'tick:1' : 'tick:2' : 'watching', destroyed: true
-          });
-          assert.deepEqual(result.initial, {
-            active: adopts ? active : 0, deliveries: 0, disconnections: 0,
-            attachments: 0, detachments: 0, attached: adopts && hostConnected,
-            connected: adopts && hostConnected, text: 'watching'
-          });
-          assert.deepEqual(result.mounted, {
-            active, deliveries: active, disconnections: 0,
-            attachments: adopts ? 0 : active, detachments: 0,
-            attached: hostConnected, connected: hostConnected, text: hostConnected ? 'tick:1' : 'watching'
-          });
-          if (!adopts) {
-            assert.deepEqual(result.detached, {
-              active: 0, deliveries: active, disconnections: active,
-              attachments: active, detachments: active,
-              attached: false, connected: false, text: hostConnected ? 'tick:1' : 'watching'
-            });
-            assert.deepEqual(result.reshown, {
-              active, deliveries: active * 2, disconnections: active,
-              attachments: active * 2, detachments: active,
-              attached: hostConnected, connected: hostConnected, text: hostConnected ? 'tick:2' : 'watching'
-            });
-          }
-        });
-      });
+test('light: adopted Lit View in connected host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'light', true, true);
+});
+
+test('light: adopted Lit View in detached host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'light', true, false);
+});
+
+test('light: Region-mounted Lit View in connected host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'light', false, true);
+});
+
+test('light: Region-mounted Lit View in detached host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'light', false, false);
+});
+
+test('open: adopted Lit View in connected host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'open', true, true);
+});
+
+test('open: adopted Lit View in detached host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'open', true, false);
+});
+
+test('open: Region-mounted Lit View in connected host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'open', false, true);
+});
+
+test('open: Region-mounted Lit View in detached host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'open', false, false);
+});
+
+test('closed: adopted Lit View in connected host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'closed', true, true);
+});
+
+test('closed: adopted Lit View in detached host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'closed', true, false);
+});
+
+test('closed: Region-mounted Lit View in connected host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'closed', false, true);
+});
+
+test('closed: Region-mounted Lit View in detached host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'closed', false, false);
+});
+
+test('iframe: adopted Lit View in connected host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'iframe', true, true);
+});
+
+test('iframe: Region-mounted Lit View in connected host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'iframe', false, true);
+});
+
+async function checkLitLifecycle(page, treeKind, adopts, hostConnected) {
+  const result = await page.evaluate(async({ tree, adopted, connected }) => {
+    const { Region, View } = await import('marionette');
+    const { default: LitDomApi } = await import('@mnjs/adapters/dom/lit-html');
+    const { html } = await import('lit-html');
+    const { AsyncDirective } = await import('lit-html/async-directive.js');
+    const { directive } = await import('lit-html/directive.js');
+    const host = document.createElement(tree === 'iframe' ? 'iframe' : 'section');
+    if (connected) { document.body.append(host); }
+    const container = tree === 'iframe' ? host.contentDocument.body :
+      tree === 'light' ? host : host.attachShadow({ mode: tree });
+    const slot = container.ownerDocument.createElement('main');
+    container.append(slot);
+    const el = slot.ownerDocument.createElement('article');
+    if (adopted) { slot.append(el); }
+    const source = new EventTarget();
+    const counts = { active: 0, deliveries: 0, disconnections: 0, attachments: 0, detachments: 0 };
+    const watch = directive(class extends AsyncDirective {
+      receive = () => { this.setValue(`tick:${++counts.deliveries}`); };
+      subscribe() {
+        if (this.listening) { return; }
+        this.listening = true;
+        counts.active++;
+        source.addEventListener('tick', this.receive);
+      }
+      render() {
+        if (this.isConnected) { this.subscribe(); }
+        return 'watching';
+      }
+      reconnected() { this.subscribe(); }
+      disconnected() {
+        counts.disconnections++;
+        if (!this.listening) { return; }
+        this.listening = false;
+        counts.active--;
+        source.removeEventListener('tick', this.receive);
+      }
+    });
+    const Panel = View.extend({
+      template: () => html`<p>${watch()}</p>`,
+      onAttach() { counts.attachments++; },
+      onDetach() { counts.detachments++; }
+    }).setDomApi(LitDomApi);
+    const view = new Panel({ el });
+    const region = new Region({ el: slot });
+    const snapshot = () => ({ ...counts, attached: view.isAttached(),
+      connected: el.isConnected, text: el.textContent });
+    const tick = () => source.dispatchEvent(new Event('tick'));
+    try {
+      view.render();
+      const initial = snapshot();
+      if (!adopted) { region.show(view); }
+      tick();
+      const mounted = snapshot();
+      let detached;
+      let reshown;
+      if (!adopted) {
+        region.detachView();
+        tick();
+        detached = snapshot();
+        region.show(view);
+        tick();
+        reshown = snapshot();
+      }
+      view.destroy();
+      tick();
+      const destroyed = { ...snapshot(), destroyed: view.isDestroyed() };
+      return { initial, mounted, detached, reshown, destroyed };
+    } finally {
+      view.destroy();
+      region.destroy();
+      // Release a leaking baseline directive even when the regression fails.
+      LitDomApi.notifyDetach(el);
+      host.remove();
     }
+  }, { tree: treeKind, adopted: adopts, connected: hostConnected });
+  const active = hostConnected ? 1 : 0;
+  // Assert teardown first so the adopted regression exposes late DOM writes.
+  assert.deepEqual(result.destroyed, {
+    active: 0, deliveries: hostConnected ? adopts ? 1 : 2 : 0,
+    disconnections: hostConnected ? adopts ? 1 : 2 : 0,
+    attachments: hostConnected && !adopts ? 2 : 0,
+    detachments: hostConnected ? adopts ? 1 : 2 : 0,
+    attached: false, connected: false,
+    text: hostConnected ? adopts ? 'tick:1' : 'tick:2' : 'watching', destroyed: true
+  });
+  assert.deepEqual(result.initial, {
+    active: adopts ? active : 0, deliveries: 0, disconnections: 0,
+    attachments: 0, detachments: 0, attached: adopts && hostConnected,
+    connected: adopts && hostConnected, text: 'watching'
+  });
+  assert.deepEqual(result.mounted, {
+    active, deliveries: active, disconnections: 0,
+    attachments: adopts ? 0 : active, detachments: 0,
+    attached: hostConnected, connected: hostConnected, text: hostConnected ? 'tick:1' : 'watching'
+  });
+  if (!adopts) {
+    assert.deepEqual(result.detached, {
+      active: 0, deliveries: active, disconnections: active,
+      attachments: active, detachments: active,
+      attached: false, connected: false, text: hostConnected ? 'tick:1' : 'watching'
+    });
+    assert.deepEqual(result.reshown, {
+      active, deliveries: active * 2, disconnections: active,
+      attachments: active * 2, detachments: active,
+      attached: hostConnected, connected: hostConnected, text: hostConnected ? 'tick:2' : 'watching'
+    });
   }
 }
 
@@ -155,86 +202,104 @@ test('strict containment and selector lookup do not cross shadow roots', async({
     documentChild: false, queryCount: 0, shown: false }));
 });
 
-for (const shadowMode of ['open', 'closed']) {
-  for (const policy of ['enabled', 'child-disabled', 'ancestor-disabled']) {
-    test.describe(`${shadowMode}: nested detached shadow host follows managed ownership with monitoring ${policy}`, () => {
-      test('managed shadow descendants respect attachment and monitoring policy', async({ page }) => {
-        const result = await page.evaluate(async({ mode, monitoring }) => {
-          const { Region, View } = await import('marionette');
-          const { default: LitDomApi } = await import('@mnjs/adapters/dom/lit-html');
-          const { html } = await import('lit-html');
-          const { AsyncDirective } = await import('lit-html/async-directive.js');
-          const { directive } = await import('lit-html/directive.js');
-          const host = document.createElement('section');
-          const inner = document.createElement('section');
-          host.attachShadow({ mode }).append(inner);
-          const slot = document.createElement('main');
-          inner.attachShadow({ mode: mode === 'open' ? 'closed' : 'open' }).append(slot);
-          const source = new EventTarget();
-          let active = 0;
-          let deliveries = 0;
-          const watch = directive(class extends AsyncDirective {
-            receive = () => { this.setValue(`tick:${++deliveries}`); };
-            render() { return 'watching'; }
-            reconnected() { active++; source.addEventListener('tick', this.receive); }
-            disconnected() { active--; source.removeEventListener('tick', this.receive); }
-          });
-          const Parent = View.extend({
-            template: false, regions: { child: { el: slot } },
-            monitorViewEvents: monitoring !== 'ancestor-disabled'
-          });
-          const Child = View.extend({
-            template: () => html`<p>${watch()}</p>`,
-            monitorViewEvents: monitoring !== 'child-disabled'
-          }).setDomApi(LitDomApi);
-          const parent = new Parent({ el: host });
-          const child = new Child();
-          const owner = new Region({ el: document.querySelector('#content') });
-          const snapshot = () => ({ active, deliveries, text: child.el.textContent });
-          const tick = () => source.dispatchEvent(new Event('tick'));
-          try {
-            parent.showChildView('child', child);
-            const detached = snapshot();
-            owner.show(parent);
-            tick();
-            const mounted = snapshot();
-            owner.detachView();
-            tick();
-            const retained = snapshot();
-            owner.show(parent);
-            tick();
-            const reshown = snapshot();
-            // Disabled monitoring leaves the explicit content notifications to the app.
-            if (monitoring !== 'enabled') { LitDomApi.notifyAttach(child.el); tick(); }
-            owner.destroy();
-            const afterDestroy = snapshot();
-            if (monitoring !== 'enabled') { LitDomApi.notifyDetach(child.el); }
-            tick();
-            return { detached, mounted, retained, reshown, afterDestroy,
-              cleaned: snapshot(), destroyed: child.isDestroyed() && parent.isDestroyed() };
-          } finally {
-            LitDomApi.notifyDetach(child.el);
-            owner.destroy();
-            parent.destroy();
-            child.destroy();
-            host.remove();
-          }
-        }, { mode: shadowMode, monitoring: policy });
-        const idle = { active: 0, deliveries: 0, text: 'watching' };
-        const enabled = policy === 'enabled';
-        assert.deepEqual(result, {
-          detached: idle,
-          mounted: enabled ? { active: 1, deliveries: 1, text: 'tick:1' } : idle,
-          retained: enabled ? { active: 0, deliveries: 1, text: 'tick:1' } : idle,
-          reshown: enabled ? { active: 1, deliveries: 2, text: 'tick:2' } : idle,
-          afterDestroy: enabled ? { active: 0, deliveries: 2, text: 'tick:2' } :
-            { active: 1, deliveries: 1, text: 'tick:1' },
-          cleaned: { active: 0, deliveries: enabled ? 2 : 1, text: enabled ? 'tick:2' : 'tick:1' },
-          destroyed: true
-        });
-      });
+test('open: nested detached shadow host follows managed ownership with monitoring enabled', async({ page }) => {
+  await checkManagedShadowLifecycle(page, 'open', 'enabled');
+});
+
+test('open: nested detached shadow host follows managed ownership with monitoring child-disabled', async({ page }) => {
+  await checkManagedShadowLifecycle(page, 'open', 'child-disabled');
+});
+
+test('open: nested detached shadow host follows managed ownership with monitoring ancestor-disabled', async({ page }) => {
+  await checkManagedShadowLifecycle(page, 'open', 'ancestor-disabled');
+});
+
+test('closed: nested detached shadow host follows managed ownership with monitoring enabled', async({ page }) => {
+  await checkManagedShadowLifecycle(page, 'closed', 'enabled');
+});
+
+test('closed: nested detached shadow host follows managed ownership with monitoring child-disabled', async({ page }) => {
+  await checkManagedShadowLifecycle(page, 'closed', 'child-disabled');
+});
+
+test('closed: nested detached shadow host follows managed ownership with monitoring ancestor-disabled', async({ page }) => {
+  await checkManagedShadowLifecycle(page, 'closed', 'ancestor-disabled');
+});
+
+async function checkManagedShadowLifecycle(page, shadowMode, policy) {
+  const result = await page.evaluate(async({ mode, monitoring }) => {
+    const { Region, View } = await import('marionette');
+    const { default: LitDomApi } = await import('@mnjs/adapters/dom/lit-html');
+    const { html } = await import('lit-html');
+    const { AsyncDirective } = await import('lit-html/async-directive.js');
+    const { directive } = await import('lit-html/directive.js');
+    const host = document.createElement('section');
+    const inner = document.createElement('section');
+    host.attachShadow({ mode }).append(inner);
+    const slot = document.createElement('main');
+    inner.attachShadow({ mode: mode === 'open' ? 'closed' : 'open' }).append(slot);
+    const source = new EventTarget();
+    let active = 0;
+    let deliveries = 0;
+    const watch = directive(class extends AsyncDirective {
+      receive = () => { this.setValue(`tick:${++deliveries}`); };
+      render() { return 'watching'; }
+      reconnected() { active++; source.addEventListener('tick', this.receive); }
+      disconnected() { active--; source.removeEventListener('tick', this.receive); }
     });
-  }
+    const Parent = View.extend({
+      template: false, regions: { child: { el: slot } },
+      monitorViewEvents: monitoring !== 'ancestor-disabled'
+    });
+    const Child = View.extend({
+      template: () => html`<p>${watch()}</p>`,
+      monitorViewEvents: monitoring !== 'child-disabled'
+    }).setDomApi(LitDomApi);
+    const parent = new Parent({ el: host });
+    const child = new Child();
+    const owner = new Region({ el: document.querySelector('#content') });
+    const snapshot = () => ({ active, deliveries, text: child.el.textContent });
+    const tick = () => source.dispatchEvent(new Event('tick'));
+    try {
+      parent.showChildView('child', child);
+      const detached = snapshot();
+      owner.show(parent);
+      tick();
+      const mounted = snapshot();
+      owner.detachView();
+      tick();
+      const retained = snapshot();
+      owner.show(parent);
+      tick();
+      const reshown = snapshot();
+      // Disabled monitoring leaves the explicit content notifications to the app.
+      if (monitoring !== 'enabled') { LitDomApi.notifyAttach(child.el); tick(); }
+      owner.destroy();
+      const afterDestroy = snapshot();
+      if (monitoring !== 'enabled') { LitDomApi.notifyDetach(child.el); }
+      tick();
+      return { detached, mounted, retained, reshown, afterDestroy,
+        cleaned: snapshot(), destroyed: child.isDestroyed() && parent.isDestroyed() };
+    } finally {
+      LitDomApi.notifyDetach(child.el);
+      owner.destroy();
+      parent.destroy();
+      child.destroy();
+      host.remove();
+    }
+  }, { mode: shadowMode, monitoring: policy });
+  const idle = { active: 0, deliveries: 0, text: 'watching' };
+  const enabled = policy === 'enabled';
+  assert.deepEqual(result, {
+    detached: idle,
+    mounted: enabled ? { active: 1, deliveries: 1, text: 'tick:1' } : idle,
+    retained: enabled ? { active: 0, deliveries: 1, text: 'tick:1' } : idle,
+    reshown: enabled ? { active: 1, deliveries: 2, text: 'tick:2' } : idle,
+    afterDestroy: enabled ? { active: 0, deliveries: 2, text: 'tick:2' } :
+      { active: 1, deliveries: 1, text: 'tick:1' },
+    cleaned: { active: 0, deliveries: enabled ? 2 : 1, text: enabled ? 'tick:2' : 'tick:1' },
+    destroyed: true
+  });
 }
 
 test('attachment retains configured document-root and containment boundaries', async({ page }) => {

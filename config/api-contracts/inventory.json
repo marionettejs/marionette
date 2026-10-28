@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "b88a187867d1b35363c5c0e3a3e5163f127260d39435f4321221db740bd7eab6",
+  "semanticsSha256": "a564f7f0ffea9cf01e29ecd900821c11a06d8162f13365feaf6036e5d08085bb",
   "entrypoints": [
     {
       "name": "marionette",
@@ -12475,7 +12475,7 @@
     "docs/api/errors.md": "f4efcdd5da9dcf053b936fab32d6e200f8223f799e2517dee7753823b89946b2",
     "docs/api/mnobject.md": "89cfe4ac212de4ac5fd966cb427c1391749a2be623ccc9b6f16bb4c3497313bc",
     "docs/api/providers/data.md": "bfdc9fcac45390611b75d28d7cc12fd256325463355fd338abfc6be503844275",
-    "docs/api/providers/dom.md": "d9a0a58ee056d72b2fff7e2a5ca65f7196b7fa854f6c88d473d90e8d17f4a5c7",
+    "docs/api/providers/dom.md": "fef282fd667ad3129b9478f544c1f601d9a8f156309d9a5c3c6c1343b0f97fa5",
     "docs/api/region.md": "d6951eb046fbcf2a9b6c6bf43b83f71e02fa3696fbce61daadbd60af62221a60",
     "docs/api/runtime.md": "b82fc651c2ae6c076b7b8600310ba7e908d699f9bb2a817851be6b22fc8c2e6f",
     "docs/api/shared/common.md": "8982228a2345240414e35ba4f0967e95530f5966fe1254efd9a09575706d5b6a",
@@ -12488,7 +12488,7 @@
     "docs/packages/data.md": "ed9e5b76a3a67a459c0e88ab092b200790aff7a0aeb9c24f1e8f5129f9a1efe4",
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
     "docs/packages/utils.md": "158e2051ee438acd7e235f0f29ce45f42ad798bb6d460a871efd29904e2728ec",
-    "test/browser/shadow-lifecycle.spec.mjs": "95ea58b80c2869dddb6ef2bb44e578001da066eee6267cc18148aa4cdc868baf",
+    "test/browser/shadow-lifecycle.spec.mjs": "d20675882192175328b547e0ab1c19f31c72c44ee0559eddd73b5b7eba6fb7fc",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
     "test/unit/application-child-declarations.spec.js": "693740783f56c4e24aa886076389378d106839987b7ce442bfefb267ca5a2f84",
     "test/unit/application-child-lifecycle.spec.js": "78296e9b442918bf03a3f9741f00e0884aa043092774e984f0e735757197b1d8",

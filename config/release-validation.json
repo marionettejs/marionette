@@ -288,6 +288,98 @@
     {
       "file": "application-retained-restart.spec.mjs",
       "title": "retained restart keeps loading and failed UI interactive and commits only latest preparation"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "attachment retains configured document-root and containment boundaries"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "closed: Region-mounted Lit View in connected host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "closed: Region-mounted Lit View in detached host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "closed: adopted Lit View in connected host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "closed: adopted Lit View in detached host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "closed: nested detached shadow host follows managed ownership with monitoring ancestor-disabled"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "closed: nested detached shadow host follows managed ownership with monitoring child-disabled"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "closed: nested detached shadow host follows managed ownership with monitoring enabled"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "detached URL elements keep their host property separate from shadow attachment"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "iframe: Region-mounted Lit View in connected host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "iframe: adopted Lit View in connected host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "light: Region-mounted Lit View in connected host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "light: Region-mounted Lit View in detached host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "light: adopted Lit View in connected host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "light: adopted Lit View in detached host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "open: Region-mounted Lit View in connected host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "open: Region-mounted Lit View in detached host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "open: adopted Lit View in connected host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "open: adopted Lit View in detached host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "open: nested detached shadow host follows managed ownership with monitoring ancestor-disabled"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "open: nested detached shadow host follows managed ownership with monitoring child-disabled"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "open: nested detached shadow host follows managed ownership with monitoring enabled"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "strict containment and selector lookup do not cross shadow roots"
     }
   ],
   "fixtures": [

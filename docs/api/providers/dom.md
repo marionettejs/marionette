@@ -57,9 +57,16 @@ Marionette owns View/Region lifecycle and child cleanup around these operations.
 
 Attachment notifications follow monitored Marionette lifecycle, including construction on an attached root. `monitorViewEvents: false` on the View class disables that monitoring. Integrations such as Lit rely on these notifications for directive connection state, so disabling monitoring also disables that integration behavior. Arbitrary external DOM movement is not observed.
 
+Root values must satisfy the DOM `Element` contract, including inherited `Node`
+methods and properties. DomApi configures operations on DOM nodes; it is not an
+abstraction for arbitrary non-DOM root objects. Core lifecycle code also uses
+native DOM ancestry directly.
+
 Attachment checks support Element roots inside open or closed shadow trees. They
-use the configured `getDocumentEl` and strict `hasEl` check, then check successive
-shadow hosts when needed. This distinguishes document connectivity from ordinary
+use the configured `getDocumentEl` and strict `hasEl` check. After failed
+containment, native `getRootNode()` and `nodeType` identify a shadow root whose
+`host` is checked next. DOM implementations and test doubles must provide those
+Element/Node members. This distinguishes document connectivity from ordinary
 tree containment: `hasEl` and selector lookup do not cross shadow boundaries.
 Pass the actual Element when adopting a View or mounting a Region inside a shadow
 tree; a ShadowRoot is not a View or Region root. This does not add shadow-piercing
