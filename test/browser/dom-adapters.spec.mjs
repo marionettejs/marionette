@@ -26,7 +26,23 @@ const contracts = [
   'lit-html: CollectionView releases subscriptions across detach, reattach, and destruction',
   'lit-html: descendants follow CollectionView detach and reattach',
   'lit-html: a View can adopt contents rendered directly by the DOM adapter',
-  'lit-html: monitoring opt-out leaves connection notifications to the application'
+  'lit-html: monitoring opt-out leaves connection notifications to the application',
+  'lit-html: light rendering honors reject attachment',
+  'lit-html: light rendering honors no-document attachment',
+  'lit-html: light rendering honors self attachment',
+  'lit-html: open rendering honors reject attachment',
+  'lit-html: open rendering honors no-document attachment',
+  'lit-html: open rendering honors self attachment',
+  'lit-html: closed rendering honors reject attachment',
+  'lit-html: closed rendering honors no-document attachment',
+  'lit-html: closed rendering honors self attachment',
+  'lit-html: document-root rendering honors native attachment',
+  'lit-html: connected direct contents require explicit connection notifications',
+  'lit-html: connection notifications before first render can be cancelled',
+  'lit-html: connected monitoring opt-out requires explicit initial attachment',
+  'lit-html: external insertion before first render does not imply attachment',
+  'lit-html: released connected contents transfer to native attachment',
+  'lit-html: released connected contents transfer to reject attachment'
 ];
 
 test('DOM contract registry matches the named browser cases', async({ page }) => {

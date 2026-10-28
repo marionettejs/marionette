@@ -128,7 +128,7 @@ const morph = new MorphMessage().render();
 
 `LitDomApi` supplies `setContents(el, value)`, `notifyAttach(el)`, and `notifyDetach(el)`. Templates can return Lit values such as `html` results. The first explicit render replaces existing contents; it does not hydrate them. Subsequent renders update the same marked range.
 
-The notification methods connect/disconnect Lit directives through the stored root part. Marionette's attachment monitoring calls them when managed through Regions; keep `monitorViewEvents` enabled on the View and its ancestors. If monitoring is disabled or its handlers are removed, the application must deliver these notifications itself. Overrides of lifecycle methods must preserve parent behavior.
+The notification methods determine directive connection state, including before the first content render. Unnotified contents start disconnected even when their element is already in the document. Monitored View construction and Region attachment supply these notifications; keep `monitorViewEvents` enabled on the View and its ancestors. When calling the adapter directly, disabling monitoring, or removing its handlers, the application must call `notifyAttach(el)` to connect contents and `notifyDetach(el)` when releasing them. Overrides of lifecycle methods must preserve parent behavior.
 
 With attachment monitoring enabled, this also covers Element roots adopted or
 Region-mounted inside open or closed shadow trees. An already-connected adopted
@@ -142,16 +142,13 @@ selector lookup, and event delegation retain their [DOM provider boundaries](../
 
 With monitoring enabled on the View and its ancestors, detach and successful destruction disconnect directive resources in both light DOM and shadow trees. Destruction can also release resources from a failed explicit render; failed construction does not roll back initialization. Release the previous View owner before adopting its element in another View. Lit event handlers use Lit's element receiver; use a closure when a handler needs View or application state.
 
-There is a known connection-state limitation when native connectivity and the
-configured attachment policy disagree. Lit initializes its first content part from
-`el.isConnected`. If the configured attachment policy reports a connected root as
-detached—for example, `hasEl` rejects all containment checks or `getDocumentEl`
-returns null—Marionette does not send automatic detach notifications during
-destruction. The same mismatch occurs when adopting
-`documentElement` itself, which strict attachment checks exclude. Subscriptions
-can then remain active and update detached contents. Applications using these
-cases must explicitly call `LitDomApi.notifyDetach(el)` when releasing the
-contents. This integration does not synchronize those divergent policies.
+When handing already-rendered contents to a new View or provider, the previous
+owner or notifier must release its connection first. For an application-managed
+connection, call `LitDomApi.notifyDetach(el)` before the handoff. Monitored adoption
+then reconnects those contents only if the new View is attached. Adopting a root
+that the new attachment policy excludes does not disconnect a part left connected
+by the previous notifier. External DOM insertion alone does not connect directives;
+use a monitored owner or supply the matching notifications explicitly.
 
 ## jQuery
 

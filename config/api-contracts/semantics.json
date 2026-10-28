@@ -4205,7 +4205,7 @@
       "ownership": "Framework Views retain their normal ownership; DOM adapters own their rendering integration resources.",
       "mutation": "Reconciles content while preserving the View root and matching survivor elements; owner Regions are cleaned before parent rendering.",
       "repetition": "Repeated rendering updates content within the same root.",
-      "destruction": "Detach/reattach preserves the root; destroy releases rendering resources through normal View lifecycle. Monitored adoption and Region mounting of Elements inside open/closed shadows connect and disconnect directives; external DOM movement and disabled monitoring require application notifications. Lit's initial native connection can disagree with configured attachment, including document-root self-exclusion; those cases require explicit application disconnection to release subscriptions.",
+      "destruction": "Detach/reattach preserves the root; destroy releases rendering resources through normal View lifecycle. Lit connection follows explicit attachment notifications, including before the first content render. Unnotified contents start disconnected even in connected DOM. Monitored adoption and Region mounting of Elements inside open/closed shadows connect and disconnect directives; direct adapter use, external DOM movement and disabled monitoring require application notifications. A previous owner or notifier must release its connection before handing rendered contents to another owner; adopting an excluded root does not reconcile an unreleased connected part.",
       "diagnostics": [],
       "docs": [
         {
@@ -4323,6 +4323,36 @@
         {
           "file": "test/browser/shadow-lifecycle.spec.mjs",
           "title": "closed: Region-mounted Lit View under configured document host releases subscriptions"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: ${tree} rendering honors ${policy} attachment",
+          "runner": "test/unit/dom-adapters.spec.js"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: connected direct contents require explicit connection notifications",
+          "runner": "test/unit/dom-adapters.spec.js"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: connection notifications before first render can be cancelled",
+          "runner": "test/unit/dom-adapters.spec.js"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: connected monitoring opt-out requires explicit initial attachment",
+          "runner": "test/unit/dom-adapters.spec.js"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: external insertion before first render does not imply attachment",
+          "runner": "test/unit/dom-adapters.spec.js"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: released connected contents transfer to ${policy} attachment",
+          "runner": "test/unit/dom-adapters.spec.js"
         }
       ],
       "documentation": {

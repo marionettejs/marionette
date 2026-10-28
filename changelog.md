@@ -9,6 +9,17 @@ For the current v4 → v5 changes and replacements, see the
 [migration guide](docs/guides/migration.md). Entries below describe each release
 at the time it shipped; older prerelease APIs may have been superseded.
 
+### Unreleased
+
+* Recognize monitored Element roots inside open and closed shadow trees while
+  preserving strict containment and configured attachment boundaries.
+* Initialize Lit directive connection from attachment notifications. Direct
+  adapter use and monitoring-disabled Views now require `notifyAttach(el)` even
+  when their element is already connected. Send `notifyDetach(el)` when releasing
+  an application-managed connection, including before handing rendered contents
+  to another owner. Monitored View construction and Region attachment provide
+  these notifications automatically.
+
 ### v5.0.0
 
 > Native UI lifecycles, explicit ownership, and version-matched tools for application and agent development.
