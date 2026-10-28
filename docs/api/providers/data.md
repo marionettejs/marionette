@@ -20,7 +20,56 @@ DataApi lets Views read and observe supplied data. StateApi lets an owner observ
 
 The default supports plain values and static arrays. Explicit entity event maps still need observable sources. The default StateApi does not reuse DataApi's `on`/`off` support automatically.
 
-For either subscription method, return cleanup that releases only the registered callback/context and prevents further delivery. Do not destroy shared data or clear other consumers' subscriptions. An owner may have multiple subscriptions to the same source. DataApi has no disposal method: View destruction releases observation while leaving its model/collection alive.
+For either subscription method, scope cleanup to that call's callback/context or subscription handle. Preserve registrations with different callbacks and, when a truthy cleanup context is supplied, different contexts. Do not destroy shared data or use blanket event/source removal such as `off(eventName)` or `off()`. Callback matching can still group duplicate registrations; see the shipped-provider limitation and omitted-context caveat in [subscription cleanup](#subscription-cleanup). An owner may have multiple subscriptions to the same source. DataApi has no disposal method: View destruction releases observation while leaving its model/collection alive.
+
+### Subscription cleanup
+
+The default DataApi, `@mnjs/data` DataApi/StateApi and BackboneApi currently have a matching limitation: `subscribe` uses the source's `on`/`off` methods, and its idempotent cleanup has no unique subscription handle. If two registrations share the same source, event name, callback function and context, disposing either removes both. For providers accepting event maps, this applies to each map entry. This is a limitation to avoid, not a guarantee that one consumer can release another's subscription. See the [Events removal rules](../shared/events.md#subscribe-and-unsubscribe).
+
+Use a fresh callback wrapper for each subscription that needs an independent lifetime, and call its returned disposer when that lifetime ends. Separate truthy context objects also distinguish owners when every registration and cleanup supplies its own context; an omitted or falsy context does not restrict `off` matching. Reusing one wrapper or bound function for both registrations does not give them separate identities.
+
+Here two features request the same summary refresh while keeping their cleanup independent:
+
+```js
+import { DataApi, Model } from '@mnjs/data';
+
+const source = new Model();
+const summary = {
+  titles: [],
+  refresh(model) { this.titles.push(model.get('title')); }
+};
+const stopEditor = DataApi.subscribe(source, 'change', (...args) => summary.refresh(...args));
+const stopInspector = DataApi.subscribe(source, 'change', (...args) => summary.refresh(...args));
+
+source.set('title', 'Draft'); // Both subscriptions refresh the summary.
+stopEditor();
+source.set('title', 'Ready'); // The inspector subscription still refreshes it.
+stopInspector();
+source.set('title', 'Closed'); // Neither subscription refreshes it.
+source.destroy();
+```
+
+Ordinary Views or Behaviors sharing a Model use their own instance as context, so sharing the source and a prototype method does not cause this collision. Within one View, CollectionView or Behavior, entity bindings (`modelEvents` or `collectionEvents`) can collide with `stateEvents` when they share the source, event name and callback. Both `undelegateEntityEvents()` and the cleanup performed by `delegateEntityEvents()` can then remove the state binding. Rebinding entity events does not restore that state subscription.
+
+For string-method event maps, use distinct forwarding methods. These methods call the same render operation while remaining different callback functions; assigning two names to the same function would still collide:
+
+```js
+import { View } from 'marionette';
+import { DataApi, Model, StateApi } from '@mnjs/data';
+
+const Panel = View.extend({
+  template: ({ count }) => String(Number(count ?? 0)),
+  modelEvents: { change: 'onModelChange' },
+  stateEvents: { change: 'onStateChange' },
+  onModelChange() { this.render(); },
+  onStateChange() { this.render(); }
+}).setDataApi(DataApi).setStateApi(StateApi);
+
+const shared = new Model({ count: 0 });
+const panel = new Panel({ model: shared, state: shared });
+```
+
+This boundary concerns `subscribe`. Native and Backbone `observeCollection` create separate internal callbacks for each observer. Other providers define their own cleanup matching; XState subscriptions use independent unsubscribe handles.
 
 ## Collection identity and observation
 
@@ -44,7 +93,7 @@ A custom provider may use stable opaque references, such as entity IDs, and read
 
 | Method | Contract |
 | --- | --- |
-| `subscribe(source, name, callback, context?) → cleanup` | Observe one literal state event. Preserve source callback arguments and context; return cleanup that releases only this subscription. |
+| `subscribe(source, name, callback, context?) → cleanup` | Observe one literal state event. Preserve source callback arguments and context; scope cleanup to its callback/context or subscription handle, without blanket event/source removal. See the [matching limitation](#subscription-cleanup). |
 | `disposeOwned(source)` | Optional synchronous disposal for a source returned by `createState`. Called after that owner's state subscriptions are released. |
 
 The default `StateApi.subscribe` always throws `MN0037`; configure a compatible provider before using `stateEvents`. The default has no `disposeOwned`. Plain default state can still be read and changed without declarative observation.

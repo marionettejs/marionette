@@ -83,6 +83,8 @@ Both methods are no-ops while destroying/destroyed. Construction delegates autom
 
 Replacing a View's model or collection after construction does not change its existing subscriptions. Assign the new source or event map, then call `delegateEntityEvents()` to release the old bindings and observe the current declarations. Repeated delegation replaces bindings rather than accumulating them. Use `undelegateEntityEvents()` when observation should stop without rebinding. Render explicitly if the new source should be displayed immediately.
 
+With callback-matching providers, entity and state bindings on the same source/event need distinct callback functions: undelegation or rebinding can otherwise also remove the state binding. See the [cleanup limitation and forwarding-method example](../providers/data.md#subscription-cleanup). This applies to View and CollectionView entity bindings.
+
 Observable model changes do not automatically update the View's rendered contents. Choose the response in `modelEvents` or `collectionEvents`: for a small View, `modelEvents: { change: 'render' }` rerenders on change. On a layout View, that also resets its Regions and destroys their children; see [View rendering](../view.md#rendering-and-status).
 
 These bindings do not own or destroy the model/collection. State bindings have separate ownership and delivery rules: see [state](state.md).

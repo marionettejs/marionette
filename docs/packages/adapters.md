@@ -41,11 +41,11 @@ model.set('label', 'Archive');
 | `get(model, name)` / `has(model, name)` | Read/check own attributes. `get` returns `undefined` when absent; `has` includes attributes whose value is `undefined`. |
 | `serialize(model)` | Returns the current `model.attributes` object, without copying it. |
 | `models(collection)` | Returns a shallow copy of the ordered `collection.models` array. |
-| `subscribe(source, nameOrMap, callback?, context?)` | Uses native Backbone events and preserves their names, payload arguments, and callback context. Returns an idempotent function that removes only these registrations. |
+| `subscribe(source, nameOrMap, callback?, context?)` | Uses native Backbone events and preserves their names, payload arguments, and callback context. Returns idempotent cleanup using Backbone's `off` matching. |
 | `observeCollection(collection, notify, context?)` | Translates native collection events into the structural changes below. Returns an idempotent disposer. |
 | `disposeOwned(source)` | Does nothing to the source itself. Owner subscriptions have already been released by StateApi cleanup. |
 
-For event maps, use Backbone's map form with the context as the following argument. Standalone subscriptions do not add framework ownership; call the returned disposer when finished.
+For event maps, use Backbone's map form with the context as the following argument. Registrations sharing the same source, event, callback and context are removed together. Use a fresh callback wrapper or distinct owner contexts for independent lifetimes; the [subscription cleanup example and omitted-context boundary](../api/providers/data.md#subscription-cleanup) also apply to BackboneApi. `observeCollection` already creates separate internal callbacks for each observer. Standalone subscriptions do not add framework ownership; call the returned disposer when finished.
 
 A standalone `sort` reports `reorder`, retaining surviving child Views and DOM. `update` reports added/removed models; removals destroy those children. Merges retain the model and do not request a child rerender through collection observation—use the child's model events. `reset` reports `reset` and rebuilds children. The adapter treats sort events with truthy `add`, `remove`, or `merge` options as mutation-related and suppresses them. It relies on the `update` emitted by ordinary non-silent additions, removals and merges; reorder-only `set()` and explicit `sort()` do not provide that update.
 

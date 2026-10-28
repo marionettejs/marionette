@@ -1,6 +1,51 @@
 // Outcome checks for the canonical data reference fences. The shared reference
 // runner executes the actual Markdown code before these assertions.
 export const assertions = {
+  'api-providers-data-1': `
+assert.deepEqual(summary.titles, ['Draft', 'Draft', 'Ready']);
+assert.equal(source.isDestroyed(), true);
+// Verify the documented shipped limitation, not a provider requirement.
+// Update this check and the limitation text if subscription matching changes.
+const duplicateSource = new Model();
+const owner = {};
+let deliveries = 0;
+const refresh = () => deliveries++;
+const stopFirst = DataApi.subscribe(duplicateSource, 'change', refresh, owner);
+const stopSecond = DataApi.subscribe(duplicateSource, 'change', refresh, owner);
+duplicateSource.set('title', 'Draft');
+assert.equal(deliveries, 2);
+stopFirst();
+duplicateSource.set('title', 'Ready');
+assert.equal(deliveries, 2);
+stopSecond();
+duplicateSource.destroy();
+`,
+  'api-providers-data-2': `
+const replacement = new Model({ count: 10 });
+let renders = 0;
+panel.on('render', () => renders++);
+shared.set('count', 1);
+assert.equal(renders, 2);
+panel.model = replacement;
+panel.delegateEntityEvents();
+shared.set('count', 2);
+assert.equal(renders, 3);
+assert.equal(panel.el.textContent, '10');
+replacement.set('count', 11);
+assert.equal(renders, 4);
+panel.undelegateEntityEvents();
+shared.set('count', 3);
+replacement.set('count', 12);
+assert.equal(renders, 5);
+assert.equal(panel.el.textContent, '11');
+panel.destroy();
+assert.equal(shared.isDestroyed(), false);
+assert.equal(replacement.isDestroyed(), false);
+shared.set('count', 4);
+assert.equal(renders, 5);
+shared.destroy();
+replacement.destroy();
+`,
   'packages-data-1': `
 assert.deepEqual(changes, ['dark', 'system']);
 assert.deepEqual(preferences.toObject(), { compact: false, theme: 'system' });

@@ -121,9 +121,10 @@ export const Requests = {
   replyOnce(this: RequestState, name: string | Record<string, unknown>, callback?: unknown, context?: unknown) {
     if (dispatchOverload(this, 'replyOnce', name, callback, context)) { return this; }
 
-    const onceCallback = onceWrap(makeCallback(callback), callbackToRemove => {
+    const onceCallback: Callback = onceWrap(makeCallback(callback), callbackToRemove => {
       this.stopReplying(name, callbackToRemove);
     });
+    onceCallback._callback = callback;
 
     return this.reply(name, onceCallback, context);
   },

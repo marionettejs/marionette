@@ -78,6 +78,8 @@ Host events are forwarded to each Behavior's `triggerMethod` with their original
 
 `modelEvents` and `collectionEvents` bind after host initialization. Handlers use the Behavior as context and preserve the source's arguments. Access sources as `this.view.model` and `this.view.collection`. `delegateEntityEvents()` releases previous entity bindings and binds the current declarations to those sources; `undelegateEntityEvents()` removes those bindings. Both return the Behavior. Repeated delegation replaces bindings. Reassigning a host model, collection, or declaration does not automatically rebind it; call `delegateEntityEvents()` afterward.
 
+If a Behavior's entity and state bindings share a source/event, use distinct callback functions to preserve state observation through undelegation or rebinding. The [provider cleanup limitation and forwarding-method example](providers/data.md#subscription-cleanup) apply within each Behavior too.
+
 `createState(options)`, `getState()`, `stateEvents`, `State`, and `Behavior.setStateApi(api)` follow the shared [state contract](shared/state.md). The Behavior's StateApi is independent of its host's provider. State observation does not require rendering or attachment. A host's state is not automatically the Behavior's state; pass a borrowed source deliberately when sharing it.
 
 ## Destruction and nested Behaviors
