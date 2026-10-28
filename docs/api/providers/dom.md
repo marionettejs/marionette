@@ -41,7 +41,7 @@ Only content insertion changes; native root creation, queries and placement rema
 | `createBuffer() → DocumentFragment` | Create a buffer for batch child insertion. |
 | `getDocumentEl(el) → Element \| null` | Return the document root used for attachment checks. Native uses `el.ownerDocument.documentElement`. |
 | `findEl(el, selector) → Query` | Return an array-like collection of matching descendants. Native returns a static `NodeList`; excludes the root. |
-| `hasEl(el, childEl) → boolean` | Test strict containment. Native checks the child's parent, so an element does not contain itself for this operation. Nullish child returns false. |
+| `hasEl(el, childEl) → boolean` | Test strict containment between DOM Nodes. The container may be an Element, Document, DocumentFragment, or ShadowRoot. Native checks the child's parent, so a node does not contain itself for this operation. Nullish child returns false. |
 | `detachEl(el)` | Remove the element from its parent while preserving the element and listeners for possible reuse. |
 | `replaceEl(newEl, oldEl)` | Replace the old element in its parent. Native does nothing for identical elements or a parentless old element. |
 | `setContents(el, output)` | Apply renderer output within the root. Native uses `innerHTML`, with nullish output clearing contents. Match this method to the renderer's output. |
@@ -53,7 +53,7 @@ Only content insertion changes; native root creation, queries and placement rema
 | `notifyAttach(el)` | Notify content integration that the View's element has attached. Native does nothing. |
 | `notifyDetach(el)` | Notify content integration that the View's element has detached. Native does nothing. |
 
-Marionette owns View/Region lifecycle and child cleanup around these operations. Providers must preserve the root identity and must not destroy unrelated Views or borrowed sources. Preserve renderer markers when moving child elements; a provider must support the actual content it created. The Lit adapter implements content insertion and attachment notifications so its directive connection state follows View attachment.
+Marionette owns View/Region lifecycle and child cleanup around these operations. Providers must preserve the root identity and must not destroy unrelated Views or borrowed sources. Preserve renderer markers when moving child elements; a provider must support the actual content it created. The Lit adapter implements content insertion and attachment notifications; see its [connection requirements and limitations](../../packages/adapters.md#lit-html).
 
 Attachment notifications follow monitored Marionette lifecycle, including construction on an attached root. `monitorViewEvents: false` on the View class disables that monitoring. Integrations such as Lit rely on these notifications for directive connection state, so disabling monitoring also disables that integration behavior. Arbitrary external DOM movement is not observed.
 
@@ -62,14 +62,11 @@ methods and properties. DomApi configures operations on DOM nodes; it is not an
 abstraction for arbitrary non-DOM root objects. Core lifecycle code also uses
 native DOM ancestry directly.
 
-Attachment checks support Element roots inside open or closed shadow trees. They
-use the configured `getDocumentEl` and strict `hasEl` check. After failed
-containment, native `getRootNode()` and `nodeType` identify a shadow root whose
-`host` is checked next. If that host is the configured document root, attachment
-uses `hasEl(shadowRoot, descendant)`; the provider still decides containment.
-The configured root itself remains excluded. DOM implementations and test doubles
-must provide those Element/Node members. This distinguishes document connectivity
-from ordinary tree containment: `hasEl` and selector lookup do not cross shadow boundaries.
+Attachment includes Element descendants of open or closed shadow trees whose
+hosts are within the configured document root. A shadow tree hosted by that root
+is included; the configured root itself remains excluded. The configured `hasEl`
+still decides containment, including checks within a ShadowRoot. Ordinary `hasEl`
+queries and selector lookup do not cross shadow boundaries.
 Pass the actual Element when adopting a View or mounting a Region inside a shadow
 tree; a ShadowRoot is not a View or Region root. This does not add shadow-piercing
 event delegation, custom-element lifecycle callbacks, or external DOM observation.

@@ -140,7 +140,18 @@ a monitored Marionette owner. Inserting the host directly through external DOM
 APIs does not generate lifecycle notifications. Ordinary containment,
 selector lookup, and event delegation retain their [DOM provider boundaries](../api/providers/dom.md#domapi).
 
-With monitoring enabled, destruction can also release resources from a failed explicit render; failed construction does not roll back initialization. Release the previous View owner before adopting its element in another View. Lit event handlers use Lit's element receiver; use a closure when a handler needs View or application state.
+With monitoring enabled on the View and its ancestors, detach and successful destruction disconnect directive resources in both light DOM and shadow trees. Destruction can also release resources from a failed explicit render; failed construction does not roll back initialization. Release the previous View owner before adopting its element in another View. Lit event handlers use Lit's element receiver; use a closure when a handler needs View or application state.
+
+There is a known connection-state limitation when native connectivity and the
+configured attachment policy disagree. Lit initializes its first content part from
+`el.isConnected`. If the configured attachment policy reports a connected root as
+detached—for example, `hasEl` rejects all containment checks or `getDocumentEl`
+returns null—Marionette does not send automatic detach notifications during
+destruction. The same mismatch occurs when adopting
+`documentElement` itself, which strict attachment checks exclude. Subscriptions
+can then remain active and update detached contents. Applications using these
+cases must explicitly call `LitDomApi.notifyDetach(el)` when releasing the
+contents. This integration does not synchronize those divergent policies.
 
 ## jQuery
 

@@ -3361,7 +3361,19 @@
         },
         {
           "file": "test/unit/view.spec.js",
-          "title": "honors configured containment when the document root hosts a shadow tree"
+          "title": "open shadow document host honors native containment"
+        },
+        {
+          "file": "test/unit/view.spec.js",
+          "title": "open shadow document host respects provider rejection"
+        },
+        {
+          "file": "test/unit/view.spec.js",
+          "title": "closed shadow document host honors native containment"
+        },
+        {
+          "file": "test/unit/view.spec.js",
+          "title": "closed shadow document host respects provider rejection"
         }
       ],
       "documentation": {
@@ -4193,7 +4205,7 @@
       "ownership": "Framework Views retain their normal ownership; DOM adapters own their rendering integration resources.",
       "mutation": "Reconciles content while preserving the View root and matching survivor elements; owner Regions are cleaned before parent rendering.",
       "repetition": "Repeated rendering updates content within the same root.",
-      "destruction": "Detach/reattach preserves the root; destroy releases rendering resources through normal View lifecycle. Monitored adoption and Region mounting of Elements inside open/closed shadows connect and disconnect directives; external DOM movement and disabled monitoring require application notifications.",
+      "destruction": "Detach/reattach preserves the root; destroy releases rendering resources through normal View lifecycle. Monitored adoption and Region mounting of Elements inside open/closed shadows connect and disconnect directives; external DOM movement and disabled monitoring require application notifications. Lit's initial native connection can disagree with configured attachment, including document-root self-exclusion; those cases require explicit application disconnection to release subscriptions.",
       "diagnostics": [],
       "docs": [
         {
