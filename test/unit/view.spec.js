@@ -90,6 +90,35 @@ describe('view', function() {
     });
   });
 
+  it('honors configured containment when the document root hosts a shadow tree', function() {
+    for (const mode of ['open', 'closed']) {
+      for (const permits of [true, false]) {
+        const host = document.createElement('section');
+        const shadow = host.attachShadow({ mode });
+        const el = document.createElement('article');
+        shadow.append(el);
+        document.body.append(host);
+        const provider = permits ? { getDocumentEl: () => host } :
+          { getDocumentEl: () => host, hasEl: () => false };
+        const Panel = View.extend({ template: false }).setDomApi(provider);
+        const view = new Panel({ el });
+        const detached = vi.fn();
+        view.on('detach', detached);
+        try {
+          expect(view.isAttached()).toBe(permits);
+          view.destroy();
+          expect(detached).toHaveBeenCalledTimes(permits ? 1 : 0);
+          const root = new Panel({ el: host });
+          expect(root.isAttached()).toBe(false);
+          root.destroy();
+        } finally {
+          view.destroy();
+          host.remove();
+        }
+      }
+    }
+  });
+
   describe('when instantiating a view with a non existing DOM element', function() {
     let view;
 

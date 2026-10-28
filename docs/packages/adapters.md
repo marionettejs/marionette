@@ -130,7 +130,7 @@ const morph = new MorphMessage().render();
 
 The notification methods connect/disconnect Lit directives through the stored root part. Marionette's attachment monitoring calls them when managed through Regions; keep `monitorViewEvents` enabled on the View and its ancestors. If monitoring is disabled or its handlers are removed, the application must deliver these notifications itself. Overrides of lifecycle methods must preserve parent behavior.
 
-With the native attachment operations, this also covers Element roots adopted or
+With attachment monitoring enabled, this also covers Element roots adopted or
 Region-mounted inside open or closed shadow trees. An already-connected adopted
 Element starts attached; a fresh detached View connects when its Region mounts it
 in a connected tree. Detach/re-show disconnects/reconnects directives, and successful
@@ -140,7 +140,7 @@ a monitored Marionette owner. Inserting the host directly through external DOM
 APIs does not generate lifecycle notifications. Ordinary containment,
 selector lookup, and event delegation retain their [DOM provider boundaries](../api/providers/dom.md#domapi).
 
-Detach and destruction disconnect directive resources. Destruction can also release resources from a failed explicit render; failed construction does not roll back initialization. Release the previous View owner before adopting its element in another View. Lit event handlers use Lit's element receiver; use a closure when a handler needs View or application state.
+With monitoring enabled, destruction can also release resources from a failed explicit render; failed construction does not roll back initialization. Release the previous View owner before adopting its element in another View. Lit event handlers use Lit's element receiver; use a closure when a handler needs View or application state.
 
 ## jQuery
 

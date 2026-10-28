@@ -303,11 +303,19 @@
     },
     {
       "file": "shadow-lifecycle.spec.mjs",
+      "title": "closed: Region-mounted Lit View under configured document host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
       "title": "closed: adopted Lit View in connected host releases subscriptions"
     },
     {
       "file": "shadow-lifecycle.spec.mjs",
       "title": "closed: adopted Lit View in detached host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "closed: adopted Lit View under configured document host releases subscriptions"
     },
     {
       "file": "shadow-lifecycle.spec.mjs",
@@ -359,11 +367,19 @@
     },
     {
       "file": "shadow-lifecycle.spec.mjs",
+      "title": "open: Region-mounted Lit View under configured document host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
       "title": "open: adopted Lit View in connected host releases subscriptions"
     },
     {
       "file": "shadow-lifecycle.spec.mjs",
       "title": "open: adopted Lit View in detached host releases subscriptions"
+    },
+    {
+      "file": "shadow-lifecycle.spec.mjs",
+      "title": "open: adopted Lit View under configured document host releases subscriptions"
     },
     {
       "file": "shadow-lifecycle.spec.mjs",

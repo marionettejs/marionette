@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "a564f7f0ffea9cf01e29ecd900821c11a06d8162f13365feaf6036e5d08085bb",
+  "semanticsSha256": "63eed541f5cd5335470046b70b8af036ba110fa29a29d62dbc710c7384c6fed5",
   "entrypoints": [
     {
       "name": "marionette",
@@ -12464,7 +12464,7 @@
     "src/runtime/renderer.ts": "9d3419a82872bc0ed017e2716cafe430b33833aab44d8cdf8c74746b1ecdab30",
     "src/runtime/state-api.ts": "109cad5a2d2aebda1d50c907009e62ee40c816983e9a5f09b59197d392ca4f31",
     "src/utils/extend.ts": "1df6dc34448491ad1e3254da1106d9c73108f2f17f6e8b77f9bc2691a0c8ba61",
-    "src/utils/is-el-attached.ts": "9171f9de25ea6a0e050625eed4277dea776e6a5f30ebbcd0065551787c886533",
+    "src/utils/is-el-attached.ts": "8f6a9b820641133e13fe2adfd019a2f9f8bc971620005d4c7f52b6c454ed7133",
     "src/utils/subscribe-bindings.ts": "4337d7226b96fa2af73ad96136eced7af866a6d8130ea860ab076f2a77b7e4df"
   },
   "evidence": {
@@ -12475,7 +12475,7 @@
     "docs/api/errors.md": "f4efcdd5da9dcf053b936fab32d6e200f8223f799e2517dee7753823b89946b2",
     "docs/api/mnobject.md": "89cfe4ac212de4ac5fd966cb427c1391749a2be623ccc9b6f16bb4c3497313bc",
     "docs/api/providers/data.md": "a9df3ec48a486302f974657354ec52c7eca03d09399e2820c6cbfd3af310d281",
-    "docs/api/providers/dom.md": "fef282fd667ad3129b9478f544c1f601d9a8f156309d9a5c3c6c1343b0f97fa5",
+    "docs/api/providers/dom.md": "7b65d987b098ad539595fc2f27ca11df8dd320ebee7812c14f9c02eeb2430656",
     "docs/api/region.md": "d6951eb046fbcf2a9b6c6bf43b83f71e02fa3696fbce61daadbd60af62221a60",
     "docs/api/runtime.md": "b82fc651c2ae6c076b7b8600310ba7e908d699f9bb2a817851be6b22fc8c2e6f",
     "docs/api/shared/common.md": "8982228a2345240414e35ba4f0967e95530f5966fe1254efd9a09575706d5b6a",
@@ -12484,11 +12484,11 @@
     "docs/api/shared/view-bindings.md": "be743609c3af33f9a62bb0b82ea1dc8f44f14ba8516c3d1235e9aa8147b99bf8",
     "docs/api/view.md": "daf6d86e063a3fbc0bbea001c5b338bf254372effc19e74d3069eba9aaa1d981",
     "docs/guides/typescript.md": "baba4c8483115fd7a6bb16089f38e5666f9c0f632079b531a107ee48b1ed6285",
-    "docs/packages/adapters.md": "52f0d4bcf0aed82d62f099c3b02bc2454ab289b6f470052249fd1e3398e46eeb",
+    "docs/packages/adapters.md": "81dc52e572888074925967ab60d2c60bc8fecbda4ca268d893d00fee3ac16922",
     "docs/packages/data.md": "5f52b9d2044718cb32a6cfef08d0d85fff646e20d18bbb81e3ced3285971fb4e",
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
     "docs/packages/utils.md": "158e2051ee438acd7e235f0f29ce45f42ad798bb6d460a871efd29904e2728ec",
-    "test/browser/shadow-lifecycle.spec.mjs": "d20675882192175328b547e0ab1c19f31c72c44ee0559eddd73b5b7eba6fb7fc",
+    "test/browser/shadow-lifecycle.spec.mjs": "e91153c05faddec48cbb19dcab4afc30778acd9fd974dbb41f6e272c5af93d18",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
     "test/unit/application-child-declarations.spec.js": "693740783f56c4e24aa886076389378d106839987b7ce442bfefb267ca5a2f84",
     "test/unit/application-child-lifecycle.spec.js": "78296e9b442918bf03a3f9741f00e0884aa043092774e984f0e735757197b1d8",
@@ -12553,6 +12553,7 @@
     "test/unit/view-lifecycle.spec.js": "6e44d3a1db83dd0fe7613f9b85a2dbab53bc4f135ac0ba647dc113f271370e19",
     "test/unit/view-region-placeholder.spec.js": "4ca7a94727ad970eddb72955e5e6895152c8a0d2aa899949fd42eeb5fd71661a",
     "test/unit/view-render-attributes.spec.js": "8ba365cfacac43a47e0641b0749ff47b952569fc048fb1987ef1295e3228ec3b",
+    "test/unit/view.spec.js": "86f4754b11d39d70e11622122288421340c6304b64d11c26b5a265cd338488a6",
     "test/unit/xstate-adapter.spec.js": "faa8e56ba16128f22cdda5a75169d770f42e35980e647e801f674013f23fa082"
   }
 }

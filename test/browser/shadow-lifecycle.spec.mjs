@@ -57,8 +57,24 @@ test('iframe: Region-mounted Lit View in connected host releases subscriptions',
   await checkLitLifecycle(page, 'iframe', false, true);
 });
 
-async function checkLitLifecycle(page, treeKind, adopts, hostConnected) {
-  const result = await page.evaluate(async({ tree, adopted, connected }) => {
+test('open: adopted Lit View under configured document host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'open', true, true, true);
+});
+
+test('open: Region-mounted Lit View under configured document host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'open', false, true, true);
+});
+
+test('closed: adopted Lit View under configured document host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'closed', true, true, true);
+});
+
+test('closed: Region-mounted Lit View under configured document host releases subscriptions', async({ page }) => {
+  await checkLitLifecycle(page, 'closed', false, true, true);
+});
+
+async function checkLitLifecycle(page, treeKind, adopts, hostConnected, configuredDocumentHost = false) {
+  const result = await page.evaluate(async({ tree, adopted, connected, documentHost }) => {
     const { Region, View } = await import('marionette');
     const { default: LitDomApi } = await import('@mnjs/adapters/dom/lit-html');
     const { html } = await import('lit-html');
@@ -95,13 +111,15 @@ async function checkLitLifecycle(page, treeKind, adopts, hostConnected) {
         source.removeEventListener('tick', this.receive);
       }
     });
+    const provider = documentHost ? { getDocumentEl: () => host } : {};
     const Panel = View.extend({
       template: () => html`<p>${watch()}</p>`,
       onAttach() { counts.attachments++; },
       onDetach() { counts.detachments++; }
-    }).setDomApi(LitDomApi);
+    }).setDomApi({ ...LitDomApi, ...provider });
+    const Container = Region.extend().setDomApi(provider);
     const view = new Panel({ el });
-    const region = new Region({ el: slot });
+    const region = new Container({ el: slot });
     const snapshot = () => ({ ...counts, attached: view.isAttached(),
       connected: el.isConnected, text: el.textContent });
     const tick = () => source.dispatchEvent(new Event('tick'));
@@ -132,7 +150,7 @@ async function checkLitLifecycle(page, treeKind, adopts, hostConnected) {
       LitDomApi.notifyDetach(el);
       host.remove();
     }
-  }, { tree: treeKind, adopted: adopts, connected: hostConnected });
+  }, { tree: treeKind, adopted: adopts, connected: hostConnected, documentHost: configuredDocumentHost });
   const active = hostConnected ? 1 : 0;
   // Assert teardown first so the adopted regression exposes late DOM writes.
   assert.deepEqual(result.destroyed, {
@@ -315,6 +333,9 @@ test('attachment retains configured document-root and containment boundaries', a
       { getDocumentEl: () => null },
       { getDocumentEl: () => document.createElement('aside') },
       { hasEl: () => false },
+      { getDocumentEl: () => host, hasEl: () => false },
+      { getDocumentEl: () => host },
+      { getDocumentEl: () => inside },
       { getDocumentEl: () => slot },
       { getDocumentEl: () => document.documentElement }
     ];
@@ -349,7 +370,9 @@ test('attachment retains configured document-root and containment boundaries', a
   });
   assert.deepEqual(result, { custom: [
     { adopted: false, mounted: false }, { adopted: false, mounted: false },
-    { adopted: false, mounted: false }, { adopted: true, mounted: true },
+    { adopted: false, mounted: false }, { adopted: false, mounted: false },
+    { adopted: true, mounted: true }, { adopted: true, mounted: true },
+    { adopted: true, mounted: true },
     { adopted: true, mounted: true }
   ], rootAttached: false, strictShadow: false });
 });

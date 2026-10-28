@@ -65,9 +65,11 @@ native DOM ancestry directly.
 Attachment checks support Element roots inside open or closed shadow trees. They
 use the configured `getDocumentEl` and strict `hasEl` check. After failed
 containment, native `getRootNode()` and `nodeType` identify a shadow root whose
-`host` is checked next. DOM implementations and test doubles must provide those
-Element/Node members. This distinguishes document connectivity from ordinary
-tree containment: `hasEl` and selector lookup do not cross shadow boundaries.
+`host` is checked next. If that host is the configured document root, attachment
+uses `hasEl(shadowRoot, descendant)`; the provider still decides containment.
+The configured root itself remains excluded. DOM implementations and test doubles
+must provide those Element/Node members. This distinguishes document connectivity
+from ordinary tree containment: `hasEl` and selector lookup do not cross shadow boundaries.
 Pass the actual Element when adopting a View or mounting a Region inside a shadow
 tree; a ShadowRoot is not a View or Region root. This does not add shadow-piercing
 event delegation, custom-element lifecycle callbacks, or external DOM observation.
