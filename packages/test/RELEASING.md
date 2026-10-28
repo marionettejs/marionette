@@ -38,6 +38,23 @@ existing version, silently bump the version or retarget another dist-tag.
 The manifest fixes public access and the public registry; the eventual publication
 command below also makes both explicit.
 
+## Verify consumer documentation destinations
+
+The npm README is consumer onboarding. The canonical `guide.md` is shipped with
+the helper itself and linked from the README; it must remain available at
+`node_modules/@mnjs/test/guide.md`, independently of the installed core version.
+Keep release operations and repository verification commands in this file,
+`test/README.md` and `examples/README.md`, outside the shipped consumer surface.
+
+Repository-example links use `master`, consistent with the package homepage.
+They are mutable repository examples, not a frozen dependency/version contract;
+the shipped guide's compatibility table records tested versions. Do not pin these
+links to a PR commit that a squash merge need not preserve, or advertise a tag
+before it exists. Before publication, verify every repository-example destination
+against the actual merged `master` and check its content. PR-head path verification
+does not make new destinations live on `master` before merge. Verify the packed
+README, guide, relative links and section anchors as well as the runtime payload.
+
 ## Build and certify one archive from final source
 
 Use the canonical repository, a clean committed checkout, and Node/npm from

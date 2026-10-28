@@ -91,7 +91,7 @@ try {
   }
   report.artifact = basename(artifact);
   const paths = execFileSync('tar', ['-tzf', artifact], { encoding: 'utf8' }).trim().split('\n');
-  assert(paths.every(path => /^package\/(dist\/|readme\.md$|license\.txt$|package\.json$)/.test(path)), 'Unexpected archive contents.');
+  assert(paths.every(path => /^package\/(dist\/|(?:readme|guide)\.md$|license\.txt$|package\.json$)/.test(path)), 'Unexpected archive contents.');
   mkdirSync(join(workspace, 'packages/test'), { recursive: true });
   run('extract', 'tar', ['-xzf', artifact, '--strip-components=1', '-C', join(workspace, 'packages/test')], workspace);
   const installedManifest = JSON.parse(readFileSync(join(workspace, 'packages/test/package.json'), 'utf8'));
@@ -137,6 +137,7 @@ try {
   run('optional-peer-isolation', process.execPath, ['optional-test-peers.mjs']);
   cpSync(join(root, 'test/examples/test-readme.mjs'), join(consumer, 'test-readme.mjs'));
   run('readme-recipes', process.execPath, ['--import', './dom.js', 'test-readme.mjs']);
+  runNpm('readme-quickstart', ['exec', '--', 'vitest', 'run', '--config', 'readme-quickstart.config.mjs']);
   runNpm('runtime-and-types', ['run', 'test:consumer']);
   runNpm('vitest-dom', ['test']);
   if (values.browser) {

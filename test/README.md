@@ -298,3 +298,9 @@ It certifies a single archive from the final merged revision and publishes that
 same archive only after separate approval. Supply `--artifact /absolute/path.tgz
 --sha256 RECORDED_SHA256` to verify an existing archive without packing again.
 The coordinated five-package release commands above do not release this helper.
+
+The helper archive ships consumer onboarding and its version-matched `guide.md`.
+Packed checks verify both files and their relative links/anchors, execute the
+README's own Vitest configuration/test, then exercise the reference recipes.
+Repository examples follow `master`; validate their merged destinations before
+publication as described in the helper release procedure.

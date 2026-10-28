@@ -90,6 +90,7 @@ test('export CLI labels stable and prerelease documentation from the selected po
 });
 
 test('rejects unsafe paths and ambiguous source or route entries', () => {
+  assert.doesNotThrow(() => validateNavigation([{ source: 'packages/test/guide.md', route: 'docs/packages/test/guide', title: 'Testing reference', section: 'Development packages' }]));
   const valid = { source: 'docs/readme.md', route: 'docs', title: 'Docs', section: 'Start' };
   for (const source of ['../readme.md', 'docs/../readme.md', '/docs/readme.md']) {
     assert.throws(() => validateNavigation([{ ...valid, source }]));

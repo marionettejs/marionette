@@ -2,7 +2,8 @@
 
 Use these examples to connect `@mnjs/test` to your runner and browser tools. They
 import public package exports with Marionette 5.0.0. See the
-[package guide](../readme.md) for mounting, ownership and cleanup contracts.
+[package README](../readme.md) for installation and the [consumer reference](../guide.md)
+for mounting, ownership and cleanup contracts.
 
 ## Run the examples
 
@@ -105,5 +106,6 @@ interactions still come from Testing Library. Mount cancellation begins before
 project disposers are awaited.
 
 The repository's packed-consumer verifier additionally extracts the package guide's
-neutral, Vitest and Playwright recipes into the isolated consumer and executes them.
+neutral, Vitest and Playwright reference recipes into the isolated consumer and executes them.
+It also runs the shipped README's own Vitest configuration and first test.
 Cypress guide command declarations are checked separately with the Cypress consumer types.

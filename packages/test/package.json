@@ -57,6 +57,7 @@
   "files": [
     "dist/",
     "readme.md",
+    "guide.md",
     "license.txt"
   ],
   "sideEffects": false,
