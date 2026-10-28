@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
-import { delimiter, dirname, join, resolve } from 'node:path';
+import { basename, delimiter, dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { parseArgs } from 'node:util';
 
@@ -10,7 +10,9 @@ const root = resolve(import.meta.dirname, '../..');
 const { values } = parseArgs({ options: {
   output: { type: 'string', default: join(root, 'test/tmp/test-package-consumer') },
   browser: { type: 'boolean', default: false },
-  cypress: { type: 'boolean', default: false }
+  cypress: { type: 'boolean', default: false },
+  artifact: { type: 'string' },
+  sha256: { type: 'string' }
 } });
 const output = resolve(values.output);
 mkdirSync(output, { recursive: true });
@@ -26,7 +28,8 @@ const env = {
   NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --no-global-search-paths`,
   PATH: (process.env.PATH || '').split(delimiter).filter(path => !path.includes('node_modules')).join(delimiter)
 };
-const report = { artifact: undefined, sha256: undefined, node: process.version, stages: [], passed: false };
+const report = { artifact: undefined, sha256: undefined, node: process.version,
+  requestedChecks: { browser: values.browser, cypress: values.cypress }, stages: [], passed: false };
 function run(name, command, args, cwd = consumer) {
   const stage = { name, passed: false };
   report.stages.push(stage);
@@ -50,6 +53,7 @@ function assertIsolated(directory) {
 }
 try {
   if (!npmCli) { throw new Error('Run helper consumer verification through npm so its CLI can be located.'); }
+  assert.equal(Boolean(values.artifact), Boolean(values.sha256), 'Supply --artifact and --sha256 together.');
   const fixtureManifest = JSON.parse(readFileSync(join(fixture, 'package.json'), 'utf8'));
   const expectedVersions = {
     marionette: fixtureManifest.dependencies.marionette,
@@ -71,18 +75,47 @@ try {
     lockSha256: createHash('sha256').update(readFileSync(join(fixture, 'package-lock.json'))).digest('hex') });
   workspace = mkdtempSync(join(tmpdir(), 'mnjs-test-consumer-'));
   consumer = join(workspace, 'packages/test/examples');
-  const packed = JSON.parse(runNpm('pack', ['pack', './packages/test', '--ignore-scripts', '--json', '--pack-destination', output], root))[0];
-  const artifact = join(output, packed.filename);
-  report.artifact = packed.filename;
-  report.sha256 = createHash('sha256').update(readFileSync(artifact)).digest('hex');
-  assert(packed.files.every(file => /^(dist\/|readme\.md$|license\.txt$|package\.json$)/.test(file.path)));
+  let artifact;
+  if (values.artifact) {
+    const supplied = resolve(values.artifact);
+    artifact = join(output, basename(supplied));
+    if (artifact !== supplied) { cpSync(supplied, artifact); }
+    report.sha256 = createHash('sha256').update(readFileSync(artifact)).digest('hex');
+    assert.equal(report.sha256, values.sha256, 'Supplied archive SHA256 mismatch.');
+    report.artifactMode = 'supplied';
+  } else {
+    const packed = JSON.parse(runNpm('pack', ['pack', './packages/test', '--ignore-scripts', '--json', '--pack-destination', output], root))[0];
+    artifact = join(output, packed.filename);
+    report.sha256 = createHash('sha256').update(readFileSync(artifact)).digest('hex');
+    report.artifactMode = 'packed';
+  }
+  report.artifact = basename(artifact);
+  const paths = execFileSync('tar', ['-tzf', artifact], { encoding: 'utf8' }).trim().split('\n');
+  assert(paths.every(path => /^package\/(dist\/|readme\.md$|license\.txt$|package\.json$)/.test(path)), 'Unexpected archive contents.');
   mkdirSync(join(workspace, 'packages/test'), { recursive: true });
   run('extract', 'tar', ['-xzf', artifact, '--strip-components=1', '-C', join(workspace, 'packages/test')], workspace);
+  const installedManifest = JSON.parse(readFileSync(join(workspace, 'packages/test/package.json'), 'utf8'));
+  assert.equal(installedManifest.name, '@mnjs/test');
+  assert.equal(installedManifest.version, expectedVersions.helper);
   cpSync(fixture, consumer, { recursive: true, filter: path => !path.split('/').includes('node_modules') });
   assertIsolated(consumer);
   const originalLock = readFileSync(join(fixture, 'package-lock.json'), 'utf8');
-  runNpm('install', ['ci', '--ignore-scripts', '--install-links']);
-  assert.equal(readFileSync(join(consumer, 'package-lock.json'), 'utf8'), originalLock);
+  // Change only the helper's local locator/integrity; keep every external pin intact.
+  const locator = 'file:../artifact.tgz';
+  cpSync(artifact, join(workspace, 'packages/test/artifact.tgz'));
+  const consumerManifest = JSON.parse(readFileSync(join(consumer, 'package.json'), 'utf8'));
+  consumerManifest.dependencies['@mnjs/test'] = locator;
+  writeFileSync(join(consumer, 'package.json'), `${JSON.stringify(consumerManifest, null, 2)}\n`);
+  const consumerLock = JSON.parse(originalLock);
+  consumerLock.packages[''].dependencies['@mnjs/test'] = locator;
+  consumerLock.packages['node_modules/@mnjs/test'].resolved = locator;
+  report.archiveIntegrity = `sha512-${createHash('sha512').update(readFileSync(artifact)).digest('base64')}`;
+  consumerLock.packages['node_modules/@mnjs/test'].integrity = report.archiveIntegrity;
+  const lockedConsumer = `${JSON.stringify(consumerLock, null, 2)}\n`;
+  writeFileSync(join(consumer, 'package-lock.json'), lockedConsumer);
+  report.consumerLockSha256 = createHash('sha256').update(lockedConsumer).digest('hex');
+  runNpm('install', ['ci', '--ignore-scripts']);
+  assert.equal(readFileSync(join(consumer, 'package-lock.json'), 'utf8'), lockedConsumer);
   run('installed-copy', process.execPath, ['--input-type=module', '-e',
     'import assert from "node:assert/strict"; import { createRequire } from "node:module"; import { resolve } from "node:path";' +
     'const require = createRequire(import.meta.url);' +

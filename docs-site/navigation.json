@@ -236,7 +236,7 @@
   {
     "source": "packages/test/readme.md",
     "route": "docs/packages/test",
-    "title": "Testing helpers (0.1.0 candidate)",
+    "title": "Testing helpers",
     "section": "Development packages"
   }
 ]

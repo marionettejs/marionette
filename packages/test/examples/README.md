@@ -75,6 +75,10 @@ run this from the repository root:
 npm run test:helpers:consumer -- --cypress
 ```
 
+To verify a previously packed archive without repacking, supply
+`--artifact /absolute/path.tgz --sha256 RECORDED_SHA256` with either browser flag.
+See the [helper release procedure](../RELEASING.md) for final-source certification.
+
 The normal component examples cover mounting, Application readiness, manual startup,
 configured command timeouts and awaited cleanup. The verifier also runs deliberate
 startup, cancellation, timeout and cleanup failures in separate Cypress runs. It

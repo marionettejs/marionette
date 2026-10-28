@@ -9,20 +9,29 @@ and creating a cleanup scope do not. Production Marionette does not depend on it
 See the [Marionette testing guide](https://marionettejs.com/docs/guides/testing/)
 for application testing fundamentals.
 
-To evaluate the `0.1.0` candidate before publication, build and pack it from the
-Marionette repository:
+## Install
+
+Use Node.js `^22.22.2 || >=24.15.0` and Marionette 5. Install the helper as a
+development dependency in your application's directory:
 
 ```sh
-npm run build
-npm pack ./packages/test --ignore-scripts
+npm install marionette@^5.0.0
+npm install --save-dev --save-exact @mnjs/test@0.1.0
 ```
 
-Then, from your application's directory, install the tarball as a development
-dependency alongside Marionette 5:
+Install only the optional integrations you use. The Vitest examples below use
+Vitest 5, a DOM environment such as JSDOM, and DOM Testing Library:
 
 ```sh
-npm install --save-dev /absolute/path/to/mnjs-test-0.1.0.tgz
+npm install --save-dev vitest@^5.0.3 jsdom@^30 @testing-library/dom@^10.4.1
 ```
+
+Configure Vitest's `environment: 'jsdom'`, or use Browser Mode. Cypress requires
+`cypress@^16.1.1` and `@cypress/mount-utils@^4.0.0`; its browser binary and OS display
+dependencies are installed through Cypress's normal setup. Playwright's browser
+gallery has no runner dependency; the fixture example uses Playwright Test 1.63.0.
+The [runnable examples](https://github.com/marionettejs/marionette/tree/af3db91ca7695d3338279f9f1bd91690bdfb18dd/packages/test/examples)
+include complete runner configuration and exact tested dependency versions.
 
 ## Vitest: own mounts per test
 
@@ -447,8 +456,10 @@ Cypress/mount-utils, Vitest and DOM Testing Library are optional peers. Import t
 the neutral entry and browser gallery do not require these runners. The
 [example manifest and lockfile](https://github.com/marionettejs/marionette/tree/af3db91ca7695d3338279f9f1bd91690bdfb18dd/packages/test/examples)
 record exact tool versions. Other runner versions and integrations have not been
-checked. These checks validate the candidate artifact; they do not confirm npm
-publication.
+checked. See the repository
+[helper release procedure](https://github.com/marionettejs/marionette/blob/master/packages/test/RELEASING.md)
+for source-revision and exact-archive certification; passing tests alone does not
+establish registry publication.
 
 From the Marionette repository, after building, run the installed consumer checks:
 

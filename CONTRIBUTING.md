@@ -94,6 +94,9 @@ and usage snapshots. Confirm completed indexing and version-matched snippets.
 These measurements guide documentation improvements; they do not establish
 release readiness or agent efficiency.
 
+For an independent `@mnjs/test` release, use its [release procedure](packages/test/RELEASING.md).
+It is separate from the coordinated five-package release above.
+
 ## Repository layout
 
 Core production source lives under `src/`:

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -17,7 +18,10 @@ function fixture() {
   writeFileSync(join(directory, 'packages/test/examples/package.json'), JSON.stringify({
     dependencies: { marionette: '5.0.0' }, devDependencies: { '@playwright/test': '1.63.0' }
   }));
-  writeFileSync(join(directory, 'packages/test/examples/package-lock.json'), '{}');
+  writeFileSync(join(directory, 'packages/test/examples/package-lock.json'), JSON.stringify({ packages: {
+    '': { dependencies: { '@mnjs/test': 'file:..' } },
+    'node_modules/@mnjs/test': { version: '0.1.0', resolved: 'file:..' }
+  } }));
   return { directory, script, output: join(directory, 'report'), temporary: join(directory, 'tmp') };
 }
 
@@ -70,3 +74,51 @@ test('consumer verification records tracked deletions and still reports a later 
     assert.deepEqual(readdirSync(join(directory, 'tmp')), []);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
+
+for (const mismatch of [false, true]) {
+  test(`supplied archive ${mismatch ? 'rejects a different digest' : 'reaches installation without repacking'}`, () => {
+    const { directory, script, output, temporary } = fixture();
+    try {
+      execFileSync('git', ['init', '-q'], { cwd: directory });
+      execFileSync('git', ['add', '.'], { cwd: directory });
+      execFileSync('git', ['-c', 'user.name=Consumer verifier test', '-c', 'user.email=test@example.invalid',
+        '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'fixture'], { cwd: directory });
+      mkdirSync(join(directory, 'package'));
+      writeFileSync(join(directory, 'package/package.json'), JSON.stringify({ name: '@mnjs/test', version: '0.1.0' }));
+      const artifact = join(directory, 'original.tgz');
+      execFileSync('tar', ['-czf', artifact, '-C', directory, 'package/package.json']);
+      const sha256 = createHash('sha256').update(readFileSync(artifact)).digest('hex');
+      const npmCli = join(directory, 'npm.mjs');
+      writeFileSync(npmCli, [
+        'import assert from \'node:assert/strict\';',
+        'import { readFileSync } from \'node:fs\';',
+        'import { createHash } from \'node:crypto\';',
+        'assert.equal(process.argv[2], \'ci\');',
+        'const manifest = JSON.parse(readFileSync(\'package.json\'));',
+        'const lock = JSON.parse(readFileSync(\'package-lock.json\'));',
+        'assert.equal(manifest.dependencies[\'@mnjs/test\'], \'file:../artifact.tgz\');',
+        'assert.equal(lock.packages[\'node_modules/@mnjs/test\'].resolved, \'file:../artifact.tgz\');',
+        'assert.equal(lock.packages[\'node_modules/@mnjs/test\'].integrity, \'sha512-\' + createHash(\'sha512\').update(readFileSync(\'../artifact.tgz\')).digest(\'base64\'));',
+        'throw new Error(\'intentional install stop\');'
+      ].join('\n'));
+      const result = spawnSync(process.execPath, [script, '--output', output, '--artifact', artifact,
+        '--sha256', mismatch ? '0'.repeat(64) : sha256], {
+        env: { ...process.env, TMPDIR: temporary, TEMP: temporary, TMP: temporary, npm_execpath: npmCli }, encoding: 'utf8'
+      });
+      assert.equal(result.status, 1);
+      const report = JSON.parse(readFileSync(join(output, 'report.json'), 'utf8'));
+      assert.equal(report.passed, false);
+      assert.equal(report.sha256, sha256);
+      assert.equal(createHash('sha256').update(readFileSync(join(output, 'original.tgz'))).digest('hex'), sha256);
+      if (mismatch) {
+        assert.match(report.error, /SHA256 mismatch/);
+        assert.deepEqual(report.stages, []);
+      } else {
+        assert.equal(report.artifactMode, 'supplied');
+        assert.deepEqual(report.stages, [{ name: 'extract', passed: true }, { name: 'install', passed: false }]);
+        assert.match(readFileSync(join(output, 'install.log'), 'utf8'), /intentional install stop/);
+      }
+      assert.deepEqual(readdirSync(temporary), []);
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+  });
+}

@@ -292,3 +292,9 @@ With a Cypress binary and display dependencies already installed, add `--cypress
 to run the actual component smoke and expected-failure probes from the same packed
 consumer. The report retains the real runner's version, per-test outcomes and
 failure messages. Dependency installation keeps binary downloads disabled.
+
+For independent helper publication, follow the [helper release procedure](../packages/test/RELEASING.md).
+It certifies a single archive from the final merged revision and publishes that
+same archive only after separate approval. Supply `--artifact /absolute/path.tgz
+--sha256 RECORDED_SHA256` to verify an existing archive without packing again.
+The coordinated five-package release commands above do not release this helper.

@@ -61,7 +61,8 @@
   ],
   "sideEffects": false,
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "engines": {
     "node": "^22.22.2 || >=24.15.0"
