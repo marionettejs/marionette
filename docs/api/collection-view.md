@@ -127,7 +127,7 @@ Filtering controls presentation; it does not remove models or destroy their chil
 | `setFilter(value, options?)` → `this` | Stores the value and filters immediately when its identity changed, unless `preventRender` is true. |
 | `removeFilter(options?)` → `this` | Clears the filter using the same setter rules. |
 
-Changing values captured by a predicate does not change the predicate's identity. Call `filter()` explicitly to apply those changes. Sorting, filtering and notifications that retain a model object reuse the rendered row's DOM, including when it is hidden and shown again. The row's source subscriptions or an explicit render can refresh its contents. A never-rendered child renders on first presentation. Source subscriptions remain active while a row is hidden; the application controls whether and how they refresh its contents. Hidden Views are still destroyed when removed from the source, on full render/reset, or when the list is destroyed.
+Changing values captured by a predicate does not change the predicate's identity. Call `filter()` explicitly to apply those changes. Sorting, filtering and notifications that retain an existing child reuse the rendered row's DOM, including when it is hidden and shown again. The row's source subscriptions or an explicit render can refresh its contents. A never-rendered child renders on first presentation. Source subscriptions remain active while a row is hidden; the application controls whether and how they refresh its contents. Hidden Views are still destroyed when removed from the source, on full render/reset, or when the list is destroyed.
 
 ## Empty presentation
 
