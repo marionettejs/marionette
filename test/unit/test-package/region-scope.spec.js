@@ -22,6 +22,7 @@ describe('Region and nested mount resource ownership', () => {
     expect(last.isDestroyed()).toBe(true);
     expect(mounted.region.isDestroyed()).toBe(true);
     expect([...host.children]).toEqual([sibling]);
+    expect(host.firstElementChild).toBe(sibling);
     expect(mounted.el).toBeUndefined();
     host.remove();
   });

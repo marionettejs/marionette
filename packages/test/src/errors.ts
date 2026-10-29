@@ -32,5 +32,8 @@ export function takeMountCleanup(error: MountError): Promise<void> {
 }
 
 export function isMountError(value: unknown): value is MountError {
-  return typeof value === 'object' && value !== null && mountCleanup in value;
+  try { return typeof value === 'object' && value !== null && mountCleanup in value; } catch {
+    // A thrown value can be a revoked Proxy or reject property inspection.
+    return false;
+  }
 }

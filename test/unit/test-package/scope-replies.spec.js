@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createRadio } from '@mnjs/radio';
 import { createTestScope } from '@mnjs/test/scope';
 
@@ -49,7 +49,9 @@ describe('owned Radio replies without global imports or resets', () => {
     const radio = createRadio();
     const scope = createTestScope();
     await scope.cleanup();
+    const selectChannel = vi.spyOn(radio, 'channel');
     expect(() => scope.reply(radio, 'closed', 'answer', 1)).toThrow('Cannot register');
+    expect(selectChannel).not.toHaveBeenCalled();
     const channel = radio.channel('stable');
     channel.reply('answer', 'borrowed');
     expect(() => scope.reply(channel, 'answer', 2)).toThrow('Cannot register');

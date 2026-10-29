@@ -130,7 +130,11 @@ test teardown. Use `mounted.scope` for mount-local services and
 is cancelled first and can release prepared UI early; see the
 [cleanup contract](guide.md#resource-lifetimes-and-failed-mounts).
 
-For cleanup without mounting, use the runner-free entry:
+For cleanup without mounting, use the runner-free `@mnjs/test/scope` entry.
+
+The reply example also imports Radio. Install it directly with
+`npm install --save-dev --save-exact @mnjs/radio@5.0.0` if it is not already a
+dependency of your project:
 
 ```js
 import { createTestScope } from '@mnjs/test/scope';

@@ -308,4 +308,24 @@ describe('Cypress adapter non-runtime contract', () => {
     await expect(adapter.mount(() => { throw failure; })).rejects.toBe(failure);
   });
 
+  it.each(['revoked', 'throwing has'])('awaits cleanup and preserves a %s Proxy failure', async kind => {
+    adapter.setupCypress();
+    const revocable = Proxy.revocable({}, {});
+    const failure = kind === 'revoked' ? revocable.proxy : new Proxy({}, { has() { throw new Error('has trap'); } });
+    revocable.revoke();
+    const began = Promise.withResolvers();
+    const disposal = Promise.withResolvers();
+    let settled = false;
+    const mounting = adapter.mount(scope => {
+      scope.defer(() => { began.resolve(); return disposal.promise; });
+      throw failure;
+    }).catch(error => { settled = true; return { error }; });
+    await began.promise;
+    await Promise.resolve();
+    try { expect(settled).toBe(false); } finally { disposal.resolve(); }
+    const result = await mounting;
+    expect(Object.is(result.error, failure)).toBe(true);
+    expect(root.children).toHaveLength(0);
+  });
+
 });

@@ -386,4 +386,17 @@ describe('Playwright browser gallery lifecycle', () => {
     expect(container.children).toHaveLength(0);
   });
 
+  it('preserves a revoked Proxy rejection and releases acquired story fixtures', async() => {
+    const { proxy, revoke } = Proxy.revocable({}, {});
+    revoke();
+    let released = false;
+    const { gallery: app } = gallery({ broken(props, mounts) {
+      mounts.scope.defer(async() => { await Promise.resolve(); released = true; });
+      throw proxy;
+    } });
+    const { error } = await app.mount({ story: 'broken' }).catch(value => ({ error: value }));
+    expect(Object.is(error, proxy)).toBe(true);
+    expect(released).toBe(true);
+  });
+
 });
