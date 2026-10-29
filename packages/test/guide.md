@@ -718,6 +718,10 @@ repair of partially initialized caller objects.
 
 ## Tested with
 
+The table records the published 0.1.0 baseline. The ownership API candidate has
+separate packed-consumer checks described below; its Cypress runtime has not been
+executed in the preparation environment.
+
 | Entry / runner | Version and checks |
 | --- | --- |
 | `@mnjs/test` | Marionette 5.0.0; ESM/CommonJS, DOM-free imports and lifecycle tests. |
@@ -741,9 +745,26 @@ keys, so a newer library target needs compatible upstream Cypress declarations.
 A separate consumer imports and type-checks the neutral helper with neither
 Cypress nor mount-utils installed.
 
+The ownership candidate's optional peers accept Vitest `>=4.1.0`, DOM Testing
+Library `>=8.7.0` and mount-utils `>=4`, alongside Cypress `>=14`.
+The packed minimum profile installs Vitest 4.1.0, DOM Testing Library 8.7.0 and
+mount-utils 4.0.0 with strict peer resolution and no overrides. It passes ESM and
+CommonJS runtime/type consumers, README recipes, scope-only imports without
+Marionette, and the JSDOM lifecycle/ownership suite. The default profile uses the
+repository's locked current versions. The installed Cypress adapter's queue/hook
+model runs in JSDOM in both profiles; it does not run Cypress or its bundled
+Electron. Installation profiles record the exact dependency versions and archive
+digest alongside their checks.
+
+Vitest 4.1 is the builder-fixture API boundary; DOM Testing Library 8.7 is the
+generic query declaration boundary. Mount-utils keeps the existing v4 floor.
+The ranges have no upper caps, allowing future majors to be tried without a
+manifest update. Future majors are not pre-certified by this policy. Marionette
+remains `^5.0.0` because the mounting lifecycle and declarations target v5.
+
 Cypress/mount-utils, Vitest and DOM Testing Library are optional peers. Import the adapter you use;
-the neutral entry and browser gallery do not require these runners. Other runner versions and integrations have not been
-checked. The versions above describe this package's compatibility evidence.
+the neutral entry and browser gallery do not require these runners. Versions
+outside the recorded profiles and integrations have not been checked.
 
 The [repository examples](https://github.com/marionettejs/marionette/tree/master/packages/test/examples)
 include larger form, runtime-isolation and browser projects. They follow `master`

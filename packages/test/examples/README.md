@@ -126,3 +126,10 @@ Radio replies, `mountRegion`, and observable failed-acquisition cleanup.
 The packed verifier also runs the public Cypress contract suite against installed
 files with a modeled queue in JSDOM. That catches package-boundary errors but does
 not execute Cypress. Real component/failure probes still require its binary.
+
+Add `--minimum-peers` to the repository's `test:helpers:consumer` command to
+resolve Vitest/browser provider 4.1.0, DOM Testing Library 8.7.0 and mount-utils
+4.0.0 through a fresh strict peer install. The default uses the committed modern
+lock. Both profiles retain their consumer manifest/lock and exercise the same
+runtime/types and JSDOM contracts; add `--browser` for browser examples. This
+profile leaves the modern Cypress harness intact and does not run Cypress.

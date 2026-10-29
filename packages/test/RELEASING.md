@@ -29,8 +29,10 @@ review of that boundary as well as mounted service-before-shell behavior.
 
 ## 0.1.1 Cypress compatibility gate
 
-This candidate lowers only the optional Cypress peer to `>=14` and keeps
-mount-utils `^4.0.0 || ^5.0.0`. Cypress has no upper cap: future majors may be
+The independent peer patch lowers only the optional Cypress peer to `>=14`.
+The later peer-contract commit also accepts mount-utils `>=4`, DOM Testing Library
+`>=8.7.0` and Vitest `>=4.1.0`; all four remain optional package peers.
+Marionette retains its v5 contract (`^5.0.0`). Cypress has no upper cap: future majors may be
 installed, while the matrix below records versions actually checked. The expanded
 runtime contract is provisional until the packed-consumer matrix passes with real Cypress binaries. A cloud proxy
 denial at `download.cypress.io` blocked that execution during preparation;
@@ -84,6 +86,35 @@ startup/cancellation/timeout/cleanup failure probes, and native afterEach failur
 behavior before approving the expanded floor. A failure requires a corrected
 range or harness and fresh evidence; do not change runtime code merely to keep
 antiquated runner support.
+
+## Optional peer floors
+
+The lower boundaries follow the APIs and declarations used by the package:
+Vitest 4.1 supplies the builder fixture API and `onCleanup`; DOM Testing Library
+8.7 preserves generic query overloads in `BoundFunctions`; mount-utils 4 supplies
+`getContainerEl` and `setupHooks` with the modern component root. Earlier
+mount-utils releases were inspected but are outside this contract. Vitest's
+declaration imports require `Disposable`; the emitted adapter declaration includes
+the `esnext.disposable` library reference so consumers need no tsconfig workaround.
+
+Validate these exact floors against the same packed archive:
+
+```sh
+npm run test:helpers:consumer -- --minimum-peers --artifact /absolute/path/mnjs-test-0.1.1.tgz --sha256 RECORDED_SHA256 --output /absolute/path/minimum-peers
+```
+
+This profile resolves Vitest/browser provider 4.1.0, DOM Testing Library 8.7.0 and
+mount-utils 4.0.0 with ordinary `npm install --strict-peer-deps --ignore-scripts`,
+without overrides or legacy resolution. It retains the generated manifest and
+lock. The default profile uses `npm ci` and preserves the committed modern
+external pins. Both run ESM/CommonJS, type, optional-peer isolation and JSDOM
+checks; `--browser` adds Vitest Browser Mode and the Playwright gallery. Cypress
+installation scripts remain disabled in both profiles; these checks do not run
+Cypress. The Cypress matrix above separately checks its lower boundary.
+
+These peer ranges have no upper caps by policy. Passing known lower/current
+versions is evidence for those versions, not advance certification of future
+majors. Recheck the actual installed versions when an upstream release changes.
 
 ## Confirm the publishing account and version
 

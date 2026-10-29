@@ -12426,7 +12426,7 @@
     "packages/test/src/scope.ts": "eb8553d00e5ebae7ab2313c5e3908ad002badb3de918cfaf1042b9ce870ff6f7",
     "packages/test/src/session.ts": "c490602391e92f620af99a76fd66f50504ccfa3a70097c095804030349f2c5c5",
     "packages/test/src/testing-library.ts": "bd68a1e14395aa97d59159559840a3d59e4955129ae3d4f2a05a1e4355ec82c6",
-    "packages/test/src/vitest.ts": "5d30b910a2542a9e3da74efb497d2f2af097e4797b1eb7b9700318bcef1e6495",
+    "packages/test/src/vitest.ts": "6e7662faf619428fb0bccc3531df33b3fed7fce7dcd463e65224255c3e8a7046",
     "packages/test/types/cypress.d.ts": "ae01ebf40189fbe48b5b003ded91bde1d301d7b112be5bc5480e92fcf03bc460",
     "packages/utils/src/bind-events.ts": "475fabcde622df0d6365ee6454c892ea75ebf95f11487ca074ce5508fe118a72",
     "packages/utils/src/bind-requests.ts": "4888ab0880961e2c8eaa131f91031f1dc0f1b39ab11907506bce94b3bb4f2870",

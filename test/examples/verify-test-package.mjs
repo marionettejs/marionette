@@ -11,6 +11,7 @@ const { values } = parseArgs({ options: {
   output: { type: 'string', default: join(root, 'test/tmp/test-package-consumer') },
   browser: { type: 'boolean', default: false },
   cypress: { type: 'boolean', default: false },
+  'minimum-peers': { type: 'boolean', default: false },
   artifact: { type: 'string' },
   sha256: { type: 'string' }
 } });
@@ -29,6 +30,7 @@ const env = {
   PATH: (process.env.PATH || '').split(delimiter).filter(path => !path.includes('node_modules')).join(delimiter)
 };
 const report = { artifact: undefined, sha256: undefined, node: process.version,
+  dependencyProfile: values['minimum-peers'] ? 'minimum-peers' : 'locked-examples',
   requestedChecks: { browser: values.browser, cypress: values.cypress }, stages: [], passed: false };
 function run(name, command, args, cwd = consumer) {
   const stage = { name, passed: false };
@@ -58,7 +60,10 @@ try {
   const expectedVersions = {
     marionette: fixtureManifest.dependencies.marionette,
     helper: JSON.parse(readFileSync(join(root, 'packages/test/package.json'), 'utf8')).version,
-    playwright: fixtureManifest.devDependencies['@playwright/test']
+    playwright: fixtureManifest.devDependencies['@playwright/test'],
+    vitest: values['minimum-peers'] ? '4.1.0' : fixtureManifest.devDependencies.vitest,
+    testingLibrary: values['minimum-peers'] ? '8.7.0' : fixtureManifest.devDependencies['@testing-library/dom'],
+    mountUtils: values['minimum-peers'] ? '4.0.0' : fixtureManifest.devDependencies['@cypress/mount-utils']
   };
   const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
   const sourceDirty = Boolean(execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: root, encoding: 'utf8' }).trim());
@@ -105,6 +110,12 @@ try {
   cpSync(artifact, join(workspace, 'packages/test/artifact.tgz'));
   const consumerManifest = JSON.parse(readFileSync(join(consumer, 'package.json'), 'utf8'));
   consumerManifest.dependencies['@mnjs/test'] = locator;
+  if (values['minimum-peers']) {
+    Object.assign(consumerManifest.devDependencies, {
+      vitest: '4.1.0', '@vitest/browser-playwright': '4.1.0',
+      '@testing-library/dom': '8.7.0', '@cypress/mount-utils': '4.0.0'
+    });
+  }
   writeFileSync(join(consumer, 'package.json'), `${JSON.stringify(consumerManifest, null, 2)}\n`);
   const consumerLock = JSON.parse(originalLock);
   consumerLock.packages[''].dependencies['@mnjs/test'] = locator;
@@ -114,8 +125,17 @@ try {
   const lockedConsumer = `${JSON.stringify(consumerLock, null, 2)}\n`;
   writeFileSync(join(consumer, 'package-lock.json'), lockedConsumer);
   report.consumerLockSha256 = createHash('sha256').update(lockedConsumer).digest('hex');
-  runNpm('install', ['ci', '--ignore-scripts']);
-  assert.equal(readFileSync(join(consumer, 'package-lock.json'), 'utf8'), lockedConsumer);
+  if (values['minimum-peers']) {
+    // A separate exact-minimum graph is intentionally resolved without overrides.
+    rmSync(join(consumer, 'package-lock.json'));
+    runNpm('install', ['install', '--ignore-scripts', '--strict-peer-deps']);
+    report.consumerLockSha256 = createHash('sha256').update(readFileSync(join(consumer, 'package-lock.json'))).digest('hex');
+  } else {
+    runNpm('install', ['ci', '--ignore-scripts']);
+    assert.equal(readFileSync(join(consumer, 'package-lock.json'), 'utf8'), lockedConsumer);
+  }
+  cpSync(join(consumer, 'package.json'), join(output, 'consumer-package.json'));
+  cpSync(join(consumer, 'package-lock.json'), join(output, 'consumer-package-lock.json'));
   run('installed-copy', process.execPath, ['--input-type=module', '-e',
     'import assert from "node:assert/strict"; import { createRequire } from "node:module"; import { resolve } from "node:path";' +
     'const require = createRequire(import.meta.url);' +
@@ -127,7 +147,10 @@ try {
     const actual = {
       marionette: require('marionette/package.json').version,
       helper: require('@mnjs/test/package.json').version,
-      playwright: require('@playwright/test/package.json').version
+      playwright: require('@playwright/test/package.json').version,
+      vitest: require('vitest/package.json').version,
+      testingLibrary: require('@testing-library/dom/package.json').version,
+      mountUtils: require('@cypress/mount-utils/package.json').version
     };
     assert.deepEqual(actual, JSON.parse(process.argv[1]));
     console.log(JSON.stringify(actual));
