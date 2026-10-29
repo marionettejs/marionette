@@ -514,7 +514,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this.sort();
   },
 
-  // Handle collection additions, removals, and updated models.
+  // Handle collection additions, removals, and model replacements.
   _onCollectionUpdate(this: CollectionViewInternals, changes: Update) {
     if (this._isDestroying || this._isDestroyed) { return; }
 

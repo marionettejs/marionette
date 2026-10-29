@@ -2326,6 +2326,10 @@
         },
         {
           "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",
+          "title": "preserves rendered contents and Regions on a retained-model update while filtered out"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",
           "title": "sorts and filters retained-model updates without refreshing row contents"
         },
         {
