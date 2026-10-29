@@ -44,7 +44,7 @@ Options below can be declared on the class or supplied at construction. The tabl
 
 ## Existing elements
 
-Construction adopts the supplied element without replacing its contents or applying root attributes. An element with child nodes starts with `isRendered() === true`; an element already inside its document starts attached. Construction does not emit render or attach lifecycle events. UI bindings are available immediately when existing contents are detected.
+Construction adopts the supplied element without replacing its contents or applying root attributes. An element with child nodes starts with `isRendered() === true`; an element already inside its document starts attached. Construction does not emit render or attach lifecycle events. Host UI bindings are available immediately when existing contents are detected. Behavior selectors and DOM events are ready, but Behavior queries need rendering or an explicit `bindUIElements()` call on the Behavior or host.
 
 This attachment detection includes Elements inside open or closed shadow trees
 whose hosts are attached. Supply the actual Element; selector lookup does not cross

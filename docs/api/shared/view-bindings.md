@@ -50,7 +50,7 @@ Declare `ui` as `{ name: 'selector' }` or a function returning that map. After b
 | --- | --- |
 | `$(selector)` | Queries descendants of `el`; the root itself is excluded by the native DomApi. Returns the provider's query type (native: static `NodeList`). |
 | `getUI(name)` | Returns the bound query result or `undefined` for an unknown name. Throws if no UI map was declared or it has not been bound. Use `[0]` when the first native element is needed. |
-| `bindUIElements()` → `this` | Resolves the UI map and queries the current DOM, including Behavior UI. Normally automatic after rendering or construction with existing contents. No-op while destroying/destroyed. |
+| `bindUIElements()` → `this` | Resolves the UI map and queries the current DOM, including Behavior UI. Normally automatic after rendering. View construction with existing contents binds host UI; Behavior queries need rendering or explicit binding. No-op while destroying/destroyed. |
 | `unbindUIElements()` → `this` | Releases query bindings and restores the selector declarations, including Behavior UI. Destruction does this automatically. |
 | `normalizeUIString(value, bindings?)` | Returns a string with `@ui.name` references replaced by selectors. |
 | `normalizeUIKeys(map, bindings?)` | Returns a new map with normalized keys; nullish input returns `{}`. |
