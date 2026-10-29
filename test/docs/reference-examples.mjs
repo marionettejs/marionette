@@ -184,8 +184,16 @@ const beta = list.children.findByModel(second);
 source.entries = [second, first];
 source.trigger('update', { kind: 'reorder' });
 assert.deepEqual(list.children.toArray(), [beta, alpha]);
+// Retained plain-object contents are refreshed explicitly by the application.
+const retainedInput = document.createElement('input');
+alpha.el.append(retainedInput);
+retainedInput.value = 'draft';
+list.setFilter(() => false);
+list.removeFilter();
+assert.equal(alpha.el.querySelector('input'), retainedInput);
+assert.equal(retainedInput.value, 'draft');
 first.label = 'Changed';
-source.trigger('update', { kind: 'update', added: [], removed: [], updated: [{ previous: first, current: first }] });
+alpha.render();
 assert.equal(list.children.findByModel(first), alpha);
 assert.equal(alpha.el.textContent, 'Changed');
 const replacement = { id: 'a', label: 'Replacement' };
