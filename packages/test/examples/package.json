@@ -15,7 +15,7 @@
     "marionette": "5.0.0"
   },
   "devDependencies": {
-    "@cypress/mount-utils": "4.0.0",
+    "@cypress/mount-utils": "5.0.0",
     "@cypress/vite-dev-server": "8.0.0",
     "@playwright/test": "1.63.0",
     "@testing-library/dom": "10.4.1",
