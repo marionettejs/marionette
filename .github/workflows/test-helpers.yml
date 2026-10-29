@@ -1,0 +1,51 @@
+name: Testing helper Cypress compatibility
+
+on:
+  pull_request:
+    paths:
+      - 'packages/test/**'
+      - 'test/examples/**'
+      - '.github/workflows/test-helpers.yml'
+      - 'package.json'
+      - 'package-lock.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-helpers-cypress-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  cypress:
+    name: Cypress packed helper (Linux x64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup pinned Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+      - name: Install and build
+        run: npm ci
+      - name: Install example tools and Cypress browser
+        run: |
+          npm --prefix packages/test/examples ci --ignore-scripts --install-links
+          npm --prefix packages/test/examples exec -- cypress install
+      - name: Verify packed helper with Cypress and failure probes
+        run: npm run test:helpers:consumer -- --cypress
+      - name: Retain complete or partial consumer evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-helpers-cypress-${{ github.event.pull_request.number }}-${{ github.run_attempt }}
+          path: test/tmp/test-package-consumer/
+          if-no-files-found: warn
+          retention-days: 30
