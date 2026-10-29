@@ -10,7 +10,7 @@ let configured = false;
 export function setupCypress() {
   if (Cypress.testingType !== 'component') { throw new Error('@mnjs/test/cypress requires Cypress component testing.'); }
   if (configured) { return; }
-  setupHooks(); // Its callback is not awaited, so cleanup belongs to Mocha hooks.
+  setupHooks(); // Container restrictions only; owned cleanup belongs to Mocha hooks.
   beforeEach(() => session.cleanup());
   afterEach(() => session.cleanup());
   configured = true;

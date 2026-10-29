@@ -53,8 +53,8 @@ The support file calls `setupCypress()` and registers the package's `mount` and
 nothing. `cy.mount(() => new MyView())` yields the actual helper handle. Repeated
 mounts await previous cleanup before constructing the next View. You can also use
 `mounted.region.show(nextView)` for replacement within one mount. The registered
-before/after hooks return cleanup promises; the adapter never passes asynchronous
-cleanup to mount-utils' non-awaiting hook callback.
+before/after hooks return cleanup promises; the adapter keeps asynchronous cleanup in its own
+Mocha hooks rather than passing it to mount-utils.
 
 `cy.mountApplication(factory, { start: true })` waits for readiness. Pass
 `{ start: false }` to choose startup yourself. The runner owns the container and
