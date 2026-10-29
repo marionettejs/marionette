@@ -305,7 +305,7 @@ The matrix uses bundled Electron by default; `--browser` selects another browser
 or executable. Cypress 14's bundled Chromium includes Marionette's required
 `Promise.withResolvers()`. Without `--runtime` it checks only installation,
 declarations and neutral imports.
-The [helper compatibility gate](../packages/test/RELEASING.md#011-cypress-compatibility-gate)
+The [helper compatibility gate](../packages/test/RELEASING.md#020-cypress-compatibility-gate)
 records the runtime requirements and current release limitation.
 
 For independent helper publication, follow the [helper release procedure](../packages/test/RELEASING.md).

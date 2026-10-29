@@ -49,7 +49,7 @@ The config uses Cypress's custom Vite dev-server function; the support file moun
 Marionette directly into the Cypress container with `@cypress/mount-utils`.
 This particular config uses Cypress 16 / Vite 8. The adapter's optional peer range
 is broader; existing older Cypress projects need a matching dev-server setup.
-The [release procedure](../RELEASING.md#011-cypress-compatibility-gate) describes
+The [release procedure](../RELEASING.md#020-cypress-compatibility-gate) describes
 the separate packed matrix. Cypress 14 and 15 runtime execution has not been
 verified; installation and type checks alone do not establish runtime support.
 

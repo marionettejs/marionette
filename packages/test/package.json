@@ -1,6 +1,6 @@
 {
   "name": "@mnjs/test",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Runner-independent mounting and owned-resource cleanup for Marionette v5 tests",
   "homepage": "https://github.com/marionettejs/marionette/tree/master/packages/test#readme",
   "type": "module",

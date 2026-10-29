@@ -13,7 +13,7 @@ Use Marionette 5 and Node.js `^22.22.2 || >=24.15.0`:
 
 ```sh
 npm install --save-exact marionette@5.0.0
-npm install --save-dev --save-exact @mnjs/test@0.1.1
+npm install --save-dev --save-exact @mnjs/test@0.2.0
 ```
 
 Install only the optional tools your tests use. Component tests can stay in

@@ -1,6 +1,6 @@
 # Test Views and Applications
 
-Consumer reference for `@mnjs/test` **0.1.1** with Marionette **5.x**.
+Consumer reference for `@mnjs/test` **0.2.0** with Marionette **5.x**.
 For installation and a first complete test, start with the [package README](readme.md).
 Mounting requires a DOM; importing the neutral entry and creating a cleanup scope do not.
 Repository-example links follow `master` and may change; this installed guide
@@ -718,9 +718,9 @@ repair of partially initialized caller objects.
 
 ## Tested with
 
-The table records the published 0.1.0 baseline. The ownership API candidate has
-separate packed-consumer checks described below; its Cypress runtime has not been
-executed in the preparation environment.
+The table records the published 0.1.0 baseline. Later packed-consumer checks are
+described below; archive-specific native runner results belong with the release
+record.
 
 | Entry / runner | Version and checks |
 | --- | --- |
@@ -730,13 +730,13 @@ executed in the preparation environment.
 | `@mnjs/test/cypress` | Cypress 16.1.1 / Electron and mount-utils 5.0.0; component lifecycle and expected-failure cleanup probes. |
 | `@mnjs/test/testing-library` | DOM Testing Library 10.4.1; ESM/CommonJS and types, scoped queries, replacement, readiness and existing runner cleanup. |
 
-The Cypress runtime result above is the existing 0.1.0 baseline. The 0.1.1 optional
+The Cypress runtime result above is the existing 0.1.0 baseline. The 0.2.0 optional
 Cypress peer is `>=14`. Installation and declaration checks alone do not establish
 mounting or cleanup compatibility. For a published release, consult its release
 notes for runtime results tied to that archive; the peer range itself does not
 certify every accepted version.
 
-The 0.1.1 installation/declaration matrix covers Cypress 14.0.0, 15.0.0, 15.21.1,
+The 0.2.0 installation/declaration matrix covers Cypress 14.0.0, 15.0.0, 15.21.1,
 16.0.0 and 16.2.0, each with mount-utils 4.0.0 and 5.0.0. Declaration consumers
 use TypeScript 6.0.3, ES2022 libraries, NodeNext
 resolution and `skipLibCheck:false`; this checks ESM and CommonJS public imports.

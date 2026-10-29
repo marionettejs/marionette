@@ -9,6 +9,7 @@ import { parseArgs } from 'node:util';
 // Deliberately independent of the Cypress 16 / Vite 8 example project's lock.
 // Each row installs the same archive with ordinary peer resolution, never overrides.
 const root = resolve(import.meta.dirname, '../..');
+const helperVersion = JSON.parse(readFileSync(join(root, 'packages/test/package.json'), 'utf8')).version;
 const { values } = parseArgs({ options: {
   artifact: { type: 'string' }, sha256: { type: 'string' },
   output: { type: 'string', default: join(root, 'test/tmp/cypress-compatibility') },
@@ -76,7 +77,7 @@ try {
     try {
       npm(row, 'install', ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--strict-peer-deps'], cwd);
       const tree = JSON.parse(npm(row, 'dependency-tree', ['ls', '--json'], cwd));
-      assert.equal(tree.dependencies['@mnjs/test'].version, '0.1.1');
+      assert.equal(tree.dependencies['@mnjs/test'].version, helperVersion);
       const manifest = JSON.parse(readFileSync(join(cwd, 'node_modules/@mnjs/test/package.json'), 'utf8'));
       assert.equal(manifest.peerDependencies.cypress, '>=14');
       assert.equal(manifest.peerDependenciesMeta.cypress.optional, true);

@@ -1,6 +1,6 @@
 # Release @mnjs/test
 
-This procedure releases only `@mnjs/test@0.1.1`, publicly, with dist-tag `latest`.
+This procedure releases only `@mnjs/test@0.2.0`, publicly, with dist-tag `latest`.
 The release owner is Paul Falgout or a publisher he explicitly authorizes. Record
 that person's approved npm username with the release receipt; a GitHub identity is
 not evidence of npm access. This document prepares the release and grants no
@@ -19,15 +19,15 @@ Radio replies, Cypress test fixtures and mount-local handles, and an observable
 `MountError.cleanup` Promise. It also changes local service cleanup order. Cypress handles expose the adapter
 `CypressMount<MountedView<View>>` type; invariant `Chainable` annotations may need
 that adapter type rather than a neutral `MountedView`.
-Recommend releasing that expanded contract as **0.2.0**, separately from the
-0.1.1 peer fix. The branch still carries 0.1.1 while that version decision is
-pending; do not publish the expanded candidate under an assumed version.
+The expanded contract uses **0.2.0**, separately from the 0.1.1 peer fix. This is
+an unpublished release candidate under review; publication requires separate
+authorization and completed runtime certification.
 
 Cypress startup cancellation is an explicit ordering exception: public `stop()`
 can destroy prepared UI before services during pending initial startup. Require
 review of that boundary as well as mounted service-before-shell behavior.
 
-## 0.1.1 Cypress compatibility gate
+## 0.2.0 Cypress compatibility gate
 
 The independent peer patch lowers only the optional Cypress peer to `>=14`.
 The later peer-contract commit also accepts mount-utils `>=4`, DOM Testing Library
@@ -46,7 +46,7 @@ archive-specific runtime results in the release notes and receipt. Editing the
 guide after verification changes the archive and requires fresh verification.
 
 ```sh
-npm run test:helpers:cypress-compatibility -- --artifact /absolute/path/mnjs-test-0.1.1.tgz --sha256 RECORDED_SHA256 --runtime --output /absolute/path/compatibility
+npm run test:helpers:cypress-compatibility -- --artifact /absolute/path/mnjs-test-0.2.0.tgz --sha256 RECORDED_SHA256 --runtime --output /absolute/path/compatibility
 ```
 
 The default matrix checks the first releases of Cypress 14 through 16,
@@ -100,7 +100,7 @@ the `esnext.disposable` library reference so consumers need no tsconfig workarou
 Validate these exact floors against the same packed archive:
 
 ```sh
-npm run test:helpers:consumer -- --minimum-peers --artifact /absolute/path/mnjs-test-0.1.1.tgz --sha256 RECORDED_SHA256 --output /absolute/path/minimum-peers
+npm run test:helpers:consumer -- --minimum-peers --artifact /absolute/path/mnjs-test-0.2.0.tgz --sha256 RECORDED_SHA256 --output /absolute/path/minimum-peers
 ```
 
 This profile resolves Vitest/browser provider 4.1.0, DOM Testing Library 8.7.0 and
@@ -136,7 +136,7 @@ read-only evidence; honor organization/team permissions and normal 2FA requireme
 Authentication, permission or network failures are blockers, not reasons to change
 credentials or registry settings silently.
 
-Confirm that `0.1.1` is available and that assigning `latest` is still appropriate.
+Confirm that `0.2.0` is available and that assigning `latest` is still appropriate.
 Stop for a maintainer decision if the version exists, the package belongs to an
 unexpected owner, or `latest` already targets a newer release. Never overwrite an
 existing version, silently bump the version or retarget another dist-tag.
@@ -199,14 +199,14 @@ npm pack ./packages/test --ignore-scripts --json --pack-destination /absolute/pa
 Record the archive's SHA256 with a portable Node command:
 
 ```sh
-node --input-type=module -e "import{readFileSync}from'node:fs';import{createHash}from'node:crypto';console.log(createHash('sha256').update(readFileSync(process.argv[1])).digest('hex'))" /absolute/path/to/mnjs-test-release/mnjs-test-0.1.1.tgz
+node --input-type=module -e "import{readFileSync}from'node:fs';import{createHash}from'node:crypto';console.log(createHash('sha256').update(readFileSync(process.argv[1])).digest('hex'))" /absolute/path/to/mnjs-test-release/mnjs-test-0.2.0.tgz
 ```
 
 On a provisioned cloud runner with Chromium, Cypress 16.1.1 and its display
 requirements installed, pass the same archive and its recorded hash to the verifier:
 
 ```sh
-npm run test:helpers:consumer -- --artifact /absolute/path/to/mnjs-test-release/mnjs-test-0.1.1.tgz --sha256 RECORDED_SHA256 --browser --cypress --output /absolute/path/to/mnjs-test-release/verification
+npm run test:helpers:consumer -- --artifact /absolute/path/to/mnjs-test-release/mnjs-test-0.2.0.tgz --sha256 RECORDED_SHA256 --browser --cypress --output /absolute/path/to/mnjs-test-release/verification
 ```
 
 `--artifact` and `--sha256` are required together. This mode verifies the digest,
@@ -240,7 +240,7 @@ Only after the release owner authorizes this exact archive, account, version and
 dist-tag, run:
 
 ```sh
-npm publish /absolute/path/to/mnjs-test-release/mnjs-test-0.1.1.tgz --ignore-scripts --access public --tag latest --registry=https://registry.npmjs.org/
+npm publish /absolute/path/to/mnjs-test-release/mnjs-test-0.2.0.tgz --ignore-scripts --access public --tag latest --registry=https://registry.npmjs.org/
 ```
 
 Honor npm's normal authentication/2FA flow. If the outcome is uncertain, inspect
