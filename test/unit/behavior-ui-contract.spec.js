@@ -59,7 +59,6 @@ describe('Behavior UI contract', function() {
           expect(view.isRendered()).toBe(true);
           expect(behavior.normalizeUIString('@ui.shared')).toBe('.host-shared');
           expect(behavior.normalizeUIString('@ui.behaviorOnly')).toBe('.behavior-only');
-          view.bindUIElements();
           expect(behavior.getUI('hostOnly')[0]).toBe(view.getUI('hostOnly')[0]);
           expect(behavior.getUI('shared')[0]).toBe(el.querySelector('.host-shared'));
           behavior.getUI('hostOnly')[0].click();
@@ -85,6 +84,7 @@ describe('Behavior UI contract', function() {
           expect(hostBindings).toEqual({ hostOnly: '.host-only', shared: '.host-shared' });
           expect(behaviorBindings).toEqual({ behaviorOnly: '.behavior-only', shared: '.behavior-shared' });
           if (mapKind === 'function') {
+            expect(hostUI).toHaveBeenCalled();
             expect(hostUI.mock.contexts.every(receiver => receiver === view)).toBe(true);
             expect(behaviorUI).toHaveBeenCalledTimes(1);
             expect(behaviorUI.mock.contexts[0]).toBe(behavior);
@@ -94,6 +94,29 @@ describe('Behavior UI contract', function() {
         }
       });
     });
+  });
+
+  it('binds Behavior-only UI on populated roots before host initialization', function() {
+    const el = document.createElement('section');
+    el.innerHTML = '<button class="save"></button>';
+    let behavior;
+    let initialBehaviorUI;
+    const Action = Behavior.extend({
+      ui: { save: '.save' },
+      initialize() { behavior = this; }
+    });
+    const Host = View.extend({
+      template: false,
+      behaviors: [Action],
+      initialize() { initialBehaviorUI = behavior.getUI('save')[0]; }
+    });
+    const view = new Host({ el });
+    try {
+      expect(initialBehaviorUI).toBe(el.firstChild);
+      expect(behavior.getUI('save')[0]).toBe(el.firstChild);
+    } finally {
+      view.destroy();
+    }
   });
 
   it('delegates host-only and host-winning ui references on first construction', function() {

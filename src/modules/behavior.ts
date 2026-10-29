@@ -10,7 +10,7 @@ import extend from '../utils/extend.ts';
 import CommonMixin from '../mixins/common.ts';
 import DelegateEntityEventsMixin from '../mixins/delegate-entity-events.ts';
 import StateMixin from '../mixins/state.ts';
-import UIMixin from '../mixins/ui.ts';
+import UIMixin, { getUIBindings } from '../mixins/ui.ts';
 import ViewEventsMixin from '../mixins/view-events.ts';
 import { setEventDelegator } from '../runtime/event-delegator.ts';
 import { setStateApi } from '../runtime/state-api.ts';
@@ -145,7 +145,7 @@ const Behavior = function(this: BehaviorInternals, options: BehaviorOptions | un
   // a selector under an UI key.
   this.ui = {
     ...getValue(this, 'ui') as UISelectors,
-    ...UIMixin._getUIBindings.call(view)
+    ...getUIBindings(view)
   };
 
   // Forward every host event through this Behavior's triggerMethod.

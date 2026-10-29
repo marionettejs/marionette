@@ -10,6 +10,11 @@ export interface UIHost<Query extends ArrayLike<Element> = ArrayLike<Element>> {
   _getUIBindings(): UISelectors | undefined;
 }
 
+export function getUIBindings(host: Pick<UIHost, 'ui' | '_uiBindings'>): UISelectors | undefined {
+  const uiBindings = getValue(host, '_uiBindings');
+  return (uiBindings || getValue(host, 'ui')) as UISelectors | undefined;
+}
+
 // allows for the use of the @ui. syntax within
 // a given key for triggers and events
 // swaps the @ui with the associated selector.
@@ -93,9 +98,8 @@ export default {
     return normalizeUIValues(hash, uiBindings, property);
   },
 
-  _getUIBindings(this: Pick<UIHost, 'ui' | '_uiBindings'>): UISelectors | undefined {
-    const uiBindings = getValue(this, '_uiBindings');
-    return (uiBindings || getValue(this, 'ui')) as UISelectors | undefined;
+  _getUIBindings(this: UIHost): UISelectors | undefined {
+    return getUIBindings(this);
   },
 
   // Bind each element specified in the "ui" hash to the configured DOM query result.

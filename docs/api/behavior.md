@@ -66,7 +66,7 @@ Maps use functions or Behavior method-name strings for handlers, except `trigger
 | `normalizeUIKeys(map, bindings?)` | Returns a map with UI tokens expanded in its keys. |
 | `normalizeUIValues(map, property?, bindings?)` | Mutates and returns the map, expanding tokens in string values or the named property of object values. See [UI helpers](shared/view-bindings.md#ui-bindings). |
 
-The host coordinates UI rebinding during rendering. A saved query still points at its previous elements after a rerender; call `getUI` again. Do not assume Behavior UI is bound in `initialize`. A template-less CollectionView does not automatically bind Behavior UI; call the host's `bindUIElements()` when using existing elements. The Behavior shares the host's [fixed root](view.md#existing-elements).
+The host coordinates UI rebinding during rendering. A saved query still points at its previous elements after a rerender; call `getUI` again. When a View adopts existing contents, Behavior UI is bound after Behavior construction and before the host's `initialize` hook. Host UI is already available during Behavior initialization; do not assume the Behavior's own UI is bound in that hook. A template-less CollectionView does not automatically bind Behavior UI; call the host's `bindUIElements()` when using existing elements. The Behavior shares the host's [fixed root](view.md#existing-elements).
 
 `Behavior.setEventDelegator(provider)` replaces that class's DOM event provider and returns the class. `EventDelegator` is the provider slot. It is configured on the Behavior class independently from a host-specific override; runtime-wide configuration can configure both. There is no Behavior `setRenderer`, `setDomApi`, or `setDataApi`.
 
