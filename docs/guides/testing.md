@@ -2,6 +2,8 @@
 
 Test what a user or owning component can observe: rendered content, interaction, readiness, and disposal. A local editing View needs no Application. An Application test is useful when a feature must prepare before showing its screen.
 
+The optional [@mnjs/test development package](../../packages/test/readme.md) provides mounting and scoped cleanup alongside your chosen runner and assertions. Start with its README for installation and a complete test, then use the [helper reference](../../packages/test/guide.md) for runner setup, scoped queries and lifecycle contracts. The helper ships its own version-matched reference.
+
 This recipe uses Node's built-in test runner and JSDOM. Use a [supported Node LTS release](../quick-start.md). First install `marionette`, `@mnjs/adapters`, `lit-html`, and `@mnjs/data` using the [package installation](../quick-start.md) and [data setup](../integrations/setup.md). Add the DOM implementation used here:
 
 ```sh

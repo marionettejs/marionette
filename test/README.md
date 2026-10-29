@@ -124,7 +124,7 @@ Each suite uploads the following repository report paths:
 
 | Artifact | Uploaded paths |
 | --- | --- |
-| `coverage-node-24` | `coverage/`, `test/tmp/unit-results.xml` |
+| `coverage-node-24` | `coverage/`, `test/tmp/unit-results.xml`, `test/tmp/test-package-consumer/` |
 | `tooling-node-24` | `coverage/tooling/`, excluding temporary `coverage/tooling/tmp/` data; retained for 7 days |
 | `browsers-node-24` | `test/tmp/browser/results.json`, `test/tmp/browser/results.xml`, `test/tmp/browser/report/`, `test/tmp/browser/results/`, `test/tmp/performance/browser-report.json` |
 | `agent-reference-node-24` | `test/tmp/agent-reference-app/`, `test/tmp/agent-reference/reference-report.json`, `test/tmp/agent-reference/artifacts/artifact-input.json`, `test/tmp/agent-fixtures/fixture-controls.json` |
@@ -272,3 +272,35 @@ Local Marionette package versions are excluded from these automated updates. The
 bot never merges changes; browser profile pins and all affected consumer contracts
 must still pass review and CI.
 Configuration follows GitHub's [Dependabot options reference](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference).
+
+## Optional testing helper package
+
+`npm run test:helpers` checks the separate `@mnjs/test` public API. After building,
+`npm run test:helpers:consumer -- --browser` packs it and checks ESM/CommonJS,
+declarations, JSDOM, Vitest Browser Mode and Playwright gallery consumers in an
+isolated temporary workspace using a committed dependency lock and stable
+Marionette 5.0.0. Logs and an artifact-bound report are written to
+`test/tmp/test-package-consumer`; use `--output /absolute/path` to choose another
+report directory.
+The [package guide](../packages/test/readme.md) documents tool integration and
+its limits; reusable [consumer examples](../packages/test/examples/README.md) live
+beside the package. Normal `npm run verify` and core CI run the non-browser packed
+consumer after building. Browser examples are an explicit additional check.
+Core low-level tests remain independent of this helper package.
+
+With a Cypress binary and display dependencies already installed, add `--cypress`
+to run the actual component smoke and expected-failure probes from the same packed
+consumer. The report retains the real runner's version, per-test outcomes and
+failure messages. Dependency installation keeps binary downloads disabled.
+
+For independent helper publication, follow the [helper release procedure](../packages/test/RELEASING.md).
+It certifies a single archive from the final merged revision and publishes that
+same archive only after separate approval. Supply `--artifact /absolute/path.tgz
+--sha256 RECORDED_SHA256` to verify an existing archive without packing again.
+The coordinated five-package release commands above do not release this helper.
+
+The helper archive ships consumer onboarding and its version-matched `guide.md`.
+Packed checks verify both files and their relative links/anchors, execute the
+README's own Vitest configuration/test, then exercise the reference recipes.
+Repository examples follow `master`; validate their merged destinations before
+publication as described in the helper release procedure.

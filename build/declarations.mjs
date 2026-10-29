@@ -5,7 +5,7 @@ import ts from 'typescript';
 
 const root = resolve(import.meta.dirname, '..');
 const packageName = process.argv[2];
-if (packageName && !['utils', 'radio', 'data', 'adapters'].includes(packageName)) {
+if (packageName && !['utils', 'radio', 'data', 'adapters', 'test'].includes(packageName)) {
   throw new Error(`Unknown declaration package: ${packageName}`);
 }
 const packageRoot = packageName ? join(root, 'packages', packageName) : root;
@@ -16,6 +16,7 @@ rmSync(esm, { recursive: true, force: true });
 rmSync(cjs, { recursive: true, force: true });
 execFileSync(process.execPath, [join(root, 'node_modules/typescript/bin/tsc'),
   '-p', join(packageRoot, 'tsconfig.declarations.json')], { stdio: 'inherit' });
+if (packageName === 'test') { cpSync(join(packageRoot, 'types/cypress.d.ts'), join(esm, 'cypress.d.ts')); }
 if (!packageName) { cpSync(join(root, 'src/version.d.ts'), join(esm, 'version.d.ts')); }
 
 // Published declarations use JavaScript imports in separate ESM and CommonJS scopes.

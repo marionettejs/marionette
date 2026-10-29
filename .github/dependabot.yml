@@ -26,7 +26,7 @@ updates:
       - dependency-name: typescript
         update-types: [version-update:semver-major]
   - package-ecosystem: npm
-    directories: ['/test/fixtures/*']
+    directories: ['/test/fixtures/*', '/packages/test/examples']
     schedule:
       interval: monthly
     open-pull-requests-limit: 3
