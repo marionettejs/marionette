@@ -11,6 +11,7 @@ Choose the part that matches your test:
 - [Mocha with the core](#mocha-use-the-core)
 - [Vitest fixtures](#vitest-own-mounts-per-test)
 - [Testing Library queries](#testing-library-query-an-existing-mount)
+- [Resource lifetimes and failed mounts](#resource-lifetimes-and-failed-mounts)
 - [Cypress component setup](#cypress-register-cymount-once)
 - [Playwright gallery setup](#playwright-mount-named-browser-stories)
 - [Views, Applications and resource scopes](#shared-api)
@@ -365,7 +366,7 @@ try {
 }
 ```
 
-`mountView(view, options?)` transfers a live, unowned View to a new Region. The
+`mountView(viewOrFactory, options?)` transfers a live, unowned View to a new Region. The
 handle exposes the original `view`, `region`, `container`, and `slot`. Its live `el`
 getter follows `region.currentView`, including replacements, and is `undefined`
 when empty. Handle identities are readonly in TypeScript; the actual View and
@@ -480,11 +481,12 @@ message and nested errors. Application and Region destruction form one
 dependent operation: an Application teardown failure skips Region destruction;
 helper-owned fixture DOM is still removed. Partial framework operations are not retried.
 
-A synchronous mount failure removes only the helper-created slot and host, then
-rethrows the original error. It does not destroy or repair partially initialized
-framework objects. With a borrowed host and `replaceElement`, a failed attach
-callback can leave the View's own element in that host. Async startup failure
-rejects `ready`; cleanup of the returned handle remains your responsibility.
+Synchronous failures after Region acquisition throw `MountError`; await its
+`cleanup` Promise and inspect `cause` for the original error. Cleanup releases
+registered resources and known ownership without destroying a failed caller View
+or repairing an unknown partial constructor. The [failure contract](#resource-lifetimes-and-failed-mounts)
+describes these boundaries. Async startup failure rejects `ready`; cleanup of the
+returned handle remains your responsibility.
 Register your own listeners, subscriptions and servers, and restore runner mocks
 and timers at their chosen lifetime. There is no universal leak detector.
 
@@ -497,7 +499,7 @@ shows this with ordinary `mounts.scope.defer(...)` callbacks and public channel 
 
 ### Runner contexts
 
-`mounts.mountView` and `mounts.mountApplication` accept the neutral helper options
+`mounts.mountRegion`, `mounts.mountView` and `mounts.mountApplication` accept the neutral helper options
 and return the same handles. Application mounting starts by default; use
 `{ start: false }` for manual startup. `replaceElement` defaults to `true` in runner
 contexts so the View is a direct child of its container; pass `false` if a slot is
@@ -524,7 +526,8 @@ JSDOM and Chromium with Testing Library. It needs no per-file mount tracking or
 
 `mount(viewOrFactory, options?)` returns a Cypress chain yielding a `MountedView`.
 A factory runs **inside the queue after prior cleanup finishes**. It receives a
-fresh project scope: register providers/listeners there and return a fresh View.
+fresh mount-local scope, also exposed on its handle: register local services
+there and return a fresh View. Test-wide fixtures use `testScope()` instead.
 Factories are synchronous; put asynchronous Cypress setup in earlier commands.
 Pass a View instance or `() => new MyView()`; a View constructor alone is not a factory.
 The adapter uses `[data-cy-root]`, destroys the previous mount before replacement,
@@ -536,7 +539,7 @@ adapter prioritizes awaited resource release over leaving that UI available for 
 `start: true` waits for initial readiness; cancellation rejects the command and
 startup failure preserves its error. `start: false` never calls `app.start()`;
 use the public Application API when the test chooses to start. Its factory receives
-`(region, scope)` so project setup can stay at the support-wrapper boundary.
+`(region, scope, fixtures)` so project setup can stay at the support-wrapper boundary.
 Queued `unmount()` explicitly awaits the same teardown. Optional `log: false`
 suppresses the mount log. Runner mount options accept `regionClass`,
 `replaceElement`, and initial View `showOptions` or Application `startOptions`;
@@ -580,6 +583,138 @@ return that Promise from the `afterEach` above, which cleans up the final page. 
 [repository gallery](https://github.com/marionettejs/marionette/blob/master/packages/test/examples/gallery/gallery.js)
 and [repository specs](https://github.com/marionettejs/marionette/tree/master/packages/test/examples/playwright)
 include a prepared Application and native keyboard submission.
+
+## Resource lifetimes and failed mounts
+
+A neutral `mountRegion(options)` creates and owns a Region and fixture DOM. Its
+handle has `region`, live `el`, `container`, `slot`, `scope`, and asynchronous
+`cleanup()`. `region.show(view)` transfers each displayed View to the Region;
+replacement destroys its previous View. Cleanup destroys the Region and its last
+View, removes helper DOM, and preserves a supplied container and borrowed siblings.
+A View detached through `region.detachView()` transfers back to the caller.
+
+`mountView(viewOrFactory, options)` and `mountApplication(factory, options)` expose
+the same mount-local `scope`. The View factory receives `(scope)`; the Application
+factory receives `(region, scope)`. That scope is available before factory setup,
+and it is the same object as `mounted.scope`. Call `scope.defer(dispose)` for a
+resource's teardown or `scope.own(resource)` for an object with a `cleanup()` method.
+It is a nested owner: local resources finish in reverse registration order before
+the outer View/Application, Region, and helper DOM are released. Both
+`mounted.cleanup()` and `mounted.scope.cleanup()` perform this entire teardown;
+repeated calls return the same Promise, including its rejection.
+
+### Cypress fixture and mount lifetimes
+
+`testScope()` queues access to the current test's fixture owner:
+
+```js
+import { testScope, mountApplication, unmount } from '@mnjs/test/cypress';
+import { Radio } from '@mnjs/radio';
+
+beforeEach(() => testScope().then(fixtures => {
+  fixtures.reply(Radio, 'session', 'current', () => ({ user: 'Ada' }));
+}));
+
+it('owns services inside a mounted shell', () => {
+  mountApplication((region, scope, fixtures) => {
+    // scope is mount-local; fixtures survives this mount being replaced.
+    return new Shell({ region });
+  }, { start: false }).then(mounted => {
+    mounted.app.showView(new ShellView());
+    const service = createDialer(mounted.app);
+    mounted.scope.defer(() => service.destroy());
+  });
+  unmount(); // Waits for the dialer, then shell and Region. Session replies remain.
+});
+```
+
+`Shell`, `ShellView`, and `createDialer` stand for the project's own components.
+The View factory receives `(scope, fixtures)` and the Application factory receives
+`(region, scope, fixtures)` in Cypress. Handles also expose `testScope`, the same
+fixture owner returned by `testScope()`. Use the mount-local owner for services
+that must be disposed on replacement; do not put them in the fixture owner.
+
+The hierarchy is deliberate, rather than one flat list: the previous mount is
+fully cleaned before the next factory runs. At test teardown, mount-local
+resources, shell, Region and helper DOM finish before test-wide fixtures. Fixture
+registration order relative to mounts does not change that nesting. Explicit
+`unmount()` disposes only the current mount and leaves test fixtures alive. The
+adapter attempts fixture cleanup even when a mounted disposer fails and preserves
+both failures. A new test receives a fresh fixture scope.
+
+### Pending startup exception
+
+Cleanup first calls `app.stop()` while the helper's initial startup is pending.
+This interrupts readiness before an asynchronous disposer can wait indefinitely
+for cancelled work. Marionette's public `stop()` also releases prepared/displayed
+UI, so that UI may be destroyed **before** local service cleanup in this one case.
+The Application object and Region are destroyed afterward. No cancellation-only
+core API or private state is used. If a service requires its shell UI to remain
+alive through cleanup, mount with `{ start: false }` or finish startup before
+acquiring that service. This hook tracks only the helper's initial start, not
+later manual starts/restarts; cancel that later work explicitly before a disposer
+waits for its completion. A throwing core stop/destroy callback aborts its dependent
+teardown group; the helper reports it and removes its own DOM without retrying
+that core operation.
+
+### Scoped Radio replies
+
+`scope.reply(channel, requestName, valueOrHandler, context?)` accepts an explicitly
+supplied channel. `scope.reply(Radio, channelName, requestName, valueOrHandler,
+context?)` keeps string-based channel names and uses the supplied Radio instance.
+There is no global Radio import. Function receivers and arguments follow Radio's
+normal context behavior; omitted/falsy contexts use the channel.
+
+Every registration has its own callback identity. Cleanup filters by request name,
+that callback, and its effective context. A later unrelated replacement remains
+installed, even if it uses the same original function or context. Overwriting an
+older reply follows Radio's existing behavior; cleanup does not restore that
+older handler. Neither channel-wide `stopReplying()` nor `Radio.reset()` is used.
+Registration after cleanup begins is rejected before changing any reply.
+
+`@mnjs/test/scope` exports `createTestScope` and its types without importing
+Marionette, a DOM or a runner. The package's Marionette peer still applies to its
+mounting exports. Mount-utils remains an optional package peer required when using
+`@mnjs/test/cypress`, rather than a dependency of the scope entry.
+
+### Failed acquisition
+
+In the neutral helpers, after Region construction, synchronous factory/show/start failures throw
+`MountError`. Its `cause` is the original failure; its `cleanup` Promise finishes
+registered resource cleanup and safe owned teardown. Await it before proceeding:
+
+```js
+import { mountApplication, MountError } from '@mnjs/test';
+
+try {
+  const mounted = mountApplication((region, scope) => createFeature(region, scope));
+  // Keep mounted for the test's awaited teardown.
+} catch (error) {
+  if (error instanceof MountError) { await error.cleanup; throw error.cause; }
+  throw error;
+}
+```
+
+If cleanup also fails, that Promise rejects with an `AggregateError` containing
+both the mount failure and cleanup failure. The Promise is observable and must
+not be ignored. Runner contexts take responsibility for failed acquisitions, rethrow the
+original cause, and await their pending cleanup at teardown. Cypress and the
+gallery await that teardown before rejecting setup and preserve combined failures.
+
+A directly supplied caller View is not destroyed when its show fails: if this
+Region adopted it, cleanup uses public `detachView()` before destroying the
+Region. If detachment fails, destruction of that caller View is not attempted.
+A factory View is destroyed only if this Region adopted it; rejection because it
+is already managed elsewhere leaves that other owner intact. A returned
+Application is owned and can be destroyed after synchronous start failure.
+
+A throwing Region constructor has not returned an instance the helper can safely
+destroy; only helper DOM is removed. A factory that throws before returning an
+Application can still have its registered resources and known Region released,
+but its unknown partial Application is not repaired or destroyed automatically.
+Register resources as they are acquired. Failures inside core lifecycle callbacks
+still abort those core operations; these helpers do not promise rollback or
+repair of partially initialized caller objects.
 
 ## Tested with
 

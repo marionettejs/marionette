@@ -63,7 +63,7 @@ try {
   const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
   const sourceDirty = Boolean(execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: root, encoding: 'utf8' }).trim());
   const sourceFiles = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--',
-    'packages/test', 'test/examples', 'build/declarations.mjs', 'package.json', 'vitest.config.js', 'test/README.md'],
+    'packages/test', 'test/examples', 'test/unit/test-package', 'build/declarations.mjs', 'package.json', 'vitest.config.js', 'test/README.md'],
   { cwd: root, encoding: 'utf8' }).trim().split('\n').filter(Boolean).sort().map(path => {
     try { return { path, sha256: createHash('sha256').update(readFileSync(join(root, path))).digest('hex') }; } catch (error) {
       if (error.code === 'ENOENT') { return { path, deleted: true }; }
@@ -132,13 +132,15 @@ try {
     assert.deepEqual(actual, JSON.parse(process.argv[1]));
     console.log(JSON.stringify(actual));
   `, JSON.stringify(expectedVersions)]);
-  run('import-without-dom', process.execPath, ['--input-type=module', '-e', 'import assert from \'node:assert/strict\';import * as esm from \'@mnjs/test\';import {createRequire} from \'node:module\';const cjs=createRequire(import.meta.url)(\'@mnjs/test\');assert.deepEqual(Object.keys(esm).sort(),[\'createTestScope\',\'mountApplication\',\'mountView\']);assert.deepEqual(Object.keys(cjs).sort(),Object.keys(esm).sort());await esm.createTestScope().cleanup();']);
+  run('import-without-dom', process.execPath, ['--input-type=module', '-e', 'import assert from \'node:assert/strict\';import * as esm from \'@mnjs/test\';import {createRequire} from \'node:module\';const cjs=createRequire(import.meta.url)(\'@mnjs/test\');assert.deepEqual(Object.keys(esm).sort(),[\'MountError\',\'createTestScope\',\'mountApplication\',\'mountRegion\',\'mountView\']);assert.deepEqual(Object.keys(cjs).sort(),Object.keys(esm).sort());await esm.createTestScope().cleanup();']);
   cpSync(join(root, 'test/examples/optional-test-peers.mjs'), join(consumer, 'optional-test-peers.mjs'));
   run('optional-peer-isolation', process.execPath, ['optional-test-peers.mjs']);
   cpSync(join(root, 'test/examples/test-readme.mjs'), join(consumer, 'test-readme.mjs'));
   run('readme-recipes', process.execPath, ['--import', './dom.js', 'test-readme.mjs']);
   runNpm('readme-quickstart', ['exec', '--', 'vitest', 'run', '--config', 'readme-quickstart.config.mjs']);
   runNpm('runtime-and-types', ['run', 'test:consumer']);
+  // Exercise the real installed adapter with a modeled queue too; this is not a Cypress runtime run.
+  cpSync(join(root, 'test/unit/test-package/cypress-contract.spec.js'), join(consumer, 'cypress-contract-model.spec.js'));
   runNpm('vitest-dom', ['test']);
   if (values.browser) {
     report.browser = JSON.parse(run('browser-version', process.execPath, ['--input-type=module', '-e',

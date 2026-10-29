@@ -114,3 +114,15 @@ The repository's packed-consumer verifier additionally extracts the package guid
 neutral, Vitest and Playwright reference recipes into the isolated consumer and executes them.
 It also runs the shipped README's own Vitest configuration and first test.
 Cypress guide command declarations are checked separately with the Cypress consumer types.
+
+## Ownership API candidate
+
+Use `mounted.scope` for services tied to one mount and `testScope()` from
+`@mnjs/test/cypress` for fixtures that survive remounts. The
+[resource contract](../guide.md#resource-lifetimes-and-failed-mounts) explains
+service-before-shell teardown, the pending-start cancellation exception, scoped
+Radio replies, `mountRegion`, and observable failed-acquisition cleanup.
+
+The packed verifier also runs the public Cypress contract suite against installed
+files with a modeled queue in JSDOM. That catches package-boundary errors but does
+not execute Cypress. Real component/failure probes still require its binary.

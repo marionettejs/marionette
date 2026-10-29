@@ -46,7 +46,7 @@ try {
       assert(scenario.error.test(failed[0].displayError || ''),
         `${scenario.name}: failure was not the expected command error`);
     } else {
-      assert(result.totalPassed >= 8, 'The component smoke must execute all lifecycle examples.');
+      assert(result.totalPassed >= 10, 'The component smoke must execute all lifecycle examples.');
     }
   }
   report.passed = true;

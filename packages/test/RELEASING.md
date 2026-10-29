@@ -11,6 +11,22 @@ The root `release:*` commands and `.github/workflows/release.yml` coordinate
 They do **not** certify or publish this helper. Do not dispatch that workflow for
 an independent helper release or add the helper to its package inventory.
 
+## Expanded ownership candidate
+
+The first commit on the preparation branch is the independent 0.1.1 Cypress peer
+patch. Later ownership work adds public `mountRegion`, `@mnjs/test/scope`, scoped
+Radio replies, Cypress test fixtures and mount-local handles, and an observable
+`MountError.cleanup` Promise. It also changes local service cleanup order. Cypress handles expose the adapter
+`CypressMount<MountedView<View>>` type; invariant `Chainable` annotations may need
+that adapter type rather than a neutral `MountedView`.
+Recommend releasing that expanded contract as **0.2.0**, separately from the
+0.1.1 peer fix. The branch still carries 0.1.1 while that version decision is
+pending; do not publish the expanded candidate under an assumed version.
+
+Cypress startup cancellation is an explicit ordering exception: public `stop()`
+can destroy prepared UI before services during pending initial startup. Require
+review of that boundary as well as mounted service-before-shell behavior.
+
 ## 0.1.1 Cypress compatibility gate
 
 This candidate lowers only the optional Cypress peer to `>=14` and keeps

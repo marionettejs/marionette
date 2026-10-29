@@ -52,6 +52,16 @@
         "types": "./dist/types/esm/vitest.d.ts",
         "default": "./dist/vitest.js"
       }
+    },
+    "./scope": {
+      "import": {
+        "types": "./dist/types/esm/scope.d.ts",
+        "default": "./dist/scope.js"
+      },
+      "require": {
+        "types": "./dist/types/cjs/scope.d.ts",
+        "default": "./dist/scope.cjs"
+      }
     }
   },
   "files": [

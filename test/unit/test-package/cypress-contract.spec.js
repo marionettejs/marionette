@@ -1,5 +1,6 @@
 /* global Cypress */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { mountView } from '@mnjs/test';
 
 // This models the documented queue/hook boundary. It does not execute Cypress.
 let adapter;
@@ -73,10 +74,11 @@ describe('Cypress adapter non-runtime contract', () => {
     let created = false;
     const replacing = adapter.mount(() => { created = true; return nextView; }, { log: false });
     await began.promise;
-    expect(original.view.isDestroyed()).toBe(true);
+    expect(original.view.isDestroyed()).toBe(false);
     expect(created).toBe(false);
     disposal.resolve();
     const next = await replacing;
+    expect(original.view.isDestroyed()).toBe(true);
     expect(next.view).toBe(nextView);
     expect(next.el.parentNode).toBe(root);
     expect(root.children).toHaveLength(1);
@@ -95,7 +97,7 @@ describe('Cypress adapter non-runtime contract', () => {
     const handle = await adapter.mount(view);
     const cleanup = hooks.after[0]();
     expect(cleanup).toBeInstanceOf(Promise);
-    expect(hooks.before[0]()).toBe(cleanup);
+    expect(hooks.after[0]()).toBe(cleanup);
     await cleanup;
     expect(handle.region.isDestroyed()).toBe(true);
     expect(view.isDestroyed()).toBe(true);
@@ -149,9 +151,10 @@ describe('Cypress adapter non-runtime contract', () => {
     await began.promise;
     const cleaning = hooks.after[0]();
     expect(signal.aborted).toBe(true);
-    expect(app.isDestroyed()).toBe(true);
+    expect(app.isDestroyed()).toBe(false);
     disposal.resolve();
     await cleaning;
+    expect(app.isDestroyed()).toBe(true);
     expect(await rejected).toMatchObject({ message: 'Mounted Application startup was cancelled.' });
     preparation.resolve();
   });
@@ -177,9 +180,132 @@ describe('Cypress adapter non-runtime contract', () => {
       throw mountFailure;
     }).catch(value => value);
     expect(error.errors[0]).toBe(mountFailure);
-    expect(error.errors[1].errors[0].errors).toHaveLength(1);
-    expect(error.errors[1].errors[0].errors[0]).toBe(cleanupFailure);
-    // This negative case explicitly observes its expected teardown rejection.
-    await expect(hooks.after[0]()).rejects.toBe(error.errors[1]);
+    expect(error.errors[1].errors[0].errors).toEqual([cleanupFailure]);
+    await expect(hooks.after[0]()).rejects.toThrow('project cleanup');
+    hooks.after = [];
   });
+
+  it('keeps test fixtures across remounts while local services finish before each shell', async() => {
+    adapter.setupCypress();
+    const fixtures = await adapter.testScope();
+    const events = [];
+    fixtures.defer(() => events.push('fixture'));
+    let firstScope;
+    const First = Card.extend({ onDestroy() { events.push('first shell'); } });
+    const first = await adapter.mount((scope, testScope) => {
+      firstScope = scope;
+      expect(testScope).toBe(fixtures);
+      scope.defer(() => events.push('first service'));
+      return new First();
+    });
+    expect(first.scope).toBe(firstScope);
+    expect(first.testScope).toBe(fixtures);
+    const Second = Card.extend({ onDestroy() { events.push('second shell'); } });
+    const second = await adapter.mount(() => new Second());
+    expect(events).toEqual(['first service', 'first shell']);
+    expect(() => first.scope.defer(() => {})).toThrow('Cannot register');
+    expect(second.testScope).toBe(fixtures);
+    second.scope.defer(() => events.push('second service'));
+    await adapter.unmount();
+    expect(events).toEqual(['first service', 'first shell', 'second service', 'second shell']);
+    expect(await adapter.testScope()).toBe(fixtures);
+    await hooks.after[0]();
+    expect(events.at(-1)).toBe('fixture');
+    await hooks.before[0]();
+    expect(await adapter.testScope()).not.toBe(fixtures);
+  });
+
+  it('requires setup before accessing test fixtures', async() => {
+    await expect(adapter.testScope()).rejects.toThrow('Call setupCypress()');
+  });
+
+  it('shares test fixtures with Application factories without sharing mount resources', async() => {
+    adapter.setupCypress();
+    const fixtures = await adapter.testScope();
+    let local;
+    const mounted = await adapter.mountApplication((region, scope, testScope) => {
+      local = scope;
+      expect(testScope).toBe(fixtures);
+      return new Application({ region });
+    }, { start: false });
+    expect(mounted.scope).toBe(local);
+    expect(mounted.testScope).toBe(fixtures);
+  });
+
+  it('releases test fixtures when mount teardown fails and preserves both errors', async() => {
+    adapter.setupCypress();
+    const local = new Error('local disposal');
+    const test = new Error('fixture disposal');
+    const fixtures = await adapter.testScope();
+    fixtures.defer(() => { throw test; });
+    const mounted = await adapter.mount(() => new Card());
+    mounted.scope.defer(() => { throw local; });
+    const error = await hooks.after[0]().catch(value => value);
+    expect(error.message).toContain('local disposal');
+    expect(error.message).toContain('fixture disposal');
+    expect(error.errors).toHaveLength(2);
+    expect(error.errors[0].errors[0].errors).toEqual([local]);
+    expect(error.errors[1].errors).toEqual([test]);
+    expect(mounted.view.isDestroyed()).toBe(true);
+    // The modeled automatic hook failure has been observed; don't report it twice.
+    hooks.after = [];
+  });
+
+  it('surfaces a fixture-only teardown rejection', async() => {
+    adapter.setupCypress();
+    const failure = new Error('fixture');
+    const fixtures = await adapter.testScope();
+    fixtures.defer(() => { throw failure; });
+    await expect(hooks.after[0]()).rejects.toMatchObject({ errors: [failure] });
+    hooks.after = [];
+  });
+
+
+  it('preserves asynchronous startup and mounted-resource cleanup errors together', async() => {
+    adapter.setupCypress();
+    const startup = new Error('startup');
+    const disposal = new Error('disposal');
+    let attempts = 0;
+    const Feature = Application.extend({ prepareStart() { throw startup; } });
+    const error = await adapter.mountApplication((region, scope) => {
+      scope.defer(() => { attempts++; throw disposal; });
+      return new Feature({ region });
+    }, { start: true }).catch(value => value);
+    expect(error.errors[0]).toBe(startup);
+    expect(error.message).toContain('disposal');
+    expect(attempts).toBe(1);
+    await expect(hooks.after[0]()).rejects.toThrow('disposal');
+    expect(attempts).toBe(1);
+    hooks.after = [];
+  });
+
+
+  it.each([false, true])('awaits nested neutral acquisition cleanup (disposal fails: %s)', async fails => {
+    adapter.setupCypress();
+    const failure = new Error('nested factory');
+    const disposal = new Error('nested disposal');
+    let released = false;
+    const error = await adapter.mount(() => {
+      mountView(scope => {
+        scope.defer(async() => {
+          await Promise.resolve();
+          released = true;
+          if (fails) { throw disposal; }
+        });
+        throw failure;
+      });
+    }).catch(value => value);
+    expect(released).toBe(true);
+    if (fails) {
+      expect(error.errors[0]).toBe(failure);
+      expect(error.errors[1].errors).toEqual([disposal]);
+    } else { expect(error).toBe(failure); }
+  });
+
+
+  it.each([null, 7])('preserves a non-Error factory failure: %s', async failure => {
+    adapter.setupCypress();
+    await expect(adapter.mount(() => { throw failure; })).rejects.toBe(failure);
+  });
+
 });
