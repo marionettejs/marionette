@@ -509,7 +509,6 @@ const View = function(this: ViewInternals, options?: ViewConfiguration) {
   this._initState(options);
 
   this._initBehaviors();
-  if (this._isRendered && this._behaviors?.length) { this._bindBehaviorUIElements(); }
   this._initRegions();
   this._buildEventProxies();
 

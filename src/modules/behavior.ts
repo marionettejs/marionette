@@ -145,7 +145,7 @@ const Behavior = function(this: BehaviorInternals, options: BehaviorOptions | un
   // a selector under an UI key.
   this.ui = {
     ...getValue(this, 'ui') as UISelectors,
-    ...getUIBindings(view)
+    ...getUIBindings.call(view)
   };
 
   // Forward every host event through this Behavior's triggerMethod.

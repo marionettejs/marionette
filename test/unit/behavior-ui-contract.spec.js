@@ -59,28 +59,38 @@ describe('Behavior UI contract', function() {
           expect(view.isRendered()).toBe(true);
           expect(behavior.normalizeUIString('@ui.shared')).toBe('.host-shared');
           expect(behavior.normalizeUIString('@ui.behaviorOnly')).toBe('.behavior-only');
+          expect(() => behavior.getUI('hostOnly')).toThrowError('UI elements must be bound');
+          el.querySelector('.host-only').click();
+          el.querySelector('.host-shared').click();
+          el.querySelector('.behavior-only').click();
+          el.querySelector('.behavior-shared').click();
+          expect(onHostOnly).toHaveBeenCalledTimes(1);
+          expect(onShared).toHaveBeenCalledTimes(1);
+          expect(onBehaviorOnly).toHaveBeenCalledTimes(1);
+
+          behavior.bindUIElements();
           expect(behavior.getUI('hostOnly')[0]).toBe(view.getUI('hostOnly')[0]);
           expect(behavior.getUI('shared')[0]).toBe(el.querySelector('.host-shared'));
           behavior.getUI('hostOnly')[0].click();
           behavior.getUI('shared')[0].click();
           behavior.getUI('behaviorOnly')[0].click();
           el.querySelector('.behavior-shared').click();
-          expect(onHostOnly).toHaveBeenCalledTimes(1);
-          expect(onShared).toHaveBeenCalledTimes(1);
-          expect(onBehaviorOnly).toHaveBeenCalledTimes(1);
+          expect(onHostOnly).toHaveBeenCalledTimes(2);
+          expect(onShared).toHaveBeenCalledTimes(2);
+          expect(onBehaviorOnly).toHaveBeenCalledTimes(2);
           expect(onShared.mock.contexts[0]).toBe(behavior);
 
           view.unbindUIElements();
           view.bindUIElements();
           behavior.getUI('shared')[0].click();
-          expect(onShared).toHaveBeenCalledTimes(2);
+          expect(onShared).toHaveBeenCalledTimes(3);
 
           const oldButton = behavior.getUI('hostOnly')[0];
           view.render();
           expect(behavior.getUI('hostOnly')[0]).not.toBe(oldButton);
           expect(behavior.getUI('hostOnly')[0]).toBe(view.getUI('hostOnly')[0]);
           behavior.getUI('hostOnly')[0].click();
-          expect(onHostOnly).toHaveBeenCalledTimes(2);
+          expect(onHostOnly).toHaveBeenCalledTimes(3);
           expect(hostBindings).toEqual({ hostOnly: '.host-only', shared: '.host-shared' });
           expect(behaviorBindings).toEqual({ behaviorOnly: '.behavior-only', shared: '.behavior-shared' });
           if (mapKind === 'function') {
@@ -96,11 +106,11 @@ describe('Behavior UI contract', function() {
     });
   });
 
-  it('binds Behavior-only UI on populated roots before host initialization', function() {
+  it('keeps adopted Behavior UI unbound through host initialization until explicitly bound', function() {
     const el = document.createElement('section');
     el.innerHTML = '<button class="save"></button>';
     let behavior;
-    let initialBehaviorUI;
+    let initialBehaviorUIError;
     const Action = Behavior.extend({
       ui: { save: '.save' },
       initialize() { behavior = this; }
@@ -108,12 +118,55 @@ describe('Behavior UI contract', function() {
     const Host = View.extend({
       template: false,
       behaviors: [Action],
+      initialize() {
+        try { behavior.getUI('save'); } catch (error) { initialBehaviorUIError = error; }
+      }
+    });
+    const view = new Host({ el });
+    try {
+      expect(initialBehaviorUIError).toMatchObject({ code: 'MN0023' });
+      expect(() => behavior.getUI('save')).toThrowError('UI elements must be bound');
+      view.render();
+      expect(() => behavior.getUI('save')).toThrowError('UI elements must be bound');
+      behavior.bindUIElements();
+      expect(behavior.getUI('save')[0]).toBe(el.firstChild);
+    } finally {
+      view.destroy();
+    }
+  });
+
+  it('keeps explicit Behavior initialization binding usable without repeating queries', function() {
+    const el = document.createElement('section');
+    el.innerHTML = '<button class="save"></button>';
+    let queries = 0;
+    let behavior;
+    let initialBehaviorUI;
+    const onSave = vi.fn();
+    const Action = Behavior.extend({
+      ui: { save: '.save' },
+      events: { 'click @ui.save': onSave },
+      initialize() {
+        behavior = this;
+        this.bindUIElements();
+      }
+    });
+    const Host = View.extend({
+      template: false,
+      behaviors: [Action],
       initialize() { initialBehaviorUI = behavior.getUI('save')[0]; }
+    }).setDomApi({
+      findEl(root, selector) {
+        queries++;
+        return root.querySelectorAll(selector);
+      }
     });
     const view = new Host({ el });
     try {
       expect(initialBehaviorUI).toBe(el.firstChild);
       expect(behavior.getUI('save')[0]).toBe(el.firstChild);
+      expect(queries).toBe(1);
+      el.firstChild.click();
+      expect(onSave).toHaveBeenCalledTimes(1);
     } finally {
       view.destroy();
     }

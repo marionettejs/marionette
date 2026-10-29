@@ -10,9 +10,9 @@ export interface UIHost<Query extends ArrayLike<Element> = ArrayLike<Element>> {
   _getUIBindings(): UISelectors | undefined;
 }
 
-export function getUIBindings(host: Pick<UIHost, 'ui' | '_uiBindings'>): UISelectors | undefined {
-  const uiBindings = getValue(host, '_uiBindings');
-  return (uiBindings || getValue(host, 'ui')) as UISelectors | undefined;
+export function getUIBindings(this: Pick<UIHost, 'ui' | '_uiBindings'>): UISelectors | undefined {
+  const uiBindings = getValue(this, '_uiBindings');
+  return (uiBindings || getValue(this, 'ui')) as UISelectors | undefined;
 }
 
 // allows for the use of the @ui. syntax within
@@ -98,9 +98,7 @@ export default {
     return normalizeUIValues(hash, uiBindings, property);
   },
 
-  _getUIBindings(this: UIHost): UISelectors | undefined {
-    return getUIBindings(this);
-  },
+  _getUIBindings: getUIBindings,
 
   // Bind each element specified in the "ui" hash to the configured DOM query result.
   _bindUIElements<Query extends ArrayLike<Element>>(this: UIHost<Query>) {
