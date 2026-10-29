@@ -55,6 +55,12 @@ On a successful show, the Region:
 
 Showing the current View again does not rerender it or repeat show events. A destroyed View cannot be shown. A View already owned by an Application, Region, or CollectionView must first be detached from that owner. A View adopting existing attached markup does not receive another attach notification just because a Region shows it.
 
+A Region supplied an actual Element inside an attached open or closed shadow tree
+uses this same attach/detach lifecycle. When the Region belongs to a detached host
+View, mounting that View through a monitored owner propagates attachment to its
+children. A standalone Region is not discovered from its DOM location. Region selectors do
+not cross shadow boundaries; see [DOM providers](providers/dom.md#domapi).
+
 An unmatched selector produces `MN0005` unless allowed; no configured element produces `MN0004`. A destroyed incoming View produces `MN0007`, and an already owned View produces `MN0003`. `allowMissingEl` skips that show attempt without taking ownership of the View. A later explicit operation retries an unresolved selector; the Region does not watch for DOM changes.
 
 An unmatched lookup clears the cached `el` but retains the original selector. A later `show()` retries that selector and applies its missing-element options. With no current View, `empty()` also needs to resolve the element; `reset()` and `destroy()` use that emptying path. When a current View exists, cleanup releases it using the resolved element without another selector lookup. A skipped show leaves the Region usable for cleanup or a later explicit show.

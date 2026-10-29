@@ -26,8 +26,14 @@ const StateOwner = runtime.MnObject.extend({
   createState() { return new Model({ ready: false }); },
   onReady() { events.state++; }
 });
+// Partial Element double for this data-events fixture; include native attachment ancestry.
 const documentElement = { contains() { return false; } };
-const el = { hasChildNodes() { return false; }, ownerDocument: { documentElement } };
+const el = {
+  nodeType: 1,
+  getRootNode() { return this; },
+  hasChildNodes() { return false; },
+  ownerDocument: { documentElement }
+};
 const view = new TestView({ collection, el, model });
 const owner = new StateOwner();
 const state = owner.getState();

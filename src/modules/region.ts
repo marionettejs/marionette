@@ -3,6 +3,7 @@
 
 import { MarionetteError, getValue, uniqueId } from '@mnjs/utils';
 import extend from '../utils/extend.ts';
+import isElAttached from '../utils/is-el-attached.ts';
 import { renderView, destroyView } from './common/view.ts';
 import CommonMixin from '../mixins/common.ts';
 import DomApi, { setDomApi } from '../runtime/dom-api.ts';
@@ -246,8 +247,7 @@ Object.assign(Region.prototype, CommonMixin, {
   },
 
   _isElAttached(this: RegionInternals) {
-    const documentEl = this.Dom.getDocumentEl!(this.el as Element);
-    return !!documentEl && this.Dom.hasEl!(documentEl, this.el as Element);
+    return isElAttached(this.el as Element, this.Dom);
   },
 
   _attachView(this: RegionInternals, view: SupportedView, { replaceElement }: ShowOptions = {}) {

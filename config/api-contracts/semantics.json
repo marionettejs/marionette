@@ -3311,7 +3311,7 @@
       "result": "Native DOM methods return their documented Element/Document/collection/void results.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "DOM operations do not own or destroy framework Views.",
-      "mutation": "Methods synchronously query, create, move, detach or replace DOM contents; notify hooks expose attachment to integrations.",
+      "mutation": "Methods synchronously query, create, move, detach or replace DOM contents; notify hooks expose attachment to integrations. Attachment checks use configured document-root/containment operations and native Element/Node ancestry to follow shadow hosts. A shadow hosted by the configured document root uses provider containment within that shadow; hasEl and selector lookup retain strict tree semantics. Root values must satisfy the DOM Element contract, including inherited Node methods.",
       "repetition": "Queries observe current DOM; mutation methods operate on supplied nodes each time.",
       "destruction": "Framework owner lifecycle is separate from direct DOM operations.",
       "diagnostics": [],
@@ -3346,6 +3346,34 @@
         {
           "file": "test/unit/region-lifecycle.spec.js",
           "title": "shows a View in template content without reporting attachment"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "strict containment and selector lookup do not cross shadow roots"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "attachment retains configured document-root and containment boundaries"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "detached URL elements keep their host property separate from shadow attachment"
+        },
+        {
+          "file": "test/unit/view.spec.js",
+          "title": "open shadow document host honors native containment"
+        },
+        {
+          "file": "test/unit/view.spec.js",
+          "title": "open shadow document host respects provider rejection"
+        },
+        {
+          "file": "test/unit/view.spec.js",
+          "title": "closed shadow document host honors native containment"
+        },
+        {
+          "file": "test/unit/view.spec.js",
+          "title": "closed shadow document host respects provider rejection"
         }
       ],
       "documentation": {
@@ -4177,7 +4205,7 @@
       "ownership": "Framework Views retain their normal ownership; DOM adapters own their rendering integration resources.",
       "mutation": "Reconciles content while preserving the View root and matching survivor elements; owner Regions are cleaned before parent rendering.",
       "repetition": "Repeated rendering updates content within the same root.",
-      "destruction": "Detach/reattach preserves the root; destroy releases rendering resources through normal View lifecycle.",
+      "destruction": "Detach/reattach preserves the root; destroy releases rendering resources through normal View lifecycle. Lit connection follows explicit attachment notifications, including before the first content render. Unnotified contents start disconnected even in connected DOM. Monitored adoption and Region mounting of Elements inside open/closed shadows connect and disconnect directives; direct adapter use, external DOM movement and disabled monitoring require application notifications. A previous owner or notifier must release its connection before handing rendered contents to another owner; adopting an excluded root does not reconcile an unreleased connected part.",
       "diagnostics": [],
       "docs": [
         {
@@ -4198,6 +4226,132 @@
         {
           "file": "test/contracts/dom-adapters.js",
           "title": "${kind}: replaces initial contents, preserves root and survivor, and commits synchronously",
+          "runner": "test/unit/dom-adapters.spec.js"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "light: adopted Lit View in connected host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "light: adopted Lit View in detached host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "light: Region-mounted Lit View in connected host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "light: Region-mounted Lit View in detached host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "open: adopted Lit View in connected host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "open: adopted Lit View in detached host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "open: Region-mounted Lit View in connected host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "open: Region-mounted Lit View in detached host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "closed: adopted Lit View in connected host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "closed: adopted Lit View in detached host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "closed: Region-mounted Lit View in connected host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "closed: Region-mounted Lit View in detached host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "iframe: adopted Lit View in connected host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "iframe: Region-mounted Lit View in connected host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "open: nested detached shadow host follows managed ownership with monitoring enabled"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "open: nested detached shadow host follows managed ownership with monitoring child-disabled"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "open: nested detached shadow host follows managed ownership with monitoring ancestor-disabled"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "closed: nested detached shadow host follows managed ownership with monitoring enabled"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "closed: nested detached shadow host follows managed ownership with monitoring child-disabled"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "closed: nested detached shadow host follows managed ownership with monitoring ancestor-disabled"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "open: adopted Lit View under configured document host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "open: Region-mounted Lit View under configured document host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "closed: adopted Lit View under configured document host releases subscriptions"
+        },
+        {
+          "file": "test/browser/shadow-lifecycle.spec.mjs",
+          "title": "closed: Region-mounted Lit View under configured document host releases subscriptions"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: ${tree} rendering honors ${policy} attachment",
+          "runner": "test/unit/dom-adapters.spec.js"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: connected direct contents require explicit connection notifications",
+          "runner": "test/unit/dom-adapters.spec.js"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: connection notifications before first render can be cancelled",
+          "runner": "test/unit/dom-adapters.spec.js"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: connected monitoring opt-out requires explicit initial attachment",
+          "runner": "test/unit/dom-adapters.spec.js"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: external insertion before first render does not imply attachment",
+          "runner": "test/unit/dom-adapters.spec.js"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: released connected contents transfer to ${policy} attachment",
           "runner": "test/unit/dom-adapters.spec.js"
         }
       ],
