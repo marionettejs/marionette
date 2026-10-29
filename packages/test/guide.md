@@ -8,6 +8,7 @@ describes the helper version above.
 
 Choose the part that matches your test:
 
+- [Mocha with the core](#mocha-use-the-core)
 - [Vitest fixtures](#vitest-own-mounts-per-test)
 - [Testing Library queries](#testing-library-query-an-existing-mount)
 - [Cypress component setup](#cypress-register-cymount-once)
@@ -15,6 +16,68 @@ Choose the part that matches your test:
 - [Views, Applications and resource scopes](#shared-api)
 - [Cleanup, readiness and runner behavior](#lifecycle-semantics)
 - [Tested versions](#tested-with)
+
+## Mocha: use the core
+
+The root `@mnjs/test` entry is runner-independent. With Mocha, use its ordinary
+async tests and your own assertions; no helper adapter or hook registration is
+needed. After [installing the helper and Marionette](readme.md#install), add:
+
+```sh
+npm install --save-dev --save-exact mocha@12.0.3 jsdom@30.1.1
+```
+
+Create `test/dom.mjs`. Node must load this **before** Marionette or the helper can
+capture a DOM environment:
+
+```js
+import { JSDOM } from 'jsdom';
+
+const dom = new JSDOM('<!doctype html><html><body></body></html>', {
+  url: 'https://example.test/'
+});
+globalThis.window = dom.window;
+globalThis.document = dom.window.document;
+globalThis.HTMLElement = dom.window.HTMLElement;
+```
+
+Create `test/core.test.mjs`:
+
+```js
+import assert from 'node:assert/strict';
+import { it } from 'mocha';
+import { Application, View } from 'marionette';
+import { mountApplication } from '@mnjs/test';
+
+const Greeting = Application.extend({
+  async prepareStart() { return { name: 'Ada' }; },
+  onStart(_app, _options, profile) {
+    this.showView(new View({ template: () => `Hello ${profile.name}` }));
+  }
+});
+
+it('shows prepared output', async function() {
+  const mounted = mountApplication(region => new Greeting({ region }));
+  try {
+    assert.equal(await mounted.ready, true);
+    assert.equal(mounted.el.textContent, 'Hello Ada');
+  } finally {
+    await mounted.cleanup();
+  }
+});
+```
+
+Run from the project directory, with Node preloading the DOM before Mocha loads
+the test's static imports:
+
+```sh
+node --import ./test/dom.mjs ./node_modules/mocha/bin/mocha.js test/core.test.mjs
+```
+
+The async test returns its Promise to Mocha. `ready` covers initial Application
+startup, not later work; cleanup is awaited even when readiness or an assertion
+fails. For multiple tests, a Mocha `afterEach` can instead return or await cleanup
+of the resources owned by that test.
 
 ## Vitest: own mounts per test
 

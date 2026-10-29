@@ -1,9 +1,11 @@
 # @mnjs/test
 
-Mount real Marionette Views and Applications, assert what a user can observe, and
-await cleanup of the resources your test owns. Optional integrations support
-Vitest, Cypress, Playwright and DOM Testing Library. Production Marionette does
-not depend on this development package.
+Runner-independent helpers for mounting real Marionette Views and Applications
+and awaiting cleanup of the resources your test owns. The core works with any
+DOM-capable test runner and your choice of assertions. Optional Vitest, Cypress
+and Playwright integrations adapt that same lifecycle; DOM Testing Library adds
+queries to an existing mount. Production Marionette does not depend on this
+development package.
 
 ## Install
 
@@ -16,6 +18,31 @@ npm install --save-dev --save-exact @mnjs/test@0.1.0
 
 Install only the optional tools your tests use. Component tests can stay in
 Cypress; the helper does not require a second runner.
+
+## Use the runner-independent core
+
+Import `mountView`, `mountApplication` and `createTestScope` from `@mnjs/test`.
+They register no runner hooks or commands. Mounting needs a DOM configured
+**before** importing Marionette; a browser already supplies one. This Node example
+assumes that preload has run:
+
+```js
+import assert from 'node:assert/strict';
+import { View } from 'marionette';
+import { mountView } from '@mnjs/test';
+
+const mounted = mountView(new View({ template: () => '<h1>Hello</h1>' }));
+try {
+  assert.equal(mounted.el.textContent, 'Hello');
+} finally {
+  await mounted.cleanup();
+}
+```
+
+Use your runner's asynchronous teardown or `try`/`finally` to await cleanup. The
+[Mocha example](guide.md#mocha-use-the-core) includes the DOM preload and an
+Application readiness check. Optional runner fixtures can manage this ownership
+for you, as in the Vitest example below.
 
 ## Write a test with Vitest
 

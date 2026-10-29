@@ -39,6 +39,7 @@ function blocks(heading, language, count, level = 2, text = guide) {
   return found;
 }
 const neutral = [
+  ...blocks('Use the runner-independent core', 'js', 1, 2, readme),
   ...blocks('Mount a View', 'js', 1, 3),
   ...blocks('Mount an Application', 'js', 2, 3),
   ...blocks('Own a test\'s resources', 'js', 1, 3)
@@ -73,4 +74,4 @@ mkdirSync('test', { recursive: true });
 const [config, quickstart] = blocks('Write a test with Vitest', 'js', 2, 2, readme);
 writeFileSync('readme-quickstart.config.mjs', config);
 writeFileSync('test/readme-quickstart.spec.js', quickstart);
-console.log('Four neutral guide recipes passed; Vitest, Playwright and Cypress command declarations extracted for runner/type checks.');
+console.log('Neutral README/reference recipes passed; Vitest, Playwright and Cypress command declarations extracted for runner/type checks.');
