@@ -184,7 +184,7 @@ const beta = list.children.findByModel(second);
 source.entries = [second, first];
 source.trigger('update', { kind: 'reorder' });
 assert.deepEqual(list.children.toArray(), [beta, alpha]);
-// Retained plain-object contents are refreshed explicitly by the application.
+// Changing only the filter preserves a rendered row and its DOM draft.
 const retainedInput = document.createElement('input');
 alpha.el.append(retainedInput);
 retainedInput.value = 'draft';
@@ -192,6 +192,7 @@ list.setFilter(() => false);
 list.removeFilter();
 assert.equal(alpha.el.querySelector('input'), retainedInput);
 assert.equal(retainedInput.value, 'draft');
+// Retained plain-object contents are refreshed explicitly by the application.
 first.label = 'Changed';
 alpha.render();
 assert.equal(list.children.findByModel(first), alpha);

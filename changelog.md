@@ -12,7 +12,8 @@ at the time it shipped; older prerelease APIs may have been superseded.
 ### Unreleased
 
 * Clarify collection notification and row rendering ownership: `updated` pairs
-  describe immutable same-key replacements; retained model/actor changes refresh
+  describe replacements with different objects under the same key; retained
+  model/actor changes refresh
   through source subscriptions or explicit application renders.
 * Recognize monitored Element roots inside open and closed shadow trees while
   preserving strict containment and configured attachment boundaries.

@@ -79,7 +79,7 @@ CollectionView reads a snapshot and subscribes during its first render. The prov
 | --- | --- |
 | Reset | `{ kind: 'reset' }` — destroy all existing children and build from the current snapshot, even when model identities remain. |
 | Reorder | `{ kind: 'reorder' }` — source order changed with membership retained. CollectionView follows it according to `sortWithCollection` and its comparator. |
-| Update | `{ kind: 'update', added: [...], removed: [...], updated: [{ previous, current }, ...] }` — report additions/removals as actual model values, and immutable same-key replacements as pairs. All three arrays are required, even when empty. |
+| Update | `{ kind: 'update', added: [...], removed: [...], updated: [{ previous, current }, ...] }` — report additions/removals as actual model values, and same-key replacements as pairs of different model objects. All three arrays are required, even when empty. |
 
 `previous` and `current` must be different model objects with the same stable key. The pair replaces and destroys the old child even when the key is unchanged. Added/removed entries must correspond to the before/after snapshots. Emit a coherent change for each structural source change; notifications describe completed changes, not commands for Marionette to mutate the collection.
 

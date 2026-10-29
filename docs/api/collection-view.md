@@ -80,8 +80,9 @@ Resolver functions and comparator/filter callbacks run with the CollectionView a
 | Observable addition/removal | Creates added rows and destroys removed rows; retains unaffected child instances. Reapplies sorting/filtering and presentation. |
 | Source reorder | Sorts/presents existing rows when `sortWithCollection` is true. Does not recreate surviving rows. |
 | Source reset | Destroys/rebuilds rows from the new snapshot, even if the same Models or keys occur again. Does not rerender the list's own template. |
-| Retained model or actor changes | Retains the child. Row source subscriptions or explicit application renders refresh its contents. |
 | Adapter replacement with a different object under the same key | Creates a replacement child and destroys the previous child. Stable keys do not imply rebinding an existing View to a different model. |
+
+For a retained model or actor, the row's source subscriptions or an explicit application render refresh its contents. See [DataApi observation](providers/data.md#collection-identity-and-observation) for the separate roles of source events and collection notifications.
 
 A plain array is not observed. After changing it, `render()` rebuilds the list. Observable sources let additions and ordering changes preserve surviving Views and their DOM; do not call full `render()` merely to apply a filter or comparator. Use a new CollectionView when changing the collection source; assigning `collection` does not transfer an existing observer to that source.
 
@@ -122,11 +123,11 @@ Filtering controls presentation; it does not remove models or destroy their chil
 | Method | Contract |
 | --- | --- |
 | `getFilter()` | Returns `viewFilter`; override for a computed filter. |
-| `filter()` → `this` | Recomputes presentation without sorting first. Renders never-rendered included children and reuses already-rendered rows. Detaches excluded rows without destroying them. |
+| `filter()` → `this` | Recomputes presentation without sorting first. Renders included children as needed and attaches them; detaches excluded rows without destroying them. |
 | `setFilter(value, options?)` → `this` | Stores the value and filters immediately when its identity changed, unless `preventRender` is true. |
 | `removeFilter(options?)` → `this` | Clears the filter using the same setter rules. |
 
-Changing values captured by a predicate does not change the predicate's identity. Call `filter()` explicitly to apply those changes. Filtering an already-rendered row out and back in reuses its existing DOM. A never-rendered child renders on first presentation. Source subscriptions remain active while a row is hidden; the application controls whether and how they refresh its contents. Hidden Views are still destroyed when removed from the source, on full render/reset, or when the list is destroyed.
+Changing values captured by a predicate does not change the predicate's identity. Call `filter()` explicitly to apply those changes. When only the filter changes, a previously rendered row keeps its existing DOM when hidden and shown again. A never-rendered child renders on first presentation. Source subscriptions remain active while a row is hidden; the application controls whether and how they refresh its contents. Hidden Views are still destroyed when removed from the source, on full render/reset, or when the list is destroyed.
 
 ## Empty presentation
 
