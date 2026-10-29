@@ -59,7 +59,7 @@ describe('Behavior UI contract', function() {
           expect(view.isRendered()).toBe(true);
           expect(behavior.normalizeUIString('@ui.shared')).toBe('.host-shared');
           expect(behavior.normalizeUIString('@ui.behaviorOnly')).toBe('.behavior-only');
-          expect(() => behavior.getUI('hostOnly')).toThrowError('UI elements must be bound');
+          expect(() => behavior.getUI('hostOnly')).toThrow(expect.objectContaining({ code: 'MN0023' }));
           el.querySelector('.host-only').click();
           el.querySelector('.host-shared').click();
           el.querySelector('.behavior-only').click();
@@ -125,9 +125,9 @@ describe('Behavior UI contract', function() {
     const view = new Host({ el });
     try {
       expect(initialBehaviorUIError).toMatchObject({ code: 'MN0023' });
-      expect(() => behavior.getUI('save')).toThrowError('UI elements must be bound');
+      expect(() => behavior.getUI('save')).toThrow(expect.objectContaining({ code: 'MN0023' }));
       view.render();
-      expect(() => behavior.getUI('save')).toThrowError('UI elements must be bound');
+      expect(() => behavior.getUI('save')).toThrow(expect.objectContaining({ code: 'MN0023' }));
       behavior.bindUIElements();
       expect(behavior.getUI('save')[0]).toBe(el.firstChild);
     } finally {
