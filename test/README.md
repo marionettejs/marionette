@@ -296,8 +296,11 @@ failure messages. Dependency installation keeps binary downloads disabled.
 `npm run test:helpers:cypress-compatibility -- --artifact /absolute/path.tgz
 --sha256 RECORDED_SHA256 --runtime` tests one built helper archive with independent
 Cypress-major/mount-utils consumers and version-compatible dev servers. It does
-not reuse the modern example lock. The default covers Cypress 14–16 with both
-mount-utils 4 and 5, plus current 15/16 patches; `--versions` narrows that set.
+not reuse the modern example lock. The default checks Cypress 14.0.0, 15.0.0,
+15.21.1, 16.0.0 and 16.2.0 with mount-utils 4.0.0 and 5.0.0;
+`--versions` replaces that list. For `--runtime`, install the Cypress binaries
+and Linux display dependencies for every selected version beforehand; the matrix
+does not download them.
 The matrix uses bundled Electron by default; `--browser` selects another browser
 or executable. Cypress 14's bundled Chromium includes Marionette's required
 `Promise.withResolvers()`. Without `--runtime` it checks only installation,

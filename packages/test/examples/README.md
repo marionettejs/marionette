@@ -50,7 +50,8 @@ Marionette directly into the Cypress container with `@cypress/mount-utils`.
 This particular config uses Cypress 16 / Vite 8. The adapter's optional peer range
 is broader; existing older Cypress projects need a matching dev-server setup.
 The [release procedure](../RELEASING.md#011-cypress-compatibility-gate) describes
-the separate packed matrix and the pending lower-bound runtime gate.
+the separate packed matrix. Cypress 14 and 15 runtime execution has not been
+verified; installation and type checks alone do not establish runtime support.
 
 The support file calls `setupCypress()` and registers the package's `mount` and
 `mountApplication` exports as commands. Importing the package alone registers

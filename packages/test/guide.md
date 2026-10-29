@@ -591,11 +591,11 @@ include a prepared Application and native keyboard submission.
 | `@mnjs/test/cypress` | Cypress 16.1.1 / Electron and mount-utils 5.0.0; component lifecycle and expected-failure cleanup probes. |
 | `@mnjs/test/testing-library` | DOM Testing Library 10.4.1; ESM/CommonJS and types, scoped queries, replacement, readiness and existing runner cleanup. |
 
-The Cypress runtime result above is the existing 0.1.0 baseline. The 0.1.1 peer
-expansion is a release candidate: its new lower boundary still needs actual
-Cypress execution. Installation and declaration checks alone do not establish
-mounting or cleanup compatibility. Do not treat the expanded peer range as
-completed runtime certification.
+The Cypress runtime result above is the existing 0.1.0 baseline. The 0.1.1 optional
+Cypress peer is `>=14`. Installation and declaration checks alone do not establish
+mounting or cleanup compatibility. For a published release, consult its release
+notes for runtime results tied to that archive; the peer range itself does not
+certify every accepted version.
 
 The 0.1.1 installation/declaration matrix covers Cypress 14.0.0, 15.0.0, 15.21.1,
 16.0.0 and 16.2.0, each with mount-utils 4.0.0 and 5.0.0. Declaration consumers

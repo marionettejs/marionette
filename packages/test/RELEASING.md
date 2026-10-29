@@ -23,6 +23,10 @@ installation/types results must not be reported as runtime support.
 After building and packing the final candidate, run the matrix against that same
 archive and its SHA256:
 
+Keep the shipped guide's runtime wording independent of the pending run. Record
+archive-specific runtime results in the release notes and receipt. Editing the
+guide after verification changes the archive and requires fresh verification.
+
 ```sh
 npm run test:helpers:cypress-compatibility -- --artifact /absolute/path/mnjs-test-0.1.1.tgz --sha256 RECORDED_SHA256 --runtime --output /absolute/path/compatibility
 ```
