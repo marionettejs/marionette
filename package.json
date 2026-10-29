@@ -135,16 +135,16 @@
     "@babel/core": "7.29.7",
     "@babel/plugin-transform-typescript": "7.29.9",
     "@babel/preset-env": "7.29.7",
-    "@cypress/mount-utils": "4.0.0",
+    "@cypress/mount-utils": "5.0.0",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.64.1",
     "@reduxjs/toolkit": "2.13.0",
     "@rollup/plugin-babel": "7.1.0",
     "@rollup/plugin-json": "6.1.0",
-    "@rollup/plugin-terser": "1.0.0",
-    "@stryker-mutator/core": "10.0.0",
-    "@stryker-mutator/vitest-runner": "10.0.0",
-    "@testing-library/dom": "10.4.1",
+    "@rollup/plugin-terser": "1.0.2",
+    "@stryker-mutator/core": "10.1.1",
+    "@stryker-mutator/vitest-runner": "10.1.1",
+    "@testing-library/dom": "10.4.2",
     "@types/backbone": "1.4.23",
     "@types/jquery": "4.0.1",
     "@typescript-eslint/eslint-plugin": "8.72.0",
@@ -157,7 +157,7 @@
     "browserslist": "4.29.4",
     "c8": "12.0.0",
     "eslint": "10.13.0",
-    "eslint-plugin-jsdoc": "65.3.15",
+    "eslint-plugin-jsdoc": "65.4.2",
     "fast-check": "4.10.2",
     "globals": "17.13.0",
     "jquery": "4.0.0",
@@ -165,7 +165,7 @@
     "lit-html": "3.3.3",
     "marked": "18.1.1",
     "morphdom": "2.7.8",
-    "rollup": "4.64.10",
+    "rollup": "4.65.0",
     "terser": "5.51.2",
     "typescript": "6.0.3",
     "underscore": "^1.13.0",
@@ -187,7 +187,7 @@
   "overrides": {
     "@stryker-mutator/core": {
       "typed-rest-client": {
-        "qs": "6.16.0"
+        "qs": "6.17.1"
       }
     }
   },

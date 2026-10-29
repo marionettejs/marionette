@@ -176,7 +176,7 @@ Cypress's custom Vite dev-server function without a UI-framework preset.
 For the setup below, install the custom dev server and Vite alongside Cypress:
 
 ```sh
-npm install --save-dev --save-exact cypress@16.1.1 @cypress/mount-utils@4.0.0 @cypress/vite-dev-server@8.0.0 vite@8.0.16
+npm install --save-dev --save-exact cypress@16.1.1 @cypress/mount-utils@5.0.0 @cypress/vite-dev-server@8.0.0 vite@8.0.16
 ```
 
 Use `cypress.config.mjs` so the configuration works in either a CommonJS or ESM
@@ -576,7 +576,7 @@ include a prepared Application and native keyboard submission.
 | `@mnjs/test` | Marionette 5.0.0; ESM/CommonJS, DOM-free imports and lifecycle tests. |
 | `@mnjs/test/vitest` | Vitest 5.0.3; ESM fixture, JSDOM and Chromium form suite. |
 | `@mnjs/test/playwright` | Playwright 1.63.0; browser gallery with its built-in fixture and ESM/CommonJS browser helper. |
-| `@mnjs/test/cypress` | Cypress 16.1.1 / Electron and mount-utils 4.0.0; component lifecycle and expected-failure cleanup probes. |
+| `@mnjs/test/cypress` | Cypress 16.1.1 / Electron and mount-utils 5.0.0; component lifecycle and expected-failure cleanup probes. |
 | `@mnjs/test/testing-library` | DOM Testing Library 10.4.1; ESM/CommonJS and types, scoped queries, replacement, readiness and existing runner cleanup. |
 
 Cypress/mount-utils, Vitest and DOM Testing Library are optional peers. Import the adapter you use;
