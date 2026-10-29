@@ -42,6 +42,25 @@ function trackedTemplate(log) {
   return () => html`<p>${resource()}</p>`;
 }
 
+function subscriptionTemplate() {
+  const listeners = new Set();
+  let deliveries = 0;
+  const resource = directive(class extends AsyncDirective {
+    receive = () => { this.setValue(`tick:${++deliveries}`); };
+    render() {
+      if (this.isConnected) { listeners.add(this.receive); }
+      return 'watching';
+    }
+    reconnected() { listeners.add(this.receive); }
+    disconnected() { listeners.delete(this.receive); }
+  });
+  return {
+    template: () => html`<p>${resource()}</p>`,
+    active: () => listeners.size,
+    tick() { for (const receive of listeners) { receive(); } }
+  };
+}
+
 export const domAdapterContracts = [];
 
 for (const kind of ['morphdom', 'lit-html']) {
@@ -380,3 +399,181 @@ domAdapterContracts.push({
     element.remove();
   }
 });
+
+for (const tree of ['light', 'open', 'closed', 'document-root']) {
+  for (const policy of tree === 'document-root' ? ['native'] : ['reject', 'no-document', 'self']) {
+    domAdapterContracts.push({
+      name: `lit-html: ${tree} rendering honors ${policy} attachment`,
+      run() {
+        const host = document.createElement(tree === 'document-root' ? 'iframe' : 'section');
+        let view;
+        let el;
+        const source = subscriptionTemplate();
+        try {
+          document.body.append(host);
+          const container = tree === 'document-root' ? host.contentDocument :
+            tree === 'light' ? host : host.attachShadow({ mode: tree });
+          el = tree === 'document-root' ? container.documentElement : document.createElement('article');
+          if (tree !== 'document-root') { container.append(el); }
+          const provider = policy === 'reject' ? { hasEl: () => false } :
+            policy === 'no-document' ? { getDocumentEl: () => null } :
+              policy === 'self' ? { getDocumentEl: () => el } : {};
+          const Panel = makeView('lit-html', { template: source.template }).setDomApi(provider);
+          view = new Panel({ el });
+          check(el.isConnected && !view.isAttached(), 'Expected native/configured attachment disagreement');
+          view.render();
+          source.tick();
+          check(source.active() === 0 && el.textContent === 'watching', 'Unnotified contents subscribed');
+          view.destroy();
+          source.tick();
+          check(source.active() === 0 && el.textContent === 'watching', 'Destruction allowed late DOM updates');
+        } finally {
+          if (el) { LitDomApi.notifyDetach(el); }
+          view?.destroy();
+          host.remove();
+        }
+      }
+    });
+  }
+}
+
+domAdapterContracts.push({
+  name: 'lit-html: connected direct contents require explicit connection notifications',
+  run() {
+    const el = document.createElement('article');
+    const source = subscriptionTemplate();
+    document.body.append(el);
+    try {
+      LitDomApi.setContents(el, source.template());
+      source.tick();
+      check(source.active() === 0 && el.textContent === 'watching', 'Direct contents connected implicitly');
+      const content = el.firstElementChild;
+      LitDomApi.notifyAttach(el);
+      LitDomApi.notifyAttach(el);
+      source.tick();
+      check(source.active() === 1 && el.textContent === 'tick:1', 'Repeated attach duplicated subscriptions');
+      LitDomApi.setContents(el, source.template());
+      source.tick();
+      check(el.firstElementChild === content && el.textContent === 'tick:2', 'Rerender lost connection or contents');
+      LitDomApi.notifyDetach(el);
+      LitDomApi.notifyDetach(el);
+      source.tick();
+      check(source.active() === 0 && el.textContent === 'tick:2', 'Direct detach left subscriptions');
+      LitDomApi.notifyAttach(el);
+      source.tick();
+      check(source.active() === 1 && el.textContent === 'tick:3', 'Direct reattach did not reconnect');
+    } finally {
+      LitDomApi.notifyDetach(el);
+      el.remove();
+    }
+  }
+}, {
+  name: 'lit-html: connection notifications before first render can be cancelled',
+  run() {
+    const el = document.createElement('article');
+    const source = subscriptionTemplate();
+    document.body.append(el);
+    try {
+      LitDomApi.notifyAttach(el);
+      LitDomApi.notifyDetach(el);
+      LitDomApi.setContents(el, source.template());
+      source.tick();
+      check(source.active() === 0 && el.textContent === 'watching', 'Cancelled early connection survived');
+      LitDomApi.notifyAttach(el);
+      source.tick();
+      check(source.active() === 1 && el.textContent === 'tick:1', 'Later attach did not connect');
+    } finally {
+      LitDomApi.notifyDetach(el);
+      el.remove();
+    }
+  }
+}, {
+  name: 'lit-html: connected monitoring opt-out requires explicit initial attachment',
+  run() {
+    const el = document.createElement('article');
+    const source = subscriptionTemplate();
+    const Panel = makeView('lit-html', { template: source.template, monitorViewEvents: false });
+    let view;
+    document.body.append(el);
+    try {
+      view = new Panel({ el });
+      check(view.isAttached(), 'Connected adopted View lost attachment');
+      view.render();
+      source.tick();
+      check(source.active() === 0 && el.textContent === 'watching', 'Monitoring opt-out connected implicitly');
+      LitDomApi.notifyAttach(el);
+      source.tick();
+      check(source.active() === 1 && el.textContent === 'tick:1', 'Explicit attach did not connect');
+      view.destroy();
+      check(source.active() === 1, 'Destroy bypassed application-owned notifications');
+      LitDomApi.notifyDetach(el);
+      source.tick();
+      check(source.active() === 0 && el.textContent === 'tick:1', 'Application cleanup allowed late updates');
+    } finally {
+      LitDomApi.notifyDetach(el);
+      view?.destroy();
+      el.remove();
+    }
+  }
+}, {
+  name: 'lit-html: external insertion before first render does not imply attachment',
+  run() {
+    const source = subscriptionTemplate();
+    const Panel = makeView('lit-html', { template: source.template });
+    const view = new Panel();
+    const el = view.el;
+    try {
+      document.body.append(el);
+      view.render();
+      source.tick();
+      check(!view.isAttached() && el.isConnected && source.active() === 0, 'External insertion connected directives');
+      view.destroy();
+      source.tick();
+      check(source.active() === 0 && el.textContent === 'watching', 'External insertion leaked after destroy');
+    } finally {
+      LitDomApi.notifyDetach(el);
+      view.destroy();
+      el.remove();
+    }
+  }
+});
+
+for (const policy of ['native', 'reject']) {
+  domAdapterContracts.push({
+    name: `lit-html: released connected contents transfer to ${policy} attachment`,
+    run() {
+      const el = document.createElement('article');
+      const source = subscriptionTemplate();
+      const Panel = makeView('lit-html', { template: source.template });
+      Panel.setDomApi(LitDomApi);
+      if (policy === 'reject') { Panel.setDomApi({ hasEl: () => false }); }
+      let view;
+      document.body.append(el);
+      try {
+        LitDomApi.notifyAttach(el);
+        LitDomApi.setContents(el, source.template());
+        source.tick();
+        check(source.active() === 1 && el.textContent === 'tick:1', 'Early notification did not seed connection');
+        const content = el.firstElementChild;
+        // The previous notifier releases its connection before handing off contents.
+        LitDomApi.notifyDetach(el);
+        source.tick();
+        check(source.active() === 0 && el.textContent === 'tick:1', 'Previous notifier did not release contents');
+        view = new Panel({ el });
+        const attached = policy === 'native';
+        check(view.isAttached() === attached && source.active() === Number(attached), 'Adoption ignored new owner attachment');
+        view.render();
+        check(el.firstElementChild === content, 'Handoff replaced existing contents');
+        source.tick();
+        const text = el.textContent;
+        view.destroy();
+        source.tick();
+        check(source.active() === 0 && el.textContent === text, 'Handoff retained subscriptions after destroy');
+      } finally {
+        LitDomApi.notifyDetach(el);
+        view?.destroy();
+        el.remove();
+      }
+    }
+  });
+}

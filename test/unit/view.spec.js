@@ -90,6 +90,49 @@ describe('view', function() {
     });
   });
 
+  function checkDocumentHostContainment(mode, permits) {
+    const host = document.createElement('section');
+    let view;
+    let root;
+    try {
+      const shadow = host.attachShadow({ mode });
+      const el = document.createElement('article');
+      shadow.append(el);
+      document.body.append(host);
+      const provider = permits ? { getDocumentEl: () => host } :
+        { getDocumentEl: () => host, hasEl: () => false };
+      const Panel = View.extend({ template: false }).setDomApi(provider);
+      view = new Panel({ el });
+      const detached = vi.fn();
+      view.on('detach', detached);
+      expect(view.isAttached()).toBe(permits);
+      view.destroy();
+      expect(detached).toHaveBeenCalledTimes(permits ? 1 : 0);
+      root = new Panel({ el: host });
+      expect(root.isAttached()).toBe(false);
+    } finally {
+      root?.destroy();
+      view?.destroy();
+      host.remove();
+    }
+  }
+
+  it('open shadow document host honors native containment', function() {
+    checkDocumentHostContainment('open', true);
+  });
+
+  it('open shadow document host respects provider rejection', function() {
+    checkDocumentHostContainment('open', false);
+  });
+
+  it('closed shadow document host honors native containment', function() {
+    checkDocumentHostContainment('closed', true);
+  });
+
+  it('closed shadow document host respects provider rejection', function() {
+    checkDocumentHostContainment('closed', false);
+  });
+
   describe('when instantiating a view with a non existing DOM element', function() {
     let view;
 

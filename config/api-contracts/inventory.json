@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "1c537944457c0b915129740de7c2cefa4be87e3c594aff5f331b5b792e1bc9a5",
+  "semanticsSha256": "84da07f3fb79f6400705ba976e97eb3db040016240a52155e732f1fd0f6e4ffc",
   "entrypoints": [
     {
       "name": "marionette",
@@ -12407,7 +12407,7 @@
     "packages/adapters/src/data/internal/keyed-snapshot.ts": "a227618502d031cf4711f0b48847fa882b1a57abec89aecd7b2ed1db073694ac",
     "packages/adapters/src/data/xstate.ts": "147f8ff77b76405d7235da7f89c7591607e4b8b2b11c72369e084fbe224ea7c2",
     "packages/adapters/src/dom/jquery.ts": "d9563a641fc8ee0bc82e93ec23a7d90c192213caf45df181e20a373b147145c2",
-    "packages/adapters/src/dom/lit-html.ts": "68228d1089e693cd1d253630707b9aa16808f09a3ceeb240d69e66450e46af14",
+    "packages/adapters/src/dom/lit-html.ts": "9873a89fa2a11a4e52e254f050602c5886c35c7795001d2d4a1820d6c05c2fd7",
     "packages/adapters/src/dom/morphdom.ts": "0b6d2341ea16d8eac97c21dd96b2203ff6ca10fd7a6bf2a4ac25b37647456182",
     "packages/data/src/api.ts": "c65a4e10e60b5e1932375de036ebbc06774aa0e07344c7b5a8dc0c1dce7147e0",
     "packages/data/src/collection.ts": "fead862103e9686252b8b431a46fedbb6f720e623fad0a94cd174cc7e49a6900",
@@ -12454,7 +12454,7 @@
     "src/mixins/template-render.ts": "7af61305397db9a9bb31200fbc830f95ae1fd8ddf3e660e635e6a803e6ef473e",
     "src/mixins/ui.ts": "5cb417e1456cd17b43357e480102be3fc1b436167c43b853af7d45ab79d35ffd",
     "src/mixins/view-events.ts": "108a31ba7d0f74916848c5b2f85b422afe15703a8e9fa2dbca0b17b6a5ff0fb2",
-    "src/mixins/view.ts": "a49fae40c04953cca920441ef0d52e47aa808ed47801b2a0c764920755619c60",
+    "src/mixins/view.ts": "f695e4c4921b12fb0972ed6caa192ad126eb9b25af37fc3e7338e1341090c366",
     "src/modules/application.ts": "b849627a22170d6b985f7647c219206fd51ec166c420127ef2fefdd540775a19",
     "src/modules/behavior.ts": "475fe0451e629559992bd0f5ec18ad16438309b018bf643b5917dfc47a1693b6",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
@@ -12464,7 +12464,7 @@
     "src/modules/common/monitor-view-events.ts": "e4f221ca598e2ce63c1cff766edbb2221d7cc7d1cb527086689e08b622a4f655",
     "src/modules/common/view.ts": "cd62997f30b7120e61f5067f876e612793dba629dfe942b46f156c861273c67e",
     "src/modules/object.ts": "23dacb7eacf2448ccbb690caa92195b49b992def43e4ef7cb598b50c03224100",
-    "src/modules/region.ts": "e1946eb501fd2cbd7acbaccc2bb548e2097b8223f15e72984f33ce2f8be17c42",
+    "src/modules/region.ts": "d2f5c8547e086b04e73a7744e3ee02711255726d46d0bd0749498ea1fef63730",
     "src/modules/view.ts": "0412ca663eb8fc8a41fa03d6bb8ea9dfa85dc66402bbb1a08e7db1fd2c4c2786",
     "src/runtime-id.ts": "3636769dee054da16eaa2171f2badc2a71a528dedb41ea1d4ac3342e09060087",
     "src/runtime/data-api.ts": "f962aeba9bc33e10a1db3fc0c098d05a23bc54250d781f5df371bd11da419b66",
@@ -12473,6 +12473,7 @@
     "src/runtime/renderer.ts": "9d3419a82872bc0ed017e2716cafe430b33833aab44d8cdf8c74746b1ecdab30",
     "src/runtime/state-api.ts": "109cad5a2d2aebda1d50c907009e62ee40c816983e9a5f09b59197d392ca4f31",
     "src/utils/extend.ts": "1df6dc34448491ad1e3254da1106d9c73108f2f17f6e8b77f9bc2691a0c8ba61",
+    "src/utils/is-el-attached.ts": "8f6a9b820641133e13fe2adfd019a2f9f8bc971620005d4c7f52b6c454ed7133",
     "src/utils/subscribe-bindings.ts": "4337d7226b96fa2af73ad96136eced7af866a6d8130ea860ab076f2a77b7e4df"
   },
   "evidence": {
@@ -12483,20 +12484,21 @@
     "docs/api/errors.md": "f4efcdd5da9dcf053b936fab32d6e200f8223f799e2517dee7753823b89946b2",
     "docs/api/mnobject.md": "89cfe4ac212de4ac5fd966cb427c1391749a2be623ccc9b6f16bb4c3497313bc",
     "docs/api/providers/data.md": "a9df3ec48a486302f974657354ec52c7eca03d09399e2820c6cbfd3af310d281",
-    "docs/api/providers/dom.md": "7445ee9633d751c9220c9c725040383632f56d06f946f9a60181023ce42a3b8c",
-    "docs/api/region.md": "ef0d045faa1351e38f35e5ccb2b3654f8930346e5f754e885b8fd63fded6429e",
+    "docs/api/providers/dom.md": "4e15577d0cb904242671ecc840346379a1201b3ba234fdf18afb2e721aa42093",
+    "docs/api/region.md": "d6951eb046fbcf2a9b6c6bf43b83f71e02fa3696fbce61daadbd60af62221a60",
     "docs/api/runtime.md": "b82fc651c2ae6c076b7b8600310ba7e908d699f9bb2a817851be6b22fc8c2e6f",
     "docs/api/shared/common.md": "8982228a2345240414e35ba4f0967e95530f5966fe1254efd9a09575706d5b6a",
     "docs/api/shared/events.md": "d32469eb9dab26b77b94615c8bc337fc360536dd3e0489e12ad1ebb086f685f0",
     "docs/api/shared/state.md": "51b4ff2bee1d7b908801062778efc3d45c1873a9f3d4f454360cdd3476a20f25",
     "docs/api/shared/view-bindings.md": "be743609c3af33f9a62bb0b82ea1dc8f44f14ba8516c3d1235e9aa8147b99bf8",
-    "docs/api/view.md": "170bfb72a2b669f569758f2ef4a4a428f9d63e8486f42b43862273b458fc1cce",
+    "docs/api/view.md": "daf6d86e063a3fbc0bbea001c5b338bf254372effc19e74d3069eba9aaa1d981",
     "docs/guides/typescript.md": "baba4c8483115fd7a6bb16089f38e5666f9c0f632079b531a107ee48b1ed6285",
-    "docs/packages/adapters.md": "b5c7e25f55658033b789b0fd779881b945abf6219f8a579a5ffb21dee84cd961",
+    "docs/packages/adapters.md": "2ca78b9b8bcc434eb766cc5f4d5bf9338ad4ff6f4eaf59641f61b7a0e533a8d2",
     "docs/packages/data.md": "5f52b9d2044718cb32a6cfef08d0d85fff646e20d18bbb81e3ced3285971fb4e",
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
     "docs/packages/utils.md": "158e2051ee438acd7e235f0f29ce45f42ad798bb6d460a871efd29904e2728ec",
-    "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
+    "test/browser/shadow-lifecycle.spec.mjs": "e91153c05faddec48cbb19dcab4afc30778acd9fd974dbb41f6e272c5af93d18",
+    "test/contracts/dom-adapters.js": "fde66012b44e63769a4cece9008799a8b8f9aaa3701f108ff0dfbae5825afccb",
     "test/unit/application-child-declarations.spec.js": "693740783f56c4e24aa886076389378d106839987b7ce442bfefb267ca5a2f84",
     "test/unit/application-child-lifecycle.spec.js": "78296e9b442918bf03a3f9741f00e0884aa043092774e984f0e735757197b1d8",
     "test/unit/application-lifecycle.spec.js": "f1e49dce6510a15434f32ba2aefe9eb878b06b63fb47ae62a4f4f83ebbbbdcb1",
@@ -12560,6 +12562,7 @@
     "test/unit/view-lifecycle.spec.js": "6e44d3a1db83dd0fe7613f9b85a2dbab53bc4f135ac0ba647dc113f271370e19",
     "test/unit/view-region-placeholder.spec.js": "4ca7a94727ad970eddb72955e5e6895152c8a0d2aa899949fd42eeb5fd71661a",
     "test/unit/view-render-attributes.spec.js": "8ba365cfacac43a47e0641b0749ff47b952569fc048fb1987ef1295e3228ec3b",
+    "test/unit/view.spec.js": "9bd2459471acad49fa8ba07047de1bbea212c97135c0fe5800f99f6b23a5658c",
     "test/unit/xstate-adapter.spec.js": "faa8e56ba16128f22cdda5a75169d770f42e35980e647e801f674013f23fa082"
   }
 }
