@@ -44,7 +44,7 @@ try {
       assert.equal(failed[0].attempts.length, 1);
       assert.equal(failed[0].attempts[0].state, 'failed');
       assert(scenario.error.test(failed[0].displayError || ''),
-        `${scenario.name}: failure was not the expected command error`);
+        `${scenario.name}: failure was not the expected command error: ${failed[0].displayError || '<no error>'}`);
     } else {
       assert(result.totalPassed >= 10, 'The component smoke must execute all lifecycle examples.');
     }

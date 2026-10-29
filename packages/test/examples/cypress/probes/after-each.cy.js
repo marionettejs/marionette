@@ -6,7 +6,8 @@ it('reports automatic afterEach cleanup failure', () => {
   cy.mount(scope => {
     const view = new View({ template: () => '<p>Owned by the hook</p>' });
     scope.defer(() => {
-      expect(view.isDestroyed()).to.equal(true);
+      // Mount-local services dispose before their shell is destroyed.
+      expect(view.isDestroyed()).to.equal(false);
       throw new Error('mnjs-automatic-afterEach-cleanup-probe');
     });
     return view;
