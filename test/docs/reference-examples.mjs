@@ -194,6 +194,10 @@ assert.equal(alpha.el.querySelector('input'), retainedInput);
 assert.equal(retainedInput.value, 'draft');
 // Retained plain-object contents are refreshed explicitly by the application.
 first.label = 'Changed';
+source.trigger('update', { kind: 'update', added: [], removed: [], updated: [{ previous: first, current: first }] });
+assert.equal(alpha.el.querySelector('input'), retainedInput);
+assert.equal(retainedInput.value, 'draft');
+assert.equal(alpha.el.textContent, 'Alpha');
 alpha.render();
 assert.equal(list.children.findByModel(first), alpha);
 assert.equal(alpha.el.textContent, 'Changed');

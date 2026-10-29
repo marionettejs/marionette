@@ -11,10 +11,10 @@ at the time it shipped; older prerelease APIs may have been superseded.
 
 ### Unreleased
 
-* Clarify collection notification and row rendering ownership: `updated` pairs
-  describe replacements with different objects under the same key; retained
-  model/actor changes refresh
-  through source subscriptions or explicit application renders.
+* Preserve rendered row contents and nested Regions when collection updates retain
+  model identity. Sorting and filtering still apply; new and replacement children
+  render when presented. Retained model/actor contents refresh through source
+  subscriptions or explicit application renders.
 * Recognize monitored Element roots inside open and closed shadow trees while
   preserving strict containment and configured attachment boundaries.
 * Initialize Lit directive connection from attachment notifications. Direct
