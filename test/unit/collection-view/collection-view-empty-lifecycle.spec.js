@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CollectionView, Region, View } from 'marionette';
 
 const regions = [];
@@ -88,12 +88,11 @@ describe('CollectionView empty View attachment', () => {
 
   it('releases attachment-scoped work when an empty View created on-document is detached', () => {
     const source = new EventTarget();
-    let deliveries = 0;
-    let attachments = 0;
-    const receive = () => { deliveries++; };
+    const receive = vi.fn();
+    const onAttach = vi.fn(() => { source.addEventListener('tick', receive); });
     const Empty = View.extend({
       template: () => 'Empty',
-      onAttach() { attachments++; source.addEventListener('tick', receive); },
+      onAttach,
       onDetach() { source.removeEventListener('tick', receive); }
     });
     const list = new CollectionView({ emptyView: Empty });
@@ -103,20 +102,20 @@ describe('CollectionView empty View attachment', () => {
     region.show(list);
     list.removeChildView(row);
     const empty = list.getEmptyRegion().currentView;
-    expect(attachments).toBe(1);
+    expect(onAttach).toHaveBeenCalledTimes(1);
     source.dispatchEvent(new Event('tick'));
-    expect(deliveries).toBe(1);
+    expect(receive).toHaveBeenCalledTimes(1);
     region.detachView();
     expect(empty.isAttached()).toBe(false);
     source.dispatchEvent(new Event('tick'));
-    expect(deliveries).toBe(1);
+    expect(receive).toHaveBeenCalledTimes(1);
     region.show(list);
-    expect(attachments).toBe(2);
+    expect(onAttach).toHaveBeenCalledTimes(2);
     source.dispatchEvent(new Event('tick'));
-    expect(deliveries).toBe(2);
+    expect(receive).toHaveBeenCalledTimes(2);
     region.destroy();
     source.dispatchEvent(new Event('tick'));
-    expect(deliveries).toBe(2);
+    expect(receive).toHaveBeenCalledTimes(2);
   });
 
   for (const monitoring of [true, false]) {
@@ -159,6 +158,8 @@ describe('CollectionView empty View attachment', () => {
     region.show(list);
     expect(empty.isAttached()).toBe(true);
     expect(empty.el.isConnected).toBe(true);
+    // Deferred-row attachment state is a separate pre-existing limitation:
+    // https://github.com/marionettejs/marionette/pull/3787#discussion_r4416516462
     expect(manual.el.isConnected).toBe(false);
     expect(list.children.toArray()).toEqual([manual]);
     region.detachView();

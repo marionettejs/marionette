@@ -104,7 +104,7 @@ test('empty content created on-document stops attachment-scoped work while detac
       source.dispatchEvent(new Event('tick'));
       return { mounted, detached, remounted, destroyed: { deliveries, detaches, destroyed: empty.isDestroyed() } };
     } finally {
-      region.destroy();
+      if (!region.isDestroyed()) { region.destroy(); }
     }
   });
   assert.deepEqual(result.mounted, { deliveries: 1, attaches: 1, detaches: 0, attached: true });
