@@ -16,7 +16,7 @@ const scenarios = [
 ];
 try {
   for (const scenario of scenarios) {
-    const result = await cypress.run({ component: true, browser: 'electron', reporter: 'spec',
+    const result = await cypress.run({ component: true, browser: process.env.MNJS_TEST_CYPRESS_BROWSER || 'electron', reporter: 'spec',
       config: { component: { specPattern: scenario.spec || 'cypress/probes/failure.cy.js' }, retries: 0 },
       expose: { mnjsProbe: scenario.name } });
     assert(Array.isArray(result.runs), result.message || 'Cypress did not produce test runs.');
@@ -46,7 +46,7 @@ try {
       assert(scenario.error.test(failed[0].displayError || ''),
         `${scenario.name}: failure was not the expected command error`);
     } else {
-      assert(result.totalPassed >= 7, 'The component smoke must execute all lifecycle examples.');
+      assert(result.totalPassed >= 8, 'The component smoke must execute all lifecycle examples.');
     }
   }
   report.passed = true;

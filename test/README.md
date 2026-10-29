@@ -293,6 +293,18 @@ to run the actual component smoke and expected-failure probes from the same pack
 consumer. The report retains the real runner's version, per-test outcomes and
 failure messages. Dependency installation keeps binary downloads disabled.
 
+`npm run test:helpers:cypress-compatibility -- --artifact /absolute/path.tgz
+--sha256 RECORDED_SHA256 --runtime` tests one built helper archive with independent
+Cypress-major/mount-utils consumers and version-compatible dev servers. It does
+not reuse the modern example lock. The default covers Cypress 14–16 with both
+mount-utils 4 and 5, plus current 15/16 patches; `--versions` narrows that set.
+The matrix uses bundled Electron by default; `--browser` selects another browser
+or executable. Cypress 14's bundled Chromium includes Marionette's required
+`Promise.withResolvers()`. Without `--runtime` it checks only installation,
+declarations and neutral imports.
+The [helper compatibility gate](../packages/test/RELEASING.md#011-cypress-compatibility-gate)
+records the runtime requirements and current release limitation.
+
 For independent helper publication, follow the [helper release procedure](../packages/test/RELEASING.md).
 It certifies a single archive from the final merged revision and publishes that
 same archive only after separate approval. Supply `--artifact /absolute/path.tgz

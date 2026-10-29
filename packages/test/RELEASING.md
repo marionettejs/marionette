@@ -1,6 +1,6 @@
 # Release @mnjs/test
 
-This procedure releases only `@mnjs/test@0.1.0`, publicly, with dist-tag `latest`.
+This procedure releases only `@mnjs/test@0.1.1`, publicly, with dist-tag `latest`.
 The release owner is Paul Falgout or a publisher he explicitly authorizes. Record
 that person's approved npm username with the release receipt; a GitHub identity is
 not evidence of npm access. This document prepares the release and grants no
@@ -10,6 +10,60 @@ The root `release:*` commands and `.github/workflows/release.yml` coordinate
 `@mnjs/utils`, `@mnjs/radio`, `marionette`, `@mnjs/data` and `@mnjs/adapters`.
 They do **not** certify or publish this helper. Do not dispatch that workflow for
 an independent helper release or add the helper to its package inventory.
+
+## 0.1.1 Cypress compatibility gate
+
+This candidate lowers only the optional Cypress peer to `>=14` and keeps
+mount-utils `^4.0.0 || ^5.0.0`. Cypress has no upper cap: future majors may be
+installed, while the matrix below records versions actually checked. The expanded
+runtime contract is provisional until the packed-consumer matrix passes with real Cypress binaries. A cloud proxy
+denial at `download.cypress.io` blocked that execution during preparation;
+installation/types results must not be reported as runtime support.
+
+After building and packing the final candidate, run the matrix against that same
+archive and its SHA256:
+
+```sh
+npm run test:helpers:cypress-compatibility -- --artifact /absolute/path/mnjs-test-0.1.1.tgz --sha256 RECORDED_SHA256 --runtime --output /absolute/path/compatibility
+```
+
+The default matrix checks the first releases of Cypress 14 through 16,
+and 15.21.1 and 16.2.0, each with mount-utils 4.0.0 and 5.0.0. It also installs a
+neutral consumer with neither Cypress nor mount-utils. It retains generated
+consumer locks, install/type logs and runtime diagnostics. Cypress binaries and
+Linux display dependencies must already be installed for each requested version;
+the matrix never downloads binaries. `--versions 14.0.0,15.0.0,16.2.0` selects a
+smaller boundary matrix; report that narrower evidence explicitly. Without
+`--runtime`, only installation, ESM/CommonJS declarations and neutral imports are
+checked. No overrides or legacy peer resolution are used.
+
+Cypress 14 uses Vite 6 / vite-dev-server 6, Cypress 15 uses Vite 7 /
+vite-dev-server 7, and Cypress 16 uses the current example harness. Older probes
+use `Cypress.env` instead of the harness-only `Cypress.expose` introduced in 16.
+Type checks use TypeScript 6.0.3 with ES2022 libraries and `skipLibCheck:false`;
+older Cypress bundled Lodash declarations conflict with ES2023 symbol WeakMap
+keys. Cypress 10–13 exploration is historical evidence only; the selected floor is 14.
+The matrix defaults to each runner's bundled Electron, configurable with
+`--browser chrome`, `--browser chromium` or an absolute browser executable path.
+Cypress 14.0.0 [pins Electron 33.2.1](https://github.com/cypress-io/cypress/blob/v14.0.0/package.json),
+which [bundles Chromium 130.0.6723.137](https://releases.electronjs.org/release/v33.2.1).
+That includes the helper/core's `Promise.withResolvers()` dependency (Chrome 119+),
+verified against [browser compatibility data](https://github.com/mdn/browser-compat-data/blob/main/javascript/builtins/Promise.json).
+The installed adapter/core/utils/radio graph was independently audited for native
+API use: required `Object.hasOwn`, `Promise.allSettled`, `AggregateError`,
+`Array.flatMap`, `Reflect.construct` and `AbortController` also fit Chromium 130.
+Core's newer `moveBefore` call is feature-detected with an `insertBefore` fallback.
+No unguarded post-130 API was found; this is a static compatibility inference,
+not a successful Cypress run. [V8 13.0 source](https://github.com/v8/v8/blob/13.0.245/src/init/bootstrapper.cc)
+records the modern JavaScript built-ins in that engine.
+The older bundled browsers do not meet that requirement; no polyfills are added.
+The report records the requested browser and successful runs record its actual version.
+These are test harness choices, not additional dependencies of the adapter.
+Require real mount/update/unmount, awaited replacement and after-test cleanup,
+startup/cancellation/timeout/cleanup failure probes, and native afterEach failure
+behavior before approving the expanded floor. A failure requires a corrected
+range or harness and fresh evidence; do not change runtime code merely to keep
+antiquated runner support.
 
 ## Confirm the publishing account and version
 
@@ -31,7 +85,7 @@ read-only evidence; honor organization/team permissions and normal 2FA requireme
 Authentication, permission or network failures are blockers, not reasons to change
 credentials or registry settings silently.
 
-Confirm that `0.1.0` is available and that assigning `latest` is still appropriate.
+Confirm that `0.1.1` is available and that assigning `latest` is still appropriate.
 Stop for a maintainer decision if the version exists, the package belongs to an
 unexpected owner, or `latest` already targets a newer release. Never overwrite an
 existing version, silently bump the version or retarget another dist-tag.
@@ -94,14 +148,14 @@ npm pack ./packages/test --ignore-scripts --json --pack-destination /absolute/pa
 Record the archive's SHA256 with a portable Node command:
 
 ```sh
-node --input-type=module -e "import{readFileSync}from'node:fs';import{createHash}from'node:crypto';console.log(createHash('sha256').update(readFileSync(process.argv[1])).digest('hex'))" /absolute/path/to/mnjs-test-release/mnjs-test-0.1.0.tgz
+node --input-type=module -e "import{readFileSync}from'node:fs';import{createHash}from'node:crypto';console.log(createHash('sha256').update(readFileSync(process.argv[1])).digest('hex'))" /absolute/path/to/mnjs-test-release/mnjs-test-0.1.1.tgz
 ```
 
 On a provisioned cloud runner with Chromium, Cypress 16.1.1 and its display
 requirements installed, pass the same archive and its recorded hash to the verifier:
 
 ```sh
-npm run test:helpers:consumer -- --artifact /absolute/path/to/mnjs-test-release/mnjs-test-0.1.0.tgz --sha256 RECORDED_SHA256 --browser --cypress --output /absolute/path/to/mnjs-test-release/verification
+npm run test:helpers:consumer -- --artifact /absolute/path/to/mnjs-test-release/mnjs-test-0.1.1.tgz --sha256 RECORDED_SHA256 --browser --cypress --output /absolute/path/to/mnjs-test-release/verification
 ```
 
 `--artifact` and `--sha256` are required together. This mode verifies the digest,
@@ -135,7 +189,7 @@ Only after the release owner authorizes this exact archive, account, version and
 dist-tag, run:
 
 ```sh
-npm publish /absolute/path/to/mnjs-test-release/mnjs-test-0.1.0.tgz --ignore-scripts --access public --tag latest --registry=https://registry.npmjs.org/
+npm publish /absolute/path/to/mnjs-test-release/mnjs-test-0.1.1.tgz --ignore-scripts --access public --tag latest --registry=https://registry.npmjs.org/
 ```
 
 Honor npm's normal authentication/2FA flow. If the outcome is uncertain, inspect

@@ -1,6 +1,7 @@
 /* global describe, it, cy, expect */
 import { Application, View } from 'marionette';
 import { withQueries } from '@mnjs/test/testing-library';
+import { unmount } from '@mnjs/test/cypress';
 import { afterMountCleanup } from '../support/cleanup-checks.js';
 
 const Card = View.extend({ template: () => '<h1>Ready</h1>' });
@@ -78,6 +79,22 @@ describe('Marionette lifecycle in the real Cypress queue', () => {
       onStart() { this.showView(new Card()); }
     });
     cy.mountApplication(region => new Feature({ region }), { start: true });
+    cy.get('h1').should('have.text', 'Ready');
+  });
+
+  it('awaits explicit unmount and leaves a fresh container', () => {
+    let released = false;
+    let previous;
+    cy.mount(scope => {
+      scope.defer(async() => { await delay(20); released = true; });
+      return new Card();
+    }).then(mounted => { previous = mounted; });
+    unmount().then(() => {
+      expect(released).to.equal(true);
+      expect(previous.view.isDestroyed()).to.equal(true);
+      expect(previous.container.childElementCount).to.equal(0);
+    });
+    cy.mount(() => new Card());
     cy.get('h1').should('have.text', 'Ready');
   });
 });

@@ -1,6 +1,6 @@
 # Test Views and Applications
 
-Consumer reference for `@mnjs/test` **0.1.0** with Marionette **5.x**.
+Consumer reference for `@mnjs/test` **0.1.1** with Marionette **5.x**.
 For installation and a first complete test, start with the [package README](readme.md).
 Mounting requires a DOM; importing the neutral entry and creating a cleanup scope do not.
 Repository-example links follow `master` and may change; this installed guide
@@ -178,6 +178,18 @@ For the setup below, install the custom dev server and Vite alongside Cypress:
 ```sh
 npm install --save-dev --save-exact cypress@16.1.1 @cypress/mount-utils@5.0.0 @cypress/vite-dev-server@8.0.0 vite@8.0.16
 ```
+
+The adapter's optional Cypress peer accepts `>=14`, with no upper cap. Future
+majors are allowed by policy; the tested versions below are the verification set,
+not a claim that future versions have already been tested. This modern example's
+dev server requires Cypress 16; it does not set the shipped adapter's minimum.
+Existing Cypress 14–15 component projects should keep their version-compatible
+dev-server configuration. The adapter uses `testingType`, `cy.then`, `Cypress.log`
+and mount-utils' `getContainerEl`/`setupHooks`, with a `[data-cy-root]` container.
+Cypress 14.0.0 bundles Electron 33.2.1 / Chromium 130.0.6723.137, which includes
+`Promise.withResolvers()` used by the helper and Marionette. This browser API
+check does not establish execution of the Cypress lifecycle integration; see the
+[compatibility evidence](#tested-with) before adopting the lower peer boundary.
 
 Use `cypress.config.mjs` so the configuration works in either a CommonJS or ESM
 application. Cypress's normal installation also needs its browser binary and OS
@@ -578,6 +590,21 @@ include a prepared Application and native keyboard submission.
 | `@mnjs/test/playwright` | Playwright 1.63.0; browser gallery with its built-in fixture and ESM/CommonJS browser helper. |
 | `@mnjs/test/cypress` | Cypress 16.1.1 / Electron and mount-utils 5.0.0; component lifecycle and expected-failure cleanup probes. |
 | `@mnjs/test/testing-library` | DOM Testing Library 10.4.1; ESM/CommonJS and types, scoped queries, replacement, readiness and existing runner cleanup. |
+
+The Cypress runtime result above is the existing 0.1.0 baseline. The 0.1.1 peer
+expansion is a release candidate: its new lower boundary still needs actual
+Cypress execution. Installation and declaration checks alone do not establish
+mounting or cleanup compatibility. Do not treat the expanded peer range as
+completed runtime certification.
+
+The 0.1.1 installation/declaration matrix covers Cypress 14.0.0, 15.0.0, 15.21.1,
+16.0.0 and 16.2.0, each with mount-utils 4.0.0 and 5.0.0. Declaration consumers
+use TypeScript 6.0.3, ES2022 libraries, NodeNext
+resolution and `skipLibCheck:false`; this checks ESM and CommonJS public imports.
+Older Cypress's bundled Lodash declarations conflict with ES2023 symbol WeakMap
+keys, so a newer library target needs compatible upstream Cypress declarations.
+A separate consumer imports and type-checks the neutral helper with neither
+Cypress nor mount-utils installed.
 
 Cypress/mount-utils, Vitest and DOM Testing Library are optional peers. Import the adapter you use;
 the neutral entry and browser gallery do not require these runners. Other runner versions and integrations have not been
