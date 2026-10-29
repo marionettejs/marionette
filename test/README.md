@@ -258,7 +258,7 @@ advertise the tag during release preparation.
 Update related test runner and coverage-provider pins together, with their lockfile
 and actual suite validation. Root development dependencies never belong in a
 published runtime graph. The narrow Stryker override of `typed-rest-client`'s `qs`
-pin selects 6.16.0 to avoid its reported denial-of-service advisories; remove that
+pin selects 6.17.1 to avoid its reported denial-of-service advisories; remove that
 override when Stryker's dependency chain accepts a fixed version natively. Every
 mutation/benchmark run remains development tooling with explicit scope and limits.
 
