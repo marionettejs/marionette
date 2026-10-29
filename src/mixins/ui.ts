@@ -93,7 +93,7 @@ export default {
     return normalizeUIValues(hash, uiBindings, property);
   },
 
-  _getUIBindings(this: UIHost): UISelectors | undefined {
+  _getUIBindings(this: Pick<UIHost, 'ui' | '_uiBindings'>): UISelectors | undefined {
     const uiBindings = getValue(this, '_uiBindings');
     return (uiBindings || getValue(this, 'ui')) as UISelectors | undefined;
   },

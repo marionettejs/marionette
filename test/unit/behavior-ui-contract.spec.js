@@ -3,8 +3,99 @@ import { setFixtures } from '../setup/fixtures.js';
 import { Behavior } from 'marionette';
 import { CollectionView } from 'marionette';
 import { View } from 'marionette';
+import JQueryDomApi from '@mnjs/adapters/dom/jquery';
 
 describe('Behavior UI contract', function() {
+  [
+    ['native', {}],
+    ['jQuery', JQueryDomApi]
+  ].forEach(([provider, domApi]) => {
+    ['object', 'function'].forEach(mapKind => {
+      it(`inherits ${mapKind} host selectors on populated roots with ${provider} queries`, function() {
+        const markup = [
+          '<button class="host-only"></button>',
+          '<button class="host-shared"></button>',
+          '<button class="behavior-shared"></button>',
+          '<button class="behavior-only"></button>'
+        ].join('');
+        const el = document.createElement('section');
+        el.innerHTML = markup;
+        const onHostOnly = vi.fn();
+        const onShared = vi.fn();
+        const onBehaviorOnly = vi.fn();
+        const hostBindings = { hostOnly: '.host-only', shared: '.host-shared' };
+        const behaviorBindings = { behaviorOnly: '.behavior-only', shared: '.behavior-shared' };
+        const hostUI = vi.fn(function() {
+          return { ...hostBindings, hostOnly: this.hostSelector };
+        });
+        const behaviorUI = vi.fn(function() {
+          return { ...behaviorBindings, behaviorOnly: this.behaviorSelector };
+        });
+        let behavior;
+        let initialHostUI;
+        const Action = Behavior.extend({
+          behaviorSelector: '.behavior-only',
+          ui: mapKind === 'function' ? behaviorUI : behaviorBindings,
+          events: {
+            'click @ui.hostOnly': onHostOnly,
+            'click @ui.shared': onShared,
+            'click @ui.behaviorOnly': onBehaviorOnly
+          },
+          initialize() {
+            behavior = this;
+            initialHostUI = this.view.getUI('hostOnly')[0];
+          }
+        });
+        const Host = View.extend({
+          hostSelector: '.host-only',
+          ui: mapKind === 'function' ? hostUI : hostBindings,
+          behaviors: [Action],
+          template: () => markup
+        }).setDomApi(domApi);
+        const view = new Host({ el });
+
+        try {
+          expect(initialHostUI).toBe(el.querySelector('.host-only'));
+          expect(view.isRendered()).toBe(true);
+          expect(behavior.normalizeUIString('@ui.shared')).toBe('.host-shared');
+          expect(behavior.normalizeUIString('@ui.behaviorOnly')).toBe('.behavior-only');
+          view.bindUIElements();
+          expect(behavior.getUI('hostOnly')[0]).toBe(view.getUI('hostOnly')[0]);
+          expect(behavior.getUI('shared')[0]).toBe(el.querySelector('.host-shared'));
+          behavior.getUI('hostOnly')[0].click();
+          behavior.getUI('shared')[0].click();
+          behavior.getUI('behaviorOnly')[0].click();
+          el.querySelector('.behavior-shared').click();
+          expect(onHostOnly).toHaveBeenCalledTimes(1);
+          expect(onShared).toHaveBeenCalledTimes(1);
+          expect(onBehaviorOnly).toHaveBeenCalledTimes(1);
+          expect(onShared.mock.contexts[0]).toBe(behavior);
+
+          view.unbindUIElements();
+          view.bindUIElements();
+          behavior.getUI('shared')[0].click();
+          expect(onShared).toHaveBeenCalledTimes(2);
+
+          const oldButton = behavior.getUI('hostOnly')[0];
+          view.render();
+          expect(behavior.getUI('hostOnly')[0]).not.toBe(oldButton);
+          expect(behavior.getUI('hostOnly')[0]).toBe(view.getUI('hostOnly')[0]);
+          behavior.getUI('hostOnly')[0].click();
+          expect(onHostOnly).toHaveBeenCalledTimes(2);
+          expect(hostBindings).toEqual({ hostOnly: '.host-only', shared: '.host-shared' });
+          expect(behaviorBindings).toEqual({ behaviorOnly: '.behavior-only', shared: '.behavior-shared' });
+          if (mapKind === 'function') {
+            expect(hostUI.mock.contexts.every(receiver => receiver === view)).toBe(true);
+            expect(behaviorUI).toHaveBeenCalledTimes(1);
+            expect(behaviorUI.mock.contexts[0]).toBe(behavior);
+          }
+        } finally {
+          view.destroy();
+        }
+      });
+    });
+  });
+
   it('delegates host-only and host-winning ui references on first construction', function() {
     const onHostOnly = vi.fn();
     const onShared = vi.fn();

@@ -143,7 +143,10 @@ const Behavior = function(this: BehaviorInternals, options: BehaviorOptions | un
   // This order will help the reuse and share of a behavior
   // between multiple views, while letting a view override
   // a selector under an UI key.
-  this.ui = { ...getValue(this, 'ui') as UISelectors, ...getValue(view, 'ui') as UISelectors };
+  this.ui = {
+    ...getValue(this, 'ui') as UISelectors,
+    ...UIMixin._getUIBindings.call(view)
+  };
 
   // Forward every host event through this Behavior's triggerMethod.
   this.listenTo(view, 'all', this.triggerMethod);
