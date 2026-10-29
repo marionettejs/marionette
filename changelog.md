@@ -11,6 +11,8 @@ at the time it shipped; older prerelease APIs may have been superseded.
 
 ### Unreleased
 
+* Propagate monitored attachment and detachment through CollectionView empty Views
+  and their descendants, preserving initialization and cleanup across remounts.
 * Recognize monitored Element roots inside open and closed shadow trees while
   preserving strict containment and configured attachment boundaries.
 * Initialize Lit directive connection from attachment notifications. Direct

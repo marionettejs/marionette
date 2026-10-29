@@ -220,7 +220,7 @@ type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
   _getView(view: NonNullable<CollectionViewConfiguration['childView']>, model: unknown): ChildClass;
   _getChildViewOptions(model: unknown): object | null | undefined;
   _setupChildView(view: CollectionChild): void;
-  _getImmediateChildren(): CollectionChild[];
+  _getImmediateChildren(): SupportedView[];
   _getChildViewContainer(): void;
   _sortChildren(): void;
   _viewComparator(view: CollectionChild): number;
@@ -674,9 +674,10 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this._proxyChildViewEvents(view);
   },
 
-  // Used by lifecycle monitoring to propagate attachment events to presented children.
+  // Include the empty presentation without adding it to the public row container.
   _getImmediateChildren(this: CollectionViewInternals) {
-    return this.children._views;
+    const emptyView = this._emptyRegion?.currentView;
+    return emptyView ? [...this.children._views, emptyView] : this.children._views;
   },
 
   // Render children views.

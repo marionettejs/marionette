@@ -134,6 +134,8 @@ Changing values captured by a predicate does not change the predicate's identity
 
 The empty View is separate from `children`. It receives `emptyViewOptions`, or the `childViewOptions` fallback, with no automatic model. Give it a root suitable for the child container, such as `li` inside `ul`. Each empty presentation pass creates a new empty View and replaces the previous one; it is destroyed when rows appear or the list is destroyed. Its events use the same [child forwarding](shared/view-bindings.md#child-events) as rows.
 
+With lifecycle monitoring enabled, the empty View and its descendants attach and detach with the list, including when composed before the list is mounted.
+
 `getEmptyRegion()` returns the list-owned Region for the current child container, with replacement disabled. It is created during construction and reused while live; its owner is this CollectionView. If explicitly destroyed while the list is live, the next call recreates it. After list destruction, the getter returns the destroyed Region. Use it to inspect `currentView`; configure empty presentation through `emptyView` and `emptyViewOptions`.
 
 ## Find and inspect children

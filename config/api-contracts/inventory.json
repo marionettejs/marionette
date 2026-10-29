@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "84da07f3fb79f6400705ba976e97eb3db040016240a52155e732f1fd0f6e4ffc",
+  "semanticsSha256": "a1cb71cc697c777963adccc3aee0eb3ac5d5161f6a16f314fe5c91e9bebc2694",
   "entrypoints": [
     {
       "name": "marionette",
@@ -12458,7 +12458,7 @@
     "src/modules/application.ts": "b849627a22170d6b985f7647c219206fd51ec166c420127ef2fefdd540775a19",
     "src/modules/behavior.ts": "475fe0451e629559992bd0f5ec18ad16438309b018bf643b5917dfc47a1693b6",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
-    "src/modules/collection-view.ts": "0d6c632837fdedd953a050b22cc0be6521bf319e2dbc19e165530fd741a98c06",
+    "src/modules/collection-view.ts": "27265f952867e0ac4b2d66913e5b894aece882ec67df6ce0048d8e8cbd9546e0",
     "src/modules/common/build-region.ts": "69fc222800674736c3385928e8a4b07932c1fd5ca7237b48fb4ab8f3a309022b",
     "src/modules/common/chainable-methods.ts": "5d61465f3de8bc0f84a3491e24067f7a711f2a7ebae08cb1a3d94375d9d153a2",
     "src/modules/common/monitor-view-events.ts": "e4f221ca598e2ce63c1cff766edbb2221d7cc7d1cb527086689e08b622a4f655",
@@ -12480,7 +12480,7 @@
     "config/diagnostics/catalog.json": "89ca537fe5cacaef35d30f25aeb4d1ed4e1e8802c80c540f3672533c7b0145c4",
     "docs/api/application.md": "602a37e92b020739cf4ee62228a8f8e3205e94f7399cc62757d28aaa8fc57331",
     "docs/api/behavior.md": "9df8eb60d8055f4f31bfedd260613c67912a633a09e2dc1c4f478dce71ad54d8",
-    "docs/api/collection-view.md": "8859a50e33bfa983f35addb06aad95b8452799059499562aa5c7fef07cdd37ae",
+    "docs/api/collection-view.md": "be51f97de177ea67d303bf1513f5fc07fc74debf071a00a11b6c3ae7c09695ef",
     "docs/api/errors.md": "f4efcdd5da9dcf053b936fab32d6e200f8223f799e2517dee7753823b89946b2",
     "docs/api/mnobject.md": "89cfe4ac212de4ac5fd966cb427c1391749a2be623ccc9b6f16bb4c3497313bc",
     "docs/api/providers/data.md": "a9df3ec48a486302f974657354ec52c7eca03d09399e2820c6cbfd3af310d281",
@@ -12497,6 +12497,7 @@
     "docs/packages/data.md": "5f52b9d2044718cb32a6cfef08d0d85fff646e20d18bbb81e3ced3285971fb4e",
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
     "docs/packages/utils.md": "158e2051ee438acd7e235f0f29ce45f42ad798bb6d460a871efd29904e2728ec",
+    "test/browser/collection-empty-lifecycle.spec.mjs": "c9553ca3edab6d33101da1c5d23b80cf0e6a97c9c1037ec85f1d687d47df554e",
     "test/browser/shadow-lifecycle.spec.mjs": "e91153c05faddec48cbb19dcab4afc30778acd9fd974dbb41f6e272c5af93d18",
     "test/contracts/dom-adapters.js": "fde66012b44e63769a4cece9008799a8b8f9aaa3701f108ff0dfbae5825afccb",
     "test/unit/application-child-declarations.spec.js": "693740783f56c4e24aa886076389378d106839987b7ce442bfefb267ca5a2f84",
@@ -12515,6 +12516,7 @@
     "test/unit/behavior-lifecycle.spec.js": "8c70d05fa530d27eac901291a3487c9cacac1ef1d0c22a3adda917da5774d05a",
     "test/unit/behavior-ui-contract.spec.js": "65def27b40f17e3d931803faeff7c9dbb3c580e14f157fa5d2f8145fb95c1761",
     "test/unit/collection-view/collection-view-children.spec.js": "3383be2e1def6c561ce827bb4742b7d57e7f2396e99b0fd2b39b601accc327e4",
+    "test/unit/collection-view/collection-view-empty-lifecycle.spec.js": "cea9ac225fe94ef37ecb3e8a889df2b258957deda65c907733a7596bfeaf09ae",
     "test/unit/collection-view/collection-view-empty.spec.js": "c2f53e9e7fb3f8c147762db6c89d01e2411a3f77bfffe7b336303af9a4c8a2e5",
     "test/unit/collection-view/collection-view-lifecycle.spec.js": "6d331ff97770fcc755fc4f5ddaef20372ac000fa2948d53ead4670b7b56801ec",
     "test/unit/collection-view/collection-view-reconciliation.spec.js": "372bede26503051afad9e77f8c5acd0cd1a636eb5c4acd8df3adb8b6b136f6db",
