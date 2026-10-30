@@ -30,6 +30,14 @@
       "title": "consumer workspace preserves draft focus, rejects stale selection and releases handlers"
     },
     {
+      "file": "collection-empty-lifecycle.spec.mjs",
+      "title": "Application empty content initializes focus and retains nested lifecycle on remount"
+    },
+    {
+      "file": "collection-empty-lifecycle.spec.mjs",
+      "title": "empty content created on-document stops attachment-scoped work while detached"
+    },
+    {
       "file": "collection-removal-survivors.spec.mjs",
       "title": "active filter: removal, reorder, and swap preserve survivor state"
     },
