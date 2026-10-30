@@ -133,6 +133,8 @@ Changing values captured by a predicate does not change the predicate's identity
 
 `isEmpty()` reports whether `children` has no presented rows. All rows can be filtered out while the source still has models. The `emptyView` appears for this presentation state, through the Region returned by `getEmptyRegion()`.
 
+An override can choose the empty presentation while newly added rows remain in `children`. Those unpresented rows remain owned and receive no parent attachment or detachment notifications until a later presentation pass includes them.
+
 The empty View is separate from `children`. It receives `emptyViewOptions`, or the `childViewOptions` fallback, with no automatic model. Give it a root suitable for the child container, such as `li` inside `ul`. Each empty presentation pass creates a new empty View and replaces the previous one; it is destroyed when rows appear or the list is destroyed. Its events use the same [child forwarding](shared/view-bindings.md#child-events) as rows.
 
 With lifecycle monitoring enabled, the empty View and its descendants attach and detach with the list, including when composed before the list is mounted.

@@ -940,7 +940,10 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     const views = this.children._views;
     this.triggerMethod('before:render:children', this, views);
     if (this.isEmpty()) {
-      if (this._hasDeferredChildren && !views.length) { this._hasDeferredChildren = false; }
+      // A custom empty presentation can leave newly added rows unshown.
+      if (views.length || this._hasDeferredChildren) {
+        this._hasDeferredChildren = views.length > 0;
+      }
       this._showEmptyView();
     } else {
       this._destroyEmptyView();

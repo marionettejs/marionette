@@ -200,11 +200,12 @@ test('late markup adoption initializes focus and listeners before flushing', asy
 });
 
 
-test('empty presentation keeps deferred rows inactive until a later flush', async({ page }) => {
+test('empty presentation keeps unpresented rows inactive until a later flush', async({ page }) => {
   const results = await page.evaluate(async() => {
     const { CollectionView, Region, View } = await import('marionette');
     const observations = [];
-    for (const fromEmptyHook of [true, false]) {
+    for (const addition of ['empty-hook', 'deferred', 'ordinary']) {
+      const fromEmptyHook = addition === 'empty-hook';
       let list;
       let showEmpty = true;
       let added = false;
@@ -230,8 +231,8 @@ test('empty presentation keeps deferred rows inactive until a later flush', asyn
         if (fromEmptyHook) {
           list.setFilter(() => false);
         } else {
-          list.addChildView(pending, { preventRender: true });
-          list.filter();
+          list.addChildView(pending, { preventRender: addition === 'deferred' });
+          if (addition === 'deferred') { list.filter(); }
         }
         region.detachView();
         region.show(list);

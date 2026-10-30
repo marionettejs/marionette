@@ -57,8 +57,7 @@ describe('CollectionView deferred child lifecycle', () => {
       const region = mount();
       list.once('add:child', () => {
         region.show(list);
-        if (action === 'exclude') { list.setFilter(view => view !== row); }
-        else { list.filter(); }
+        if (action === 'exclude') { list.setFilter(view => view !== row); } else { list.filter(); }
         if (action === 'next-batch') { list.addChildView(pending, { preventRender: true }); }
       });
       list.addChildView(row, { preventRender: true });
@@ -151,6 +150,38 @@ describe('CollectionView deferred child lifecycle', () => {
     list.filter();
     expect(pending.el.isConnected).toBe(true);
     expect(attach).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps ordinary additions inactive while custom isEmpty chooses empty content', () => {
+    let showEmpty = true;
+    const trace = [];
+    const Empty = View.extend({ template: () => 'Empty' });
+    const Row = View.extend({ template: () => 'Row', ...lifecycle('row', trace) });
+    const List = CollectionView.extend({ emptyView: Empty, isEmpty() { return showEmpty; } });
+    const list = new List().render();
+    const row = new Row();
+    list.addChildView(row);
+    const region = mount();
+    region.show(list);
+    expect(list.getEmptyRegion().currentView.isAttached()).toBe(true);
+    expect(list.children.hasView(row)).toBe(true);
+    expect(row.el.isConnected).toBe(false);
+    expect(row.isAttached()).toBe(false);
+    region.detachView();
+    region.show(list);
+    expect(trace).toEqual([]);
+    showEmpty = false;
+    list.filter();
+    expect(trace).toEqual([
+      ['row:before:attach', false, false], ['row:attach', true, true], ['row:refresh', true, true]
+    ]);
+    region.detachView();
+    expect(trace.slice(3)).toEqual([
+      ['row:before:detach', true, true], ['row:detach', false, false]
+    ]);
+    region.show(list);
+    region.destroy();
+    expect(row.isDestroyed()).toBe(true);
   });
 
   it('keeps earlier pending rows deferred when later additions adopt existing markup', () => {
