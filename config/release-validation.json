@@ -38,6 +38,18 @@
       "title": "empty content created on-document stops attachment-scoped work while detached"
     },
     {
+      "file": "collection-deferred-lifecycle.spec.mjs",
+      "title": "deferred fresh rows initialize focus and listeners only after insertion"
+    },
+    {
+      "file": "collection-deferred-lifecycle.spec.mjs",
+      "title": "deferred pre-rendered rows initialize focus and listeners only after insertion"
+    },
+    {
+      "file": "collection-deferred-lifecycle.spec.mjs",
+      "title": "deferred adoption of existing list markup preserves attachment and focus"
+    },
+    {
       "file": "collection-removal-survivors.spec.mjs",
       "title": "active filter: removal, reorder, and swap preserve survivor state"
     },

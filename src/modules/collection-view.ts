@@ -3,6 +3,7 @@
 
 import { getValue, MarionetteError, uniqueId } from '@mnjs/utils';
 import extend from '../utils/extend.ts';
+import isElAttached from '../utils/is-el-attached.ts';
 import { renderView, destroyView, isViewClass } from './common/view.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
 import ChildViewContainer from './child-view-container.ts';
@@ -668,10 +669,16 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this._proxyChildViewEvents(view);
   },
 
-  // Include the empty presentation without adding it to the public row container.
+  // Propagate lifecycle only through shown rows and the empty presentation.
   _getImmediateChildren(this: CollectionViewInternals) {
+    let children = this.children._views;
+    for (let index = 0; index < children.length; index++) {
+      if (children[index]._isShown) { continue; }
+      children = children.filter(child => child._isShown);
+      break;
+    }
     const emptyView = this._emptyRegion?.currentView;
-    return emptyView ? [...this.children._views, emptyView] : this.children._views;
+    return emptyView ? [...children, emptyView] : children;
   },
 
   // Render children views.
@@ -1161,6 +1168,8 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this._addChild(view, typeof index === 'number' ? index : undefined);
 
     if (options.preventRender) {
+      // Existing child markup participates in the parent's lifecycle immediately.
+      view._isShown = isElAttached(view.el, this.Dom, this.el);
       return view;
     }
 
