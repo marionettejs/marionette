@@ -11,6 +11,10 @@ at the time it shipped; older prerelease APIs may have been superseded.
 
 ### Unreleased
 
+* Preserve rendered row contents and nested Regions when collection updates retain
+  model identity. Sorting and filtering still apply; new and replacement children
+  render when presented. Retained model/actor contents refresh through source
+  subscriptions or explicit application renders.
 * Recognize monitored Element roots inside open and closed shadow trees while
   preserving strict containment and configured attachment boundaries.
 * Initialize Lit directive connection from attachment notifications. Direct
