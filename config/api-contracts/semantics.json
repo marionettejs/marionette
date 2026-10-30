@@ -2214,8 +2214,8 @@
         "CollectionView"
       ],
       "result": "Constructs a View whose children expose ordered lookups and iterators; operation-specific results remain in generated signatures.",
-      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
-      "ownership": "Managed children belong to the CollectionView; stable unchanged model sources preserve child identity; same-key replacement recreates a child. The empty Region uses the constructor RegionClass option over the prototype default; initialize may override it before creation. With monitoring enabled, the empty View and its descendants share list attachment and detachment; the empty View remains outside the public children container.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup. Deferred adoption of already-mounted markup catches up missing attachment after add:child and before addChildView returns; before:attach observes connected markup. Already-attached views receive no duplicate attachment.",
+      "ownership": "Managed children belong to the CollectionView; stable unchanged model sources preserve child identity; same-key replacement recreates a child. Deferred manual children outside the list's markup remain owned but receive no parent attachment or detachment propagation until presented, even when already rendered. Adopted markup already inside the list participates in its lifecycle immediately. The empty Region uses the constructor RegionClass option over the prototype default; initialize may override it before creation. With monitoring enabled, the empty View and its descendants share list attachment and detachment; the empty View remains outside the public children container.",
       "mutation": "Structural updates add/remove affected children and reorder survivor elements; reset destructively replaces the list. Filters affect presentation.",
       "repetition": "Explicit live render destroys all existing children and reconstructs collection-derived children; structural source updates reconcile survivors without an explicit render. Retained-model updates reapply presentation without invalidating rendered children; row source events or explicit renders refresh their contents. Comparator ties preserve documented order. Entity-event delegation releases previous bindings before subscribing to the current sources and declarations.",
       "destruction": "destroy releases collection observation and destroys owned children; queued updates cannot resurrect a destroyed owner. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
@@ -2377,12 +2377,112 @@
           "title": "releases attachment-scoped work when an empty View created on-document is detached"
         },
         {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "waits until presentation to attach deferred rows and their nested content"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "preserves a new deferred batch started by emptyView attachment"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "keeps deferred rows inactive when adoption notifications mount the list"
+        },
+        {
+          "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
+          "title": "deferred rows stay inactive when adoption notifications mount the list"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "keeps deferred rows pending when custom isEmpty chooses the empty presentation"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "keeps earlier pending rows deferred when later additions adopt existing markup"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "presents previously excluded deferred rows and preserves their rendered contents"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "keeps remaining deferred rows pending when another row transfers or destroys itself"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "starts a fresh deferred batch after full render destroys the previous manual rows"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "attaches a deferred child that adopts markup already inside the list"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "preserves attachment on flushing markup adopted after the list was mounted"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "attaches late-adopted markup before returning and preserves its remount lifecycle"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "destroys an unpresented row without sending attachment or detachment events"
+        },
+        {
+          "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
+          "title": "deferred fresh rows initialize focus and listeners only after insertion"
+        },
+        {
+          "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
+          "title": "empty presentation keeps unpresented rows inactive until a later flush"
+        },
+        {
+          "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
+          "title": "deferred pre-rendered rows initialize focus and listeners only after insertion"
+        },
+        {
+          "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
+          "title": "deferred adoption of existing list markup preserves attachment and focus"
+        },
+        {
+          "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
+          "title": "late markup adoption initializes focus and listeners before flushing"
+        },
+        {
           "file": "test/browser/collection-empty-lifecycle.spec.mjs",
           "title": "Application empty content initializes focus and retains nested lifecycle on remount"
         },
         {
           "file": "test/browser/collection-empty-lifecycle.spec.mjs",
           "title": "empty content created on-document stops attachment-scoped work while detached"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "attaches adopted markup when add:child mounts its parent"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "preserves presentation and later batches established by add:child callbacks"
+        },
+        {
+          "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
+          "title": "adopted markup initializes focus when add:child mounts the list"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "catches up late-adopted nested markup without repeating existing attachment"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "honors add:child presentation changes before catching up late adoption"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "does not catch up late adoption when parent monitoring is disabled"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "keeps ordinary additions inactive while custom isEmpty chooses empty content"
         }
       ],
       "events": [

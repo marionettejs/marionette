@@ -11,6 +11,9 @@ at the time it shipped; older prerelease APIs may have been superseded.
 
 ### Unreleased
 
+* Keep deferred manual rows out of parent attach/detach propagation until presented,
+  including pre-rendered rows, so focus and attachment-scoped work start on insertion.
+  Preserve lifecycle for adopted child markup already inside the list.
 * Propagate monitored attachment and detachment through CollectionView empty Views
   and their descendants, preserving initialization and cleanup across remounts.
 * Preserve rendered row contents and nested Regions when collection updates retain

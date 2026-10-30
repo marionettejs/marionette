@@ -3,6 +3,7 @@
 
 import { getValue, MarionetteError, uniqueId } from '@mnjs/utils';
 import extend from '../utils/extend.ts';
+import isElAttached from '../utils/is-el-attached.ts';
 import { renderView, destroyView, isViewClass } from './common/view.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
 import ChildViewContainer from './child-view-container.ts';
@@ -201,6 +202,7 @@ type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
   container: Element;
   _children: Children<CollectionChild>;
   _emptyRegion?: RegionInternals;
+  _hasDeferredChildren?: boolean;
   _collectionSnapshot: Snapshot;
   _collectionObservedSnapshot?: Snapshot;
   _collectionChangeQueue?: Notification[];
@@ -315,6 +317,22 @@ function canDetachContents(container: Element, children: CollectionChild[]) {
   return container.childNodes.length === children.length ||
     Array.from(container.childNodes).every(node => node.nodeType === 1 ||
       node.nodeType === 3 && !/[^\t\n\f\r ]/.test(node.textContent!));
+}
+
+// Only lists with an unflushed deferred batch need to inspect child presentation.
+function getDeferredChildren(view: CollectionViewInternals, children: CollectionChild[]) {
+  const shouldTriggerAttach = view._isAttached && view.monitorViewEvents !== false;
+  view._hasDeferredChildren = false;
+  for (const child of children) {
+    if (!child._isShown) {
+      view._hasDeferredChildren = true;
+      return children.filter(candidate => candidate._isShown);
+    }
+    if (shouldTriggerAttach && !child._isAttached) {
+      view._hasDeferredChildren = true;
+    }
+  }
+  return children;
 }
 
 function modelAttributesMatcher(Data: DataProvider, predicate: Record<string, unknown>) {
@@ -668,10 +686,11 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this._proxyChildViewEvents(view);
   },
 
-  // Include the empty presentation without adding it to the public row container.
+  // Propagate lifecycle only through shown rows and the empty presentation.
   _getImmediateChildren(this: CollectionViewInternals) {
+    const children = this._hasDeferredChildren ? getDeferredChildren(this, this.children._views) : this.children._views;
     const emptyView = this._emptyRegion?.currentView;
-    return emptyView ? [...this.children._views, emptyView] : this.children._views;
+    return emptyView ? [...children, emptyView] : children;
   },
 
   // Render children views.
@@ -921,6 +940,10 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     const views = this.children._views;
     this.triggerMethod('before:render:children', this, views);
     if (this.isEmpty()) {
+      // A custom empty presentation can leave newly added rows unshown.
+      if (views.length || this._hasDeferredChildren) {
+        this._hasDeferredChildren = views.length > 0;
+      }
       this._showEmptyView();
     } else {
       this._destroyEmptyView();
@@ -936,7 +959,11 @@ Object.assign(CollectionView.prototype, ViewMixin, {
 
       for (const view of views) { renderView(view); }
 
-      const attaching = views.filter(view => !view._isShown || view.el.parentNode !== this.container);
+      const attaching = this._hasDeferredChildren && this._isAttached && this.monitorViewEvents !== false ?
+        views.filter(view => !view._isShown || !view._isAttached || view.el.parentNode !== this.container) :
+        views.filter(view => !view._isShown || view.el.parentNode !== this.container);
+      // Consume this batch before attachment hooks can defer another one.
+      if (this._hasDeferredChildren) { this._hasDeferredChildren = false; }
       if (attaching.length) {
         this._attachChildren(this._getBuffer(attaching), attaching);
       }
@@ -1158,11 +1185,28 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       this.render();
     }
 
-    this._addChild(view, typeof index === 'number' ? index : undefined);
-
     if (options.preventRender) {
+      // Mark adoption before public notifications can mount the parent. Keep
+      // ordinary child creation free of deferred-batch checks.
+      this.triggerMethod('before:add:child', this, view);
+      this._setupChildView(view);
+      this._children._add(view, typeof index === 'number' ? index : undefined);
+      this.children._add(view, typeof index === 'number' ? index : undefined);
+      // Classify existing markup before callbacks can mount or present the list.
+      view._isShown = isElAttached(view.el, this.Dom, this.el);
+      this._hasDeferredChildren = true;
+      this.triggerMethod('add:child', this, view);
+      // Adoption can discover markup mounted before this view acquired an owner.
+      if ((view as CollectionChild)._parent === this && view._isShown && this._isAttached &&
+          this.monitorViewEvents !== false && !view._isAttached) {
+        view.triggerMethod('before:attach', view);
+        view._isAttached = true;
+        view.triggerMethod('attach', view);
+      }
       return view;
     }
+
+    this._addChild(view, typeof index === 'number' ? index : undefined);
 
     if (typeof index === 'number') {
       this._renderChildren();
@@ -1230,6 +1274,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
   // Destroy the child views that this collection view is holding on to, if any
   _destroyChildren(this: CollectionViewInternals) {
     if (!this._children.length) {
+      if (this._hasDeferredChildren) { this._hasDeferredChildren = false; }
       return;
     }
 
@@ -1242,6 +1287,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this._removeChildViews(children);
     this._children._init();
     this.children._init();
+    if (this._hasDeferredChildren) { this._hasDeferredChildren = false; }
 
     this.triggerMethod('destroy:children', this);
   }
