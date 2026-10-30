@@ -141,8 +141,9 @@ Record the archive's SHA256 with a portable Node command:
 node --input-type=module -e "import{readFileSync}from'node:fs';import{createHash}from'node:crypto';console.log(createHash('sha256').update(readFileSync(process.argv[1])).digest('hex'))" /absolute/path/to/mnjs-test-release/mnjs-test-0.2.0.tgz
 ```
 
-On a provisioned cloud runner with Chromium, Cypress 16.1.1 and its display
-requirements installed, pass the same archive and its recorded hash to the verifier:
+On a provisioned cloud runner with Chromium, the Cypress binary matching
+`packages/test/examples/package-lock.json`, and its display requirements installed,
+pass the same archive and its recorded hash to the verifier:
 
 ```sh
 npm run test:helpers:consumer -- --artifact /absolute/path/to/mnjs-test-release/mnjs-test-0.2.0.tgz --sha256 RECORDED_SHA256 --browser --cypress --output /absolute/path/to/mnjs-test-release/verification
