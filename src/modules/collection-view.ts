@@ -1189,13 +1189,10 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       this._setupChildView(view);
       this._children._add(view, typeof index === 'number' ? index : undefined);
       this.children._add(view, typeof index === 'number' ? index : undefined);
+      // Classify existing markup before callbacks can mount or present the list.
+      view._isShown = isElAttached(view.el, this.Dom, this.el);
       this._hasDeferredChildren = true;
       this.triggerMethod('add:child', this, view);
-      // Existing child markup participates in the parent's lifecycle immediately.
-      view._isShown = isElAttached(view.el, this.Dom, this.el);
-      if (!view._isShown || (this._isAttached && this.monitorViewEvents !== false && !view._isAttached)) {
-        this._hasDeferredChildren = true;
-      }
       return view;
     }
 

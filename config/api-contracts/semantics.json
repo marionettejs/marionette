@@ -2455,6 +2455,18 @@
         {
           "file": "test/browser/collection-empty-lifecycle.spec.mjs",
           "title": "empty content created on-document stops attachment-scoped work while detached"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "attaches adopted markup when add:child mounts its parent"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "preserves presentation and later batches established by add:child callbacks"
+        },
+        {
+          "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
+          "title": "adopted markup initializes focus when add:child mounts the list"
         }
       ],
       "events": [

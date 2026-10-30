@@ -28,6 +28,55 @@ function lifecycle(name, trace) {
 }
 
 describe('CollectionView deferred child lifecycle', () => {
+  it('attaches adopted markup when add:child mounts its parent', () => {
+    const trace = [];
+    const Row = View.extend({ template: false, ...lifecycle('row', trace) });
+    const list = new CollectionView({ template: () => '<button>Action</button>' }).render();
+    const row = new Row({ el: list.el.firstElementChild });
+    const region = mount();
+    list.once('add:child', () => { region.show(list); });
+    list.addChildView(row, { preventRender: true });
+    expect(trace).toEqual([
+      ['row:before:attach', false, false], ['row:attach', true, true], ['row:refresh', true, true]
+    ]);
+    list.filter();
+    expect(trace).toHaveLength(3);
+    region.detachView();
+    expect(trace.slice(3)).toEqual([
+      ['row:before:detach', true, true], ['row:detach', false, false]
+    ]);
+  });
+
+  it('preserves presentation and later batches established by add:child callbacks', () => {
+    for (const action of ['flush', 'exclude', 'next-batch']) {
+      const attach = vi.fn();
+      const Pending = View.extend({ template: () => 'Pending', onAttach: attach });
+      const list = new CollectionView({ template: () => '<button>Action</button>' }).render();
+      const row = new View({ el: list.el.firstElementChild, template: false });
+      const pending = new Pending();
+      const region = mount();
+      list.once('add:child', () => {
+        region.show(list);
+        if (action === 'exclude') { list.setFilter(view => view !== row); }
+        else { list.filter(); }
+        if (action === 'next-batch') { list.addChildView(pending, { preventRender: true }); }
+      });
+      list.addChildView(row, { preventRender: true });
+      expect(row.isAttached()).toBe(action !== 'exclude');
+      expect(row.el.isConnected).toBe(action !== 'exclude');
+      region.detachView();
+      region.show(list);
+      expect(row.isAttached()).toBe(action !== 'exclude');
+      expect(attach).not.toHaveBeenCalled();
+      if (action === 'next-batch') {
+        expect(list.children.hasView(pending)).toBe(true);
+        list.filter();
+        expect(attach).toHaveBeenCalledTimes(1);
+      } else { pending.destroy(); }
+      region.destroy();
+    }
+  });
+
   it('keeps deferred rows inactive when adoption notifications mount the list', () => {
     for (const mountBeforeAdoption of [false, true]) {
       const attach = vi.fn();

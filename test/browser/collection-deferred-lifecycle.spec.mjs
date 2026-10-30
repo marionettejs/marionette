@@ -126,6 +126,36 @@ test('deferred adoption of existing list markup preserves attachment and focus',
   }
 });
 
+test('adopted markup initializes focus when add:child mounts the list', async({ page }) => {
+  const result = await page.evaluate(async() => {
+    const { CollectionView, Region, View } = await import('marionette');
+    const trace = [];
+    const Row = View.extend({
+      template: false,
+      onBeforeAttach() { trace.push(['before:attach', this.isAttached(), this.el.isConnected]); },
+      onAttach() { trace.push(['attach', this.isAttached(), this.el.isConnected]); this.el.focus(); },
+      onBeforeDetach() { trace.push(['before:detach', this.isAttached(), this.el.isConnected]); },
+      onDetach() { trace.push(['detach', this.isAttached(), this.el.isConnected]); }
+    });
+    const list = new CollectionView({ template: () => '<button>Action</button>' }).render();
+    const row = new Row({ el: list.el.firstElementChild });
+    const region = new Region({ el: '#content' });
+    try {
+      list.once('add:child', () => { region.show(list); });
+      list.addChildView(row, { preventRender: true });
+      const focused = document.activeElement === row.el;
+      list.filter();
+      region.detachView();
+      return { focused, trace };
+    } finally { region.destroy(); list.destroy(); }
+  });
+  assert.equal(result.focused, true);
+  assert.deepEqual(result.trace, [
+    ['before:attach', false, false], ['attach', true, true],
+    ['before:detach', true, true], ['detach', false, false]
+  ]);
+});
+
 test('flushing late markup adoption completes attachment and focus', async({ page }) => {
   const result = await page.evaluate(async() => {
     const { CollectionView, Region, View } = await import('marionette');

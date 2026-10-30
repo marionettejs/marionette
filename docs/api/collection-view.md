@@ -175,7 +175,7 @@ These operations do not change the source collection. For collection-backed rows
 
 For addition, `{ index, preventRender }` may be supplied as options; a non-null options index takes precedence over the positional index. `preventRender` defers child presentation, not adoption or the parent's initial render. Destroyed/falsy incoming Views and additions to a destroying/destroyed list return unchanged. Already owned incoming Views throw `MN0003`.
 
-With monitoring enabled, a deferred child outside the list's markup receives no parent attachment or detachment notifications until it is presented, even if the child was already rendered. A child adopting markup already inside the list participates in its lifecycle immediately. Finish a batch with `sort()` or `filter()` to present its included rows. The list still owns pending children and destroys them during teardown.
+With monitoring enabled, a deferred child outside the list's markup receives no parent attachment or detachment notifications until it is presented, even if the child was already rendered. A child adopting markup already inside the list participates in its lifecycle immediately, including when an `add:child` callback shows the list. Finish a batch with `sort()` or `filter()` to present its included rows. The list still owns pending children and destroys them during teardown.
 
 A child that destroys itself is removed from the list automatically. Full `render()` destroys manual children too and rebuilds only collection rows.
 
