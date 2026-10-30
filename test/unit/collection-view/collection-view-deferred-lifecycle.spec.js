@@ -274,8 +274,8 @@ describe('CollectionView deferred child lifecycle', () => {
       region.show(list);
       row ??= new Row({ el });
       list.addChildView(row, { preventRender: true });
-      expect(row.isAttached()).toBe(!constructBeforeMount);
-      expect(onAttach).not.toHaveBeenCalled();
+      expect(row.isAttached()).toBe(true);
+      expect(onAttach).toHaveBeenCalledTimes(constructBeforeMount ? 1 : 0);
       list.filter();
       expect(row.el.isConnected).toBe(true);
       expect(row.isAttached()).toBe(true);
@@ -310,7 +310,7 @@ describe('CollectionView deferred child lifecycle', () => {
     }
   });
 
-  it('attaches late-adopted markup on remount without an intervening filter', () => {
+  it('attaches late-adopted markup before returning and preserves its remount lifecycle', () => {
     const onAttach = vi.fn();
     const Row = View.extend({ template: false, onAttach });
     const list = new CollectionView({ template: () => '<button>Existing action</button>' }).render();
@@ -318,13 +318,102 @@ describe('CollectionView deferred child lifecycle', () => {
     const region = mount();
     region.show(list);
     list.addChildView(row, { preventRender: true });
-    expect(row.isAttached()).toBe(false);
-    expect(onAttach).not.toHaveBeenCalled();
+    expect(row.isAttached()).toBe(true);
+    expect(onAttach).toHaveBeenCalledTimes(1);
     region.detachView();
     region.show(list);
     expect(row.el.isConnected).toBe(true);
     expect(row.isAttached()).toBe(true);
-    expect(onAttach).toHaveBeenCalledTimes(1);
+    expect(onAttach).toHaveBeenCalledTimes(2);
+  });
+
+  it('catches up late-adopted nested markup without repeating existing attachment', () => {
+    for (const mode of ['light', 'open', 'closed']) {
+      for (const nestedAlreadyAttached of [false, true]) {
+        const trace = [];
+        const el = document.createElement('div');
+        const markup = mode === 'light' ? el : el.attachShadow({ mode });
+        markup.innerHTML = '<section><main></main></section>';
+        const list = new CollectionView({ el, template: false }).render();
+        const Row = View.extend({ template: false, regions: { content: 'main' }, ...lifecycle('row', trace) });
+        const Nested = View.extend({ template: () => 'Nested', ...lifecycle('nested', trace) });
+        const row = new Row({ el: markup.firstElementChild });
+        const nested = new Nested();
+        const region = mount();
+        if (!nestedAlreadyAttached) { row.showChildView('content', nested); }
+        region.show(list);
+        if (nestedAlreadyAttached) { row.showChildView('content', nested); }
+        trace.length = 0;
+        list.addChildView(row, { preventRender: true });
+        expect(trace).toEqual(nestedAlreadyAttached ? [
+          ['row:before:attach', false, true], ['row:attach', true, true], ['row:refresh', true, true]
+        ] : [
+          ['row:before:attach', false, true], ['nested:before:attach', false, true],
+          ['row:attach', true, true], ['nested:attach', true, true],
+          ['nested:refresh', true, true], ['row:refresh', true, true]
+        ]);
+        trace.length = 0;
+        region.detachView();
+        expect(trace).toEqual([
+          ['row:before:detach', true, true], ['nested:before:detach', true, true],
+          ['row:detach', false, false], ['nested:detach', false, false]
+        ]);
+        region.show(list);
+        expect(row.isAttached()).toBe(true);
+        expect(nested.isAttached()).toBe(true);
+        region.destroy();
+        expect(row.isDestroyed()).toBe(true);
+        expect(nested.isDestroyed()).toBe(true);
+      }
+    }
+  });
+
+  it('honors add:child presentation changes before catching up late adoption', () => {
+    for (const action of ['flush', 'remove', 'filter', 'next-batch']) {
+      const attach = vi.fn();
+      const pendingAttach = vi.fn();
+      const Row = View.extend({ template: false, onAttach: attach });
+      const Pending = View.extend({ template: () => 'Pending', onAttach: pendingAttach });
+      const list = new CollectionView({ template: () => '<button>Action</button>' }).render();
+      const row = new Row({ el: list.el.firstElementChild });
+      const pending = new Pending();
+      const region = mount();
+      region.show(list);
+      list.once('add:child', () => {
+        if (action === 'flush') { list.filter(); }
+        if (action === 'remove') { list.removeChildView(row); }
+        if (action === 'filter') { list.setFilter(view => view !== row); }
+        if (action === 'next-batch') { list.addChildView(pending, { preventRender: true }); }
+      });
+      list.addChildView(row, { preventRender: true });
+      expect(attach).toHaveBeenCalledTimes(action === 'flush' || action === 'next-batch' ? 1 : 0);
+      expect(row.isDestroyed()).toBe(action === 'remove');
+      region.detachView();
+      region.show(list);
+      expect(pendingAttach).not.toHaveBeenCalled();
+      if (action === 'next-batch') {
+        list.filter();
+        expect(pendingAttach).toHaveBeenCalledTimes(1);
+      } else { pending.destroy(); }
+      region.destroy();
+    }
+  });
+
+  it('does not catch up late adoption when parent monitoring is disabled', () => {
+    const trace = [];
+    const List = CollectionView.extend({ monitorViewEvents: false, template: () => '<button>Action</button>' });
+    const Row = View.extend({ template: false, ...lifecycle('row', trace) });
+    const list = new List().render();
+    const row = new Row({ el: list.el.firstElementChild });
+    const region = mount();
+    region.show(list);
+    list.addChildView(row, { preventRender: true });
+    list.filter();
+    region.detachView();
+    region.show(list);
+    region.destroy();
+    expect(trace).toEqual([]);
+    expect(row.isDestroyed()).toBe(true);
   });
 
   it('keeps markup from another detached tree pending until it enters the list', () => {

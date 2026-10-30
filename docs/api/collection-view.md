@@ -177,6 +177,8 @@ For addition, `{ index, preventRender }` may be supplied as options; a non-null 
 
 With monitoring enabled, a deferred child outside the list's markup receives no parent attachment or detachment notifications until it is presented, even if the child was already rendered. A child adopting markup already inside the list participates in its lifecycle immediately, including when an `add:child` callback shows the list. Finish a batch with `sort()` or `filter()` to present its included rows. The list still owns pending children and destroys them during teardown.
 
+When the markup was mounted before the child acquired an owner, adoption catches up its attachment after `add:child` and before `addChildView()` returns. Its `before:attach` hook sees already-connected markup, followed by `attach` with `isAttached()` true. Later flushing does not repeat attachment. A child constructed against already-connected markup starts attached and receives no synthetic attachment during adoption. Filtering out or removing the child in `add:child` prevents this catch-up.
+
 A child that destroys itself is removed from the list automatically. Full `render()` destroys manual children too and rebuilds only collection rows.
 
 A same-key source update inserts its replacement View at the old child's position before sorting. Unaffected manual children retain identity; their placement follows the [sorting rules](#sorting), including preceding collection rows under the default source-order comparator.

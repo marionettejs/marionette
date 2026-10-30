@@ -156,13 +156,22 @@ test('adopted markup initializes focus when add:child mounts the list', async({ 
   ]);
 });
 
-test('flushing late markup adoption completes attachment and focus', async({ page }) => {
+test('late markup adoption initializes focus and listeners before flushing', async({ page }) => {
   const result = await page.evaluate(async() => {
     const { CollectionView, Region, View } = await import('marionette');
     const attaches = [];
+    const source = new EventTarget();
+    let deliveries = 0;
+    let detaches = 0;
+    const receive = () => { deliveries++; };
     const Row = View.extend({
       template: false,
-      onAttach() { attaches.push(this.el.isConnected); this.el.focus(); }
+      onAttach() {
+        attaches.push(this.el.isConnected);
+        this.el.focus();
+        source.addEventListener('tick', receive);
+      },
+      onDetach() { detaches++; source.removeEventListener('tick', receive); }
     });
     const list = new CollectionView({ template: () => '<button>Existing action</button>' }).render();
     const row = new Row({ el: list.el.firstElementChild });
@@ -170,20 +179,23 @@ test('flushing late markup adoption completes attachment and focus', async({ pag
     try {
       region.show(list);
       list.addChildView(row, { preventRender: true });
-      const deferred = { attached: row.isAttached(), attaches: [...attaches] };
+      source.dispatchEvent(new Event('tick'));
+      const adopted = { attached: row.isAttached(), focused: document.activeElement === row.el,
+        attaches: [...attaches], deliveries };
       list.filter();
       const flushed = {
         attached: row.isAttached(), focused: document.activeElement === row.el, attaches: [...attaches]
       };
       region.detachView();
-      const detached = { attached: row.isAttached(), connected: row.el.isConnected };
+      source.dispatchEvent(new Event('tick'));
+      const detached = { attached: row.isAttached(), connected: row.el.isConnected, deliveries, detaches };
       region.show(list);
-      return { deferred, flushed, detached, remounted: [...attaches] };
+      return { adopted, flushed, detached, remounted: [...attaches] };
     } finally { region.destroy(); }
   });
-  assert.deepEqual(result.deferred, { attached: false, attaches: [] });
+  assert.deepEqual(result.adopted, { attached: true, focused: true, attaches: [true], deliveries: 1 });
   assert.deepEqual(result.flushed, { attached: true, focused: true, attaches: [true] });
-  assert.deepEqual(result.detached, { attached: false, connected: false });
+  assert.deepEqual(result.detached, { attached: false, connected: false, deliveries: 1, detaches: 1 });
   assert.deepEqual(result.remounted, [true, true]);
 });
 

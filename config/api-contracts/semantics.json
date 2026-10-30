@@ -2214,7 +2214,7 @@
         "CollectionView"
       ],
       "result": "Constructs a View whose children expose ordered lookups and iterators; operation-specific results remain in generated signatures.",
-      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup. Deferred adoption of already-mounted markup catches up missing attachment after add:child and before addChildView returns; before:attach observes connected markup. Already-attached views receive no duplicate attachment.",
       "ownership": "Managed children belong to the CollectionView; stable unchanged model sources preserve child identity; same-key replacement recreates a child. Deferred manual children outside the list's markup remain owned but receive no parent attachment or detachment propagation until presented, even when already rendered. Adopted markup already inside the list participates in its lifecycle immediately. The empty Region uses the constructor RegionClass option over the prototype default; initialize may override it before creation. With monitoring enabled, the empty View and its descendants share list attachment and detachment; the empty View remains outside the public children container.",
       "mutation": "Structural updates add/remove affected children and reorder survivor elements; reset destructively replaces the list. Filters affect presentation.",
       "repetition": "Explicit live render destroys all existing children and reconstructs collection-derived children; structural source updates reconcile survivors without an explicit render. Retained-model updates reapply presentation without invalidating rendered children; row source events or explicit renders refresh their contents. Comparator ties preserve documented order. Entity-event delegation releases previous bindings before subscribing to the current sources and declarations.",
@@ -2422,7 +2422,7 @@
         },
         {
           "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
-          "title": "attaches late-adopted markup on remount without an intervening filter"
+          "title": "attaches late-adopted markup before returning and preserves its remount lifecycle"
         },
         {
           "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
@@ -2446,7 +2446,7 @@
         },
         {
           "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
-          "title": "flushing late markup adoption completes attachment and focus"
+          "title": "late markup adoption initializes focus and listeners before flushing"
         },
         {
           "file": "test/browser/collection-empty-lifecycle.spec.mjs",
@@ -2467,6 +2467,18 @@
         {
           "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
           "title": "adopted markup initializes focus when add:child mounts the list"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "catches up late-adopted nested markup without repeating existing attachment"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "honors add:child presentation changes before catching up late adoption"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "does not catch up late adoption when parent monitoring is disabled"
         }
       ],
       "events": [

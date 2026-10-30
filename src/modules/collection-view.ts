@@ -1193,6 +1193,13 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       view._isShown = isElAttached(view.el, this.Dom, this.el);
       this._hasDeferredChildren = true;
       this.triggerMethod('add:child', this, view);
+      // Adoption can discover markup mounted before this view acquired an owner.
+      if ((view as CollectionChild)._parent === this && view._isShown && this._isAttached &&
+          this.monitorViewEvents !== false && !view._isAttached) {
+        view.triggerMethod('before:attach', view);
+        view._isAttached = true;
+        view.triggerMethod('attach', view);
+      }
       return view;
     }
 
