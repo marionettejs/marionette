@@ -125,6 +125,7 @@ for (const { mismatch, minimum } of [
         assert.deepEqual(report.stages, []);
       } else {
         assert.equal(report.artifactMode, 'supplied');
+        if (minimum) { assert.equal(report.consumerLockSha256, undefined); }
         assert.deepEqual(report.stages, [{ name: 'extract', passed: true }, { name: 'install', passed: false }]);
         assert.match(readFileSync(join(output, 'install.log'), 'utf8'), /intentional install stop/);
       }

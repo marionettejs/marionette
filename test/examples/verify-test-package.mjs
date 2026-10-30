@@ -137,6 +137,7 @@ try {
   report.consumerLockSha256 = createHash('sha256').update(lockedConsumer).digest('hex');
   if (values['minimum-peers'] || values['cypress-floor']) {
     // A separate exact-minimum graph is intentionally resolved without overrides.
+    report.consumerLockSha256 = undefined;
     rmSync(join(consumer, 'package-lock.json'));
     runNpm('install', ['install', '--ignore-scripts', '--strict-peer-deps']);
     report.consumerLockSha256 = createHash('sha256').update(readFileSync(join(consumer, 'package-lock.json'))).digest('hex');
