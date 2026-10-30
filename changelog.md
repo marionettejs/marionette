@@ -11,6 +11,8 @@ at the time it shipped; older prerelease APIs may have been superseded.
 
 ### Unreleased
 
+* Propagate monitored attachment and detachment through CollectionView empty Views
+  and their descendants, preserving initialization and cleanup across remounts.
 * Preserve rendered row contents and nested Regions when collection updates retain
   model identity. Sorting and filtering still apply; new and replacement children
   render when presented. Retained model/actor contents refresh through source
