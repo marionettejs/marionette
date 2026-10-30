@@ -1,9 +1,12 @@
 import { Region } from 'marionette';
 import type { ApplicationInstance, ApplicationStartOptions, RegionConstructor, RegionInstance,
   ShowOptions, SupportedView } from 'marionette';
-import { createTestScope } from './scope.ts';
+import { createOwner } from './owner.ts';
+import { MountError } from './errors.ts';
+import type { TestScope } from './scope.ts';
 export { createTestScope } from './scope.ts';
-export type { Cleanup, Cleanable, TestScope } from './scope.ts';
+export { MountError } from './errors.ts';
+export type { Cleanup, Cleanable, Destroyable, ReplyChannel, ReplyRadio, TestScope } from './scope.ts';
 
 export interface MountOptions {
   /** Existing host is borrowed. Only the newly appended slot is removed. */
@@ -18,6 +21,8 @@ export interface MountOptions {
 }
 
 export interface MountedRegion {
+  /** Mount-local resources finish before the Region/Application and helper DOM. */
+  readonly scope: TestScope;
   readonly container: Element;
   readonly slot: HTMLElement;
   readonly region: RegionInstance;
@@ -44,7 +49,7 @@ export interface MountedApplication<App> extends MountedRegion {
   readonly ready: Promise<boolean>;
 }
 
-function mountRegion(options: MountOptions) {
+function createRegionMount(options: MountOptions) {
   const { container: suppliedContainer, attachTo, document: suppliedDocument } = options;
   const RegionClass = options.regionClass ?? Region;
   const doc = suppliedContainer?.ownerDocument ?? attachTo?.ownerDocument ?? suppliedDocument ?? document;
@@ -59,37 +64,88 @@ function mountRegion(options: MountOptions) {
     container.appendChild(slot);
     if (!suppliedContainer) { (attachTo === undefined ? doc.body : attachTo)?.appendChild(container); }
     region = new RegionClass({ el: slot, ...(options.replaceElement === undefined ? {} : { replaceElement: options.replaceElement }) });
-  } catch (error) { removeDOM(); throw error; }
-  const scope = createTestScope();
+  } catch (error) {
+    // A throwing constructor has not returned an object whose lifecycle we own.
+    removeDOM();
+    throw error;
+  }
+  let begin: (() => void) | undefined;
+  let release = () => { region.destroy(); };
+  const scope = createOwner(() => begin?.());
   scope.defer(removeDOM);
+  // Keep dependent core teardown in one callback: a core failure must not retry it.
+  scope.defer(() => release());
   const mounted: MountedRegion = {
-    container,
-    slot,
-    region,
+    scope, container, slot, region,
     get el() { return region.currentView?.el; },
     cleanup: scope.cleanup
   };
-  return { mounted, scope, region, removeDOM };
+  return {
+    mounted,
+    setLifecycle(dispose: () => void, cancel?: () => void) { release = dispose; begin = cancel; }
+  };
 }
 
-// Supplying a View transfers ownership to the new Region, just like Region.show.
-export function mountView<View extends SupportedView>(view: View, options: ViewMountOptions = {}): MountedView<View> {
-  const { mounted, scope, region, removeDOM } = mountRegion(options);
-  scope.defer(() => { region.destroy(); });
-  try { region.show(view, options.showOptions); } catch (error) { removeDOM(); throw error; }
-  return Object.assign(mounted, { view });
+/**
+ * Own a fresh Region, every View it adopts, and the helper-created fixture DOM.
+ * @param {MountOptions} options Fixture placement and Region configuration.
+ * @returns {MountedRegion} The owned Region handle and its complete cleanup.
+ */
+export function mountRegion(options: MountOptions = {}): MountedRegion {
+  return createRegionMount(options).mounted;
 }
 
-// A factory gives this mount ownership of a fresh, unstarted Application.
-export function mountApplication<App extends ApplicationInstance<object, unknown>>(
-  createApplication: (region: RegionInstance) => App, options: ApplicationMountOptions = {}
-): MountedApplication<App> {
-  const { mounted, scope, region, removeDOM } = mountRegion(options);
+export type ViewFactory<View extends SupportedView> = (scope: TestScope) => View;
+
+// Ownership of a caller View transfers after successful show; a factory's View
+// is owned when this Region adopts it. Never destroy a foreign owner's View.
+export function mountView<View extends SupportedView>(view: View | ViewFactory<View>, options: ViewMountOptions = {}): MountedView<View> {
+  const owner = createRegionMount(options);
+  const mounted = owner.mounted;
+  const region = mounted.region;
+  let resolved: View | undefined;
   try {
-    const app = createApplication(region);
-    // These are dependent teardown steps: a core failure aborts this group.
-    scope.defer(() => { app.destroy(); region.destroy(); });
+    resolved = typeof view === 'function' ? view(mounted.scope) : view;
+    region.show(resolved, options.showOptions);
+    return Object.assign(mounted, { view: resolved });
+  } catch (error) {
+    if (typeof view !== 'function' && region.currentView === resolved) {
+      // Relinquish an adopted caller View through the public ownership operation.
+      // If detachment itself fails, report it; do not blindly destroy that View.
+      owner.setLifecycle(() => { region.detachView(); region.destroy(); });
+    }
+    throw new MountError(error, mounted.cleanup());
+  }
+}
+
+// A factory returns a fully constructed, fresh Application and transfers ownership.
+export function mountApplication<App extends ApplicationInstance<object, unknown>>(
+  createApplication: (region: RegionInstance, scope: TestScope) => App, options: ApplicationMountOptions = {}
+): MountedApplication<App> {
+  const owner = createRegionMount(options);
+  const mounted = owner.mounted;
+  const region = mounted.region;
+  try {
+    const app = createApplication(region, mounted.scope);
+    let preparing = options.start !== false;
+    let interrupted = false;
+    owner.setLifecycle(() => {
+      if (interrupted) { return; }
+      app.destroy();
+      region.destroy();
+    }, () => {
+      if (preparing && !app.isRunning()) {
+        // stop() also releases prepared UI. This is the documented pending-start
+        // exception to service-before-shell cleanup, not a cancellation-only API.
+        try { app.stop(); } catch (error) { interrupted = true; throw error; }
+      }
+    });
     const ready = options.start === false ? Promise.resolve(false) : app.start({ ...options.startOptions, region });
+    ready.then(() => { preparing = false; }, () => { preparing = false; });
     return Object.assign(mounted, { app, ready });
-  } catch (error) { removeDOM(); throw error; }
+  } catch (error) {
+    // A factory that throws before returning owns its unknown partial Application;
+    // this owner can still release its known Region and registered resources.
+    throw new MountError(error, mounted.cleanup());
+  }
 }

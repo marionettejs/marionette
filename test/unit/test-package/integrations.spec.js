@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { Application, View } from 'marionette';
+import { Application, Region, View } from 'marionette';
 import { createGallery } from '@mnjs/test/playwright';
+import { mountView } from '@mnjs/test';
 
 const Card = View.extend({ template: () => '<input value="initial">' });
 const galleries = [];
@@ -306,4 +307,96 @@ describe('Playwright browser gallery lifecycle', () => {
     expect(actions).toEqual(['project cleanup']);
     expect(container.children).toHaveLength(0);
   });
+
+  it('awaits resources from a failed mount factory before rejecting story setup', async() => {
+    const disposal = Promise.withResolvers();
+    const began = Promise.withResolvers();
+    const failure = new Error('mount factory');
+    let released = false;
+    let settled = false;
+    const { gallery: app, container } = gallery({ broken(props, mounts) {
+      mounts.mountView(scope => {
+        scope.defer(async() => { began.resolve(); await disposal.promise; released = true; });
+        throw failure;
+      });
+    } });
+    const mounting = app.mount({ story: 'broken' }).catch(error => error);
+    mounting.then(() => { settled = true; });
+    await began.promise;
+    await Promise.resolve();
+    expect(settled).toBe(false);
+    disposal.resolve();
+    expect(await mounting).toBe(failure);
+    expect(released).toBe(true);
+    expect(container.children).toHaveLength(0);
+  });
+
+  it('combines a failed mount factory and its failed resource cleanup once', async() => {
+    const failure = new Error('factory');
+    const disposal = new Error('disposal');
+    let attempts = 0;
+    const { gallery: app, container } = gallery({ broken(props, mounts) {
+      mounts.mountApplication((region, scope) => {
+        scope.defer(async() => { attempts++; throw disposal; });
+        throw failure;
+      });
+    } });
+    const error = await app.mount({ story: 'broken' }).catch(value => value);
+    expect(error.errors[0]).toBe(failure);
+    expect(error.errors[1].errors[0].errors).toEqual([disposal]);
+    expect(attempts).toBe(1);
+    expect(container.children).toHaveLength(0);
+  });
+
+
+  it.each([false, true])('awaits direct neutral setup failure cleanup (disposal fails: %s)', async fails => {
+    const failure = new Error('neutral factory');
+    const disposal = new Error('neutral disposal');
+    let released = false;
+    const { gallery: app, container } = gallery({ broken() {
+      mountView(scope => {
+        scope.defer(async() => {
+          await Promise.resolve();
+          released = true;
+          if (fails) { throw disposal; }
+        });
+        throw failure;
+      });
+    } });
+    const error = await app.mount({ story: 'broken' }).catch(value => value);
+    expect(released).toBe(true);
+    expect(container.children).toHaveLength(0);
+    if (fails) {
+      expect(error.errors[0]).toBe(failure);
+      expect(error.errors[1].errors).toEqual([disposal]);
+    } else { expect(error).toBe(failure); }
+  });
+
+
+  it('preserves a throwing Region constructor and releases the surrounding story fixtures', async() => {
+    const failure = new Error('Region constructor');
+    let released = false;
+    const BrokenRegion = Region.extend({ initialize() { throw failure; } });
+    const { gallery: app, container } = gallery({ broken(props, mounts) {
+      mounts.scope.defer(() => { released = true; });
+      mounts.mountRegion({ regionClass: BrokenRegion });
+    } });
+    await expect(app.mount({ story: 'broken' })).rejects.toBe(failure);
+    expect(released).toBe(true);
+    expect(container.children).toHaveLength(0);
+  });
+
+  it('preserves a revoked Proxy rejection and releases acquired story fixtures', async() => {
+    const { proxy, revoke } = Proxy.revocable({}, {});
+    revoke();
+    let released = false;
+    const { gallery: app } = gallery({ broken(props, mounts) {
+      mounts.scope.defer(async() => { await Promise.resolve(); released = true; });
+      throw proxy;
+    } });
+    const { error } = await app.mount({ story: 'broken' }).catch(value => ({ error: value }));
+    expect(Object.is(error, proxy)).toBe(true);
+    expect(released).toBe(true);
+  });
+
 });

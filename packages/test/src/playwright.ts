@@ -1,5 +1,5 @@
 import { createMountSession } from './session.ts';
-import { withErrorMessages } from './scope.ts';
+import { isMountError, withErrorMessages } from './errors.ts';
 import type { TestMounts } from './context.ts';
 import type { MountOptions } from './index.ts';
 export type { TestMounts } from './context.ts';
@@ -51,7 +51,11 @@ export function createGallery(stories: StoryRegistry, options: GalleryOptions): 
       try {
         await active.ready;
         if (!session.owns(context)) { throw new Error(`Story was unmounted during setup: ${story}`); }
-      } catch (error) {
+      } catch (cause) {
+        let error = cause;
+        if (isMountError(error)) {
+          try { await error.cleanup; error = error.cause; } catch (failure) { error = failure; }
+        }
         if (session.owns(context)) {
           try { await unmount(); } catch (cleanupError) {
             throw new AggregateError([error, cleanupError], withErrorMessages(`Story setup and cleanup failed: ${story}`, [error, cleanupError]), { cause: cleanupError });

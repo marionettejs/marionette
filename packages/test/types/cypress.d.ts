@@ -9,11 +9,14 @@ export interface AppMountOptions extends Omit<ApplicationMountOptions, 'containe
   start: boolean;
   log?: boolean;
 }
+export type CypressMount<Mounted> = Mounted & { readonly testScope: TestScope };
 /** Register awaited lifecycle hooks in the component support file; no commands are registered. */
 export declare function setupCypress(): void;
-/** Replace the previous mount after its cleanup finishes. The factory runs inside the Cypress queue. */
-export declare function mount<View extends SupportedView>(view: View | ((scope: TestScope) => View), options?: MountOptions): Cypress.Chainable<MountedView<View>>;
+/** Synchronous during the active test/hooks, before automatic teardown; throws outside that lifetime. */
+export declare function testScope(): TestScope;
+/** Replace the previous mount after its cleanup finishes. Each factory receives the handle's mount scope. */
+export declare function mount<View extends SupportedView>(view: View | ((scope: TestScope, testScope: TestScope) => View), options?: MountOptions): Cypress.Chainable<CypressMount<MountedView<View>>>;
 /** Choose startup explicitly. start:true waits for ready and rejects cancelled startup. */
-export declare function mountApplication<App extends ApplicationInstance<object, unknown>>(factory: (region: RegionInstance, scope: TestScope) => App, options: AppMountOptions): Cypress.Chainable<MountedApplication<App>>;
-/** Queue and await teardown of the current mount and project resources. */
+export declare function mountApplication<App extends ApplicationInstance<object, unknown>>(factory: (region: RegionInstance, scope: TestScope, testScope: TestScope) => App, options: AppMountOptions): Cypress.Chainable<CypressMount<MountedApplication<App>>>;
+/** Queue and await the current mount's teardown. Test fixtures survive until test teardown. */
 export declare function unmount(): Cypress.Chainable<void>;

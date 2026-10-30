@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, realpathSync, renameSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 
@@ -45,6 +45,27 @@ try {
     assert.equal(typeof globalThis.Cypress, 'undefined');
     console.log('Neutral and gallery ESM/CommonJS imports work with optional runners and Testing Library absent.');
   `], { stdio: 'inherit' });
+  const source = resolve('node_modules/marionette');
+  const target = join(hidden, 'marionette');
+  renameSync(source, target);
+  moved.push([source, target]);
+  execFileSync(process.execPath, ['--input-type=module', '-e', `
+    import assert from 'node:assert/strict';
+    import { createRequire } from 'node:module';
+    import { createTestScope } from '@mnjs/test/scope';
+    const require = createRequire(import.meta.url);
+    assert.throws(() => require.resolve('marionette'), { code: 'MODULE_NOT_FOUND' });
+    assert.equal(typeof globalThis.document, 'undefined');
+    assert.equal(typeof globalThis.Cypress, 'undefined');
+    await createTestScope().cleanup();
+    await require('@mnjs/test/scope').createTestScope().cleanup();
+    console.log('Scope-only ESM/CommonJS imports need neither Marionette, a DOM nor optional runners.');
+  `], { stdio: 'inherit' });
+  writeFileSync('scope-only-tsconfig.json', JSON.stringify({ compilerOptions: {
+    target: 'ES2024', lib: ['ES2024'], module: 'NodeNext', strict: true, noEmit: true, types: [], skipLibCheck: false
+  }, include: ['scope-consumer.mts', 'scope-consumer.cts'] }));
+  execFileSync(process.execPath, ['node_modules/typescript/bin/tsc', '-p', 'scope-only-tsconfig.json'], { stdio: 'inherit' });
+
 } finally {
   for (const [source, target] of moved.reverse()) { renameSync(target, source); }
   rmSync(hidden, { recursive: true, force: true });

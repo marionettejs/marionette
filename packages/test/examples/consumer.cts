@@ -49,3 +49,27 @@ void [text, el, exactView, result, ready, exactApp];
 // @ts-expect-error Neutral imports do not introduce optional Cypress globals.
 let absentRunner: Cypress.Chainable;
 void absentRunner;
+
+// Region handles and factory-created resources share one mount-local owner.
+import { mountRegion, MountError } from '@mnjs/test';
+import type { MountedRegion } from '@mnjs/test';
+const regionMount: MountedRegion = mountRegion({ attachTo: null });
+const ownedView = mountView(scope => {
+  scope.defer(async () => {});
+  return new Editor();
+});
+const ownedScope = ownedView.scope;
+const sameCleanup: Promise<void> = ownedScope.cleanup();
+// @ts-expect-error A mount's resource scope is a fixed identity.
+ownedView.scope = createTestScope();
+// @ts-expect-error mountRegion accepts fixture options rather than an existing Region.
+mountRegion(regionMount.region);
+const mountFailure = null as unknown as MountError;
+const failureCleanup: Promise<void> = mountFailure.cleanup;
+void [regionMount, sameCleanup, failureCleanup];
+
+import { createRadio } from '@mnjs/radio';
+const suppliedRadio = createRadio();
+const returnedChannel = scope.reply(suppliedRadio, 'typed', 'value', () => 7);
+const replyValue: unknown = returnedChannel.request('value');
+void replyValue;

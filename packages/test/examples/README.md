@@ -47,7 +47,6 @@ Copy the [config](cypress.config.js), [support file](cypress/support/component.j
 and [component HTML](cypress/support/component-index.html) into your Cypress project.
 The config uses Cypress's custom Vite dev-server function; the support file mounts
 Marionette directly into the Cypress container with `@cypress/mount-utils`.
-
 The support file calls `setupCypress()` and registers the package's `mount` and
 `mountApplication` exports as commands. Importing the package alone registers
 nothing. `cy.mount(() => new MyView())` yields the actual helper handle. Repeated
@@ -109,3 +108,22 @@ The repository's packed-consumer verifier additionally extracts the package guid
 neutral, Vitest and Playwright reference recipes into the isolated consumer and executes them.
 It also runs the shipped README's own Vitest configuration and first test.
 Cypress guide command declarations are checked separately with the Cypress consumer types.
+
+## Ownership API candidate
+
+Use `mounted.scope` for services tied to one mount and `testScope()` from
+`@mnjs/test/cypress` for fixtures that survive remounts. The
+[resource contract](../guide.md#resource-lifetimes-and-failed-mounts) explains
+service-before-shell teardown, the pending-start cancellation exception, scoped
+Radio replies, `mountRegion`, and observable failed-acquisition cleanup.
+
+The packed verifier also runs the public Cypress contract suite against installed
+files with a modeled queue in JSDOM. That catches package-boundary errors but does
+not execute Cypress. Real component/failure probes still require its binary.
+
+Add `--minimum-peers` to the repository's `test:helpers:consumer` command to
+resolve Vitest/browser provider 4.1.0, DOM Testing Library 8.7.0 and mount-utils
+4.0.0 through a fresh strict peer install. The default uses the committed modern
+lock. Both profiles retain their consumer manifest/lock and exercise the same
+runtime/types and JSDOM contracts; add `--browser` for browser examples. This
+profile leaves the modern Cypress harness intact and does not run Cypress.

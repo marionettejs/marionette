@@ -26,6 +26,6 @@ async function run() {
 }
 run().catch(error => { console.error(error); process.exitCode = 1; });
 
-assert.deepEqual(Object.keys(cypressAdapter).sort(), ['mount', 'mountApplication', 'setupCypress', 'unmount']);
+assert.deepEqual(Object.keys(cypressAdapter).sort(), ['mount', 'mountApplication', 'setupCypress', 'testScope', 'unmount']);
 assert.equal(typeof createGallery, 'function');
 assert.equal(typeof globalThis.Cypress, 'undefined');

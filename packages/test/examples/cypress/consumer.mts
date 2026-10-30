@@ -2,11 +2,12 @@ import { withQueries } from '@mnjs/test/testing-library';
 import { View, Application } from 'marionette';
 import { mount, mountApplication, unmount, setupCypress } from '@mnjs/test/cypress';
 import type { MountedView, MountedApplication } from '@mnjs/test';
+import type { CypressMount } from '@mnjs/test/cypress';
 
 const Editor = View.extend({ template: () => 'Editor', draft() { return 'draft'; } });
 const Feature = Application.extend({ result() { return 7; } });
 setupCypress();
-const view: Cypress.Chainable<MountedView<InstanceType<typeof Editor>>> = mount(scope => {
+const view: Cypress.Chainable<CypressMount<MountedView<InstanceType<typeof Editor>>>> = mount(scope => {
   scope.defer(() => true);
   return new Editor();
 });
@@ -38,3 +39,18 @@ mount(new Editor(), { container: document.body });
 // @ts-expect-error Concrete View methods remain checked.
 view.then(handle => handle.view.missingMethod());
 void [app, cleanup];
+
+import { testScope } from '@mnjs/test/cypress';
+import type { TestScope } from '@mnjs/test';
+const fixtures: TestScope = testScope();
+mount((scope, fixtures) => {
+  scope.defer(async () => {});
+  fixtures.defer(() => {});
+  return new Editor();
+}).then(mounted => {
+  mounted.scope.defer(() => {});
+  mounted.testScope.defer(() => {});
+  // @ts-expect-error Scope identities cannot be reassigned.
+  mounted.testScope = mounted.scope;
+});
+void fixtures;

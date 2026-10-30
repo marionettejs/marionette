@@ -28,6 +28,6 @@ assert.equal(detached.isDestroyed(), true);
 assert.equal(mounted.container.isConnected, false);
 console.log('Installed ESM: isolation, attachment, ownership and immediate cancellation passed.');
 
-assert.deepEqual(Object.keys(cypressAdapter).sort(), ['mount', 'mountApplication', 'setupCypress', 'unmount']);
+assert.deepEqual(Object.keys(cypressAdapter).sort(), ['mount', 'mountApplication', 'setupCypress', 'testScope', 'unmount']);
 assert.equal(typeof createGallery, 'function');
 assert.equal(typeof globalThis.Cypress, 'undefined');

@@ -52,7 +52,7 @@ describe.each(mounts)('%s mount ownership', (name, mount) => {
 
 describe.each([false, true])('synchronous mount failure (borrowed host: %s)', borrowed => {
   it.each(['Region construction', 'View rendering', 'Application factory', 'Application start'])(
-    'removes only helper DOM after %s fails and preserves the original error', stage => {
+    'releases acquired resources after %s fails while preserving caller ownership', async stage => {
       const destination = document.body.appendChild(document.createElement('section'));
       const host = destination.appendChild(document.createElement('div'));
       const sibling = host.appendChild(document.createElement('p'));
@@ -93,11 +93,12 @@ describe.each([false, true])('synchronous mount failure (borrowed host: %s)', bo
         }
       } catch (error) { caught = error; }
       try {
-        expect(caught).toBe(failure);
+        expect(caught.cause ?? caught).toBe(failure);
+        await caught.cleanup;
         expect(host.parentNode).toBe(destination);
         expect([...host.children]).toEqual([sibling]);
         expect([...destination.children]).toEqual([host]);
-        expect(destroys).toEqual([]);
+        expect(destroys).toEqual(stage === 'Application start' ? ['application'] : []);
       } finally {
         for (const resource of resources.reverse()) { resource.destroy(); }
         destination.remove();
@@ -106,15 +107,18 @@ describe.each([false, true])('synchronous mount failure (borrowed host: %s)', bo
   );
 });
 
-it('leaves a caller View in a borrowed host after a replacement attach callback fails', () => {
+it('detaches a caller View without destroying it after a replacement attach callback fails', async() => {
   const host = document.body.appendChild(document.createElement('section'));
   const sibling = host.appendChild(document.createElement('p'));
   const failure = new Error('attach failed');
   const Broken = Card.extend({ onAttach() { throw failure; } });
   const view = new Broken();
   try {
-    expect(() => mountView(view, { container: host, showOptions: { replaceElement: true } })).toThrow(failure);
-    expect([...host.children]).toEqual([sibling, view.el]);
+    let reported;
+    try { mountView(view, { container: host, showOptions: { replaceElement: true } }); } catch (error) { reported = error; }
+    expect(reported.cause).toBe(failure);
+    await reported.cleanup;
+    expect([...host.children]).toEqual([sibling]);
     expect(host.isConnected).toBe(true);
     expect(view.isDestroyed()).toBe(false);
   } finally {

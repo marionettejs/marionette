@@ -75,8 +75,10 @@ test('consumer verification records tracked deletions and still reports a later 
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
-for (const mismatch of [false, true]) {
-  test(`supplied archive ${mismatch ? 'rejects a different digest' : 'reaches installation without repacking'}`, () => {
+for (const { mismatch, minimum } of [
+  { mismatch: false, minimum: false }, { mismatch: true, minimum: false }, { mismatch: false, minimum: true }
+]) {
+  test(`supplied archive ${mismatch ? 'rejects a different digest' : `reaches ${minimum ? 'minimum-peer' : 'locked'} installation without repacking`}`, () => {
     const { directory, script, output, temporary } = fixture();
     try {
       execFileSync('git', ['init', '-q'], { cwd: directory });
@@ -91,23 +93,31 @@ for (const mismatch of [false, true]) {
       const npmCli = join(directory, 'npm.mjs');
       writeFileSync(npmCli, [
         'import assert from \'node:assert/strict\';',
-        'import { readFileSync } from \'node:fs\';',
+        'import { existsSync, readFileSync } from \'node:fs\';',
         'import { createHash } from \'node:crypto\';',
-        'assert.equal(process.argv[2], \'ci\');',
         'const manifest = JSON.parse(readFileSync(\'package.json\'));',
-        'const lock = JSON.parse(readFileSync(\'package-lock.json\'));',
         'assert.equal(manifest.dependencies[\'@mnjs/test\'], \'file:../artifact.tgz\');',
-        'assert.equal(lock.packages[\'node_modules/@mnjs/test\'].resolved, \'file:../artifact.tgz\');',
-        'assert.equal(lock.packages[\'node_modules/@mnjs/test\'].integrity, \'sha512-\' + createHash(\'sha512\').update(readFileSync(\'../artifact.tgz\')).digest(\'base64\'));',
+        ...(minimum ? [
+          'assert.deepEqual(process.argv.slice(2), [\'install\', \'--ignore-scripts\', \'--strict-peer-deps\']);',
+          'assert.equal(existsSync(\'package-lock.json\'), false);',
+          'assert.equal(manifest.overrides, undefined);',
+          'for (const [name, version] of Object.entries({ vitest: \'4.1.0\', \'@vitest/browser-playwright\': \'4.1.0\', \'@testing-library/dom\': \'8.7.0\', \'@cypress/mount-utils\': \'4.0.0\' })) { assert.equal(manifest.devDependencies[name], version); }'
+        ] : [
+          'assert.equal(process.argv[2], \'ci\');',
+          'const lock = JSON.parse(readFileSync(\'package-lock.json\'));',
+          'assert.equal(lock.packages[\'node_modules/@mnjs/test\'].resolved, \'file:../artifact.tgz\');',
+          'assert.equal(lock.packages[\'node_modules/@mnjs/test\'].integrity, \'sha512-\' + createHash(\'sha512\').update(readFileSync(\'../artifact.tgz\')).digest(\'base64\'));',
+        ]),
         'throw new Error(\'intentional install stop\');'
       ].join('\n'));
       const result = spawnSync(process.execPath, [script, '--output', output, '--artifact', artifact,
-        '--sha256', mismatch ? '0'.repeat(64) : sha256], {
+        '--sha256', mismatch ? '0'.repeat(64) : sha256, ...(minimum ? ['--minimum-peers'] : [])], {
         env: { ...process.env, TMPDIR: temporary, TEMP: temporary, TMP: temporary, npm_execpath: npmCli }, encoding: 'utf8'
       });
       assert.equal(result.status, 1);
       const report = JSON.parse(readFileSync(join(output, 'report.json'), 'utf8'));
       assert.equal(report.passed, false);
+      assert.equal(report.dependencyProfile, minimum ? 'minimum-peers' : 'locked-examples');
       assert.equal(report.sha256, sha256);
       assert.equal(createHash('sha256').update(readFileSync(join(output, 'original.tgz'))).digest('hex'), sha256);
       if (mismatch) {
@@ -115,6 +125,7 @@ for (const mismatch of [false, true]) {
         assert.deepEqual(report.stages, []);
       } else {
         assert.equal(report.artifactMode, 'supplied');
+        if (minimum) { assert.equal(report.consumerLockSha256, undefined); }
         assert.deepEqual(report.stages, [{ name: 'extract', passed: true }, { name: 'install', passed: false }]);
         assert.match(readFileSync(join(output, 'install.log'), 'utf8'), /intentional install stop/);
       }
