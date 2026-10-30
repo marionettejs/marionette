@@ -27,10 +27,8 @@ jobs:
         include:
           - cypress: '16.2.0'
             flags: ''
-            component-only: '0'
           - cypress: '14.0.0'
             flags: '--cypress-floor'
-            component-only: '1'
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,8 +47,6 @@ jobs:
         run: |
           npm exec --yes --ignore-scripts --package=cypress@${{ matrix.cypress }} -- cypress install
       - name: Verify packed helper with Cypress and failure probes
-        env:
-          MNJS_TEST_CYPRESS_COMPONENT_ONLY: ${{ matrix.component-only }}
         run: npm run test:helpers:consumer -- --cypress ${{ matrix.flags }}
       - name: Retain complete or partial consumer evidence
         if: always()

@@ -32,14 +32,17 @@ Apparently my plan for writing less test setup was to give the test helpers more
 work. AI helped. I'm choosing to call that progress.
 
 `@mnjs/test` 0.2.0 gives test fixtures and mounted services separate owners.
-Fixtures can survive remounts; services clean up before their mounted shell.
+Fixtures can survive remounts; services clean up before their mounted shell,
+except that cancelling pending initial Application startup can destroy prepared
+UI first.
 `testScope()` is synchronous, `scope.own()` accepts cleanup or destroy methods,
 and `scope.reply()` owns individual Radio replies without resetting a channel.
 There's also a public `mountRegion()` and a scope-only import that doesn't load
 Marionette.
 
 If you used a Cypress mount factory's scope in 0.1, its cleanup now runs before
-the shell. Move anything that should survive remounts to `testScope()`.
+the shell, with that pending-startup exception. Move anything that should survive
+remounts to `testScope()`.
 The Cypress peer accepts 14 and later; other optional peer floors are mount-utils
 4, DOM Testing Library 8.7 and Vitest 4.1. Check the release receipt for exact
 native runner results. Cypress 15 has not been run natively, and uncapped peers

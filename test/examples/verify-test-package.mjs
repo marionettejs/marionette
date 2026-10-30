@@ -32,7 +32,8 @@ const env = {
 };
 const report = { artifact: undefined, sha256: undefined, node: process.version,
   dependencyProfile: values['cypress-floor'] ? 'cypress-14' : values['minimum-peers'] ? 'minimum-peers' : 'locked-examples',
-  requestedChecks: { browser: values.browser, cypress: values.cypress }, stages: [], passed: false };
+  requestedChecks: { browser: values.browser, cypress: values.cypress,
+    cypressComponentOnly: values.cypress && values['cypress-floor'] }, stages: [], passed: false };
 function run(name, command, args, cwd = consumer) {
   const stage = { name, passed: false };
   report.stages.push(stage);
@@ -183,7 +184,7 @@ try {
   }
   if (values.cypress) {
     cpSync(join(root, 'test/examples/cypress-smoke.mjs'), join(consumer, 'cypress-smoke.mjs'));
-    try { run('cypress-runtime', process.execPath, ['cypress-smoke.mjs']); } finally {
+    try { run('cypress-runtime', process.execPath, ['cypress-smoke.mjs', ...(values['cypress-floor'] ? ['--component-only'] : [])]); } finally {
       const diagnostics = join(consumer, 'test-results/cypress');
       if (existsSync(diagnostics)) { cpSync(diagnostics, join(output, 'cypress'), { recursive: true }); }
     }

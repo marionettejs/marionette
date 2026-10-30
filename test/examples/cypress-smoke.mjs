@@ -5,8 +5,8 @@ import cypress from 'cypress';
 
 const output = resolve('test-results/cypress/smoke.json');
 mkdirSync(resolve(output, '..'), { recursive: true });
-const report = { scenarios: [], passed: false };
-const componentOnly = process.env.MNJS_TEST_CYPRESS_COMPONENT_ONLY === '1';
+const componentOnly = process.argv.includes('--component-only');
+const report = { componentOnly, scenarios: [], passed: false };
 const scenarios = [
   { name: 'component', spec: 'cypress/component/**/*.cy.js', failed: 0 },
   { name: 'startup', error: /mnjs-startup-probe/ },
