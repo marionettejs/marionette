@@ -2217,7 +2217,7 @@
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "Managed children belong to the CollectionView; stable unchanged model sources preserve child identity; same-key replacement recreates a child. The empty Region uses the constructor RegionClass option over the prototype default; initialize may override it before creation. With monitoring enabled, the empty View and its descendants share list attachment and detachment; the empty View remains outside the public children container.",
       "mutation": "Structural updates add/remove affected children and reorder survivor elements; reset destructively replaces the list. Filters affect presentation.",
-      "repetition": "Explicit live render destroys all existing children and reconstructs collection-derived children; structural source updates reconcile survivors without an explicit render. Comparator ties preserve documented order. Entity-event delegation releases previous bindings before subscribing to the current sources and declarations.",
+      "repetition": "Explicit live render destroys all existing children and reconstructs collection-derived children; structural source updates reconcile survivors without an explicit render. Retained-model updates reapply presentation without invalidating rendered children; row source events or explicit renders refresh their contents. Comparator ties preserve documented order. Entity-event delegation releases previous bindings before subscribing to the current sources and declarations.",
       "destruction": "destroy releases collection observation and destroys owned children; queued updates cannot resurrect a destroyed owner. Successful final notification delivery is followed by outgoing and incoming event cleanup; synchronous exceptions abort the operation.",
       "diagnostics": [
         "MN0003",
@@ -2319,6 +2319,18 @@
         {
           "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",
           "title": "moves survivor elements on reorder without recreating or rendering their Views"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",
+          "title": "preserves rendered contents and Regions on a retained-model update"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",
+          "title": "preserves rendered contents and Regions on a retained-model update while filtered out"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",
+          "title": "sorts and filters retained-model updates without refreshing row contents"
         },
         {
           "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",

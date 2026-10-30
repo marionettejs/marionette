@@ -256,23 +256,109 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
-  it('renders in-place updates through the same path', function() {
+  function verifyRetainedUpdate(hidden) {
     const model = { id: 1, name: 'before' };
     const source = { models: [model] };
-    const view = new ListView({ collection: source });
-    view.render();
-    const child = view.children.findByModel(model);
+    const Detail = View.extend({ template: () => 'detail' });
+    const Row = ChildView.extend({
+      template: data => `<b>${data.name}</b><input><section></section>`,
+      regions: { detail: 'section' },
+      modelEvents: { changed: 'render' },
+      onRender() {
+        ChildView.prototype.onRender.call(this);
+        this.showChildView('detail', new Detail());
+      }
+    });
+    const view = new ListView({ collection: source, childView: Row });
+    const host = document.createElement('main');
+    document.body.append(host);
+    const region = new Region({ el: host });
+    region.show(view);
+    const child = view.children.first();
+    const root = child.el;
+    const input = root.querySelector('input');
+    const detail = child.getChildView('detail');
+    const destroyed = vi.fn();
+    detail.on('destroy', destroyed);
+    input.value = 'draft';
+    if (hidden) { view.setFilter(() => false); }
 
     model.name = 'after';
-    source.notify({
-      kind: 'update',
-      added: [],
-      removed: [],
+    const notify = () => source.notify({
+      kind: 'update', added: [], removed: [],
+      updated: [{ previous: model, current: model }]
+    });
+    notify();
+    expect(child.isRendered()).toBe(true);
+    expect(child.renderCount).to.equal(1);
+    if (hidden) { view.removeFilter(); }
+    view.sort();
+    view.filter();
+
+    expect(child.el).to.equal(root);
+    expect(child.renderCount).to.equal(1);
+    expect(root.querySelector('input')).to.equal(input);
+    expect(input.value).to.equal('draft');
+    expect(child.getChildView('detail')).to.equal(detail);
+    expect(detail.el.isConnected).toBe(true);
+    expect(destroyed).not.toHaveBeenCalled();
+
+    emit(model, 'changed', model);
+    expect(child.renderCount).to.equal(2);
+    expect(root.querySelector('b').textContent).to.equal('after');
+    expect(destroyed).toHaveBeenCalledTimes(1);
+    const nextDetail = child.getChildView('detail');
+    const nextDestroyed = vi.fn();
+    nextDetail.on('destroy', nextDestroyed);
+    notify();
+    expect(child.renderCount).to.equal(2);
+    expect(child.getChildView('detail')).to.equal(nextDetail);
+    expect(nextDetail.el.isConnected).toBe(true);
+
+    region.destroy();
+    host.remove();
+    expect(destroyed).toHaveBeenCalledTimes(1);
+    expect(nextDestroyed).toHaveBeenCalledTimes(1);
+  }
+
+  it('preserves rendered contents and Regions on a retained-model update', function() {
+    verifyRetainedUpdate(false);
+  });
+
+  it('preserves rendered contents and Regions on a retained-model update while filtered out', function() {
+    verifyRetainedUpdate(true);
+  });
+
+  it('sorts and filters retained-model updates without refreshing row contents', function() {
+    const first = { id: 1, name: 'one', rank: 1, visible: true };
+    const second = { id: 2, name: 'two', rank: 2, visible: true };
+    const source = { models: [first, second] };
+    const Row = ChildView.extend({ template: data => `<b>${data.name}</b><input>` });
+    const view = new ListView({
+      collection: source, childView: Row,
+      viewComparator: child => child.model.rank,
+      viewFilter: child => child.model.visible
+    }).render();
+    const firstChild = view.children.first();
+    const secondChild = view.children.last();
+    const input = firstChild.el.querySelector('input');
+    input.value = 'draft';
+    const notify = model => source.notify({
+      kind: 'update', added: [], removed: [],
       updated: [{ previous: model, current: model }]
     });
 
-    expect(child.renderCount).to.equal(2);
-    expect(child.el.textContent).to.equal('after');
+    first.rank = 3;
+    notify(first);
+    expect(view.children.toArray()).to.deep.equal([secondChild, firstChild]);
+    second.visible = false;
+    notify(second);
+    expect(view.children.toArray()).to.deep.equal([firstChild]);
+    expect(secondChild.isDestroyed()).toBe(false);
+    expect(firstChild.renderCount).to.equal(1);
+    expect(secondChild.renderCount).to.equal(1);
+    expect(firstChild.el.querySelector('input')).to.equal(input);
+    expect(input.value).to.equal('draft');
     view.destroy();
   });
 
@@ -413,7 +499,8 @@ describe('CollectionView normalized reconciliation', function() {
         expect(view.children).to.have.lengthOf(1);
         expect(view.children.findByModel(current[0])).toBeUndefined();
         expect(view.children.first().model).to.equal(current[1]);
-        expect(view.el.textContent).to.equal('updated two');
+        expect(view.el.textContent).to.equal(replace ? 'updated two' : 'two');
+        expect(view.children.first().renderCount).to.equal(1);
         expect(survivor.isDestroyed()).to.equal(replace);
         expect(child.isDestroyed()).to.equal(state !== 'detached');
         if (state === 'detached') {
@@ -743,10 +830,19 @@ describe('CollectionView normalized reconciliation', function() {
     expect(view.children.hasView(child)).toBe(false);
     expect(child.renderCount).toBeUndefined();
     expect(view.el.textContent).to.equal('one');
+    hidden.name = 'updated hidden';
+    source.notify({
+      kind: 'update', added: [], removed: [],
+      updated: [{ previous: hidden, current: hidden }]
+    });
+    expect(child.renderCount).toBeUndefined();
+    view.removeFilter();
+    expect(child.renderCount).to.equal(1);
+    expect(child.el.textContent).to.equal('updated hidden');
     view.destroy();
   });
 
-  it('lets an overridden sort defer rendering until filter is called', function() {
+  it('lets an overridden sort defer new children without invalidating retained children', function() {
     const model = { id: 1, name: 'before' };
     const source = { models: [model] };
     const view = new ListView({ collection: source });
@@ -765,8 +861,18 @@ describe('CollectionView normalized reconciliation', function() {
     expect(child.renderCount).to.equal(1);
     expect(child.el.textContent).to.equal('before');
 
+    const added = { id: 2, name: 'new' };
+    let addedChild;
+    view.on('add:child', (owner, row) => { addedChild = row; });
+    source.models.push(added);
+    source.notify({ kind: 'update', added: [added], removed: [], updated: [] });
+    expect(addedChild.renderCount).toBeUndefined();
     view.filter();
 
+    expect(child.renderCount).to.equal(1);
+    expect(child.el.textContent).to.equal('before');
+    expect(addedChild.renderCount).to.equal(1);
+    child.render();
     expect(child.renderCount).to.equal(2);
     expect(child.el.textContent).to.equal('after');
     view.destroy();
