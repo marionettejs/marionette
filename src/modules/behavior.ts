@@ -10,7 +10,7 @@ import extend from '../utils/extend.ts';
 import CommonMixin from '../mixins/common.ts';
 import DelegateEntityEventsMixin from '../mixins/delegate-entity-events.ts';
 import StateMixin from '../mixins/state.ts';
-import UIMixin from '../mixins/ui.ts';
+import UIMixin, { getUIBindings } from '../mixins/ui.ts';
 import ViewEventsMixin from '../mixins/view-events.ts';
 import { setEventDelegator } from '../runtime/event-delegator.ts';
 import { setStateApi } from '../runtime/state-api.ts';
@@ -143,7 +143,10 @@ const Behavior = function(this: BehaviorInternals, options: BehaviorOptions | un
   // This order will help the reuse and share of a behavior
   // between multiple views, while letting a view override
   // a selector under an UI key.
-  this.ui = { ...getValue(this, 'ui') as UISelectors, ...getValue(view, 'ui') as UISelectors };
+  this.ui = {
+    ...getValue(this, 'ui') as UISelectors,
+    ...getUIBindings.call(view)
+  };
 
   // Forward every host event through this Behavior's triggerMethod.
   this.listenTo(view, 'all', this.triggerMethod);

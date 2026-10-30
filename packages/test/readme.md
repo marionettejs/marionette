@@ -87,7 +87,7 @@ failing assertion; the test needs no mount registry or cleanup hook.
 | `@mnjs/test` | `mountRegion`, `mountView`, `mountApplication` and `createTestScope` with any DOM-capable runner. Register and await cleanup yourself. |
 | `@mnjs/test/scope` | `createTestScope` and owned Radio replies without importing Marionette or a runner. |
 | `@mnjs/test/vitest` | A per-test `mounts` fixture with awaited teardown, including concurrent tests. Requires Vitest 4.1 or later. |
-| `@mnjs/test/cypress` | Explicit command registration, queued mounts and awaited replacement/teardown. Accepts Cypress 14 or later and mount-utils 4 or later with a browser supporting Marionette 5; see the [compatibility evidence](guide.md#tested-with). |
+| `@mnjs/test/cypress` | Explicit command registration, queued mounts and awaited replacement/teardown. Requires Cypress 14 or later and mount-utils 4 or later. |
 | `@mnjs/test/playwright` | A browser-side story gallery used with Playwright's mount fixture and Locators. Return browser cleanup from the test's `afterEach`. |
 | `@mnjs/test/testing-library` | Standard queries bound to an existing mount's stable container. Requires DOM Testing Library 8.7 or later; adds no separate lifecycle. |
 

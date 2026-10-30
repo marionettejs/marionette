@@ -13,79 +13,18 @@ an independent helper release or add the helper to its package inventory.
 
 ## Expanded ownership candidate
 
-The first commit on the preparation branch is the independent 0.1.1 Cypress peer
-patch. Later ownership work adds public `mountRegion`, `@mnjs/test/scope`, scoped
+The ownership changes add public `mountRegion`, `@mnjs/test/scope`, scoped
 Radio replies, Cypress test fixtures and mount-local handles, and an observable
 `MountError.cleanup` Promise. It also changes local service cleanup order. Cypress handles expose the adapter
 `CypressMount<MountedView<View>>` type; invariant `Chainable` annotations may need
 that adapter type rather than a neutral `MountedView`.
-The expanded contract uses **0.2.0**, separately from the 0.1.1 peer fix. This is
-an unpublished release candidate under review; publication requires separate
+The expanded contract uses **0.2.0**. This is an unpublished candidate under
+review; publication requires separate
 authorization and completed runtime certification.
 
 Cypress startup cancellation is an explicit ordering exception: public `stop()`
 can destroy prepared UI before services during pending initial startup. Require
 review of that boundary as well as mounted service-before-shell behavior.
-
-## 0.2.0 Cypress compatibility gate
-
-The independent peer patch lowers only the optional Cypress peer to `>=14`.
-The later peer-contract commit also accepts mount-utils `>=4`, DOM Testing Library
-`>=8.7.0` and Vitest `>=4.1.0`; all four remain optional package peers.
-Marionette retains its v5 contract (`^5.0.0`). Cypress has no upper cap: future majors may be
-installed, while the matrix below records versions actually checked. The expanded
-runtime contract is provisional until the packed-consumer matrix passes with real Cypress binaries. A cloud proxy
-denial at `download.cypress.io` blocked that execution during preparation;
-installation/types results must not be reported as runtime support.
-
-After building and packing the final candidate, run the matrix against that same
-archive and its SHA256:
-
-Keep the shipped guide's runtime wording independent of the pending run. Record
-archive-specific runtime results in the release notes and receipt. Editing the
-guide after verification changes the archive and requires fresh verification.
-
-```sh
-npm run test:helpers:cypress-compatibility -- --artifact /absolute/path/mnjs-test-0.2.0.tgz --sha256 RECORDED_SHA256 --runtime --output /absolute/path/compatibility
-```
-
-The default matrix checks the first releases of Cypress 14 through 16,
-and 15.21.1 and 16.2.0, each with mount-utils 4.0.0 and 5.0.0. It also installs a
-neutral consumer with neither Cypress nor mount-utils. It retains generated
-consumer locks, install/type logs and runtime diagnostics. Cypress binaries and
-Linux display dependencies must already be installed for each requested version;
-the matrix never downloads binaries. `--versions 14.0.0,15.0.0,16.2.0` selects a
-smaller boundary matrix; report that narrower evidence explicitly. Without
-`--runtime`, only installation, ESM/CommonJS declarations and neutral imports are
-checked. No overrides or legacy peer resolution are used.
-
-Cypress 14 uses Vite 6 / vite-dev-server 6, Cypress 15 uses Vite 7 /
-vite-dev-server 7, and Cypress 16 uses the current example harness. Older probes
-use `Cypress.env` instead of the harness-only `Cypress.expose` introduced in 16.
-Type checks use TypeScript 6.0.3 with ES2022 libraries and `skipLibCheck:false`;
-older Cypress bundled Lodash declarations conflict with ES2023 symbol WeakMap
-keys. Cypress 10–13 exploration is historical evidence only; the selected floor is 14.
-The matrix defaults to each runner's bundled Electron, configurable with
-`--browser chrome`, `--browser chromium` or an absolute browser executable path.
-Cypress 14.0.0 [pins Electron 33.2.1](https://github.com/cypress-io/cypress/blob/v14.0.0/package.json),
-which [bundles Chromium 130.0.6723.137](https://releases.electronjs.org/release/v33.2.1).
-That includes the helper/core's `Promise.withResolvers()` dependency (Chrome 119+),
-verified against [browser compatibility data](https://github.com/mdn/browser-compat-data/blob/main/javascript/builtins/Promise.json).
-The installed adapter/core/utils/radio graph was independently audited for native
-API use: required `Object.hasOwn`, `Promise.allSettled`, `AggregateError`,
-`Array.flatMap`, `Reflect.construct` and `AbortController` also fit Chromium 130.
-Core's newer `moveBefore` call is feature-detected with an `insertBefore` fallback.
-No unguarded post-130 API was found; this is a static compatibility inference,
-not a successful Cypress run. [V8 13.0 source](https://github.com/v8/v8/blob/13.0.245/src/init/bootstrapper.cc)
-records the modern JavaScript built-ins in that engine.
-The older bundled browsers do not meet that requirement; no polyfills are added.
-The report records the requested browser and successful runs record its actual version.
-These are test harness choices, not additional dependencies of the adapter.
-Require real mount/update/unmount, awaited replacement and after-test cleanup,
-startup/cancellation/timeout/cleanup failure probes, and native afterEach failure
-behavior before approving the expanded floor. A failure requires a corrected
-range or harness and fresh evidence; do not change runtime code merely to keep
-antiquated runner support.
 
 ## Optional peer floors
 
@@ -110,7 +49,7 @@ lock. The default profile uses `npm ci` and preserves the committed modern
 external pins. Both run ESM/CommonJS, type, optional-peer isolation and JSDOM
 checks; `--browser` adds Vitest Browser Mode and the Playwright gallery. Cypress
 installation scripts remain disabled in both profiles; these checks do not run
-Cypress. The Cypress matrix above separately checks its lower boundary.
+Cypress. Cypress 14/15 native runtime remains unverified.
 
 These peer ranges have no upper caps by policy. Passing known lower/current
 versions is evidence for those versions, not advance certification of future
