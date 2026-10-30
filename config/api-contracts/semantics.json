@@ -2386,6 +2386,14 @@
         },
         {
           "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "preserves attachment on flushing markup adopted after the list was mounted"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "attaches late-adopted markup on remount without an intervening filter"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
           "title": "destroys an unpresented row without sending attachment or detachment events"
         },
         {
@@ -2399,6 +2407,10 @@
         {
           "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
           "title": "deferred adoption of existing list markup preserves attachment and focus"
+        },
+        {
+          "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
+          "title": "flushing late markup adoption completes attachment and focus"
         },
         {
           "file": "test/browser/collection-empty-lifecycle.spec.mjs",

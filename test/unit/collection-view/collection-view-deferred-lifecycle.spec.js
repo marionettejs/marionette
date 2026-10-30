@@ -28,6 +28,32 @@ function lifecycle(name, trace) {
 }
 
 describe('CollectionView deferred child lifecycle', () => {
+  it('preserves attachment on flushing markup adopted after the list was mounted', () => {
+    for (const constructBeforeMount of [true, false]) {
+      const onAttach = vi.fn();
+      const Row = View.extend({ template: false, onAttach });
+      const list = new CollectionView({ template: () => '<button>Existing action</button>' }).render();
+      const el = list.el.firstElementChild;
+      let row = constructBeforeMount ? new Row({ el }) : undefined;
+      const region = mount();
+      region.show(list);
+      row ??= new Row({ el });
+      list.addChildView(row, { preventRender: true });
+      expect(row.isAttached()).toBe(!constructBeforeMount);
+      expect(onAttach).not.toHaveBeenCalled();
+      list.filter();
+      expect(row.el.isConnected).toBe(true);
+      expect(row.isAttached()).toBe(true);
+      expect(onAttach).toHaveBeenCalledTimes(constructBeforeMount ? 1 : 0);
+      region.detachView();
+      expect(row.isAttached()).toBe(false);
+      region.show(list);
+      expect(onAttach).toHaveBeenCalledTimes(constructBeforeMount ? 2 : 1);
+      region.destroy();
+      expect(row.isDestroyed()).toBe(true);
+    }
+  });
+
   it('attaches a deferred child that adopts markup already inside the list', () => {
     for (const markup of ['<button>Existing action</button>', '<section><button>Existing action</button></section>']) {
       const onAttach = vi.fn();
@@ -47,6 +73,23 @@ describe('CollectionView deferred child lifecycle', () => {
       region.destroy();
       expect(row.isDestroyed()).toBe(true);
     }
+  });
+
+  it('attaches late-adopted markup on remount without an intervening filter', () => {
+    const onAttach = vi.fn();
+    const Row = View.extend({ template: false, onAttach });
+    const list = new CollectionView({ template: () => '<button>Existing action</button>' }).render();
+    const row = new Row({ el: list.el.firstElementChild });
+    const region = mount();
+    region.show(list);
+    list.addChildView(row, { preventRender: true });
+    expect(row.isAttached()).toBe(false);
+    expect(onAttach).not.toHaveBeenCalled();
+    region.detachView();
+    region.show(list);
+    expect(row.el.isConnected).toBe(true);
+    expect(row.isAttached()).toBe(true);
+    expect(onAttach).toHaveBeenCalledTimes(1);
   });
 
   it('keeps markup from another detached tree pending until it enters the list', () => {

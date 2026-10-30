@@ -943,7 +943,9 @@ Object.assign(CollectionView.prototype, ViewMixin, {
 
       for (const view of views) { renderView(view); }
 
-      const attaching = views.filter(view => !view._isShown || view.el.parentNode !== this.container);
+      const shouldTriggerAttach = this._isAttached && this.monitorViewEvents !== false;
+      const attaching = views.filter(view => !view._isShown ||
+        (shouldTriggerAttach && !view._isAttached) || view.el.parentNode !== this.container);
       if (attaching.length) {
         this._attachChildren(this._getBuffer(attaching), attaching);
       }

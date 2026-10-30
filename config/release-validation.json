@@ -50,6 +50,10 @@
       "title": "deferred adoption of existing list markup preserves attachment and focus"
     },
     {
+      "file": "collection-deferred-lifecycle.spec.mjs",
+      "title": "flushing late markup adoption completes attachment and focus"
+    },
+    {
       "file": "collection-removal-survivors.spec.mjs",
       "title": "active filter: removal, reorder, and swap preserve survivor state"
     },
