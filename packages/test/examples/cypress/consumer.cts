@@ -42,7 +42,7 @@ void [app, cleanup];
 
 import { testScope } from '@mnjs/test/cypress';
 import type { TestScope } from '@mnjs/test';
-const fixtures: Cypress.Chainable<TestScope> = testScope();
+const fixtures: TestScope = testScope();
 mount((scope, fixtures) => {
   scope.defer(async () => {});
   fixtures.defer(() => {});

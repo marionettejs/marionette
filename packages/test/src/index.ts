@@ -6,7 +6,7 @@ import { MountError } from './errors.ts';
 import type { TestScope } from './scope.ts';
 export { createTestScope } from './scope.ts';
 export { MountError } from './errors.ts';
-export type { Cleanup, Cleanable, ReplyChannel, ReplyRadio, TestScope } from './scope.ts';
+export type { Cleanup, Cleanable, Destroyable, ReplyChannel, ReplyRadio, TestScope } from './scope.ts';
 
 export interface MountOptions {
   /** Existing host is borrowed. Only the newly appended slot is removed. */

@@ -9,6 +9,10 @@ let hooks;
 let queue;
 let Application;
 let Card;
+async function startTest() {
+  adapter.setupCypress();
+  await hooks.before[0]();
+}
 beforeEach(async() => {
   vi.resetModules();
   const core = await import('marionette');
@@ -61,7 +65,7 @@ describe('Cypress adapter non-runtime contract', () => {
   });
 
   it('queues factories after previous async disposal and keeps roots as direct children', async() => {
-    adapter.setupCypress();
+    await startTest();
     const began = Promise.withResolvers();
     const disposal = Promise.withResolvers();
     const original = await adapter.mount(scope => {
@@ -92,7 +96,7 @@ describe('Cypress adapter non-runtime contract', () => {
   });
 
   it('mounts an existing View and returns awaited before/after cleanup promises', async() => {
-    adapter.setupCypress();
+    await startTest();
     const view = new Card();
     const handle = await adapter.mount(view);
     const cleanup = hooks.after[0]();
@@ -105,13 +109,13 @@ describe('Cypress adapter non-runtime contract', () => {
   });
 
   it('rejects missing roots with the real mount-utils diagnostic', async() => {
-    adapter.setupCypress();
+    await startTest();
     root.removeAttribute('data-cy-root');
     await expect(adapter.mount(new Card())).rejects.toThrow('data-cy-root');
   });
 
   it('requires an explicit application startup choice and allows manual shell rendering', async() => {
-    adapter.setupCypress();
+    await startTest();
     expect(() => adapter.mountApplication(() => new Application())).toThrow('requires an explicit');
     expect(() => adapter.mountApplication(() => new Application(), { start: 'yes' })).toThrow('requires an explicit');
     let starts = 0;
@@ -126,7 +130,7 @@ describe('Cypress adapter non-runtime contract', () => {
   });
 
   it('waits for explicit startup and forwards start options', async() => {
-    adapter.setupCypress();
+    await startTest();
     const Feature = Application.extend({ onStart(app, options) { this.showView(new Card({ id: options.id })); } });
     const handle = await adapter.mountApplication(region => new Feature({ region }), { start: true, startOptions: { id: 'ready' } });
     expect(handle.app.isRunning()).toBe(true);
@@ -135,7 +139,7 @@ describe('Cypress adapter non-runtime contract', () => {
   });
 
   it('cancels pending startup before a slow project disposer without waiting for the queue', async() => {
-    adapter.setupCypress();
+    await startTest();
     const preparation = Promise.withResolvers();
     const began = Promise.withResolvers();
     const disposal = Promise.withResolvers();
@@ -160,7 +164,7 @@ describe('Cypress adapter non-runtime contract', () => {
   });
 
   it('releases project resources after a failed View factory', async() => {
-    adapter.setupCypress();
+    await startTest();
     const failure = new Error('factory failed');
     const actions = [];
     await expect(adapter.mount(scope => {
@@ -172,7 +176,7 @@ describe('Cypress adapter non-runtime contract', () => {
   });
 
   it('retains mount and project cleanup failures together', async() => {
-    adapter.setupCypress();
+    await startTest();
     const mountFailure = new Error('factory');
     const cleanupFailure = new Error('project cleanup');
     const error = await adapter.mount(scope => {
@@ -186,8 +190,8 @@ describe('Cypress adapter non-runtime contract', () => {
   });
 
   it('keeps test fixtures across remounts while local services finish before each shell', async() => {
-    adapter.setupCypress();
-    const fixtures = await adapter.testScope();
+    await startTest();
+    const fixtures = adapter.testScope();
     const events = [];
     fixtures.defer(() => events.push('fixture'));
     let firstScope;
@@ -208,20 +212,38 @@ describe('Cypress adapter non-runtime contract', () => {
     second.scope.defer(() => events.push('second service'));
     await adapter.unmount();
     expect(events).toEqual(['first service', 'first shell', 'second service', 'second shell']);
-    expect(await adapter.testScope()).toBe(fixtures);
+    expect(adapter.testScope()).toBe(fixtures);
     await hooks.after[0]();
     expect(events.at(-1)).toBe('fixture');
     await hooks.before[0]();
-    expect(await adapter.testScope()).not.toBe(fixtures);
+    expect(adapter.testScope()).not.toBe(fixtures);
   });
 
-  it('requires setup before accessing test fixtures', async() => {
-    await expect(adapter.testScope()).rejects.toThrow('Call setupCypress()');
+  it('requires setup before accessing test fixtures', () => {
+    expect(() => adapter.testScope()).toThrow('Call setupCypress()');
+  });
+
+  it('exposes synchronous fixtures only after test setup and before teardown starts', async() => {
+    adapter.setupCypress();
+    expect(() => adapter.testScope()).toThrow('active component test');
+    await expect(adapter.mount(new Card())).rejects.toThrow('active component test');
+    expect(root.children).toHaveLength(0);
+    await hooks.before[0]();
+    const fixtures = adapter.testScope();
+    expect(adapter.testScope()).toBe(fixtures);
+    const pending = Promise.withResolvers();
+    fixtures.defer(() => pending.promise);
+    const closing = hooks.after[0]();
+    try { expect(() => adapter.testScope()).toThrow('active component test'); } finally { pending.resolve(); }
+    await closing;
+    expect(() => adapter.testScope()).toThrow('active component test');
+    await hooks.before[0]();
+    expect(adapter.testScope()).not.toBe(fixtures);
   });
 
   it('shares test fixtures with Application factories without sharing mount resources', async() => {
-    adapter.setupCypress();
-    const fixtures = await adapter.testScope();
+    await startTest();
+    const fixtures = adapter.testScope();
     let local;
     const mounted = await adapter.mountApplication((region, scope, testScope) => {
       local = scope;
@@ -233,10 +255,10 @@ describe('Cypress adapter non-runtime contract', () => {
   });
 
   it('releases test fixtures when mount teardown fails and preserves both errors', async() => {
-    adapter.setupCypress();
+    await startTest();
     const local = new Error('local disposal');
     const test = new Error('fixture disposal');
-    const fixtures = await adapter.testScope();
+    const fixtures = adapter.testScope();
     fixtures.defer(() => { throw test; });
     const mounted = await adapter.mount(() => new Card());
     mounted.scope.defer(() => { throw local; });
@@ -252,9 +274,9 @@ describe('Cypress adapter non-runtime contract', () => {
   });
 
   it('surfaces a fixture-only teardown rejection', async() => {
-    adapter.setupCypress();
+    await startTest();
     const failure = new Error('fixture');
-    const fixtures = await adapter.testScope();
+    const fixtures = adapter.testScope();
     fixtures.defer(() => { throw failure; });
     await expect(hooks.after[0]()).rejects.toMatchObject({ errors: [failure] });
     hooks.after = [];
@@ -262,7 +284,7 @@ describe('Cypress adapter non-runtime contract', () => {
 
 
   it('preserves asynchronous startup and mounted-resource cleanup errors together', async() => {
-    adapter.setupCypress();
+    await startTest();
     const startup = new Error('startup');
     const disposal = new Error('disposal');
     let attempts = 0;
@@ -281,7 +303,7 @@ describe('Cypress adapter non-runtime contract', () => {
 
 
   it.each([false, true])('awaits nested neutral acquisition cleanup (disposal fails: %s)', async fails => {
-    adapter.setupCypress();
+    await startTest();
     const failure = new Error('nested factory');
     const disposal = new Error('nested disposal');
     let released = false;
@@ -304,12 +326,12 @@ describe('Cypress adapter non-runtime contract', () => {
 
 
   it.each([null, 7])('preserves a non-Error factory failure: %s', async failure => {
-    adapter.setupCypress();
+    await startTest();
     await expect(adapter.mount(() => { throw failure; })).rejects.toBe(failure);
   });
 
   it.each(['revoked', 'throwing has'])('awaits cleanup and preserves a %s Proxy failure', async kind => {
-    adapter.setupCypress();
+    await startTest();
     const revocable = Proxy.revocable({}, {});
     const failure = kind === 'revoked' ? revocable.proxy : new Proxy({}, { has() { throw new Error('has trap'); } });
     revocable.revoke();

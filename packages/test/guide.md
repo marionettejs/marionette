@@ -585,7 +585,9 @@ A View detached through `region.detachView()` transfers back to the caller.
 the same mount-local `scope`. The View factory receives `(scope)`; the Application
 factory receives `(region, scope)`. That scope is available before factory setup,
 and it is the same object as `mounted.scope`. Call `scope.defer(dispose)` for a
-resource's teardown or `scope.own(resource)` for an object with a `cleanup()` method.
+resource's teardown or `scope.own(resource)` for an object with a `cleanup()` or
+`destroy()` method. Cleanup takes precedence when both exist; the method keeps
+its receiver and its returned Promise is awaited.
 It is a nested owner: local resources finish in reverse registration order before
 the outer View/Application, Region, and helper DOM are released. Both
 `mounted.cleanup()` and `mounted.scope.cleanup()` perform this entire teardown;
@@ -593,15 +595,18 @@ repeated calls return the same Promise, including its rejection.
 
 ### Cypress fixture and mount lifetimes
 
-`testScope()` queues access to the current test's fixture owner:
+`testScope()` synchronously returns the current test's fixture owner. It throws
+before the first test, between tests, and once automatic teardown begins. It is
+available in test bodies and per-test hooks while that test is active:
 
 ```js
 import { testScope, mountApplication, unmount } from '@mnjs/test/cypress';
 import { Radio } from '@mnjs/radio';
 
-beforeEach(() => testScope().then(fixtures => {
+beforeEach(() => {
+  const fixtures = testScope();
   fixtures.reply(Radio, 'session', 'current', () => ({ user: 'Ada' }));
-}));
+});
 
 it('owns services inside a mounted shell', () => {
   mountApplication((region, scope, fixtures) => {
@@ -610,7 +615,7 @@ it('owns services inside a mounted shell', () => {
   }, { start: false }).then(mounted => {
     mounted.app.showView(new ShellView());
     const service = createDialer(mounted.app);
-    mounted.scope.defer(() => service.destroy());
+    mounted.scope.own(service);
   });
   unmount(); // Waits for the dialer, then shell and Region. Session replies remain.
 });
@@ -629,6 +634,57 @@ registration order relative to mounts does not change that nesting. Explicit
 `unmount()` disposes only the current mount and leaves test fixtures alive. The
 adapter attempts fixture cleanup even when a mounted disposer fails and preserves
 both failures. A new test receives a fresh fixture scope.
+
+### Migrating factory scopes from 0.1
+
+In 0.1 the scope passed to Cypress mount factories was cleaned after the mounted
+shell. In 0.2 it is mount-local and cleans up before that shell. Keep shell-owned
+services there; move fixtures that must survive replacement to `testScope()`.
+The accessor is synchronous, so fixture setup in `beforeEach` needs no `.then`.
+
+### Support-file hook order
+
+Register the helper's hooks before other support modules register root hooks, so
+owned resources finish before WebSocket or coverage teardown. With static ESM
+imports, put setup in a side-effect module and import it first:
+
+```js
+// cypress/support/mnjs-test-hooks.js
+import { setupCypress } from '@mnjs/test/cypress';
+setupCypress();
+```
+
+```js
+// cypress/support/component.js
+import './mnjs-test-hooks.js';
+import '@cypress/code-coverage/support';
+import './websockets.js';
+// Register the project's mount commands here.
+```
+
+Moving a call above static imports does not make it run before those modules.
+`afterEach` hooks nested inside `describe` run before the helper's root teardown
+and may use `testScope()`. Later root hooks, including top-level spec hooks,
+cannot acquire fixtures after that teardown starts.
+
+### E2E resource ownership
+
+`setupCypress()` is for component testing. E2E tests can own fixtures with the
+runner-neutral scope and ordinary hooks:
+
+```js
+import { createTestScope } from '@mnjs/test/scope';
+let resources;
+beforeEach(() => { resources = createTestScope(); });
+afterEach(() => resources?.cleanup());
+// Register each test's fixtures with resources.defer(...) or resources.own(...).
+```
+
+### Borrowed container contents
+
+Cleanup removes helper-owned fixture DOM and preserves foreign nodes in a
+borrowed container. If a test appends a node outside its mount, register its
+removal explicitly, for example `scope.defer(() => node.remove())`.
 
 ### Pending startup exception
 

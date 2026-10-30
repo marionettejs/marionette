@@ -1,5 +1,5 @@
 import { withErrorMessages } from './errors.ts';
-import type { Cleanup, ReplyChannel, ReplyRadio, TestScope } from './scope.ts';
+import type { Cleanable, Cleanup, Destroyable, ReplyChannel, ReplyRadio, TestScope } from './scope.ts';
 
 // Mounts can cancel pending readiness before any dependent asynchronous disposer.
 export function createOwner(begin?: () => void): TestScope {
@@ -25,7 +25,10 @@ export function createOwner(begin?: () => void): TestScope {
   const scope: TestScope = {
     defer,
     own(resource) {
-      defer(() => resource.cleanup());
+      defer(() => {
+        const cleanup = (resource as Partial<Cleanable>).cleanup;
+        return typeof cleanup === 'function' ? cleanup.call(resource) : (resource as Destroyable).destroy();
+      });
       return resource;
     },
     reply(source: ReplyChannel | ReplyRadio, channelOrName: string, nameOrValue: unknown, valueOrContext?: unknown, context?: unknown) {

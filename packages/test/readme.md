@@ -123,12 +123,20 @@ contract. Show or replace Views through `mounted.region.show(view)`; cleanup own
 the current View as well as the Region. Supplied hosts and their siblings remain
 borrowed.
 
-In Cypress, `testScope()` from `@mnjs/test/cypress` queues access to fixtures that
+In Cypress, `testScope()` from `@mnjs/test/cypress` synchronously returns fixtures that
 survive remounts and `unmount()`. They are released after the final mount during
 test teardown. Use `mounted.scope` for mount-local services and
 `mounted.testScope` for those longer-lived fixtures. Pending Application startup
 is cancelled first and can release prepared UI early; see the
 [cleanup contract](guide.md#resource-lifetimes-and-failed-mounts).
+
+Register `setupCypress()` before support modules that register root hooks. Use an
+early side-effect setup module when those hooks are registered by imports; see
+the [support-file ordering](guide.md#support-file-hook-order).
+
+In 0.1, the scope passed to a Cypress mount factory outlived the mounted shell.
+In 0.2 it is mount-local and cleans up before that shell. Put fixtures that must
+survive remounts in `testScope()` and keep shell-owned services in the factory scope.
 
 For cleanup without mounting, use the runner-free `@mnjs/test/scope` entry.
 

@@ -5,6 +5,9 @@ export type Cleanup = () => unknown;
 export interface Cleanable {
   cleanup(): unknown;
 }
+export interface Destroyable {
+  destroy(): unknown;
+}
 
 /** The public Radio operations needed to own one reply without importing Radio. */
 export interface ReplyChannel {
@@ -17,7 +20,7 @@ export interface ReplyRadio<Channel extends ReplyChannel = ReplyChannel> {
 
 export interface TestScope extends Cleanable {
   defer(cleanup: Cleanup): void;
-  own<Resource extends Cleanable>(resource: Resource): Resource;
+  own<Resource extends Cleanable | Destroyable>(resource: Resource): Resource;
   reply<Channel extends ReplyChannel>(radio: ReplyRadio<Channel>, channelName: string, name: string, value: unknown, context?: unknown): Channel;
   reply<Channel extends ReplyChannel>(channel: Channel, name: string, value: unknown, context?: unknown): Channel;
   cleanup(): Promise<void>;

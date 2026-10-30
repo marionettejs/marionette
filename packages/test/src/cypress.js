@@ -6,15 +6,18 @@ import { createTestScope } from './scope.ts';
 
 const session = createMountSession();
 let configured = false;
+let activeTest = false;
 let fixtures;
 let testCompletion;
 
 function currentTestScope() {
-  if (!fixtures) { fixtures = createTestScope(); }
+  if (!configured) { throw new Error('Call setupCypress() in the component support file before using testScope().'); }
+  if (!activeTest) { throw new Error('testScope() requires an active component test or per-test hook before automatic teardown begins.'); }
   return fixtures;
 }
 
 function cleanupTest() {
+  activeTest = false;
   if (!testCompletion) {
     const pending = Promise.withResolvers();
     testCompletion = pending.promise;
@@ -41,6 +44,7 @@ export function setupCypress() {
     await cleanupTest();
     fixtures = createTestScope();
     testCompletion = undefined;
+    activeTest = true;
   });
   afterEach(cleanupTest);
   configured = true;
@@ -87,10 +91,7 @@ export function unmount() {
   return cy.then({ log: false }, () => session.cleanup());
 }
 
-// Queue access to fixtures that survive remounts and are released after the final mount.
+// Fixtures survive remounts and are available synchronously during the active test.
 export function testScope() {
-  return cy.then({ log: false }, () => {
-    if (!configured) { throw new Error('Call setupCypress() in the component support file before using testScope().'); }
-    return currentTestScope();
-  });
+  return currentTestScope();
 }

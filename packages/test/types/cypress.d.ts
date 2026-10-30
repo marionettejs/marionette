@@ -12,8 +12,8 @@ export interface AppMountOptions extends Omit<ApplicationMountOptions, 'containe
 export type CypressMount<Mounted> = Mounted & { readonly testScope: TestScope };
 /** Register awaited lifecycle hooks in the component support file; no commands are registered. */
 export declare function setupCypress(): void;
-/** Fixtures survive replacement/unmount and are disposed after the last mount at test teardown. */
-export declare function testScope(): Cypress.Chainable<TestScope>;
+/** Synchronous during the active test/hooks, before automatic teardown; throws outside that lifetime. */
+export declare function testScope(): TestScope;
 /** Replace the previous mount after its cleanup finishes. Each factory receives the handle's mount scope. */
 export declare function mount<View extends SupportedView>(view: View | ((scope: TestScope, testScope: TestScope) => View), options?: MountOptions): Cypress.Chainable<CypressMount<MountedView<View>>>;
 /** Choose startup explicitly. start:true waits for ready and rejects cancelled startup. */
