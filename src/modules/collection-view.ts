@@ -514,22 +514,21 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this.sort();
   },
 
-  // Handle collection additions, removals, and updated models.
+  // Handle collection additions, removals, and model replacements.
   _onCollectionUpdate(this: CollectionViewInternals, changes: Update) {
     if (this._isDestroying || this._isDestroyed) { return; }
 
-    const updateEntries = [];
+    const replacementEntries = [];
     for (const { key, previous, current } of changes.updated) {
+      if (previous === current) { continue; }
       const view = this._children.findByKey(key);
       if (view) {
-        updateEntries.push({ current, previous, view });
+        replacementEntries.push({ current, view });
       }
     }
-    const replacementViews = updateEntries
-      .filter(({ current, previous }) => current !== previous)
+    const replacementViews = replacementEntries
       .map(({ current }) => this._createChildView(current));
     const removedViews: CollectionChild[] = [];
-    const updatedViews: CollectionChild[] = [];
     let replacementIndex = 0;
 
     // Remove obsolete keys before adding or replacing the current children.
@@ -545,20 +544,15 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       this._addChild(view);
     }
 
-    for (const { current, previous, view } of updateEntries) {
-      if (previous !== current) {
-        const childIndex = this._children.findIndexByView(view);
-        this._removeChild(view);
-        removedViews.push(view);
-        const replacementView = replacementViews[replacementIndex++];
-        this._addChild(replacementView, childIndex);
-      } else {
-        updatedViews.push(view);
-      }
+    for (const { view } of replacementEntries) {
+      const childIndex = this._children.findIndexByView(view);
+      this._removeChild(view);
+      removedViews.push(view);
+      const replacementView = replacementViews[replacementIndex++];
+      this._addChild(replacementView, childIndex);
     }
 
     this._detachChildren(removedViews);
-    for (const view of updatedViews) { view._isRendered = false; }
     this.sort();
 
     // Destroy removed child views after all of the render is complete
