@@ -28,6 +28,192 @@ function lifecycle(name, trace) {
 }
 
 describe('CollectionView deferred child lifecycle', () => {
+  it('keeps deferred rows inactive when adoption notifications mount the list', () => {
+    for (const mountBeforeAdoption of [false, true]) {
+      const attach = vi.fn();
+      const Row = View.extend({ template: () => 'Row', onAttach: attach });
+      const row = new Row();
+      const list = new CollectionView().render();
+      const region = mount();
+      if (mountBeforeAdoption) {
+        list.once('before:add:child', () => { region.show(list); region.detachView(); });
+      }
+      list.once('add:child', () => { region.show(list); });
+      list.addChildView(row, { preventRender: true });
+      expect(list.children.hasView(row)).toBe(true);
+      expect(row.el.isConnected).toBe(false);
+      expect(row.isAttached()).toBe(false);
+      expect(attach).not.toHaveBeenCalled();
+      list.filter();
+      expect(row.el.isConnected).toBe(true);
+      expect(attach).toHaveBeenCalledTimes(1);
+      region.destroy();
+    }
+  });
+
+  it('preserves a new deferred batch started by emptyView attachment', () => {
+    const attach = vi.fn();
+    const Row = View.extend({ template: () => 'Row' });
+    const Pending = Row.extend({ onAttach: attach });
+    const pending = new Pending();
+    let added = false;
+    let list;
+    const Empty = View.extend({
+      template: () => 'Empty',
+      onAttach() {
+        if (added) { return; }
+        added = true;
+        list.addChildView(pending, { preventRender: true });
+      }
+    });
+    list = new CollectionView({ collection: [{ id: 1 }], childView: Row, emptyView: Empty });
+    const region = mount();
+    region.show(list);
+    list.setFilter(() => false);
+    expect(list.children.hasView(pending)).toBe(true);
+    expect(pending.el.isConnected).toBe(false);
+    expect(attach).not.toHaveBeenCalled();
+    region.detachView();
+    region.show(list);
+    expect(pending.isAttached()).toBe(false);
+    expect(attach).not.toHaveBeenCalled();
+    list.setFilter(() => true);
+    expect(pending.el.isConnected).toBe(true);
+    expect(attach).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps deferred rows pending when custom isEmpty chooses the empty presentation', () => {
+    let showEmpty = true;
+    const attach = vi.fn();
+    const Empty = View.extend({ template: () => 'Empty' });
+    const Row = View.extend({ template: () => 'Row', onAttach: attach });
+    const List = CollectionView.extend({ emptyView: Empty, isEmpty() { return showEmpty; } });
+    const list = new List().render();
+    const pending = new Row();
+    list.addChildView(pending, { preventRender: true });
+    list.filter();
+    const region = mount();
+    region.show(list);
+    expect(list.children.hasView(pending)).toBe(true);
+    expect(pending.el.isConnected).toBe(false);
+    expect(pending.isAttached()).toBe(false);
+    expect(attach).not.toHaveBeenCalled();
+    showEmpty = false;
+    list.filter();
+    expect(pending.el.isConnected).toBe(true);
+    expect(attach).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps earlier pending rows deferred when later additions adopt existing markup', () => {
+    for (const mode of ['light', 'open', 'closed']) {
+      const el = document.createElement('div');
+      const markup = mode === 'light' ? el : el.attachShadow({ mode });
+      markup.innerHTML = '<button>Existing action</button>';
+      const list = new CollectionView({ el, template: false }).render();
+      const pendingAttach = vi.fn();
+      const Pending = View.extend({ template: () => 'Pending', onAttach: pendingAttach });
+      const pending = new Pending();
+      const adopted = new View({ el: markup.querySelector('button'), template: false });
+      list.addChildView(pending, { preventRender: true });
+      list.addChildView(adopted, { preventRender: true });
+      expect(list.children.toArray()).toEqual([pending, adopted]);
+      const region = mount();
+      region.show(list);
+      expect(adopted.isAttached()).toBe(true);
+      expect(pending.isAttached()).toBe(false);
+      expect(pendingAttach).not.toHaveBeenCalled();
+      region.detachView();
+      region.show(list);
+      expect(pendingAttach).not.toHaveBeenCalled();
+      list.sort();
+      expect(pending.isAttached()).toBe(true);
+      expect(pendingAttach).toHaveBeenCalledTimes(1);
+      region.destroy();
+    }
+  });
+
+  it('presents previously excluded deferred rows and preserves their rendered contents', () => {
+    let include = false;
+    const renders = vi.fn();
+    const Row = View.extend({ template: () => '<input value="initial">', onRender: renders });
+    const list = new CollectionView({ viewFilter: () => include }).render();
+    const row = new Row();
+    list.addChildView(row, { preventRender: true });
+    const region = mount();
+    region.show(list);
+    list.filter();
+    expect(list.children.length).toBe(0);
+    expect(row.isAttached()).toBe(false);
+    expect(row.isDestroyed()).toBe(false);
+    include = true;
+    list.filter();
+    expect(row.isAttached()).toBe(true);
+    const input = row.el.firstChild;
+    input.value = 'retained';
+    include = false;
+    list.filter();
+    include = true;
+    list.filter();
+    expect(row.el.firstChild).toBe(input);
+    expect(input.value).toBe('retained');
+    expect(renders).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps remaining deferred rows pending when another row transfers or destroys itself', () => {
+    const list = new CollectionView().render();
+    const visible = new View({ template: () => 'Visible' });
+    list.addChildView(visible);
+    const transferred = new View({ template: () => 'Transferred' });
+    const removed = new View({ template: () => 'Removed' });
+    const pending = new View({ template: () => 'Pending' });
+    for (const row of [transferred, removed, pending]) {
+      list.addChildView(row, { preventRender: true });
+    }
+    list.detachChildView(transferred);
+    removed.destroy();
+    const other = new CollectionView().render();
+    other.addChildView(transferred);
+    mount().show(other);
+    const region = mount();
+    region.show(list);
+    expect(transferred.isAttached()).toBe(true);
+    expect(list.children.toArray()).toEqual([visible, pending]);
+    expect(visible.isAttached()).toBe(true);
+    expect(pending.isAttached()).toBe(false);
+    list.removeChildView(pending);
+    region.detachView();
+    region.show(list);
+    const next = new View({ template: () => 'Next batch' });
+    list.addChildView(next, { preventRender: true });
+    region.detachView();
+    region.show(list);
+    expect(next.isAttached()).toBe(false);
+    list.filter();
+    expect(next.isAttached()).toBe(true);
+    expect(transferred.isDestroyed()).toBe(false);
+  });
+
+  it('starts a fresh deferred batch after full render destroys the previous manual rows', () => {
+    const Row = View.extend({ template: () => 'Collection row' });
+    const list = new CollectionView({ collection: [{ id: 1 }], childView: Row }).render();
+    const pending = new View({ template: () => 'Pending' });
+    list.addChildView(pending, { preventRender: true });
+    const region = mount();
+    region.show(list);
+    expect(pending.isAttached()).toBe(false);
+    list.render();
+    expect(pending.isDestroyed()).toBe(true);
+    expect(list.children.length).toBe(1);
+    expect(list.children.first().isAttached()).toBe(true);
+    const next = new View({ template: () => 'Next batch' });
+    list.addChildView(next, { preventRender: true });
+    region.detachView();
+    region.show(list);
+    expect(next.isAttached()).toBe(false);
+    list.sort();
+    expect(next.isAttached()).toBe(true);
+  });
+
   it('preserves attachment on flushing markup adopted after the list was mounted', () => {
     for (const constructBeforeMount of [true, false]) {
       const onAttach = vi.fn();

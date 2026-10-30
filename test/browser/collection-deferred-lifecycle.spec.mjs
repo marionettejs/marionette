@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from './fixtures.mjs';
 
-async function checkDeferredRow(page, renderBeforeAdoption) {
-  const result = await page.evaluate(async(preRendered) => {
+async function checkDeferredRow(page, renderBeforeAdoption, mountOnAddition = false) {
+  const result = await page.evaluate(async({ preRendered, mountOnAddition: mountFromNotification }) => {
     const { CollectionView, Region, View } = await import('marionette');
     const source = new EventTarget();
     const attaches = [];
@@ -23,10 +23,11 @@ async function checkDeferredRow(page, renderBeforeAdoption) {
     const empty = list.getEmptyRegion().currentView;
     const row = new Row();
     if (preRendered) { row.render(); }
-    list.addChildView(row, { preventRender: true });
     const region = new Region({ el: '#content' });
     try {
-      region.show(list);
+      if (mountFromNotification) { list.once('add:child', () => { region.show(list); }); }
+      list.addChildView(row, { preventRender: true });
+      if (!mountFromNotification) { region.show(list); }
       source.dispatchEvent(new Event('tick'));
       const mounted = {
         attached: row.isAttached(), connected: row.el.isConnected,
@@ -52,7 +53,7 @@ async function checkDeferredRow(page, renderBeforeAdoption) {
     } finally {
       if (!region.isDestroyed()) { region.destroy(); }
     }
-  }, renderBeforeAdoption);
+  }, { preRendered: renderBeforeAdoption, mountOnAddition });
   assert.deepEqual(result.mounted, {
     attached: false, connected: false, focused: false, attaches: [], deliveries: 0, emptyAttached: true
   });
@@ -69,6 +70,10 @@ async function checkDeferredRow(page, renderBeforeAdoption) {
 
 test('deferred fresh rows initialize focus and listeners only after insertion', async({ page }) => {
   await checkDeferredRow(page, false);
+});
+
+test('deferred rows stay inactive when adoption notifications mount the list', async({ page }) => {
+  await checkDeferredRow(page, false, true);
 });
 
 test('deferred pre-rendered rows initialize focus and listeners only after insertion', async({ page }) => {
@@ -89,19 +94,24 @@ test('deferred adoption of existing list markup preserves attachment and focus',
       const markup = mode === 'light' ? el : el.attachShadow({ mode });
       markup.innerHTML = '<section><button>Existing action</button></section>';
       const list = new CollectionView({ el, template: false }).render();
+      const pending = new View({ template: () => 'Pending action' });
       const button = markup.querySelector('button');
       const row = new Row({ el: button });
+      list.addChildView(pending, { preventRender: true });
       list.addChildView(row, { preventRender: true });
       const region = new Region({ el: '#content' });
       try {
         region.show(list);
-        const mounted = { attached: row.isAttached(), focused: button.getRootNode().activeElement === button, attaches: [...attaches] };
+        const mounted = {
+          attached: row.isAttached(), focused: button.getRootNode().activeElement === button,
+          attaches: [...attaches], pendingAttached: pending.isAttached()
+        };
         region.detachView();
         const detached = { attached: row.isAttached(), connected: button.isConnected };
         region.show(list);
         const remounted = { focused: button.getRootNode().activeElement === button, attaches: [...attaches] };
         region.destroy();
-        observations.push({ mode, mounted, detached, remounted, destroyed: row.isDestroyed() });
+        observations.push({ mode, mounted, detached, remounted, destroyed: row.isDestroyed() && pending.isDestroyed() });
       } finally {
         if (!region.isDestroyed()) { region.destroy(); }
       }
@@ -109,7 +119,7 @@ test('deferred adoption of existing list markup preserves attachment and focus',
     return observations;
   });
   for (const result of results) {
-    assert.deepEqual(result.mounted, { attached: true, focused: true, attaches: [true] }, result.mode);
+    assert.deepEqual(result.mounted, { attached: true, focused: true, attaches: [true], pendingAttached: false }, result.mode);
     assert.deepEqual(result.detached, { attached: false, connected: false }, result.mode);
     assert.deepEqual(result.remounted, { focused: true, attaches: [true, true] }, result.mode);
     assert.equal(result.destroyed, true, result.mode);
@@ -145,4 +155,64 @@ test('flushing late markup adoption completes attachment and focus', async({ pag
   assert.deepEqual(result.flushed, { attached: true, focused: true, attaches: [true] });
   assert.deepEqual(result.detached, { attached: false, connected: false });
   assert.deepEqual(result.remounted, [true, true]);
+});
+
+
+test('empty presentation keeps deferred rows inactive until a later flush', async({ page }) => {
+  const results = await page.evaluate(async() => {
+    const { CollectionView, Region, View } = await import('marionette');
+    const observations = [];
+    for (const fromEmptyHook of [true, false]) {
+      let list;
+      let showEmpty = true;
+      let added = false;
+      const attaches = [];
+      const Row = View.extend({ tagName: 'button', template: () => 'Action' });
+      const Pending = Row.extend({
+        onAttach() { attaches.push(this.el.isConnected); this.el.focus(); }
+      });
+      const pending = new Pending();
+      const Empty = View.extend({
+        template: () => 'Empty',
+        onAttach() {
+          if (!fromEmptyHook || added) { return; }
+          added = true;
+          list.addChildView(pending, { preventRender: true });
+        }
+      });
+      const List = fromEmptyHook ? CollectionView : CollectionView.extend({ isEmpty() { return showEmpty; } });
+      list = new List({ childView: Row, emptyView: Empty, collection: fromEmptyHook ? [{ id: 1 }] : [] }).render();
+      const region = new Region({ el: '#content' });
+      try {
+        region.show(list);
+        if (fromEmptyHook) {
+          list.setFilter(() => false);
+        } else {
+          list.addChildView(pending, { preventRender: true });
+          list.filter();
+        }
+        region.detachView();
+        region.show(list);
+        const waiting = { attached: pending.isAttached(), connected: pending.el.isConnected, attaches: [...attaches] };
+        showEmpty = false;
+        if (fromEmptyHook) {
+          list.setFilter(() => true);
+        } else {
+          list.filter();
+        }
+        const flushed = { attached: pending.isAttached(), connected: pending.el.isConnected,
+          focused: document.activeElement === pending.el, attaches: [...attaches] };
+        region.destroy();
+        observations.push({ waiting, flushed, destroyed: pending.isDestroyed() });
+      } finally {
+        if (!region.isDestroyed()) { region.destroy(); }
+      }
+    }
+    return observations;
+  });
+  for (const result of results) {
+    assert.deepEqual(result.waiting, { attached: false, connected: false, attaches: [] });
+    assert.deepEqual(result.flushed, { attached: true, connected: true, focused: true, attaches: [true] });
+    assert.equal(result.destroyed, true);
+  }
 });

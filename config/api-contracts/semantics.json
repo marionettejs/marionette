@@ -2382,6 +2382,38 @@
         },
         {
           "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "preserves a new deferred batch started by emptyView attachment"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "keeps deferred rows inactive when adoption notifications mount the list"
+        },
+        {
+          "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
+          "title": "deferred rows stay inactive when adoption notifications mount the list"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "keeps deferred rows pending when custom isEmpty chooses the empty presentation"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "keeps earlier pending rows deferred when later additions adopt existing markup"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "presents previously excluded deferred rows and preserves their rendered contents"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "keeps remaining deferred rows pending when another row transfers or destroys itself"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
+          "title": "starts a fresh deferred batch after full render destroys the previous manual rows"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js",
           "title": "attaches a deferred child that adopts markup already inside the list"
         },
         {
@@ -2399,6 +2431,10 @@
         {
           "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
           "title": "deferred fresh rows initialize focus and listeners only after insertion"
+        },
+        {
+          "file": "test/browser/collection-deferred-lifecycle.spec.mjs",
+          "title": "empty presentation keeps deferred rows inactive until a later flush"
         },
         {
           "file": "test/browser/collection-deferred-lifecycle.spec.mjs",

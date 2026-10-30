@@ -43,6 +43,14 @@
     },
     {
       "file": "collection-deferred-lifecycle.spec.mjs",
+      "title": "empty presentation keeps deferred rows inactive until a later flush"
+    },
+    {
+      "file": "collection-deferred-lifecycle.spec.mjs",
+      "title": "deferred rows stay inactive when adoption notifications mount the list"
+    },
+    {
+      "file": "collection-deferred-lifecycle.spec.mjs",
       "title": "deferred pre-rendered rows initialize focus and listeners only after insertion"
     },
     {
