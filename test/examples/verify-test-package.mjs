@@ -12,6 +12,7 @@ const { values } = parseArgs({ options: {
   browser: { type: 'boolean', default: false },
   cypress: { type: 'boolean', default: false },
   'minimum-peers': { type: 'boolean', default: false },
+  'cypress-floor': { type: 'boolean', default: false },
   artifact: { type: 'string' },
   sha256: { type: 'string' }
 } });
@@ -30,7 +31,7 @@ const env = {
   PATH: (process.env.PATH || '').split(delimiter).filter(path => !path.includes('node_modules')).join(delimiter)
 };
 const report = { artifact: undefined, sha256: undefined, node: process.version,
-  dependencyProfile: values['minimum-peers'] ? 'minimum-peers' : 'locked-examples',
+  dependencyProfile: values['cypress-floor'] ? 'cypress-14' : values['minimum-peers'] ? 'minimum-peers' : 'locked-examples',
   requestedChecks: { browser: values.browser, cypress: values.cypress }, stages: [], passed: false };
 function run(name, command, args, cwd = consumer) {
   const stage = { name, passed: false };
@@ -63,7 +64,8 @@ try {
     playwright: fixtureManifest.devDependencies['@playwright/test'],
     vitest: values['minimum-peers'] ? '4.1.0' : fixtureManifest.devDependencies.vitest,
     testingLibrary: values['minimum-peers'] ? '8.7.0' : fixtureManifest.devDependencies['@testing-library/dom'],
-    mountUtils: values['minimum-peers'] ? '4.0.0' : fixtureManifest.devDependencies['@cypress/mount-utils']
+    mountUtils: values['minimum-peers'] || values['cypress-floor'] ? '4.0.0' : fixtureManifest.devDependencies['@cypress/mount-utils'],
+    cypress: values['cypress-floor'] ? '14.0.0' : fixtureManifest.devDependencies.cypress
   };
   const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
   const sourceDirty = Boolean(execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: root, encoding: 'utf8' }).trim());
@@ -116,6 +118,13 @@ try {
       '@testing-library/dom': '8.7.0', '@cypress/mount-utils': '4.0.0'
     });
   }
+  if (values['cypress-floor']) {
+    // Cypress 14 uses its own component-server tooling, independently of runtime peers.
+    Object.assign(consumerManifest.devDependencies, {
+      cypress: '14.0.0', '@cypress/mount-utils': '4.0.0',
+      '@cypress/vite-dev-server': '6.0.1', vite: '6.4.0'
+    });
+  }
   writeFileSync(join(consumer, 'package.json'), `${JSON.stringify(consumerManifest, null, 2)}\n`);
   const consumerLock = JSON.parse(originalLock);
   consumerLock.packages[''].dependencies['@mnjs/test'] = locator;
@@ -125,7 +134,7 @@ try {
   const lockedConsumer = `${JSON.stringify(consumerLock, null, 2)}\n`;
   writeFileSync(join(consumer, 'package-lock.json'), lockedConsumer);
   report.consumerLockSha256 = createHash('sha256').update(lockedConsumer).digest('hex');
-  if (values['minimum-peers']) {
+  if (values['minimum-peers'] || values['cypress-floor']) {
     // A separate exact-minimum graph is intentionally resolved without overrides.
     rmSync(join(consumer, 'package-lock.json'));
     runNpm('install', ['install', '--ignore-scripts', '--strict-peer-deps']);
@@ -150,7 +159,8 @@ try {
       playwright: require('@playwright/test/package.json').version,
       vitest: require('vitest/package.json').version,
       testingLibrary: require('@testing-library/dom/package.json').version,
-      mountUtils: require('@cypress/mount-utils/package.json').version
+      mountUtils: require('@cypress/mount-utils/package.json').version,
+      cypress: require('cypress/package.json').version
     };
     assert.deepEqual(actual, JSON.parse(process.argv[1]));
     console.log(JSON.stringify(actual));

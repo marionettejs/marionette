@@ -6,6 +6,7 @@ import cypress from 'cypress';
 const output = resolve('test-results/cypress/smoke.json');
 mkdirSync(resolve(output, '..'), { recursive: true });
 const report = { scenarios: [], passed: false };
+const componentOnly = process.env.MNJS_TEST_CYPRESS_COMPONENT_ONLY === '1';
 const scenarios = [
   { name: 'component', spec: 'cypress/component/**/*.cy.js', failed: 0 },
   { name: 'startup', error: /mnjs-startup-probe/ },
@@ -15,10 +16,10 @@ const scenarios = [
   { name: 'automatic-afterEach', spec: 'cypress/probes/after-each.cy.js', error: /mnjs-automatic-afterEach-cleanup-probe/ }
 ];
 try {
-  for (const scenario of scenarios) {
+  for (const scenario of scenarios.filter(candidate => !componentOnly || candidate.name === 'component')) {
     const result = await cypress.run({ component: true, browser: process.env.MNJS_TEST_CYPRESS_BROWSER || 'electron', reporter: 'spec',
       config: { component: { specPattern: scenario.spec || 'cypress/probes/failure.cy.js' }, retries: 0 },
-      expose: { mnjsProbe: scenario.name } });
+      ...(scenario.error ? { expose: { mnjsProbe: scenario.name } } : {}) });
     assert(Array.isArray(result.runs), result.message || 'Cypress did not produce test runs.');
     const tests = result.runs.flatMap(run => run.tests);
     report.scenarios.push({ name: scenario.name, cypressVersion: result.cypressVersion,
@@ -46,7 +47,7 @@ try {
       assert(scenario.error.test(failed[0].displayError || ''),
         `${scenario.name}: failure was not the expected command error: ${failed[0].displayError || '<no error>'}`);
     } else {
-      assert(result.totalPassed >= 9, 'The component smoke must execute all lifecycle examples.');
+      assert(result.totalPassed >= 10, 'The component smoke must execute all lifecycle examples.');
     }
   }
   report.passed = true;

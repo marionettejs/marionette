@@ -26,6 +26,27 @@ Cypress startup cancellation is an explicit ordering exception: public `stop()`
 can destroy prepared UI before services during pending initial startup. Require
 review of that boundary as well as mounted service-before-shell behavior.
 
+## Draft release announcement
+
+Apparently my plan for writing less test setup was to give the test helpers more
+work. AI helped. I'm choosing to call that progress.
+
+`@mnjs/test` 0.2.0 gives test fixtures and mounted services separate owners.
+Fixtures can survive remounts; services clean up before their mounted shell.
+`testScope()` is synchronous, `scope.own()` accepts cleanup or destroy methods,
+and `scope.reply()` owns individual Radio replies without resetting a channel.
+There's also a public `mountRegion()` and a scope-only import that doesn't load
+Marionette.
+
+If you used a Cypress mount factory's scope in 0.1, its cleanup now runs before
+the shell. Move anything that should survive remounts to `testScope()`.
+The Cypress peer accepts 14 and later; other optional peer floors are mount-utils
+4, DOM Testing Library 8.7 and Vitest 4.1. Check the release receipt for exact
+native runner results. Cypress 15 has not been run natively, and uncapped peers
+are permission to try future versions, not a promise that I tested next year.
+
+This is a draft for the unpublished candidate, not an availability announcement.
+
 ## Optional peer floors
 
 The lower boundaries follow the APIs and declarations used by the package:
@@ -49,7 +70,13 @@ lock. The default profile uses `npm ci` and preserves the committed modern
 external pins. Both run ESM/CommonJS, type, optional-peer isolation and JSDOM
 checks; `--browser` adds Vitest Browser Mode and the Playwright gallery. Cypress
 installation scripts remain disabled in both profiles; these checks do not run
-Cypress. Cypress 14/15 native runtime remains unverified.
+Cypress. The Linux helper workflow also runs a focused Cypress 14.0.0 component
+lane using mount-utils 4.0.0, dev-server 6.0.1 and Vite 6.4.0. Its existing
+lifecycle, fixture and explicit-unmount specs run in bundled Electron; failure
+probes using `Cypress.expose` remain on Cypress 16. Record the actual lane result
+and browser version with the release receipt. Cypress 15 native runtime has not
+been verified. Cypress declaration consumers use ES2022 libraries because older
+upstream Lodash declarations conflict with newer TypeScript WeakMap declarations.
 
 These peer ranges have no upper caps by policy. Passing known lower/current
 versions is evidence for those versions, not advance certification of future

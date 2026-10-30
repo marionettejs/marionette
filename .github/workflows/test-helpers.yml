@@ -18,9 +18,19 @@ concurrency:
 
 jobs:
   cypress:
-    name: Cypress packed helper (Linux x64)
+    name: Cypress ${{ matrix.cypress }} packed helper (Linux x64)
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - cypress: '16.2.0'
+            flags: ''
+            component-only: '0'
+          - cypress: '14.0.0'
+            flags: '--cypress-floor'
+            component-only: '1'
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -37,15 +47,16 @@ jobs:
         run: npm ci
       - name: Install example tools and Cypress browser
         run: |
-          npm --prefix packages/test/examples ci --ignore-scripts --install-links
-          npm --prefix packages/test/examples exec -- cypress install
+          npm exec --yes --ignore-scripts --package=cypress@${{ matrix.cypress }} -- cypress install
       - name: Verify packed helper with Cypress and failure probes
-        run: npm run test:helpers:consumer -- --cypress
+        env:
+          MNJS_TEST_CYPRESS_COMPONENT_ONLY: ${{ matrix.component-only }}
+        run: npm run test:helpers:consumer -- --cypress ${{ matrix.flags }}
       - name: Retain complete or partial consumer evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: test-helpers-cypress-${{ github.event.pull_request.number }}-${{ github.run_attempt }}
+          name: test-helpers-cypress-${{ matrix.cypress }}-${{ github.event.pull_request.number }}-${{ github.run_attempt }}
           path: test/tmp/test-package-consumer/
           if-no-files-found: warn
           retention-days: 30
