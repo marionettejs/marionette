@@ -43,7 +43,7 @@
     },
     {
       "file": "collection-deferred-lifecycle.spec.mjs",
-      "title": "empty presentation keeps deferred rows inactive until a later flush"
+      "title": "empty presentation keeps unpresented rows inactive until a later flush"
     },
     {
       "file": "collection-deferred-lifecycle.spec.mjs",
@@ -59,7 +59,11 @@
     },
     {
       "file": "collection-deferred-lifecycle.spec.mjs",
-      "title": "flushing late markup adoption completes attachment and focus"
+      "title": "late markup adoption initializes focus and listeners before flushing"
+    },
+    {
+      "file": "collection-deferred-lifecycle.spec.mjs",
+      "title": "adopted markup initializes focus when add:child mounts the list"
     },
     {
       "file": "collection-removal-survivors.spec.mjs",
