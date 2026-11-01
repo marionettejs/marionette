@@ -1,5 +1,5 @@
 {
   "extends": "../tsconfig.json",
-  "compilerOptions": { "types": ["cypress"] },
+  "compilerOptions": { "types": ["cypress"], "lib": ["ES2022", "DOM"] },
   "include": ["consumer.mts", "consumer.cts", "readme-commands.ts"]
 }

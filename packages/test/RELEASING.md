@@ -1,6 +1,6 @@
 # Release @mnjs/test
 
-This procedure releases only `@mnjs/test@0.1.0`, publicly, with dist-tag `latest`.
+This procedure releases only `@mnjs/test@0.2.0`, publicly, with dist-tag `latest`.
 The release owner is Paul Falgout or a publisher he explicitly authorizes. Record
 that person's approved npm username with the release receipt; a GitHub identity is
 not evidence of npm access. This document prepares the release and grants no
@@ -10,6 +10,80 @@ The root `release:*` commands and `.github/workflows/release.yml` coordinate
 `@mnjs/utils`, `@mnjs/radio`, `marionette`, `@mnjs/data` and `@mnjs/adapters`.
 They do **not** certify or publish this helper. Do not dispatch that workflow for
 an independent helper release or add the helper to its package inventory.
+
+## Expanded ownership candidate
+
+The ownership changes add public `mountRegion`, `@mnjs/test/scope`, scoped
+Radio replies, Cypress test fixtures and mount-local handles, and an observable
+`MountError.cleanup` Promise. It also changes local service cleanup order. Cypress handles expose the adapter
+`CypressMount<MountedView<View>>` type; invariant `Chainable` annotations may need
+that adapter type rather than a neutral `MountedView`.
+The expanded contract uses **0.2.0**. This is an unpublished candidate under
+review; publication requires separate
+authorization and completed runtime certification.
+
+Cypress startup cancellation is an explicit ordering exception: public `stop()`
+can destroy prepared UI before services during pending initial startup. Require
+review of that boundary as well as mounted service-before-shell behavior.
+
+## Draft release announcement
+
+Apparently my plan for writing less test setup was to give the test helpers more
+work. AI helped. I'm choosing to call that progress.
+
+`@mnjs/test` 0.2.0 gives test fixtures and mounted services separate owners.
+Fixtures can survive remounts; services clean up before their mounted shell,
+except that cancelling pending initial Application startup can destroy prepared
+UI first.
+`testScope()` is synchronous, `scope.own()` accepts cleanup or destroy methods,
+and `scope.reply()` owns individual Radio replies without resetting a channel.
+There's also a public `mountRegion()` and a scope-only import that doesn't load
+Marionette.
+
+If you used a Cypress mount factory's scope in 0.1, its cleanup now runs before
+the shell, with that pending-startup exception. Move anything that should survive
+remounts to `testScope()`.
+The Cypress peer accepts 14 and later; other optional peer floors are mount-utils
+4, DOM Testing Library 8.7 and Vitest 4.1. Check the release receipt for exact
+native runner results. Cypress 15 has not been run natively, and uncapped peers
+are permission to try future versions, not a promise that I tested next year.
+
+This is a draft for the unpublished candidate, not an availability announcement.
+
+## Optional peer floors
+
+The lower boundaries follow the APIs and declarations used by the package:
+Vitest 4.1 supplies the builder fixture API and `onCleanup`; DOM Testing Library
+8.7 preserves generic query overloads in `BoundFunctions`; mount-utils 4 supplies
+`getContainerEl` and `setupHooks` with the modern component root. Earlier
+mount-utils releases were inspected but are outside this contract. Vitest's
+declaration imports require `Disposable`; the emitted adapter declaration includes
+the `esnext.disposable` library reference so consumers need no tsconfig workaround.
+
+Validate these exact floors against the same packed archive:
+
+```sh
+npm run test:helpers:consumer -- --minimum-peers --artifact /absolute/path/mnjs-test-0.2.0.tgz --sha256 RECORDED_SHA256 --output /absolute/path/minimum-peers
+```
+
+This profile resolves Vitest/browser provider 4.1.0, DOM Testing Library 8.7.0 and
+mount-utils 4.0.0 with ordinary `npm install --strict-peer-deps --ignore-scripts`,
+without overrides or legacy resolution. It retains the generated manifest and
+lock. The default profile uses `npm ci` and preserves the committed modern
+external pins. Both run ESM/CommonJS, type, optional-peer isolation and JSDOM
+checks; `--browser` adds Vitest Browser Mode and the Playwright gallery. Cypress
+installation scripts remain disabled in both profiles; these checks do not run
+Cypress. The Linux helper workflow also runs a focused Cypress 14.0.0 component
+lane using mount-utils 4.0.0, dev-server 6.0.1 and Vite 6.4.0. Its existing
+lifecycle, fixture and explicit-unmount specs run in bundled Electron; failure
+probes using `Cypress.expose` remain on Cypress 16. Record the actual lane result
+and browser version with the release receipt. Cypress 15 native runtime has not
+been verified. Cypress declaration consumers use ES2022 libraries because older
+upstream Lodash declarations conflict with newer TypeScript WeakMap declarations.
+
+These peer ranges have no upper caps by policy. Passing known lower/current
+versions is evidence for those versions, not advance certification of future
+majors. Recheck the actual installed versions when an upstream release changes.
 
 ## Confirm the publishing account and version
 
@@ -31,7 +105,7 @@ read-only evidence; honor organization/team permissions and normal 2FA requireme
 Authentication, permission or network failures are blockers, not reasons to change
 credentials or registry settings silently.
 
-Confirm that `0.1.0` is available and that assigning `latest` is still appropriate.
+Confirm that `0.2.0` is available and that assigning `latest` is still appropriate.
 Stop for a maintainer decision if the version exists, the package belongs to an
 unexpected owner, or `latest` already targets a newer release. Never overwrite an
 existing version, silently bump the version or retarget another dist-tag.
@@ -94,14 +168,15 @@ npm pack ./packages/test --ignore-scripts --json --pack-destination /absolute/pa
 Record the archive's SHA256 with a portable Node command:
 
 ```sh
-node --input-type=module -e "import{readFileSync}from'node:fs';import{createHash}from'node:crypto';console.log(createHash('sha256').update(readFileSync(process.argv[1])).digest('hex'))" /absolute/path/to/mnjs-test-release/mnjs-test-0.1.0.tgz
+node --input-type=module -e "import{readFileSync}from'node:fs';import{createHash}from'node:crypto';console.log(createHash('sha256').update(readFileSync(process.argv[1])).digest('hex'))" /absolute/path/to/mnjs-test-release/mnjs-test-0.2.0.tgz
 ```
 
-On a provisioned cloud runner with Chromium, Cypress 16.1.1 and its display
-requirements installed, pass the same archive and its recorded hash to the verifier:
+On a provisioned cloud runner with Chromium, the Cypress binary matching
+`packages/test/examples/package-lock.json`, and its display requirements installed,
+pass the same archive and its recorded hash to the verifier:
 
 ```sh
-npm run test:helpers:consumer -- --artifact /absolute/path/to/mnjs-test-release/mnjs-test-0.1.0.tgz --sha256 RECORDED_SHA256 --browser --cypress --output /absolute/path/to/mnjs-test-release/verification
+npm run test:helpers:consumer -- --artifact /absolute/path/to/mnjs-test-release/mnjs-test-0.2.0.tgz --sha256 RECORDED_SHA256 --browser --cypress --output /absolute/path/to/mnjs-test-release/verification
 ```
 
 `--artifact` and `--sha256` are required together. This mode verifies the digest,
@@ -135,7 +210,7 @@ Only after the release owner authorizes this exact archive, account, version and
 dist-tag, run:
 
 ```sh
-npm publish /absolute/path/to/mnjs-test-release/mnjs-test-0.1.0.tgz --ignore-scripts --access public --tag latest --registry=https://registry.npmjs.org/
+npm publish /absolute/path/to/mnjs-test-release/mnjs-test-0.2.0.tgz --ignore-scripts --access public --tag latest --registry=https://registry.npmjs.org/
 ```
 
 Honor npm's normal authentication/2FA flow. If the outcome is uncertain, inspect

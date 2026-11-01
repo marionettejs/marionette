@@ -11,6 +11,7 @@
     "test:consumer": "node --import ./dom.js consumer.mjs && node --import ./dom.js consumer.cjs && tsc -p tsconfig.json && tsc -p cypress/tsconfig.json"
   },
   "dependencies": {
+    "@mnjs/radio": "5.0.0",
     "@mnjs/test": "file:..",
     "marionette": "5.0.0"
   },

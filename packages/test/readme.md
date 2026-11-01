@@ -13,7 +13,7 @@ Use Marionette 5 and Node.js `^22.22.2 || >=24.15.0`:
 
 ```sh
 npm install --save-exact marionette@5.0.0
-npm install --save-dev --save-exact @mnjs/test@0.1.0
+npm install --save-dev --save-exact @mnjs/test@0.2.0
 ```
 
 Install only the optional tools your tests use. Component tests can stay in
@@ -21,7 +21,7 @@ Cypress; the helper does not require a second runner.
 
 ## Use the runner-independent core
 
-Import `mountView`, `mountApplication` and `createTestScope` from `@mnjs/test`.
+Import `mountRegion`, `mountView`, `mountApplication` and `createTestScope` from `@mnjs/test`.
 They register no runner hooks or commands. Mounting needs a DOM configured
 **before** importing Marionette; a browser already supplies one. This Node example
 assumes that preload has run:
@@ -84,11 +84,12 @@ failing assertion; the test needs no mount registry or cleanup hook.
 
 | Import | Use it for |
 | --- | --- |
-| `@mnjs/test` | `mountView`, `mountApplication` and `createTestScope` with any DOM-capable runner. Register and await cleanup yourself. |
-| `@mnjs/test/vitest` | A per-test `mounts` fixture with awaited teardown, including concurrent tests. Requires Vitest 5. |
-| `@mnjs/test/cypress` | Explicit command registration, queued mounts and awaited replacement/teardown. Requires Cypress 14 or later and mount-utils 4 or 5. |
+| `@mnjs/test` | `mountRegion`, `mountView`, `mountApplication` and `createTestScope` with any DOM-capable runner. Register and await cleanup yourself. |
+| `@mnjs/test/scope` | `createTestScope` and owned Radio replies without importing Marionette or a runner. |
+| `@mnjs/test/vitest` | A per-test `mounts` fixture with awaited teardown, including concurrent tests. Requires Vitest 4.1 or later. |
+| `@mnjs/test/cypress` | Explicit command registration, queued mounts and awaited replacement/teardown. Requires Cypress 14 or later and mount-utils 4 or later. |
 | `@mnjs/test/playwright` | A browser-side story gallery used with Playwright's mount fixture and Locators. Return browser cleanup from the test's `afterEach`. |
-| `@mnjs/test/testing-library` | Standard queries bound to an existing mount's stable container. Requires DOM Testing Library 10.4.1; adds no separate lifecycle. |
+| `@mnjs/test/testing-library` | Standard queries bound to an existing mount's stable container. Requires DOM Testing Library 8.7 or later; adds no separate lifecycle. |
 
 The neutral entry and gallery do not require the other runners. Mounting requires
 a DOM; importing the neutral entry and creating a cleanup scope do not.
@@ -108,6 +109,58 @@ Always await cleanup. Runner fixtures do this for their owned mounts; neutral
 handles need your runner's teardown hook or a `try`/`finally`. Cleanup errors reach
 the runner and remain rejected on repeated calls. There is no universal leak
 checker or automatic repair of partially failed framework operations.
+
+## Own resources at the right lifetime
+
+Each mount exposes `mounted.scope`. Its callbacks run in reverse order and finish
+before the mounted shell, Region and helper DOM are destroyed. Calling
+`mounted.scope.cleanup()` performs the same complete teardown as
+`mounted.cleanup()`. A View factory receives this same scope; an Application
+factory receives `(region, scope)`.
+
+`mountRegion(options)` returns an owned Region handle with this scope and cleanup
+contract. Show or replace Views through `mounted.region.show(view)`; cleanup owns
+the current View as well as the Region. Supplied hosts and their siblings remain
+borrowed.
+
+In Cypress, `testScope()` from `@mnjs/test/cypress` synchronously returns fixtures that
+survive remounts and `unmount()`. They are released after the final mount during
+test teardown. Use `mounted.scope` for mount-local services and
+`mounted.testScope` for those longer-lived fixtures. Pending Application startup
+is cancelled first and can release prepared UI early; see the
+[cleanup contract](guide.md#resource-lifetimes-and-failed-mounts).
+
+Register `setupCypress()` before support modules that register root hooks. Use an
+early side-effect setup module when those hooks are registered by imports; see
+the [support-file ordering](guide.md#support-file-hook-order).
+
+In 0.1, the scope passed to a Cypress mount factory outlived the mounted shell.
+In 0.2 it is mount-local and cleans up before that shell. Put fixtures that must
+survive remounts in `testScope()` and keep shell-owned services in the factory scope.
+
+For cleanup without mounting, use the runner-free `@mnjs/test/scope` entry.
+
+The reply example also imports Radio. Install it directly with
+`npm install --save-dev --save-exact @mnjs/radio@5.0.0` if it is not already a
+dependency of your project:
+
+```js
+import { createTestScope } from '@mnjs/test/scope';
+import { Radio } from '@mnjs/radio';
+
+const scope = createTestScope();
+scope.reply(Radio, 'account', 'current', () => ({ name: 'Ada' }));
+// Or pass an already selected channel: scope.reply(channel, 'current', handler).
+await scope.cleanup();
+```
+
+Reply cleanup removes only this registration if it is still current. It does not
+reset a channel or restore a previously overwritten handler.
+
+Synchronous mount failures after resource acquisition throw `MountError` with the
+original error as `cause`. Await its `cleanup` Promise before continuing; a cleanup
+failure rejects with both causes. Cypress awaits this automatically. See the
+[full failure boundaries](guide.md#resource-lifetimes-and-failed-mounts).
 
 ## Version-matched reference
 

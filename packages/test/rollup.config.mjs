@@ -1,6 +1,6 @@
 import compile from '../../build/babel.js';
 
-export default ['index', 'cypress', 'playwright', 'vitest', 'testing-library'].map(name => ({
+export default ['index', 'scope', 'cypress', 'playwright', 'vitest', 'testing-library'].map(name => ({
   input: `src/${name}.${name === 'cypress' ? 'js' : 'ts'}`,
   external: ['marionette', '@cypress/mount-utils', 'vitest', '@testing-library/dom'],
   output: [

@@ -42,7 +42,8 @@ const neutral = [
   ...blocks('Use the runner-independent core', 'js', 1, 2, readme),
   ...blocks('Mount a View', 'js', 1, 3),
   ...blocks('Mount an Application', 'js', 2, 3),
-  ...blocks('Own a test\'s resources', 'js', 1, 3)
+  ...blocks('Own a test\'s resources', 'js', 1, 3),
+  ...blocks('Own resources at the right lifetime', 'js', 1, 2, readme)
 ];
 for (const [index, source] of neutral.entries()) {
   const before = [...document.body.childNodes];

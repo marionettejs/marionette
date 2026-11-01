@@ -1,7 +1,8 @@
-import { withErrorMessages } from './scope.ts';
-import { createTestScope, mountApplication, mountView } from './index.ts';
-import type { ApplicationMountOptions, MountOptions, MountedRegion, ViewMountOptions } from './index.ts';
+import { isMountError, takeMountCleanup, withErrorMessages } from './errors.ts';
+import { createTestScope, mountApplication, mountRegion, mountView } from './index.ts';
+import type { ApplicationMountOptions, MountOptions, MountedRegion, ViewFactory, ViewMountOptions } from './index.ts';
 import type { ApplicationInstance, RegionInstance, SupportedView } from 'marionette';
+import type { TestScope } from './scope.ts';
 
 // Each runner invocation owns its mounts independently of project cleanup callbacks.
 export function createMountContext(defaults: MountOptions = {}) {
@@ -16,6 +17,16 @@ export function createMountContext(defaults: MountOptions = {}) {
     disposers.push(handle.cleanup);
     return handle;
   }
+  function acquire<Handle extends MountedRegion>(create: () => Handle): Handle {
+    try { return own(create()); } catch (error) {
+      if (isMountError(error)) {
+        const pending = takeMountCleanup(error);
+        disposers.push(() => pending);
+        throw error.cause;
+      }
+      throw error;
+    }
+  }
   function cleanup() {
     if (!completion) {
       closed = true;
@@ -23,7 +34,7 @@ export function createMountContext(defaults: MountOptions = {}) {
       // Destruction callbacks can reenter cleanup; publish its identity first.
       completion = deferred.promise;
       // Start every mount's cancellation before awaiting independent project cleanup.
-      const pending = disposers.reverse().map(dispose => dispose());
+      const pending = disposers.splice(0).reverse().map(dispose => dispose());
       (async() => {
         const errors = (await Promise.allSettled(pending)).flatMap(result => result.status === 'rejected' ? [result.reason] : []);
         try { await scope.cleanup(); } catch (error) { errors.push(error); }
@@ -35,15 +46,19 @@ export function createMountContext(defaults: MountOptions = {}) {
   return {
     scope,
     cleanup,
-    mountView<View extends SupportedView>(view: View, options: ViewMountOptions = {}) {
+    mountRegion(options: MountOptions = {}) {
       assertOpen();
-      return own(mountView(view, { ...defaults, ...options }));
+      return acquire(() => mountRegion({ ...defaults, ...options }));
+    },
+    mountView<View extends SupportedView>(view: View | ViewFactory<View>, options: ViewMountOptions = {}) {
+      assertOpen();
+      return acquire(() => mountView(view, { ...defaults, ...options }));
     },
     mountApplication<App extends ApplicationInstance<object, unknown>>(
-      factory: (region: RegionInstance) => App, options: ApplicationMountOptions = {}
+      factory: (region: RegionInstance, scope: TestScope) => App, options: ApplicationMountOptions = {}
     ) {
       assertOpen();
-      return own(mountApplication(factory, { ...defaults, ...options }));
+      return acquire(() => mountApplication(factory, { ...defaults, ...options }));
     }
   };
 }

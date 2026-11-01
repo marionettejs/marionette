@@ -13,6 +13,43 @@ describe('explicit owned-resource scope', () => {
     await scope.cleanup();
     expect(resource.connected).toBe(false);
   });
+  it('owns destroy methods with their receiver and awaits them before earlier resources', async() => {
+    const scope = createTestScope();
+    const pending = Promise.withResolvers();
+    const events = [];
+    scope.defer(() => events.push('earlier'));
+    const resource = { state: 'connected', async destroy() {
+      events.push(this.state);
+      await pending.promise;
+      this.state = 'destroyed';
+    } };
+    expect(scope.own(resource)).toBe(resource);
+    const closing = scope.cleanup();
+    expect(events).toEqual(['connected']);
+    expect(resource.state).toBe('connected');
+    pending.resolve();
+    await closing;
+    expect(resource.state).toBe('destroyed');
+    expect(events).toEqual(['connected', 'earlier']);
+  });
+  it('prefers cleanup over destroy when a resource offers both', async() => {
+    const scope = createTestScope();
+    const resource = {
+      cleaned: false,
+      cleanup() { this.cleaned = true; },
+      destroy() { throw new Error('destroy must not run'); }
+    };
+    scope.own(resource);
+    await scope.cleanup();
+    expect(resource.cleaned).toBe(true);
+  });
+  it('destroys a resource with an undefined optional cleanup property', async() => {
+    const scope = createTestScope();
+    const resource = { cleanup: undefined, alive: true, destroy() { this.alive = false; } };
+    scope.own(resource);
+    await scope.cleanup();
+    expect(resource.alive).toBe(false);
+  });
   it('does not retry a Region teardown aborted by Application destruction', async() => {
     const error = new Error('empty failed');
     let attempts = 0;

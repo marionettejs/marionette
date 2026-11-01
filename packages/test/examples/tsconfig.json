@@ -17,6 +17,8 @@
     "consumer.cts",
     "runner-consumer.mts",
     "testing-library-consumer.mts",
-    "testing-library-consumer.cts"
+    "testing-library-consumer.cts",
+    "scope-consumer.mts",
+    "scope-consumer.cts"
   ]
 }
