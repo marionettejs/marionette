@@ -20,7 +20,7 @@
     "vite": "8.3.5",
     "typescript": "6.0.3",
     "eslint": "10.13.0",
-    "@typescript-eslint/parser": "8.72.0",
+    "@typescript-eslint/parser": "8.72.1",
     "@playwright/test": "1.64.1"
   },
   "engines": {
