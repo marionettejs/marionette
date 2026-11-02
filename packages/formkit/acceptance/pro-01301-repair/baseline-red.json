@@ -1,0 +1,20 @@
+{
+  "sourceRevision": "68ee900f08c3e7b6133a2d5c6ea931eea41709bc",
+  "sourceChanges": "",
+  "testRevision": "3a170e5df1e3740bc164c303a2c34d896762e558",
+  "node": "v24.19.0",
+  "vitest": "5.0.3",
+  "command": [
+    "node_modules/.bin/vitest",
+    "run",
+    "test/unit/formkit-hardening.spec.js",
+    "test/unit/formkit-regressions.spec.js",
+    "--maxWorkers=1"
+  ],
+  "exitCode": 1,
+  "tests": {
+    "test/unit/formkit-hardening.spec.js": "b05a4fef90eef823ab5bf144dbd555f5197ddecc92ca6a4fcd5faaff2414dd88",
+    "test/unit/formkit-regressions.spec.js": "d986fd3501a716554efd68ee82655df3d812a1e47a00c4e2b301eaf8893a3d5d"
+  },
+  "setup": "Shared installed dependencies; copied ignored generated src/version.js from the same 5.0.0 build. Tracked production source unchanged."
+}

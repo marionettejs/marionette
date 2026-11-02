@@ -1,0 +1,32 @@
+{
+  "sourceRevision": "3a170e5df1e3740bc164c303a2c34d896762e558",
+  "node": "v24.19.0",
+  "playwright": "1.63.0",
+  "browser": "154.0.8037.57",
+  "stacks": {
+    "native": {
+      "initialSubmitAttrs": {
+        "disabled": false
+      },
+      "whilePendingDisabled": true,
+      "requestSubmitAttempts": 2,
+      "callbackCount": 1
+    },
+    "vue": {
+      "initialSubmitAttrs": {
+        "disabled": false
+      },
+      "whilePendingDisabled": true,
+      "requestSubmitAttempts": 2,
+      "callbackCount": 2
+    },
+    "react": {
+      "initialSubmitAttrs": {
+        "disabled": false
+      },
+      "whilePendingDisabled": true,
+      "requestSubmitAttempts": 2,
+      "callbackCount": 2
+    }
+  }
+}
