@@ -163,16 +163,6 @@ function mergeValues(base: FormValues, supplied: FormValues): FormValues {
     isPojo(base[name]) && isPojo(supplied[name]) ? mergeValues(base[name] as FormValues, supplied[name] as FormValues) : value]));
 }
 
-function capturedValuesMatch(captured: unknown, current: unknown): boolean {
-  // Newly mounted fields were absent from the captured tree. Existing values
-  // still invalidate a pending rule, including cross-field dependencies.
-  if (isPojo(captured) && isPojo(current)) {
-    const previous = captured as FormValues, latest = current as FormValues;
-    return Object.keys(previous).every(key => Object.hasOwn(latest, key) && capturedValuesMatch(previous[key], latest[key]));
-  }
-  return sameValues(captured, current);
-}
-
 function guardedValidation(baseRules: FormKitValidationRules, evaluating: () => void): FormKitPlugin {
   // Rules can read other nodes through the public observer. The conservative
   // root snapshot guards that case; unrelated edits can also retry an async rule.
@@ -191,8 +181,15 @@ function guardedValidation(baseRules: FormKitValidationRules, evaluating: () => 
           if (!(result instanceof Promise)) { return result; }
           const value = cloneAny(node.value);
           const values = cloneAny(node.root.value);
+          // Core starts the initial rule before inserting this node into its
+          // parent. Account for that own-value insertion, not arbitrary new
+          // sibling keys that may be dependencies of the pending rule.
+          if (node.parent && !node.isCreated) {
+            const path = node.address.slice(1).map(String);
+            if (!hasPath(values as FormValues, path)) { writePath(values as FormValues, path, value); }
+          }
           const active = () => alive && node.context !== null && current === invocation && !isKilled(args[0] as Parameters<typeof isKilled>[0]);
-          const changed = () => !sameValues(value, node.value) || !capturedValuesMatch(values, node.root.value);
+          const changed = () => !sameValues(value, node.value) || !sameValues(values, node.root.value);
           return result.then(accepted => active() && changed() ? run() : accepted, error => {
             if (active()) {
               if (changed()) { return run(); }

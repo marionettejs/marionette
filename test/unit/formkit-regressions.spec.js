@@ -812,3 +812,24 @@ describe('@mnjs/formkit mixed select value shapes', () => {
     expect(form.el.querySelector('select')).toBe(select);
   });
 });
+
+it('rechecks an initial async rule when dynamic schema adds a previously absent dependency', async() => {
+  let finish;
+  const gate = new Promise(resolve => { finish = resolve; });
+  const seen = []; const submit = vi.fn();
+  const field = { $formkit: 'text', name: 'name', value: 'Ready', validation: 'remote' };
+  const form = mount({ schema: [field], submit, validationRules: { remote: node => {
+    const other = node.root.value.other;
+    seen.push(other);
+    return gate.then(() => other !== 'bad');
+  } } });
+  await flush();
+  const pending = form.submit();
+  form.setSchema([field, { $formkit: 'text', name: 'other', value: 'bad' }]);
+  expect(form.getValues().other).toBe('bad');
+  finish();
+  expect(await pending).toBe('invalid');
+  expect(seen).toContain('bad');
+  expect(submit).not.toHaveBeenCalled();
+});
+
