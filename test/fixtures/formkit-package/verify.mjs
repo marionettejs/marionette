@@ -27,6 +27,46 @@ try {
     for (const imported of [FieldView, FormView, RowView, SchemaView, SubmissionError, createSchemaRenderer, createViewComponents]) { assert.equal(typeof imported, 'function'); }
     assert.deepEqual(new SubmissionError('Failed', { email: ['Taken'] }).fieldErrors, { email: ['Taken'] });
     {
+      const mounted = [];
+      let finish;
+      let calls = 0;
+      const region = new Region({ el: document.body.appendChild(document.createElement('div')) });
+      const form = new FormView({ formProps: { id: 'packed-checkout', submitAttrs: { inputClass: 'pay', help: 'Review payment' } },
+        schemaData: { cfg: { disabled: false } }, schema: [{ $formkit: 'text', name: 'title', id: 'packed-title', config: '$cfg' }],
+        plugins: [node => node.on('mounted', () => mounted.push({ id: node.props.id, connected: !!document.getElementById(node.props.id)?.isConnected }))],
+        submit: () => { calls++; return new Promise(resolve => { finish = resolve; }); } });
+      region.show(form); await flush();
+      assert.equal(form.el.id, 'packed-checkout'); assert.equal(getNode('packed-checkout'), form.node);
+      assert.equal(mounted.find(item => item.id === 'packed-title').connected, true);
+      assert.equal(mounted.find(item => item.id === 'packed-checkout').connected, true);
+      const input = form.el.querySelector('input');
+      form.setSchemaData({ cfg: { disabled: true } }); await flush();
+      assert.equal(input.disabled, true); assert.equal(form.el.querySelector('input'), input);
+      form.setSchemaData({ cfg: { disabled: false } }); await flush();
+      const button = form.el.querySelector('button[type=submit]');
+      assert.equal(button.classList.contains('pay'), true); assert.match(form.el.textContent, /Review payment/);
+      const pending = form.submit(); await flush();
+      assert.equal(calls, 1); assert.equal(button.disabled, true);
+      form.el.requestSubmit(); assert.equal(await form.submit(), 'busy'); await flush();
+      assert.equal(calls, 1);
+      form.node.props.disabled = true;
+      finish(); assert.equal(await pending, 'success'); await flush();
+      assert.equal(form.node.props.disabled, true);
+      region.destroy(); assert.equal(getNode('packed-checkout'), undefined);
+      document.body.replaceChildren();
+      const templateRegion = new Region({ el: document.body.appendChild(document.createElement('div')) });
+      const fieldRegion = new Region({ el: document.body.appendChild(document.createElement('div')) });
+      const template = new FormView({ template: () => '', formProps: { id: 'packed-template' } });
+      templateRegion.show(template);
+      const field = new FieldView({ form: template, name: 'email', removal: 'preserve', input: { type: 'email', validation: 'required' } });
+      fieldRegion.show(field); await flush();
+      template.node.submit(); await flush();
+      assert.equal(template.getFormState().submitted, true);
+      assert.equal(document.activeElement, field.el.querySelector('input'));
+      templateRegion.destroy(); fieldRegion.destroy(); document.body.replaceChildren();
+      console.log(`${name}: mounted placement, root IDs, live config/actions, repeated submit and external focus passed.`);
+    }
+    {
       const form = new FormView({ template: () => '', values: { title: 'Canonical' },
         config: { classes: { input: 'inherited', outer: 'inherited-outer' } },
         inputs: { customText: { type: 'input', schema: { $el: 'input', attrs: {

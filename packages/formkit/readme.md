@@ -219,8 +219,12 @@ An external actor remains the feature owner's resource. Listen to `field:change`
 send the actor's real events, and echo snapshots with `notify: false`. The feature
 owner must unsubscribe its actor, cancel its timers, and guard delayed edits against
 its latest read-only state. This package has no actor adapter dependency or invented
-business event protocol. FormKit `mounted` occurs when the input runtime is built;
-use Marionette `attach` for custom controls that require connected DOM or measurements.
+business event protocol. FormKit `mounted` runs once per live node in a microtask
+after synchronous schema and View placement. Plugins can look up controls in an
+attached host at that point. A deliberately detached View mounts into its detached
+element; later attachment does not repeat `mounted`. Use Marionette `attach` for
+custom controls that require attachment or measurements on every reattachment.
+Nodes removed or destroyed before the mounted callback do not emit it.
 
 ### Mix schema and ordinary sections
 
@@ -306,6 +310,11 @@ construction snapshot. The source checkout's
   Official `submit-raw` events and submit hooks run. `formProps.onSubmitRaw`,
   `onSubmitInvalid`, `onSubmit`, `submitBehavior` and `incompleteMessage` are supported.
   The option `submit` takes precedence over `formProps.onSubmit`.
+  Invalid-control focus includes connected owned fields in external Regions, in
+  document order; detached, hidden and disabled controls are skipped. Async rules
+  are rechecked when their captured root values change, including added schema fields.
+  An application write to `form.node.props.disabled` during submission remains
+  authoritative after submission settles.
 - `setErrors(rootErrors?, fieldErrors?)`: replace submission errors. Field keys
   use dot addresses such as `details.name`. `SubmissionError(message, fieldErrors)`
   does the same when thrown by the submit callback. Other thrown values get a
@@ -435,6 +444,13 @@ model/collection/state bindings, classes, attributes, behaviors and template con
 The generic describes the consumer’s expected shape; it does not infer or validate
 that shape from field names or schemas. Keep the declaration and rendered tree in sync.
 `RuntimeOptions` describes schemas, slots, inputs, sections and theme options.
+`formProps.id` names both the root node registry entry and the form element in all
+authoring modes; otherwise an existing View element id or a generated id is used.
+The public Core `node.submit()` route works after attachment. `formProps.submitAttrs`
+binds props to the default submit input, including `inputClass`, `help`, `disabled`
+and ordinary HTML attributes. Replacing `node.props.submitAttrs` updates that input.
+Schema `config` expressions update the existing node's configuration with the
+supplied keys; omitted keys retain their previous configuration, as in FormKit 2.1.2.
 `Definition`, `FieldDefinition`, `GroupDefinition`, `NativeType` describe shorthand
 fields; `FieldOptions`, `FieldInput`, `FieldInputUpdate` and `RemovalPolicy` describe
 composed fields; `FormValues`, `FormState`, `SubmitResult`, `SubmissionContext`,

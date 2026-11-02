@@ -340,6 +340,7 @@ export class FormView<Values extends object = FormValues> extends View {
   private lastValues?: Values;
   private schemaRenderer?: ReturnType<typeof mountFormSchema>;
   private ownedNodes = new Set<FormKitNode>();
+  private ownedElements = new Set<Element>();
   private actionDisabled = new WeakMap<HTMLButtonElement, boolean>();
   private mutationDepth = 0;
   private rowBaselines = new Map<string, { location: RowLocation; values: FormValues }>();
@@ -380,7 +381,7 @@ export class FormView<Values extends object = FormValues> extends View {
     super({ ...options, tagName: 'form', template: options.template ?? (() => '') });
     this.formOptions = options;
     this.initial = mergeValues(defaults(options.fields ?? [], this.el.ownerDocument), options.values as FormValues ?? {});
-    this.node = createNode({ type: 'group', props: { ...options.formProps, id: `${this.cid}-form`,
+    this.node = createNode({ type: 'group', props: { ...options.formProps, id: String(options.formProps?.id ?? (this.el.id || `${this.cid}-form`)),
       type: 'form', attrs: { ...options.formProps?.attrs as object },
       submitLabel: options.submitLabel ?? 'Submit', resetLabel: options.resetLabel ?? 'Reset' }, value: cloneAny(this.initial),
     config: { delay: 0, rootClasses: section => ({ [`formkit-${section}`]: true }), ...options.config },
@@ -417,14 +418,21 @@ export class FormView<Values extends object = FormValues> extends View {
     },
     createI18nPlugin({ en }), guardedValidation({ ...rules, ...options.validationRules }, () => this.#submissionChanged()),
     ...options.plugins ?? []] });
+    this.node.hook.prop((payload, next) => {
+      // A repeated true write has no prop event, but still expresses the owner's
+      // latest intent while submission temporarily owns the disabled state.
+      if (payload.prop === 'disabled' && this.disabledBySubmission) { this.previousDisabled = payload.value; }
+      return next(payload);
+    });
     compositions.set(this.node, { options, fields: new Set(), excluded: new Map(),
       captureNativeEvents: element => {
+        this.ownedElements.add(element);
         // Logical form ownership also covers controls in external/detached Views.
         // Capture before their handlers read the DOM; the input hook clears errors.
         const native = (event: Event) => { this.nativeInput = new WeakRef(event); };
         const events = ['input', 'change', 'blur'];
         events.forEach(name => element.addEventListener(name, native, true));
-        return () => events.forEach(name => element.removeEventListener(name, native, true));
+        return () => { this.ownedElements.delete(element); events.forEach(name => element.removeEventListener(name, native, true)); };
       },
       mutate: operation => {
         const previous = this.lastValues, notify = this.notifyChanges, notifyFields = this.notifyFields, source = this.changeSource;
@@ -513,6 +521,7 @@ export class FormView<Values extends object = FormValues> extends View {
   attachElContent(html: unknown) {
     const form = this.el as HTMLFormElement;
     form.replaceChildren();
+    form.id = this.node.props.id!;
     form.noValidate = true;
     const releaseNative = compositions.get(this.node)!.captureNativeEvents(form);
     const submit = (event: Event) => { event.preventDefault(); void this.submit(event); };
@@ -533,6 +542,7 @@ export class FormView<Values extends object = FormValues> extends View {
       this.schemaRenderer = mountFormSchema(form, this.node, { ...this.formOptions, schema });
       this.initial = cloneAny(this.node.value) as FormValues;
     }
+    queueMicrotask(() => { if (!this.disposed) { this.node.emit('mounted'); } });
   }
 
   getValues(): Values { return cloneAny(this.node.value) as Values; }
@@ -615,8 +625,8 @@ export class FormView<Values extends object = FormValues> extends View {
       const autoDisable = this.pending && this.node.props.submitBehavior !== 'live';
       if (autoDisable && !this.disabledBySubmission) {
         this.previousDisabled = this.node.props.disabled;
-        this.disabledBySubmission = true;
         this.node.props.disabled = true;
+        this.disabledBySubmission = true;
       } else if (!autoDisable && this.disabledBySubmission) {
         this.disabledBySubmission = false;
         this.node.props.disabled = this.previousDisabled;
@@ -775,8 +785,11 @@ export class FormView<Values extends object = FormValues> extends View {
         this.pending = undefined;
         this.refresh();
         this.schemaRenderer?.update();
-        const invalid = [...this.el.querySelectorAll<HTMLElement>('[aria-invalid="true"]')]
-          .find(control => !control.matches(':disabled, input[type="hidden"]'));
+        const invalid = [...new Set([...this.ownedElements].flatMap(element =>
+          [...element.querySelectorAll<HTMLElement>('[aria-invalid="true"]')]))]
+          .filter(control => control.isConnected && !control.matches(':disabled, input[type="hidden"]'))
+          // eslint-disable-next-line no-bitwise -- DOM position is a bit mask.
+          .sort((left, right) => left.compareDocumentPosition(right) & 4 ? -1 : 1)[0];
         if (invalid) { invalid.focus(); } else if (ownedFocus && this.el.ownerDocument.activeElement === this.el.ownerDocument.body) {
           (focused as HTMLElement).focus({ preventScroll: true });
         }

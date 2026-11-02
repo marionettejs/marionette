@@ -151,7 +151,10 @@ export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decor
       }));
       receipts.push(node.on('destroying', () => { alive = false; }));
       receipts.push(node.on('destroyed', () => { alive = false; }));
-      node.emit('mounted');
+      const mounted = node;
+      // The factory returns a fragment. Finish the current reconciliation and
+      // View/Region insertion before plugins inspect their host DOM.
+      queueMicrotask(() => { if (!disposed && alive && node === mounted && mounted.context) { mounted.emit('mounted'); } });
     }
     function release() {
       receipts.forEach(receipt => node.off(receipt));
@@ -201,7 +204,7 @@ export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decor
         }
         for (const key of new Set([...Object.keys(currentProps), ...Object.keys(next)])) {
           if (key === 'value' ? sameValues(currentProps[key], next[key]) : eq(currentProps[key], next[key])) { continue; }
-          if (key === 'value') { void node.input(next[key], false); } else if (key === 'index') { node.index = Number(next.index); } else if (key === 'id') { deregister(node); node.props.id = next.id as string | undefined; register(node); } else { node.props[key] = copyProps(next[key]); }
+          if (key === 'value') { void node.input(next[key], false); } else if (key === 'config') { Object.assign(node.config, copyProps(next.config)); } else if (key === 'index') { node.index = Number(next.index); } else if (key === 'id') { deregister(node); node.props.id = next.id as string | undefined; register(node); } else { node.props[key] = copyProps(next[key]); }
         }
         const attrs = attributes(next, node);
         if (!eq(node.props.attrs, attrs)) { node.props.attrs = attrs; }
@@ -218,7 +221,7 @@ export function mountFormSchema(form: HTMLFormElement, root: FormKitNode, option
   root.context!.slots = { ...options.slots,
     default: (scope: Scope) => ({ schema: options.schema!, data: inheritScope(data, scope, true) }),
     ...(!options.slots?.actions ? { actions: () => ({ $el: 'div', if: '$actions', attrs: { class: '$classes.actions' }, children: [
-      { $formkit: 'submit', label: '$submitLabel', attrs: { ...root.props.submitAttrs, disabled: '$disabled' } },
+      { $cmp: 'FormKit', bind: '$submitAttrs', props: { type: 'submit', label: '$submitLabel' } },
       { $el: 'button', attrs: { type: 'reset', disabled: '$disabled' }, children: '$resetLabel' }
     ] }) } : {}) };
   const definition = root.props.definition!;
@@ -231,7 +234,6 @@ export function mountFormSchema(form: HTMLFormElement, root: FormKitNode, option
     queued = true;
     queueMicrotask(() => { queued = false; if (!disposed) { renderer.update(root.context!); } });
   });
-  root.emit('mounted');
   return { update(next: Scope = data) { data = next; renderer.update(root.context!); },
     setSchema(nextSchema: FormKitSchemaDefinition) { options.schema = nextSchema; renderer.update(root.context!); },
     destroy() { disposed = true; root.off(receipt); renderer.destroy(); } };
