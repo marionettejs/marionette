@@ -1,0 +1,65 @@
+
+ RUN  v5.0.3 /workspace/formkit-repair
+
+ ✓ |dom| test/unit/formkit-row-boundaries.spec.js (7 tests) 1989ms
+   ✓ rejects a foreign form after its parent list has cached row ownership 1190ms
+   ✓ rerenders one existing RowView with its retained group and exactly one replacement field 506ms
+ ✓ |dom| test/unit/formkit-owner-submit.spec.js (8 tests) 6218ms
+   ✓ removes a hidden async validator from an awaiting submission and ignores its late result after replacement 404ms
+   ✓ cancels the wait for a delayed native input on reset and permits a later submission 4746ms
+   ✓ clears obsolete user origin after owner removal of a pending preserve field 434ms
+ ✓ |dom| test/unit/formkit-host-contracts.spec.js (20 tests) 3538ms
+   ✓ keeps borrowed Marionette state separate from form status, including empty state bindings 664ms
+   ✓ creates inherited owned state lazily once and disposes it once without changing form events 528ms
+   ✓ keeps native origins and root error clearing for a schema in an detached placement 1171ms
+ ✓ |dom| test/unit/formkit-portability-regressions.spec.js (14 tests) 423ms
+ ✓ |dom| test/unit/formkit-review.spec.js (25 tests) 929ms
+ ✓ |dom| test/unit/formkit-composition-review.spec.js (28 tests) 1043ms
+ ✓ |dom| test/unit/formkit-nested-rows.spec.js (8 tests) 5101ms
+   ✓ nested repeated keys retain lineage, controls, focus and errors through two-level authoritative reorder 685ms
+   ✓ inner clear and preserved drafts use the full key through outer reorder and inner list remount 647ms
+   ✓ deleting an ancestor while its inner list is absent retires added defaults and exclusions before key reuse 702ms
+   ✓ ancestor deletion ends detached inner widgets, delayed native drafts and retained control listeners 406ms
+   ✓ same-membership construction reset retains keyed inner controls after both ancestor and child reorder 654ms
+   ✓ membership-changing construction reset removes added outer and inner rows and allows explicit presentation rebuild 895ms
+   ✓ submit resettles a delayed nested edit and pending validation after sibling removal before callback capture 580ms
+   ✓ nested removal after callback capture aborts the external attempt and terminal destroy ignores late work 531ms
+ ✓ |dom| test/unit/formkit-runtime.spec.js (38 tests) 3974ms
+   ✓ @mnjs/formkit native schema runtime (8)
+     ✓ mounts all official native controls with stable labels and editable core values 306ms
+ ✓ |dom| test/unit/formkit-adversarial-astra.spec.js (4 tests) 356ms
+ ✓ |dom| test/unit/formkit-rows.spec.js (35 tests) 4726ms
+   ✓ preserved row teardown ends validation and remount restores the committed object 517ms
+   ✓ keeps three nested object rows keyed through add, insert, reorder, edit, validation and terminal removal 608ms
+ ✓ |dom| test/unit/formkit-regressions.spec.js (49 tests) 2583ms
+ ✓ |dom| test/unit/formkit-schema-views.spec.js (19 tests) 1718ms
+   ✓ SCHEMA-01 native schema group owns named FieldView parent, one root, independent simultaneous names, validate/submit/reset 827ms
+ ✓ |dom| test/unit/formkit-composition.spec.js (5 tests) 1405ms
+   ✓ composes official fields in ordinary Regions and preserves sibling focus through clear conditions 403ms
+   ✓ validates composed fields and submits one settled snapshot with server errors and reset cancellation 305ms
+   ✓ shares validation, submission, reset and cleanup between a schema slot and an ordinary section View 388ms
+ ✓ |dom| test/unit/formkit-hardening.spec.js (13 tests) 705ms
+ ✓ |dom| test/unit/formkit.spec.js (18 tests) 1994ms
+ ✓ |dom| test/unit/formkit-application-lifecycle.spec.js (7 tests) 2041ms
+   ✓ retains external errors through edits, hides their summary when valid, and clears them at valid submission 531ms
+   ✓ discards by destroying the owner and remounting authoritative values, cancelling drafts and late submission 402ms
+ ✓ |dom| test/unit/formkit-manifest-prototype.spec.js (48 tests) 1564ms
+ ✓ |dom| test/unit/formkit-adversarial-sol.spec.js (13 tests) 1208ms
+ ✓ |dom| test/unit/formkit-file-value-props.spec.js (1 test) 175ms
+ ✓ |dom| test/unit/formkit-submission-lifetime.spec.js (18 tests) 725ms
+ ✓ |dom| test/unit/formkit-official.spec.js (6 tests) 983ms
+   ✓ @mnjs/formkit official input integration (6)
+     ✓ renders official sections, retains typing focus, validates, submits and resets grouped values 324ms
+ ✓ |dom| test/unit/formkit-adapter-repair.spec.js (6 tests) 262ms
+ ✓ |dom| test/unit/formkit-schema-views-boundaries.spec.js (12 tests) 281ms
+ ✓ |dom| test/unit/formkit-composition-sol.spec.js (8 tests) 1269ms
+   ✓ replaces an owned group value without retaining omitted properties and preserves the root partial merge contract 605ms
+ ✓ |dom| test/unit/formkit-readonly-adversarial.spec.js (4 tests) 147ms
+ ✓ |dom| test/unit/formkit-schema.spec.js (11 tests) 83ms
+ ✓ |dom| test/unit/formkit-schema-view-diagnostics.spec.js (1 test) 45ms
+
+ Test Files  27 passed (27)
+      Tests  426 passed (426)
+   Start at  20:01:24
+   Duration  95.20s (tests 51%, environment 36%, import 10%, transform 3%)
+

@@ -40,7 +40,7 @@ unchanged baseline production source with the final test files reproduced
 **13 failures / 49 passes** across 62 cases: all 13 targeted regressions failed;
 the genuine rejected-submit callback case and 48 older regressions passed.
 See [baseline receipt](pro-01301-repair/baseline-red.json) and
-[failure output](pro-01301-repair/baseline-red.log).
+[failure output](pro-01301-repair/baseline-red.txt).
 
 Final verification on Node 24.19.0 / npm 11.17.0 / FormKit 2.1.2:
 
@@ -54,9 +54,9 @@ Final verification on Node 24.19.0 / npm 11.17.0 / FormKit 2.1.2:
   Chromium 154.0.8037.57. No browser download or Mac test was used.
 
 [Verification receipt](pro-01301-repair/verification.json),
-[unit output](pro-01301-repair/unit.log), [build output](pro-01301-repair/build.log),
+[unit output](pro-01301-repair/unit.txt), [build output](pro-01301-repair/build.txt),
 [package receipt](pro-01301-repair/package-report.json), and
-[browser output](pro-01301-repair/browser-suite.log) preserve exact details.
+[browser output](pro-01301-repair/browser-suite.txt) preserve exact details.
 The successful unit/build checks ran before commits with matching source bytes;
 packed/browser receipts name the clean committed revision.
 
