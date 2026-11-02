@@ -73,6 +73,19 @@ export function createViewComponents<Values extends object = FormValues>({ getFo
       }
     }
     try {
+      // A registration may render before returning its View. Queue placement
+      // before calling it, so all input mounted callbacks follow Region.show.
+      // Reconciliation inserts the wrapper synchronously before either runs.
+      queueMicrotask(() => {
+        if (disposed || view.isDestroyed() || owner.isDestroyed()) {
+          return;
+        }
+        if (!owner.el.contains(wrapper)) {
+          destroy();
+          throw new Error('The schema wrapper must be inserted inside its Region owner before placement.');
+        }
+        region.show(view);
+      });
       view = isField ? (spec as FieldComponentRegistration<Values>).create({
         form, parent, name: props.name, removal: props.removal ?? 'preserve', input: props.input
       }) : (spec as ViewComponentRegistration<Values, any, any>).create({
@@ -87,19 +100,6 @@ export function createViewComponents<Values extends object = FormValues>({ getFo
       if (isField && !(view instanceof FieldView)) {
         throw new Error('Field registration must return an actual FieldView.');
       }
-      // Queue Region placement before render can queue mounted callbacks for
-      // owned inputs (including fields nested inside an ordinary View).
-      // Reconciliation inserts the wrapper synchronously before either runs.
-      queueMicrotask(() => {
-        if (disposed || view.isDestroyed() || owner.isDestroyed()) {
-          return;
-        }
-        if (!owner.el.contains(wrapper)) {
-          destroy();
-          throw new Error('The schema wrapper must be inserted inside its Region owner before placement.');
-        }
-        region.show(view);
-      });
       view.render();
       view.on('destroy', destroy);
       owner.on('before:destroy', destroy);

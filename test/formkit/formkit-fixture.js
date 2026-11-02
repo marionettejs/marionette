@@ -12,7 +12,7 @@ export function mountRegisteredControls() {
     }
   }
   const components = createViewComponents({ getForm: () => form, registrations: {
-    RegisteredField: { kind: 'field', create: options => new FieldView(options) },
+    RegisteredField: { kind: 'field', create: options => new FieldView(options).render() },
     RegisteredSection: { kind: 'view', create: () => new Section({ template: () => '<div class="field"></div>', regions: { field: '.field' } }) }
   } });
   form = new FormView({ components, schema: [

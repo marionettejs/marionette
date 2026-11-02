@@ -69,7 +69,7 @@ try {
       let registeredForm;
       const mountedRegistration = [];
       const components = createViewComponents({ getForm: () => registeredForm, registrations: {
-        Field: { kind: 'field', create: options => new FieldView(options) }
+        Field: { kind: 'field', create: options => new FieldView(options).render() }
       } });
       registeredForm = new FormView({ components, schema: [{ $cmp: 'Field', props: { name: 'registered', input: { type: 'text', id: 'packed-registered' } } }],
         plugins: [node => node.on('mounted', () => {

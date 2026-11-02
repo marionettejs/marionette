@@ -12,7 +12,7 @@ function show(view) {
 function mount(options) { const form = new FormView(options); show(form); return form; }
 afterEach(() => { owners.splice(0).reverse().forEach(owner => owner.destroy()); document.body.replaceChildren(); });
 
-it.each(['field', 'view'])('mounts a named %s registration after its bridge Region is placed', async kind => {
+it.each([['field', false], ['view', false], ['field', true], ['view', true]])('mounts a named %s registration (factory rendered: %s) after Region placement', async(kind, rendered) => {
   let form;
   const mounted = [];
   class Section extends View {
@@ -21,9 +21,10 @@ it.each(['field', 'view'])('mounts a named %s registration after its bridge Regi
         input: { type: 'text', id: 'registered-input' } }));
     }
   }
+  const prepare = view => rendered ? view.render() : view;
   const components = createViewComponents({ getForm: () => form, registrations: {
-    Registered: kind === 'field' ? { kind, create: options => new FieldView(options) } :
-      { kind, create: () => new Section({ template: () => '<div class="field"></div>', regions: { field: '.field' } }) }
+    Registered: kind === 'field' ? { kind, create: options => prepare(new FieldView(options)) } :
+      { kind, create: () => prepare(new Section({ template: () => '<div class="field"></div>', regions: { field: '.field' } })) }
   } });
   form = new FormView({ components, schemaData: { visible: true }, schema: [{ $cmp: 'Registered', if: '$visible',
     props: { name: 'registered', input: { type: 'text', id: 'registered-input' } } }],
