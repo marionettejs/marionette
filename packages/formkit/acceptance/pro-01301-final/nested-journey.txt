@@ -1,0 +1,10 @@
+
+ RUN  v5.0.3 /workspace/formkit-repair
+
+ ✓ |dom| test/unit/formkit-hardening.spec.js (18 tests) 1241ms
+ ✓ |dom| test/unit/formkit-submission-lifetime.spec.js (18 tests) 764ms
+
+ Test Files  2 passed (2)
+      Tests  36 passed (36)
+   Start at  21:14:21
+   Duration  4.78s (tests 45%, environment 35%, transform 11%, import 8%)

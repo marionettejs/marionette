@@ -214,3 +214,57 @@ it('binds submitAttrs as live input props including help, classes, disabled and 
   expect(button.disabled).toBe(true);
   expect(button.dataset.purpose).toBe('confirm');
 });
+
+it('resets a pending nested draft under an owner read-only transition, then validates a new field on retry', async() => {
+  let reject;
+  const submit = vi.fn().mockImplementationOnce(() => new Promise((resolve, fail) => { reject = fail; }))
+    .mockReturnValue('saved');
+  const form = mount({ values: { contact: { email: 'initial@example.test' } }, schemaData: { company: false }, submit,
+    schema: [{ $formkit: 'group', name: 'contact', children: [
+      { $formkit: 'email', name: 'email', id: 'journey-email', label: 'Email', help: 'Work email', validation: 'required|email' },
+      { $formkit: 'text', name: 'company', id: 'journey-company', if: '$company', label: 'Company', validation: 'required' }
+    ] }] });
+  const errors = vi.fn(); form.on('submit:error', errors);
+  await flush();
+  form.setErrors(['Previous request failed'], { 'contact.email': ['Email unavailable'] }); await flush();
+  expect(form.el.textContent).toContain('Email unavailable');
+  const email = form.el.querySelector('#journey-email');
+  email.value = 'edited@example.test'; email.dispatchEvent(new Event('input', { bubbles: true }));
+  await form.node.at('contact.email').settled; await flush();
+  expect(form.getValues().contact.email).toBe('edited@example.test');
+  expect(form.getFormState().errors).toEqual([]);
+  expect(form.el.textContent).not.toContain('Email unavailable');
+  const pending = form.submit();
+  await vi.waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
+  form.node.props.disabled = true;
+  form.resetForm();
+  expect(await pending).toBe('cancelled'); await flush();
+  expect(submit.mock.calls[0][1].signal.aborted).toBe(true);
+  expect(form.node.props.disabled).toBe(true);
+  expect(email.disabled).toBe(true);
+  expect(email.value).toBe('initial@example.test');
+  expect(form.getFormState()).toMatchObject({ submitted: false, submitting: false, errors: [] });
+  reject(new SubmissionError('Obsolete failure', { 'contact.email': ['Obsolete email error'] })); await flush();
+  expect(errors).not.toHaveBeenCalled();
+  expect(form.el.textContent).not.toContain('Obsolete');
+
+  form.node.props.disabled = false;
+  form.setSchemaData({ company: true }); await flush();
+  expect(form.el.querySelector('#journey-email')).toBe(email);
+  expect(await form.submit()).toBe('invalid');
+  const company = form.el.querySelector('#journey-company');
+  expect(document.activeElement).toBe(company);
+  expect(submit).toHaveBeenCalledTimes(1);
+  company.value = 'New company'; company.dispatchEvent(new Event('input', { bubbles: true }));
+  await form.node.at('contact.company').settled; await flush();
+  expect(await form.submit()).toBe('success'); await flush();
+  expect(submit.mock.calls[1][0]).toEqual({ contact: { email: 'initial@example.test', company: 'New company' } });
+  expect(email.disabled).toBe(false);
+  expect(form.el.querySelector('button[type=submit]').disabled).toBe(false);
+  form.resetForm(); await flush();
+  expect(form.el.querySelector('#journey-company')).toBe(company);
+  expect(company.value).toBe('');
+  expect(company.getAttribute('aria-invalid')).not.toBe('true');
+  expect(email.value).toBe('initial@example.test');
+  expect(company.disabled).toBe(false);
+});
