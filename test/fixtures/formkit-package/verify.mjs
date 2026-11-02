@@ -60,7 +60,8 @@ try {
       templateRegion.show(template);
       const field = new FieldView({ form: template, name: 'email', removal: 'preserve', input: { type: 'email', validation: 'required' } });
       fieldRegion.show(field); await flush();
-      template.node.submit(); await flush();
+      const invalid = new Promise(resolve => template.once('submit:invalid', resolve));
+      template.node.submit(); await invalid; await flush();
       assert.equal(template.getFormState().submitted, true);
       assert.equal(document.activeElement, field.el.querySelector('input'));
       templateRegion.destroy(); fieldRegion.destroy(); document.body.replaceChildren();
