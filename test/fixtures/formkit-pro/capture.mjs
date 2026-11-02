@@ -31,6 +31,8 @@ try {
     await page.waitForFunction(() => typeof window.proof.getValues === 'function');
     await page.locator('#contact-name').waitFor();
     result.core = await page.evaluate(() => window.proof.observations);
+    await check('explicit root id matches the form and public registry', async() => page.evaluate(() =>
+      document.querySelector('form').id === 'fixture-root' && window.proof.hasNode('fixture-root')));
     await check('mounted plugin finds connected text/email controls', async() => {
       const mounts = result.core.mounted.filter(item => ['contact-name', 'contact-email'].includes(item.id));
       return mounts.length === 2 && mounts.every(item => item.found && item.connected);
@@ -66,6 +68,20 @@ try {
       await page.waitForTimeout(100);
       return page.evaluate(() => !document.querySelector('#contact-name').classList.contains('local-second') && document.querySelector('#contact-name').classList.contains('inherited'));
     });
+    await check('schema config updates the existing control', async() => {
+      await page.evaluate(() => window.proof.configuration({ disabled: true }));
+      await page.waitForFunction(() => document.querySelector('#contact-name').disabled);
+      const retained = await page.evaluate(() => document.querySelector('#contact-name') === window.retainedControl);
+      await page.evaluate(() => window.proof.configuration({ disabled: undefined }));
+      await page.waitForFunction(() => !document.querySelector('#contact-name').disabled);
+      return retained;
+    });
+    await check('submitAttrs updates component props and raw attributes', async() => {
+      await page.evaluate(() => window.proof.submitProps({ inputClass: 'pay-button', help: 'Review before paying', 'data-purpose': 'pay' }));
+      await page.waitForFunction(() => document.querySelector('button[type=submit]').classList.contains('pay-button'));
+      return page.evaluate(() => document.querySelector('button[type=submit]').dataset.purpose === 'pay' &&
+        document.querySelector('form').textContent.includes('Review before paying'));
+    });
     await check('disabled state reaches and restores controls', async() => {
       await page.getByRole('button', { name: 'Toggle disabled', exact: true }).click();
       await page.waitForFunction(() => document.querySelector('#contact-name').disabled);
@@ -73,16 +89,22 @@ try {
       await page.waitForFunction(() => !document.querySelector('#contact-name').disabled);
       return true;
     });
-    await check('pending submit disables repeat submission and resolves once', async() => {
+    await check('pending submit disables the action and suppresses an actual repeated requestSubmit', async() => {
       await page.getByRole('button', { name: 'Submit', exact: true }).click();
       await page.waitForFunction(() => window.proof.observations.submissions.length === 1);
       const disabled = await page.getByRole('button', { name: 'Submit', exact: true }).isDisabled();
+      const duplicate = await page.evaluate(async() => {
+        const before = window.proof.observations.submissions.length;
+        document.querySelector('form').requestSubmit();
+        await new Promise(done => setTimeout(done, 100));
+        return { method: 'HTMLFormElement.requestSubmit', attempts: 2, before, after: window.proof.observations.submissions.length };
+      });
       await page.evaluate(() => window.proof.finish());
       await page.waitForFunction(() => window.proof.observations.submissions[0].state === 'resolved');
       const callbacks = await page.evaluate(() => window.proof.observations.submissions.length);
-      return { passed: disabled && callbacks === 1, disabled, callbacks };
+      return { passed: disabled && duplicate.before === 1 && duplicate.after === 1 && callbacks === 1, disabled, duplicate, callbacks };
     });
-    await check('async server rejection presents root and field errors', async() => {
+    await check('resolved callback sets associated root and field server errors', async() => {
       await page.getByRole('button', { name: 'Toggle server rejection', exact: true }).click();
       await page.getByRole('button', { name: 'Submit', exact: true }).click();
       await page.waitForFunction(() => window.proof.observations.submissions.at(-1)?.state === 'pending');
@@ -112,4 +134,5 @@ try {
   }
 } finally { await browser.close(); }
 console.log(JSON.stringify(receipts, null, 2));
-process.exitCode = Object.values(receipts.stacks).some(stack => stack.pro.bootstrap !== 'ready' || stack.cases.some(test => !test.passed)) ? 1 : 0;
+process.exitCode = Object.values(receipts.stacks).some(stack => stack.pro.bootstrap !== 'ready' || stack.cases.some(test => !test.passed) ||
+  stack.pageErrors.length || [stack.pro, stack.core, stack.final].some(observation => observation.errors.length)) ? 1 : 0;

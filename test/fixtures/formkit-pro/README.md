@@ -33,7 +33,9 @@ do not share a mutable browser context or writer checkout.
 
 The collector reads each consumer's source/artifact receipt, captures desktop and
 390px screenshots, and writes `test/tmp/formkit-pro/browser/parity-baseline.json`.
-It exits nonzero for blocked Pro bootstrap or failed assertions. Those outcomes
+It exits nonzero for blocked Pro bootstrap, failed assertions, or unexpected page
+and runtime errors. Only the exact known missing-key error is classified as a
+blocked bootstrap; other bootstrap exceptions are runtime failures. Those outcomes
 must not be relabeled as passes. `?mode=core` explicitly renders the core fixture;
 the default Pro mode never substitutes native controls after a bootstrap failure.
 
@@ -42,6 +44,10 @@ and destroy controls. Async submission remains pending until **Finish pending
 request** is pressed. Rejection uses each integration's public server-error API;
 this does not compare thrown-callback recovery. Native replacement uses `setValues`,
 Vue uses `modelValue` updates, and React uses controlled `modelValue` state.
+The collector records a real second `requestSubmit()` while the callback is pending.
+Native rejected-Promise recovery is covered separately by the public unit regressions
+in `test/unit/formkit-hardening.spec.js`; the comparison fixture does not certify it
+for Vue or React.
 
 Pro bootstrap follows the documented keyless localhost claim with the unmodified
 `createProPlugin(undefined, inputs)` call. The fixture contains no license key and

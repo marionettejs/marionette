@@ -11,7 +11,11 @@ window.addEventListener('unhandledrejection', event => { observations.errors.pus
 try {
   if (mode === 'pro') { plugins.push(createProPlugin(undefined, { autocomplete, dropdown, taglist, datepicker, toggle, slider, repeater })); }
   observations.bootstrap = 'ready';
-} catch (error) { observations.bootstrap = 'blocked'; observations.bootstrapError = error.message; }
+} catch (error) {
+  observations.bootstrap = error.message === 'A FormKit API key is required, please visit https://formkit.com/pro' ? 'blocked' : 'error';
+  observations.bootstrapError = error.message;
+  if (observations.bootstrap === 'error') { observations.errors.push(error.message); }
+}
 plugins.push(node => {
   if (node.type === 'input') {
     node.on('mounted', () => {
@@ -28,7 +32,7 @@ export const replacement = () => ({ contact: { name: 'Ada', email: 'ada@example.
 const choices = ['Alpha', 'Beta', 'Gamma'];
 export const schema = [
   { $formkit: 'group', name: 'contact', children: [
-    { $formkit: 'text', id: 'contact-name', name: 'name', label: 'Name', help: 'Use the name on your registration.', validation: 'required', classes: '$localClasses' },
+    { $formkit: 'text', id: 'contact-name', name: 'name', label: 'Name', help: 'Use the name on your registration.', validation: 'required', classes: '$localClasses', config: '$fieldConfig' },
     { $formkit: 'email', id: 'contact-email', name: 'email', label: 'Email', help: 'We send the receipt here.', validation: 'required|email' }
   ] },
   ...(mode === 'pro' ? [
@@ -44,11 +48,12 @@ export const schema = [
   ] : [])
 ];
 let rejection = false;
-let finish;
+const pending = new Set();
+const finish = () => { const callbacks = [...pending]; pending.clear(); callbacks.forEach(done => done()); };
 export async function submit(values) {
   const entry = { values: structuredClone(values), state: 'pending' };
   observations.submissions.push(entry); show();
-  await new Promise(resolve => { finish = resolve; });
+  await new Promise(resolve => { pending.add(resolve); });
   // Use each adapter's supported server-error channel rather than assume that
   // throwing from a consumer callback has identical framework semantics.
   if (rejection) { entry.state = 'rejected'; window.proof.setErrors(['Server rejected this registration.'], { 'contact.email': ['Email is unavailable.'] }); } else { entry.state = 'resolved'; }
@@ -56,14 +61,14 @@ export async function submit(values) {
 }
 export function install(bridge) {
   let disabled = false;
-  window.proof = { observations, ...bridge, finish: () => finish?.() };
+  window.proof = { observations, ...bridge, finish };
   const showValues = () => { document.querySelector('#values').textContent = JSON.stringify(bridge.getValues(), null, 2); };
   bridge.observe(showValues); showValues();
   document.querySelector('#replace').onclick = () => bridge.setValues(replacement());
   document.querySelector('#disable').onclick = () => { disabled = !disabled; bridge.disable(disabled); };
   document.querySelector('#reject').onclick = () => { rejection = !rejection; document.querySelector('#reject').textContent = `Server rejection: ${rejection}`; };
   document.querySelector('#reset').onclick = () => bridge.reset();
-  document.querySelector('#finish').onclick = () => finish?.();
+  document.querySelector('#finish').onclick = finish;
   document.querySelector('#destroy').onclick = () => bridge.destroy();
   window.addEventListener('pagehide', () => bridge.destroy(), { once: true });
 }
