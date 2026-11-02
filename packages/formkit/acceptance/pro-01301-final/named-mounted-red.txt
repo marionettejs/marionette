@@ -1,0 +1,53 @@
+
+ RUN  v5.0.3 /workspace/formkit-repair
+
+ ❯ |dom| test/unit/formkit-hardening.spec.js (15 tests | 2 failed | 13 skipped) 133ms
+   × mounts a named field registration after its bridge Region is placed 96ms
+   × mounts a named view registration after its bridge Region is placed 34ms
+   ↓ emits mounted after insertion into an attached region host, once per live node
+   ↓ emits mounted after insertion into an attached adopted host, once per live node
+   ↓ mounts into a detached owner before later attachment without repeating mounted
+   ↓ mounts external FieldView and SchemaView controls after their Region placement
+   ↓ suppresses mounted for removed nodes and emits once for conditional replacements
+   ↓ disables the default submit while pending, rejects repeat attempts, and restores it after resolution
+   ↓ restores actions and displays associated errors after a genuinely rejected submit callback
+   ↓ keeps the latest owner disabled write made while submission is pending
+   ↓ focuses a connected enabled invalid FieldView in an external Region
+   ↓ honors the supplied form id in the DOM and public registry
+   ↓ mounts a template root once and supports Core node.submit through its DOM id
+   ↓ updates dynamic schema config on the existing node and control
+   ↓ binds submitAttrs as live input props including help, classes, disabled and raw attributes
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > mounts a named field registration after its bridge Region is placed
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > mounts a named view registration after its bridge Region is placed
+AssertionError: expected [ { found: false, connected: false } ] to deeply equal [ { found: true, connected: true } ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "connected": true,
+-     "found": true,
++     "connected": false,
++     "found": false,
+    },
+  ]
+
+ ❯ test/unit/formkit-hardening.spec.js:37:19
+     35|   })] });
+     36|   show(form); await flush();
+     37|   expect(mounted).toEqual([{ found: true, connected: true }]);
+       |                   ^
+     38|   form.render(); await flush(); expect(mounted).toHaveLength(1);
+     39|   form.setSchemaData({ visible: false }); form.setSchemaData({ visible…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 13 skipped (15)
+   Start at  20:14:59
+   Duration  2.01s (environment 47%, transform 34%, import 12%, tests 7%, setup 1%)

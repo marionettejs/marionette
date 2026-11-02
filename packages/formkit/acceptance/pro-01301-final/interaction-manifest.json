@@ -1,0 +1,27 @@
+{
+  "sourceRevision": "f75a0ca3606a1edc5e8764154e9523eca1390970",
+  "node": "24.19.0",
+  "playwright": "1.63.0",
+  "browser": "Chromium 154.0.8037.57",
+  "project": "chromium",
+  "artifacts": [
+    {
+      "file": "hidden-invalid-focus.json",
+      "sha256": "1c47cd489f5e41df6c8240cbc825868543cd8d5873a4d5c5fc9be9d9a1474a20",
+      "test": "invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field",
+      "status": "passed"
+    },
+    {
+      "file": "registered-invalid.png",
+      "sha256": "2534bf39a51d360d1e53a3981a1162ac69087701fc4d1b58f7fee834bb5673a8",
+      "test": "named registrations mount connected and support keyboard validation, correction and reset",
+      "status": "passed"
+    },
+    {
+      "file": "registered-keyboard.json",
+      "sha256": "3f5096ba431a247ccb52b5052dc35b91216f54437f3d0ee8b98be8bf8eefcca7",
+      "test": "named registrations mount connected and support keyboard validation, correction and reset",
+      "status": "passed"
+    }
+  ]
+}

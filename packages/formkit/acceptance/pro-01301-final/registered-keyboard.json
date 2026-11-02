@@ -1,0 +1,86 @@
+{
+  "sourceRevision": "f75a0ca3606a1edc5e8764154e9523eca1390970",
+  "node": "24.19.0",
+  "playwright": "1.63.0",
+  "browser": "Chromium 154.0.8037.57",
+  "project": "chromium",
+  "test": "named registrations mount connected and support keyboard validation, correction and reset",
+  "status": "passed",
+  "observations": {
+    "keyboard": [
+      "Tab: second",
+      "Shift+Tab: first",
+      "Enter: invalid first",
+      "Enter after correction: saved"
+    ],
+    "invalid": {
+      "mounted": [
+        {
+          "id": "registered-first",
+          "found": true,
+          "connected": true
+        },
+        {
+          "id": "registered-second",
+          "found": true,
+          "connected": true
+        }
+      ],
+      "activeId": "registered-first",
+      "html": "<form id=\"mnv3-form\" novalidate=\"\" class=\"formkit-form\" name=\"form_3\" aria-busy=\"false\"><!--component--><div data-schema-view=\"RegisteredField\"><div><!--input--><div class=\"formkit-outer\" key=\"registered-first\" data-family=\"text\" data-type=\"text\" data-empty=\"true\" data-invalid=\"true\" data-submitted=\"true\"><div class=\"formkit-wrapper\"><label class=\"formkit-label\" for=\"registered-first\">Registered first</label><div class=\"formkit-inner\"><input class=\"formkit-input\" type=\"text\" name=\"first\" id=\"registered-first\" aria-describedby=\"help-registered-first registered-first-rule_required\" aria-required=\"true\" aria-invalid=\"true\"></div></div><div class=\"formkit-help\" id=\"help-registered-first\">First help</div><ul class=\"formkit-messages\" aria-live=\"polite\"><li class=\"formkit-message\" key=\"rule_required\" id=\"registered-first-rule_required\" data-message-type=\"validation\">Registered first is required.</li></ul></div><!--/input--></div></div><!--/component--><!--component--><div data-schema-view=\"RegisteredSection\"><div><div class=\"field\"><div><!--input--><div class=\"formkit-outer\" key=\"registered-second\" data-family=\"text\" data-type=\"text\" data-empty=\"true\" data-invalid=\"true\" data-submitted=\"true\"><div class=\"formkit-wrapper\"><label class=\"formkit-label\" for=\"registered-second\">Registered second</label><div class=\"formkit-inner\"><input class=\"formkit-input\" type=\"text\" name=\"second\" id=\"registered-second\" aria-describedby=\"help-registered-second registered-second-rule_required\" aria-required=\"true\" aria-invalid=\"true\"></div></div><div class=\"formkit-help\" id=\"help-registered-second\">Second help</div><ul class=\"formkit-messages\" aria-live=\"polite\"><li class=\"formkit-message\" key=\"rule_required\" id=\"registered-second-rule_required\" data-message-type=\"validation\">Registered second is required.</li></ul></div><!--/input--></div></div></div></div><!--/component--><ul class=\"formkit-messages\"><li class=\"formkit-message\" key=\"incomplete\" id=\"mnv3-form-incomplete\" data-message-type=\"ui\">Sorry, not all fields are filled out correctly.</li></ul><div class=\"formkit-actions\"><!--component--><!--input--><div class=\"formkit-outer\" key=\"mnv3-form-input-7\" data-family=\"button\" data-type=\"submit\" data-empty=\"true\"><div class=\"formkit-wrapper\"><button class=\"formkit-input\" type=\"submit\" name=\"submit_4\" id=\"mnv3-form-input-7\">Submit</button></div></div><!--/input--><!--/component--><button type=\"reset\">Reset</button></div></form>",
+      "controls": [
+        {
+          "id": "registered-first",
+          "invalid": "true",
+          "label": "Registered first",
+          "refs": [
+            {
+              "id": "help-registered-first",
+              "count": 1,
+              "text": "First help"
+            },
+            {
+              "id": "registered-first-rule_required",
+              "count": 1,
+              "text": "Registered first is required."
+            }
+          ]
+        },
+        {
+          "id": "registered-second",
+          "invalid": "true",
+          "label": "Registered second",
+          "refs": [
+            {
+              "id": "help-registered-second",
+              "count": 1,
+              "text": "Second help"
+            },
+            {
+              "id": "registered-second-rule_required",
+              "count": 1,
+              "text": "Registered second is required."
+            }
+          ]
+        }
+      ]
+    },
+    "reset": {
+      "mounted": [
+        {
+          "id": "registered-first",
+          "found": true,
+          "connected": true
+        },
+        {
+          "id": "registered-second",
+          "found": true,
+          "connected": true
+        }
+      ],
+      "values": {},
+      "html": "<form id=\"mnv3-form\" novalidate=\"\" class=\"formkit-form\" name=\"form_3\" aria-busy=\"false\"><!--component--><div data-schema-view=\"RegisteredField\"><div><!--input--><div class=\"formkit-outer\" key=\"registered-first\" data-family=\"text\" data-type=\"text\" data-empty=\"true\"><div class=\"formkit-wrapper\"><label class=\"formkit-label\" for=\"registered-first\">Registered first</label><div class=\"formkit-inner\"><input class=\"formkit-input\" type=\"text\" name=\"first\" id=\"registered-first\" aria-describedby=\"help-registered-first\" aria-required=\"true\" style=\"\"></div></div><div class=\"formkit-help\" id=\"help-registered-first\">First help</div></div><!--/input--></div></div><!--/component--><!--component--><div data-schema-view=\"RegisteredSection\"><div><div class=\"field\"><div><!--input--><div class=\"formkit-outer\" key=\"registered-second\" data-family=\"text\" data-type=\"text\" data-empty=\"true\"><div class=\"formkit-wrapper\"><label class=\"formkit-label\" for=\"registered-second\">Registered second</label><div class=\"formkit-inner\"><input class=\"formkit-input\" type=\"text\" name=\"second\" id=\"registered-second\" aria-describedby=\"help-registered-second\" aria-required=\"true\" style=\"\"></div></div><div class=\"formkit-help\" id=\"help-registered-second\">Second help</div></div><!--/input--></div></div></div></div><!--/component--><div class=\"formkit-actions\"><!--component--><!--input--><div class=\"formkit-outer\" key=\"mnv3-form-input-7\" data-family=\"button\" data-type=\"submit\" data-empty=\"true\"><div class=\"formkit-wrapper\"><button class=\"formkit-input\" type=\"submit\" name=\"submit_4\" id=\"mnv3-form-input-7\">Submit</button></div></div><!--/input--><!--/component--><button type=\"reset\">Reset</button></div></form>"
+    },
+    "errors": []
+  }
+}

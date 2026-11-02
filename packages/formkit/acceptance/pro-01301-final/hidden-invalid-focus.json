@@ -1,0 +1,83 @@
+{
+  "sourceRevision": "f75a0ca3606a1edc5e8764154e9523eca1390970",
+  "node": "24.19.0",
+  "playwright": "1.63.0",
+  "browser": "Chromium 154.0.8037.57",
+  "project": "chromium",
+  "test": "invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field",
+  "status": "passed",
+  "observations": {
+    "states": [
+      {
+        "state": "hidden",
+        "focused": true,
+        "html": "<input class=\"formkit-input\" type=\"text\" name=\"visible\" id=\"visible-required\" aria-describedby=\"help-visible-required visible-required-rule_required\" aria-required=\"true\" aria-invalid=\"true\">",
+        "describedBy": [
+          {
+            "id": "help-visible-required",
+            "count": 1,
+            "text": "Visible help"
+          },
+          {
+            "id": "visible-required-rule_required",
+            "count": 1,
+            "text": "Visible required is required."
+          }
+        ]
+      },
+      {
+        "state": "inert",
+        "focused": true,
+        "html": "<input class=\"formkit-input\" type=\"text\" name=\"visible\" id=\"visible-required\" aria-describedby=\"help-visible-required visible-required-rule_required\" aria-required=\"true\" aria-invalid=\"true\">",
+        "describedBy": [
+          {
+            "id": "help-visible-required",
+            "count": 1,
+            "text": "Visible help"
+          },
+          {
+            "id": "visible-required-rule_required",
+            "count": 1,
+            "text": "Visible required is required."
+          }
+        ]
+      },
+      {
+        "state": "display",
+        "focused": true,
+        "html": "<input class=\"formkit-input\" type=\"text\" name=\"visible\" id=\"visible-required\" aria-describedby=\"help-visible-required visible-required-rule_required\" aria-required=\"true\" aria-invalid=\"true\">",
+        "describedBy": [
+          {
+            "id": "help-visible-required",
+            "count": 1,
+            "text": "Visible help"
+          },
+          {
+            "id": "visible-required-rule_required",
+            "count": 1,
+            "text": "Visible required is required."
+          }
+        ]
+      },
+      {
+        "state": "visibility",
+        "focused": true,
+        "html": "<input class=\"formkit-input\" type=\"text\" name=\"visible\" id=\"visible-required\" aria-describedby=\"help-visible-required visible-required-rule_required\" aria-required=\"true\" aria-invalid=\"true\">",
+        "describedBy": [
+          {
+            "id": "help-visible-required",
+            "count": 1,
+            "text": "Visible help"
+          },
+          {
+            "id": "visible-required-rule_required",
+            "count": 1,
+            "text": "Visible required is required."
+          }
+        ]
+      }
+    ],
+    "reset": "<input class=\"formkit-input\" type=\"text\" name=\"visible\" id=\"visible-required\" aria-describedby=\"help-visible-required\" aria-required=\"true\">",
+    "errors": []
+  }
+}

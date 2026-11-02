@@ -1,0 +1,54 @@
+
+ RUN  v5.0.3 /workspace/formkit-repair
+
+ ❯ |dom| test/unit/formkit-hardening.spec.js (17 tests | 1 failed | 13 skipped) 234ms
+   ✓ mounts a named field registration (factory rendered: false) after Region placement 102ms
+   ✓ mounts a named view registration (factory rendered: false) after Region placement 35ms
+   × mounts a named field registration (factory rendered: true) after Region placement 41ms
+   ✓ mounts a named view registration (factory rendered: true) after Region placement 53ms
+   ↓ emits mounted after insertion into an attached region host, once per live node
+   ↓ emits mounted after insertion into an attached adopted host, once per live node
+   ↓ mounts into a detached owner before later attachment without repeating mounted
+   ↓ mounts external FieldView and SchemaView controls after their Region placement
+   ↓ suppresses mounted for removed nodes and emits once for conditional replacements
+   ↓ disables the default submit while pending, rejects repeat attempts, and restores it after resolution
+   ↓ restores actions and displays associated errors after a genuinely rejected submit callback
+   ↓ keeps the latest owner disabled write made while submission is pending
+   ↓ focuses a connected enabled invalid FieldView in an external Region
+   ↓ honors the supplied form id in the DOM and public registry
+   ↓ mounts a template root once and supports Core node.submit through its DOM id
+   ↓ updates dynamic schema config on the existing node and control
+   ↓ binds submitAttrs as live input props including help, classes, disabled and raw attributes
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > mounts a named field registration (factory rendered: true) after Region placement
+AssertionError: expected [ { found: false, connected: false } ] to deeply equal [ { found: true, connected: true } ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "connected": true,
+-     "found": true,
++     "connected": false,
++     "found": false,
+    },
+  ]
+
+ ❯ test/unit/formkit-hardening.spec.js:38:19
+     36|   })] });
+     37|   show(form); await flush();
+     38|   expect(mounted).toEqual([{ found: true, connected: true }]);
+       |                   ^
+     39|   form.render(); await flush(); expect(mounted).toHaveLength(1);
+     40|   form.setSchemaData({ visible: false }); form.setSchemaData({ visible…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed | 13 skipped (17)
+   Start at  20:21:24
+   Duration  1.81s (environment 45%, transform 26%, tests 14%, import 14%, setup 1%)
