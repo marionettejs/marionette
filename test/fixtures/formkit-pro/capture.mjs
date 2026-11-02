@@ -4,14 +4,17 @@ import { resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '../../..');
 const output = process.argv[2] ?? resolve(root, 'test/tmp/formkit-pro/browser');
 const basePort = Number(process.argv[3] ?? 5190);
+const selectedStack = process.argv[4];
+if (selectedStack && !['native', 'vue', 'react'].includes(selectedStack)) { throw new Error('Choose native, vue or react.'); }
 const require = createRequire(`${root}/package.json`);
 const { chromium } = require('playwright-core');
 const browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true });
 const receipts = { node: process.version, playwright: require('playwright-core/package.json').version,
-  proVersion: '0.130.1', coreVersion: '2.1.2', browser: browser.version(), stacks: {} };
+  proVersion: '0.130.2', coreVersion: '2.1.2', browser: browser.version(), stacks: {} };
 mkdirSync(output, { recursive: true });
 try {
   for (const [stack, port] of [['native', basePort], ['vue', basePort + 1], ['react', basePort + 2]]) {
+    if (selectedStack && stack !== selectedStack) { continue; }
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     page.setDefaultTimeout(10000);
     const errors = []; page.on('pageerror', error => errors.push(error.message));
@@ -19,12 +22,20 @@ try {
     const metadata = await page.request.get(`http://localhost:${port}/receipt.json`);
     if (!metadata.ok()) { throw new Error(`Missing consumer source receipt for ${stack}.`); }
     result.consumer = await metadata.json();
+    if (result.consumer.stack !== stack || result.consumer.versions?.['node_modules/@formkit/pro'] !== receipts.proVersion ||
+      result.consumer.versions?.['node_modules/@formkit/core'] !== receipts.coreVersion) {
+      throw new Error(`Consumer stack or FormKit version mismatch for ${stack}. Prepare the pinned consumer before capture.`);
+    }
     const check = async(name, operation) => {
       try { const actual = await operation(); result.cases.push({ name, passed: actual === true || actual?.passed === true, actual }); } catch (error) { result.cases.push({ name, passed: false, error: error.message }); }
     };
     for (const mode of ['pro', 'core']) {
       await page.goto(`http://localhost:${port}/?mode=${mode}`);
       await page.waitForFunction(() => window.proof?.observations && window.proof.observations.bootstrap !== 'pending');
+      const label = await page.locator('#mode').textContent();
+      if (!label.endsWith(`Mode: ${mode}; FormKit core ${receipts.coreVersion}; Pro ${receipts.proVersion}`)) {
+        throw new Error(`Consumer version label mismatch for ${stack}.`);
+      }
       result[mode] = await page.evaluate(() => window.proof.observations);
       if (mode === 'pro') { await page.screenshot({ path: `${output}/${stack}-pro-bootstrap.png`, fullPage: true }); }
     }

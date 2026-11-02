@@ -17,7 +17,7 @@ const env = { ...process.env, NODE_PATH: '', ['npm_config_cache']: join(consumer
 function run(args, cwd = consumer) {
   return execFileSync(process.execPath, [npm, ...args], { cwd, env, encoding: 'utf8', timeout: 180000 });
 }
-const dependencies = { '@formkit/core': '2.1.2', '@formkit/pro': '0.130.1' };
+const dependencies = { '@formkit/core': '2.1.2', '@formkit/pro': '0.130.2' };
 const receipt = {
   sourceRevision: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
   sourceDirty: !!execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim(),

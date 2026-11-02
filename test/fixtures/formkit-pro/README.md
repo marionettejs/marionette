@@ -1,6 +1,6 @@
 # Isolated FormKit Pro comparison
 
-This fixture installs Pro 0.130.1 into independent native, Vue, and React consumers.
+This fixture installs Pro 0.130.2 into independent native, Vue, and React consumers.
 The native consumer uses freshly packed local packages. Reference consumers use
 FormKit 2.1.2, Vue 3.5.44 or React/ReactDOM 19.2.0. Each install captures a lock,
 reinstalls with `npm ci`, checks the dependency graph and ESM/CommonJS imports,
@@ -25,6 +25,14 @@ node test/fixtures/formkit-pro/capture.mjs
 If those ports are already leased, start each consumer with
 `npm run dev -- --port <port>` on three consecutive unused ports, then pass an
 output directory and the first port to `capture.mjs`.
+
+For a dependency-only native compatibility check, prepare only the native consumer
+and pass `native` as the optional stack argument (after output directory and base port):
+`node test/fixtures/formkit-pro/capture.mjs <output-directory> <base-port> native`.
+The optional `vue` and `react` selections retain base-port offsets of +1 and +2.
+This selection does not establish a fresh comparison against the omitted stacks.
+The collector rejects served receipts with a different stack or FormKit/Pro version.
+Earlier 0.130.1 receipts remain in `packages/formkit/acceptance/pro-01301-*`.
 
 The browser collector uses the already-installed cloud `/usr/bin/chromium`.
 It does not download browsers, connect to an existing browser, or use a Mac.

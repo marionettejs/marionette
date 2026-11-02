@@ -24,7 +24,7 @@ plugins.push(node => {
     });
   }
 });
-document.querySelector('#mode').textContent = `Mode: ${mode}; FormKit core 2.1.2; Pro 0.130.1`;
+document.querySelector('#mode').textContent = `Mode: ${mode}; FormKit core 2.1.2; Pro 0.130.2`;
 document.querySelector('#bootstrap').textContent = observations.bootstrap === 'blocked' ? `Pro bootstrap blocked: ${observations.bootstrapError}` : 'Ready';
 show();
 export const initial = () => ({ contact: { name: '', email: '' }, ...(mode === 'pro' ? { guests: [{ name: '' }], priority: 20, updates: false, topics: [] } : {}) });
