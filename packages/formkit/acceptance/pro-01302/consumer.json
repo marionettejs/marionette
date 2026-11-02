@@ -1,0 +1,46 @@
+{
+  "sourceRevision": "50f3519e786d8988dd2a32e7abb4c54c9c014df7",
+  "sourceDirty": false,
+  "stack": "native",
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "consumer": "/tmp/mnjs-pro-native-xcBGcF",
+  "artifacts": [
+    {
+      "name": "marionette",
+      "version": "5.0.0",
+      "sha256": "291e1e6d387b7d3dea1bff7a776de33516ca5488bb82099d72c3c7254e9f5b72"
+    },
+    {
+      "name": "@mnjs/utils",
+      "version": "5.0.0",
+      "sha256": "7d74775d89ff90b1f53c84634a5928eb39cb73814ae744037072b0ac7d5da8fd"
+    },
+    {
+      "name": "@mnjs/radio",
+      "version": "5.0.0",
+      "sha256": "dcf69f06ebbc52f8b630cc975ce2f505848e536bf87f27cabbc09d46e4fd4de3"
+    },
+    {
+      "name": "@mnjs/formkit",
+      "version": "5.0.0-rc.2",
+      "sha256": "3dd3bbb794088511768bd32db88e9952e3bb7e7e6e9ccfa5967a8d01dd90d791"
+    }
+  ],
+  "lockSha256": "132c5961e2dda0ac34462f1d9ab74a0a4a2b1b8b4647bce20a3e5abe82b10c8b",
+  "versions": {
+    "node_modules/@formkit/core": "2.1.2",
+    "node_modules/@formkit/drag-and-drop": "0.5.3",
+    "node_modules/@formkit/i18n": "2.1.2",
+    "node_modules/@formkit/inputs": "2.1.2",
+    "node_modules/@formkit/observer": "2.1.2",
+    "node_modules/@formkit/pro": "0.130.2",
+    "node_modules/@formkit/rules": "2.1.2",
+    "node_modules/@formkit/tempo": "1.1.0",
+    "node_modules/@formkit/themes": "2.1.2",
+    "node_modules/@formkit/utils": "2.1.2",
+    "node_modules/@formkit/validation": "2.1.2",
+    "node_modules/vite": "8.3.0"
+  },
+  "vuePackages": []
+}

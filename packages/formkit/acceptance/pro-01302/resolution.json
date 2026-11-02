@@ -1,0 +1,24 @@
+{
+  "node": "v24.19.0",
+  "sourceRevision": "50f3519e786d8988dd2a32e7abb4c54c9c014df7",
+  "packages": {
+    "@formkit/pro": {
+      "esm": "file:///tmp/mnjs-pro-native-xcBGcF/node_modules/@formkit/pro/index.mjs",
+      "commonjs": "/tmp/mnjs-pro-native-xcBGcF/node_modules/@formkit/pro/index.cjs",
+      "esmImport": true,
+      "commonJSImport": true
+    },
+    "@mnjs/formkit": {
+      "esm": "file:///tmp/mnjs-pro-native-xcBGcF/node_modules/@mnjs/formkit/dist/index.js",
+      "commonjs": "/tmp/mnjs-pro-native-xcBGcF/node_modules/@mnjs/formkit/dist/index.cjs",
+      "esmImport": true,
+      "commonJSImport": true
+    },
+    "vue": {
+      "installed": false
+    },
+    "@formkit/vue": {
+      "installed": false
+    }
+  }
+}
