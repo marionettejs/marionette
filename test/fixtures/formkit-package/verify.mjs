@@ -66,6 +66,21 @@ try {
       assert.equal(document.activeElement, field.el.querySelector('input'));
       templateRegion.destroy(); fieldRegion.destroy(); document.body.replaceChildren();
       console.log(`${name}: mounted placement, root IDs, live config/actions, repeated submit and external focus passed.`);
+      let registeredForm;
+      const mountedRegistration = [];
+      const components = createViewComponents({ getForm: () => registeredForm, registrations: {
+        Field: { kind: 'field', create: options => new FieldView(options) }
+      } });
+      registeredForm = new FormView({ components, schema: [{ $cmp: 'Field', props: { name: 'registered', input: { type: 'text', id: 'packed-registered' } } }],
+        plugins: [node => node.on('mounted', () => {
+          if (node.props.id === 'packed-registered') { mountedRegistration.push(!!document.getElementById(node.props.id)?.isConnected); }
+        })] });
+      const registeredRegion = new Region({ el: document.body.appendChild(document.createElement('div')) });
+      registeredRegion.show(registeredForm); await flush();
+      assert.deepEqual(mountedRegistration, [true]);
+      registeredForm.render(); await flush(); assert.deepEqual(mountedRegistration, [true]);
+      registeredRegion.destroy(); assert.equal(getNode('packed-registered'), undefined); document.body.replaceChildren();
+      console.log(`${name}: named field registration mounted after Region placement exactly once.`);
     }
     {
       const form = new FormView({ template: () => '', values: { title: 'Canonical' },

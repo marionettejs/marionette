@@ -87,6 +87,19 @@ export function createViewComponents<Values extends object = FormValues>({ getFo
       if (isField && !(view instanceof FieldView)) {
         throw new Error('Field registration must return an actual FieldView.');
       }
+      // Queue Region placement before render can queue mounted callbacks for
+      // owned inputs (including fields nested inside an ordinary View).
+      // Reconciliation inserts the wrapper synchronously before either runs.
+      queueMicrotask(() => {
+        if (disposed || view.isDestroyed() || owner.isDestroyed()) {
+          return;
+        }
+        if (!owner.el.contains(wrapper)) {
+          destroy();
+          throw new Error('The schema wrapper must be inserted inside its Region owner before placement.');
+        }
+        region.show(view);
+      });
       view.render();
       view.on('destroy', destroy);
       owner.on('before:destroy', destroy);
@@ -124,16 +137,6 @@ export function createViewComponents<Values extends object = FormValues>({ getFo
         }
       }, destroy
     };
-    queueMicrotask(() => {
-      if (disposed || view.isDestroyed() || owner.isDestroyed()) {
-        return;
-      }
-      if (!owner.el.contains(wrapper)) {
-        destroy();
-        throw new Error('The schema wrapper must be inserted inside its Region owner before placement.');
-      }
-      region.show(view);
-    });
     return component;
   }]));
   return registry;

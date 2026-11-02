@@ -225,6 +225,8 @@ attached host at that point. A deliberately detached View mounts into its detach
 element; later attachment does not repeat `mounted`. Use Marionette `attach` for
 custom controls that require attachment or measurements on every reattachment.
 Nodes removed or destroyed before the mounted callback do not emit it.
+Named `createViewComponents` registrations place their Region before mounted
+callbacks, including fields rendered by an ordinary registered View.
 
 ### Mix schema and ordinary sections
 
@@ -311,7 +313,9 @@ construction snapshot. The source checkout's
   `onSubmitInvalid`, `onSubmit`, `submitBehavior` and `incompleteMessage` are supported.
   The option `submit` takes precedence over `formProps.onSubmit`.
   Invalid-control focus includes connected owned fields in external Regions, in
-  document order; detached, hidden and disabled controls are skipped. Async rules
+  document order; detached, hidden, inert and disabled controls are skipped. If the
+  browser refuses focus (for example because CSS hides an ancestor), the next
+  invalid control is tried. Async rules
   are rechecked when their captured root values change, including added schema fields.
   An application write to `form.node.props.disabled` during submission remains
   authoritative after submission settles.

@@ -787,10 +787,14 @@ export class FormView<Values extends object = FormValues> extends View {
         this.schemaRenderer?.update();
         const invalid = [...new Set([...this.ownedElements].flatMap(element =>
           [...element.querySelectorAll<HTMLElement>('[aria-invalid="true"]')]))]
-          .filter(control => control.isConnected && !control.matches(':disabled, input[type="hidden"]'))
+          .filter(control => control.isConnected && !control.matches(':disabled, input[type="hidden"]') && !control.closest('[hidden], [inert]'))
           // eslint-disable-next-line no-bitwise -- DOM position is a bit mask.
-          .sort((left, right) => left.compareDocumentPosition(right) & 4 ? -1 : 1)[0];
-        if (invalid) { invalid.focus(); } else if (ownedFocus && this.el.ownerDocument.activeElement === this.el.ownerDocument.body) {
+          .sort((left, right) => left.compareDocumentPosition(right) & 4 ? -1 : 1);
+        const focusedInvalid = invalid.some(control => {
+          control.focus();
+          return control.ownerDocument.activeElement === control;
+        });
+        if (!focusedInvalid && ownedFocus && this.el.ownerDocument.activeElement === this.el.ownerDocument.body) {
           (focused as HTMLElement).focus({ preventScroll: true });
         }
       }

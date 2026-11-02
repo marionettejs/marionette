@@ -1,5 +1,46 @@
-import { Region } from 'marionette';
-import { FieldView, FormView, SchemaView, createSchemaRenderer } from '@mnjs/formkit';
+import { Region, View } from 'marionette';
+import { FieldView, FormView, SchemaView, createSchemaRenderer, createViewComponents } from '@mnjs/formkit';
+
+export function mountRegisteredControls() {
+  let form;
+  const mounted = [];
+  const saved = [];
+  class Section extends View {
+    onRender() {
+      this.showChildView('field', new FieldView({ form, name: 'second', removal: 'preserve',
+        input: { type: 'text', id: 'registered-second', label: 'Registered second', help: 'Second help', validation: 'required' } }));
+    }
+  }
+  const components = createViewComponents({ getForm: () => form, registrations: {
+    RegisteredField: { kind: 'field', create: options => new FieldView(options) },
+    RegisteredSection: { kind: 'view', create: () => new Section({ template: () => '<div class="field"></div>', regions: { field: '.field' } }) }
+  } });
+  form = new FormView({ components, schema: [
+    { $cmp: 'RegisteredField', props: { name: 'first', input: { type: 'text', id: 'registered-first', label: 'Registered first', help: 'First help', validation: 'required' } } },
+    { $cmp: 'RegisteredSection' }
+  ], submit: values => saved.push(values), plugins: [node => node.on('mounted', () => {
+    if (node.props.id?.startsWith('registered-')) {
+      const element = document.getElementById(node.props.id);
+      mounted.push({ id: node.props.id, found: !!element, connected: !!element?.isConnected });
+    }
+  })] });
+  const region = new Region({ el: document.body.appendChild(document.createElement('div')) });
+  region.show(form);
+  return { form, mounted, saved, destroy() { region.destroy(); } };
+}
+
+export function mountInvalidFocus() {
+  const region = new Region({ el: document.body.appendChild(document.createElement('div')) });
+  const external = new Region({ el: document.body.appendChild(document.createElement('div')) });
+  const form = new FormView({ schema: [{ $el: 'div', attrs: { id: 'unfocusable-host', hidden: true }, children: [
+    { $formkit: 'text', name: 'hidden', id: 'unfocusable-input', label: 'Hidden required', validation: 'required' }
+  ] }] });
+  region.show(form);
+  const field = new FieldView({ form, name: 'visible', removal: 'preserve',
+    input: { type: 'text', label: 'Visible required', id: 'visible-required', help: 'Visible help', validation: 'required' } });
+  external.show(field);
+  return { form, field, destroy() { region.destroy(); external.destroy(); } };
+}
 
 export async function mountExternalFields() {
   const owners = [];

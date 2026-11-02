@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { Region } from 'marionette';
-import { FieldView, FormView, SchemaView, SubmissionError } from '@mnjs/formkit';
+import { Region, View } from 'marionette';
+import { FieldView, FormView, SchemaView, SubmissionError, createViewComponents } from '@mnjs/formkit';
 import { getNode } from '@formkit/core';
 
 const owners = [];
@@ -11,6 +11,35 @@ function show(view) {
 }
 function mount(options) { const form = new FormView(options); show(form); return form; }
 afterEach(() => { owners.splice(0).reverse().forEach(owner => owner.destroy()); document.body.replaceChildren(); });
+
+it.each(['field', 'view'])('mounts a named %s registration after its bridge Region is placed', async kind => {
+  let form;
+  const mounted = [];
+  class Section extends View {
+    onRender() {
+      this.showChildView('field', new FieldView({ form, name: 'registered', removal: 'preserve',
+        input: { type: 'text', id: 'registered-input' } }));
+    }
+  }
+  const components = createViewComponents({ getForm: () => form, registrations: {
+    Registered: kind === 'field' ? { kind, create: options => new FieldView(options) } :
+      { kind, create: () => new Section({ template: () => '<div class="field"></div>', regions: { field: '.field' } }) }
+  } });
+  form = new FormView({ components, schemaData: { visible: true }, schema: [{ $cmp: 'Registered', if: '$visible',
+    props: { name: 'registered', input: { type: 'text', id: 'registered-input' } } }],
+  plugins: [node => node.on('mounted', () => {
+    if (node.props.id === 'registered-input') {
+      const element = document.getElementById(node.props.id);
+      mounted.push({ found: !!element, connected: !!element?.isConnected });
+    }
+  })] });
+  show(form); await flush();
+  expect(mounted).toEqual([{ found: true, connected: true }]);
+  form.render(); await flush(); expect(mounted).toHaveLength(1);
+  form.setSchemaData({ visible: false }); form.setSchemaData({ visible: true }); form.destroy(); await flush();
+  expect(mounted).toHaveLength(1);
+  expect(getNode('registered-input')).toBeUndefined();
+});
 
 it.each(['region', 'adopted'])('emits mounted after insertion into an attached %s host, once per live node', async placement => {
   const mounts = [];

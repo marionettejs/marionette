@@ -1,6 +1,87 @@
 import { test, expect } from '@playwright/test';
 import { resolve } from 'node:path';
 
+test('invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field', async({ page }, testInfo) => {
+  const errors = [];
+  const states = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.focusFixture = fixture.mountInvalidFocus();
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  const visible = page.getByRole('textbox', { name: 'Visible required', exact: true });
+  for (const state of ['hidden', 'inert', 'display', 'visibility']) {
+    await page.evaluate(placement => {
+      const host = document.getElementById('unfocusable-host');
+      host.hidden = placement === 'hidden'; host.inert = placement === 'inert';
+      host.style.display = placement === 'display' ? 'none' : '';
+      host.style.visibility = placement === 'visibility' ? 'hidden' : '';
+      document.activeElement?.blur();
+    }, state);
+    expect(await page.evaluate(() => window.focusFixture.form.submit())).toBe('invalid');
+    await expect(visible).toBeFocused();
+    await expect(visible).toHaveAttribute('aria-invalid', 'true');
+    states.push(await visible.evaluate((element, placement) => ({ state: placement, focused: document.activeElement === element, html: element.outerHTML,
+      describedBy: element.getAttribute('aria-describedby').split(' ').map(id => ({ id, count: [...document.querySelectorAll('[id]')].filter(node => node.id === id).length,
+        text: document.getElementById(id)?.textContent })) }), state));
+  }
+  expect(states.every(state => state.describedBy.length === 2 && state.describedBy.every(ref => ref.count === 1))).toBe(true);
+  await visible.fill('Corrected');
+  await expect(visible).not.toHaveAttribute('aria-invalid', 'true');
+  await page.evaluate(() => window.focusFixture.form.resetForm());
+  await expect(visible).toHaveValue('');
+  await expect(visible).not.toHaveAttribute('aria-invalid', 'true');
+  expect(await visible.evaluate(element => {
+    const ids = (element.getAttribute('aria-describedby') ?? '').split(' ').filter(Boolean);
+    return ids.length === 1 && document.getElementById(ids[0])?.textContent === 'Visible help';
+  })).toBe(true);
+  await testInfo.attach('hidden-invalid-focus.json', { body: JSON.stringify({ states, reset: await visible.evaluate(element => element.outerHTML), errors }, null, 2), contentType: 'application/json' });
+  await page.evaluate(() => window.focusFixture.destroy());
+  expect(errors).toEqual([]);
+});
+
+test('named registrations mount connected and support keyboard validation, correction and reset', async({ page }, testInfo) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.registeredFixture = fixture.mountRegisteredControls();
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  const first = page.getByRole('textbox', { name: 'Registered first', exact: true });
+  const second = page.getByRole('textbox', { name: 'Registered second', exact: true });
+  expect(await page.evaluate(() => window.registeredFixture.mounted)).toEqual([
+    { id: 'registered-first', found: true, connected: true }, { id: 'registered-second', found: true, connected: true }
+  ]);
+  await first.focus(); await page.keyboard.press('Tab'); await expect(second).toBeFocused();
+  await page.keyboard.press('Shift+Tab'); await expect(first).toBeFocused();
+  await page.keyboard.press('Enter'); await expect(first).toHaveAttribute('aria-invalid', 'true'); await expect(first).toBeFocused();
+  const invalid = await page.evaluate(() => ({ mounted: window.registeredFixture.mounted, activeId: document.activeElement.id,
+    html: window.registeredFixture.form.el.outerHTML,
+    controls: ['registered-first', 'registered-second'].map(id => {
+      const input = document.getElementById(id);
+      return { id, invalid: input.getAttribute('aria-invalid'), label: document.querySelector(`label[for="${id}"]`)?.textContent,
+        refs: input.getAttribute('aria-describedby').split(' ').map(ref => ({ id: ref, count: [...document.querySelectorAll('[id]')].filter(element => element.id === ref).length,
+          text: document.getElementById(ref)?.textContent })) };
+    }) }));
+  expect(invalid.controls.every(control => control.refs.length === 2 && control.refs.every(ref => ref.count === 1))).toBe(true);
+  await testInfo.attach('registered-invalid.png', { body: await first.locator('xpath=ancestor::form').screenshot(), contentType: 'image/png' });
+  await first.fill('First corrected'); await expect(first).not.toHaveAttribute('aria-invalid', 'true');
+  expect(await page.evaluate(() => window.registeredFixture.form.submit())).toBe('invalid'); await expect(second).toBeFocused();
+  await second.fill('Second corrected'); await page.keyboard.press('Enter');
+  await expect.poll(() => page.evaluate(() => window.registeredFixture.saved)).toEqual([{ first: 'First corrected', second: 'Second corrected' }]);
+  await page.evaluate(() => { window.registeredFixture.form.render(); window.registeredFixture.form.resetForm(); });
+  await expect(first).toHaveValue(''); await expect(second).toHaveValue('');
+  await expect(first).not.toHaveAttribute('aria-invalid', 'true'); await expect(second).not.toHaveAttribute('aria-invalid', 'true');
+  const reset = await page.evaluate(() => ({ mounted: window.registeredFixture.mounted, values: window.registeredFixture.form.getValues(), html: window.registeredFixture.form.el.outerHTML }));
+  expect(reset.mounted).toHaveLength(2);
+  await testInfo.attach('registered-keyboard.json', { body: JSON.stringify({ keyboard: ['Tab: second', 'Shift+Tab: first', 'Enter: invalid first', 'Enter after correction: saved'], invalid, reset, errors }, null, 2), contentType: 'application/json' });
+  await page.evaluate(() => window.registeredFixture.destroy());
+  await expect(first).toHaveCount(0); await expect(second).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test('external owned controls retain native origin and state bindings across input, change and blur', async({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
