@@ -8,5 +8,8 @@
   "devDependencies": {
     "eslint": "10.14.0",
     "typescript": "7.0.2"
+  },
+  "overrides": {
+    "minimatch": "11.0.4"
   }
 }
