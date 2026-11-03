@@ -165,6 +165,29 @@ it('focuses a connected enabled invalid FieldView in an external Region', async(
   expect(document.activeElement).toBe(field.el.querySelector('input'));
 });
 
+it.each([false, true])('focuses invalid external fields in document order (reverse creation: %s)', async(reverse) => {
+  const form = mount({ template: () => '', config: { delay: 0 }, values: { first: '', second: '' } });
+  const placements = ['first', 'second'].map(name => {
+    const region = new Region({ el: document.body.appendChild(document.createElement('div')) });
+    owners.push(region);
+    return { name, region };
+  });
+  for (const placement of reverse ? [...placements].reverse() : placements) {
+    placement.field = new FieldView({ form, name: placement.name, removal: 'preserve',
+      input: { type: 'text', validation: 'required' } });
+    placement.region.show(placement.field);
+  }
+  await flush();
+  const [first, second] = placements.map(({ field }) => field);
+  expect(await form.submit()).toBe('invalid');
+  expect(document.activeElement).toBe(first.el.querySelector('input'));
+  first.setValue('Complete');
+  await form.node.settled;
+  expect(await form.submit()).toBe('invalid');
+  expect(document.activeElement).toBe(second.el.querySelector('input'));
+  expect(form.getValues()).toEqual({ first: 'Complete', second: '' });
+});
+
 it('honors the supplied form id in the DOM and public registry', async() => {
   const form = mount({ formProps: { id: 'checkout' }, schema: [] }); await flush();
   expect(form.el.id).toBe('checkout');
