@@ -138,7 +138,11 @@ its elapsed time is independent of the regular CI suites.
 ## Coverage means observable execution
 
 `npm run coverage` reports library coverage at `coverage/library/index.html`, with
-LCOV and JSON summaries alongside it. Every authored production file is included,
+LCOV and JSON summaries alongside it. Coverage uses two workers to bound resource
+contention from V8 instrumentation and isolated DOM environments; CI and local
+verification use this same command. Ordinary unit-test scheduling, test timeouts,
+resource cycle counts and coverage thresholds are unchanged.
+Every authored production file is included,
 including unexecuted files. Functions remain at 100%. Each file defaults to 100% for
 all metrics; `config/coverage-exceptions.json` records the few private defensive
 branches that valid public operations cannot reach. Limits are absolute uncovered

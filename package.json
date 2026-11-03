@@ -66,7 +66,7 @@
     "check:docs-installed": "node test/docs/installed-package.mjs",
     "check:release-promotion": "node scripts/release/preflight.mjs",
     "check:release-profile": "node scripts/checks/release-profile.mjs",
-    "coverage": "vitest run --coverage",
+    "coverage": "vitest run --coverage --maxWorkers=2",
     "docs:build": "node scripts/docs/build.mjs",
     "docs:check": "node scripts/docs/agent-routes.mjs && node --test test/docs/export.test.mjs && npm run check:docs-examples && npm run docs:build && node scripts/docs/check-links.mjs && npm run docs:package && npm run check:docs-installed",
     "lint:base": "eslint --config eslint.config.mjs .",
