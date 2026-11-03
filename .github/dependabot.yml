@@ -26,7 +26,35 @@ updates:
       - dependency-name: typescript
         update-types: [version-update:semver-major]
   - package-ecosystem: npm
-    directories: ['/test/fixtures/*', '/packages/test/examples']
+    # Keep this inventory synchronized with config/release-validation.json.
+    directories:
+      - /test/fixtures/adapters-package-vite
+      - /test/fixtures/attachment-owner-document
+      - /test/fixtures/backbone-adapter-types
+      - /test/fixtures/cjs-adapters
+      - /test/fixtures/cjs-node
+      - /test/fixtures/collection-removal-survivors
+      - /test/fixtures/consumer-lint
+      - /test/fixtures/core-no-underscore
+      - /test/fixtures/core-types
+      - /test/fixtures/data-package-cjs
+      - /test/fixtures/data-package-esm
+      - /test/fixtures/data-package-starter
+      - /test/fixtures/data-package-types
+      - /test/fixtures/data-package-vite
+      - /test/fixtures/docs-package
+      - /test/fixtures/docs-quick-start
+      - /test/fixtures/dom-adapters-package
+      - /test/fixtures/esm-node
+      - /test/fixtures/jquery-dom-api
+      - /test/fixtures/jquery-dom-api-types
+      - /test/fixtures/no-default-export
+      - /test/fixtures/removed-core-adapters
+      - /test/fixtures/standalone-packages
+      - /test/fixtures/utils-package
+      - /test/fixtures/vite
+      - /test/fixtures/xstate-adapter-types
+      - /packages/test/examples
     schedule:
       interval: monthly
     open-pull-requests-limit: 3
@@ -37,6 +65,19 @@ updates:
     ignore:
       - dependency-name: marionette
       - dependency-name: '@mnjs/*'
+      # Keep TS6 compiler-API and consumer coverage; TS7 uses explicit aliases.
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+      - dependency-name: typescript-7
+        update-types: [version-update:semver-major]
+  # Only the isolated minimum-version fixture keeps Backbone fixed.
+  - package-ecosystem: npm
+    directory: /test/fixtures/backbone-adapter
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 1
+    ignore:
+      - dependency-name: backbone
   - package-ecosystem: github-actions
     directory: /
     schedule:

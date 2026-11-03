@@ -25,6 +25,11 @@ the run so it exercises the installed artifact. Playwright results go to
 `test-results/playwright`; Cypress screenshots go to
 `test-results/cypress/screenshots`, relative to the example project.
 
+`test:consumer` checks the helper declarations with TypeScript 6 and the native
+TypeScript 7 compiler. Keep TypeScript 6 as the default compiler while Cypress 14
+remains a supported floor: its bundled `ts-node` needs the compiler API. The
+`typescript-7` alias supplies the separate CLI checks without replacing that API.
+
 | Example | What it demonstrates |
 | --- | --- |
 | [Vitest form tests](form.spec.js) | The optional Testing Library decorator and user-event interactions, validation, focus, saves, readiness and cancellation with the per-test `mounts` fixture. The same tests run in JSDOM and Vitest Browser Mode. |
