@@ -1,0 +1,28 @@
+[
+  {
+    "name": "docs-installed-retry",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "check:docs-installed"
+    ],
+    "started": "2026-11-03T14:42:32.496767+00:00",
+    "exitCode": 0,
+    "finished": "2026-11-03T14:46:34.674832+00:00"
+  },
+  {
+    "name": "coverage",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "coverage",
+      "--",
+      "--maxWorkers=1"
+    ],
+    "started": "2026-11-03T14:46:34.675536+00:00",
+    "exitCode": 1,
+    "finished": "2026-11-03T14:53:20.713105+00:00"
+  }
+]

@@ -4,8 +4,15 @@ Branch `codex/formkit-master-integration-20261103` starts from master
 `c83a9f255692291eb62dc05a6d4073424afb7dfe`. It ports the scoped FormKit package and
 verification inputs from `16aa74fe1160c15e0a3121839e4ab9e576d0c19d`, retaining
 master's shared runtime, `@mnjs/test` 0.2.0, and pinned tooling. The repair branch
-is preserved. Integration checks and real Pro retesting are pending; historical
-passes below must not be attributed to this integrated source.
+is preserved. Current integration evidence records passing build/package checks,
+2,737 unit assertions plus one expected failure, 16 native Chromium cases, and
+Pro 0.130.3 no-Vue imports/build with 14 core comparison checks. Two additional
+focus-order cases pass in a focused 20-test run. Full coverage remains failed
+after five instrumented timeouts; actual Pro 0.130.3 controls on this integrated
+runtime await separate authorized vault QA. See the
+[integration receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/master-integration-20261103)
+for exact tested revisions, logs and limits. Historical passes below must not be
+attributed to this integrated source.
 
 The latest [independent Pro receipt](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) applies to source
 `1d8e1680f416ea182873c9120315ec24970225c9`: 107/107 local assertions, zero page

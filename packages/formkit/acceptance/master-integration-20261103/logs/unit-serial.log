@@ -1,0 +1,285 @@
+npm warn Unknown project config "strict-allow-scripts". This will stop working in the next major version of npm.
+
+> marionette@5.0.0 test:unit
+> vitest run --maxWorkers=1
+
+
+ RUN  v5.0.5 /workspace/formkit-integration
+
+ ✓ |dom| test/unit/collection-view/collection-view-reconciliation.spec.js (50 tests) 1124ms
+ ✓ |dom| test/unit/formkit-regressions.spec.js (49 tests) 6094ms
+   ✓ @mnjs/formkit independent review regressions (6)
+     ✓ reports the user origin of edits through official native inputs 417ms
+     ✓ announces replacing a same-name file with a different file object 695ms
+   ✓ @mnjs/formkit official plugin and context contracts (11)
+     ✓ clears ordinary server errors on editing while retaining explicitly preserved errors 350ms
+     ✓ mounts and destroys official floating labels without late node mutation 430ms
+   ✓ @mnjs/formkit async validation guard review (9)
+     ✓ guards async functions passed directly in validation arrays 489ms
+ ✓ |dom| test/unit/child-view-container.spec.js (66 tests) 675ms
+ ✓ |dom| test/unit/formkit-rows.spec.js (35 tests) 6363ms
+   ✓ genuine Core row groups mount in reverse order and native edits collect as an array 429ms
+   ✓ authoritative keyed reorder retains live groups and controls, independent of display order 315ms
+   ✓ preserved row teardown ends validation and remount restores the committed object 582ms
+   ✓ observable collection display reorder, filter and rebuild preserve values and retained groups 464ms
+   ✓ new row clear remount uses its own baseline and membership reset ends placements for explicit rebuild 408ms
+   ✓ keeps three nested object rows keyed through add, insert, reorder, edit, validation and terminal removal 763ms
+   ✓ preserves nested row defaults by key across UI unmount and rebuilds membership reset explicitly 368ms
+ ✓ |dom| test/unit/formkit-schema-views.spec.js (19 tests) 4935ms
+   ✓ SCHEMA-01 native schema group owns named FieldView parent, one root, independent simultaneous names, validate/submit/reset 2251ms
+   ✓ SCHEMA-04 RowView native SchemaView defaults/reset/remount follow business key through nested named group 519ms
+   ✓ SCHEMA-19 named actual CollectionView owns RowViews/native SchemaViews with explicit list parent and genuine lifecycle 341ms
+ ✓ |dom| test/unit/behavior.spec.js (54 tests) 168ms
+ ✓ |dom| test/unit/behavior-ui-contract.spec.js (15 tests) 342ms
+ ✓ |dom| test/unit/formkit-nested-rows.spec.js (8 tests) 6237ms
+   ✓ nested repeated keys retain lineage, controls, focus and errors through two-level authoritative reorder 853ms
+   ✓ inner clear and preserved drafts use the full key through outer reorder and inner list remount 809ms
+   ✓ deleting an ancestor while its inner list is absent retires added defaults and exclusions before key reuse 847ms
+   ✓ ancestor deletion ends detached inner widgets, delayed native drafts and retained control listeners 472ms
+   ✓ same-membership construction reset retains keyed inner controls after both ancestor and child reorder 833ms
+   ✓ membership-changing construction reset removes added outer and inner rows and allows explicit presentation rebuild 1095ms
+   ✓ submit resettles a delayed nested edit and pending validation after sibling removal before callback capture 673ms
+   ✓ nested removal after callback capture aborts the external attempt and terminal destroy ignores late work 652ms
+ ✓ |dom| test/unit/application-root-view.spec.js (28 tests) 108ms
+ ✓ |dom| test/unit/application-prepared-view.spec.js (27 tests) 294ms
+ ✓ |dom| test/unit/behavior-lifecycle.spec.js (12 tests) 96ms
+ ✓ |dom| test/unit/application-lifecycle.spec.js (29 tests) 78ms
+ ✓ |dom| test/unit/create-marionette.spec.js (8 tests) 77ms
+ ✓ |dom| test/unit/application-start-region.spec.js (16 tests) 120ms
+ ✓ |dom| test/unit/backbone-adapter.spec.js (12 tests) 58ms
+ ✓ |dom| test/unit/application-view-events.spec.js (14 tests) 130ms
+ ✓ |dom| test/unit/application-child-lifecycle.spec.js (19 tests) 81ms
+ ✓ |dom| test/unit/application-sync-destroy.spec.js (15 tests) 34ms
+ ✓ |dom| test/unit/formkit-official.spec.js (6 tests) 3300ms
+   ✓ @mnjs/formkit official input integration (6)
+     ✓ renders official sections, retains typing focus, validates, submits and resets grouped values 1147ms
+     ✓ uses the official radio, checkbox-group and select value features 727ms
+     ✓ observes deep context changes and official theme classes/icons without a framework runtime 300ms
+     ✓ uses the open-source multi-step plugin for step validation and navigation 774ms
+ ✓ |dom| test/unit/formkit-composition.spec.js (5 tests) 4176ms
+   ✓ composes official fields in ordinary Regions and preserves sibling focus through clear conditions 1245ms
+   ✓ preserves an absent draft but resets it to its original baseline 684ms
+   ✓ validates composed fields and submits one settled snapshot with server errors and reset cancellation 815ms
+   ✓ shares validation, submission, reset and cleanup between a schema slot and an ordinary section View 1123ms
+ ✓ |dom| test/unit/formkit-runtime.spec.js (45 tests) 12034ms
+   ✓ @mnjs/formkit native schema runtime (15)
+     ✓ mounts all official native controls with stable labels and editable core values 808ms
+     ✓ forwards editable list row slots through nested groups during replacement and reset 326ms
+     ✓ preserves nested list identities through frozen rapid actor snapshots using explicit item keys 574ms
+   ✓ @mnjs/formkit official form feature contracts (18)
+     ✓ reconciles surviving business-keyed controls after resetting a/b/c 496ms
+     ✓ reconciles surviving business-keyed controls after resetting a/c/b 352ms
+     ✓ reconciles surviving business-keyed controls after resetting b/a/c 380ms
+     ✓ reconciles surviving business-keyed controls after resetting b/c/a 393ms
+     ✓ reconciles surviving business-keyed controls after resetting c/a/b 421ms
+     ✓ reconciles surviving business-keyed controls after resetting c/b/a 391ms
+     ✓ releases list nodes removed during a batched core reset and repeated native mount/destroy 691ms
+   ✓ @mnjs/formkit keyed reset identity (1)
+     ✓ restores item-key list order without exchanging live controls or pending row values 812ms
+   ✓ resets function-keyed nested rows through one root input and one reset notification 313ms
+   ✓ retains nested keyed controls beside a keyless row on reset (keyless first: false) 646ms
+   ✓ retains nested keyed controls beside a keyless row on reset (keyless first: true) 582ms
+   ✓ reconciles business-keyed schema after public Core reset ([ 'a', 'b', 'c' ], explicit value: false) 363ms
+   ✓ reconciles business-keyed schema after public Core reset ([ 'a', 'c', 'b' ], explicit value: true) 394ms
+   ✓ reconciles business-keyed schema after public Core reset ([ 'b', 'a', 'c' ], explicit value: false) 339ms
+   ✓ reconciles business-keyed schema after public Core reset ([ 'c', 'a', 'b' ], explicit value: true) 390ms
+   ✓ restores nested rendered values and releases registries when reset recreates a removed initial row 665ms
+ ✓ |dom| test/unit/collection-view/collection-view-children.spec.js (116 tests) 347ms
+ ✓ |dom| test/unit/region.spec.js (94 tests) 854ms
+ ✓ |dom| test/unit/region-lifecycle.spec.js (30 tests) 155ms
+ ✓ |dom| test/unit/collection-view/collection-view-empty.spec.js (58 tests) 143ms
+ ✓ |dom| test/unit/view.child-views.spec.js (47 tests) 371ms
+ ✓ |dom| test/unit/collection-view/collection-view-data.spec.js (34 tests) 296ms
+ ✓ |dom| test/unit/collection-view/collection-view-filtering.spec.js (43 tests) 583ms
+ ✓ |dom| test/unit/mixins/view.spec.js (38 tests) 133ms
+ ✓ |dom| test/unit/formkit-adversarial-sol.spec.js (13 tests) 1335ms
+ ✓ |dom| test/unit/formkit.spec.js (18 tests) 2202ms
+ ✓ |dom| test/unit/formkit-application-lifecycle.spec.js (7 tests) 5755ms
+   ✓ mounts a complete initialized host snapshot without replacing application data with input defaults 902ms
+   ✓ mounts a complete stored draft snapshot without replacing application data with input defaults 520ms
+   ✓ debounces the latest committed draft and keeps silent projections from echoing to persistence 833ms
+   ✓ retains external errors through edits, hides their summary when valid, and clears them at valid submission 1207ms
+   ✓ delivers derived origins without applying a manual edit effect or losing draft notification 490ms
+   ✓ keeps business row writes bound to IDs and applies authoritative deletion over pending drafts 601ms
+   ✓ discards by destroying the owner and remounting authoritative values, cancelling drafts and late submission 1198ms
+ ✓ |dom| test/unit/formkit-manifest-prototype.spec.js (48 tests) 4492ms
+   ✓ propagates initial nested removal without root input while retaining a new pending sibling edit 343ms
+   ✓ reconciles silent root, group and leaf projections from committed nested values without consumer change callbacks 370ms
+   ✓ settles a native three-stage activation during remote validation before submitting 547ms
+   ✓ lets JavaScript subclasses own ordinary helper names without changing composition lifetimes 418ms
+ ✓ |dom| test/unit/formkit-composition-review.spec.js (28 tests) 2990ms
+   ✓ emits direct FieldView replacements with the requested source and suppresses both APIs for silent writes 441ms
+   ✓ runs an editable native custom control through shared validation and cleanup in schema mode 309ms
+ ✓ |dom| test/unit/formkit-submission-lifetime.spec.js (18 tests) 1501ms
+ ✓ |dom| test/unit/formkit-review.spec.js (25 tests) 2556ms
+   ✓ @mnjs/formkit reviewed ownership and native behavior (25)
+     ✓ reorders explicitly keyed sibling fields without losing values, nodes or focus 358ms
+ ✓ |dom| test/unit/test-package/mount.spec.js (26 tests) 90ms
+ ✓ |dom| test/unit/test-package/integrations.spec.js (22 tests) 164ms
+ ✓ |dom| test/unit/runtime/dom-api.spec.js (35 tests) 80ms
+ ✓ |dom| test/unit/collection-view/collection-view.spec.js (44 tests) 116ms
+ ✓ |dom| test/unit/collection-view/collection-view-sorting.spec.js (41 tests) 335ms
+ ✓ |dom| test/unit/view-region-diagnostics.spec.js (22 tests) 84ms
+ ✓ |dom| test/unit/formkit-hardening.spec.js (18 tests) 1776ms
+   ✓ resets a pending nested draft under an owner read-only transition, then validates a new field on retry 568ms
+ ✓ |dom| test/unit/test-package/cypress-contract.spec.js (22 tests) 388ms
+ ✓ |dom| test/unit/on-attach.spec.js (32 tests) 446ms
+ ✓ |dom| test/unit/collection-view/collection-view-lifecycle.spec.js (11 tests) 240ms
+ ✓ |dom| test/unit/view-lifecycle.spec.js (10 tests) 280ms
+ ✓ |dom| test/unit/view-get-region.spec.js (24 tests) 87ms
+ ✓ |dom| test/unit/xstate-adapter.spec.js (11 tests) 132ms
+ ✓ |dom| test/unit/formkit-host-contracts.spec.js (20 tests) 1031ms
+ ✓ |dom| test/unit/view.spec.js (37 tests) 161ms
+ ✓ |dom| test/unit/common/build-region.spec.js (20 tests) 195ms
+ ✓ |dom| test/unit/formkit-owner-submit.spec.js (8 tests) 1040ms
+   ✓ removes a hidden async validator from an awaiting submission and ignores its late result after replacement 438ms
+ ✓ |dom| test/unit/formkit-row-boundaries.spec.js (7 tests) 689ms
+ ✓ |dom| test/unit/formkit-portability-regressions.spec.js (14 tests) 559ms
+ ✓ |dom| test/unit/formkit-schema-views-boundaries.spec.js (12 tests) 679ms
+ ✓ |dom| test/unit/data-api-redux.spec.js (3 tests) 294ms
+ ✓ |dom| test/unit/formkit-composition-sol.spec.js (8 tests) 843ms
+ ✓ |dom| test/unit/application-state-events.spec.js (9 tests) 128ms
+ ✓ |dom| test/unit/application.spec.js (16 tests) 67ms
+ ✓ |dom| test/unit/behavior-communication-contract.spec.js (5 tests) 69ms
+ ✓ |dom| test/unit/destroyed-add-child-view.spec.js (6 tests) 47ms
+ ✓ |dom| test/unit/application-sync-stop.spec.js (14 tests) 52ms
+ ✓ |dom| test/unit/destroy-listener-cleanup.spec.js (14 tests) 220ms
+ ✓ |dom| test/unit/application-retained-restart.spec.js (8 tests) 200ms
+ ✓ |dom| test/unit/application-ownership.spec.js (10 tests) 65ms
+ ✓ |dom| test/unit/application-child-declarations.spec.js (9 tests) 39ms
+ ✓ |dom| test/unit/formkit-adapter-repair.spec.js (6 tests) 1315ms
+   ✓ writes an ignored FieldView independently with requested, silent and native change origins 532ms
+ ✓ |dom| test/unit/backbone.marionette.spec.js (31 tests) 96ms
+ ✓ |dom| test/unit/behavior-dependencies-contract.spec.js (5 tests) 48ms
+ ✓ |dom| test/unit/destroyed-bind-ui-elements.spec.js (11 tests) 143ms
+ ✓ |dom| test/unit/data-api-integration.spec.js (7 tests) 40ms
+ ✓ |dom| test/unit/application-preparation.spec.js (7 tests) 29ms
+ ✓ |dom| test/unit/application-restart-completion.spec.js (4 tests) 30ms
+ ✓ |dom| test/unit/behavior-initialize-cleanup.spec.js (5 tests) 96ms
+ ✓ |dom| test/unit/formkit-adversarial-astra.spec.js (4 tests) 578ms
+ ✓ |dom| test/unit/entity-event-rebinding.spec.js (4 tests) 18ms
+ ✓ |dom| test/unit/behavior-composition.spec.js (3 tests) 43ms
+ ✓ |dom| test/unit/formkit-schema-view-diagnostics.spec.js (1 test) 67ms
+ ✓ |dom| test/unit/behavior-dom-delegation-contract.spec.js (4 tests) 48ms
+ ✓ |dom| test/unit/formkit-readonly-adversarial.spec.js (4 tests) 293ms
+ ✓ |dom| test/unit/formkit-schema.spec.js (12 tests) 83ms
+ ✓ |dom| test/unit/data-package/api-integration.spec.js (8 tests) 71ms
+ ✓ |dom| test/unit/view-get-regions.spec.js (7 tests) 70ms
+ ✓ |dom| test/unit/mixins/events.spec.js (20 tests) 26ms
+ ✓ |dom| test/unit/view.dynamic-regions.spec.js (23 tests) 121ms
+ ✓ |dom| test/unit/state-owner.spec.js (19 tests) 27ms
+ ✓ |dom| test/unit/runtime/event-delegator.spec.js (15 tests) 427ms
+ ✓ |dom| test/unit/model-based/application.spec.js (1 test) 238ms
+ ✓ |dom| test/unit/mixins/ui.spec.js (19 tests) 107ms
+ ✓ |dom| test/unit/common/bind-request.spec.js (20 tests) 29ms
+ ✓ |dom| test/unit/test-package/region-scope.spec.js (11 tests) 75ms
+ ✓ |dom| test/unit/common/bind-events.spec.js (21 tests) 87ms
+ ✓ |dom| test/unit/test-package/scope.spec.js (12 tests) 39ms
+ ✓ |dom| test/unit/common/trigger-method.spec.js (15 tests) 25ms
+ ✓ |dom| test/unit/collection-view/collection-view-empty-lifecycle.spec.js (7 tests) 257ms
+ ✓ |dom| test/unit/common/normalize-methods.spec.js (15 tests) 40ms
+ ✓ |dom| test/unit/test-package/testing-library.spec.js (8 tests) 1085ms
+   ✓ decorates the owned handle with scoped role, name and label queries 780ms
+ ✓ |dom| test/unit/collection-view/collection-view-childviewcontainer.spec.js (12 tests) 167ms
+ ✓ |dom| test/unit/provider-acceptance.spec.js (4 tests) 321ms
+ ✓ |dom| test/unit/model-based/region.spec.js (2 tests) 821ms
+   ✓ Region public ownership sequences (2)
+     ✓ preserves exclusive ownership and placeholder restoration with attached=false 459ms
+     ✓ preserves exclusive ownership and placeholder restoration with attached=true 361ms
+ ✓ |dom| test/unit/runtime/backbone-api.spec.js (6 tests) 30ms
+ ✓ |dom| test/unit/view.ui-bindings.spec.js (14 tests) 139ms
+ ✓ |dom| test/unit/view.ui-event-and-triggers.spec.js (11 tests) 67ms
+ ✓ |dom| test/unit/model-based/collection-view.spec.js (1 test) 531ms
+   ✓ CollectionView public operation sequences (1)
+     ✓ preserves membership, order, ownership and identity through filtering and reinsertion 528ms
+ ✓ |dom| test/unit/test-package/ownership.spec.js (15 tests) 116ms
+ ✓ |dom| test/unit/collection-view/collection-view-viewmixin.spec.js (16 tests) 134ms
+ ✓ |dom| test/unit/view-dom-delegation.spec.js (6 tests) 64ms
+ ✓ |dom| test/unit/jquery-dom-api.spec.js (10 tests) 3366ms
+   ✓ jQuery DomApi adapter (9)
+     ✓ allows the core ESM graph to bundle without circular dependencies or importing jQuery 3288ms
+ ✓ |dom| test/unit/view.triggers.spec.js (10 tests) 47ms
+ ✓ |dom| test/unit/owned-cleanup.spec.js (4 tests) 15ms
+ ✓ |dom| test/unit/common/merge-options.spec.js (9 tests) 27ms
+ ✓ |dom| test/unit/performance.resources.spec.js (2 tests) 1799ms
+   ✓ repeated public lifecycle resource contracts (2)
+     ✓ releases external subscriptions and owned children across 1000 cycles 1733ms
+ ✓ |dom| test/unit/view-has-region.spec.js (2 tests) 49ms
+ ✓ |dom| test/unit/mixins/view-composition.spec.js (11 tests) 52ms
+ ✓ |dom| test/unit/view.renderer.spec.js (7 tests) 84ms
+ ✓ |dom| test/unit/mixins/view-events.spec.js (8 tests) 69ms
+ ✓ |dom| test/unit/common/get-option.spec.js (18 tests) 16ms
+ ✓ |dom| test/unit/mixins/radio.spec.js (9 tests) 49ms
+ ✓ |dom| test/unit/mixins/behaviors.spec.js (6 tests) 71ms
+ ✓ |dom| test/unit/object.spec.js (8 tests) 31ms
+ ✓ |dom| test/unit/view-fixed-root.spec.js (4 tests) 75ms
+ ✓ |dom| test/unit/mixins/template-render.spec.js (10 tests) 84ms
+ ✓ |dom| test/unit/mixins/destroy.spec.js (2 tests) 16ms
+ ✓ |dom| test/unit/utils/unique-id.spec.js (5 tests) 34ms
+ ✓ |dom| test/unit/test-package/scope-replies.spec.js (4 tests) 11ms
+ ✓ |dom| test/unit/mixins/behaviors-composition.spec.js (3 tests) 29ms
+ ✓ |dom| test/unit/region-missing-selector.spec.js (6 tests) 55ms
+ ✓ |dom| test/unit/view-region-definition-isolation.spec.js (3 tests) 46ms
+ ✓ |dom| test/unit/get-immediate-children.spec.js (4 tests) 119ms
+ ✓ |dom| test/unit/view-constructor-options.spec.js (2 tests) 16ms
+ ✓ |dom| test/unit/ui-binding-diagnostics.spec.js (4 tests) 178ms
+ ✓ |dom| test/unit/child-event-map-ownership.spec.js (4 tests) 88ms
+ ✓ |dom| test/unit/mixins/common.spec.js (3 tests) 31ms
+ ✓ |dom| test/unit/mixins/delegate-entity-events.spec.js (3 tests) 13ms
+ ✓ |dom| test/unit/model-based/region-detached-ownership.spec.js (6 tests) 22ms
+ ✓ |dom| test/unit/runtime/event-delegator-jquery-compat.spec.js (2 tests) 45ms
+ ✓ |dom| test/unit/on-dom-remove.spec.js (3 tests) 88ms
+ ✓ |dom| test/unit/formkit-file-value-props.spec.js (1 test) 310ms
+   ✓ delivers distinct opaque value props to one actual native input normalizer while retaining control identity 308ms
+ ✓ |dom| test/unit/common/monitor-view-events.spec.js (3 tests) 49ms
+ ✓ |dom| test/unit/test-package/vitest.spec.js (5 tests) 61ms
+ ✓ |dom| test/unit/view-region-registration.spec.js (2 tests) 86ms
+ ✓ |dom| test/unit/view-ownership.spec.js (1 test) 206ms
+ ✓ |dom| test/unit/application-state.spec.js (2 tests) 11ms
+ ✓ |dom| test/unit/model-based/mutation-regressions.spec.js (2 tests) 37ms
+ ✓ |dom| test/unit/common/view.spec.js (2 tests) 39ms
+ ✓ |dom| test/unit/destroying-views.spec.js (4 tests) 14ms
+ ✓ |dom| test/unit/view-region-placeholder.spec.js (1 test) 30ms
+ ✓ |dom| test/unit/on-dom-refresh.spec.js (2 tests) 73ms
+ ✓ |dom| test/unit/object-application-composition.spec.js (2 tests) 13ms
+ ✓ |dom| test/unit/runtime/renderer.spec.js (2 tests) 43ms
+ ✓ |dom| test/unit/region-adoption.spec.js (1 test) 22ms
+ ✓ |dom| test/unit/docs-integrations-examples.spec.js (1 test) 18ms
+stderr | test/unit/dom-adapters.spec.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ ✓ |dom| test/unit/dom-adapters.spec.js (40 tests) 264ms
+ ✓ |node| test/unit/config/diagnostic-catalog.spec.js (43 tests) 1440ms
+ ✓ |node| test/unit/requests.spec.js (80 tests) 157ms
+ ✓ |node| test/unit/data-package/collection.spec.js (24 tests) 43ms
+ ✓ |node| test/unit/radio.spec.js (26 tests) 29ms
+ ✓ |node| test/unit/data-package/model.spec.js (15 tests) 126ms
+ ✓ |node| test/unit/modules-error.spec.js (23 tests) 45ms
+ ✓ |node| test/unit/view-render-attributes.spec.js (8 tests) 404ms
+ ✓ |node| test/unit/utils/extend.spec.js (11 tests) 53ms
+ ✓ |node| test/unit/events-parity.spec.js (14 tests) 78ms
+ ✓ |node| test/unit/radio-parity.spec.js (14 tests) 15ms
+ ✓ |node| test/unit/radio-public.spec.js (7 tests) 17ms
+ ✓ |node| test/unit/radio-composition.spec.js (4 tests) 20ms
+ ✓ |node| test/unit/utils/get-value.spec.js (6 tests) 33ms
+ ✓ |node| test/unit/utils/build-event-args.spec.js (9 tests) 39ms
+ ✓ |node| test/unit/events-literal-names.spec.js (60 tests) 50ms
+ ✓ |node| test/unit/runtime/data-api.spec.js (6 tests) 24ms
+ ✓ |node| test/unit/view-el.spec.js (4 tests) 317ms
+ ✓ |node| test/unit/events-iteration.spec.js (3 tests) 25ms
+ ✓ |node| test/unit/utils/once-wrap.spec.js (4 tests) 9ms
+ ✓ |node| test/unit/data-package/collection-observers.spec.js (3 tests) 21ms
+ ✓ |node| test/unit/utils/is-string.spec.js (4 tests) 17ms
+ ✓ |node| test/unit/events-single-dispatch.spec.js (14 tests) 34ms
+ ✓ |node| test/unit/region-el-validation.spec.js (4 tests) 386ms
+ ✓ |node| test/unit/region-detach-contents.spec.js (1 test) 138ms
+ ✓ |node| test/unit/runtime/state-api.spec.js (2 tests) 39ms
+ ✓ |node| test/unit/utils/subscribe-bindings.spec.js (1 test) 14ms
+ ✓ |node| test/unit/utils/call-handler.spec.js (1 test) 18ms
+ ✓ |node| test/unit/utils/set-property.spec.js (1 test) 7ms
+
+ Test Files  182 passed (182)
+      Tests  2737 passed | 1 expected fail (2738)
+   Start at  14:15:31
+   Duration  441.82s (environment 62%, tests 26%, import 9%, transform 2%, setup 1%, worker 1%)
+

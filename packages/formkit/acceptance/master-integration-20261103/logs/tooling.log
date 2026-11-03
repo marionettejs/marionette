@@ -1,0 +1,40 @@
+✔ inventories aliases, optional callbacks, constructor methods, options and type-only exports from the compiler (4301.141637ms)
+✔ source, signature, event payload and assertion edits change the checked inventory (10977.939984ms)
+✔ tracks explicitly listed JavaScript and declaration sources outside the compiler program (12711.660214ms)
+✔ fails on unaccounted exports, stale members and unused semantic groups (14749.911016ms)
+✔ routes declared properties and methods through member scopes while preserving full export evidence (7611.367568ms)
+✔ rejects stale or misplaced documentation member and export selectors (7738.812381ms)
+✔ validates documentation member scopes on factory returned adapter protocols (12459.403244ms)
+✔ rejects absent or ambiguous exact tests, removed headings, incomplete semantics and retired diagnostics (10.133025ms)
+✔ finds actual test AST nodes and rejects prose markers and duplicate titles (4.150723ms)
+✔ records honest documentation gaps without relaxing behavioral evidence (4641.247845ms)
+✔ documentation, diagnostic, and coverage edits invalidate the inventory evidence (16353.784579ms)
+✔ registers shared behavioral cases only with their importing executable runner (15.753888ms)
+✔ classifies the explicit ESLint export as development tooling without relaxing runtime declaration requirements (5123.239507ms)
+✔ the committed real inventory matches and keeps metadata out of production imports (37169.696077ms)
+✔ public-test CLI handles public behavior (533.818953ms)
+✔ public-test CLI handles prototype-shaped user data (638.895166ms)
+✔ public-test CLI handles public raw schema attribute (562.588351ms)
+✔ public-test CLI handles public unquoted raw schema attribute (563.374255ms)
+✔ public-test CLI handles raw-looking private spy (478.817924ms)
+✔ public-test CLI handles raw-looking private member (482.739275ms)
+✔ public-test CLI handles private object override (499.817975ms)
+✔ public-test CLI handles private shorthand override (530.957521ms)
+✔ public-test CLI handles private class override (567.212796ms)
+✔ public-test CLI handles private class field override (620.642057ms)
+✔ public-test CLI handles private field (511.131149ms)
+✔ public-test CLI handles private computed field (539.404165ms)
+✔ public-test CLI handles private spy (595.198726ms)
+✔ public-test CLI handles private dynamic access (547.892323ms)
+✔ public-test CLI handles source import (841.32796ms)
+✔ public-test CLI handles CommonJS source import (905.337228ms)
+✔ public-test CLI handles CommonJS public import (992.114099ms)
+✔ public-test CLI handles dynamic source import (3054.656227ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 134801.462229

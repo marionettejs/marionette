@@ -1,0 +1,6 @@
+
+> marionette@5.0.0 docs:package
+> node scripts/docs/package.mjs
+
+Exported 45 documentation pages to .docs-export (605f1f1a).
+Packaged 45 consumer documentation pages at the package root.

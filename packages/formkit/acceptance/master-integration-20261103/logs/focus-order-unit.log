@@ -1,0 +1,16 @@
+
+> marionette@5.0.0 test
+> vitest run test/unit/formkit-hardening.spec.js --maxWorkers=1
+
+
+ RUN  v5.0.5 /workspace/formkit-integration
+
+ ✓ |dom| test/unit/formkit-hardening.spec.js (20 tests) 2687ms
+   ✓ mounts a named field registration (factory rendered: false) after Region placement 344ms
+   ✓ resets a pending nested draft under an owner read-only transition, then validates a new field on retry 435ms
+
+ Test Files  1 passed (1)
+      Tests  20 passed (20)
+   Start at  15:14:22
+   Duration  7.01s (tests 46%, environment 35%, transform 10%, import 8%, setup 1%, worker 1%)
+

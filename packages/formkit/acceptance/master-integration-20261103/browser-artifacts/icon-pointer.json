@@ -1,0 +1,20 @@
+{
+  "results": [
+    {
+      "clicks": 1,
+      "blurs": 1,
+      "retained": true
+    },
+    {
+      "clicks": 2,
+      "blurs": 2,
+      "retained": true
+    },
+    {
+      "clicks": 3,
+      "blurs": 3,
+      "retained": true
+    }
+  ],
+  "errors": []
+}

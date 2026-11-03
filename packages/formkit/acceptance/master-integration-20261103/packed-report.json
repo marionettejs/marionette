@@ -1,0 +1,1403 @@
+{
+  "sourceRevision": "ad08f4b6008e15cbb931503f11adf6e3590737ee",
+  "sourceDirty": false,
+  "node": "v24.19.0",
+  "passed": true,
+  "artifacts": [
+    {
+      "name": "marionette",
+      "version": "5.0.0",
+      "path": "/workspace/formkit-integration/test/tmp/formkit-package/artifacts/marionette-5.0.0.tgz",
+      "sha256": "eb0479cf6af9d4d7d1c40759dfd4c49d1570c92692ef02bbc17eaee357a10f55",
+      "files": [
+        {
+          "path": "changelog.md",
+          "size": 23515,
+          "mode": 384
+        },
+        {
+          "path": "config/diagnostics/catalog.json",
+          "size": 22784,
+          "mode": 384
+        },
+        {
+          "path": "config/diagnostics/catalog.schema.json",
+          "size": 3742,
+          "mode": 384
+        },
+        {
+          "path": "config/release-profile.json",
+          "size": 1304,
+          "mode": 384
+        },
+        {
+          "path": "dist/agent-skill/agents/openai.yaml",
+          "size": 280,
+          "mode": 384
+        },
+        {
+          "path": "dist/agent-skill/scripts/docs.mjs",
+          "size": 12132,
+          "mode": 384
+        },
+        {
+          "path": "dist/agent-skill/scripts/search.mjs",
+          "size": 4009,
+          "mode": 384
+        },
+        {
+          "path": "dist/agent-skill/scripts/symbols.mjs",
+          "size": 5302,
+          "mode": 384
+        },
+        {
+          "path": "dist/agent-skill/SKILL.md",
+          "size": 4379,
+          "mode": 384
+        },
+        {
+          "path": "dist/eslint/index.cjs",
+          "size": 12867,
+          "mode": 384
+        },
+        {
+          "path": "dist/eslint/index.d.cts",
+          "size": 158,
+          "mode": 384
+        },
+        {
+          "path": "dist/eslint/index.d.ts",
+          "size": 164,
+          "mode": 384
+        },
+        {
+          "path": "dist/eslint/index.js",
+          "size": 12857,
+          "mode": 384
+        },
+        {
+          "path": "dist/marionette.cjs",
+          "size": 97022,
+          "mode": 384
+        },
+        {
+          "path": "dist/marionette.cjs.map",
+          "size": 338316,
+          "mode": 384
+        },
+        {
+          "path": "dist/marionette.js",
+          "size": 95927,
+          "mode": 384
+        },
+        {
+          "path": "dist/marionette.js.map",
+          "size": 338241,
+          "mode": 384
+        },
+        {
+          "path": "dist/marionette.min.js",
+          "size": 61139,
+          "mode": 384
+        },
+        {
+          "path": "dist/marionette.min.js.map",
+          "size": 352557,
+          "mode": 384
+        },
+        {
+          "path": "dist/marionette.umd.js",
+          "size": 127129,
+          "mode": 384
+        },
+        {
+          "path": "dist/marionette.umd.js.map",
+          "size": 424187,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/create-marionette.d.ts",
+          "size": 5482,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/index.d.ts",
+          "size": 2454,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/mixins/behaviors.d.ts",
+          "size": 1850,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/mixins/common.d.ts",
+          "size": 829,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/mixins/delegate-entity-events.d.ts",
+          "size": 659,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/mixins/destroy.d.ts",
+          "size": 544,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/mixins/radio.d.ts",
+          "size": 618,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/mixins/state.d.ts",
+          "size": 962,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/mixins/template-render.d.ts",
+          "size": 1227,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/mixins/ui.d.ts",
+          "size": 1192,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/mixins/view-events.d.ts",
+          "size": 2037,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/mixins/view.d.ts",
+          "size": 4337,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/modules/application.d.ts",
+          "size": 5651,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/modules/behavior.d.ts",
+          "size": 5247,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/modules/child-view-container.d.ts",
+          "size": 5020,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/modules/collection-view.d.ts",
+          "size": 10975,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/modules/common/build-region.d.ts",
+          "size": 569,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/modules/common/chainable-methods.d.ts",
+          "size": 1834,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/modules/common/monitor-view-events.d.ts",
+          "size": 145,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/modules/common/view.d.ts",
+          "size": 1261,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/modules/object.d.ts",
+          "size": 4517,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/modules/region.d.ts",
+          "size": 4540,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/modules/view.d.ts",
+          "size": 8359,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/package.json",
+          "size": 20,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/runtime-id.d.ts",
+          "size": 90,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/runtime/data-api.d.ts",
+          "size": 1547,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/runtime/dom-api.d.ts",
+          "size": 2026,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/runtime/event-delegator.d.ts",
+          "size": 850,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/runtime/renderer.d.ts",
+          "size": 307,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/runtime/state-api.d.ts",
+          "size": 589,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/utils/extend.d.ts",
+          "size": 1513,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/utils/is-el-attached.d.ts",
+          "size": 135,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/utils/subscribe-bindings.d.ts",
+          "size": 393,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/version.d.ts",
+          "size": 112,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/create-marionette.d.ts",
+          "size": 5482,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/index.d.ts",
+          "size": 2454,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/mixins/behaviors.d.ts",
+          "size": 1850,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/mixins/common.d.ts",
+          "size": 829,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/mixins/delegate-entity-events.d.ts",
+          "size": 659,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/mixins/destroy.d.ts",
+          "size": 544,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/mixins/radio.d.ts",
+          "size": 618,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/mixins/state.d.ts",
+          "size": 962,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/mixins/template-render.d.ts",
+          "size": 1227,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/mixins/ui.d.ts",
+          "size": 1192,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/mixins/view-events.d.ts",
+          "size": 2037,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/mixins/view.d.ts",
+          "size": 4337,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/modules/application.d.ts",
+          "size": 5651,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/modules/behavior.d.ts",
+          "size": 5247,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/modules/child-view-container.d.ts",
+          "size": 5020,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/modules/collection-view.d.ts",
+          "size": 10975,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/modules/common/build-region.d.ts",
+          "size": 569,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/modules/common/chainable-methods.d.ts",
+          "size": 1834,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/modules/common/monitor-view-events.d.ts",
+          "size": 145,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/modules/common/view.d.ts",
+          "size": 1261,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/modules/object.d.ts",
+          "size": 4517,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/modules/region.d.ts",
+          "size": 4540,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/modules/view.d.ts",
+          "size": 8359,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/runtime-id.d.ts",
+          "size": 90,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/runtime/data-api.d.ts",
+          "size": 1547,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/runtime/dom-api.d.ts",
+          "size": 2026,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/runtime/event-delegator.d.ts",
+          "size": 850,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/runtime/renderer.d.ts",
+          "size": 307,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/runtime/state-api.d.ts",
+          "size": 589,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/utils/extend.d.ts",
+          "size": 1513,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/utils/is-el-attached.d.ts",
+          "size": 135,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/utils/subscribe-bindings.d.ts",
+          "size": 393,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/version.d.ts",
+          "size": 112,
+          "mode": 384
+        },
+        {
+          "path": "docs-manifest.json",
+          "size": 16014,
+          "mode": 384
+        },
+        {
+          "path": "docs-sections.json",
+          "size": 71019,
+          "mode": 384
+        },
+        {
+          "path": "docs-symbols.json",
+          "size": 479552,
+          "mode": 384
+        },
+        {
+          "path": "docs/agents.md",
+          "size": 6252,
+          "mode": 384
+        },
+        {
+          "path": "docs/api.md",
+          "size": 5004,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/application.md",
+          "size": 23141,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/behavior.md",
+          "size": 10364,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/collection-view.md",
+          "size": 23283,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/errors.md",
+          "size": 12342,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/mnobject.md",
+          "size": 6693,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/providers/data.md",
+          "size": 12105,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/providers/dom.md",
+          "size": 9192,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/region.md",
+          "size": 14218,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/runtime.md",
+          "size": 8755,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/shared/common.md",
+          "size": 6628,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/shared/events.md",
+          "size": 5683,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/shared/state.md",
+          "size": 5461,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/shared/view-bindings.md",
+          "size": 14431,
+          "mode": 384
+        },
+        {
+          "path": "docs/api/view.md",
+          "size": 19143,
+          "mode": 384
+        },
+        {
+          "path": "docs/architecture.md",
+          "size": 8863,
+          "mode": 384
+        },
+        {
+          "path": "docs/guides/accessibility-rendering.md",
+          "size": 5462,
+          "mode": 384
+        },
+        {
+          "path": "docs/guides/existing-html.md",
+          "size": 2736,
+          "mode": 384
+        },
+        {
+          "path": "docs/guides/existing-ui.md",
+          "size": 3650,
+          "mode": 384
+        },
+        {
+          "path": "docs/guides/framework-migration.md",
+          "size": 18995,
+          "mode": 384
+        },
+        {
+          "path": "docs/guides/lists.md",
+          "size": 6227,
+          "mode": 384
+        },
+        {
+          "path": "docs/guides/local-editing.md",
+          "size": 7242,
+          "mode": 384
+        },
+        {
+          "path": "docs/guides/migration.md",
+          "size": 13576,
+          "mode": 384
+        },
+        {
+          "path": "docs/guides/production.md",
+          "size": 4805,
+          "mode": 384
+        },
+        {
+          "path": "docs/guides/retained-restart.md",
+          "size": 5030,
+          "mode": 384
+        },
+        {
+          "path": "docs/guides/routing.md",
+          "size": 9884,
+          "mode": 384
+        },
+        {
+          "path": "docs/guides/testing.md",
+          "size": 10590,
+          "mode": 384
+        },
+        {
+          "path": "docs/guides/typescript.md",
+          "size": 9121,
+          "mode": 384
+        },
+        {
+          "path": "docs/guides/widgets.md",
+          "size": 4555,
+          "mode": 384
+        },
+        {
+          "path": "docs/integrations/setup.md",
+          "size": 3862,
+          "mode": 384
+        },
+        {
+          "path": "docs/packages/adapters.md",
+          "size": 16360,
+          "mode": 384
+        },
+        {
+          "path": "docs/packages/data.md",
+          "size": 19281,
+          "mode": 384
+        },
+        {
+          "path": "docs/packages/radio.md",
+          "size": 11394,
+          "mode": 384
+        },
+        {
+          "path": "docs/packages/utils.md",
+          "size": 8300,
+          "mode": 384
+        },
+        {
+          "path": "docs/quick-start.md",
+          "size": 2616,
+          "mode": 384
+        },
+        {
+          "path": "docs/readme.md",
+          "size": 5521,
+          "mode": 384
+        },
+        {
+          "path": "docs/records.md",
+          "size": 13109,
+          "mode": 384
+        },
+        {
+          "path": "docs/tooling.md",
+          "size": 8700,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/index.html",
+          "size": 615,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/package-lock.json",
+          "size": 30372,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/package.json",
+          "size": 701,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/playwright.config.js",
+          "size": 691,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/public/api/records.json",
+          "size": 374,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/README.md",
+          "size": 1992,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/scripts/build-local-packages.mjs",
+          "size": 964,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/src/main-application.js",
+          "size": 1294,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/src/main.js",
+          "size": 232,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/src/page.js",
+          "size": 306,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/src/records-api.js",
+          "size": 227,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/src/records-application.js",
+          "size": 1749,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/src/records-views.js",
+          "size": 2243,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/src/setup.js",
+          "size": 295,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/src/styles.css",
+          "size": 1215,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/tests/records.spec.js",
+          "size": 21514,
+          "mode": 384
+        },
+        {
+          "path": "examples/records/vite.config.js",
+          "size": 331,
+          "mode": 384
+        },
+        {
+          "path": "license.txt",
+          "size": 1069,
+          "mode": 384
+        },
+        {
+          "path": "llms.txt",
+          "size": 2500,
+          "mode": 384
+        },
+        {
+          "path": "package.json",
+          "size": 11448,
+          "mode": 384
+        },
+        {
+          "path": "packages/formkit/compatibility.md",
+          "size": 18453,
+          "mode": 384
+        },
+        {
+          "path": "packages/formkit/OWNERSHIP.md",
+          "size": 6522,
+          "mode": 384
+        },
+        {
+          "path": "packages/formkit/readme.md",
+          "size": 30109,
+          "mode": 384
+        },
+        {
+          "path": "packages/formkit/rows.md",
+          "size": 5376,
+          "mode": 384
+        },
+        {
+          "path": "packages/formkit/schema-views.md",
+          "size": 11612,
+          "mode": 384
+        },
+        {
+          "path": "packages/test/guide.md",
+          "size": 38131,
+          "mode": 384
+        },
+        {
+          "path": "packages/test/readme.md",
+          "size": 7808,
+          "mode": 384
+        },
+        {
+          "path": "readme.md",
+          "size": 4918,
+          "mode": 384
+        },
+        {
+          "path": "skills/marionette/agents/openai.yaml",
+          "size": 280,
+          "mode": 384
+        },
+        {
+          "path": "skills/marionette/scripts/docs.mjs",
+          "size": 12132,
+          "mode": 384
+        },
+        {
+          "path": "skills/marionette/scripts/search.mjs",
+          "size": 4009,
+          "mode": 384
+        },
+        {
+          "path": "skills/marionette/scripts/symbols.mjs",
+          "size": 5302,
+          "mode": 384
+        },
+        {
+          "path": "skills/marionette/SKILL.md",
+          "size": 4379,
+          "mode": 384
+        }
+      ]
+    },
+    {
+      "name": "@mnjs/utils",
+      "version": "5.0.0",
+      "path": "/workspace/formkit-integration/test/tmp/formkit-package/artifacts/mnjs-utils-5.0.0.tgz",
+      "sha256": "7d74775d89ff90b1f53c84634a5928eb39cb73814ae744037072b0ac7d5da8fd",
+      "files": [
+        {
+          "path": "dist/index.cjs",
+          "size": 15870,
+          "mode": 384
+        },
+        {
+          "path": "dist/index.cjs.map",
+          "size": 61112,
+          "mode": 384
+        },
+        {
+          "path": "dist/index.js",
+          "size": 15422,
+          "mode": 384
+        },
+        {
+          "path": "dist/index.js.map",
+          "size": 61090,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/bind-events.d.ts",
+          "size": 814,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/bind-requests.d.ts",
+          "size": 681,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/build-event-args.d.ts",
+          "size": 494,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/call-handler.d.ts",
+          "size": 438,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/error.d.ts",
+          "size": 719,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/events.d.ts",
+          "size": 3037,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/extend.d.ts",
+          "size": 3306,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/get-option.d.ts",
+          "size": 1224,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/get-value.d.ts",
+          "size": 101,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/index.d.ts",
+          "size": 1334,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/is-string.d.ts",
+          "size": 59,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/merge-options.d.ts",
+          "size": 220,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/normalize-methods.d.ts",
+          "size": 591,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/once-wrap.d.ts",
+          "size": 428,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/package.json",
+          "size": 20,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/set-property.d.ts",
+          "size": 90,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/trigger-method.d.ts",
+          "size": 221,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/unique-id.d.ts",
+          "size": 59,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/bind-events.d.ts",
+          "size": 814,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/bind-requests.d.ts",
+          "size": 681,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/build-event-args.d.ts",
+          "size": 494,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/call-handler.d.ts",
+          "size": 438,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/error.d.ts",
+          "size": 719,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/events.d.ts",
+          "size": 3037,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/extend.d.ts",
+          "size": 3306,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/get-option.d.ts",
+          "size": 1224,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/get-value.d.ts",
+          "size": 101,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/index.d.ts",
+          "size": 1334,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/is-string.d.ts",
+          "size": 59,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/merge-options.d.ts",
+          "size": 220,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/normalize-methods.d.ts",
+          "size": 591,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/once-wrap.d.ts",
+          "size": 428,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/set-property.d.ts",
+          "size": 90,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/trigger-method.d.ts",
+          "size": 221,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/unique-id.d.ts",
+          "size": 59,
+          "mode": 384
+        },
+        {
+          "path": "license.txt",
+          "size": 1069,
+          "mode": 384
+        },
+        {
+          "path": "package.json",
+          "size": 1087,
+          "mode": 384
+        },
+        {
+          "path": "readme.md",
+          "size": 3176,
+          "mode": 384
+        }
+      ]
+    },
+    {
+      "name": "@mnjs/radio",
+      "version": "5.0.0",
+      "path": "/workspace/formkit-integration/test/tmp/formkit-package/artifacts/mnjs-radio-5.0.0.tgz",
+      "sha256": "fb8a067705ad7722e85269367cc0edf6b232f2236cb35e9befcdf27f06ec7a42",
+      "files": [
+        {
+          "path": "dist/index.cjs",
+          "size": 7617,
+          "mode": 384
+        },
+        {
+          "path": "dist/index.cjs.map",
+          "size": 25362,
+          "mode": 384
+        },
+        {
+          "path": "dist/index.js",
+          "size": 7526,
+          "mode": 384
+        },
+        {
+          "path": "dist/index.js.map",
+          "size": 25348,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/debug.d.ts",
+          "size": 1119,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/index.d.ts",
+          "size": 175,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/package.json",
+          "size": 20,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/radio.d.ts",
+          "size": 2027,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/requests.d.ts",
+          "size": 642,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/debug.d.ts",
+          "size": 1119,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/index.d.ts",
+          "size": 175,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/radio.d.ts",
+          "size": 2027,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/requests.d.ts",
+          "size": 642,
+          "mode": 384
+        },
+        {
+          "path": "license.txt",
+          "size": 1069,
+          "mode": 384
+        },
+        {
+          "path": "package.json",
+          "size": 1230,
+          "mode": 384
+        },
+        {
+          "path": "readme.md",
+          "size": 1796,
+          "mode": 384
+        }
+      ]
+    },
+    {
+      "name": "@mnjs/formkit",
+      "version": "5.0.0-rc.2",
+      "path": "/workspace/formkit-integration/test/tmp/formkit-package/artifacts/mnjs-formkit-5.0.0-rc.2.tgz",
+      "sha256": "d4d0d2fcf1dffe0bcf76556f1d9781b71fef50db0dfc97e59b57dba5e1a4acac",
+      "files": [
+        {
+          "path": "OWNERSHIP.md",
+          "size": 6522,
+          "mode": 384
+        },
+        {
+          "path": "compatibility.md",
+          "size": 18453,
+          "mode": 384
+        },
+        {
+          "path": "dist/index.cjs",
+          "size": 96978,
+          "mode": 384
+        },
+        {
+          "path": "dist/index.cjs.map",
+          "size": 250530,
+          "mode": 384
+        },
+        {
+          "path": "dist/index.js",
+          "size": 96540,
+          "mode": 384
+        },
+        {
+          "path": "dist/index.js.map",
+          "size": 250502,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/bindings.d.ts",
+          "size": 104,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/composition-input.d.ts",
+          "size": 426,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/composition.d.ts",
+          "size": 947,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/index.d.ts",
+          "size": 6080,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/package.json",
+          "size": 20,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/row-ownership.d.ts",
+          "size": 1429,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/runtime.d.ts",
+          "size": 1678,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/schema-view.d.ts",
+          "size": 934,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/schema.d.ts",
+          "size": 1604,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/cjs/view-components.d.ts",
+          "size": 1569,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/bindings.d.ts",
+          "size": 104,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/composition-input.d.ts",
+          "size": 426,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/composition.d.ts",
+          "size": 947,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/index.d.ts",
+          "size": 6080,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/row-ownership.d.ts",
+          "size": 1429,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/runtime.d.ts",
+          "size": 1678,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/schema-view.d.ts",
+          "size": 934,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/schema.d.ts",
+          "size": 1604,
+          "mode": 384
+        },
+        {
+          "path": "dist/types/esm/view-components.d.ts",
+          "size": 1569,
+          "mode": 384
+        },
+        {
+          "path": "license.txt",
+          "size": 2214,
+          "mode": 384
+        },
+        {
+          "path": "package.json",
+          "size": 1592,
+          "mode": 384
+        },
+        {
+          "path": "readme.md",
+          "size": 30109,
+          "mode": 384
+        },
+        {
+          "path": "rows.md",
+          "size": 5376,
+          "mode": 384
+        },
+        {
+          "path": "schema-views.md",
+          "size": 11612,
+          "mode": 384
+        }
+      ]
+    }
+  ],
+  "stages": [
+    {
+      "name": "pack-corepackage",
+      "passed": true
+    },
+    {
+      "name": "pack-packages-utils",
+      "passed": true
+    },
+    {
+      "name": "pack-packages-radio",
+      "passed": true
+    },
+    {
+      "name": "pack-packages-formkit",
+      "passed": true
+    },
+    {
+      "name": "install",
+      "passed": true
+    },
+    {
+      "name": "locked-install",
+      "passed": true
+    },
+    {
+      "name": "versions",
+      "passed": true
+    },
+    {
+      "name": "runtime-esm-cjs",
+      "passed": true
+    },
+    {
+      "name": "types",
+      "passed": true
+    }
+  ],
+  "sources": [
+    {
+      "path": "packages/formkit/src/bindings.ts",
+      "sha256": "b2cb41265425550136cd68e08e66e36450f2f55cda39dd8a2cd146002e1a1420"
+    },
+    {
+      "path": "packages/formkit/src/composition-input.ts",
+      "sha256": "b14d31c4ca70a98f1b445fcd17891524364ed1035e9da09098a627bd8a1d6795"
+    },
+    {
+      "path": "packages/formkit/src/composition.ts",
+      "sha256": "beda91fd9572493b310af8b5d59d0e1afd9ed69bca481e91f1302bd238db4afc"
+    },
+    {
+      "path": "packages/formkit/src/index.ts",
+      "sha256": "f781bfba74059aafa125a28eef90d97b4cab00e93ec8c9a649d28e54196b7370"
+    },
+    {
+      "path": "packages/formkit/src/row-ownership.ts",
+      "sha256": "5a3f3633b6a9dc6990124c267d184903bf0395aece5f9cd9366d99564fcd8fe3"
+    },
+    {
+      "path": "packages/formkit/src/runtime.ts",
+      "sha256": "4089c981d9aa9660358c7c2c0efb31e8b2cb9ec0d795d7507bf16eea9f58bd86"
+    },
+    {
+      "path": "packages/formkit/src/schema-view.ts",
+      "sha256": "1f8cac9da3a6f3074c9de1b708c04cae88a28d2cd0bae07596f4d09707325a6c"
+    },
+    {
+      "path": "packages/formkit/src/schema.ts",
+      "sha256": "3c0d52bcab64797b275e9e7e7cbe70c01be90ef9fe7520af486126a005578ee8"
+    },
+    {
+      "path": "packages/formkit/src/view-components.ts",
+      "sha256": "d2d947aceafc3de97b666ae6b7808fd5fb6d7b06f934dab872b32002187979c1"
+    }
+  ],
+  "fixtures": [
+    {
+      "path": "test/fixtures/formkit-package/run.mjs",
+      "sha256": "bf81f262840962588c546e76aa0c9d6a799abbad4c7705676c45ee4d84922cf2"
+    },
+    {
+      "path": "test/fixtures/formkit-package/verify.mjs",
+      "sha256": "54ed2de740351e15dbcbaf3b5704c4e66267782be05250e118942cced67d97cc"
+    },
+    {
+      "path": "test/types/formkit.mts",
+      "sha256": "78165aff2a87c8917c015128b8a7b420b0f862bc31a6cb77a920a96c728a1a2c"
+    },
+    {
+      "path": "test/types/formkit.cts",
+      "sha256": "78165aff2a87c8917c015128b8a7b420b0f862bc31a6cb77a920a96c728a1a2c"
+    },
+    {
+      "path": "test/types/formkit-rows.mts",
+      "sha256": "5120f62e360e2ce625a24b1634da0e328896e561596a4e0a080589bd334dbf16"
+    },
+    {
+      "path": "test/types/formkit-rows.cts",
+      "sha256": "5120f62e360e2ce625a24b1634da0e328896e561596a4e0a080589bd334dbf16"
+    }
+  ],
+  "lockSha256": "ab00e78872b5955226d6d3386a2bc7d6daa00c0ffaef86b12e11a5e9b96ded85",
+  "versions": {
+    "core": "5.0.0",
+    "formkit": "5.0.0-rc.2",
+    "formkitCore": "2.1.2"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "sourceRevision": "605f1f1aaccb63f9195f15e26f64e8f1d00f409c",
+  "reviewMode": "Independent Astra source/artifact inspection, not independent live execution",
+  "fullClaudeReview": "Unavailable; only coordinator-supplied issue categories evaluated",
+  "categories": {
+    "mergeConflicts": "Ported scoped FormKit files to fresh c83 master base; preserved master runtime and @mnjs/test 0.2.0. Original repair branch untouched.",
+    "apiHashes": "Original repair API inventory failed; rebuilt inventory passes with all nine previous entrypoints unchanged.",
+    "lint": "Reproduced seven old-branch errors; corrected six in datepicker trace and one shadowed test resolver. Root lint passes.",
+    "experimentProtectedApis": "Four protected hooks serve the retained private composition prototype; no new public exports.",
+    "evidenceDocs": "Historical scopes separated from integrated source and versioned Pro receipts.",
+    "circularImports": "Deferred index/view-components factory cycle retained; source and packed ESM/CommonJS imports pass.",
+    "perKeystrokePerformance": "Whole-form refresh and expression compilation remain measurement candidates. No performance benchmark or optimization claim.",
+    "formkitVersion": "Exact 2.1.2 runtime pins retained. Installed source supports used APIs; no later Core version certification."
+  },
+  "additionalConfirmedIntegrationFix": "Helper/FormKit consumer now derives @mnjs/test version from current package manifest instead of asserting old 0.1.0.",
+  "coverageFinding": "Instrumented timeouts remain a failing gate. Focused 18 passes do not cover later SCHEMA-01 timeout. Uninstrumented assertions pass; cause/production latency not established.",
+  "currentRemoteMaster": {
+    "sha": "09990a586cbef59f0c268bd075af7f55c18c3888",
+    "commitsSinceBase": 3,
+    "changedFiles": [
+      ".github/dependabot.yml",
+      "test/fixtures/consumer-lint/package-lock.json",
+      "test/fixtures/consumer-lint/package.json",
+      "test/fixtures/data-package-starter/package-lock.json",
+      "test/fixtures/data-package-starter/package.json"
+    ],
+    "overlapsIntegratedRuntimeOrFormkit": false
+  },
+  "hostedCi": {
+    "sourceRevision": "605f1f1aaccb63f9195f15e26f64e8f1d00f409c",
+    "runs": 0,
+    "claim": "No hosted CI result"
+  },
+  "focusOrderTestReview": {
+    "revision": "8c70a88dff4b59e423774c7540bc5719d8273c53",
+    "finding": "No findings; public contract, explicit baselines, no production or policy changes.",
+    "independentTestsRun": false
+  }
+}

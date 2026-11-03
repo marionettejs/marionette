@@ -1,0 +1,62 @@
+{
+  "sourceRevision": "ad08f4b6008e15cbb931503f11adf6e3590737ee",
+  "base": "c83a9f255692291eb62dc05a6d4073424afb7dfe",
+  "originalRepair": "16aa74fe1160c15e0a3121839e4ab9e576d0c19d",
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "tools": {
+    "@playwright/test": "1.64.1",
+    "vitest": "5.0.5",
+    "jsdom": "30.1.3",
+    "typescript": "6.0.3",
+    "rollup": "4.67.2"
+  },
+  "sourceHashes": [
+    {
+      "path": "packages/formkit/src/bindings.ts",
+      "sha256": "b2cb41265425550136cd68e08e66e36450f2f55cda39dd8a2cd146002e1a1420",
+      "matches": true
+    },
+    {
+      "path": "packages/formkit/src/composition-input.ts",
+      "sha256": "b14d31c4ca70a98f1b445fcd17891524364ed1035e9da09098a627bd8a1d6795",
+      "matches": true
+    },
+    {
+      "path": "packages/formkit/src/composition.ts",
+      "sha256": "beda91fd9572493b310af8b5d59d0e1afd9ed69bca481e91f1302bd238db4afc",
+      "matches": true
+    },
+    {
+      "path": "packages/formkit/src/index.ts",
+      "sha256": "f781bfba74059aafa125a28eef90d97b4cab00e93ec8c9a649d28e54196b7370",
+      "matches": true
+    },
+    {
+      "path": "packages/formkit/src/row-ownership.ts",
+      "sha256": "5a3f3633b6a9dc6990124c267d184903bf0395aece5f9cd9366d99564fcd8fe3",
+      "matches": true
+    },
+    {
+      "path": "packages/formkit/src/runtime.ts",
+      "sha256": "4089c981d9aa9660358c7c2c0efb31e8b2cb9ec0d795d7507bf16eea9f58bd86",
+      "matches": true
+    },
+    {
+      "path": "packages/formkit/src/schema-view.ts",
+      "sha256": "1f8cac9da3a6f3074c9de1b708c04cae88a28d2cd0bae07596f4d09707325a6c",
+      "matches": true
+    },
+    {
+      "path": "packages/formkit/src/schema.ts",
+      "sha256": "3c0d52bcab64797b275e9e7e7cbe70c01be90ef9fe7520af486126a005578ee8",
+      "matches": true
+    },
+    {
+      "path": "packages/formkit/src/view-components.ts",
+      "sha256": "d2d947aceafc3de97b666ae6b7808fd5fb6d7b06f934dab872b32002187979c1",
+      "matches": true
+    }
+  ],
+  "preservedMasterPaths": ""
+}

@@ -1,0 +1,188 @@
+
+> marionette@5.0.0 check:docs-installed
+> node test/docs/installed-package.mjs
+
+{
+  "passed": true,
+  "node": "24.19.0",
+  "npm": "11.17.0",
+  "sourceRevision": "ad08f4b6008e15cbb931503f11adf6e3590737ee",
+  "sourceDirty": false,
+  "contentSha256": "78a8870f80983d145864017f21c267b298bcecf431d465598caeac2af3587101",
+  "pages": 45,
+  "assets": 28,
+  "packages": [
+    {
+      "name": "@mnjs/utils",
+      "filename": "mnjs-utils-5.0.0.tgz",
+      "sha256": "7d74775d89ff90b1f53c84634a5928eb39cb73814ae744037072b0ac7d5da8fd"
+    },
+    {
+      "name": "@mnjs/radio",
+      "filename": "mnjs-radio-5.0.0.tgz",
+      "sha256": "fb8a067705ad7722e85269367cc0edf6b232f2236cb35e9befcdf27f06ec7a42"
+    },
+    {
+      "name": "marionette",
+      "filename": "marionette-5.0.0.tgz",
+      "sha256": "eb0479cf6af9d4d7d1c40759dfd4c49d1570c92692ef02bbc17eaee357a10f55"
+    },
+    {
+      "name": "@mnjs/data",
+      "filename": "mnjs-data-5.0.0.tgz",
+      "sha256": "4d4647db202f4be6fa53aefc773194c7103d2a5151004e0c52feeb5d3edd896e"
+    },
+    {
+      "name": "@mnjs/adapters",
+      "filename": "mnjs-adapters-5.0.0.tgz",
+      "sha256": "4bc4d8bf091c3bb96b72b7b4ccd59bd3f94a4c79fe56f031f94726cff796bc2b"
+    }
+  ],
+  "discovery": [
+    "package resolution",
+    "list",
+    "search",
+    "section",
+    "page",
+    "diagnostic",
+    "symbol"
+  ],
+  "runtimeFixtures": [
+    "esm-node/validate.mjs",
+    "cjs-node/validate.cjs",
+    "data-package-esm/validate.mjs",
+    "data-package-cjs/validate.cjs",
+    "cjs-adapters/validate.cjs"
+  ],
+  "consumerTooling": {
+    "passed": true,
+    "checks": [
+      "documented lint configuration",
+      "public View interaction accepted",
+      "private framework access rejected",
+      "installed declarations accepted",
+      "invalid Region argument rejected",
+      "restored valid examples accepted",
+      "installed diagnostic lookup"
+    ],
+    "limits": "Checks package tooling and recipes, not browser behavior or architectural effectiveness."
+  },
+  "consumerTesting": {
+    "passed": true,
+    "tests": 5,
+    "checks": [
+      "local interaction",
+      "Region replacement and borrowed-model cleanup",
+      "async readiness and stop/destroy",
+      "failed readiness",
+      "superseded readiness",
+      "unmanaged model subscription mutation rejected"
+    ],
+    "limits": "JSDOM consumer recipe; does not prove browser behavior or reader effectiveness."
+  },
+  "typescriptGuide": {
+    "passed": true,
+    "examples": 4,
+    "compiler": "6.0.3",
+    "sourceSha256": [
+      "e0ee5c19f63348f5c5e5eae9e11f9b2d46f03d16e0bf0c73421ef13d99dc5063",
+      "7edcbc09a718a4be6c7a314ee750ccbaa0153bc2f9d07b2c8905f53b4f0f479d",
+      "649dfcb1eeeda8a90732f35beb495a8188ab2f0d3b818c06397bb67d71398590",
+      "b1348d500f5dfee53de87d75e58f62f765a5da304e957bd9f6c71bf2a3f16677"
+    ],
+    "checks": [
+      "actual guide fences compile with documented strict browser configuration",
+      "required initializer options cannot be omitted",
+      "DOM properties require target narrowing",
+      "optional model attributes require handling",
+      "provider registration does not narrow the View model",
+      "invalid initializer option rejected",
+      "preparation data is not the lifecycle operation result",
+      "restored examples compile"
+    ],
+    "limits": "Installed declaration and compiler checks; not runtime validation, browser behavior, or reader effectiveness."
+  },
+  "quickStart": {
+    "schemaVersion": 1,
+    "passed": true,
+    "node": "v24.19.0",
+    "startedAt": "2026-11-03T14:46:06.157Z",
+    "commands": [
+      {
+        "command": "mkdir marionette-example\ncd marionette-example\nnpm init -y\nnpm pkg set type=module scripts.dev=\"vite\" scripts.build=\"vite build\"\nnpm install --ignore-scripts --save-exact '../marionette-v5-artifacts/marionette-5.0.0.tgz' '../marionette-v5-artifacts/mnjs-utils-5.0.0.tgz' '../marionette-v5-artifacts/mnjs-radio-5.0.0.tgz' '../marionette-v5-artifacts/mnjs-adapters-5.0.0.tgz' lit-html@3.3.3\nnpm install --ignore-scripts --save-dev --save-exact vite@8.3.0\n",
+        "sha256": "fbf74371b318c7cc1a67f1870095b326776fcd11fa58ef03d7ee5b773946b442",
+        "cwd": ".",
+        "outputSha256": "dfb5e03ee65e0aeb6cf641692f07bba6e445cec9e64561f21c9cdabe20883a0a"
+      },
+      {
+        "command": "npm run build",
+        "sha256": "16c0e4305ac213dff39fc82b69b6e08aeeb8758e33cd72d7c409752a70e9f054",
+        "cwd": "marionette-example",
+        "outputSha256": "3fbd110c6717ad0f5a35c7be3af49c6da54de8faf06d5bd149dae0689fadaea6"
+      }
+    ],
+    "packages": [
+      {
+        "name": "marionette",
+        "version": "5.0.0",
+        "file": "marionette-5.0.0.tgz",
+        "sha256": "eb0479cf6af9d4d7d1c40759dfd4c49d1570c92692ef02bbc17eaee357a10f55",
+        "integrity": "sha512-+neFgjtuuIbs7fJTuMNHv+RBiMHzIUTA0u09N9Qm7MW3FWA2xShK+5PED6+lPrFJykRXk+DGlHjyQICW0V/1xg==",
+        "installed": true
+      },
+      {
+        "name": "@mnjs/adapters",
+        "version": "5.0.0",
+        "file": "mnjs-adapters-5.0.0.tgz",
+        "sha256": "4bc4d8bf091c3bb96b72b7b4ccd59bd3f94a4c79fe56f031f94726cff796bc2b",
+        "integrity": "sha512-+lqPVJD1cihc07bKil/FzNdUEBGARjIre3Dotq5/IH/7j+UI4XU0EqQId+atft8L6rLrygrZ8Jgzqp3R3s2NFA==",
+        "installed": true
+      },
+      {
+        "name": "@mnjs/data",
+        "version": "5.0.0",
+        "file": "mnjs-data-5.0.0.tgz",
+        "sha256": "4d4647db202f4be6fa53aefc773194c7103d2a5151004e0c52feeb5d3edd896e",
+        "integrity": "sha512-6PV3ql2m/DtSv11JQeViBDFjqFR9lz3N0AgpDjggY6XUdJxfRnNSKRp2Ose7gyGc4OrQYj9AeWDcY1McDa8W7Q=="
+      },
+      {
+        "name": "@mnjs/radio",
+        "version": "5.0.0",
+        "file": "mnjs-radio-5.0.0.tgz",
+        "sha256": "fb8a067705ad7722e85269367cc0edf6b232f2236cb35e9befcdf27f06ec7a42",
+        "integrity": "sha512-LRBEzEd7Jiw2XFvbRXFke8UJ/NYy7THbyEYUwNoS+tjkzCS+DFRLYdv9Aadk0IRG44H+wSG1xy1wNb6oZeibiQ==",
+        "installed": true
+      },
+      {
+        "name": "@mnjs/utils",
+        "version": "5.0.0",
+        "file": "mnjs-utils-5.0.0.tgz",
+        "sha256": "7d74775d89ff90b1f53c84634a5928eb39cb73814ae744037072b0ac7d5da8fd",
+        "integrity": "sha512-wnvi3f+HNsu0qIPFa5qwiPIu7VCJnMEwfH2y2K/L1dYeT2gZJZAEKsLFL0/0IeHoyN7PkJjxq3Gmwg8v9Y1ahQ==",
+        "installed": true
+      }
+    ],
+    "browsers": [],
+    "stage": "complete",
+    "npm": "11.17.0",
+    "source": {
+      "quickStartSha256": "736de9440dab3eebfa734084ac7190629be008ea183b55146ab354e655306f5f",
+      "htmlSha256": "eff73730e87fbbff0e03270e4e42394a189be7708487d2c25f01249bcf4dcdc5",
+      "javascriptSha256": "44bcff5e08de7a28825285de47281e061dae167b989d75603d8356343fafd813",
+      "harnessSha256": "4778a89c3944c0952b588d016203b17a4903ca80f8bf262a701c9f62ae2f2019",
+      "setupCommand": "mkdir marionette-example\ncd marionette-example\nnpm init -y\nnpm pkg set type=module scripts.dev=\"vite\" scripts.build=\"vite build\"\nnpm install --ignore-scripts --save-exact marionette@5.0.0 @mnjs/utils@5.0.0 @mnjs/radio@5.0.0 @mnjs/adapters@5.0.0 lit-html@3.3.3\nnpm install --ignore-scripts --save-dev --save-exact vite@8.3.0\n",
+      "sourceRevision": "ad08f4b6008e15cbb931503f11adf6e3590737ee",
+      "sourceDirty": false,
+      "contentSha256": "78a8870f80983d145864017f21c267b298bcecf431d465598caeac2af3587101"
+    },
+    "lockSha256": "be8efe52d15bf4f83c0aa7813d090e835dfa931a1589eb84cfcb8bba88913131",
+    "packageJsonSha256": "3e658479434927cb8e81f68a03ed7e1496b0d9c2bb31c13ab4eeaccb82558c19",
+    "bundleSha256": "95c68ad366344fd84c416f50db24242e3230d6060fe1dfbe26d2a8deaac62a62",
+    "finishedAt": "2026-11-03T14:46:34.529Z",
+    "limits": "Documented npm setup with exact Marionette version specs substituted by supplied candidate tarballs; browser execution was not requested. Does not verify registry installation, publication, website deployment, or reader effectiveness."
+  },
+  "examplesExecuted": 57,
+  "typeFixtures": 20,
+  "typescriptExamples": 15,
+  "limits": "Local tarballs, JSDOM recipes and quick-start production build; not registry publication, live website, browser interaction, or teaching effectiveness."
+}

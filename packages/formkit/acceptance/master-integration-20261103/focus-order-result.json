@@ -1,0 +1,19 @@
+{
+  "sourceRevision": "8c70a88dff4b59e423774c7540bc5719d8273c53",
+  "sourceDirty": false,
+  "command": "npm run coverage -- test/unit/formkit-hardening.spec.js --coverage.reportOnFailure --maxWorkers=1",
+  "testsPassed": 20,
+  "testsFailed": 0,
+  "exitCode": 1,
+  "exitReason": "Partial suite fails full-repository coverage thresholds; no threshold was overridden.",
+  "coveredComparison": {
+    "file": "packages/formkit/src/index.ts",
+    "line": 792,
+    "lcovBranches": [
+      "BRDA:792,192,0,1",
+      "BRDA:792,192,1,1"
+    ]
+  },
+  "testFileSha256": "dd2fabd154bcb94c0f0f89282bdb487221a01fe2fde0dffa9684f5910a50a870",
+  "fullCoverageCleared": false
+}

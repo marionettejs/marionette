@@ -1,0 +1,134 @@
+[
+  {
+    "stage": "build-exact",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "build"
+    ],
+    "started": "2026-11-03T14:23:19.847157+00:00",
+    "exitCode": 0,
+    "finished": "2026-11-03T14:25:06.612555+00:00"
+  },
+  {
+    "stage": "api-contracts",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "check:api-contracts"
+    ],
+    "started": "2026-11-03T14:25:06.613002+00:00",
+    "exitCode": 0,
+    "finished": "2026-11-03T14:25:18.948146+00:00"
+  },
+  {
+    "stage": "source",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "test:source"
+    ],
+    "started": "2026-11-03T14:25:18.950721+00:00",
+    "exitCode": 0,
+    "finished": "2026-11-03T14:25:21.317302+00:00"
+  },
+  {
+    "stage": "dist",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "test:dist"
+    ],
+    "started": "2026-11-03T14:25:21.319383+00:00",
+    "exitCode": 0,
+    "finished": "2026-11-03T14:25:22.266316+00:00"
+  },
+  {
+    "stage": "packed",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "test:formkit-package"
+    ],
+    "started": "2026-11-03T14:25:22.267251+00:00",
+    "exitCode": 0,
+    "finished": "2026-11-03T14:25:59.182125+00:00"
+  },
+  {
+    "stage": "browser",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "test/formkit/playwright.config.mjs",
+      "--project",
+      "chromium",
+      "--workers",
+      "1"
+    ],
+    "started": "2026-11-03T14:25:59.182712+00:00",
+    "exitCode": 0,
+    "finished": "2026-11-03T14:28:13.790193+00:00"
+  },
+  {
+    "stage": "helper-consumer",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "test:helpers:consumer"
+    ],
+    "started": "2026-11-03T14:28:13.792544+00:00",
+    "exitCode": 0,
+    "finished": "2026-11-03T14:29:10.510877+00:00"
+  },
+  {
+    "stage": "helper-formkit",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "test:helpers:formkit",
+      "--",
+      "--formkit-tarball",
+      "/workspace/formkit-integration/test/tmp/formkit-package/artifacts/mnjs-formkit-5.0.0-rc.2.tgz",
+      "--formkit-sha256",
+      "d4d0d2fcf1dffe0bcf76556f1d9781b71fef50db0dfc97e59b57dba5e1a4acac",
+      "--formkit-manifest",
+      "/workspace/formkit-integration/test/tmp/formkit-package/report.json"
+    ],
+    "started": "2026-11-03T14:29:10.516555+00:00",
+    "exitCode": 0,
+    "finished": "2026-11-03T14:29:55.391747+00:00"
+  },
+  {
+    "stage": "tooling",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--test",
+      "test/tooling/api-contracts.test.mjs",
+      "test/tooling/public-tests.test.mjs"
+    ],
+    "started": "2026-11-03T14:29:55.392335+00:00",
+    "exitCode": 0,
+    "finished": "2026-11-03T14:32:10.304094+00:00"
+  },
+  {
+    "stage": "docs",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "docs:check"
+    ],
+    "started": "2026-11-03T14:32:10.305958+00:00",
+    "exitCode": 1,
+    "finished": "2026-11-03T14:39:31.323841+00:00"
+  }
+]

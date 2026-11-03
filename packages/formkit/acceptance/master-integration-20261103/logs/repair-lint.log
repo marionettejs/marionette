@@ -1,0 +1,15 @@
+
+/workspace/formkit-repair/test/fixtures/formkit-pro/trace-datepicker.mjs
+  30:24  error  Function declared in a loop contains unsafe references to variable(s) 'pointerTarget'                          no-loop-func
+  33:1   error  Expected indentation of 10 spaces but found 8                                                                  indent
+  34:1   error  Expected indentation of 10 spaces but found 8                                                                  indent
+  35:1   error  Expected indentation of 10 spaces but found 8                                                                  indent
+  47:21  error  Statement inside of curly braces should be on next line                                                        brace-style
+  49:77  error  Closing curly brace should be on the same line as opening curly brace or on the line after the previous block  brace-style
+
+/workspace/formkit-repair/test/formkit/formkit.spec.mjs
+  12:23  error  'resolve' is already declared in the upper scope on line 2 column 10  no-shadow
+
+✖ 7 problems (7 errors, 0 warnings)
+  5 errors and 0 warnings potentially fixable with the `--fix` option.
+

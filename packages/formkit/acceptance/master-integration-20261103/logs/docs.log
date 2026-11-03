@@ -1,0 +1,50 @@
+
+> marionette@5.0.0 docs:check
+> node scripts/docs/agent-routes.mjs && node --test test/docs/export.test.mjs && npm run check:docs-examples && npm run docs:build && node scripts/docs/check-links.mjs && npm run docs:package && npm run check:docs-installed
+
+Consumer skill routes match the application task guide.
+✔ Markdown references ignore code examples and identify malformed URLs (86.711937ms)
+✔ export CLI labels stable and prerelease documentation from the selected policy (1245.347465ms)
+✔ rejects unsafe paths and ambiguous source or route entries (4.522338ms)
+✔ resources are explicit text files and cannot escape through paths or symlinks (35.257082ms)
+Exported 45 documentation pages to .docs-export (ad08f4b6).
+Exported 45 documentation pages to .docs-export (ad08f4b6).
+✔ exports every current guide with exact bytes and reproducible provenance (1610.611677ms)
+✔ module closure rejects a missing skill dependency (9.398486ms)
+Exported 45 documentation pages to .docs-export (ad08f4b6).
+✔ exports relative dependencies of examples and raw Markdown resources (653.75957ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4077.798521
+
+> marionette@5.0.0 check:docs-examples
+> node test/docs/reference-examples.mjs
+
+Reference examples: 57/57 executed; 20 declaration fixtures; passed=true. Report: /workspace/formkit-integration/test/tmp/docs-reference/report.json
+
+> marionette@5.0.0 docs:build
+> node scripts/docs/build.mjs
+
+Built 89 documentation pages in .docs-site/.
+Validated 90 HTML files and 1193 internal links.
+
+> marionette@5.0.0 docs:package
+> node scripts/docs/package.mjs
+
+Exported 45 documentation pages to .docs-export (ad08f4b6).
+Packaged 45 consumer documentation pages at the package root.
+
+> marionette@5.0.0 check:docs-installed
+> node test/docs/installed-package.mjs
+
+{
+  "passed": false,
+  "node": "24.19.0",
+  "npm": "11.17.0",
+  "error": "Error: spawnSync /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node ETIMEDOUT\n    at Object.spawnSync (node:internal/child_process:1160:20)\n    at spawnSync (node:child_process:928:24)\n    at execFileSync (node:child_process:971:15)\n    at run (file:///workspace/formkit-integration/test/docs/installed-package.mjs:19:49)\n    at file:///workspace/formkit-integration/test/docs/installed-package.mjs:106:3\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)"
+}

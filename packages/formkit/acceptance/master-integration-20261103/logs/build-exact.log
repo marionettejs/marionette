@@ -1,0 +1,129 @@
+
+> marionette@5.0.0 build
+> npm run build:utils && npm run build:radio && npm run check:types && node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:types && npm run build:data && npm run build:adapters && npm run build:formkit && npm run build:test && npm run test:types && npm run docs:package
+
+
+> marionette@5.0.0 build:utils
+> npm --prefix packages/utils run build
+
+
+> @mnjs/utils@5.0.0 build
+> node ../../build/clean.js && rollup -c rollup.config.mjs && node ../../build/declarations.mjs utils
+
+
+src/index.ts → dist/index.js, dist/index.cjs...
+created dist/index.js, dist/index.cjs in 1.4s
+
+> marionette@5.0.0 build:radio
+> npm --prefix packages/radio run build
+
+
+> @mnjs/radio@5.0.0 build
+> node ../../build/clean.js && rollup -c rollup.config.mjs && node ../../build/declarations.mjs radio
+
+
+src/index.ts → dist/index.js, dist/index.cjs...
+created dist/index.js, dist/index.cjs in 430ms
+
+> marionette@5.0.0 check:types
+> tsc -p tsconfig.json
+
+
+tools/eslint/index.mjs → dist/eslint/index.js, dist/eslint/index.cjs...
+created dist/eslint/index.js, dist/eslint/index.cjs in 204ms
+
+build/version.js → src/version.js...
+created src/version.js in 29ms
+
+src/index.ts → dist/marionette.js, dist/marionette.cjs...
+created dist/marionette.js, dist/marionette.cjs in 2.8s
+
+src/index.ts → dist/marionette.umd.js, dist/marionette.min.js...
+created dist/marionette.umd.js, dist/marionette.min.js in 5.6s
+
+> marionette@5.0.0 build:types
+> node build/declarations.mjs
+
+
+> marionette@5.0.0 build:data
+> npm --prefix packages/data run build
+
+
+> @mnjs/data@5.0.0 build
+> node ../../build/clean.js && rollup -c rollup.config.mjs && node ../../build/declarations.mjs data
+
+
+src/index.ts → dist/index.js, dist/index.cjs...
+created dist/index.js, dist/index.cjs in 792ms
+
+> marionette@5.0.0 build:adapters
+> npm --prefix packages/adapters run build
+
+
+> @mnjs/adapters@5.0.0 build
+> node ../../build/clean.js && rollup -c rollup.config.mjs && node ../../build/declarations.mjs adapters
+
+
+src/data/backbone.ts → dist/backbone.js, dist/backbone.cjs...
+created dist/backbone.js, dist/backbone.cjs in 257ms
+
+src/dom/jquery.ts → dist/dom/jquery.js, dist/dom/jquery.cjs...
+created dist/dom/jquery.js, dist/dom/jquery.cjs in 46ms
+
+src/data/xstate.ts → dist/xstate.js, dist/xstate.cjs...
+created dist/xstate.js, dist/xstate.cjs in 167ms
+
+src/dom/morphdom.ts → dist/dom/morphdom.js, dist/dom/morphdom.cjs...
+created dist/dom/morphdom.js, dist/dom/morphdom.cjs in 27ms
+
+src/dom/lit-html.ts → dist/dom/lit-html.js, dist/dom/lit-html.cjs...
+created dist/dom/lit-html.js, dist/dom/lit-html.cjs in 25ms
+
+> marionette@5.0.0 build:formkit
+> npm --prefix packages/formkit run build
+
+
+> @mnjs/formkit@5.0.0-rc.2 build
+> node ../../build/clean.js && rollup -c rollup.config.mjs && node ../../build/declarations.mjs formkit
+
+
+src/index.ts → dist/index.js, dist/index.cjs...
+(!) Circular dependency
+src/index.ts -> src/view-components.ts -> src/index.ts
+created dist/index.js, dist/index.cjs in 1.2s
+
+> marionette@5.0.0 build:test
+> npm --prefix packages/test run build
+
+
+> @mnjs/test@0.2.0 build
+> node ../../build/clean.js && rollup -c rollup.config.mjs && node ../../build/declarations.mjs test
+
+
+src/index.ts → dist/index.js, dist/index.cjs...
+created dist/index.js, dist/index.cjs in 316ms
+
+src/scope.ts → dist/scope.js, dist/scope.cjs...
+created dist/scope.js, dist/scope.cjs in 53ms
+
+src/cypress.js → dist/cypress.js, dist/cypress.cjs...
+created dist/cypress.js, dist/cypress.cjs in 163ms
+
+src/playwright.ts → dist/playwright.js, dist/playwright.cjs...
+created dist/playwright.js, dist/playwright.cjs in 127ms
+
+src/vitest.ts → dist/vitest.js...
+created dist/vitest.js in 96ms
+
+src/testing-library.ts → dist/testing-library.js, dist/testing-library.cjs...
+created dist/testing-library.js, dist/testing-library.cjs in 21ms
+
+> marionette@5.0.0 test:types
+> node test/types/run.mjs
+
+
+> marionette@5.0.0 docs:package
+> node scripts/docs/package.mjs
+
+Exported 45 documentation pages to .docs-export (ad08f4b6).
+Packaged 45 consumer documentation pages at the package root.

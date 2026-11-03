@@ -1,0 +1,403 @@
+{
+  "artifact": "mnjs-test-0.2.0.tgz",
+  "sha256": "ca0fb5622f96652441a66493a48227e10e992386b1b2205e452a2ff64eb64dbc",
+  "node": "v24.19.0",
+  "dependencyProfile": "locked-examples",
+  "requestedChecks": {
+    "browser": false,
+    "cypress": false,
+    "cypressComponentOnly": false
+  },
+  "stages": [
+    {
+      "name": "pack",
+      "passed": true
+    },
+    {
+      "name": "extract",
+      "passed": true
+    },
+    {
+      "name": "install",
+      "passed": true
+    },
+    {
+      "name": "installed-copy",
+      "passed": true
+    },
+    {
+      "name": "versions",
+      "passed": true
+    },
+    {
+      "name": "import-without-dom",
+      "passed": true
+    },
+    {
+      "name": "optional-peer-isolation",
+      "passed": true
+    },
+    {
+      "name": "readme-recipes",
+      "passed": true
+    },
+    {
+      "name": "readme-quickstart",
+      "passed": true
+    },
+    {
+      "name": "runtime-and-types",
+      "passed": true
+    },
+    {
+      "name": "vitest-dom",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "sourceRevision": "ad08f4b6008e15cbb931503f11adf6e3590737ee",
+  "sourceDirty": false,
+  "sourceFiles": [
+    {
+      "path": "build/declarations.mjs",
+      "sha256": "55cf59373b59656c10a48db71a571428873ad150d574235089ac950d256177bf"
+    },
+    {
+      "path": "package.json",
+      "sha256": "f7c0fb431a3c1e12f51523731e7a7c8d46b7af0f6728d784d4304d34bd10172a"
+    },
+    {
+      "path": "packages/test/RELEASING.md",
+      "sha256": "b8c12238b739db5012d33eed2f6d3305f7783723386085f61e0b3c3dadfcb95f"
+    },
+    {
+      "path": "packages/test/examples/.gitignore",
+      "sha256": "787044cb79f3fec00a8a5d95851b7c42fbe5b62b98a2153dbd7d190c702748d4"
+    },
+    {
+      "path": "packages/test/examples/README.md",
+      "sha256": "136498a9da201a21ab58e5e23b2e0d30e912acfb80440076af77226f5982614d"
+    },
+    {
+      "path": "packages/test/examples/consumer.cjs",
+      "sha256": "cba56cc4c7e61b1186211bde7b72590995a2aa3af636340dcbf01d54f4230e50"
+    },
+    {
+      "path": "packages/test/examples/consumer.cts",
+      "sha256": "67b3b9d3aa5b3bd03a5955bb43b83204e6f9fb07e980c604180111df6b83b956"
+    },
+    {
+      "path": "packages/test/examples/consumer.mjs",
+      "sha256": "77aaed8dc46ecde14a48397239410109e4e5651c01a0494e07a95f0c5df4207b"
+    },
+    {
+      "path": "packages/test/examples/consumer.mts",
+      "sha256": "c12d0b5b591ef260657e70c31230e1e8cc26ac9f5a56dc490b4ebd5e78592556"
+    },
+    {
+      "path": "packages/test/examples/cypress.config.js",
+      "sha256": "ff9d2be04aa891b9157380b525d07e16f696e4c2604face950e7b0439120dbb4"
+    },
+    {
+      "path": "packages/test/examples/cypress/component/lifecycle.cy.js",
+      "sha256": "a5690d2459fd6855db79204efd9cfcfab8ebe97a1f071a1572fee7a1040f59e7"
+    },
+    {
+      "path": "packages/test/examples/cypress/component/profile.cy.js",
+      "sha256": "d28013356446358731230dd0f92b32b403c91090a83a318a71a8ae6fa33aa302"
+    },
+    {
+      "path": "packages/test/examples/cypress/component/resources.cy.js",
+      "sha256": "235d1af76efaa8f12d7af8eed842e0b49cc8a0333bb8131091f2fcb47e6f234d"
+    },
+    {
+      "path": "packages/test/examples/cypress/consumer.cts",
+      "sha256": "6ed1dcf210ded97e8b5117bb7c77e62d51db469199ead581ffa329386c140747"
+    },
+    {
+      "path": "packages/test/examples/cypress/consumer.mts",
+      "sha256": "6ed1dcf210ded97e8b5117bb7c77e62d51db469199ead581ffa329386c140747"
+    },
+    {
+      "path": "packages/test/examples/cypress/probes/after-each.cy.js",
+      "sha256": "229891648cf7f674dc22a2599eff6b3d79e4983e03a5c841c15a4ccbfb869cd6"
+    },
+    {
+      "path": "packages/test/examples/cypress/probes/failure.cy.js",
+      "sha256": "6c62f5cec0de12e108039b1aa2912f2f22beb3a501541e39ff38188ca4df3f41"
+    },
+    {
+      "path": "packages/test/examples/cypress/support/cleanup-checks.js",
+      "sha256": "187ad005562b66d0c9c690a9e8c09394819952aae26de70d401783c6f566a080"
+    },
+    {
+      "path": "packages/test/examples/cypress/support/component-index.html",
+      "sha256": "4d39966c8849149db61c54cfcb85e5b97c87ff93526af0c2dc46e91986b4bd08"
+    },
+    {
+      "path": "packages/test/examples/cypress/support/component.js",
+      "sha256": "c70e23bc70879b2b9b973019a50c56833ccde61cd903981f919f849988a11d6f"
+    },
+    {
+      "path": "packages/test/examples/cypress/tsconfig.json",
+      "sha256": "132a7eac59b1f93701a616ffbeb4d788fec2911be971be43979df818453dbde8"
+    },
+    {
+      "path": "packages/test/examples/dom.js",
+      "sha256": "2650023ed0fc6b252b50d5d0ecce01fbf1e57cd83668a95c8b72897e6f126b1d"
+    },
+    {
+      "path": "packages/test/examples/fixtures.js",
+      "sha256": "511d637b413fa1706342ff290c5a4157b38ac8ec2db995536e0d646cdcb46565"
+    },
+    {
+      "path": "packages/test/examples/form.spec.js",
+      "sha256": "71345f78133e2ad5917c53be90b4fc4aa33767a35c15e8380ec7bc70f21ada58"
+    },
+    {
+      "path": "packages/test/examples/gallery.spec.js",
+      "sha256": "189e83fa4e0c996d834ffe7def85c30267e9ae25f858d20cbe441c3e7f546f06"
+    },
+    {
+      "path": "packages/test/examples/gallery/gallery.js",
+      "sha256": "7c9a79ae612d719346d27d186b7b603d604841d7ea2cecc744cb877d5bb0f609"
+    },
+    {
+      "path": "packages/test/examples/gallery/index.html",
+      "sha256": "b2d4ac541f109b8ec73fbf4b40b83acd81f3db1ace6ba8af7c05452bfbb049ea"
+    },
+    {
+      "path": "packages/test/examples/ownership.spec.js",
+      "sha256": "3c1e18d68aeafd2c7bb0f5884537376ff9477d4830b4e4e48e34e917b1680d31"
+    },
+    {
+      "path": "packages/test/examples/package-lock.json",
+      "sha256": "5696b986f249b07fbb8f6a7c07dc107c848f48167fea6a45a97163553e74cf73"
+    },
+    {
+      "path": "packages/test/examples/package.json",
+      "sha256": "66f4a00746d147c47b041fbd4b3deacd6ccf647434948436a8a10e56ae6a1e21"
+    },
+    {
+      "path": "packages/test/examples/playwright.config.js",
+      "sha256": "99a1455d0e4454e3860e6bec21d0f4e4299beade94361df8cdcc0b9b6e92313b"
+    },
+    {
+      "path": "packages/test/examples/playwright/profile.spec.js",
+      "sha256": "604ec85adb06a59babc301fe2f3d88830134efb35147c3e30c6098573fad5537"
+    },
+    {
+      "path": "packages/test/examples/runner-consumer.mts",
+      "sha256": "ca4b6923933301d8883d1e4cddf93d3a976e302057d469f727df37be30af10ac"
+    },
+    {
+      "path": "packages/test/examples/runtime.spec.js",
+      "sha256": "d8197ec89b8f5a41da67c129baf630b5bf7459149e3f6d5aeb745a8780431f73"
+    },
+    {
+      "path": "packages/test/examples/scope-consumer.cts",
+      "sha256": "9a3abc96e4862ab11f35eb9e50d651497f3413f0e3c80aad7ee8433ed7a1efdf"
+    },
+    {
+      "path": "packages/test/examples/scope-consumer.mts",
+      "sha256": "9a3abc96e4862ab11f35eb9e50d651497f3413f0e3c80aad7ee8433ed7a1efdf"
+    },
+    {
+      "path": "packages/test/examples/testing-library-consumer.cts",
+      "sha256": "ae839266fd0f9ca6723bd97c02e27108fdb4c9c36ca27472774e7eb554ba355c"
+    },
+    {
+      "path": "packages/test/examples/testing-library-consumer.mts",
+      "sha256": "b0a6a44f90a6844d17ec7d08091e3ebf119a2fecf33b00f1d116aa8bdef89c8a"
+    },
+    {
+      "path": "packages/test/examples/testing-library.spec.js",
+      "sha256": "f4431efb5f760e7536455a1d3bad3972d7486a6f82951263e6b60ba767340723"
+    },
+    {
+      "path": "packages/test/examples/tsconfig.json",
+      "sha256": "36b6a955e314f243b11f6a8f3a2859df51b57e5d711b667e4de4f933696f703a"
+    },
+    {
+      "path": "packages/test/examples/vitest.config.js",
+      "sha256": "96f86e5f9a96b7201d1c1bca2107cc7ff6ec0320a7fe67eaad48f7363a4fbb9f"
+    },
+    {
+      "path": "packages/test/guide.md",
+      "sha256": "23c67a2d8c40626788127964b2df4bc419e15e72e30cf05a8e7f0cdb07c99eea"
+    },
+    {
+      "path": "packages/test/license.txt",
+      "sha256": "b44373a6a0309d29206a148fc65c8ebb49781f74fe9bee84877e22c0d35f11c0"
+    },
+    {
+      "path": "packages/test/package.json",
+      "sha256": "a661f8bcad1987e493d0f9bb1f7b21f71bed043c03a5e4a3d491c08a959e4bb1"
+    },
+    {
+      "path": "packages/test/readme.md",
+      "sha256": "7c59fd93a3e4d8f85e00bf9af58cc72a1f6f9c5cd7ae4b285b0bce97380769de"
+    },
+    {
+      "path": "packages/test/rollup.config.mjs",
+      "sha256": "71fe9e57000ec6cd2fd7b5636f0e42f457440ddd11a6a1c697f037f4ddb49d3e"
+    },
+    {
+      "path": "packages/test/src/context.ts",
+      "sha256": "2480f1721ff900bbbb0de6648cbaef247786eff93009c0407a066f14cc72cdf0"
+    },
+    {
+      "path": "packages/test/src/cypress.js",
+      "sha256": "d0589b13c1634802f0490d28249c7b45f90a4835bd73368cd6d9336c513a0f9e"
+    },
+    {
+      "path": "packages/test/src/errors.ts",
+      "sha256": "a9f7fed430e0759b599ca2605ff952cc6f984068edd7c1b2f048d5312caed3a4"
+    },
+    {
+      "path": "packages/test/src/index.ts",
+      "sha256": "badac8b6efc5574ee03e2c9a1c9660537bf7d192ad6d82db47a6eb7b7c980264"
+    },
+    {
+      "path": "packages/test/src/owner.ts",
+      "sha256": "887d4f0043333e02e9a840b48df6e8de72d2cc69448f96da2483fb6bfb2059af"
+    },
+    {
+      "path": "packages/test/src/playwright.ts",
+      "sha256": "a7aa3d52acc4e34da1b17ca33cdbfbfa0ce982f2d40f94cc71198126afa4580d"
+    },
+    {
+      "path": "packages/test/src/scope.ts",
+      "sha256": "2b7a6476caf67686915607858c54901baa2f8e65942f4afcb4bbb9854cd94b73"
+    },
+    {
+      "path": "packages/test/src/session.ts",
+      "sha256": "c490602391e92f620af99a76fd66f50504ccfa3a70097c095804030349f2c5c5"
+    },
+    {
+      "path": "packages/test/src/testing-library.ts",
+      "sha256": "bd68a1e14395aa97d59159559840a3d59e4955129ae3d4f2a05a1e4355ec82c6"
+    },
+    {
+      "path": "packages/test/src/vitest.ts",
+      "sha256": "6e7662faf619428fb0bccc3531df33b3fed7fce7dcd463e65224255c3e8a7046"
+    },
+    {
+      "path": "packages/test/tsconfig.declarations.json",
+      "sha256": "6feea1f76ad194a63121ca4792cd575037d2df3a7b8e6e4698f41775be514242"
+    },
+    {
+      "path": "packages/test/types/cypress.d.ts",
+      "sha256": "0e7becb648b3998bc59c2224088897ac1306ab7395acdf8edd78d241d47b0e5b"
+    },
+    {
+      "path": "test/README.md",
+      "sha256": "dc43225b656227a4597943435f51b8865a6b4fde29969eac356e0b148f03848b"
+    },
+    {
+      "path": "test/examples/cypress-smoke.mjs",
+      "sha256": "6d46d5c9435a3341104c3fb9c774124d377011f0e5878e10da3a1f8dc6cec7de"
+    },
+    {
+      "path": "test/examples/formkit-test-package/NESTED-VERIFICATION.md",
+      "sha256": "881b6930ad10853ddf7439e3083d999a2c4ad8a5d8c4f127a00b4fb4a607f353"
+    },
+    {
+      "path": "test/examples/formkit-test-package/README.md",
+      "sha256": "032d39ab711a6a82b0fd34aa0862335d095bcb8f4151f560e4ed9f1f8b9b4242"
+    },
+    {
+      "path": "test/examples/formkit-test-package/VERIFICATION.md",
+      "sha256": "3e8cf6839fa309b2c7fba85c3724004391f7638ebb70a3256aaece57c3706314"
+    },
+    {
+      "path": "test/examples/formkit-test-package/consumer.cts",
+      "sha256": "da8b1b482ad75953dd5af5a49c7a4966ba17c92e8ab695403ca739a0b26372e6"
+    },
+    {
+      "path": "test/examples/formkit-test-package/consumer.mts",
+      "sha256": "9caa1b397b17f2af41255451b6e0092b8ca2e468c2e8ceb40dc1eb8cde413573"
+    },
+    {
+      "path": "test/examples/formkit-test-package/formkit.spec.js",
+      "sha256": "b7d4a16ce20bc52431e9ce10b827574b04a9a4ae3206eba321abeb46f577ad7e"
+    },
+    {
+      "path": "test/examples/formkit-test-package/independent-application-lifecycle.spec.js",
+      "sha256": "3a1c52a36c12656d714dd91922610af24f7d6349babc35a5f12f1612581460b0"
+    },
+    {
+      "path": "test/examples/formkit-test-package/package.json",
+      "sha256": "9ac8f8a66c6f8c85ebb3e8fa9e428c5cb70a5d22507fc6a74b0cce37481b275a"
+    },
+    {
+      "path": "test/examples/formkit-test-package/tsconfig.json",
+      "sha256": "4f62ad2cb0325d104c847abcdfe2b316e3a7576e5606e9382b5ab13331b3bacd"
+    },
+    {
+      "path": "test/examples/formkit-test-package/vitest.config.js",
+      "sha256": "f4d85c30fe10c2bd571a0643acc9446a9854d6c67c459efc42ecf9475c0d7f46"
+    },
+    {
+      "path": "test/examples/optional-test-peers.mjs",
+      "sha256": "ef8f9ab4ca1ffb046ea349f78389f90d73612aa7a14c1756bdacd9d1456339aa"
+    },
+    {
+      "path": "test/examples/test-readme.mjs",
+      "sha256": "bc51a5f8c8edd8f5052ec558a1057ee3ad69e20b30ca58aca8c08c5d5a1f3058"
+    },
+    {
+      "path": "test/examples/verify-formkit-test-package.mjs",
+      "sha256": "3808b7307ef83c1034f99277392192b97af32e5ad791caecb861fc3c95c33e9f"
+    },
+    {
+      "path": "test/examples/verify-test-package.mjs",
+      "sha256": "14691763f3ea3634b8f5520296fcb573216f553ee7ea9387dccd9edea27f3d11"
+    },
+    {
+      "path": "test/unit/test-package/cypress-contract.spec.js",
+      "sha256": "6cdac5046c98c8a3c921fa48424087506cb12f2c21a5a3b9ee48da007d0b4127"
+    },
+    {
+      "path": "test/unit/test-package/integrations.spec.js",
+      "sha256": "8dc39825bd42ffbd54f17a06e7095ab1a33bdfa0fb2e26917d719efe0711f164"
+    },
+    {
+      "path": "test/unit/test-package/mount.spec.js",
+      "sha256": "f39286a3038de3e1514e1d2c788f0f90db23f27cc66e8279d81729ebce4a24e8"
+    },
+    {
+      "path": "test/unit/test-package/ownership.spec.js",
+      "sha256": "c330786ee4887b4df4c96deef322c6bbc1fa8e98fc26d601a93508a3db64d58f"
+    },
+    {
+      "path": "test/unit/test-package/region-scope.spec.js",
+      "sha256": "836ba927a957beb81c1d548b6031ee83a72214d37d8900adc14d62040e04ac4e"
+    },
+    {
+      "path": "test/unit/test-package/scope-replies.spec.js",
+      "sha256": "c5a8f78efdd7c7f93cd66cea55163a747794a0c514448f355ea86da2624de69b"
+    },
+    {
+      "path": "test/unit/test-package/scope.spec.js",
+      "sha256": "6d65aeaa8a4c3eaf4257707c868703ebe431a28dc3cab0b1bd813b6203866f09"
+    },
+    {
+      "path": "test/unit/test-package/testing-library.spec.js",
+      "sha256": "c31c421f2ce71f5e773d42f438c2737fa21f720a150831410254a75e1d7b3af1"
+    },
+    {
+      "path": "test/unit/test-package/vitest.spec.js",
+      "sha256": "bf507fd9e59cdf0028cd401b5943be0d5db553a23396a39cff1923fb8925413c"
+    },
+    {
+      "path": "vitest.config.js",
+      "sha256": "b59273add2cc2bf2ea2c8d4e1f91520d80eb687c3dd54449f99cf35a2c4a221a"
+    }
+  ],
+  "sourceFilesSha256": "9746437d41815928172dbc8865a693c0b7023aea3139f26dce29c1210d9d7ecc",
+  "lockSha256": "5696b986f249b07fbb8f6a7c07dc107c848f48167fea6a45a97163553e74cf73",
+  "artifactMode": "packed",
+  "archiveIntegrity": "sha512-+ejMQmPZzEvk6Zr8RHUHgCfL3QH59xqYObmhbluzkPGRgVFVvYba6QC9vf2f7l1u+e/DG4HBHCNzMYqqL042+A==",
+  "consumerLockSha256": "8bd6709eb99e7d9e72dc320e869b937a3f747e91a66edc9be5e2e05e58edd445"
+}

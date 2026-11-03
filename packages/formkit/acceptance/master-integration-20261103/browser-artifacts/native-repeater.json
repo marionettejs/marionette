@@ -1,0 +1,14 @@
+{
+  "state": {
+    "actionCreations": 1,
+    "retained": true,
+    "canonical": {
+      "guests": [
+        {
+          "name": "Ada"
+        }
+      ]
+    }
+  },
+  "errors": []
+}

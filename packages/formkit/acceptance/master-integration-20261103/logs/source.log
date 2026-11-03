@@ -1,0 +1,4 @@
+
+> marionette@5.0.0 test:source
+> node test/source/validate.mjs
+

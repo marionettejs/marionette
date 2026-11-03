@@ -1,0 +1,15 @@
+
+> marionette@5.0.0 test:helpers:consumer
+> node test/examples/verify-test-package.mjs
+
+pack: passed
+extract: passed
+install: passed
+installed-copy: passed
+versions: passed
+import-without-dom: passed
+optional-peer-isolation: passed
+readme-recipes: passed
+readme-quickstart: passed
+runtime-and-types: passed
+vitest-dom: passed

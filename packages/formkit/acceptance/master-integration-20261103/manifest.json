@@ -1,0 +1,315 @@
+{
+  "kind": "Portable acceptance evidence; original tested revisions are recorded per receipt",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "dc547ffe3ad7701271ba64926ebc7075d8480e861892ac1b6689cf8afb3caaeb",
+      "bytes": 7964
+    },
+    {
+      "path": "browser-artifacts/hidden-invalid-focus.json",
+      "sha256": "17d859af62bb3d8166e611c570df43891a76c2a8f38ac2466023e82c8dc3f613",
+      "bytes": 2503
+    },
+    {
+      "path": "browser-artifacts/icon-pointer.json",
+      "sha256": "f5c423d7238c91288cc0e7e275685c687e2af3a434e18901b6a87d119bc4ec2c",
+      "bytes": 256
+    },
+    {
+      "path": "browser-artifacts/native-repeater.json",
+      "sha256": "3f82100d52b48b939a0cb2039d07e9649a6445c02ec26e1260ceb8dc9e0382ce",
+      "bytes": 179
+    },
+    {
+      "path": "browser-artifacts/registered-invalid.png",
+      "sha256": "2534bf39a51d360d1e53a3981a1162ac69087701fc4d1b58f7fee834bb5673a8",
+      "bytes": 19670
+    },
+    {
+      "path": "browser-artifacts/registered-keyboard.json",
+      "sha256": "9b9ce7d11a90f921b7144f9fdf3ed5fb7815c739a4f136cd194f8688a366d81f",
+      "bytes": 5981
+    },
+    {
+      "path": "browser-report.json",
+      "sha256": "5f8b2cbf62d2096e248143736971d2e14f9ff017e5716f64cef3db629fc1a06c",
+      "bytes": 60899
+    },
+    {
+      "path": "coverage-result.json",
+      "sha256": "5a49e6c5ced3400dc5027e19397cf313255e8fb5cd326ab6fdc31a98738de226",
+      "bytes": 1672
+    },
+    {
+      "path": "coverage-summary.json",
+      "sha256": "2b2b21662cf5e91e3709cf9bd269cb68b390b5b9c6a488b451c621b2842e0cd7",
+      "bytes": 25841
+    },
+    {
+      "path": "docs-installed-report.json",
+      "sha256": "01807e0943dba3af4829298233e89bc8ec6ec4cabbfecbbae97d1a684703a8cc",
+      "bytes": 8015
+    },
+    {
+      "path": "docs-reference-report.json",
+      "sha256": "70fddddf8e3b02ac1c021eb599bed11a2a1f9efb7db5b2122dc5b66132409443",
+      "bytes": 98475
+    },
+    {
+      "path": "focus-order-result.json",
+      "sha256": "e9cf2e80f7a6c72abbaf3bd60a1f412d0ad9fb1eae39f810da0d8e7c7f9b0dde",
+      "bytes": 659
+    },
+    {
+      "path": "helper-consumer-report.json",
+      "sha256": "1fe682ea7400cd1b56d537f1c3dd9d9457445ea9755bc5de4d6da796d3245ad1",
+      "bytes": 14402
+    },
+    {
+      "path": "helper-formkit-report.json",
+      "sha256": "298402eccdbadf0c075333791f57ef344a5d9ac28d03bec0269185b344df70c0",
+      "bytes": 41335
+    },
+    {
+      "path": "late-stages.json",
+      "sha256": "9a82696043f878660761d9c6f27c15ea5eb3362ad519efccc11c92a5dbc79974",
+      "bytes": 807
+    },
+    {
+      "path": "lcov.info",
+      "sha256": "2ddb3b2d03bf863464a03a25204e6150d35db617f3569a156287efdec85b43b8",
+      "bytes": 149894
+    },
+    {
+      "path": "logs/api-contracts.log",
+      "sha256": "8374d29b265501f48506a3480b8eef63807f1ac229380350216bd4c85df5b6aa",
+      "bytes": 638
+    },
+    {
+      "path": "logs/browser.log",
+      "sha256": "42736cf92eac44154ae24fb70140d659e1d7d2d2593b6fa54dbeb3288f613672",
+      "bytes": 3228
+    },
+    {
+      "path": "logs/build-exact.log",
+      "sha256": "a042f1cc156e43a014da6459cae52638cf7aed14a99dc144f6ae7f4cd28e512d",
+      "bytes": 4103
+    },
+    {
+      "path": "logs/coverage-focused.log",
+      "sha256": "9910771f791f5c7a03280fa7aafbfcc57d3346f0e5dcc70021e589a95bedcd00",
+      "bytes": 27434
+    },
+    {
+      "path": "logs/coverage-retry.log",
+      "sha256": "f5565d49c69a740e8b0783ce32e88524a47569ceafd642f36c715bd6ce9cff5b",
+      "bytes": 31020
+    },
+    {
+      "path": "logs/coverage.log",
+      "sha256": "fa1cd11a411c07c657d7f71684ab4bd86d5f455bbac8bf65760debf80e0513a7",
+      "bytes": 25386
+    },
+    {
+      "path": "logs/dist.log",
+      "sha256": "815e965eb06e9574f443442d81eb70a333a5e3235a8ad1a1986f80ec08aca1c7",
+      "bytes": 220
+    },
+    {
+      "path": "logs/docs-installed-retry.log",
+      "sha256": "8b3f195094f3f88e2491035b86807b80b9c76800f8624c8eb4ddc7f24b7db1ef",
+      "bytes": 8096
+    },
+    {
+      "path": "logs/docs.log",
+      "sha256": "32429d12e6656abbb5e225582ba7969611bdad1ee1d87421ee6c1618571e1933",
+      "bytes": 2580
+    },
+    {
+      "path": "logs/focus-order-coverage.log",
+      "sha256": "63b9cb9847cfa07780be1a92a1e87655451b5067f3e0ad2a2ecdc8546c3befbf",
+      "bytes": 27838
+    },
+    {
+      "path": "logs/focus-order-unit.log",
+      "sha256": "f6d0688fa8c4af4a2ece97bb0ae1587efa688c84a58324893601ab4517da06c2",
+      "bytes": 586
+    },
+    {
+      "path": "logs/formkit-unit.log",
+      "sha256": "4a85503319d75478b92d01b78a4cd62b252aef2f78bd2e243ad9d3d528264369",
+      "bytes": 17912
+    },
+    {
+      "path": "logs/helper-consumer.log",
+      "sha256": "7b39d4b03dc664241fc4ae11b2672b4994d331256407c10cfbeba28e1f5f9bc1",
+      "bytes": 326
+    },
+    {
+      "path": "logs/helper-formkit.log",
+      "sha256": "559d3f4ebcf0c28c8d9bfacc2466a151dd95ce4a5ee09a6eb8270c20e51cd81f",
+      "bytes": 499
+    },
+    {
+      "path": "logs/lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/packed.log",
+      "sha256": "80d2d0ba6fea62b558be0ba7513b123bdb2cd191dd9cdc38a13b3acfa87e887e",
+      "bytes": 1922
+    },
+    {
+      "path": "logs/repair-api-contracts.log",
+      "sha256": "dcbd97918a29ab1d702b0e58d44d53035d1478164c7812e5504d1771a9676085",
+      "bytes": 702
+    },
+    {
+      "path": "logs/repair-lint.log",
+      "sha256": "82d79c92f3fc9e0d1945ce3435631d9489b678947666881f13eba85fb438c1d8",
+      "bytes": 1158
+    },
+    {
+      "path": "logs/source.log",
+      "sha256": "b871fe164259f7aff77918d404669dd6001e33471f7bacfbbacafa3ea0efa2b3",
+      "bytes": 65
+    },
+    {
+      "path": "logs/tooling.log",
+      "sha256": "5b0a33905b6aff3df573a9fec2f1cb9e0dd9f455b38374ac7b8a9283d1188b7b",
+      "bytes": 2786
+    },
+    {
+      "path": "logs/unit-serial.log",
+      "sha256": "99d99efb6b2ed0b79c294cba4cad936ec25667a5cbeb08f89f11a59468c39748",
+      "bytes": 21140
+    },
+    {
+      "path": "logs/workflows.log",
+      "sha256": "a408e2f3ea4291b56334495dd3724abd814bcb20ac06c1f85c0b3e3a46014ef3",
+      "bytes": 62
+    },
+    {
+      "path": "packed-lock.json",
+      "sha256": "ab00e78872b5955226d6d3386a2bc7d6daa00c0ffaef86b12e11a5e9b96ded85",
+      "bytes": 24307
+    },
+    {
+      "path": "packed-report.json",
+      "sha256": "bd0d644502e0b8129098ae89f6f552a58219065b932a74a858a570f96ae6deff",
+      "bytes": 33767
+    },
+    {
+      "path": "pro-01302/build.log",
+      "sha256": "1611ad7f729d9e7387b867d68e3814b81144e7a1274a020baa34e45e6f1ad6e9",
+      "bytes": 374
+    },
+    {
+      "path": "pro-01302/import.log",
+      "sha256": "e0915317689368e5a1a390cfd37076dcb0812345576f22a31c534e4214c5bb22",
+      "bytes": 31
+    },
+    {
+      "path": "pro-01302/install.log",
+      "sha256": "70ecc8c227789a50f3054bddb6fa76032d1b0309c45e63526d7b9172495e2d51",
+      "bytes": 26
+    },
+    {
+      "path": "pro-01302/locked-install.log",
+      "sha256": "459cb85f724ab3ff7ed8f9a4e232396b7a6bbbdc68cb31934723301ca198e0b4",
+      "bytes": 25
+    },
+    {
+      "path": "pro-01302/package-lock.json",
+      "sha256": "d31832a991a56474f9e6f26a9db467580c4ad5d43cf6eaf6342abf940d2ec4f0",
+      "bytes": 32340
+    },
+    {
+      "path": "pro-01302/receipt.json",
+      "sha256": "7f0dc8a660fb4ec43957fc029e0ad399b164b4c24d268c383081c057d8eb099f",
+      "bytes": 1489
+    },
+    {
+      "path": "pro-01303/browser/native-core-desktop.png",
+      "sha256": "27a87952400fe76f39d2e718bf26b04fe8982c85085efede2e45fd47efe86860",
+      "bytes": 116519
+    },
+    {
+      "path": "pro-01303/browser/native-core-mobile.png",
+      "sha256": "f15154d22ab68412046f420801bd7466777644c09f73bad9370bef26d6f66578",
+      "bytes": 101177
+    },
+    {
+      "path": "pro-01303/browser/native-pro-bootstrap.png",
+      "sha256": "a95e61bba43ae2c2458257abb6d73b732d6dd5755f8d13e56f84cd704c8ad1f9",
+      "bytes": 53725
+    },
+    {
+      "path": "pro-01303/browser/parity-baseline.json",
+      "sha256": "b70651a3f3cdf5748bb59c63f8763d080673e2d9fe54e0575ee6de40c470bdf1",
+      "bytes": 6341
+    },
+    {
+      "path": "pro-01303/build.log",
+      "sha256": "754a4d0776d559bfa118283060f5cc08e87a379ce062cadf5a983f7df0c1cf3b",
+      "bytes": 374
+    },
+    {
+      "path": "pro-01303/capture.log",
+      "sha256": "b70651a3f3cdf5748bb59c63f8763d080673e2d9fe54e0575ee6de40c470bdf1",
+      "bytes": 6341
+    },
+    {
+      "path": "pro-01303/docs-package.log",
+      "sha256": "612f5cda483157e49caa1ff1b1d6d03587c5279914c038abe2d86a715c011995",
+      "bytes": 188
+    },
+    {
+      "path": "pro-01303/import.log",
+      "sha256": "e0915317689368e5a1a390cfd37076dcb0812345576f22a31c534e4214c5bb22",
+      "bytes": 31
+    },
+    {
+      "path": "pro-01303/install.log",
+      "sha256": "696d0595bb339b12e4f403a0047dc7bd75e670ed8faa563efd98a3c4c8c9afb8",
+      "bytes": 26
+    },
+    {
+      "path": "pro-01303/locked-install.log",
+      "sha256": "459cb85f724ab3ff7ed8f9a4e232396b7a6bbbdc68cb31934723301ca198e0b4",
+      "bytes": 25
+    },
+    {
+      "path": "pro-01303/package-lock.json",
+      "sha256": "792a11c3c1c404a9120b6bdd717bcc084f9304d59ba484ee4087412dc702876d",
+      "bytes": 32340
+    },
+    {
+      "path": "pro-01303/prepare-exact.log",
+      "sha256": "fbf76d68e8e709075af65f9d5317e04acab2f6acd8da5e03cf3c2bcd92de2ad6",
+      "bytes": 446
+    },
+    {
+      "path": "pro-01303/receipt.json",
+      "sha256": "1556860324306ac6fdefc070f41a25e9a3f809f398a601ed62e21fd985a9f2a5",
+      "bytes": 1489
+    },
+    {
+      "path": "review-findings.json",
+      "sha256": "dc04e090b49e992d264ba1e2ab8c50fa5d17a2c609107907e0616a73a23e6a4c",
+      "bytes": 2517
+    },
+    {
+      "path": "source-receipt.json",
+      "sha256": "d5032cec41107ce8368914baaa28f5167b51c4cd004799ebca20ff857933ab9c",
+      "bytes": 1971
+    },
+    {
+      "path": "stages.json",
+      "sha256": "62570fdae68ab10382088cef9a804da26d6c6cdd4eff0ef71bce863a83b9e255",
+      "bytes": 4198
+    }
+  ]
+}

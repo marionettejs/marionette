@@ -1,0 +1,10 @@
+
+> marionette@5.0.0 test:helpers:formkit
+> node test/examples/verify-formkit-test-package.mjs --formkit-tarball /workspace/formkit-integration/test/tmp/formkit-package/artifacts/mnjs-formkit-5.0.0-rc.2.tgz --formkit-sha256 d4d0d2fcf1dffe0bcf76556f1d9781b71fef50db0dfc97e59b57dba5e1a4acac --formkit-manifest /workspace/formkit-integration/test/tmp/formkit-package/report.json
+
+pack-helper: passed
+install-lock: passed
+locked-install: passed
+versions: passed
+formkit-types: passed
+formkit-dom: passed

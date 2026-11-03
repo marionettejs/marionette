@@ -1,0 +1,73 @@
+{
+  "sourceRevision": "605f1f1aaccb63f9195f15e26f64e8f1d00f409c",
+  "sourceDirty": false,
+  "command": "npm run coverage -- --coverage.reportOnFailure --maxWorkers=1",
+  "exitCode": 1,
+  "passed": false,
+  "tests": {
+    "passed": 2732,
+    "expectedFailure": 1,
+    "failed": 5,
+    "filesPassed": 180,
+    "filesFailed": 2
+  },
+  "failedCases": {
+    "test/unit/formkit-nested-rows.spec.js": [
+      128,
+      162,
+      235,
+      256
+    ],
+    "test/unit/formkit-schema-views.spec.js": [
+      29
+    ]
+  },
+  "failure": "Each of the five cases exceeded unchanged 5000 ms timeout.",
+  "metrics": {
+    "lines": {
+      "total": 4093,
+      "covered": 4092,
+      "skipped": 0,
+      "pct": 99.97
+    },
+    "statements": {
+      "total": 4933,
+      "covered": 4932,
+      "skipped": 0,
+      "pct": 99.97
+    },
+    "functions": {
+      "total": 1077,
+      "covered": 1077,
+      "skipped": 0,
+      "pct": 100
+    },
+    "branches": {
+      "total": 3042,
+      "covered": 3036,
+      "skipped": 0,
+      "pct": 99.8
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "thresholdFailure": {
+    "globalUncoveredBranches": 6,
+    "globalMaximum": 5,
+    "file": "packages/formkit/src/index.ts",
+    "branchesCovered": 446,
+    "branchesTotal": 447,
+    "missingLine": 792
+  },
+  "followup": {
+    "sourceRevision": "8c70a88dff4b59e423774c7540bc5719d8273c53",
+    "change": "Two public external-region invalid focus order cases, both creation orders, then next invalid control after correction.",
+    "productionChanges": false,
+    "fullSuiteRepeated": false,
+    "fullCoverageCleared": false
+  }
+}
