@@ -1,0 +1,387 @@
+{
+  "testedSource": "8f78cea2ae614f2676918266e46c583f39cc541d",
+  "base": "4176ab070ee66989833dc4d6d75e2b74731a2dbe",
+  "sourceDirtyAtPackedCheck": false,
+  "toolchain": {
+    "node": "v24.19.0",
+    "npm": "11.17.0",
+    "vitest": "5.0.3",
+    "playwright": "1.63.0",
+    "chromium": "154.0.8037.57",
+    "core": "2.1.2",
+    "adapter": "5.0.0-rc.2"
+  },
+  "checks": {
+    "unit": {
+      "passed": 436,
+      "files": 27,
+      "exitCode": 0
+    },
+    "build": {
+      "exitCode": 0
+    },
+    "packed": {
+      "exitCode": 0,
+      "stages": [
+        {
+          "name": "pack-corepackage",
+          "passed": true
+        },
+        {
+          "name": "pack-packages-utils",
+          "passed": true
+        },
+        {
+          "name": "pack-packages-radio",
+          "passed": true
+        },
+        {
+          "name": "pack-packages-formkit",
+          "passed": true
+        },
+        {
+          "name": "install",
+          "passed": true
+        },
+        {
+          "name": "locked-install",
+          "passed": true
+        },
+        {
+          "name": "versions",
+          "passed": true
+        },
+        {
+          "name": "runtime-esm-cjs",
+          "passed": true
+        },
+        {
+          "name": "types",
+          "passed": true
+        }
+      ]
+    },
+    "browser": {
+      "exitCode": 0,
+      "stats": {
+        "startTime": "2026-11-03T12:37:37.588Z",
+        "duration": 60648.27,
+        "expected": 15,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "cases": [
+        {
+          "title": "FLOW-NESTED native two-level RowViews retain focus, validate, reset membership and clean up",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 3271,
+          "attachments": []
+        },
+        {
+          "title": "FLOW-01 composed planning journey retains focus and drafts, validates across sections and rows, retries and resets",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 33672,
+          "attachments": []
+        },
+        {
+          "title": "FLOW-02 stale callback errors cannot reach replacement rows or survive reset and destruction",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 11304,
+          "attachments": []
+        },
+        {
+          "title": "FLOW-03 simultaneous same-named forms and repeated Region mount/destroy stay independent",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 9828,
+          "attachments": []
+        },
+        {
+          "title": "unchanged SVG icons retain pointer activation across blur-driven schema updates",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 1805,
+          "attachments": [
+            {
+              "results": [
+                {
+                  "clicks": 1,
+                  "blurs": 1,
+                  "retained": true
+                },
+                {
+                  "clicks": 2,
+                  "blurs": 2,
+                  "retained": true
+                },
+                {
+                  "clicks": 3,
+                  "blurs": 3,
+                  "retained": true
+                }
+              ],
+              "errors": []
+            }
+          ]
+        },
+        {
+          "title": "invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 1789,
+          "attachments": []
+        },
+        {
+          "title": "named registrations mount connected and support keyboard validation, correction and reset",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 1914,
+          "attachments": []
+        },
+        {
+          "title": "external owned controls retain native origin and state bindings across input, change and blur",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 1551,
+          "attachments": []
+        },
+        {
+          "title": "decimal edits retain native text and focus while authoritative writes replace pending drafts",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 2350,
+          "attachments": []
+        },
+        {
+          "title": "template Regions preserve accordion drafts, clear conditional values and submit through the keyboard",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 2792,
+          "attachments": []
+        },
+        {
+          "title": "adopted forms mount, preserve keyed sibling edits and focus, and can be reused",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 2022,
+          "attachments": []
+        },
+        {
+          "title": "profile example supports keyboard validation, server errors, retry and native reset",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 4255,
+          "attachments": []
+        },
+        {
+          "title": "external snapshots and schema reordering preserve real browser focus and selection, then clean up",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 1334,
+          "attachments": []
+        },
+        {
+          "title": "official schema form supports conditional fields, steps, files, lists, server errors and cancellation",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 7880,
+          "attachments": []
+        },
+        {
+          "title": "explicit owner placement preserves sibling selection and ends validation on removal",
+          "project": "chromium",
+          "status": "passed",
+          "duration": 2299,
+          "attachments": []
+        }
+      ]
+    }
+  },
+  "regression": {
+    "slot": {
+      "source": "4176ab070ee66989833dc4d6d75e2b74731a2dbe",
+      "outcome": "RangeError: Maximum call stack size exceeded",
+      "failed": 1
+    },
+    "pointer": {
+      "repositoryHead": "d15c56273ea7567e84c3e7ec6e5cb18e127e0523",
+      "builtSource": "ec56f38bea15ee48231f284739a983fa41664a65",
+      "productionSourcesIdentical": true,
+      "cases": [
+        {
+          "title": "unchanged SVG icons retain pointer activation across blur-driven schema updates",
+          "project": "chromium",
+          "status": "failed",
+          "duration": 3788,
+          "attachments": [
+            {
+              "result": {
+                "clicks": 0,
+                "blurs": 1,
+                "retained": false
+              },
+              "errors": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "path": "packages/formkit/src/bindings.ts",
+      "sha256": "b2cb41265425550136cd68e08e66e36450f2f55cda39dd8a2cd146002e1a1420"
+    },
+    {
+      "path": "packages/formkit/src/composition-input.ts",
+      "sha256": "b14d31c4ca70a98f1b445fcd17891524364ed1035e9da09098a627bd8a1d6795"
+    },
+    {
+      "path": "packages/formkit/src/composition.ts",
+      "sha256": "beda91fd9572493b310af8b5d59d0e1afd9ed69bca481e91f1302bd238db4afc"
+    },
+    {
+      "path": "packages/formkit/src/index.ts",
+      "sha256": "f781bfba74059aafa125a28eef90d97b4cab00e93ec8c9a649d28e54196b7370"
+    },
+    {
+      "path": "packages/formkit/src/row-ownership.ts",
+      "sha256": "5a3f3633b6a9dc6990124c267d184903bf0395aece5f9cd9366d99564fcd8fe3"
+    },
+    {
+      "path": "packages/formkit/src/runtime.ts",
+      "sha256": "d1c7e18541fb98a53cc8a95fcc667682e471fb19b3269c0c448be1facd517c4e"
+    },
+    {
+      "path": "packages/formkit/src/schema-view.ts",
+      "sha256": "1f8cac9da3a6f3074c9de1b708c04cae88a28d2cd0bae07596f4d09707325a6c"
+    },
+    {
+      "path": "packages/formkit/src/schema.ts",
+      "sha256": "3c0d52bcab64797b275e9e7e7cbe70c01be90ef9fe7520af486126a005578ee8"
+    },
+    {
+      "path": "packages/formkit/src/view-components.ts",
+      "sha256": "d2d947aceafc3de97b666ae6b7808fd5fb6d7b06f934dab872b32002187979c1"
+    }
+  ],
+  "fixtures": [
+    {
+      "path": "test/fixtures/formkit-package/run.mjs",
+      "sha256": "bf81f262840962588c546e76aa0c9d6a799abbad4c7705676c45ee4d84922cf2"
+    },
+    {
+      "path": "test/fixtures/formkit-package/verify.mjs",
+      "sha256": "947b63f0838e5c7340de2f9685e323dca12452d86adf3c50f622fe837e218f1c"
+    },
+    {
+      "path": "test/types/formkit.mts",
+      "sha256": "78165aff2a87c8917c015128b8a7b420b0f862bc31a6cb77a920a96c728a1a2c"
+    },
+    {
+      "path": "test/types/formkit.cts",
+      "sha256": "78165aff2a87c8917c015128b8a7b420b0f862bc31a6cb77a920a96c728a1a2c"
+    },
+    {
+      "path": "test/types/formkit-rows.mts",
+      "sha256": "5120f62e360e2ce625a24b1634da0e328896e561596a4e0a080589bd334dbf16"
+    },
+    {
+      "path": "test/types/formkit-rows.cts",
+      "sha256": "5120f62e360e2ce625a24b1634da0e328896e561596a4e0a080589bd334dbf16"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "marionette",
+      "version": "5.0.0",
+      "sha256": "0a5a4aba343fe9b6a5ea4dded4d54c15486cec8d2144af51e4a0de424f405ec7"
+    },
+    {
+      "name": "@mnjs/utils",
+      "version": "5.0.0",
+      "sha256": "7d74775d89ff90b1f53c84634a5928eb39cb73814ae744037072b0ac7d5da8fd"
+    },
+    {
+      "name": "@mnjs/radio",
+      "version": "5.0.0",
+      "sha256": "dcf69f06ebbc52f8b630cc975ce2f505848e536bf87f27cabbc09d46e4fd4de3"
+    },
+    {
+      "name": "@mnjs/formkit",
+      "version": "5.0.0-rc.2",
+      "sha256": "52668f7c545ab062110fd38b6b5286af5a01c14a2460c32ad45a9ff9c53f17c7"
+    }
+  ],
+  "logs": [
+    {
+      "path": "slot-red.log",
+      "sha256": "df9ed894cfd84f92f5e5c4346ee72a2f5e8174e7d24b5e0551c89241d92a04d0",
+      "rawSha256": "7f7a99f506ba3f456c74e2001c674c7472fa1aa6023427adb878cd3b617225cd"
+    },
+    {
+      "path": "icon-pointer-red.log",
+      "sha256": "28693bae2a5ce191ef1874acbb3ce0ac788d64116b737361a753ce88332bc324",
+      "rawSha256": "2c9a6a47f7d70eee35b671437db8be512bdf1f1443d53a1be0348caf36d53324"
+    },
+    {
+      "path": "unit.log",
+      "sha256": "5ef66e6b1a6abde097faddacec8f8b6c2493218c70b9d46deeb047701e034720",
+      "rawSha256": "582d2763cf7e1ce988c62a9c5b415a5da0e2ec6769c82950f0ffaffa709b1c55"
+    },
+    {
+      "path": "build.log",
+      "sha256": "fcd9d093cb1489e7e1bd9e80ef6dce37ac8f8a73bcd3f4ff0fce9c173a099d5d",
+      "rawSha256": "fcd9d093cb1489e7e1bd9e80ef6dce37ac8f8a73bcd3f4ff0fce9c173a099d5d"
+    },
+    {
+      "path": "packed.log",
+      "sha256": "e38579fdcbe025a4eb766d1d77797f5b6d85aae4961d4958917ba2b22d4c0af7",
+      "rawSha256": "e38579fdcbe025a4eb766d1d77797f5b6d85aae4961d4958917ba2b22d4c0af7"
+    },
+    {
+      "path": "browser.log",
+      "sha256": "2818ea3a75a017d2df468bbeb2660407388bda7e881742cf714348049a237c8e",
+      "rawSha256": "2818ea3a75a017d2df468bbeb2660407388bda7e881742cf714348049a237c8e"
+    }
+  ],
+  "independentReview": {
+    "agents": [
+      "repeater_diagnosis",
+      "datepicker_diagnosis"
+    ],
+    "model": "gpt-6-astra",
+    "sourceCleared": true,
+    "actualProRuntimeExecutedByWriter": false
+  },
+  "actualProQA": {
+    "repairedRevision": "pending separate vault QA",
+    "baselineTraceReportedByCoordinator": {
+      "consumer": "4176ab070ee66989833dc4d6d75e2b74731a2dbe",
+      "helper": "d15c56273ea7567e84c3e7ec6e5cb18e127e0523",
+      "pro": "0.130.2",
+      "svgDisconnectedAfterPointerDownMs": 6,
+      "buttonRetained": true,
+      "clickDelivered": false,
+      "pointerReopened": false,
+      "enterReopened": true,
+      "svgMeasurementProvenance": "Coordinator-reported supplemental retained-SVG measurement; d15 helper alone cannot record SVG subtree removals. Raw vault instrumentation not inspected by writer."
+    }
+  },
+  "limits": [
+    "Actual Pro controls not retested by writer",
+    "Online license validation not established",
+    "No full Vue/React/Pro parity or performance claim",
+    "No Firefox/WebKit or mobile Pro certification"
+  ],
+  "hostedCI": {
+    "source": "8f78cea2ae614f2676918266e46c583f39cc541d",
+    "statuses": [],
+    "workflowRuns": 0,
+    "note": "CI triggers master pushes and pull requests; no hosted CI pass claimed and no workflow manually dispatched."
+  }
+}
