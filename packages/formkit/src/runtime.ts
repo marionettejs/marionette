@@ -81,7 +81,9 @@ function inheritScope(data: Scope, scope: Scope, application = false) {
   for (let object: Scope | null = scope; object; object = Object.getPrototypeOf(object)) {
     Object.keys(object).forEach(key => keys.add(key));
   }
-  return scoped(data, Object.fromEntries([...keys].filter(key => !application || key === 'node' || !(key in data))
+  // Slots belong to the schema that declared them. A receiving group's slots
+  // can forward to those bindings, but must not shadow them with themselves.
+  return scoped(data, Object.fromEntries([...keys].filter(key => key !== 'slots' && (!application || key === 'node' || !(key in data)))
     .map(key => [key, scope[key]])));
 }
 
@@ -219,7 +221,8 @@ export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decor
 export function mountFormSchema(form: HTMLFormElement, root: FormKitNode, options: RuntimeOptions) {
   let data = options.schemaData ?? {};
   root.context!.slots = { ...options.slots,
-    default: (scope: Scope) => ({ schema: options.schema!, data: inheritScope(data, scope, true) }),
+    default: (scope: Scope) => ({ schema: options.schema!,
+      data: inheritScope('slots' in data ? data : scoped(data, { slots: options.slots ?? {} }), scope, true) }),
     ...(!options.slots?.actions ? { actions: () => ({ $el: 'div', if: '$actions', attrs: { class: '$classes.actions' }, children: [
       { $cmp: 'FormKit', bind: '$submitAttrs', props: { type: 'submit', label: '$submitLabel' } },
       { $el: 'button', attrs: { type: 'reset', disabled: '$disabled' }, children: '$resetLabel' }

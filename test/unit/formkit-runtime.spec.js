@@ -67,6 +67,54 @@ describe('@mnjs/formkit native schema runtime', () => {
     expect(form.el.querySelector('p').textContent).toBe('Seven letters');
   });
 
+  it.each(['default', 'content'])('forwards the %s slot through native groups with lexical data and receiving context', async slot => {
+    const form = mount({ inputs: { wrapped: { type: 'group',
+      schema: { $formkit: 'group', name: 'inner', children: `$slots.${slot}` } } },
+    schemaData: { suffix: 'Passed' }, schema: { $formkit: 'wrapped', name: 'wrapper',
+      children: { [slot]: { $el: 'output', children: '$node.name + ":" + $suffix' } } } });
+    await flush();
+    expect(form.el.querySelectorAll('output')).toHaveLength(1);
+    expect(form.el.querySelector('output').textContent).toBe('inner:Passed');
+    form.setSchemaData({ suffix: 'Updated' }); await flush();
+    expect(form.el.querySelector('output').textContent).toBe('inner:Updated');
+    form.setSchema({ $formkit: 'wrapped', name: 'wrapper' }); await flush();
+    expect(form.el.querySelector('output')).toBeNull();
+  });
+
+  it('keeps caller-provided root slots available to application schema', async() => {
+    const form = mount({ slots: { extra: () => ({ $el: 'output', children: 'Provided' }) },
+      schema: '$slots.extra' });
+    await flush();
+    expect(form.el.querySelector('output')?.textContent).toBe('Provided');
+    form.setSchemaData({ slots: { extra: () => ({ $el: 'output', children: 'Application' }) } }); await flush();
+    expect(form.el.querySelector('output')?.textContent).toBe('Application');
+    form.setSchemaData({ slots: undefined }); await flush();
+    expect(form.el.querySelector('output')).toBeNull();
+  });
+
+  it('forwards editable list row slots through nested groups during replacement and reset', async() => {
+    const form = mount({ values: { guests: [{ name: 'Ada' }] }, inputs: { rowList: { type: 'list',
+      schema: { $el: 'div', for: ['item', 'index', '$items'], key: '$item', children: {
+        $formkit: 'group', index: '$index', children: '$slots.default' } } } },
+    schema: { $formkit: 'rowList', name: 'guests', sync: true, children: [
+      { $formkit: 'text', name: 'name', label: 'Guest name' },
+      { $el: 'output', children: '$index' }
+    ] } });
+    await flush();
+    const names = () => [...form.el.querySelectorAll('input')].map(input => input.value);
+    expect(names()).toEqual(['Ada']);
+    form.setValues({ guests: [{ name: 'Grace' }, { name: 'Lin' }] }); await flush();
+    expect(names()).toEqual(['Grace', 'Lin']);
+    expect([...form.el.querySelectorAll('output')].map(output => output.textContent)).toEqual(['0', '1']);
+    const input = form.el.querySelectorAll('input')[1];
+    input.value = 'Edited'; input.dispatchEvent(new Event('input', { bubbles: true }));
+    await form.node.settled;
+    expect(form.getValues().guests).toEqual([{ name: 'Grace' }, { name: 'Edited' }]);
+    form.resetForm(); await flush();
+    expect(names()).toEqual(['Ada']);
+    expect(form.getValues().guests).toEqual([{ name: 'Ada' }]);
+  });
+
   it('owns custom native input definitions and releases them when schema type changes', async() => {
     const disposed = vi.fn();
     const factory = ({ document: doc }) => {

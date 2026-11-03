@@ -380,6 +380,8 @@ and each schema input may provide its own section extensions.
 Named `slots` are functions returning schema, a DOM node, or `{ schema, data }`.
 Input `children` supply default content or a named-slot map. `$slots.name`, scoped
 context, `$get("id")`, loops, stable keys and function event bindings work.
+Forwarded `$slots.name` references keep the declaring schema's slot bindings;
+the receiving input supplies ordinary context without shadowing those bindings.
 `setSchemaData` is explicit for application data; input context mutations and
 borrowed registry nodes trigger queued renderer updates automatically.
 
