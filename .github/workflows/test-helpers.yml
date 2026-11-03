@@ -48,6 +48,12 @@ jobs:
           npm exec --yes --ignore-scripts --package=cypress@${{ matrix.cypress }} -- cypress install
       - name: Verify packed helper with Cypress and failure probes
         run: npm run test:helpers:consumer -- --cypress ${{ matrix.flags }}
+      - name: Print failed Cypress runtime output
+        if: failure()
+        run: |
+          if test -f test/tmp/test-package-consumer/cypress-runtime.log; then
+            cat test/tmp/test-package-consumer/cypress-runtime.log
+          fi
       - name: Retain complete or partial consumer evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

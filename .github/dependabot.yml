@@ -37,6 +37,11 @@ updates:
     ignore:
       - dependency-name: marionette
       - dependency-name: '@mnjs/*'
+      # Keep TS6 compiler-API and consumer coverage; TS7 uses explicit aliases.
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+      - dependency-name: typescript-7
+        update-types: [version-update:semver-major]
   - package-ecosystem: github-actions
     directory: /
     schedule:

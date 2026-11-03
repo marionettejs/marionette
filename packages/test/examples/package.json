@@ -8,7 +8,7 @@
     "test:playwright": "playwright test",
     "test:cypress": "cypress run --component --browser electron",
     "dev": "vite --host 127.0.0.1 --port 4187 --strictPort",
-    "test:consumer": "node --import ./dom.js consumer.mjs && node --import ./dom.js consumer.cjs && tsc -p tsconfig.json && tsc -p cypress/tsconfig.json"
+    "test:consumer": "node --import ./dom.js consumer.mjs && node --import ./dom.js consumer.cjs && tsc -p tsconfig.json && tsc -p cypress/tsconfig.json && node node_modules/typescript-7/bin/tsc -p tsconfig.json && node node_modules/typescript-7/bin/tsc -p cypress/tsconfig.json"
   },
   "dependencies": {
     "@mnjs/radio": "5.0.0",
@@ -27,6 +27,7 @@
     "playwright": "1.64.1",
     "typescript": "6.0.3",
     "vite": "8.3.5",
-    "vitest": "5.0.5"
+    "vitest": "5.0.5",
+    "typescript-7": "npm:typescript@7.0.2"
   }
 }
