@@ -4,15 +4,29 @@ Branch `codex/formkit-master-integration-20261103` starts from master
 `c83a9f255692291eb62dc05a6d4073424afb7dfe`. It ports the scoped FormKit package and
 verification inputs from `16aa74fe1160c15e0a3121839e4ab9e576d0c19d`, retaining
 master's shared runtime, `@mnjs/test` 0.2.0, and pinned tooling. The repair branch
-is preserved. Current integration evidence records passing build/package checks,
-2,737 unit assertions plus one expected failure, 16 native Chromium cases, and
-Pro 0.130.3 no-Vue imports/build with 14 core comparison checks. Two additional
-focus-order cases pass in a focused 20-test run. Full coverage remains failed
-after five instrumented timeouts; actual Pro 0.130.3 controls on this integrated
-runtime await separate authorized vault QA. See the
+is preserved. The initial integration evidence records passing build/package
+checks, 2,737 unit assertions plus one expected failure, 16 native Chromium cases,
+and Pro 0.130.3 no-Vue imports/build with 14 core comparison checks. See the
 [integration receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/master-integration-20261103)
-for exact tested revisions, logs and limits. Historical passes below must not be
-attributed to this integrated source.
+for exact tested revisions, logs and limits.
+
+The follow-up removes redundant nested composition refreshes and direct-token
+compilation, with public behavior regressions. A complete covered run at
+`0dee5f85bc91e647945721e5ff81eec080299ccd` passed 2,740 tests plus one expected
+failure and all existing thresholds; all nine FormKit modules reached 100%.
+Coverage now budgets two workers, preserving every assertion, cycle count,
+timeout and threshold. The canonical rerun at `d623599a` passed every FormKit
+case but timed out in the unchanged core jQuery-free bundling test. Full-gate
+clearance therefore still needs independent cloud confirmation; the successful
+run does not erase later failures.
+
+Independent vault QA reported 107/107 functional Pro 0.130.3 assertions at
+`db655482`. Extended positioning checks passed only 12/30 with the original
+fixture, then 30/30 with a transient positioning rule. The permanent fixture now
+imports the official base Genesis theme before the Pro extension. Updated runtime
+and styling need their own vault retest; online license validation remains
+unverified. See the [follow-up receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/coverage-20261103).
+Historical passes below must not be attributed to later source or styling.
 
 The latest [independent Pro receipt](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) applies to source
 `1d8e1680f416ea182873c9120315ec24970225c9`: 107/107 local assertions, zero page
