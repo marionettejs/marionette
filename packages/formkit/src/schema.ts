@@ -56,6 +56,9 @@ function tokenValue(scope: Scope, token: string): unknown {
 }
 function evaluate(value: unknown, scope: Scope): unknown {
   if (typeof value === 'string' && value.startsWith('$') && !/^\$(?:reset(?:\s|$)|remove:)/.test(value)) {
+    // A lone path has the same provider lookup as Core's compiled expression.
+    // Resolve it directly; compound expressions retain the official compiler.
+    if (/^\$[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*$/.test(value)) { return tokenValue(scope, value.slice(1)); }
     return compile(value).provide(requirements => Object.fromEntries(
       requirements.map(token => [token, () => tokenValue(scope, token)])
     ))();

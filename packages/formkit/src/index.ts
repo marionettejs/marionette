@@ -444,7 +444,10 @@ export class FormView<Values extends object = FormValues> extends View {
           this.mutationDepth--; this.lastValues = previous; this.notifyChanges = notify; this.notifyFields = notifyFields;
           this.changeSource = source === 'user' && !committed && !this.hasPendingUserInput() ? 'programmatic' : source;
         }
-        queueMicrotask(() => { if (!this.disposed) { this.refresh(); } });
+        // Nested composition changes share their outer mutation's refresh.
+        if (!this.mutationDepth) {
+          queueMicrotask(() => { if (!this.disposed) { this.refresh(); } });
+        }
       },
       notify: () => this.notifyFields,
       write: (node, value, updateOptions) => this.updateValues(() => {

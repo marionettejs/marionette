@@ -16,6 +16,36 @@ afterEach(() => {
 });
 
 describe('@mnjs/formkit public schema foundation', () => {
+  it('resolves live token paths and receivers without sharing scope across renderers', () => {
+    const clicks = [];
+    const data = label => ({ values: [{ label }], amount: 0, enabled: false, suffix: '!',
+      rows: [{ label: 'Row' }], actions: { label, select() { clicks.push(this.label); }, text() { return this.label; } } });
+    const schema = [
+      { $el: 'button', attrs: { onClick: '$actions.select', 'data-count': '$amount', 'data-enabled': '$enabled' }, children: '$values.0.label' },
+      { $el: 'output', children: '$: $amount + 1' },
+      { $el: 'strong', children: '$actions.text()' },
+      { $el: 'span', for: ['row', '$rows'], children: ['$row.label', '$suffix'] }
+    ];
+    const first = render(schema, { data: data('First') });
+    const second = render(schema, { data: data('Second') });
+    const button = first.container.querySelector('button');
+    expect(button.textContent).toBe('First');
+    expect(button.dataset).toMatchObject({ count: '0', enabled: 'false' });
+    expect(first.container.querySelector('span').textContent).toBe('Row!');
+    button.click();
+    first.update({ ...data('Changed'), amount: 2, enabled: true, suffix: '?', rows: [{ label: 'Updated' }] });
+    expect(first.container.querySelector('button')).toBe(button);
+    expect(button.textContent).toBe('Changed');
+    expect(button.dataset).toMatchObject({ count: '2', enabled: 'true' });
+    expect(first.container.querySelector('output').textContent).toBe('3');
+    expect(first.container.querySelector('strong').textContent).toBe('Changed');
+    expect(first.container.querySelector('span').textContent).toBe('Updated?');
+    button.click();
+    second.container.querySelector('button').click();
+    expect(second.container.querySelector('button').textContent).toBe('Second');
+    expect(clicks).toEqual(['First', 'Changed', 'Second']);
+  });
+
   it('retains unchanged trusted SVG nodes and replaces markup only when its binding changes', () => {
     const svg = '<svg><path d="M0 0h10v10H0z" /></svg>';
     const view = render({ $el: 'span', attrs: { innerHTML: '$icon' } }, { allowHTML: true, data: { icon: svg } });
