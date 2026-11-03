@@ -6,6 +6,7 @@ export function traceDatepicker(node, document = globalThis.document) {
   const originalButton = document.getElementById(buttonId);
   const started = window.performance.now();
   const records = [];
+  let pointerTarget;
   const describe = element => element?.nodeType === 1 ? { tag: element.tagName, id: element.id } : null;
   const record = detail => records.push({
     elapsed: Math.round(window.performance.now() - started),
@@ -13,6 +14,7 @@ export function traceDatepicker(node, document = globalThis.document) {
     ariaExpanded: document.getElementById(buttonId)?.getAttribute('aria-expanded') ?? null,
     originalConnected: !!originalButton?.isConnected,
     sameButton: document.getElementById(buttonId) === originalButton,
+    pointerTarget: describe(pointerTarget), pointerTargetConnected: pointerTarget?.isConnected ?? null,
     active: describe(document.activeElement), ...detail
   });
   const receipt = node.on('prop:expanded', event => record({
@@ -25,10 +27,13 @@ export function traceDatepicker(node, document = globalThis.document) {
   const listeners = [];
   for (const capture of [true, false]) {
     for (const type of types) {
-      const listener = event => record({ kind: 'event', type, phase: capture ? 'capture' : 'bubble',
+      const listener = event => {
+        if (capture && type === 'pointerdown' && originalButton?.contains(event.target)) { pointerTarget = event.target; }
+        record({ kind: 'event', type, phase: capture ? 'capture' : 'bubble',
         target: describe(event.target), relatedTarget: describe(event.relatedTarget),
         originalInPath: !!originalButton && event.composedPath().includes(originalButton),
         defaultPrevented: event.defaultPrevented });
+      };
       document.addEventListener(type, listener, { capture, passive: true });
       listeners.push(() => document.removeEventListener(type, listener, capture));
     }
@@ -37,7 +42,7 @@ export function traceDatepicker(node, document = globalThis.document) {
   originalButton?.addEventListener('click', direct, { passive: true });
   const observer = new window.MutationObserver(changes => {
     for (const change of changes) {
-      const relevant = [...change.addedNodes, ...change.removedNodes].some(element =>
+      const relevant = originalButton?.contains(change.target) || [...change.addedNodes, ...change.removedNodes].some(element =>
         element === originalButton || element.nodeType === 1 && element.contains(originalButton));
       if (relevant) { record({ kind: 'placement', target: describe(change.target),
         added: [...change.addedNodes].map(describe).filter(Boolean),

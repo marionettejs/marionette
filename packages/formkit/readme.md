@@ -439,7 +439,8 @@ It does not itself register the built-in FormKit component; use `FormView` for
 input trees. Native factories receive `{ document, props, data, children }` and
 return `{ element, update(props, data, children), destroy() }`. They own their
 internal resources. Supplied slot DOM is moved into and removed from this mount.
-`innerHTML` requires `allowHTML: true`; string event handlers are rejected. Failures
+`innerHTML` requires `allowHTML: true`; unchanged bindings retain their DOM subtree,
+and changing or removing the binding replaces its content. String event handlers are rejected. Failures
 of synchronous user factories/callbacks do not imply transactional rollback.
 
 ## TypeScript

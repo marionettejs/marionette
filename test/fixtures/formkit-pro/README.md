@@ -80,7 +80,8 @@ For the separate authorized datepicker investigation, `trace-datepicker.mjs`
 exports `traceDatepicker(node)`. Import it in the existing development consumer
 and pass its public `getNode('date')` result before reproducing the failure.
 The helper does not bootstrap Pro or read any key. It observes pointer/focus/click
-events, boolean expanded state, button identity/placement, and stack function names;
+events, boolean expanded state, button/icon placement, pointer-target connectivity,
+and stack function names;
 it records no input values, event keys, page text or URLs.
 
 Keep one trace across Enter-open, November 15 selection, confirmed close,

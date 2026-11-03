@@ -22,7 +22,7 @@ export interface SchemaOptions {
 }
 type RecordNode = { node: Node; end?: Node; pending?: DocumentFragment; kind: string; keep?: boolean;
   children?: Map<string, RecordNode>; component?: SchemaComponent; listeners?: Map<string, EventListener>;
-  attributes?: Set<string>; releaseEvents?: () => void };
+  attributes?: Set<string>; html?: string; releaseEvents?: () => void };
 type Evaluated = { key: string; schema: FormKitSchemaNode | Node; scope: Scope };
 type Normalized = FormKitSchemaDOMNode & { $cmp?: string; props?: FormKitSchemaComponent['props'] };
 type Host = { document: Document; nodes(): Node[]; insert(node: Node, before: Node | null): void; contains(node: Node): boolean };
@@ -245,7 +245,7 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
             element.removeAttribute(attribute);
             if (attribute === 'value') { setValue(element as HTMLInputElement, ''); }
             if (['checked', 'selected', 'disabled', 'multiple'].includes(attribute)) { (element as unknown as Scope)[attribute] = false; }
-            if (attribute === 'innerHTML') { element.replaceChildren(); }
+            if (attribute === 'innerHTML') { element.replaceChildren(); record.html = undefined; }
           }
         }
         const attributes = new Set<string>();
@@ -273,7 +273,10 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
           if (attribute === 'innerHTML') {
             record.children!.forEach(cleanup);
             record.children!.clear();
-            if (element.innerHTML !== String(value ?? '')) { element.innerHTML = String(value ?? ''); }
+            // DOM serialization expands self-closing SVG tags. Compare the
+            // authored markup so unchanged icons survive blur during a click.
+            const html = String(value ?? '');
+            if (record.html !== html) { element.innerHTML = html; record.html = html; }
             continue;
           }
           const serialized = attribute === 'class' ? className(value) : value;

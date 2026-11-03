@@ -1,6 +1,20 @@
 import { Region, View } from 'marionette';
 import { FieldView, FormView, SchemaView, createSchemaRenderer, createViewComponents } from '@mnjs/formkit';
 
+export function mountIconPointer() {
+  const container = document.body.appendChild(document.createElement('div'));
+  const state = { clicks: 0, blurs: 0,
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><path d="M0 0h40v40H0z" /></svg>',
+    click() { state.clicks++; },
+    blur() { state.blurs++; queueMicrotask(() => renderer.update(state)); } };
+  const renderer = createSchemaRenderer(container, { allowHTML: true, data: state, schema: [
+    { $el: 'input', attrs: { id: 'icon-input', onBlur: '$blur' } },
+    { $el: 'div', attrs: { id: 'icon-open', role: 'button', tabindex: '0', onClick: '$click',
+      style: { width: '40px', height: '40px' } }, children: { $el: 'span', attrs: { innerHTML: '$icon' } } }
+  ] });
+  return { state, destroy() { renderer.destroy(); container.remove(); } };
+}
+
 export function mountRegisteredControls() {
   let form;
   const mounted = [];

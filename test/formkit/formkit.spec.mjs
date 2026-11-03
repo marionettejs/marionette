@@ -1,6 +1,29 @@
 import { test, expect } from '@playwright/test';
 import { resolve } from 'node:path';
 
+test('unchanged SVG icons retain pointer activation across blur-driven schema updates', async({ page }, testInfo) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.iconFixture = fixture.mountIconPointer();
+    window.originalIcon = document.querySelector('#icon-open svg');
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  const results = [];
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    await page.locator('#icon-input').focus();
+    await page.locator('#icon-open svg').click();
+    const result = await page.evaluate(() => ({ clicks: window.iconFixture.state.clicks,
+      blurs: window.iconFixture.state.blurs, retained: window.originalIcon === document.querySelector('#icon-open svg') }));
+    results.push(result);
+    expect(result).toEqual({ clicks: attempt, blurs: attempt, retained: true });
+  }
+  await testInfo.attach('icon-pointer.json', { body: JSON.stringify({ results, errors }, null, 2), contentType: 'application/json' });
+  await page.evaluate(() => window.iconFixture.destroy());
+  expect(errors).toEqual([]);
+});
+
 test('invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field', async({ page }, testInfo) => {
   const errors = [];
   const states = [];

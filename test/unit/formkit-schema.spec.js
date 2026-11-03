@@ -16,6 +16,25 @@ afterEach(() => {
 });
 
 describe('@mnjs/formkit public schema foundation', () => {
+  it('retains unchanged trusted SVG nodes and replaces markup only when its binding changes', () => {
+    const svg = '<svg><path d="M0 0h10v10H0z" /></svg>';
+    const view = render({ $el: 'span', attrs: { innerHTML: '$icon' } }, { allowHTML: true, data: { icon: svg } });
+    const icon = view.container.querySelector('svg');
+    const path = icon.querySelector('path');
+    view.update({ icon: svg });
+    expect(view.container.querySelector('svg')).toBe(icon);
+    expect(path.isConnected).toBe(true);
+    view.update({ icon: '<b>Changed</b>' });
+    expect(icon.isConnected).toBe(false);
+    expect(view.container.querySelector('b').textContent).toBe('Changed');
+    view.setSchema({ $el: 'span', children: 'Ordinary content' });
+    expect(view.container.textContent).toBe('Ordinary content');
+    view.setSchema({ $el: 'span', attrs: { innerHTML: '$icon' } });
+    expect(view.container.querySelector('b').textContent).toBe('Changed');
+    view.update({ icon: null });
+    expect(view.container.textContent).toBe('');
+  });
+
   it('renders literal text safely, expressions, conditions and transparent groups', () => {
     const schema = [{ $el: 'h2', children: '$title' }, { $el: null, children: ['<script>alert(1)</script>'] },
       { if: '$show', then: { $el: 'p', children: 'Yes' }, else: { $el: 'strong', children: 'No' } },
