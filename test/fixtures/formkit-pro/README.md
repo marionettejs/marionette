@@ -57,12 +57,18 @@ Native rejected-Promise recovery is covered separately by the public unit regres
 in `test/unit/formkit-hardening.spec.js`; the comparison fixture does not certify it
 for Vue or React.
 
-Pro bootstrap follows the documented keyless localhost claim with the unmodified
-`createProPlugin(undefined, inputs)` call. The fixture contains no license key and
-does not register premium definitions around the plugin. If that invocation is
-blocked, paid-control keyboard, popover, repeater, ARIA, and lifecycle cases remain
-unverified. An existing authorized bootstrap can be assessed separately without
-putting credentials or proprietary bundle output into Git.
+The current fixture's `createProPlugin(undefined, inputs)` call is a negative
+bootstrap probe of the website's keyless-localhost claim. It does not configure
+the documented free development project key and cannot establish whether that
+supported configuration works. Development does not require a paid production
+license. The package README, installation guide, and CLI use
+`createProPlugin(projectKey, inputs)` with a free development project key; see
+[the development bootstrap assessment](../../../packages/formkit/acceptance/PRO-DEVELOPMENT-BOOTSTRAP.md).
+The fixture contains no project key and does not register premium definitions
+around the plugin. Pro-control keyboard, popover, repeater, ARIA, and lifecycle
+cases remain unverified until an existing approved development bootstrap is
+available. Keep project keys and proprietary consumer code out of committed
+fixtures and receipts.
 
 This is a bounded comparison, not a full Vue/React/Pro parity certificate. The
 schema currently covers grouped text/email and seven intended Pro control types.
