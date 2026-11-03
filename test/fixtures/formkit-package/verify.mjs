@@ -27,6 +27,26 @@ try {
     for (const imported of [FieldView, FormView, RowView, SchemaView, SubmissionError, createSchemaRenderer, createViewComponents]) { assert.equal(typeof imported, 'function'); }
     assert.deepEqual(new SubmissionError('Failed', { email: ['Taken'] }).fieldErrors, { email: ['Taken'] });
     {
+      const region = new Region({ el: document.body.appendChild(document.createElement('div')) });
+      const form = new FormView({ values: { guests: [{ name: 'Ada' }] }, inputs: { rows: { type: 'list',
+        schema: { $el: 'div', for: ['item', 'index', '$items'], key: '$item', children: {
+          $formkit: 'group', index: '$index', children: '$slots.default' } } } },
+      schema: { $formkit: 'rows', name: 'guests', sync: true,
+        children: { $formkit: 'text', name: 'name', label: 'Guest name' } } });
+      region.show(form); await flush();
+      const names = () => [...form.el.querySelectorAll('input')].map(input => input.value);
+      assert.deepEqual(names(), ['Ada']);
+      form.setValues({ guests: [{ name: 'Grace' }, { name: 'Lin' }] }); await flush();
+      assert.deepEqual(names(), ['Grace', 'Lin']);
+      const input = form.el.querySelectorAll('input')[1];
+      input.value = 'Edited'; input.dispatchEvent(new Event('input', { bubbles: true }));
+      await form.node.settled;
+      assert.deepEqual(form.getValues().guests, [{ name: 'Grace' }, { name: 'Edited' }]);
+      form.resetForm(); await flush(); assert.deepEqual(names(), ['Ada']);
+      region.destroy(); document.body.replaceChildren();
+      console.log(`${name}: forwarded native list row slots replace, edit and reset without recursion.`);
+    }
+    {
       const mounted = [];
       let finish;
       let calls = 0;
