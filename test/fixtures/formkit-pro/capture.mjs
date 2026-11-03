@@ -10,7 +10,7 @@ const require = createRequire(`${root}/package.json`);
 const { chromium } = require('playwright-core');
 const browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true });
 const receipts = { node: process.version, playwright: require('playwright-core/package.json').version,
-  proVersion: '0.130.2', coreVersion: '2.1.2', browser: browser.version(), stacks: {} };
+  proVersion: '0.130.3', coreVersion: '2.1.2', browser: browser.version(), stacks: {} };
 mkdirSync(output, { recursive: true });
 try {
   for (const [stack, port] of [['native', basePort], ['vue', basePort + 1], ['react', basePort + 2]]) {

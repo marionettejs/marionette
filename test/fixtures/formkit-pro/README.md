@@ -1,6 +1,6 @@
 # Isolated FormKit Pro comparison
 
-This fixture installs Pro 0.130.2 into independent native, Vue, and React consumers.
+This fixture installs Pro 0.130.3 into independent native, Vue, and React consumers.
 The native consumer uses freshly packed local packages. Reference consumers use
 FormKit 2.1.2, Vue 3.5.44 or React/ReactDOM 19.2.0. Each install captures a lock,
 reinstalls with `npm ci`, checks the dependency graph and ESM/CommonJS imports,
@@ -94,3 +94,23 @@ listeners and observer. This distinguishes absent click delivery from a true→f
 expanded transition or replaced button. Do not include project configuration or
 credentials in the receipt. The helper is diagnostic evidence, not a passing
 datepicker assertion or license-validation check.
+
+## Pro 0.130.3 follow-up checks
+
+The upstream bundle changes active-option scrolling and popover resize handling;
+see the [release assessment](../../../packages/formkit/acceptance/PRO-01303.md).
+The existing collector exercises the core comparison and classifies keyless Pro
+bootstrap. It does not certify these additional Pro interactions. In an already
+authorized development consumer, retain the seven-control journey and check:
+
+- An overflowing dropdown/autocomplete/taglist: keyboard navigation keeps the
+  active option visible; moving the pointer over options does not repeatedly
+  scroll the list back to the keyboard selection.
+- Change options or panel content while it is open and check that its placement
+  remains aligned with the control, including near the bottom of the viewport.
+- Close and reopen affected popovers, then destroy the owning form while open.
+  Check DOM removal, registry cleanup, and absence of subsequent page errors.
+
+Record source SHA, Pro/Core/browser versions, actual interactions and failures.
+Keep development keys out of fixtures and receipts. Local interaction success
+still does not prove online license validation or broader control parity.

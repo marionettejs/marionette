@@ -1,0 +1,23 @@
+[
+  {
+    "file": "index.cjs",
+    "beforeBytes": 276214,
+    "afterBytes": 276677,
+    "beforeSha256": "952d63486a168bb25bd3901643e1ea076e1123ccbe30bc3f8ae5ed962dda94d5",
+    "afterSha256": "252f32ceefe86511606612164758e07c2b4571f3b84e381d1c5be9f4b2887ef7"
+  },
+  {
+    "file": "index.mjs",
+    "beforeBytes": 274117,
+    "afterBytes": 274580,
+    "beforeSha256": "26f52d93279e63b53fec0d9fc04b89ef1abbe3b73d9d2d628f40f48dac6656b9",
+    "afterSha256": "6ff1829cae027a417347e5f131692a3f1e6daf18cdd4c62119a0820de1be268f"
+  },
+  {
+    "file": "package.json",
+    "beforeBytes": 1287,
+    "afterBytes": 1287,
+    "beforeSha256": "8c15bebf0768ff6d29128ea05dcee8527c24f54a3650f56f4a5dcf145ed1ea08",
+    "afterSha256": "9130de2928b1c45dbd5478fe1195c3e0f803c33bada1fc5c1ab9200391d81c09"
+  }
+]
