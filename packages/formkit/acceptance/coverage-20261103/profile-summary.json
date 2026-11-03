@@ -1,0 +1,1232 @@
+{
+  "totalSampledMicroseconds": 19271373,
+  "topSelf": [
+    {
+      "function": "parseLogicals",
+      "path": "@formkit/core/dist/index.dev.mjs",
+      "line": 1652,
+      "microseconds": 4983401
+    },
+    {
+      "function": "",
+      "path": "@formkit/core/dist/index.dev.mjs",
+      "line": 1607,
+      "microseconds": 1418446
+    },
+    {
+      "function": "tokenValue",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 22,
+      "microseconds": 661991
+    },
+    {
+      "function": "evaluate",
+      "path": "@formkit/core/dist/index.dev.mjs",
+      "line": 1769,
+      "microseconds": 638886
+    },
+    {
+      "function": "reconcile",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 274,
+      "microseconds": 622311
+    },
+    {
+      "function": "getOp",
+      "path": "@formkit/core/dist/index.dev.mjs",
+      "line": 1606,
+      "microseconds": 579111
+    },
+    {
+      "function": "compile",
+      "path": "@formkit/core/dist/index.dev.mjs",
+      "line": 1571,
+      "microseconds": 548633
+    },
+    {
+      "function": "get",
+      "path": "@formkit/core/dist/index.dev.mjs",
+      "line": 1253,
+      "microseconds": 527266
+    },
+    {
+      "function": "get",
+      "path": "@formkit/core/dist/index.dev.mjs",
+      "line": 1497,
+      "microseconds": 499679
+    },
+    {
+      "function": "addTo",
+      "path": "@formkit/core/dist/index.dev.mjs",
+      "line": 1667,
+      "microseconds": 498316
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 57,
+      "microseconds": 438527
+    },
+    {
+      "function": "(garbage collector)",
+      "path": "",
+      "line": 0,
+      "microseconds": 420363
+    },
+    {
+      "function": "",
+      "path": "@formkit/core/dist/index.dev.mjs",
+      "line": 1602,
+      "microseconds": 356003
+    },
+    {
+      "function": "evaluate",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 55,
+      "microseconds": 310924
+    },
+    {
+      "function": "wrap",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 10,
+      "microseconds": 233559
+    },
+    {
+      "function": "post",
+      "path": "node:inspector",
+      "line": 115,
+      "microseconds": 193904
+    },
+    {
+      "function": "isQuotedString",
+      "path": "@formkit/utils/dist/index.dev.mjs",
+      "line": 145,
+      "microseconds": 186588
+    },
+    {
+      "function": "get",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 220,
+      "microseconds": 177372
+    },
+    {
+      "function": "_invalidateCaches",
+      "path": "jsdom/lib/jsdom/living/nodes/Node-impl.js",
+      "line": 472,
+      "microseconds": 161462
+    },
+    {
+      "function": "get",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 18,
+      "microseconds": 159603
+    },
+    {
+      "function": "queueAttributeMutationRecord",
+      "path": "jsdom/lib/jsdom/living/helpers/mutation-observers.js",
+      "line": 142,
+      "microseconds": 158851
+    },
+    {
+      "function": "get",
+      "path": "jsdom/lib/generated/idl/Document.js",
+      "line": 3031,
+      "microseconds": 129317
+    },
+    {
+      "function": "update",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 462,
+      "microseconds": 121792
+    },
+    {
+      "function": "_attrModifiedSlotableMixin",
+      "path": "jsdom/lib/jsdom/living/nodes/Slotable-impl.js",
+      "line": 12,
+      "microseconds": 109705
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 74,
+      "microseconds": 102325
+    }
+  ],
+  "adapterInclusive": [
+    {
+      "function": "update",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 462,
+      "microseconds": 16414826
+    },
+    {
+      "function": "refresh",
+      "path": "packages/formkit/src/index.ts",
+      "line": 734,
+      "microseconds": 16118652
+    },
+    {
+      "function": "reconcile",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 274,
+      "microseconds": 16001923
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 768,
+      "microseconds": 15553214
+    },
+    {
+      "function": "update",
+      "path": "packages/formkit/src/composition-input.ts",
+      "line": 50,
+      "microseconds": 15548704
+    },
+    {
+      "function": "update",
+      "path": "packages/formkit/src/composition-input.ts",
+      "line": 65,
+      "microseconds": 15541918
+    },
+    {
+      "function": "update",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 250,
+      "microseconds": 15528365
+    },
+    {
+      "function": "evaluate",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 55,
+      "microseconds": 13025250
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 508,
+      "microseconds": 9135980
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 67,
+      "microseconds": 8877828
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 576,
+      "microseconds": 6598704
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 74,
+      "microseconds": 3900548
+    },
+    {
+      "function": "expand",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 71,
+      "microseconds": 3481537
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 57,
+      "microseconds": 3032767
+    },
+    {
+      "function": "tokenValue",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 22,
+      "microseconds": 2594240
+    },
+    {
+      "function": "get",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 18,
+      "microseconds": 1922802
+    },
+    {
+      "function": "get",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 220,
+      "microseconds": 1274267
+    },
+    {
+      "function": "mutate",
+      "path": "packages/formkit/src/index.ts",
+      "line": 493,
+      "microseconds": 1251954
+    },
+    {
+      "function": "render",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 240,
+      "microseconds": 1216933
+    },
+    {
+      "function": "submit",
+      "path": "packages/formkit/src/index.ts",
+      "line": 844,
+      "microseconds": 1191030
+    },
+    {
+      "function": "submitted",
+      "path": "packages/formkit/src/index.ts",
+      "line": 858,
+      "microseconds": 985873
+    },
+    {
+      "function": "wrap",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 10,
+      "microseconds": 976824
+    },
+    {
+      "function": "render",
+      "path": "packages/formkit/src/index.ts",
+      "line": 1045,
+      "microseconds": 927966
+    },
+    {
+      "function": "attachElContent",
+      "path": "packages/formkit/src/index.ts",
+      "line": 1057,
+      "microseconds": 916422
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 1064,
+      "microseconds": 910833
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/composition-input.ts",
+      "line": 13,
+      "microseconds": 892991
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/composition-input.ts",
+      "line": 31,
+      "microseconds": 883556
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 113,
+      "microseconds": 880261
+    },
+    {
+      "function": "create",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 173,
+      "microseconds": 868234
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 130,
+      "microseconds": 685869
+    },
+    {
+      "function": "createRangeRenderer",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 514,
+      "microseconds": 489012
+    },
+    {
+      "function": "createRenderer",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 219,
+      "microseconds": 487726
+    },
+    {
+      "function": "touch",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 119,
+      "microseconds": 420350
+    },
+    {
+      "function": "nodes",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 165,
+      "microseconds": 297021
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 298,
+      "microseconds": 296413
+    },
+    {
+      "function": "updateValues",
+      "path": "packages/formkit/src/index.ts",
+      "line": 667,
+      "microseconds": 256372
+    },
+    {
+      "function": "setValues",
+      "path": "packages/formkit/src/index.ts",
+      "line": 652,
+      "microseconds": 230892
+    },
+    {
+      "function": "changed",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 64,
+      "microseconds": 230018
+    },
+    {
+      "function": "mutate",
+      "path": "packages/formkit/src/index.ts",
+      "line": 556,
+      "microseconds": 173590
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 255,
+      "microseconds": 170514
+    },
+    {
+      "function": "release",
+      "path": "packages/formkit/src/index.ts",
+      "line": 1141,
+      "microseconds": 169552
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 1037,
+      "microseconds": 169552
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 1148,
+      "microseconds": 166309
+    },
+    {
+      "function": "destroy",
+      "path": "packages/formkit/src/composition-input.ts",
+      "line": 79,
+      "microseconds": 165194
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/composition-input.ts",
+      "line": 84,
+      "microseconds": 161917
+    },
+    {
+      "function": "set",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 21,
+      "microseconds": 158603
+    },
+    {
+      "function": "destroy",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 324,
+      "microseconds": 152986
+    },
+    {
+      "function": "release",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 232,
+      "microseconds": 151774
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 1065,
+      "microseconds": 144222
+    },
+    {
+      "function": "release",
+      "path": "packages/formkit/src/composition-input.ts",
+      "line": 49,
+      "microseconds": 144222
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 327,
+      "microseconds": 141728
+    },
+    {
+      "function": "target.addEventListener",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 202,
+      "microseconds": 132613
+    },
+    {
+      "function": "dispose",
+      "path": "packages/formkit/src/index.ts",
+      "line": 998,
+      "microseconds": 124007
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 591,
+      "microseconds": 124007
+    },
+    {
+      "function": "defineProperty",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 37,
+      "microseconds": 119437
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 307,
+      "microseconds": 109030
+    },
+    {
+      "function": "rootClasses",
+      "path": "packages/formkit/src/index.ts",
+      "line": 407,
+      "microseconds": 101639
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 370,
+      "microseconds": 97365
+    },
+    {
+      "function": "get",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 215,
+      "microseconds": 93862
+    },
+    {
+      "function": "render",
+      "path": "packages/formkit/src/index.ts",
+      "line": 593,
+      "microseconds": 83163
+    },
+    {
+      "function": "validationVisible",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 149,
+      "microseconds": 78868
+    },
+    {
+      "function": "attributes",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 73,
+      "microseconds": 74539
+    },
+    {
+      "function": "scoped",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 11,
+      "microseconds": 65367
+    },
+    {
+      "function": "get",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 210,
+      "microseconds": 64744
+    },
+    {
+      "function": "endRow",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 99,
+      "microseconds": 56687
+    },
+    {
+      "function": "resetForm",
+      "path": "packages/formkit/src/index.ts",
+      "line": 972,
+      "microseconds": 54095
+    },
+    {
+      "function": "get",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 198,
+      "microseconds": 53455
+    },
+    {
+      "function": "contains",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 528,
+      "microseconds": 53336
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 291,
+      "microseconds": 52932
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 210,
+      "microseconds": 52468
+    },
+    {
+      "function": "cleanup",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 153,
+      "microseconds": 47602
+    },
+    {
+      "function": "destroy",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 478,
+      "microseconds": 47602
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 135,
+      "microseconds": 45090
+    },
+    {
+      "function": "nativeBindings",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 51,
+      "microseconds": 44708
+    },
+    {
+      "function": "setValue",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 179,
+      "microseconds": 43243
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 173,
+      "microseconds": 42430
+    },
+    {
+      "function": "messageChanged",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 250,
+      "microseconds": 38609
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 658,
+      "microseconds": 37740
+    },
+    {
+      "function": "getValues",
+      "path": "packages/formkit/src/index.ts",
+      "line": 649,
+      "microseconds": 37394
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 319,
+      "microseconds": 36230
+    },
+    {
+      "function": "FormView",
+      "path": "packages/formkit/src/index.ts",
+      "line": 375,
+      "microseconds": 36192
+    },
+    {
+      "function": "sameValues",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 37,
+      "microseconds": 34539
+    },
+    {
+      "function": "get",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 194,
+      "microseconds": 34075
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 1079,
+      "microseconds": 33855
+    },
+    {
+      "function": "get",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 170,
+      "microseconds": 33804
+    },
+    {
+      "function": "current",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 515,
+      "microseconds": 31028
+    },
+    {
+      "function": "elementHost",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 162,
+      "microseconds": 30728
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 455,
+      "microseconds": 30706
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 528,
+      "microseconds": 29989
+    },
+    {
+      "function": "FieldView",
+      "path": "packages/formkit/src/index.ts",
+      "line": 1031,
+      "microseconds": 29751
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 210,
+      "microseconds": 26517
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 325,
+      "microseconds": 26218
+    },
+    {
+      "function": "write",
+      "path": "packages/formkit/src/index.ts",
+      "line": 515,
+      "microseconds": 25480
+    },
+    {
+      "function": "setValue",
+      "path": "packages/formkit/src/index.ts",
+      "line": 1099,
+      "microseconds": 25480
+    },
+    {
+      "function": "prepareRowReset",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 185,
+      "microseconds": 23028
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 42,
+      "microseconds": 20831
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 46,
+      "microseconds": 19086
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 265,
+      "microseconds": 18065
+    },
+    {
+      "function": "className",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 170,
+      "microseconds": 16839
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 232,
+      "microseconds": 16727
+    },
+    {
+      "function": "listValues",
+      "path": "packages/formkit/src/index.ts",
+      "line": 227,
+      "microseconds": 16727
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 251,
+      "microseconds": 16727
+    },
+    {
+      "function": "projection",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 163,
+      "microseconds": 16603
+    },
+    {
+      "function": "insert",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 166,
+      "microseconds": 14737
+    },
+    {
+      "function": "get",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 174,
+      "microseconds": 13795
+    },
+    {
+      "function": "generate",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 137,
+      "microseconds": 13639
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 206,
+      "microseconds": 13265
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 326,
+      "microseconds": 12391
+    },
+    {
+      "function": "listen",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 69,
+      "microseconds": 12266
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 288,
+      "microseconds": 12164
+    },
+    {
+      "function": "get",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 178,
+      "microseconds": 11818
+    },
+    {
+      "function": "getFormState",
+      "path": "packages/formkit/src/index.ts",
+      "line": 693,
+      "microseconds": 11372
+    },
+    {
+      "function": "attachElContent",
+      "path": "packages/formkit/src/index.ts",
+      "line": 608,
+      "microseconds": 11358
+    },
+    {
+      "function": "guard",
+      "path": "packages/formkit/src/index.ts",
+      "line": 142,
+      "microseconds": 10823
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 188,
+      "microseconds": 10823
+    },
+    {
+      "function": "map",
+      "path": "packages/formkit/src/index.ts",
+      "line": 188,
+      "microseconds": 10823
+    },
+    {
+      "function": "RowView",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 220,
+      "microseconds": 10542
+    },
+    {
+      "function": "get",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 182,
+      "microseconds": 10467
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 12,
+      "microseconds": 10307
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 314,
+      "microseconds": 10208
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 159,
+      "microseconds": 10200
+    },
+    {
+      "function": "length",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 92,
+      "microseconds": 9922
+    },
+    {
+      "function": "get",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 166,
+      "microseconds": 8150
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 515,
+      "microseconds": 8038
+    },
+    {
+      "function": "schedule",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 125,
+      "microseconds": 8001
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 77,
+      "microseconds": 7482
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 340,
+      "microseconds": 7410
+    },
+    {
+      "function": "dispose",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 338,
+      "microseconds": 7410
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 961,
+      "microseconds": 6856
+    },
+    {
+      "function": "settleWrittenValues",
+      "path": "packages/formkit/src/index.ts",
+      "line": 298,
+      "microseconds": 6542
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 302,
+      "microseconds": 6542
+    },
+    {
+      "function": "DOMInput",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 132,
+      "microseconds": 5744
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 226,
+      "microseconds": 5087
+    },
+    {
+      "function": "get node",
+      "path": "packages/formkit/src/index.ts",
+      "line": 1039,
+      "microseconds": 4777
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 62,
+      "microseconds": 4686
+    },
+    {
+      "function": "ownElementListeners",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 197,
+      "microseconds": 4020
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 311,
+      "microseconds": 4000
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 488,
+      "microseconds": 3551
+    },
+    {
+      "function": "listOwner",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 133,
+      "microseconds": 3548
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 490,
+      "microseconds": 2442
+    },
+    {
+      "function": "FormView.node.plugins.en",
+      "path": "packages/formkit/src/index.ts",
+      "line": 412,
+      "microseconds": 2367
+    },
+    {
+      "function": "copyProps",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 25,
+      "microseconds": 2300
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/composition.ts",
+      "line": 1,
+      "microseconds": 2299
+    },
+    {
+      "function": "runtimePlugins",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 18,
+      "microseconds": 2250
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 418,
+      "microseconds": 2222
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 223,
+      "microseconds": 1930
+    },
+    {
+      "function": "getValue",
+      "path": "packages/formkit/src/index.ts",
+      "line": 1108,
+      "microseconds": 1887
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 233,
+      "microseconds": 1479
+    },
+    {
+      "function": "get node",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 247,
+      "microseconds": 1397
+    },
+    {
+      "function": "get node",
+      "path": "packages/formkit/src/composition-input.ts",
+      "line": 120,
+      "microseconds": 1397
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 487,
+      "microseconds": 1315
+    },
+    {
+      "function": "captureNativeEvents",
+      "path": "packages/formkit/src/index.ts",
+      "line": 475,
+      "microseconds": 1315
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 446,
+      "microseconds": 1267
+    },
+    {
+      "function": "domInputValue",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 57,
+      "microseconds": 1247
+    },
+    {
+      "function": "reactive",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 8,
+      "microseconds": 1159
+    },
+    {
+      "function": "keys",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 85,
+      "microseconds": 1154
+    },
+    {
+      "function": "specification",
+      "path": "packages/formkit/src/index.ts",
+      "line": 189,
+      "microseconds": 1132
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 156,
+      "microseconds": 1132
+    },
+    {
+      "function": "scopedSlots",
+      "path": "packages/formkit/src/runtime.ts",
+      "line": 90,
+      "microseconds": 1117
+    },
+    {
+      "function": "fieldPathKey",
+      "path": "packages/formkit/src/composition.ts",
+      "line": 6,
+      "microseconds": 1115
+    },
+    {
+      "function": "nodes",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 139,
+      "microseconds": 1113
+    },
+    {
+      "function": "notify",
+      "path": "packages/formkit/src/index.ts",
+      "line": 514,
+      "microseconds": 1111
+    },
+    {
+      "function": "rowLocation",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 26,
+      "microseconds": 1110
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 902,
+      "microseconds": 1105
+    },
+    {
+      "function": "complete",
+      "path": "packages/formkit/src/index.ts",
+      "line": 872,
+      "microseconds": 1105
+    },
+    {
+      "function": "orderResetLists",
+      "path": "packages/formkit/src/index.ts",
+      "line": 260,
+      "microseconds": 1102
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 291,
+      "microseconds": 1102
+    },
+    {
+      "function": "FieldView",
+      "path": "packages/formkit/src/index.ts",
+      "line": 1025,
+      "microseconds": 1091
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 3,
+      "microseconds": 1086
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/bindings.ts",
+      "line": 174,
+      "microseconds": 1085
+    },
+    {
+      "function": "invoke",
+      "path": "packages/formkit/src/index.ts",
+      "line": 147,
+      "microseconds": 1083
+    },
+    {
+      "function": "insert",
+      "path": "packages/formkit/src/schema.ts",
+      "line": 527,
+      "microseconds": 1082
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 113,
+      "microseconds": 949
+    },
+    {
+      "function": "clearRow",
+      "path": "packages/formkit/src/row-ownership.ts",
+      "line": 112,
+      "microseconds": 949
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 190,
+      "microseconds": 655
+    },
+    {
+      "function": "formCleanup",
+      "path": "packages/formkit/src/index.ts",
+      "line": 624,
+      "microseconds": 380
+    },
+    {
+      "function": "",
+      "path": "packages/formkit/src/index.ts",
+      "line": 441,
+      "microseconds": 211
+    },
+    {
+      "function": "#submissionChanged",
+      "path": "packages/formkit/src/index.ts",
+      "line": 348,
+      "microseconds": 183
+    }
+  ],
+  "sourceRevision": "db655482d330940f993c32103321b546d8c907d4",
+  "scope": "Eight nested-row tests with V8 coverage and inspector CPU profiling; not a coverage receipt.",
+  "coordinates": "Emitted/transformed code positions, despite .ts URLs.",
+  "percentages": "Inclusive sampled stacks overlap and must not be summed. This is not a general production-performance benchmark.",
+  "rawProfileSha256": "8be9a8bc3362bc822cb1f1c1054fb09e2b3117a324a6b97264e7681fe0f07632",
+  "compileInclusiveMicroseconds": 9343952,
+  "refreshInclusiveMicroseconds": 16118652
+}

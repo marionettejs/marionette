@@ -1,0 +1,208 @@
+{
+  "config": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/formkit-integration/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "test/formkit/playwright.config.mjs",
+      "--project",
+      "chromium",
+      "--workers",
+      "1",
+      "--grep",
+      "FLOW-02",
+      "--trace",
+      "on"
+    ],
+    "configFile": "/workspace/formkit-integration/test/formkit/playwright.config.mjs",
+    "rootDir": "/workspace/formkit-integration/test/formkit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/workspace/formkit-integration/test/tmp/formkit-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/workspace/formkit-integration/test/formkit",
+        "testIgnore": [],
+        "testMatch": [
+          "formkit.spec.mjs",
+          "composed.spec.mjs"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/formkit-integration/test/tmp/formkit-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/workspace/formkit-integration/test/formkit",
+        "testIgnore": [],
+        "testMatch": [
+          "formkit.spec.mjs",
+          "composed.spec.mjs"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/formkit-integration/test/tmp/formkit-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/workspace/formkit-integration/test/formkit",
+        "testIgnore": [],
+        "testMatch": [
+          "formkit.spec.mjs",
+          "composed.spec.mjs"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/workspace/formkit-integration/test/tmp/formkit-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "chromium",
+        "testDir": "/workspace/formkit-integration/test/formkit",
+        "snapshotDir": "/workspace/formkit-integration/test/formkit",
+        "testIgnore": [],
+        "testMatch": [
+          "formkit.spec.mjs",
+          "composed.spec.mjs"
+        ],
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5184",
+          "headless": true,
+          "browserName": "chromium",
+          "launchOptions": {
+            "executablePath": "/usr/bin/chromium"
+          },
+          "trace": "on"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "chromium"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../tmp/formkit-browser.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm --prefix examples/formkit run dev -- --port 5184 --strictPort",
+      "cwd": "../..",
+      "url": "http://127.0.0.1:5184",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "composed.spec.mjs",
+      "file": "composed.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "FLOW-02 stale callback errors cannot reach replacement rows or survive reset and destruction",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 16170,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:22:50.989Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/formkit-integration/test/tmp/formkit-browser/composed-FLOW-02-stale-cal-dd820-rvive-reset-and-destruction-chromium/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dca7e3d985e350feb4e5-3038deff18a1b5909682",
+          "file": "composed.spec.mjs",
+          "line": 195,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-03T16:22:47.667Z",
+    "duration": 20544.526,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

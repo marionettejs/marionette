@@ -28,7 +28,7 @@ and styling need their own vault retest; online license validation remains
 unverified. See the [follow-up receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/coverage-20261103).
 Historical passes below must not be attributed to later source or styling.
 
-The latest [independent Pro receipt](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) applies to source
+The earlier versioned [independent Pro receipt](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) applies to source
 `1d8e1680f416ea182873c9120315ec24970225c9`: 107/107 local assertions, zero page
 errors/timeouts, Core 2.1.2, Pro 0.130.2, Chromium 154.0.8037.57. Online license
 validation remains unverified because of the recorded proxy failure. It is not

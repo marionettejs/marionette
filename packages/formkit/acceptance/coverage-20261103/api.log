@@ -1,0 +1,7 @@
+
+> marionette@5.0.0 check:api-contracts
+> node scripts/api-contracts/check.mjs
+
+Public contract inventory matches source signatures, semantics, diagnostics, documentation, and public test anchors.
+Documentation coverage: 65 documented contract groups; 1 gaps. This is a consistency check, not release acceptance.
+  provider.custom-state-consumers (partial): Provider ownership, opaque references and renderer-dependent retention are documented. A complete custom immutable-store integration demonstrating notification translation and retained DOM is still absent; the existing unit test is evidence of feasibility, not a consumer recipe.

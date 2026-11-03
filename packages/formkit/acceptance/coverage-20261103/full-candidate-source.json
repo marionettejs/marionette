@@ -1,0 +1,7 @@
+{
+  "sourceRevision": "db655482d330940f993c32103321b546d8c907d4",
+  "sourceDirty": true,
+  "patch": "diff --git a/packages/formkit/src/index.ts b/packages/formkit/src/index.ts\nindex d6585ebb..12fef15e 100644\n--- a/packages/formkit/src/index.ts\n+++ b/packages/formkit/src/index.ts\n@@ -444,7 +444,9 @@ export class FormView<Values extends object = FormValues> extends View {\n           this.mutationDepth--; this.lastValues = previous; this.notifyChanges = notify; this.notifyFields = notifyFields;\n           this.changeSource = source === 'user' && !committed && !this.hasPendingUserInput() ? 'programmatic' : source;\n         }\n-        queueMicrotask(() => { if (!this.disposed) { this.refresh(); } });\n+        if (!this.mutationDepth) {\n+          queueMicrotask(() => { if (!this.disposed) { this.refresh(); } });\n+        }\n       },\n       notify: () => this.notifyFields,\n       write: (node, value, updateOptions) => this.updateValues(() => {\n",
+  "sourceSha256": "f0cad3df483aa0ccb4c3b1f599abc4463e1b768c441902d0e1fe14b93fffeae6",
+  "cpuBefore": "usage_usec 7163820006\nuser_usec 6221627153\nsystem_usec 942192853\nnice_usec 0\nnr_periods 63389\nnr_throttled 3068\nthrottled_usec 230729960\nnr_bursts 0\nburst_usec 0\n"
+}

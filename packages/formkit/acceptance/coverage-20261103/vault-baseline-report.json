@@ -1,0 +1,38 @@
+{
+  "reportedBy": "Parent coordinator independent vault QA; not executed by this writer",
+  "sourceRevision": "db655482d330940f993c32103321b546d8c907d4",
+  "coreVersion": "2.1.2",
+  "proVersion": "0.130.3",
+  "functional": {
+    "passed": 107,
+    "total": 107
+  },
+  "extendedOriginalFixture": {
+    "passed": 12,
+    "total": 30,
+    "observed": "Static .formkit-inner; popover containing block BODY; focused reproduction top -657px"
+  },
+  "extendedTransientHarness": {
+    "change": ".formkit-inner { position: relative; }",
+    "passed": 30,
+    "total": 30,
+    "controls": [
+      "dropdown",
+      "autocomplete",
+      "taglist"
+    ],
+    "scope": [
+      "keyboard visibility",
+      "wheel/hover stability",
+      "shrink/grow repositioning",
+      "viewport resize",
+      "reopen",
+      "destruction while open"
+    ]
+  },
+  "onlineLicenseValidation": {
+    "verified": false,
+    "networkError": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  "currentRevisionRetest": "Required after runtime and permanent fixture changes"
+}

@@ -1,0 +1,670 @@
+{
+  "node": "v24.19.0",
+  "playwright": "1.64.1",
+  "proVersion": "0.130.3",
+  "coreVersion": "2.1.2",
+  "browser": "154.0.8037.57",
+  "stacks": {
+    "native": {
+      "cases": [
+        {
+          "name": "base Genesis anchors positioned descendants to each input inner",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "explicit root id matches the form and public registry",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "mounted plugin finds connected text/email controls",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "required invalid submit has associated errors/help and no callback",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "controlled replacement updates values and existing DOM",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "class update preserves inherited layer and selection",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "removing local class section clears its previous classes",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "schema config updates the existing control",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "submitAttrs updates component props and raw attributes",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "disabled state reaches and restores controls",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "pending submit disables the action and suppresses an actual repeated requestSubmit",
+          "passed": true,
+          "actual": {
+            "passed": true,
+            "disabled": true,
+            "duplicate": {
+              "method": "HTMLFormElement.requestSubmit",
+              "attempts": 2,
+              "before": 1,
+              "after": 1
+            },
+            "callbacks": 1
+          }
+        },
+        {
+          "name": "resolved callback sets associated root and field server errors",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "390px viewport has no horizontal page overflow",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "reset restores construction values and clears server errors",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "destroy clears input registry and owned DOM",
+          "passed": true,
+          "actual": true
+        }
+      ],
+      "pageErrors": [],
+      "consumer": {
+        "sourceRevision": "000f978d09e4dcc835f1b4b774a89cb677fe76cc",
+        "sourceDirty": false,
+        "stack": "native",
+        "node": "v24.19.0",
+        "npm": "11.17.0",
+        "consumer": "/tmp/mnjs-pro-native-BmxMLJ",
+        "artifacts": [
+          {
+            "name": "marionette",
+            "version": "5.0.0",
+            "sha256": "8b1ae96d23a2c4eba715647d5394fa561032732fd6bca06d50e558abe3166177"
+          },
+          {
+            "name": "@mnjs/utils",
+            "version": "5.0.0",
+            "sha256": "7d74775d89ff90b1f53c84634a5928eb39cb73814ae744037072b0ac7d5da8fd"
+          },
+          {
+            "name": "@mnjs/radio",
+            "version": "5.0.0",
+            "sha256": "fb8a067705ad7722e85269367cc0edf6b232f2236cb35e9befcdf27f06ec7a42"
+          },
+          {
+            "name": "@mnjs/formkit",
+            "version": "5.0.0-rc.2",
+            "sha256": "e0a1d43c1ea45819e955026f753a84cb25a2d12b6d15ce1109a56d59c64fc757"
+          }
+        ],
+        "lockSha256": "dee24b22238037123ab8d4e56751b96290d2388c02d0bb5934c938d0e9a5a84f",
+        "versions": {
+          "node_modules/@formkit/core": "2.1.2",
+          "node_modules/@formkit/drag-and-drop": "0.5.3",
+          "node_modules/@formkit/i18n": "2.1.2",
+          "node_modules/@formkit/inputs": "2.1.2",
+          "node_modules/@formkit/observer": "2.1.2",
+          "node_modules/@formkit/pro": "0.130.3",
+          "node_modules/@formkit/rules": "2.1.2",
+          "node_modules/@formkit/tempo": "1.1.0",
+          "node_modules/@formkit/themes": "2.1.2",
+          "node_modules/@formkit/utils": "2.1.2",
+          "node_modules/@formkit/validation": "2.1.2",
+          "node_modules/vite": "8.3.0"
+        },
+        "vuePackages": []
+      },
+      "pro": {
+        "mode": "pro",
+        "hostname": "localhost",
+        "bootstrap": "blocked",
+        "mounted": [],
+        "submissions": [],
+        "errors": [],
+        "bootstrapError": "A FormKit API key is required, please visit https://formkit.com/pro"
+      },
+      "core": {
+        "mode": "core",
+        "hostname": "localhost",
+        "bootstrap": "ready",
+        "mounted": [
+          {
+            "type": "text",
+            "id": "contact-name",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "email",
+            "id": "contact-email",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "submit",
+            "id": "fixture-root-input-1",
+            "found": true,
+            "connected": true
+          }
+        ],
+        "submissions": [],
+        "errors": []
+      },
+      "final": {
+        "mode": "core",
+        "hostname": "localhost",
+        "bootstrap": "ready",
+        "mounted": [
+          {
+            "type": "text",
+            "id": "contact-name",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "email",
+            "id": "contact-email",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "submit",
+            "id": "fixture-root-input-1",
+            "found": true,
+            "connected": true
+          }
+        ],
+        "submissions": [
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "resolved"
+          },
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "rejected"
+          }
+        ],
+        "errors": []
+      }
+    },
+    "vue": {
+      "cases": [
+        {
+          "name": "base Genesis anchors positioned descendants to each input inner",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "explicit root id matches the form and public registry",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "mounted plugin finds connected text/email controls",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "required invalid submit has associated errors/help and no callback",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "controlled replacement updates values and existing DOM",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "class update preserves inherited layer and selection",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "removing local class section clears its previous classes",
+          "passed": false,
+          "actual": false
+        },
+        {
+          "name": "schema config updates the existing control",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "submitAttrs updates component props and raw attributes",
+          "passed": false,
+          "error": "page.waitForFunction: Timeout 10000ms exceeded."
+        },
+        {
+          "name": "disabled state reaches and restores controls",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "pending submit disables the action and suppresses an actual repeated requestSubmit",
+          "passed": false,
+          "actual": {
+            "passed": false,
+            "disabled": true,
+            "duplicate": {
+              "method": "HTMLFormElement.requestSubmit",
+              "attempts": 2,
+              "before": 1,
+              "after": 2
+            },
+            "callbacks": 2
+          }
+        },
+        {
+          "name": "resolved callback sets associated root and field server errors",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "390px viewport has no horizontal page overflow",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "reset restores construction values and clears server errors",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "destroy clears input registry and owned DOM",
+          "passed": true,
+          "actual": true
+        }
+      ],
+      "pageErrors": [],
+      "consumer": {
+        "sourceRevision": "000f978d09e4dcc835f1b4b774a89cb677fe76cc",
+        "sourceDirty": false,
+        "stack": "vue",
+        "node": "v24.19.0",
+        "npm": "11.17.0",
+        "consumer": "/tmp/mnjs-pro-vue-LKWqXr",
+        "artifacts": [],
+        "lockSha256": "b29d6148360db6d30fe2d7dcf54a4d896b72ce9385e28b5defa559d9f798dedb",
+        "versions": {
+          "node_modules/@formkit/core": "2.1.2",
+          "node_modules/@formkit/dev": "2.2.0",
+          "node_modules/@formkit/dev/node_modules/@formkit/core": "2.2.0",
+          "node_modules/@formkit/drag-and-drop": "0.5.3",
+          "node_modules/@formkit/i18n": "2.2.0",
+          "node_modules/@formkit/i18n/node_modules/@formkit/core": "2.2.0",
+          "node_modules/@formkit/inputs": "2.2.0",
+          "node_modules/@formkit/inputs/node_modules/@formkit/core": "2.2.0",
+          "node_modules/@formkit/observer": "2.2.0",
+          "node_modules/@formkit/observer/node_modules/@formkit/core": "2.2.0",
+          "node_modules/@formkit/pro": "0.130.3",
+          "node_modules/@formkit/rules": "2.2.0",
+          "node_modules/@formkit/rules/node_modules/@formkit/core": "2.2.0",
+          "node_modules/@formkit/tempo": "1.1.0",
+          "node_modules/@formkit/themes": "2.1.2",
+          "node_modules/@formkit/utils": "2.2.0",
+          "node_modules/@formkit/validation": "2.2.0",
+          "node_modules/@formkit/validation/node_modules/@formkit/core": "2.2.0",
+          "node_modules/@formkit/vue": "2.1.2",
+          "node_modules/vite": "8.3.0",
+          "node_modules/vue": "3.5.44"
+        },
+        "vuePackages": [
+          "node_modules/@formkit/vue",
+          "node_modules/@vue/compiler-core",
+          "node_modules/@vue/compiler-dom",
+          "node_modules/@vue/compiler-sfc",
+          "node_modules/@vue/compiler-ssr",
+          "node_modules/@vue/reactivity",
+          "node_modules/@vue/runtime-core",
+          "node_modules/@vue/runtime-dom",
+          "node_modules/@vue/server-renderer",
+          "node_modules/@vue/shared",
+          "node_modules/vue"
+        ]
+      },
+      "pro": {
+        "mode": "pro",
+        "hostname": "localhost",
+        "bootstrap": "blocked",
+        "mounted": [],
+        "submissions": [],
+        "errors": [],
+        "bootstrapError": "A FormKit API key is required, please visit https://formkit.com/pro"
+      },
+      "core": {
+        "mode": "core",
+        "hostname": "localhost",
+        "bootstrap": "ready",
+        "mounted": [
+          {
+            "type": "text",
+            "id": "contact-name",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "email",
+            "id": "contact-email",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "submit",
+            "id": "input_1",
+            "found": true,
+            "connected": true
+          }
+        ],
+        "submissions": [],
+        "errors": []
+      },
+      "final": {
+        "mode": "core",
+        "hostname": "localhost",
+        "bootstrap": "ready",
+        "mounted": [
+          {
+            "type": "text",
+            "id": "contact-name",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "email",
+            "id": "contact-email",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "submit",
+            "id": "input_1",
+            "found": true,
+            "connected": true
+          }
+        ],
+        "submissions": [
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "resolved"
+          },
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "resolved"
+          },
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "rejected"
+          }
+        ],
+        "errors": []
+      }
+    },
+    "react": {
+      "cases": [
+        {
+          "name": "base Genesis anchors positioned descendants to each input inner",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "explicit root id matches the form and public registry",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "mounted plugin finds connected text/email controls",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "required invalid submit has associated errors/help and no callback",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "controlled replacement updates values and existing DOM",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "class update preserves inherited layer and selection",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "removing local class section clears its previous classes",
+          "passed": false,
+          "actual": false
+        },
+        {
+          "name": "schema config updates the existing control",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "submitAttrs updates component props and raw attributes",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "disabled state reaches and restores controls",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "pending submit disables the action and suppresses an actual repeated requestSubmit",
+          "passed": false,
+          "actual": {
+            "passed": false,
+            "disabled": true,
+            "duplicate": {
+              "method": "HTMLFormElement.requestSubmit",
+              "attempts": 2,
+              "before": 1,
+              "after": 2
+            },
+            "callbacks": 2
+          }
+        },
+        {
+          "name": "resolved callback sets associated root and field server errors",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "390px viewport has no horizontal page overflow",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "reset restores construction values and clears server errors",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "destroy clears input registry and owned DOM",
+          "passed": true,
+          "actual": true
+        }
+      ],
+      "pageErrors": [],
+      "consumer": {
+        "sourceRevision": "000f978d09e4dcc835f1b4b774a89cb677fe76cc",
+        "sourceDirty": false,
+        "stack": "react",
+        "node": "v24.19.0",
+        "npm": "11.17.0",
+        "consumer": "/tmp/mnjs-pro-react-APPloj",
+        "artifacts": [],
+        "lockSha256": "371fac7002ce4edeef5bb1ae86489f12cff67fec78518723e4a3d198df7d7939",
+        "versions": {
+          "node_modules/@formkit/core": "2.1.2",
+          "node_modules/@formkit/dev": "2.2.0",
+          "node_modules/@formkit/dev/node_modules/@formkit/core": "2.2.0",
+          "node_modules/@formkit/drag-and-drop": "0.5.3",
+          "node_modules/@formkit/i18n": "2.2.0",
+          "node_modules/@formkit/i18n/node_modules/@formkit/core": "2.2.0",
+          "node_modules/@formkit/inputs": "2.2.0",
+          "node_modules/@formkit/inputs/node_modules/@formkit/core": "2.2.0",
+          "node_modules/@formkit/observer": "2.2.0",
+          "node_modules/@formkit/observer/node_modules/@formkit/core": "2.2.0",
+          "node_modules/@formkit/pro": "0.130.3",
+          "node_modules/@formkit/react": "2.1.2",
+          "node_modules/@formkit/rules": "2.2.0",
+          "node_modules/@formkit/rules/node_modules/@formkit/core": "2.2.0",
+          "node_modules/@formkit/tempo": "1.1.0",
+          "node_modules/@formkit/themes": "2.1.2",
+          "node_modules/@formkit/utils": "2.2.0",
+          "node_modules/@formkit/validation": "2.2.0",
+          "node_modules/@formkit/validation/node_modules/@formkit/core": "2.2.0",
+          "node_modules/react": "19.2.0",
+          "node_modules/react-dom": "19.2.0",
+          "node_modules/vite": "8.3.0"
+        },
+        "vuePackages": []
+      },
+      "pro": {
+        "mode": "pro",
+        "hostname": "localhost",
+        "bootstrap": "blocked",
+        "mounted": [],
+        "submissions": [],
+        "errors": [],
+        "bootstrapError": "A FormKit API key is required, please visit https://formkit.com/pro"
+      },
+      "core": {
+        "mode": "core",
+        "hostname": "localhost",
+        "bootstrap": "ready",
+        "mounted": [
+          {
+            "type": "text",
+            "id": "contact-name",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "email",
+            "id": "contact-email",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "submit",
+            "id": "input_1",
+            "found": true,
+            "connected": true
+          }
+        ],
+        "submissions": [],
+        "errors": []
+      },
+      "final": {
+        "mode": "core",
+        "hostname": "localhost",
+        "bootstrap": "ready",
+        "mounted": [
+          {
+            "type": "text",
+            "id": "contact-name",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "email",
+            "id": "contact-email",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "submit",
+            "id": "input_1",
+            "found": true,
+            "connected": true
+          }
+        ],
+        "submissions": [
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "resolved"
+          },
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "resolved"
+          },
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "rejected"
+          }
+        ],
+        "errors": []
+      }
+    }
+  }
+}

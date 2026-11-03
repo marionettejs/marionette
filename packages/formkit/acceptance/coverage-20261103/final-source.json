@@ -1,0 +1,19 @@
+{
+  "sourceRevision": "0dee5f85bc91e647945721e5ff81eec080299ccd",
+  "sourceDirty": false,
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "startedAt": "2026-11-03T15:40:45.420880+00:00",
+  "sourceHashes": {
+    "packages/formkit/src/composition.ts": "beda91fd9572493b310af8b5d59d0e1afd9ed69bca481e91f1302bd238db4afc",
+    "packages/formkit/src/index.ts": "2bd195920f5ab940dc78dedaf90178f4cdf837cc152d3373c38457e42f4fde9d",
+    "packages/formkit/src/composition-input.ts": "b14d31c4ca70a98f1b445fcd17891524364ed1035e9da09098a627bd8a1d6795",
+    "packages/formkit/src/runtime.ts": "4089c981d9aa9660358c7c2c0efb31e8b2cb9ec0d795d7507bf16eea9f58bd86",
+    "packages/formkit/src/schema-view.ts": "1f8cac9da3a6f3074c9de1b708c04cae88a28d2cd0bae07596f4d09707325a6c",
+    "packages/formkit/src/row-ownership.ts": "5a3f3633b6a9dc6990124c267d184903bf0395aece5f9cd9366d99564fcd8fe3",
+    "packages/formkit/src/bindings.ts": "b2cb41265425550136cd68e08e66e36450f2f55cda39dd8a2cd146002e1a1420",
+    "packages/formkit/src/schema.ts": "bfd828c887a9d92f598a80228cb41b5958d37027c06e09e4595961008bb51925",
+    "packages/formkit/src/view-components.ts": "d2d947aceafc3de97b666ae6b7808fd5fb6d7b06f934dab872b32002187979c1"
+  },
+  "cpuBefore": "usage_usec 7703294828\nuser_usec 6702479783\nsystem_usec 1000815045\nnice_usec 0\nnr_periods 68510\nnr_throttled 3324\nthrottled_usec 266993825\nnr_bursts 0\nburst_usec 0\n"
+}

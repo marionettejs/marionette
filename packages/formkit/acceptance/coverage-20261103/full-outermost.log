@@ -1,0 +1,125 @@
+
+> marionette@5.0.0 coverage
+> vitest run --coverage --coverage.reportOnFailure --maxWorkers=1
+
+
+ RUN  v5.0.5 /workspace/formkit-integration
+      Coverage enabled with v8
+
+ ❯ |dom| test/unit/formkit-nested-rows.spec.js (8 tests | 1 failed) 21330ms
+   × nested repeated keys retain lineage, controls, focus and errors through two-level authoritative reorder 7255ms
+   ✓ inner clear and preserved drafts use the full key through outer reorder and inner list remount 1585ms
+   ✓ deleting an ancestor while its inner list is absent retires added defaults and exclusions before key reuse 2630ms
+   ✓ ancestor deletion ends detached inner widgets, delayed native drafts and retained control listeners 860ms
+   ✓ same-membership construction reset retains keyed inner controls after both ancestor and child reorder 1860ms
+   ✓ membership-changing construction reset removes added outer and inner rows and allows explicit presentation rebuild 3726ms
+   ✓ submit resettles a delayed nested edit and pending validation after sibling removal before callback capture 1910ms
+   ✓ nested removal after callback capture aborts the external attempt and terminal destroy ignores late work 1503ms
+ ❯ |dom| test/unit/formkit-runtime.spec.js (45 tests | 2 failed) 32158ms
+   ❯ @mnjs/formkit native schema runtime (15)
+     ✓ mounts all official native controls with stable labels and editable core values 1960ms
+     ✓ supports scoped named slots and section extensions with no framework component 210ms
+     ✓ forwards the default slot through native groups with lexical data and receiving context 92ms
+     ✓ forwards the content slot through native groups with lexical data and receiving context 86ms
+     ✓ keeps caller-provided root slots available to application schema 48ms
+     ✓ forwards editable list row slots through nested groups during replacement and reset 468ms
+     ✓ keeps ignored action controls outside synchronized-list attachment recovery 126ms
+     ✓ does not displace a real synchronized row for an explicitly indexed ignored control 174ms
+     ✓ recreates an ignored control without adopting the value of a synchronized row 223ms
+     ✓ owns custom native input definitions and releases them when schema type changes 213ms
+     ✓ rejects unknown or framework input definitions and still allows explicit owner disposal 38ms
+     × preserves nested list identities through frozen rapid actor snapshots using explicit item keys 7708ms
+     ✓ handles async errors, retry, overlapping submit, reset and late completion on official forms 1126ms
+     ✓ renders trusted icons, class arrays/maps, style objects and supplied DOM slots with owned listeners 34ms
+     ✓ renders lexical scoped slots, tolerates omitted slots and watches borrowed node replacement until disposal 13ms
+   ❯ @mnjs/formkit official form feature contracts (18)
+     ✓ recreates a declarative control after its public core node is destroyed 234ms
+     × recreates business-keyed components when a batched reset replaces their underlying core list node 7828ms
+     ✓ reconciles surviving business-keyed controls after resetting a/b/c 1887ms
+     ✓ reconciles surviving business-keyed controls after resetting a/c/b 745ms
+     ✓ reconciles surviving business-keyed controls after resetting b/a/c 968ms
+     ✓ reconciles surviving business-keyed controls after resetting b/c/a 769ms
+     ✓ reconciles surviving business-keyed controls after resetting c/a/b 812ms
+     ✓ reconciles surviving business-keyed controls after resetting c/b/a 640ms
+     ✓ releases list nodes removed during a batched core reset and repeated native mount/destroy 539ms
+     ✓ merges partial grouped values and replaces live descendant error props before native submission 184ms
+     ✓ supports public schema regeneration with changed native library components and inspected scalar slots 23ms
+     ✓ binds primitive expression methods and conditional loops and releases captured imperative listeners 4ms
+     ✓ honors form callbacks, incomplete messages and live async submission with default native actions 163ms
+     ✓ omits incomplete messages when disabled and restores a root disabled prop changed by the owner 120ms
+     ✓ renders customized action slots and literal/native custom input definitions 12ms
+     ✓ updates initialized values, names, ids, slots and native attributes through explicit schema data 70ms
+     ✓ renders children borrowed from a separate parent while owning only the mounted native nodes 26ms
+     ✓ uses visible validation modes, numeric blur normalization and public computed context 106ms
+   ✓ @mnjs/formkit keyed reset identity (1)
+     ✓ restores item-key list order without exchanging live controls or pending row values 270ms
+   ✓ resets function-keyed nested rows through one root input and one reset notification 295ms
+   ✓ restores absent initial keyed values and releases their controls on destruction 119ms
+   ✓ keeps ordinary unkeyed scalar list reset positional 105ms
+   ✓ retains nested keyed controls beside a keyless row on reset (keyless first: false) 496ms
+   ✓ retains nested keyed controls beside a keyless row on reset (keyless first: true) 521ms
+   ✓ reconciles business-keyed schema after public Core reset ([ 'a', 'b', 'c' ], explicit value: false) 372ms
+   ✓ reconciles business-keyed schema after public Core reset ([ 'a', 'c', 'b' ], explicit value: true) 458ms
+   ✓ reconciles business-keyed schema after public Core reset ([ 'b', 'a', 'c' ], explicit value: false) 509ms
+   ✓ reconciles business-keyed schema after public Core reset ([ 'c', 'a', 'b' ], explicit value: true) 462ms
+   ✓ resets an explicitly added schema field to its authored default alongside construction values 131ms
+   ✓ restores nested rendered values and releases registries when reset recreates a removed initial row 754ms
+ ✓ |dom| test/unit/formkit-rows.spec.js (35 tests) 8410ms
+   ✓ genuine Core row groups mount in reverse order and native edits collect as an array 484ms
+   ✓ authoritative keyed reorder retains live groups and controls, independent of display order 304ms
+   ✓ preserved row teardown ends validation and remount restores the committed object 938ms
+   ✓ observable collection display reorder, filter and rebuild preserve values and retained groups 319ms
+   ✓ first-render validation is lazy but filtering an already rendered row keeps its validation 546ms
+   ✓ duplicate placement rejects and preserved row retains group errors until list ownership ends 333ms
+   ✓ new row clear remount uses its own baseline and membership reset ends placements for explicit rebuild 549ms
+   ✓ keeps three nested object rows keyed through add, insert, reorder, edit, validation and terminal removal 1327ms
+   ✓ preserves nested row defaults by key across UI unmount and rebuilds membership reset explicitly 349ms
+ ✓ |dom| test/unit/formkit.spec.js (18 tests) 3593ms
+   ✓ @mnjs/formkit native forms (12)
+     ✓ owns a semantic form and grouped values, labels, help and stable focus 338ms
+     ✓ reveals validation on blur and submit, focuses invalid fields, then submits settled values 506ms
+     ✓ handles native submit/reset events, reset values and visibility without replacing controls 321ms
+     ✓ shows submission and field errors as text and permits correction and retry 311ms
+     ✓ releases each node, subscriptions, and DOM listeners across repeated mount/destroy 312ms
+ ✓ |dom| test/unit/formkit-composition.spec.js (5 tests) 6828ms
+   ✓ composes official fields in ordinary Regions and preserves sibling focus through clear conditions 1797ms
+   ✓ preserves an absent draft but resets it to its original baseline 878ms
+   ✓ validates composed fields and submits one settled snapshot with server errors and reset cancellation 1578ms
+   ✓ keeps detached fields active and terminates their runtime when the form owner dies 454ms
+   ✓ shares validation, submission, reset and cleanup between a schema slot and an ordinary section View 2114ms
+ ✓ |dom| test/unit/formkit-regressions.spec.js (49 tests) 19719ms
+   ✓ @mnjs/formkit independent review regressions (6)
+     ✓ reports the user origin of edits through official native inputs 392ms
+     ✓ announces replacing a same-name file with a different file object 321ms
+     ✓ shows dirty validation after a deferred rule finishes 334ms
+   ✓ @mnjs/formkit official plugin and context contracts (11)
+     ✓ mounts and destroys official floating labels without late node mutation 335ms
+   ✓ @mnjs/formkit public binding state boundaries (7)
+     ✓ routes UI messages, visible messages and hidden state without mixing their destinations 672ms
+     ✓ binds plugin-created native core children without requiring attributes or slots 3275ms
+   ✓ @mnjs/formkit public form state boundaries (5)
+     ✓ handles native reset events in schema forms without replacing focused controls 3698ms
+     ✓ announces object option transitions whose keys differ but whose key counts match 3762ms
+     ✓ clears omitted fields in a retained keyed list item and initializes a newly added item 419ms
+   ✓ rechecks an initial async rule when dynamic schema adds a previously absent dependency 314ms
+ ❯ |dom| test/unit/formkit-application-lifecycle.spec.js (7 tests | 3 failed) 58616ms
+   × mounts a complete initialized host snapshot without replacing application data with input defaults 29769ms
+   ✓ mounts a complete stored draft snapshot without replacing application data with input defaults 3602ms
+   × debounces the latest committed draft and keeps silent projections from echoing to persistence 11834ms
+   ✓ retains external errors through edits, hides their summary when valid, and clears them at valid submission 1436ms
+   ✓ delivers derived origins without applying a manual edit effect or losing draft notification 573ms
+   ✓ keeps business row writes bound to IDs and applies authoritative deletion over pending drafts 4176ms
+   × discards by destroying the owner and remounting authoritative values, cancelling drafts and late submission 7223ms
+ ✓ |dom| test/unit/formkit-hardening.spec.js (20 tests) 2371ms
+   ✓ focuses invalid external fields in document order (reverse creation: false) 301ms
+   ✓ resets a pending nested draft under an owner read-only transition, then validates a new field on retry 552ms
+ ✓ |dom| test/unit/formkit-manifest-prototype.spec.js (48 tests) 3459ms
+   ✓ propagates initial nested removal without root input while retaining a new pending sibling edit 738ms
+   ✓ settles a native three-stage activation during remote validation before submitting 359ms
+   ✓ lets JavaScript subclasses own ordinary helper names without changing composition lifetimes 428ms
+ ✓ |dom| test/unit/formkit-official.spec.js (6 tests) 3568ms
+   ✓ @mnjs/formkit official input integration (6)
+     ✓ renders official sections, retains typing focus, validates, submits and resets grouped values 855ms
+     ✓ uses the official radio, checkbox-group and select value features 999ms
+     ✓ retains keyed synced list nodes through external reorder and removes descendants on deletion 358ms
+     ✓ uses the open-source multi-step plugin for step validation and navigation 915ms

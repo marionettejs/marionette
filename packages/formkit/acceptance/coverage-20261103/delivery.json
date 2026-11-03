@@ -1,0 +1,188 @@
+{
+  "sourceRevision": "000f978d09e4dcc835f1b4b774a89cb677fe76cc",
+  "sourceDirty": false,
+  "stages": [
+    {
+      "name": "build",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-11-03T16:08:24.749380+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-03T16:09:53.380599+00:00"
+    },
+    {
+      "name": "api",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "check:api-contracts"
+      ],
+      "startedAt": "2026-11-03T16:09:53.381452+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-03T16:10:04.735832+00:00"
+    },
+    {
+      "name": "source",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "test:source"
+      ],
+      "startedAt": "2026-11-03T16:10:04.736382+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-03T16:10:06.932160+00:00"
+    },
+    {
+      "name": "dist",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "test:dist"
+      ],
+      "startedAt": "2026-11-03T16:10:06.932620+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-03T16:10:07.451222+00:00"
+    },
+    {
+      "name": "packed",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "test:formkit-package"
+      ],
+      "startedAt": "2026-11-03T16:10:07.451685+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-03T16:10:59.474431+00:00"
+    },
+    {
+      "name": "native-browser-launch",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        "test/formkit/playwright.config.mjs",
+        "--project",
+        "chromium",
+        "--workers",
+        "1"
+      ],
+      "startedAt": "2026-11-03T16:10:59.475817+00:00",
+      "exitCode": 1,
+      "finishedAt": "2026-11-03T16:11:23.532658+00:00",
+      "reason": "Default pinned browser absent; no browser test launched. Retrying with supported installed Chromium executable override."
+    },
+    {
+      "name": "native-browser",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        "test/formkit/playwright.config.mjs",
+        "--project",
+        "chromium",
+        "--workers",
+        "1"
+      ],
+      "environmentOverrides": {
+        "MNJS_TEST_CHROMIUM_EXECUTABLE": "/usr/bin/chromium"
+      },
+      "startedAt": "2026-11-03T16:13:20.364601+00:00",
+      "exitCode": 1,
+      "finishedAt": "2026-11-03T16:18:12.945308+00:00"
+    },
+    {
+      "name": "prepare-native",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+        "exec",
+        "--call=node test/fixtures/formkit-pro/prepare.mjs native"
+      ],
+      "environmentOverrides": {
+        "MNJS_TEST_CHROMIUM_EXECUTABLE": "/usr/bin/chromium"
+      },
+      "startedAt": "2026-11-03T16:23:20.718109+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-03T16:23:50.760136+00:00"
+    },
+    {
+      "name": "prepare-vue",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+        "exec",
+        "--call=node test/fixtures/formkit-pro/prepare.mjs vue"
+      ],
+      "environmentOverrides": {
+        "MNJS_TEST_CHROMIUM_EXECUTABLE": "/usr/bin/chromium"
+      },
+      "startedAt": "2026-11-03T16:23:50.760685+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-03T16:24:16.252941+00:00"
+    },
+    {
+      "name": "prepare-react",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/tmp/formkit-npm-cache/_npx/6416243750526179/node_modules/npm/bin/npm-cli.js",
+        "exec",
+        "--call=node test/fixtures/formkit-pro/prepare.mjs react"
+      ],
+      "environmentOverrides": {
+        "MNJS_TEST_CHROMIUM_EXECUTABLE": "/usr/bin/chromium"
+      },
+      "startedAt": "2026-11-03T16:24:16.254679+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-03T16:24:37.671596+00:00"
+    },
+    {
+      "name": "native-flow02-isolated",
+      "sourceRevision": "000f978d09e4dcc835f1b4b774a89cb677fe76cc",
+      "exitCode": 0,
+      "report": "native-flow02-isolated-report.json",
+      "command": "MNJS_TEST_CHROMIUM_EXECUTABLE=/usr/bin/chromium node node_modules/@playwright/test/cli.js test --config test/formkit/playwright.config.mjs --project chromium --workers 1 --grep FLOW-02 --trace on"
+    },
+    {
+      "name": "native-browser-final",
+      "sourceRevision": "000f978d09e4dcc835f1b4b774a89cb677fe76cc",
+      "exitCode": 0,
+      "report": "native-browser-final-report.json",
+      "command": "MNJS_TEST_CHROMIUM_EXECUTABLE=/usr/bin/chromium node node_modules/@playwright/test/cli.js test --config test/formkit/playwright.config.mjs --project chromium --workers 1"
+    },
+    {
+      "name": "targeted-lint",
+      "exitCode": 0,
+      "log": "lint.log",
+      "files": [
+        "packages/formkit/src/index.ts",
+        "packages/formkit/src/schema.ts",
+        "test/unit/formkit-schema.spec.js",
+        "test/fixtures/formkit-pro/prepare.mjs",
+        "test/fixtures/formkit-pro/capture.mjs",
+        "test/fixtures/formkit-pro/consumer/shared.js"
+      ]
+    },
+    {
+      "name": "public-tests",
+      "exitCode": 0,
+      "log": "public-tests.log",
+      "command": "node scripts/checks/public-tests.mjs"
+    },
+    {
+      "name": "three-stack-collector",
+      "exitCode": 1,
+      "command": "node test/fixtures/formkit-pro/capture.mjs /workspace/scratch/formkit-coverage-20261103/style-green 5590",
+      "reason": "All Pro bootstraps blocked without key; Vue3 andReact2 reference failures retained. Native15/15, all three anchor regressions passed; no page/runtime errors."
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+
+> marionette@5.0.0 test:dist
+> node test/dist/validate.mjs
+
+CommonJS: Application notification and preparation rejection boundaries passed
+ES module: Application notification and preparation rejection boundaries passed

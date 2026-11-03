@@ -1,0 +1,96 @@
+[
+  {
+    "id": "@mnjs/radio@5.0.0",
+    "name": "@mnjs/radio",
+    "version": "5.0.0",
+    "size": 11444,
+    "unpackedSize": 77894,
+    "shasum": "f4a355b2fc59ec64c52c237d9da77e08e3247a20",
+    "integrity": "sha512-LRBEzEd7Jiw2XFvbRXFke8UJ/NYy7THbyEYUwNoS+tjkzCS+DFRLYdv9Aadk0IRG44H+wSG1xy1wNb6oZeibiQ==",
+    "filename": "mnjs-radio-5.0.0.tgz",
+    "files": [
+      {
+        "path": "dist/index.cjs",
+        "size": 7617,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.cjs.map",
+        "size": 25362,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.js",
+        "size": 7526,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.js.map",
+        "size": 25348,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/debug.d.ts",
+        "size": 1119,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/index.d.ts",
+        "size": 175,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/package.json",
+        "size": 20,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/radio.d.ts",
+        "size": 2027,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/requests.d.ts",
+        "size": 642,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/debug.d.ts",
+        "size": 1119,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/index.d.ts",
+        "size": 175,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/radio.d.ts",
+        "size": 2027,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/requests.d.ts",
+        "size": 642,
+        "mode": 384
+      },
+      {
+        "path": "license.txt",
+        "size": 1069,
+        "mode": 384
+      },
+      {
+        "path": "package.json",
+        "size": 1230,
+        "mode": 384
+      },
+      {
+        "path": "readme.md",
+        "size": 1796,
+        "mode": 384
+      }
+    ],
+    "entryCount": 16,
+    "bundled": []
+  }
+]

@@ -1,0 +1,10 @@
+
+ RUN  v5.0.5 /workspace/formkit-integration
+
+ ✓ |dom| test/unit/formkit-schema.spec.js (13 tests) 576ms
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  15:35:31
+   Duration  4.63s (environment 44%, transform 27%, tests 14%, import 14%, setup 1%)
+

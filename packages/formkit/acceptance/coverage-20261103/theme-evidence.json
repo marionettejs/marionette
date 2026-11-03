@@ -1,0 +1,29 @@
+{
+  "base": {
+    "package": "@formkit/themes@2.1.2",
+    "path": "@formkit/themes/dist/css/genesis/index.css",
+    "sha256": "c5820ea62f296e2d1a4323a77858f3fd7eae8928f859de827e1e6a5e332c619c",
+    "relativeInnerSelectors": [
+      {
+        "selector": ".formkit-inner",
+        "position": "relative"
+      }
+    ],
+    "packageIntegrity": "sha512-hcrrr6O0xt1MDGtHFRjpz2GuH0n79m555/ggmzI8SU96PDOJdtC6VHSw2ZGDFQx3kdT37HY+J+ZxWct93OPpDw==",
+    "resolvedTarball": "https://registry.npmjs.org/@formkit/themes/-/themes-2.1.2.tgz"
+  },
+  "pro": {
+    "package": "@formkit/pro@0.130.3",
+    "path": "@formkit/pro/genesis.css",
+    "sha256": "c135143af8bea6ed9d33b68e7af9bf291eda4139c586d7151b3ec0e55d2c8408",
+    "relativeInnerSelectors": [
+      {
+        "selector": "[data-has-overlay] .formkit-inner",
+        "position": "relative"
+      }
+    ],
+    "packageIntegrity": "sha512-eLKSIk3N3eZB1AXqZzvs/vIQr2vxrqHVYSi5ywm90sGuSoDROWkEILFrKb5mS/FG05Thv5GKgGyLKv8YNkVqlA==",
+    "resolvedTarball": "https://registry.npmjs.org/@formkit/pro/-/pro-0.130.3.tgz"
+  },
+  "conclusion": "The Pro extension does not provide the unconditional positioning rule supplied by the base theme. Import both in all comparison consumers."
+}

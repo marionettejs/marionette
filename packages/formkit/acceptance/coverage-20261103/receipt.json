@@ -1,0 +1,29 @@
+{
+  "testedDeliverySource": "000f978d09e4dcc835f1b4b774a89cb677fe76cc",
+  "runtimeChange": "1ddf1c168f1ca9f9c61615202a8749ed9dd6243e",
+  "themeChange": "0dee5f85bc91e647945721e5ff81eec080299ccd",
+  "coveragePolicyChange": "d623599a665fdc9dc5ae17aa03841721bf4627f8",
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "sourceHashes": {
+    "packages/formkit/src/bindings.ts": "b2cb41265425550136cd68e08e66e36450f2f55cda39dd8a2cd146002e1a1420",
+    "packages/formkit/src/composition-input.ts": "b14d31c4ca70a98f1b445fcd17891524364ed1035e9da09098a627bd8a1d6795",
+    "packages/formkit/src/composition.ts": "beda91fd9572493b310af8b5d59d0e1afd9ed69bca481e91f1302bd238db4afc",
+    "packages/formkit/src/index.ts": "2bd195920f5ab940dc78dedaf90178f4cdf837cc152d3373c38457e42f4fde9d",
+    "packages/formkit/src/row-ownership.ts": "5a3f3633b6a9dc6990124c267d184903bf0395aece5f9cd9366d99564fcd8fe3",
+    "packages/formkit/src/runtime.ts": "4089c981d9aa9660358c7c2c0efb31e8b2cb9ec0d795d7507bf16eea9f58bd86",
+    "packages/formkit/src/schema-view.ts": "1f8cac9da3a6f3074c9de1b708c04cae88a28d2cd0bae07596f4d09707325a6c",
+    "packages/formkit/src/schema.ts": "bfd828c887a9d92f598a80228cb41b5958d37027c06e09e4595961008bb51925",
+    "packages/formkit/src/view-components.ts": "d2d947aceafc3de97b666ae6b7808fd5fb6d7b06f934dab872b32002187979c1",
+    "test/fixtures/formkit-pro/capture.mjs": "8d633ec4d20d3904cbaa909db3c8d59bce27bae36e0dedcbddcd45511d5e285d",
+    "test/fixtures/formkit-pro/prepare.mjs": "5ff5c2f4318981ee71779eb3c9866c9613c9e48dd560abcd7e235c2270fb80f6",
+    "test/fixtures/formkit-pro/consumer/shared.js": "c17cb1eeaf3ca6f1cac9a871c6e414bc8879b6cd1a67281a9019ebc08ab113aa",
+    "test/unit/formkit-schema.spec.js": "983253f58acd74b0a75aedd03a8156bbef405554589a294d84b0ced45961b79d",
+    "package.json": "29e54826dd54849b25cf9e124a19d9b36bb9c8bf8457be26e45faacc9ec53f60"
+  },
+  "branch": "codex/formkit-master-integration-20261103",
+  "base": "c83a9f255692291eb62dc05a6d4073424afb7dfe",
+  "observedRemoteMaster": "ea40bf478603f97f5cfb080220a776490f7f81da",
+  "currentProRetest": "pending in separate approved vault cloud",
+  "canonicalCoverageGate": "one full pass and later core timeout; independent confirmation pending"
+}

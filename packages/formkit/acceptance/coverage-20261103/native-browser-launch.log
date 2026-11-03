@@ -1,0 +1,296 @@
+[WebServer] (node:39148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 16 tests using 1 worker
+
+(node:39172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 [chromium] › test/formkit/composed.spec.mjs:36:1 › FLOW-NESTED native two-level RowViews retain focus, validate, reset membership and clean up (2ms)
+(node:39184) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 [chromium] › test/formkit/composed.spec.mjs:85:1 › FLOW-01 composed planning journey retains focus and drafts, validates across sections and rows, retries and resets (3ms)
+(node:39196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 [chromium] › test/formkit/composed.spec.mjs:195:1 › FLOW-02 stale callback errors cannot reach replacement rows or survive reset and destruction (12ms)
+(node:39208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 [chromium] › test/formkit/composed.spec.mjs:252:1 › FLOW-03 simultaneous same-named forms and repeated Region mount/destroy stay independent (14ms)
+(node:39220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 [chromium] › test/formkit/formkit.spec.mjs:4:1 › synchronized list actions settle and support append, edit, remove, replacement and reset (2ms)
+(node:39232) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 [chromium] › test/formkit/formkit.spec.mjs:36:1 › unchanged SVG icons retain pointer activation across blur-driven schema updates (11ms)
+(node:39244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 [chromium] › test/formkit/formkit.spec.mjs:59:1 › invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field (2ms)
+(node:39256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 [chromium] › test/formkit/formkit.spec.mjs:99:1 › named registrations mount connected and support keyboard validation, correction and reset (4ms)
+(node:39268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 [chromium] › test/formkit/formkit.spec.mjs:140:1 › external owned controls retain native origin and state bindings across input, change and blur (2ms)
+(node:39280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 [chromium] › test/formkit/formkit.spec.mjs:173:1 › decimal edits retain native text and focus while authoritative writes replace pending drafts (7ms)
+(node:39292) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  11 [chromium] › test/formkit/formkit.spec.mjs:216:1 › template Regions preserve accordion drafts, clear conditional values and submit through the keyboard (7ms)
+(node:39304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 [chromium] › test/formkit/formkit.spec.mjs:249:1 › adopted forms mount, preserve keyed sibling edits and focus, and can be reused (7ms)
+(node:39316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 [chromium] › test/formkit/formkit.spec.mjs:300:1 › profile example supports keyboard validation, server errors, retry and native reset (2ms)
+(node:39328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  14 [chromium] › test/formkit/formkit.spec.mjs:328:1 › external snapshots and schema reordering preserve real browser focus and selection, then clean up (3ms)
+(node:39340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  15 [chromium] › test/formkit/formkit.spec.mjs:371:1 › official schema form supports conditional fields, steps, files, lists, server errors and cancellation (3ms)
+(node:39352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  16 [chromium] › test/formkit/formkit.spec.mjs:473:1 › explicit owner placement preserves sibling selection and ends validation on removal (2ms)
+
+
+  1) [chromium] › test/formkit/composed.spec.mjs:36:1 › FLOW-NESTED native two-level RowViews retain focus, validate, reset membership and clean up 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/composed-FLOW-NESTED-nativ-380aa-set-membership-and-clean-up-chromium/error-context.md
+
+  2) [chromium] › test/formkit/composed.spec.mjs:85:1 › FLOW-01 composed planning journey retains focus and drafts, validates across sections and rows, retries and resets 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/composed-FLOW-01-composed--da127-and-rows-retries-and-resets-chromium/error-context.md
+
+  3) [chromium] › test/formkit/composed.spec.mjs:195:1 › FLOW-02 stale callback errors cannot reach replacement rows or survive reset and destruction 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/composed-FLOW-02-stale-cal-dd820-rvive-reset-and-destruction-chromium/error-context.md
+
+  4) [chromium] › test/formkit/composed.spec.mjs:252:1 › FLOW-03 simultaneous same-named forms and repeated Region mount/destroy stay independent 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/composed-FLOW-03-simultane-188b8-nt-destroy-stay-independent-chromium/error-context.md
+
+  5) [chromium] › test/formkit/formkit.spec.mjs:4:1 › synchronized list actions settle and support append, edit, remove, replacement and reset 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/formkit-synchronized-list--f7abe-emove-replacement-and-reset-chromium/error-context.md
+
+  6) [chromium] › test/formkit/formkit.spec.mjs:36:1 › unchanged SVG icons retain pointer activation across blur-driven schema updates 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/formkit-unchanged-SVG-icon-034fd--blur-driven-schema-updates-chromium/error-context.md
+
+  7) [chromium] › test/formkit/formkit.spec.mjs:59:1 › invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/formkit-invalid-submit-ski-85246--an-external-required-field-chromium/error-context.md
+
+  8) [chromium] › test/formkit/formkit.spec.mjs:99:1 › named registrations mount connected and support keyboard validation, correction and reset 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/formkit-named-registration-f61f8-dation-correction-and-reset-chromium/error-context.md
+
+  9) [chromium] › test/formkit/formkit.spec.mjs:140:1 › external owned controls retain native origin and state bindings across input, change and blur 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/formkit-external-owned-con-c61a1-cross-input-change-and-blur-chromium/error-context.md
+
+  10) [chromium] › test/formkit/formkit.spec.mjs:173:1 › decimal edits retain native text and focus while authoritative writes replace pending drafts 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/formkit-decimal-edits-reta-0de5c-ites-replace-pending-drafts-chromium/error-context.md
+
+  11) [chromium] › test/formkit/formkit.spec.mjs:216:1 › template Regions preserve accordion drafts, clear conditional values and submit through the keyboard 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/formkit-template-Regions-p-1ae3f-submit-through-the-keyboard-chromium/error-context.md
+
+  12) [chromium] › test/formkit/formkit.spec.mjs:249:1 › adopted forms mount, preserve keyed sibling edits and focus, and can be reused 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/formkit-adopted-forms-moun-dc5d0-and-focus-and-can-be-reused-chromium/error-context.md
+
+  13) [chromium] › test/formkit/formkit.spec.mjs:300:1 › profile example supports keyboard validation, server errors, retry and native reset 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/formkit-profile-example-su-e0517-rors-retry-and-native-reset-chromium/error-context.md
+
+  14) [chromium] › test/formkit/formkit.spec.mjs:328:1 › external snapshots and schema reordering preserve real browser focus and selection, then clean up 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/formkit-external-snapshots-3d93e-and-selection-then-clean-up-chromium/error-context.md
+
+  15) [chromium] › test/formkit/formkit.spec.mjs:371:1 › official schema form supports conditional fields, steps, files, lists, server errors and cancellation 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/formkit-official-schema-fo-61e8e-ver-errors-and-cancellation-chromium/error-context.md
+
+  16) [chromium] › test/formkit/formkit.spec.mjs:473:1 › explicit owner placement preserves sibling selection and ends validation on removal 
+
+    Error: browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test/tmp/formkit-browser/formkit-explicit-owner-pla-9fcc3--ends-validation-on-removal-chromium/error-context.md
+
+  16 failed
+    [chromium] › test/formkit/composed.spec.mjs:36:1 › FLOW-NESTED native two-level RowViews retain focus, validate, reset membership and clean up 
+    [chromium] › test/formkit/composed.spec.mjs:85:1 › FLOW-01 composed planning journey retains focus and drafts, validates across sections and rows, retries and resets 
+    [chromium] › test/formkit/composed.spec.mjs:195:1 › FLOW-02 stale callback errors cannot reach replacement rows or survive reset and destruction 
+    [chromium] › test/formkit/composed.spec.mjs:252:1 › FLOW-03 simultaneous same-named forms and repeated Region mount/destroy stay independent 
+    [chromium] › test/formkit/formkit.spec.mjs:4:1 › synchronized list actions settle and support append, edit, remove, replacement and reset 
+    [chromium] › test/formkit/formkit.spec.mjs:36:1 › unchanged SVG icons retain pointer activation across blur-driven schema updates 
+    [chromium] › test/formkit/formkit.spec.mjs:59:1 › invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field 
+    [chromium] › test/formkit/formkit.spec.mjs:99:1 › named registrations mount connected and support keyboard validation, correction and reset 
+    [chromium] › test/formkit/formkit.spec.mjs:140:1 › external owned controls retain native origin and state bindings across input, change and blur 
+    [chromium] › test/formkit/formkit.spec.mjs:173:1 › decimal edits retain native text and focus while authoritative writes replace pending drafts 
+    [chromium] › test/formkit/formkit.spec.mjs:216:1 › template Regions preserve accordion drafts, clear conditional values and submit through the keyboard 
+    [chromium] › test/formkit/formkit.spec.mjs:249:1 › adopted forms mount, preserve keyed sibling edits and focus, and can be reused 
+    [chromium] › test/formkit/formkit.spec.mjs:300:1 › profile example supports keyboard validation, server errors, retry and native reset 
+    [chromium] › test/formkit/formkit.spec.mjs:328:1 › external snapshots and schema reordering preserve real browser focus and selection, then clean up 
+    [chromium] › test/formkit/formkit.spec.mjs:371:1 › official schema form supports conditional fields, steps, files, lists, server errors and cancellation 
+    [chromium] › test/formkit/formkit.spec.mjs:473:1 › explicit owner placement preserves sibling selection and ends validation on removal 
