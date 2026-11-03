@@ -27,6 +27,8 @@ updates:
         update-types: [version-update:semver-major]
   - package-ecosystem: npm
     directories: ['/test/fixtures/*', '/packages/test/examples']
+    # This fixture exercises the supported Backbone 1.3.1 floor. Update it manually.
+    exclude-paths: ['test/fixtures/backbone-adapter/**']
     schedule:
       interval: monthly
     open-pull-requests-limit: 3
