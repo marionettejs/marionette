@@ -1,0 +1,424 @@
+{
+  "testedSource": "1d8e1680f416ea182873c9120315ec24970225c9",
+  "base": "1386d2a59229d611062f62f70ecf50762e307d67",
+  "baseProductionSource": "8f78cea2ae614f2676918266e46c583f39cc541d",
+  "sourceDirtyAtPackedCheck": false,
+  "toolchain": {
+    "node": "v24.19.0",
+    "npm": "11.17.0",
+    "vitest": "5.0.3",
+    "playwright": "1.63.0",
+    "chromium": "154.0.8037.57",
+    "core": "2.1.2",
+    "adapter": "5.0.0-rc.2"
+  },
+  "checks": {
+    "unitSerial": {
+      "passed": 439,
+      "files": 27,
+      "exitCode": 0
+    },
+    "initialUnitRun": {
+      "passed": 438,
+      "failed": 1,
+      "exitCode": 1,
+      "concurrentBuild": true,
+      "failure": "Existing nested row test exceeded unchanged 5000ms timeout"
+    },
+    "focusedRetest": {
+      "passed": 1,
+      "exitCode": 0,
+      "testDurationMs": 1248
+    },
+    "build": {
+      "exitCode": 0
+    },
+    "packed": {
+      "exitCode": 0,
+      "stages": [
+        {
+          "name": "pack-corepackage",
+          "passed": true
+        },
+        {
+          "name": "pack-packages-utils",
+          "passed": true
+        },
+        {
+          "name": "pack-packages-radio",
+          "passed": true
+        },
+        {
+          "name": "pack-packages-formkit",
+          "passed": true
+        },
+        {
+          "name": "install",
+          "passed": true
+        },
+        {
+          "name": "locked-install",
+          "passed": true
+        },
+        {
+          "name": "versions",
+          "passed": true
+        },
+        {
+          "name": "runtime-esm-cjs",
+          "passed": true
+        },
+        {
+          "name": "types",
+          "passed": true
+        }
+      ]
+    },
+    "browser": {
+      "exitCode": 0,
+      "stats": {
+        "startTime": "2026-11-03T13:04:16.426Z",
+        "duration": 148879.118,
+        "expected": 16,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "cases": [
+        {
+          "title": "FLOW-NESTED native two-level RowViews retain focus, validate, reset membership and clean up",
+          "status": "passed",
+          "duration": 4222,
+          "attachments": []
+        },
+        {
+          "title": "FLOW-01 composed planning journey retains focus and drafts, validates across sections and rows, retries and resets",
+          "status": "passed",
+          "duration": 87093,
+          "attachments": []
+        },
+        {
+          "title": "FLOW-02 stale callback errors cannot reach replacement rows or survive reset and destruction",
+          "status": "passed",
+          "duration": 28203,
+          "attachments": []
+        },
+        {
+          "title": "FLOW-03 simultaneous same-named forms and repeated Region mount/destroy stay independent",
+          "status": "passed",
+          "duration": 26102,
+          "attachments": []
+        },
+        {
+          "title": "synchronized list actions settle and support append, edit, remove, replacement and reset",
+          "status": "passed",
+          "duration": 4419,
+          "attachments": [
+            {
+              "name": "native-repeater.json",
+              "data": {
+                "state": {
+                  "actionCreations": 1,
+                  "retained": true,
+                  "canonical": {
+                    "guests": [
+                      {
+                        "name": "Ada"
+                      }
+                    ]
+                  }
+                },
+                "errors": []
+              }
+            }
+          ]
+        },
+        {
+          "title": "unchanged SVG icons retain pointer activation across blur-driven schema updates",
+          "status": "passed",
+          "duration": 3891,
+          "attachments": [
+            {
+              "name": "icon-pointer.json",
+              "data": {
+                "results": [
+                  {
+                    "clicks": 1,
+                    "blurs": 1,
+                    "retained": true
+                  },
+                  {
+                    "clicks": 2,
+                    "blurs": 2,
+                    "retained": true
+                  },
+                  {
+                    "clicks": 3,
+                    "blurs": 3,
+                    "retained": true
+                  }
+                ],
+                "errors": []
+              }
+            }
+          ]
+        },
+        {
+          "title": "invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field",
+          "status": "passed",
+          "duration": 4125,
+          "attachments": []
+        },
+        {
+          "title": "named registrations mount connected and support keyboard validation, correction and reset",
+          "status": "passed",
+          "duration": 3112,
+          "attachments": []
+        },
+        {
+          "title": "external owned controls retain native origin and state bindings across input, change and blur",
+          "status": "passed",
+          "duration": 3026,
+          "attachments": []
+        },
+        {
+          "title": "decimal edits retain native text and focus while authoritative writes replace pending drafts",
+          "status": "passed",
+          "duration": 8181,
+          "attachments": []
+        },
+        {
+          "title": "template Regions preserve accordion drafts, clear conditional values and submit through the keyboard",
+          "status": "passed",
+          "duration": 5378,
+          "attachments": []
+        },
+        {
+          "title": "adopted forms mount, preserve keyed sibling edits and focus, and can be reused",
+          "status": "passed",
+          "duration": 7340,
+          "attachments": []
+        },
+        {
+          "title": "profile example supports keyboard validation, server errors, retry and native reset",
+          "status": "passed",
+          "duration": 6825,
+          "attachments": []
+        },
+        {
+          "title": "external snapshots and schema reordering preserve real browser focus and selection, then clean up",
+          "status": "passed",
+          "duration": 2751,
+          "attachments": []
+        },
+        {
+          "title": "official schema form supports conditional fields, steps, files, lists, server errors and cancellation",
+          "status": "passed",
+          "duration": 29761,
+          "attachments": []
+        },
+        {
+          "title": "explicit owner placement preserves sibling selection and ends validation on removal",
+          "status": "passed",
+          "duration": 8496,
+          "attachments": []
+        }
+      ]
+    }
+  },
+  "regression": {
+    "unit": {
+      "base": "1386d2a5",
+      "failed": 2,
+      "ignoredButtonCreations": 28,
+      "realRowCreations": 27
+    },
+    "recovery": {
+      "source": "intermediate attachment-only guard",
+      "failed": 1,
+      "unexpectedDisplay": "[object Object]"
+    },
+    "browser": {
+      "builtSource": "8f78cea2ae614f2676918266e46c583f39cc541d",
+      "timeoutMs": 10000,
+      "cases": [
+        {
+          "title": "synchronized list actions settle and support append, edit, remove, replacement and reset",
+          "status": "timedOut",
+          "duration": 15625,
+          "attachments": []
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "path": "packages/formkit/src/bindings.ts",
+      "sha256": "b2cb41265425550136cd68e08e66e36450f2f55cda39dd8a2cd146002e1a1420"
+    },
+    {
+      "path": "packages/formkit/src/composition-input.ts",
+      "sha256": "b14d31c4ca70a98f1b445fcd17891524364ed1035e9da09098a627bd8a1d6795"
+    },
+    {
+      "path": "packages/formkit/src/composition.ts",
+      "sha256": "beda91fd9572493b310af8b5d59d0e1afd9ed69bca481e91f1302bd238db4afc"
+    },
+    {
+      "path": "packages/formkit/src/index.ts",
+      "sha256": "f781bfba74059aafa125a28eef90d97b4cab00e93ec8c9a649d28e54196b7370"
+    },
+    {
+      "path": "packages/formkit/src/row-ownership.ts",
+      "sha256": "5a3f3633b6a9dc6990124c267d184903bf0395aece5f9cd9366d99564fcd8fe3"
+    },
+    {
+      "path": "packages/formkit/src/runtime.ts",
+      "sha256": "4089c981d9aa9660358c7c2c0efb31e8b2cb9ec0d795d7507bf16eea9f58bd86"
+    },
+    {
+      "path": "packages/formkit/src/schema-view.ts",
+      "sha256": "1f8cac9da3a6f3074c9de1b708c04cae88a28d2cd0bae07596f4d09707325a6c"
+    },
+    {
+      "path": "packages/formkit/src/schema.ts",
+      "sha256": "3c0d52bcab64797b275e9e7e7cbe70c01be90ef9fe7520af486126a005578ee8"
+    },
+    {
+      "path": "packages/formkit/src/view-components.ts",
+      "sha256": "d2d947aceafc3de97b666ae6b7808fd5fb6d7b06f934dab872b32002187979c1"
+    }
+  ],
+  "fixtures": [
+    {
+      "path": "test/fixtures/formkit-package/run.mjs",
+      "sha256": "bf81f262840962588c546e76aa0c9d6a799abbad4c7705676c45ee4d84922cf2"
+    },
+    {
+      "path": "test/fixtures/formkit-package/verify.mjs",
+      "sha256": "54ed2de740351e15dbcbaf3b5704c4e66267782be05250e118942cced67d97cc"
+    },
+    {
+      "path": "test/types/formkit.mts",
+      "sha256": "78165aff2a87c8917c015128b8a7b420b0f862bc31a6cb77a920a96c728a1a2c"
+    },
+    {
+      "path": "test/types/formkit.cts",
+      "sha256": "78165aff2a87c8917c015128b8a7b420b0f862bc31a6cb77a920a96c728a1a2c"
+    },
+    {
+      "path": "test/types/formkit-rows.mts",
+      "sha256": "5120f62e360e2ce625a24b1634da0e328896e561596a4e0a080589bd334dbf16"
+    },
+    {
+      "path": "test/types/formkit-rows.cts",
+      "sha256": "5120f62e360e2ce625a24b1634da0e328896e561596a4e0a080589bd334dbf16"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "marionette",
+      "version": "5.0.0",
+      "sha256": "543e1ad58d290e774b540b8f8e9efe6c51f18abbf7fd966bddaf043213e3982e"
+    },
+    {
+      "name": "@mnjs/utils",
+      "version": "5.0.0",
+      "sha256": "7d74775d89ff90b1f53c84634a5928eb39cb73814ae744037072b0ac7d5da8fd"
+    },
+    {
+      "name": "@mnjs/radio",
+      "version": "5.0.0",
+      "sha256": "dcf69f06ebbc52f8b630cc975ce2f505848e536bf87f27cabbc09d46e4fd4de3"
+    },
+    {
+      "name": "@mnjs/formkit",
+      "version": "5.0.0-rc.2",
+      "sha256": "356aa30f87fec381e3b1b554868d787cf97d00baf7f246a4ab09af04f6c6b811"
+    }
+  ],
+  "logs": [
+    {
+      "path": "red.log",
+      "sha256": "2e3c432483eb43f91345426cc5bc436641153435028be50c6da8869b99da93ef",
+      "rawSha256": "b3cd332b9d30a33804c27add427794555903e8aa84392b98548602ed8bfccb50"
+    },
+    {
+      "path": "recovery-red.log",
+      "sha256": "094ce691589c750715f8d8e71013641caf1cf759eb6e516650f49b8f40fc8d82",
+      "rawSha256": "abe60f7ba56769c4e5af09baf33f87b55a0f275efc02a9f63a83998711aad77a"
+    },
+    {
+      "path": "browser-red.log",
+      "sha256": "fa6c12fd184e87feac35e076c12e3d49d75e6f58df8c999ac1bf3db46cdc4b67",
+      "rawSha256": "076e7fcc64d8d2982a98adcb9c4e30f26e645bb2c00ccbad9e9e95378a917d2a"
+    },
+    {
+      "path": "unit-initial.log",
+      "sha256": "c4d269b6bc299fd60b7a918d31313c38df2a33d2e9eca6765bcffa9bc4e00a17",
+      "rawSha256": "18100e892a09de208b975c5d034ba372472639727a3694bac68c38f932ef82b6"
+    },
+    {
+      "path": "unit.log",
+      "sha256": "9245c03ca56ad3dd5c8215cc653d0e17ff21b2bbb656e51d4515f4cde43f1ff9",
+      "rawSha256": "47c4302efd70acde547e9c72435dc856adf793feeb361b01d9b996b11c071bfc"
+    },
+    {
+      "path": "focused-timeout-retest.log",
+      "sha256": "63a1e5721f34ebdc230d1b455588e0fa26c2cb1ccbc9073ecf2d3bf50eab6d52",
+      "rawSha256": "2e078580343d6536f2017b32f5d0b4ae5a6d4978c9af8993e9f836dbd802aee5"
+    },
+    {
+      "path": "build.log",
+      "sha256": "a5aa70831a2e74af32f396a832e02390bcdc653dd439d9bcc40ab277782ebe3c",
+      "rawSha256": "a5aa70831a2e74af32f396a832e02390bcdc653dd439d9bcc40ab277782ebe3c"
+    },
+    {
+      "path": "packed.log",
+      "sha256": "74b6217e933af451a8095769d24cda73643f8d7294142a72debaedba57a3b623",
+      "rawSha256": "74b6217e933af451a8095769d24cda73643f8d7294142a72debaedba57a3b623"
+    },
+    {
+      "path": "browser.log",
+      "sha256": "c0ba9790d8a200b49589393e0c265acfe76776a2fb131e41da59456ada807e89",
+      "rawSha256": "c0ba9790d8a200b49589393e0c265acfe76776a2fb131e41da59456ada807e89"
+    }
+  ],
+  "independentReview": {
+    "agents": [
+      "repeater_diagnosis",
+      "datepicker_diagnosis"
+    ],
+    "model": "gpt-6-astra",
+    "sourceCleared": true,
+    "actualProRuntimeExecutedByWriter": false
+  },
+  "actualProQA": {
+    "repairedRevision": "pending separate vault QA",
+    "baselineReportedByCoordinator": {
+      "source": "8f78cea2ae614f2676918266e46c583f39cc541d",
+      "pro": "0.130.2",
+      "sixControlAssertionsPassed": 71,
+      "datepicker": "12/12 including pointer reopening and SVG retention",
+      "isolatedRepeaterReadinessTimeoutSeconds": 10,
+      "fullFixtureDOMContentLoadedTimeoutSeconds": 15,
+      "rendererCPU": "approximately 100%, coordinator observation",
+      "cpuProfile": {
+        "sampleDurationSeconds": 2.496,
+        "samples": 2178,
+        "inclusivePercent": {
+          "rendererUpdate": 87,
+          "reconcile": 86.5,
+          "evaluate": 48,
+          "compile": 29.4
+        },
+        "qualifier": "Percentages overlap; profile does not identify sustaining event/property. Raw vault profile not inspected by writer."
+      }
+    }
+  },
+  "limits": [
+    "Actual repaired Pro repeater/full fixture pending separate vault QA",
+    "No full parity, online-license-validation or performance claim",
+    "No Firefox/WebKit/mobile Pro certification"
+  ]
+}

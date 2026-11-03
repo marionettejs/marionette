@@ -1,0 +1,129 @@
+
+ RUN  v5.0.3 /workspace/formkit-repair
+
+ ✓ |dom| test/unit/formkit-runtime.spec.js (45 tests) 8422ms
+   ✓ @mnjs/formkit native schema runtime (15)
+     ✓ mounts all official native controls with stable labels and editable core values 609ms
+     ✓ preserves nested list identities through frozen rapid actor snapshots using explicit item keys 419ms
+   ✓ @mnjs/formkit official form feature contracts (18)
+     ✓ reconciles surviving business-keyed controls after resetting a/b/c 309ms
+     ✓ reconciles surviving business-keyed controls after resetting b/c/a 541ms
+     ✓ reconciles surviving business-keyed controls after resetting c/a/b 657ms
+     ✓ reconciles surviving business-keyed controls after resetting c/b/a 334ms
+     ✓ releases list nodes removed during a batched core reset and repeated native mount/destroy 360ms
+   ✓ retains nested keyed controls beside a keyless row on reset (keyless first: false) 426ms
+   ✓ retains nested keyed controls beside a keyless row on reset (keyless first: true) 418ms
+   ✓ restores nested rendered values and releases registries when reset recreates a removed initial row 306ms
+ ✓ |dom| test/unit/formkit-nested-rows.spec.js (8 tests) 10741ms
+   ✓ nested repeated keys retain lineage, controls, focus and errors through two-level authoritative reorder 1848ms
+   ✓ inner clear and preserved drafts use the full key through outer reorder and inner list remount 1674ms
+   ✓ deleting an ancestor while its inner list is absent retires added defaults and exclusions before key reuse 1851ms
+   ✓ ancestor deletion ends detached inner widgets, delayed native drafts and retained control listeners 951ms
+   ✓ same-membership construction reset retains keyed inner controls after both ancestor and child reorder 1409ms
+   ✓ membership-changing construction reset removes added outer and inner rows and allows explicit presentation rebuild 1463ms
+   ✓ submit resettles a delayed nested edit and pending validation after sibling removal before callback capture 762ms
+   ✓ nested removal after callback capture aborts the external attempt and terminal destroy ignores late work 780ms
+ ✓ |dom| test/unit/formkit-regressions.spec.js (49 tests) 2663ms
+ ✓ |dom| test/unit/formkit-application-lifecycle.spec.js (7 tests) 3045ms
+   ✓ mounts a complete initialized host snapshot without replacing application data with input defaults 391ms
+   ✓ debounces the latest committed draft and keeps silent projections from echoing to persistence 389ms
+   ✓ retains external errors through edits, hides their summary when valid, and clears them at valid submission 973ms
+   ✓ discards by destroying the owner and remounting authoritative values, cancelling drafts and late submission 534ms
+ ✓ |dom| test/unit/formkit.spec.js (18 tests) 2318ms
+   ✓ @mnjs/formkit native forms (12)
+     ✓ owns a semantic form and grouped values, labels, help and stable focus 357ms
+ ✓ |dom| test/unit/formkit-official.spec.js (6 tests) 1810ms
+   ✓ @mnjs/formkit official input integration (6)
+     ✓ renders official sections, retains typing focus, validates, submits and resets grouped values 405ms
+     ✓ uses the official radio, checkbox-group and select value features 345ms
+     ✓ uses the open-source multi-step plugin for step validation and navigation 648ms
+ ✓ |dom| test/unit/formkit-composition.spec.js (5 tests) 2287ms
+   ✓ composes official fields in ordinary Regions and preserves sibling focus through clear conditions 700ms
+   ✓ preserves an absent draft but resets it to its original baseline 340ms
+   ✓ validates composed fields and submits one settled snapshot with server errors and reset cancellation 386ms
+   ✓ shares validation, submission, reset and cleanup between a schema slot and an ordinary section View 730ms
+ ✓ |dom| test/unit/formkit-hardening.spec.js (18 tests) 4009ms
+   ✓ mounts a named field registration (factory rendered: false) after Region placement 332ms
+   ✓ restores actions and displays associated errors after a genuinely rejected submit callback 858ms
+   ✓ resets a pending nested draft under an owner read-only transition, then validates a new field on retry 1600ms
+ ✓ |dom| test/unit/formkit-review.spec.js (25 tests) 5209ms
+   ✓ @mnjs/formkit reviewed ownership and native behavior (25)
+     ✓ retains fields draft state and owned nodes through Region detach and re-show 1082ms
+     ✓ keeps an explicitly empty schema in schema mode and can later mount and remove a field 2511ms
+ ❯ |dom| test/unit/formkit-rows.spec.js (35 tests | 1 failed) 21999ms
+   ✓ genuine Core row groups mount in reverse order and native edits collect as an array 405ms
+   ✓ authoritative keyed reorder retains live groups and controls, independent of display order 326ms
+   ✓ preserved row teardown ends validation and remount restores the committed object 1221ms
+   ✓ whole row clear below a non-preserved list keeps a sibling delayed native draft 116ms
+   ✓ delayed first render resolves the current keyed index and root teardown ends detached row Views 119ms
+   ✓ same-membership bare reset retains row controls and restores construction values 152ms
+   ✓ intermediate CollectionView destruction releases all row controls while preserving values 42ms
+   ✓ a cleared descendant of a never clears b after keyed array reorder 92ms
+   ✓ cleared leaf remount after reorder restores its own original row baseline 92ms
+   ✓ owning list FieldView setValue preserves the same keyed row identity as form setValues 100ms
+   ✓ clear row destruction splices exactly that row under a preserved list 84ms
+   ✓ preserved row teardown does not redirect a surviving sibling edit into the missing node slot 126ms
+   ✓ authoritative replacement of a row key ends the old row View instead of reusing its group 167ms
+   ✓ observable collection display reorder, filter and rebuild preserve values and retained groups 365ms
+   ✓ first-render validation is lazy but filtering an already rendered row keeps its validation 367ms
+   ✓ duplicate placement rejects and preserved row retains group errors until list ownership ends 181ms
+   ✓ clear teardown is terminal data deletion and cannot rebuild from an unchanged collection 68ms
+   ✓ mounting a newly added array row does not append it to the construction reset baseline 148ms
+   ✓ root and list silent projections retain row widgets without callbacks; native field edits retain user origin 139ms
+   ✓ force clear beneath preserved list keeps actual delayed sibling draft 181ms
+   ✓ list placement teardown and remount preserves keyed exclusion and baseline through reorder 177ms
+   ✓ new row clear remount uses its own baseline and membership reset ends placements for explicit rebuild 3327ms
+   ✓ authoritative list writes end an unmounted retained group before replacing its key 1557ms
+   ✓ authoritative deletion while list placement is absent ends keyed clear masks before a later same-key addition 1098ms
+   ✓ absent-list authoritative deletion retires first-mount defaults of added rows 562ms
+   ✓ preserved placement teardown cancels native work before a fresh placement borrows its real group 225ms
+   ✓ authoritative key removal ends pending native work and cannot affect a surviving registered control 161ms
+   × keeps three nested object rows keyed through add, insert, reorder, edit, validation and terminal removal 6496ms
+   ✓ preserves nested row defaults by key across UI unmount and rebuilds membership reset explicitly 2673ms
+   ✓ isolates same-named forms and rows, releases detached descendants and leaves an unrelated host alive 196ms
+   ✓ rejects foreign, destroyed, unowned-array and missing-key row parents through public construction 125ms
+   ✓ rejects [object Object],[object Object] row keys before acquiring a placement (duplicate) 10ms
+   ✓ rejects [object Object] row keys before acquiring a placement (empty) 10ms
+   ✓ rejects [object Object] row keys before acquiring a placement (non-string) 9ms
+   ✓ requires an explicit string itemKey and rejects non-array authoritative row writes 778ms
+ ✓ |dom| test/unit/formkit-owner-submit.spec.js (8 tests) 1669ms
+   ✓ removes a hidden async validator from an awaiting submission and ignores its late result after replacement 616ms
+ ✓ |dom| test/unit/formkit-schema-views.spec.js (19 tests) 2783ms
+   ✓ SCHEMA-01 native schema group owns named FieldView parent, one root, independent simultaneous names, validate/submit/reset 1477ms
+ ✓ |dom| test/unit/formkit-composition-review.spec.js (28 tests) 1643ms
+ ✓ |dom| test/unit/formkit-adversarial-sol.spec.js (13 tests) 1723ms
+ ✓ |dom| test/unit/formkit-submission-lifetime.spec.js (18 tests) 1127ms
+ ✓ |dom| test/unit/formkit-manifest-prototype.spec.js (48 tests) 2650ms
+ ✓ |dom| test/unit/formkit-row-boundaries.spec.js (7 tests) 824ms
+ ✓ |dom| test/unit/formkit-host-contracts.spec.js (20 tests) 986ms
+ ✓ |dom| test/unit/formkit-portability-regressions.spec.js (14 tests) 745ms
+ ✓ |dom| test/unit/formkit-adversarial-astra.spec.js (4 tests) 851ms
+   ✓ waits for a delayed schema edit during remote submission validation (unrelated actor snapshot: false) 313ms
+ ✓ |dom| test/unit/formkit-composition-sol.spec.js (8 tests) 437ms
+ ✓ |dom| test/unit/formkit-adapter-repair.spec.js (6 tests) 406ms
+ ✓ |dom| test/unit/formkit-schema-views-boundaries.spec.js (12 tests) 392ms
+ ✓ |dom| test/unit/formkit-readonly-adversarial.spec.js (4 tests) 177ms
+ ✓ |dom| test/unit/formkit-file-value-props.spec.js (1 test) 278ms
+ ✓ |dom| test/unit/formkit-schema.spec.js (12 tests) 164ms
+ ✓ |dom| test/unit/formkit-schema-view-diagnostics.spec.js (1 test) 74ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |dom| test/unit/formkit-rows.spec.js > keeps three nested object rows keyed through add, insert, reorder, edit, validation and terminal removal
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ test/unit/formkit-rows.spec.js:317:1
+    315|   return { ...f, initial, add };
+    316| }
+    317| it('keeps three nested object rows keyed through add, insert, reorder,…
+       | ^
+    318|   const { form, list, display, add, initial } = await nestedFixture();
+    319|   const a = add('a'); const b = add('b', 'clear'); const c = add('c');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 26 passed (27)
+      Tests  1 failed | 438 passed (439)
+   Start at  13:02:18
+   Duration  77.57s (tests 55%, environment 36%, import 6%, transform 2%)

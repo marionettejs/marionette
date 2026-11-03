@@ -1,0 +1,10 @@
+
+ RUN  v5.0.3 /workspace/formkit-repair
+
+ ✓ |dom| test/unit/formkit-rows.spec.js (35 tests | 34 skipped) 1250ms
+   ✓ keeps three nested object rows keyed through add, insert, reorder, edit, validation and terminal removal 1248ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 34 skipped (35)
+   Start at  13:04:37
+   Duration  5.38s (transform 40%, tests 24%, environment 20%, import 15%, setup 1%)

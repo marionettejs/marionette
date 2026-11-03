@@ -1,0 +1,97 @@
+
+ RUN  v5.0.3 /workspace/formkit-repair
+
+ ❯ |dom| test/unit/formkit-runtime.spec.js (44 tests | 2 failed | 42 skipped) 1019ms
+   ❯ @mnjs/formkit native schema runtime (14)
+     ↓ mounts all official native controls with stable labels and editable core values
+     ↓ supports scoped named slots and section extensions with no framework component
+     ↓ forwards the default slot through native groups with lexical data and receiving context
+     ↓ forwards the content slot through native groups with lexical data and receiving context
+     ↓ keeps caller-provided root slots available to application schema
+     ↓ forwards editable list row slots through nested groups during replacement and reset
+     × keeps ignored action controls outside synchronized-list attachment recovery 360ms
+     × does not displace a real synchronized row for an explicitly indexed ignored control 657ms
+     ↓ owns custom native input definitions and releases them when schema type changes
+     ↓ rejects unknown or framework input definitions and still allows explicit owner disposal
+     ↓ preserves nested list identities through frozen rapid actor snapshots using explicit item keys
+     ↓ handles async errors, retry, overlapping submit, reset and late completion on official forms
+     ↓ renders trusted icons, class arrays/maps, style objects and supplied DOM slots with owned listeners
+     ↓ renders lexical scoped slots, tolerates omitted slots and watches borrowed node replacement until disposal
+   ↓ @mnjs/formkit official form feature contracts (18)
+     ↓ recreates a declarative control after its public core node is destroyed
+     ↓ recreates business-keyed components when a batched reset replaces their underlying core list node
+     ↓ reconciles surviving business-keyed controls after resetting a/b/c
+     ↓ reconciles surviving business-keyed controls after resetting a/c/b
+     ↓ reconciles surviving business-keyed controls after resetting b/a/c
+     ↓ reconciles surviving business-keyed controls after resetting b/c/a
+     ↓ reconciles surviving business-keyed controls after resetting c/a/b
+     ↓ reconciles surviving business-keyed controls after resetting c/b/a
+     ↓ releases list nodes removed during a batched core reset and repeated native mount/destroy
+     ↓ merges partial grouped values and replaces live descendant error props before native submission
+     ↓ supports public schema regeneration with changed native library components and inspected scalar slots
+     ↓ binds primitive expression methods and conditional loops and releases captured imperative listeners
+     ↓ honors form callbacks, incomplete messages and live async submission with default native actions
+     ↓ omits incomplete messages when disabled and restores a root disabled prop changed by the owner
+     ↓ renders customized action slots and literal/native custom input definitions
+     ↓ updates initialized values, names, ids, slots and native attributes through explicit schema data
+     ↓ renders children borrowed from a separate parent while owning only the mounted native nodes
+     ↓ uses visible validation modes, numeric blur normalization and public computed context
+   ↓ @mnjs/formkit keyed reset identity (1)
+     ↓ restores item-key list order without exchanging live controls or pending row values
+   ↓ resets function-keyed nested rows through one root input and one reset notification
+   ↓ restores absent initial keyed values and releases their controls on destruction
+   ↓ keeps ordinary unkeyed scalar list reset positional
+   ↓ retains nested keyed controls beside a keyless row on reset (keyless first: false)
+   ↓ retains nested keyed controls beside a keyless row on reset (keyless first: true)
+   ↓ reconciles business-keyed schema after public Core reset ([ 'a', 'b', 'c' ], explicit value: false)
+   ↓ reconciles business-keyed schema after public Core reset ([ 'a', 'c', 'b' ], explicit value: true)
+   ↓ reconciles business-keyed schema after public Core reset ([ 'b', 'a', 'c' ], explicit value: false)
+   ↓ reconciles business-keyed schema after public Core reset ([ 'c', 'a', 'b' ], explicit value: true)
+   ↓ resets an explicitly added schema field to its authored default alongside construction values
+   ↓ restores nested rendered values and releases registries when reset recreates a removed initial row
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |dom| test/unit/formkit-runtime.spec.js > @mnjs/formkit native schema runtime > keeps ignored action controls outside synchronized-list attachment recovery
+AssertionError: expected [ { _d: +0, …(22) }, …(27) ] to have a length of 1 but got 28
+
+- Expected
++ Received
+
+- 1
++ 28
+
+ ❯ test/unit/formkit-runtime.spec.js:131:21
+    129|     const values = form.getValues();
+    130|     form.destroy();
+    131|     expect(created).toHaveLength(1);
+       |                     ^
+    132|     expect(retained).toBe(true);
+    133|     expect(values).toEqual({ rows: [] });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |dom| test/unit/formkit-runtime.spec.js > @mnjs/formkit native schema runtime > does not displace a real synchronized row for an explicitly indexed ignored control
+AssertionError: expected [ { _d: +0, …(22) }, …(26) ] to have a length of 1 but got 27
+
+- Expected
++ Received
+
+- 1
++ 27
+
+ ❯ test/unit/formkit-runtime.spec.js:151:18
+    149|     const children = [...form.node.at('rows').children];
+    150|     form.destroy();
+    151|     expect(rows).toHaveLength(1);
+       |                  ^
+    152|     expect(ignored).toHaveLength(1);
+    153|     expect(children).toEqual(rows);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 42 skipped (44)
+   Start at  12:57:30
+   Duration  4.72s (environment 36%, transform 33%, tests 23%, import 7%)
