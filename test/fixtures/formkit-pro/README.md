@@ -6,6 +6,13 @@ FormKit 2.1.2, Vue 3.5.44 or React/ReactDOM 19.2.0. Each install captures a lock
 reinstalls with `npm ci`, checks the dependency graph and ESM/CommonJS imports,
 and builds with Vite 8.3.0. Vue packages are forbidden in native and React installs.
 
+All three consumers import base Genesis (`@formkit/themes/genesis`, pinned 2.1.2)
+before the Pro Genesis extension. The extension does not replace the base theme.
+In particular, base Genesis makes input inners positioned containers for popovers.
+The collector checks computed positioning and containment using an absolute
+descendant of each core input; actual Pro popover interactions still require the
+authorized development consumer. See [official styling guidance](https://formkit.com/essentials/styling).
+
 Use the repository's pinned Node/npm toolchain. Build before packing:
 
 ```sh

@@ -42,6 +42,16 @@ try {
     await page.waitForFunction(() => typeof window.proof.getValues === 'function');
     await page.locator('#contact-name').waitFor();
     result.core = await page.evaluate(() => window.proof.observations);
+    await check('base Genesis anchors positioned descendants to each input inner', async() => page.evaluate(() =>
+      ['contact-name', 'contact-email'].every(id => {
+        const inner = document.getElementById(id).closest('.formkit-inner');
+        const probe = document.createElement('span');
+        probe.style.position = 'absolute';
+        inner.append(probe);
+        const anchored = getComputedStyle(inner).position === 'relative' && probe.offsetParent === inner;
+        probe.remove();
+        return anchored;
+      })));
     await check('explicit root id matches the form and public registry', async() => page.evaluate(() =>
       document.querySelector('form').id === 'fixture-root' && window.proof.hasNode('fixture-root')));
     await check('mounted plugin finds connected text/email controls', async() => {

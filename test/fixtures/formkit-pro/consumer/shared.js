@@ -1,5 +1,6 @@
 import { getNode } from '@formkit/core';
 import { createProPlugin, autocomplete, dropdown, taglist, datepicker, toggle, slider, repeater } from '@formkit/pro';
+import '@formkit/themes/genesis';
 import '@formkit/pro/genesis';
 
 export const mode = new URLSearchParams(location.search).get('mode') ?? 'pro';
