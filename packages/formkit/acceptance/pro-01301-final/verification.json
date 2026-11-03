@@ -1,0 +1,75 @@
+{
+  "testedSourceRevision": "f75a0ca3606a1edc5e8764154e9523eca1390970",
+  "sourceDirtyAtPack": false,
+  "node": "24.19.0",
+  "npm": "11.17.0",
+  "vitest": "5.0.3",
+  "playwright": "1.63.0",
+  "browser": "Chromium 154.0.8037.57",
+  "formkit": "2.1.2",
+  "pro": "0.130.1",
+  "vite": "8.3.0",
+  "vue": "3.5.44",
+  "react": "19.2.0",
+  "unit": {
+    "passed": 430,
+    "failed": 0,
+    "workers": 1
+  },
+  "browserSuite": {
+    "passed": 14,
+    "failed": 0,
+    "workers": 1
+  },
+  "buildAndDeclarationConsumers": "passed",
+  "packedESMAndCommonJS": "passed",
+  "focusedESLint": "passed",
+  "publicTestBoundary": "passed",
+  "coreComparison": {
+    "native": {
+      "passed": 14,
+      "failed": 0
+    },
+    "vue": {
+      "passed": 11,
+      "failed": 3
+    },
+    "react": {
+      "passed": 12,
+      "failed": 2
+    },
+    "unexpectedRuntimeErrors": 0,
+    "collectorExitCode": 1,
+    "pro": "blocked by missing approved bootstrap on all three consumers"
+  },
+  "redProof": {
+    "at3a170e5": {
+      "namedRegistrationUnitFailures": 2,
+      "hiddenAncestorBrowserFailures": 1
+    },
+    "at7d5a4d38": {
+      "factoryRenderedFieldUnitFailures": 1
+    }
+  },
+  "review": {
+    "parentInitialTracks": 3,
+    "supplementalAstraSourceReview": "f75a0ca3 delta cleared; read-only, no independent execution",
+    "parentFinalReview": "pending"
+  },
+  "privateConsumerRoutes": {
+    "native": "http://localhost:5590/?mode=core",
+    "vue": "http://localhost:5591/?mode=core",
+    "react": "http://localhost:5592/?mode=core"
+  },
+  "browserLease": "released; no owned browser context remains",
+  "sources": {
+    "packages/formkit/src/index.ts": "f781bfba74059aafa125a28eef90d97b4cab00e93ec8c9a649d28e54196b7370",
+    "packages/formkit/src/runtime.ts": "b3eceb81e6772b76bb4b4353cd7d7e6d81b92afc705fd129df39a5a850ef5540",
+    "packages/formkit/src/view-components.ts": "d2d947aceafc3de97b666ae6b7808fd5fb6d7b06f934dab872b32002187979c1",
+    "test/unit/formkit-hardening.spec.js": "f2de43d31eab9546218ac801d99b44e5b515ffe80c6a5fc0256183069b337999",
+    "test/unit/formkit-regressions.spec.js": "d986fd3501a716554efd68ee82655df3d812a1e47a00c4e2b301eaf8893a3d5d",
+    "test/formkit/formkit-fixture.js": "432094e79b26c6bf223cdbd5bed3b675c91e630bf4f47c62420ec5c04d4b3916",
+    "test/formkit/formkit.spec.mjs": "6df969d7da8a1ab8cf9150943b72a4b200d0740ae288997052b3c0aecf70ee64",
+    "test/fixtures/formkit-package/verify.mjs": "425e4e6d3fc8be27f142fa70d4c3816afb14e67f3adba08432087d114626c88e"
+  }
+}

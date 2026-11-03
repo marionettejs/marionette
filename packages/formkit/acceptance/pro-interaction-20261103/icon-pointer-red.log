@@ -1,0 +1,39 @@
+npm warn Unknown project config "strict-allow-scripts". This will stop working in the next major version of npm.
+[WebServer] (node:4182) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:4206) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › test/formkit/formkit.spec.mjs:4:1 › unchanged SVG icons retain pointer activation across blur-driven schema updates (3.8s)
+
+
+  1) [chromium] › test/formkit/formkit.spec.mjs:4:1 › unchanged SVG icons retain pointer activation across blur-driven schema updates
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+        "blurs": 1,
+    -   "clicks": 1,
+    -   "retained": true,
+    +   "clicks": 0,
+    +   "retained": false,
+      }
+
+      16 |     blurs: window.iconFixture.state.blurs, retained: window.originalIcon === document.querySelector('#icon-open svg') }));
+      17 |   await testInfo.attach('icon-pointer.json', { body: JSON.stringify({ result, errors }, null, 2), contentType: 'application/json' });
+    > 18 |   expect(result).toEqual({ clicks: 1, blurs: 1, retained: true });
+         |                  ^
+      19 |   await page.evaluate(() => window.iconFixture.destroy());
+      20 |   expect(errors).toEqual([]);
+      21 | });
+        at /workspace/formkit-repair/test/formkit/formkit.spec.mjs:18:18
+
+    Error Context: test/tmp/formkit-browser/formkit-unchanged-SVG-icon-034fd--blur-driven-schema-updates-chromium/error-context.md
+
+  1 failed
+    [chromium] › test/formkit/formkit.spec.mjs:4:1 › unchanged SVG icons retain pointer activation across blur-driven schema updates

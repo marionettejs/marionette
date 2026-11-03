@@ -1,0 +1,25 @@
+[WebServer] (node:14302) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:14341) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 1 worker
+
+(node:14444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › test/formkit/composed.spec.mjs:36:1 › FLOW-NESTED native two-level RowViews retain focus, validate, reset membership and clean up (2.4s)
+  ✓   2 [chromium] › test/formkit/composed.spec.mjs:85:1 › FLOW-01 composed planning journey retains focus and drafts, validates across sections and rows, retries and resets (24.8s)
+  ✓   3 [chromium] › test/formkit/composed.spec.mjs:195:1 › FLOW-02 stale callback errors cannot reach replacement rows or survive reset and destruction (7.6s)
+  ✓   4 [chromium] › test/formkit/composed.spec.mjs:252:1 › FLOW-03 simultaneous same-named forms and repeated Region mount/destroy stay independent (8.5s)
+  ✓   5 [chromium] › test/formkit/formkit.spec.mjs:4:1 › invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field (1.4s)
+  ✓   6 [chromium] › test/formkit/formkit.spec.mjs:44:1 › named registrations mount connected and support keyboard validation, correction and reset (1.0s)
+  ✓   7 [chromium] › test/formkit/formkit.spec.mjs:85:1 › external owned controls retain native origin and state bindings across input, change and blur (873ms)
+  ✓   8 [chromium] › test/formkit/formkit.spec.mjs:118:1 › decimal edits retain native text and focus while authoritative writes replace pending drafts (1.8s)
+  ✓   9 [chromium] › test/formkit/formkit.spec.mjs:161:1 › template Regions preserve accordion drafts, clear conditional values and submit through the keyboard (1.9s)
+  ✓  10 [chromium] › test/formkit/formkit.spec.mjs:194:1 › adopted forms mount, preserve keyed sibling edits and focus, and can be reused (861ms)
+  ✓  11 [chromium] › test/formkit/formkit.spec.mjs:245:1 › profile example supports keyboard validation, server errors, retry and native reset (2.5s)
+  ✓  12 [chromium] › test/formkit/formkit.spec.mjs:273:1 › external snapshots and schema reordering preserve real browser focus and selection, then clean up (669ms)
+  ✓  13 [chromium] › test/formkit/formkit.spec.mjs:316:1 › official schema form supports conditional fields, steps, files, lists, server errors and cancellation (5.2s)
+  ✓  14 [chromium] › test/formkit/formkit.spec.mjs:418:1 › explicit owner placement preserves sibling selection and ends validation on removal (1.1s)
+
+  14 passed (1.1m)

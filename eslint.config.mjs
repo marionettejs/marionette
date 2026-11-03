@@ -26,7 +26,7 @@ export default [
     ],
   },
   {
-    files: ['**/*.{cjs,js,mjs}', 'src/**/*.ts', 'packages/*/src/**/*.ts'],
+    files: ['**/*.{cjs,js,mjs}', 'src/**/*.ts', 'packages/*/src/**/*.ts', 'packages/formkit/acceptance/experimental/composition-prototype.ts'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -116,7 +116,7 @@ export default [
     },
   },
   {
-    files: ['src/**/*.ts', 'packages/*/src/**/*.ts'],
+    files: ['src/**/*.ts', 'packages/*/src/**/*.ts', 'packages/formkit/acceptance/experimental/composition-prototype.ts'],
     languageOptions: { parser: typescriptParser },
     plugins: { '@typescript-eslint': typescriptPlugin },
     rules: {

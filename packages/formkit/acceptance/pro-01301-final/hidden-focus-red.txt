@@ -1,0 +1,41 @@
+[WebServer] (node:11370) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11383) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:11407) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › test/formkit/formkit.spec.mjs:4:1 › invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field (5.8s)
+
+
+  1) [chromium] › test/formkit/formkit.spec.mjs:4:1 › invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('textbox', { name: 'Visible required', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('textbox', { name: 'Visible required', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Visible required', exact: true })
+        14 × locator resolved to <input type="text" name="visible" aria-invalid="true" aria-required="true" class="formkit-input" id="visible-required" aria-describedby="help-visible-required visible-required-rule_required"/>
+           - unexpected value "inactive"
+
+
+      20 |     }, state);
+      21 |     expect(await page.evaluate(() => window.focusFixture.form.submit())).toBe('invalid');
+    > 22 |     await expect(visible).toBeFocused();
+         |                           ^
+      23 |     await expect(visible).toHaveAttribute('aria-invalid', 'true');
+      24 |   }
+      25 |   await visible.fill('Corrected');
+        at /workspace/formkit-repair/test/formkit/formkit.spec.mjs:22:27
+
+    Error Context: test/tmp/formkit-browser/formkit-invalid-submit-ski-85246--an-external-required-field-chromium/error-context.md
+
+  1 failed
+    [chromium] › test/formkit/formkit.spec.mjs:4:1 › invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field

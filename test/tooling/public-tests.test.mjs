@@ -10,6 +10,10 @@ const checker = resolve(import.meta.dirname, '../../scripts/checks/public-tests.
 for (const [name, source, expectedStatus] of [
   ['public behavior', 'import { View } from \'marionette\'; new View().isDestroyed();', 0],
   ['prototype-shaped user data', 'const data = { [\'__proto__\']: 1 }; data[\'__proto__\'];', 0],
+  ['public raw schema attribute', 'const schema = { $el: \'input\', attrs: { [\'__raw__placeholder\']: \'$Literal\' } };', 0],
+  ['public unquoted raw schema attribute', 'const schema = { $el: \'input\', attrs: { __raw__placeholder: \'$Literal\' } };', 0],
+  ['raw-looking private spy', 'vi.spyOn(view, \'__raw__placeholder\');', 1],
+  ['raw-looking private member', 'view[\'__raw__placeholder\'];', 1],
   ['private object override', 'const View = { _renderTemplate() {} };', 1],
   ['private shorthand override', 'const _renderTemplate = () => {}; const View = { _renderTemplate };', 1],
   ['private class override', 'class View { _renderTemplate() {} }', 1],

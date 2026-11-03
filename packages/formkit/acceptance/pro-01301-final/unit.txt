@@ -1,0 +1,58 @@
+
+ RUN  v5.0.3 /workspace/formkit-repair
+
+ ✓ |dom| test/unit/formkit-nested-rows.spec.js (8 tests) 8365ms
+   ✓ nested repeated keys retain lineage, controls, focus and errors through two-level authoritative reorder 891ms
+   ✓ inner clear and preserved drafts use the full key through outer reorder and inner list remount 787ms
+   ✓ deleting an ancestor while its inner list is absent retires added defaults and exclusions before key reuse 884ms
+   ✓ ancestor deletion ends detached inner widgets, delayed native drafts and retained control listeners 553ms
+   ✓ same-membership construction reset retains keyed inner controls after both ancestor and child reorder 1402ms
+   ✓ membership-changing construction reset removes added outer and inner rows and allows explicit presentation rebuild 1950ms
+   ✓ submit resettles a delayed nested edit and pending validation after sibling removal before callback capture 1241ms
+   ✓ nested removal after callback capture aborts the external attempt and terminal destroy ignores late work 655ms
+ ✓ |dom| test/unit/formkit-rows.spec.js (35 tests) 5679ms
+   ✓ preserved row teardown ends validation and remount restores the committed object 480ms
+   ✓ same-membership bare reset retains row controls and restores construction values 319ms
+   ✓ observable collection display reorder, filter and rebuild preserve values and retained groups 454ms
+   ✓ first-render validation is lazy but filtering an already rendered row keeps its validation 469ms
+   ✓ keeps three nested object rows keyed through add, insert, reorder, edit, validation and terminal removal 654ms
+ ✓ |dom| test/unit/formkit-runtime.spec.js (38 tests) 3621ms
+ ✓ |dom| test/unit/formkit-application-lifecycle.spec.js (7 tests) 2382ms
+   ✓ mounts a complete initialized host snapshot without replacing application data with input defaults 358ms
+   ✓ retains external errors through edits, hides their summary when valid, and clears them at valid submission 632ms
+   ✓ discards by destroying the owner and remounting authoritative values, cancelling drafts and late submission 467ms
+ ✓ |dom| test/unit/formkit-regressions.spec.js (49 tests) 2687ms
+ ✓ |dom| test/unit/formkit.spec.js (18 tests) 1855ms
+ ✓ |dom| test/unit/formkit-schema-views.spec.js (19 tests) 1825ms
+   ✓ SCHEMA-01 native schema group owns named FieldView parent, one root, independent simultaneous names, validate/submit/reset 906ms
+ ✓ |dom| test/unit/formkit-manifest-prototype.spec.js (48 tests) 1526ms
+ ✓ |dom| test/unit/formkit-composition.spec.js (5 tests) 1445ms
+   ✓ composes official fields in ordinary Regions and preserves sibling focus through clear conditions 446ms
+   ✓ validates composed fields and submits one settled snapshot with server errors and reset cancellation 315ms
+   ✓ shares validation, submission, reset and cleanup between a schema slot and an ordinary section View 405ms
+ ✓ |dom| test/unit/formkit-adversarial-sol.spec.js (13 tests) 1190ms
+ ✓ |dom| test/unit/formkit-composition-review.spec.js (28 tests) 939ms
+ ✓ |dom| test/unit/formkit-review.spec.js (25 tests) 994ms
+ ✓ |dom| test/unit/formkit-hardening.spec.js (17 tests) 767ms
+ ✓ |dom| test/unit/formkit-official.spec.js (6 tests) 1042ms
+   ✓ @mnjs/formkit official input integration (6)
+     ✓ renders official sections, retains typing focus, validates, submits and resets grouped values 361ms
+ ✓ |dom| test/unit/formkit-owner-submit.spec.js (8 tests) 806ms
+   ✓ removes a hidden async validator from an awaiting submission and ignores its late result after replacement 325ms
+ ✓ |dom| test/unit/formkit-submission-lifetime.spec.js (18 tests) 890ms
+ ✓ |dom| test/unit/formkit-host-contracts.spec.js (20 tests) 547ms
+ ✓ |dom| test/unit/formkit-row-boundaries.spec.js (7 tests) 528ms
+ ✓ |dom| test/unit/formkit-portability-regressions.spec.js (14 tests) 529ms
+ ✓ |dom| test/unit/formkit-adversarial-astra.spec.js (4 tests) 447ms
+ ✓ |dom| test/unit/formkit-schema-views-boundaries.spec.js (12 tests) 245ms
+ ✓ |dom| test/unit/formkit-composition-sol.spec.js (8 tests) 255ms
+ ✓ |dom| test/unit/formkit-adapter-repair.spec.js (6 tests) 288ms
+ ✓ |dom| test/unit/formkit-readonly-adversarial.spec.js (4 tests) 145ms
+ ✓ |dom| test/unit/formkit-file-value-props.spec.js (1 test) 195ms
+ ✓ |dom| test/unit/formkit-schema.spec.js (11 tests) 85ms
+ ✓ |dom| test/unit/formkit-schema-view-diagnostics.spec.js (1 test) 41ms
+
+ Test Files  27 passed (27)
+      Tests  430 passed (430)
+   Start at  20:22:22
+   Duration  68.68s (tests 61%, environment 29%, import 8%, transform 2%)

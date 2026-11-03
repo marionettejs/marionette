@@ -1,0 +1,4 @@
+Collector source 50f3519e786d8988dd2a32e7abb4c54c9c014df7
+PASS stale Pro0.130.1 receipt: exit1; Consumer stack or FormKit version mismatch; requests=["/receipt.json"]
+PASS wrong stack receipt: exit1; Consumer stack or FormKit version mismatch; requests=["/receipt.json"]
+PASS stale visible version label: exit1; Consumer version label mismatch; requests=["/receipt.json","/?mode=pro","/favicon.ico"]

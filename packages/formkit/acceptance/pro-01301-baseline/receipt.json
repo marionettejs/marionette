@@ -1,0 +1,586 @@
+{
+  "node": "v24.19.0",
+  "playwright": "1.63.0",
+  "proVersion": "0.130.1",
+  "coreVersion": "2.1.2",
+  "browser": "154.0.8037.57",
+  "stacks": {
+    "native": {
+      "cases": [
+        {
+          "name": "mounted plugin finds connected text/email controls",
+          "passed": false,
+          "actual": false
+        },
+        {
+          "name": "required invalid submit has associated errors/help and no callback",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "controlled replacement updates values and existing DOM",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "class update preserves inherited layer and selection",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "removing local class section clears its previous classes",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "disabled state reaches and restores controls",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "pending submit disables repeat submission and resolves once",
+          "passed": false,
+          "actual": {
+            "passed": false,
+            "disabled": false,
+            "callbacks": 1
+          }
+        },
+        {
+          "name": "async server rejection presents root and field errors",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "390px viewport has no horizontal page overflow",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "reset restores construction values and clears server errors",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "destroy clears input registry and owned DOM",
+          "passed": true,
+          "actual": true
+        }
+      ],
+      "pageErrors": [],
+      "consumer": {
+        "sourceRevision": "daf6dd7e148083cbc261f3aad96272f0e3ead016",
+        "sourceDirty": false,
+        "stack": "native",
+        "node": "v24.19.0",
+        "npm": "11.17.0",
+        "consumer": "/tmp/mnjs-pro-native-GyGhkJ",
+        "artifacts": [
+          {
+            "name": "marionette",
+            "version": "5.0.0",
+            "sha256": "a6beea9c950c70cf521f2c127ae81e3c508cc52ace48a11752c00cc1cd460d1a"
+          },
+          {
+            "name": "@mnjs/utils",
+            "version": "5.0.0",
+            "sha256": "7d74775d89ff90b1f53c84634a5928eb39cb73814ae744037072b0ac7d5da8fd"
+          },
+          {
+            "name": "@mnjs/radio",
+            "version": "5.0.0",
+            "sha256": "dcf69f06ebbc52f8b630cc975ce2f505848e536bf87f27cabbc09d46e4fd4de3"
+          },
+          {
+            "name": "@mnjs/formkit",
+            "version": "5.0.0-rc.2",
+            "sha256": "b9625f130949aac1a0535782bfbd38674efcce4fc1a4f650f99e816361bcbd6c"
+          }
+        ],
+        "lockSha256": "144234125cc64037046492cc2ae09bb2827ab8c3e4dd441405831338d61c96f7",
+        "versions": {
+          "node_modules/@formkit/core": "2.1.2",
+          "node_modules/@formkit/drag-and-drop": "0.5.3",
+          "node_modules/@formkit/i18n": "2.1.2",
+          "node_modules/@formkit/inputs": "2.1.2",
+          "node_modules/@formkit/observer": "2.1.2",
+          "node_modules/@formkit/pro": "0.130.1",
+          "node_modules/@formkit/rules": "2.1.2",
+          "node_modules/@formkit/tempo": "1.1.0",
+          "node_modules/@formkit/themes": "2.1.2",
+          "node_modules/@formkit/utils": "2.1.2",
+          "node_modules/@formkit/validation": "2.1.2",
+          "node_modules/vite": "8.3.0"
+        },
+        "vuePackages": [],
+        "fixtureRevision": "3c96e82f33da1e02a1dcd907b3c445f18095a66a",
+        "fixtureDirty": false,
+        "adapterRuntimeRevision": "c334d311d6886b9a2c976b476f8101192a7a8068",
+        "fixtureSha256": {
+          "index.html": "2aa5cb85114b9557b838e888a1d80dad37b9ff401907088918b5d437bfae1305",
+          "shared.js": "30b46bed1f0dbfd83ca654e1d2234bfb2fc05104a0942be1ce9bfb2a1c973448",
+          "main.js": "9c7d16bf9766a75d80336b309c279daeb05bbcef17fcbe01449bd51c01286611"
+        }
+      },
+      "pro": {
+        "mode": "pro",
+        "hostname": "localhost",
+        "bootstrap": "blocked",
+        "mounted": [],
+        "submissions": [],
+        "errors": [],
+        "bootstrapError": "A FormKit API key is required, please visit https://formkit.com/pro"
+      },
+      "core": {
+        "mode": "core",
+        "hostname": "localhost",
+        "bootstrap": "ready",
+        "mounted": [
+          {
+            "type": "text",
+            "id": "contact-name",
+            "found": false,
+            "connected": false
+          },
+          {
+            "type": "email",
+            "id": "contact-email",
+            "found": false,
+            "connected": false
+          },
+          {
+            "type": "submit",
+            "id": "mnv1-form-input-1",
+            "found": false,
+            "connected": false
+          }
+        ],
+        "submissions": [],
+        "errors": []
+      },
+      "final": {
+        "mode": "core",
+        "hostname": "localhost",
+        "bootstrap": "ready",
+        "mounted": [
+          {
+            "type": "text",
+            "id": "contact-name",
+            "found": false,
+            "connected": false
+          },
+          {
+            "type": "email",
+            "id": "contact-email",
+            "found": false,
+            "connected": false
+          },
+          {
+            "type": "submit",
+            "id": "mnv1-form-input-1",
+            "found": false,
+            "connected": false
+          }
+        ],
+        "submissions": [
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "resolved"
+          },
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "rejected"
+          }
+        ],
+        "errors": []
+      }
+    },
+    "vue": {
+      "cases": [
+        {
+          "name": "mounted plugin finds connected text/email controls",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "required invalid submit has associated errors/help and no callback",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "controlled replacement updates values and existing DOM",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "class update preserves inherited layer and selection",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "removing local class section clears its previous classes",
+          "passed": false,
+          "actual": false
+        },
+        {
+          "name": "disabled state reaches and restores controls",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "pending submit disables repeat submission and resolves once",
+          "passed": true,
+          "actual": {
+            "passed": true,
+            "disabled": true,
+            "callbacks": 1
+          }
+        },
+        {
+          "name": "async server rejection presents root and field errors",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "390px viewport has no horizontal page overflow",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "reset restores construction values and clears server errors",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "destroy clears input registry and owned DOM",
+          "passed": true,
+          "actual": true
+        }
+      ],
+      "pageErrors": [],
+      "consumer": {
+        "sourceRevision": "daf6dd7e148083cbc261f3aad96272f0e3ead016",
+        "sourceDirty": false,
+        "stack": "vue",
+        "node": "v24.19.0",
+        "npm": "11.17.0",
+        "consumer": "/tmp/mnjs-pro-vue-jpLrbm",
+        "artifacts": [],
+        "lockSha256": "e8ef71e38234056b4a2254b547a6d48de2f074afd0f2af04c33fa26ed7a6bacf",
+        "versions": {
+          "node_modules/@formkit/core": "2.1.2",
+          "node_modules/@formkit/dev": "2.1.2",
+          "node_modules/@formkit/drag-and-drop": "0.5.3",
+          "node_modules/@formkit/i18n": "2.1.2",
+          "node_modules/@formkit/inputs": "2.1.2",
+          "node_modules/@formkit/observer": "2.1.2",
+          "node_modules/@formkit/pro": "0.130.1",
+          "node_modules/@formkit/rules": "2.1.2",
+          "node_modules/@formkit/tempo": "1.1.0",
+          "node_modules/@formkit/themes": "2.1.2",
+          "node_modules/@formkit/utils": "2.1.2",
+          "node_modules/@formkit/validation": "2.1.2",
+          "node_modules/@formkit/vue": "2.1.2",
+          "node_modules/vite": "8.3.0",
+          "node_modules/vue": "3.5.44"
+        },
+        "vuePackages": [
+          "node_modules/@formkit/vue",
+          "node_modules/@vue/compiler-core",
+          "node_modules/@vue/compiler-dom",
+          "node_modules/@vue/compiler-sfc",
+          "node_modules/@vue/compiler-ssr",
+          "node_modules/@vue/reactivity",
+          "node_modules/@vue/runtime-core",
+          "node_modules/@vue/runtime-dom",
+          "node_modules/@vue/server-renderer",
+          "node_modules/@vue/shared",
+          "node_modules/vue"
+        ],
+        "fixtureRevision": "3c96e82f33da1e02a1dcd907b3c445f18095a66a",
+        "fixtureDirty": false,
+        "adapterRuntimeRevision": null,
+        "fixtureSha256": {
+          "index.html": "2aa5cb85114b9557b838e888a1d80dad37b9ff401907088918b5d437bfae1305",
+          "shared.js": "30b46bed1f0dbfd83ca654e1d2234bfb2fc05104a0942be1ce9bfb2a1c973448",
+          "main.js": "c5c92934ad9f1a5216411908fa9d3836799ce22dd1b06d3a00219ed43f655ba0"
+        }
+      },
+      "pro": {
+        "mode": "pro",
+        "hostname": "localhost",
+        "bootstrap": "blocked",
+        "mounted": [],
+        "submissions": [],
+        "errors": [],
+        "bootstrapError": "A FormKit API key is required, please visit https://formkit.com/pro"
+      },
+      "core": {
+        "mode": "core",
+        "hostname": "localhost",
+        "bootstrap": "ready",
+        "mounted": [
+          {
+            "type": "text",
+            "id": "contact-name",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "email",
+            "id": "contact-email",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "submit",
+            "id": "input_1",
+            "found": true,
+            "connected": true
+          }
+        ],
+        "submissions": [],
+        "errors": []
+      },
+      "final": {
+        "mode": "core",
+        "hostname": "localhost",
+        "bootstrap": "ready",
+        "mounted": [
+          {
+            "type": "text",
+            "id": "contact-name",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "email",
+            "id": "contact-email",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "submit",
+            "id": "input_1",
+            "found": true,
+            "connected": true
+          }
+        ],
+        "submissions": [
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "resolved"
+          },
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "rejected"
+          }
+        ],
+        "errors": []
+      }
+    },
+    "react": {
+      "cases": [
+        {
+          "name": "mounted plugin finds connected text/email controls",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "required invalid submit has associated errors/help and no callback",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "controlled replacement updates values and existing DOM",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "class update preserves inherited layer and selection",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "removing local class section clears its previous classes",
+          "passed": false,
+          "actual": false
+        },
+        {
+          "name": "disabled state reaches and restores controls",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "pending submit disables repeat submission and resolves once",
+          "passed": true,
+          "actual": {
+            "passed": true,
+            "disabled": true,
+            "callbacks": 1
+          }
+        },
+        {
+          "name": "async server rejection presents root and field errors",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "390px viewport has no horizontal page overflow",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "reset restores construction values and clears server errors",
+          "passed": true,
+          "actual": true
+        },
+        {
+          "name": "destroy clears input registry and owned DOM",
+          "passed": true,
+          "actual": true
+        }
+      ],
+      "pageErrors": [],
+      "consumer": {
+        "sourceRevision": "daf6dd7e148083cbc261f3aad96272f0e3ead016",
+        "sourceDirty": false,
+        "stack": "react",
+        "node": "v24.19.0",
+        "npm": "11.17.0",
+        "consumer": "/tmp/mnjs-pro-react-LQBJTQ",
+        "artifacts": [],
+        "lockSha256": "494a4b970a6bcd07e1b234dac407af5ceb57e4109fa4df36b715d176cde27322",
+        "versions": {
+          "node_modules/@formkit/core": "2.1.2",
+          "node_modules/@formkit/dev": "2.1.2",
+          "node_modules/@formkit/drag-and-drop": "0.5.3",
+          "node_modules/@formkit/i18n": "2.1.2",
+          "node_modules/@formkit/inputs": "2.1.2",
+          "node_modules/@formkit/observer": "2.1.2",
+          "node_modules/@formkit/pro": "0.130.1",
+          "node_modules/@formkit/react": "2.1.2",
+          "node_modules/@formkit/rules": "2.1.2",
+          "node_modules/@formkit/tempo": "1.1.0",
+          "node_modules/@formkit/themes": "2.1.2",
+          "node_modules/@formkit/utils": "2.1.2",
+          "node_modules/@formkit/validation": "2.1.2",
+          "node_modules/react": "19.2.0",
+          "node_modules/react-dom": "19.2.0",
+          "node_modules/vite": "8.3.0"
+        },
+        "vuePackages": [],
+        "fixtureRevision": "3c96e82f33da1e02a1dcd907b3c445f18095a66a",
+        "fixtureDirty": false,
+        "adapterRuntimeRevision": null,
+        "fixtureSha256": {
+          "index.html": "2aa5cb85114b9557b838e888a1d80dad37b9ff401907088918b5d437bfae1305",
+          "shared.js": "30b46bed1f0dbfd83ca654e1d2234bfb2fc05104a0942be1ce9bfb2a1c973448",
+          "main.js": "6bf2442e3d0bd10331d0677cb89104c8a7cdca9363e7e71c93c1c72110791d00"
+        }
+      },
+      "pro": {
+        "mode": "pro",
+        "hostname": "localhost",
+        "bootstrap": "blocked",
+        "mounted": [],
+        "submissions": [],
+        "errors": [],
+        "bootstrapError": "A FormKit API key is required, please visit https://formkit.com/pro"
+      },
+      "core": {
+        "mode": "core",
+        "hostname": "localhost",
+        "bootstrap": "ready",
+        "mounted": [
+          {
+            "type": "text",
+            "id": "contact-name",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "email",
+            "id": "contact-email",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "submit",
+            "id": "input_1",
+            "found": true,
+            "connected": true
+          }
+        ],
+        "submissions": [],
+        "errors": []
+      },
+      "final": {
+        "mode": "core",
+        "hostname": "localhost",
+        "bootstrap": "ready",
+        "mounted": [
+          {
+            "type": "text",
+            "id": "contact-name",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "email",
+            "id": "contact-email",
+            "found": true,
+            "connected": true
+          },
+          {
+            "type": "submit",
+            "id": "input_1",
+            "found": true,
+            "connected": true
+          }
+        ],
+        "submissions": [
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "resolved"
+          },
+          {
+            "values": {
+              "contact": {
+                "name": "Ada",
+                "email": "ada@example.test"
+              }
+            },
+            "state": "rejected"
+          }
+        ],
+        "errors": []
+      }
+    }
+  }
+}

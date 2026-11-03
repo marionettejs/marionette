@@ -1,4 +1,5 @@
 [
+  "packages/formkit/OWNERSHIP.md",
   "config/diagnostics/catalog.json",
   "config/diagnostics/catalog.schema.json",
   "config/release-profile.json",

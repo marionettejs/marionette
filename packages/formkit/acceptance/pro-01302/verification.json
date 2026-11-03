@@ -1,0 +1,59 @@
+{
+  "testedSourceRevision": "50f3519e786d8988dd2a32e7abb4c54c9c014df7",
+  "productionSourceEquivalentTo": "f75a0ca3606a1edc5e8764154e9523eca1390970",
+  "sourceDirtyAtPack": false,
+  "versions": {
+    "node": "v24.19.0",
+    "playwright": "1.63.0",
+    "browser": "154.0.8037.57",
+    "coreVersion": "2.1.2",
+    "proVersion": "0.130.2"
+  },
+  "npm": "11.17.0",
+  "vite": "8.3.0",
+  "nativeCoreChecks": {
+    "passed": 14,
+    "failed": 0
+  },
+  "collectorExitCode": 1,
+  "collectorExitReason": "Exact known missing-key Pro bootstrap; no native core assertion or unexpected runtime/page error.",
+  "receiptGuardNegativeChecks": 3,
+  "vueReactRetested": false,
+  "licensedProControls": "Unverified; approved existing bootstrap unavailable.",
+  "artifacts": {
+    "build.txt": "2f293d0349ba97b98717d86820b6615dd6751ac00599ee8f6565778ead1a06f9",
+    "consumer-build.txt": "baeea76ebb13e8c0f1350ede8ecfda22a937cfebd57551eae0489952913ecc21",
+    "consumer.json": "61ac0f52f1734920ab578d135e69055f4e7c9c962b2754cddc716211ffa56a24",
+    "import.txt": "e0915317689368e5a1a390cfd37076dcb0812345576f22a31c534e4214c5bb22",
+    "install.txt": "800df2b39495cd7d3476ac25ab2749fa62b28b5b5c520c3f2ae1489e4e21ea97",
+    "locked-install.txt": "7ecbedd984aee3baab19b8498255748a44e9652394f2b757ae9a7621a641a00f",
+    "native-comparison.json": "41be94bdf89b4c02c5fd6f0caa1e51115731db3cbfae89fce692e6c48f5bd60b",
+    "native-core-desktop.png": "2c12f5baf47c25ae04a43fdafc0584cf6f317cfb47fabf1b9a7fa8afa7e48d43",
+    "native-core-mobile.png": "8713e45db45ddc548a290e4956790433723a1b466876cc84dfd496f36eeb928b",
+    "native-package-lock.json": "132c5961e2dda0ac34462f1d9ab74a0a4a2b1b8b4647bce20a3e5abe82b10c8b",
+    "native-pro-bootstrap.png": "7f4a84d355f3fae6912c229d038b2fb0445975d822d25c9207d3ac0b0a07e442",
+    "receipt-guard.txt": "6a348fd00a552fb1e9f97e90f83afe00b500b1fbfd3cd482b045bda5e54433ac",
+    "release-comparison.json": "9a670ecc88796fed1ad1ddf2ff0820dd716daadaf8ec240dfe5bb4ff6e73b6b5",
+    "resolution.json": "4e886574e9f50c2a58ab455ae35adcc1b43523a4f480914b7d187c8452978d7d"
+  },
+  "productionFiles": {
+    "packages/formkit/src/bindings.ts": "b2cb41265425550136cd68e08e66e36450f2f55cda39dd8a2cd146002e1a1420",
+    "packages/formkit/src/composition-input.ts": "b14d31c4ca70a98f1b445fcd17891524364ed1035e9da09098a627bd8a1d6795",
+    "packages/formkit/src/composition.ts": "beda91fd9572493b310af8b5d59d0e1afd9ed69bca481e91f1302bd238db4afc",
+    "packages/formkit/src/index.ts": "f781bfba74059aafa125a28eef90d97b4cab00e93ec8c9a649d28e54196b7370",
+    "packages/formkit/src/row-ownership.ts": "5a3f3633b6a9dc6990124c267d184903bf0395aece5f9cd9366d99564fcd8fe3",
+    "packages/formkit/src/runtime.ts": "b3eceb81e6772b76bb4b4353cd7d7e6d81b92afc705fd129df39a5a850ef5540",
+    "packages/formkit/src/schema-view.ts": "1f8cac9da3a6f3074c9de1b708c04cae88a28d2cd0bae07596f4d09707325a6c",
+    "packages/formkit/src/schema.ts": "53dcdf470a8e0c10bba55e98286b40185a0efd7fd52fb89c0adac656e67bbabf",
+    "packages/formkit/src/view-components.ts": "d2d947aceafc3de97b666ae6b7808fd5fb6d7b06f934dab872b32002187979c1"
+  },
+  "independentReview": {
+    "model": "gpt-6-astra",
+    "scope": "Read-only source, artifact hash, log and screenshot review; no independent live browser execution.",
+    "result": "Cleared; no further findings.",
+    "verifiedEvidenceHashes": 14,
+    "verifiedPackageHashes": 4,
+    "verifiedProductionSourceHashes": 9
+  },
+  "cloudResources": "Assessment browser contexts and private Vite servers closed."
+}

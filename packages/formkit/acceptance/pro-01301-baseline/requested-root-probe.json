@@ -1,0 +1,48 @@
+{
+  "source": "c334d311d6886b9a2c976b476f8101192a7a8068",
+  "node": "v24.19.0",
+  "pro": {
+    "mode": "pro",
+    "hostname": "localhost",
+    "bootstrap": "blocked",
+    "mounted": [],
+    "submissions": [],
+    "errors": [],
+    "bootstrapError": "A FormKit API key is required, please visit https://formkit.com/pro"
+  },
+  "core": {
+    "mode": "core",
+    "hostname": "localhost",
+    "bootstrap": "ready",
+    "mounted": [
+      {
+        "type": "text",
+        "id": "contact-name",
+        "found": false,
+        "connected": false
+      },
+      {
+        "type": "email",
+        "id": "contact-email",
+        "found": false,
+        "connected": false
+      },
+      {
+        "type": "submit",
+        "id": "mnv1-form-input-1",
+        "found": false,
+        "connected": false
+      }
+    ],
+    "submissions": [],
+    "errors": [],
+    "afterReplacement": {
+      "contact": {
+        "name": "Ada",
+        "email": "ada@example.test"
+      }
+    }
+  },
+  "browser": "154.0.8037.57",
+  "pageErrors": []
+}

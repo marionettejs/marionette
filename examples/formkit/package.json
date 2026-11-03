@@ -1,0 +1,16 @@
+{
+  "name": "marionette-formkit-example",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": { "node": "^22.22.2 || >=24.15.0" },
+  "scripts": { "dev": "vite --host 127.0.0.1", "build": "vite build", "preview": "vite preview --host 127.0.0.1" },
+  "dependencies": {
+    "@formkit/addons": "2.1.2",
+    "marionette": "file:../..",
+    "@mnjs/formkit": "file:../../packages/formkit",
+    "@mnjs/utils": "file:../../packages/utils",
+    "@mnjs/radio": "file:../../packages/radio"
+  },
+  "devDependencies": { "vite": "8.3.0" }
+}

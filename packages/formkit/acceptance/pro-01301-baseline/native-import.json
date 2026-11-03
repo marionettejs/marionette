@@ -1,0 +1,26 @@
+{
+  "source": "c334d311d6886b9a2c976b476f8101192a7a8068",
+  "node": "v24.19.0",
+  "proVersion": "0.130.1",
+  "coreVersion": "2.1.2",
+  "forbidden": [],
+  "esmImport": true,
+  "cjsImport": true,
+  "esmEntry": "file:///tmp/mnjs-pro-native-20261102/node_modules/@formkit/pro/index.mjs",
+  "cjsEntry": "/tmp/mnjs-pro-native-20261102/node_modules/@formkit/pro/index.cjs",
+  "esmImports": [
+    "@formkit/utils",
+    "@formkit/core",
+    "@formkit/inputs",
+    "@formkit/drag-and-drop",
+    "@formkit/tempo"
+  ],
+  "cjsImports": [
+    "@formkit/utils",
+    "@formkit/core",
+    "@formkit/inputs",
+    "@formkit/drag-and-drop",
+    "@formkit/tempo"
+  ],
+  "exportCount": 19
+}

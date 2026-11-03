@@ -62,6 +62,10 @@
     "fixed-root.mts",
     "fixed-root.cts",
     "trusted-contracts.mts",
-    "trusted-contracts.cts"
+    "trusted-contracts.cts",
+    "formkit-rows.mts",
+    "formkit-rows.cts",
+    "formkit.mts",
+    "formkit.cts"
   ]
 }

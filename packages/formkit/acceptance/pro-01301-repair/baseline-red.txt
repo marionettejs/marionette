@@ -1,0 +1,383 @@
+
+ RUN  v5.0.3 /workspace/formkit-baseline-repro
+
+ ❯ |dom| test/unit/formkit-hardening.spec.js (13 tests | 12 failed) 647ms
+   × emits mounted after insertion into an attached region host, once per live node 82ms
+   × emits mounted after insertion into an attached adopted host, once per live node 24ms
+   × mounts into a detached owner before later attachment without repeating mounted 25ms
+   × mounts external FieldView and SchemaView controls after their Region placement 61ms
+   × suppresses mounted for removed nodes and emits once for conditional replacements 47ms
+   × disables the default submit while pending, rejects repeat attempts, and restores it after resolution 90ms
+   ✓ restores actions and displays associated errors after a genuinely rejected submit callback 124ms
+   × keeps the latest owner disabled write made while submission is pending 81ms
+   × focuses a connected enabled invalid FieldView in an external Region 68ms
+   × honors the supplied form id in the DOM and public registry 10ms
+   × mounts a template root once and supports Core node.submit through its DOM id 3ms
+   × updates dynamic schema config on the existing node and control 21ms
+   × binds submitAttrs as live input props including help, classes, disabled and raw attributes 10ms
+ ❯ |dom| test/unit/formkit-regressions.spec.js (49 tests | 1 failed) 2213ms
+   ✓ @mnjs/formkit independent review regressions (6)
+     ✓ reports the user origin of edits through official native inputs 80ms
+     ✓ announces replacing a same-name file with a different file object 47ms
+     ✓ preserves the official class reset directive in schema props 19ms
+     ✓ can read nested immutable snapshots assigned to public context 28ms
+     ✓ shows dirty validation after a deferred rule finishes 86ms
+     ✓ applies framework-neutral submission hooks to the submitted snapshot 31ms
+   ✓ @mnjs/formkit schema customization regressions (2)
+     ✓ retains invalid state and focus when input section attributes are customized 72ms
+     ✓ reconciles edited schema children while retaining the group and stable input 52ms
+   ✓ @mnjs/formkit official plugin and context contracts (11)
+     ✓ supplies numeric indices to array schema iterations 1ms
+     ✓ clears the actual localStorage addon cache through the submit hook 78ms
+     ✓ renders and updates declarative field errors independently of server validation 40ms
+     ✓ delivers form error props to the root and named descendant stores 15ms
+     ✓ keeps a focused partial native date deletion until blur commits it 24ms
+     ✓ updates configured classes and preserves DOM identity and selection 25ms
+     ✓ compares dirty values with their initial state and resets blur/submission state 65ms
+     ✓ clears ordinary server errors on editing while retaining explicitly preserved errors 33ms
+     ✓ reacts to added/deleted symbol context properties and retains nonplain object identity 31ms
+     ✓ runs the official maxlength countdown plugin after native edits 28ms
+     ✓ mounts and destroys official floating labels without late node mutation 155ms
+   ✓ @mnjs/formkit interrupted async workflows (3)
+     ✓ validates the latest external values when they change during the first pending rule 55ms
+     ✓ releases official nodes, ignored controls and retained DOM listeners across repeated mounts 52ms
+     ✓ cancels a schema submission on reset and accepts a new submission before old work returns 127ms
+   ✓ @mnjs/formkit async validation guard review (9)
+     ✓ rechecks a same-input edit made before submit while its initial request is pending 51ms
+     ✓ rechecks an existing sibling when it changes during an initial cross-field request 67ms
+     ✓ fails a rejected request, reports the error and allows an edited value to retry 69ms
+     ✓ ignores a late rejected validation request after destroy 10ms
+     ✓ replaces schema-local rule functions under an existing rule name 58ms
+     ✓ preserves function hints in schema-local named async rules 33ms
+     ✓ guards async functions passed directly in validation arrays 35ms
+     ✓ does not start duplicate latest requests when an obsolete core run resolves 124ms
+     ✓ does not restart an obsolete async rule after the validation schema changes 32ms
+   ✓ @mnjs/formkit rule identity and opaque values (2)
+     ✓ keeps direct rule names and hints for custom error messages 34ms
+     ✓ rechecks a same-name file replacement while remote validation is pending 50ms
+   ✓ @mnjs/formkit validation removal (1)
+     ✓ releases pending validation when its specification is removed and ignores the late result 20ms
+   ✓ @mnjs/formkit obsolete validation rejection (1)
+     ✓ checks the latest value after the initial request for an older value rejects 25ms
+   ✓ @mnjs/formkit public binding state boundaries (7)
+     ✓ normalizes raw numeric strings on blur after numeric behavior is enabled 43ms
+     ✓ supports sealed reactive records without emitting failed changes 14ms
+     ✓ does not emit updates from a context retained after terminal destruction 12ms
+     ✓ supports disabling default root classes and producing empty section classes 23ms
+     ✓ routes UI messages, visible messages and hidden state without mixing their destinations 20ms
+     ✓ applies input errors configured by a plugin before the form created event 25ms
+     ✓ binds plugin-created native core children without requiring attributes or slots 8ms
+   ✓ @mnjs/formkit public form state boundaries (5)
+     ✓ handles native reset events in schema forms without replacing focused controls 26ms
+     ✓ announces object option transitions whose keys differ but whose key counts match 26ms
+     ✓ supports named rule tuples independently of direct function tuples 74ms
+     ✓ ignores errors delivered after destruction 22ms
+     ✓ clears omitted fields in a retained keyed list item and initializes a newly added item 83ms
+   ✓ @mnjs/formkit mixed select value shapes (1)
+     ✓ replaces a structured option with a scalar option through a programmatic update 39ms
+   × rechecks an initial async rule when dynamic schema adds a previously absent dependency 45ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > emits mounted after insertion into an attached region host, once per live node
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > emits mounted after insertion into an attached adopted host, once per live node
+AssertionError: expected [ { found: false, connected: false } ] to deeply equal [ { found: true, connected: true } ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "connected": true,
+-     "found": true,
++     "connected": false,
++     "found": false,
+    },
+  ]
+
+ ❯ test/unit/formkit-hardening.spec.js:26:6
+     24|   await flush();
+     25|   expect(mounts.filter(item => item.node === form.node.at('title')).ma…
+     26|     .toEqual([{ found: true, connected: true }]);
+       |      ^
+     27|   expect(mounts.filter(item => item.node === form.node).map(({ found, …
+     28|     .toEqual([{ found: true, connected: true }]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > mounts into a detached owner before later attachment without repeating mounted
+AssertionError: expected [ Array(1) ] to deeply equal [ { present: true, connected: false } ]
+
+- Expected
++ Received
+
+  [
+    {
+      "connected": false,
+-     "present": true,
++     "present": false,
+    },
+  ]
+
+ ❯ test/unit/formkit-hardening.spec.js:43:24
+     41|     })] });
+     42|   owners.push(form); form.render(); await flush();
+     43|   expect(observations).toEqual([{ present: true, connected: false }]);
+       |                        ^
+     44|   show(form); await flush();
+     45|   expect(observations).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > mounts external FieldView and SchemaView controls after their Region placement
+AssertionError: expected [ Array(2) ] to deeply equal [ Array(2) ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "connected": true,
++     "connected": false,
+      "id": "external-field",
+    },
+    {
+-     "connected": true,
++     "connected": false,
+      "id": "external-schema",
+    },
+  ]
+
+ ❯ test/unit/formkit-hardening.spec.js:58:66
+     56|   const schema = new SchemaView({ form, schema: [{ $formkit: 'text', n…
+     57|   const region = show(field); show(schema); await flush();
+     58|   expect(mounts.filter(item => item.id.startsWith('external-'))).toEqu…
+       |                                                                  ^
+     59|     { id: 'external-field', connected: true }, { id: 'external-schema'…
+     60|   ]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯
+
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > suppresses mounted for removed nodes and emits once for conditional replacements
+AssertionError: expected [ …(2) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ test/unit/formkit-hardening.spec.js:73:18
+     71|     })] });
+     72|   form.setSchemaData({ visible: true, type: 'textarea' }); await flush…
+     73|   expect(mounts).toHaveLength(1);
+       |                  ^
+     74|   expect(mounts[0].node).toBe(form.node.at('title'));
+     75|   expect(mounts[0].element).toBe(form.el.querySelector('textarea'));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯
+
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > disables the default submit while pending, rejects repeat attempts, and restores it after resolution
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ test/unit/formkit-hardening.spec.js:96:27
+     94|   expect(await form.submit()).toBe('busy');
+     95|   await flush();
+     96|   expect(button.disabled).toBe(true);
+       |                           ^
+     97|   expect(submit).toHaveBeenCalledTimes(1);
+     98|   finish(); expect(await pending).toBe('success'); await flush();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯
+
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > keeps the latest owner disabled write made while submission is pending
+AssertionError: expected undefined to be true // Object.is equality
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ test/unit/formkit-hardening.spec.js:126:36
+    124|   form.node.props.disabled = true;
+    125|   finish(); expect(await pending).toBe('success'); await flush();
+    126|   expect(form.node.props.disabled).toBe(true);
+       |                                    ^
+    127|   expect(form.el.querySelector('input').disabled).toBe(true);
+    128| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/13]⎯
+
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > focuses a connected enabled invalid FieldView in an external Region
+AssertionError: expected <body><div>…(1)</div>
+…(1)</body> to be <input …(7)></input> // Object.is equality
+
+- Expected
++ Received
+
++ <body>
++   <div>
++     <form
++       aria-busy="false"
++       novalidate=""
++     />
++   </div>
++   <div>
++     <div>
++       <!--input-->
++       <div
++         class="formkit-outer"
++         data-empty="true"
++         data-family="text"
++         data-invalid="true"
++         data-submitted="true"
++         data-type="email"
++         key="mnv22-input"
++       >
++         <div
++           class="formkit-wrapper"
++         >
++           <div
++             class="formkit-inner"
++           >
+              <input
+                aria-describedby="mnv22-input-rule_required"
+                aria-invalid="true"
+                aria-required="true"
+                class="formkit-input"
+                id="mnv22-input"
+                name="email"
+                type="email"
+              />
++           </div>
++         </div>
++         <ul
++           aria-live="polite"
++           class="formkit-messages"
++         >
++           <li
++             class="formkit-message"
++             data-message-type="validation"
++             id="mnv22-input-rule_required"
++             key="rule_required"
++           >
++             Email is required.
++           </li>
++         </ul>
++       </div>
++       <!--/input-->
++     </div>
++   </div>
++ </body>
+
+ ❯ test/unit/formkit-hardening.spec.js:135:34
+    133|   show(field); await flush();
+    134|   expect(await form.submit()).toBe('invalid');
+    135|   expect(document.activeElement).toBe(field.el.querySelector('input'));
+       |                                  ^
+    136| });
+    137|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/13]⎯
+
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > honors the supplied form id in the DOM and public registry
+AssertionError: expected 'mnv24-form' to be 'checkout' // Object.is equality
+
+Expected: "checkout"
+Received: "mnv24-form"
+
+ ❯ test/unit/formkit-hardening.spec.js:140:22
+    138| it('honors the supplied form id in the DOM and public registry', async…
+    139|   const form = mount({ formProps: { id: 'checkout' }, schema: [] }); a…
+    140|   expect(form.el.id).toBe('checkout');
+       |                      ^
+    141|   expect(getNode('checkout')).toBe(form.node);
+    142|   form.destroy(); expect(getNode('checkout')).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/13]⎯
+
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > mounts a template root once and supports Core node.submit through its DOM id
+AssertionError: expected '' to be 'template-checkout' // Object.is equality
+
+- Expected
++ Received
+
+- template-checkout
+
+ ❯ test/unit/formkit-hardening.spec.js:150:22
+    148|     plugins: [node => { if (node.props.type === 'form') { node.on('mou…
+    149|   await flush();
+    150|   expect(form.el.id).toBe('template-checkout');
+       |                      ^
+    151|   expect(mounted).toHaveBeenCalledExactlyOnceWith(form.el);
+    152|   form.node.submit();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/13]⎯
+
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > updates dynamic schema config on the existing node and control
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ test/unit/formkit-hardening.spec.js:165:26
+    163|   expect(form.node.at('x')).toBe(node);
+    164|   expect(form.el.querySelector('input')).toBe(input);
+    165|   expect(input.disabled).toBe(true);
+       |                          ^
+    166|   expect(input.classList.contains('second')).toBe(true);
+    167|   expect(input.classList.contains('first')).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/13]⎯
+
+ FAIL  |dom| test/unit/formkit-hardening.spec.js > binds submitAttrs as live input props including help, classes, disabled and raw attributes
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ test/unit/formkit-hardening.spec.js:174:51
+    172|   await flush();
+    173|   const button = form.el.querySelector('button[type=submit]');
+    174|   expect(button.classList.contains('pay-button')).toBe(true);
+       |                                                   ^
+    175|   expect(form.el.textContent).toContain('Review before paying');
+    176|   expect(button.dataset.purpose).toBe('pay');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/13]⎯
+
+ FAIL  |dom| test/unit/formkit-regressions.spec.js > rechecks an initial async rule when dynamic schema adds a previously absent dependency
+AssertionError: expected 'success' to be 'invalid' // Object.is equality
+
+Expected: "invalid"
+Received: "success"
+
+ ❯ test/unit/formkit-regressions.spec.js:831:25
+    829|   expect(form.getValues().other).toBe('bad');
+    830|   finish();
+    831|   expect(await pending).toBe('invalid');
+       |                         ^
+    832|   expect(seen).toContain('bad');
+    833|   expect(submit).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/13]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  13 failed | 49 passed (62)
+   Start at  20:07:47
+   Duration  5.63s (tests 54%, environment 26%, transform 13%, import 7%)
+

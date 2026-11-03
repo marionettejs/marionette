@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Marionette FormKit — native schema example</title>
+    <style>
+      :root { color-scheme: light; font: 1rem/1.5 system-ui, sans-serif; }
+      body { max-width: 46rem; margin: 2rem auto; padding: 0 1rem; }
+      .formkit-outer { margin: 1rem 0; }
+      .formkit-label { font-weight: 600; }
+      input:not([type=checkbox]):not([type=radio]), textarea, select { display: block; box-sizing: border-box; width: 100%; padding: .6rem; }
+      button { padding: .5rem 1rem; margin: .5rem; }
+      .formkit-messages, [aria-invalid=true] { color: #9c1828; }
+      [hidden] { display: none !important; }
+      .formkit-tabs { display: flex; list-style: none; padding: 0; }
+      .formkit-step { border: 1px solid #ddd; padding: 1rem; }
+      :focus-visible { outline: 3px solid #3153c8; outline-offset: 3px; }
+      pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+    </style>
+  </head>
+  <body>
+    <h1>Team registration</h1>
+    <p><a href="./">Basic profile example</a>. This form uses official MIT input definitions and the multi-step addon.</p>
+    <p>Use “taken” as the team name to simulate a server error. Values stay in this browser.</p>
+    <main id="form"></main>
+    <button id="add" type="button">Add participant</button>
+    <button id="reorder" type="button">Reverse participants</button>
+    <button id="remove" type="button">Remove last participant</button>
+    <button id="cancel" type="button">Reset and cancel</button>
+    <p id="result" role="status" aria-live="polite"></p>
+    <h2>Current values</h2><pre id="values"></pre>
+    <script type="module" src="./schema.js"></script>
+  </body>
+</html>

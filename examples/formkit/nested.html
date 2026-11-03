@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nested Marionette rows</title>
+  <style>
+    body { max-width: 60rem; margin: 2rem auto; padding: 0 1rem; font: 1rem/1.5 system-ui; }
+    fieldset, section { margin: 1rem 0; padding: 1rem; border: 1px solid #aaa; border-radius: .5rem; }
+    .formkit-outer { min-height: 7rem; margin-bottom: .75rem; } label { display: block; font-weight: 600; }
+    .formkit-messages { margin: .5rem 0 0; padding-left: 1.25rem; }
+    input, button { font: inherit; padding: .4rem .7rem; } button { margin: .2rem; }
+    .formkit-message { color: #a20e0e; } pre { overflow: auto; padding: 1rem; background: #f4f4f4; }
+  </style>
+</head>
+<body>
+  <h1>Nested groups and items</h1>
+  <p>Two levels of ordinary RowViews share one form. Item IDs are local to each group.</p>
+  <div id="app"></div>
+  <p role="status" aria-live="polite" id="status"></p>
+  <pre aria-label="Collected values" id="values"></pre>
+  <script type="module" src="/nested.js"></script>
+</body>
+</html>

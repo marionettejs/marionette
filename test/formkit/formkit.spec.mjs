@@ -1,0 +1,515 @@
+import { test, expect } from '@playwright/test';
+import { resolve } from 'node:path';
+
+test('synchronized list actions settle and support append, edit, remove, replacement and reset', async({ page }, testInfo) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.repeaterFixture = fixture.mountNativeRepeater();
+    window.originalAppend = document.getElementById('native-append');
+    await new Promise(done => setTimeout(done, 0));
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  const inputs = page.getByRole('textbox', { name: 'Guest name', exact: true });
+  await expect(inputs).toHaveCount(1);
+  await page.getByRole('button', { name: 'Add guest', exact: true }).click();
+  await expect(inputs).toHaveCount(2);
+  await inputs.nth(1).fill('Edited');
+  await expect.poll(() => page.evaluate(() => window.repeaterFixture.form.getValues().guests)).toEqual([{ name: 'Ada' }, { name: 'Edited' }]);
+  await page.getByRole('button', { name: 'Remove guest', exact: true }).first().click();
+  await expect(inputs).toHaveCount(1); await expect(inputs.first()).toHaveValue('Edited');
+  await page.evaluate(() => window.repeaterFixture.form.setValues({ guests: [{ name: 'Replacement' }] }));
+  await expect(inputs.first()).toHaveValue('Replacement');
+  await page.evaluate(() => window.repeaterFixture.form.resetForm());
+  await expect(inputs.first()).toHaveValue('Ada');
+  const state = await page.evaluate(() => ({ actionCreations: window.repeaterFixture.created.length,
+    retained: window.originalAppend === document.getElementById('native-append'),
+    canonical: window.repeaterFixture.form.getValues() }));
+  expect(state).toEqual({ actionCreations: 1, retained: true, canonical: { guests: [{ name: 'Ada' }] } });
+  await page.evaluate(() => window.repeaterFixture.destroy());
+  await expect(page.locator('#native-append')).toHaveCount(0);
+  await testInfo.attach('native-repeater.json', { body: JSON.stringify({ state, errors }, null, 2), contentType: 'application/json' });
+  expect(errors).toEqual([]);
+});
+
+test('unchanged SVG icons retain pointer activation across blur-driven schema updates', async({ page }, testInfo) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.iconFixture = fixture.mountIconPointer();
+    window.originalIcon = document.querySelector('#icon-open svg');
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  const results = [];
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    await page.locator('#icon-input').focus();
+    await page.locator('#icon-open svg').click();
+    const result = await page.evaluate(() => ({ clicks: window.iconFixture.state.clicks,
+      blurs: window.iconFixture.state.blurs, retained: window.originalIcon === document.querySelector('#icon-open svg') }));
+    results.push(result);
+    expect(result).toEqual({ clicks: attempt, blurs: attempt, retained: true });
+  }
+  await testInfo.attach('icon-pointer.json', { body: JSON.stringify({ results, errors }, null, 2), contentType: 'application/json' });
+  await page.evaluate(() => window.iconFixture.destroy());
+  expect(errors).toEqual([]);
+});
+
+test('invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field', async({ page }, testInfo) => {
+  const errors = [];
+  const states = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.focusFixture = fixture.mountInvalidFocus();
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  const visible = page.getByRole('textbox', { name: 'Visible required', exact: true });
+  for (const state of ['hidden', 'inert', 'display', 'visibility']) {
+    await page.evaluate(placement => {
+      const host = document.getElementById('unfocusable-host');
+      host.hidden = placement === 'hidden'; host.inert = placement === 'inert';
+      host.style.display = placement === 'display' ? 'none' : '';
+      host.style.visibility = placement === 'visibility' ? 'hidden' : '';
+      document.activeElement?.blur();
+    }, state);
+    expect(await page.evaluate(() => window.focusFixture.form.submit())).toBe('invalid');
+    await expect(visible).toBeFocused();
+    await expect(visible).toHaveAttribute('aria-invalid', 'true');
+    states.push(await visible.evaluate((element, placement) => ({ state: placement, focused: document.activeElement === element, html: element.outerHTML,
+      describedBy: element.getAttribute('aria-describedby').split(' ').map(id => ({ id, count: [...document.querySelectorAll('[id]')].filter(node => node.id === id).length,
+        text: document.getElementById(id)?.textContent })) }), state));
+  }
+  expect(states.every(state => state.describedBy.length === 2 && state.describedBy.every(ref => ref.count === 1))).toBe(true);
+  await visible.fill('Corrected');
+  await expect(visible).not.toHaveAttribute('aria-invalid', 'true');
+  await page.evaluate(() => window.focusFixture.form.resetForm());
+  await expect(visible).toHaveValue('');
+  await expect(visible).not.toHaveAttribute('aria-invalid', 'true');
+  expect(await visible.evaluate(element => {
+    const ids = (element.getAttribute('aria-describedby') ?? '').split(' ').filter(Boolean);
+    return ids.length === 1 && document.getElementById(ids[0])?.textContent === 'Visible help';
+  })).toBe(true);
+  await testInfo.attach('hidden-invalid-focus.json', { body: JSON.stringify({ states, reset: await visible.evaluate(element => element.outerHTML), errors }, null, 2), contentType: 'application/json' });
+  await page.evaluate(() => window.focusFixture.destroy());
+  expect(errors).toEqual([]);
+});
+
+test('named registrations mount connected and support keyboard validation, correction and reset', async({ page }, testInfo) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.registeredFixture = fixture.mountRegisteredControls();
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  const first = page.getByRole('textbox', { name: 'Registered first', exact: true });
+  const second = page.getByRole('textbox', { name: 'Registered second', exact: true });
+  expect(await page.evaluate(() => window.registeredFixture.mounted)).toEqual([
+    { id: 'registered-first', found: true, connected: true }, { id: 'registered-second', found: true, connected: true }
+  ]);
+  await first.focus(); await page.keyboard.press('Tab'); await expect(second).toBeFocused();
+  await page.keyboard.press('Shift+Tab'); await expect(first).toBeFocused();
+  await page.keyboard.press('Enter'); await expect(first).toHaveAttribute('aria-invalid', 'true'); await expect(first).toBeFocused();
+  const invalid = await page.evaluate(() => ({ mounted: window.registeredFixture.mounted, activeId: document.activeElement.id,
+    html: window.registeredFixture.form.el.outerHTML,
+    controls: ['registered-first', 'registered-second'].map(id => {
+      const input = document.getElementById(id);
+      return { id, invalid: input.getAttribute('aria-invalid'), label: document.querySelector(`label[for="${id}"]`)?.textContent,
+        refs: input.getAttribute('aria-describedby').split(' ').map(ref => ({ id: ref, count: [...document.querySelectorAll('[id]')].filter(element => element.id === ref).length,
+          text: document.getElementById(ref)?.textContent })) };
+    }) }));
+  expect(invalid.controls.every(control => control.refs.length === 2 && control.refs.every(ref => ref.count === 1))).toBe(true);
+  await testInfo.attach('registered-invalid.png', { body: await first.locator('xpath=ancestor::form').screenshot(), contentType: 'image/png' });
+  await first.fill('First corrected'); await expect(first).not.toHaveAttribute('aria-invalid', 'true');
+  expect(await page.evaluate(() => window.registeredFixture.form.submit())).toBe('invalid'); await expect(second).toBeFocused();
+  await second.fill('Second corrected'); await page.keyboard.press('Enter');
+  await expect.poll(() => page.evaluate(() => window.registeredFixture.saved)).toEqual([{ first: 'First corrected', second: 'Second corrected' }]);
+  await page.evaluate(() => { window.registeredFixture.form.render(); window.registeredFixture.form.resetForm(); });
+  await expect(first).toHaveValue(''); await expect(second).toHaveValue('');
+  await expect(first).not.toHaveAttribute('aria-invalid', 'true'); await expect(second).not.toHaveAttribute('aria-invalid', 'true');
+  const reset = await page.evaluate(() => ({ mounted: window.registeredFixture.mounted, values: window.registeredFixture.form.getValues(), html: window.registeredFixture.form.el.outerHTML }));
+  expect(reset.mounted).toHaveLength(2);
+  await testInfo.attach('registered-keyboard.json', { body: JSON.stringify({ keyboard: ['Tab: second', 'Shift+Tab: first', 'Enter: invalid first', 'Enter after correction: saved'], invalid, reset, errors }, null, 2), contentType: 'application/json' });
+  await page.evaluate(() => window.registeredFixture.destroy());
+  await expect(first).toHaveCount(0); await expect(second).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('external owned controls retain native origin and state bindings across input, change and blur', async({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.externalFixture = await fixture.mountExternalFields();
+    window.externalFixture.form.setErrors(['Server failure']);
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  await page.getByRole('textbox', { name: 'External name', exact: true }).fill('Edited');
+  await expect.poll(() => page.evaluate(() => window.externalFixture.form.getFormState().errors)).toEqual([]);
+  await page.getByRole('combobox', { name: 'External choice', exact: true }).selectOption('Edited');
+  await page.getByRole('checkbox', { name: 'External enabled', exact: true }).check();
+  await page.getByLabel('External date', { exact: true }).fill('');
+  await page.getByLabel('External date', { exact: true }).blur();
+  await page.evaluate(() => window.externalFixture.form.setErrors(['Upload failure']));
+  await page.getByLabel('External upload', { exact: true }).setInputFiles({ name: 'new.txt', mimeType: 'text/plain', buffer: Buffer.from('new') });
+  await expect.poll(() => page.evaluate(() => window.externalFixture.form.getFormState().errors)).toEqual([]);
+  await expect.poll(() => page.evaluate(() => {
+    const { form, state, origins } = window.externalFixture;
+    const values = form.getValues();
+    return { statePreserved: form.getState() === state, name: values.name, choice: values.choice,
+      enabled: values.enabled, date: values.date, upload: values.upload[0]?.name, origins };
+  })).toEqual({ statePreserved: true, name: 'Edited', choice: 'Edited', enabled: true, date: '', upload: 'new.txt',
+    origins: ['user', 'user', 'user', 'user', 'user'] });
+  expect(await page.evaluate(() => {
+    const fixture = window.externalFixture;
+    fixture.destroy();
+    return [fixture.form, fixture.field, fixture.section].every(view => view.isDestroyed());
+  })).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('decimal edits retain native text and focus while authoritative writes replace pending drafts', async({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.decimalFixture = fixture.mountDecimals();
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  const amount = page.getByRole('spinbutton', { name: 'Decimal amount', exact: true });
+  const pending = page.getByRole('spinbutton', { name: 'Pending decimal', exact: true });
+  await amount.fill('1.20');
+  await expect.poll(() => page.evaluate(() => window.decimalFixture.form.getValues().amount)).toBe(1.2);
+  await expect(amount).toHaveValue('1.20');
+  await expect(amount).toBeFocused();
+  await page.evaluate(() => {
+    const fixture = window.decimalFixture;
+    fixture.amountElement = fixture.form.el.querySelector('input');
+    fixture.form.setValues({ amount: 2.5 }, { notify: false });
+  });
+  await expect(amount).toHaveValue('2.5');
+  await expect(amount).toBeFocused();
+  expect(await amount.evaluate(element => element === window.decimalFixture.amountElement)).toBe(true);
+  await pending.fill('9.80');
+  await expect(pending).toHaveValue('9.80');
+  await page.evaluate(() => window.decimalFixture.form.setValues({ pending: 4.5 }, { notify: false }));
+  await expect(pending).toHaveValue('4.5');
+  await expect(pending).toBeFocused();
+  // Cross the configured native debounce boundary to detect a late stale commit.
+  await page.waitForTimeout(1100);
+  expect(await page.evaluate(() => window.decimalFixture.form.getValues())).toEqual({ amount: 2.5, pending: 4.5 });
+  const cleanup = await page.evaluate(() => {
+    const { region, form, changes } = window.decimalFixture;
+    const element = form.el.querySelector('input');
+    const count = changes.length;
+    region.destroy();
+    element.value = '8.40';
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+    return { destroyed: form.isDestroyed(), connected: element.isConnected, count, after: changes.length };
+  });
+  expect(cleanup).toEqual({ destroyed: true, connected: false, count: cleanup.count, after: cleanup.count });
+  expect(errors).toEqual([]);
+});
+
+test('template Regions preserve accordion drafts, clear conditional values and submit through the keyboard', async({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/composition.html');
+  const email = page.getByRole('textbox', { name: 'Email', exact: true });
+  await page.getByRole('button', { name: 'Register', exact: true }).click();
+  await expect(email).toBeFocused();
+  await expect(email).toHaveAttribute('aria-invalid', 'true');
+  await email.fill('paul@example.com');
+  const notes = page.getByRole('textbox', { name: 'Access needs', exact: true });
+  await notes.fill('Step-free access');
+  await page.getByRole('button', { name: 'Access needs', exact: true }).click();
+  await expect(notes).toBeHidden();
+  await expect(page.locator('#values')).toContainText('Step-free access');
+  await page.getByRole('button', { name: 'Access needs', exact: true }).click();
+  await expect(notes).toHaveValue('Step-free access');
+  const invoice = page.getByRole('checkbox', { name: 'Request a company invoice' });
+  await invoice.check();
+  const company = page.getByRole('textbox', { name: 'Company', exact: true });
+  await company.fill('Example company');
+  await invoice.uncheck();
+  await expect(company).toHaveCount(0);
+  await expect(page.locator('#values')).not.toContainText('Example company');
+  await email.press('Enter');
+  await expect(page.locator('#result')).toHaveText('Registered Paul.');
+  await expect(email).toBeFocused();
+  await page.getByRole('button', { name: 'Reset', exact: true }).click();
+  await expect(email).toHaveValue('');
+  await expect(notes).toHaveValue('');
+  await expect(page.locator('#result')).toHaveText('');
+  expect(errors).toEqual([]);
+});
+
+test('adopted forms mount, preserve keyed sibling edits and focus, and can be reused', async({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.formkitReview = fixture.mountReviewCases();
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  const first = page.getByRole('textbox', { name: 'First', exact: true });
+  await expect(first).toHaveValue('Alpha');
+  await expect(page.getByRole('combobox', { name: 'Initial choice' })).toHaveValue('b');
+  await first.fill('Edited');
+  const id = await first.getAttribute('id');
+  await first.evaluate(input => input.setSelectionRange(1, 3));
+  await page.evaluate(() => window.formkitReview.reorder());
+  await expect(first).toHaveAttribute('id', id);
+  await expect(first).toHaveValue('Edited');
+  await expect(first).toBeFocused();
+  expect(await first.evaluate(input => [input.selectionStart, input.selectionEnd])).toEqual([1, 3]);
+  expect(await page.evaluate(() => window.formkitReview.form.getValues())).toEqual({ first: 'Edited', second: 'Beta' });
+  await first.press('Enter');
+  await expect.poll(() => page.evaluate(() => window.formkitReview.submissions)).toBe(1);
+  await page.evaluate(() => window.formkitReview.reuse());
+  await expect(first).toHaveValue('Alpha');
+  await first.fill('');
+  await first.press('Enter');
+  await expect(first).toHaveAttribute('aria-invalid', 'true');
+  const descriptions = await first.evaluate(input => input.getAttribute('aria-describedby').split(' ').map(descriptionId => {
+    const element = document.getElementById(descriptionId);
+    return element && { text: element.textContent, inForm: input.form.contains(element) };
+  }));
+  expect(descriptions).toEqual([{ text: 'Your name', inForm: true }, { text: 'First is required.', inForm: true }]);
+  expect(await page.evaluate(() => window.formkitReview.submissions)).toBe(1);
+  await first.fill('Alpha');
+  await first.press('Enter');
+  await expect.poll(() => page.evaluate(() => window.formkitReview.submissions)).toBe(2);
+  const result = await page.evaluate(() => {
+    const fixture = window.formkitReview;
+    const element = fixture.form.el;
+    fixture.destroy();
+    let calls = 0;
+    element.addEventListener('host', () => { calls++; });
+    element.dispatchEvent(new Event('host'));
+    const event = new Event('submit', { cancelable: true });
+    element.dispatchEvent(event);
+    return { calls, prevented: event.defaultPrevented };
+  });
+  expect(result).toEqual({ calls: 1, prevented: false });
+  expect(errors).toEqual([]);
+});
+
+test('profile example supports keyboard validation, server errors, retry and native reset', async({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  const email = page.getByRole('textbox', { name: 'Email', exact: true });
+  await email.focus();
+  await email.press('Enter');
+  await expect(email).toHaveAttribute('aria-invalid', 'true');
+  await expect(email).toBeFocused();
+  await expect(page.getByText('Email is required.', { exact: true })).toBeVisible();
+  await email.fill('paul@example.com');
+  const name = page.getByRole('textbox', { name: 'Display name' });
+  await name.fill('taken');
+  await page.getByRole('button', { name: 'Save profile' }).click();
+  await expect(email).toBeDisabled();
+  await expect(page.getByText('This name is already taken.', { exact: true })).toBeVisible();
+  await expect(name).toHaveAttribute('aria-invalid', 'true');
+  await name.fill('Ada');
+  await name.press('Enter');
+  await expect(page.getByText('Saved Ada.', { exact: true })).toBeVisible();
+  await expect(name).toBeFocused();
+  await page.getByRole('button', { name: 'Reset' }).click();
+  await expect(name).toHaveValue('Paul');
+  await expect(email).toHaveValue('');
+  await expect(name).not.toHaveAttribute('aria-invalid');
+  expect(errors).toEqual([]);
+});
+
+test('external snapshots and schema reordering preserve real browser focus and selection, then clean up', async({ page }) => {
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.nativeFormkit = fixture.mount();
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  const name = page.getByRole('textbox', { name: 'Name', exact: true });
+  await name.focus();
+  await name.evaluate(element => element.setSelectionRange(1, 3, 'backward'));
+  await page.evaluate(() => {
+    const { form } = window.nativeFormkit;
+    form.setValues({ name: 'External' }, { notify: false });
+    form.render();
+  });
+  await expect(name).toBeFocused();
+  expect(await name.evaluate(element => [element.selectionStart, element.selectionEnd, element.selectionDirection])).toEqual([1, 3, 'backward']);
+  const beta = page.getByRole('textbox', { name: 'b', exact: true });
+  await beta.focus();
+  await beta.evaluate(element => element.setSelectionRange(1, 2));
+  await page.evaluate(() => {
+    const fixture = window.nativeFormkit;
+    fixture.schema.update({ items: [...fixture.items].reverse() });
+  });
+  await expect(beta).toBeFocused();
+  expect(await beta.evaluate(element => [element.selectionStart, element.selectionEnd])).toEqual([1, 2]);
+  const result = await page.evaluate(() => {
+    const { form, region, schema, schemaContainer, values } = window.nativeFormkit;
+    const root = form.el;
+    const field = root.querySelector('input');
+    const count = values.length;
+    region.destroy();
+    schema.destroy();
+    field.value = 'After destroy';
+    field.dispatchEvent(new Event('input'));
+    const submit = new Event('submit', { cancelable: true });
+    root.dispatchEvent(submit);
+    return { destroyed: form.isDestroyed(), connected: field.isConnected, count, after: values.length,
+      prevented: submit.defaultPrevented, schemaEmpty: schemaContainer.childElementCount === 0 };
+  });
+  expect(result).toEqual({ destroyed: true, connected: false, count: result.count, after: result.count,
+    prevented: false, schemaEmpty: true });
+});
+
+test('official schema form supports conditional fields, steps, files, lists, server errors and cancellation', async({ page }) => {
+  await page.addInitScript(() => {
+    const NativeObserver = window.ResizeObserver;
+    const targets = new Map();
+    window.observedFormkitTargets = () => [...targets.values()].reduce((count, entries) =>
+      count + [...entries].filter(element => element.closest('form')).length, 0);
+    window.ResizeObserver = class extends NativeObserver {
+      observe(element, options) {
+        if (!targets.has(this)) { targets.set(this, new Set()); }
+        targets.get(this).add(element);
+        super.observe(element, options);
+      }
+      unobserve(element) { targets.get(this)?.delete(element); super.unobserve(element); }
+      disconnect() { targets.delete(this); super.disconnect(); }
+    };
+  });
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/schema.html');
+  await page.waitForFunction(() => !!window.formkitExample, undefined, { timeout: 5000 }).catch(() => {
+    throw new Error(`Schema example did not mount: ${errors.join('; ')}`);
+  });
+  const next = page.getByRole('button', { name: 'Next', exact: true });
+  await next.click();
+  const email = page.getByRole('textbox', { name: 'Contact email', exact: true });
+  await expect(email).toBeVisible();
+  await expect(email).toHaveAttribute('aria-invalid', 'true');
+  await email.fill('paul@example.com');
+  await page.getByRole('checkbox', { name: 'Request an invoice' }).check();
+  const company = page.getByRole('textbox', { name: 'Company', exact: true });
+  await expect(company).toBeVisible();
+  await company.fill('Marionette');
+  await page.getByRole('checkbox', { name: 'Request an invoice' }).uncheck();
+  await expect(company).toHaveCount(0);
+  await page.getByRole('checkbox', { name: 'Accept registration terms' }).check();
+  await next.click();
+  const team = page.getByRole('textbox', { name: 'Team name', exact: true });
+  await expect(team).toBeVisible();
+  const developer = page.getByRole('radio', { name: 'Developer', exact: true });
+  await developer.focus(); await developer.press('ArrowRight');
+  await expect(page.getByRole('radio', { name: 'Designer', exact: true })).toBeChecked();
+  await page.getByRole('listbox', { name: 'Sessions', exact: true }).selectOption(['Architecture', 'Testing']);
+  const attachment = page.getByLabel('Optional attachment', { exact: true });
+  await attachment.setInputFiles({ name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('Native forms') });
+  await expect(page.getByText('notes.txt', { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => window.formkitExample.form.getValues().registration.team.attachment[0].file.name)).toBe('notes.txt');
+  const note = page.getByRole('textbox', { name: 'Notes', exact: true });
+  await note.fill('First line\nSecond line\nThird line');
+  await expect.poll(() => page.evaluate(() => window.observedFormkitTargets())).toBeGreaterThan(0);
+  await expect.poll(() => note.evaluate(element => parseInt(element.style.minHeight))).toBeGreaterThan(0);
+  const rows = page.getByRole('textbox', { name: 'Participant name', exact: true });
+  await expect(rows).toHaveCount(2);
+  const adaId = await rows.nth(1).getAttribute('id');
+  await rows.nth(1).focus();
+  await rows.nth(1).evaluate(input => input.setSelectionRange(1, 2));
+  await page.evaluate(() => {
+    const { form } = window.formkitExample;
+    const participants = form.getValues().registration.team.participants;
+    form.setValues({ registration: { team: { participants: [...participants].reverse() } } }, { notify: false });
+  });
+  await expect(rows.nth(0)).toHaveAttribute('id', adaId);
+  await expect(rows.nth(0)).toBeFocused();
+  expect(await rows.nth(0).evaluate(input => [input.selectionStart, input.selectionEnd])).toEqual([1, 2]);
+  await page.getByRole('button', { name: 'Add participant', exact: true }).click();
+  await expect(rows).toHaveCount(3);
+  await rows.nth(2).fill('Grace');
+  await team.fill('taken');
+  await page.getByRole('button', { name: 'Register team', exact: true }).click();
+  await expect(team).toBeDisabled();
+  await expect(page.getByText('This team name is already taken.', { exact: true })).toBeVisible();
+  await page.evaluate(() => {
+    window.retryChangeSources = [];
+    window.formkitExample.form.on('form:change', (_values, _state, metadata) => window.retryChangeSources.push(metadata.source));
+  });
+  await team.fill('Native team');
+  await expect(team).toHaveValue('Native team');
+  await expect.poll(() => page.evaluate(() => window.formkitExample.form.getValues().registration.team.name)).toBe('Native team');
+  await expect.poll(() => page.evaluate(() => window.retryChangeSources)).toEqual(['user']);
+  await expect.poll(() => page.evaluate(() => window.formkitExample.form.getFormState().errors)).toEqual([]);
+  await page.getByRole('button', { name: 'Register team', exact: true }).click();
+  await expect(page.getByText('Registered Native team.', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Register team', exact: true }).click();
+  await expect(team).toBeDisabled();
+  await page.getByRole('button', { name: 'Reset and cancel', exact: true }).click();
+  await expect(page.locator('#result')).toBeEmpty();
+  expect(await page.evaluate(() => window.formkitExample.form.getFormState().submitting)).toBe(false);
+  const disposed = await page.evaluate(() => {
+    const { form, region } = window.formkitExample;
+    const root = form.el;
+    const input = root.querySelector('input');
+    region.destroy();
+    const values = form.getValues();
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    const submit = new Event('submit', { cancelable: true }); root.dispatchEvent(submit);
+    return { destroyed: form.isDestroyed(), connected: root.isConnected, prevented: submit.defaultPrevented,
+      unchanged: JSON.stringify(form.getValues()) === JSON.stringify(values) };
+  });
+  expect(disposed).toEqual({ destroyed: true, connected: false, prevented: false, unchanged: true });
+  expect(await page.evaluate(() => window.observedFormkitTargets())).toBe(0);
+  expect(errors).toEqual([]);
+});
+
+test('explicit owner placement preserves sibling selection and ends validation on removal', async({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.conditionalFixture = fixture.mountOwnedFields();
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  const keep = page.getByRole('textbox', { name: 'Keep', exact: true });
+  const company = page.getByRole('textbox', { name: 'Conditional company', exact: true });
+  await expect(company).toHaveCount(0);
+  await keep.focus();
+  await keep.evaluate(input => input.setSelectionRange(1, 3));
+  await page.evaluate(() => window.conditionalFixture.project({ invoice: true, company: 'Acme' }));
+  await expect(company).toHaveValue('Acme');
+  await expect(keep).toBeFocused();
+  expect(await keep.evaluate(input => [input.selectionStart, input.selectionEnd])).toEqual([1, 3]);
+  const id = await company.getAttribute('id');
+  await page.evaluate(() => {
+    window.conditionalFixture.project({ invoice: true });
+    window.conditionalFixture.form.render();
+  });
+  await expect(company).toHaveAttribute('id', id);
+  expect(await page.evaluate(() => window.conditionalFixture.fields.length)).toBe(1);
+  await company.fill('');
+  expect(await page.evaluate(() => window.conditionalFixture.form.submit())).toBe('invalid');
+  await expect(company).toBeFocused();
+  await expect(company).toHaveAttribute('aria-invalid', 'true');
+  await keep.focus();
+  await page.evaluate(() => window.conditionalFixture.project({ invoice: false }));
+  await expect(company).toHaveCount(0);
+  expect(await page.evaluate(() => window.conditionalFixture.form.submit())).toBe('success');
+  await expect(keep).toBeFocused();
+  await page.evaluate(() => window.conditionalFixture.project({ invoice: true, company: 'Latest' }));
+  await expect(company).toHaveValue('Latest');
+  expect(await company.getAttribute('id')).not.toBe(id);
+  await page.evaluate(() => window.conditionalFixture.reset());
+  await expect(company).toHaveCount(0);
+  await expect(keep).toHaveValue('Sibling');
+  await page.evaluate(() => window.conditionalFixture.destroy());
+  await expect(keep).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

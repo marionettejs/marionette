@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import ts from 'typescript';
 
-export const packageRoots = ['', 'packages/utils', 'packages/radio', 'packages/data', 'packages/adapters'];
+export const packageRoots = ['', 'packages/utils', 'packages/radio', 'packages/data', 'packages/adapters', 'packages/formkit'];
 const digest = text => createHash('sha256').update(text).digest('hex');
 const readJson = file => JSON.parse(readFileSync(file, 'utf8'));
 const toolingSubpaths = new Set(['marionette/eslint']);
@@ -11,7 +11,7 @@ const sorted = values => [...values].sort((a, b) => a.localeCompare(b, 'en'));
 // TypeScript exposes SymbolFlags as a bit field.
 // eslint-disable-next-line no-bitwise
 const hasFlag = (symbol, flag) => Boolean(symbol.flags & flag);
-const publicName = name => !name.startsWith('_') && !name.startsWith('__@') && name !== 'prototype';
+const publicName = name => !name.startsWith('_') && !name.startsWith('#') && !name.startsWith('__@') && name !== 'prototype';
 
 export function publicEntrypoints(root) {
   return packageRoots.flatMap(directory => {
@@ -160,6 +160,8 @@ export function generateInventory(root, semantics) {
     .replaceAll(root + '/', '').replaceAll(root.replaceAll('\\', '/') + '/', '');
   function members(type) {
     return Object.fromEntries(checker.getPropertiesOfType(type).filter(symbol => publicName(symbol.name) &&
+      !symbol.declarations?.some(node => node.modifiers?.some(modifier =>
+        [ts.SyntaxKind.PrivateKeyword, ts.SyntaxKind.ProtectedKeyword].includes(modifier.kind))) &&
       symbol.declarations?.some(node => /^(src|packages\/[^/]+\/src)\//.test(localPath(node.getSourceFile().fileName))))
       .sort((a, b) => a.name.localeCompare(b.name, 'en')).map(symbol => {
         const declaration = symbol.valueDeclaration || symbol.declarations?.[0];

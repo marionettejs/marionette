@@ -1,0 +1,55 @@
+{
+  "sourceRevision": "3a170e5df1e3740bc164c303a2c34d896762e558",
+  "runtimeRevision": "1bbe3e3c0ded3aaf54378ad79ca022ba751866eb",
+  "baselineRevision": "68ee900f08c3e7b6133a2d5c6ea931eea41709bc",
+  "node": "24.19.0",
+  "npm": "11.17.0",
+  "vitest": "5.0.3",
+  "playwright": "1.63.0",
+  "chromium": "154.0.8037.57",
+  "formkit": "2.1.2",
+  "pro": "0.130.1",
+  "unit": {
+    "command": "node_modules/.bin/vitest run test/unit/formkit*.spec.js --maxWorkers=1",
+    "passed": 426,
+    "failed": 0,
+    "note": "Executed before commit; source and unit-test bytes match this revision."
+  },
+  "baseline": {
+    "command": "node_modules/.bin/vitest run test/unit/formkit-hardening.spec.js test/unit/formkit-regressions.spec.js --maxWorkers=1",
+    "failed": 13,
+    "passed": 49,
+    "productionSourceChanges": false
+  },
+  "existingBrowser": {
+    "passed": 12,
+    "failed": 0,
+    "project": "chromium"
+  },
+  "coreComparison": {
+    "native": {
+      "passed": 14,
+      "failed": 0
+    },
+    "vue": {
+      "passed": 11,
+      "failed": 3
+    },
+    "react": {
+      "passed": 12,
+      "failed": 2
+    },
+    "unexpectedRuntimeErrors": 0,
+    "collectorExitCode": 1,
+    "proBootstrap": "blocked on all three stacks"
+  },
+  "build": "passed including declaration consumers",
+  "publicTests": "passed",
+  "focusedLint": "passed",
+  "sources": {
+    "packages/formkit/src/index.ts": "5d9e2ee3b8db592e3c7fbcd04415a73dce5fc03c35b7b3ecdae9c9ab8a6afaac",
+    "packages/formkit/src/runtime.ts": "b3eceb81e6772b76bb4b4353cd7d7e6d81b92afc705fd129df39a5a850ef5540",
+    "test/unit/formkit-hardening.spec.js": "b05a4fef90eef823ab5bf144dbd555f5197ddecc92ca6a4fcd5faaff2414dd88",
+    "test/unit/formkit-regressions.spec.js": "d986fd3501a716554efd68ee82655df3d812a1e47a00c4e2b301eaf8893a3d5d"
+  }
+}

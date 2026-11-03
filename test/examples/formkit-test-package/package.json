@@ -1,0 +1,24 @@
+{
+  "name": "mnjs-test-formkit-dogfood",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --project dom",
+    "test:browser": "vitest run --project browser",
+    "test:types": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "marionette": "5.0.0",
+    "@formkit/core": "2.1.2",
+    "@formkit/validation": "2.1.2"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/user-event": "14.6.1",
+    "@vitest/browser-playwright": "5.0.3",
+    "jsdom": "30.1.2",
+    "playwright": "1.63.0",
+    "vitest": "5.0.3",
+    "typescript": "6.0.3"
+  }
+}

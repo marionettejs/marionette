@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-11-03T02:18:21.792Z",
+  "node": "v24.19.0",
+  "proVersion": "0.130.2",
+  "consumerPackedSource": "50f3519e786d8988dd2a32e7abb4c54c9c014df7",
+  "environment": "NODE_ENV=development",
+  "conditions": [
+    "development"
+  ],
+  "esmResolution": "file:///tmp/mnjs-pro-native-xcBGcF/node_modules/@formkit/pro/index.mjs",
+  "commonJSResolution": "/tmp/mnjs-pro-native-xcBGcF/node_modules/@formkit/pro/index.cjs",
+  "commonJSSha256": "952d63486a168bb25bd3901643e1ea076e1123ccbe30bc3f8ae5ed962dda94d5",
+  "cases": [
+    {
+      "case": "omitted project key",
+      "constructed": false,
+      "errorKind": "A FormKit API key is required, please visit https://formkit.com/pro"
+    },
+    {
+      "case": "literal installation-guide placeholder",
+      "constructed": false,
+      "errorKind": "InvalidFormKitKey"
+    }
+  ],
+  "limits": "Public factory construction only; no real development key supplied, no Pro controls rendered. Existing browser receipt separately covers localhost undefined-key invocation.",
+  "workspaceBaseline": "a1f8fce9847fb8fbb23f366e0de51de62d162965"
+}
