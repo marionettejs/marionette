@@ -173,10 +173,11 @@ export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decor
         currentData = nextData;
         const inherited = next.parent as FormKitNode | undefined ?? parent;
         const index = next.index === undefined ? node.index : Number(next.index);
-        const syncedList = inherited.type === 'list' && inherited.sync;
+        // Ignored action/meta controls have no list attachment to recover.
+        const syncedList = inherited.type === 'list' && inherited.sync && !node.props.ignore;
         if (node.context === null || (syncedList && inherited.children[index] !== node)) {
           const snapshot = copyProps(inherited.value);
-          const value = next.value === undefined && inherited.type === 'list' ?
+          const value = next.value === undefined && inherited.type === 'list' && !node.props.ignore ?
             (snapshot as unknown[])[index] : next.value;
           if (syncedList) {
             // Batched reset can reuse a different row's node or detach a live

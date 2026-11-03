@@ -15,6 +15,26 @@ export function mountIconPointer() {
   return { state, destroy() { renderer.destroy(); container.remove(); } };
 }
 
+export function mountNativeRepeater() {
+  const region = new Region({ el: document.body.appendChild(document.createElement('div')) });
+  const created = [];
+  const form = new FormView({ values: { guests: [{ name: 'Ada' }] },
+    plugins: [node => node.on('created', () => { if (node.props.id === 'native-append') { created.push(node); } })],
+    inputs: { rowList: { type: 'list', features: [node => node.on('created', () => {
+      node.context.fns.append = () => () => node.input([...node.value, { name: '' }], false);
+      node.context.fns.remove = index => () => node.input(node.value.filter((_, i) => i !== index), false);
+    })], schema: [
+      { $el: 'div', for: ['item', 'index', '$items'], key: '$item', children: [
+        { $formkit: 'group', index: '$index', children: '$slots.default' },
+        { $el: 'button', attrs: { type: 'button', onClick: '$fns.remove($index)' }, children: 'Remove guest' }
+      ] },
+      { $formkit: 'button', id: 'native-append', label: 'Add guest', onClick: '$fns.append()' }
+    ] } }, schema: { $formkit: 'rowList', name: 'guests', sync: true,
+      children: { $formkit: 'text', name: 'name', label: 'Guest name' } } });
+  region.show(form);
+  return { form, created, destroy() { region.destroy(); } };
+}
+
 export function mountRegisteredControls() {
   let form;
   const mounted = [];

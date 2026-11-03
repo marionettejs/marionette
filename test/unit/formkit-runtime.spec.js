@@ -115,6 +115,61 @@ describe('@mnjs/formkit native schema runtime', () => {
     expect(form.getValues().guests).toEqual([{ name: 'Ada' }]);
   });
 
+  it('keeps ignored action controls outside synchronized-list attachment recovery', async() => {
+    const created = [];
+    const form = mount({ values: { rows: [] }, inputs: { actionList: { type: 'list',
+      schema: { $formkit: 'button', id: 'list-action', label: 'Add' } } },
+    schema: { $formkit: 'actionList', name: 'rows', sync: true },
+    plugins: [node => node.on('created', () => { if (node.props.id === 'list-action') { created.push(node); } })] });
+    const button = form.el.querySelector('#list-action');
+    // A bounded microtask drain lets the regression fail without starving the
+    // test process's timers; destroying the owner ends all queued updates.
+    await flush();
+    const retained = form.el.querySelector('#list-action') === button;
+    const values = form.getValues();
+    form.destroy();
+    expect(created).toHaveLength(1);
+    expect(retained).toBe(true);
+    expect(values).toEqual({ rows: [] });
+  });
+
+  it('does not displace a real synchronized row for an explicitly indexed ignored control', async() => {
+    const rows = [];
+    const ignored = [];
+    const form = mount({ values: { rows: [{ name: 'Ada' }] }, inputs: { actionList: { type: 'list', schema: [
+      { $formkit: 'group', id: 'list-row', index: 0, children: { $formkit: 'text', name: 'name' } },
+      { $formkit: 'text', id: 'list-scratch', index: 0, ignore: true, value: 'Scratch' }
+    ] } }, schema: { $formkit: 'actionList', name: 'rows', sync: true },
+    plugins: [node => node.on('created', () => {
+      if (node.props.id === 'list-row') { rows.push(node); }
+      if (node.props.id === 'list-scratch') { ignored.push(node); }
+    })] });
+    await flush();
+    const values = form.getValues();
+    const children = [...form.node.at('rows').children];
+    form.destroy();
+    expect(rows).toHaveLength(1);
+    expect(ignored).toHaveLength(1);
+    expect(children).toEqual(rows);
+    expect(values).toEqual({ rows: [{ name: 'Ada' }] });
+  });
+
+  it('recreates an ignored control without adopting the value of a synchronized row', async() => {
+    const form = mount({ values: { rows: [{ name: 'Ada' }] }, inputs: { actionList: { type: 'list', schema: [
+      { $formkit: 'group', id: 'recovery-row', index: 0, children: { $formkit: 'text', name: 'name' } },
+      { $formkit: 'text', id: 'recovery-scratch', index: 0, ignore: true }
+    ] } }, schema: { $formkit: 'actionList', name: 'rows', sync: true } });
+    await flush();
+    const row = getNode('recovery-row');
+    const scratch = getNode('recovery-scratch');
+    expect(form.el.querySelector('#recovery-scratch').value).toBe('');
+    scratch.destroy(); form.setSchemaData({}); await flush();
+    expect(getNode('recovery-scratch')).not.toBe(scratch);
+    expect(form.el.querySelector('#recovery-scratch').value).toBe('');
+    expect(getNode('recovery-row')).toBe(row);
+    expect(form.getValues()).toEqual({ rows: [{ name: 'Ada' }] });
+  });
+
   it('owns custom native input definitions and releases them when schema type changes', async() => {
     const disposed = vi.fn();
     const factory = ({ document: doc }) => {

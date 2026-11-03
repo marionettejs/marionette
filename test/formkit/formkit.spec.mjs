@@ -1,6 +1,38 @@
 import { test, expect } from '@playwright/test';
 import { resolve } from 'node:path';
 
+test('synchronized list actions settle and support append, edit, remove, replacement and reset', async({ page }, testInfo) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path);
+    window.repeaterFixture = fixture.mountNativeRepeater();
+    window.originalAppend = document.getElementById('native-append');
+    await new Promise(resolve => setTimeout(resolve, 0));
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  const inputs = page.getByRole('textbox', { name: 'Guest name', exact: true });
+  await expect(inputs).toHaveCount(1);
+  await page.getByRole('button', { name: 'Add guest', exact: true }).click();
+  await expect(inputs).toHaveCount(2);
+  await inputs.nth(1).fill('Edited');
+  await expect.poll(() => page.evaluate(() => window.repeaterFixture.form.getValues().guests)).toEqual([{ name: 'Ada' }, { name: 'Edited' }]);
+  await page.getByRole('button', { name: 'Remove guest', exact: true }).first().click();
+  await expect(inputs).toHaveCount(1); await expect(inputs.first()).toHaveValue('Edited');
+  await page.evaluate(() => window.repeaterFixture.form.setValues({ guests: [{ name: 'Replacement' }] }));
+  await expect(inputs.first()).toHaveValue('Replacement');
+  await page.evaluate(() => window.repeaterFixture.form.resetForm());
+  await expect(inputs.first()).toHaveValue('Ada');
+  const state = await page.evaluate(() => ({ actionCreations: window.repeaterFixture.created.length,
+    retained: window.originalAppend === document.getElementById('native-append'),
+    canonical: window.repeaterFixture.form.getValues() }));
+  expect(state).toEqual({ actionCreations: 1, retained: true, canonical: { guests: [{ name: 'Ada' }] } });
+  await page.evaluate(() => window.repeaterFixture.destroy());
+  await expect(page.locator('#native-append')).toHaveCount(0);
+  await testInfo.attach('native-repeater.json', { body: JSON.stringify({ state, errors }, null, 2), contentType: 'application/json' });
+  expect(errors).toEqual([]);
+});
+
 test('unchanged SVG icons retain pointer activation across blur-driven schema updates', async({ page }, testInfo) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));

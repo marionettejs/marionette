@@ -29,13 +29,19 @@ try {
     {
       const region = new Region({ el: document.body.appendChild(document.createElement('div')) });
       const form = new FormView({ values: { guests: [{ name: 'Ada' }] }, inputs: { rows: { type: 'list',
-        schema: { $el: 'div', for: ['item', 'index', '$items'], key: '$item', children: {
-          $formkit: 'group', index: '$index', children: '$slots.default' } } } },
+        features: [node => node.on('created', () => {
+          node.context.fns.append = () => () => node.input([...node.value, { name: '' }], false);
+        })], schema: [{ $el: 'div', for: ['item', 'index', '$items'], key: '$item', children: {
+          $formkit: 'group', index: '$index', children: '$slots.default' } },
+        { $formkit: 'button', id: 'packed-append', label: 'Add guest', onClick: '$fns.append()' }] } },
       schema: { $formkit: 'rows', name: 'guests', sync: true,
         children: { $formkit: 'text', name: 'name', label: 'Guest name' } } });
       region.show(form); await flush();
       const names = () => [...form.el.querySelectorAll('input')].map(input => input.value);
       assert.deepEqual(names(), ['Ada']);
+      const append = form.el.querySelector('#packed-append');
+      append.click(); await form.node.settled; await flush();
+      assert.deepEqual(names(), ['Ada', '']);
       form.setValues({ guests: [{ name: 'Grace' }, { name: 'Lin' }] }); await flush();
       assert.deepEqual(names(), ['Grace', 'Lin']);
       const input = form.el.querySelectorAll('input')[1];
@@ -43,8 +49,11 @@ try {
       await form.node.settled;
       assert.deepEqual(form.getValues().guests, [{ name: 'Grace' }, { name: 'Edited' }]);
       form.resetForm(); await flush(); assert.deepEqual(names(), ['Ada']);
+      assert.equal(form.el.querySelector('#packed-append'), append);
+      assert.equal(getNode('packed-append').parent, null);
       region.destroy(); document.body.replaceChildren();
-      console.log(`${name}: forwarded native list row slots replace, edit and reset without recursion.`);
+      assert.equal(getNode('packed-append'), undefined);
+      console.log(`${name}: forwarded list rows append, replace, edit and reset with a stable ignored action.`);
     }
     {
       const mounted = [];
