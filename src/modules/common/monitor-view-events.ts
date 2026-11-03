@@ -1,5 +1,7 @@
 import type { ViewLifecycle } from './view.ts';
 
+type ChildLifecycleOwner = ViewLifecycle & { _hasDeferredChildren?: boolean; };
+
 // DOM Refresh
 // -----------
 
@@ -11,8 +13,23 @@ function eachChild(children: readonly ViewLifecycle[], iteratee: (view: ViewLife
 }
 
 // Propagate events through the managed child Views.
-function triggerMethodChildren(view: ViewLifecycle, event: string, shouldTrigger: (child: ViewLifecycle) => unknown) {
-  eachChild(view._getImmediateChildren(), child => {
+function triggerMethodChildren(view: ChildLifecycleOwner, event: string, shouldTrigger: (child: ViewLifecycle) => unknown) {
+  const children = view._getImmediateChildren();
+  if (view._hasDeferredChildren) {
+    // Inspect presentation during the existing traversal, without copying rows.
+    const needsAttachment = view._isAttached && view.monitorViewEvents !== false;
+    view._hasDeferredChildren = false;
+    eachChild(children, child => {
+      if (!child._isShown) {
+        view._hasDeferredChildren = true;
+        return;
+      }
+      if (needsAttachment && !child._isAttached) { view._hasDeferredChildren = true; }
+      if (shouldTrigger(child)) { child.triggerMethod(event, child); }
+    });
+    return;
+  }
+  eachChild(children, child => {
     if (!shouldTrigger(child)) { return; }
     child.triggerMethod(event, child);
   });

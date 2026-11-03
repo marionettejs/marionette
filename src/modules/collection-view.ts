@@ -217,7 +217,7 @@ type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
   _addChildModels(models: unknown[]): CollectionChild[];
   _addChildModel(model: unknown): CollectionChild;
   _createChildView(model: unknown): CollectionChild;
-  _addChild(view: CollectionChild, index?: number | null): void;
+  _addChild(view: CollectionChild, index?: number | null, deferred?: boolean): void;
   _getChildView(model: unknown): ChildClass;
   _getView(view: NonNullable<CollectionViewConfiguration['childView']>, model: unknown): ChildClass;
   _getChildViewOptions(model: unknown): object | null | undefined;
@@ -317,22 +317,6 @@ function canDetachContents(container: Element, children: CollectionChild[]) {
   return container.childNodes.length === children.length ||
     Array.from(container.childNodes).every(node => node.nodeType === 1 ||
       node.nodeType === 3 && !/[^\t\n\f\r ]/.test(node.textContent!));
-}
-
-// Only lists with an unflushed deferred batch need to inspect child presentation.
-function getDeferredChildren(view: CollectionViewInternals, children: CollectionChild[]) {
-  const shouldTriggerAttach = view._isAttached && view.monitorViewEvents !== false;
-  view._hasDeferredChildren = false;
-  for (const child of children) {
-    if (!child._isShown) {
-      view._hasDeferredChildren = true;
-      return children.filter(candidate => candidate._isShown);
-    }
-    if (shouldTriggerAttach && !child._isAttached) {
-      view._hasDeferredChildren = true;
-    }
-  }
-  return children;
 }
 
 function modelAttributesMatcher(Data: DataProvider, predicate: Record<string, unknown>) {
@@ -621,12 +605,18 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     return view;
   },
 
-  _addChild(this: CollectionViewInternals, view: CollectionChild, index?: number | null) {
+  _addChild(this: CollectionViewInternals, view: CollectionChild, index?: number | null, deferred?: boolean) {
     this.triggerMethod('before:add:child', this, view);
 
     this._setupChildView(view);
     this._children._add(view, index as number | undefined);
     this.children._add(view, index as number | undefined);
+
+    if (deferred) {
+      // Classify adoption before callbacks can mount or present the list.
+      view._isShown = isElAttached(view.el, this.Dom, this.el);
+      this._hasDeferredChildren = true;
+    }
 
     this.triggerMethod('add:child', this, view);
   },
@@ -686,9 +676,9 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this._proxyChildViewEvents(view);
   },
 
-  // Propagate lifecycle only through shown rows and the empty presentation.
+  // The lifecycle traversal skips unshown rows while a deferred batch is pending.
   _getImmediateChildren(this: CollectionViewInternals) {
-    const children = this._hasDeferredChildren ? getDeferredChildren(this, this.children._views) : this.children._views;
+    const children = this.children._views;
     const emptyView = this._emptyRegion?.currentView;
     return emptyView ? [...children, emptyView] : children;
   },
@@ -1185,17 +1175,10 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       this.render();
     }
 
+    const childIndex = typeof index === 'number' ? index : undefined;
+    this._addChild(view, childIndex, options.preventRender);
+
     if (options.preventRender) {
-      // Mark adoption before public notifications can mount the parent. Keep
-      // ordinary child creation free of deferred-batch checks.
-      this.triggerMethod('before:add:child', this, view);
-      this._setupChildView(view);
-      this._children._add(view, typeof index === 'number' ? index : undefined);
-      this.children._add(view, typeof index === 'number' ? index : undefined);
-      // Classify existing markup before callbacks can mount or present the list.
-      view._isShown = isElAttached(view.el, this.Dom, this.el);
-      this._hasDeferredChildren = true;
-      this.triggerMethod('add:child', this, view);
       // Adoption can discover markup mounted before this view acquired an owner.
       if ((view as CollectionChild)._parent === this && view._isShown && this._isAttached &&
           this.monitorViewEvents !== false && !view._isAttached) {
@@ -1206,9 +1189,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       return view;
     }
 
-    this._addChild(view, typeof index === 'number' ? index : undefined);
-
-    if (typeof index === 'number') {
+    if (childIndex !== undefined) {
       this._renderChildren();
     } else {
       this.sort();

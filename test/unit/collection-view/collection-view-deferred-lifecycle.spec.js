@@ -28,6 +28,62 @@ function lifecycle(name, trace) {
 }
 
 describe('CollectionView deferred child lifecycle', () => {
+  it('preserves an already-attached adopted row when its parent is mounted later', () => {
+    const trace = [];
+    const Row = View.extend({ template: false, ...lifecycle('row', trace) });
+    const list = new CollectionView({ template: () => '<button>Existing action</button>' }).render();
+    document.body.append(list.el);
+    const row = new Row({ el: list.el.firstElementChild });
+    const pending = new View({ template: () => 'Pending' });
+    list.addChildView(row, { preventRender: true });
+    list.addChildView(pending, { preventRender: true });
+    const region = mount();
+    region.show(list);
+    expect(row.isAttached()).toBe(true);
+    expect(row.el.isConnected).toBe(true);
+    expect(pending.isAttached()).toBe(false);
+    expect(trace).toEqual([]);
+    region.detachView();
+    expect(trace).toEqual([
+      ['row:before:detach', true, true], ['row:detach', false, false]
+    ]);
+    region.show(list);
+    expect(trace.slice(2)).toEqual([
+      ['row:before:attach', false, false], ['row:attach', true, true], ['row:refresh', true, true]
+    ]);
+    expect(pending.isAttached()).toBe(false);
+  });
+
+  it('detaches already-attached external markup when filtering excludes a deferred child', () => {
+    const trace = [];
+    const Row = View.extend({ template: false, ...lifecycle('row', trace) });
+    const external = document.body.appendChild(document.createElement('aside'));
+    external.innerHTML = '<button>External action</button>';
+    const row = new Row({ el: external.firstElementChild });
+    const list = new CollectionView().render();
+    const region = mount();
+    region.show(list);
+    list.addChildView(row, { preventRender: true });
+    expect(row.isAttached()).toBe(true);
+    expect(row.el.parentNode).toBe(external);
+    expect(trace).toEqual([]);
+    list.setFilter(view => view !== row);
+    expect(trace).toEqual([
+      ['row:before:detach', true, true], ['row:detach', false, false]
+    ]);
+    expect(row.el.parentNode).toBeNull();
+    expect(list.children.hasView(row)).toBe(false);
+    region.detachView();
+    region.show(list);
+    expect(trace).toHaveLength(2);
+    list.removeFilter();
+    expect(list.children.hasView(row)).toBe(true);
+    expect(row.el.isConnected).toBe(true);
+    expect(trace.slice(2)).toEqual([
+      ['row:before:attach', false, false], ['row:attach', true, true], ['row:refresh', true, true]
+    ]);
+  });
+
   it('attaches adopted markup when add:child mounts its parent', () => {
     const trace = [];
     const Row = View.extend({ template: false, ...lifecycle('row', trace) });
