@@ -394,7 +394,7 @@
     "actualProRuntimeExecutedByWriter": false
   },
   "actualProQA": {
-    "repairedRevision": "pending separate vault QA",
+    "repairedRevision": "passed bounded local development acceptance in separate vault QA",
     "baselineReportedByCoordinator": {
       "source": "8f78cea2ae614f2676918266e46c583f39cc541d",
       "pro": "0.130.2",
@@ -414,10 +414,55 @@
         },
         "qualifier": "Percentages overlap; profile does not identify sustaining event/property. Raw vault profile not inspected by writer."
       }
+    },
+    "retestReportedByCoordinator": {
+      "source": "1d8e1680f416ea182873c9120315ec24970225c9",
+      "provenance": "Independent vault QA relayed by coordinator; writer did not rerun Pro or inspect raw vault artifacts",
+      "toolchain": {
+        "core": "2.1.2",
+        "pro": "0.130.2",
+        "adapter": "5.0.0-rc.2",
+        "chromium": "154.0.8037.57"
+      },
+      "assertions": {
+        "passed": 107,
+        "total": 107
+      },
+      "pageErrors": 0,
+      "timeouts": 0,
+      "repeater": {
+        "passed": 12,
+        "total": 12,
+        "coverage": [
+          "add",
+          "edit",
+          "remove",
+          "controlled replacement",
+          "reset",
+          "disabled state",
+          "submission",
+          "server errors",
+          "destruction"
+        ]
+      },
+      "fullSevenControlJourney": {
+        "passed": 21,
+        "total": 21,
+        "readinessMs": 649,
+        "timingQualifier": "One observed readiness result, not a performance benchmark"
+      },
+      "otherSixIsolatedControls": "passed, including datepicker pointer reopening and retained SVG identity",
+      "credentialScan": "passed",
+      "localDevelopmentBootstrapAndInteractions": "passed",
+      "onlineLicenseValidation": {
+        "status": "unverified",
+        "networkError": "net::ERR_TUNNEL_CONNECTION_FAILED",
+        "qualifier": "Local success does not establish online validation"
+      }
     }
   },
   "limits": [
-    "Actual repaired Pro repeater/full fixture pending separate vault QA",
+    "Actual Pro acceptance covers the reported local development bootstrap and tested seven-control journeys only",
     "No full parity, online-license-validation or performance claim",
     "No Firefox/WebKit/mobile Pro certification"
   ]

@@ -2,7 +2,7 @@
 
 Tested source: `1d8e1680f416ea182873c9120315ec24970225c9` on
 `codex/formkit-adapter-repair-20261026`, repository `marionettejs/marionette`.
-The following evidence commit changes receipts only. This continues the earlier
+Evidence commits after that revision change receipts only. This continues the earlier
 interaction repair; it does not replace its versioned evidence.
 
 ## Actual Pro baseline and scope
@@ -49,7 +49,28 @@ canonical values, explicit index, and destroyed-node recreation. Packed ESM and
 CommonJS consumers now exercise an ignored Add action with generated callbacks.
 The native Chromium journey verifies timer readiness, append/edit/remove,
 controlled replacement, reset, exactly one retained Add action, and teardown.
-These are native fixtures; actual Pro repeater acceptance requires vault retest.
+These are native fixtures. The subsequent actual Pro retest is recorded below.
+
+## Independent actual Pro retest
+
+The coordinator reported independent vault QA on exact source
+`1d8e1680f416ea182873c9120315ec24970225c9`: **107/107 assertions passed**, with
+**zero page errors and zero timeouts**. The repeater passed **12/12**, including
+add/edit/remove, controlled replacement, reset, disabled state, submission,
+server errors and destruction. The full seven-control form became ready in
+**649 ms**, and its combined journey passed **21/21**. All six other isolated
+controls passed, including datepicker pointer reopening and retained SVG identity.
+
+Versions: Core **2.1.2**, Pro **0.130.2**, adapter **5.0.0-rc.2**, Chromium
+**154.0.8037.57**. The credential scan passed. These results come from the
+separate vault QA task, as relayed by the coordinator; the writer did not rerun
+Pro or inspect the raw vault artifacts. No key or private field values are
+included in this report. The readiness timing is one observed run, not a benchmark.
+
+This establishes acceptance for the tested local development bootstrap and
+control journeys. **Online license validation remains unverified** because its
+request failed with `net::ERR_TUNNEL_CONNECTION_FAILED`. Successful local
+rendering and interactions do not establish successful network validation.
 
 ## Review and verification
 
@@ -79,8 +100,8 @@ npm_config_cache=/tmp/formkit-npm-cache npx --yes npm@11.17.0 run test:formkit-p
 MNJS_TEST_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm_config_cache=/tmp/formkit-npm-cache npx --yes npm@11.17.0 exec -- playwright test --config test/formkit/playwright.config.mjs --project chromium
 ```
 
-The repaired actual Pro 0.130.2 repeater/full fixture still needs separate vault
-QA. No full Pro/Vue/React parity, online license validation, performance improvement,
+The bounded actual Pro 0.130.2 repeater/full-fixture retest passed. No full
+Pro/Vue/React parity, online license validation, performance improvement,
 Firefox/WebKit or mobile Pro certification is claimed. No credential, licensing,
 security, core/router, PR, merge, release, deployment or Mac-test action occurred.
 The prior PR-creation denial remains respected.
