@@ -75,3 +75,19 @@ schema currently covers grouped text/email and seven intended Pro control types.
 All control-specific Pro interaction cases require successful authorized mounting
 before extending the collector. Pointer/keyboard behavior, async options, all 14
 Pro inputs, shadow roots, alternate themes, Firefox and WebKit are not certified.
+
+For the separate authorized datepicker investigation, `trace-datepicker.mjs`
+exports `traceDatepicker(node)`. Import it in the existing development consumer
+and pass its public `getNode('date')` result before reproducing the failure.
+The helper does not bootstrap Pro or read any key. It observes pointer/focus/click
+events, boolean expanded state, button identity/placement, and stack function names;
+it records no input values, event keys, page text or URLs.
+
+Keep one trace across Enter-open, November 15 selection, confirmed close,
+pointer reopen, a 1.8-second wait, then Enter reopen. Use `trace.mark('closed')`
+and `trace.mark('after-pointer-wait')` at those checkpoints. Export the JSON from
+`trace.stop()` with the exact source SHA and browser version. It removes its
+listeners and observer. This distinguishes absent click delivery from a true→false
+expanded transition or replaced button. Do not include project configuration or
+credentials in the receipt. The helper is diagnostic evidence, not a passing
+datepicker assertion or license-validation check.
