@@ -1,10 +1,11 @@
 # Isolated FormKit Pro comparison
 
-This fixture installs Pro 0.130.3 into independent native, Vue, and React consumers.
+This fixture installs Pro 0.130.4 into independent native, Vue, and React consumers.
 The native consumer uses freshly packed local packages. Reference consumers use
 FormKit 2.1.2, Vue 3.5.44 or React/ReactDOM 19.2.0. Each install captures a lock,
 reinstalls with `npm ci`, checks the dependency graph and ESM/CommonJS imports,
-and builds with Vite 8.3.0. Vue packages are forbidden in native and React installs.
+and builds with Vite 8.3.0. A strict TypeScript 6.0.3 check covers the Pro plugin
+and the `currencyDisplay` declaration. Vue packages are forbidden in native and React installs.
 
 All three consumers import base Genesis (`@formkit/themes/genesis`, pinned 2.1.2)
 before the Pro Genesis extension. The extension does not replace the base theme.
@@ -121,3 +122,41 @@ authorized development consumer, retain the seven-control journey and check:
 Record source SHA, Pro/Core/browser versions, actual interactions and failures.
 Keep development keys out of fixtures and receipts. Local interaction success
 still does not prove online license validation or broader control parity.
+
+## Pro 0.130.4 release scenarios
+
+The default seven-control journey remains available. The opt-in URL
+`/?mode=pro&scenario=release-01304` adds a separate grouped fixture for the new
+release claims: USD/JPY/KWD currency precision without symbols, an explicit
+precision override, reactive mask presentation, late dropdown-family options,
+duplicate-valued draggable repeater rows, and searchable transfer-list targets.
+Core stays pinned to 2.1.2; this patch does not test a Core upgrade.
+
+In the existing authorized development consumer, run:
+
+```sh
+node test/fixtures/formkit-pro/capture-release-01304.mjs <output-directory> <actual-port> native
+```
+
+The last argument may be `vue` or `react` for an independently prepared reference
+consumer. Unlike the general three-stack collector, this command takes that
+consumer's actual port, with no offset. The prepared source receipt must match
+the chosen stack, Core 2.1.2 and Pro 0.130.4.
+
+The collector has eight grouped cases. It checks visible presentation separately
+from canonical values, requires real dragstart/dragend events and changed row
+order, awaits whole-form replacement before dragging again, and verifies the
+edited model index. Transfer search must visibly filter and restore the targets;
+an option-wrapper `toJSON` counter must stay unchanged during those operations.
+Submission, reset and destruction use public bridges. The fixture's synthetic
+values and options contain no project configuration.
+
+The collector neither reads nor injects a project key. The repository's default
+keyless bootstrap therefore records `blocked` and exits 1 with zero executed
+cases. Use the existing approved vault bootstrap for actual-control testing;
+do not replace the plugin with direct premium definitions. Failed assertions and
+unexpected page/runtime errors fail the collector. Network failure error text is
+retained without request URLs or headers and does not establish online license
+validation. This collector does not certify touch dragging, active-drag teardown,
+direct Destroy-button reachability under an open popover, or all Pro behavior.
+See the [versioned release assessment](../../../packages/formkit/acceptance/PRO-01304.md).

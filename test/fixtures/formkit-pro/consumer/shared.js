@@ -1,5 +1,6 @@
 import { getNode } from '@formkit/core';
-import { createProPlugin, autocomplete, dropdown, taglist, datepicker, toggle, slider, repeater } from '@formkit/pro';
+import { createProPlugin, autocomplete, dropdown, taglist, datepicker, toggle, slider, repeater, currency, mask, transferlist } from '@formkit/pro';
+import { releaseScenario, releaseInitial, releaseReplacement, releaseSchema, installRelease } from './release-01304.js';
 import '@formkit/themes/genesis';
 import '@formkit/pro/genesis';
 
@@ -10,7 +11,10 @@ export const plugins = [];
 window.addEventListener('error', event => { observations.errors.push(String(event.error ?? event.message)); show(); });
 window.addEventListener('unhandledrejection', event => { observations.errors.push(String(event.reason)); show(); });
 try {
-  if (mode === 'pro') { plugins.push(createProPlugin(undefined, { autocomplete, dropdown, taglist, datepicker, toggle, slider, repeater })); }
+  if (mode === 'pro') {
+    plugins.push(createProPlugin(undefined, { autocomplete, dropdown, taglist, datepicker, toggle, slider, repeater,
+      ...(releaseScenario ? { currency, mask, transferlist } : {}) }));
+  }
   observations.bootstrap = 'ready';
 } catch (error) {
   observations.bootstrap = error.message === 'A FormKit API key is required, please visit https://formkit.com/pro' ? 'blocked' : 'error';
@@ -25,18 +29,20 @@ plugins.push(node => {
     });
   }
 });
-document.querySelector('#mode').textContent = `Mode: ${mode}; FormKit core 2.1.2; Pro 0.130.3`;
+document.querySelector('#mode').textContent = `Mode: ${mode}; FormKit core 2.1.2; Pro 0.130.4`;
 document.querySelector('#bootstrap').textContent = observations.bootstrap === 'blocked' ? `Pro bootstrap blocked: ${observations.bootstrapError}` : 'Ready';
 show();
-export const initial = () => ({ contact: { name: '', email: '' }, ...(mode === 'pro' ? { guests: [{ name: '' }], priority: 20, updates: false, topics: [] } : {}) });
-export const replacement = () => ({ contact: { name: 'Ada', email: 'ada@example.test' }, ...(mode === 'pro' ? { team: 'Beta', city: 'Alpha', topics: ['Gamma'], updates: true, priority: 70, guests: [{ name: 'Grace' }] } : {}) });
+export const initial = () => mode === 'pro' && releaseScenario ? releaseInitial() :
+  ({ contact: { name: '', email: '' }, ...(mode === 'pro' ? { guests: [{ name: '' }], priority: 20, updates: false, topics: [] } : {}) });
+export const replacement = () => mode === 'pro' && releaseScenario ? releaseReplacement() :
+  ({ contact: { name: 'Ada', email: 'ada@example.test' }, ...(mode === 'pro' ? { team: 'Beta', city: 'Alpha', topics: ['Gamma'], updates: true, priority: 70, guests: [{ name: 'Grace' }] } : {}) });
 const choices = ['Alpha', 'Beta', 'Gamma'];
 export const schema = [
   { $formkit: 'group', name: 'contact', children: [
     { $formkit: 'text', id: 'contact-name', name: 'name', label: 'Name', help: 'Use the name on your registration.', validation: 'required', classes: '$localClasses', config: '$fieldConfig' },
     { $formkit: 'email', id: 'contact-email', name: 'email', label: 'Email', help: 'We send the receipt here.', validation: 'required|email' }
   ] },
-  ...(mode === 'pro' ? [
+  ...(mode === 'pro' ? releaseScenario ? [releaseSchema] : [
     { $formkit: 'dropdown', id: 'team', name: 'team', label: 'Team', options: choices, validation: 'required' },
     { $formkit: 'autocomplete', id: 'city', name: 'city', label: 'City', options: choices },
     { $formkit: 'taglist', id: 'topics', name: 'topics', label: 'Topics', options: choices },
@@ -63,6 +69,7 @@ export async function submit(values) {
 export function install(bridge) {
   let disabled = false;
   window.proof = { observations, ...bridge, finish };
+  installRelease(window.proof, getNode);
   const showValues = () => { document.querySelector('#values').textContent = JSON.stringify(bridge.getValues(), null, 2); };
   bridge.observe(showValues); showValues();
   document.querySelector('#replace').onclick = () => bridge.setValues(replacement());

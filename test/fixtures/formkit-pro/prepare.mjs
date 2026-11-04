@@ -17,7 +17,7 @@ const env = { ...process.env, NODE_PATH: '', ['npm_config_cache']: join(consumer
 function run(args, cwd = consumer) {
   return execFileSync(process.execPath, [npm, ...args], { cwd, env, encoding: 'utf8', timeout: 180000 });
 }
-const dependencies = { '@formkit/core': '2.1.2', '@formkit/themes': '2.1.2', '@formkit/pro': '0.130.3' };
+const dependencies = { '@formkit/core': '2.1.2', '@formkit/themes': '2.1.2', '@formkit/pro': '0.130.4' };
 const receipt = {
   sourceRevision: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
   sourceDirty: !!execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim(),
@@ -40,8 +40,8 @@ if (stack === 'native') {
 const port = { native: 5190, vue: 5191, react: 5192 }[stack];
 writeFileSync(join(consumer, 'package.json'), JSON.stringify({ private: true, name: `formkit-pro-${stack}-proof`, type: 'module',
   scripts: { dev: `vite --host 127.0.0.1 --port ${port} --strictPort`, build: 'vite build' }, dependencies,
-  devDependencies: { vite: '8.3.0' } }, null, 2));
-for (const file of ['index.html', 'shared.js']) { copyFileSync(join(import.meta.dirname, 'consumer', file), join(consumer, file)); }
+  devDependencies: { vite: '8.3.0', typescript: '6.0.3' } }, null, 2));
+for (const file of ['index.html', 'shared.js', 'release-01304.js', 'pro-types.ts']) { copyFileSync(join(import.meta.dirname, 'consumer', file), join(consumer, file)); }
 copyFileSync(join(import.meta.dirname, 'consumer', `${stack}.js`), join(consumer, 'main.js'));
 writeFileSync(join(output, 'install.log'), run(['install', '--ignore-scripts']));
 const lockPath = join(consumer, 'package-lock.json');
@@ -55,6 +55,9 @@ receipt.vuePackages = Object.keys(lock.packages).filter(path => /(?:^|\/)node_mo
 if (stack !== 'vue' && receipt.vuePackages.length) { throw new Error(`Unexpected Vue installation in ${stack}.`); }
 writeFileSync(join(output, 'import.log'), execFileSync(process.execPath, ['--input-type=module', '-e',
   'import {createRequire} from \'node:module\';await import(\'@formkit/pro\');createRequire(import.meta.url)(\'@formkit/pro\');console.log(\'Pro ESM and CJS imports passed\');'], { cwd: consumer, env, encoding: 'utf8' }));
+writeFileSync(join(output, 'types.log'), execFileSync(process.execPath, [join(consumer, 'node_modules/typescript/bin/tsc'),
+  '--noEmit', '--strict', '--module', 'NodeNext', '--moduleResolution', 'NodeNext', '--target', 'ES2022',
+  '--lib', 'ES2022,DOM,DOM.Iterable', 'pro-types.ts'], { cwd: consumer, env, encoding: 'utf8' }));
 writeFileSync(join(output, 'build.log'), run(['run', 'build']));
 copyFileSync(lockPath, join(output, 'package-lock.json'));
 writeFileSync(join(output, 'receipt.json'), `${JSON.stringify(receipt, null, 2)}\n`);
