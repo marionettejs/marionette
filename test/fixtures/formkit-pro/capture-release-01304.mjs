@@ -91,29 +91,38 @@ try {
       const target = rows.nth(2); await target.scrollIntoViewIfNeeded();
       const box = await target.boundingBox();
       if (!box) { throw new Error('Missing visible repeater drag target.'); }
-      await rows.nth(1).locator('[id$="_drag_handle"]').dragTo(target, { targetPosition: { x: 20, y: box.height - 5 } });
+      const handle = rows.nth(1).locator('[id$="_drag_handle"]');
+      await expect(handle).toHaveClass(/(^|\s)formkit-drag-handle(\s|$)/);
+      await expect(handle).toBeVisible();
+      const handleBox = await handle.boundingBox();
+      expect(handleBox?.width).toBeGreaterThan(0); expect(handleBox?.height).toBeGreaterThan(0);
+      await page.evaluate(() => { window.releaseDragEvents = []; });
+      await handle.dragTo(target, { targetPosition: { x: 20, y: box.height - 5 } });
+      await expect.poll(() => page.evaluate(() => window.releaseDragEvents)).toEqual(['dragstart', 'dragend']);
+      return { handleBox, targetBox: box, events: await page.evaluate(() => window.releaseDragEvents) };
     };
     await page.evaluate(() => {
       window.releaseDragEvents = [];
       const list = document.getElementById('release-rows_items');
-      for (const type of ['dragstart', 'dragend']) { list.addEventListener(type, () => window.releaseDragEvents.push(type)); }
+      // DND stops propagation at the row. Observe the real events before that.
+      for (const type of ['dragstart', 'dragend']) { list.addEventListener(type, () => window.releaseDragEvents.push(type), { capture: true }); }
     });
     await check('real handle drag retains exactly one moved duplicate occurrence', async() => {
       await expect.poll(rowValues).toEqual(['Duplicate', 'Duplicate', 'Tail']);
-      await dragSecondPastThird();
+      const trace = await dragSecondPastThird();
       await expect.poll(async() => (await values()).rows.map(row => row.name)).toEqual(['Duplicate', 'Tail', 'Duplicate']);
       await expect.poll(rowValues).toEqual(['Duplicate', 'Tail', 'Duplicate']);
-      const events = await page.evaluate(() => window.releaseDragEvents);
-      expect(events).toContain('dragstart'); expect(events).toContain('dragend');
-      return { events };
+      return { ...trace, modelOrder: (await values()).rows.map(row => row.name), renderedOrder: await rowValues() };
     });
     await check('drag after whole-form replacement preserves count and edited model index', async() => {
       await page.locator('#replace').click(); await settled();
       await expect.poll(rowValues).toEqual(['Fresh', 'Fresh', 'Last']);
-      await dragSecondPastThird();
+      const trace = await dragSecondPastThird();
       await expect.poll(async() => (await values()).rows.map(row => row.name)).toEqual(['Fresh', 'Last', 'Fresh']);
       await rows.nth(2).getByRole('textbox', { name: 'Row name', exact: true }).fill('Moved Fresh');
       await expect.poll(async() => (await values()).rows.map(row => row.name)).toEqual(['Fresh', 'Last', 'Moved Fresh']);
+      await expect.poll(rowValues).toEqual(['Fresh', 'Last', 'Moved Fresh']);
+      return { ...trace, modelOrder: (await values()).rows.map(row => row.name), renderedOrder: await rowValues() };
     });
     await check('target search filters/restores options without serializing wrappers', async() => {
       const target = page.locator('#release-transfer [role="option"]');

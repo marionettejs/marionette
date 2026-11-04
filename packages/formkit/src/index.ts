@@ -8,7 +8,7 @@ import { createValidationPlugin } from '@formkit/validation';
 import * as rules from '@formkit/rules';
 import { createI18nPlugin, en } from '@formkit/i18n';
 import { isKilled } from '@formkit/observer';
-import { cloneAny, eq, isPojo, undefine } from '@formkit/utils';
+import { cloneAny, eq, isPojo, kebab, undefine } from '@formkit/utils';
 import { mountFormSchema, runtimePlugins, sameValues } from './runtime.ts';
 import type { InputMount, RuntimeOptions } from './runtime.ts';
 import type { ViewConfiguration } from 'marionette';
@@ -384,7 +384,7 @@ export class FormView<Values extends object = FormValues> extends View {
     this.node = createNode({ type: 'group', props: { ...options.formProps, id: String(options.formProps?.id ?? (this.el.id || `${this.cid}-form`)),
       type: 'form', attrs: { ...options.formProps?.attrs as object },
       submitLabel: options.submitLabel ?? 'Submit', resetLabel: options.resetLabel ?? 'Reset' }, value: cloneAny(this.initial),
-    config: { delay: 0, rootClasses: section => ({ [`formkit-${section}`]: true }), ...options.config },
+    config: { delay: 0, rootClasses: section => ({ [`formkit-${kebab(section)}`]: true }), ...options.config },
     plugins: [...runtimePlugins(options), (node: FormKitNode) => {
       const participates = !node.props.ignore;
       if (participates) { this.#submissionChanged(); }

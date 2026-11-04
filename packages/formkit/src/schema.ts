@@ -105,8 +105,11 @@ function expand(schema: FormKitSchemaDefinition | Node, scope: Scope, prefix: st
       pairs.forEach(([itemKey, item]) => {
         const itemScope = scoped(scope, { [valueName]: item,
           ...(values === undefined ? {} : { [keyOrValues as string]: itemKey }) });
-        const copy = { ...entry };
-        delete copy.for;
+        // Official input sections expose schema discriminators as non-enumerable
+        // getters. Retain them (and conditional accessors) when consuming a loop.
+        const descriptors = Object.getOwnPropertyDescriptors(entry);
+        delete descriptors.for;
+        const copy = Object.defineProperties({}, descriptors) as typeof entry;
         const iteration = `${key}:${identity(evaluate(('key' in copy ? copy.key : undefined) ?? itemKey, itemScope))}.`;
         result.push(...expand(copy, itemScope, iteration, identity));
       });
