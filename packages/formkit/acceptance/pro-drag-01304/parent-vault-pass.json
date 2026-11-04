@@ -1,0 +1,99 @@
+{
+  "provenance": "Independent vault QA result relayed by the parent coordinator; not executed by this writer. Raw positive-run artifacts unavailable in this writer environment.",
+  "qaThread": "01a1a141-9e0c-7156-8ce2-0b5d80196006",
+  "qaTurn": "01a1a71d-85d9-77bb-af14-56eca7357b51",
+  "testedPublishedHead": "ffe7d95d44caa259a3b786178c517a33083ab240",
+  "executableSource": "7967f80c4ef3f02319716f235a490de653bb3391",
+  "versions": {
+    "pro": "0.130.4",
+    "dragAndDrop": "0.6.3",
+    "everyInstalledCoreFamilyCopy": "2.1.2",
+    "adapter": "5.0.0-rc.2",
+    "node": "24.19.0",
+    "npm": "11.17.0",
+    "playwright": "1.64.1",
+    "chromium": "154.0.8037.57"
+  },
+  "baselineAssertions": {
+    "passed": 137,
+    "total": 137
+  },
+  "nativeReleaseGroups": {
+    "passed": 8,
+    "total": 8,
+    "failed": 0,
+    "unexecuted": 0
+  },
+  "pageErrors": 0,
+  "runtimeErrors": 0,
+  "testTimeouts": 0,
+  "repeater": {
+    "directLiRows": 3,
+    "handleClass": "formkit-drag-handle",
+    "visible": true,
+    "handleGeometryPx": {
+      "width": 32,
+      "height": 148
+    },
+    "gestures": [
+      {
+        "events": [
+          "dragstart",
+          "dragend"
+        ],
+        "modelAndDomOrder": [
+          "Duplicate",
+          "Tail",
+          "Duplicate"
+        ]
+      },
+      {
+        "events": [
+          "dragstart",
+          "dragend"
+        ],
+        "afterReplacementAndEditModelAndDomOrder": [
+          "Fresh",
+          "Last",
+          "Moved Fresh"
+        ]
+      }
+    ]
+  },
+  "otherPassedChecks": [
+    "currency precision/editing",
+    "reactive mask",
+    "late labels",
+    "transfer target search without extra serialization",
+    "public submission/reset/destruction",
+    "retained datepicker SVG identity"
+  ],
+  "permanentGenesisImports": true,
+  "testOnlyCssOverrides": false,
+  "observedReadinessMs": 630,
+  "readinessQualification": "Single observation, not a performance comparison or improvement claim.",
+  "onlineLicenseValidation": {
+    "verified": false,
+    "reason": "Proxy request failures"
+  },
+  "scope": "Tested native Chromium scope; not full parity or other browser certification.",
+  "qaCleanup": {
+    "credentialScan": "reported passed",
+    "repositoryClean": true,
+    "publicationPerformed": false,
+    "browsersAndServerStopped": true,
+    "portClosureVerified": true
+  },
+  "rawArtifacts": {
+    "availableToWriter": false,
+    "copiedIntoRepository": false,
+    "hashesVerifiedByWriter": false,
+    "locationInSeparateQaExecutor": "/tmp/formkit-01304-retest-ffe7/",
+    "files": [
+      "summary.json",
+      "release-published-01/native-release-01304.json",
+      "release-native-structure-02.json",
+      "source-verification.json"
+    ]
+  }
+}

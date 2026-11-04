@@ -31,8 +31,11 @@ unverified. Pro 0.130.4 vault QA on `53134754` passed those 137 baseline checks,
 but only 5/8 new release groups: repeater dragging failed. Source `7967f80c` repairs
 lost non-enumerable schema getters and default section-class naming, with four
 failing-then-passing public regressions, passing canonical coverage and local
-package/browser gates. Actual Pro dragging on the repair remains pending vault
-QA; see the [repair receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/pro-drag-01304).
+package/browser gates. Independent vault QA subsequently reported 137/137 baseline
+assertions and 8/8 native release groups passed on `ffe7d95d`, including both actual
+repeater drags. Executable source is unchanged from `7967f80c`; online license
+validation remains unverified. Raw positive-run artifacts were not available to
+the writer; see the attributed [repair receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/pro-drag-01304).
 Historical passes below must not be attributed to later source or styling.
 
 The earlier versioned [independent Pro receipt](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) applies to source

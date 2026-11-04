@@ -9,7 +9,10 @@ on integrated source `b557f86b` with permanent Genesis imports. Pro 0.130.4 vaul
 QA subsequently passed 137 baseline checks on `53134754`, but its new release
 collector passed only 5/8 groups. The [repeater repair](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/pro-drag-01304)
 at `7967f80c` corrects schema-accessor and section-class defects with local
-regressions; actual Pro dragging still needs the independent vault retest.
+regressions. Independent vault QA then reported 137/137 baseline assertions and
+8/8 native release groups passed on `ffe7d95d`, with unchanged executable source.
+Actual repeater dragging passed before and after replacement. These are attributed
+QA results; the writer did not execute the retest or receive its raw artifacts.
 These results do not establish full parity or online license validation.
 
 The earlier [November 3 Pro acceptance record](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) supersedes earlier blanket
