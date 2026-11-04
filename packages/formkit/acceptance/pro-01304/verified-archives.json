@@ -1,0 +1,34 @@
+[
+  {
+    "name": "@formkit/pro",
+    "version": "0.130.3",
+    "integrity": "sha512-eLKSIk3N3eZB1AXqZzvs/vIQr2vxrqHVYSi5ywm90sGuSoDROWkEILFrKb5mS/FG05Thv5GKgGyLKv8YNkVqlA==",
+    "shasum": "9420273baf9b828d5fbf6d8fc324577171dd2389",
+    "archiveSha256": "9dc4651348f44c9c284e7e5dc51cd1e33c0d6a1e26bd07161eece2aac8dd1318",
+    "tarball": "https://registry.npmjs.org/@formkit/pro/-/pro-0.130.3.tgz"
+  },
+  {
+    "name": "@formkit/pro",
+    "version": "0.130.4",
+    "integrity": "sha512-Xn0XnNkygZ0YnI7Ge3tnzBoOUqqb7R7L6vBRohJ31Ebj2yVWeqWa27P5sRQtWXO5tu3ihxum8OaWCyUQ356Kgw==",
+    "shasum": "31d94b9ba563b8b8ede1901dcf56a2b4170ea81a",
+    "archiveSha256": "accb167d3f20370887250f89528317f5f0f804180d44bb4996591a10c1329221",
+    "tarball": "https://registry.npmjs.org/@formkit/pro/-/pro-0.130.4.tgz"
+  },
+  {
+    "name": "@formkit/drag-and-drop",
+    "version": "0.5.3",
+    "integrity": "sha512-VGQsKYc350OOMbz7wYt69YqDbn49x7RJ32eqiJieNke54nGZYmx18XEqTw0lBiJmH3RaiH6V45gB1u+tvI/TNw==",
+    "shasum": "24408c0cf8749b26d3fba3b043503efba44b4c90",
+    "archiveSha256": "d6da06eabba0f6af08c2766804bc70e6b2c0675855913a379d60e5497287e47a",
+    "tarball": "https://registry.npmjs.org/@formkit/drag-and-drop/-/drag-and-drop-0.5.3.tgz"
+  },
+  {
+    "name": "@formkit/drag-and-drop",
+    "version": "0.6.3",
+    "integrity": "sha512-vFrYuFSGkE6enocW4+8OxlA8bUAnccESqqSlMEig2Uxx2gWC98BCGwZ5j9coWbNkUVJXpuCot1RmNLNLApVQJA==",
+    "shasum": "016c678ee3ee37d4a69fc502d40c773f85917b57",
+    "archiveSha256": "d0e349eb06621bfbda99331e2597bc4d1b8804bc6bed51fdd51040acba6f406d",
+    "tarball": "https://registry.npmjs.org/@formkit/drag-and-drop/-/drag-and-drop-0.6.3.tgz"
+  }
+]

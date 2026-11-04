@@ -1,0 +1,48 @@
+{
+  "native": {
+    "sourceRevision": "665df3084ef674be59f953889ea9d47a93467658",
+    "formkitRuntime": {
+      "node_modules/@formkit/core": "2.1.2",
+      "node_modules/@formkit/i18n": "2.1.2",
+      "node_modules/@formkit/inputs": "2.1.2",
+      "node_modules/@formkit/observer": "2.1.2",
+      "node_modules/@formkit/rules": "2.1.2",
+      "node_modules/@formkit/themes": "2.1.2",
+      "node_modules/@formkit/utils": "2.1.2",
+      "node_modules/@formkit/validation": "2.1.2"
+    },
+    "mismatches": []
+  },
+  "vue": {
+    "sourceRevision": "665df3084ef674be59f953889ea9d47a93467658",
+    "formkitRuntime": {
+      "node_modules/@formkit/core": "2.1.2",
+      "node_modules/@formkit/dev": "2.1.2",
+      "node_modules/@formkit/i18n": "2.1.2",
+      "node_modules/@formkit/inputs": "2.1.2",
+      "node_modules/@formkit/observer": "2.1.2",
+      "node_modules/@formkit/rules": "2.1.2",
+      "node_modules/@formkit/themes": "2.1.2",
+      "node_modules/@formkit/utils": "2.1.2",
+      "node_modules/@formkit/validation": "2.1.2",
+      "node_modules/@formkit/vue": "2.1.2"
+    },
+    "mismatches": []
+  },
+  "react": {
+    "sourceRevision": "665df3084ef674be59f953889ea9d47a93467658",
+    "formkitRuntime": {
+      "node_modules/@formkit/core": "2.1.2",
+      "node_modules/@formkit/dev": "2.1.2",
+      "node_modules/@formkit/i18n": "2.1.2",
+      "node_modules/@formkit/inputs": "2.1.2",
+      "node_modules/@formkit/observer": "2.1.2",
+      "node_modules/@formkit/react": "2.1.2",
+      "node_modules/@formkit/rules": "2.1.2",
+      "node_modules/@formkit/themes": "2.1.2",
+      "node_modules/@formkit/utils": "2.1.2",
+      "node_modules/@formkit/validation": "2.1.2"
+    },
+    "mismatches": []
+  }
+}

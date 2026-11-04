@@ -1,0 +1,28 @@
+{
+  "sourceRevision": "b557f86b9804143628345b4069504d142fec33e1",
+  "proVersion": "0.130.3",
+  "provenance": "Independent vault QA reported by parent coordinator; not run by writer; original raw vault artifacts not copied here.",
+  "finalAssertions": {
+    "passed": 137,
+    "total": 137,
+    "functional": 107,
+    "scrollingResizingPositioning": 30
+  },
+  "permanentBaseAndProGenesisImports": true,
+  "testOnlyCssOverrides": false,
+  "finalPageErrors": 0,
+  "finalTimeouts": 0,
+  "datepickerPointerReopenAndRetainedSvg": true,
+  "repeaterAndCombinedForm": true,
+  "preliminaryDestroyButtonClicks": {
+    "timeouts": 3,
+    "reason": "Open panel covered button",
+    "finalCheck": "Public destroy bridge while open",
+    "directButtonReachability": "not established"
+  },
+  "onlineLicenseValidation": {
+    "verified": false,
+    "networkError": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  "credentialScan": "reported passed"
+}

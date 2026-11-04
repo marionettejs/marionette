@@ -1,0 +1,54 @@
+{
+  "name": "@formkit/pro",
+  "version": "0.130.4",
+  "dependencies": {
+    "@formkit/tempo": "^1.0.0",
+    "@formkit/drag-and-drop": "^0.6.3"
+  },
+  "peerDependencies": {
+    "@formkit/core": "^2.0.0",
+    "@formkit/utils": "^2.0.0",
+    "@formkit/inputs": "^2.0.0"
+  },
+  "peerDependenciesMeta": null,
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.mjs",
+      "default": "./index.mjs",
+      "require": "./index.cjs"
+    },
+    "./genesis": {
+      "import": "./genesis.css",
+      "default": "./genesis.css",
+      "require": "./genesis.css"
+    }
+  },
+  "gitHead": "74d60c63c3bc9dcd1f6871fe834e2e0e5972a866",
+  "dist": {
+    "shasum": "31d94b9ba563b8b8ede1901dcf56a2b4170ea81a",
+    "tarball": "https://registry.npmjs.org/@formkit/pro/-/pro-0.130.4.tgz",
+    "fileCount": 35,
+    "integrity": "sha512-Xn0XnNkygZ0YnI7Ge3tnzBoOUqqb7R7L6vBRohJ31Ebj2yVWeqWa27P5sRQtWXO5tu3ihxum8OaWCyUQ356Kgw==",
+    "signatures": [
+      {
+        "sig": "MEUCIQCzVkaNl6QO7xv7mrjhtNjeRkzOj2XHcrgZzRgfouvzowIgbkwmjBCUveo0P7ekRkGdLfT+t+Ze3Pbk7Qwu1eWfHwA=",
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+      },
+      {
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+        "sig": "MEYCIQDXrmy0LJBaZDiY7iR3F1pRSxptrRIvjFG7MQZSn6mSPAIhALPd/o6VNxpNG2pnphuTJkl69lt2/j2f9dP0HPkoprx8"
+      }
+    ],
+    "unpackedSize": 788803
+  },
+  "engines": null,
+  "repository": {
+    "url": "git+ssh://git@github.com/formkit/formkit.git",
+    "type": "git"
+  },
+  "publishedAt": "2026-11-04T13:27:56.837Z",
+  "registryURL": "https://registry.npmjs.org/@formkit%2Fpro",
+  "checkedAt": "2026-11-04T13:41:49.628721+00:00",
+  "latestAtCheck": "0.130.4"
+}

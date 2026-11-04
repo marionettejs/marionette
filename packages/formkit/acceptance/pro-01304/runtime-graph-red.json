@@ -1,0 +1,51 @@
+[
+  {
+    "stack": "native",
+    "sourceRevision": "411ae68a79cfe512ecf4d124bede48b4b6a4d83a",
+    "expectedRuntimeVersion": "2.1.2",
+    "passed": true,
+    "mismatches": {}
+  },
+  {
+    "stack": "vue",
+    "sourceRevision": "411ae68a79cfe512ecf4d124bede48b4b6a4d83a",
+    "expectedRuntimeVersion": "2.1.2",
+    "passed": false,
+    "mismatches": {
+      "node_modules/@formkit/dev": "2.2.1",
+      "node_modules/@formkit/dev/node_modules/@formkit/core": "2.2.1",
+      "node_modules/@formkit/i18n": "2.2.1",
+      "node_modules/@formkit/i18n/node_modules/@formkit/core": "2.2.1",
+      "node_modules/@formkit/inputs": "2.2.1",
+      "node_modules/@formkit/inputs/node_modules/@formkit/core": "2.2.1",
+      "node_modules/@formkit/observer": "2.2.1",
+      "node_modules/@formkit/observer/node_modules/@formkit/core": "2.2.1",
+      "node_modules/@formkit/rules": "2.2.1",
+      "node_modules/@formkit/rules/node_modules/@formkit/core": "2.2.1",
+      "node_modules/@formkit/utils": "2.2.1",
+      "node_modules/@formkit/validation": "2.2.1",
+      "node_modules/@formkit/validation/node_modules/@formkit/core": "2.2.1"
+    }
+  },
+  {
+    "stack": "react",
+    "sourceRevision": "411ae68a79cfe512ecf4d124bede48b4b6a4d83a",
+    "expectedRuntimeVersion": "2.1.2",
+    "passed": false,
+    "mismatches": {
+      "node_modules/@formkit/dev": "2.2.1",
+      "node_modules/@formkit/dev/node_modules/@formkit/core": "2.2.1",
+      "node_modules/@formkit/i18n": "2.2.1",
+      "node_modules/@formkit/i18n/node_modules/@formkit/core": "2.2.1",
+      "node_modules/@formkit/inputs": "2.2.1",
+      "node_modules/@formkit/inputs/node_modules/@formkit/core": "2.2.1",
+      "node_modules/@formkit/observer": "2.2.1",
+      "node_modules/@formkit/observer/node_modules/@formkit/core": "2.2.1",
+      "node_modules/@formkit/rules": "2.2.1",
+      "node_modules/@formkit/rules/node_modules/@formkit/core": "2.2.1",
+      "node_modules/@formkit/utils": "2.2.1",
+      "node_modules/@formkit/validation": "2.2.1",
+      "node_modules/@formkit/validation/node_modules/@formkit/core": "2.2.1"
+    }
+  }
+]

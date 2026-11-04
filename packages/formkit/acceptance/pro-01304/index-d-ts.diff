@@ -1,0 +1,13 @@
+--- 0.130.3/index.d.ts
+
++++ 0.130.4/index.d.ts
+
+@@ -1652,6 +1652,7 @@
+
+       label?: string
+       disabled?: Bool
+       currency?: string
++      currencyDisplay?: 'symbol' | 'narrowSymbol' | 'code' | 'name' | 'none'
+       displayLocale?: string
+       decimals?: Bool | number | string
+       minDecimals?: number | string

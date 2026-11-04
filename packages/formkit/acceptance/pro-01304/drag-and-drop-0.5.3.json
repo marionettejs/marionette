@@ -1,0 +1,69 @@
+{
+  "name": "@formkit/drag-and-drop",
+  "version": "0.5.3",
+  "dependencies": null,
+  "peerDependencies": null,
+  "peerDependenciesMeta": null,
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./index.d.ts",
+        "default": "./index.mjs"
+      },
+      "require": {
+        "types": "./index.d.cts",
+        "default": "./index.cjs"
+      }
+    },
+    "./vue": {
+      "import": {
+        "types": "./vue/index.d.ts",
+        "default": "./vue/index.mjs"
+      },
+      "require": {
+        "types": "./vue/index.d.cts",
+        "default": "./vue/index.cjs"
+      }
+    },
+    "./react": {
+      "import": {
+        "types": "./react/index.d.ts",
+        "default": "./react/index.mjs"
+      },
+      "require": {
+        "types": "./react/index.d.cts",
+        "default": "./react/index.cjs"
+      }
+    },
+    "./solid": {
+      "import": {
+        "types": "./solid/index.d.ts",
+        "default": "./solid/index.mjs"
+      },
+      "require": {
+        "types": "./solid/index.d.cts",
+        "default": "./solid/index.cjs"
+      }
+    }
+  },
+  "gitHead": null,
+  "dist": {
+    "shasum": "24408c0cf8749b26d3fba3b043503efba44b4c90",
+    "tarball": "https://registry.npmjs.org/@formkit/drag-and-drop/-/drag-and-drop-0.5.3.tgz",
+    "fileCount": 27,
+    "integrity": "sha512-VGQsKYc350OOMbz7wYt69YqDbn49x7RJ32eqiJieNke54nGZYmx18XEqTw0lBiJmH3RaiH6V45gB1u+tvI/TNw==",
+    "signatures": [
+      {
+        "sig": "MEUCIB0PAQmHl3mQjYScZA1bhkS0KO0V5t4v7UY6k7efyBKDAiEA2+Mnj25OLRqScjmB3/ZhfZlwj77GHKDe3gWKCcBX//E=",
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+      }
+    ],
+    "unpackedSize": 872836
+  },
+  "engines": null,
+  "repository": null,
+  "publishedAt": "2025-04-23T18:51:15.008Z",
+  "registryURL": "https://registry.npmjs.org/@formkit%2Fdrag-and-drop",
+  "checkedAt": "2026-11-04T13:41:49.131080+00:00",
+  "latestAtCheck": "0.6.3"
+}

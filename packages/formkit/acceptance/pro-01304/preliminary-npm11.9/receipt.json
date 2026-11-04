@@ -1,0 +1,65 @@
+{
+  "sourceRevision": "411ae68a79cfe512ecf4d124bede48b4b6a4d83a",
+  "sourceDirty": false,
+  "node": "v24.19.0",
+  "npm": "11.9.0",
+  "productionDiffFromB557": "",
+  "stages": [
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-11-04T14:01:10.038781+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:01:48.032699+00:00"
+    },
+    {
+      "name": "public-tests",
+      "command": [
+        "node",
+        "scripts/checks/public-tests.mjs"
+      ],
+      "startedAt": "2026-11-04T14:01:48.033095+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:01:49.352579+00:00"
+    },
+    {
+      "name": "prepare-native",
+      "command": [
+        "npm",
+        "exec",
+        "--call=node test/fixtures/formkit-pro/prepare.mjs native"
+      ],
+      "startedAt": "2026-11-04T14:01:49.352880+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:02:23.822093+00:00"
+    },
+    {
+      "name": "prepare-vue",
+      "command": [
+        "npm",
+        "exec",
+        "--call=node test/fixtures/formkit-pro/prepare.mjs vue"
+      ],
+      "startedAt": "2026-11-04T14:02:23.823753+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:02:46.330628+00:00"
+    },
+    {
+      "name": "prepare-react",
+      "command": [
+        "npm",
+        "exec",
+        "--call=node test/fixtures/formkit-pro/prepare.mjs react"
+      ],
+      "startedAt": "2026-11-04T14:02:46.331126+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:03:05.965276+00:00"
+    }
+  ],
+  "toolchainConformance": false,
+  "limitation": "Previous temporary pinned npm path was absent after environment restart; PATH selected npm11.9.0. Preserve this preliminary run and rerun with explicit11.17.0."
+}

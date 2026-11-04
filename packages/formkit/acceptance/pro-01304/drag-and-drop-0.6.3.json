@@ -1,0 +1,92 @@
+{
+  "name": "@formkit/drag-and-drop",
+  "version": "0.6.3",
+  "dependencies": null,
+  "peerDependencies": {
+    "@marko/runtime-tags": ">=6.0.166"
+  },
+  "peerDependenciesMeta": {
+    "@marko/runtime-tags": {
+      "optional": true
+    }
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./index.d.ts",
+        "default": "./index.mjs"
+      },
+      "require": {
+        "types": "./index.d.cts",
+        "default": "./index.cjs"
+      }
+    },
+    "./vue": {
+      "import": {
+        "types": "./vue/index.d.ts",
+        "default": "./vue/index.mjs"
+      },
+      "require": {
+        "types": "./vue/index.d.cts",
+        "default": "./vue/index.cjs"
+      }
+    },
+    "./marko": {
+      "import": "./tags/dnd.marko",
+      "default": "./tags/dnd.marko"
+    },
+    "./react": {
+      "import": {
+        "types": "./react/index.d.ts",
+        "default": "./react/index.mjs"
+      },
+      "require": {
+        "types": "./react/index.d.cts",
+        "default": "./react/index.cjs"
+      }
+    },
+    "./solid": {
+      "import": {
+        "types": "./solid/index.d.ts",
+        "default": "./solid/index.mjs"
+      },
+      "require": {
+        "types": "./solid/index.d.cts",
+        "default": "./solid/index.cjs"
+      }
+    }
+  },
+  "gitHead": "721330a56bf5dd6b1c7cb8e7a89547ffc9dcd4a3",
+  "dist": {
+    "shasum": "016c678ee3ee37d4a69fc502d40c773f85917b57",
+    "tarball": "https://registry.npmjs.org/@formkit/drag-and-drop/-/drag-and-drop-0.6.3.tgz",
+    "fileCount": 29,
+    "integrity": "sha512-vFrYuFSGkE6enocW4+8OxlA8bUAnccESqqSlMEig2Uxx2gWC98BCGwZ5j9coWbNkUVJXpuCot1RmNLNLApVQJA==",
+    "signatures": [
+      {
+        "sig": "MEQCIDVPhdJ3gLpQBeKyLV2qB0aa/lIhlUrivad7JSnWatDUAiA68Y4ZwvCTDxb3nA+EJQrEnDkvEiu55ff89ACQP5Eo8Q==",
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+      },
+      {
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+        "sig": "MEYCIQDsHctK2CfvLspULtLQuMqBpuAbW3SKcAqvi4A54/IUKwIhALsiCopP7pkH9oTJ7fSPisNOOArJFXZdHATPLrAWMNa0"
+      }
+    ],
+    "attestations": {
+      "url": "https://registry.npmjs.org/-/npm/v1/attestations/@formkit%2fdrag-and-drop@0.6.3",
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1"
+      }
+    },
+    "unpackedSize": 919833
+  },
+  "engines": null,
+  "repository": {
+    "url": "git+https://github.com/formkit/drag-and-drop.git",
+    "type": "git"
+  },
+  "publishedAt": "2026-11-04T13:04:08.562Z",
+  "registryURL": "https://registry.npmjs.org/@formkit%2Fdrag-and-drop",
+  "checkedAt": "2026-11-04T13:41:49.440916+00:00",
+  "latestAtCheck": "0.6.3"
+}

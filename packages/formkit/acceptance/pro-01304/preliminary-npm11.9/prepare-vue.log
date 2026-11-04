@@ -1,0 +1,14 @@
+npm warn Unknown project config "strict-allow-scripts". This will stop working in the next major version of npm.
+npm warn Unknown env config "strict-allow-scripts". This will stop working in the next major version of npm.
+npm warn Unknown env config "strict-allow-scripts". This will stop working in the next major version of npm.
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
+npm warn Unknown env config "strict-allow-scripts". This will stop working in the next major version of npm.
+npm warn Unknown env config "strict-allow-scripts". This will stop working in the next major version of npm.
+Consumer: /tmp/mnjs-pro-vue-ULbktK
+Start privately: npm --prefix /tmp/mnjs-pro-vue-ULbktK run dev
+URL: http://localhost:5191/?mode=pro (or mode=core)
+Receipt: /workspace/formkit-integration/test/tmp/formkit-pro/vue/receipt.json

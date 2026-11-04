@@ -1,0 +1,87 @@
+{
+  "sourceRevision": "411ae68a79cfe512ecf4d124bede48b4b6a4d83a",
+  "sourceDirty": false,
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "productionDiffFromB557": "",
+  "stages": [
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-11-04T14:04:53.379871+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:05:33.604537+00:00"
+    },
+    {
+      "name": "public-tests",
+      "command": [
+        "node",
+        "scripts/checks/public-tests.mjs"
+      ],
+      "startedAt": "2026-11-04T14:05:33.604861+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:05:34.862733+00:00"
+    },
+    {
+      "name": "prepare-native",
+      "command": [
+        "npm",
+        "exec",
+        "--call=node test/fixtures/formkit-pro/prepare.mjs native"
+      ],
+      "startedAt": "2026-11-04T14:05:34.863216+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:05:59.658758+00:00"
+    },
+    {
+      "name": "prepare-vue",
+      "command": [
+        "npm",
+        "exec",
+        "--call=node test/fixtures/formkit-pro/prepare.mjs vue"
+      ],
+      "startedAt": "2026-11-04T14:05:59.659365+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:06:21.119731+00:00"
+    },
+    {
+      "name": "prepare-react",
+      "command": [
+        "npm",
+        "exec",
+        "--call=node test/fixtures/formkit-pro/prepare.mjs react"
+      ],
+      "startedAt": "2026-11-04T14:06:21.120945+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:06:44.219637+00:00"
+    },
+    {
+      "name": "native-core-collector",
+      "command": "node test/fixtures/formkit-pro/capture.mjs <output> 5690 native",
+      "exitCode": 1,
+      "corePassed": 15,
+      "coreTotal": 15,
+      "proBootstrap": "blocked",
+      "pageErrors": 0,
+      "runtimeErrors": 0,
+      "limitation": "No approved project key in writer environment; no actual Pro controls."
+    },
+    {
+      "name": "release-01304-collector",
+      "command": "node test/fixtures/formkit-pro/capture-release-01304.mjs <output> 5690 native",
+      "exitCode": 1,
+      "result": {
+        "stack": "native",
+        "bootstrap": "blocked",
+        "passed": false,
+        "casesPassed": 0,
+        "casesTotal": 0
+      },
+      "limitation": "Only negative bootstrap path executed; eight positive scenarios await vault QA."
+    }
+  ]
+}

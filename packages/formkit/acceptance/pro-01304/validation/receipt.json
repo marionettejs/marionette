@@ -1,0 +1,90 @@
+{
+  "sourceRevision": "665df3084ef674be59f953889ea9d47a93467658",
+  "sourceDirty": false,
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "productionDiffFromB557": "",
+  "stages": [
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-11-04T14:19:15.659462+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:20:22.052542+00:00"
+    },
+    {
+      "name": "public-tests",
+      "command": [
+        "node",
+        "scripts/checks/public-tests.mjs"
+      ],
+      "startedAt": "2026-11-04T14:20:22.053104+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:20:23.470876+00:00"
+    },
+    {
+      "name": "prepare-native",
+      "command": [
+        "npm",
+        "exec",
+        "--call=node test/fixtures/formkit-pro/prepare.mjs native"
+      ],
+      "startedAt": "2026-11-04T14:20:23.471335+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:20:46.809267+00:00"
+    },
+    {
+      "name": "prepare-vue",
+      "command": [
+        "npm",
+        "exec",
+        "--call=node test/fixtures/formkit-pro/prepare.mjs vue"
+      ],
+      "startedAt": "2026-11-04T14:20:46.809615+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:21:09.068011+00:00"
+    },
+    {
+      "name": "prepare-react",
+      "command": [
+        "npm",
+        "exec",
+        "--call=node test/fixtures/formkit-pro/prepare.mjs react"
+      ],
+      "startedAt": "2026-11-04T14:21:09.068747+00:00",
+      "exitCode": 0,
+      "finishedAt": "2026-11-04T14:21:39.102296+00:00"
+    },
+    {
+      "name": "native-browser",
+      "command": [
+        "node",
+        "/workspace/formkit-integration/test/fixtures/formkit-pro/capture.mjs",
+        "/workspace/scratch/formkit-pro-01304/validation/browser",
+        "5690",
+        "native"
+      ],
+      "startedAt": "2026-11-04T14:23:17.903178+00:00",
+      "exitCode": 1,
+      "finishedAt": "2026-11-04T14:23:22.117978+00:00"
+    },
+    {
+      "name": "release-blocked",
+      "command": [
+        "node",
+        "/workspace/formkit-integration/test/fixtures/formkit-pro/capture-release-01304.mjs",
+        "/workspace/scratch/formkit-pro-01304/validation/release",
+        "5690",
+        "native"
+      ],
+      "startedAt": "2026-11-04T14:23:22.118767+00:00",
+      "exitCode": 1,
+      "finishedAt": "2026-11-04T14:23:23.852647+00:00"
+    }
+  ],
+  "privateServerStopped": true
+}

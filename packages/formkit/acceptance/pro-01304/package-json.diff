@@ -1,0 +1,35 @@
+--- 0.130.3/package.json
+
++++ 0.130.4/package.json
+
+@@ -1,6 +1,6 @@
+
+ {
+   "name": "@formkit/pro",
+-  "version": "0.130.3",
++  "version": "0.130.4",
+   "description": "FormKit Pro — Form inputs and tools for high quality forms.",
+   "main": "index.cjs",
+   "module": "index.mjs",
+@@ -44,7 +44,7 @@
+
+     "vue"
+   ],
+   "dependencies": {
+-    "@formkit/drag-and-drop": "^0.5.3",
++    "@formkit/drag-and-drop": "^0.6.3",
+     "@formkit/tempo": "^1.0.0"
+   },
+   "peerDependencies": {
+@@ -52,5 +52,10 @@
+
+     "@formkit/inputs": "^2.0.0",
+     "@formkit/utils": "^2.0.0"
+   },
++  "pnpm": {
++    "overrides": {
++      "@zxing/library": "0.21.3"
++    }
++  },
+   "type": "module"
+ }

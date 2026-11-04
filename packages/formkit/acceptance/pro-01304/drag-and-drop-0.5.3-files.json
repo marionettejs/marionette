@@ -1,0 +1,110 @@
+{
+  "LICENSE": {
+    "bytes": 1078,
+    "sha256": "f9ec7e21d7ea4677444f37d0960413a31882c0fd3f5df88f3e26f5ea39267691"
+  },
+  "README.md": {
+    "bytes": 975,
+    "sha256": "79b3df92a66187c028fc13bb620dc7b7936f590f3dbf89ab14292d749d2735de"
+  },
+  "index.cjs": {
+    "bytes": 98133,
+    "sha256": "f7f89fade2bc525738b91c7bab10eb8a39b20597a3b6d8c0f16028144edfcf42"
+  },
+  "index.cjs.map": {
+    "bytes": 192943,
+    "sha256": "5676a430cc19ebd12ddc1e5eebfecab4eb113afa9f1d66d52ae76969448a587e"
+  },
+  "index.d.cts": {
+    "bytes": 44253,
+    "sha256": "2a0d884024368fb9389412f9518c9300960ef69799475a88a3d7db9ab2038806"
+  },
+  "index.d.ts": {
+    "bytes": 44253,
+    "sha256": "2a0d884024368fb9389412f9518c9300960ef69799475a88a3d7db9ab2038806"
+  },
+  "index.mjs": {
+    "bytes": 94791,
+    "sha256": "e3c1f73eb7d972b345be9d78c157eaa8a9b3f77b789b1fedf34cb298e740ae0c"
+  },
+  "index.mjs.map": {
+    "bytes": 192411,
+    "sha256": "e069a4bf03a8986080c6d4b6a3e721c07b8ce1a62f13eeac2d6e92c6be53462d"
+  },
+  "package.json": {
+    "bytes": 1554,
+    "sha256": "e374c6c4f79a9808475ccd199d8e35cb6a01585986a2052b04179131171d18b3"
+  },
+  "react/index.cjs": {
+    "bytes": 3046,
+    "sha256": "edbdb955f889070db7ba6c6f7f7309a7383a42962d5de8043cdd86cd2df83fc0"
+  },
+  "react/index.cjs.map": {
+    "bytes": 5244,
+    "sha256": "d8f91a35a64db1c8b98c4e195c318c4139053cefcfb34e5e66662a4b81e54ef7"
+  },
+  "react/index.d.cts": {
+    "bytes": 25653,
+    "sha256": "1067153338d487ef3254b3d70b069977f92d7cf5f5e6d524964e96e78b1c1983"
+  },
+  "react/index.d.ts": {
+    "bytes": 25653,
+    "sha256": "1067153338d487ef3254b3d70b069977f92d7cf5f5e6d524964e96e78b1c1983"
+  },
+  "react/index.mjs": {
+    "bytes": 1939,
+    "sha256": "83e9c331921a5c925eb24aa074e1a7f67dea1b392023f65dd624ae1110cb6c9b"
+  },
+  "react/index.mjs.map": {
+    "bytes": 5205,
+    "sha256": "574e1d662f97bfb939caf1644706fac545bde417cda2666f801cf2e9f48c868a"
+  },
+  "solid/index.cjs": {
+    "bytes": 3137,
+    "sha256": "931e33495a142bcfb2898d758b4e64bee27e24c9ccecff7f97ffbaceb2fb6136"
+  },
+  "solid/index.cjs.map": {
+    "bytes": 5407,
+    "sha256": "c3deaa9d177c0110f811f59428df21655af53089cc5bdc421e7b6e30f2684ff8"
+  },
+  "solid/index.d.cts": {
+    "bytes": 25621,
+    "sha256": "d7bbf839392510c74368ea59fbc9dee94911a237ab58bc5fb674346dcbe629bf"
+  },
+  "solid/index.d.ts": {
+    "bytes": 25621,
+    "sha256": "d7bbf839392510c74368ea59fbc9dee94911a237ab58bc5fb674346dcbe629bf"
+  },
+  "solid/index.mjs": {
+    "bytes": 1991,
+    "sha256": "7171946925dc4a477f91f09a040333d85dbca640540b83ad34f22500fe87778d"
+  },
+  "solid/index.mjs.map": {
+    "bytes": 5395,
+    "sha256": "6ad51f5003b2de167eeb83c29f461a32c38bd9976fa895452388727798118c02"
+  },
+  "vue/index.cjs": {
+    "bytes": 3326,
+    "sha256": "98359a1cb148fa05d7c3533a52fd323700eb4c10deb0bf2685fea766ad9b0cdf"
+  },
+  "vue/index.cjs.map": {
+    "bytes": 5994,
+    "sha256": "7408951c09bc57b1273c9547911326d05dba2d429322ef877b84e2592b25ec4e"
+  },
+  "vue/index.d.cts": {
+    "bytes": 25535,
+    "sha256": "63adf249f88c3df8c76a0f5b32c7c94a4cba44a9069a2f71ddd71a947853ffde"
+  },
+  "vue/index.d.ts": {
+    "bytes": 25535,
+    "sha256": "63adf249f88c3df8c76a0f5b32c7c94a4cba44a9069a2f71ddd71a947853ffde"
+  },
+  "vue/index.mjs": {
+    "bytes": 2210,
+    "sha256": "1cab7795872926367c8d5ac6cef703c1e4abc33cea2ea73139846f1bf8de336a"
+  },
+  "vue/index.mjs.map": {
+    "bytes": 5933,
+    "sha256": "9bf7348a8344950d0af8042a27e01bce17336078e798ce193bb0c35cb2f7c4cd"
+  }
+}

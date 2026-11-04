@@ -1,0 +1,30 @@
+{
+  "testedFixtureSource": "665df3084ef674be59f953889ea9d47a93467658",
+  "productionBaseline": "b557f86b9804143628345b4069504d142fec33e1",
+  "productionSourceChanged": false,
+  "sourceHashes": {
+    "packages/formkit/src/bindings.ts": "b2cb41265425550136cd68e08e66e36450f2f55cda39dd8a2cd146002e1a1420",
+    "packages/formkit/src/composition-input.ts": "b14d31c4ca70a98f1b445fcd17891524364ed1035e9da09098a627bd8a1d6795",
+    "packages/formkit/src/composition.ts": "beda91fd9572493b310af8b5d59d0e1afd9ed69bca481e91f1302bd238db4afc",
+    "packages/formkit/src/index.ts": "2bd195920f5ab940dc78dedaf90178f4cdf837cc152d3373c38457e42f4fde9d",
+    "packages/formkit/src/row-ownership.ts": "5a3f3633b6a9dc6990124c267d184903bf0395aece5f9cd9366d99564fcd8fe3",
+    "packages/formkit/src/runtime.ts": "4089c981d9aa9660358c7c2c0efb31e8b2cb9ec0d795d7507bf16eea9f58bd86",
+    "packages/formkit/src/schema-view.ts": "1f8cac9da3a6f3074c9de1b708c04cae88a28d2cd0bae07596f4d09707325a6c",
+    "packages/formkit/src/schema.ts": "bfd828c887a9d92f598a80228cb41b5958d37027c06e09e4595961008bb51925",
+    "packages/formkit/src/view-components.ts": "d2d947aceafc3de97b666ae6b7808fd5fb6d7b06f934dab872b32002187979c1",
+    "test/fixtures/formkit-pro/README.md": "e322807779a46e30f8b9c83cd5e359cc53b72573ddb80c17fad65f49cfa5bc32",
+    "test/fixtures/formkit-pro/capture-release-01304.mjs": "cca85bde1f61e69dd1be5d195cd6b6e2beb8d3bdfa163b58e9da010f6c4a3ea8",
+    "test/fixtures/formkit-pro/capture.mjs": "46a77d337dd055e518259510bf74b402ae7e9098efc51b02d98a345983f33a14",
+    "test/fixtures/formkit-pro/consumer/index.html": "2aa5cb85114b9557b838e888a1d80dad37b9ff401907088918b5d437bfae1305",
+    "test/fixtures/formkit-pro/consumer/native.js": "ac7589b48b1772cddd455a6810bf9c96eb8a2059743f6324dfbfe1a0f5737767",
+    "test/fixtures/formkit-pro/consumer/pro-types.ts": "cf76504daf5b0b3a7e6e92ed8428f42281ecc9a688475a9e12506cb0eeb0081e",
+    "test/fixtures/formkit-pro/consumer/react.js": "43e5a635cc92c2454d00fd04d633ab72b055e36979b903802b2ca129119738f1",
+    "test/fixtures/formkit-pro/consumer/release-01304.js": "81b1f7daef19091d7bd8d195b16756ea747c1ee68fbcbf763b3e79bb730b4e43",
+    "test/fixtures/formkit-pro/consumer/shared.js": "037db02525bf82fca22fec3fc5b20261853a28bac3bbef5e7c3d982c22c183d5",
+    "test/fixtures/formkit-pro/consumer/vue.js": "e28c19bc5f70ee2af78fd88ff7e90ea25986dc39f4bcdbe6155b7a8896a60d97",
+    "test/fixtures/formkit-pro/prepare.mjs": "71f8cd6e5d2183c614148f880a598ae3b3dd85074542107a87ff81ead91f3d16",
+    "test/fixtures/formkit-pro/trace-datepicker.mjs": "693a3a6a4289c8b905708dada808fc6d6e6d2fde9514feeb190568ce90e2d504"
+  },
+  "review": "Independent Astra static source review cleared corrected fixture/collector; actual Pro execution pending. Evidence review separately checks this bundle.",
+  "actualPro01304": "pending separate approved vault QA"
+}

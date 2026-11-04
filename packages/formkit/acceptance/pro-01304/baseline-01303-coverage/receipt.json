@@ -1,0 +1,74 @@
+{
+  "sourceRevision": "b557f86b9804143628345b4069504d142fec33e1",
+  "sourceDirtyBefore": false,
+  "branch": "codex/formkit-master-integration-20261103",
+  "treeBefore": "c6fcebf8f649377e8ae7742af3d5ce9f2b5275d2",
+  "command": [
+    "npm",
+    "run",
+    "coverage"
+  ],
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "startedAt": "2026-11-03T16:36:46.640689+00:00",
+  "resourceScope": "Cgroup counters include the whole writer environment. Child rusage is cumulative across waited children; maxrss is maximum single-child resident size, not aggregate. Samples at most once per second, at most 900, with no changes to test workers or timeouts.",
+  "resourcesBefore": {
+    "cpu.max": "400000 100000",
+    "cpu.stat": "usage_usec 11681179420\nuser_usec 10141733291\nsystem_usec 1539446128\nnice_usec 0\nnr_periods 94028\nnr_throttled 5784\nthrottled_usec 723227090\nnr_bursts 0\nburst_usec 0",
+    "cpu.pressure": {
+      "error": "[Errno 2] No such file or directory: '/sys/fs/cgroup/cpu.pressure'"
+    },
+    "memory.max": "17179869184",
+    "memory.current": "2785198080",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+    "memory.pressure": {
+      "error": "[Errno 2] No such file or directory: '/sys/fs/cgroup/memory.pressure'"
+    }
+  },
+  "childUsageBefore": {
+    "ru_utime": 0.280429,
+    "ru_stime": 0.16038,
+    "ru_maxrss": 41892,
+    "ru_minflt": 16035,
+    "ru_majflt": 0,
+    "ru_inblock": 0,
+    "ru_oublock": 80,
+    "ru_nvcsw": 163,
+    "ru_nivcsw": 6
+  },
+  "exitCode": 0,
+  "elapsedSeconds": 300.504,
+  "finishedAt": "2026-11-03T16:41:47.146196+00:00",
+  "resourcesAfter": {
+    "cpu.max": "400000 100000",
+    "cpu.stat": "usage_usec 12382691640\nuser_usec 10756385362\nsystem_usec 1626306277\nnice_usec 0\nnr_periods 97030\nnr_throttled 6035\nthrottled_usec 759768537\nnr_bursts 0\nburst_usec 0",
+    "cpu.pressure": {
+      "error": "[Errno 2] No such file or directory: '/sys/fs/cgroup/cpu.pressure'"
+    },
+    "memory.max": "17179869184",
+    "memory.current": "2786766848",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+    "memory.pressure": {
+      "error": "[Errno 2] No such file or directory: '/sys/fs/cgroup/memory.pressure'"
+    }
+  },
+  "childUsageAfter": {
+    "ru_utime": 589.293924,
+    "ru_stime": 84.340343,
+    "ru_maxrss": 385460,
+    "ru_minflt": 8212642,
+    "ru_majflt": 0,
+    "ru_inblock": 0,
+    "ru_oublock": 47264,
+    "ru_nvcsw": 163603,
+    "ru_nivcsw": 30845
+  },
+  "sourceDirtyAfter": false,
+  "headAfter": "b557f86b9804143628345b4069504d142fec33e1",
+  "treeAfter": "c6fcebf8f649377e8ae7742af3d5ce9f2b5275d2",
+  "copiedReports": [
+    "coverage-summary.json",
+    "lcov.info"
+  ],
+  "resourceSampleCount": 278
+}

@@ -1,0 +1,46 @@
+[
+  {
+    "path": "index.cjs",
+    "before": {
+      "bytes": 276677,
+      "sha256": "252f32ceefe86511606612164758e07c2b4571f3b84e381d1c5be9f4b2887ef7"
+    },
+    "after": {
+      "bytes": 278152,
+      "sha256": "80753e800fa6ac52683aac4b82279d1fb731f9f7e030cf8d98e87830a45a31f6"
+    }
+  },
+  {
+    "path": "index.d.ts",
+    "before": {
+      "bytes": 64098,
+      "sha256": "35c2b974aecb7b14bfb38d9a718b3096190aa9dc3a2aef9eb82d4c62e10a1bcb"
+    },
+    "after": {
+      "bytes": 64175,
+      "sha256": "f1a21ce3e24cf9b0212206fb0444f5d6427a8d3a4a69509e21c6958d649fff9c"
+    }
+  },
+  {
+    "path": "index.mjs",
+    "before": {
+      "bytes": 274580,
+      "sha256": "6ff1829cae027a417347e5f131692a3f1e6daf18cdd4c62119a0820de1be268f"
+    },
+    "after": {
+      "bytes": 276037,
+      "sha256": "db0ad64e9934c5174efaa59dc17f256f05cdbb51e26b9cfc6ec853c39a7f947f"
+    }
+  },
+  {
+    "path": "package.json",
+    "before": {
+      "bytes": 1287,
+      "sha256": "9130de2928b1c45dbd5478fe1195c3e0f803c33bada1fc5c1ab9200391d81c09"
+    },
+    "after": {
+      "bytes": 1362,
+      "sha256": "63f3a4024d749382ccaa7bb56114814effee8f0debd4a4c12017d720cd1546fc"
+    }
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "sourceRevision": "665df3084ef674be59f953889ea9d47a93467658",
+  "sourceDirty": false,
+  "stack": "react",
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "consumer": "/tmp/mnjs-pro-react-hcRjIE",
+  "artifacts": [],
+  "lockSha256": "876eee55a14a92243f8f722ab7954b2de358630689a478257e1c8130f7b21766",
+  "versions": {
+    "node_modules/@formkit/core": "2.1.2",
+    "node_modules/@formkit/dev": "2.1.2",
+    "node_modules/@formkit/drag-and-drop": "0.6.3",
+    "node_modules/@formkit/i18n": "2.1.2",
+    "node_modules/@formkit/inputs": "2.1.2",
+    "node_modules/@formkit/observer": "2.1.2",
+    "node_modules/@formkit/pro": "0.130.4",
+    "node_modules/@formkit/react": "2.1.2",
+    "node_modules/@formkit/rules": "2.1.2",
+    "node_modules/@formkit/tempo": "1.1.0",
+    "node_modules/@formkit/themes": "2.1.2",
+    "node_modules/@formkit/utils": "2.1.2",
+    "node_modules/@formkit/validation": "2.1.2",
+    "node_modules/react": "19.2.0",
+    "node_modules/react-dom": "19.2.0",
+    "node_modules/vite": "8.3.0"
+  },
+  "formkitRuntime": {
+    "node_modules/@formkit/core": "2.1.2",
+    "node_modules/@formkit/dev": "2.1.2",
+    "node_modules/@formkit/i18n": "2.1.2",
+    "node_modules/@formkit/inputs": "2.1.2",
+    "node_modules/@formkit/observer": "2.1.2",
+    "node_modules/@formkit/react": "2.1.2",
+    "node_modules/@formkit/rules": "2.1.2",
+    "node_modules/@formkit/themes": "2.1.2",
+    "node_modules/@formkit/utils": "2.1.2",
+    "node_modules/@formkit/validation": "2.1.2"
+  },
+  "vuePackages": []
+}

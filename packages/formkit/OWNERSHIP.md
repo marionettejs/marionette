@@ -16,16 +16,19 @@ compilation, with public behavior regressions. A complete covered run at
 failure and all existing thresholds; all nine FormKit modules reached 100%.
 Coverage now budgets two workers, preserving every assertion, cycle count,
 timeout and threshold. The canonical rerun at `d623599a` passed every FormKit
-case but timed out in the unchanged core jQuery-free bundling test. Full-gate
-clearance therefore still needs independent cloud confirmation; the successful
-run does not erase later failures.
+case but timed out in the unchanged core jQuery-free bundling test. A subsequent
+canonical run on clean `b557f86b` passed all 2,740 tests plus one expected failure
+and every existing coverage threshold. The intermittent failures remain preserved.
 
 Independent vault QA reported 107/107 functional Pro 0.130.3 assertions at
 `db655482`. Extended positioning checks passed only 12/30 with the original
 fixture, then 30/30 with a transient positioning rule. The permanent fixture now
-imports the official base Genesis theme before the Pro extension. Updated runtime
-and styling need their own vault retest; online license validation remains
-unverified. See the [follow-up receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/coverage-20261103).
+imports the official base Genesis theme before the Pro extension. Independent
+vault QA then reported 137/137 assertions on `b557f86b` with that permanent theme
+setup: 107 functional plus 30 positioning/scrolling checks. Online license
+validation and direct Destroy-button reachability under an open panel remain
+unverified. The new Pro 0.130.4 fixture retains Core 2.1.2 and needs its own actual
+control retest; see the [release receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/pro-01304).
 Historical passes below must not be attributed to later source or styling.
 
 The earlier versioned [independent Pro receipt](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) applies to source

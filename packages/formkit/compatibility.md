@@ -3,7 +3,13 @@
 Current master integration is being verified separately from the historical checkpoints
 below. See [OWNERSHIP.md](OWNERSHIP.md) for branch/source attribution and commands.
 
-The [November 3 Pro acceptance record](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) supersedes earlier blanket
+The [November 4 release assessment](https://github.com/marionettejs/marionette/blob/codex/formkit-master-integration-20261103/packages/formkit/acceptance/PRO-01304.md)
+records newer evidence: independent vault QA reported 137/137 Pro 0.130.3 checks
+on integrated source `b557f86b` with permanent Genesis imports. Pro 0.130.4 has
+separate fixture/import/build checks; its actual controls still need vault QA.
+These results do not establish full parity or online license validation.
+
+The earlier [November 3 Pro acceptance record](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) supersedes earlier blanket
 Pro-blocked statements for its tested scope: source `1d8e1680` passed **107/107**
 assertions with Core **2.1.2**, Pro **0.130.2**, and Chromium **154.0.8037.57**.
 That includes seven actual Pro control types and a combined form journey. It does
