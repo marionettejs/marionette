@@ -16,6 +16,52 @@ afterEach(() => {
 });
 
 describe('@mnjs/formkit public schema foundation', () => {
+  it('retains non-enumerable schema accessors through scoped loops without mutating the definition', () => {
+    const selected = [];
+    const row = { key: '$item.id', attrs: { onClick: '$item.select' }, children: '$item.label' };
+    Object.defineProperties(row, {
+      $el: { get: () => 'li' },
+      for: { value: ['item', '$items'] },
+      if: { get: () => '$item.show' }
+    });
+    const item = (id, show = true) => ({ id, label: id, show, select() { selected.push(this.id); } });
+    const a = item('a'); const b = item('b');
+    const view = render({ $el: 'ul', children: row }, { data: { items: [a, item('hidden', false), b] } });
+    const rows = [...view.container.querySelector('ul').children];
+    expect(rows.map(node => node.tagName)).toEqual(['LI', 'LI']);
+    expect(rows.map(node => node.textContent)).toEqual(['a', 'b']);
+    rows[0].click(); expect(selected).toEqual(['a']);
+    view.update({ items: [b, a] });
+    expect([...view.container.querySelector('ul').children]).toEqual([rows[1], rows[0]]);
+    expect(row.for).toEqual(['item', '$items']);
+    view.destroy(); rows[0].click();
+    expect(selected).toEqual(['a']);
+    expect(rows[0].isConnected).toBe(false);
+  });
+
+  it('retains conditional, transparent and component definitions inside non-enumerable loop schemas', () => {
+    const destroyed = vi.fn();
+    const conditional = {};
+    Object.defineProperties(conditional, {
+      for: { value: ['item', '$items'] }, if: { get: () => '$item.show' },
+      then: { get: () => ({ $el: 'b', children: '$item.label' }) },
+      else: { get: () => ({ $el: 'i', children: 'Hidden' }) }
+    });
+    const transparent = { for: ['item', '$items'], children: '$item.label' };
+    Object.defineProperty(transparent, '$el', { get: () => null });
+    const component = { for: ['item', '$items'], props: { label: '$item.label' } };
+    Object.defineProperty(component, '$cmp', { get: () => 'Badge' });
+    const view = render([conditional, transparent, component], { data: { items: [{ label: 'One', show: true }, { label: 'Two', show: false }] },
+      components: { Badge: () => ({ element: document.createElement('span'),
+        update(props) { this.element.textContent = props.label; }, destroy: destroyed }) } });
+    expect(view.container.innerHTML).toContain('<b>One</b><i>Hidden</i>OneTwo');
+    expect([...view.container.querySelectorAll('span')].map(node => node.textContent)).toEqual(['One', 'Two']);
+    expect(view.container.querySelector('undefined')).toBeNull();
+    view.update({ items: [] });
+    expect(view.container.childNodes).toHaveLength(0);
+    expect(destroyed).toHaveBeenCalledTimes(2);
+  });
+
   it('resolves live token paths and receivers without sharing scope across renderers', () => {
     const clicks = [];
     const data = label => ({ values: [{ label }], amount: 0, enabled: false, suffix: '!',

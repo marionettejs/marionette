@@ -23,6 +23,37 @@ async function edit(input, value) {
 afterEach(() => { regions.splice(0).forEach(region => region.destroy()); document.body.replaceChildren(); });
 
 describe('@mnjs/formkit official input integration', () => {
+  it('uses official kebab-case section classes by default while preserving inherited and local layers', async() => {
+    const { element } = mount({ config: { classes: { prefixIcon: 'inherited-icon' } },
+      icons: { native: '<svg viewBox="0 0 10 10"><path d="M0 0L10 10" /></svg>' },
+      schema: { $formkit: 'text', name: 'name', prefixIcon: 'native', classes: { prefixIcon: 'local-icon' } } });
+    await flush();
+    const icon = element.querySelector('.formkit-prefix-icon');
+    expect(icon).not.toBeNull();
+    expect(icon.classList.contains('inherited-icon')).toBe(true);
+    expect(icon.classList.contains('local-icon')).toBe(true);
+    expect(icon.querySelector('svg')).not.toBeNull();
+    expect(element.querySelector('.formkit-prefixIcon')).toBeNull();
+  });
+
+  it('renders and removes native inputs whose loop schema has a non-enumerable type getter', async() => {
+    const schema = { for: ['item', '$items'], key: '$item.name', name: '$item.name', label: '$item.label' };
+    Object.defineProperty(schema, '$formkit', { get: () => 'text' });
+    const { form, element } = mount({ schema, values: { first: 'One', second: 'Two' },
+      schemaData: { items: [{ name: 'first', label: 'First' }, { name: 'second', label: 'Second' }] } });
+    await flush();
+    const controls = [...element.querySelectorAll('input')];
+    expect(controls.map(input => input.value)).toEqual(['One', 'Two']);
+    await edit(controls[1], 'Edited');
+    expect(form.getValues().second).toBe('Edited');
+    form.setSchemaData({ items: [{ name: 'second', label: 'Second' }] }); await flush();
+    expect(element.querySelectorAll('input')).toHaveLength(1);
+    expect(element.querySelector('input')).toBe(controls[1]);
+    expect(getNode(controls[0].id)).toBeUndefined();
+    form.destroy();
+    expect(getNode(controls[1].id)).toBeUndefined();
+  });
+
   it('renders official sections, retains typing focus, validates, submits and resets grouped values', async() => {
     const submit = vi.fn();
     const { form, element } = mount({ schema: [
