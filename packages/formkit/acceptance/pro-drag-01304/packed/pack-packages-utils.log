@@ -1,0 +1,226 @@
+[
+  {
+    "id": "@mnjs/utils@5.0.0",
+    "name": "@mnjs/utils",
+    "version": "5.0.0",
+    "size": 40156,
+    "unpackedSize": 186478,
+    "shasum": "04fc1cf4ff8c53ed4bc08fdb76bafa168a77c4df",
+    "integrity": "sha512-wnvi3f+HNsu0qIPFa5qwiPIu7VCJnMEwfH2y2K/L1dYeT2gZJZAEKsLFL0/0IeHoyN7PkJjxq3Gmwg8v9Y1ahQ==",
+    "filename": "mnjs-utils-5.0.0.tgz",
+    "files": [
+      {
+        "path": "dist/index.cjs",
+        "size": 15870,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.cjs.map",
+        "size": 61112,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.js",
+        "size": 15422,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.js.map",
+        "size": 61090,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/bind-events.d.ts",
+        "size": 814,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/bind-requests.d.ts",
+        "size": 681,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/build-event-args.d.ts",
+        "size": 494,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/call-handler.d.ts",
+        "size": 438,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/error.d.ts",
+        "size": 719,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/events.d.ts",
+        "size": 3037,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/extend.d.ts",
+        "size": 3306,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/get-option.d.ts",
+        "size": 1224,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/get-value.d.ts",
+        "size": 101,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/index.d.ts",
+        "size": 1334,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/is-string.d.ts",
+        "size": 59,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/merge-options.d.ts",
+        "size": 220,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/normalize-methods.d.ts",
+        "size": 591,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/once-wrap.d.ts",
+        "size": 428,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/package.json",
+        "size": 20,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/set-property.d.ts",
+        "size": 90,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/trigger-method.d.ts",
+        "size": 221,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/unique-id.d.ts",
+        "size": 59,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/bind-events.d.ts",
+        "size": 814,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/bind-requests.d.ts",
+        "size": 681,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/build-event-args.d.ts",
+        "size": 494,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/call-handler.d.ts",
+        "size": 438,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/error.d.ts",
+        "size": 719,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/events.d.ts",
+        "size": 3037,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/extend.d.ts",
+        "size": 3306,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/get-option.d.ts",
+        "size": 1224,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/get-value.d.ts",
+        "size": 101,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/index.d.ts",
+        "size": 1334,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/is-string.d.ts",
+        "size": 59,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/merge-options.d.ts",
+        "size": 220,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/normalize-methods.d.ts",
+        "size": 591,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/once-wrap.d.ts",
+        "size": 428,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/set-property.d.ts",
+        "size": 90,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/trigger-method.d.ts",
+        "size": 221,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/unique-id.d.ts",
+        "size": 59,
+        "mode": 384
+      },
+      {
+        "path": "license.txt",
+        "size": 1069,
+        "mode": 384
+      },
+      {
+        "path": "package.json",
+        "size": 1087,
+        "mode": 384
+      },
+      {
+        "path": "readme.md",
+        "size": 3176,
+        "mode": 384
+      }
+    ],
+    "entryCount": 42,
+    "bundled": []
+  }
+]

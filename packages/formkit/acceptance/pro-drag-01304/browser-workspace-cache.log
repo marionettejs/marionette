@@ -1,0 +1,38 @@
+
+> marionette@5.0.0 test:formkit-browser
+> npm --prefix examples/formkit ci --ignore-scripts && playwright test --config test/formkit/playwright.config.mjs --project chromium
+
+
+added 24 packages in 2s
+[WebServer] (node:9258) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 16 tests using 2 workers
+
+(node:9285) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [chromium] › test/formkit/formkit.spec.mjs:4:1 › synchronized list actions settle and support append, edit, remove, replacement and reset (3.3s)
+  ✓   1 [chromium] › test/formkit/composed.spec.mjs:36:1 › FLOW-NESTED native two-level RowViews retain focus, validate, reset membership and clean up (5.1s)
+  ✓   3 [chromium] › test/formkit/formkit.spec.mjs:36:1 › unchanged SVG icons retain pointer activation across blur-driven schema updates (2.1s)
+  ✓   5 [chromium] › test/formkit/formkit.spec.mjs:59:1 › invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field (2.9s)
+  ✓   6 [chromium] › test/formkit/formkit.spec.mjs:99:1 › named registrations mount connected and support keyboard validation, correction and reset (3.8s)
+  ✓   7 [chromium] › test/formkit/formkit.spec.mjs:140:1 › external owned controls retain native origin and state bindings across input, change and blur (3.3s)
+  ✓   8 [chromium] › test/formkit/formkit.spec.mjs:173:1 › decimal edits retain native text and focus while authoritative writes replace pending drafts (4.1s)
+  ✓   9 [chromium] › test/formkit/formkit.spec.mjs:216:1 › template Regions preserve accordion drafts, clear conditional values and submit through the keyboard (4.3s)
+  ✓  10 [chromium] › test/formkit/formkit.spec.mjs:249:1 › adopted forms mount, preserve keyed sibling edits and focus, and can be reused (2.4s)
+  ✓  11 [chromium] › test/formkit/formkit.spec.mjs:300:1 › profile example supports keyboard validation, server errors, retry and native reset (4.2s)
+  ✓  12 [chromium] › test/formkit/formkit.spec.mjs:328:1 › external snapshots and schema reordering preserve real browser focus and selection, then clean up (2.9s)
+  ✓  13 [chromium] › test/formkit/formkit.spec.mjs:371:1 › official schema form supports conditional fields, steps, files, lists, server errors and cancellation (7.9s)
+  ✓  14 [chromium] › test/formkit/formkit.spec.mjs:473:1 › explicit owner placement preserves sibling selection and ends validation on removal (1.7s)
+  ✓   4 [chromium] › test/formkit/composed.spec.mjs:85:1 › FLOW-01 composed planning journey retains focus and drafts, validates across sections and rows, retries and resets (45.3s)
+  ✓  15 [chromium] › test/formkit/composed.spec.mjs:195:1 › FLOW-02 stale callback errors cannot reach replacement rows or survive reset and destruction (8.5s)
+  ✓  16 [chromium] › test/formkit/composed.spec.mjs:252:1 › FLOW-03 simultaneous same-named forms and repeated Region mount/destroy stay independent (5.9s)
+
+  16 passed (1.2m)
+npm notice
+npm notice New major version of npm available! 11.17.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

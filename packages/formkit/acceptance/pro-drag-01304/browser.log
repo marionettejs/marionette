@@ -1,0 +1,134 @@
+
+> marionette@5.0.0 test:formkit-browser
+> npm --prefix examples/formkit ci --ignore-scripts && playwright test --config test/formkit/playwright.config.mjs --project chromium
+
+npm warn tarball tarball data for vite@https://registry.npmjs.org/vite/-/vite-8.3.0.tgz (sha512-lhZBVvEHefgE+HQZC9O7EBJgCU/nVzFNl7vkS4RE0APtWLP02/8QVIkQtzBxPquh7lq5/78NHipTj7ODQ6XuyQ==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @formkit/inputs@https://registry.npmjs.org/@formkit/inputs/-/inputs-2.1.2.tgz (sha512-UskS/aUnO/xGXzBaERC11H98xP4fpTcJaVSJenyylf/dX47QbKatYHjAtF4zny9AFkspfLDLXy4aAocjtZgrrg==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for rolldown@https://registry.npmjs.org/rolldown/-/rolldown-1.2.13.tgz (sha512-/5apOkwWxtACcQtZ5WlrAsKS4JwXVThQPJZ3RqIruRY9UG9M8e0VlXN068xum/JRKA4aIUoJ13ghe/kGCvidiQ==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for picocolors@https://registry.npmjs.org/picocolors/-/picocolors-1.1.1.tgz (sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for tinyglobby@https://registry.npmjs.org/tinyglobby/-/tinyglobby-0.2.17.tgz (sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @oxc-project/types@https://registry.npmjs.org/@oxc-project/types/-/types-0.153.0.tgz (sha512-jSNrRIyvPVLL5E1z/tS5zLAprosGz/FuI1PWwEOz59j3E4TTTzSpqKb/RDGqJhhW0QHYISGXxq582wGx6T11Tw==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for nanoid@https://registry.npmjs.org/nanoid/-/nanoid-3.3.20.tgz (sha512-uKdg2G3GNCKQn9byYOpxbGqrT2fGO5KRt5J/8b3pok8rT6qxGWF6hxMyJiEYtAf+FVyYuD9hRaDqX5uPFYJ4ZQ==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @rolldown/pluginutils@https://registry.npmjs.org/@rolldown/pluginutils/-/pluginutils-1.0.1.tgz (sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for source-map-js@https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.2.tgz (sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for postcss@https://registry.npmjs.org/postcss/-/postcss-8.5.29.tgz (sha512-49cGhUbXj8Qenv0iTMxA1cFBzxXoctpC9Ujd77t1WcbJIr6nF/eI7g/8MgxrYldFRuAXvja7xQRwavoW7kgrxQ==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @formkit/utils@https://registry.npmjs.org/@formkit/utils/-/utils-2.1.2.tgz (sha512-ZbPWhmQKkx5ojGW+r14WfrubnhWWdeTlm/rTiVjZExFQhsmQa6hCu35l0z/EeLb04UhXjoZP/IXBJ+/QU5ZMGw==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for lightningcss-linux-x64-gnu@https://registry.npmjs.org/lightningcss-linux-x64-gnu/-/lightningcss-linux-x64-gnu-1.33.0.tgz (sha512-ar+Ju7LmcN0Jo4FpL4hpFybwNG9/3A/Br5KW2n2jyODg3MEZXaDYADdemoNS+BDNfMgKvylJLj4S5tyRActuAg==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for lightningcss@https://registry.npmjs.org/lightningcss/-/lightningcss-1.33.0.tgz (sha512-WkUDrojuJs0xkgGf2udWxa3yGBRxPtxUkB79i6aCZLRgc7PM8fZe9TosfPDcvEpQZbuFASnHYmRLBLUbmLOIIA==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @rolldown/binding-linux-x64-gnu@https://registry.npmjs.org/@rolldown/binding-linux-x64-gnu/-/binding-linux-x64-gnu-1.2.13.tgz (sha512-J4cm80Pc6wEwV5AZ42o62sIQgDk+Y7R2s646jIwuvO+4V46QB58N4vVuMPWCBaNgursXLpmUWJV//WQAkPvHBQ==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for detect-libc@https://registry.npmjs.org/detect-libc/-/detect-libc-2.1.2.tgz (sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for picomatch@https://registry.npmjs.org/picomatch/-/picomatch-4.0.7.tgz (sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for fdir@https://registry.npmjs.org/fdir/-/fdir-6.5.0.tgz (sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for vite@https://registry.npmjs.org/vite/-/vite-8.3.0.tgz (sha512-lhZBVvEHefgE+HQZC9O7EBJgCU/nVzFNl7vkS4RE0APtWLP02/8QVIkQtzBxPquh7lq5/78NHipTj7ODQ6XuyQ==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @formkit/inputs@https://registry.npmjs.org/@formkit/inputs/-/inputs-2.1.2.tgz (sha512-UskS/aUnO/xGXzBaERC11H98xP4fpTcJaVSJenyylf/dX47QbKatYHjAtF4zny9AFkspfLDLXy4aAocjtZgrrg==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for picocolors@https://registry.npmjs.org/picocolors/-/picocolors-1.1.1.tgz (sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @formkit/core@https://registry.npmjs.org/@formkit/core/-/core-2.1.2.tgz (sha512-uv3NUXQkqyjvT2VILdcDWvO99Ql69zA93RiInqBXMyuA6UyFTJvc/LQt352diP951k0bDGWG4ar0g1GI2/EtYQ==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @formkit/auto-animate@https://registry.npmjs.org/@formkit/auto-animate/-/auto-animate-0.10.0.tgz (sha512-KGomRttjUfORuPUaR/ZGQw+6xfMrTM+sxnILv7JAd9AmabU9rg9i6gF/iC0Ih+QpKCubJpCA/1DX9UHKE8cX+A==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for rolldown@https://registry.npmjs.org/rolldown/-/rolldown-1.2.13.tgz (sha512-/5apOkwWxtACcQtZ5WlrAsKS4JwXVThQPJZ3RqIruRY9UG9M8e0VlXN068xum/JRKA4aIUoJ13ghe/kGCvidiQ==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @formkit/addons@https://registry.npmjs.org/@formkit/addons/-/addons-2.1.2.tgz (sha512-cINKBgGhDW+1XHMhZ1V/xgK7hO8tGJgOEzZgINQJmg07hl6kogc8RVzOqMYJBFopE/N49aw3IeTA7k13cSUg5g==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for nanoid@https://registry.npmjs.org/nanoid/-/nanoid-3.3.20.tgz (sha512-uKdg2G3GNCKQn9byYOpxbGqrT2fGO5KRt5J/8b3pok8rT6qxGWF6hxMyJiEYtAf+FVyYuD9hRaDqX5uPFYJ4ZQ==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @oxc-project/types@https://registry.npmjs.org/@oxc-project/types/-/types-0.153.0.tgz (sha512-jSNrRIyvPVLL5E1z/tS5zLAprosGz/FuI1PWwEOz59j3E4TTTzSpqKb/RDGqJhhW0QHYISGXxq582wGx6T11Tw==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for tinyglobby@https://registry.npmjs.org/tinyglobby/-/tinyglobby-0.2.17.tgz (sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @rolldown/pluginutils@https://registry.npmjs.org/@rolldown/pluginutils/-/pluginutils-1.0.1.tgz (sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for source-map-js@https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.2.tgz (sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for postcss@https://registry.npmjs.org/postcss/-/postcss-8.5.29.tgz (sha512-49cGhUbXj8Qenv0iTMxA1cFBzxXoctpC9Ujd77t1WcbJIr6nF/eI7g/8MgxrYldFRuAXvja7xQRwavoW7kgrxQ==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @formkit/utils@https://registry.npmjs.org/@formkit/utils/-/utils-2.1.2.tgz (sha512-ZbPWhmQKkx5ojGW+r14WfrubnhWWdeTlm/rTiVjZExFQhsmQa6hCu35l0z/EeLb04UhXjoZP/IXBJ+/QU5ZMGw==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for picomatch@https://registry.npmjs.org/picomatch/-/picomatch-4.0.7.tgz (sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for lightningcss-linux-x64-gnu@https://registry.npmjs.org/lightningcss-linux-x64-gnu/-/lightningcss-linux-x64-gnu-1.33.0.tgz (sha512-ar+Ju7LmcN0Jo4FpL4hpFybwNG9/3A/Br5KW2n2jyODg3MEZXaDYADdemoNS+BDNfMgKvylJLj4S5tyRActuAg==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for fdir@https://registry.npmjs.org/fdir/-/fdir-6.5.0.tgz (sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for detect-libc@https://registry.npmjs.org/detect-libc/-/detect-libc-2.1.2.tgz (sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for lightningcss@https://registry.npmjs.org/lightningcss/-/lightningcss-1.33.0.tgz (sha512-WkUDrojuJs0xkgGf2udWxa3yGBRxPtxUkB79i6aCZLRgc7PM8fZe9TosfPDcvEpQZbuFASnHYmRLBLUbmLOIIA==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @formkit/addons@https://registry.npmjs.org/@formkit/addons/-/addons-2.1.2.tgz (sha512-cINKBgGhDW+1XHMhZ1V/xgK7hO8tGJgOEzZgINQJmg07hl6kogc8RVzOqMYJBFopE/N49aw3IeTA7k13cSUg5g==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @rolldown/binding-linux-x64-gnu@https://registry.npmjs.org/@rolldown/binding-linux-x64-gnu/-/binding-linux-x64-gnu-1.2.13.tgz (sha512-J4cm80Pc6wEwV5AZ42o62sIQgDk+Y7R2s646jIwuvO+4V46QB58N4vVuMPWCBaNgursXLpmUWJV//WQAkPvHBQ==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @formkit/auto-animate@https://registry.npmjs.org/@formkit/auto-animate/-/auto-animate-0.10.0.tgz (sha512-KGomRttjUfORuPUaR/ZGQw+6xfMrTM+sxnILv7JAd9AmabU9rg9i6gF/iC0Ih+QpKCubJpCA/1DX9UHKE8cX+A==) seems to be corrupted. Trying again.
+npm warn tarball tarball data for @formkit/core@https://registry.npmjs.org/@formkit/core/-/core-2.1.2.tgz (sha512-uv3NUXQkqyjvT2VILdcDWvO99Ql69zA93RiInqBXMyuA6UyFTJvc/LQt352diP951k0bDGWG4ar0g1GI2/EtYQ==) seems to be corrupted. Trying again.
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspace/formkit-integration/examples/formkit/node_modules/fdir/dist'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, open '/workspace/formkit-integration/examples/formkit/node_modules/picomatch/lib/utils.js'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, open '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/auto-animate/tags/auto-animate.marko'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, open '/workspace/formkit-integration/examples/formkit/node_modules/picomatch/package.json'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, open '/workspace/formkit-integration/examples/formkit/node_modules/picomatch/README.md'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, open '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/addons/dist/css/inputCount.css'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/addons/dist'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspace/formkit-integration/examples/formkit/node_modules/lightningcss/node'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/addons/dist'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspace/formkit-integration/examples/formkit/node_modules/lightningcss/node'
+npm warn cleanup Failed to remove some directories [
+npm warn cleanup   [
+npm warn cleanup     '/workspace/formkit-integration/examples/formkit/node_modules/detect-libc',
+npm warn cleanup     [Error: ENOTEMPTY: directory not empty, rmdir '/workspace/formkit-integration/examples/formkit/node_modules/detect-libc/lib'] {
+npm warn cleanup       errno: -39,
+npm warn cleanup       code: 'ENOTEMPTY',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: '/workspace/formkit-integration/examples/formkit/node_modules/detect-libc/lib'
+npm warn cleanup     }
+npm warn cleanup   ],
+npm warn cleanup   [
+npm warn cleanup     '/workspace/formkit-integration/examples/formkit/node_modules/postcss',
+npm warn cleanup     [Error: ENOTEMPTY: directory not empty, rmdir '/workspace/formkit-integration/examples/formkit/node_modules/postcss/lib'] {
+npm warn cleanup       errno: -39,
+npm warn cleanup       code: 'ENOTEMPTY',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: '/workspace/formkit-integration/examples/formkit/node_modules/postcss/lib'
+npm warn cleanup     }
+npm warn cleanup   ],
+npm warn cleanup   [
+npm warn cleanup     '/workspace/formkit-integration/examples/formkit/node_modules/rolldown',
+npm warn cleanup     [Error: ENOTEMPTY: directory not empty, rmdir '/workspace/formkit-integration/examples/formkit/node_modules/rolldown/dist/shared'] {
+npm warn cleanup       errno: -39,
+npm warn cleanup       code: 'ENOTEMPTY',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: '/workspace/formkit-integration/examples/formkit/node_modules/rolldown/dist/shared'
+npm warn cleanup     }
+npm warn cleanup   ],
+npm warn cleanup   [
+npm warn cleanup     '/workspace/formkit-integration/examples/formkit/node_modules/@formkit',
+npm warn cleanup     [Error: ENOTEMPTY: directory not empty, rmdir '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/core/dist'] {
+npm warn cleanup       errno: -39,
+npm warn cleanup       code: 'ENOTEMPTY',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/core/dist'
+npm warn cleanup     }
+npm warn cleanup   ],
+npm warn cleanup   [
+npm warn cleanup     '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/inputs',
+npm warn cleanup     [Error: ENOTEMPTY: directory not empty, rmdir '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/inputs/dist/exports'] {
+npm warn cleanup       errno: -39,
+npm warn cleanup       code: 'ENOTEMPTY',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/inputs/dist/exports'
+npm warn cleanup     }
+npm warn cleanup   ],
+npm warn cleanup   [
+npm warn cleanup     '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/auto-animate',
+npm warn cleanup     [Error: ENOTEMPTY: directory not empty, rmdir '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/auto-animate'] {
+npm warn cleanup       errno: -39,
+npm warn cleanup       code: 'ENOTEMPTY',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/auto-animate'
+npm warn cleanup     }
+npm warn cleanup   ]
+npm warn cleanup ]
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/addons/dist'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspace/formkit-integration/examples/formkit/node_modules/lightningcss/node'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, open '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/addons/package.json'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspace/formkit-integration/examples/formkit/node_modules/lightningcss/node'
+npm warn tar TAR_ENTRY_ERROR ENOENT: no such file or directory, lstat '/workspace/formkit-integration/examples/formkit/node_modules/@formkit/addons/dist'
+npm error code ENOENT
+npm error syscall mkdir
+npm error path /home/agent/.npm/_cacache
+npm error errno -2
+npm error enoent ENOENT: no such file or directory, mkdir '/home/agent/.npm/_cacache'
+npm error enoent This is related to npm not being able to find a file.
+npm error enoent
+npm notice
+npm notice New major version of npm available! 11.17.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
+npm error Log files were not written due to an error writing to the directory: /home/agent/.npm/_logs
+npm error You can rerun the command with `--loglevel=verbose` to see the logs in your terminal
+npm notice
+npm notice New major version of npm available! 11.17.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

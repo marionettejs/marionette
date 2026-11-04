@@ -1,0 +1,129 @@
+{
+  "sourceRevision": "7967f80c4ef3f02319716f235a490de653bb3391",
+  "sourceDirty": false,
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "browserExecutable": "/usr/bin/chromium",
+  "stages": [
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-11-04T14:57:31.184645+00:00",
+      "exitCode": 0,
+      "wallSeconds": 48.016,
+      "finishedAt": "2026-11-04T14:58:19.200739+00:00"
+    },
+    {
+      "name": "coverage",
+      "command": [
+        "npm",
+        "run",
+        "coverage"
+      ],
+      "startedAt": "2026-11-04T14:58:19.202375+00:00",
+      "exitCode": 0,
+      "wallSeconds": 187.666,
+      "finishedAt": "2026-11-04T15:01:26.868119+00:00"
+    },
+    {
+      "name": "packages",
+      "command": [
+        "npm",
+        "run",
+        "check:packages"
+      ],
+      "startedAt": "2026-11-04T15:01:26.874467+00:00",
+      "exitCode": 0,
+      "wallSeconds": 2.003,
+      "finishedAt": "2026-11-04T15:01:28.877767+00:00"
+    },
+    {
+      "name": "packed",
+      "command": [
+        "npm",
+        "run",
+        "test:formkit-package"
+      ],
+      "startedAt": "2026-11-04T15:01:28.878289+00:00",
+      "exitCode": 0,
+      "wallSeconds": 48.009,
+      "finishedAt": "2026-11-04T15:02:16.887837+00:00"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "npm",
+        "run",
+        "test:formkit-browser",
+        "--",
+        "--project",
+        "chromium"
+      ],
+      "startedAt": "2026-11-04T15:02:16.893757+00:00",
+      "exitCode": 254,
+      "wallSeconds": 6.004,
+      "finishedAt": "2026-11-04T15:02:22.899234+00:00"
+    },
+    {
+      "name": "browser-workspace-cache",
+      "command": [
+        "npm",
+        "run",
+        "test:formkit-browser",
+        "--",
+        "--project",
+        "chromium"
+      ],
+      "npmCache": "/workspace/scratch/formkit-pro-drag-20261104/npm-cache",
+      "startedAt": "2026-11-04T15:02:57.218845+00:00",
+      "exitCode": 0,
+      "wallSeconds": 73.525,
+      "finishedAt": "2026-11-04T15:04:10.744311+00:00"
+    },
+    {
+      "name": "prepare-native",
+      "command": [
+        "npm",
+        "exec",
+        "--call=node test/fixtures/formkit-pro/prepare.mjs native"
+      ],
+      "npmCache": "/workspace/scratch/formkit-pro-drag-20261104/npm-cache",
+      "startedAt": "2026-11-04T15:04:10.745039+00:00",
+      "exitCode": 0,
+      "wallSeconds": 27.814,
+      "finishedAt": "2026-11-04T15:04:38.558986+00:00"
+    },
+    {
+      "name": "native-browser",
+      "command": [
+        "node",
+        "/workspace/formkit-integration/test/fixtures/formkit-pro/capture.mjs",
+        "/workspace/scratch/formkit-pro-drag-20261104/native-consumer-browser",
+        "5690",
+        "native"
+      ],
+      "startedAt": "2026-11-04T15:04:46.646495+00:00",
+      "exitCode": 1,
+      "finishedAt": "2026-11-04T15:04:51.168536+00:00"
+    },
+    {
+      "name": "release-blocked",
+      "command": [
+        "node",
+        "/workspace/formkit-integration/test/fixtures/formkit-pro/capture-release-01304.mjs",
+        "/workspace/scratch/formkit-pro-drag-20261104/release",
+        "5690",
+        "native"
+      ],
+      "startedAt": "2026-11-04T15:04:51.169394+00:00",
+      "exitCode": 1,
+      "finishedAt": "2026-11-04T15:04:53.603715+00:00"
+    }
+  ],
+  "browserPreparationRecovery": "Initial browser stage failed before tests: npm default cache /home/agent/.npm/_cacache unavailable (ENOENT). Retry uses command-local npm_config_cache in writable workspace; no source, lock, browser, assertion or security configuration changed.",
+  "privateServerStopped": true
+}

@@ -1,0 +1,16 @@
+{
+  "native": {
+    "sourceRevision": "7967f80c4ef3f02319716f235a490de653bb3391",
+    "formkitRuntime": {
+      "node_modules/@formkit/core": "2.1.2",
+      "node_modules/@formkit/i18n": "2.1.2",
+      "node_modules/@formkit/inputs": "2.1.2",
+      "node_modules/@formkit/observer": "2.1.2",
+      "node_modules/@formkit/rules": "2.1.2",
+      "node_modules/@formkit/themes": "2.1.2",
+      "node_modules/@formkit/utils": "2.1.2",
+      "node_modules/@formkit/validation": "2.1.2"
+    },
+    "mismatches": []
+  }
+}

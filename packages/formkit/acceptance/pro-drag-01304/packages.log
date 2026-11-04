@@ -1,0 +1,10 @@
+
+> marionette@5.0.0 check:packages
+> node scripts/checks/packages.mjs
+
+Verified 7 owned packages; 5 stable release targets remain unchanged.
+npm notice
+npm notice New major version of npm available! 11.17.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

@@ -1,0 +1,9 @@
+{
+  "sourceRevision": "7967f80c4ef3f02319716f235a490de653bb3391",
+  "sourceReviewer": "Independent Astra integration_source_review",
+  "sourceOutcome": "Cleared: descriptor preservation, omission of non-configurable for, official kebab defaults, explicit override precedence, public lifecycle regressions.",
+  "collectorReviewer": "Independent Astra integration_evidence_review",
+  "collectorOutcome": "Cleared after exact class-token regex correction and explicit final rendered-order assertion; capture-phase observation and independent per-gesture traces preserve acceptance strength.",
+  "reviewType": "Source/artifact review only; reviewers performed no tests or browser execution.",
+  "actualProRetest": "Pending separate approved vault QA."
+}

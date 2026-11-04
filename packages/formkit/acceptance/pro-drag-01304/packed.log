@@ -1,0 +1,30 @@
+
+> marionette@5.0.0 test:formkit-package
+> node test/fixtures/formkit-package/run.mjs
+
+ESM: forwarded list rows append, replace, edit and reset with a stable ignored action.
+ESM: mounted placement, root IDs, live config/actions, repeated submit and external focus passed.
+ESM: named field registration mounted after Region placement exactly once.
+ESM: ignored writes, notification origins and layered classes in schema/custom controls passed.
+ESM: inherited state, external native input and default-parent identity regressions passed.
+ESM: distinct value props reach one real normalizer; accepted data, focus and cleanup passed.
+ESM: three installed nested-row edit/reorder/reset/cancel/detached-cleanup cycles passed.
+ESM: installed keyed rows, borrowed SchemaView and named field/view registrations passed.
+ESM: five schema and five composed installed-package edit/submit/reset/destroy cycles passed.
+CommonJS: forwarded list rows append, replace, edit and reset with a stable ignored action.
+CommonJS: mounted placement, root IDs, live config/actions, repeated submit and external focus passed.
+CommonJS: named field registration mounted after Region placement exactly once.
+CommonJS: ignored writes, notification origins and layered classes in schema/custom controls passed.
+CommonJS: inherited state, external native input and default-parent identity regressions passed.
+CommonJS: distinct value props reach one real normalizer; accepted data, focus and cleanup passed.
+CommonJS: three installed nested-row edit/reorder/reset/cancel/detached-cleanup cycles passed.
+CommonJS: installed keyed rows, borrowed SchemaView and named field/view registrations passed.
+CommonJS: five schema and five composed installed-package edit/submit/reset/destroy cycles passed.
+Node v24.19.0: native installed ESM/CommonJS consumer floor check passed.
+
+Installed tarball ESM/CJS, declarations, content and dependency boundaries passed.
+npm notice
+npm notice New major version of npm available! 11.17.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

@@ -1,0 +1,21 @@
+{
+  "baselineProduction": "531347548728e59a632533288be716f5e96e8ef0",
+  "testPatchCommit": "d764af89800d83495cec08c49ff8ea351c8e0db9",
+  "redSourceAtExecution": "Baseline production plus the test-only patch; tests committed immediately after execution.",
+  "redExitCode": 1,
+  "redTests": {
+    "failed": 4,
+    "passed": 19
+  },
+  "greenExitCode": 0,
+  "greenTests": {
+    "passed": 23,
+    "total": 23
+  },
+  "greenProductionSource": "7967f80c4ef3f02319716f235a490de653bb3391",
+  "note": "Focused green run preceded the repair commit; index.ts/schema.ts/test bytes match that commit. Exact clean-head broader receipts are separate.",
+  "node": "24.19.0",
+  "npm": "11.17.0",
+  "command": "npm test -- test/unit/formkit-schema.spec.js test/unit/formkit-official.spec.js",
+  "patchSha256": "3c443e06bc43057e258cf6b57f690b405a045a327a202824e5968e9112495e7c"
+}

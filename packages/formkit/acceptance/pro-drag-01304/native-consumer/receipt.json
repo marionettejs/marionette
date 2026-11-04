@@ -1,0 +1,56 @@
+{
+  "sourceRevision": "7967f80c4ef3f02319716f235a490de653bb3391",
+  "sourceDirty": false,
+  "stack": "native",
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "consumer": "/tmp/mnjs-pro-native-VbQ9bj",
+  "artifacts": [
+    {
+      "name": "marionette",
+      "version": "5.0.0",
+      "sha256": "e0d6edec241f67af728f07e8ffcb0a19c19546ff7538509b9c6166eed6ff5ff8"
+    },
+    {
+      "name": "@mnjs/utils",
+      "version": "5.0.0",
+      "sha256": "7d74775d89ff90b1f53c84634a5928eb39cb73814ae744037072b0ac7d5da8fd"
+    },
+    {
+      "name": "@mnjs/radio",
+      "version": "5.0.0",
+      "sha256": "fb8a067705ad7722e85269367cc0edf6b232f2236cb35e9befcdf27f06ec7a42"
+    },
+    {
+      "name": "@mnjs/formkit",
+      "version": "5.0.0-rc.2",
+      "sha256": "7aa029a82ba3fe8655b57c728fe18860e9634e71035b6957d49123050f7c0227"
+    }
+  ],
+  "lockSha256": "16d008d479c2dab2ac6acec9f44f12787a0cb7e77400129b285c660ae03180de",
+  "versions": {
+    "node_modules/@formkit/core": "2.1.2",
+    "node_modules/@formkit/drag-and-drop": "0.6.3",
+    "node_modules/@formkit/i18n": "2.1.2",
+    "node_modules/@formkit/inputs": "2.1.2",
+    "node_modules/@formkit/observer": "2.1.2",
+    "node_modules/@formkit/pro": "0.130.4",
+    "node_modules/@formkit/rules": "2.1.2",
+    "node_modules/@formkit/tempo": "1.1.0",
+    "node_modules/@formkit/themes": "2.1.2",
+    "node_modules/@formkit/utils": "2.1.2",
+    "node_modules/@formkit/validation": "2.1.2",
+    "node_modules/vite": "8.3.0"
+  },
+  "formkitRuntime": {
+    "node_modules/@formkit/core": "2.1.2",
+    "node_modules/@formkit/i18n": "2.1.2",
+    "node_modules/@formkit/inputs": "2.1.2",
+    "node_modules/@formkit/observer": "2.1.2",
+    "node_modules/@formkit/rules": "2.1.2",
+    "node_modules/@formkit/themes": "2.1.2",
+    "node_modules/@formkit/utils": "2.1.2",
+    "node_modules/@formkit/validation": "2.1.2"
+  },
+  "vuePackages": []
+}

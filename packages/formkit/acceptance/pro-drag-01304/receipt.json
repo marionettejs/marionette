@@ -1,0 +1,31 @@
+{
+  "testedSource": "7967f80c4ef3f02319716f235a490de653bb3391",
+  "baselineProduction": "531347548728e59a632533288be716f5e96e8ef0",
+  "sourceHashes": {
+    "packages/formkit/src/composition.ts": "beda91fd9572493b310af8b5d59d0e1afd9ed69bca481e91f1302bd238db4afc",
+    "packages/formkit/src/index.ts": "810b79d22e8012278f14cf800f51ad9d5172887a53034caaa115a71438a27e9b",
+    "packages/formkit/src/composition-input.ts": "b14d31c4ca70a98f1b445fcd17891524364ed1035e9da09098a627bd8a1d6795",
+    "packages/formkit/src/runtime.ts": "4089c981d9aa9660358c7c2c0efb31e8b2cb9ec0d795d7507bf16eea9f58bd86",
+    "packages/formkit/src/schema-view.ts": "1f8cac9da3a6f3074c9de1b708c04cae88a28d2cd0bae07596f4d09707325a6c",
+    "packages/formkit/src/row-ownership.ts": "5a3f3633b6a9dc6990124c267d184903bf0395aece5f9cd9366d99564fcd8fe3",
+    "packages/formkit/src/bindings.ts": "b2cb41265425550136cd68e08e66e36450f2f55cda39dd8a2cd146002e1a1420",
+    "packages/formkit/src/schema.ts": "4c0fc8350867788f904af8f2bea79e3c17610fededf72a5d81814be6e7d93b20",
+    "packages/formkit/src/view-components.ts": "d2d947aceafc3de97b666ae6b7808fd5fb6d7b06f934dab872b32002187979c1",
+    "test/unit/formkit-schema.spec.js": "cceb9af06a5e26ee95faf2ea9fd992783c02eee247610476505df61fbafa34e3",
+    "test/unit/formkit-official.spec.js": "51ed83d68b2f7223b3878916e5e361619278ec6ab5291da979531c65bbfa479c",
+    "test/fixtures/formkit-pro/capture-release-01304.mjs": "ac3385e9b8558024390ae79b9ad78bfe6501bdf711fc15335a0b630158bd2d4a",
+    "test/fixtures/formkit-pro/prepare.mjs": "71f8cd6e5d2183c614148f880a598ae3b3dd85074542107a87ff81ead91f3d16",
+    "test/fixtures/formkit-pro/trace-datepicker.mjs": "693a3a6a4289c8b905708dada808fc6d6e6d2fde9514feeb190568ce90e2d504",
+    "test/fixtures/formkit-pro/capture.mjs": "46a77d337dd055e518259510bf74b402ae7e9098efc51b02d98a345983f33a14",
+    "test/fixtures/formkit-pro/consumer/pro-types.ts": "cf76504daf5b0b3a7e6e92ed8428f42281ecc9a688475a9e12506cb0eeb0081e",
+    "test/fixtures/formkit-pro/consumer/vue.js": "e28c19bc5f70ee2af78fd88ff7e90ea25986dc39f4bcdbe6155b7a8896a60d97",
+    "test/fixtures/formkit-pro/consumer/react.js": "43e5a635cc92c2454d00fd04d633ab72b055e36979b903802b2ca129119738f1",
+    "test/fixtures/formkit-pro/consumer/shared.js": "037db02525bf82fca22fec3fc5b20261853a28bac3bbef5e7c3d982c22c183d5",
+    "test/fixtures/formkit-pro/consumer/release-01304.js": "81b1f7daef19091d7bd8d195b16756ea747c1ee68fbcbf763b3e79bb730b4e43",
+    "test/fixtures/formkit-pro/consumer/native.js": "ac7589b48b1772cddd455a6810bf9c96eb8a2059743f6324dfbfe1a0f5737767"
+  },
+  "credentialPatternScan": "No credential-like tokens found in reviewed artifacts; actual key absent from writer environment.",
+  "actualProDragging": "pending independent vault QA",
+  "lintExitCode": 0,
+  "publicTestBoundaryExitCode": 0
+}

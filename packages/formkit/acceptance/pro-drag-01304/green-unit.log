@@ -1,0 +1,20 @@
+
+> marionette@5.0.0 test
+> vitest run test/unit/formkit-schema.spec.js test/unit/formkit-official.spec.js
+
+
+ RUN  v5.0.5 /workspace/formkit-integration
+
+ ✓ |dom| test/unit/formkit-schema.spec.js (15 tests) 100ms
+ ✓ |dom| test/unit/formkit-official.spec.js (8 tests) 1099ms
+
+ Test Files  2 passed (2)
+      Tests  23 passed (23)
+   Start at  14:54:56
+   Duration  2.72s (environment 47%, tests 31%, import 12%, transform 9%, setup 1%)
+
+npm notice
+npm notice New major version of npm available! 11.17.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

@@ -27,8 +27,12 @@ imports the official base Genesis theme before the Pro extension. Independent
 vault QA then reported 137/137 assertions on `b557f86b` with that permanent theme
 setup: 107 functional plus 30 positioning/scrolling checks. Online license
 validation and direct Destroy-button reachability under an open panel remain
-unverified. The new Pro 0.130.4 fixture retains Core 2.1.2 and needs its own actual
-control retest; see the [release receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/pro-01304).
+unverified. Pro 0.130.4 vault QA on `53134754` passed those 137 baseline checks,
+but only 5/8 new release groups: repeater dragging failed. Source `7967f80c` repairs
+lost non-enumerable schema getters and default section-class naming, with four
+failing-then-passing public regressions, passing canonical coverage and local
+package/browser gates. Actual Pro dragging on the repair remains pending vault
+QA; see the [repair receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/pro-drag-01304).
 Historical passes below must not be attributed to later source or styling.
 
 The earlier versioned [independent Pro receipt](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) applies to source

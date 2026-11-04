@@ -1,0 +1,99 @@
+diff --git a/test/unit/formkit-official.spec.js b/test/unit/formkit-official.spec.js
+index ac427a4d..83abf332 100644
+--- a/test/unit/formkit-official.spec.js
++++ b/test/unit/formkit-official.spec.js
+@@ -23,6 +23,37 @@ async function edit(input, value) {
+ afterEach(() => { regions.splice(0).forEach(region => region.destroy()); document.body.replaceChildren(); });
+ 
+ describe('@mnjs/formkit official input integration', () => {
++  it('uses official kebab-case section classes by default while preserving inherited and local layers', async() => {
++    const { element } = mount({ config: { classes: { prefixIcon: 'inherited-icon' } },
++      icons: { native: '<svg viewBox="0 0 10 10"><path d="M0 0L10 10" /></svg>' },
++      schema: { $formkit: 'text', name: 'name', prefixIcon: 'native', classes: { prefixIcon: 'local-icon' } } });
++    await flush();
++    const icon = element.querySelector('.formkit-prefix-icon');
++    expect(icon).not.toBeNull();
++    expect(icon.classList.contains('inherited-icon')).toBe(true);
++    expect(icon.classList.contains('local-icon')).toBe(true);
++    expect(icon.querySelector('svg')).not.toBeNull();
++    expect(element.querySelector('.formkit-prefixIcon')).toBeNull();
++  });
++
++  it('renders and removes native inputs whose loop schema has a non-enumerable type getter', async() => {
++    const schema = { for: ['item', '$items'], key: '$item.name', name: '$item.name', label: '$item.label' };
++    Object.defineProperty(schema, '$formkit', { get: () => 'text' });
++    const { form, element } = mount({ schema, values: { first: 'One', second: 'Two' },
++      schemaData: { items: [{ name: 'first', label: 'First' }, { name: 'second', label: 'Second' }] } });
++    await flush();
++    const controls = [...element.querySelectorAll('input')];
++    expect(controls.map(input => input.value)).toEqual(['One', 'Two']);
++    await edit(controls[1], 'Edited');
++    expect(form.getValues().second).toBe('Edited');
++    form.setSchemaData({ items: [{ name: 'second', label: 'Second' }] }); await flush();
++    expect(element.querySelectorAll('input')).toHaveLength(1);
++    expect(element.querySelector('input')).toBe(controls[1]);
++    expect(getNode(controls[0].id)).toBeUndefined();
++    form.destroy();
++    expect(getNode(controls[1].id)).toBeUndefined();
++  });
++
+   it('renders official sections, retains typing focus, validates, submits and resets grouped values', async() => {
+     const submit = vi.fn();
+     const { form, element } = mount({ schema: [
+diff --git a/test/unit/formkit-schema.spec.js b/test/unit/formkit-schema.spec.js
+index e682086a..0837595f 100644
+--- a/test/unit/formkit-schema.spec.js
++++ b/test/unit/formkit-schema.spec.js
+@@ -16,6 +16,52 @@ afterEach(() => {
+ });
+ 
+ describe('@mnjs/formkit public schema foundation', () => {
++  it('retains non-enumerable schema accessors through scoped loops without mutating the definition', () => {
++    const selected = [];
++    const row = { key: '$item.id', attrs: { onClick: '$item.select' }, children: '$item.label' };
++    Object.defineProperties(row, {
++      $el: { get: () => 'li' },
++      for: { value: ['item', '$items'] },
++      if: { get: () => '$item.show' }
++    });
++    const item = (id, show = true) => ({ id, label: id, show, select() { selected.push(this.id); } });
++    const a = item('a'); const b = item('b');
++    const view = render({ $el: 'ul', children: row }, { data: { items: [a, item('hidden', false), b] } });
++    const rows = [...view.container.querySelector('ul').children];
++    expect(rows.map(node => node.tagName)).toEqual(['LI', 'LI']);
++    expect(rows.map(node => node.textContent)).toEqual(['a', 'b']);
++    rows[0].click(); expect(selected).toEqual(['a']);
++    view.update({ items: [b, a] });
++    expect([...view.container.querySelector('ul').children]).toEqual([rows[1], rows[0]]);
++    expect(row.for).toEqual(['item', '$items']);
++    view.destroy(); rows[0].click();
++    expect(selected).toEqual(['a']);
++    expect(rows[0].isConnected).toBe(false);
++  });
++
++  it('retains conditional, transparent and component definitions inside non-enumerable loop schemas', () => {
++    const destroyed = vi.fn();
++    const conditional = {};
++    Object.defineProperties(conditional, {
++      for: { value: ['item', '$items'] }, if: { get: () => '$item.show' },
++      then: { get: () => ({ $el: 'b', children: '$item.label' }) },
++      else: { get: () => ({ $el: 'i', children: 'Hidden' }) }
++    });
++    const transparent = { for: ['item', '$items'], children: '$item.label' };
++    Object.defineProperty(transparent, '$el', { get: () => null });
++    const component = { for: ['item', '$items'], props: { label: '$item.label' } };
++    Object.defineProperty(component, '$cmp', { get: () => 'Badge' });
++    const view = render([conditional, transparent, component], { data: { items: [{ label: 'One', show: true }, { label: 'Two', show: false }] },
++      components: { Badge: () => ({ element: document.createElement('span'),
++        update(props) { this.element.textContent = props.label; }, destroy: destroyed }) } });
++    expect(view.container.innerHTML).toContain('<b>One</b><i>Hidden</i>OneTwo');
++    expect([...view.container.querySelectorAll('span')].map(node => node.textContent)).toEqual(['One', 'Two']);
++    expect(view.container.querySelector('undefined')).toBeNull();
++    view.update({ items: [] });
++    expect(view.container.childNodes).toHaveLength(0);
++    expect(destroyed).toHaveBeenCalledTimes(2);
++  });
++
+   it('resolves live token paths and receivers without sharing scope across renderers', () => {
+     const clicks = [];
+     const data = label => ({ values: [{ label }], amount: 0, enabled: false, suffix: '!',

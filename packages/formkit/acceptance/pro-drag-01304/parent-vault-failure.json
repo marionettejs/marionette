@@ -1,0 +1,68 @@
+{
+  "provenance": "Parent coordinator reports independent vault QA; original raw artifacts are in its separate executor, not copied here.",
+  "qaThread": "01a1a141-9e0c-7156-8ce2-0b5d80196006",
+  "qaTurn": "01a1a6f6-f0f5-7420-90c7-a0e175a0a243",
+  "sourceRevision": "531347548728e59a632533288be716f5e96e8ef0",
+  "versions": {
+    "pro": "0.130.4",
+    "dragAndDrop": "0.6.3",
+    "allCoreFamilyCopies": "2.1.2",
+    "node": "24.19.0",
+    "npm": "11.17.0",
+    "playwright": "1.64.1",
+    "chromium": "154.0.8037.57"
+  },
+  "existingFunctionalAndPositioning": {
+    "passed": 137,
+    "total": 137
+  },
+  "nativePublishedReleaseCollector": {
+    "passed": 5,
+    "failed": 3,
+    "groupsEntered": 8,
+    "dragGesturesStarted": 0
+  },
+  "nativeRowSelectorDiagnostic": {
+    "passed": 5,
+    "failed": 3,
+    "rows": "UNDEFINED",
+    "handleClass": "formkit-dragHandle",
+    "handleWidth": 0,
+    "handleHeight": 0,
+    "visibilityTimeoutPerAttemptMs": 10000
+  },
+  "nativeIsolatedLifecycleDiagnostic": {
+    "passed": 4,
+    "total": 4,
+    "scope": [
+      "replacement",
+      "submission",
+      "reset",
+      "destruction"
+    ]
+  },
+  "nativePassingReleaseTargets": [
+    "currency precision/editing",
+    "reactive mask",
+    "late option labels",
+    "transfer-list target search"
+  ],
+  "vuePublishedReleaseCollector": {
+    "passed": 7,
+    "total": 8,
+    "onlyFailure": "bubbling drag-event observer"
+  },
+  "vueCapturePhaseDiagnostic": {
+    "passed": 8,
+    "total": 8,
+    "actualDragsBeforeAndAfterReplacement": true
+  },
+  "rawArtifactsOnQaExecutor": [
+    "/tmp/formkit-01304/summary.json",
+    "release-original-01/native-release-01304.json",
+    "release-native-rowselector-02/native-release-01304.json",
+    "release-native-structure-02.json",
+    "release-vue-capture-events-02/vue-release-01304.json"
+  ],
+  "onlineLicenseValidation": "Not established by these local interactions; prior vault reports retain network-proxy failure."
+}

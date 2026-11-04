@@ -1,0 +1,123 @@
+
+> marionette@5.0.0 test
+> vitest run test/unit/formkit-schema.spec.js test/unit/formkit-official.spec.js
+
+
+ RUN  v5.0.5 /workspace/formkit-integration
+
+ ❯ |dom| test/unit/formkit-schema.spec.js (15 tests | 2 failed) 140ms
+   ❯ @mnjs/formkit public schema foundation (12)
+     × retains non-enumerable schema accessors through scoped loops without mutating the definition 36ms
+     × retains conditional, transparent and component definitions inside non-enumerable loop schemas 8ms
+     ✓ resolves live token paths and receivers without sharing scope across renderers 24ms
+     ✓ retains unchanged trusted SVG nodes and replaces markup only when its binding changes 10ms
+     ✓ renders literal text safely, expressions, conditions and transparent groups 4ms
+     ✓ preserves keyed controls and focus during updates and reordering 14ms
+     ✓ maps conditional/bound/raw attributes and native properties, preserving handlers receiver 5ms
+     ✓ supports numeric/object loops, scoped keys, missing paths and conditional iterations 6ms
+     ✓ supports explicit component mount, update and terminal cleanup without a UI framework 3ms
+     ✓ exposes the public $get registry lookup without owning another view’s node 6ms
+     ✓ requires native component registration, rejects unsafe event strings, and duplicate loop identities 4ms
+     ✓ removes old handlers and attribute properties when updates remove them 4ms
+   ✓ retains focused keyed identity when the focused control itself moves 6ms
+   ✓ handles explicit empty text nodes, attributes, and omitted component props 3ms
+   ✓ updates dirty native values from a schema snapshot and supports empty transparent groups 2ms
+ ❯ |dom| test/unit/formkit-official.spec.js (8 tests | 2 failed) 927ms
+   ❯ @mnjs/formkit official input integration (8)
+     × uses official kebab-case section classes by default while preserving inherited and local layers 92ms
+     × renders and removes native inputs whose loop schema has a non-enumerable type getter 27ms
+     ✓ renders official sections, retains typing focus, validates, submits and resets grouped values 271ms
+     ✓ uses the official radio, checkbox-group and select value features 197ms
+     ✓ observes deep context changes and official theme classes/icons without a framework runtime 63ms
+     ✓ renders conditional inputs and cleans removed registry entries without destroying the form 40ms
+     ✓ retains keyed synced list nodes through external reorder and removes descendants on deletion 59ms
+     ✓ uses the open-source multi-step plugin for step validation and navigation 176ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |dom| test/unit/formkit-official.spec.js > @mnjs/formkit official input integration > uses official kebab-case section classes by default while preserving inherited and local layers
+AssertionError: expected null not to be null
+ ❯ test/unit/formkit-official.spec.js:32:22
+     30|     await flush();
+     31|     const icon = element.querySelector('.formkit-prefix-icon');
+     32|     expect(icon).not.toBeNull();
+       |                      ^
+     33|     expect(icon.classList.contains('inherited-icon')).toBe(true);
+     34|     expect(icon.classList.contains('local-icon')).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |dom| test/unit/formkit-official.spec.js > @mnjs/formkit official input integration > renders and removes native inputs whose loop schema has a non-enumerable type getter
+AssertionError: expected [] to deeply equal [ 'One', 'Two' ]
+
+- Expected
++ Received
+
+- [
+-   "One",
+-   "Two",
+- ]
++ []
+
+ ❯ test/unit/formkit-official.spec.js:46:48
+     44|     await flush();
+     45|     const controls = [...element.querySelectorAll('input')];
+     46|     expect(controls.map(input => input.value)).toEqual(['One', 'Two']);
+       |                                                ^
+     47|     await edit(controls[1], 'Edited');
+     48|     expect(form.getValues().second).toBe('Edited');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |dom| test/unit/formkit-schema.spec.js > @mnjs/formkit public schema foundation > retains non-enumerable schema accessors through scoped loops without mutating the definition
+AssertionError: expected [ 'UNDEFINED', 'UNDEFINED', …(1) ] to deeply equal [ 'LI', 'LI' ]
+
+- Expected
++ Received
+
+  [
+-   "LI",
+-   "LI",
++   "UNDEFINED",
++   "UNDEFINED",
++   "UNDEFINED",
+  ]
+
+ ❯ test/unit/formkit-schema.spec.js:31:44
+     29|     const view = render({ $el: 'ul', children: row }, { data: { items:…
+     30|     const rows = [...view.container.querySelector('ul').children];
+     31|     expect(rows.map(node => node.tagName)).toEqual(['LI', 'LI']);
+       |                                            ^
+     32|     expect(rows.map(node => node.textContent)).toEqual(['a', 'b']);
+     33|     rows[0].click(); expect(selected).toEqual(['a']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |dom| test/unit/formkit-schema.spec.js > @mnjs/formkit public schema foundation > retains conditional, transparent and component definitions inside non-enumerable loop schemas
+TypeError: Cannot read properties of undefined (reading 'nodeType')
+ ❯ reconcile packages/formkit/src/schema.ts:234:23
+    232|             normalized.$el === 'text' ? document.createTextNode('') : …
+    233|           record = { kind, node: element, keep: element === existingRo…
+    234|           if (element.nodeType === 1) {
+       |                       ^
+    235|             record.releaseEvents = ownElementListeners(element as HTML…
+    236|           }
+ ❯ update packages/formkit/src/schema.ts:318:15
+ ❯ createRenderer packages/formkit/src/schema.ts:331:3
+ ❯ createSchemaRenderer packages/formkit/src/schema.ts:334:91
+ ❯ render test/unit/formkit-schema.spec.js:8:20
+ ❯ test/unit/formkit-schema.spec.js:54:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 19 passed (23)
+   Start at  14:53:53
+   Duration  3.74s (environment 63%, tests 18%, transform 10%, import 9%)
+
+npm notice
+npm notice New major version of npm available! 11.17.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

@@ -138,6 +138,14 @@ In the existing authorized development consumer, run:
 node test/fixtures/formkit-pro/capture-release-01304.mjs <output-directory> <actual-port> native
 ```
 
+The collector requires direct `li` repeater rows and a visible, nonzero
+`formkit-drag-handle`. It performs real handle drags before and after data
+replacement, records each gesture's geometry and events separately, and checks
+both model and DOM order. Drag events are observed in capture phase because
+drag-and-drop 0.6.3 stops propagation at the row. The original native 5/8 failure,
+Vue observer diagnosis and subsequent adapter repair are retained in the
+[repair receipt](../../../packages/formkit/acceptance/pro-drag-01304/README.md).
+
 The last argument may be `vue` or `react` for an independently prepared reference
 consumer. Unlike the general three-stack collector, this command takes that
 consumer's actual port, with no offset. The prepared source receipt must match
