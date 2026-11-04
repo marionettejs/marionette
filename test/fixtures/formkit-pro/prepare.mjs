@@ -37,6 +37,13 @@ if (stack === 'native') {
 } else {
   Object.assign(dependencies, { '@formkit/react': '2.1.2', react: '19.2.0', 'react-dom': '19.2.0' });
 }
+// The official wrappers use ranges for their sibling packages. Pin the complete
+// reference runtime so a newer Core release cannot silently change the comparison.
+if (stack !== 'native') {
+  for (const name of ['inputs', 'utils', 'observer', 'validation', 'rules', 'i18n', 'dev']) {
+    dependencies[`@formkit/${name}`] = '2.1.2';
+  }
+}
 const port = { native: 5190, vue: 5191, react: 5192 }[stack];
 writeFileSync(join(consumer, 'package.json'), JSON.stringify({ private: true, name: `formkit-pro-${stack}-proof`, type: 'module',
   scripts: { dev: `vite --host 127.0.0.1 --port ${port} --strictPort`, build: 'vite build' }, dependencies,
@@ -51,6 +58,11 @@ if (hash(lockPath) !== receipt.lockSha256) { throw new Error('Consumer lock chan
 const lock = JSON.parse(readFileSync(lockPath));
 receipt.versions = Object.fromEntries(Object.entries(lock.packages).filter(([path]) => /node_modules\/(?:@formkit\/|vue$|react$|react-dom$|vite$)/.test(path))
   .map(([path, value]) => [path, value.version]));
+receipt.formkitRuntime = Object.fromEntries(Object.entries(receipt.versions).filter(([path]) =>
+  /(?:^|\/)node_modules\/@formkit\/(?:core|utils|inputs|observer|validation|rules|i18n|themes|dev|vue|react)$/.test(path)));
+if (Object.values(receipt.formkitRuntime).some(version => version !== '2.1.2')) {
+  throw new Error(`Unexpected FormKit runtime versions: ${JSON.stringify(receipt.formkitRuntime)}`);
+}
 receipt.vuePackages = Object.keys(lock.packages).filter(path => /(?:^|\/)node_modules\/(?:vue|@vue\/[^/]+|@formkit\/vue)$/.test(path));
 if (stack !== 'vue' && receipt.vuePackages.length) { throw new Error(`Unexpected Vue installation in ${stack}.`); }
 writeFileSync(join(output, 'import.log'), execFileSync(process.execPath, ['--input-type=module', '-e',
