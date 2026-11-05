@@ -171,7 +171,7 @@ This package includes its own [consumer guide](guide.md). Open
 `node_modules/@mnjs/test/guide.md` from your project for complete runner setup,
 all mount options, bound queries, readiness, ownership, teardown errors and tested
 versions. Its examples use public package imports. This reference ships with the
-helper; it does not require a newer documentation copy in `marionette@5.0.0`.
+helper; it does not require a newer documentation copy in the core `marionette` package.
 
 The general [Marionette testing guide](https://marionettejs.com/docs/guides/testing/)
 explains testing rendered content, interaction, readiness and disposal.

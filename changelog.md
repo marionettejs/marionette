@@ -21,8 +21,10 @@ at the time it shipped; older prerelease APIs may have been superseded.
   rendered contents to another owner. Monitored View construction and Region
   attachment provide these notifications automatically. See the
   [Lit connection requirements](packages/adapters/readme.md#lit-html).
-* **Retained CollectionView rows:** collection updates no longer rerender surviving
-  model/actor rows. If an application relied on that rerender, use row source
+* **Retained CollectionView rows:** membership/order updates that retain existing
+  child Views no longer rerender those rows. Source resets still destroy and rebuild
+  rows, even when model objects or keys are reused. If an application relied on
+  rerendering retained rows, use row source
   subscriptions such as `modelEvents: { change: 'render' }` or call `row.render()`
   explicitly. Sorting/filtering still recompute presentation. See the
   [CollectionView reference](docs/api/collection-view.md).
@@ -47,10 +49,11 @@ at the time it shipped; older prerelease APIs may have been superseded.
   Already-attached external rows still receive detachment when filtering excludes them.
 * Propagate monitored attachment and detachment through CollectionView empty Views
   and their descendants, preserving initialization and cleanup across remounts.
-* Preserve rendered row contents and nested Regions when collection updates retain
-  model identity. Sorting and filtering still apply; new and replacement children
-  render when presented. Retained model/actor contents refresh through source
-  subscriptions or explicit application renders.
+* Preserve rendered row contents and nested Regions when membership/order updates
+  retain existing child Views. Sorting and filtering still apply; new and replacement
+  children render when presented. Source resets still destroy and rebuild rows, even
+  when model objects or keys are reused. Retained model/actor contents refresh through
+  source subscriptions or explicit application renders.
 * Recognize monitored Element roots inside open and closed shadow trees while
   preserving strict containment and configured attachment boundaries.
 * Initialize Lit directive connection from attachment notifications. Direct
