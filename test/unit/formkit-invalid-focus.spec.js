@@ -47,10 +47,11 @@ it('retains programmatic focus on standalone negative-tabindex invalid inputs', 
 });
 
 it('does not treat a mixed-widget layout or the form itself as a radio entry point', async() => {
+  const radio = { $formkit: 'radio', name: 'option', id: 'standalone-radio', label: 'Option', validation: 'required',
+    options: ['A', 'B'], sectionsSchema: { input: { attrs: { tabindex: -1 } } } };
   const { form } = mount(0, 'min:1', { schema: [
     { $el: 'section', attrs: { tabindex: 0, id: 'layout' }, children: [
-      { $formkit: 'radio', name: 'option', id: 'standalone-radio', label: 'Option', validation: 'required',
-        options: ['A', 'B'], sectionsSchema: { input: { attrs: { tabindex: -1 } } } },
+      radio,
       { $formkit: 'text', name: 'other', label: 'Other', validation: 'required' }
     ] }
   ] });
@@ -58,8 +59,23 @@ it('does not treat a mixed-widget layout or the form itself as a radio entry poi
   form.el.tabIndex = 0;
   expect(await form.submit()).toBe('invalid');
   expect(document.activeElement).toBe(form.el.querySelector('input[type="radio"]'));
-  document.getElementById('layout').removeAttribute('tabindex');
+  form.setSchema([radio]);
+  expect(form.el.querySelector('input[type="radio"]').closest('[tabindex="0"]')).toBe(form.el);
   document.activeElement.blur();
   expect(await form.submit()).toBe('invalid');
   expect(document.activeElement).toBe(form.el.querySelector('input[type="radio"]'));
+});
+
+it('continues to the next invalid field when a composite detaches itself during focus', async() => {
+  const { form, selected } = mount(0, 'min:1', { schema: [
+    { $formkit: 'choice', name: 'score', id: 'score', label: 'Score', validation: 'min:1' },
+    { $formkit: 'text', name: 'next', id: 'next', label: 'Next', validation: 'required' }
+  ] });
+  const wrapper = document.getElementById('score');
+  const focused = vi.fn(() => wrapper.remove());
+  wrapper.addEventListener('focus', focused);
+  expect(await form.submit()).toBe('invalid');
+  expect(document.activeElement).toBe(document.getElementById('next'));
+  expect(focused).toHaveBeenCalledTimes(1);
+  expect(selected).toEqual([]); expect(form.getValues().score).toBe(0);
 });
