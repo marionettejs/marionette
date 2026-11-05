@@ -9,9 +9,10 @@ export function mountPassiveTouch() {
     $el: 'button', attrs: { id: 'passive-touch-target', type: 'button', onTouchstartPassive: '$touched',
       style: { width: '180px', height: '64px' } }, children: 'Touch target'
   } });
-  const element = container.firstElementChild;
+  let element;
   return { calls, replace() { renderer.update(data('replacement')); },
     removeBinding() { renderer.update({ label: 'removed' }); },
+    retainActive() { element = container.firstElementChild; },
     dispatchRetained() { element.dispatchEvent(new Event('touchstart', { bubbles: true })); },
     destroy() { renderer.destroy(); container.remove(); } };
 }

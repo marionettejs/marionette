@@ -20,9 +20,16 @@ test.describe('passive schema touch delivery', () => {
     ]);
     await page.evaluate(() => window.passiveFixture.removeBinding());
     await target.tap();
-    await page.evaluate(() => { window.passiveFixture.replace(); window.passiveFixture.destroy(); window.passiveFixture.dispatchRetained(); });
+    expect(await page.evaluate(() => window.passiveFixture.calls)).toHaveLength(2);
+    await page.evaluate(() => window.passiveFixture.replace());
+    await target.tap();
+    await expect.poll(() => page.evaluate(() => window.passiveFixture.calls)).toEqual([
+      { label: 'initial', type: 'touchstart', trusted: true }, { label: 'replacement', type: 'touchstart', trusted: true },
+      { label: 'replacement', type: 'touchstart', trusted: true }
+    ]);
+    await page.evaluate(() => { window.passiveFixture.retainActive(); window.passiveFixture.destroy(); window.passiveFixture.dispatchRetained(); });
     const calls = await page.evaluate(() => window.passiveFixture.calls);
-    expect(calls).toHaveLength(2); expect(errors).toEqual([]);
+    expect(calls).toHaveLength(3); expect(errors).toEqual([]);
     await expect(target).toHaveCount(0);
     await testInfo.attach('passive-touch.json', { body: JSON.stringify({ calls, errors }, null, 2), contentType: 'application/json' });
   });

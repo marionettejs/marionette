@@ -16,6 +16,33 @@ afterEach(() => {
 });
 
 describe('@mnjs/formkit public schema foundation', () => {
+  it('preserves a literal custom event named passive', () => {
+    const callback = vi.fn();
+    const view = render({ $el: 'button', attrs: { onPassive: '$callback' } }, { data: { callback } });
+    const button = view.container.firstElementChild;
+    button.dispatchEvent(new Event('passive'));
+    expect(callback).toHaveBeenCalledTimes(1);
+    view.update({}); button.dispatchEvent(new Event('passive'));
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+
+  it('retains native receivers and distinct passive settings when authored bindings share one callback', () => {
+    const calls = [];
+    function shared(event) { event.preventDefault(); calls.push({ target: this, prevented: event.defaultPrevented }); }
+    const view = render({ $el: 'button', attrs: { ['__raw__onTouchstartPassive']: shared, ['__raw__onTouchstart']: shared } });
+    const button = view.container.firstElementChild;
+    const dispatch = () => button.dispatchEvent(new Event('touchstart', { cancelable: true }));
+    dispatch();
+    expect(calls).toEqual([{ target: button, prevented: false }, { target: button, prevented: true }]);
+    calls.length = 0;
+    view.setSchema({ $el: 'button', attrs: { ['__raw__onTouchstartPassive']: shared } }); dispatch();
+    expect(calls).toEqual([{ target: button, prevented: false }]);
+    calls.length = 0;
+    view.setSchema({ $el: 'button', attrs: { ['__raw__onTouchstart']: shared } }); dispatch();
+    expect(calls).toEqual([{ target: button, prevented: true }]);
+    calls.length = 0; view.destroy(); dispatch(); expect(calls).toEqual([]);
+  });
+
   it('delivers passive schema touch bindings without cancelling the event and replaces or removes callbacks', () => {
     const calls = [];
     const handlers = label => ({ label, start(event) { event.preventDefault(); calls.push([this.label, event.type, event.defaultPrevented]); } });

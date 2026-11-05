@@ -131,10 +131,12 @@ function nodes(record: RecordNode): Node[] {
   }
   return result;
 }
+function isPassiveSchemaEvent(attribute: string) { return attribute.length > 9 && attribute.endsWith('Passive'); }
+function schemaEventName(attribute: string) { return attribute.slice(2, isPassiveSchemaEvent(attribute) ? -7 : undefined).toLowerCase(); }
 function cleanup(record: RecordNode) {
   record.children?.forEach(cleanup);
   record.releaseEvents?.();
-  record.listeners?.forEach((listener, event) => record.node.removeEventListener(event, listener));
+  record.listeners?.forEach((listener, attribute) => record.node.removeEventListener(schemaEventName(attribute), listener));
   record.component?.destroy();
   if (!record.keep) { nodes(record).forEach(node => node.parentNode?.removeChild(node)); }
 }
@@ -255,16 +257,18 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
           }
         }
         const attributes = new Set<string>();
-        record.listeners!.forEach((listener, event) => element.removeEventListener(event, listener));
+        record.listeners!.forEach((listener, attribute) => element.removeEventListener(schemaEventName(attribute), listener));
         record.listeners!.clear();
         for (const [attribute, value] of Object.entries(attrs)) {
           if (/^on[A-Z]/.test(attribute)) {
             if (value != null) {
               if (typeof value !== 'function') { throw new Error('Schema event attributes require function bindings.'); }
-              const event = attribute.slice(2).toLowerCase();
-              const listener = value as EventListener;
-              element.addEventListener(event, listener);
-              record.listeners!.set(event, listener);
+              const event = schemaEventName(attribute);
+              const handler = value as EventListener;
+              const listener: EventListener = event => handler.call(element, event);
+              element.addEventListener(event, listener, isPassiveSchemaEvent(attribute) ? { passive: true } : undefined);
+              // Plain and passive bindings can target the same native event.
+              record.listeners!.set(attribute, listener);
             }
             continue;
           }

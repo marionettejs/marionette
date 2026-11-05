@@ -435,6 +435,9 @@ renderer.destroy();
 
 This standalone renderer uses core compilation and sugar, supports DOM/text,
 conditions, attributes, loops, keys, scoped slots and subscribed registry lookup.
+Function event bindings with a `Passive` suffix, such as `onTouchstartPassive`,
+listen to the native event with `{ passive: true }`. Plain and passive bindings
+retain separate ownership through updates, removal and destruction.
 It does not itself register the built-in FormKit component; use `FormView` for
 input trees. Native factories receive `{ document, props, data, children }` and
 return `{ element, update(props, data, children), destroy() }`. They own their
