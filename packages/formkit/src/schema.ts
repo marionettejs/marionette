@@ -25,7 +25,7 @@ type RecordNode = { node: Node; end?: Node; pending?: DocumentFragment; kind: st
   attributes?: Set<string>; html?: string; releaseEvents?: () => void };
 type Evaluated = { key: string; schema: FormKitSchemaNode | Node; scope: Scope; text?: unknown };
 type Normalized = FormKitSchemaDOMNode & { $cmp?: string; props?: FormKitSchemaComponent['props'] };
-type Host = { document: Document; nodes(): Node[]; insert(node: Node, before: Node | null): void; contains(node: Node): boolean };
+type Host = { document: Document; nodes(): ArrayLike<Node>; insert(node: Node, before: Node | null): void; contains(node: Node): boolean };
 type ValueControl = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 const scopeParents = new WeakMap<Scope, Scope>();
 export function scoped(parent: Scope, values: Scope): Scope {
@@ -145,7 +145,7 @@ function cleanup(record: RecordNode) {
   if (!record.keep) { nodes(record).forEach(node => node.parentNode?.removeChild(node)); }
 }
 function elementHost(container: Element): Host {
-  return { document: container.ownerDocument, nodes: () => [...container.childNodes],
+  return { document: container.ownerDocument, nodes: () => container.childNodes,
     insert: (node, before) => container.insertBefore(node, before), contains: node => container.contains(node) };
 }
 function className(value: unknown): string {

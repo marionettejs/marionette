@@ -16,6 +16,47 @@ afterEach(() => {
 });
 
 describe('@mnjs/formkit public schema foundation', () => {
+  it('reorders mixed keyed component ranges and text while inserting and removing siblings', () => {
+    const destroyed = [];
+    const fields = new Map();
+    const pair = id => ({ $cmp: 'Pair', key: id, props: { id, label: '$label' } });
+    const input = { $el: 'input', key: 'ordinary', attrs: { id: 'ordinary', value: '$value' } };
+    const text = { $el: 'text', key: 'text', children: '$tail' };
+    const view = render([input, pair('a'), text, pair('b'), pair('c')], {
+      data: { value: 'Ordinary', label: 'Initial', tail: 'Tail' },
+      components: { Pair: ({ document: doc, props }) => {
+        const element = doc.createDocumentFragment();
+        const control = doc.createElement('input'); control.id = props.id;
+        const label = doc.createElement('span'); label.id = `${props.id}-label`;
+        element.append(control, label); fields.set(props.id, control);
+        return { element, update(next) { label.textContent = next.label; },
+          destroy() { destroyed.push(props.id); } };
+      } }
+    });
+    const ordinary = view.container.querySelector('#ordinary');
+    const tail = [...view.container.childNodes].find(node => node.nodeType === Node.TEXT_NODE);
+    const a = fields.get('a'), b = fields.get('b'), c = fields.get('c');
+    a.value = 'Edited'; a.focus(); a.setSelectionRange(1, 4);
+    view.setSchema([
+      { $el: 'b', key: 'new', attrs: { id: 'new' }, children: 'New' },
+      pair('b'), text, pair('a'), input
+    ]);
+    view.update({ value: 'Changed ordinary', label: 'Updated', tail: 'Changed tail' });
+    const visibleNodes = [...view.container.childNodes].filter(node => node.nodeType !== Node.COMMENT_NODE);
+    expect(visibleNodes.map(node => node.nodeType === Node.TEXT_NODE ? node.textContent : node.id))
+      .toEqual(['new', 'b', 'b-label', 'Changed tail', 'a', 'a-label', 'ordinary']);
+    expect(view.container.querySelector('#a')).toBe(a);
+    expect(view.container.querySelector('#b')).toBe(b);
+    expect(view.container.querySelector('#ordinary')).toBe(ordinary);
+    expect(visibleNodes[3]).toBe(tail);
+    expect(a.value).toBe('Edited'); expect(ordinary.value).toBe('Changed ordinary');
+    expect(view.container.querySelector('#a-label').textContent).toBe('Updated');
+    expect(document.activeElement).toBe(a);
+    expect([a.selectionStart, a.selectionEnd]).toEqual([1, 4]);
+    expect(c.isConnected).toBe(false); expect(destroyed).toEqual(['c']);
+    view.destroy(); expect(destroyed.toSorted()).toEqual(['a', 'b', 'c']);
+  });
+
   it('preserves a literal custom event named passive', () => {
     const callback = vi.fn();
     const view = render({ $el: 'button', attrs: { onPassive: '$callback' } }, { data: { callback } });
