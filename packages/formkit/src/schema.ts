@@ -169,7 +169,8 @@ function cleanup(record: RecordNode, remove = true) {
   if (remove && !record.keep) { nodes(record).forEach(node => node.parentNode?.removeChild(node)); }
 }
 function elementHost(container: Element): Host {
-  return { document: container.ownerDocument, nodes: () => container.childNodes,
+  let children: NodeListOf<ChildNode> | undefined;
+  return { document: container.ownerDocument, nodes: () => children ??= container.childNodes,
     insert: (node, before) => container.insertBefore(node, before), contains: node => container.contains(node) };
 }
 function className(value: unknown): string {
