@@ -1,8 +1,8 @@
 import { Application } from 'marionette';
 import type { ApplicationInstance, ApplicationStartOptions, ApplicationOptions, ApplicationConstructor } from 'marionette';
-import { isEqual } from './is-equal.ts';
+import { equalKeys, snapshotKey } from './selection-key.ts';
 
-export type SelectionKey = string | number | boolean | null | undefined | SelectionKey[] | { [name: string]: SelectionKey };
+export type SelectionKey = string | number | boolean | null | undefined | readonly SelectionKey[] | { [name: string]: SelectionKey };
 export interface ChildAppSwitcherOptions extends ApplicationOptions {
   onCleanupError?: (this: ChildAppSwitcherInstance, error: unknown, app: ApplicationInstance<object, unknown>) => void;
 }
@@ -79,7 +79,7 @@ async function select(switcher: ChildAppSwitcherInstance, intent: object, app: A
   appName: string, { key, reconstruct = false, options }: SwitchOptions) {
   const state = stateFor(switcher);
   const current = currentSelection(switcher);
-  if (!reconstruct && current?.app === app && isEqual(current.key, key)) {
+  if (!reconstruct && current?.app === app && equalKeys(current.key, key)) {
     return activate(switcher, intent, current, options);
   }
   stopSelection(switcher);
@@ -117,10 +117,11 @@ export const ChildAppSwitcher = Application.extend({
     if (!canSelect(this) || selection.signal?.aborted) { return; }
     const app = this.getChildApp(appName);
     if (!app) { throw new Error(`Child application "${ appName }" is not registered`); }
+    const key = snapshotKey(selection.key);
     const intent = {};
     state.intent = intent;
     try {
-      const selected = await select(this, intent, app, appName, selection);
+      const selected = await select(this, intent, app, appName, { ...selection, key });
       if (state.intent !== intent || !canSelect(this) || selection.signal?.aborted ||
           currentSelection(this)?.app !== selected || this.getChildApp(appName) !== selected || !selected?.isRunning()) { return; }
       return selected;

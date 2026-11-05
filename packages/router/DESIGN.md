@@ -177,7 +177,10 @@ its signal is aborted when the run ends.
 
 `canGoBack()` reports whether the previous history entry was marked by this
 router package; `back()` returns its navigation readiness or resolves `false`
-when no such entry is available.
+when no such entry is available. A matched initial entry is marked too; eligibility
+is not limited to entries created by `navigate()`. This is a convenience policy
+for this helper, not a security boundary or a restriction on the browser Back
+button. Native Back can leave the app/document independently of the helper.
 
 | Notification | Hook | Timing |
 | --- | --- | --- |
@@ -202,9 +205,13 @@ the automatically dispatched initial route has finished.
 Redirected back follows its own traversal's readiness rather than an unrelated
 navigation result.
 
-Cancellation invalidates authority immediately, including after readiness. A
-handler or redirect that ignores its signal may keep navigation readiness pending
-until it settles. Application startup cancellation has its own prompt completion. Pass/check the signal before effects after awaits. Cancellation does not
+Cancellation invalidates authority immediately, including after readiness. Router
+completion settles promptly on cancellation even when a handler/redirect ignores
+its signal. That underlying work remains observed and can continue until it
+settles; pass/check the signal before effects after awaits. Application startup
+has its separate completion contract. A fulfilled handler result, including
+`false`, is successful completion when the Match remains current. Router does not
+infer cancellation or follow detached replacement work from that value. Cancellation does not
 undo arbitrary application effects. There is no constructor rollback, attempt-all
 teardown or general synchronous recovery policy.
 
@@ -583,8 +590,10 @@ on a running group. Before start, after stop and during/after destruction it res
 undefined without activating a child. Group start does not choose or automatically
 start a page. Registering a page does not start it either.
 
-Selection returns the authoritative running Application, or undefined when
-superseded/canceled. Reuse requires the same registered instance, name and
+Selection returns the authoritative running Application, or undefined when that
+call cannot expose one (superseded/canceled selection or a child-owned replacement
+of its requested start). Undefined does not mean all child work was cancelled.
+Reuse requires the same registered instance, name and
 structural key. Same-key calls join pending Application preparation; only the
 latest selection request returns the child. A running child ignores new start
 options, including `region`. Update an already-running feature explicitly, or pass
@@ -592,6 +601,26 @@ options, including `region`. Update an already-running feature explicitly, or pa
 stops the selection and starts the same registered instance. This rebuilds UI
 without removing/recreating an Application. Inherited `restart()` retains the
 group's active children and does not repeat selection.
+
+Keys are captured as structural value snapshots at the `switchTo` call, before
+child lifecycle callbacks. Changing the original object/array afterward cannot
+change the identity of an existing selection. Primitive equality uses `Object.is`
+(`NaN` equals itself; `-0` differs from `0`). Records compare own string keys
+without property-order significance; missing properties differ from explicit
+`undefined`. Array holes differ from explicit `undefined` and array length matters.
+Readonly arrays are accepted. Caller keys are neither mutated nor frozen.
+
+The value domain is strings, numbers, booleans, null, undefined, ordinary arrays
+and plain records (Object.prototype or null prototype) from this realm, recursively.
+Values must be acyclic own enumerable string data properties. Aliased subobjects
+are allowed. Accessors, symbols/symbol keys, non-enumerable record properties,
+extra named array properties, class instances, Date/Map/Set and cycles are rejected
+before retiring the current selection. Proxies are not supported key containers.
+This validation makes snapshot identity well-defined; it is not arbitrary object
+serialization. Prefer small scalar/composite keys over large state trees. Snapshot
+time/allocation scale with unique containers and own properties; aliases are
+preserved internally instead of expanded. Equality memoizes compared container
+pairs. Neither memo survives the operation.
 
 `clear()` invalidates pending selection and stops the selected child while keeping
 the group running. Use it for a fallback that leaves this content level. `stop()`

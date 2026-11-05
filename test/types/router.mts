@@ -1,5 +1,5 @@
 import { Router, memoryDriver, navigationDriver, type ActiveMatch, type Match, type Driver, type NavigationResult, type RouterOptions, type RouterInstance, type RouteDefinition } from '@mnjs/router';
-import { ChildAppSwitcher, RouteApplication, defineRoutes, type ChildAppSwitcherInstance, type ChildAppSwitcherOptions, type RouteApplicationOptions, type RouteApplicationInstance, type RouteTable, type RouteHash, type RouteHandler, type MountOptions } from '@mnjs/router';
+import { ChildAppSwitcher, RouteApplication, defineRoutes, type ChildAppSwitcherInstance, type ChildAppSwitcherOptions, type RouteApplicationOptions, type RouteApplicationInstance, type RouteTable, type RouteHash, type RouteHandler, type MountOptions, type SelectionKey } from '@mnjs/router';
 // @ts-expect-error Runtime-bound constructor factories are not public package exports.
 import { createRouterClass, createChildAppSwitcherClass } from '@mnjs/router';
 import { Application, type LifecycleContext } from 'marionette';
@@ -216,3 +216,6 @@ const featureLabel: string = StatefulFeature.label();
 // @ts-expect-error Local declaration repair preserves typed feature state.
 statefulFeature.getState().missing;
 void [configuredBase, featureCount, featureLabel];
+
+const immutableSelectionKey: SelectionKey = [{ id: "one" }, [1, undefined]] as const;
+void new ChildAppSwitcher().switchTo("page", { key: immutableSelectionKey });
