@@ -1,6 +1,6 @@
 # Test Views and Applications
 
-Consumer reference for `@mnjs/test` **0.2.0** with Marionette **5.x**.
+Consumer reference for `@mnjs/test` **0.2.1** with Marionette **5.x**.
 For installation and a first complete test, start with the [package README](readme.md).
 Mounting requires a DOM; importing the neutral entry and creating a cleanup scope do not.
 Repository-example links follow `master` and may change; this installed guide
