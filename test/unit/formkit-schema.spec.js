@@ -35,7 +35,9 @@ describe('@mnjs/formkit public schema foundation', () => {
     });
     const ordinary = view.container.querySelector('#ordinary');
     const tail = [...view.container.childNodes].find(node => node.nodeType === Node.TEXT_NODE);
-    const a = fields.get('a'), b = fields.get('b'), c = fields.get('c');
+    const a = fields.get('a');
+    const b = fields.get('b');
+    const c = fields.get('c');
     a.value = 'Edited'; a.focus(); a.setSelectionRange(1, 4);
     view.setSchema([
       { $el: 'b', key: 'new', attrs: { id: 'new' }, children: 'New' },

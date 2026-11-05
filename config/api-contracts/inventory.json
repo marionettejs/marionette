@@ -15726,7 +15726,7 @@
     "test/unit/formkit-row-boundaries.spec.js": "fccc66b438ad40660fa782ca92fbba11182dcff05affd490aa875645341ed241",
     "test/unit/formkit-rows.spec.js": "7cb0306cc77e88afb496bf0a94bd361c54ab479ce31f8f3ff28d038489a9b96e",
     "test/unit/formkit-schema-views.spec.js": "05acfbfc65475a46dd2ecd7ba4572d21d0e5bd4295de62e3e5b7bf8ffea77d1f",
-    "test/unit/formkit-schema.spec.js": "eeb51ba48022e9be77df77fddb5a6cd0219b1a517d331fdeda5467ab7c8134e5",
+    "test/unit/formkit-schema.spec.js": "8f8cafff06817e9fa5203f55d869f0f3dd8aa8f636c87656d7bdb58c8709f6a4",
     "test/unit/formkit-slot-expressions.spec.js": "241894234d0364b8992d811debe0f8911d7f72abdc07196b7f3cf733df737b11",
     "test/unit/formkit-submission-lifetime.spec.js": "5e7ffe005ead41fad75744160e7d72fb712eeaf7b06b9a50f1db5d2632772990",
     "test/unit/formkit.spec.js": "9cf2df82409cbb545c45d3c2b3861f58a938406e006b7ead0d27a02944871729",
