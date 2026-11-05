@@ -547,3 +547,48 @@ test('explicit owner placement preserves sibling selection and ends validation o
   await expect(keep).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('invalid composite focus preserves answers and the authored keyboard entry point', async({ page }, testInfo) => {
+  const errors = [], attempts = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path); window.rovingFixture = fixture.mountRovingFocus();
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  const form = page.locator('form').filter({ has: page.locator('#focus-score') });
+  const submit = form.getByRole('button', { name: 'Submit', exact: true });
+  const entry = page.getByRole('radiogroup', { name: 'Score', exact: true });
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await submit.click();
+    await expect(entry).toBeFocused();
+    const observed = await page.evaluate(() => ({ values: window.rovingFixture.form.getValues(),
+      valid: window.rovingFixture.form.getFormState().valid, selected: [...window.rovingFixture.selected],
+      saved: [...window.rovingFixture.saved], activeId: document.activeElement.id }));
+    expect(observed.values).toEqual({ score: 0 }); expect(observed.valid).toBe(false);
+    expect(observed.selected).toEqual([]); expect(observed.saved).toEqual([]); attempts.push(observed);
+  }
+  await expect(page.locator('#focus-score-1')).toHaveAttribute('aria-invalid', 'true');
+  expect(await entry.evaluate(element => ['aria-labelledby', 'aria-describedby'].every(attribute =>
+    element.getAttribute(attribute).split(' ').every(id => document.querySelectorAll(`[id="${id}"]`).length === 1)))).toBe(true);
+  await entry.press('ArrowRight');
+  await expect.poll(() => page.evaluate(() => window.rovingFixture.form.getValues().score)).toBe(1);
+  await submit.click();
+  await expect.poll(() => page.evaluate(() => window.rovingFixture.saved)).toEqual([{ score: 1 }]);
+  await page.evaluate(() => { window.rovingFixture.form.resetForm(); window.rovingFixture.addExternal(); });
+  const external = page.getByRole('textbox', { name: 'External required', exact: true });
+  for (const state of ['hidden', 'inert', 'display', 'visibility', 'disabled']) {
+    await page.evaluate(state => {
+      const host = document.getElementById('focus-score-field');
+      host.hidden = state === 'hidden'; host.inert = state === 'inert';
+      host.style.display = state === 'display' ? 'none' : '';
+      host.style.visibility = state === 'visibility' ? 'hidden' : '';
+      window.rovingFixture.form.node.at('score').props.disabled = state === 'disabled';
+      document.activeElement?.blur();
+    }, state);
+    await submit.click(); await expect(external).toBeFocused();
+    expect(await page.evaluate(() => window.rovingFixture.form.getValues().score)).toBe(0);
+  }
+  await page.evaluate(() => window.rovingFixture.destroy());
+  expect(errors).toEqual([]);
+  await testInfo.attach('invalid-composite-focus.json', { body: JSON.stringify({ attempts, errors }, null, 2), contentType: 'application/json' });
+});

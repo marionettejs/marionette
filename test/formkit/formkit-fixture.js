@@ -1,4 +1,5 @@
 import { Region, View } from 'marionette';
+import { rovingInput } from './roving-input.js';
 import { FieldView, FormView, SchemaView, createSchemaRenderer, createViewComponents } from '@mnjs/formkit';
 
 export function mountPassiveTouch() {
@@ -192,4 +193,18 @@ export function mountOwnedFields() {
   return { form, fields, values, project, reset() {
     form.getRegion('company').empty(); form.resetForm();
   }, destroy() { region.destroy(); } };
+}
+
+export function mountRovingFocus() {
+  const region = new Region({ el: document.body.appendChild(document.createElement('div')) });
+  const external = new Region({ el: document.body.appendChild(document.createElement('div')) });
+  const selected = [], saved = [];
+  const form = new FormView({ inputs: { choice: rovingInput(selected) }, values: { score: 0 },
+    schema: [{ $formkit: 'choice', name: 'score', id: 'focus-score', label: 'Score', validation: 'min:1' }],
+    submit: values => saved.push(values) });
+  region.show(form);
+  return { form, selected, saved, addExternal() {
+    external.show(new FieldView({ form, name: 'external', removal: 'preserve',
+      input: { type: 'text', id: 'focus-external', label: 'External required', validation: 'required' } }));
+  }, destroy() { external.destroy(); region.destroy(); } };
 }
