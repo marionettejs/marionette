@@ -54,39 +54,61 @@ function tokenValue(scope: Scope, token: string): unknown {
   if (!functions.has(value)) { functions.set(value, value.bind(receiver)); }
   return functions.get(value);
 }
-function evaluate(value: unknown, scope: Scope): unknown {
+type ExpressionProgram = { program: ReturnType<typeof compile>; requirements: string[] };
+// This helper receives no application scope. Retain the raw public token-map
+// program, not the bound evaluator returned by provide() or any token values.
+function compileExpression(expression: string): ExpressionProgram {
+  const program = compile(expression);
+  const entry: ExpressionProgram = { program, requirements: [] };
+  program.provide(requirements => { entry.requirements = [...requirements]; return {}; });
+  return entry;
+}
+type Evaluate = (value: unknown, scope: Scope) => unknown;
+function evaluate(value: unknown, scope: Scope, programs: Map<string, ExpressionProgram>): unknown {
   if (typeof value === 'string' && value.startsWith('$') && !/^\$(?:reset(?:\s|$)|remove:)/.test(value)) {
     // A lone path has the same provider lookup as Core's compiled expression.
     // Resolve it directly; compound expressions retain the official compiler.
     if (/^\$[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*$/.test(value)) { return tokenValue(scope, value.slice(1)); }
+    // Core 2.1.2 call expressions keep mutable provider/tail state. Leave
+    // every expression containing a parenthesis on the fresh compiler path.
+    if (!value.includes('(')) {
+      let entry = programs.get(value);
+      if (!entry) {
+        entry = compileExpression(value);
+        // Dynamic slot schemas can introduce new expressions without setSchema.
+        if (programs.size >= 128) { programs.delete(programs.keys().next().value!); }
+        programs.set(value, entry);
+      }
+      return entry.program(Object.fromEntries(entry.requirements.map(token => [token, () => tokenValue(scope, token)])));
+    }
     return compile(value).provide(requirements => Object.fromEntries(
       requirements.map(token => [token, () => tokenValue(scope, token)])
     ))();
   }
-  if (Array.isArray(value)) { return value.map(item => evaluate(item, scope)); }
+  if (Array.isArray(value)) { return value.map(item => evaluate(item, scope, programs)); }
   if (isPojo(value)) {
     const object = value as Scope;
     if ('if' in object && 'then' in object) {
-      return evaluate(evaluate(object.if, scope) ? object.then : object.else, scope);
+      return evaluate(evaluate(object.if, scope, programs) ? object.then : object.else, scope, programs);
     }
     return Object.fromEntries(Object.entries(object).map(([key, item]) =>
-      key.startsWith('__raw__') ? [key.slice(7), item] : [key, evaluate(item, scope)]));
+      key.startsWith('__raw__') ? [key.slice(7), item] : [key, evaluate(item, scope, programs)]));
   }
   return value;
 }
-function expand(schema: FormKitSchemaDefinition | Node, scope: Scope, prefix: string, identity: (value: unknown) => string): Evaluated[] {
+function expand(schema: FormKitSchemaDefinition | Node, scope: Scope, prefix: string, identity: (value: unknown) => string, evaluateExpression: Evaluate): Evaluated[] {
   const result: Evaluated[] = [];
   const entries = Array.isArray(schema) ? schema : [schema];
   entries.forEach((entry, index) => {
     const key = `${prefix}${index}`;
     if (typeof entry === 'string') {
       if (entry.startsWith('$slots.')) {
-        const slot = evaluate(entry, scope);
+        const slot = evaluateExpression(entry, scope);
         if (typeof slot === 'function') {
           const content = slot(scope);
           if (content && typeof content === 'object' && 'schema' in content) {
-            result.push(...expand(content.schema, content.data, `${key}.slot.`, identity));
-          } else { result.push(...expand(content as FormKitSchemaDefinition | Node, scope, `${key}.slot.`, identity)); }
+            result.push(...expand(content.schema, content.data, `${key}.slot.`, identity, evaluateExpression));
+          } else { result.push(...expand(content as FormKitSchemaDefinition | Node, scope, `${key}.slot.`, identity, evaluateExpression)); }
         } else if (slot !== undefined || !/^\$slots\.[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*$/.test(entry)) {
           // A compound slot expression may choose ordinary fallback text.
           // Retain the evaluated value: do not call it or parse it as schema.
@@ -97,12 +119,12 @@ function expand(schema: FormKitSchemaDefinition | Node, scope: Scope, prefix: st
     }
     if ('nodeType' in entry) { result.push({ key, schema: entry, scope }); return; }
     if ('then' in entry && !('for' in entry && entry.for)) {
-      result.push(...expand(evaluate(entry.if, scope) ? entry.then : entry.else ?? [], scope, `${key}.`, identity));
+      result.push(...expand(evaluateExpression(entry.if, scope) ? entry.then : entry.else ?? [], scope, `${key}.`, identity, evaluateExpression));
       return;
     }
     if ('for' in entry && entry.for) {
       const [valueName, keyOrValues, values] = entry.for;
-      const collection = evaluate(values ?? keyOrValues, scope);
+      const collection = evaluateExpression(values ?? keyOrValues, scope);
       const pairs = typeof collection === 'number' ?
         Array.from({ length: collection }, (_, itemIndex) => [itemIndex, itemIndex] as const) :
         Array.isArray(collection) ? collection.map((item, itemIndex) => [itemIndex, item] as const) : Object.entries(collection as Scope ?? {});
@@ -114,14 +136,14 @@ function expand(schema: FormKitSchemaDefinition | Node, scope: Scope, prefix: st
         const descriptors = Object.getOwnPropertyDescriptors(entry);
         delete descriptors.for;
         const copy = Object.defineProperties({}, descriptors) as typeof entry;
-        const iteration = `${key}:${identity(evaluate(('key' in copy ? copy.key : undefined) ?? itemKey, itemScope))}.`;
-        result.push(...expand(copy, itemScope, iteration, identity));
+        const iteration = `${key}:${identity(evaluateExpression(('key' in copy ? copy.key : undefined) ?? itemKey, itemScope))}.`;
+        result.push(...expand(copy, itemScope, iteration, identity, evaluateExpression));
       });
       return;
     }
-    if (!entry.if || evaluate(entry.if, scope)) {
-      if ('$el' in entry && entry.$el === null) { result.push(...expand(entry.children ?? [], scope, `${key}.`, identity)); return; }
-      const explicitKey = evaluate('key' in entry ? entry.key : undefined, scope);
+    if (!entry.if || evaluateExpression(entry.if, scope)) {
+      if ('$el' in entry && entry.$el === null) { result.push(...expand(entry.children ?? [], scope, `${key}.`, identity, evaluateExpression)); return; }
+      const explicitKey = evaluateExpression('key' in entry ? entry.key : undefined, scope);
       result.push({ key: explicitKey === undefined ? key : `${prefix}key:${identity(explicitKey)}`, schema: entry, scope });
     }
   });
@@ -186,6 +208,8 @@ function ownElementListeners(target: HTMLElement): () => void {
 function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Element) {
   const document = host.document;
   const components = options.components ?? {};
+  const programs = new Map<string, ExpressionProgram>();
+  const evaluateValue: Evaluate = (value, scope) => evaluate(value, scope, programs);
   const borrowed = new Map<string, { registry: string; node?: FormKitNode; receipts: string[] }>();
   const symbols = new Map<symbol, string>();
   function identity(value: unknown) {
@@ -220,15 +244,15 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
   function reconcile(parent: Host, previous: Map<string, RecordNode>, schema: FormKitSchemaDefinition, scope: Scope) {
     const next = new Map<string, RecordNode>();
     let offset = 0;
-    for (const item of expand(schema, scope, '', identity)) {
+    for (const item of expand(schema, scope, '', identity, evaluateValue)) {
       if (next.has(item.key)) { throw new Error(`Duplicate schema key: ${item.key}`); }
       const supplied = typeof item.schema === 'object' && 'nodeType' in item.schema;
       const normalized = (supplied ? item.schema : sugar(item.schema as FormKitSchemaNode)) as Normalized;
       const kind = supplied ? 'supplied' : '$cmp' in normalized ? `component:${normalized.$cmp}` : normalized.$el!;
       let record = previous.get(item.key);
       if (record && (record.kind !== kind || supplied && record.node !== normalized as unknown as Node)) { cleanup(record); record = undefined; }
-      const props = !supplied && '$cmp' in normalized ? { ...evaluate(normalized.bind ?? {}, item.scope) as Scope,
-        ...evaluate(normalized.props ?? {}, item.scope) as Scope } : {};
+      const props = !supplied && '$cmp' in normalized ? { ...evaluateValue(normalized.bind ?? {}, item.scope) as Scope,
+        ...evaluateValue(normalized.props ?? {}, item.scope) as Scope } : {};
       if (!record) {
         if (supplied) { record = { node: normalized as unknown as Node, kind }; } else if ('$cmp' in normalized) {
           const factory = components[normalized.$cmp!];
@@ -249,11 +273,11 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
       }
       next.set(item.key, record);
       if (!supplied && '$cmp' in normalized) { record.component!.update(props, item.scope, normalized.children); } else if (!supplied && normalized.$el === 'text') {
-        const text = String(Object.hasOwn(item, 'text') ? item.text : evaluate(normalized.children ?? '', item.scope));
+        const text = String(Object.hasOwn(item, 'text') ? item.text : evaluateValue(normalized.children ?? '', item.scope));
         if (record.node.textContent !== text) { record.node.textContent = text; }
       } else if (!supplied) {
         const element = record.node as HTMLElement;
-        const attrs = { ...evaluate(normalized.bind ?? {}, item.scope) as Scope, ...evaluate(normalized.attrs ?? {}, item.scope) as Scope };
+        const attrs = { ...evaluateValue(normalized.bind ?? {}, item.scope) as Scope, ...evaluateValue(normalized.attrs ?? {}, item.scope) as Scope };
         for (const attribute of record.attributes!) {
           if (!(attribute in attrs)) {
             element.removeAttribute(attribute);
@@ -337,10 +361,11 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
     borrowed.forEach(binding => { stopWatch(binding.registry); binding.receipts.forEach(receipt => binding.node?.off(receipt)); });
     borrowed.clear();
     symbols.clear();
+    programs.clear();
     records.forEach(record => cleanup(record));
     records.clear();
   }
-  function setSchema(schema: FormKitSchemaDefinition) { options.schema = schema; update(); }
+  function setSchema(schema: FormKitSchemaDefinition) { options.schema = schema; programs.clear(); update(); }
   update();
   return { update, setSchema, destroy };
 }
