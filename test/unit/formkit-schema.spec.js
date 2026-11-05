@@ -16,6 +16,43 @@ afterEach(() => {
 });
 
 describe('@mnjs/formkit public schema foundation', () => {
+  it('delivers passive schema touch bindings without cancelling the event and replaces or removes callbacks', () => {
+    const calls = [];
+    const handlers = label => ({ label, start(event) { event.preventDefault(); calls.push([this.label, event.type, event.defaultPrevented]); } });
+    const schema = { $el: 'div', attrs: { onTouchstartPassive: '$handlers.start', onTouchmovePassive: '$handlers.start' } };
+    const view = render(schema, { data: { handlers: handlers('first') } });
+    const element = view.container.firstElementChild;
+    element.dispatchEvent(new Event('touchstart', { cancelable: true }));
+    element.dispatchEvent(new Event('touchmove', { cancelable: true }));
+    expect(calls).toEqual([['first', 'touchstart', false], ['first', 'touchmove', false]]);
+    view.update({ handlers: handlers('second') });
+    element.dispatchEvent(new Event('touchstart', { cancelable: true }));
+    expect(calls).toEqual([['first', 'touchstart', false], ['first', 'touchmove', false], ['second', 'touchstart', false]]);
+    view.update({ handlers: {} });
+    element.dispatchEvent(new Event('touchmove', { cancelable: true }));
+    expect(calls).toHaveLength(3);
+    view.update({ handlers: handlers('third') });
+    view.destroy();
+    element.dispatchEvent(new Event('touchstart', { cancelable: true }));
+    expect(calls).toHaveLength(3);
+  });
+
+  it('keeps plain and passive callbacks distinct when their native event types coincide', () => {
+    const calls = [];
+    const data = { passive() { calls.push('passive'); }, plain(event) { event.preventDefault(); calls.push('plain'); } };
+    const view = render({ $el: 'button', attrs: { onTouchstartPassive: '$passive', onTouchstart: '$plain' } }, { data });
+    const button = view.container.firstElementChild;
+    const dispatch = () => { const event = new Event('touchstart', { cancelable: true }); button.dispatchEvent(event); return event.defaultPrevented; };
+    expect(dispatch()).toBe(true); expect(calls).toEqual(['passive', 'plain']);
+    calls.length = 0; view.update(data);
+    expect(dispatch()).toBe(true); expect(calls).toEqual(['passive', 'plain']);
+    calls.length = 0;
+    view.setSchema({ $el: 'button', attrs: { onTouchstartPassive: '$passive' } });
+    expect(dispatch()).toBe(false); expect(calls).toEqual(['passive']);
+    calls.length = 0; view.destroy();
+    expect(dispatch()).toBe(false); expect(calls).toEqual([]);
+  });
+
   it('retains non-enumerable schema accessors through scoped loops without mutating the definition', () => {
     const selected = [];
     const row = { key: '$item.id', attrs: { onClick: '$item.select' }, children: '$item.label' };

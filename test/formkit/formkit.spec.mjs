@@ -1,6 +1,33 @@
 import { test, expect } from '@playwright/test';
 import { resolve } from 'node:path';
 
+test.describe('passive schema touch delivery', () => {
+  test.use({ hasTouch: true });
+  test('real touch reaches passive schema bindings and replacement/removal preserve ownership', async({ page }, testInfo) => {
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.goto('/');
+    await page.evaluate(async path => {
+      const fixture = await import(path); window.passiveFixture = fixture.mountPassiveTouch();
+    }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+    const target = page.locator('#passive-touch-target');
+    await target.tap();
+    await expect.poll(() => page.evaluate(() => window.passiveFixture.calls)).toEqual([{ label: 'initial', type: 'touchstart', trusted: true }]);
+    await page.evaluate(() => window.passiveFixture.replace());
+    await target.tap();
+    await expect.poll(() => page.evaluate(() => window.passiveFixture.calls)).toEqual([
+      { label: 'initial', type: 'touchstart', trusted: true }, { label: 'replacement', type: 'touchstart', trusted: true }
+    ]);
+    await page.evaluate(() => window.passiveFixture.removeBinding());
+    await target.tap();
+    await page.evaluate(() => { window.passiveFixture.replace(); window.passiveFixture.destroy(); window.passiveFixture.dispatchRetained(); });
+    const calls = await page.evaluate(() => window.passiveFixture.calls);
+    expect(calls).toHaveLength(2); expect(errors).toEqual([]);
+    await expect(target).toHaveCount(0);
+    await testInfo.attach('passive-touch.json', { body: JSON.stringify({ calls, errors }, null, 2), contentType: 'application/json' });
+  });
+});
+
 test('synchronized list actions settle and support append, edit, remove, replacement and reset', async({ page }, testInfo) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));

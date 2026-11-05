@@ -1,6 +1,21 @@
 import { Region, View } from 'marionette';
 import { FieldView, FormView, SchemaView, createSchemaRenderer, createViewComponents } from '@mnjs/formkit';
 
+export function mountPassiveTouch() {
+  const container = document.body.appendChild(document.createElement('div'));
+  const calls = [];
+  const data = label => ({ label, touched(event) { calls.push({ label: this.label, type: event.type, trusted: event.isTrusted }); } });
+  const renderer = createSchemaRenderer(container, { data: data('initial'), schema: {
+    $el: 'button', attrs: { id: 'passive-touch-target', type: 'button', onTouchstartPassive: '$touched',
+      style: { width: '180px', height: '64px' } }, children: 'Touch target'
+  } });
+  const element = container.firstElementChild;
+  return { calls, replace() { renderer.update(data('replacement')); },
+    removeBinding() { renderer.update({ label: 'removed' }); },
+    dispatchRetained() { element.dispatchEvent(new Event('touchstart', { bubbles: true })); },
+    destroy() { renderer.destroy(); container.remove(); } };
+}
+
 export function mountIconPointer() {
   const container = document.body.appendChild(document.createElement('div'));
   const state = { clicks: 0, blurs: 0,
