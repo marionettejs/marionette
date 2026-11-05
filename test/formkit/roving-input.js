@@ -16,16 +16,17 @@ export function rovingInput(focused) {
     $el: 'div', attrs: { id: '$id + "-field"' }, children: [
       { $el: 'label', attrs: { id: '$id + "-label"' }, children: '$label' },
       { $el: 'div', attrs: { id: '$id', role: 'radiogroup',
-        'aria-labelledby': '$id + "-label"', 'aria-describedby': '$id + "-help"',
+        'aria-labelledby': '$id + "-label"', 'aria-describedby': '$describedBy',
         tabindex: { if: '$disabled || $value !== 0', then: -1, else: 0 }, onKeydown: '$handlers.enterChoice' },
       children: { $el: 'input', for: ['choice', [1, 2, 3]], attrs: {
         type: 'radio', id: '$id + "-" + $choice', name: '$id', value: '$choice',
         'aria-label': '$label + " " + $choice', 'aria-invalid': '$state.invalid || undefined',
-        'aria-describedby': '$id + "-help"', checked: '$value === $choice', disabled: '$disabled',
+        'aria-describedby': '$describedBy', checked: '$value === $choice', disabled: '$disabled',
         tabindex: { if: '$value === $choice', then: 0, else: -1 }, onFocus: '$handlers.selectOnFocus'
       } } },
-      { $el: 'p', attrs: { id: '$id + "-help"' }, children: 'Use the arrow key to choose a score.' },
-      { $el: 'ul', children: { $el: 'li', for: ['message', '$messages'], children: '$message.value' } }
+      { $el: 'p', attrs: { id: '$: "help-" + $id' }, children: '$help' },
+      { $el: 'ul', attrs: { 'aria-live': 'polite' }, children: { $el: 'li', for: ['message', '$messages'],
+        attrs: { id: '$id + "-" + $message.key' }, children: '$message.value' } }
     ]
   } };
 }

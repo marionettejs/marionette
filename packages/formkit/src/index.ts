@@ -793,9 +793,30 @@ export class FormView<Values extends object = FormValues> extends View {
           .filter(control => control.isConnected && !control.matches(':disabled, input[type="hidden"]') && !control.closest('[hidden], [inert]'))
           // eslint-disable-next-line no-bitwise -- DOM position is a bit mask.
           .sort((left, right) => left.compareDocumentPosition(right) & 4 ? -1 : 1);
+        const attempted = new Set<HTMLElement>();
         const focusedInvalid = invalid.some(control => {
-          control.focus();
-          return control.ownerDocument.activeElement === control;
+          let target = control;
+          // Roving radio widgets select on option focus. Enter their authored
+          // tabstop instead of selecting an inactive answer during submission.
+          if (control.matches('input[type="radio"][tabindex]') && control.tabIndex < 0) {
+            let scope = control.parentElement;
+            while (scope && !this.ownedElements.has(scope) && scope.tagName !== 'FORM' && !scope.hasAttribute('tabindex')) {
+              scope = scope.parentElement;
+            }
+            if (scope && !this.ownedElements.has(scope) && scope.tagName !== 'FORM') {
+              const name = (control as HTMLInputElement).name;
+              const members = [...scope.querySelectorAll<HTMLInputElement>('input, select, textarea, button')];
+              if (name && members.every(member => member.matches('input[type="radio"]') && member.name === name)) {
+                // The active invalid radio occurs later in document order.
+                if (scope.tabIndex < 0) { return false; }
+                target = scope;
+              }
+            }
+          }
+          if (attempted.has(target) || !target.isConnected || target.matches(':disabled') || target.closest('[hidden], [inert]')) { return false; }
+          attempted.add(target);
+          target.focus();
+          return target.ownerDocument.activeElement === target;
         });
         if (!focusedInvalid && ownedFocus && this.el.ownerDocument.activeElement === this.el.ownerDocument.body) {
           (focused as HTMLElement).focus({ preventScroll: true });

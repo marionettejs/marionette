@@ -315,7 +315,9 @@ construction snapshot. The source checkout's
   Invalid-control focus includes connected owned fields in external Regions, in
   document order; detached, hidden, inert and disabled controls are skipped. If the
   browser refuses focus (for example because CSS hides an ancestor), the next
-  invalid control is tried. Async rules
+  invalid control is tried. Roving radio widgets use their authored wrapper tabstop
+  or active radio; submission does not focus an inactive answer to enter the widget.
+  Standalone negative-tabindex inputs remain programmatically focusable. Async rules
   are rechecked when their captured root values change, including added schema fields.
   An application write to `form.node.props.disabled` during submission remains
   authoritative after submission settles.

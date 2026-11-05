@@ -568,7 +568,8 @@ test('invalid composite focus preserves answers and the authored keyboard entry 
     expect(observed.selected).toEqual([]); expect(observed.saved).toEqual([]); attempts.push(observed);
   }
   await expect(page.locator('#focus-score-1')).toHaveAttribute('aria-invalid', 'true');
-  expect(await entry.evaluate(element => ['aria-labelledby', 'aria-describedby'].every(attribute =>
+  expect(await entry.evaluate(element => element.getAttribute('aria-describedby').split(' ').length === 2 &&
+    ['aria-labelledby', 'aria-describedby'].every(attribute =>
     element.getAttribute(attribute).split(' ').every(id => document.querySelectorAll(`[id="${id}"]`).length === 1)))).toBe(true);
   await entry.press('ArrowRight');
   await expect.poll(() => page.evaluate(() => window.rovingFixture.form.getValues().score)).toBe(1);
