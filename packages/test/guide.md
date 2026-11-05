@@ -789,7 +789,7 @@ record.
 
 The 5.0.0 version in this historical table is not the current installation pin.
 Use the [installation instructions](readme.md#install) for Marionette 5.0.1 and
-the separately versioned `@mnjs/test` 0.2.0.
+the separately versioned `@mnjs/test` 0.2.1.
 
 | Entry / runner | Version and checks |
 | --- | --- |
