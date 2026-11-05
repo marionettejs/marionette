@@ -1,7 +1,7 @@
 {
   "name": "marionette",
   "description": "A JavaScript library for structured interfaces, with explicit ownership and lifecycle. Built with agent-led development in mind.",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "type": "module",
   "homepage": "https://marionettejs.com/",
   "engines": {
@@ -181,8 +181,8 @@
     "packages/radio"
   ],
   "dependencies": {
-    "@mnjs/radio": "5.0.0",
-    "@mnjs/utils": "5.0.0"
+    "@mnjs/radio": "5.0.1",
+    "@mnjs/utils": "5.0.1"
   },
   "overrides": {
     "@stryker-mutator/core": {

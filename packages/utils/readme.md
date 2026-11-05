@@ -4,7 +4,7 @@ The small helpers behind Marionette, available for your own components.
 Marionette and `@mnjs/data` import these same implementations.
 
 ```bash
-npm install --save-exact @mnjs/utils@5.0.0
+npm install --save-exact @mnjs/utils@5.0.1
 ```
 
 Use the same version for all Marionette packages. Core and data

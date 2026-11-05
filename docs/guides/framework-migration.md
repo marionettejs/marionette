@@ -5,7 +5,7 @@ ownership tree. Translating each Vue component, React hook, or store into a simi
 Marionette file can preserve the old architecture's problems. Decide who owns data,
 UI, readiness, and mutations before choosing the order of implementation.
 
-This guide targets **5.0.0**.
+This guide targets **5.0.1**.
 Use [matching packages](../quick-start.md#install-matching-packages) and their
 installed contracts. For an existing Marionette v4 app, use the separate
 [v4 migration guide](migration.md).

@@ -9,11 +9,23 @@ For the current v4 → v5 changes and replacements, see the
 [migration guide](docs/guides/migration.md). Entries below describe each release
 at the time it shipped; older prerelease APIs may have been superseded.
 
-### Unreleased
+### v5.0.1
 
+> Apparently attachment hooks need an attached element. The AI has now read that part. Marionette 5.0.1 fixes deferred-child lifecycle timing, Behavior UI selectors and Radio `replyOnce()` cancellation across the five coordinated packages. For direct Lit adapter use or Views with monitoring disabled, call `notifyAttach(el)` even when markup is already connected, and `notifyDetach(el)` when releasing the connection. No benchmark victory lap; this is a patch release.
+
+* Release matching 5.0.1 versions of `marionette`, `@mnjs/utils`, `@mnjs/radio`,
+  `@mnjs/data`, and `@mnjs/adapters`; keep their exact internal dependencies aligned.
+* Allow Radio `stopReplying()` to cancel a `replyOnce()` registration by its
+  original constant value or function, including map and context matching.
+* Resolve Behavior UI selectors from the host's retained declarations on populated
+  roots, preserving host precedence and existing explicit/render-time binding.
 * Keep unattached deferred manual rows out of parent attach/detach propagation until presented,
   including pre-rendered rows, so focus and attachment-scoped work start on insertion.
-  Preserve lifecycle for adopted child markup already inside the list.
+  Preserve lifecycle for adopted child markup already inside the list. With monitoring
+  enabled, eligible late adoption catches up missing attachment after `add:child`
+  and before `addChildView()` returns. Direct catch-up sees connected markup;
+  callback-driven `sort()` or `filter()` uses normal before/after insertion timing.
+  Already-attached external rows still receive detachment when filtering excludes them.
 * Propagate monitored attachment and detachment through CollectionView empty Views
   and their descendants, preserving initialization and cleanup across remounts.
 * Preserve rendered row contents and nested Regions when collection updates retain
@@ -28,6 +40,9 @@ at the time it shipped; older prerelease APIs may have been superseded.
   an application-managed connection, including before handing rendered contents
   to another owner. Monitored View construction and Region attachment provide
   these notifications automatically.
+* Clarify provider subscription cleanup matching: independent lifetimes need
+  distinct callback/context identities or subscription handles, without removing
+  other consumers' registrations on a shared source.
 
 ### v5.0.0
 

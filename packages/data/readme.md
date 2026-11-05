@@ -2,7 +2,7 @@
 
 Observable `Model` and ordered `Collection` sources for Marionette v5. This
 package depends only on `@mnjs/utils` and works without Marionette core or a DOM.
-This README describes `@mnjs/data` 5.0.0. Keep companion package versions aligned.
+This README describes `@mnjs/data` 5.0.1. Keep companion package versions aligned.
 
 It is a workable but incomplete application data layer. Supply fetching,
 persistence, validation, and server synchronization through an API layer, or use
@@ -14,7 +14,7 @@ Collections do not include `fetch`, `save`, or HTTP deletion methods.
 Install matching versions of `@mnjs/data` and `@mnjs/utils`:
 
 ```sh
-npm install --ignore-scripts --save-exact @mnjs/data@5.0.0 @mnjs/utils@5.0.0
+npm install --ignore-scripts --save-exact @mnjs/data@5.0.1 @mnjs/utils@5.0.1
 ```
 
 ```js
@@ -43,7 +43,7 @@ also leaves the Model alive.
 Add the matching core and Radio packages:
 
 ```sh
-npm install --ignore-scripts --save-exact marionette@5.0.0 @mnjs/radio@5.0.0
+npm install --ignore-scripts --save-exact marionette@5.0.1 @mnjs/radio@5.0.1
 ```
 
 Configure providers before constructing consumers:
