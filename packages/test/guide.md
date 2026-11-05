@@ -766,6 +766,10 @@ The table records the published 0.1.0 baseline. Later packed-consumer checks are
 described below; archive-specific native runner results belong with the release
 record.
 
+The 5.0.0 version in this historical table is not the current installation pin.
+Use the [installation instructions](readme.md#install) for Marionette 5.0.1 and
+the separately versioned `@mnjs/test` 0.2.0.
+
 | Entry / runner | Version and checks |
 | --- | --- |
 | `@mnjs/test` | Marionette 5.0.0; ESM/CommonJS, DOM-free imports and lifecycle tests. |

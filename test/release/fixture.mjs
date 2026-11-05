@@ -24,7 +24,7 @@ function git(root, args) {
 }
 
 async function fixture(t, { publication = { stable: false, prerelease: null }, version = '5.0.0-test.1',
-  releaseOpening = `Opening for ${version}.` } = {}) {
+  releaseOpening = `Opening for ${version}.`, releaseChanges = '* Release changes.', releaseHistory = '' } = {}) {
   const directory = await mkdtemp(join(tmpdir(), 'marionette-release-cli-'));
   t.after(() => rm(directory, { recursive: true, force: true, maxRetries: 3 }));
   const root = resolve(directory, 'source');
@@ -48,7 +48,7 @@ async function fixture(t, { publication = { stable: false, prerelease: null }, v
   const fixturePolicy = JSON.parse(await readFile(policyPath));
   fixturePolicy.publication = publication;
   await writeFile(policyPath, JSON.stringify(fixturePolicy));
-  await writeFile(resolve(root, 'changelog.md'), `### v${version}\n\n${releaseOpening === null ? '' : `> ${releaseOpening}\n\n`}* Release changes.\n`);
+  await writeFile(resolve(root, 'changelog.md'), `### v${version}\n\n${releaseOpening === null ? '' : `> ${releaseOpening}\n\n`}${releaseChanges}\n${releaseHistory}`);
   await writeFile(resolve(root, '.gitignore'), 'test/tmp/\n');
   git(root, ['init', '-q']);
   git(root, ['add', '.']);

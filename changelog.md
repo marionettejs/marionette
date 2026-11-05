@@ -11,10 +11,29 @@ at the time it shipped; older prerelease APIs may have been superseded.
 
 ### v5.0.1
 
-> Apparently attachment hooks need an attached element. The AI has now read that part. Marionette 5.0.1 fixes deferred-child lifecycle timing, Behavior UI selectors and Radio `replyOnce()` cancellation across the five coordinated packages. For direct Lit adapter use or Views with monitoring disabled, call `notifyAttach(el)` even when markup is already connected, and `notifyDetach(el)` when releasing the connection. No benchmark victory lap; this is a patch release.
+> Apparently owning a View and presenting it are different things. The AI has now read that part. Marionette 5.0.1 fixes lifecycle timing for deferred rows and empty Views, shadow-root containment, retained-row rendering, Behavior UI binding and Radio `replyOnce()` cancellation. The five package versions move together; `@mnjs/utils` and `@mnjs/data` have no source changes. No benchmark victory lap; this is a patch release.
+
+#### Action required when upgrading from 5.0.0
+
+* **Direct Lit adapter use or disabled lifecycle monitoring:** call `notifyAttach(el)`
+  even when markup is already connected, or Lit async directives remain disconnected.
+  Call `notifyDetach(el)` when releasing that connection, including before handing
+  rendered contents to another owner. Monitored View construction and Region
+  attachment provide these notifications automatically. See the
+  [Lit connection requirements](packages/adapters/readme.md#lit-html).
+* **Retained CollectionView rows:** collection updates no longer rerender surviving
+  model/actor rows. If an application relied on that rerender, use row source
+  subscriptions such as `modelEvents: { change: 'render' }` or call `row.render()`
+  explicitly. Sorting/filtering still recompute presentation. See the
+  [CollectionView reference](docs/api/collection-view.md).
+
+#### Package versions
 
 * Release matching 5.0.1 versions of `marionette`, `@mnjs/utils`, `@mnjs/radio`,
   `@mnjs/data`, and `@mnjs/adapters`; keep their exact internal dependencies aligned.
+
+#### Fixes
+
 * Allow Radio `stopReplying()` to cancel a `replyOnce()` registration by its
   original constant value or function, including map and context matching.
 * Resolve Behavior UI selectors from the host's retained declarations on populated
@@ -40,9 +59,13 @@ at the time it shipped; older prerelease APIs may have been superseded.
   an application-managed connection, including before handing rendered contents
   to another owner. Monitored View construction and Region attachment provide
   these notifications automatically.
-* Clarify provider subscription cleanup matching: independent lifetimes need
-  distinct callback/context identities or subscription handles, without removing
-  other consumers' registrations on a shared source.
+
+#### Documentation
+
+* Clarify provider subscription cleanup matching in the
+  [DataApi reference](docs/api/providers/data.md). This is documentation only;
+  subscription matching behavior did not change. Independent lifetimes need
+  distinct callback/context identities or subscription handles.
 
 ### v5.0.0
 

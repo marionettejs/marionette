@@ -223,8 +223,8 @@ consumers against the original tarballs. Its separate validation record binds lo
 three-engine browser results, fixture results and lock hashes to the immutable
 release evidence. Failed/incomplete/mismatched evidence cannot be promoted.
 `config/release-promotion.json` separately authorizes stable publication and one
-exact prerelease version. The 5.0.0 preparation enables stable publication and
-retires the RC2 authorization. Publication still requires a successful manual dry run
+exact prerelease version. Publication requires the checked-in policy to enable
+the intended release channel, plus a successful manual dry run
 on the same merged source commit, an explicit publish dispatch with that certification
 run ID, and approval of the `stable-release` environment. Validation never grants
 publication permission.
@@ -249,9 +249,10 @@ does not prove how npm binds IDs internally; the repository-ID enforcement above
 is our independently verifiable GitHub-side guard. Settings verification and
 publication approval remain separate from passing this guard.
 
-After publication creates `v5.0.0`, add that existing tag to Context7's
-`previousVersions` when it becomes a historical documentation version. Do not
-advertise the tag during release preparation.
+When a published release becomes a historical documentation version, add its
+already-existing tag to Context7's `previousVersions` during the next release
+preparation. Never add an unpublished tag or advertise the version being prepared
+as an available historical release.
 
 ## Dependency maintenance
 
