@@ -58,3 +58,16 @@ lint failure is retained.
 Actual-Pro rating/togglebuttons acceptance and minimal colorpicker diagnosis are
 separate from this result. Earlier Pro touch/drag receipts retain their original
 versions and source attribution; no full parity or online-license claim is made.
+
+Independent QA subsequently reported 48/48 production mounts and 28/28 placement
+checks per revision for paired `af59f37b` versus `392b5728`. At 100 required fields,
+medians were 5.950 to 4.689 s; at 200, 26.588 to 19.354 s. No-validation controls
+were effectively unchanged. These are separate environment-specific measurements;
+the writer did not receive or verify the raw QA files.
+
+Separate instrumentation reported identical work counts in both revisions at
+100 fields: 102 root updates, 10,500 child updates and 189,204 compound compilations.
+At 200, the candidate performed 202 root updates, 41,000 child updates and 738,404
+compilations across 19 expressions. Instrumentation was excluded from timings.
+These counts distinguish renderer work from public state notifications and identify
+remaining compilation/reconciliation costs; the sibling change does not remove them.

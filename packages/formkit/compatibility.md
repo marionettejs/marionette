@@ -30,10 +30,12 @@ was tested on clean `b0b16349` (production source `b94e9892`): 2,765 tests plus
 one expected failure, unchanged coverage thresholds, nine packed-consumer stages
 and 18 Chromium journeys passed. It corrects invalid focus selecting an inactive
 radio answer and slot expressions calling fallback text as a function. Independent
-Astra source/oracle review cleared; actual Pro rating and togglebuttons retests
-remain pending. A separately reported native colorpicker closeOnSelect failure on
-older `f91ccf47` also awaits exact-candidate replay. Earlier Pro passes retain their
-original source/version attribution and do not certify these new controls.
+Astra source/oracle review cleared. Independently reported Pro QA on `af59f37b`
+confirmed rating 28/28 and togglebuttons 68/68. Minimal colorpicker remained 1/3,
+with both auto-close cases failing.
+The subsequent [retained-subtree repair](https://github.com/marionettejs/marionette/blob/codex/formkit-master-integration-20261103/packages/formkit/acceptance/detached-subtree-20261105.md)
+has native verification and still needs the same three Pro cases replayed. Earlier
+Pro passes retain their original source/version attribution.
 
 The earlier [November 3 Pro acceptance record](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) supersedes earlier blanket
 Pro-blocked statements for its tested scope: source `1d8e1680` passed **107/107**

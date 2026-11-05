@@ -34,8 +34,11 @@ additional public tests covered them before the final pass. An earlier overlappi
 focused run had two reset timeouts; their serial run and final canonical run passed.
 The original red results and intermediate failures remain retained locally.
 
-Actual Pro rating and togglebuttons replay is pending on this candidate. The
-independently reported colorpicker `closeOnSelect` failure on the baseline also
-needs exact-candidate replay. Earlier Pro touch, drag and functional passes retain
-their original source/version attribution; they do not certify these controls or
-establish full Vue/React, browser, device or online-license-validation parity.
+Subsequent independently reported Pro QA on
+`af59f37bc3abc01dbd5d9504874a07afa56c02d1` (same production source `b94e9892`)
+passed rating 28/28 and togglebuttons 68/68. Minimal colorpicker remained 1/3;
+its two auto-close failures motivated the separate [retained-subtree repair](detached-subtree-20261105.md).
+QA used Pro 0.130.4, Core-family 2.1.2 and Chromium 154.0.8037.57. The writer did
+not execute that Pro replay or receive its raw files. Earlier Pro touch, drag and
+functional passes retain their original source/version attribution. These bounded
+results do not establish full Vue/React, browser, device or online-license parity.
