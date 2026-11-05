@@ -18,8 +18,11 @@ export interface ReplyRadio<Channel extends ReplyChannel = ReplyChannel> {
   channel(name: string): Channel;
 }
 
-type ReplyMap<Channel, Context> = Record<string, unknown> &
-  ThisType<Context extends null | undefined | false | 0 | 0n | '' ? Channel : Context>;
+type ReplyMap<Channel, Context> = Record<string, unknown> & ThisType<
+  Context extends null | undefined | false | 0 | 0n | '' ? Channel :
+    // A widened primitive type can also contain a falsy value (including NaN).
+    Context | (0 extends Context ? Channel : '' extends Context ? Channel : 0n extends Context ? Channel : never)
+>;
 // Preserve primitive literals for falsy-context inference without freezing objects.
 type ReplyContext = object | string | number | bigint | boolean | symbol | null | undefined;
 

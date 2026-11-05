@@ -67,3 +67,18 @@ scope.reply(typedRadio, 'typed', {
     this.count++;
   }
 }, { count: 0 } as const);
+
+// Widened primitives can be falsy, so their receiver may also be the channel.
+declare const broadContext: number | string | bigint;
+scope.reply(typedChannel, {
+  label() {
+    // @ts-expect-error A possibly falsy primitive does not guarantee a primitive receiver.
+    const unsafe: number | string | bigint = this;
+    if (typeof this === 'object') {
+      const selected: typeof typedChannel = this;
+      return selected.label;
+    }
+    return String(this);
+  }
+}, broadContext);
+scope.reply(typedRadio, 'typed', { value() { const exact: 7 = this; return exact; } }, 7);

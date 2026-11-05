@@ -715,7 +715,9 @@ key registers independently; inherited properties, non-enumerable properties and
 symbols are ignored. Names, including spaces and `__proto__`, are literal. Hash
 values can be functions or constants, including falsy values and promises.
 TypeScript contextually types a hash method's `this` from the supplied context,
-or from the channel when context is omitted.
+or from the channel when context is omitted. A primitive context whose type can
+also contain a falsy value requires narrowing the receiver from that primitive
+or the channel.
 
 ```js
 const receiver = { token: 'test-token' };

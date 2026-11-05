@@ -12439,7 +12439,7 @@
     "packages/test/src/index.ts": "badac8b6efc5574ee03e2c9a1c9660537bf7d192ad6d82db47a6eb7b7c980264",
     "packages/test/src/owner.ts": "d0bf1d5b56ed3592259cb3433206c53351503664db318ff3d4f6ed8efeee3b89",
     "packages/test/src/playwright.ts": "a7aa3d52acc4e34da1b17ca33cdbfbfa0ce982f2d40f94cc71198126afa4580d",
-    "packages/test/src/scope.ts": "0876acb5c50f64ffac6d19de79831878a4ddb51a9cbbe9c5a892a3eef707ccc1",
+    "packages/test/src/scope.ts": "fb525e4c967542379ad2985e4520618d01593b1059cb036ca5aee8aaeb2c817a",
     "packages/test/src/session.ts": "c490602391e92f620af99a76fd66f50504ccfa3a70097c095804030349f2c5c5",
     "packages/test/src/testing-library.ts": "bd68a1e14395aa97d59159559840a3d59e4955129ae3d4f2a05a1e4355ec82c6",
     "packages/test/src/vitest.ts": "6e7662faf619428fb0bccc3531df33b3fed7fce7dcd463e65224255c3e8a7046",
