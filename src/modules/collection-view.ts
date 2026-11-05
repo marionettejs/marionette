@@ -319,6 +319,22 @@ function canDetachContents(container: Element, children: CollectionChild[]) {
       node.nodeType === 3 && !/[^\t\n\f\r ]/.test(node.textContent!));
 }
 
+// Only lists with an unflushed deferred batch need to inspect child presentation.
+function getDeferredChildren(view: CollectionViewInternals, children: CollectionChild[]) {
+  const shouldTriggerAttach = view._isAttached && view.monitorViewEvents !== false;
+  view._hasDeferredChildren = false;
+  for (const child of children) {
+    if (!child._isShown) {
+      view._hasDeferredChildren = true;
+      return children.filter(candidate => candidate._isShown);
+    }
+    if (shouldTriggerAttach && !child._isAttached) {
+      view._hasDeferredChildren = true;
+    }
+  }
+  return children;
+}
+
 function modelAttributesMatcher(Data: DataProvider, predicate: Record<string, unknown>) {
   const keys = Object.keys(predicate);
   const length = keys.length;
@@ -676,9 +692,9 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this._proxyChildViewEvents(view);
   },
 
-  // The lifecycle traversal skips unshown rows while a deferred batch is pending.
+  // Propagate lifecycle through shown rows and the current empty View.
   _getImmediateChildren(this: CollectionViewInternals) {
-    const children = this.children._views;
+    const children = this._hasDeferredChildren ? getDeferredChildren(this, this.children._views) : this.children._views;
     const emptyView = this._emptyRegion?.currentView;
     return emptyView ? [...children, emptyView] : children;
   },

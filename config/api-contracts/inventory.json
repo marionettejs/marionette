@@ -11896,14 +11896,6 @@
     },
     {
       "source": "src/modules/common/monitor-view-events.ts",
-      "event": "event",
-      "kind": "dynamic",
-      "arguments": [
-        "child"
-      ]
-    },
-    {
-      "source": "src/modules/common/monitor-view-events.ts",
       "event": "'dom:refresh'",
       "kind": "literal",
       "arguments": [
@@ -12484,10 +12476,10 @@
     "src/modules/application.ts": "b849627a22170d6b985f7647c219206fd51ec166c420127ef2fefdd540775a19",
     "src/modules/behavior.ts": "94a30450a2aa414e4cdb2af263bb7e9be5acec55d170e268ee16abe2a62791c0",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
-    "src/modules/collection-view.ts": "1bc4831ab556d44576e37606b906a6ea56bc8600645f6d815bf16acecdf9a4f7",
+    "src/modules/collection-view.ts": "55060bbdc23115d10bfeb728ec94296f4fe684f166f58b06d79a793ef9123051",
     "src/modules/common/build-region.ts": "69fc222800674736c3385928e8a4b07932c1fd5ca7237b48fb4ab8f3a309022b",
     "src/modules/common/chainable-methods.ts": "5d61465f3de8bc0f84a3491e24067f7a711f2a7ebae08cb1a3d94375d9d153a2",
-    "src/modules/common/monitor-view-events.ts": "5e24b41ed261ffe2c6216233471353b7aad81e6adc75e6bda5d665a25669b426",
+    "src/modules/common/monitor-view-events.ts": "e4f221ca598e2ce63c1cff766edbb2221d7cc7d1cb527086689e08b622a4f655",
     "src/modules/common/view.ts": "cd62997f30b7120e61f5067f876e612793dba629dfe942b46f156c861273c67e",
     "src/modules/object.ts": "23dacb7eacf2448ccbb690caa92195b49b992def43e4ef7cb598b50c03224100",
     "src/modules/region.ts": "d2f5c8547e086b04e73a7744e3ee02711255726d46d0bd0749498ea1fef63730",
