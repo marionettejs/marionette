@@ -15586,7 +15586,7 @@
     "packages/formkit/src/row-ownership.ts": "5a3f3633b6a9dc6990124c267d184903bf0395aece5f9cd9366d99564fcd8fe3",
     "packages/formkit/src/runtime.ts": "4089c981d9aa9660358c7c2c0efb31e8b2cb9ec0d795d7507bf16eea9f58bd86",
     "packages/formkit/src/schema-view.ts": "1f8cac9da3a6f3074c9de1b708c04cae88a28d2cd0bae07596f4d09707325a6c",
-    "packages/formkit/src/schema.ts": "07b973c2971cd9057c4d9fa03974d3d518fb6fa136e9cfc9028d90035bfb6599",
+    "packages/formkit/src/schema.ts": "6fdaeba425f4e93acbe5ce75e7b4b0e9838296d06b0fc333f30720fd242c921a",
     "packages/formkit/src/view-components.ts": "d2d947aceafc3de97b666ae6b7808fd5fb6d7b06f934dab872b32002187979c1",
     "packages/radio/src/debug.ts": "069c7aab08d8a48eff7a6cc5efe4ff09bac80f12acaa6ddc5721ed18e8065eb6",
     "packages/radio/src/index.ts": "24171247f65ecb3697629883abe9d248395b090d566ea70ac7c1b856d1cd7940",

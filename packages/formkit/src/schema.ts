@@ -1,4 +1,4 @@
-/* global EventListener, EventListenerOrEventListenerObject, AddEventListenerOptions */
+/* global EventListener, EventListenerOrEventListenerObject, AddEventListenerOptions, NodeListOf, ChildNode */
 import { compile, getNode, stopWatch, sugar, watchRegistry } from '@formkit/core';
 import type { FormKitNode, FormKitSchemaDefinition, FormKitSchemaNode, FormKitSchemaDOMNode, FormKitSchemaComponent } from '@formkit/core';
 import { isPojo } from '@formkit/utils';
