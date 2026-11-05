@@ -137,12 +137,14 @@ function nodes(record: RecordNode): Node[] {
 }
 function isPassiveSchemaEvent(attribute: string) { return attribute.length > 9 && attribute.endsWith('Passive'); }
 function schemaEventName(attribute: string) { return attribute.slice(2, isPassiveSchemaEvent(attribute) ? -7 : undefined).toLowerCase(); }
-function cleanup(record: RecordNode) {
-  record.children?.forEach(cleanup);
+function cleanup(record: RecordNode, remove = true) {
+  // Release descendant resources without dismantling a detached DOM subtree.
+  // The renderer retains an adopted root, so its owned child roots need removal.
+  record.children?.forEach(child => cleanup(child, remove && record.keep === true));
   record.releaseEvents?.();
   record.listeners?.forEach((listener, attribute) => record.node.removeEventListener(schemaEventName(attribute), listener));
   record.component?.destroy();
-  if (!record.keep) { nodes(record).forEach(node => node.parentNode?.removeChild(node)); }
+  if (remove && !record.keep) { nodes(record).forEach(node => node.parentNode?.removeChild(node)); }
 }
 function elementHost(container: Element): Host {
   return { document: container.ownerDocument, nodes: () => container.childNodes,
@@ -285,7 +287,7 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
             continue;
           }
           if (attribute === 'innerHTML') {
-            record.children!.forEach(cleanup);
+            record.children!.forEach(child => cleanup(child));
             record.children!.clear();
             // DOM serialization expands self-closing SVG tags. Compare the
             // authored markup so unchanged icons survive blur during a click.
@@ -335,7 +337,7 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
     borrowed.forEach(binding => { stopWatch(binding.registry); binding.receipts.forEach(receipt => binding.node?.off(receipt)); });
     borrowed.clear();
     symbols.clear();
-    records.forEach(cleanup);
+    records.forEach(record => cleanup(record));
     records.clear();
   }
   function setSchema(schema: FormKitSchemaDefinition) { options.schema = schema; update(); }

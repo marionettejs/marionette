@@ -448,6 +448,10 @@ It does not itself register the built-in FormKit component; use `FormView` for
 input trees. Native factories receive `{ document, props, data, children }` and
 return `{ element, update(props, data, children), destroy() }`. They own their
 internal resources. Supplied slot DOM is moved into and removed from this mount.
+Removing generated subtrees releases descendant listeners and component resources
+without dismantling the remaining detached DOM relationships. An adopted form
+keeps its element but clears its owned contents. A component's `destroy()` still
+controls its own DOM and resources.
 `innerHTML` requires `allowHTML: true`; unchanged bindings retain their DOM subtree,
 and changing or removing the binding replaces its content. String event handlers are rejected. Failures
 of synchronous user factories/callbacks do not imply transactional rollback.

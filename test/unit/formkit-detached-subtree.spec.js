@@ -59,6 +59,7 @@ it('lets a native input finish delayed DOM work after selecting and closing its 
   expect(form.getValues()).toEqual({ color: '#00FF00' });
   expect(form.el.querySelector('[data-palette]')).toBeNull();
   expect(state.choice.parentElement).toBe(palette);
-  state.choice.click(); expect(state.completed).toHaveLength(1);
-  form.resetForm(); expect(form.getValues()).toEqual({ color: '' });
+  form.resetForm(); state.choice.click();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  expect(state.completed).toHaveLength(1); expect(form.getValues()).toEqual({ color: '' });
 });
