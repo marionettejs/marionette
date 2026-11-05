@@ -1,0 +1,9 @@
+{
+  "reviewedSource": "16682abe2e54fe1143141b0f6bc0ea9105923180",
+  "sourceReviewer": "Independent Astra integration_source_review",
+  "sourceOutcome": "Cleared after preserving literal onPassive and giving shared callbacks distinct owned wrappers with native/bound receivers preserved.",
+  "browserReviewer": "Independent Astra integration_evidence_review",
+  "browserOutcome": "Cleared after proving reinstallation through a third trusted tap and retaining the active element immediately before destruction.",
+  "reviewMethod": "Read-only static source/test review; no independent execution. Reviewed bytes committed as the stated revision.",
+  "scope": "Passive suffix only; no Once/Capture or full Vue event syntax, recovery policy, Core upgrade or new public API."
+}

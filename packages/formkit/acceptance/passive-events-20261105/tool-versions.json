@@ -1,0 +1,10 @@
+{
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "chromium": "Chromium 154.0.8037.57 built on Debian GNU/Linux 13 (trixie)",
+  "@playwright/test": "1.64.1",
+  "vitest": "5.0.5",
+  "typescript": "6.0.3",
+  "jsdom": "30.1.3",
+  "@formkit/core": "2.1.2"
+}

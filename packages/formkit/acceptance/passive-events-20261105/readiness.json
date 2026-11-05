@@ -1,0 +1,60 @@
+{
+  "branch": "codex/formkit-master-integration-20261103",
+  "branchHeadAtReview": "d18db560986ce7e79df571145dc9589285453903",
+  "remoteMasterAtReview": "ea40bf478603f97f5cfb080220a776490f7f81da",
+  "mergeBase": "c83a9f255692291eb62dc05a6d4073424afb7dfe",
+  "branchAheadOfMaster": 16,
+  "branchBehindMaster": 6,
+  "masterChangedPaths": [
+    ".github/dependabot.yml",
+    "test/fixtures/consumer-lint/package-lock.json",
+    "test/fixtures/consumer-lint/package.json",
+    "test/fixtures/data-package-starter/package-lock.json",
+    "test/fixtures/data-package-starter/package.json",
+    "test/tooling/dependabot-config.test.mjs"
+  ],
+  "mergeSimulation": {
+    "command": "git merge-tree --write-tree d18db560 ea40bf47",
+    "exitCode": 0,
+    "tree": "3e09754988629ff3c877b470d4fd7fca637d7400",
+    "changesToWorkingTreeOrRefs": false
+  },
+  "compatibilityLimit": "Conflict-free simulation, not integration or execution on the merged tree. No FormKit/runtime source changes in the six master commits.",
+  "chosenGap": "Official Pro schemas use Passive event suffixes; native renderer registered nonexistent touchstartpassive/touchmovepassive event types.",
+  "deferredGaps": {
+    "destroyButtonUnderOpenPanel": "Fixture/vendor overlap not established as adapter defect; no new probe in this writer.",
+    "referenceFailures": "Need current equivalent-stack reproduction before assigning upstream blame.",
+    "otherBrowserEngines": "Not certified; no installed Firefox located; no download attempted.",
+    "applicationHost": "No authorized runnable host target established.",
+    "onlineValidation": "Prior proxy failures; no repeated request or security changes."
+  },
+  "existingProAcceptance": {
+    "publishedHead": "ffe7d95d44caa259a3b786178c517a33083ab240",
+    "runtimeSource": "7967f80c4ef3f02319716f235a490de653bb3391",
+    "pro": "0.130.4",
+    "baselineAssertionsPassed": 137,
+    "nativeReleaseGroupsPassed": 8,
+    "provenance": "Previously reported independent vault QA; retained prior record applies only to that source."
+  },
+  "laterRemoteObservation": {
+    "master": "2e8a4fe494c57f0be631d764361452ff8df30d04",
+    "newCommitSubject": "fix(tooling): remediate minimatch optimizer amplification (#3802)",
+    "changedPathsSinceInitialMaster": [
+      "package-lock.json",
+      "package.json",
+      "test/README.md",
+      "test/fixtures/consumer-lint/package-lock.json",
+      "test/fixtures/consumer-lint/package.json",
+      "test/fixtures/data-package-starter/package-lock.json",
+      "test/fixtures/data-package-starter/package.json"
+    ],
+    "change": "Root and two non-FormKit fixture tooling overrides/locks plus testing guidance; no FormKit or runtime source change.",
+    "comparisonCandidate": "16682abe2e54fe1143141b0f6bc0ea9105923180",
+    "ahead": 18,
+    "behind": 7,
+    "mergeSimulationExitCode": 0,
+    "mergeSimulationTree": "e308bcbfe6ba44adcda7b8681594db23240e9d6d",
+    "workingTreeOrBranchMergePerformed": false,
+    "limit": "Candidate verification uses its branch lock, not the newer master tooling graph."
+  }
+}

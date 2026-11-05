@@ -1,0 +1,81 @@
+
+> marionette@5.0.0 test
+> vitest run test/unit/formkit-schema.spec.js
+
+
+ RUN  v5.0.5 /workspace/formkit-integration
+
+ ❯ |dom| test/unit/formkit-schema.spec.js (19 tests | 2 failed) 116ms
+   ❯ @mnjs/formkit public schema foundation (16)
+     × preserves a literal custom event named passive 20ms
+     × retains native receivers and distinct passive settings when authored bindings share one callback 9ms
+     ✓ delivers passive schema touch bindings without cancelling the event and replaces or removes callbacks 5ms
+     ✓ keeps plain and passive callbacks distinct when their native event types coincide 3ms
+     ✓ retains non-enumerable schema accessors through scoped loops without mutating the definition 10ms
+     ✓ retains conditional, transparent and component definitions inside non-enumerable loop schemas 8ms
+     ✓ resolves live token paths and receivers without sharing scope across renderers 11ms
+     ✓ retains unchanged trusted SVG nodes and replaces markup only when its binding changes 8ms
+     ✓ renders literal text safely, expressions, conditions and transparent groups 4ms
+     ✓ preserves keyed controls and focus during updates and reordering 9ms
+     ✓ maps conditional/bound/raw attributes and native properties, preserving handlers receiver 4ms
+     ✓ supports numeric/object loops, scoped keys, missing paths and conditional iterations 1ms
+     ✓ supports explicit component mount, update and terminal cleanup without a UI framework 2ms
+     ✓ exposes the public $get registry lookup without owning another view’s node 4ms
+     ✓ requires native component registration, rejects unsafe event strings, and duplicate loop identities 3ms
+     ✓ removes old handlers and attribute properties when updates remove them 1ms
+   ✓ retains focused keyed identity when the focused control itself moves 6ms
+   ✓ handles explicit empty text nodes, attributes, and omitted component props 2ms
+   ✓ updates dirty native values from a schema snapshot and supports empty transparent groups 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |dom| test/unit/formkit-schema.spec.js > @mnjs/formkit public schema foundation > preserves a literal custom event named passive
+AssertionError: expected "vi.fn()" to be called 1 times, but got 0 times
+ ❯ test/unit/formkit-schema.spec.js:24:22
+     22|     const button = view.container.firstElementChild;
+     23|     button.dispatchEvent(new Event('passive'));
+     24|     expect(callback).toHaveBeenCalledTimes(1);
+       |                      ^
+     25|     view.update({}); button.dispatchEvent(new Event('passive'));
+     26|     expect(callback).toHaveBeenCalledTimes(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |dom| test/unit/formkit-schema.spec.js > @mnjs/formkit public schema foundation > retains native receivers and distinct passive settings when authored bindings share one callback
+AssertionError: expected [ { target: <button></button>, …(1) } ] to deeply equal [ { …(2) }, { …(2) } ]
+
+- Expected
++ Received
+
+  [
+    {
+      "prevented": false,
+      "target": <button />,
+    },
+-   {
+-     "prevented": true,
+-     "target": <button />,
+-   },
+  ]
+
+ ❯ test/unit/formkit-schema.spec.js:36:19
+     34|     const dispatch = () => button.dispatchEvent(new Event('touchstart'…
+     35|     dispatch();
+     36|     expect(calls).toEqual([{ target: button, prevented: false }, { tar…
+       |                   ^
+     37|     calls.length = 0;
+     38|     view.setSchema({ $el: 'button', attrs: { ['__raw__onTouchstartPass…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 17 passed (19)
+   Start at  05:30:12
+   Duration  1.25s (environment 56%, import 18%, transform 14%, tests 11%, setup 1%, worker 1%)
+
+npm notice
+npm notice New major version of npm available! 11.17.0 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice

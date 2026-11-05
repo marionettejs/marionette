@@ -1,0 +1,792 @@
+{
+  "config": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/formkit-integration/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "test/formkit/playwright.config.mjs",
+      "--project",
+      "chromium"
+    ],
+    "configFile": "/workspace/formkit-integration/test/formkit/playwright.config.mjs",
+    "rootDir": "/workspace/formkit-integration/test/formkit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/workspace/formkit-integration/test/tmp/formkit-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/workspace/formkit-integration/test/formkit",
+        "testIgnore": [],
+        "testMatch": [
+          "formkit.spec.mjs",
+          "composed.spec.mjs"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/formkit-integration/test/tmp/formkit-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/workspace/formkit-integration/test/formkit",
+        "testIgnore": [],
+        "testMatch": [
+          "formkit.spec.mjs",
+          "composed.spec.mjs"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/formkit-integration/test/tmp/formkit-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/workspace/formkit-integration/test/formkit",
+        "testIgnore": [],
+        "testMatch": [
+          "formkit.spec.mjs",
+          "composed.spec.mjs"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/workspace/formkit-integration/test/tmp/formkit-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "name": "chromium",
+        "testDir": "/workspace/formkit-integration/test/formkit",
+        "snapshotDir": "/workspace/formkit-integration/test/formkit",
+        "testIgnore": [],
+        "testMatch": [
+          "formkit.spec.mjs",
+          "composed.spec.mjs"
+        ],
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5184",
+          "headless": true,
+          "browserName": "chromium",
+          "launchOptions": {
+            "executablePath": "/usr/bin/chromium"
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "chromium"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../tmp/formkit-browser.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 2,
+    "webServer": {
+      "command": "npm --prefix examples/formkit run dev -- --port 5184 --strictPort",
+      "cwd": "../..",
+      "url": "http://127.0.0.1:5184",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "composed.spec.mjs",
+      "file": "composed.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "FLOW-NESTED native two-level RowViews retain focus, validate, reset membership and clean up",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2557,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:33.256Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dca7e3d985e350feb4e5-d76fe2bf321ce1653fb7",
+          "file": "composed.spec.mjs",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "FLOW-01 composed planning journey retains focus and drafts, validates across sections and rows, retries and resets",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 20084,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:36.287Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dca7e3d985e350feb4e5-134d62f35f7aa2088d78",
+          "file": "composed.spec.mjs",
+          "line": 85,
+          "column": 1
+        },
+        {
+          "title": "FLOW-02 stale callback errors cannot reach replacement rows or survive reset and destruction",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5370,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:56.437Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dca7e3d985e350feb4e5-3038deff18a1b5909682",
+          "file": "composed.spec.mjs",
+          "line": 195,
+          "column": 1
+        },
+        {
+          "title": "FLOW-03 simultaneous same-named forms and repeated Region mount/destroy stay independent",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4666,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:36:01.832Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dca7e3d985e350feb4e5-34175a416116c3a2ec5f",
+          "file": "composed.spec.mjs",
+          "line": 252,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "formkit.spec.mjs",
+      "file": "formkit.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "synchronized list actions settle and support append, edit, remove, replacement and reset",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 1280,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:35.352Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "native-repeater.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZSI6IHsKICAgICJhY3Rpb25DcmVhdGlvbnMiOiAxLAogICAgInJldGFpbmVkIjogdHJ1ZSwKICAgICJjYW5vbmljYWwiOiB7CiAgICAgICJndWVzdHMiOiBbCiAgICAgICAgewogICAgICAgICAgIm5hbWUiOiAiQWRhIgogICAgICAgIH0KICAgICAgXQogICAgfQogIH0sCiAgImVycm9ycyI6IFtdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2c4ced0600c911a56e2-2485ad5c5540a2a572ad",
+          "file": "formkit.spec.mjs",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "unchanged SVG icons retain pointer activation across blur-driven schema updates",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 1124,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:36.674Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "icon-pointer.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHRzIjogWwogICAgewogICAgICAiY2xpY2tzIjogMSwKICAgICAgImJsdXJzIjogMSwKICAgICAgInJldGFpbmVkIjogdHJ1ZQogICAgfSwKICAgIHsKICAgICAgImNsaWNrcyI6IDIsCiAgICAgICJibHVycyI6IDIsCiAgICAgICJyZXRhaW5lZCI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJjbGlja3MiOiAzLAogICAgICAiYmx1cnMiOiAzLAogICAgICAicmV0YWluZWQiOiB0cnVlCiAgICB9CiAgXSwKICAiZXJyb3JzIjogW10KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2c4ced0600c911a56e2-c465c2704957e3fa3ff7",
+          "file": "formkit.spec.mjs",
+          "line": 70,
+          "column": 1
+        },
+        {
+          "title": "invalid submit skips hidden, inert and CSS-unfocusable ancestors before an external required field",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 1119,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:37.821Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "hidden-invalid-focus.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGF0ZXMiOiBbCiAgICB7CiAgICAgICJzdGF0ZSI6ICJoaWRkZW4iLAogICAgICAiZm9jdXNlZCI6IHRydWUsCiAgICAgICJodG1sIjogIjxpbnB1dCBjbGFzcz1cImZvcm1raXQtaW5wdXRcIiB0eXBlPVwidGV4dFwiIG5hbWU9XCJ2aXNpYmxlXCIgaWQ9XCJ2aXNpYmxlLXJlcXVpcmVkXCIgYXJpYS1kZXNjcmliZWRieT1cImhlbHAtdmlzaWJsZS1yZXF1aXJlZCB2aXNpYmxlLXJlcXVpcmVkLXJ1bGVfcmVxdWlyZWRcIiBhcmlhLXJlcXVpcmVkPVwidHJ1ZVwiIGFyaWEtaW52YWxpZD1cInRydWVcIj4iLAogICAgICAiZGVzY3JpYmVkQnkiOiBbCiAgICAgICAgewogICAgICAgICAgImlkIjogImhlbHAtdmlzaWJsZS1yZXF1aXJlZCIsCiAgICAgICAgICAiY291bnQiOiAxLAogICAgICAgICAgInRleHQiOiAiVmlzaWJsZSBoZWxwIgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImlkIjogInZpc2libGUtcmVxdWlyZWQtcnVsZV9yZXF1aXJlZCIsCiAgICAgICAgICAiY291bnQiOiAxLAogICAgICAgICAgInRleHQiOiAiVmlzaWJsZSByZXF1aXJlZCBpcyByZXF1aXJlZC4iCiAgICAgICAgfQogICAgICBdCiAgICB9LAogICAgewogICAgICAic3RhdGUiOiAiaW5lcnQiLAogICAgICAiZm9jdXNlZCI6IHRydWUsCiAgICAgICJodG1sIjogIjxpbnB1dCBjbGFzcz1cImZvcm1raXQtaW5wdXRcIiB0eXBlPVwidGV4dFwiIG5hbWU9XCJ2aXNpYmxlXCIgaWQ9XCJ2aXNpYmxlLXJlcXVpcmVkXCIgYXJpYS1kZXNjcmliZWRieT1cImhlbHAtdmlzaWJsZS1yZXF1aXJlZCB2aXNpYmxlLXJlcXVpcmVkLXJ1bGVfcmVxdWlyZWRcIiBhcmlhLXJlcXVpcmVkPVwidHJ1ZVwiIGFyaWEtaW52YWxpZD1cInRydWVcIj4iLAogICAgICAiZGVzY3JpYmVkQnkiOiBbCiAgICAgICAgewogICAgICAgICAgImlkIjogImhlbHAtdmlzaWJsZS1yZXF1aXJlZCIsCiAgICAgICAgICAiY291bnQiOiAxLAogICAgICAgICAgInRleHQiOiAiVmlzaWJsZSBoZWxwIgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImlkIjogInZpc2libGUtcmVxdWlyZWQtcnVsZV9yZXF1aXJlZCIsCiAgICAgICAgICAiY291bnQiOiAxLAogICAgICAgICAgInRleHQiOiAiVmlzaWJsZSByZXF1aXJlZCBpcyByZXF1aXJlZC4iCiAgICAgICAgfQogICAgICBdCiAgICB9LAogICAgewogICAgICAic3RhdGUiOiAiZGlzcGxheSIsCiAgICAgICJmb2N1c2VkIjogdHJ1ZSwKICAgICAgImh0bWwiOiAiPGlucHV0IGNsYXNzPVwiZm9ybWtpdC1pbnB1dFwiIHR5cGU9XCJ0ZXh0XCIgbmFtZT1cInZpc2libGVcIiBpZD1cInZpc2libGUtcmVxdWlyZWRcIiBhcmlhLWRlc2NyaWJlZGJ5PVwiaGVscC12aXNpYmxlLXJlcXVpcmVkIHZpc2libGUtcmVxdWlyZWQtcnVsZV9yZXF1aXJlZFwiIGFyaWEtcmVxdWlyZWQ9XCJ0cnVlXCIgYXJpYS1pbnZhbGlkPVwidHJ1ZVwiPiIsCiAgICAgICJkZXNjcmliZWRCeSI6IFsKICAgICAgICB7CiAgICAgICAgICAiaWQiOiAiaGVscC12aXNpYmxlLXJlcXVpcmVkIiwKICAgICAgICAgICJjb3VudCI6IDEsCiAgICAgICAgICAidGV4dCI6ICJWaXNpYmxlIGhlbHAiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiaWQiOiAidmlzaWJsZS1yZXF1aXJlZC1ydWxlX3JlcXVpcmVkIiwKICAgICAgICAgICJjb3VudCI6IDEsCiAgICAgICAgICAidGV4dCI6ICJWaXNpYmxlIHJlcXVpcmVkIGlzIHJlcXVpcmVkLiIKICAgICAgICB9CiAgICAgIF0KICAgIH0sCiAgICB7CiAgICAgICJzdGF0ZSI6ICJ2aXNpYmlsaXR5IiwKICAgICAgImZvY3VzZWQiOiB0cnVlLAogICAgICAiaHRtbCI6ICI8aW5wdXQgY2xhc3M9XCJmb3Jta2l0LWlucHV0XCIgdHlwZT1cInRleHRcIiBuYW1lPVwidmlzaWJsZVwiIGlkPVwidmlzaWJsZS1yZXF1aXJlZFwiIGFyaWEtZGVzY3JpYmVkYnk9XCJoZWxwLXZpc2libGUtcmVxdWlyZWQgdmlzaWJsZS1yZXF1aXJlZC1ydWxlX3JlcXVpcmVkXCIgYXJpYS1yZXF1aXJlZD1cInRydWVcIiBhcmlhLWludmFsaWQ9XCJ0cnVlXCI+IiwKICAgICAgImRlc2NyaWJlZEJ5IjogWwogICAgICAgIHsKICAgICAgICAgICJpZCI6ICJoZWxwLXZpc2libGUtcmVxdWlyZWQiLAogICAgICAgICAgImNvdW50IjogMSwKICAgICAgICAgICJ0ZXh0IjogIlZpc2libGUgaGVscCIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJpZCI6ICJ2aXNpYmxlLXJlcXVpcmVkLXJ1bGVfcmVxdWlyZWQiLAogICAgICAgICAgImNvdW50IjogMSwKICAgICAgICAgICJ0ZXh0IjogIlZpc2libGUgcmVxdWlyZWQgaXMgcmVxdWlyZWQuIgogICAgICAgIH0KICAgICAgXQogICAgfQogIF0sCiAgInJlc2V0IjogIjxpbnB1dCBjbGFzcz1cImZvcm1raXQtaW5wdXRcIiB0eXBlPVwidGV4dFwiIG5hbWU9XCJ2aXNpYmxlXCIgaWQ9XCJ2aXNpYmxlLXJlcXVpcmVkXCIgYXJpYS1kZXNjcmliZWRieT1cImhlbHAtdmlzaWJsZS1yZXF1aXJlZFwiIGFyaWEtcmVxdWlyZWQ9XCJ0cnVlXCI+IiwKICAiZXJyb3JzIjogW10KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2c4ced0600c911a56e2-6bbb2a3867f79b7773d0",
+          "file": "formkit.spec.mjs",
+          "line": 93,
+          "column": 1
+        },
+        {
+          "title": "named registrations mount connected and support keyboard validation, correction and reset",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 1161,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:38.972Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "registered-invalid.png",
+                      "contentType": "image/png",
+                      "body": "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"
+                    },
+                    {
+                      "name": "registered-keyboard.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJrZXlib2FyZCI6IFsKICAgICJUYWI6IHNlY29uZCIsCiAgICAiU2hpZnQrVGFiOiBmaXJzdCIsCiAgICAiRW50ZXI6IGludmFsaWQgZmlyc3QiLAogICAgIkVudGVyIGFmdGVyIGNvcnJlY3Rpb246IHNhdmVkIgogIF0sCiAgImludmFsaWQiOiB7CiAgICAibW91bnRlZCI6IFsKICAgICAgewogICAgICAgICJpZCI6ICJyZWdpc3RlcmVkLWZpcnN0IiwKICAgICAgICAiZm91bmQiOiB0cnVlLAogICAgICAgICJjb25uZWN0ZWQiOiB0cnVlCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiaWQiOiAicmVnaXN0ZXJlZC1zZWNvbmQiLAogICAgICAgICJmb3VuZCI6IHRydWUsCiAgICAgICAgImNvbm5lY3RlZCI6IHRydWUKICAgICAgfQogICAgXSwKICAgICJhY3RpdmVJZCI6ICJyZWdpc3RlcmVkLWZpcnN0IiwKICAgICJodG1sIjogIjxmb3JtIGlkPVwibW52My1mb3JtXCIgbm92YWxpZGF0ZT1cIlwiIGNsYXNzPVwiZm9ybWtpdC1mb3JtXCIgbmFtZT1cImZvcm1fM1wiIGFyaWEtYnVzeT1cImZhbHNlXCI+PCEtLWNvbXBvbmVudC0tPjxkaXYgZGF0YS1zY2hlbWEtdmlldz1cIlJlZ2lzdGVyZWRGaWVsZFwiPjxkaXY+PCEtLWlucHV0LS0+PGRpdiBjbGFzcz1cImZvcm1raXQtb3V0ZXJcIiBrZXk9XCJyZWdpc3RlcmVkLWZpcnN0XCIgZGF0YS1mYW1pbHk9XCJ0ZXh0XCIgZGF0YS10eXBlPVwidGV4dFwiIGRhdGEtZW1wdHk9XCJ0cnVlXCIgZGF0YS1pbnZhbGlkPVwidHJ1ZVwiIGRhdGEtc3VibWl0dGVkPVwidHJ1ZVwiPjxkaXYgY2xhc3M9XCJmb3Jta2l0LXdyYXBwZXJcIj48bGFiZWwgY2xhc3M9XCJmb3Jta2l0LWxhYmVsXCIgZm9yPVwicmVnaXN0ZXJlZC1maXJzdFwiPlJlZ2lzdGVyZWQgZmlyc3Q8L2xhYmVsPjxkaXYgY2xhc3M9XCJmb3Jta2l0LWlubmVyXCI+PGlucHV0IGNsYXNzPVwiZm9ybWtpdC1pbnB1dFwiIHR5cGU9XCJ0ZXh0XCIgbmFtZT1cImZpcnN0XCIgaWQ9XCJyZWdpc3RlcmVkLWZpcnN0XCIgYXJpYS1kZXNjcmliZWRieT1cImhlbHAtcmVnaXN0ZXJlZC1maXJzdCByZWdpc3RlcmVkLWZpcnN0LXJ1bGVfcmVxdWlyZWRcIiBhcmlhLXJlcXVpcmVkPVwidHJ1ZVwiIGFyaWEtaW52YWxpZD1cInRydWVcIj48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPVwiZm9ybWtpdC1oZWxwXCIgaWQ9XCJoZWxwLXJlZ2lzdGVyZWQtZmlyc3RcIj5GaXJzdCBoZWxwPC9kaXY+PHVsIGNsYXNzPVwiZm9ybWtpdC1tZXNzYWdlc1wiIGFyaWEtbGl2ZT1cInBvbGl0ZVwiPjxsaSBjbGFzcz1cImZvcm1raXQtbWVzc2FnZVwiIGtleT1cInJ1bGVfcmVxdWlyZWRcIiBpZD1cInJlZ2lzdGVyZWQtZmlyc3QtcnVsZV9yZXF1aXJlZFwiIGRhdGEtbWVzc2FnZS10eXBlPVwidmFsaWRhdGlvblwiPlJlZ2lzdGVyZWQgZmlyc3QgaXMgcmVxdWlyZWQuPC9saT48L3VsPjwvZGl2PjwhLS0vaW5wdXQtLT48L2Rpdj48L2Rpdj48IS0tL2NvbXBvbmVudC0tPjwhLS1jb21wb25lbnQtLT48ZGl2IGRhdGEtc2NoZW1hLXZpZXc9XCJSZWdpc3RlcmVkU2VjdGlvblwiPjxkaXY+PGRpdiBjbGFzcz1cImZpZWxkXCI+PGRpdj48IS0taW5wdXQtLT48ZGl2IGNsYXNzPVwiZm9ybWtpdC1vdXRlclwiIGtleT1cInJlZ2lzdGVyZWQtc2Vjb25kXCIgZGF0YS1mYW1pbHk9XCJ0ZXh0XCIgZGF0YS10eXBlPVwidGV4dFwiIGRhdGEtZW1wdHk9XCJ0cnVlXCIgZGF0YS1pbnZhbGlkPVwidHJ1ZVwiIGRhdGEtc3VibWl0dGVkPVwidHJ1ZVwiPjxkaXYgY2xhc3M9XCJmb3Jta2l0LXdyYXBwZXJcIj48bGFiZWwgY2xhc3M9XCJmb3Jta2l0LWxhYmVsXCIgZm9yPVwicmVnaXN0ZXJlZC1zZWNvbmRcIj5SZWdpc3RlcmVkIHNlY29uZDwvbGFiZWw+PGRpdiBjbGFzcz1cImZvcm1raXQtaW5uZXJcIj48aW5wdXQgY2xhc3M9XCJmb3Jta2l0LWlucHV0XCIgdHlwZT1cInRleHRcIiBuYW1lPVwic2Vjb25kXCIgaWQ9XCJyZWdpc3RlcmVkLXNlY29uZFwiIGFyaWEtZGVzY3JpYmVkYnk9XCJoZWxwLXJlZ2lzdGVyZWQtc2Vjb25kIHJlZ2lzdGVyZWQtc2Vjb25kLXJ1bGVfcmVxdWlyZWRcIiBhcmlhLXJlcXVpcmVkPVwidHJ1ZVwiIGFyaWEtaW52YWxpZD1cInRydWVcIj48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPVwiZm9ybWtpdC1oZWxwXCIgaWQ9XCJoZWxwLXJlZ2lzdGVyZWQtc2Vjb25kXCI+U2Vjb25kIGhlbHA8L2Rpdj48dWwgY2xhc3M9XCJmb3Jta2l0LW1lc3NhZ2VzXCIgYXJpYS1saXZlPVwicG9saXRlXCI+PGxpIGNsYXNzPVwiZm9ybWtpdC1tZXNzYWdlXCIga2V5PVwicnVsZV9yZXF1aXJlZFwiIGlkPVwicmVnaXN0ZXJlZC1zZWNvbmQtcnVsZV9yZXF1aXJlZFwiIGRhdGEtbWVzc2FnZS10eXBlPVwidmFsaWRhdGlvblwiPlJlZ2lzdGVyZWQgc2Vjb25kIGlzIHJlcXVpcmVkLjwvbGk+PC91bD48L2Rpdj48IS0tL2lucHV0LS0+PC9kaXY+PC9kaXY+PC9kaXY+PC9kaXY+PCEtLS9jb21wb25lbnQtLT48dWwgY2xhc3M9XCJmb3Jta2l0LW1lc3NhZ2VzXCI+PGxpIGNsYXNzPVwiZm9ybWtpdC1tZXNzYWdlXCIga2V5PVwiaW5jb21wbGV0ZVwiIGlkPVwibW52My1mb3JtLWluY29tcGxldGVcIiBkYXRhLW1lc3NhZ2UtdHlwZT1cInVpXCI+U29ycnksIG5vdCBhbGwgZmllbGRzIGFyZSBmaWxsZWQgb3V0IGNvcnJlY3RseS48L2xpPjwvdWw+PGRpdiBjbGFzcz1cImZvcm1raXQtYWN0aW9uc1wiPjwhLS1jb21wb25lbnQtLT48IS0taW5wdXQtLT48ZGl2IGNsYXNzPVwiZm9ybWtpdC1vdXRlclwiIGtleT1cIm1udjMtZm9ybS1pbnB1dC03XCIgZGF0YS1mYW1pbHk9XCJidXR0b25cIiBkYXRhLXR5cGU9XCJzdWJtaXRcIiBkYXRhLWVtcHR5PVwidHJ1ZVwiPjxkaXYgY2xhc3M9XCJmb3Jta2l0LXdyYXBwZXJcIj48YnV0dG9uIGNsYXNzPVwiZm9ybWtpdC1pbnB1dFwiIHR5cGU9XCJzdWJtaXRcIiBuYW1lPVwic3VibWl0XzRcIiBpZD1cIm1udjMtZm9ybS1pbnB1dC03XCI+U3VibWl0PC9idXR0b24+PC9kaXY+PC9kaXY+PCEtLS9pbnB1dC0tPjwhLS0vY29tcG9uZW50LS0+PGJ1dHRvbiB0eXBlPVwicmVzZXRcIj5SZXNldDwvYnV0dG9uPjwvZGl2PjwvZm9ybT4iLAogICAgImNvbnRyb2xzIjogWwogICAgICB7CiAgICAgICAgImlkIjogInJlZ2lzdGVyZWQtZmlyc3QiLAogICAgICAgICJpbnZhbGlkIjogInRydWUiLAogICAgICAgICJsYWJlbCI6ICJSZWdpc3RlcmVkIGZpcnN0IiwKICAgICAgICAicmVmcyI6IFsKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogImhlbHAtcmVnaXN0ZXJlZC1maXJzdCIsCiAgICAgICAgICAgICJjb3VudCI6IDEsCiAgICAgICAgICAgICJ0ZXh0IjogIkZpcnN0IGhlbHAiCiAgICAgICAgICB9LAogICAgICAgICAgewogICAgICAgICAgICAiaWQiOiAicmVnaXN0ZXJlZC1maXJzdC1ydWxlX3JlcXVpcmVkIiwKICAgICAgICAgICAgImNvdW50IjogMSwKICAgICAgICAgICAgInRleHQiOiAiUmVnaXN0ZXJlZCBmaXJzdCBpcyByZXF1aXJlZC4iCiAgICAgICAgICB9CiAgICAgICAgXQogICAgICB9LAogICAgICB7CiAgICAgICAgImlkIjogInJlZ2lzdGVyZWQtc2Vjb25kIiwKICAgICAgICAiaW52YWxpZCI6ICJ0cnVlIiwKICAgICAgICAibGFiZWwiOiAiUmVnaXN0ZXJlZCBzZWNvbmQiLAogICAgICAgICJyZWZzIjogWwogICAgICAgICAgewogICAgICAgICAgICAiaWQiOiAiaGVscC1yZWdpc3RlcmVkLXNlY29uZCIsCiAgICAgICAgICAgICJjb3VudCI6IDEsCiAgICAgICAgICAgICJ0ZXh0IjogIlNlY29uZCBoZWxwIgogICAgICAgICAgfSwKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogInJlZ2lzdGVyZWQtc2Vjb25kLXJ1bGVfcmVxdWlyZWQiLAogICAgICAgICAgICAiY291bnQiOiAxLAogICAgICAgICAgICAidGV4dCI6ICJSZWdpc3RlcmVkIHNlY29uZCBpcyByZXF1aXJlZC4iCiAgICAgICAgICB9CiAgICAgICAgXQogICAgICB9CiAgICBdCiAgfSwKICAicmVzZXQiOiB7CiAgICAibW91bnRlZCI6IFsKICAgICAgewogICAgICAgICJpZCI6ICJyZWdpc3RlcmVkLWZpcnN0IiwKICAgICAgICAiZm91bmQiOiB0cnVlLAogICAgICAgICJjb25uZWN0ZWQiOiB0cnVlCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiaWQiOiAicmVnaXN0ZXJlZC1zZWNvbmQiLAogICAgICAgICJmb3VuZCI6IHRydWUsCiAgICAgICAgImNvbm5lY3RlZCI6IHRydWUKICAgICAgfQogICAgXSwKICAgICJ2YWx1ZXMiOiB7fSwKICAgICJodG1sIjogIjxmb3JtIGlkPVwibW52My1mb3JtXCIgbm92YWxpZGF0ZT1cIlwiIGNsYXNzPVwiZm9ybWtpdC1mb3JtXCIgbmFtZT1cImZvcm1fM1wiIGFyaWEtYnVzeT1cImZhbHNlXCI+PCEtLWNvbXBvbmVudC0tPjxkaXYgZGF0YS1zY2hlbWEtdmlldz1cIlJlZ2lzdGVyZWRGaWVsZFwiPjxkaXY+PCEtLWlucHV0LS0+PGRpdiBjbGFzcz1cImZvcm1raXQtb3V0ZXJcIiBrZXk9XCJyZWdpc3RlcmVkLWZpcnN0XCIgZGF0YS1mYW1pbHk9XCJ0ZXh0XCIgZGF0YS10eXBlPVwidGV4dFwiIGRhdGEtZW1wdHk9XCJ0cnVlXCI+PGRpdiBjbGFzcz1cImZvcm1raXQtd3JhcHBlclwiPjxsYWJlbCBjbGFzcz1cImZvcm1raXQtbGFiZWxcIiBmb3I9XCJyZWdpc3RlcmVkLWZpcnN0XCI+UmVnaXN0ZXJlZCBmaXJzdDwvbGFiZWw+PGRpdiBjbGFzcz1cImZvcm1raXQtaW5uZXJcIj48aW5wdXQgY2xhc3M9XCJmb3Jta2l0LWlucHV0XCIgdHlwZT1cInRleHRcIiBuYW1lPVwiZmlyc3RcIiBpZD1cInJlZ2lzdGVyZWQtZmlyc3RcIiBhcmlhLWRlc2NyaWJlZGJ5PVwiaGVscC1yZWdpc3RlcmVkLWZpcnN0XCIgYXJpYS1yZXF1aXJlZD1cInRydWVcIiBzdHlsZT1cIlwiPjwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9XCJmb3Jta2l0LWhlbHBcIiBpZD1cImhlbHAtcmVnaXN0ZXJlZC1maXJzdFwiPkZpcnN0IGhlbHA8L2Rpdj48L2Rpdj48IS0tL2lucHV0LS0+PC9kaXY+PC9kaXY+PCEtLS9jb21wb25lbnQtLT48IS0tY29tcG9uZW50LS0+PGRpdiBkYXRhLXNjaGVtYS12aWV3PVwiUmVnaXN0ZXJlZFNlY3Rpb25cIj48ZGl2PjxkaXYgY2xhc3M9XCJmaWVsZFwiPjxkaXY+PCEtLWlucHV0LS0+PGRpdiBjbGFzcz1cImZvcm1raXQtb3V0ZXJcIiBrZXk9XCJyZWdpc3RlcmVkLXNlY29uZFwiIGRhdGEtZmFtaWx5PVwidGV4dFwiIGRhdGEtdHlwZT1cInRleHRcIiBkYXRhLWVtcHR5PVwidHJ1ZVwiPjxkaXYgY2xhc3M9XCJmb3Jta2l0LXdyYXBwZXJcIj48bGFiZWwgY2xhc3M9XCJmb3Jta2l0LWxhYmVsXCIgZm9yPVwicmVnaXN0ZXJlZC1zZWNvbmRcIj5SZWdpc3RlcmVkIHNlY29uZDwvbGFiZWw+PGRpdiBjbGFzcz1cImZvcm1raXQtaW5uZXJcIj48aW5wdXQgY2xhc3M9XCJmb3Jta2l0LWlucHV0XCIgdHlwZT1cInRleHRcIiBuYW1lPVwic2Vjb25kXCIgaWQ9XCJyZWdpc3RlcmVkLXNlY29uZFwiIGFyaWEtZGVzY3JpYmVkYnk9XCJoZWxwLXJlZ2lzdGVyZWQtc2Vjb25kXCIgYXJpYS1yZXF1aXJlZD1cInRydWVcIiBzdHlsZT1cIlwiPjwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9XCJmb3Jta2l0LWhlbHBcIiBpZD1cImhlbHAtcmVnaXN0ZXJlZC1zZWNvbmRcIj5TZWNvbmQgaGVscDwvZGl2PjwvZGl2PjwhLS0vaW5wdXQtLT48L2Rpdj48L2Rpdj48L2Rpdj48L2Rpdj48IS0tL2NvbXBvbmVudC0tPjxkaXYgY2xhc3M9XCJmb3Jta2l0LWFjdGlvbnNcIj48IS0tY29tcG9uZW50LS0+PCEtLWlucHV0LS0+PGRpdiBjbGFzcz1cImZvcm1raXQtb3V0ZXJcIiBrZXk9XCJtbnYzLWZvcm0taW5wdXQtN1wiIGRhdGEtZmFtaWx5PVwiYnV0dG9uXCIgZGF0YS10eXBlPVwic3VibWl0XCIgZGF0YS1lbXB0eT1cInRydWVcIj48ZGl2IGNsYXNzPVwiZm9ybWtpdC13cmFwcGVyXCI+PGJ1dHRvbiBjbGFzcz1cImZvcm1raXQtaW5wdXRcIiB0eXBlPVwic3VibWl0XCIgbmFtZT1cInN1Ym1pdF80XCIgaWQ9XCJtbnYzLWZvcm0taW5wdXQtN1wiPlN1Ym1pdDwvYnV0dG9uPjwvZGl2PjwvZGl2PjwhLS0vaW5wdXQtLT48IS0tL2NvbXBvbmVudC0tPjxidXR0b24gdHlwZT1cInJlc2V0XCI+UmVzZXQ8L2J1dHRvbj48L2Rpdj48L2Zvcm0+IgogIH0sCiAgImVycm9ycyI6IFtdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2c4ced0600c911a56e2-afc1b771329650e86273",
+          "file": "formkit.spec.mjs",
+          "line": 133,
+          "column": 1
+        },
+        {
+          "title": "external owned controls retain native origin and state bindings across input, change and blur",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 935,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:40.159Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2c4ced0600c911a56e2-d522205d7ed7137f5568",
+          "file": "formkit.spec.mjs",
+          "line": 174,
+          "column": 1
+        },
+        {
+          "title": "decimal edits retain native text and focus while authoritative writes replace pending drafts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 2107,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:41.116Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2c4ced0600c911a56e2-100a9a87f9cea9b19b96",
+          "file": "formkit.spec.mjs",
+          "line": 207,
+          "column": 1
+        },
+        {
+          "title": "template Regions preserve accordion drafts, clear conditional values and submit through the keyboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 2064,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:43.247Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2c4ced0600c911a56e2-d20141eea8410ae424f5",
+          "file": "formkit.spec.mjs",
+          "line": 250,
+          "column": 1
+        },
+        {
+          "title": "adopted forms mount, preserve keyed sibling edits and focus, and can be reused",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 948,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:45.344Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2c4ced0600c911a56e2-aa70c090431a19156d68",
+          "file": "formkit.spec.mjs",
+          "line": 283,
+          "column": 1
+        },
+        {
+          "title": "profile example supports keyboard validation, server errors, retry and native reset",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 3144,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:46.325Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2c4ced0600c911a56e2-7ecbd890b3be5a3a37f2",
+          "file": "formkit.spec.mjs",
+          "line": 334,
+          "column": 1
+        },
+        {
+          "title": "external snapshots and schema reordering preserve real browser focus and selection, then clean up",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 808,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:49.493Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2c4ced0600c911a56e2-777a8fd0819983e4d2f4",
+          "file": "formkit.spec.mjs",
+          "line": 362,
+          "column": 1
+        },
+        {
+          "title": "official schema form supports conditional fields, steps, files, lists, server errors and cancellation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 4580,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:50.328Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2c4ced0600c911a56e2-5591f6437acf73b0f161",
+          "file": "formkit.spec.mjs",
+          "line": 405,
+          "column": 1
+        },
+        {
+          "title": "explicit owner placement preserves sibling selection and ends validation on removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 862,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T05:35:54.923Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2c4ced0600c911a56e2-f6ec0369addc79df45f0",
+          "file": "formkit.spec.mjs",
+          "line": 507,
+          "column": 1
+        }
+      ],
+      "suites": [
+        {
+          "title": "passive schema touch delivery",
+          "file": "formkit.spec.mjs",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "real touch reaches passive schema bindings and replacement/removal preserve ownership",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1659,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-05T05:35:33.147Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "passive-touch.json",
+                          "contentType": "application/json",
+                          "body": "ewogICJjYWxscyI6IFsKICAgIHsKICAgICAgImxhYmVsIjogImluaXRpYWwiLAogICAgICAidHlwZSI6ICJ0b3VjaHN0YXJ0IiwKICAgICAgInRydXN0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAibGFiZWwiOiAicmVwbGFjZW1lbnQiLAogICAgICAidHlwZSI6ICJ0b3VjaHN0YXJ0IiwKICAgICAgInRydXN0ZWQiOiB0cnVlCiAgICB9LAogICAgewogICAgICAibGFiZWwiOiAicmVwbGFjZW1lbnQiLAogICAgICAidHlwZSI6ICJ0b3VjaHN0YXJ0IiwKICAgICAgInRydXN0ZWQiOiB0cnVlCiAgICB9CiAgXSwKICAiZXJyb3JzIjogW10KfQ=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d2c4ced0600c911a56e2-85565bf07a5f10b111d0",
+              "file": "formkit.spec.mjs",
+              "line": 6,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-05T05:35:31.510Z",
+    "duration": 35179.384,
+    "expected": 17,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

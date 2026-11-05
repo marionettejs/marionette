@@ -1,0 +1,5 @@
+
+> marionette@5.0.0 check:packages
+> node scripts/checks/packages.mjs
+
+Verified 7 owned packages; 5 stable release targets remain unchanged.

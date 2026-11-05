@@ -1,0 +1,44 @@
+[WebServer] (node:12815) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:12852) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › test/formkit/formkit.spec.mjs:6:3 › passive schema touch delivery › real touch reaches passive schema bindings and replacement/removal preserve ownership (5.9s)
+
+
+  1) [chromium] › test/formkit/formkit.spec.mjs:6:3 › passive schema touch delivery › real touch reaches passive schema bindings and replacement/removal preserve ownership 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 7
+    + Received  + 1
+
+    - Array [
+    -   Object {
+    -     "label": "initial",
+    -     "trusted": true,
+    -     "type": "touchstart",
+    -   },
+    - ]
+    + Array []
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      13 |     const target = page.locator('#passive-touch-target');
+      14 |     await target.tap();
+    > 15 |     await expect.poll(() => page.evaluate(() => window.passiveFixture.calls)).toEqual([{ label: 'initial', type: 'touchstart', trusted: true }]);
+         |                                                                               ^
+      16 |     await page.evaluate(() => window.passiveFixture.replace());
+      17 |     await target.tap();
+      18 |     await expect.poll(() => page.evaluate(() => window.passiveFixture.calls)).toEqual([
+        at /workspace/formkit-integration/test/formkit/formkit.spec.mjs:15:79
+
+    Error Context: test/tmp/formkit-browser/formkit-passive-schema-tou-76a6f--removal-preserve-ownership-chromium/error-context.md
+
+  1 failed
+    [chromium] › test/formkit/formkit.spec.mjs:6:3 › passive schema touch delivery › real touch reaches passive schema bindings and replacement/removal preserve ownership 

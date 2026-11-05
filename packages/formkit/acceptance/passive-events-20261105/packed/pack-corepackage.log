@@ -1,0 +1,831 @@
+[
+  {
+    "id": "marionette@5.0.0",
+    "name": "marionette",
+    "version": "5.0.0",
+    "size": 684916,
+    "unpackedSize": 3275900,
+    "shasum": "80397b20c5449f71f78939c70e7a58fc743ad526",
+    "integrity": "sha512-nzu9dgsawNHSQSumNI1+StxjsJtknjK3CytzBn9wzzDOwCieJKohyaacfkvV+3cHXoCqaeawehmVewRf3Mxe/Q==",
+    "filename": "marionette-5.0.0.tgz",
+    "files": [
+      {
+        "path": "changelog.md",
+        "size": 23515,
+        "mode": 384
+      },
+      {
+        "path": "config/diagnostics/catalog.json",
+        "size": 22784,
+        "mode": 384
+      },
+      {
+        "path": "config/diagnostics/catalog.schema.json",
+        "size": 3742,
+        "mode": 384
+      },
+      {
+        "path": "config/release-profile.json",
+        "size": 1304,
+        "mode": 384
+      },
+      {
+        "path": "dist/agent-skill/agents/openai.yaml",
+        "size": 280,
+        "mode": 384
+      },
+      {
+        "path": "dist/agent-skill/scripts/docs.mjs",
+        "size": 12132,
+        "mode": 384
+      },
+      {
+        "path": "dist/agent-skill/scripts/search.mjs",
+        "size": 4009,
+        "mode": 384
+      },
+      {
+        "path": "dist/agent-skill/scripts/symbols.mjs",
+        "size": 5302,
+        "mode": 384
+      },
+      {
+        "path": "dist/agent-skill/SKILL.md",
+        "size": 4379,
+        "mode": 384
+      },
+      {
+        "path": "dist/eslint/index.cjs",
+        "size": 12867,
+        "mode": 384
+      },
+      {
+        "path": "dist/eslint/index.d.cts",
+        "size": 158,
+        "mode": 384
+      },
+      {
+        "path": "dist/eslint/index.d.ts",
+        "size": 164,
+        "mode": 384
+      },
+      {
+        "path": "dist/eslint/index.js",
+        "size": 12857,
+        "mode": 384
+      },
+      {
+        "path": "dist/marionette.cjs",
+        "size": 97022,
+        "mode": 384
+      },
+      {
+        "path": "dist/marionette.cjs.map",
+        "size": 338316,
+        "mode": 384
+      },
+      {
+        "path": "dist/marionette.js",
+        "size": 95927,
+        "mode": 384
+      },
+      {
+        "path": "dist/marionette.js.map",
+        "size": 338241,
+        "mode": 384
+      },
+      {
+        "path": "dist/marionette.min.js",
+        "size": 61139,
+        "mode": 384
+      },
+      {
+        "path": "dist/marionette.min.js.map",
+        "size": 352557,
+        "mode": 384
+      },
+      {
+        "path": "dist/marionette.umd.js",
+        "size": 127129,
+        "mode": 384
+      },
+      {
+        "path": "dist/marionette.umd.js.map",
+        "size": 424187,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/create-marionette.d.ts",
+        "size": 5482,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/index.d.ts",
+        "size": 2454,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/mixins/behaviors.d.ts",
+        "size": 1850,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/mixins/common.d.ts",
+        "size": 829,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/mixins/delegate-entity-events.d.ts",
+        "size": 659,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/mixins/destroy.d.ts",
+        "size": 544,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/mixins/radio.d.ts",
+        "size": 618,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/mixins/state.d.ts",
+        "size": 962,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/mixins/template-render.d.ts",
+        "size": 1227,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/mixins/ui.d.ts",
+        "size": 1192,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/mixins/view-events.d.ts",
+        "size": 2037,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/mixins/view.d.ts",
+        "size": 4337,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/modules/application.d.ts",
+        "size": 5651,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/modules/behavior.d.ts",
+        "size": 5247,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/modules/child-view-container.d.ts",
+        "size": 5020,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/modules/collection-view.d.ts",
+        "size": 10975,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/modules/common/build-region.d.ts",
+        "size": 569,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/modules/common/chainable-methods.d.ts",
+        "size": 1834,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/modules/common/monitor-view-events.d.ts",
+        "size": 145,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/modules/common/view.d.ts",
+        "size": 1261,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/modules/object.d.ts",
+        "size": 4517,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/modules/region.d.ts",
+        "size": 4540,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/modules/view.d.ts",
+        "size": 8359,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/package.json",
+        "size": 20,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/runtime-id.d.ts",
+        "size": 90,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/runtime/data-api.d.ts",
+        "size": 1547,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/runtime/dom-api.d.ts",
+        "size": 2026,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/runtime/event-delegator.d.ts",
+        "size": 850,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/runtime/renderer.d.ts",
+        "size": 307,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/runtime/state-api.d.ts",
+        "size": 589,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/utils/extend.d.ts",
+        "size": 1513,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/utils/is-el-attached.d.ts",
+        "size": 135,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/utils/subscribe-bindings.d.ts",
+        "size": 393,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/version.d.ts",
+        "size": 112,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/create-marionette.d.ts",
+        "size": 5482,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/index.d.ts",
+        "size": 2454,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/mixins/behaviors.d.ts",
+        "size": 1850,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/mixins/common.d.ts",
+        "size": 829,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/mixins/delegate-entity-events.d.ts",
+        "size": 659,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/mixins/destroy.d.ts",
+        "size": 544,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/mixins/radio.d.ts",
+        "size": 618,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/mixins/state.d.ts",
+        "size": 962,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/mixins/template-render.d.ts",
+        "size": 1227,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/mixins/ui.d.ts",
+        "size": 1192,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/mixins/view-events.d.ts",
+        "size": 2037,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/mixins/view.d.ts",
+        "size": 4337,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/modules/application.d.ts",
+        "size": 5651,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/modules/behavior.d.ts",
+        "size": 5247,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/modules/child-view-container.d.ts",
+        "size": 5020,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/modules/collection-view.d.ts",
+        "size": 10975,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/modules/common/build-region.d.ts",
+        "size": 569,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/modules/common/chainable-methods.d.ts",
+        "size": 1834,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/modules/common/monitor-view-events.d.ts",
+        "size": 145,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/modules/common/view.d.ts",
+        "size": 1261,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/modules/object.d.ts",
+        "size": 4517,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/modules/region.d.ts",
+        "size": 4540,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/modules/view.d.ts",
+        "size": 8359,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/runtime-id.d.ts",
+        "size": 90,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/runtime/data-api.d.ts",
+        "size": 1547,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/runtime/dom-api.d.ts",
+        "size": 2026,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/runtime/event-delegator.d.ts",
+        "size": 850,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/runtime/renderer.d.ts",
+        "size": 307,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/runtime/state-api.d.ts",
+        "size": 589,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/utils/extend.d.ts",
+        "size": 1513,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/utils/is-el-attached.d.ts",
+        "size": 135,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/utils/subscribe-bindings.d.ts",
+        "size": 393,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/version.d.ts",
+        "size": 112,
+        "mode": 384
+      },
+      {
+        "path": "docs-manifest.json",
+        "size": 16014,
+        "mode": 384
+      },
+      {
+        "path": "docs-sections.json",
+        "size": 71019,
+        "mode": 384
+      },
+      {
+        "path": "docs-symbols.json",
+        "size": 479552,
+        "mode": 384
+      },
+      {
+        "path": "docs/agents.md",
+        "size": 6252,
+        "mode": 384
+      },
+      {
+        "path": "docs/api.md",
+        "size": 5004,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/application.md",
+        "size": 23141,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/behavior.md",
+        "size": 10364,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/collection-view.md",
+        "size": 23283,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/errors.md",
+        "size": 12342,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/mnobject.md",
+        "size": 6693,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/providers/data.md",
+        "size": 12105,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/providers/dom.md",
+        "size": 9192,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/region.md",
+        "size": 14218,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/runtime.md",
+        "size": 8755,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/shared/common.md",
+        "size": 6628,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/shared/events.md",
+        "size": 5683,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/shared/state.md",
+        "size": 5461,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/shared/view-bindings.md",
+        "size": 14431,
+        "mode": 384
+      },
+      {
+        "path": "docs/api/view.md",
+        "size": 19143,
+        "mode": 384
+      },
+      {
+        "path": "docs/architecture.md",
+        "size": 8863,
+        "mode": 384
+      },
+      {
+        "path": "docs/guides/accessibility-rendering.md",
+        "size": 5462,
+        "mode": 384
+      },
+      {
+        "path": "docs/guides/existing-html.md",
+        "size": 2736,
+        "mode": 384
+      },
+      {
+        "path": "docs/guides/existing-ui.md",
+        "size": 3650,
+        "mode": 384
+      },
+      {
+        "path": "docs/guides/framework-migration.md",
+        "size": 18995,
+        "mode": 384
+      },
+      {
+        "path": "docs/guides/lists.md",
+        "size": 6227,
+        "mode": 384
+      },
+      {
+        "path": "docs/guides/local-editing.md",
+        "size": 7242,
+        "mode": 384
+      },
+      {
+        "path": "docs/guides/migration.md",
+        "size": 13576,
+        "mode": 384
+      },
+      {
+        "path": "docs/guides/production.md",
+        "size": 4805,
+        "mode": 384
+      },
+      {
+        "path": "docs/guides/retained-restart.md",
+        "size": 5030,
+        "mode": 384
+      },
+      {
+        "path": "docs/guides/routing.md",
+        "size": 9884,
+        "mode": 384
+      },
+      {
+        "path": "docs/guides/testing.md",
+        "size": 10590,
+        "mode": 384
+      },
+      {
+        "path": "docs/guides/typescript.md",
+        "size": 9121,
+        "mode": 384
+      },
+      {
+        "path": "docs/guides/widgets.md",
+        "size": 4555,
+        "mode": 384
+      },
+      {
+        "path": "docs/integrations/setup.md",
+        "size": 3862,
+        "mode": 384
+      },
+      {
+        "path": "docs/packages/adapters.md",
+        "size": 16360,
+        "mode": 384
+      },
+      {
+        "path": "docs/packages/data.md",
+        "size": 19281,
+        "mode": 384
+      },
+      {
+        "path": "docs/packages/radio.md",
+        "size": 11394,
+        "mode": 384
+      },
+      {
+        "path": "docs/packages/utils.md",
+        "size": 8300,
+        "mode": 384
+      },
+      {
+        "path": "docs/quick-start.md",
+        "size": 2616,
+        "mode": 384
+      },
+      {
+        "path": "docs/readme.md",
+        "size": 5521,
+        "mode": 384
+      },
+      {
+        "path": "docs/records.md",
+        "size": 13109,
+        "mode": 384
+      },
+      {
+        "path": "docs/tooling.md",
+        "size": 8700,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/index.html",
+        "size": 615,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/package-lock.json",
+        "size": 30372,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/package.json",
+        "size": 701,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/playwright.config.js",
+        "size": 691,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/public/api/records.json",
+        "size": 374,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/README.md",
+        "size": 1992,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/scripts/build-local-packages.mjs",
+        "size": 964,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/src/main-application.js",
+        "size": 1294,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/src/main.js",
+        "size": 232,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/src/page.js",
+        "size": 306,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/src/records-api.js",
+        "size": 227,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/src/records-application.js",
+        "size": 1749,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/src/records-views.js",
+        "size": 2243,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/src/setup.js",
+        "size": 295,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/src/styles.css",
+        "size": 1215,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/tests/records.spec.js",
+        "size": 21514,
+        "mode": 384
+      },
+      {
+        "path": "examples/records/vite.config.js",
+        "size": 331,
+        "mode": 384
+      },
+      {
+        "path": "license.txt",
+        "size": 1069,
+        "mode": 384
+      },
+      {
+        "path": "llms.txt",
+        "size": 2500,
+        "mode": 384
+      },
+      {
+        "path": "package.json",
+        "size": 11463,
+        "mode": 384
+      },
+      {
+        "path": "packages/formkit/compatibility.md",
+        "size": 19535,
+        "mode": 384
+      },
+      {
+        "path": "packages/formkit/OWNERSHIP.md",
+        "size": 9002,
+        "mode": 384
+      },
+      {
+        "path": "packages/formkit/readme.md",
+        "size": 30337,
+        "mode": 384
+      },
+      {
+        "path": "packages/formkit/rows.md",
+        "size": 5376,
+        "mode": 384
+      },
+      {
+        "path": "packages/formkit/schema-views.md",
+        "size": 11612,
+        "mode": 384
+      },
+      {
+        "path": "packages/test/guide.md",
+        "size": 38131,
+        "mode": 384
+      },
+      {
+        "path": "packages/test/readme.md",
+        "size": 7808,
+        "mode": 384
+      },
+      {
+        "path": "readme.md",
+        "size": 4918,
+        "mode": 384
+      },
+      {
+        "path": "skills/marionette/agents/openai.yaml",
+        "size": 280,
+        "mode": 384
+      },
+      {
+        "path": "skills/marionette/scripts/docs.mjs",
+        "size": 12132,
+        "mode": 384
+      },
+      {
+        "path": "skills/marionette/scripts/search.mjs",
+        "size": 4009,
+        "mode": 384
+      },
+      {
+        "path": "skills/marionette/scripts/symbols.mjs",
+        "size": 5302,
+        "mode": 384
+      },
+      {
+        "path": "skills/marionette/SKILL.md",
+        "size": 4379,
+        "mode": 384
+      }
+    ],
+    "entryCount": 163,
+    "bundled": []
+  }
+]

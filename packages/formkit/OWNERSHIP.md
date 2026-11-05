@@ -38,6 +38,14 @@ validation remains unverified. Raw positive-run artifacts were not available to
 the writer; see the attributed [repair receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/pro-drag-01304).
 Historical passes below must not be attributed to later source or styling.
 
+The November 5 passive-event repair at `16682abe` corrects native delivery of
+official schema `Passive` bindings and listener ownership. Local verification
+passed 19 focused cases, canonical coverage (2,748 plus one expected failure),
+all nine packed-consumer stages and 17 Chromium journeys, including trusted
+touchstart delivery. Actual Pro touch behavior on this new source is pending
+coordinated vault QA; the prior Pro pass retains its earlier source attribution.
+See the [passive-event receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/passive-events-20261105).
+
 The earlier versioned [independent Pro receipt](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) applies to source
 `1d8e1680f416ea182873c9120315ec24970225c9`: 107/107 local assertions, zero page
 errors/timeouts, Core 2.1.2, Pro 0.130.2, Chromium 154.0.8037.57. Online license

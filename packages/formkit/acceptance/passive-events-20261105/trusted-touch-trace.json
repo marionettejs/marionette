@@ -1,0 +1,20 @@
+{
+  "calls": [
+    {
+      "label": "initial",
+      "type": "touchstart",
+      "trusted": true
+    },
+    {
+      "label": "replacement",
+      "type": "touchstart",
+      "trusted": true
+    },
+    {
+      "label": "replacement",
+      "type": "touchstart",
+      "trusted": true
+    }
+  ],
+  "errors": []
+}

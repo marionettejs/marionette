@@ -1,0 +1,72 @@
+{
+  "sourceRevision": "16682abe2e54fe1143141b0f6bc0ea9105923180",
+  "sourceDirty": false,
+  "node": "v24.19.0",
+  "npm": "11.17.0",
+  "browserExecutable": "/usr/bin/chromium",
+  "stages": [
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-11-05T05:32:13.731111+00:00",
+      "exitCode": 0,
+      "wallSeconds": 38.018,
+      "finishedAt": "2026-11-05T05:32:51.748846+00:00"
+    },
+    {
+      "name": "coverage",
+      "command": [
+        "npm",
+        "run",
+        "coverage"
+      ],
+      "startedAt": "2026-11-05T05:32:51.749248+00:00",
+      "exitCode": 0,
+      "wallSeconds": 132.58,
+      "finishedAt": "2026-11-05T05:35:04.329086+00:00"
+    },
+    {
+      "name": "packages",
+      "command": [
+        "npm",
+        "run",
+        "check:packages"
+      ],
+      "startedAt": "2026-11-05T05:35:04.330785+00:00",
+      "exitCode": 0,
+      "wallSeconds": 2.001,
+      "finishedAt": "2026-11-05T05:35:06.332105+00:00"
+    },
+    {
+      "name": "packed",
+      "command": [
+        "npm",
+        "run",
+        "test:formkit-package"
+      ],
+      "startedAt": "2026-11-05T05:35:06.332935+00:00",
+      "exitCode": 0,
+      "wallSeconds": 22.006,
+      "finishedAt": "2026-11-05T05:35:28.339156+00:00"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "npm",
+        "run",
+        "test:formkit-browser",
+        "--",
+        "--project",
+        "chromium"
+      ],
+      "startedAt": "2026-11-05T05:35:28.340608+00:00",
+      "exitCode": 0,
+      "wallSeconds": 40.079,
+      "finishedAt": "2026-11-05T05:36:08.419796+00:00"
+    }
+  ]
+}

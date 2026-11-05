@@ -1,0 +1,166 @@
+[
+  {
+    "id": "@mnjs/formkit@5.0.0-rc.2",
+    "name": "@mnjs/formkit",
+    "version": "5.0.0-rc.2",
+    "size": 201199,
+    "unpackedSize": 809431,
+    "shasum": "bcf5b1cf0aa4cc1ea15c0f165e52be7bb28a407a",
+    "integrity": "sha512-jrLs2+R2GJno9weQ+mVlQvUR1774GVQ+87bPvVJnmrfN9H3mozV+Z2HkHrIaibjXD/wo2r2H8i7z3e46b2mlcA==",
+    "filename": "mnjs-formkit-5.0.0-rc.2.tgz",
+    "files": [
+      {
+        "path": "OWNERSHIP.md",
+        "size": 9002,
+        "mode": 384
+      },
+      {
+        "path": "compatibility.md",
+        "size": 19535,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.cjs",
+        "size": 97703,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.cjs.map",
+        "size": 252630,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.js",
+        "size": 97266,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.js.map",
+        "size": 252602,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/bindings.d.ts",
+        "size": 104,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/composition-input.d.ts",
+        "size": 426,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/composition.d.ts",
+        "size": 947,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/index.d.ts",
+        "size": 6080,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/package.json",
+        "size": 20,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/row-ownership.d.ts",
+        "size": 1429,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/runtime.d.ts",
+        "size": 1678,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/schema-view.d.ts",
+        "size": 934,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/schema.d.ts",
+        "size": 1604,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/cjs/view-components.d.ts",
+        "size": 1569,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/bindings.d.ts",
+        "size": 104,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/composition-input.d.ts",
+        "size": 426,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/composition.d.ts",
+        "size": 947,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/index.d.ts",
+        "size": 6080,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/row-ownership.d.ts",
+        "size": 1429,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/runtime.d.ts",
+        "size": 1678,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/schema-view.d.ts",
+        "size": 934,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/schema.d.ts",
+        "size": 1604,
+        "mode": 384
+      },
+      {
+        "path": "dist/types/esm/view-components.d.ts",
+        "size": 1569,
+        "mode": 384
+      },
+      {
+        "path": "license.txt",
+        "size": 2214,
+        "mode": 384
+      },
+      {
+        "path": "package.json",
+        "size": 1592,
+        "mode": 384
+      },
+      {
+        "path": "readme.md",
+        "size": 30337,
+        "mode": 384
+      },
+      {
+        "path": "rows.md",
+        "size": 5376,
+        "mode": 384
+      },
+      {
+        "path": "schema-views.md",
+        "size": 11612,
+        "mode": 384
+      }
+    ],
+    "entryCount": 30,
+    "bundled": []
+  }
+]

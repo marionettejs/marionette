@@ -1,0 +1,34 @@
+{
+  "baselineProduction": "d18db560986ce7e79df571145dc9589285453903",
+  "baselineExecutableSource": "7967f80c4ef3f02319716f235a490de653bb3391",
+  "testOnlyCommit": "7b3cf418aaee3b896feda4af34cfa12896a8146f",
+  "redUnit": {
+    "exitCode": 1,
+    "failed": 2,
+    "passed": 15
+  },
+  "redBrowser": {
+    "exitCode": 1,
+    "failed": 1,
+    "reason": "Successful touchscreen tap yielded no touchstart callback; no bootstrap/launch failure.",
+    "runtimeSource": "Built baseline source7967f80c, unchanged in d18db560; new public fixture/test only."
+  },
+  "initialGreenUnit": {
+    "exitCode": 0,
+    "passed": 17
+  },
+  "reviewRedUnit": {
+    "exitCode": 1,
+    "failed": 2,
+    "passed": 17,
+    "source": "Provisional repair saved in provisional-source.patch; catches literal onPassive loss and shared-function listener deduplication."
+  },
+  "finalFocusedGreenUnit": {
+    "exitCode": 0,
+    "passed": 19
+  },
+  "finalSource": "16682abe2e54fe1143141b0f6bc0ea9105923180",
+  "node": "24.19.0",
+  "npm": "11.17.0",
+  "qualification": "Focused tests ran before their commits with matching source/test bytes; clean-head final gates recorded separately."
+}

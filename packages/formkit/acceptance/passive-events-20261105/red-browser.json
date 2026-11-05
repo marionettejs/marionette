@@ -1,0 +1,236 @@
+{
+  "config": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/formkit-integration/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "test/formkit/playwright.config.mjs",
+      "--project",
+      "chromium",
+      "-g",
+      "real touch reaches"
+    ],
+    "configFile": "/workspace/formkit-integration/test/formkit/playwright.config.mjs",
+    "rootDir": "/workspace/formkit-integration/test/formkit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/workspace/formkit-integration/test/tmp/formkit-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/workspace/formkit-integration/test/formkit",
+        "testIgnore": [],
+        "testMatch": [
+          "formkit.spec.mjs",
+          "composed.spec.mjs"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/formkit-integration/test/tmp/formkit-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/workspace/formkit-integration/test/formkit",
+        "testIgnore": [],
+        "testMatch": [
+          "formkit.spec.mjs",
+          "composed.spec.mjs"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/formkit-integration/test/tmp/formkit-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/workspace/formkit-integration/test/formkit",
+        "testIgnore": [],
+        "testMatch": [
+          "formkit.spec.mjs",
+          "composed.spec.mjs"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/workspace/formkit-integration/test/tmp/formkit-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "chromium",
+        "testDir": "/workspace/formkit-integration/test/formkit",
+        "snapshotDir": "/workspace/formkit-integration/test/formkit",
+        "testIgnore": [],
+        "testMatch": [
+          "formkit.spec.mjs",
+          "composed.spec.mjs"
+        ],
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5184",
+          "headless": true,
+          "browserName": "chromium",
+          "launchOptions": {
+            "executablePath": "/usr/bin/chromium"
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "chromium"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../tmp/formkit-browser.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 2,
+    "webServer": {
+      "command": "npm --prefix examples/formkit run dev -- --port 5184 --strictPort",
+      "cwd": "../..",
+      "url": "http://127.0.0.1:5184",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "formkit.spec.mjs",
+      "file": "formkit.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "passive schema touch delivery",
+          "file": "formkit.spec.mjs",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "real touch reaches passive schema bindings and replacement/removal preserve ownership",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5900,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 7\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   Object {\u001b[39m\n\u001b[32m-     \"label\": \"initial\",\u001b[39m\n\u001b[32m-     \"trusted\": true,\u001b[39m\n\u001b[32m-     \"type\": \"touchstart\",\u001b[39m\n\u001b[32m-   },\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 7\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   Object {\u001b[39m\n\u001b[32m-     \"label\": \"initial\",\u001b[39m\n\u001b[32m-     \"trusted\": true,\u001b[39m\n\u001b[32m-     \"type\": \"touchstart\",\u001b[39m\n\u001b[32m-   },\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n    at /workspace/formkit-integration/test/formkit/formkit.spec.mjs:15:79",
+                        "location": {
+                          "file": "/workspace/formkit-integration/test/formkit/formkit.spec.mjs",
+                          "column": 79,
+                          "line": 15
+                        },
+                        "snippet": "  13 |     const target = page.locator('#passive-touch-target');\n  14 |     await target.tap();\n> 15 |     await expect.poll(() => page.evaluate(() => window.passiveFixture.calls)).toEqual([{ label: 'initial', type: 'touchstart', trusted: true }]);\n     |                                                                               ^\n  16 |     await page.evaluate(() => window.passiveFixture.replace());\n  17 |     await target.tap();\n  18 |     await expect.poll(() => page.evaluate(() => window.passiveFixture.calls)).toEqual(["
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/workspace/formkit-integration/test/formkit/formkit.spec.mjs",
+                            "column": 79,
+                            "line": 15
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 7\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[32m- Array [\u001b[39m\n\u001b[32m-   Object {\u001b[39m\n\u001b[32m-     \"label\": \"initial\",\u001b[39m\n\u001b[32m-     \"trusted\": true,\u001b[39m\n\u001b[32m-     \"type\": \"touchstart\",\u001b[39m\n\u001b[32m-   },\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ Array []\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n  13 |     const target = page.locator('#passive-touch-target');\n  14 |     await target.tap();\n> 15 |     await expect.poll(() => page.evaluate(() => window.passiveFixture.calls)).toEqual([{ label: 'initial', type: 'touchstart', trusted: true }]);\n     |                                                                               ^\n  16 |     await page.evaluate(() => window.passiveFixture.replace());\n  17 |     await target.tap();\n  18 |     await expect.poll(() => page.evaluate(() => window.passiveFixture.calls)).toEqual([\n    at /workspace/formkit-integration/test/formkit/formkit.spec.mjs:15:79"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-05T05:27:09.272Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/workspace/formkit-integration/test/tmp/formkit-browser/formkit-passive-schema-tou-76a6f--removal-preserve-ownership-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/workspace/formkit-integration/test/formkit/formkit.spec.mjs",
+                        "column": 79,
+                        "line": 15
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d2c4ced0600c911a56e2-85565bf07a5f10b111d0",
+              "file": "formkit.spec.mjs",
+              "line": 6,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-05T05:27:07.416Z",
+    "duration": 8460.252,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

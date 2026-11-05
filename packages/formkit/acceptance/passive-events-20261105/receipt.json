@@ -1,0 +1,24 @@
+{
+  "testedSource": "16682abe2e54fe1143141b0f6bc0ea9105923180",
+  "baselineHead": "d18db560986ce7e79df571145dc9589285453903",
+  "sourceHashes": {
+    "packages/formkit/src/composition.ts": "beda91fd9572493b310af8b5d59d0e1afd9ed69bca481e91f1302bd238db4afc",
+    "packages/formkit/src/index.ts": "810b79d22e8012278f14cf800f51ad9d5172887a53034caaa115a71438a27e9b",
+    "packages/formkit/src/composition-input.ts": "b14d31c4ca70a98f1b445fcd17891524364ed1035e9da09098a627bd8a1d6795",
+    "packages/formkit/src/runtime.ts": "4089c981d9aa9660358c7c2c0efb31e8b2cb9ec0d795d7507bf16eea9f58bd86",
+    "packages/formkit/src/schema-view.ts": "1f8cac9da3a6f3074c9de1b708c04cae88a28d2cd0bae07596f4d09707325a6c",
+    "packages/formkit/src/row-ownership.ts": "5a3f3633b6a9dc6990124c267d184903bf0395aece5f9cd9366d99564fcd8fe3",
+    "packages/formkit/src/bindings.ts": "b2cb41265425550136cd68e08e66e36450f2f55cda39dd8a2cd146002e1a1420",
+    "packages/formkit/src/schema.ts": "fe19304ceee37418c9cf3f745ee36365abb31c6fa8b8a2b1b80b9e6dacc31cd2",
+    "packages/formkit/src/view-components.ts": "d2d947aceafc3de97b666ae6b7808fd5fb6d7b06f934dab872b32002187979c1",
+    "test/unit/formkit-schema.spec.js": "960344dbcfb9fb657a6c44fb9a036545fdb187bf563299c8bdf52b31a75ef357",
+    "test/formkit/formkit-fixture.js": "6d75cf8cc621f63c0a0efe262bd2f07e7d74a5125eef4a3f638212070649fdc8",
+    "test/formkit/formkit.spec.mjs": "5985c9d3ab1846a1a5a51d348f367b9c801c67d59a65c86987e8fbfb28b3af9d",
+    "packages/formkit/readme.md": "46a1476cd011e84c0e0e64c22cc358221f9383c93e38c8cbc34417b63b1cc72c"
+  },
+  "actualProTouch": "Pending separate vault QA; no writer Pro probe.",
+  "review": "Independent Astra source and browser-test static review cleared after two source edges and one teardown-proof improvement.",
+  "lintExitCode": 0,
+  "publicTestBoundaryExitCode": 0,
+  "noBrowserDownloads": true
+}

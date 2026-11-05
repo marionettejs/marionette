@@ -1,0 +1,91 @@
+
+> marionette@5.0.0 test
+> vitest run test/unit/formkit-schema.spec.js
+
+
+ RUN  v5.0.5 /workspace/formkit-integration
+
+ ❯ |dom| test/unit/formkit-schema.spec.js (17 tests | 2 failed) 114ms
+   ❯ @mnjs/formkit public schema foundation (14)
+     × delivers passive schema touch bindings without cancelling the event and replaces or removes callbacks 22ms
+     × keeps plain and passive callbacks distinct when their native event types coincide 3ms
+     ✓ retains non-enumerable schema accessors through scoped loops without mutating the definition 11ms
+     ✓ retains conditional, transparent and component definitions inside non-enumerable loop schemas 9ms
+     ✓ resolves live token paths and receivers without sharing scope across renderers 12ms
+     ✓ retains unchanged trusted SVG nodes and replaces markup only when its binding changes 8ms
+     ✓ renders literal text safely, expressions, conditions and transparent groups 4ms
+     ✓ preserves keyed controls and focus during updates and reordering 15ms
+     ✓ maps conditional/bound/raw attributes and native properties, preserving handlers receiver 4ms
+     ✓ supports numeric/object loops, scoped keys, missing paths and conditional iterations 2ms
+     ✓ supports explicit component mount, update and terminal cleanup without a UI framework 2ms
+     ✓ exposes the public $get registry lookup without owning another view’s node 4ms
+     ✓ requires native component registration, rejects unsafe event strings, and duplicate loop identities 3ms
+     ✓ removes old handlers and attribute properties when updates remove them 2ms
+   ✓ retains focused keyed identity when the focused control itself moves 5ms
+   ✓ handles explicit empty text nodes, attributes, and omitted component props 2ms
+   ✓ updates dirty native values from a schema snapshot and supports empty transparent groups 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |dom| test/unit/formkit-schema.spec.js > @mnjs/formkit public schema foundation > delivers passive schema touch bindings without cancelling the event and replaces or removes callbacks
+AssertionError: expected [] to deeply equal [ …(2) ]
+
+- Expected
++ Received
+
+- [
+-   [
+-     "first",
+-     "touchstart",
+-     false,
+-   ],
+-   [
+-     "first",
+-     "touchmove",
+-     false,
+-   ],
+- ]
++ []
+
+ ❯ test/unit/formkit-schema.spec.js:27:19
+     25|     element.dispatchEvent(new Event('touchstart', { cancelable: true }…
+     26|     element.dispatchEvent(new Event('touchmove', { cancelable: true })…
+     27|     expect(calls).toEqual([['first', 'touchstart', false], ['first', '…
+       |                   ^
+     28|     view.update({ handlers: handlers('second') });
+     29|     element.dispatchEvent(new Event('touchstart', { cancelable: true }…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |dom| test/unit/formkit-schema.spec.js > @mnjs/formkit public schema foundation > keeps plain and passive callbacks distinct when their native event types coincide
+AssertionError: expected [ 'plain' ] to deeply equal [ 'passive', 'plain' ]
+
+- Expected
++ Received
+
+  [
+-   "passive",
+    "plain",
+  ]
+
+ ❯ test/unit/formkit-schema.spec.js:46:50
+     44|     const button = view.container.firstElementChild;
+     45|     const dispatch = () => { const event = new Event('touchstart', { c…
+     46|     expect(dispatch()).toBe(true); expect(calls).toEqual(['passive', '…
+       |                                                  ^
+     47|     calls.length = 0; view.update(data);
+     48|     expect(dispatch()).toBe(true); expect(calls).toEqual(['passive', '…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 15 passed (17)
+   Start at  05:26:49
+   Duration  1.69s (environment 63%, import 15%, transform 13%, tests 8%, setup 1%)
+
+npm notice
+npm notice New major version of npm available! 11.17.0 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice

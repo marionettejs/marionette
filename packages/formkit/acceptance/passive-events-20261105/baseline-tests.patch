@@ -1,0 +1,112 @@
+diff --git a/test/formkit/formkit-fixture.js b/test/formkit/formkit-fixture.js
+index eff1137f..c928b731 100644
+--- a/test/formkit/formkit-fixture.js
++++ b/test/formkit/formkit-fixture.js
+@@ -1,6 +1,21 @@
+ import { Region, View } from 'marionette';
+ import { FieldView, FormView, SchemaView, createSchemaRenderer, createViewComponents } from '@mnjs/formkit';
+ 
++export function mountPassiveTouch() {
++  const container = document.body.appendChild(document.createElement('div'));
++  const calls = [];
++  const data = label => ({ label, touched(event) { calls.push({ label: this.label, type: event.type, trusted: event.isTrusted }); } });
++  const renderer = createSchemaRenderer(container, { data: data('initial'), schema: {
++    $el: 'button', attrs: { id: 'passive-touch-target', type: 'button', onTouchstartPassive: '$touched',
++      style: { width: '180px', height: '64px' } }, children: 'Touch target'
++  } });
++  const element = container.firstElementChild;
++  return { calls, replace() { renderer.update(data('replacement')); },
++    removeBinding() { renderer.update({ label: 'removed' }); },
++    dispatchRetained() { element.dispatchEvent(new Event('touchstart', { bubbles: true })); },
++    destroy() { renderer.destroy(); container.remove(); } };
++}
++
+ export function mountIconPointer() {
+   const container = document.body.appendChild(document.createElement('div'));
+   const state = { clicks: 0, blurs: 0,
+diff --git a/test/formkit/formkit.spec.mjs b/test/formkit/formkit.spec.mjs
+index b3eff6d5..8627f0ea 100644
+--- a/test/formkit/formkit.spec.mjs
++++ b/test/formkit/formkit.spec.mjs
+@@ -1,6 +1,33 @@
+ import { test, expect } from '@playwright/test';
+ import { resolve } from 'node:path';
+ 
++test.describe('passive schema touch delivery', () => {
++  test.use({ hasTouch: true });
++  test('real touch reaches passive schema bindings and replacement/removal preserve ownership', async({ page }, testInfo) => {
++    const errors = [];
++    page.on('pageerror', error => errors.push(error.message));
++    await page.goto('/');
++    await page.evaluate(async path => {
++      const fixture = await import(path); window.passiveFixture = fixture.mountPassiveTouch();
++    }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
++    const target = page.locator('#passive-touch-target');
++    await target.tap();
++    await expect.poll(() => page.evaluate(() => window.passiveFixture.calls)).toEqual([{ label: 'initial', type: 'touchstart', trusted: true }]);
++    await page.evaluate(() => window.passiveFixture.replace());
++    await target.tap();
++    await expect.poll(() => page.evaluate(() => window.passiveFixture.calls)).toEqual([
++      { label: 'initial', type: 'touchstart', trusted: true }, { label: 'replacement', type: 'touchstart', trusted: true }
++    ]);
++    await page.evaluate(() => window.passiveFixture.removeBinding());
++    await target.tap();
++    await page.evaluate(() => { window.passiveFixture.replace(); window.passiveFixture.destroy(); window.passiveFixture.dispatchRetained(); });
++    const calls = await page.evaluate(() => window.passiveFixture.calls);
++    expect(calls).toHaveLength(2); expect(errors).toEqual([]);
++    await expect(target).toHaveCount(0);
++    await testInfo.attach('passive-touch.json', { body: JSON.stringify({ calls, errors }, null, 2), contentType: 'application/json' });
++  });
++});
++
+ test('synchronized list actions settle and support append, edit, remove, replacement and reset', async({ page }, testInfo) => {
+   const errors = [];
+   page.on('pageerror', error => errors.push(error.message));
+diff --git a/test/unit/formkit-schema.spec.js b/test/unit/formkit-schema.spec.js
+index 0837595f..6ff96388 100644
+--- a/test/unit/formkit-schema.spec.js
++++ b/test/unit/formkit-schema.spec.js
+@@ -16,6 +16,43 @@ afterEach(() => {
+ });
+ 
+ describe('@mnjs/formkit public schema foundation', () => {
++  it('delivers passive schema touch bindings without cancelling the event and replaces or removes callbacks', () => {
++    const calls = [];
++    const handlers = label => ({ label, start(event) { event.preventDefault(); calls.push([this.label, event.type, event.defaultPrevented]); } });
++    const schema = { $el: 'div', attrs: { onTouchstartPassive: '$handlers.start', onTouchmovePassive: '$handlers.start' } };
++    const view = render(schema, { data: { handlers: handlers('first') } });
++    const element = view.container.firstElementChild;
++    element.dispatchEvent(new Event('touchstart', { cancelable: true }));
++    element.dispatchEvent(new Event('touchmove', { cancelable: true }));
++    expect(calls).toEqual([['first', 'touchstart', false], ['first', 'touchmove', false]]);
++    view.update({ handlers: handlers('second') });
++    element.dispatchEvent(new Event('touchstart', { cancelable: true }));
++    expect(calls).toEqual([['first', 'touchstart', false], ['first', 'touchmove', false], ['second', 'touchstart', false]]);
++    view.update({ handlers: {} });
++    element.dispatchEvent(new Event('touchmove', { cancelable: true }));
++    expect(calls).toHaveLength(3);
++    view.update({ handlers: handlers('third') });
++    view.destroy();
++    element.dispatchEvent(new Event('touchstart', { cancelable: true }));
++    expect(calls).toHaveLength(3);
++  });
++
++  it('keeps plain and passive callbacks distinct when their native event types coincide', () => {
++    const calls = [];
++    const data = { passive() { calls.push('passive'); }, plain(event) { event.preventDefault(); calls.push('plain'); } };
++    const view = render({ $el: 'button', attrs: { onTouchstartPassive: '$passive', onTouchstart: '$plain' } }, { data });
++    const button = view.container.firstElementChild;
++    const dispatch = () => { const event = new Event('touchstart', { cancelable: true }); button.dispatchEvent(event); return event.defaultPrevented; };
++    expect(dispatch()).toBe(true); expect(calls).toEqual(['passive', 'plain']);
++    calls.length = 0; view.update(data);
++    expect(dispatch()).toBe(true); expect(calls).toEqual(['passive', 'plain']);
++    calls.length = 0;
++    view.setSchema({ $el: 'button', attrs: { onTouchstartPassive: '$passive' } });
++    expect(dispatch()).toBe(false); expect(calls).toEqual(['passive']);
++    calls.length = 0; view.destroy();
++    expect(dispatch()).toBe(false); expect(calls).toEqual([]);
++  });
++
+   it('retains non-enumerable schema accessors through scoped loops without mutating the definition', () => {
+     const selected = [];
+     const row = { key: '$item.id', attrs: { onClick: '$item.select' }, children: '$item.label' };

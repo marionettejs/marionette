@@ -1,0 +1,17 @@
+{
+  "proArchive": {
+    "name": "@formkit/pro",
+    "version": "0.130.4",
+    "integrity": "sha512-Xn0XnNkygZ0YnI7Ge3tnzBoOUqqb7R7L6vBRohJ31Ebj2yVWeqWa27P5sRQtWXO5tu3ihxum8OaWCyUQ356Kgw==",
+    "shasum": "31d94b9ba563b8b8ede1901dcf56a2b4170ea81a",
+    "archiveSha256": "accb167d3f20370887250f89528317f5f0f804180d44bb4996591a10c1329221",
+    "tarball": "https://registry.npmjs.org/@formkit/pro/-/pro-0.130.4.tgz"
+  },
+  "staticAuthoredBindingCounts": {
+    "onTouchstartPassive": 8,
+    "onTouchmovePassive": 4
+  },
+  "officialReference": "Installed Vue runtime-dom parseName strips Passive and sets passive:true; independent reviewer inspected the pinned reference consumer.",
+  "nativeContract": "Official FormKit schemas and function event bindings are supported. Touch dragging was unverified, not declared unsupported.",
+  "qualification": "Static published-package evidence only; no vendor modification, Pro bootstrap or license-validation request in writer environment."
+}
