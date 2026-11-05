@@ -24,7 +24,8 @@
     "dist/",
     "readme.md",
     "DESIGN.md",
-    "PROVENANCE.md"
+    "PROVENANCE.md",
+    "examples/"
   ],
   "sideEffects": false,
   "engines": {

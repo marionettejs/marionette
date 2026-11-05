@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -129,6 +129,12 @@ try {
   execFileSync(process.execPath, ['smoke.mjs'], { cwd: consumer, stdio: 'inherit' });
   writeFileSync(join(consumer, 'correctness-probes.mjs'), readFileSync(join(root, 'test/router/correctness-probes.mjs')));
   execFileSync(process.execPath, ['correctness-probes.mjs'], { cwd: consumer, stdio: 'inherit' });
+  cpSync(join(installed, 'examples/desk'), join(consumer, 'desk'), { recursive: true });
+  cpSync(join(root, 'test/router/consumer'), join(consumer, 'desk'), { recursive: true });
+  execFileSync(process.execPath, ['desk/capabilities-probe.mjs'], { cwd: consumer, stdio: 'inherit' });
+  execFileSync(process.execPath, [join(root, 'test/router/consumer-check.mjs'), consumer], { cwd: consumer, stdio: 'inherit' });
+  writeFileSync(join(consumer, 'key-graph-probe.mjs'), readFileSync(join(root, 'test/router/key-graph-probe.mjs')));
+  execFileSync(process.execPath, ['--max-old-space-size=64', 'key-graph-probe.mjs'], { cwd: consumer, stdio: 'inherit' });
   console.log(`Router tarball SHA-256: ${createHash('sha256').update(readFileSync(routerTarball)).digest('hex')}`);
 } finally {
   rmSync(temporary, { recursive: true, force: true });
