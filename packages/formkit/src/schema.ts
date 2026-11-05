@@ -1,9 +1,9 @@
 /* global EventListener, EventListenerOrEventListenerObject, AddEventListenerOptions, NodeListOf, ChildNode */
-import { compile, getNode, stopWatch, sugar, watchRegistry } from '@formkit/core';
+import { compile, deregister, getNode, stopWatch, sugar, watchRegistry } from '@formkit/core';
 import type { FormKitNode, FormKitSchemaDefinition, FormKitSchemaNode, FormKitSchemaDOMNode, FormKitSchemaComponent } from '@formkit/core';
 import { isPojo } from '@formkit/utils';
 import { automaticScope, automaticUpdate, captureRender, contextRead, expressionCalls, isAutomaticScope,
-  iterationScope, markInitialComponent, opaqueRender, releaseCapture, takeAutomatic } from './invalidation.ts';
+  iterationScope, markInitialComponent, opaqueRender, releaseCapture, takeAutomatic, isInputFactory } from './invalidation.ts';
 type Scope = Record<string, unknown>;
 export type SchemaSlot = (scope: Scope) => FormKitSchemaDefinition | Node | { schema: FormKitSchemaDefinition; data: Scope };
 export interface SchemaComponent {
@@ -24,7 +24,7 @@ export interface SchemaOptions {
 }
 type RecordNode = { node: Node; end?: Node; pending?: DocumentFragment; kind: string; keep?: boolean;
   children?: Map<string, RecordNode>; component?: SchemaComponent; listeners?: Map<string, EventListener>;
-  attributes?: Set<string>; html?: string; releaseEvents?: () => void };
+  attributes?: Set<string>; html?: string; releaseEvents?: () => void; input?: boolean };
 type Evaluated = { key: string; schema: FormKitSchemaNode | Node; scope: Scope; text?: unknown };
 type Normalized = FormKitSchemaDOMNode & { $cmp?: string; props?: FormKitSchemaComponent['props'] };
 type Host = { document: Document; nodes(): ArrayLike<Node>; insert(node: Node, before: Node | null): void; contains(node: Node): boolean };
@@ -249,10 +249,31 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
     }
     return getNode(id)?.context;
   }
+  function releaseOwnedRegistryId(id: unknown) {
+    if (typeof id !== 'string') { return; }
+    const owner = getNode(id);
+    if (!owner) { return; }
+    const visit = (entries: Map<string, RecordNode>): boolean => {
+      for (const record of entries.values()) {
+        if (record.input && (record.component as SchemaComponent & { node: FormKitNode }).node === owner) {
+          // Core's old-node destroy deregisters by ID without checking its
+          // current owner. Release only its registry claim before the new node
+          // registers; retain its normal update/cleanup and DOM lifetime.
+          deregister(owner);
+          return true;
+        }
+        if (record.children && visit(record.children)) { return true; }
+      }
+      return false;
+    };
+    // An unrelated renderer may own this ID. Only release records in our tree.
+    visit(records);
+  }
   function reconcile(parent: Host, previous: Map<string, RecordNode>, schema: FormKitSchemaDefinition, scope: Scope) {
     const next = new Map<string, RecordNode>();
+    const evaluated = expand(schema, scope, '', identity, evaluateValue);
     let offset = 0;
-    for (const item of expand(schema, scope, '', identity, evaluateValue)) {
+    for (const item of evaluated) {
       if (next.has(item.key)) { throw new Error(`Duplicate schema key: ${item.key}`); }
       const supplied = typeof item.schema === 'object' && 'nodeType' in item.schema;
       const normalized = (supplied ? item.schema : sugar(item.schema as FormKitSchemaNode)) as Normalized;
@@ -265,12 +286,14 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
         if (supplied) { record = { node: normalized as unknown as Node, kind }; } else if ('$cmp' in normalized) {
           const factory = components[normalized.$cmp!];
           if (!factory) { throw new Error(`No native schema component registered for ${normalized.$cmp}.`); }
+          const input = isInputFactory(factory);
+          if (input) { releaseOwnedRegistryId(props.id); }
           const component = factory({ document, props, data: item.scope, children: normalized.children });
           markInitialComponent(component);
           const start = document.createComment('component'), end = document.createComment('/component');
           const pending = document.createDocumentFragment();
           pending.append(start, component.element, end);
-          record = { node: start, end, pending, kind, component };
+          record = { node: start, end, pending, kind, component, input };
         } else {
           const element = parent === host && normalized.$el === existingRoot?.tagName.toLowerCase() ? existingRoot :
             normalized.$el === 'text' ? document.createTextNode('') : document.createElement(normalized.$el!);

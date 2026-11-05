@@ -6,9 +6,10 @@ import type { InputMount, RuntimeOptions, InputFactoryDecorator } from './runtim
 import { fieldPathKey } from './composition.ts';
 import type { Composition, FieldResource, FieldPath } from './composition.ts';
 import { rowLocation } from './row-ownership.ts';
+import { markInputFactory } from './invalidation.ts';
 import type { SchemaComponentFactory } from './schema.ts';
 export function ownedInputFactory(parent: FormKitNode, options: RuntimeOptions, composition: Composition, onRelease?: () => void): (...args: Parameters<SchemaComponentFactory>) => InputMount {
-  const wrap = (inherited: FormKitNode, base: (...args: Parameters<SchemaComponentFactory>) => InputMount, releaseOwner?: () => void) => (context: Parameters<SchemaComponentFactory>[0]): InputMount => {
+  const wrap = (inherited: FormKitNode, base: (...args: Parameters<SchemaComponentFactory>) => InputMount, releaseOwner?: () => void) => markInputFactory((context: Parameters<SchemaComponentFactory>[0]): InputMount => {
     const { props } = context;
     if (props.type === 'form') {
       throw new Error('Composed inputs cannot create a nested form.');
@@ -110,7 +111,7 @@ export function ownedInputFactory(parent: FormKitNode, options: RuntimeOptions, 
         return mounted.node;
       }, update, destroy
     };
-  };
+  });
   const decorate: InputFactoryDecorator = (inherited, base) => wrap(inherited, base);
   return wrap(parent, inputFactory(parent, options, decorate), onRelease);
 }

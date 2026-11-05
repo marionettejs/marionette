@@ -12,6 +12,11 @@ const objects = new WeakMap<object, { owner: Owner; role: Role }>();
 const proxyTargets = new WeakMap<object, object>();
 const captures = new WeakMap<object, Capture>();
 const defaultSubmitAttrs = new WeakMap<FormKitNode, object>();
+// Only adapter-created factories can expose FormKit node ownership to the
+// schema renderer. Application components may have unrelated `node` getters.
+const inputFactories = new WeakSet<Function>();
+export function markInputFactory<T extends Function>(factory: T): T { inputFactories.add(factory); return factory; }
+export function isInputFactory(factory: Function): boolean { return inputFactories.has(factory); }
 let active: Capture | undefined;
 let guardDescriptors: WeakMap<object, PropertyDescriptorMap> | undefined;
 let configProofs: WeakMap<object, boolean> | undefined;

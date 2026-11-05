@@ -3,7 +3,7 @@ import { createLibraryPlugin, extendSchema, inputs, runtimeProps } from '@formki
 import { createThemePlugin } from '@formkit/themes';
 import { eq, isPojo } from '@formkit/utils';
 import { nativeBindings } from './bindings.ts';
-import { automaticScope, automaticUpdate, canReuseRender, renderCapture, guardPass, contextObject, isAutomaticScope, nativeInvalidation, takeInitialComponent, independentRoot, unchangedObject, unchangedScalarObject, isDefaultSubmitAttrs, contextNeedsRender } from './invalidation.ts';
+import { automaticScope, automaticUpdate, canReuseRender, renderCapture, guardPass, contextObject, isAutomaticScope, nativeInvalidation, takeInitialComponent, independentRoot, unchangedObject, unchangedScalarObject, isDefaultSubmitAttrs, contextNeedsRender, markInputFactory } from './invalidation.ts';
 import { createRangeRenderer, createRootRenderer, scoped } from './schema.ts';
 import type { FormKitConfig, FormKitLibrary, FormKitNode, FormKitPlugin, FormKitSchemaDefinition, FormKitSectionsSchema, FormKitSchemaNode } from '@formkit/core';
 import type { FormKitIconLoader, FormKitIconLoaderUrl } from '@formkit/themes';
@@ -241,7 +241,7 @@ export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decor
     return mount;
   };
   projections.set(factory, checks);
-  return factory;
+  return markInputFactory(factory);
 }
 
 export function mountFormSchema(form: HTMLFormElement, root: FormKitNode, options: RuntimeOptions) {
