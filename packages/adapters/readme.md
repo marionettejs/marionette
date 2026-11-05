@@ -27,7 +27,7 @@ Morphdom belong to DomApi because they apply template results to the DOM.
 ## Backbone
 
 ```sh
-npm install --save-exact marionette@5.0.0 @mnjs/adapters@5.0.0 backbone
+npm install --save-exact marionette@5.0.1 @mnjs/adapters@5.0.1 backbone
 ```
 
 Configure DataApi before creating Views that consume Backbone models or
@@ -69,7 +69,7 @@ View; stopping and respawning an actor creates a different model identity even
 when the actors share an `id`. The adapter supports XState `^5.32.6`.
 
 ```sh
-npm install --save-exact marionette@5.0.0 @mnjs/adapters@5.0.0 xstate
+npm install --save-exact marionette@5.0.1 @mnjs/adapters@5.0.1 xstate
 ```
 
 This configuration fragment assumes an application-owned `parentActor` whose
@@ -126,7 +126,7 @@ there is no generic snapshot-source package export.
 ## jQuery DomApi
 
 ```sh
-npm install --save-exact marionette@5.0.0 @mnjs/adapters@5.0.0 jquery
+npm install --save-exact marionette@5.0.1 @mnjs/adapters@5.0.1 jquery
 ```
 
 ```js
@@ -172,7 +172,7 @@ attachment operations alongside Morphdom or Lit.
 ### Morphdom
 
 ```sh
-npm install --save-exact marionette@5.0.0 @mnjs/adapters@5.0.0 morphdom
+npm install --save-exact marionette@5.0.1 @mnjs/adapters@5.0.1 morphdom
 ```
 
 ```js
@@ -194,7 +194,7 @@ installs HTML directly into an empty root and morphs existing contents using
 ### Lit HTML
 
 ```sh
-npm install --save-exact marionette@5.0.0 @mnjs/adapters@5.0.0 lit-html
+npm install --save-exact marionette@5.0.1 @mnjs/adapters@5.0.1 lit-html
 ```
 
 ```js
