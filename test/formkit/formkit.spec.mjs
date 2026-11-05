@@ -1,6 +1,35 @@
 import { test, expect } from '@playwright/test';
 import { resolve } from 'node:path';
 
+test('closing generated input panels preserves delayed DOM reads and releases retained handlers', async({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.evaluate(async path => {
+    const fixture = await import(path); window.closingFixture = fixture.mountClosingPanel();
+  }, `/@fs${resolve(import.meta.dirname, 'formkit-fixture.js')}`);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (attempt) { await page.getByRole('button', { name: 'Open choices', exact: true }).click(); }
+    await page.getByRole('button', { name: 'Green', exact: true }).click();
+    await page.evaluate(() => window.closingFixture.state.completion);
+    await expect(page.getByRole('group', { name: 'Choices', exact: true })).toHaveCount(0);
+    expect(await page.evaluate(() => window.closingFixture.form.getValues())).toEqual({ color: '#00FF00' });
+    expect(await page.evaluate(() => window.closingFixture.state.completed)).toEqual(
+      Array.from({ length: attempt + 1 }, () => ({ palette: 'colors', value: '#00FF00', connected: false }))
+    );
+  }
+  await page.evaluate(async() => {
+    const { form, state } = window.closingFixture;
+    form.resetForm(); state.choice.click();
+    await new Promise(resolve => setTimeout(resolve, 0));
+  });
+  expect(await page.evaluate(() => window.closingFixture.form.getValues())).toEqual({ color: '' });
+  await page.evaluate(() => { window.closingFixture.destroy(); window.closingFixture.state.choice.click(); });
+  expect(await page.evaluate(() => window.closingFixture.state.completed)).toHaveLength(2);
+  await expect(page.getByRole('button', { name: 'Open choices', exact: true })).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test.describe('passive schema touch delivery', () => {
   test.use({ hasTouch: true });
   test('real touch reaches passive schema bindings and replacement/removal preserve ownership', async({ page }, testInfo) => {

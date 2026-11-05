@@ -1,6 +1,16 @@
 import { Region, View } from 'marionette';
 import { rovingInput } from './roving-input.js';
+import { closingInput } from './closing-input.js';
 import { FieldView, FormView, SchemaView, createSchemaRenderer, createViewComponents } from '@mnjs/formkit';
+
+export function mountClosingPanel() {
+  const state = { completed: [] };
+  const region = new Region({ el: document.body.appendChild(document.createElement('div')) });
+  const form = new FormView({ inputs: { choice: closingInput(state) }, values: { color: '' },
+    formProps: { actions: false }, schema: { $formkit: 'choice', name: 'color' } });
+  region.show(form);
+  return { form, state, destroy() { region.destroy(); } };
+}
 
 export function mountPassiveTouch() {
   const container = document.body.appendChild(document.createElement('div'));
