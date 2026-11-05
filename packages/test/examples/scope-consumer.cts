@@ -82,3 +82,22 @@ scope.reply(typedChannel, {
   }
 }, broadContext);
 scope.reply(typedRadio, 'typed', { value() { const exact: 7 = this; return exact; } }, 7);
+
+// The conditional distributes widened boolean into true or the fallback channel.
+declare const flag: boolean;
+scope.reply(typedChannel, {
+  receiver() {
+    const expected: true | typeof typedChannel = this;
+    // @ts-expect-error false selects the channel, so the receiver is not always true.
+    const onlyTrue: true = this;
+    return typeof this === 'boolean' ? this : this.label;
+  }
+}, flag);
+scope.reply(typedRadio, 'typed', {
+  receiver() {
+    const expected: true | typeof typedChannel = this;
+    // @ts-expect-error false selects the channel, so the receiver is not always boolean.
+    const onlyBoolean: boolean = this;
+    return typeof this === 'boolean' ? this : this.label;
+  }
+}, flag);
