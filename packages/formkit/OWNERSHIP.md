@@ -59,8 +59,11 @@ Astra source/oracle review cleared. Independently reported Pro QA on `af59f37b`
 confirmed rating 28/28 and togglebuttons 68/68. Minimal colorpicker remained 1/3,
 with both auto-close cases failing.
 The subsequent [retained-subtree repair](https://github.com/marionettejs/marionette/blob/codex/formkit-master-integration-20261103/packages/formkit/acceptance/detached-subtree-20261105.md)
-has native verification and still needs the same three Pro cases replayed. Earlier
-Pro passes retain their original source/version attribution.
+passed independently reported Pro QA on exact `7b38043f`, with production source
+`3e49fc38`: 158 primary assertions passed, including all three original colorpicker
+cases, none skipped. Supplementary shared-reference checks remained 5/6; online license
+validation remains unverified. Raw QA artifacts were not transferred to the writer.
+Earlier Pro passes retain their original source/version attribution.
 
 The earlier versioned [independent Pro receipt](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) applies to source
 `1d8e1680f416ea182873c9120315ec24970225c9`: 107/107 local assertions, zero page

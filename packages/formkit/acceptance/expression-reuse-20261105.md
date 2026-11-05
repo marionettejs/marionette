@@ -92,6 +92,10 @@ final verification; that failure is retained locally. No assertion, timeout,
 coverage threshold or worker setting was weakened.
 
 Independent actual-Pro replay of cleanup source `3e49fc38` at published `7b38043f`
-is separate. This compilation candidate needs its own exact-source QA replay.
+subsequently reported 158/158 primary assertions, including the original three
+colorpicker cases, with no skipped assertions. The [cleanup receipt](detached-subtree-20261105.md)
+retains its limits and separate shared-reference 5/6 result. The writer did not
+receive the raw QA artifacts. This compilation candidate needs its own exact-source
+QA replay.
 Earlier rating, togglebuttons, touch and drag passes retain their original source
 and version attribution. Online license validation remains unverified.

@@ -46,6 +46,30 @@ Independent Pro QA on earlier `af59f37bc3abc01dbd5d9504874a07afa56c02d1`
 colorpicker remained 1/3: default selection passed; full and swatch-only auto-close
 set the value and closed, then failed the retained-parent read. These are coordinator-
 reported results for Pro 0.130.4/Core 2.1.2; raw QA artifacts were not transferred.
-The same three Pro cases still need replay on this cleanup candidate. Shared
-reference-side palette/normalization failures and historical broader Pro acceptance
-remain separately attributed. No full parity or online-license-validation claim.
+Independent vault QA subsequently reported acceptance on exact published
+`7b38043fa46d85ba62b93b6a6e31af28585a820d`, with unchanged production source
+`3e49fc38ee9a47eb284377ea980df12920179014`:
+
+| Primary checks | Passed |
+| --- | --- |
+| Original minimal colorpicker cases | 3/3 |
+| Rating | 28/28 |
+| Togglebuttons variants | 68/68 |
+| Colorpicker lifecycle | 31/31 |
+| Targeted desktop | 8/8 |
+| Release/repeater groups | 8/8 |
+| Slider/repeater touch | 6/6 |
+| Retained-popup cleanup | 6/6 |
+
+All 158 primary assertions passed, none skipped. The original auto-close failures
+were resolved without browser exceptions. Retained descendants kept their parents
+while detached listeners released. Supplementary shared-reference checks remained
+5/6: named Green after closing may remain literal rather than normalize; that also
+occurs in references. This is distinct from the repaired retained-parent failure.
+
+This is independently reported QA, not locally executed or raw-artifact-verified
+by the writer. Versions: Pro 0.130.4, Core-family 2.1.2, drag-and-drop 0.6.3,
+Chromium 154.0.8037.57. QA reported a passing credential scan and cleanup. Two
+proxy tunnel failures had no retained targets; online license validation remains
+unverified. No network retry or full parity claim is made. Historical results and
+later compilation candidates retain their separate source attribution.
