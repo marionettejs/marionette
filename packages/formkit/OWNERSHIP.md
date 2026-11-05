@@ -42,8 +42,12 @@ The November 5 passive-event repair at `16682abe` corrects native delivery of
 official schema `Passive` bindings and listener ownership. Local verification
 passed 19 focused cases, canonical coverage (2,748 plus one expected failure),
 all nine packed-consumer stages and 17 Chromium journeys, including trusted
-touchstart delivery. Actual Pro touch behavior on this new source is pending
-coordinated vault QA; the prior Pro pass retains its earlier source attribution.
+touchstart delivery. Independent vault QA rebuilt published `ca183a606` (unchanged
+executable source `16682abe`) and reported 6/6 actual-Pro touch checks and 8/8
+targeted regressions passed, with zero failures, page errors or timeouts. This is
+Chromium mobile/touch emulation, not physical-device or cross-browser certification.
+The writer did not execute that QA or receive its raw artifacts. The historical
+137/137 plus 8/8 Pro pass retains its earlier source attribution and was not rerun.
 See the [passive-event receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/passive-events-20261105).
 
 The earlier versioned [independent Pro receipt](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) applies to source

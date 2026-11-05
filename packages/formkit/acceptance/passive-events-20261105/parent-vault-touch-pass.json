@@ -1,0 +1,110 @@
+{
+  "provenance": {
+    "classification": "Independently reported by the existing vault QA owner, relayed by the parent; not executed by this writer.",
+    "qaThread": "01a1a141-9e0c-7156-8ce2-0b5d80196006",
+    "qaTurn": "01a1aa3b-3c5c-73e1-b543-06a862b26040",
+    "rawArtifactsAvailableToWriter": false,
+    "rawArtifactsCopied": false,
+    "rawArtifactHashesVerifiedByWriter": false
+  },
+  "testedPublishedHead": "ca183a6064337dd6183f1719dc8e3b023c3abe40",
+  "executableSource": "16682abe2e54fe1143141b0f6bc0ea9105923180",
+  "sourceAttribution": "QA reports a clean rebuild and confirms changes after executableSource are documentation/evidence only. Writer separately verified that path classification and all 13 retained source hashes.",
+  "results": {
+    "actualProTouch": {
+      "passed": 6,
+      "total": 6
+    },
+    "targetedRegressions": {
+      "passed": 8,
+      "total": 8
+    },
+    "failures": 0,
+    "pageErrors": 0,
+    "timeouts": 0
+  },
+  "baseline": {
+    "nativeHead": "d18db560986ce7e79df571145dc9589285453903",
+    "passed": 3,
+    "total": 6,
+    "failed": [
+      "slider movement",
+      "touchstart passive registration",
+      "touchmove passive registration"
+    ],
+    "slider": {
+      "initial": 80,
+      "beforeFingerUp": 80,
+      "afterFingerUp": 80
+    },
+    "vuePositiveControlFinal": 20,
+    "repeaterTouch": "Native and Vue already passed; validates the driver, not detection of the slider defect.",
+    "evidenceHashes": "Reported unchanged by QA; raw baseline artifacts unavailable to writer."
+  },
+  "candidate": {
+    "slider": {
+      "initial": 80,
+      "beforeFingerUp": 20,
+      "afterFingerUp": 20
+    },
+    "passiveRegistrations": [
+      "touchstart",
+      "touchmove"
+    ],
+    "retainedHandleListenersRemovedOnDestroy": true,
+    "repeaterTouchReorderPassed": true,
+    "targetedBehaviors": [
+      "mouse drag",
+      "keyboard stepping",
+      "disabled state",
+      "repeated updates",
+      "dropdown/autocomplete callbacks",
+      "datepicker reopening",
+      "reset",
+      "cleanup"
+    ]
+  },
+  "environment": {
+    "gesture": "Trusted CDP Input.dispatchTouchEvent",
+    "os": "Linux",
+    "browser": "headless Chromium 154.0.8037.57",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "mobileTouchEmulation": true,
+    "pro": "0.130.4",
+    "coreFamily": "2.1.2",
+    "dragAndDrop": "0.6.3",
+    "node": "24.19.0",
+    "npm": "11.17.0",
+    "playwright": "1.64.1"
+  },
+  "reportedHygiene": {
+    "credentialScan": "Passed, including unpacked tarballs",
+    "qaRepositoryClean": true,
+    "remoteChanges": false,
+    "serverAndBrowserStopped": true,
+    "portClosureVerified": true
+  },
+  "limitations": [
+    "No physical Android/iOS/Safari or wider cross-browser parity claim.",
+    "Online license validation remains unverified.",
+    "Historical 137/137 baseline plus 8/8 Pro release groups remain attributed to ffe7d95d44caa259a3b786178c517a33083ab240 and were not rerun here.",
+    "No local execution or raw QA artifact verification by this writer."
+  ],
+  "externalArtifactLocations": {
+    "scope": "Separate QA environment only; these are provenance references, not repository artifacts.",
+    "candidate": [
+      "/tmp/formkit-touch-candidate-ca183/summary.json",
+      "/tmp/formkit-touch-candidate-ca183/native-touch-02.json",
+      "/tmp/formkit-touch-candidate-ca183/targeted-regression-01.json"
+    ],
+    "baseline": [
+      "/tmp/formkit-touch-baseline/summary.json",
+      "/tmp/formkit-touch-baseline/native-touch-02.json",
+      "/tmp/formkit-touch-baseline/vue-touch-02.json",
+      "/tmp/formkit-touch-baseline/probe-left-02.mjs"
+    ]
+  }
+}

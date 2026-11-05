@@ -2,8 +2,10 @@
 
 Clean tested source: `16682abe2e54fe1143141b0f6bc0ea9105923180`, on
 `codex/formkit-master-integration-20261103`. Later evidence commits do not change
-that tested executable source. This is a native schema event compatibility fix;
-actual Pro touch interactions remain with the existing independent vault QA owner.
+that tested executable source. Independent vault QA subsequently rebuilt published
+`ca183a6064337dd6183f1719dc8e3b023c3abe40` and reported **6/6 actual-Pro touch
+checks and 8/8 targeted regressions passed**, with zero failures, page errors or
+timeouts. The writer did not execute that QA or receive its raw artifacts.
 
 ## Readiness and chosen scope
 
@@ -59,7 +61,7 @@ remain. The final focused unit suite passed 19/19.
 | Packed ESM/CJS, declarations, locked consumer | All nine stages passed |
 | Native Chromium journeys | 17/17, zero unexpected/flaky/skipped results |
 | New touch journey | Three trusted touchstart taps; callback replacement, removal, reinstallation and retained-target teardown passed; zero page errors |
-| Actual Pro touch on this source | Not run by writer; pending coordinated vault QA |
+| Actual Pro touch on this source | Independently reported: 6/6 touch checks and 8/8 targeted regressions on published ca183a606; not executed by writer |
 
 The browser journey uses hasTouch and real locator.tap calls. It proves trusted
 touchstart delivery and listener lifecycle. Passive cancellation semantics are
@@ -75,18 +77,40 @@ records Node 24.19.0, npm 11.17.0, Core 2.1.2, Playwright 1.64.1, Chromium
 cloud Chromium was used. No browser download or Mac test ran. Independent Astra
 reviews were read-only source/test/evidence inspections, not independent live QA.
 
-## Bounded vault handoff
+## Independent actual-Pro touch acceptance
 
-The existing vault owner is preparing the actual-Pro baseline on d18db560. Rebuild
-and pack this published candidate using that same approved environment/bootstrap,
-then retest the bounded touch probe against Pro 0.130.4 and Core-family 2.1.2.
-Prioritize slider touch start/move/end and public values, plus the passive touch
-binding chosen by that owner for the baseline. Preserve baseline failure and
-candidate results, exact source/lock/browser, cleanup and any unexpected errors.
-No new credentials, account/access changes or duplicate writer probe is requested.
+The existing vault QA owner reported the result through the parent in QA turn
+`01a1aa3b-3c5c-73e1-b543-06a862b26040` (thread
+`01a1a141-9e0c-7156-8ce2-0b5d80196006`). `parent-vault-touch-pass.json` records
+that report and external artifact locations. Those files are in a separate QA
+environment, absent here; no raw QA hashes or execution were verified by the writer.
+The writer did verify all 40 original bundle hashes, all 13 source hashes and
+that the published candidate's changes after 16682abe were documentation/evidence
+only. `reconciliation.json` records these local checks. The original `receipt.json`
+is a preserved pre-QA checkpoint: its pending status is superseded by this section,
+not a current blocker. The original static `independent-review.json` is unchanged.
 
-The existing 137/137 baseline plus 8/8 release-group Pro pass remains attributed
-to published ffe7d95d and executable source 7967f80c. It is not a pass for this
-new executable source. Online license validation remains unverified because of
-prior proxy failures. No full parity, performance improvement, release readiness,
-or permission to retry the denied PR action follows from these local results.
+Baseline native d18db560 passed 3/6 checks: slider movement and both passive-listener
+registration checks failed. With the same trusted gesture, its slider remained 80
+before and after finger-up; the genuine Vue positive control reached 20. On the
+candidate the slider reached 20 before finger-up and stayed 20 afterward. QA verified
+passive:true for touchstart/touchmove and retained-handle listener removal on destroy.
+Real repeater touch reordering passed on both baseline and candidate; that validates
+the driver but did not detect the slider defect. The original failures remain
+preserved, and QA reports the external baseline evidence hashes unchanged.
+
+The candidate also passed mouse drag, keyboard stepping, disabled state, repeated
+updates, dropdown/autocomplete callbacks, datepicker reopening, reset and cleanup.
+QA used trusted CDP Input.dispatchTouchEvent in Linux headless Chromium
+154.0.8037.57 with 390×844 mobile/touch emulation, Pro 0.130.4, every Core-family
+package 2.1.2, drag-and-drop 0.6.3, Node 24.19.0, npm 11.17.0 and Playwright 1.64.1.
+QA reports a passed credential scan including unpacked tarballs, a clean repository,
+no remote writes, stopped server/browser and verified port closure.
+
+This is emulated Chromium touch acceptance, not physical Android/iOS/Safari testing
+or broader cross-browser parity. The existing 137/137 baseline plus 8/8 release-group
+Pro pass remains attributed to published ffe7d95d and executable source 7967f80c;
+those suites were not rerun here. Online license validation remains unverified.
+No full parity, performance improvement, release readiness or permission to retry
+the denied PR action follows from this bounded result. No new tests were run for
+this documentation reconciliation.
