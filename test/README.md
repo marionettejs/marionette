@@ -262,6 +262,18 @@ pin selects 6.17.1 to avoid its reported denial-of-service advisories; remove th
 override when Stryker's dependency chain accepts a fixed version natively. Every
 mutation/benchmark run remains development tooling with explicit scope and limits.
 
+The root and the `consumer-lint` and `data-package-starter` fixture manifests
+temporarily pin minimatch 11.0.4 for
+[GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249).
+The root also pins test-exclude's glob to 14.0.3: glob 13 bundles the old matcher,
+and its raw entry point expects pattern parts that minimatch 11 changed. Keep the
+exact pins as the verified pair, review newer security patches, and update all
+three locks together with lint, tooling coverage, bounded mutation and affected
+installed-consumer checks. Remove each minimatch override when its parent chains
+accept a patched version natively; remove the glob override when test-exclude
+accepts a compatible glob with a patched bundled matcher. Recheck discovery with
+the repository's include/exclude configuration when changing either dependency.
+
 Dependabot proposes weekly root tooling updates, with TypeScript ESLint, Vitest,
 and Stryker packages grouped by tool before the remaining development dependency
 minor and patch updates are grouped together. Other root major upgrades remain

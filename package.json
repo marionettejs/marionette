@@ -189,6 +189,10 @@
       "typed-rest-client": {
         "qs": "6.17.1"
       }
+    },
+    "minimatch": "11.0.4",
+    "test-exclude": {
+      "glob": "14.0.3"
     }
   },
   "peerDependencies": {
