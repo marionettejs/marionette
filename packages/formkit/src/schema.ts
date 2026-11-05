@@ -2,6 +2,8 @@
 import { compile, getNode, stopWatch, sugar, watchRegistry } from '@formkit/core';
 import type { FormKitNode, FormKitSchemaDefinition, FormKitSchemaNode, FormKitSchemaDOMNode, FormKitSchemaComponent } from '@formkit/core';
 import { isPojo } from '@formkit/utils';
+import { automaticScope, automaticUpdate, captureRender, contextRead, expressionCalls, isAutomaticScope,
+  iterationScope, markInitialComponent, opaqueRender, releaseCapture, takeAutomatic } from './invalidation.ts';
 type Scope = Record<string, unknown>;
 export type SchemaSlot = (scope: Scope) => FormKitSchemaDefinition | Node | { schema: FormKitSchemaDefinition; data: Scope };
 export interface SchemaComponent {
@@ -32,6 +34,7 @@ export function scoped(parent: Scope, values: Scope): Scope {
   const scope = Object.defineProperties(Object.create(parent), Object.fromEntries(Object.entries(values).map(([key, value]) =>
     [key, { value, enumerable: true, configurable: true, writable: true }])));
   scopeParents.set(scope, parent);
+  automaticScope(scope, isAutomaticScope(parent));
   return scope;
 }
 const bound = new WeakMap<object, WeakMap<Function, Function>>();
@@ -45,6 +48,7 @@ function tokenValue(scope: Scope, token: string): unknown {
     receiver = value;
     if (value == null) { return parent ? tokenValue(parent, token) : undefined; }
     value = (value as Scope)[part];
+    contextRead(receiver, part, value);
   }
   if (value === undefined && parent) { return tokenValue(parent, token); }
   if (typeof value !== 'function') { return value; }
@@ -66,6 +70,7 @@ function compileExpression(expression: string): ExpressionProgram {
 type Evaluate = (value: unknown, scope: Scope) => unknown;
 function evaluate(value: unknown, scope: Scope, programs: Map<string, ExpressionProgram>): unknown {
   if (typeof value === 'string' && value.startsWith('$') && !/^\$(?:reset(?:\s|$)|remove:)/.test(value)) {
+    expressionCalls(value);
     // A lone path has the same provider lookup as Core's compiled expression.
     // Resolve it directly; compound expressions retain the official compiler.
     if (/^\$[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*$/.test(value)) { return tokenValue(scope, value.slice(1)); }
@@ -105,6 +110,7 @@ function expand(schema: FormKitSchemaDefinition | Node, scope: Scope, prefix: st
       if (entry.startsWith('$slots.')) {
         const slot = evaluateExpression(entry, scope);
         if (typeof slot === 'function') {
+          opaqueRender();
           const content = slot(scope);
           if (content && typeof content === 'object' && 'schema' in content) {
             result.push(...expand(content.schema, content.data, `${key}.slot.`, identity, evaluateExpression));
@@ -131,6 +137,7 @@ function expand(schema: FormKitSchemaDefinition | Node, scope: Scope, prefix: st
       pairs.forEach(([itemKey, item]) => {
         const itemScope = scoped(scope, { [valueName]: item,
           ...(values === undefined ? {} : { [keyOrValues as string]: itemKey }) });
+        iterationScope(itemScope, collection);
         // Official input sections expose schema discriminators as non-enumerable
         // getters. Retain them (and conditional accessors) when consuming a loop.
         const descriptors = Object.getOwnPropertyDescriptors(entry);
@@ -224,7 +231,7 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
   function schedule() {
     if (queued || disposed) { return; }
     queued = true;
-    queueMicrotask(() => { queued = false; if (!disposed) { update(data); } });
+    queueMicrotask(() => { queued = false; if (!disposed) { automaticUpdate(renderer, data); } });
   }
   function lookup(id: string) {
     if (!borrowed.has(id)) {
@@ -259,6 +266,7 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
           const factory = components[normalized.$cmp!];
           if (!factory) { throw new Error(`No native schema component registered for ${normalized.$cmp}.`); }
           const component = factory({ document, props, data: item.scope, children: normalized.children });
+          markInitialComponent(component);
           const start = document.createComment('component'), end = document.createComment('/component');
           const pending = document.createDocumentFragment();
           pending.append(start, component.element, end);
@@ -273,7 +281,7 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
         }
       }
       next.set(item.key, record);
-      if (!supplied && '$cmp' in normalized) { record.component!.update(props, item.scope, normalized.children); } else if (!supplied && normalized.$el === 'text') {
+      if (!supplied && '$cmp' in normalized) { opaqueRender(); record.component!.update(props, item.scope, normalized.children); } else if (!supplied && normalized.$el === 'text') {
         const text = String(Object.hasOwn(item, 'text') ? item.text : evaluateValue(normalized.children ?? '', item.scope));
         if (record.node.textContent !== text) { record.node.textContent = text; }
       } else if (!supplied) {
@@ -353,12 +361,14 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
     const active = document.activeElement;
     const ownedFocus = active && host.contains(active);
     const scope = scoped(data, { get: lookup, ...(options.slots ? { slots: options.slots } : {}) });
-    records = reconcile(host, records, options.schema, scope);
+    automaticScope(scope, takeAutomatic(renderer));
+    captureRender(renderer, data, () => { records = reconcile(host, records, options.schema, scope); });
     if (ownedFocus && host.contains(active) && document.activeElement !== active) { (active as HTMLElement).focus({ preventScroll: true }); }
   }
   function destroy() {
     if (disposed) { return; }
     disposed = true;
+    releaseCapture(renderer);
     borrowed.forEach(binding => { stopWatch(binding.registry); binding.receipts.forEach(receipt => binding.node?.off(receipt)); });
     borrowed.clear();
     symbols.clear();
@@ -367,8 +377,9 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
     records.clear();
   }
   function setSchema(schema: FormKitSchemaDefinition) { options.schema = schema; programs.clear(); update(); }
+  const renderer = { update, setSchema, destroy };
   update();
-  return { update, setSchema, destroy };
+  return renderer;
 }
 export function createSchemaRenderer(container: Element, options: SchemaOptions) { return createRenderer(elementHost(container), options); }
 export function createRootRenderer(container: Element, options: SchemaOptions) {

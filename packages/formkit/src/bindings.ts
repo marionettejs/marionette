@@ -1,10 +1,11 @@
 import { createClasses, createMessage, generateClassList, isNode } from '@formkit/core';
 import { cloneAny, empty, eq, token, undefine } from '@formkit/utils';
+import { certifyContext, contextChanged, contextObject, contextProxy, withRenderHint } from './invalidation.ts';
 import type { FormKitFrameworkContext, FormKitMessage, FormKitNode, FormKitPlugin } from '@formkit/core';
 
 // Implements the public framework-context contract. The MIT v2.1.2 bindings are
 // the behavioral reference; this implementation has no Vue reactivity dependency.
-function reactive<T extends object>(value: T, changed: () => void): T {
+function reactive<T extends object>(value: T, changed: () => void, metadataChanged: () => void): T {
   const proxies = new WeakMap<object, object>();
   function wrap<V>(item: V): V {
     if (!item || typeof item !== 'object' || isNode(item) || Object.isFrozen(item) ||
@@ -24,6 +25,11 @@ function reactive<T extends object>(value: T, changed: () => void): T {
         if (present && success) { changed(); }
         return success;
       },
+      setPrototypeOf(target, prototype) {
+        const success = Reflect.setPrototypeOf(target, prototype);
+        metadataChanged();
+        return success;
+      },
       defineProperty(target, key, descriptor) {
         const success = Reflect.defineProperty(target, key, descriptor);
         if (success) { changed(); }
@@ -32,6 +38,7 @@ function reactive<T extends object>(value: T, changed: () => void): T {
     });
     proxies.set(item, proxy);
     proxies.set(proxy, proxy);
+    contextProxy(item, proxy);
     return proxy as V;
   }
   return wrap(value);
@@ -53,7 +60,7 @@ export const nativeBindings: FormKitPlugin = node => {
   const ui: Record<string, FormKitMessage> = {};
   node.ledger.count('blocking', message => message.blocking);
   node.ledger.count('errors', message => message.type === 'error');
-  const changed = () => { if (alive && node.context !== null) { node.emit('context-update', node); } };
+  const changed = (needed = true) => { contextChanged(node); if (alive && node.context !== null) { withRenderHint(node, needed, () => node.emit('context-update', node)); } };
   const listen: FormKitNode['on'] = (event, callback, pos) => {
     const receipt = node.on(event, callback, pos);
     receipts.push(receipt);
@@ -107,7 +114,7 @@ export const nativeBindings: FormKitPlugin = node => {
         node.emit('dom-input-event', event);
       }
     }
-  } as unknown as FormKitFrameworkContext, changed);
+  } as unknown as FormKitFrameworkContext, changed, () => contextChanged(node));
   const validationVisible = () => {
     if (context.state.submitted) { return true; }
     if (!shownValidation && !context.state.settled) { return false; }
@@ -132,11 +139,11 @@ export const nativeBindings: FormKitPlugin = node => {
   });
   Object.defineProperties(context, {
     items: { enumerable: true, configurable: true, get: () => node.children.map(child => child.uid) },
-    messages: { enumerable: true, configurable: true, get: () => Object.fromEntries(Object.entries(messages).filter(([, message]) =>
-      message.type !== 'validation' || validationVisible())) },
+    messages: { enumerable: true, configurable: true, get: () => contextObject(node, Object.fromEntries(Object.entries(messages).filter(([, message]) =>
+      message.type !== 'validation' || validationVisible())), 'messages') },
     describedBy: { enumerable: true, configurable: true, get: () => [context.help ? `help-${context.id}` : '',
       ...Object.keys(context.messages).map(key => `${context.id}-${key}`)].filter(Boolean).join(' ') || undefined },
-    classes: { enumerable: true, configurable: true, get: () => new Proxy({}, {
+    classes: { enumerable: true, configurable: true, get: () => contextObject(node, new Proxy({}, {
       get(target, section) {
         if (typeof section !== 'string' || section in Object.prototype) { return Reflect.get(target, section); }
         return generateClassList(node, section,
@@ -145,8 +152,9 @@ export const nativeBindings: FormKitPlugin = node => {
           createClasses(section, node, node.props[`_${section}Class`]),
           createClasses(section, node, node.props[`${section}Class`])) ?? '';
       }
-    }) }
+    }), 'classes') }
   });
+  certifyContext(node, context);
   function applyErrors(errors: unknown) {
     node.store.apply((Array.isArray(errors) ? errors : []).map(value => createMessage({ key: `prop-error-${token()}`,
       type: 'error', value: String(value), meta: { source: 'prop' } })), message => message.type === 'error' && message.meta.source === 'prop');
@@ -164,6 +172,7 @@ export const nativeBindings: FormKitPlugin = node => {
     node.store.apply(messagesByAddress, message => message.meta.source === inputErrorSource);
   }
   function messageChanged(message: FormKitMessage) {
+    if (Object.isFrozen(message)) { contextObject(node, message, 'message'); }
     delete ui[message.key];
     delete messages[message.key];
     if (message.type === 'ui' && message.visible && !message.meta.showAsMessage) { ui[message.key] = message; } else if (message.visible) { messages[message.key] = message; } else if (message.type === 'state') { context.state[message.key] = !!message.value; }
@@ -177,8 +186,16 @@ export const nativeBindings: FormKitPlugin = node => {
     if (prop === 'inputErrors' && inputErrorsReady) { applyInputErrors(value as InputErrors | undefined); }
     changed();
   });
-  for (const event of ['config:classes', 'config:rootClasses', 'child', 'childRemoved', 'count:blocking', 'count:errors']) {
-    listen(event, changed);
+  for (const event of ['config:classes', 'config:rootClasses', 'child', 'childRemoved']) {
+    listen(event, () => changed());
+  }
+  for (const name of ['blocking', 'errors']) {
+    let nonzero = !!node.ledger.value(name);
+    listen(`count:${name}`, ({ payload }) => {
+      const next = !!payload, needed = next !== nonzero;
+      nonzero = next;
+      changed(needed);
+    });
   }
   listen('input', ({ payload }) => { context._value = domInputValue(payload); });
   listen('commitRaw', ({ payload }) => {

@@ -3,6 +3,7 @@ import { createLibraryPlugin, extendSchema, inputs, runtimeProps } from '@formki
 import { createThemePlugin } from '@formkit/themes';
 import { eq, isPojo } from '@formkit/utils';
 import { nativeBindings } from './bindings.ts';
+import { automaticScope, automaticUpdate, canReuseRender, renderCapture, guardPass, contextObject, isAutomaticScope, nativeInvalidation, takeInitialComponent, independentRoot, unchangedObject, contextNeedsRender } from './invalidation.ts';
 import { createRangeRenderer, createRootRenderer, scoped } from './schema.ts';
 import type { FormKitConfig, FormKitLibrary, FormKitNode, FormKitPlugin, FormKitSchemaDefinition, FormKitSectionsSchema, FormKitSchemaNode } from '@formkit/core';
 import type { FormKitIconLoader, FormKitIconLoaderUrl } from '@formkit/themes';
@@ -24,7 +25,7 @@ export interface RuntimeOptions {
 }
 
 export function runtimePlugins(options: RuntimeOptions): FormKitPlugin[] {
-  return [createLibraryPlugin(inputs, options.inputs ?? {}),
+  return [nativeInvalidation, createLibraryPlugin(inputs, options.inputs ?? {}),
     createThemePlugin(options.theme, options.icons, options.iconLoaderUrl, options.iconLoader ?? (() => undefined)), nativeBindings];
 }
 
@@ -83,18 +84,22 @@ function inheritScope(data: Scope, scope: Scope, application = false) {
   }
   // Slots belong to the schema that declared them. A receiving group's slots
   // can forward to those bindings, but must not shadow them with themselves.
-  return scoped(data, Object.fromEntries([...keys].filter(key => key !== 'slots' && (!application || key === 'node' || !(key in data)))
+  const inherited = scoped(data, Object.fromEntries([...keys].filter(key => key !== 'slots' && (!application || key === 'node' || !(key in data)))
     .map(key => [key, scope[key]])));
+  automaticScope(inherited, isAutomaticScope(scope));
+  return inherited;
 }
 
 // Native factories own only the nodes they create, including ignored button/meta
 // nodes that are deliberately absent from their parent's children collection.
 let nextId = 0;
+const projections = new WeakMap<Function, Set<() => boolean>>();
 export type InputMount = ReturnType<SchemaComponentFactory> & { readonly node: FormKitNode };
 export type InputFactoryDecorator = (parent: FormKitNode, factory: (...args: Parameters<SchemaComponentFactory>) => InputMount) => (...args: Parameters<SchemaComponentFactory>) => InputMount;
 export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decorate?: InputFactoryDecorator):
   (...args: Parameters<SchemaComponentFactory>) => InputMount {
-  return ({ document, props, data, children }) => {
+  const checks = new Set<() => boolean>();
+  const factory = ({ document, props, data, children }: Parameters<SchemaComponentFactory>[0]): InputMount => {
     props = inputProps(props);
     const start = document.createComment('input'), end = document.createComment('/input');
     const element = document.createDocumentFragment();
@@ -106,19 +111,25 @@ export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decor
     let renderer: ReturnType<typeof createRangeRenderer>;
     let receipts: string[] = [];
     let node: FormKitNode;
+    let nativeSchema = false;
+    let projectedAttrs: Scope;
+    let requestedCapture: ReturnType<typeof renderCapture>;
     const schedule = () => {
+      requestedCapture = renderCapture(renderer);
       if (disposed || queued) { return; }
       queued = true;
-      queueMicrotask(() => { queued = false; if (!disposed && alive && node.context) { renderer.update(node.context); } });
+      queueMicrotask(() => { queued = false; if (!disposed && alive && node.context && (!nativeSchema || renderCapture(renderer) === requestedCapture || !canReuseRender(renderer, node))) { automaticUpdate(renderer, node.context); } });
     };
     function generate(): { schema: FormKitSchemaDefinition; components: Record<string, SchemaComponentFactory> } {
       const definition = node.props.definition;
       if (!definition) { throw new Error(`Unknown FormKit input: ${String(node.props.type)}.`); }
+      nativeSchema = Object.values(inputs).some(input => input.schema === definition.schema) &&
+        !Object.keys(options.sectionsSchema ?? {}).length && !Object.keys(node.props.sectionsSchema ?? {}).length;
       if (definition.component) {
-        const factory = typeof definition.component === 'string' ? options.components?.[definition.component] : definition.component;
-        if (typeof factory !== 'function') { throw new Error('Input components must be native SchemaComponent factories.'); }
+        const definitionFactory = typeof definition.component === 'string' ? options.components?.[definition.component] : definition.component;
+        if (typeof definitionFactory !== 'function') { throw new Error('Input components must be native SchemaComponent factories.'); }
         return { schema: { $cmp: 'Definition', props: { context: '$node.context' } } as FormKitSchemaDefinition,
-          components: { Definition: factory as SchemaComponentFactory } };
+          components: { Definition: definitionFactory as SchemaComponentFactory } };
       }
       if (!definition.schema) { throw new Error(`FormKit input ${String(node.props.type)} has no schema.`); }
       const extensions = { ...options.sectionsSchema, ...node.props.sectionsSchema };
@@ -138,8 +149,10 @@ export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decor
         config: { ...next.config as Partial<FormKitConfig> },
         plugins: [...parent.plugins, ...inherited.plugins, ...next.plugins as FormKitPlugin[] ?? []],
         props: { ...copyProps(next) as Scope, id, attrs: attributes(next), __root: document, __slots: slots } });
-      node.props.attrs = attributes(next, node);
-      node.context!.slots = slots;
+      const attrs = attributes(next, node);
+      projectedAttrs = { ...attrs };
+      node.props.attrs = contextObject(node, attrs, 'attrs');
+      node.context!.slots = contextObject(node, slots, 'slots');
       const generated = generate();
       renderer = createRangeRenderer(start, end, { ...generated, data: node.context!, allowHTML: true });
       receipts = ['context-update', 'schema'].map(event => node.on(event, () => {
@@ -167,7 +180,12 @@ export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decor
       if (alive && node.context) { node.destroy(); }
     }
     create(props);
-    return { element, get node() { return node; },
+    const independent = () => !disposed && alive && nativeSchema && !!node.context &&
+      canReuseRender(renderer, node, queued) &&
+      node.parent === (node.props.ignore === true ? null : currentProps.parent ?? parent) &&
+      eq(node.props.attrs, projectedAttrs);
+    checks.add(independent);
+    const mount: InputMount = { element, get node() { return node; },
       update(next, nextData, nextChildren) {
         next = inputProps(next);
         currentData = nextData;
@@ -195,7 +213,7 @@ export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decor
         }
         if (!eq(currentChildren, nextChildren) || !eq(currentProps.slots, next.slots)) {
           currentChildren = nextChildren;
-          node.context!.slots = scopedSlots(currentChildren, next.slots as Scope ?? {}, () => currentData);
+          node.context!.slots = contextObject(node, scopedSlots(currentChildren, next.slots as Scope ?? {}, () => currentData), 'slots');
           node.props.__slots = node.context!.slots;
         }
         if (next.type !== currentProps.type || next.name !== currentProps.name || next.parent !== currentProps.parent) {
@@ -210,35 +228,85 @@ export function inputFactory(parent: FormKitNode, options: RuntimeOptions, decor
           if (key === 'value') { void node.input(next[key], false); } else if (key === 'config') { Object.assign(node.config, copyProps(next.config)); } else if (key === 'index') { node.index = Number(next.index); } else if (key === 'id') { deregister(node); node.props.id = next.id as string | undefined; register(node); } else { node.props[key] = copyProps(next[key]); }
         }
         const attrs = attributes(next, node);
-        if (!eq(node.props.attrs, attrs)) { node.props.attrs = attrs; }
+        projectedAttrs = { ...attrs };
+        if (!eq(node.props.attrs, attrs)) { node.props.attrs = contextObject(node, attrs, 'attrs'); }
         currentProps = next;
-        renderer.update(node.context!);
+        const initial = takeInitialComponent(mount);
+        const automatic = isAutomaticScope(nextData);
+        if ((automatic || initial) && nativeSchema && !queued && canReuseRender(renderer, node)) { return; }
+        if (automatic) { automaticUpdate(renderer, node.context!); } else { renderer.update(node.context!); }
       },
-      destroy() { disposed = true; release(); }
+      destroy() { disposed = true; checks.delete(independent); release(); }
     };
+    return mount;
   };
+  projections.set(factory, checks);
+  return factory;
 }
 
 export function mountFormSchema(form: HTMLFormElement, root: FormKitNode, options: RuntimeOptions) {
   let data = options.schemaData ?? {};
-  root.context!.slots = { ...options.slots,
+  let applicationData = options.schemaData !== undefined;
+  root.context!.slots = contextObject(root, { ...options.slots,
     default: (scope: Scope) => ({ schema: options.schema!,
       data: inheritScope('slots' in data ? data : scoped(data, { slots: options.slots ?? {} }), scope, true) }),
     ...(!options.slots?.actions ? { actions: () => ({ $el: 'div', if: '$actions', attrs: { class: '$classes.actions' }, children: [
       { $cmp: 'FormKit', bind: '$submitAttrs', props: { type: 'submit', label: '$submitLabel' } },
       { $el: 'button', attrs: { type: 'reset', disabled: '$disabled' }, children: '$resetLabel' }
-    ] }) } : {}) };
+    ] }) } : {}) }, 'slots');
   const definition = root.props.definition!;
   const schema = typeof definition.schema === 'function' ? definition.schema(options.sectionsSchema ?? {}) : definition.schema!;
+  const factory = inputFactory(root, options);
   const renderer = createRootRenderer(form, { schema, data: root.context!, allowHTML: true,
-    components: { ...options.components, FormKit: inputFactory(root, options) } });
-  let queued = false, disposed = false;
-  const receipt = root.on('context-update.deep', () => {
+    components: { ...options.components, FormKit: factory } });
+  let queued = false, disposed = false, ownChange = false;
+
+  const literal = (value: unknown, seen: WeakSet<object>): boolean => {
+    if (typeof value === 'string') { return !value.startsWith('$'); }
+    if (typeof value === 'function') { return false; }
+    if (!value || typeof value !== 'object') { return true; }
+    if (seen.has(value) || ![Object.prototype, Array.prototype, null].includes(Object.getPrototypeOf(value))) { return false; }
+    seen.add(value);
+    const before = Object.getOwnPropertyDescriptors(value), keys = Object.keys(before);
+    return keys.every(key => 'value' in before[key] && literal(before[key].value, seen));
+  };
+  const staticInputs = () => Array.isArray(options.schema) && options.schema.every(entry => {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) { return false; }
+    const fields = Object.getOwnPropertyDescriptors(entry);
+    return fields.$formkit && 'value' in fields.$formkit &&
+      !['if', 'for', 'children', 'bind', 'slots'].some(key => key in fields);
+  });
+  let plain = false, slots: unknown, attrs: unknown;
+  let slotsSame: () => boolean, attrsSame: () => boolean;
+  const updatePlan = () => {
+    plain = !applicationData && !options.slots && !options.sectionsSchema &&
+      root.props.definition?.schema === inputs.form.schema && staticInputs() && literal(options.schema, new WeakSet());
+    const fields: PropertyDescriptorMap = plain && independentRoot(root) ? Object.getOwnPropertyDescriptors(root.context!) : {};
+    slots = fields.slots?.value; attrs = fields.attrs?.value;
+    slotsSame = unchangedObject(root, slots); attrsSame = unchangedObject(root, attrs);
+  };
+  updatePlan();
+  const sameProjection = (key: string, value: unknown) => {
+    const field = Object.getOwnPropertyDescriptor(root.context!, key);
+    return !!field && 'value' in field && field.value === value;
+  };
+  const receipt = root.on('context-update.deep', ({ origin }) => {
+    if (origin === root && contextNeedsRender(root)) { ownChange = true; }
     if (queued || disposed) { return; }
     queued = true;
-    queueMicrotask(() => { queued = false; if (!disposed) { renderer.update(root.context!); } });
+    queueMicrotask(() => {
+      queued = false;
+      const needed = ownChange; ownChange = false;
+      if (!disposed && (needed || !plain || !guardPass(() => independentRoot(root) &&
+        sameProjection('slots', slots) && sameProjection('attrs', attrs) && slotsSame() && attrsSame() &&
+        [...projections.get(factory)!].every(check => check())))) { automaticUpdate(renderer, root.context!); }
+    });
   });
-  return { update(next: Scope = data) { data = next; renderer.update(root.context!); },
-    setSchema(nextSchema: FormKitSchemaDefinition) { options.schema = nextSchema; renderer.update(root.context!); },
-    destroy() { disposed = true; root.off(receipt); renderer.destroy(); } };
+  return { update(next?: Scope) {
+    plain = false;
+    if (next !== undefined) { data = next; applicationData = true; }
+    renderer.update(root.context!); updatePlan();
+  },
+  setSchema(nextSchema: FormKitSchemaDefinition) { plain = false; options.schema = nextSchema; renderer.update(root.context!); updatePlan(); },
+  destroy() { disposed = true; root.off(receipt); renderer.destroy(); } };
 }
