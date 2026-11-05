@@ -21,9 +21,9 @@ it.each(['condition', 'schema', 'destroy'])('preserves detached descendant relat
   const button = panel.querySelector('button'); const palette = button.parentElement;
   button.addEventListener('click', imperative);
   button.click(); expect(clicked).toHaveBeenCalledTimes(1); expect(imperative).toHaveBeenCalledTimes(1);
-  if (mode === 'condition') { renderer.update({ open: false, clicked }); }
-  else if (mode === 'schema') { renderer.setSchema([]); }
-  else { renderer.destroy(); }
+  if (mode === 'condition') { renderer.update({ open: false, clicked }); } else if (mode === 'schema') {
+    renderer.setSchema([]);
+  } else { renderer.destroy(); }
   expect(container.childNodes).toHaveLength(0); expect(panel.parentNode).toBeNull();
   expect(button.parentElement).toBe(palette); expect(palette.parentElement).toBe(panel);
   expect(button.parentElement.dataset.palette).toBe('colors'); expect(button.isConnected).toBe(false);

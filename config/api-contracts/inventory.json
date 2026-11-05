@@ -15718,7 +15718,7 @@
     "test/unit/events-single-dispatch.spec.js": "9405ceb5a59c4ebddf3aeb4a902588dcf81a6bc35aca40bde0e8aa41760fb6ce",
     "test/unit/formkit-composition-review.spec.js": "b5badbb02da0b1ad5abd4129b8e1a25f268d7d1e1bd015ee6a5b57ae67e4f7a6",
     "test/unit/formkit-composition-sol.spec.js": "a1889eaa6a83a9983022152e3ed886043abf16c0a5924bea0bc0ca1146004690",
-    "test/unit/formkit-detached-subtree.spec.js": "efbd62d3bf0f93bb1562e153d2d5ad37f8423ab92ec89ae4996b63c49a9cedd9",
+    "test/unit/formkit-detached-subtree.spec.js": "18b988291ea14946b7e2bcd7c160b5ee815c3ee6cd92795a7908185bc7030dcd",
     "test/unit/formkit-host-contracts.spec.js": "5ab5f0349304572811dbab699565f6da7e573d6b67bfde8e622d6a9ffec569a5",
     "test/unit/formkit-invalid-focus.spec.js": "3b4c9c418cbc580f51d865bb365d63aa7728748bd74d43cf7d4f41f6eb4e6a1c",
     "test/unit/formkit-nested-rows.spec.js": "8c37b04cfd7a61eb779ec503bfdf6ff403a25616a4e4fb50566e8875dd366edb",

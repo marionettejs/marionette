@@ -21,7 +21,7 @@ test('closing generated input panels preserves delayed DOM reads and releases re
   await page.evaluate(async() => {
     const { form, state } = window.closingFixture;
     form.resetForm(); state.choice.click();
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(done => setTimeout(done, 0));
   });
   expect(await page.evaluate(() => window.closingFixture.form.getValues())).toEqual({ color: '' });
   await page.evaluate(() => { window.closingFixture.destroy(); window.closingFixture.state.choice.click(); });
