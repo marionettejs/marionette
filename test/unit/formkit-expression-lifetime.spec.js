@@ -101,7 +101,7 @@ describe('@mnjs/formkit expression evaluation lifetimes', () => {
     view.update({ value: 'Second' });
     expect([...view.container.children].map(element => element.textContent))
       .toEqual(schema.map((_, index) => `Second / ${index}`));
-    view.setSchema([schema[0], { $el: 'i', children: "$value + ' (grouped literal)'" }]);
+    view.setSchema([schema[0], { $el: 'i', children: '$value + \' (grouped literal)\'' }]);
     view.update({ value: 'Third' });
     expect(view.container.firstElementChild).toBe(first);
     expect(view.container.textContent).toBe('Third / 0Third (grouped literal)');

@@ -441,6 +441,8 @@ renderer.destroy();
 
 This standalone renderer uses core compilation and sugar, supports DOM/text,
 conditions, attributes, loops, keys, scoped slots and subscribed registry lookup.
+Expressions read current scope data on each evaluation. Repeated token references
+remain live getter reads, while short-circuited operands remain unread.
 Function event bindings with a `Passive` suffix, such as `onTouchstartPassive`,
 listen to the native event with `{ passive: true }`. Plain and passive bindings
 retain separate ownership through updates, removal and destruction.

@@ -5511,7 +5511,7 @@
       "result": "An explicit-update native schema renderer using the public FormKit compiler and schema sugar, with DOM, conditional/loop scopes, attributes, keys and consumer-supplied native components.",
       "timing": "Mount, update and setSchema reconcile synchronously. Registry changes schedule updates; scoped slots and native component factories run synchronously.",
       "ownership": "The renderer owns generated nodes and event listeners, restoring adopted elements’ listener methods at teardown. A supplied component owns its internal resources and must expose terminal destroy. Replacing managed children with trusted HTML destroys them immediately. Registry lookup borrows another node without taking ownership.",
-      "mutation": "Updates reconcile keys and change text, properties and handlers in place; unchanged controls retain identity, focus and selection. Expressions and callbacks are trusted application configuration. A non-callable slot-expression fallback renders as evaluated text once; callable slots retain their scope and receiver.",
+      "mutation": "Updates reconcile keys and change text, properties and handlers in place; unchanged controls retain identity, focus and selection. Expressions and callbacks are trusted application configuration. A non-callable slot-expression fallback renders as evaluated text once; callable slots retain their scope and receiver. Repeated expression tokens remain live getter reads; short-circuited operands are not read.",
       "repetition": "Repeated unchanged updates retain nodes. Component props update without remounting; duplicate iteration keys or unresolved components fail the synchronous operation without rollback.",
       "destruction": "destroy releases descendant listeners and component resources and removes owned DOM roots without dismantling remaining generated descendant relationships. An adopted root keeps its element but clears owned contents; component destroy retains control of its own DOM. Repeated destroy and updates after disposal are inert.",
       "diagnostics": [],
@@ -5557,6 +5557,14 @@
         {
           "file": "test/unit/formkit-detached-subtree.spec.js",
           "title": "lets a native input finish delayed DOM work after selecting and closing its panel"
+        },
+        {
+          "file": "test/unit/formkit-expression-lifetime.spec.js",
+          "title": "reads live getters for each occurrence and preserves short-circuit evaluation"
+        },
+        {
+          "file": "test/unit/formkit-expression-lifetime.spec.js",
+          "title": "isolates function-tail providers during reentry and respects replacement receivers"
         }
       ],
       "documentation": {
