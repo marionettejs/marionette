@@ -22,10 +22,11 @@ The verifier installs both artifacts in an isolated temporary consumer, retains
 its generated lockfile, repeats installation with `npm ci`, and checks ESM/CJS
 value-type inference. It runs nine helper cases for rendering, input, conditions,
 validation/errors, submission cancellation, reset, nested group ownership and
-destruction. `independent-application-lifecycle.spec.js` is the unchanged seven-case
-synthetic suite from FormKit checkpoint baab5619; it imports no test helper.
-Its retained SHA-256 is
-`421474b159a7cc862333e6dc1a5cc998233a7b7d083cb5bc3cc38c7523b9aa1c`.
+destruction. `independent-application-lifecycle.spec.js` is a separate seven-case
+synthetic suite that imports no test helper. Its current bytes match
+`test/unit/formkit-application-lifecycle.spec.js`; the verifier records the actual
+SHA-256 on each run. The root copy runs with unit tests. This separate installed
+helper-consumer configuration runs only when the command above is invoked.
 
 This bounded consumer check does not reproduce the owner's complete historical
 FormKit coverage. It excludes ongoing nested custom-row work, licensed Pro and
@@ -35,4 +36,4 @@ stage outcomes are retained in `test/tmp/formkit-test-package-consumer/report.js
 The later [nested consumer checkpoint](NESTED-VERIFICATION.md) records the verified
 source delta, frozen eight-case oracle, separate focused coverage and installed
 ESM/CJS/native-browser replay. Its private scoped harness and exact artifacts are
-retained separately; the default fixture above still represents the baab slice.
+retained separately; those results do not certify later fixture revisions.

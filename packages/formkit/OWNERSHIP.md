@@ -50,6 +50,16 @@ The writer did not execute that QA or receive its raw artifacts. The historical
 137/137 plus 8/8 Pro pass retains its earlier source attribution and was not rerun.
 See the [passive-event receipt](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/passive-events-20261105).
 
+The [November 5 focus and slot repair](https://github.com/marionettejs/marionette/blob/codex/formkit-master-integration-20261103/packages/formkit/acceptance/focus-slot-summary-20261105.md)
+was tested on clean `b0b16349` (production source `b94e9892`): 2,765 tests plus
+one expected failure, unchanged coverage thresholds, nine packed-consumer stages
+and 18 Chromium journeys passed. It corrects invalid focus selecting an inactive
+radio answer and slot expressions calling fallback text as a function. Independent
+Astra source/oracle review cleared; actual Pro rating and togglebuttons retests
+remain pending. A separately reported native colorpicker closeOnSelect failure on
+older `f91ccf47` also awaits exact-candidate replay. Earlier Pro passes retain their
+original source/version attribution and do not certify these new controls.
+
 The earlier versioned [independent Pro receipt](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) applies to source
 `1d8e1680f416ea182873c9120315ec24970225c9`: 107/107 local assertions, zero page
 errors/timeouts, Core 2.1.2, Pro 0.130.2, Chromium 154.0.8037.57. Online license
