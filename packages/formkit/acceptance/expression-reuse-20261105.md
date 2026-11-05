@@ -95,7 +95,19 @@ Independent actual-Pro replay of cleanup source `3e49fc38` at published `7b38043
 subsequently reported 158/158 primary assertions, including the original three
 colorpicker cases, with no skipped assertions. The [cleanup receipt](detached-subtree-20261105.md)
 retains its limits and separate shared-reference 5/6 result. The writer did not
-receive the raw QA artifacts. This compilation candidate needs its own exact-source
-QA replay.
+receive the raw QA artifacts. The later exact-source compilation QA result is recorded below.
 Earlier rating, togglebuttons, touch and drag passes retain their original source
 and version attribution. Online license validation remains unverified.
+
+Independent vault QA subsequently reported finalization on exact published
+`9c482f1de87778749c6fd48b65917d8e71dfb873` (executable source `48755e45`): 48/48
+native production mounts, 12/12 refreshed Vue/React reference samples and 158/158
+primary Pro checks passed. Required-field native medians at 25/50/100/200 fields
+were 0.434/1.094/3.949/14.296 s versus cleanup baseline 0.462/1.341/4.836/16.454 s;
+median matched-pair gains were 6.0/18.5/22.7/18.0%. No-validation controls showed
+no consistent slowdown; the original writer discrepancy remains unexplained.
+Both official references use FormKitSchema inside a form. Shared supplementary
+semantics remained 5/6; two proxy failures leave online validation unverified.
+QA reported passing credential scans and closed owned servers. These are
+independently reported results; raw artifacts were not available to the writer.
+They do not certify later live-list source or full parity.
