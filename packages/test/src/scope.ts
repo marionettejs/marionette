@@ -18,11 +18,18 @@ export interface ReplyRadio<Channel extends ReplyChannel = ReplyChannel> {
   channel(name: string): Channel;
 }
 
+type ReplyMap<Channel, Context> = Record<string, unknown> &
+  ThisType<Context extends null | undefined | false | 0 | 0n | '' ? Channel : Context>;
+// Preserve primitive literals for falsy-context inference without freezing objects.
+type ReplyContext = object | string | number | bigint | boolean | symbol | null | undefined;
+
 export interface TestScope extends Cleanable {
   defer(cleanup: Cleanup): void;
   own<Resource extends Cleanable | Destroyable>(resource: Resource): Resource;
   reply<Channel extends ReplyChannel>(radio: ReplyRadio<Channel>, channelName: string, name: string, value: unknown, context?: unknown): Channel;
+  reply<Channel extends ReplyChannel, Context extends ReplyContext = Channel>(radio: ReplyRadio<Channel>, channelName: string, replies: ReplyMap<Channel, Context>, context?: Context): Channel;
   reply<Channel extends ReplyChannel>(channel: Channel, name: string, value: unknown, context?: unknown): Channel;
+  reply<Channel extends ReplyChannel, Context extends ReplyContext = Channel>(channel: Channel, replies: ReplyMap<Channel, Context>, context?: Context): Channel;
   cleanup(): Promise<void>;
 }
 

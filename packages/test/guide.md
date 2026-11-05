@@ -709,12 +709,31 @@ context?)` keeps string-based channel names and uses the supplied Radio instance
 There is no global Radio import. Function receivers and arguments follow Radio's
 normal context behavior; omitted/falsy contexts use the channel.
 
+The hash forms are `scope.reply(channel, replies, context?)` and
+`scope.reply(Radio, channelName, replies, context?)`. Each own enumerable string
+key registers independently; inherited properties, non-enumerable properties and
+symbols are ignored. Names, including spaces and `__proto__`, are literal. Hash
+values can be functions or constants, including falsy values and promises.
+TypeScript contextually types a hash method's `this` from the supplied context,
+or from the channel when context is omitted.
+
+```js
+const receiver = { token: 'test-token' };
+scope.reply(channel, {
+  getToken() { return this.token; },
+  authorized: false
+}, receiver);
+```
+
 Every registration has its own callback identity. Cleanup filters by request name,
 that callback, and its effective context. A later unrelated replacement remains
 installed, even if it uses the same original function or context. Overwriting an
 older reply follows Radio's existing behavior; cleanup does not restore that
 older handler. Neither channel-wide `stopReplying()` nor `Radio.reset()` is used.
 Registration after cleanup begins is rejected before changing any reply.
+Hash registration is sequential: successfully registered keys are owned by the
+scope even if a later property read or registration throws. It is not an atomic
+replacement of the whole map.
 
 `@mnjs/test/scope` exports `createTestScope` and its types without importing
 Marionette, a DOM or a runner. The package's Marionette peer still applies to its
