@@ -102,6 +102,101 @@ it('refreshes root state replaced by an application-owned object', async() => {
   expect(form.el.getAttribute('data-loading')).toBe('true');
 });
 
+it('refreshes retained default-submit props after an unrelated field context event', async() => {
+  const submitAttrs = { title: 'Before' };
+  const form = mount([{ $formkit: 'text', name: 'one' }], { formProps: { actions: true, submitAttrs } });
+  await settle(form);
+  const button = form.el.querySelector('button[type="submit"]');
+  expect(button?.title).toBe('Before');
+  submitAttrs.title = 'After';
+  form.node.at('one').context.note = 'Refresh retained submit props';
+  await settle(form);
+  expect(form.el.querySelector('button[type="submit"]')).toBe(button);
+  expect(button.title).toBe('After');
+});
+
+it('refreshes retained default-submit help after an unrelated field prop update', async() => {
+  const submitAttrs = { help: 'Before' };
+  const form = mount([{ $formkit: 'text', name: 'one' }], { formProps: { actions: true, submitAttrs } });
+  await settle(form);
+  const help = form.el.querySelector('.formkit-help');
+  expect(help?.textContent).toBe('Before');
+  submitAttrs.help = 'After';
+  form.node.at('one').props.label = 'Updated field';
+  await settle(form);
+  expect(form.el.querySelector('.formkit-help')).toBe(help);
+  expect(help.textContent).toBe('After');
+});
+
+it('refreshes a mutation to the Core-equivalent default submit props', async() => {
+  const form = mount([{ $formkit: 'text', name: 'one' }], { formProps: { actions: true } });
+  await settle(form);
+  const button = form.el.querySelector('button[type="submit"]');
+  form.node.props.submitAttrs.title = 'Default changed';
+  form.node.at('one').context.note = 'Refresh default submit props';
+  await settle(form);
+  expect(button.title).toBe('Default changed');
+});
+
+it('retains full rendering when the exposed default submit props gain nested data', async() => {
+  const region = new Region({ el: document.body.appendChild(document.createElement('div')) });
+  regions.push(region);
+  const form = new FormView({ schema: [{ $formkit: 'text', name: 'one' }], formProps: { actions: true } });
+  const attrs = { title: 'Before' };
+  form.node.props.submitAttrs.attrs = attrs;
+  region.show(form);
+  await settle(form);
+  const button = form.el.querySelector('button[type="submit"]');
+  expect(button?.title).toBe('Before');
+  attrs.title = 'After';
+  form.node.at('one').context.note = 'Refresh nested default submit props';
+  await settle(form);
+  expect(button.title).toBe('After');
+});
+
+it('keeps nested submit props on the full reconciliation path', async() => {
+  const attrs = { title: 'Nested before' };
+  const form = mount([{ $formkit: 'text', name: 'one' }], {
+    formProps: { actions: true, submitAttrs: { attrs } }
+  });
+  await settle(form);
+  const button = form.el.querySelector('button[type="submit"]');
+  expect(button?.title).toBe('Nested before');
+  attrs.title = 'Nested after';
+  form.node.at('one').context.note = 'Refresh nested submit props';
+  await settle(form);
+  expect(button.title).toBe('Nested after');
+});
+
+it('reevaluates accessor submit props after descendant changes', async() => {
+  let title = 'Getter before';
+  const submitAttrs = {};
+  Object.defineProperty(submitAttrs, 'title', { enumerable: true, get: () => title });
+  const form = mount([{ $formkit: 'text', name: 'one' }], { formProps: { actions: true, submitAttrs } });
+  await settle(form);
+  const button = form.el.querySelector('button[type="submit"]');
+  expect(button.title).toBe('Getter before');
+  title = 'Getter after';
+  form.node.at('one').context.note = 'Refresh accessor submit props';
+  await settle(form);
+  expect(button.title).toBe('Getter after');
+});
+
+it('reevaluates application-owned submit prop proxies on descendant updates', async() => {
+  let title = 'Before';
+  const submitAttrs = new Proxy({ title: 'Before' }, {
+    get(target, key, receiver) { return key === 'title' ? title : Reflect.get(target, key, receiver); }
+  });
+  const form = mount([{ $formkit: 'text', name: 'one' }], { formProps: { actions: true, submitAttrs } });
+  await settle(form);
+  const button = form.el.querySelector('button[type="submit"]');
+  expect(button?.title).toBe('Before');
+  title = 'After';
+  form.node.at('one').context.note = 'Refresh external submit proxy';
+  await settle(form);
+  expect(button.title).toBe('After');
+});
+
 it.each(['own', 'inherited'])('refreshes a %s root-state getter after descendant changes', async placement => {
   let loading = false;
   const form = mount([{ $formkit: 'text', name: 'one' }]);

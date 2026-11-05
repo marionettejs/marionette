@@ -11,6 +11,7 @@ const metadataProofs = new WeakMap<Owner, { epoch: number; valid: boolean }>();
 const objects = new WeakMap<object, { owner: Owner; role: Role }>();
 const proxyTargets = new WeakMap<object, object>();
 const captures = new WeakMap<object, Capture>();
+const defaultSubmitAttrs = new WeakMap<FormKitNode, object>();
 let active: Capture | undefined;
 let guardDescriptors: WeakMap<object, PropertyDescriptorMap> | undefined;
 let configProofs: WeakMap<object, boolean> | undefined;
@@ -121,9 +122,10 @@ export function iterationScope(scope: object, collection: unknown) {
   }
 }
 function scalar(value: unknown) { return value === null || !['object', 'function'].includes(typeof value); }
-function snapshot(object: object): (() => boolean) | undefined {
+function snapshot(object: object, allowFunctions = true): (() => boolean) | undefined {
   const before = Object.getOwnPropertyDescriptors(object), keys = Object.keys(before);
-  if (keys.some(key => !('value' in before[key]) || !scalar(before[key].value) && typeof before[key].value !== 'function')) { return; }
+  if (keys.some(key => !('value' in before[key]) || !scalar(before[key].value) &&
+    (!allowFunctions || typeof before[key].value !== 'function'))) { return; }
   return () => {
     const after = descriptors(object);
     return keys.length === Object.keys(after).length && keys.every(key =>
@@ -246,6 +248,20 @@ export function independentRoot(node: FormKitNode) {
 export function unchangedObject(node: FormKitNode, object: unknown) {
   const unchanged = independentRoot(node) && ownedObject(node, object) ? snapshot(object) : undefined;
   return unchanged ?? (() => false);
+}
+export function unchangedScalarObject(object: object) {
+  // Only an adapter-created object reaches this proof. Callbacks, accessors and
+  // nested objects retain full rendering.
+  return snapshot(object, false) ?? (() => false);
+}
+export function certifyDefaultSubmitAttrs(node: FormKitNode, expected: object) {
+  // The adapter supplied this object before Core ran any plugins. Its identity
+  // is checked at the renderer boundary; application replacements stay opaque.
+  defaultSubmitAttrs.set(node, expected);
+}
+export function isDefaultSubmitAttrs(node: FormKitNode, value: unknown): value is object {
+  const expected = defaultSubmitAttrs.get(node);
+  return expected !== undefined && expected === value && node.props.submitAttrs === value;
 }
 export function canReuseRender(renderer: object, node: FormKitNode, pending = false) {
   const capture = captures.get(renderer);

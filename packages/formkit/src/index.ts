@@ -9,7 +9,7 @@ import * as rules from '@formkit/rules';
 import { createI18nPlugin, en } from '@formkit/i18n';
 import { isKilled } from '@formkit/observer';
 import { cloneAny, eq, isPojo, undefine } from '@formkit/utils';
-import { defaultRootClasses } from './invalidation.ts';
+import { certifyDefaultSubmitAttrs, defaultRootClasses } from './invalidation.ts';
 import { mountFormSchema, runtimePlugins, sameValues } from './runtime.ts';
 import type { InputMount, RuntimeOptions } from './runtime.ts';
 import type { ViewConfiguration } from 'marionette';
@@ -382,7 +382,13 @@ export class FormView<Values extends object = FormValues> extends View {
     super({ ...options, tagName: 'form', template: options.template ?? (() => '') });
     this.formOptions = options;
     this.initial = mergeValues(defaults(options.fields ?? [], this.el.ownerDocument), options.values as FormValues ?? {});
-    this.node = createNode({ type: 'group', props: { ...options.formProps, id: String(options.formProps?.id ?? (this.el.id || `${this.cid}-form`)),
+    const suppliedFormProps = { ...options.formProps };
+    const defaultSubmitAttrs = !options.config && !options.inputs && !options.plugins?.length && !options.validationRules &&
+      Object.keys(suppliedFormProps).every(key => ['actions', 'id', 'disabled', 'attrs'].includes(key)) ?
+      { disabled: suppliedFormProps.disabled } : undefined;
+    this.node = createNode({ type: 'group', props: { ...suppliedFormProps,
+      ...(defaultSubmitAttrs ? { submitAttrs: defaultSubmitAttrs } : {}),
+      id: String(options.formProps?.id ?? (this.el.id || `${this.cid}-form`)),
       type: 'form', attrs: { ...options.formProps?.attrs as object },
       submitLabel: options.submitLabel ?? 'Submit', resetLabel: options.resetLabel ?? 'Reset' }, value: cloneAny(this.initial),
     config: { delay: 0, rootClasses: defaultRootClasses, ...options.config },
@@ -419,6 +425,7 @@ export class FormView<Values extends object = FormValues> extends View {
     },
     createI18nPlugin({ en }), guardedValidation({ ...rules, ...options.validationRules }, () => this.#submissionChanged()),
     ...options.plugins ?? []] });
+    if (defaultSubmitAttrs) { certifyDefaultSubmitAttrs(this.node, defaultSubmitAttrs); }
     this.node.hook.prop((payload, next) => {
       // A repeated true write has no prop event, but still expresses the owner's
       // latest intent while submission temporarily owns the disabled state.

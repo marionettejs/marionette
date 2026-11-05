@@ -3,7 +3,7 @@ import { createLibraryPlugin, extendSchema, inputs, runtimeProps } from '@formki
 import { createThemePlugin } from '@formkit/themes';
 import { eq, isPojo } from '@formkit/utils';
 import { nativeBindings } from './bindings.ts';
-import { automaticScope, automaticUpdate, canReuseRender, renderCapture, guardPass, contextObject, isAutomaticScope, nativeInvalidation, takeInitialComponent, independentRoot, unchangedObject, contextNeedsRender } from './invalidation.ts';
+import { automaticScope, automaticUpdate, canReuseRender, renderCapture, guardPass, contextObject, isAutomaticScope, nativeInvalidation, takeInitialComponent, independentRoot, unchangedObject, unchangedScalarObject, isDefaultSubmitAttrs, contextNeedsRender } from './invalidation.ts';
 import { createRangeRenderer, createRootRenderer, scoped } from './schema.ts';
 import type { FormKitConfig, FormKitLibrary, FormKitNode, FormKitPlugin, FormKitSchemaDefinition, FormKitSectionsSchema, FormKitSchemaNode } from '@formkit/core';
 import type { FormKitIconLoader, FormKitIconLoaderUrl } from '@formkit/themes';
@@ -276,14 +276,15 @@ export function mountFormSchema(form: HTMLFormElement, root: FormKitNode, option
     return fields.$formkit && 'value' in fields.$formkit &&
       !['if', 'for', 'children', 'bind', 'slots'].some(key => key in fields);
   });
-  let plain = false, slots: unknown, attrs: unknown;
-  let slotsSame: () => boolean, attrsSame: () => boolean;
+  let plain = false, slots: unknown, attrs: unknown, submitAttrs: unknown;
+  let slotsSame: () => boolean, attrsSame: () => boolean, submitAttrsSame: () => boolean;
   const updatePlan = () => {
     plain = !applicationData && !options.slots && !options.sectionsSchema &&
       root.props.definition?.schema === inputs.form.schema && staticInputs() && literal(options.schema, new WeakSet());
     const fields: PropertyDescriptorMap = plain && independentRoot(root) ? Object.getOwnPropertyDescriptors(root.context!) : {};
-    slots = fields.slots?.value; attrs = fields.attrs?.value;
+    slots = fields.slots?.value; attrs = fields.attrs?.value; submitAttrs = fields.submitAttrs?.value;
     slotsSame = unchangedObject(root, slots); attrsSame = unchangedObject(root, attrs);
+    submitAttrsSame = isDefaultSubmitAttrs(root, submitAttrs) ? unchangedScalarObject(submitAttrs) : () => false;
   };
   updatePlan();
   const sameProjection = (key: string, value: unknown) => {
@@ -298,7 +299,8 @@ export function mountFormSchema(form: HTMLFormElement, root: FormKitNode, option
       queued = false;
       const needed = ownChange; ownChange = false;
       if (!disposed && (needed || !plain || !guardPass(() => independentRoot(root) &&
-        sameProjection('slots', slots) && sameProjection('attrs', attrs) && slotsSame() && attrsSame() &&
+        sameProjection('slots', slots) && sameProjection('attrs', attrs) && sameProjection('submitAttrs', submitAttrs) &&
+        slotsSame() && attrsSame() && submitAttrsSame() &&
         [...projections.get(factory)!].every(check => check())))) { automaticUpdate(renderer, root.context!); }
     });
   });
