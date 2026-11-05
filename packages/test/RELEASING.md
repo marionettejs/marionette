@@ -172,6 +172,9 @@ archive. The report does not prove its own source/archive lineage: retain the pa
 receipt and source SHA from the clean build as well.
 
 The existing Linux helper workflow also runs after helper changes merge to `master`.
+Shared `build/**` changes and the copied Cypress contract model trigger it too.
+For another clean final `master` revision, run that workflow manually on `master`
+and verify the reported source SHA matches the intended release revision.
 Its Cypress lanes build and pack from that exact merged revision, retain their
 archives/reports, and print source SHA, archive SHA256 and npm integrity. These
 post-merge receipts can establish native certification; PR-head receipts cannot.

@@ -1,11 +1,14 @@
 name: Testing helper Cypress compatibility
 
 on:
+  workflow_dispatch:
   push:
     branches: [master]
     paths:
       - 'packages/test/**'
       - 'test/examples/**'
+      - 'test/unit/test-package/cypress-contract.spec.js'
+      - 'build/**'
       - '.github/workflows/test-helpers.yml'
       - 'package.json'
       - 'package-lock.json'
@@ -13,6 +16,8 @@ on:
     paths:
       - 'packages/test/**'
       - 'test/examples/**'
+      - 'test/unit/test-package/cypress-contract.spec.js'
+      - 'build/**'
       - '.github/workflows/test-helpers.yml'
       - 'package.json'
       - 'package-lock.json'
