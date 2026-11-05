@@ -21,6 +21,9 @@
       ],
       "@mnjs/radio": [
         "./packages/radio/src/index.ts"
+      ],
+      "@mnjs/router": [
+        "./packages/router/src/index.ts"
       ]
     },
     "resolveJsonModule": true

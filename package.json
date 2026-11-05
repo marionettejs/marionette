@@ -57,7 +57,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "npm run build:utils && npm run build:radio && npm run check:types && node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:types && npm run build:data && npm run build:adapters && npm run build:test && npm run test:types && npm run docs:package",
+    "build": "npm run build:utils && npm run build:radio && npm run check:types && node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:types && npm run build:data && npm run build:adapters && npm run build:test && npm run build:router && npm run test:types && npm run docs:package",
     "build:adapters": "npm --prefix packages/adapters run build",
     "build:data": "npm --prefix packages/data run build",
     "check:browser-profile": "node scripts/checks/browser-profile.mjs",
@@ -121,7 +121,10 @@
     "test:docs-production": "node test/docs/production-package.mjs",
     "build:test": "npm --prefix packages/test run build",
     "test:helpers": "vitest run test/unit/test-package",
-    "test:helpers:consumer": "node test/examples/verify-test-package.mjs"
+    "test:helpers:consumer": "node test/examples/verify-test-package.mjs",
+    "build:router": "npm --prefix packages/router run build",
+    "test:router-package": "node test/router/package.mjs",
+    "test:router-tarball": "node test/router/tarball.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"
@@ -163,6 +166,7 @@
     "jquery": "4.0.0",
     "jsdom": "30.1.3",
     "lit-html": "3.3.3",
+    "marionette": "file:.",
     "marked": "18.1.2",
     "morphdom": "2.7.8",
     "rollup": "4.67.2",
@@ -178,7 +182,8 @@
   },
   "workspaces": [
     "packages/utils",
-    "packages/radio"
+    "packages/radio",
+    "packages/router"
   ],
   "dependencies": {
     "@mnjs/radio": "5.0.1",

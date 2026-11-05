@@ -12416,6 +12416,31 @@
         "this",
         "options"
       ]
+    },
+    {
+      "source": "packages/router/src/router.ts",
+      "event": "'route:error'",
+      "kind": "literal",
+      "arguments": [
+        "error",
+        "match"
+      ]
+    },
+    {
+      "source": "packages/router/src/router.ts",
+      "event": "'route:ready'",
+      "kind": "literal",
+      "arguments": [
+        "match"
+      ]
+    },
+    {
+      "source": "packages/router/src/router.ts",
+      "event": "'route'",
+      "kind": "literal",
+      "arguments": [
+        "match"
+      ]
     }
   ],
   "sources": {
@@ -12433,6 +12458,18 @@
     "packages/radio/src/index.ts": "24171247f65ecb3697629883abe9d248395b090d566ea70ac7c1b856d1cd7940",
     "packages/radio/src/radio.ts": "42a799d58d602c0fbbb4fcbc16170e1a89dad55c47d5f00ffaed69c8ee3d877f",
     "packages/radio/src/requests.ts": "87c52bfae0bdd5646b248a07da69e278192b3722a552355eef8144e227d0daa4",
+    "packages/router/src/child-app-switcher.ts": "c39de7d898320cd02a590fcc549580f1425f2ddce672d311b23ab7fe1f0339a8",
+    "packages/router/src/drivers/memory.ts": "aab8e1099fd3826b31ce9c0e854ae0eaca2f27b2905a82a8dcba2cd1ca996ed7",
+    "packages/router/src/drivers/navigation.ts": "6ee1dc86a39fb509b2ba6541488fa7a507a44991cc10b8363c9079085d488340",
+    "packages/router/src/index.ts": "02c3569be2ed087f55178cc71745215cb64cfd7b3a4d53f186cc400bd2207270",
+    "packages/router/src/is-equal.ts": "6410bd647916bcd4651215e3d6453c8f182639639cd465d8f84795abd89cbdde",
+    "packages/router/src/matcher.ts": "cfa5aef817fa1fb07206461f81b0e50c19bd35484f8d57b085e36cd210b3dd0b",
+    "packages/router/src/pattern.ts": "c35c5947becea43013944725d9a249605442265d8f82ccd8f36a93fb4c01ba08",
+    "packages/router/src/query.ts": "c0f7a9f45401991472cabf707724c491ea056b302fce522fb2c7ce48c6cd7417",
+    "packages/router/src/route-application.ts": "52b13029c3071b075eef6514e173c7d3d4e83ba73777bf0d674e7b83f07c221a",
+    "packages/router/src/route-types.ts": "88b4d8de1e1e582e9ede2d30da678e16c5a5499d82208c6e641bb1f81ec87349",
+    "packages/router/src/router.ts": "20815be89a482f727f1c065bc65bc2ff5afe5852243aa0fb13c06fea439934cc",
+    "packages/router/src/types.ts": "c3570ac8a601fb65368d37f1e9ecf97b68b92a493a96c03859b38bb8c659a58f",
     "packages/test/src/context.ts": "2480f1721ff900bbbb0de6648cbaef247786eff93009c0407a066f14cc72cdf0",
     "packages/test/src/cypress.js": "d0589b13c1634802f0490d28249c7b45f90a4835bd73368cd6d9336c513a0f9e",
     "packages/test/src/errors.ts": "a9f7fed430e0759b599ca2605ff952cc6f984068edd7c1b2f048d5312caed3a4",
