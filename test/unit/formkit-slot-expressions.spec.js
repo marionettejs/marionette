@@ -26,7 +26,7 @@ it('evaluates a fallback callback only once per render and preserves its receive
 });
 
 it('preserves chosen slot scope and receiver through updates, fallback and terminal cleanup', () => {
-  const calls = [], clicked = vi.fn();
+  const calls = []; const clicked = vi.fn();
   const slots = { label: 'Slot receiver', on(scope) {
     calls.push([this.label, scope.option.label]);
     return { schema: { $el: 'button', attrs: { onClick: '$clicked' }, children: '$label' },
@@ -54,4 +54,25 @@ it.each(['', []])('retains an intentionally empty supplied slot instead of using
   expect(view.container.textContent).toBe(''); expect(slot).toHaveBeenCalledTimes(1);
   view.update({ slots: {}, option: { label: 'Fallback' } });
   expect(view.container.textContent).toBe('Fallback');
+});
+
+it('releases component slots when fallback text replaces them and retains direct missing-slot behavior', () => {
+  const mounted = vi.fn(); const destroyed = vi.fn();
+  const container = document.body.appendChild(document.createElement('div'));
+  const slot = () => ({ $cmp: 'Choice', props: { label: '$label' } });
+  const view = createSchemaRenderer(container, { schema: ['$slots.missing', '$slots.default || $label'],
+    data: { label: 'Slot', slots: { default: slot } }, components: { Choice: ({ document: doc }) => {
+      mounted(); const element = doc.createElement('button');
+      return { element, update({ label }) { element.textContent = label; }, destroy: destroyed };
+    } } }); owners.push(view);
+  expect(container.textContent).toBe('Slot');
+  const button = container.querySelector('button');
+  view.update({ slots: { default: slot }, label: 'Changed slot' });
+  expect(container.querySelector('button')).toBe(button); expect(mounted).toHaveBeenCalledTimes(1);
+  view.update({ slots: {}, label: '$literal fallback' });
+  expect(container.textContent).toBe('$literal fallback'); expect(button.isConnected).toBe(false);
+  expect(destroyed).toHaveBeenCalledTimes(1);
+  view.update({ slots: { default: slot }, label: 'Returned' });
+  expect(mounted).toHaveBeenCalledTimes(2);
+  view.destroy(); expect(destroyed).toHaveBeenCalledTimes(2);
 });

@@ -6,7 +6,7 @@ import { rovingInput } from '../formkit/roving-input.js';
 const owners = [];
 afterEach(() => { owners.splice(0).reverse().forEach(owner => owner.destroy()); document.body.replaceChildren(); });
 function mount(value = 0, validation = 'min:1', options = {}) {
-  const selected = [], submit = vi.fn();
+  const selected = []; const submit = vi.fn();
   const form = new FormView({ inputs: { choice: rovingInput(selected) }, values: { score: value }, submit,
     schema: [{ $formkit: 'choice', name: 'score', id: 'score', label: 'Score', help: 'Use the arrow key to choose a score.', validation }], ...options });
   const region = new Region({ el: document.body.appendChild(document.createElement('div')) });

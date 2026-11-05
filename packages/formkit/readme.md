@@ -315,8 +315,9 @@ construction snapshot. The source checkout's
   Invalid-control focus includes connected owned fields in external Regions, in
   document order; detached, hidden, inert and disabled controls are skipped. If the
   browser refuses focus (for example because CSS hides an ancestor), the next
-  invalid control is tried. Roving radio widgets use their authored wrapper tabstop
-  or active radio; submission does not focus an inactive answer to enter the widget.
+  invalid control is tried. Within an authored same-name radio-only focus scope,
+  inactive roving radios use the wrapper tabstop or active radio; submission does
+  not focus an inactive answer to enter that widget.
   Standalone negative-tabindex inputs remain programmatically focusable. Async rules
   are rechecked when their captured root values change, including added schema fields.
   An application write to `form.node.props.disabled` during submission remains
@@ -380,6 +381,9 @@ Vue/React components are not portable. `sectionsSchema` extends official section
 and each schema input may provide its own section extensions.
 
 Named `slots` are functions returning schema, a DOM node, or `{ schema, data }`.
+A child expression such as `$slots.default || $option.label` invokes a selected
+slot function or renders the selected fallback as text, without parsing that text
+as schema. An intentionally empty supplied slot remains empty.
 Input `children` supply default content or a named-slot map. `$slots.name`, scoped
 context, `$get("id")`, loops, stable keys and function event bindings work.
 Forwarded `$slots.name` references keep the declaring schema's slot bindings;

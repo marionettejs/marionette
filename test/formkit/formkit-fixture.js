@@ -198,7 +198,7 @@ export function mountOwnedFields() {
 export function mountRovingFocus() {
   const region = new Region({ el: document.body.appendChild(document.createElement('div')) });
   const external = new Region({ el: document.body.appendChild(document.createElement('div')) });
-  const selected = [], saved = [];
+  const selected = []; const saved = [];
   const form = new FormView({ inputs: { choice: rovingInput(selected) }, values: { score: 0 },
     schema: [{ $formkit: 'choice', name: 'score', id: 'focus-score', label: 'Score', help: 'Use the arrow key to choose a score.', validation: 'min:1' }],
     submit: values => saved.push(values) });

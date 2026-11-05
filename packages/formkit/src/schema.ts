@@ -23,7 +23,7 @@ export interface SchemaOptions {
 type RecordNode = { node: Node; end?: Node; pending?: DocumentFragment; kind: string; keep?: boolean;
   children?: Map<string, RecordNode>; component?: SchemaComponent; listeners?: Map<string, EventListener>;
   attributes?: Set<string>; html?: string; releaseEvents?: () => void };
-type Evaluated = { key: string; schema: FormKitSchemaNode | Node; scope: Scope };
+type Evaluated = { key: string; schema: FormKitSchemaNode | Node; scope: Scope; text?: unknown };
 type Normalized = FormKitSchemaDOMNode & { $cmp?: string; props?: FormKitSchemaComponent['props'] };
 type Host = { document: Document; nodes(): Node[]; insert(node: Node, before: Node | null): void; contains(node: Node): boolean };
 type ValueControl = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
@@ -81,12 +81,16 @@ function expand(schema: FormKitSchemaDefinition | Node, scope: Scope, prefix: st
     const key = `${prefix}${index}`;
     if (typeof entry === 'string') {
       if (entry.startsWith('$slots.')) {
-        const slot = evaluate(entry, scope) as SchemaSlot | undefined;
-        if (slot) {
+        const slot = evaluate(entry, scope);
+        if (typeof slot === 'function') {
           const content = slot(scope);
           if (content && typeof content === 'object' && 'schema' in content) {
             result.push(...expand(content.schema, content.data, `${key}.slot.`, identity));
           } else { result.push(...expand(content as FormKitSchemaDefinition | Node, scope, `${key}.slot.`, identity)); }
+        } else if (slot !== undefined || !/^\$slots\.[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*$/.test(entry)) {
+          // A compound slot expression may choose ordinary fallback text.
+          // Retain the evaluated value: do not call it or parse it as schema.
+          result.push({ key, schema: { $el: 'text' }, scope, text: slot });
         }
       } else { result.push({ key, schema: entry, scope }); }
       return;
@@ -243,7 +247,7 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
       }
       next.set(item.key, record);
       if (!supplied && '$cmp' in normalized) { record.component!.update(props, item.scope, normalized.children); } else if (!supplied && normalized.$el === 'text') {
-        const text = String(evaluate(normalized.children ?? '', item.scope));
+        const text = String(Object.hasOwn(item, 'text') ? item.text : evaluate(normalized.children ?? '', item.scope));
         if (record.node.textContent !== text) { record.node.textContent = text; }
       } else if (!supplied) {
         const element = record.node as HTMLElement;
@@ -265,7 +269,7 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
               if (typeof value !== 'function') { throw new Error('Schema event attributes require function bindings.'); }
               const event = schemaEventName(attribute);
               const handler = value as EventListener;
-              const listener: EventListener = event => handler.call(element, event);
+              const listener: EventListener = nativeEvent => handler.call(element, nativeEvent);
               element.addEventListener(event, listener, isPassiveSchemaEvent(attribute) ? { passive: true } : undefined);
               // Plain and passive bindings can target the same native event.
               record.listeners!.set(attribute, listener);

@@ -549,7 +549,7 @@ test('explicit owner placement preserves sibling selection and ends validation o
 });
 
 test('invalid composite focus preserves answers and the authored keyboard entry point', async({ page }, testInfo) => {
-  const errors = [], attempts = [];
+  const errors = []; const attempts = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
   await page.evaluate(async path => {
@@ -570,7 +570,7 @@ test('invalid composite focus preserves answers and the authored keyboard entry 
   await expect(page.locator('#focus-score-1')).toHaveAttribute('aria-invalid', 'true');
   expect(await entry.evaluate(element => element.getAttribute('aria-describedby').split(' ').length === 2 &&
     ['aria-labelledby', 'aria-describedby'].every(attribute =>
-    element.getAttribute(attribute).split(' ').every(id => document.querySelectorAll(`[id="${id}"]`).length === 1)))).toBe(true);
+      element.getAttribute(attribute).split(' ').every(id => document.querySelectorAll(`[id="${id}"]`).length === 1)))).toBe(true);
   await entry.press('ArrowRight');
   await expect.poll(() => page.evaluate(() => window.rovingFixture.form.getValues().score)).toBe(1);
   await submit.click();
@@ -578,12 +578,12 @@ test('invalid composite focus preserves answers and the authored keyboard entry 
   await page.evaluate(() => { window.rovingFixture.form.resetForm(); window.rovingFixture.addExternal(); });
   const external = page.getByRole('textbox', { name: 'External required', exact: true });
   for (const state of ['hidden', 'inert', 'display', 'visibility', 'disabled']) {
-    await page.evaluate(state => {
+    await page.evaluate(placement => {
       const host = document.getElementById('focus-score-field');
-      host.hidden = state === 'hidden'; host.inert = state === 'inert';
-      host.style.display = state === 'display' ? 'none' : '';
-      host.style.visibility = state === 'visibility' ? 'hidden' : '';
-      window.rovingFixture.form.node.at('score').props.disabled = state === 'disabled';
+      host.hidden = placement === 'hidden'; host.inert = placement === 'inert';
+      host.style.display = placement === 'display' ? 'none' : '';
+      host.style.visibility = placement === 'visibility' ? 'hidden' : '';
+      window.rovingFixture.form.node.at('score').props.disabled = placement === 'disabled';
       document.activeElement?.blur();
     }, state);
     await submit.click(); await expect(external).toBeFocused();
