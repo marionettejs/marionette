@@ -22,6 +22,16 @@ export function createOwner(begin?: () => void): TestScope {
     if (errors.length) { throw new AggregateError(errors, withErrorMessages('Test scope cleanup failed.', errors)); }
   }
 
+  function ownReply(channel: ReplyChannel, name: string, value: unknown, receiver: unknown) {
+    // Each key needs its own identity, including when a later replacement uses
+    // the same original function and context.
+    const callback = function(this: unknown, ...args: unknown[]) {
+      return typeof value === 'function' ? value.apply(this, args) : value;
+    };
+    defer(() => channel.stopReplying(name, callback, receiver));
+    channel.reply(name, callback, receiver);
+  }
+
   const scope: TestScope = {
     defer,
     own(resource) {
@@ -31,20 +41,19 @@ export function createOwner(begin?: () => void): TestScope {
       });
       return resource;
     },
-    reply(source: ReplyChannel | ReplyRadio, channelOrName: string, nameOrValue: unknown, valueOrContext?: unknown, context?: unknown) {
+    reply(source: ReplyChannel | ReplyRadio, channelOrName: string | Record<string, unknown>, nameOrValue: unknown, valueOrContext?: unknown, context?: unknown) {
       assertOpen();
       const named = 'channel' in source;
-      const channel = named ? source.channel(channelOrName) : source;
-      const name = named ? nameOrValue as string : channelOrName;
-      const value = named ? valueOrContext : nameOrValue;
-      const receiver = (named ? context : valueOrContext) || channel;
-      // A unique callback prevents cleanup from deleting a later replacement,
-      // even when that replacement uses the same original function and context.
-      const callback = function(this: unknown, ...args: unknown[]) {
-        return typeof value === 'function' ? value.apply(this, args) : value;
-      };
-      defer(() => channel.stopReplying(name, callback, receiver));
-      channel.reply(name, callback, receiver);
+      const channel = named ? source.channel(channelOrName as string) : source;
+      const nameOrReplies = named ? nameOrValue as string | Record<string, unknown> : channelOrName;
+      if (typeof nameOrReplies === 'string') {
+        ownReply(channel, nameOrReplies, named ? valueOrContext : nameOrValue, (named ? context : valueOrContext) || channel);
+      } else {
+        const receiver = (named ? valueOrContext : nameOrValue) || channel;
+        for (const name of Object.keys(nameOrReplies)) {
+          ownReply(channel, name, nameOrReplies[name], receiver);
+        }
+      }
       return channel;
     },
     cleanup() {

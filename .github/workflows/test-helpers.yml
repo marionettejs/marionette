@@ -1,10 +1,23 @@
 name: Testing helper Cypress compatibility
 
 on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'packages/test/**'
+      - 'test/examples/**'
+      - 'test/unit/test-package/cypress-contract.spec.js'
+      - 'build/**'
+      - '.github/workflows/test-helpers.yml'
+      - 'package.json'
+      - 'package-lock.json'
   pull_request:
     paths:
       - 'packages/test/**'
       - 'test/examples/**'
+      - 'test/unit/test-package/cypress-contract.spec.js'
+      - 'build/**'
       - '.github/workflows/test-helpers.yml'
       - 'package.json'
       - 'package-lock.json'
@@ -13,7 +26,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: test-helpers-cypress-${{ github.event.pull_request.number }}
+  group: test-helpers-cypress-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -48,6 +61,17 @@ jobs:
           npm exec --yes --ignore-scripts --package=cypress@${{ matrix.cypress }} -- cypress install
       - name: Verify packed helper with Cypress and failure probes
         run: npm run test:helpers:consumer -- --cypress ${{ matrix.flags }}
+      - name: Record exact-source artifact certification
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const directory = 'test/tmp/test-package-consumer/';
+          const report = JSON.parse(readFileSync(directory + 'report.json', 'utf8'));
+          const packed = JSON.parse(readFileSync(directory + 'pack.log', 'utf8'))[0];
+          console.log(JSON.stringify({ sourceRevision: report.sourceRevision, sourceDirty: report.sourceDirty,
+            artifact: report.artifact, sha256: report.sha256, passed: report.passed,
+            requestedChecks: report.requestedChecks, integrity: packed.integrity, shasum: packed.shasum }));
+          NODE
       - name: Print failed Cypress runtime output
         if: failure()
         run: |
@@ -58,7 +82,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: test-helpers-cypress-${{ matrix.cypress }}-${{ github.event.pull_request.number }}-${{ github.run_attempt }}
+          name: test-helpers-cypress-${{ matrix.cypress }}-${{ github.event.pull_request.number || github.sha }}-${{ github.run_attempt }}
           path: test/tmp/test-package-consumer/
           if-no-files-found: warn
           retention-days: 30

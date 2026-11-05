@@ -1,6 +1,6 @@
 # Test Views and Applications
 
-Consumer reference for `@mnjs/test` **0.2.0** with Marionette **5.x**.
+Consumer reference for `@mnjs/test` **0.2.1** with Marionette **5.x**.
 For installation and a first complete test, start with the [package README](readme.md).
 Mounting requires a DOM; importing the neutral entry and creating a cleanup scope do not.
 Repository-example links follow `master` and may change; this installed guide
@@ -709,12 +709,33 @@ context?)` keeps string-based channel names and uses the supplied Radio instance
 There is no global Radio import. Function receivers and arguments follow Radio's
 normal context behavior; omitted/falsy contexts use the channel.
 
+The hash forms are `scope.reply(channel, replies, context?)` and
+`scope.reply(Radio, channelName, replies, context?)`. Each own enumerable string
+key registers independently; inherited properties, non-enumerable properties and
+symbols are ignored. Names, including spaces and `__proto__`, are literal. Hash
+values can be functions or constants, including falsy values and promises.
+TypeScript contextually types a hash method's `this` from the supplied context,
+or from the channel when context is omitted. A primitive context whose type can
+also contain a falsy value requires narrowing the receiver from that primitive
+or the channel.
+
+```js
+const receiver = { token: 'test-token' };
+scope.reply(channel, {
+  getToken() { return this.token; },
+  authorized: false
+}, receiver);
+```
+
 Every registration has its own callback identity. Cleanup filters by request name,
 that callback, and its effective context. A later unrelated replacement remains
 installed, even if it uses the same original function or context. Overwriting an
 older reply follows Radio's existing behavior; cleanup does not restore that
 older handler. Neither channel-wide `stopReplying()` nor `Radio.reset()` is used.
 Registration after cleanup begins is rejected before changing any reply.
+Hash registration is sequential: successfully registered keys are owned by the
+scope even if a later property read or registration throws. It is not an atomic
+replacement of the whole map.
 
 `@mnjs/test/scope` exports `createTestScope` and its types without importing
 Marionette, a DOM or a runner. The package's Marionette peer still applies to its
@@ -768,7 +789,7 @@ record.
 
 The 5.0.0 version in this historical table is not the current installation pin.
 Use the [installation instructions](readme.md#install) for Marionette 5.0.1 and
-the separately versioned `@mnjs/test` 0.2.0.
+the separately versioned `@mnjs/test` 0.2.1.
 
 | Entry / runner | Version and checks |
 | --- | --- |

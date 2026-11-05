@@ -70,6 +70,15 @@ at the time it shipped; older prerelease APIs may have been superseded.
   subscription matching behavior did not change. Independent lifetimes need
   distinct callback/context identities or subscription handles.
 
+### @mnjs/test 0.2.1
+
+* Own each hash-form `scope.reply()` key independently, preserving callback context,
+  constants and literal names without deleting later same-function/context replacements.
+* Add installed ESM/CommonJS hash overloads with accurate contextual receiver types.
+  Single-name calls and non-restoring cleanup remain unchanged. Reply restoration
+  is tracked separately in [#3803](https://github.com/marionettejs/marionette/issues/3803)
+  and [#3804](https://github.com/marionettejs/marionette/issues/3804).
+
 ### v5.0.0
 
 > Native UI lifecycles, explicit ownership, and version-matched tools for application and agent development.
