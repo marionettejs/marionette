@@ -50,7 +50,7 @@ it('does not treat a mixed-widget layout or the form itself as a radio entry poi
   const { form } = mount(0, 'min:1', { schema: [
     { $el: 'section', attrs: { tabindex: 0, id: 'layout' }, children: [
       { $formkit: 'radio', name: 'option', id: 'standalone-radio', label: 'Option', validation: 'required',
-        options: ['A', 'B'], attrs: { tabindex: -1 } },
+        options: ['A', 'B'], sectionsSchema: { input: { attrs: { tabindex: -1 } } } },
       { $formkit: 'text', name: 'other', label: 'Other', validation: 'required' }
     ] }
   ] });
