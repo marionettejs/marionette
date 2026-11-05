@@ -133,6 +133,8 @@ Changing values captured by a predicate does not change the predicate's identity
 
 `isEmpty()` reports whether `children` has no presented rows. All rows can be filtered out while the source still has models. The `emptyView` appears for this presentation state, through the Region returned by `getEmptyRegion()`.
 
+An override can choose the empty presentation while newly added rows remain in `children`. Those unpresented rows remain owned. Unattached rows receive no parent attachment or detachment notifications until a later presentation pass includes them.
+
 The empty View is separate from `children`. It receives `emptyViewOptions`, or the `childViewOptions` fallback, with no automatic model. Give it a root suitable for the child container, such as `li` inside `ul`. Each empty presentation pass creates a new empty View and replaces the previous one; it is destroyed when rows appear or the list is destroyed. Its events use the same [child forwarding](shared/view-bindings.md#child-events) as rows.
 
 With lifecycle monitoring enabled, the empty View and its descendants attach and detach with the list, including when composed before the list is mounted.
@@ -174,6 +176,10 @@ These operations do not change the source collection. For collection-backed rows
 | `swapChildViews(first, second)` → `this` | Swaps two managed children without changing the collection. Both must belong to this list (`MN0015` otherwise). If only one is currently presented, reapplies filtering. A later sort can override the swap. |
 
 For addition, `{ index, preventRender }` may be supplied as options; a non-null options index takes precedence over the positional index. `preventRender` defers child presentation, not adoption or the parent's initial render. Destroyed/falsy incoming Views and additions to a destroying/destroyed list return unchanged. Already owned incoming Views throw `MN0003`.
+
+With monitoring enabled, a deferred child outside the list's markup receives no parent attachment notifications until it is presented, even if the child was already rendered. An already-attached deferred child, such as one constructed against connected markup outside the list, receives `before:detach` and `detach` when a filter excludes it, even if the list never presented it. A child adopting markup already inside the list participates in its lifecycle immediately, including when an `add:child` callback shows the list. Finish a batch with `sort()` or `filter()` to present its included rows. The list still owns pending children and destroys them during teardown.
+
+With monitoring enabled, when the markup was mounted before the child acquired an owner, adoption catches up its missing attachment after `add:child` and before `addChildView()` returns, provided the list is still attached and the child remains owned and presented after the callbacks. During this adoption catch-up, `before:attach` sees already-connected markup and `attach` sees `isAttached()` true. If an `add:child` handler first presents the child through `sort()` or `filter()`, normal presentation lifecycle applies instead: `before:attach` runs before insertion and `attach` after insertion. Later flushing does not repeat attachment. A child constructed against already-connected markup starts attached and receives no synthetic attachment during adoption. Filtering out or removing the child in `add:child` prevents this catch-up; an unattached list waits for its normal mounting lifecycle.
 
 A child that destroys itself is removed from the list automatically. Full `render()` destroys manual children too and rebuilds only collection rows.
 
