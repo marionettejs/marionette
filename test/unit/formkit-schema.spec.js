@@ -16,6 +16,38 @@ afterEach(() => {
 });
 
 describe('@mnjs/formkit public schema foundation', () => {
+  it('repopulates an emptied schema host with current keyed elements and component ranges', () => {
+    const destroyed = [];
+    const pair = id => ({ $cmp: 'Pair', key: id, props: { id } });
+    const text = { $el: 'text', key: 'text', children: '$label' };
+    const view = render([pair('first'), text], {
+      data: { label: 'Before' },
+      components: { Pair: ({ document: doc, props }) => {
+        const element = doc.createDocumentFragment();
+        const input = doc.createElement('input'); input.id = props.id;
+        const label = doc.createElement('label'); label.textContent = props.id;
+        element.append(input, label);
+        return { element, update() {}, destroy() { destroyed.push(props.id); } };
+      } }
+    });
+    const first = view.container.querySelector('input');
+    view.setSchema([]);
+    expect(view.container.childNodes).toHaveLength(0);
+    expect(first.isConnected).toBe(false); expect(destroyed).toEqual(['first']);
+    view.setSchema([text, pair('second'), { $el: 'b', key: 'tail', children: 'Tail' }]);
+    view.update({ label: 'After' });
+    const visible = [...view.container.childNodes].filter(node => node.nodeType !== Node.COMMENT_NODE);
+    expect(visible.map(node => node.nodeName)).toEqual(['#text', 'INPUT', 'LABEL', 'B']);
+    expect(view.container.textContent).toBe('AftersecondTail');
+    const second = view.container.querySelector('input'); second.value = 'Edited'; second.focus();
+    view.setSchema([pair('second'), text]);
+    expect(view.container.querySelector('input')).toBe(second);
+    expect(second.value).toBe('Edited'); expect(document.activeElement).toBe(second);
+    expect(view.container.textContent).toBe('secondAfter');
+    view.destroy(); expect(view.container.childNodes).toHaveLength(0);
+    expect(destroyed).toEqual(['first', 'second']);
+  });
+
   it('reorders mixed keyed component ranges and text while inserting and removing siblings', () => {
     const destroyed = [];
     const fields = new Map();
