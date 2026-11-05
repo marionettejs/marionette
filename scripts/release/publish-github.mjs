@@ -124,11 +124,32 @@ if (changelog.error || changelog.status !== 0) {
 }
 const lines = changelog.stdout.split(/\r?\n/);
 const heading = lines.indexOf(`### v${evidence.release.version}`);
-const firstLine = heading < 0 ? '' : lines.slice(heading + 1).find(line => line.trim()) || '';
+const releaseLines = lines.slice(heading + 1);
+const nextHeading = releaseLines.findIndex(line => line.startsWith('### '));
+const releaseSection = releaseLines.slice(0, nextHeading < 0 ? releaseLines.length : nextHeading);
+const firstLine = heading < 0 ? '' : releaseSection.find(line => line.trim()) || '';
 if (!firstLine.startsWith('> ') || !firstLine.slice(2).trim()) {
   throw new Error(`Changelog ${evidence.release.version} must start with a release-specific opening blockquote.`);
 }
 const opening = firstLine.slice(2).trim();
+const sourceUrl = `https://github.com/${evidence.source.repository}/blob/${evidence.source.commit}`;
+const releaseNotes = releaseSection.join('\n').trim().replace(/^> /, '')
+  .replace(/\]\(((?:docs|packages)\/[^)\s]+)\)/g, `](${sourceUrl}/$1)`);
+const notes = [
+  releaseNotes,
+  '',
+  `Install core: \`npm install marionette@${evidence.release.version}\`. Keep companion package versions aligned.`,
+  '',
+  `[Changes](${sourceUrl}/changelog.md) · [Migration guide](${sourceUrl}/docs/guides/migration.md) · [Quick start](${sourceUrl}/docs/quick-start.md)`,
+  ...(evidence.release.prerelease ? [
+    'This is a prerelease for application trials, not a stable or comparative agent-readiness claim.',
+  ] : []),
+  '',
+  `Immutable release artifact for ${evidence.source.commit}.`,
+  '',
+  ...evidence.packages.map(packageEvidence =>
+    `${packageEvidence.name} tarball SHA-512: ${packageEvidence.tarball.sha512}`),
+].join('\n');
 
 if (mode === 'dry-run') {
   console.log(JSON.stringify({
@@ -137,6 +158,7 @@ if (mode === 'dry-run') {
     target: evidence.source.commit,
     prerelease: evidence.release.prerelease,
     opening,
+    notes,
     assets: assetNames,
   }, null, 2));
   process.exit(0);
@@ -253,22 +275,6 @@ if (mode === 'stage') {
     throw new Error(`Unable to inspect release ${evidence.release.tag}.`);
   }
 
-  const sourceUrl = `https://github.com/${evidence.source.repository}/blob/${evidence.source.commit}`;
-  const notes = [
-    opening,
-    '',
-    `Install core: \`npm install marionette@${evidence.release.version}\`. Keep companion package versions aligned.`,
-    '',
-    `[Changes](${sourceUrl}/changelog.md) · [Migration guide](${sourceUrl}/docs/guides/migration.md) · [Quick start](${sourceUrl}/docs/quick-start.md)`,
-    ...(evidence.release.prerelease ? [
-      'This is a prerelease for application trials, not a stable or comparative agent-readiness claim.',
-    ] : []),
-    '',
-    `Immutable release artifact for ${evidence.source.commit}.`,
-    '',
-    ...evidence.packages.map(packageEvidence =>
-      `${packageEvidence.name} tarball SHA-512: ${packageEvidence.tarball.sha512}`),
-  ].join('\n');
   const createArgs = [
     'release',
     'create',

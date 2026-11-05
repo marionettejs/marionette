@@ -42,7 +42,7 @@ Packaged applications are verified on Node 22.22.2+ (22.x) and 24.15.0+ (24.x); 
 Install matching package versions in your browser application:
 
 ```sh
-npm install --save-exact marionette@5.0.0 @mnjs/utils@5.0.0 @mnjs/radio@5.0.0 @mnjs/adapters@5.0.0 lit-html@3.3.3
+npm install --save-exact marionette@5.0.1 @mnjs/utils@5.0.1 @mnjs/radio@5.0.1 @mnjs/adapters@5.0.1 lit-html@3.3.3
 ```
 
 Given `<div id="app"></div>` in your page, this module shows a dismissible panel:

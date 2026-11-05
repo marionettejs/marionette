@@ -12,12 +12,15 @@ development package.
 Use Marionette 5 and Node.js `^22.22.2 || >=24.15.0`:
 
 ```sh
-npm install --save-exact marionette@5.0.0
+npm install --save-exact marionette@5.0.1
 npm install --save-dev --save-exact @mnjs/test@0.2.1
 ```
 
 Install only the optional tools your tests use. Component tests can stay in
 Cypress; the helper does not require a second runner.
+
+The helper is separately versioned: these examples use Marionette 5.0.1 with
+`@mnjs/test` 0.2.1. A coordinated runtime patch does not require a helper release.
 
 ## Use the runner-independent core
 
@@ -141,7 +144,7 @@ survive remounts in `testScope()` and keep shell-owned services in the factory s
 For cleanup without mounting, use the runner-free `@mnjs/test/scope` entry.
 
 The reply example also imports Radio. Install it directly with
-`npm install --save-dev --save-exact @mnjs/radio@5.0.0` if it is not already a
+`npm install --save-dev --save-exact @mnjs/radio@5.0.1` if it is not already a
 dependency of your project:
 
 ```js
@@ -176,7 +179,7 @@ This package includes its own [consumer guide](guide.md). Open
 `node_modules/@mnjs/test/guide.md` from your project for complete runner setup,
 all mount options, bound queries, readiness, ownership, teardown errors and tested
 versions. Its examples use public package imports. This reference ships with the
-helper; it does not require a newer documentation copy in `marionette@5.0.0`.
+helper; it does not require a newer documentation copy in the core `marionette` package.
 
 The general [Marionette testing guide](https://marionettejs.com/docs/guides/testing/)
 explains testing rendered content, interaction, readiness and disposal.
