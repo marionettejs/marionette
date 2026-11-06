@@ -321,7 +321,12 @@ function onNavigate(router: RouterInstance, event: DriverEvent) {
     // synchronous listener exception fall through to document navigation.
     task = () => {throw error;};
   }
+  // Planning callbacks can start a newer driver navigation. Router cancellation
+  // alone still needs an intercepted canceled attempt, rather than document fallback.
+  if (event.defaultPrevented || event.signal.aborted) {nav.release!(); return;}
   abortLocal(router);
+  // Aborting initial work can synchronously navigate from an abort listener too.
+  if (event.defaultPrevented || event.signal.aborted) {nav.release!(); return;}
   event.intercept({ handler: () => waitForAttempt(router, nav, task), ...chain.policy });
 }
 
@@ -464,6 +469,8 @@ function hop(router: RouterInstance, href: string, nav: Navigation): NavigationR
 }
 
 function execute(router: RouterInstance, plan: Plan, nav: Navigation) {
+  // Initial dispatch also plans directly; no canceled plan may commit or redirect.
+  if (nav.signal.aborted) {throw new NavigationCancelled();}
   if (plan.hop === undefined) {return run(router, plan, nav);}
   nav.chain.followUp = hop(router, plan.hop, nav);
 }

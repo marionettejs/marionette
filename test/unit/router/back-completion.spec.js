@@ -95,3 +95,32 @@ it('keeps genuinely distinct Back destinations independent after the first commi
   assert.deepEqual(errors, []);
   assert.equal(router.getCurrent().name, 'first');
 });
+
+for (const history of ['replace', 'push']) {
+  it(`coalesces queued Back before synchronous unrelated ${history} navigation supersedes it`, async() => {
+    const work = Promise.withResolvers();
+    const driver = memoryDriver({ url: 'https://routes.example/a' });
+    let gated = false;
+    let replaced = false;
+    let unrelated;
+    const router = createRouter({ driver, routes: {
+      a: { path: '/a', handler() {
+        if (gated && !replaced) { replaced = true; unrelated = router.navigate('c', {}, { history }); }
+      } },
+      b: { path: '/b' }, c: { path: '/c', handler: () => work.promise },
+    } });
+    await router.start(); await router.getInitialDispatch();
+    await router.navigate('b').finished;
+    gated = true;
+    const one = router.back();
+    const two = router.back();
+    let cancelled;
+    Promise.all([one, two]).then(values => { cancelled = values; });
+    await turn();
+    // Both traversals have already been canceled, independently of C's gate.
+    assert.deepEqual(cancelled, [false, false]);
+    assert.equal(driver.currentEntry.url, 'https://routes.example/c');
+    work.resolve();
+    assert.equal(await unrelated.finished, true);
+  });
+}

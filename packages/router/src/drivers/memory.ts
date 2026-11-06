@@ -152,7 +152,7 @@ class Navigation {
     if (!canIntercept) {
       throw domError('This navigation cannot be intercepted', 'SecurityError');
     }
-    if (!this.dispatching || this.canceled) {
+    if (!this.dispatching || this.canceled || this.controller.signal.aborted) {
       throw domError('intercept() is only available while the navigate event is dispatching', 'InvalidStateError');
     }
     this.intercepted = true;
@@ -192,6 +192,7 @@ class MemoryHistory {
   #keys = 0;
   #listeners = new Set<(event: DriverEvent) => void>();
   #active = new Set<Navigation>();
+  #queuedTraversals = new Map<string, Navigation>();
 
   constructor(url: string) {
     this.entries.push(this.#createEntry(url));
@@ -237,8 +238,16 @@ class MemoryHistory {
     if (!target) {return rejected(this.#missingEntry(key));}
     if (target === this.current) {return resolved(target);}
 
+    const queued = this.#queuedTraversals.get(key);
+    if (queued) {return queued.result;}
     const navigation = new Navigation();
-    queueMicrotask(() => this.#traverse(key, navigation));
+    // Coalesce the requested traversal, not unrelated work that may replace its
+    // entry synchronously during dispatch. Remove queued entries before dispatch.
+    this.#queuedTraversals.set(key, navigation);
+    queueMicrotask(() => {
+      this.#queuedTraversals.delete(key);
+      this.#traverse(key, navigation);
+    });
     return navigation.result;
   }
 
@@ -295,15 +304,6 @@ class MemoryHistory {
     }
     if (target === this.current) {
       navigation.committed.resolve(target);
-      // A queued duplicate can reach a committed entry whose intercepted work
-      // is still pending. Match native traversal readiness rather than reporting
-      // success before that work succeeds, fails or is superseded.
-      for (const active of this.#active) {
-        if (!active.settled) {
-          active.finished.promise.then(entry => navigation.succeed(entry), error => navigation.fail(error));
-          return;
-        }
-      }
       navigation.succeed(target);
       return;
     }

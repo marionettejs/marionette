@@ -439,6 +439,8 @@ Synchronous redirects replace the URL before activating the target; an asynchron
 redirect commits its source while its required lookup is pending. Lookup failures
 remain associated with that source URL. Cancellation invalidates a stale redirect
 result, but application code must pass/check the signal before its own effects.
+This authority boundary also applies when synchronous planning callbacks start a
+newer navigation, including during initial dispatch.
 
 ### Old bookmarks and renamed features
 
