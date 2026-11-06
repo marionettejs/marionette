@@ -658,7 +658,10 @@ export const Router = Application.extend({
     const internals = stateFor(this);
     if (!this.canGoBack()) {return Promise.resolve(false);}
     const driver = getDriver(this);
-    const request = { key: driver.entries()[driver.currentEntry.index - 1].key, chain: newChain() };
+    const key = driver.entries()[driver.currentEntry.index - 1].key;
+    // Drivers may coalesce queued traversals. Every caller must then follow the
+    // same redirects and distinguish the same operational failure from abort.
+    const request = [...internals.traversals].find(item => item.key === key) ?? { key, chain: newChain() };
     internals.traversals.add(request);
     try {
       return settle(driver.back(), request.chain).finished.finally(() => internals.traversals.delete(request));

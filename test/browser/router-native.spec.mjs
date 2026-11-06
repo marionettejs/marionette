@@ -88,6 +88,52 @@ async function position(page, { focus: targetFocus = 'before', scroll: targetScr
   }, { focus: targetFocus, scroll: targetScroll });
 }
 
+for (const outcome of ['fulfilled', 'error', 'abort-error', 'redirected', 'redirected-error', 'redirected-abort-error', 'stopped']) {
+  test(`duplicate native Back callers share ${outcome} completion`, async({ page }) => {
+    await example(page);
+    const pending = await page.evaluate(async kind => {
+      const state = window.routerExample;
+      state.historyEntered = Promise.withResolvers();
+      state.historyWork = Promise.withResolvers();
+      state.historyGated = false;
+      state.historySettled = 0;
+      const redirected = kind.startsWith('redirected');
+      const handler = () => {
+        if (state.historyGated) { state.historyEntered.resolve(); return state.historyWork.promise; }
+      };
+      state.router.mount({
+        'history-source': { path: '/history-source', redirect: () => state.historyGated && redirected ? Promise.resolve('/history-target') : undefined, handler },
+        'history-target': { path: '/history-target', handler },
+        'history-next': { path: '/history-next' },
+      });
+      await state.router.navigate('history-source').finished;
+      await state.router.navigate('history-next').finished;
+      state.historyGated = true;
+      const watch = promise => promise.then(value => { state.historySettled++; return { value }; }, error => {
+        state.historySettled++;
+        return { error: { name: error.name, message: error.message } };
+      });
+      state.historyResults = Promise.all([watch(state.router.back()), watch(state.router.back())]);
+      await state.historyEntered.promise;
+      await new Promise(resolveTurn => setTimeout(resolveTurn, 0));
+      return state.historySettled;
+    }, outcome);
+    expect(pending).toBe(0);
+    const results = await page.evaluate(async kind => {
+      const state = window.routerExample;
+      if (kind === 'stopped') { state.owner.stop(); } else if (kind.includes('abort-error')) {
+        state.historyWork.reject(new DOMException('independent target fetch aborted', 'AbortError'));
+      } else if (kind.includes('error')) { state.historyWork.reject(new Error('independent target failure')); } else { state.historyWork.resolve(false); }
+      const values = await state.historyResults;
+      state.historyWork.resolve();
+      return values;
+    }, outcome);
+    const expected = outcome.includes('abort-error') ? { error: { name: 'AbortError', message: 'independent target fetch aborted' } } :
+      outcome.includes('error') ? { error: { name: 'Error', message: 'independent target failure' } } : { value: outcome !== 'stopped' };
+    expect(results).toEqual([expected, expected]);
+  });
+}
+
 for (const initial of [false, true]) {
   for (const asynchronous of [false, true]) {
     test(`fragment redirect awaits native destination presentation: initial=${initial}, async=${asynchronous}`, async({ page }) => {

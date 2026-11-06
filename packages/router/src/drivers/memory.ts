@@ -295,6 +295,15 @@ class MemoryHistory {
     }
     if (target === this.current) {
       navigation.committed.resolve(target);
+      // A queued duplicate can reach a committed entry whose intercepted work
+      // is still pending. Match native traversal readiness rather than reporting
+      // success before that work succeeds, fails or is superseded.
+      for (const active of this.#active) {
+        if (!active.settled) {
+          active.finished.promise.then(entry => navigation.succeed(entry), error => navigation.fail(error));
+          return;
+        }
+      }
       navigation.succeed(target);
       return;
     }

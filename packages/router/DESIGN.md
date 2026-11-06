@@ -204,6 +204,9 @@ failure rejects. `refresh()` and `back()` return navigation readiness directly;
 the automatically dispatched initial route has finished.
 Redirected back follows its own traversal's readiness rather than an unrelated
 navigation result.
+When a driver coalesces queued Back calls to the same preceding entry, those
+callers share the routing chain's readiness, redirects and operational failures.
+The driver still owns traversal scheduling; the helper does not debounce calls.
 
 Cancellation invalidates authority immediately, including after readiness. Router
 completion settles promptly on cancellation even when a handler/redirect ignores
