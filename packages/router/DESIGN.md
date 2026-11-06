@@ -418,6 +418,9 @@ String targets, including relative paths and query/fragment-only targets, resolv
 against the captured navigation URL supplied to the redirect callback. This base
 is the same for synchronous and asynchronous callbacks; it does not depend on
 which entry has committed while a lookup is pending.
+An internally followed fragment target runs its destination handler and contributes
+to the redirect chain's readiness, including during initial dispatch. Ordinary
+hash-only navigation remains native and does not dispatch a route.
 Synchronous redirects replace the URL before activating the target; an asynchronous
 redirect commits its source while its required lookup is pending. Lookup failures
 remain associated with that source URL. Cancellation invalidates a stale redirect

@@ -294,8 +294,10 @@ function abortLocal(router: RouterInstance) {
   internals.local = null;
 }
 
-function intercepts(router: RouterInstance, event: DriverEvent, url: URL) {
-  if (event.defaultPrevented || event.signal.aborted || !event.canIntercept || event.hashChange || event.navigationType === 'reload') {return false;}
+function intercepts(router: RouterInstance, event: DriverEvent, url: URL, chain: Chain) {
+  // Ordinary hash changes stay native. A redirect's fragment destination still
+  // owns the handler/readiness promised by the internally followed chain.
+  if (event.defaultPrevented || event.signal.aborted || !event.canIntercept || (event.hashChange && chain.hops === 0) || event.navigationType === 'reload') {return false;}
   if (event.downloadRequest !== null || event.formData !== null) {return false;}
   return url.origin === new URL(getDriver(router).currentEntry.url).origin;
 }
@@ -308,7 +310,7 @@ function claims(router: RouterInstance, url: URL) {
 function onNavigate(router: RouterInstance, event: DriverEvent) {
   const chain = takeChain(router, event);
   const url = new URL(event.destination.url);
-  if (!intercepts(router, event, url)) {return;}
+  if (!intercepts(router, event, url, chain)) {return;}
   const nav = navigationFor(router, event, url, chain);
   let task: () => void | Promise<void>;
   try {

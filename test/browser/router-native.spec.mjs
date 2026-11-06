@@ -88,6 +88,64 @@ async function position(page, { focus: targetFocus = 'before', scroll: targetScr
   }, { focus: targetFocus, scroll: targetScroll });
 }
 
+for (const initial of [false, true]) {
+  for (const asynchronous of [false, true]) {
+    test(`fragment redirect awaits native destination presentation: initial=${initial}, async=${asynchronous}`, async({ page }) => {
+      await page.route('**/router.js', route => route.fulfill({
+        path: resolve(import.meta.dirname, '../../packages/router/dist/index.js'),
+        contentType: 'text/javascript',
+      }));
+      const first = await page.evaluate(async({ initial: isInitial, asynchronous: asyncLookup }) => {
+        const { Router } = await import('/router.js');
+        if (isInitial) { history.replaceState({}, '', '/page'); }
+        const state = window.fragmentRedirect = {
+          entered: Promise.withResolvers(), presentation: Promise.withResolvers(),
+          handlers: [], ready: [], settled: false,
+        };
+        const router = state.router = new Router({ routes: {
+          home: { path: '/' },
+          page: { path: '/page', redirect(match) {
+            const target = match.url.hash ? undefined : '#details';
+            return asyncLookup ? Promise.resolve(target) : target;
+          }, handler(match) {
+            state.handlers.push(match.url.pathname + match.url.hash);
+            state.entered.resolve();
+            return state.presentation.promise;
+          } },
+        } });
+        router.on('route:ready', match => state.ready.push(match.url.pathname + match.url.hash));
+        await router.start();
+        if (!isInitial) { await router.getInitialDispatch(); }
+        state.completion = isInitial ? router.getInitialDispatch() : router.navigate('/page').finished;
+        state.completion.finally(() => { state.settled = true; });
+        return Promise.race([state.entered.promise.then(() => 'entered'), state.completion.then(() => 'completed')]);
+      }, { initial, asynchronous });
+      expect(first).toBe('entered');
+      expect(await page.evaluate(() => ({
+        settled: window.fragmentRedirect.settled,
+        handlers: window.fragmentRedirect.handlers,
+        ready: window.fragmentRedirect.ready,
+        path: location.pathname + location.hash,
+      }))).toEqual({ settled: false, handlers: ['/page#details'], ready: initial ? [] : ['/'], path: '/page#details' });
+      expect(await page.evaluate(async isInitial => {
+        const state = window.fragmentRedirect;
+        state.presentation.resolve(false);
+        const outcome = await state.completion;
+        return isInitial ? { status: outcome.status, path: outcome.match.url.pathname + outcome.match.url.hash } : outcome;
+      }, initial)).toEqual(initial ? { status: 'matched', path: '/page#details' } : true);
+      expect(await page.evaluate(() => window.fragmentRedirect.ready)).toEqual(initial ? ['/page#details'] : ['/', '/page#details']);
+      // Ordinary fragment changes remain native after the internal chain ends.
+      expect(await page.evaluate(async() => {
+        const state = window.fragmentRedirect;
+        const current = state.router.getCurrent();
+        const before = state.ready.length;
+        await navigation.navigate('#other').finished;
+        return { path: location.pathname + location.hash, unchanged: state.router.getCurrent() === current, ready: state.ready.length === before };
+      })).toEqual({ path: '/page#other', unchanged: true, ready: true });
+    });
+  }
+}
+
 async function snapshot(page) {
   return page.evaluate(() => ({ focus: document.activeElement.id || document.activeElement.tagName, scroll: scrollY }));
 }
