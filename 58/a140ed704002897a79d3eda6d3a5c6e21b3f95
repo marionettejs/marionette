@@ -1,0 +1,26 @@
+context7.json
+  h_0f06c286dda36f 24-25,31
+docs/agents.md
+  h_0f06c286dda36f 29-34,45,74-79,82
+docs/architecture.md
+  h_0f06c286dda36f 71-74,77-82
+docs/quick-start.md
+  h_0f06c286dda36f 11-17
+docs/readme.md
+  h_0f06c286dda36f 10-12
+llms.txt
+  h_0f06c286dda36f 7
+skills/marionette/SKILL.md
+  h_0f06c286dda36f 8-10,17,46-47,50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "58a140ed704002897a79d3eda6d3a5c6e21b3f95",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
