@@ -427,7 +427,14 @@ is the same for synchronous and asynchronous callbacks; it does not depend on
 which entry has committed while a lookup is pending.
 An internally followed fragment target runs its destination handler and contributes
 to the redirect chain's readiness, including during initial dispatch. Ordinary
-hash-only navigation remains native and does not dispatch a route.
+navigation reported by the Driver as `hashChange` remains native and does not
+dispatch a route. Removing a fragment or navigating to an identical fragment URL
+does not set that flag in the native driver and can dispatch a route normally.
+If a native `hashChange` navigation supersedes a routed navigation whose handler
+is still pending, that route's signal aborts and its completion becomes false.
+The Router does not transfer the pending handler to the hash entry or dispatch it
+again. Features own coordination between ordinary fragment controls and their
+required presentation work.
 Synchronous redirects replace the URL before activating the target; an asynchronous
 redirect commits its source while its required lookup is pending. Lookup failures
 remain associated with that source URL. Cancellation invalidates a stale redirect
@@ -497,8 +504,8 @@ router.navigate('/items?filter=open', {
 There is no query/hash inference. Options are snapshotted for that operation and
 its redirect hops; later independent navigations, links and history traversal use
 their own defaults. Policy does not enter history state or user `info`. It applies
-only to events intercepted by this Router; hash-only/document navigations remain
-native. `refresh()` always requests manual focus and scroll while re-dispatching
+only to events intercepted by this Router; ordinary `hashChange` and document
+navigations remain native. `refresh()` always requests manual focus and scroll while re-dispatching
 the current URL with replacement history, including its redirect hops. Preserving
 focus still requires the application to retain the focused DOM element. Its handler
 Promise includes returned route work and synchronous `route:ready` notifications.

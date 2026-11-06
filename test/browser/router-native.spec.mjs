@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
 import { resolve } from 'node:path';
 import { test } from './fixtures.mjs';
+import { hashChanges } from '../router/conformance/hash-changes.js';
 
 // Built router against the fixture's packed Marionette peer. No browser profile
 // or private router internals are used.
@@ -87,6 +88,52 @@ async function position(page, { focus: targetFocus = 'before', scroll: targetScr
     await new Promise(requestAnimationFrame);
   }, { focus: targetFocus, scroll: targetScroll });
 }
+
+test('native empty, absent and identical fragments match the shared driver cases', async({ page }) => {
+  const actual = await page.evaluate(async cases => {
+    const events = [];
+    const flags = [];
+    navigation.addEventListener('navigate', event => {
+      events.push(event.hashChange);
+      if (event.canIntercept) { event.intercept({ handler() {} }); }
+    });
+    for (const { from, to } of cases) {
+      history.replaceState({}, '', from);
+      const offset = events.length;
+      await navigation.navigate(to).finished;
+      flags.push(...events.slice(offset));
+    }
+    return flags;
+  }, hashChanges);
+  expect(actual).toEqual(hashChanges.map(({ expected }) => expected));
+});
+
+test('native Back to a distinct earlier entry supersedes the still-preparing destination', async({ page }) => {
+  await example(page);
+  const result = await page.evaluate(async() => {
+    const state = window.routerExample;
+    state.router.mount({ first: { path: '/first' }, second: { path: '/second' }, third: { path: '/third' } });
+    await state.router.navigate('first').finished;
+    await state.router.navigate('second').finished;
+    await state.router.navigate('third').finished;
+    state.gate('first'); state.gate('second');
+    const secondEntered = Promise.withResolvers();
+    state.router.once('route', secondEntered.resolve);
+    const second = state.router.back();
+    await secondEntered.promise;
+    const firstEntered = Promise.withResolvers();
+    state.router.once('route', firstEntered.resolve);
+    const first = state.router.back();
+    await firstEntered.promise;
+    const obsolete = await second;
+    state.gates.get('first').resolve();
+    const current = await first;
+    state.gates.get('second').reject(new Error('obsolete second destination'));
+    await new Promise(resolveTurn => setTimeout(resolveTurn, 0));
+    return { obsolete, current, name: state.router.getCurrent().name, errors: state.errors };
+  });
+  expect(result).toEqual({ obsolete: false, current: true, name: 'first', errors: [] });
+});
 
 for (const outcome of ['fulfilled', 'error', 'abort-error', 'redirected', 'redirected-error', 'redirected-abort-error', 'stopped']) {
   test(`duplicate native Back callers share ${outcome} completion`, async({ page }) => {

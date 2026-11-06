@@ -12459,7 +12459,7 @@
     "packages/radio/src/radio.ts": "42a799d58d602c0fbbb4fcbc16170e1a89dad55c47d5f00ffaed69c8ee3d877f",
     "packages/radio/src/requests.ts": "87c52bfae0bdd5646b248a07da69e278192b3722a552355eef8144e227d0daa4",
     "packages/router/src/child-app-switcher.ts": "5d1a25989f7fd5f77a7e354e1a8e5d189f20cda1fa6b51b0601c0e2ef10bd5ba",
-    "packages/router/src/drivers/memory.ts": "cdc36050f37e19dd91a59163d36c792e38fa49ee1870e39477e35a92689a006a",
+    "packages/router/src/drivers/memory.ts": "48d652a2b5a825e678ea8db1c3b5d4f896ac2ad01e63e73d818ddc817555ccb2",
     "packages/router/src/drivers/navigation.ts": "6ee1dc86a39fb509b2ba6541488fa7a507a44991cc10b8363c9079085d488340",
     "packages/router/src/index.ts": "02c3569be2ed087f55178cc71745215cb64cfd7b3a4d53f186cc400bd2207270",
     "packages/router/src/matcher.ts": "f5a3a8439f842b33f59e12908ecb747e68efcab6288907b67f746a721f16af12",

@@ -67,3 +67,31 @@ it('keeps a settled current-entry traversal an immediate no-op', async() => {
   assert.equal(await driver.traverseTo(current.key).finished, current);
   assert.equal(routes, 1);
 });
+
+it('keeps genuinely distinct Back destinations independent after the first commits', async() => {
+  const entered = { first: Promise.withResolvers(), second: Promise.withResolvers() };
+  const work = { first: Promise.withResolvers(), second: Promise.withResolvers() };
+  let gated = false;
+  const errors = [];
+  const driver = memoryDriver({ url: 'https://routes.example/first' });
+  const router = createRouter({ driver, routes: {
+    first: { path: '/first' }, second: { path: '/second' }, third: { path: '/third' },
+  }, handler(match) {
+    if (gated) { entered[match.name].resolve(); return work[match.name].promise; }
+  } });
+  router.on('route:error', error => errors.push(error));
+  await router.start(); await router.getInitialDispatch();
+  await router.navigate('second').finished; await router.navigate('third').finished;
+  gated = true;
+  const second = router.back();
+  await entered.second.promise;
+  const first = router.back();
+  await entered.first.promise;
+  assert.equal(await second, false);
+  work.first.resolve();
+  assert.equal(await first, true);
+  work.second.reject(new Error('obsolete second destination'));
+  await turn();
+  assert.deepEqual(errors, []);
+  assert.equal(router.getCurrent().name, 'first');
+});

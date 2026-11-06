@@ -72,7 +72,7 @@ function withoutHash(url: string) {
 }
 
 function isHashChange(url: string, from: string) {
-  return new URL(url).hash !== '' && url !== from && withoutHash(url) === withoutHash(from);
+  return url.includes('#') && url !== from && withoutHash(url) === withoutHash(from);
 }
 
 function invoke(handler: () => unknown) {
