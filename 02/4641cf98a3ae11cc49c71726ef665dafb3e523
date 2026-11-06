@@ -1,0 +1,14 @@
+docs/quick-start.md
+  h_0f06c286dda36f 14-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "024641cf98a3ae11cc49c71726ef665dafb3e523",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
