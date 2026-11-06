@@ -17,13 +17,12 @@ import type { ApplicationInstance, ApplicationConstructor } from 'marionette';
 import type { ActiveMatch, Match, InitialDispatchResult, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteTable, MountOptions, RouteHandler, MatcherResult, RedirectTarget } from './types.ts';
 
 import type { NamedRouteArgs, RouteNames } from './route-types.ts';
-import { Matcher } from './matcher.ts';
+import { Matcher, URL_FORM } from './matcher.ts';
 import type { RegisteredMatch } from './matcher.ts';
 import { toSearchParams } from './query.ts';
 import { navigationDriver } from './drivers/navigation.ts';
 
 const MARKER = '@mnjs/router';
-const URL_FORM = /^(?:\/|[a-z][a-z\d+.-]*:\/\/)/i;
 const noop = () => {};
 
 class NavigationCancelled extends DOMException {

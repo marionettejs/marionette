@@ -14,6 +14,8 @@ type State = { byName: Map<string, Route>; routes: Route[]; prefixes: Prefix[] }
 type Mount = { routes: RegisteredRoute[]; parent?: string };
 
 const ROOT: Node = { path: '', names: [], meta: {}, branch: [] };
+// Shared with navigate(): these spellings denote URL targets rather than names.
+export const URL_FORM = /^(?:\/|[a-z][a-z\d+.-]*:\/\/)/i;
 
 function normalizePath(path: string) {
   return `/${ path.replace(/^\/+|\/+$/g, '') }`;
@@ -63,6 +65,7 @@ function snapshotRoutes(routes: RouteTable, controller: object): RegisteredRoute
 function registerRoute(definition: RegisteredRoute, node: Node, pattern: Pattern, state: State, mount: number) {
   const { name } = definition;
   if (typeof name !== 'string' || !name) {throw new TypeError(`Route name must be a non-empty string (path "${ node.path }")`);}
+  if (URL_FORM.test(name)) {throw new TypeError(`Route name "${ name }" is reserved for URL navigation; omit a leading "/" or scheme:// prefix`);}
   if (state.byName.has(name)) {throw new Error(`Duplicate route name "${ name }"`);}
   const route = { ...node, registration: definition, name, pattern, compiled: pattern.compile(name), ranks: pattern.getRanks(), mount, redirect: definition.redirect, handler: definition.handler };
   state.byName.set(name, route);

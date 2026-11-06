@@ -42,6 +42,8 @@ named parameters and optional brace groups; there are no splats, inline regex or
 repeated parameters. See the [grammar](DESIGN.md#route-definitions-and-matching).
 Redirects use ordinary routes; relative string targets resolve against the
 redirect's navigation URL, consistently for sync and async callbacks.
+Route names cannot start with `/` or `scheme://`; those spellings select raw URL
+navigation and are rejected as names at registration.
 
 ## Check capabilities before eager application imports
 

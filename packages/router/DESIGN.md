@@ -233,6 +233,10 @@ router.navigate('item', { id: 42 });
 These are name-to-definition hashes, not pathname-to-action maps. Names remain
 globally unique across the table and all mounts; nesting does not invent name
 prefixes. One definition supplies matching, reverse URLs, navigation and links.
+Names must be nonempty strings without a leading `/` or a `scheme://` prefix;
+those forms are reserved for URL navigation. Registration rejects these ambiguous
+names, tightening the previously accepted domain in this private package. Ordinary
+names such as `catalog:item` and names containing other punctuation remain valid.
 
 Internally, `pattern.ts` handles one pathname's grammar, encoding, native
 URLPattern execution and prefix patterns. `matcher.ts` owns the route table,
