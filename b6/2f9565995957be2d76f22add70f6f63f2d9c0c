@@ -1,0 +1,16 @@
+docs/guides/composition.md
+  h_0f06c286dda36f 9-10,73
+test/docs/composition-guide-checks.mjs
+  h_0f06c286dda36f 35-37
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b62f9565995957be2d76f22add70f6f63f2d9c0c",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
