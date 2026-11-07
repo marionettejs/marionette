@@ -1,0 +1,24 @@
+docs/architecture.md
+  h_0f06c286dda36f 74,84-85
+docs/guides/composition.md
+  h_0f06c286dda36f 69-71
+plugins/marionette/skills/marionette/SKILL.md
+  h_0f06c286dda36f 8,10,12,14,16
+scripts/docs/agent-routes.mjs
+  h_0f06c286dda36f 11-12,15
+skills/marionette/SKILL.md
+  h_0f06c286dda36f 17-18,21,27,29-33
+test/agent-docs/retrieval.test.mjs
+  h_0f06c286dda36f 163
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4408a2bfdcf04c01d52ad3c7bd78b022c31c95b3",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
