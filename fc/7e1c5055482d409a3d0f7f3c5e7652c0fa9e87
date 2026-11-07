@@ -1,0 +1,14 @@
+skills/marionette/SKILL.md
+  h_0f06c286dda36f 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fc7e1c5055482d409a3d0f7f3c5e7652c0fa9e87",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
