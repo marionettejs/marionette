@@ -1,0 +1,18 @@
+docs/architecture.md
+  h_0f06c286dda36f 92,105-107
+plugins/marionette/skills/marionette/SKILL.md
+  h_0f06c286dda36f 16
+skills/marionette/SKILL.md
+  h_0f06c286dda36f 29,31,35-37
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "107db374d40776964ae25a725d701eeb0945517e",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
