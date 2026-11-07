@@ -1,0 +1,34 @@
+docs-site/navigation.json
+  h_0f06c286dda36f 206-211
+docs/agents.md
+  h_0f06c286dda36f 54
+docs/architecture.md
+  h_0f06c286dda36f 42
+docs/guides/async-requests.md
+  h_0f06c286dda36f 1-75
+docs/guides/composition.md
+  h_0f06c286dda36f 20-22,24-25,57-58,69,75,79-82
+docs/readme.md
+  h_0f06c286dda36f 28
+llms.txt
+  h_0f06c286dda36f 8
+skills/marionette/SKILL.md
+  h_0f06c286dda36f 25
+test/docs/async-requests-checks.mjs
+  h_0f06c286dda36f 1-121
+test/docs/composition-guide-checks.mjs
+  h_0f06c286dda36f 15-29,32
+test/docs/reference-examples.mjs
+  h_0f06c286dda36f 2,62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "262094781978a9e6a01067d4620cbf2906b79c09",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
