@@ -1,0 +1,14 @@
+test/agent-docs/discovery.test.mjs
+  h_0f06c286dda36f 55-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8d66b60af01c6ea58ca570cc95b2f5bc90da10eb",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
