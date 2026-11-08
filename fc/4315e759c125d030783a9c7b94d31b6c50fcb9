@@ -1,0 +1,80 @@
+context7.json
+  h_0f06c286dda36f 24
+docs/agents.md
+  h_0f06c286dda36f 32
+docs/api.md
+  h_0f06c286dda36f 49
+docs/api/application.md
+  h_0f06c286dda36f 13-14,19
+docs/api/behavior.md
+  h_0f06c286dda36f 13-14,28
+docs/api/collection-view.md
+  h_0f06c286dda36f 9,14-15,21
+docs/api/providers/dom.md
+  h_0f06c286dda36f 13,56,58
+docs/api/runtime.md
+  h_0f06c286dda36f 9,13-14,16,33-34,38,51
+docs/api/shared/view-bindings.md
+  h_0f06c286dda36f 7,20,24-25,30
+docs/guides/accessibility-rendering.md
+  h_0f06c286dda36f 11,15-16,38,51,61
+docs/guides/async-requests.md
+  h_0f06c286dda36f 11-12,46
+docs/guides/composition.md
+  h_0f06c286dda36f 3,9,14-15,17,73
+docs/guides/existing-ui.md
+  h_0f06c286dda36f 11-12,24
+docs/guides/framework-migration.md
+  h_0f06c286dda36f 3-4,165
+docs/guides/lists.md
+  h_0f06c286dda36f 12-13,21,25,54
+docs/guides/local-editing.md
+  h_0f06c286dda36f 18-20,23,44,57-59,62
+docs/guides/production.md
+  h_0f06c286dda36f 11
+docs/guides/retained-restart.md
+  h_0f06c286dda36f 12-13,16
+docs/guides/routing.md
+  h_0f06c286dda36f 11-12,19,22,25,28,81-82,89,92,95,101
+docs/guides/testing.md
+  h_0f06c286dda36f 7,17,32,37-39,52,61-62,66
+docs/guides/typescript.md
+  h_0f06c286dda36f 40,44-46,68,84-85,93,128-129,142
+docs/integrations/setup.md
+  h_0f06c286dda36f 3,23,27,30,35,45,47
+docs/quick-start.md
+  h_0f06c286dda36f 7,11,18-19,27,31,54-55,57,77
+docs/readme.md
+  h_0f06c286dda36f 11,61
+docs/records.md
+  h_0f06c286dda36f 5-6
+examples/records/README.md
+  h_0f06c286dda36f 3-4
+readme.md
+  h_0f06c286dda36f 42,45,52-53,55
+skills/marionette/SKILL.md
+  h_0f06c286dda36f 10
+test/docs/composition-guide-checks.mjs
+  h_0f06c286dda36f 77-83
+test/docs/html-candidate.mjs
+  h_0f06c286dda36f 1-22
+test/docs/installed-package.mjs
+  h_0f06c286dda36f 2,52,56,127-146
+test/docs/quick-start.mjs
+  h_0f06c286dda36f 2,20,92-96,126,130,138-141
+test/docs/quick-start.test.mjs
+  h_0f06c286dda36f 20,24-26,29-30
+test/docs/reference-examples.mjs
+  h_0f06c286dda36f 2,94,615-620
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fc4315e759c125d030783a9c7b94d31b6c50fcb9",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
