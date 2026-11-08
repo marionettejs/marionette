@@ -1,14 +1,14 @@
 import { expect } from '@playwright/test';
-import { resolve } from 'node:path';
+import { routerArtifactPath } from '../router/artifact.mjs';
 import { test } from './fixtures.mjs';
 
 async function desk(page) {
   test.skip(!await page.evaluate(() => 'navigation' in window), 'Navigation API unavailable');
   await page.route('**/router.js', route => route.fulfill({
-    path: resolve(import.meta.dirname, '../../packages/router/dist/index.js'), contentType: 'text/javascript',
+    path: routerArtifactPath('dist/index.js'), contentType: 'text/javascript',
   }));
   await page.route('**/desk.mjs', route => route.fulfill({
-    path: resolve(import.meta.dirname, '../../packages/router/examples/desk/desk.mjs'), contentType: 'text/javascript',
+    path: routerArtifactPath('examples/desk/desk.mjs'), contentType: 'text/javascript',
   }));
   await page.evaluate(async() => {
     const imports = document.createElement('script'); imports.type = 'importmap';

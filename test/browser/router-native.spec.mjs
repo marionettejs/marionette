@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { resolve } from 'node:path';
+import { routerArtifactPath } from '../router/artifact.mjs';
 import { test } from './fixtures.mjs';
 import { hashChanges } from '../router/conformance/hash-changes.js';
 
@@ -8,7 +8,7 @@ import { hashChanges } from '../router/conformance/hash-changes.js';
 async function example(page, { initialRedirect = false, deferStart = false, customPreparation = false } = {}) {
   test.skip(!await page.evaluate(() => 'navigation' in window), 'Navigation API unavailable');
   await page.route('**/router.js', route => route.fulfill({
-    path: resolve(import.meta.dirname, '../../packages/router/dist/index.js'),
+    path: routerArtifactPath('dist/index.js'),
     contentType: 'text/javascript',
   }));
   await page.evaluate(async({ redirectInitially, deferInitialStart, preparesApplication }) => {
@@ -185,7 +185,7 @@ for (const initial of [false, true]) {
   for (const asynchronous of [false, true]) {
     test(`fragment redirect awaits native destination presentation: initial=${initial}, async=${asynchronous}`, async({ page }) => {
       await page.route('**/router.js', route => route.fulfill({
-        path: resolve(import.meta.dirname, '../../packages/router/dist/index.js'),
+        path: routerArtifactPath('dist/index.js'),
         contentType: 'text/javascript',
       }));
       const first = await page.evaluate(async({ initial: isInitial, asynchronous: asyncLookup }) => {

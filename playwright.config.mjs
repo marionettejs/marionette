@@ -23,6 +23,9 @@ export default defineConfig({
   },
   projects: ['chromium', 'firefox', 'webkit'].map(browserName => ({
     name: browserName,
+    // The optional router's initial native policy is Chromium-only. Core cases
+    // retain all three engines and the core release's exact inventory.
+    ...(browserName === 'chromium' ? {} : { testIgnore: ['**/router-*.spec.mjs'] }),
     use: { browserName }
   }))
 });

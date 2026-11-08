@@ -26,7 +26,7 @@ if (args[1] === 'test:dist') {
     assert.equal(JSON.parse(readFileSync(resolve(args[4], relative))).name, name);
   }
 }
-if (args[1] === 'test:browser') {
+if (args[1] === 'test:browser:core-release') {
   mkdirSync('test/tmp/browser', { recursive: true });
   writeFileSync('test/tmp/browser/results.json', JSON.stringify(reports['browser-results.json']));
   writeFileSync('test/tmp/browser/candidate.json', JSON.stringify(reports['browser-candidate.json']));

@@ -1,0 +1,274 @@
+{
+  "schemaVersion": 1,
+  "policy": "initial-chromium",
+  "tests": [
+    {
+      "file": "router-consumer.spec.mjs",
+      "title": "feature-owned replacement delays native readiness until attached content"
+    },
+    {
+      "file": "router-consumer.spec.mjs",
+      "title": "feature-owned replacement delays native readiness until attached handled error"
+    },
+    {
+      "file": "router-consumer.spec.mjs",
+      "title": "lazy sidebar routes refresh after mounting and registration survives UI stop"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "native empty, absent and identical fragments match the shared driver cases"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "native Back to a distinct earlier entry supersedes the still-preparing destination"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "duplicate native Back callers share fulfilled completion"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "duplicate native Back callers share error completion"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "duplicate native Back callers share abort-error completion"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "duplicate native Back callers share redirected completion"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "duplicate native Back callers share redirected-error completion"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "duplicate native Back callers share redirected-abort-error completion"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "duplicate native Back callers share stopped completion"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "fragment redirect awaits native destination presentation: initial=false, async=false"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "fragment redirect awaits native destination presentation: initial=false, async=true"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "fragment redirect awaits native destination presentation: initial=true, async=false"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "fragment redirect awaits native destination presentation: initial=true, async=true"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "a declarative method handler waits for feature preparation and attached DOM without global redispatch"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "feature routes survive stop and restart, bind function handlers once and unmount on destruction"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "native completion waits for child preparation, attached UI and the returned handler"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "native completion respects focus changed by handler notification"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "native completion respects focus changed by user"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "push resets viewport, traversal restores it, fragment stays native and refresh preserves UI"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "current failure and local stop reset focus but do not automatically scroll"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "/old completes only after the replacement handler"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "/async-old completes only after the replacement handler"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "invalid focusReset rejects before native navigation changes the document"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "invalid scroll rejects before native navigation changes the document"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "planning failure rejects native completion within the same document and reports a null Match"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "parent stop invalidates an initial route after Application activation completes"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "parent stop invalidates intercepted work without a late ready notification"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "parent stop prevents a late lazy load from activating a child"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "parent destroy invalidates an initial route after Application activation completes"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "parent destroy invalidates intercepted work without a late ready notification"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "parent destroy prevents a late lazy load from activating a child"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "same-key native supersession joins child preparation and waits for the surviving route"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "initial route failure is reported separately, refresh retries and retained restart preserves a child"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "ordinary subclass preparation controls activation without awaiting initial route work"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "superseded native completion does not reset focus, scroll or emit readiness"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "initial dispatch reads native activation without resetting focus or scroll, including reload"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "an initial redirect finishes its native replacement separately from Application activation"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "a canceled native event neither runs the handler nor resets focus or scroll"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "native readiness preserves an operational AbortError and refresh policy rejection"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "native stop observes an abandoned redirect rejection"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "native veto observes an abandoned redirect rejection"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "cross-document back exposes traverse activation to initial routing"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "native defaults can reset focus when focusing retained content is a no-op"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "query replacement explicitly preserves input focus, selection and viewport"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "native interception applies independent policy {\"focusReset\":\"manual\"}"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "native interception applies independent policy {\"scroll\":\"manual\"}"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "native interception applies independent policy {\"focusReset\":\"after-transition\",\"scroll\":\"manual\"}"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "native interception applies independent policy {\"focusReset\":\"manual\",\"scroll\":\"after-transition\"}"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "/old inherits a policy snapshot without affecting later navigation"
+    },
+    {
+      "file": "router-native.spec.mjs",
+      "title": "/async-old inherits a policy snapshot without affecting later navigation"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native redirect planning navigate preserves ready outcome without host errors"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native redirect planning stop preserves stopped outcome without host errors"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native intercept planning navigate preserves ready outcome without host errors"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native intercept planning stop preserves stopped outcome without host errors"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native within planning navigate preserves ready outcome without host errors"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native within planning stop preserves stopped outcome without host errors"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native redirect planning navigate preserves failed outcome without host errors"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native redirect planning navigate preserves stopped outcome without host errors"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native initial-work abort callback can navigate without obsolete interception"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native cancelled initial redirect cannot replace its newer navigation with a stale hop"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native rejects interception of a synchronously superseded event"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native coalesced Back does not join unrelated replace navigation"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native coalesced Back does not join unrelated push navigation"
+    },
+    {
+      "file": "router-planning.spec.mjs",
+      "title": "native registration retirement during planning cancels initial work without document fallback"
+    }
+  ]
+}

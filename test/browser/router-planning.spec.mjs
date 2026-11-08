@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { resolve } from 'node:path';
+import { routerArtifactPath } from '../router/artifact.mjs';
 import { test as base } from './fixtures.mjs';
 
 // Serve the fixture icon before navigation so its unrelated 404 cannot race
@@ -14,7 +14,7 @@ const test = base.extend({
 });
 
 async function fixture(page) {
-  await page.route('**/router.js', route => route.fulfill({ path: resolve(import.meta.dirname, '../../packages/router/dist/index.js'), contentType: 'text/javascript' }));
+  await page.route('**/router.js', route => route.fulfill({ path: routerArtifactPath('dist/index.js'), contentType: 'text/javascript' }));
 }
 
 const cases = ['redirect', 'intercept', 'within'].flatMap(phase => [
