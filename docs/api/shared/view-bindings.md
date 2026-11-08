@@ -15,7 +15,7 @@
 | `mixinTemplateContext(data)` | Resolves `templateContext`, then shallow-merges its own enumerable properties over data. Does not mutate either input. Returns either input directly when the other is falsy. |
 | `attachElContent(output)` | Sends renderer output to `this.Dom.setContents(this.el, output)`. Override for a specialized insertion strategy that keeps the View's root. Returns no defined value. |
 
-Rendering obtains the template, prepares serialized data plus template context, calls the configured renderer with the View as `this`, and passes its return value to `attachElContent`. Falsy final template data becomes `{}`. The default template function itself receives no View context; use `templateContext` or serialization for View-derived values.
+Rendering obtains the template, prepares serialized data plus template context, calls the configured renderer with the View as `this`, and passes its return value to `attachElContent`. Falsy final template data becomes `{}`. The default template function itself receives no View context; use `templateContext` or serialization for View-derived values. The `@mnjs/html` DOM adapter preserves this template-call contract: it handles the returned template result, rather than passing a View to the template.
 
 This standalone example configures a subclass with `@mnjs/html`, renders plain supplied data, and cleans up:
 

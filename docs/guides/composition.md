@@ -6,6 +6,8 @@ Use the existing project's compatible renderer, data runtime, router and build s
 
 After quick-start setup, install the matching `@mnjs/data` version, keep `<div id="app"></div>` in `index.html`, and use this as `main.js`. Replace `loadItems` with your API layer; it should accept the preparation signal when transport cancellation is supported.
 
+Render useful content as soon as its required data is ready; use Applications when async work needs feature-level coordination and Views for local requests, loading independent sections without blocking ready UI while preserving cleanup, error handling and [stale-result protection](async-requests.md).
+
 Use `@mnjs/html` for template markup and values, and View `events`/`triggers` for interactions. The row below keeps selection in a View method and emits intent to its owner. `@mnjs/html` rejects template event bindings; declare handlers on the View.
 
 ```js
@@ -73,6 +75,121 @@ The configured DataApi supplies model attributes to row/detail templates; use `t
 The Region mounts the layout; its Regions own list/detail replacement. The `@mnjs/html` DOM adapter leaves the configured event delegator in place. Here, in the native DOM handler, `event.delegateTarget` is the matched button; `event.target` may be its nested label/icon. View bindings follow the View's lifetime while `@mnjs/html` updates its descendants. Explicit child mappings forward the string ID unchanged to `viewEvents`; they add no child argument.
 
 Selection replaces only detail. `restart()` retains the layout but resets rows/selection here. `stop()` destroys the owned UI while keeping the Application reusable; `destroy()` ends it and releases its private Collection. Borrowed data needs its own owner. Continue to [Records](../records.md) for loading/retry UI or [retained restart](retained-restart.md) for row/input identity.
+
+## Load a detail page in stages
+
+An order is required to render this page; shipments are independent secondary
+content. The services below return decoded data, with `loadOrder` returning `null`
+only for a confirmed HTTP 404. A network/server failure rejects instead, so
+"not found" never disguises "unavailable". Replace the sample services with your
+API layer, including response validation.
+
+The page owns order navigation; its child View owns shipment loading and retry.
+Each checks a request revision on both success and failure, including teardown.
+Abort saves transport work when supported; revision checks remain necessary when
+a service ignores it. A host can call `page.load(nextId)` for another order or
+replace the page through its Region without allowing late results to affect the
+new destination.
+
+```js
+import { Region, View } from 'marionette';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
+
+const Shipments = View.extend({
+  initialize() { this.revision = 0; this.status = 'loading'; this.shipments = []; },
+  templateContext() { return { status: this.status, shipments: this.shipments }; },
+  template: ({ status, shipments }) => html`<h2>Shipments</h2>
+    ${status === 'loading' ? html`<p role="status">Loading shipments…</p>` :
+      status === 'unavailable' ? html`<p role="alert">Shipments unavailable.</p>
+        <button type="button" class="retry">Retry shipments</button>` :
+        html`<ul>${shipments.map(shipment => html`<li>${shipment.id}: ${shipment.status}</li>`)}</ul>
+          ${shipments.length ? '' : html`<p>No shipments yet.</p>`}`}`,
+  events: { 'click .retry': 'load' },
+  async load() {
+    if (this.isDestroyed()) { return false; }
+    const revision = ++this.revision;
+    this.controller?.abort();
+    const controller = this.controller = new AbortController();
+    const orderId = String(this.getOption('orderId'));
+    this.status = 'loading';
+    this.render();
+    let shipments;
+    try {
+      shipments = await this.getOption('loadShipments')(orderId, { signal: controller.signal });
+    } catch (error) {
+      if (this.isDestroyed() || revision !== this.revision) { return false; }
+      this.status = 'unavailable';
+      this.render();
+      return false;
+    } finally {
+      if (this.controller === controller) { this.controller = undefined; }
+    }
+    if (this.isDestroyed() || revision !== this.revision) { return false; }
+    this.shipments = shipments;
+    this.status = 'ready';
+    this.render();
+    return true;
+  },
+  onBeforeDestroy() { ++this.revision; this.controller?.abort(); }
+}).setDomApi(HtmlDomApi);
+
+const OrderPage = View.extend({
+  initialize() { this.revision = 0; this.status = 'loading'; },
+  templateContext() { return { status: this.status, order: this.order }; },
+  template: ({ status, order }) => status === 'ready'
+    ? html`<h1>Order ${order.id}</h1><p>Total: ${order.total}</p>
+        <section class="shipments" aria-label="Order shipments"></section>`
+    : html`<p role="status">${status === 'not-found' ? 'Order not found.' :
+      status === 'unavailable' ? 'Order unavailable. Try again.' : 'Loading order…'}</p>`,
+  regions: { shipments: '.shipments' },
+  async load(inputId) {
+    if (this.isDestroyed()) { return false; }
+    const id = String(inputId);
+    const revision = ++this.revision;
+    this.controller?.abort();
+    const controller = this.controller = new AbortController();
+    this.status = 'loading';
+    this.render(); // Destroys the previous order's owned shipment View.
+    let order;
+    try {
+      order = await this.getOption('loadOrder')(id, { signal: controller.signal });
+    } catch (error) {
+      if (this.isDestroyed() || revision !== this.revision) { return false; }
+      this.status = 'unavailable';
+      this.render();
+      return false;
+    } finally {
+      if (this.controller === controller) { this.controller = undefined; }
+    }
+    if (this.isDestroyed() || revision !== this.revision) { return false; }
+    this.order = order;
+    this.status = order === null ? 'not-found' : 'ready';
+    this.render();
+    if (order === null) { return false; }
+    const shipments = new Shipments({ orderId: id, loadShipments: this.getOption('loadShipments') });
+    this.showChildView('shipments', shipments);
+    void shipments.load(); // Handles current and stale request failures.
+    return true; // Required content is ready; shipments do not delay it.
+  },
+  onBeforeDestroy() { ++this.revision; this.controller?.abort(); }
+}).setDomApi(HtmlDomApi);
+
+const orderRegion = new Region({ el: document.createElement('main') });
+const page = new OrderPage({
+  loadOrder: async id => ({ id, total: '$42' }),
+  loadShipments: async () => [{ id: 'S1', status: 'In transit' }]
+});
+orderRegion.show(page);
+await page.load('A100');
+```
+
+Mount `orderRegion` on the actual detail-page host in your application. A current
+order failure returns `false` with recoverable UI; retry by calling `page.load(id)`.
+Shipment retry is local and leaves the order content intact. Destroy the Region
+when its owner ends. Reserve suitable space for `.shipments` in application CSS
+(for example, a design-specific `min-block-size`) to reduce layout shift; Region
+does not measure or reserve layout space automatically.
 
 ## Choose the owning boundary
 
