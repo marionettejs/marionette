@@ -1,0 +1,16 @@
+INTEGRATION.md
+  h_0f06c286dda36f 22,27
+package.json
+  h_0f06c286dda36f 60,134-135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6a06e63c03e1f1c298ca1ea0dbdcadc3a45551fb",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
