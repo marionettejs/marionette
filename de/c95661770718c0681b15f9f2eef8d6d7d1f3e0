@@ -1,0 +1,16 @@
+packages/html/.gitignore
+  h_0f06c286dda36f 7-9
+test/router/artifact.test.mjs
+  h_0f06c286dda36f 3,112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dec95661770718c0681b15f9f2eef8d6d7d1f3e0",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
