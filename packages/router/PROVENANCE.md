@@ -32,10 +32,12 @@ engine or automatic feature activation. Public types describe that API, with
 bounded literal name/parameter inference from `defineRoutes()` and no second
 handwritten route-name map. Runtime matching remains the grammar authority.
 
-The original package manifest declared MIT, but its extraction proposal did not
-resolve license notice/copyright provenance. No copyright holder or license grant
-is invented here. The package stays `private: true`. Resolve source rights and
-required license material before public extraction/publication.
+The maintainer clarified that the package uses Marionette's MIT license.
+The shipped `license.txt` copies the repository notice unchanged, including
+`Copyright (c) 2020 Paul Falgout`; this preparation invents no new holder or notice.
+The package stays `private: true`. The source-rights/publication hold remains in
+force: license preparation is not permission for public extraction, publication,
+tags or deployment. Those actions require separate explicit approval.
 
 Historical reports and browser rehearsals are not fresh certification. A recorded
 WebKit traversal destination-state gap concerned redirect forwarding; ordinary
@@ -51,7 +53,11 @@ original missing repair commits were not recovered. That candidate and its
 historical reproduction/verification logs remain preserved separately.
 
 This integration transplants the complete reconstructed router onto upstream
-**2828aebdc928a2e8121ee5f601a2d5012412068e**, retaining current core and shared
+**e318f24e0fc55520d182c1541f17e4881daf0a54**, retaining current core and shared
 tooling. The private package's exact Marionette peer and Utils dependency follow
 the upstream **5.0.1** manifests. It remains version **0.1.0**, `private: true`;
 no package publication or release is performed by this integration.
+
+Runtime correctness checkpoint **4ecb97d592aa5a96c6960c89ddd837ac8368c4c2**
+has 633 router unit and 67 native Chromium test passes. Those historical results
+do not certify subsequent packaging changes or a future public archive.

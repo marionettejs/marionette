@@ -5,8 +5,21 @@ feature-owned registrations, and selectable child Applications. Use the tools
 individually. A Router does not infer UI ownership from URL nesting.
 
 This development package is **private**. Use locally built matching packages;
-`marionette` is its exact-version peer. [Source rights/provenance](PROVENANCE.md)
-remain a release gate. [Advanced contracts](DESIGN.md) describe the full API.
+`marionette` is its exact-version peer. No publication is authorized by this
+preparation. [Source provenance and the publication hold](PROVENANCE.md) are
+recorded separately from the [MIT license](license.txt).
+[Advanced contracts](DESIGN.md) describe the full API.
+
+For a supplied review archive, use Node 24.15 or newer and install the exact
+Marionette peer alongside it:
+
+```sh
+npm install marionette@5.0.1 /absolute/path/mnjs-router-0.1.0.tgz
+```
+
+This command consumes a private archive; it does not claim that `0.1.0` is
+available on the public registry. The package is optional for Marionette 5;
+applications do not need it to use the core library.
 
 ## Start with a Router and an ordinary handler
 
@@ -75,6 +88,14 @@ that removes the Navigation API dependency, not the remaining Router requirement
 supplies none of these Web APIs. Capability presence is not browser certification.
 The [executable bootstrap](examples/desk/bootstrap.mjs) tests the
 pre-import gate, including a deliberately eager router module.
+
+Initial native-browser certification targets Chromium with those capabilities.
+Standalone routing was verified on Chromium 154; consumer integration also has
+reported Chromium 151 evidence. Receipts identify the exact tested build and
+archive. Firefox and WebKit are not certified initial targets. There is no
+automatic fallback driver. These browser requirements are independent of the
+core library's transpilation targets. Node consumer evidence currently uses
+Node 24.19.0; the declared minimum is 24.15.0.
 
 ## Choose which completion you need
 

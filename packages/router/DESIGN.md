@@ -27,9 +27,9 @@ automatically mount route definitions; a RouteApplication declares that registra
 explicitly. There is no global Radio channel, required
 child activation protocol, rendering adapter or parallel lifecycle framework.
 
-See Marionette's [architecture](../../docs/architecture.md),
-[Application](../../docs/api/application.md)
-and [events](../../docs/api/shared/events.md) contracts.
+See Marionette's [architecture](https://github.com/marionettejs/marionette/blob/v5.0.1/docs/architecture.md),
+[Application](https://github.com/marionettejs/marionette/blob/v5.0.1/docs/api/application.md)
+and [events](https://github.com/marionettejs/marionette/blob/v5.0.1/docs/api/shared/events.md) contracts.
 
 ## Construction, options and extension
 
