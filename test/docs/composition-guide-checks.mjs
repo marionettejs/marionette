@@ -74,5 +74,12 @@ assert.equal(failed.isRunning(), false);
 assert.equal(failed.getView(), undefined);
 failed.destroy();
 mount.remove();
+// Verify this renderer's event boundary, rather than borrowing another renderer's API.
+for (const template of [() => html\`<button @click=\${() => {}}>Invalid</button>\`,
+  () => html\`<button .onclick=\${() => {}}>Invalid</button>\`]) {
+  const invalid = new View({ template });
+  assert.throws(() => invalid.render(), /MN_HTML_EVENT_BINDING/);
+  invalid.destroy();
+}
 `,
 };

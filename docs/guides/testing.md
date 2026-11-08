@@ -4,7 +4,7 @@ Test what a user or owning component can observe: rendered content, interaction,
 
 The optional [@mnjs/test development package](../../packages/test/readme.md) provides mounting and scoped cleanup alongside your chosen runner and assertions. Start with its README for installation and a complete test, then use the [helper reference](../../packages/test/guide.md) for runner setup, scoped queries and lifecycle contracts. The helper ships its own version-matched reference.
 
-This recipe uses Node's built-in test runner and JSDOM. Use a [supported Node LTS release](../quick-start.md). First install `marionette`, `@mnjs/adapters`, `lit-html`, and `@mnjs/data` using the [package installation](../quick-start.md) and [data setup](../integrations/setup.md). Add the DOM implementation used here:
+This recipe uses Node's built-in test runner and JSDOM. Use a [supported Node LTS release](../quick-start.md). First install `marionette`, the local `@mnjs/html` candidate, and `@mnjs/data` using the [package installation](../quick-start.md) and [data setup](../integrations/setup.md). Add the DOM implementation used here:
 
 ```sh
 npm install --save-dev --save-exact jsdom@30.1.0
@@ -14,7 +14,7 @@ Create these four files in a `test` directory. The `.mjs` extension works withou
 
 ## `test/dom.mjs`
 
-Install the DOM before importing Marionette and Lit. Both can capture their DOM environment during module initialization.
+Install the DOM before importing Marionette and `@mnjs/html`. Both can capture their DOM environment during module initialization.
 
 ```js
 import { JSDOM } from 'jsdom';
@@ -29,14 +29,14 @@ globalThis.HTMLElement = dom.window.HTMLElement;
 
 ## `test/title-editor.mjs`
 
-This local interaction changes only the View's own model. Lit retains the input across renders, and `live` compares the binding with its current DOM value.
+This local interaction changes only the View's own model. `@mnjs/html` retains the input across renders, and `live` compares the binding with its current DOM value.
 
 ```js
 import { View } from 'marionette';
 import { DataApi } from '@mnjs/data';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
-import { live } from 'lit-html/directives/live.js';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
+import { live } from '@mnjs/html/directives/live.js';
 
 export const TitleEditor = View.extend({
   template: ({ title }) => html`
@@ -49,7 +49,7 @@ export const TitleEditor = View.extend({
   editTitle() {
     this.model.set('title', this.getUI('title')[0].value);
   },
-}).setDataApi(DataApi).setDomApi(LitDomApi);
+}).setDataApi(DataApi).setDomApi(HtmlDomApi);
 ```
 
 ## `test/summary-application.mjs`
@@ -58,12 +58,12 @@ Readiness stays with the Application. The feature requests `/summary.json`, whic
 
 ```js
 import { Application, View } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const SummaryView = View.extend({
   template: ({ title }) => html`<h1>${title}</h1>`,
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 
 export const SummaryApplication = Application.extend({
   async prepareStart(_options, { signal }) {

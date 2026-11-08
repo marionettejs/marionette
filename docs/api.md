@@ -46,7 +46,7 @@ Use these contracts when implementing or adapting an integration. For configurat
 
 ## Integration and task guides
 
-[Renderer and data setup](integrations/setup.md) connects Lit and `@mnjs/data` to Marionette. Integration guides explain configuration and use; package references define the APIs supplied by each package.
+[Renderer and data setup](integrations/setup.md) connects `@mnjs/html` and `@mnjs/data` to Marionette. Integration guides explain configuration and use; package references define the APIs supplied by each package.
 
 [Check and debug an application](tooling.md) covers consumer lint, declaration checks, and diagnostic lookup. [Practical TypeScript](guides/typescript.md) covers options, handlers, state and lifecycle results. [Migration](guides/migration.md) and [consumer testing](guides/testing.md) provide upgrade and verification paths.
 

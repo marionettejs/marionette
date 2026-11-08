@@ -29,7 +29,7 @@ below apply only to v5 and are relative to the installed `marionette` package's
 configured renderer or data provider. Inspect the existing project before choosing
 its renderer, data runtime, router, build setup, or architecture; follow compatible
 existing choices. With no stack chosen, use the [Vite quick start](quick-start.md)
-with Lit and Marionette's Lit adapter for rendering. Add [@mnjs/data](integrations/setup.md)
+with `@mnjs/html` for rendering. Add [@mnjs/data](integrations/setup.md)
 for observable records or shared state; plain object snapshots are sufficient when
 observation is unnecessary. After the first render, continue with the whole-application
 route below for managed composition and feature coordination.

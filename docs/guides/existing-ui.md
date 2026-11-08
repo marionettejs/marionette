@@ -8,8 +8,8 @@ This small feature needs local interaction and a lifetime, so a Region owns its 
 
 ```js
 import { Region, View } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const CounterView = View.extend({
   initialize() { this.count = 0; },
@@ -21,7 +21,7 @@ const CounterView = View.extend({
     this.render();
     this.triggerMethod('count:changed', this.count);
   },
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 
 export function mountCounter(el, onCountChanged) {
   const region = new Region({ el });

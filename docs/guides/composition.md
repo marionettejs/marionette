@@ -1,20 +1,20 @@
 # Compose an application feature
 
-Use the existing project's compatible renderer, data runtime, router and build setup. With none chosen, follow the [Vite/Lit quick start](../quick-start.md) and add [@mnjs/data](../integrations/setup.md) when observation/shared state is useful; plain snapshots also work. This installed-app example combines a managed list, detail Region and coordinated readiness. It needs no framework repository checkout.
+Use the existing project's compatible renderer, data runtime, router and build setup. With none chosen, follow the [Vite/@mnjs/html quick start](../quick-start.md) and add [@mnjs/data](../integrations/setup.md) when observation/shared state is useful; plain snapshots also work. This installed-app example combines a managed list, detail Region and coordinated readiness. It needs no framework repository checkout.
 
 ## A complete starting point
 
 After quick-start setup, install the matching `@mnjs/data` version, keep `<div id="app"></div>` in `index.html`, and use this as `main.js`. Replace `loadItems` with your API layer; it should accept the preparation signal when transport cancellation is supported.
 
-Use Lit for template markup and values; prefer View `events`/`triggers` for ordinary View interactions. The row below keeps selection in a View method and emits intent to its owner. Lit `@event` bindings also work and can stay in existing Lit behavior or integrations.
+Use `@mnjs/html` for template markup and values, and View `events`/`triggers` for interactions. The row below keeps selection in a View method and emits intent to its owner. `@mnjs/html` rejects template event bindings; declare handlers on the View.
 
 ```js
 import { Application, CollectionView, View, setDataApi, setDomApi } from 'marionette';
 import { Collection, DataApi } from '@mnjs/data';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
-setDomApi(LitDomApi);
+setDomApi(HtmlDomApi);
 setDataApi(DataApi);
 
 const Row = View.extend({
@@ -70,7 +70,7 @@ await app.start();
 
 The configured DataApi supplies model attributes to row/detail templates; use `templateContext` for View-local data.
 
-The Region mounts the layout; its Regions own list/detail replacement. The Lit DOM adapter leaves the configured event delegator in place. Here, in the native DOM handler, `event.delegateTarget` is the matched button; `event.target` may be its nested label/icon. View bindings follow the View's lifetime while Lit updates its descendants. Explicit child mappings forward the string ID unchanged to `viewEvents`; they add no child argument.
+The Region mounts the layout; its Regions own list/detail replacement. The `@mnjs/html` DOM adapter leaves the configured event delegator in place. Here, in the native DOM handler, `event.delegateTarget` is the matched button; `event.target` may be its nested label/icon. View bindings follow the View's lifetime while `@mnjs/html` updates its descendants. Explicit child mappings forward the string ID unchanged to `viewEvents`; they add no child argument.
 
 Selection replaces only detail. `restart()` retains the layout but resets rows/selection here. `stop()` destroys the owned UI while keeping the Application reusable; `destroy()` ends it and releases its private Collection. Borrowed data needs its own owner. Continue to [Records](../records.md) for loading/retry UI or [retained restart](retained-restart.md) for row/input identity.
 

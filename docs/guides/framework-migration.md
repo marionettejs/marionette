@@ -1,5 +1,7 @@
 # Migrate from another UI framework
 
+The rendering examples on this page use the separate Lit integration. For `@mnjs/html`, follow the [quick start](../quick-start.md) and [composition starter](composition.md).
+
 Preserve the application's observable behavior while designing a native Marionette
 ownership tree. Translating each Vue component, React hook, or store into a similar
 Marionette file can preserve the old architecture's problems. Decide who owns data,
@@ -160,7 +162,7 @@ RecordPage.vue
 ```
 
 The native replacement below separates readiness from local interaction. It uses
-Lit for safe text interpolation and stable input updates, and observable state
+the separate Lit integration for safe text interpolation and stable input updates, and observable state
 from `@mnjs/data`. Follow [setup](../integrations/setup.md) for matching companion
 packages. `GET /records/42.json` returns `{ "title": string }`; API access stays in
 `loadRecord`, which can move into the application's service module. See

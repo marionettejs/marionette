@@ -8,7 +8,7 @@ contracts. When upgrading from v4, start with the [migration guide](guides/migra
 ## Choose a starting point
 
 - Whole application, page, or composed feature: start with the compact [composition guide](guides/composition.md), then follow its focused references as needed.
-- New project with no stack chosen: use the [Vite quick start](quick-start.md) with Lit and Marionette's Lit adapter. Add [@mnjs/data](integrations/setup.md) for observable records or shared state; plain object snapshots also work without observation. After the first render, continue with the whole-application route above for managed composition and feature coordination.
+- New project with no stack chosen: use the [Vite quick start](quick-start.md) with `@mnjs/html`. Add [@mnjs/data](integrations/setup.md) for observable records or shared state; plain object snapshots also work without observation. After the first render, continue with the whole-application route above for managed composition and feature coordination.
 - Existing application: inspect and follow its compatible renderer, data runtime, router, build setup, and architecture, then choose a task or class reference below.
 - Agent work: [task routing and lookup](agents.md), with optional [skill/plugin setup](tooling.md#agent-installation).
 
@@ -58,7 +58,7 @@ contracts. When upgrading from v4, start with the [migration guide](guides/migra
 - [@mnjs/radio: channels and requests](packages/radio.md): scoped communication, request/reply handlers, and cleanup.
 - [@mnjs/utils](packages/utils.md): standalone component and object utilities.
 - [@mnjs/adapters](packages/adapters.md): optional Backbone, XState, Lit, Morphdom, and jQuery contracts.
-- [Renderer and data setup](integrations/setup.md): configure Lit and `@mnjs/data`.
+- [Renderer and data setup](integrations/setup.md): configure `@mnjs/html` and `@mnjs/data`.
 
 The [records source](../examples/records/src/main.js) is included for reading alongside the lesson. Its [README](../examples/records/README.md) explains the repository development commands.
 

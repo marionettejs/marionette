@@ -1,0 +1,81 @@
+{
+  "ref": "lit-html@3.3.3",
+  "files": [
+    {
+      "file": "class-map_test.ts",
+      "source": "https://github.com/lit/lit/blob/lit-html%403.3.3/packages/lit-html/src/test/directives/class-map_test.ts",
+      "gitBlobSha": "72640f9c89c80162593ef9e3a41182f15ff8bdff"
+    },
+    {
+      "file": "guard_test.ts",
+      "source": "https://github.com/lit/lit/blob/lit-html%403.3.3/packages/lit-html/src/test/directives/guard_test.ts",
+      "gitBlobSha": "64865b8f1f1550376dc1b3cef3c43471c35bcdb2"
+    },
+    {
+      "file": "if-defined_test.ts",
+      "source": "https://github.com/lit/lit/blob/lit-html%403.3.3/packages/lit-html/src/test/directives/if-defined_test.ts",
+      "gitBlobSha": "93a6d3deb2efc3f5b25c7216f4019501efde3ecc"
+    },
+    {
+      "file": "keyed_test.ts",
+      "source": "https://github.com/lit/lit/blob/lit-html%403.3.3/packages/lit-html/src/test/directives/keyed_test.ts",
+      "gitBlobSha": "44b4a3a3d4d44f3aece897760034299be0debd2e"
+    },
+    {
+      "file": "live_test.ts",
+      "source": "https://github.com/lit/lit/blob/lit-html%403.3.3/packages/lit-html/src/test/directives/live_test.ts",
+      "gitBlobSha": "9d67f3818947d72cf364138c28f61cc4ba7221c6"
+    },
+    {
+      "file": "ref_test.ts",
+      "source": "https://github.com/lit/lit/blob/lit-html%403.3.3/packages/lit-html/src/test/directives/ref_test.ts",
+      "gitBlobSha": "2e4c1fc651e5b676588988a3bda4698a49997f8d"
+    },
+    {
+      "file": "repeat_test.ts",
+      "source": "https://github.com/lit/lit/blob/lit-html%403.3.3/packages/lit-html/src/test/directives/repeat_test.ts",
+      "gitBlobSha": "dc22d13b89a9f01c41dacc770accf4800799d643"
+    },
+    {
+      "file": "static_test.ts",
+      "source": "https://github.com/lit/lit/blob/lit-html%403.3.3/packages/lit-html/src/test/static_test.ts",
+      "gitBlobSha": "31fccac30f63e4f5aed261d8a3771247a15b491d"
+    },
+    {
+      "file": "style-map_test.ts",
+      "source": "https://github.com/lit/lit/blob/lit-html%403.3.3/packages/lit-html/src/test/directives/style-map_test.ts",
+      "gitBlobSha": "8b553b70f6210fedbd4f13d6d9e934cca338e685"
+    },
+    {
+      "file": "core-source.ts",
+      "source": "https://github.com/lit/lit/blob/lit-html%403.3.3/packages/lit-html/src/test/lit-html_test.ts",
+      "gitBlobSha": "6ad2a64de8c80a565a8dfa5fa4086f9b6e0696e7",
+      "selection": [
+        "marker insertion",
+        "text",
+        "arrays & iterables",
+        "svg",
+        "MathML",
+        "attributes",
+        "boolean attributes",
+        "properties",
+        "updates",
+        "async directives"
+      ],
+      "directiveSelection": [
+        "renders directives on ChildParts",
+        "directives are stateful",
+        "renders directives on AttributeParts",
+        "renders multiple directives on AttributeParts",
+        "renders directives on PropertyParts",
+        "renders directives on ElementParts",
+        "nested directives"
+      ]
+    },
+    {
+      "file": "testing-utils.ts",
+      "source": "https://github.com/lit/lit/blob/lit-html@3.3.3/packages/labs/testing/src/lib/utils.ts",
+      "gitBlobSha": "ec129647011ff78b27ee28eb4c32d6bb724e9a25"
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { htmlCandidate } from './html-candidate.mjs';
 import { assertions as asyncRequestAssertions } from './async-requests-checks.mjs';
 import { assertions as compositionAssertions, preparations as compositionPreparations } from './composition-guide-checks.mjs';
 import { assertions as v4Assertions, preparations as v4Preparations, migrationAfter } from './v4-migration-checks.mjs';
@@ -90,7 +91,7 @@ region.destroy();
   'integrations-setup-1': `
 const { View } = await import('marionette');
 const { Model } = await import('@mnjs/data');
-const { html } = await import('lit-html');
+const { html } = await import('@mnjs/html');
 const model = new Model({ title: 'Configured' });
 const view = new View({ model, template: ({ title }) => html\`<h1>\${title}</h1>\` }).render();
 assert.equal(view.el.textContent, 'Configured');
@@ -611,6 +612,12 @@ report.tools = Object.fromEntries(['typescript', 'jsdom'].map(name => [name, JSO
 rmSync(output, { recursive: true, force: true });
 mkdirSync(output, { recursive: true });
 if (!process.argv[2]) {
+  const renderer = htmlCandidate();
+  writeFileSync(join(output, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
+  const install = spawnSync(process.execPath, [process.env.npm_execpath, 'install', '--prefix', output,
+    '--ignore-scripts', '--no-audit', '--no-fund', '--no-package-lock', renderer.path], { encoding: 'utf8', timeout: 120_000 });
+  assert.equal(install.status, 0, install.stderr || install.stdout);
+  report.renderer = renderer;
   // Keep the repository dependency graph unchanged. Local checks resolve the
   // built public exports through a disposable consumer directory.
   for (const [name, directory] of [['marionette', '.'], ['@mnjs/data', 'packages/data'], ['@mnjs/adapters', 'packages/adapters'], ['@mnjs/radio', 'packages/radio'], ['@mnjs/utils', 'packages/utils']]) {

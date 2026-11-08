@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { htmlCandidate } from './html-candidate.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
@@ -48,10 +49,11 @@ try {
   }
   writeFileSync(join(directory, 'package.json'), JSON.stringify({ name: 'installed-docs-check', private: true, type: 'module' }));
   npm(['install', '--ignore-scripts', '--no-audit', '--no-fund',
-    ...packs.map(pack => join(artifacts, pack.filename)), 'lit-html@3.3.3', 'eslint@10.11.0', 'typescript@6.0.3',
+    ...packs.map(pack => join(artifacts, pack.filename)), htmlCandidate().path, 'lit-html@3.3.3', 'eslint@10.11.0', 'typescript@6.0.3',
     'backbone@1.6.1', '@types/backbone@1.4.23', 'jquery@4.0.0', '@types/jquery@4.0.1',
     'morphdom@2.7.8', 'xstate@5.33.2', 'jsdom@30.1.0']);
 
+  report.renderer = htmlCandidate();
   const runtimeFixtures = ['esm-node/validate.mjs', 'cjs-node/validate.cjs',
     'data-package-esm/validate.mjs', 'data-package-cjs/validate.cjs', 'cjs-adapters/validate.cjs'];
   for (const fixture of runtimeFixtures) {
@@ -122,6 +124,26 @@ try {
   for (const item of [...manifest.pages, ...manifest.assets]) {
     assert.equal(hash(readFileSync(join(packageRoot, item.source))), item.sha256, item.source);
   }
+  const allowedLitPages = new Set(['docs/packages/adapters.md', 'docs/guides/migration.md',
+    'docs/guides/framework-migration.md', 'docs/records.md', 'docs/readme.md', 'docs/api/providers/dom.md']);
+  const rendererReferences = [];
+  for (const { source } of [...manifest.pages, ...manifest.assets, { source: 'readme.md' }]) {
+    if (!/\.(md|js)$/.test(source)) { continue; }
+    const text = readFileSync(join(packageRoot, source), 'utf8');
+    const matches = text.split('\n').flatMap((line, index) =>
+      /\bLit\b|lit-html|LitDomApi/.test(line) ? [{ line: index + 1, text: line }] : []);
+    if (!matches.length) { continue; }
+    assert(allowedLitPages.has(source) || source.startsWith('examples/records/'),
+      `Unexpected Lit guidance outside a separate integration: ${source}`);
+    rendererReferences.push({ source, matches });
+  }
+  const skill = readFileSync(join(packageRoot, 'skills/marionette/SKILL.md'), 'utf8');
+  assert(skill.includes('with `@mnjs/html`'));
+  assert.equal(readFileSync(join(packageRoot, 'dist/agent-skill/SKILL.md'), 'utf8'), skill);
+  report.guidanceScan = { scope: [...manifest.pages, ...manifest.assets].map(entry => entry.source),
+    extra: ['readme.md', 'dist/agent-skill/SKILL.md'], rendererReferences,
+    skillSha256: hash(skill), synchronizedSkillCopies: 2,
+    limits: 'Installed Marionette package; plugin and renderer documentation are inspected separately.' };
   Object.assign(report, {
     passed: true, sourceRevision: manifest.sourceRevision, sourceDirty: manifest.sourceDirty,
     contentSha256: manifest.contentSha256, pages: manifest.pages.length, assets: manifest.assets.length,

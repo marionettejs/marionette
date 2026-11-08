@@ -7,7 +7,7 @@ description: Build, debug, review, or test Marionette v5 applications using thei
 
 For API details, use the docs shipped with the installed package.
 
-With no stack chosen, use the Vite quick start with Lit and Marionette's Lit adapter; add `@mnjs/data` for observable records/shared state. Plain snapshots remain valid.
+With no stack chosen, use the Vite quick start with `@mnjs/html`; add `@mnjs/data` for observable records/shared state. Plain snapshots remain valid.
 
 <!-- task-routes:start -->
 | Task | Packaged page |

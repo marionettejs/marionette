@@ -17,14 +17,17 @@ const setup = setupBlock[1];
 
 test('quick-start certification replaces exact release npm specs with supplied artifact bytes', () => {
   const command = artifactSetupCommand(setup, packages);
-  for (const pkg of packages.filter(value => value.name !== '@mnjs/data')) {
+  for (const pkg of packages.filter(value => !['@mnjs/data', '@mnjs/adapters'].includes(value.name))) {
     assert(command.includes(`'../marionette-v5-artifacts/${pkg.file}'`), pkg.name);
     assert(!command.includes(`${pkg.name}@${version}`), pkg.name);
   }
-  assert(command.includes('lit-html@3.3.3'));
+  assert(command.includes('"$MNJS_HTML_TARBALL"'));
+  assert(!command.includes('lit-html'));
+  assert(!command.includes('@mnjs/adapters@'));
   assert(command.includes('vite@8.3.0'));
   assert(!command.includes('mnjs-data-'));
-  assert(!docs.includes('.tgz'), 'consumer installation uses npm package versions');
+  assert(docs.includes('unpublished local candidate'));
+  assert(docs.includes('independently versioned from core'));
   const data = readFileSync(resolve(root, 'docs/integrations/setup.md'), 'utf8');
   assert(data.includes(`npm install --ignore-scripts --save-exact @mnjs/data@${version}`));
 });

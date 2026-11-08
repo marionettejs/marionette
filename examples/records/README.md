@@ -1,5 +1,7 @@
 # Records example
 
+This repository example uses the separate Lit integration with its own pinned dependencies. The [quick start](../../docs/quick-start.md) and [composition starter](../../docs/guides/composition.md) teach the recommended `@mnjs/html` setup.
+
 Follow the [records lesson](../../docs/records.md) for the ownership and event flow.
 
 The installed documentation includes this source for reading alongside the lesson. The commands below run from the Marionette repository checkout and use its linked local packages. To create an application from installed packages, start with the [quick start](../../docs/quick-start.md).

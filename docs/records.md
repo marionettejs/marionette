@@ -2,6 +2,8 @@
 
 Build a feature that loads records and shows the selected record beside its list. The [runnable example](../examples/records/README.md) also reloads without replacing the layout, retries failures, and closes/reopens the feature. The excerpts below come from that example; follow the source links for the complete modules.
 
+This repository tutorial uses the separate Lit integration and its pinned dependencies. For the recommended `@mnjs/html` setup and a copyable installed-app feature, use the [quick start](quick-start.md) and [composition starter](guides/composition.md).
+
 ## Run it
 
 The source is included with these docs; the commands here use the repository checkout. For an application using installed packages, follow the [quick start](quick-start.md) and [setup reference](integrations/setup.md).

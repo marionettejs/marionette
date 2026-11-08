@@ -8,8 +8,8 @@ Copy primitive request inputs before starting work. Advance an owner-local revis
 
 ```js
 import { View } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const Preview = View.extend({
   initialize() { this.revision = 0; },
@@ -43,7 +43,7 @@ const Preview = View.extend({
     ++this.revision;
     this.controller?.abort();
   }
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 ```
 
 Construct with `new Preview({ loadPreview })`, where the service returns a Promise for the preview data and may pass `signal` to fetch. Callers handle a current rejection with `try/catch` around `await preview.load(input)` or a rejection handler. DOM delegation does not await handler Promises: capture input/`delegateTarget` metadata synchronously, then attach a rejection handler to the task; `void preview.load(input)` alone does not handle failure. Stale success/failure resolves `false` without rendering. A new request captures new values; mutating an old input object does not change its request. For nested values, create an appropriate immutable snapshot too. Guard each additional awaited step before effects. A shared source or operation that must survive this View needs a surviving owner instead; do not reuse a startup signal as a permanent lifetime signal.

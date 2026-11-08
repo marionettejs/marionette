@@ -1,6 +1,6 @@
 # Setup and data
 
-Continue from the [quick start](../quick-start.md). This page adds `@mnjs/data` for observable data and retains the Lit rendering configuration; those are independent integration choices. Core framework methods are covered in the [API reference](../api.md).
+Continue from the [quick start](../quick-start.md). This page adds `@mnjs/data` for observable data and retains the `@mnjs/html` rendering configuration; those are independent integration choices. Core framework methods are covered in the [API reference](../api.md).
 
 ## Add observable data
 
@@ -20,19 +20,19 @@ Import a setup module before constructing Applications or Views:
 // setup.js
 import { setDataApi, setDomApi, setStateApi } from 'marionette';
 import { DataApi, StateApi } from '@mnjs/data';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
 
 setDataApi(DataApi);
 setStateApi(StateApi);
-setDomApi(LitDomApi);
+setDomApi(HtmlDomApi);
 ```
 
-These setters configure the default class family. Standalone reference examples instead use `View.extend(...).setDomApi(...)` or `.setDataApi(...)` to keep their configuration local to a subclass. Both scopes are supported; configure the chosen scope before constructing instances. Use [runtime configuration](../api/runtime.md) for class-specific or isolated setup, and the [provider references](../api/providers/data.md) when connecting a different data solution. `DataApi` connects Models and Collections to Views; `StateApi` connects observable state to [state owners](../api/runtime.md#choose-a-configuration-scope). The renderer calls a template function with its data, and the Lit DOM adapter places the result in the View's element.
+These setters configure the default class family. Standalone reference examples instead use `View.extend(...).setDomApi(...)` or `.setDataApi(...)` to keep their configuration local to a subclass. Both scopes are supported; configure the chosen scope before constructing instances. Use [runtime configuration](../api/runtime.md) for class-specific or isolated setup, and the [provider references](../api/providers/data.md) when connecting a different data solution. `DataApi` connects Models and Collections to Views; `StateApi` connects observable state to [state owners](../api/runtime.md#choose-a-configuration-scope). The renderer calls a template function with its data, and the `@mnjs/html` DOM adapter places the result in the View's element.
 
 ```js
 import './setup.js';
 import { View } from 'marionette';
-import { html } from 'lit-html';
+import { html } from '@mnjs/html';
 
 export const DetailView = View.extend({
   template: ({ title, description }) => html`
@@ -42,9 +42,9 @@ export const DetailView = View.extend({
 });
 ```
 
-Ordinary Lit interpolation renders these values as text, including characters such as `<`. No HTML escaping helper is needed. A View supplied with a Model receives its attributes as template data.
+Ordinary `@mnjs/html` interpolation renders these values as text, including characters such as `<`. No HTML escaping helper is needed. A View supplied with a Model receives its attributes as template data.
 
-A **provider** implements a Marionette contract such as DataApi, StateApi or DomApi. An **adapter** connects a particular library to that contract; for example, `LitDomApi` adapts Lit rendering. Installing an adapter does not configure it.
+A **provider** implements a Marionette contract such as DataApi, StateApi or DomApi. An **adapter** connects a particular library to that contract; for example, `HtmlDomApi` connects `@mnjs/html` rendering. Installing an adapter does not configure it.
 
 ## Observable data and API access
 

@@ -6,19 +6,19 @@ CollectionView owns repeated child Views and their placement, order, and lifetim
 
 ## Render a collection
 
-This standalone TypeScript example uses `@mnjs/data` for observable membership and Lit for text rendering. API access and persistence remain separate concerns; see [data setup](../integrations/setup.md#observable-data-and-api-access).
+This standalone TypeScript example uses `@mnjs/data` for observable membership and `@mnjs/html` for text rendering. API access and persistence remain separate concerns; see [data setup](../integrations/setup.md#observable-data-and-api-access).
 
 ```ts
 import { CollectionView, Region, View } from 'marionette';
 import { Collection, DataApi } from '@mnjs/data';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const Item = View.extend({
   tagName: 'li',
   template: ({ label }: { label: string }) => html`${label}`,
   modelEvents: { change: 'render' },
-}).setDataApi(DataApi).setDomApi(LitDomApi);
+}).setDataApi(DataApi).setDomApi(HtmlDomApi);
 
 const Empty = View.extend({
   tagName: 'li',
