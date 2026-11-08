@@ -1,0 +1,14 @@
+docs/guides/composition.md
+  h_0f06c286dda36f 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0fabbbe93be2b5bc4221036fea90e5503b0c01cd",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
