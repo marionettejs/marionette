@@ -1,0 +1,14 @@
+test/docs/installed-package.mjs
+  h_0f06c286dda36f 111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "82244297fea5d8223bdebe1b39b2eed62ad63a43",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
