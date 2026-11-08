@@ -1,0 +1,50 @@
+context7.json
+  h_0f06c286dda36f 24-25,27,31
+docs-site/navigation.json
+  h_0f06c286dda36f 173,200-211
+docs/agents.md
+  h_0f06c286dda36f 29-35,46,54,76,78
+docs/architecture.md
+  h_0f06c286dda36f 16,42,69-99,105-107
+docs/guides/async-requests.md
+  h_0f06c286dda36f 1-75
+docs/guides/composition.md
+  h_0f06c286dda36f 1-88
+docs/guides/lists.md
+  h_0f06c286dda36f 3
+docs/quick-start.md
+  h_0f06c286dda36f 11-17,77
+docs/readme.md
+  h_0f06c286dda36f 10-12,28
+llms.txt
+  h_0f06c286dda36f 7-9
+plugins/marionette/skills/marionette/SKILL.md
+  h_0f06c286dda36f 8,10,12,14,16
+readme.md
+  h_0f06c286dda36f 76
+scripts/docs/agent-routes.mjs
+  h_0f06c286dda36f 8-19,31,33-41,49
+skills/marionette/SKILL.md
+  h_0f06c286dda36f 8,10,15,17-18,22,25,27,29,31,33
+test/agent-docs/discovery.test.mjs
+  h_0f06c286dda36f 55-63
+test/agent-docs/retrieval.test.mjs
+  h_0f06c286dda36f 160-170
+test/docs/async-requests-checks.mjs
+  h_0f06c286dda36f 1-121
+test/docs/composition-guide-checks.mjs
+  h_0f06c286dda36f 1-78
+test/docs/reference-examples.mjs
+  h_0f06c286dda36f 2-3,41,62-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4fab45e40b76d08f4362c9d41cd3ea30da1725cc",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
