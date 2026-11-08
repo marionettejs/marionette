@@ -1,0 +1,298 @@
+context7.json
+  h_0f06c286dda36f 24
+docs/agents.md
+  h_0f06c286dda36f 32
+docs/api.md
+  h_0f06c286dda36f 49
+docs/api/application.md
+  h_0f06c286dda36f 13-14,19
+docs/api/behavior.md
+  h_0f06c286dda36f 13-14,28
+docs/api/collection-view.md
+  h_0f06c286dda36f 9,14-15,21
+docs/api/providers/dom.md
+  h_0f06c286dda36f 13,56,58
+docs/api/runtime.md
+  h_0f06c286dda36f 9,13-14,16,33-34,38,51
+docs/api/shared/view-bindings.md
+  h_0f06c286dda36f 7,20,24-25,30
+docs/guides/accessibility-rendering.md
+  h_0f06c286dda36f 11,15-16,38,51,61
+docs/guides/async-requests.md
+  h_0f06c286dda36f 11-12,46
+docs/guides/composition.md
+  h_0f06c286dda36f 3,9,14-15,17,73
+docs/guides/existing-ui.md
+  h_0f06c286dda36f 11-12,24
+docs/guides/framework-migration.md
+  h_0f06c286dda36f 3-4,165
+docs/guides/lists.md
+  h_0f06c286dda36f 12-13,21,25,54
+docs/guides/local-editing.md
+  h_0f06c286dda36f 18-20,23,44,57-59,62
+docs/guides/production.md
+  h_0f06c286dda36f 11
+docs/guides/retained-restart.md
+  h_0f06c286dda36f 12-13,16
+docs/guides/routing.md
+  h_0f06c286dda36f 11-12,19,22,25,28,81-82,89,92,95,101
+docs/guides/testing.md
+  h_0f06c286dda36f 7,17,32,37-39,52,61-62,66
+docs/guides/typescript.md
+  h_0f06c286dda36f 40,44-46,68,84-85,93,128-129,142
+docs/integrations/setup.md
+  h_0f06c286dda36f 3,23,27,30,35,45,47
+docs/quick-start.md
+  h_0f06c286dda36f 7,11,18-19,27,31,54-55,57,77
+docs/readme.md
+  h_0f06c286dda36f 11,61
+docs/records.md
+  h_0f06c286dda36f 5-6
+eslint.config.mjs
+  h_0f06c286dda36f 22-23
+examples/records/README.md
+  h_0f06c286dda36f 3-4
+package.json
+  h_0f06c286dda36f 124-127
+packages/html/.gitignore
+  h_0f06c286dda36f 1-9
+packages/html/AGENTS.md
+  h_0f06c286dda36f 1-9
+packages/html/COMPATIBILITY.md
+  h_0f06c286dda36f 1-53
+packages/html/EXTRACTION.md
+  h_0f06c286dda36f 1-25
+packages/html/INTEGRATION.md
+  h_0f06c286dda36f 1-37
+packages/html/LICENSE
+  h_0f06c286dda36f 1-28
+packages/html/LIT_DIFFERENCES.md
+  h_0f06c286dda36f 1-58
+packages/html/PERFORMANCE.md
+  h_0f06c286dda36f 1-99
+packages/html/PROVENANCE.md
+  h_0f06c286dda36f 1-48
+packages/html/README.md
+  h_0f06c286dda36f 1-97
+packages/html/THIRD_PARTY_NOTICES.md
+  h_0f06c286dda36f 1-60
+packages/html/VALIDATION.md
+  h_0f06c286dda36f 1-58
+packages/html/package-lock.json
+  h_0f06c286dda36f 1-985
+packages/html/package.json
+  h_0f06c286dda36f 1-219
+packages/html/scripts/build-production.mjs
+  h_0f06c286dda36f 1-56
+packages/html/scripts/check-package.mjs
+  h_0f06c286dda36f 1-49
+packages/html/scripts/measure-size.mjs
+  h_0f06c286dda36f 1-21
+packages/html/scripts/test-browser.mjs
+  h_0f06c286dda36f 1-286
+packages/html/src/async-directive.ts
+  h_0f06c286dda36f 1-387
+packages/html/src/directive-helpers.ts
+  h_0f06c286dda36f 1-244
+packages/html/src/directive.ts
+  h_0f06c286dda36f 1-140
+packages/html/src/directives/async-append.ts
+  h_0f06c286dda36f 1-75
+packages/html/src/directives/async-replace.ts
+  h_0f06c286dda36f 1-116
+packages/html/src/directives/cache.ts
+  h_0f06c286dda36f 1-113
+packages/html/src/directives/choose.ts
+  h_0f06c286dda36f 1-45
+packages/html/src/directives/class-map.ts
+  h_0f06c286dda36f 1-128
+packages/html/src/directives/guard.ts
+  h_0f06c286dda36f 1-99
+packages/html/src/directives/if-defined.ts
+  h_0f06c286dda36f 1-15
+packages/html/src/directives/join.ts
+  h_0f06c286dda36f 1-40
+packages/html/src/directives/keyed.ts
+  h_0f06c286dda36f 1-56
+packages/html/src/directives/live.ts
+  h_0f06c286dda36f 1-103
+packages/html/src/directives/map.ts
+  h_0f06c286dda36f 1-33
+packages/html/src/directives/private-async-helpers.ts
+  h_0f06c286dda36f 1-88
+packages/html/src/directives/range.ts
+  h_0f06c286dda36f 1-35
+packages/html/src/directives/ref.ts
+  h_0f06c286dda36f 1-162
+packages/html/src/directives/repeat.ts
+  h_0f06c286dda36f 1-487
+packages/html/src/directives/style-map.ts
+  h_0f06c286dda36f 1-145
+packages/html/src/directives/template-content.ts
+  h_0f06c286dda36f 1-42
+packages/html/src/directives/unsafe-html.ts
+  h_0f06c286dda36f 1-76
+packages/html/src/directives/unsafe-mathml.ts
+  h_0f06c286dda36f 1-33
+packages/html/src/directives/unsafe-svg.ts
+  h_0f06c286dda36f 1-33
+packages/html/src/directives/until.ts
+  h_0f06c286dda36f 1-149
+packages/html/src/directives/when.ts
+  h_0f06c286dda36f 1-47
+packages/html/src/index.ts
+  h_0f06c286dda36f 1-7
+packages/html/src/is-server.ts
+  h_0f06c286dda36f 1-7
+packages/html/src/marionette-core.ts
+  h_0f06c286dda36f 1-44
+packages/html/src/marionette.ts
+  h_0f06c286dda36f 1-9
+packages/html/src/renderer.ts
+  h_0f06c286dda36f 1-1634
+packages/html/src/static.ts
+  h_0f06c286dda36f 1-193
+packages/html/src/template.ts
+  h_0f06c286dda36f 1-464
+packages/html/test/compatibility.test.mjs
+  h_0f06c286dda36f 1-207
+packages/html/test/lifecycle.test.mjs
+  h_0f06c286dda36f 1-261
+packages/html/test/render.test.mjs
+  h_0f06c286dda36f 1-200
+packages/html/test/runtime-package.test.mjs
+  h_0f06c286dda36f 1-38
+packages/html/test/sanitizer-identity.test.mjs
+  h_0f06c286dda36f 1-16
+packages/html/test/sanitizer-late.test.mjs
+  h_0f06c286dda36f 1-28
+packages/html/test/security.test.mjs
+  h_0f06c286dda36f 1-25
+packages/html/test/setup.mjs
+  h_0f06c286dda36f 1-11
+packages/html/test/tsconfig.json
+  h_0f06c286dda36f 1
+packages/html/test/types.ts
+  h_0f06c286dda36f 1-26
+packages/html/test/upstream-markers.mjs
+  h_0f06c286dda36f 1-20
+packages/html/test/upstream-support.mjs
+  h_0f06c286dda36f 1-26
+packages/html/test/upstream.test.mjs
+  h_0f06c286dda36f 1-76
+packages/html/tsconfig.json
+  h_0f06c286dda36f 1-27
+packages/html/vendor/lit-html-3.3.3/LICENSE
+  h_0f06c286dda36f 1-28
+packages/html/vendor/lit-html-3.3.3/async-directive.ts
+  h_0f06c286dda36f 1-387
+packages/html/vendor/lit-html-3.3.3/directive-helpers.ts
+  h_0f06c286dda36f 1-252
+packages/html/vendor/lit-html-3.3.3/directive.ts
+  h_0f06c286dda36f 1-143
+packages/html/vendor/lit-html-3.3.3/directives/async-append.ts
+  h_0f06c286dda36f 1-75
+packages/html/vendor/lit-html-3.3.3/directives/async-replace.ts
+  h_0f06c286dda36f 1-116
+packages/html/vendor/lit-html-3.3.3/directives/cache.ts
+  h_0f06c286dda36f 1-125
+packages/html/vendor/lit-html-3.3.3/directives/choose.ts
+  h_0f06c286dda36f 1-45
+packages/html/vendor/lit-html-3.3.3/directives/class-map.ts
+  h_0f06c286dda36f 1-128
+packages/html/vendor/lit-html-3.3.3/directives/guard.ts
+  h_0f06c286dda36f 1-99
+packages/html/vendor/lit-html-3.3.3/directives/if-defined.ts
+  h_0f06c286dda36f 1-15
+packages/html/vendor/lit-html-3.3.3/directives/join.ts
+  h_0f06c286dda36f 1-40
+packages/html/vendor/lit-html-3.3.3/directives/keyed.ts
+  h_0f06c286dda36f 1-56
+packages/html/vendor/lit-html-3.3.3/directives/live.ts
+  h_0f06c286dda36f 1-103
+packages/html/vendor/lit-html-3.3.3/directives/map.ts
+  h_0f06c286dda36f 1-33
+packages/html/vendor/lit-html-3.3.3/directives/private-async-helpers.ts
+  h_0f06c286dda36f 1-88
+packages/html/vendor/lit-html-3.3.3/directives/range.ts
+  h_0f06c286dda36f 1-35
+packages/html/vendor/lit-html-3.3.3/directives/ref.ts
+  h_0f06c286dda36f 1-162
+packages/html/vendor/lit-html-3.3.3/directives/repeat.ts
+  h_0f06c286dda36f 1-487
+packages/html/vendor/lit-html-3.3.3/directives/style-map.ts
+  h_0f06c286dda36f 1-145
+packages/html/vendor/lit-html-3.3.3/directives/template-content.ts
+  h_0f06c286dda36f 1-42
+packages/html/vendor/lit-html-3.3.3/directives/unsafe-html.ts
+  h_0f06c286dda36f 1-76
+packages/html/vendor/lit-html-3.3.3/directives/unsafe-mathml.ts
+  h_0f06c286dda36f 1-33
+packages/html/vendor/lit-html-3.3.3/directives/unsafe-svg.ts
+  h_0f06c286dda36f 1-33
+packages/html/vendor/lit-html-3.3.3/directives/until.ts
+  h_0f06c286dda36f 1-149
+packages/html/vendor/lit-html-3.3.3/directives/when.ts
+  h_0f06c286dda36f 1-47
+packages/html/vendor/lit-html-3.3.3/is-server.ts
+  h_0f06c286dda36f 1-24
+packages/html/vendor/lit-html-3.3.3/lit-html.ts
+  h_0f06c286dda36f 1-2303
+packages/html/vendor/lit-html-3.3.3/package.json
+  h_0f06c286dda36f 1-629
+packages/html/vendor/lit-html-3.3.3/static.ts
+  h_0f06c286dda36f 1-193
+packages/html/vendor/lit-html-3.3.3/test/class-map_test.ts
+  h_0f06c286dda36f 1-151
+packages/html/vendor/lit-html-3.3.3/test/core-source.ts
+  h_0f06c286dda36f 1-3335
+packages/html/vendor/lit-html-3.3.3/test/guard_test.ts
+  h_0f06c286dda36f 1-194
+packages/html/vendor/lit-html-3.3.3/test/if-defined_test.ts
+  h_0f06c286dda36f 1-173
+packages/html/vendor/lit-html-3.3.3/test/keyed_test.ts
+  h_0f06c286dda36f 1-43
+packages/html/vendor/lit-html-3.3.3/test/live_test.ts
+  h_0f06c286dda36f 1-217
+packages/html/vendor/lit-html-3.3.3/test/manifest.json
+  h_0f06c286dda36f 1-81
+packages/html/vendor/lit-html-3.3.3/test/ref_test.ts
+  h_0f06c286dda36f 1-402
+packages/html/vendor/lit-html-3.3.3/test/repeat_test.ts
+  h_0f06c286dda36f 1-686
+packages/html/vendor/lit-html-3.3.3/test/static_test.ts
+  h_0f06c286dda36f 1-188
+packages/html/vendor/lit-html-3.3.3/test/style-map_test.ts
+  h_0f06c286dda36f 1-218
+packages/html/vendor/lit-html-3.3.3/test/testing-utils.ts
+  h_0f06c286dda36f 1-20
+readme.md
+  h_0f06c286dda36f 42,45,52-53,55
+skills/marionette/SKILL.md
+  h_0f06c286dda36f 10
+test/docs/composition-guide-checks.mjs
+  h_0f06c286dda36f 77-83
+test/docs/html-candidate.mjs
+  h_0f06c286dda36f 1-22
+test/docs/installed-package.mjs
+  h_0f06c286dda36f 2,52,56,127-146
+test/docs/quick-start.mjs
+  h_0f06c286dda36f 2,20,92-96,126,130,138-141
+test/docs/quick-start.test.mjs
+  h_0f06c286dda36f 20,24-26,29-30
+test/docs/reference-examples.mjs
+  h_0f06c286dda36f 2,94,615-620
+tsconfig.json
+  h_0f06c286dda36f 31-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0d847942512cd6b80740459b804884081cb70531",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
