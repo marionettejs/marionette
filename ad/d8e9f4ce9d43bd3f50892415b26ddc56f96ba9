@@ -1,0 +1,22 @@
+config/api-contracts/inventory.json
+  h_0f06c286dda36f 12506,12511
+docs/api/region.md
+  h_0f06c286dda36f 7-8
+docs/api/shared/view-bindings.md
+  h_0f06c286dda36f 18
+docs/guides/composition.md
+  h_0f06c286dda36f 9-10,79-193
+test/docs/composition-guide-checks.mjs
+  h_0f06c286dda36f 84-170
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "add8e9f4ce9d43bd3f50892415b26ddc56f96ba9",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
