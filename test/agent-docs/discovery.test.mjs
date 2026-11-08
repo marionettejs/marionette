@@ -52,7 +52,15 @@ test('agent and distributed skills route to the canonical candidate MCP request 
     assert.ok(namedFields.has(field), `Hosted guidance omits MCP argument/catalog field ${field}`);
   }
   assert.match(hosted, /candidate[\s\S]*sourceRevision/);
-  const paths = ['docs/agents.md', 'skills/marionette/SKILL.md', 'plugins/marionette/skills/marionette/SKILL.md'];
+  // Consumer skills reach optional hosted guidance through the full task index.
+  for (const path of ['skills/marionette/SKILL.md', 'dist/agent-skill/SKILL.md']) {
+    const markdown = await readFile(resolve(repository, path), 'utf8');
+    const index = [...markdown.matchAll(/`([^`]+)`/g)].map(([, value]) => value)
+      .find(value => value === 'docs/agents.md');
+    assert.ok(index, `${path} must route to the full task index`);
+    assert.equal(resolve(repository, index), resolve(repository, 'docs/agents.md'));
+  }
+  const paths = ['docs/agents.md', 'plugins/marionette/skills/marionette/SKILL.md'];
   for (const path of paths) {
     const markdown = await readFile(resolve(repository, path), 'utf8');
     const href = path === 'docs/agents.md' ?

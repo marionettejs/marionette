@@ -73,8 +73,7 @@ that Region also destroys the previous one. No separate DOM removal or event
 unbinding is needed.
 
 The [quick start](docs/quick-start.md) supplies the complete HTML and Vite setup.
-Continue with the [Records lesson](docs/records.md) to combine a list, detail panel,
-and asynchronous feature lifecycle. Upgrading an existing application? Use the
+Continue with the [composition starter](docs/guides/composition.md) for a compact list/detail feature with coordinated readiness, then the [Records lesson](docs/records.md) for loading, retry and error UI. Upgrading an existing application? Use the
 [v4-to-v5 migration guide](docs/guides/migration.md).
 
 ## Documentation

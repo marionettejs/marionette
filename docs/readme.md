@@ -7,8 +7,9 @@ contracts. When upgrading from v4, start with the [migration guide](guides/migra
 
 ## Choose a starting point
 
-- New project: [quick start](quick-start.md) for the first render; use the optional progression below as the feature grows.
-- Existing application: choose a task or class reference below; follow additional contracts when needed.
+- Whole application, page, or composed feature: start with the compact [composition guide](guides/composition.md), then follow its focused references as needed.
+- New project with no stack chosen: use the [Vite quick start](quick-start.md) with Lit and Marionette's Lit adapter. Add [@mnjs/data](integrations/setup.md) for observable records or shared state; plain object snapshots also work without observation. After the first render, continue with the whole-application route above for managed composition and feature coordination.
+- Existing application: inspect and follow its compatible renderer, data runtime, router, build setup, and architecture, then choose a task or class reference below.
 - Agent work: [task routing and lookup](agents.md), with optional [skill/plugin setup](tooling.md#agent-installation).
 
 ### Learn as the feature grows
@@ -24,6 +25,7 @@ contracts. When upgrading from v4, start with the [migration guide](guides/migra
 - [Migrate from v4](guides/migration.md): update configuration and lifecycle boundaries.
 - [Test an application](guides/testing.md): run interaction, replacement, readiness and teardown checks.
 - [Use TypeScript](guides/typescript.md): typed options, DOM handlers, state and lifecycle results.
+- [Load local data and retry](guides/async-requests.md): immutable inputs, latest-response checks, teardown and failed-cache policy.
 - [Edit a View’s own model](guides/local-editing.md): live edits, local drafts, and API saves.
 - [Restart readiness while retaining UI](guides/retained-restart.md): repeat preparation without rebuilding the shell or draft.
 - [Add behavior to existing HTML](guides/existing-html.md): enhance existing markup and manage its lifetime.

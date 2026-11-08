@@ -4,6 +4,9 @@ Version-matched Markdown for `marionette` v5, whose core requires neither Backbo
 
 - [Documentation index](docs/readme.md)
 - [Agent workflow](docs/agents.md)
+- [Build an application, page, or feature with managed Views, Regions and lists](docs/guides/composition.md)
+- [Local requests, stale results and retries](docs/guides/async-requests.md)
+- [Records lesson: loading, retry and error UI](docs/records.md)
 - [Install and render a View](docs/quick-start.md)
 - [Ownership and lifetimes](docs/architecture.md)
 - [API index](docs/api.md)
@@ -54,7 +57,6 @@ Version-matched Markdown for `marionette` v5, whose core requires neither Backbo
 - [Imperative controls](docs/guides/widgets.md)
 - [Accessibility and rendering](docs/guides/accessibility-rendering.md)
 - [Production](docs/guides/production.md)
-- [Records lesson](docs/records.md)
 
 ## Development tools
 

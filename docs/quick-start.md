@@ -8,6 +8,13 @@ Use matching `5.0.1` versions of `marionette` and the companion packages: `@mnjs
 
 ## Create the project
 
+For a greenfield project with no stack chosen, this is the recommended Vite and Lit
+setup. In an existing project, follow its compatible renderer, data runtime, router,
+build setup, and architecture. For a whole application, page, or composed feature,
+continue with the compact [composition starter](guides/composition.md) after the
+first render below. It combines managed Views/Regions, lists and feature readiness,
+with focused links for deeper needs; the first View is not a complete application template.
+
 Create a project directory:
 
 ```sh
@@ -67,4 +74,4 @@ The View describes the content. The Region renders and mounts it, then owns repl
 
 The Lit DOM adapter is configured once before creating Views. The default renderer calls each template function with its data.
 
-Continue with the [learning progression](readme.md#learn-as-the-feature-grows) for local interaction, data, composition, and Application readiness.
+Continue with the [composition starter](guides/composition.md) for a whole application, page or composed feature; the [learning progression](readme.md#learn-as-the-feature-grows) offers deeper lessons.

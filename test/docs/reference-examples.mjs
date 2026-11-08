@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { assertions as asyncRequestAssertions } from './async-requests-checks.mjs';
+import { assertions as compositionAssertions, preparations as compositionPreparations } from './composition-guide-checks.mjs';
 import { assertions as v4Assertions, preparations as v4Preparations, migrationAfter } from './v4-migration-checks.mjs';
 import { assertions as migrationAssertions, preparations as migrationPreparations } from './framework-migration-checks.mjs';
 import { assertions as accessibilityAssertions } from './accessibility-guide-checks.mjs';
@@ -36,6 +38,7 @@ const pages = ['api', 'packages', 'integrations', 'guides'].flatMap(section =>
   .filter(path => path !== 'docs/guides/testing.md');
 pages.push('readme.md');
 const preparations = {
+  ...compositionPreparations,
   ...migrationPreparations,
   ...v4Preparations,
   ...listPreparations,
@@ -56,6 +59,8 @@ globalThis.fetch = async (url, options) => {
 `,
 };
 const assertions = {
+  ...asyncRequestAssertions,
+  ...compositionAssertions,
   'readme-1': `
 assert.equal(document.querySelector('#app').contains(notice.el), true);
 assert.match(notice.el.textContent, /Your report is ready/);

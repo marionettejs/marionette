@@ -1,6 +1,6 @@
 # Show, sort, and filter a list
 
-Use CollectionView for repeated children that share one placement rule. A surrounding View can own the list's local controls and Region. Add an Application when the feature needs API readiness or broader coordination; sorting a displayed list does not require one.
+For data-driven lists, default to CollectionView with child Views that share one placement rule. This is a design default, not a core API requirement; simple/static repetition in one owning template remains valid. A surrounding View can own the list's local controls and Region. Add an Application when the feature needs API readiness or broader coordination; sorting a displayed list does not require one.
 
 This catalog uses the optional `@mnjs/data` Collection for observable membership. Install the rendering and data packages from [setup](../integrations/setup.md).
 
