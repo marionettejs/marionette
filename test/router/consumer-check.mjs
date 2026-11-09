@@ -11,4 +11,6 @@ globalThis.HTMLElement = dom.window.HTMLElement;
 try {
   const { verifyConsumer } = await import(pathToFileURL(join(resolve(consumer), 'desk/verify.mjs')));
   await verifyConsumer();
+  const { verifyMount } = await import(pathToFileURL(join(resolve(consumer), 'mount/verify.mjs')));
+  await verifyMount();
 } finally { dom.window.close(); }

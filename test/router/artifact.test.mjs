@@ -20,7 +20,8 @@ function fixture(t) {
   write('readme.md', '# Router\n[Design](DESIGN.md#child-applications)\n[MIT](license.txt)\n');
   write('DESIGN.md', '# Design\n## Child applications\n');
   write('PROVENANCE.md', '# Provenance\n');
-  for (const file of ['examples/desk/README.md', 'examples/desk/desk.mjs', 'examples/desk/bootstrap.mjs']) { write(file, '# Example\n'); }
+  for (const file of ['examples/desk/README.md', 'examples/desk/desk.mjs', 'examples/desk/bootstrap.mjs',
+    'examples/mount/README.md', 'examples/mount/catalog.mjs']) { write(file, '# Example\n'); }
   for (const kind of ['import', 'require']) {
     for (const field of ['default', 'types']) { write(manifest.exports['.'][kind][field], 'export {};\n'); }
   }
@@ -74,7 +75,7 @@ test('rejects unexpected packed material and missing public entries', t => {
 
 test('checks installed documentation anchors, files and package boundaries', t => {
   const f = fixture(t);
-  assert.deepEqual(verifyRouterDocumentation(f.pkg), { pages: 4, relativeLinks: 2 });
+  assert.deepEqual(verifyRouterDocumentation(f.pkg), { pages: 5, relativeLinks: 2 });
   f.write('readme.md', '[Missing](DESIGN.md#missing)');
   assert.throws(() => verifyRouterDocumentation(f.pkg), /Missing anchor/);
   f.write('readme.md', '[Missing](absent.md)');

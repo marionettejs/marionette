@@ -1,5 +1,10 @@
 # Router integration checks
 
+This is the historical November 5 integration receipt. Current private preparation
+uses [the router procedure](../../packages/router/RELEASING.md), the maintained
+browser inventory and exact-source archive receipts. Results below do not certify
+later source or packaging changes.
+
 The optional private router is integrated onto upstream
 `2828aebdc928a2e8121ee5f601a2d5012412068e` (Marionette 5.0.1).
 Its runtime is byte-identical to the verified reconstructed candidate

@@ -1,8 +1,9 @@
 # Private router preparation
 
 This procedure prepares only `@mnjs/router@0.1.0`. It grants no authority to push,
-merge, publish, tag or deploy. Keep `private: true`. The source-rights/publication
-hold remains in force; the supplied MIT notice does not override that hold.
+merge, publish, tag or deploy. Keep `private: true`. The maintainer has confirmed
+the Marionette MIT license, and its exact notice is included. Publication permission
+remains withheld; this is separate from the settled license choice.
 No command below publishes or creates persistent access.
 
 The router has its own version and archive. Do not enroll it in the five-package
@@ -84,13 +85,14 @@ Router preparation uses its own inventory/configuration and does not dilute that
 core guarantee. Regular development discovery includes the router only in its
 Chromium project; all core cases retain the three original engines. The previous
 573-versus-372 mismatch contained 201 router entries across three projects. The
-declared initial policy now discovers 439 entries in development: 372 core plus
-67 router Chromium cases, with separate exact release inventories.
+declared initial policy has separate exact release inventories: all 372 core
+entries plus the router's Chromium cases. The router inventory grows with reviewed
+regressions without enrolling them in the coupled core publisher.
 
 ## Future release decision
 
 Even a passing preparation receipt has `publicationAllowed: false`. A future
-release requires explicit source-rights/publication approval, an approved npm
+release requires explicit publication approval, an approved npm
 publisher, current namespace/version checks, an intentional public-manifest and
 verification-policy change, and a newly certified archive from the final approved
 revision. Never remove the private guard as part of routine preparation. A 404

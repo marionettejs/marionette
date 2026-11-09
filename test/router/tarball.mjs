@@ -156,7 +156,37 @@ try {
       assert.deepEqual(await pendingInitial, { status: 'cancelled' });
       ignored.resolve();
       cancelled.destroy();
+
+      for (const asynchronous of [false, true]) {
+        const presented = Promise.withResolvers();
+        const presentation = Promise.withResolvers();
+        const bookmarks = new api.Router({ driver: api.memoryDriver({ url: 'https://installed.example/old?discard=1#old' }), routes: {
+          old: { path: '/old', redirect() {
+            const target = { name: 'item', hash: '#details' };
+            return asynchronous ? Promise.resolve(target) : target;
+          } },
+          item: { path: '/items', handler(match) { presented.resolve(match); return presentation.promise; } },
+        } });
+        await bookmarks.start();
+        const match = await presented.promise;
+        assert.equal(match.url.href, 'https://installed.example/items#details');
+        presentation.resolve(false);
+        assert.equal((await bookmarks.getInitialDispatch()).status, 'matched');
+        bookmarks.destroy();
+      }
+      let starts = 0;
+      const Pages = api.ChildAppSwitcher.extend({ reconstruct: true });
+      const pages = new Pages();
+      const page = pages.addChildApp('page', new (Base.extend({ onStart() { starts++; } }))());
+      await pages.start();
+      await pages.switchTo('page', { key: 1 });
+      assert.equal(await pages.switchTo('page', { key: 1 }), page);
+      assert.equal(starts, 2);
+      await pages.switchTo('page', { key: 1, reconstruct: false });
+      assert.equal(starts, 2);
+      pages.destroy();
       console.log(format + ' installed tarball: explicit injection, parent metadata, UI retention, owner cancellation, name reuse, fake-child rejection and all initial outcomes passed.');
+      console.log(format + ' installed tarball: named redirect fragments and switcher reconstruction defaults passed.');
     }
   `;
   writeFileSync(join(consumer, 'smoke.mjs'), smoke);
@@ -174,6 +204,8 @@ try {
   execFileSync(process.execPath, ['correctness-probes.mjs'], { cwd: consumer, stdio: 'inherit' });
   cpSync(join(installed, 'examples/desk'), join(consumer, 'desk'), { recursive: true });
   cpSync(join(root, 'test/router/consumer'), join(consumer, 'desk'), { recursive: true });
+  cpSync(join(installed, 'examples/mount'), join(consumer, 'mount'), { recursive: true });
+  cpSync(join(root, 'test/router/consumer/mount-verify.mjs'), join(consumer, 'mount/verify.mjs'));
   execFileSync(process.execPath, ['desk/capabilities-probe.mjs'], { cwd: consumer, stdio: 'inherit' });
   execFileSync(process.execPath, [join(root, 'test/router/consumer-check.mjs'), consumer], { cwd: consumer, stdio: 'inherit' });
   writeFileSync(join(consumer, 'key-graph-probe.mjs'), readFileSync(join(root, 'test/router/key-graph-probe.mjs')));

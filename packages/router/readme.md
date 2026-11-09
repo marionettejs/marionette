@@ -4,11 +4,13 @@ Optional routing tools for Marionette v5: named URLs and native navigation,
 feature-owned registrations, and selectable child Applications. Use the tools
 individually. A Router does not infer UI ownership from URL nesting.
 
-This development package is **private**. Use locally built matching packages;
-`marionette` is its exact-version peer. No publication is authorized by this
+This development package is **private**. Install a supplied archive alongside its
+exact-version `marionette` peer. No publication is authorized by this
 preparation. [Source provenance and the publication hold](PROVENANCE.md) are
 recorded separately from the [MIT license](license.txt).
 [Advanced contracts](DESIGN.md) describe the full API.
+Report suspected vulnerabilities privately through the
+[repository security advisory form](https://github.com/marionettejs/marionette/security/advisories/new).
 
 For a supplied review archive, use Node 24.15 or newer and install the exact
 Marionette peer alongside it:
@@ -50,11 +52,24 @@ handler, pass its signal to requests, and check the signal again before effects
 after an await. Cancellation does not undo UI or arbitrary work already performed.
 Notification hooks are synchronous; returned promises are not awaited.
 
+For a small data-backed feature, keep the route table as feature data and mount it
+with an explicit `{ owner, controller }`. A local `routeTo(match, { signal })`
+method loads and presents that feature. The [ordinary mounting example](examples/mount/README.md)
+uses a plain Application, area metadata and one such boundary, without a layer of
+per-route forwarders. Destruction retires its registration; stop/restart retain it.
+Another area's handler explicitly stops or clears the content it leaves, without
+activating an area just to clean it up. Use optional RouteApplication when a feature
+independently owns its declarative registration.
+
 `url('item', { id: '42' })` builds a checked named URL. Paths support static text,
 named parameters and optional brace groups; there are no splats, inline regex or
 repeated parameters. See the [grammar](DESIGN.md#route-definitions-and-matching).
 Redirects use ordinary routes; relative string targets resolve against the
 redirect's navigation URL, consistently for sync and async callbacks.
+Named redirects accept `{ name, params?, query?, hash? }`; forwarding is explicit,
+for example `{ name: 'item', params: match.params, query: match.query, hash: match.url.hash }`.
+Omitted query/hash do not inherit from the source. `hash` follows `URL.hash`
+semantics, including optional leading `#`, empty string and explicit empty `#`.
 Route names cannot start with `/` or `scheme://`; those spellings select raw URL
 navigation and are rejected as names at registration.
 
@@ -141,8 +156,11 @@ or decide whether a departing overlay should restore focus.
   array or plain-data keys; holes differ from undefined, and cycles/unsupported
   objects are rejected. See the [key contract](DESIGN.md#child-applications).
   Equal keys reuse/join the same child; running Applications ignore new start options.
-  Changed keys or `reconstruct: true` stop/start that **same instance**. Replace its
-  owner registration explicitly when a genuinely new instance is required.
+  Changed keys or `reconstruct: true` stop/start that **same instance**. A class or
+  constructor `reconstruct` default can suit rebuilt hosts; an explicit per-call
+  `false` retains/joins the same-key child. Key, signal and child options stay
+  per-call. Replace its owner registration explicitly when a genuinely new
+  instance is required.
 
 These classes belong to Marionette's default Application family. An isolated
 `createMarionette()` tree cannot register them as children; `.extend()` does not

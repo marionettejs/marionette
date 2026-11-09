@@ -215,6 +215,30 @@
       "title": "/async-old inherits a policy snapshot without affecting later navigation"
     },
     {
+      "file": "router-options.spec.mjs",
+      "title": "named redirect hashes preserve native readiness, history and cancellation with sync lookup"
+    },
+    {
+      "file": "router-options.spec.mjs",
+      "title": "initial same-path named redirect awaits its native fragment presentation with sync lookup"
+    },
+    {
+      "file": "router-options.spec.mjs",
+      "title": "named redirect hashes preserve native readiness, history and cancellation with async lookup"
+    },
+    {
+      "file": "router-options.spec.mjs",
+      "title": "initial same-path named redirect awaits its native fragment presentation with async lookup"
+    },
+    {
+      "file": "router-options.spec.mjs",
+      "title": "switcher reconstruction defaults rebuild native UI while false retains shared preparation"
+    },
+    {
+      "file": "router-options.spec.mjs",
+      "title": "ordinary feature data mounts with a local controller and explicit native owner lifetime"
+    },
+    {
       "file": "router-planning.spec.mjs",
       "title": "native redirect planning navigate preserves ready outcome without host errors"
     },

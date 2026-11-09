@@ -44,7 +44,9 @@ CircleCI edits, automatic branch-to-Application walker, nested lifecycle engine,
 framework-neutral rewrite, grammar expansion, leave guards/history compensation,
 new core lifecycle factory, speculative public status API or optional API pruning.
 App CircleCI's missing local router smoke remains an app integration follow-up.
-Source rights/license provenance remains a release gate; router stays private.
+At this historical checkpoint, source rights/license provenance was a release gate.
+The maintainer has since confirmed Marionette MIT and its exact notice is shipped;
+the package still stays private because publication has not been authorized.
 No public branch update, PR, merge, package release or deployment is part of this
 candidate preparation. Return exact heads and review/verification results first.
 
