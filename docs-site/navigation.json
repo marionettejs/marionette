@@ -138,6 +138,12 @@
     "section": "Companion packages"
   },
   {
+    "source": "packages/html/guide.md",
+    "route": "docs/packages/html",
+    "title": "HTML templates",
+    "section": "Companion packages"
+  },
+  {
     "source": "docs/integrations/setup.md",
     "route": "docs/integrations/setup",
     "title": "Setup and data",

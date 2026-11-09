@@ -19,6 +19,8 @@ export default [
       'dist/**',
       'node_modules/**',
       'packages/*/dist/**',
+      // Optional Lit-derived renderer retains its independent upstream-style checks.
+      'packages/html/**',
       'examples/*/dist/**',
       'test/fixtures/*/dist/**',
       'src/version.js',

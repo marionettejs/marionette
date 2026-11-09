@@ -28,5 +28,8 @@
   "include": [
     "src/**/*.ts",
     "packages/*/src/**/*.ts"
+  ],
+  "exclude": [
+    "packages/html/**"
   ]
 }

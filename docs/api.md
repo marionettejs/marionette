@@ -57,3 +57,5 @@ Class pages link to the relevant [shared configuration contracts](api/shared/vie
 For a first runnable result, use the [quick start](quick-start.md). For composition guidance, see [architecture](architecture.md).
 
 Detailed coverage still pending: a complete custom immutable-store integration. The [provider contracts](api/providers/data.md) describe the integration boundary. Application lifecycle details include [destination binding order](api/application.md#destination-binding-order) and [restart from start completion](api/application.md#restart-from-start-completion).
+
+[@mnjs/html](../packages/html/guide.md) is the optional, separately versioned template renderer and Marionette DOM adapter. Its reference covers values, ownership, directives and security; the 0.1.0 candidate remains unpublished.
