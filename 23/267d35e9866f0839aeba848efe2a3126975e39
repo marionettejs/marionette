@@ -1,0 +1,50 @@
+.github/workflows/html.yml
+  h_0f06c286dda36f 53
+packages/html/AGENTS.md
+  h_0f06c286dda36f 3
+packages/html/INTEGRATION.md
+  h_0f06c286dda36f 3-5
+packages/html/LIT_DIFFERENCES.md
+  h_0f06c286dda36f 3,35,57
+packages/html/PROVENANCE.md
+  h_0f06c286dda36f 12,30,36,41,57,74,97-98
+packages/html/README.md
+  h_0f06c286dda36f 5
+packages/html/RELEASE.md
+  h_0f06c286dda36f 1-55
+packages/html/UPSTREAM.md
+  h_0f06c286dda36f 1-69
+packages/html/VALIDATION.md
+  h_0f06c286dda36f 5-13,15-17,32-33,42,83,85,87-92
+packages/html/guide.md
+  h_0f06c286dda36f 4-5
+packages/html/package.json
+  h_0f06c286dda36f 190-193,203,206-208,224-236
+packages/html/scripts/check-package.mjs
+  h_0f06c286dda36f 6,9,11-14,18,52-68,71
+packages/html/scripts/check-packed-browser.mjs
+  h_0f06c286dda36f 1-27
+packages/html/scripts/check-upstream.mjs
+  h_0f06c286dda36f 1-20,22-27,29-38
+packages/html/scripts/recover-upstream.mjs
+  h_0f06c286dda36f 1-39
+packages/html/scripts/test-browser.mjs
+  h_0f06c286dda36f 7-10,24-31,42-48,70-76,82,197-200,262-263,268,317
+packages/html/test/packed-runtime.mjs
+  h_0f06c286dda36f 1-35
+packages/html/test/upstream-integrity.test.mjs
+  h_0f06c286dda36f 1-52
+packages/html/vendor/lit-html-3.3.3/sources.json
+  h_0f06c286dda36f 1-179
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "23267d35e9866f0839aeba848efe2a3126975e39",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
