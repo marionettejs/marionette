@@ -1,0 +1,60 @@
+.github/dependabot.yml
+  h_0f06c286dda36f 81-97
+.github/workflows/html.yml
+  h_0f06c286dda36f 7-12,23-28,59-62,65-68,74-84
+docs/api/providers/dom.md
+  h_0f06c286dda36f 5-9
+package.json
+  h_0f06c286dda36f 127-130
+packages/html/COMPATIBILITY.md
+  h_0f06c286dda36f 19,21
+packages/html/INTEGRATION.md
+  h_0f06c286dda36f 14,18-20,45-68
+packages/html/LIT_DIFFERENCES.md
+  h_0f06c286dda36f 22
+packages/html/PROVENANCE.md
+  h_0f06c286dda36f 107-114
+packages/html/RELEASE.md
+  h_0f06c286dda36f 13,15-17
+packages/html/UPSTREAM.md
+  h_0f06c286dda36f 63-65
+packages/html/VALIDATION.md
+  h_0f06c286dda36f 5-6,8,12-14,24-34,37
+packages/html/coverage-baseline.json
+  h_0f06c286dda36f 1-197
+packages/html/coverage.json
+  h_0f06c286dda36f 1-10
+packages/html/eslint.config.mjs
+  h_0f06c286dda36f 1-28
+packages/html/guide.md
+  h_0f06c286dda36f 21-23,87-95,126-128,202-211
+packages/html/package.json
+  h_0f06c286dda36f 200-201
+packages/html/scripts/check-coverage.mjs
+  h_0f06c286dda36f 1-22
+packages/html/scripts/check-current-core.mjs
+  h_0f06c286dda36f 1-46
+packages/html/scripts/test-browser.mjs
+  h_0f06c286dda36f 77-80
+packages/html/src/renderer.ts
+  h_0f06c286dda36f 578-579,608-610,646-648,650-652
+packages/html/test/coverage-gate.test.mjs
+  h_0f06c286dda36f 1-35
+packages/html/test/public-regressions.mjs
+  h_0f06c286dda36f 2,229-281
+packages/html/test/regressions.test.mjs
+  h_0f06c286dda36f 3,10-11
+test/README.md
+  h_0f06c286dda36f 139-140,148-153
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6bc754af8367dc2f88fec5496fd2ebe9817ab602",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
