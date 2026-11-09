@@ -85,6 +85,24 @@ try {
       assert.equal(router.getCurrent(), null);
       feature.destroy();
       assert.equal(router.hasRoute('item'), false);
+      const DefaultFeature = api.RouteApplication.extend({
+        router,
+        routes: { defaultFeature: { path: '/default-feature' } },
+      });
+      const Inherited = DefaultFeature.extend({});
+      const DefaultFrame = BaseApplication.extend({ childApps: { feature: Inherited } });
+      const defaultFrame = new DefaultFrame();
+      assert.equal(router.hasRoute('defaultFeature'), true);
+      defaultFrame.destroy();
+      assert.equal(router.hasRoute('defaultFeature'), false);
+      const fallback = new Inherited({ router: undefined });
+      assert.equal(router.hasRoute('defaultFeature'), true);
+      fallback.destroy();
+      const Cleared = Inherited.extend({ router: undefined });
+      assert.throws(() => new Cleared(), /requires a router/);
+      const restored = new Cleared({ router });
+      assert.equal(router.hasRoute('defaultFeature'), true);
+      restored.destroy();
       router.destroy();
       assert.equal(await router.start(), false);
       assert.equal(await router.navigate('/').finished, false);

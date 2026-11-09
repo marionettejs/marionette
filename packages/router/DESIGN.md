@@ -350,19 +350,31 @@ feature context are accepted. It mounts with the feature as controller, and its
 leave them registered. Adding a feature to an app tree does not start it, its
 children or siblings, and does not create another navigation listener.
 
-Configure the engine explicitly for a family of declarative features. This creates
-an ordinary subclass default; it does not search an owner chain or create a Router.
+Configure the engine with an ordinary prototype default when it is already known
+at class-definition time. This does not search an owner chain or create a Router.
 `new RouteApplication({ router })` remains available, and configured constructors
 also accept an explicit per-instance router override. `routeParent` passes the
 named parent to `mount`, inheriting its URL prefix, params, branch and metadata.
+
+`RouteApplication.extend({ router })` permits no-argument construction, including
+ordinary declarative children and inherited defaults. Constructor `router` options
+override that default when non-undefined; undefined retains it. Clearing or replacing
+an inherited prototype default with an invalid value requires a valid constructor
+option again. `withRouter(router)` remains an equivalent convenience, not a required
+feature base. Reusable module-scope classes can instead take `{ router }` at construction.
+
+An explicit `initialize(options)` or custom constructor keeps its declared argument
+requirements, including unrelated required fields. Prototype defaults are not copied
+into its raw argument: `initialize` can receive undefined, and an object with a prefix
+will not acquire `options.router`. Read resolved defaults with `getOption`.
 
 This composition fragment assumes application-defined `loadCatalogPrerequisites`
 and `ItemApplication`; the [desk example](examples/desk/README.md) is executable.
 
 ```js
 const router = new Router({ routes: { workspace: { path: '/:workspace' } } });
-const RoutedFeature = RouteApplication.withRouter(router);
-const Catalog = RoutedFeature.extend({
+const Catalog = RouteApplication.extend({
+  router,
   routeParent: 'workspace',
   childApps: { content: ChildAppSwitcher },
   routes: { item: { path: 'items/:id', handler: 'showItem' } },

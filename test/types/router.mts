@@ -257,3 +257,42 @@ const ErrorAwareRouter = Router.extend({
 });
 new ErrorAwareRouter({ driver }).on('route:error', (_error: unknown, _match: ActiveMatch | null, context: RoutingErrorContext) => context.info);
 void observedInfo;
+
+// A router prototype default has the same constructor contract as withRouter.
+const DefaultFeature = RouteApplication.extend({
+  router,
+  routes: { defaultItem: { path: '/default/:id', handler: 'show' } },
+  createState() { return { selected: 0 }; },
+  show(match: ActiveMatch) { return match.params.id; },
+}, { category: 'feature' });
+const defaultFeature = new DefaultFeature();
+new DefaultFeature({});
+new DefaultFeature({ router: undefined });
+new DefaultFeature({ router: hashRouter });
+const selectedState: number = defaultFeature.getState().selected;
+const staticCategory: string = DefaultFeature.category;
+const InheritedDefault = DefaultFeature.extend({ label() { return this.getState().selected; } });
+new InheritedDefault().label() satisfies number;
+const DefaultOwner = Application.extend({ childApps: { feature: InheritedDefault } });
+new DefaultOwner();
+const ClearedDefault = InheritedDefault.extend({ router: undefined });
+// @ts-expect-error Clearing the inherited default restores required router options.
+new ClearedDefault();
+// @ts-expect-error An empty option object supplies no valid router.
+new ClearedDefault({});
+new ClearedDefault({ router });
+const InvalidDefault = RouteApplication.withRouter(router).extend({ router: null });
+// @ts-expect-error An invalid prototype default does not retain the helper's optional-router guarantee.
+new InvalidDefault();
+new InvalidDefault({ router });
+const RequiredFeature = DefaultFeature.extend({ initialize(options: { prefix: string }) { void options.prefix; } });
+// @ts-expect-error A router default does not erase unrelated required initializer options.
+new RequiredFeature();
+// @ts-expect-error Required initializer fields remain required.
+new RequiredFeature({});
+new RequiredFeature({ prefix: 'required' });
+const StrictInitializer = DefaultFeature.extend({ initialize(options: { router: RouterInstance; prefix: string }) { void options.router; } });
+// @ts-expect-error Prototype defaults are not copied into the raw initializer argument.
+new StrictInitializer({ prefix: 'required' });
+new StrictInitializer({ prefix: 'required', router });
+void [selectedState, staticCategory];

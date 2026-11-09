@@ -15,7 +15,10 @@ export type RouteApplicationInstance = Omit<ApplicationInstance<ConfiguredRouteA
 type RouteProperties = Pick<RouteApplicationInstance, 'routes'>;
 export type ConfiguredRouteApplicationOptions = Omit<RouteApplicationOptions, 'router'> & { router?: RouterInstance };
 type ArgumentsFor<Props, Previous extends unknown[]> = Props extends { constructor: (...args: infer Args) => unknown } ? Args
-  : Props extends { initialize: (...args: infer Args) => unknown } ? Args : Previous;
+  : Props extends { initialize: (...args: infer Args) => unknown } ? Args
+    : 'router' extends keyof Props
+      ? Props extends { router: RouterInstance } ? [options?: ConfiguredRouteApplicationOptions] : [options: RouteApplicationOptions]
+      : Previous;
 type DefaultStateFor<Props> = Props extends { createState: (...args: never[]) => infer State } ? State : object;
 type StateFor<Props> = 'state' extends keyof Props
   ? Exclude<Props['state'], undefined> | (undefined extends Props['state'] ? DefaultStateFor<Props> : never)

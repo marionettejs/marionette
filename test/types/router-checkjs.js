@@ -70,3 +70,14 @@ router.on('route:error', (error, match, context) => {
   void [error, match, origin.info];
 });
 void errorContext;
+
+const DefaultFeature = RouteApplication.extend({ router, routes: { configured: { path: '/configured' } } });
+new DefaultFeature();
+new DefaultFeature({});
+new DefaultFeature({ router: undefined });
+const InheritedDefault = DefaultFeature.extend({});
+new InheritedDefault();
+const ClearedDefault = InheritedDefault.extend({ router: undefined });
+// @ts-expect-error Clearing a prototype default requires a router option again.
+new ClearedDefault();
+new ClearedDefault({ router });
