@@ -1,0 +1,24 @@
+packages/html/PROVENANCE.md
+  h_0f06c286dda36f 90-99
+packages/html/VALIDATION.md
+  h_0f06c286dda36f 5-7,12-13,24-25
+packages/html/scripts/test-browser.mjs
+  h_0f06c286dda36f 54-55
+packages/html/src/template.ts
+  h_0f06c286dda36f 71
+packages/html/test/public-regressions.mjs
+  h_0f06c286dda36f 204-228
+packages/html/test/regressions.test.mjs
+  h_0f06c286dda36f 3,8-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b70240b7072aef8033f0b577e6c528a94a1df626",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
