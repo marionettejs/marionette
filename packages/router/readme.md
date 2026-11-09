@@ -23,40 +23,73 @@ This command consumes a private archive; it does not claim that `0.1.0` is
 available on the public registry. The package is optional for Marionette 5;
 applications do not need it to use the core library.
 
-## Start with a Router and an ordinary handler
+## Build a routed feature with Applications and Views
+
+This UI example chooses Lit for escaped text interpolation. Install its optional
+consumer dependencies; the router itself requires neither:
+
+```sh
+npm install @mnjs/adapters@5.0.1 lit-html@3.3.3
+```
 
 ```js
 import { Application, View } from 'marionette';
-import { Router } from '@mnjs/router';
+import { Router, RouteApplication } from '@mnjs/router';
+import LitDomApi from '@mnjs/adapters/dom/lit-html';
+import { html } from 'lit-html';
 
-const frame = new Application({ region: '#content' });
-const router = frame.addChildApp('navigation', new Router({
-  routes: { item: { path: '/items/:id' } },
-  handler(match, { signal }) {
-    signal.throwIfAborted();
-    const element = document.createElement('h1');
-    element.textContent = `Item ${match.params.id}`;
-    frame.showView(new View({ el: element }));
+const ItemView = View.extend({
+  template: ({ id }) => html`<h1>Item ${id}</h1>`,
+}).setDomApi(LitDomApi);
+
+const Catalog = RouteApplication.extend({
+  region: { el: '#content' },
+  routes: {
+    item: { path: '/items/:id', handler: 'showItem' },
   },
-}));
+  async showItem(match, { signal }) {
+    if (!await this.start()) return;
+    signal.throwIfAborted();
+    this.showView(new ItemView({ model: { id: match.params.id } }));
+  },
+});
+
+const frame = new Application();
+const router = frame.addChildApp('navigation', new Router());
+const catalog = frame.addChildApp('catalog', new Catalog({ router }));
 router.on('route:error', (error, match) => console.error(match?.name, error));
 await frame.start();
 await router.start();                         // routing enabled
 const initial = await router.getInitialDispatch(); // first route outcome
 await router.navigate('item', { id: '42' }).finished;
-frame.destroy();                              // destroys its Router too
+// Later, frame.destroy() destroys its Router, Catalog and displayed View.
 ```
 
-Provide `#content`. For data-backed pages, return/await required work in the
-handler, pass its signal to requests, and check the signal again before effects
-after an await. Cancellation does not undo UI or arbitrary work already performed.
+Provide `#content`. The frame owns its shared Router and Catalog. Catalog owns
+its route definitions, handler, Region and displayed View. RouteApplication is an
+ordinary Application that registers those definitions at construction; navigation
+invokes its handler, whose returned work controls route readiness. Registration
+alone does not start Catalog. Stopping it retains its registration; destroying it
+retires the routes. The Router does not infer UI ownership from URL nesting.
+
+The named View supplies a function template to Marionette's
+default renderer; `setDomApi(LitDomApi)` handles its Lit output for this View.
+Plain model data needs no data adapter. Lit child expressions keep the ID as text,
+including HTML-like characters. A static default template can simply be a function
+returning trusted HTML; dynamic string HTML needs a safe templating integration.
+No global renderer override is needed here. For data-backed pages, return/await
+required work in the feature handler, pass its signal to requests, and check the
+signal again before effects after an await. Cancellation does not undo UI or
+arbitrary work already performed.
 Notification hooks are synchronous; returned promises are not awaited.
 
-For a small data-backed feature, keep the route table as feature data and mount it
-with an explicit `{ owner, controller }`. A local `routeTo(match, { signal })`
-method loads and presents that feature. The [ordinary mounting example](examples/mount/README.md)
-uses a plain Application, area metadata and one such boundary, without a layer of
-per-route forwarders. Destruction retires its registration; stop/restart retain it.
+RouteApplication is optional. An ordinary feature Application can register its
+route data through `router.mount(routes, { owner, controller })`. A local
+`routeTo(match, { signal })` method loads and presents that feature. The
+[ordinary Catalog example](examples/catalog/README.md) uses an ordinary feature
+Application, area metadata and one such boundary, without a layer of per-route
+forwarders. Destruction retires its registration; stop/restart retain it.
+A Router-level handler remains a lower-level option for small integrations.
 Another area's handler explicitly stops or clears the content it leaves, without
 activating an area just to clean it up. Use optional RouteApplication when a feature
 independently owns its declarative registration.

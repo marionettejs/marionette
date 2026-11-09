@@ -52,6 +52,9 @@ not mutate them: it snapshots containers, definitions, children and top-level me
 register/unregister explicitly. Redirect callbacks retain identity, and nested
 metadata values keep their original references (metadata copies remain shallow).
 
+The application-owned `catalog` below supplies its activation and notification
+methods; this is a configuration fragment.
+
 ```js
 const CatalogRouter = Router.extend({
   routes() {
@@ -237,15 +240,20 @@ teardown or general synchronous recovery policy.
 
 An array contains ordinary definitions, with optional `name` fields for named
 routes. A hash maps each route name to its definition; omit `name` inside that
-value. Both forms can be used in `children`:
+value. Both forms can be used in `children`. This grammar-only example does not
+activate navigation or render UI:
 
 ```js
-const routes = {
-  home: { path: '/', handler: 'showHome' },
-  item: { path: '/items/:id', handler: 'showItem' },
-};
-router.url('item', { id: 42 });
-router.navigate('item', { id: 42 });
+import { Router } from '@mnjs/router';
+
+const router = new Router({
+  routes: {
+    home: { path: '/' },
+    item: { path: '/items/:id' },
+  },
+});
+router.url('item', { id: 42 }); // /items/42
+router.match(new URL('https://example.test/items/42')).name; // item
 ```
 
 These are name-to-definition hashes, not pathname-to-action maps. Names remain
@@ -348,6 +356,9 @@ an ordinary subclass default; it does not search an owner chain or create a Rout
 also accept an explicit per-instance router override. `routeParent` passes the
 named parent to `mount`, inheriting its URL prefix, params, branch and metadata.
 
+This composition fragment assumes application-defined `loadCatalogPrerequisites`
+and `ItemApplication`; the [desk example](examples/desk/README.md) is executable.
+
 ```js
 const router = new Router({ routes: { workspace: { path: '/:workspace' } } });
 const RoutedFeature = RouteApplication.withRouter(router);
@@ -358,18 +369,16 @@ const Catalog = RoutedFeature.extend({
   async prepareStart(_options, { signal }) {
     await loadCatalogPrerequisites({ signal });
   },
-  async startOnRoute(match) {
-    if (!await this.start()) return false;
-    match.signal.throwIfAborted();
-    return true;
-  },
   async showItem(match, { signal }) {
-    if (!await this.startOnRoute(match)) return;
+    if (!await this.start()) return;
+    signal.throwIfAborted();
     const content = this.getChildApp('content');
     await content.start();
     signal.throwIfAborted();
     const page = await content.switchTo('item', {
-      key: { id: match.params.id }, options: { id: match.params.id }, signal,
+      key: { id: match.params.id },
+      options: { id: match.params.id },
+      signal,
     });
     if (!page || signal.aborted) return;
     return page.showItem(match);
@@ -383,9 +392,8 @@ await frame.start();
 await router.start();
 ```
 
-`startOnRoute` above is an application-defined method whose work is returned by
-the handler. It makes feature readiness and cancellation precede child switching
-and rendering. Parent Applications remain running across their child routes;
+The handler awaits ordinary feature preparation before child switching and
+rendering, and checks authority after awaits. Parent Applications remain running across their child routes;
 same-key child selection retains the page. UI stop/start retains route registration.
 Neither registration nor navigation automatically starts siblings.
 
@@ -393,7 +401,9 @@ An ordinary Application can use explicit mounting with the same ownership policy
 
 ```js
 const unmount = router.mount(catalogRoutes, {
-  parent: 'catalog', controller: catalog, owner: catalog,
+  parent: 'catalog',
+  controller: catalog,
+  owner: catalog,
 });
 unmount(); // optional early retirement; idempotent
 ```
@@ -518,9 +528,11 @@ defaults. `navigate()` accepts those native-named options independently, each as
 before resolving the target or invoking Driver navigation. For example:
 
 ```js
-router.navigate('/items?filter=open', {
-  history: 'replace', focusReset: 'manual', scroll: 'manual',
-});
+await router.navigate('/items?filter=open', {
+  history: 'replace',
+  focusReset: 'manual',
+  scroll: 'manual',
+}).finished;
 ```
 
 There is no query/hash inference. Options are snapshotted for that operation and
@@ -579,6 +591,9 @@ Frame Application
       └─ Search Application
 ```
 
+This composition fragment assumes application-defined `SidebarApplication`,
+`ItemApplication`, and existing `contentRegion`/`sidebarRegion` instances.
+
 ```js
 import { Application } from 'marionette';
 import { Router, ChildAppSwitcher } from '@mnjs/router';
@@ -597,7 +612,9 @@ const CatalogPages = ChildAppSwitcher.extend({
     }
     if (match.signal.aborted) return;
     const page = await this.switchTo('item', {
-      key: { id }, options: { id, region }, signal: match.signal,
+      key: { id },
+      options: { id, region },
+      signal: match.signal,
     });
     if (!page || match.signal.aborted) return;
     return page.showDetails(match);
@@ -730,7 +747,9 @@ const routes = defineRoutes({
 const router = new Router({ routes });
 router.url('item', { id: 42 });
 router.url('search');
-router.navigate('search', { term: 'open' });
+await router.start();
+await router.getInitialDispatch();
+await router.navigate('search', { term: 'open' }).finished;
 ```
 
 For a preserved literal table, named calls check declared names, required pathname

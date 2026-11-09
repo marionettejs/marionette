@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -45,10 +45,12 @@ try {
   }
   const peers = values['registry-peers'] ? ['marionette@5.0.1', '@mnjs/utils@5.0.1'] :
     ['.package', 'packages/utils', 'packages/radio'].map(directory => pack(join(root, directory)));
+  const exampleDependencies = values['registry-peers'] ? ['@mnjs/adapters@5.0.1', 'lit-html@3.3.3'] :
+    ['packages/adapters', 'node_modules/lit-html', 'node_modules/@types/trusted-types'].map(directory => pack(join(root, directory)));
   writeFileSync(join(consumer, 'package.json'), '{"name":"router-tarball-consumer","private":true,"type":"module"}\n');
   execFileSync(process.execPath, [npmCli, 'install', '--ignore-scripts', '--strict-peer-deps', '--no-audit', '--no-fund',
     ...(values['registry-peers'] ? ['--registry=https://registry.npmjs.org/', '--fetch-retries=0', '--fetch-timeout=20000'] : ['--offline']),
-    '--cache', join(temporary, 'cache'), routerTarball, ...peers], { cwd: consumer, stdio: 'inherit' });
+    '--cache', join(temporary, 'cache'), routerTarball, ...peers, ...exampleDependencies], { cwd: consumer, stdio: 'inherit' });
   const installed = join(consumer, 'node_modules/@mnjs/router');
   validateRouterPackage(JSON.parse(readFileSync(join(installed, 'package.json'))), readFileSync(join(installed, 'license.txt')));
   assert.equal(sha256(readFileSync(join(installed, 'dist/index.js'))), report.archive.browserModuleSha256);
@@ -59,6 +61,12 @@ try {
     assert.equal(entry.version, '5.0.1');
     if (values['registry-peers']) { assert.ok(entry.resolved.startsWith('https://registry.npmjs.org/')); }
     return { name, version: entry.version, resolved: entry.resolved, integrity: entry.integrity };
+  });
+  report.exampleDependencies = [['@mnjs/adapters', '5.0.1'], ['lit-html', '3.3.3']].map(([name, version]) => {
+    const entry = lock.packages[`node_modules/${name}`];
+    assert.equal(entry.version, version);
+    if (values['registry-peers']) { assert.ok(entry.resolved.startsWith('https://registry.npmjs.org/')); }
+    return { name, version, resolved: entry.resolved, integrity: entry.integrity };
   });
   for (const file of ['DESIGN.md', 'PROVENANCE.md',
     'dist/index.js', 'dist/index.cjs', 'dist/types/esm/index.d.ts', 'dist/types/cjs/index.d.ts']) {
@@ -223,22 +231,42 @@ try {
   execFileSync(process.execPath, ['correctness-probes.mjs'], { cwd: consumer, stdio: 'inherit' });
   cpSync(join(installed, 'examples/desk'), join(consumer, 'desk'), { recursive: true });
   cpSync(join(root, 'test/router/consumer'), join(consumer, 'desk'), { recursive: true });
-  cpSync(join(installed, 'examples/mount'), join(consumer, 'mount'), { recursive: true });
-  cpSync(join(root, 'test/router/consumer/mount-verify.mjs'), join(consumer, 'mount/verify.mjs'));
+  cpSync(join(installed, 'examples/catalog'), join(consumer, 'catalog'), { recursive: true });
+  cpSync(join(root, 'test/router/consumer/catalog-verify.mjs'), join(consumer, 'catalog/verify.mjs'));
   execFileSync(process.execPath, ['desk/capabilities-probe.mjs'], { cwd: consumer, stdio: 'inherit' });
   execFileSync(process.execPath, [join(root, 'test/router/consumer-check.mjs'), consumer], { cwd: consumer, stdio: 'inherit' });
+  // Break copies of the shipped example, then require the real consumer checks
+  // to reject missing rendering and unsafe HTML. Restore before native verification.
+  const catalogFile = join(consumer, 'catalog/catalog.mjs');
+  const catalogSource = readFileSync(catalogFile, 'utf8');
+  const template = 'template: ({ title }) => html`<h1>${title}</h1>`';
+  assert.ok(catalogSource.includes(template));
+  for (const [replacement, diagnostic] of [
+    ['template: false', 'CatalogView must render its template'],
+    ['template: ({ title }) => html`<h1>${unsafeHTML(title)}</h1>`', 'Fetched titles must remain text'],
+  ]) {
+    try {
+      writeFileSync(catalogFile, `import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';\n${catalogSource.replace(template, replacement)}`);
+      const broken = spawnSync(process.execPath, [join(root, 'test/router/consumer-check.mjs'), consumer, '--catalog-only'], { cwd: consumer, encoding: 'utf8' });
+      assert.equal(broken.error, undefined);
+      assert.notEqual(broken.status, 0, 'Controlled example break must fail');
+      assert.ok(broken.stderr.includes(diagnostic), broken.stderr);
+    } finally { writeFileSync(catalogFile, catalogSource); }
+  }
+  report.checks.push('example-template-escaping-controlled-breaks');
   writeFileSync(join(consumer, 'key-graph-probe.mjs'), readFileSync(join(root, 'test/router/key-graph-probe.mjs')));
   execFileSync(process.execPath, ['--max-old-space-size=64', 'key-graph-probe.mjs'], { cwd: consumer, stdio: 'inherit' });
   report.checks.push('cancellation-retention-capabilities-desk-key-graphs');
   if (values.browser) {
-    const packages = [['utils', '@mnjs/utils'], ['radio', '@mnjs/radio'], ['core', 'marionette'], ['router', '@mnjs/router']].map(([id, name]) => {
+    const packages = [['utils', '@mnjs/utils'], ['radio', '@mnjs/radio'], ['core', 'marionette'], ['adapters', '@mnjs/adapters'], ['router', '@mnjs/router']].map(([id, name]) => {
       const directory = join(consumer, 'node_modules', name);
       return { id, name, directory, manifest: JSON.parse(readFileSync(join(directory, 'package.json'))) };
     });
     const candidate = join(temporary, 'browser-candidate.json');
     writeFileSync(candidate, JSON.stringify({ source: { commit: report.archiveSourceCommit, verificationCommit: report.verificationCommit },
       packages: packages.filter(entry => entry.id !== 'router'),
-      routerPackage: packages.find(entry => entry.id === 'router'), routerArchive: report.archive }));
+      routerPackage: packages.find(entry => entry.id === 'router'), routerArchive: report.archive,
+      litDirectory: join(consumer, 'node_modules/lit-html') }));
     execFileSync(process.execPath, [npmCli, 'run', 'test:router-browser'], { cwd: root, stdio: 'inherit', env: {
       ...process.env, MARIONETTE_BROWSER_CANDIDATE: candidate, MARIONETTE_ROUTER_PACKAGE_DIRECTORY: installed,
       ...(values['chromium-executable'] ? { MARIONETTE_ROUTER_CHROMIUM: resolve(values['chromium-executable']) } : {}),

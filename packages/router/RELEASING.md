@@ -52,6 +52,11 @@ npm run test:router-tarball -- --artifact /absolute/path/router-candidate/mnjs-r
 
 This installs the archive with published `marionette@5.0.1`, `@mnjs/utils@5.0.1`
 and the transitive Radio peer, without install scripts or resolution overrides.
+The UI example checks also install their explicit optional consumer dependencies,
+`@mnjs/adapters@5.0.1` and `lit-html@3.3.3`, and record their registry identities.
+These are not router runtime dependencies. Native examples use those installed
+renderer bytes, including the exact README snippets. Controlled breaks of an
+isolated example copy prove missing rendering and unsafe interpolation are caught.
 It verifies installed ESM/CJS runtime, both declaration entry points and CheckJS,
 shipped documentation links, cancellation/retention and the desk consumer. Native
 tests load the installed router and peer bytes, not checkout router output.

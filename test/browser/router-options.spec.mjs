@@ -152,35 +152,36 @@ test('switcher reconstruction defaults rebuild native UI while false retains sha
 
 test('ordinary feature data mounts with a local controller and explicit native owner lifetime', async({ page }) => {
   await loadRouter(page);
-  await page.route('**/catalog.js', route => route.fulfill({ path: routerArtifactPath('examples/mount/catalog.mjs'), contentType: 'text/javascript' }));
+  await page.route('**/catalog.js', route => route.fulfill({ path: routerArtifactPath('examples/catalog/catalog.mjs'), contentType: 'text/javascript' }));
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));
   const result = await page.evaluate(async() => {
     const { Router } = await import('/router.js');
     const { Application } = await import('marionette');
-    const { mountCatalog } = await import('/catalog.js');
+    const { Catalog, catalogRoutes } = await import('/catalog.js');
     history.replaceState(null, '', '/catalog');
     const frame = new Application();
     const router = frame.addChildApp('navigation', new Router());
     const entered = Promise.withResolvers();
     const work = Promise.withResolvers();
     let obsoleteSignal;
-    const catalog = mountCatalog({ frame, router, region: '#content', loadItem(id, { signal }) {
+    const catalog = frame.addChildApp('catalog', new Catalog({ region: { el: '#content' }, loadItem(id, { signal }) {
       if (id === 'slow') { obsoleteSignal = signal; entered.resolve(); return work.promise; }
       return Promise.resolve(`Item ${id}`);
-    } });
-    const activeBefore = catalog.owner.isRunning();
+    } }));
+    router.mount(catalogRoutes, { owner: catalog, controller: catalog });
+    const activeBefore = catalog.isRunning();
     await frame.start(); await router.start();
     const initial = (await router.getInitialDispatch()).status;
     const list = document.querySelector('#content').textContent;
     await router.navigate('catalog', { id: '42' }).finished;
-    catalog.owner.stop();
+    catalog.stop();
     const registered = router.hasRoute('catalog');
     await router.refresh();
     const refreshed = document.querySelector('#content').textContent;
     const pending = router.navigate('catalog', { id: 'slow' }).finished;
     await entered.promise;
-    catalog.owner.destroy();
+    catalog.destroy();
     const cancelled = await pending;
     const empty = document.querySelector('#content').textContent;
     work.reject(new Error('retired request'));

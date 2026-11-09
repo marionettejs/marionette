@@ -1,12 +1,11 @@
 import { Application, View } from 'marionette';
 import { Router, RouteApplication } from '@mnjs/router';
+import LitDomApi from '@mnjs/adapters/dom/lit-html';
+import { html } from 'lit-html';
 
-function presentationView(presentation) {
-  const element = document.createElement('p');
-  element.dataset.presentation = presentation.kind;
-  element.textContent = presentation.kind === 'content' ? presentation.value : presentation.message ?? presentation.kind;
-  return new View({ el: element });
-}
+const PresentationView = View.extend({
+  template: ({ kind, value, message }) => html`<p data-presentation=${kind}>${kind === 'content' ? value : message ?? kind}</p>`,
+}).setDomApi(LitDomApi);
 
 // Feature-owned first-presentation contract. A replacement before first ready
 // shares this promise; a later refresh does not reopen already-settled readiness.
@@ -14,7 +13,7 @@ const ReloadingPage = Application.extend({
   initialize() { this.presentation = null; },
   onBeforeStart() {
     this.presentation ??= Promise.withResolvers();
-    this.showView(presentationView({ kind: 'loading' }));
+    this.showView(new PresentationView({ model: { kind: 'loading' } }));
   },
   async prepareStart(options, { signal }) {
     try {
@@ -28,7 +27,7 @@ const ReloadingPage = Application.extend({
     }
   },
   onStart(_app, _options, presentation) {
-    this.showView(presentationView(presentation));
+    this.showView(new PresentationView({ model: presentation }));
     this.presentation.resolve(presentation);
   },
   onStop() {
@@ -40,15 +39,20 @@ const ReloadingPage = Application.extend({
 
 export function createDesk({ main, side, driver, load = async id => `Item ${id}` }) {
   const frame = new Application({ region: { el: main } });
-  const router = frame.addChildApp('navigation', new Router({ driver, routes: {
-    desk: { path: '/:desk', meta: { shell: 'desk' } },
-  } }));
+  const router = frame.addChildApp('navigation', new Router({
+    driver,
+    routes: {
+      desk: { path: '/:desk', meta: { shell: 'desk' } },
+    },
+  }));
   const tools = frame.addChildApp('tools', new Application());
   const Feature = RouteApplication.withRouter(router);
   let activity;
   const Catalog = Feature.extend({
     routeParent: 'desk',
-    routes: { item: { path: 'catalog/:id', handler: 'showItem' } },
+    routes: {
+      item: { path: 'catalog/:id', handler: 'showItem' },
+    },
     initialize() {
       this.page = this.addChildApp('page', new ReloadingPage({ region: frame.getRegion() }));
     },
@@ -74,7 +78,9 @@ export function createDesk({ main, side, driver, load = async id => `Item ${id}`
 
   const Activity = Feature.extend({
     routeParent: 'desk',
-    routes: { activity: { path: 'activity', handler: 'showActivity' } },
+    routes: {
+      activity: { path: 'activity', handler: 'showActivity' },
+    },
     initialize() {
       // Sidebar feature lives below tools, while URL ancestry is still /:desk.
       this.page = this.addChildApp('page', new Application({ region: { el: side } }));
@@ -86,7 +92,9 @@ export function createDesk({ main, side, driver, load = async id => `Item ${id}`
       signal.throwIfAborted();
       await this.page.start();
       signal.throwIfAborted();
-      this.page.showView(presentationView({ kind: 'content', value: 'Activity inspector' }));
+      this.page.showView(new PresentationView({
+        model: { kind: 'content', value: 'Activity inspector' },
+      }));
     },
   });
   return {
@@ -95,6 +103,10 @@ export function createDesk({ main, side, driver, load = async id => `Item ${id}`
       if (!activity || activity.isDestroyed()) { activity = tools.addChildApp('activity', new Activity()); }
       return activity;
     },
-    async start() { await frame.start(); await router.start(); return frame; },
+    async start() {
+      await frame.start();
+      await router.start();
+      return frame;
+    },
   };
 }

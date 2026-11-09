@@ -123,6 +123,25 @@ export async function verifyConsumer() {
     await turn();
     assert.equal(handled.main.textContent, 'Replacement failed visibly');
 
+    const markup = '<img src=x onerror="globalThis.exampleInjected=true"><b>untrusted & text</b>';
+    for (const handledError of [false, true]) {
+      const escaped = example('/blue/catalog/markup', async() => {
+        if (handledError) { throw new Error(markup); }
+        return markup;
+      });
+      await escaped.start();
+      assert.equal((await escaped.router.getInitialDispatch()).status, 'matched');
+      const rendered = escaped.main.querySelector('[data-presentation]');
+      assert.equal(rendered.textContent, markup);
+      assert.equal(rendered.dataset.presentation, handledError ? 'error' : 'content');
+      assert.equal(escaped.main.querySelector('img, b'), null, 'Content and handled errors stay text');
+      const view = escaped.catalog.page.getView();
+      assert.equal(view.isRendered(), true);
+      escaped.frame.stop();
+      assert.equal(view.isDestroyed(), true);
+      assert.equal(escaped.main.textContent, '');
+    }
+
     const shared = Promise.withResolvers();
     let preparations = 0;
     const Page = Application.extend({ prepareStart() { preparations++; return shared.promise; } });

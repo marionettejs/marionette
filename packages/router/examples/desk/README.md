@@ -7,7 +7,10 @@ Activity uses a sidebar Region while Catalog's page can remain attached. URL
 ancestry does not choose Application ownership or stop unrelated content.
 
 Copy this folder into an ESM application with the matching private router and
-Marionette peer packages installed. Give the example two DOM containers:
+Marionette peer packages installed, plus the optional example dependencies
+`@mnjs/adapters@5.0.1` and `lit-html@3.3.3`. PresentationView uses a function
+template and a per-View Lit DOM adapter; ordinary expressions keep loaded content
+and error messages as text. Give the example two DOM containers:
 
 ```js
 import { navigationDriver } from '@mnjs/router';

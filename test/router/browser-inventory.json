@@ -31,6 +31,14 @@
       "title": "native initial and refresh error contexts have absent info without inheriting prior navigation"
     },
     {
+      "file": "router-examples.spec.mjs",
+      "title": "README routed feature owns named Views, escapes route text and destroys owned UI"
+    },
+    {
+      "file": "router-examples.spec.mjs",
+      "title": "Catalog README composes an ordinary Application with explicit route registration"
+    },
+    {
       "file": "router-native.spec.mjs",
       "title": "native empty, absent and identical fragments match the shared driver cases"
     },

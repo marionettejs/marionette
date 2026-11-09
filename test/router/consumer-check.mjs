@@ -9,8 +9,10 @@ globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 globalThis.HTMLElement = dom.window.HTMLElement;
 try {
-  const { verifyConsumer } = await import(pathToFileURL(join(resolve(consumer), 'desk/verify.mjs')));
-  await verifyConsumer();
-  const { verifyMount } = await import(pathToFileURL(join(resolve(consumer), 'mount/verify.mjs')));
-  await verifyMount();
+  if (process.argv[3] !== '--catalog-only') {
+    const { verifyConsumer } = await import(pathToFileURL(join(resolve(consumer), 'desk/verify.mjs')));
+    await verifyConsumer();
+  }
+  const { verifyCatalog } = await import(pathToFileURL(join(resolve(consumer), 'catalog/verify.mjs')));
+  await verifyCatalog();
 } finally { dom.window.close(); }
