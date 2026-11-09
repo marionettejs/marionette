@@ -1,0 +1,24 @@
+.github/workflows/html.yml
+  h_0f06c286dda36f 43-44
+packages/html/PROVENANCE.md
+  h_0f06c286dda36f 89-96
+packages/html/package-lock.json
+  h_0f06c286dda36f 336-363,378-724
+packages/html/package.json
+  h_0f06c286dda36f 201
+packages/html/scripts/check-lockfile.mjs
+  h_0f06c286dda36f 1-22
+packages/html/test/lockfile.test.mjs
+  h_0f06c286dda36f 1-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "05f56864e4d063068134bc7b2c53881892a41a1e",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
