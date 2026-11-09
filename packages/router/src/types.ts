@@ -52,6 +52,7 @@ export interface Match {
   key: string; signal: AbortSignal | null; userInitiated: boolean;
 }
 export interface ActiveMatch extends Match { signal: AbortSignal; navigationType: NavigationType }
+export interface RouteErrorContext { readonly info: unknown }
 export type InitialDispatchResult =
   | { status: 'matched'; match: ActiveMatch }
   | { status: 'unmatched' }

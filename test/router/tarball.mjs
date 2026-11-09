@@ -138,14 +138,33 @@ try {
       unmatched.destroy();
 
       const failure = new Error('failed initial handler');
+      const initialErrors = [];
       const failed = new api.Router({ driver: api.memoryDriver({ url: 'https://installed.example/fail' }),
         routes: { fail: { path: '/fail', handler() {throw failure;} } } });
+      failed.on('route:error', (...args) => initialErrors.push(args));
       await failed.start();
       const result = await failed.getInitialDispatch();
       assert.equal(result.status, 'failed');
       assert.equal(result.error, failure);
+      assert.equal(initialErrors[0][0], failure);
+      assert.equal(initialErrors[0][1], result.match);
+      assert.deepEqual(initialErrors[0][2], { info: undefined });
       assert.equal(failed.isRunning(), true);
       failed.destroy();
+
+      const originInfo = { caller: {} };
+      const planningErrors = [];
+      const policyFailed = new api.Router({ driver: api.memoryDriver({ url: 'https://installed.example/home' }),
+        routes: { home: { path: '/home' }, old: { path: '/old', redirect: async() => '/fail' }, fail: { path: '/fail' } },
+        intercept(url) { if (url.pathname === '/fail') { throw failure; } return true; } });
+      policyFailed.on('route:error', (...args) => planningErrors.push(args));
+      await policyFailed.start(); await policyFailed.getInitialDispatch();
+      await assert.rejects(policyFailed.navigate('old', {}, { info: originInfo }).finished, reason => reason === failure);
+      assert.equal(planningErrors.length, 1);
+      assert.equal(planningErrors[0][0], failure);
+      assert.equal(planningErrors[0][1], null);
+      assert.equal(planningErrors[0][2].info, originInfo);
+      policyFailed.destroy();
 
       const ignored = Promise.withResolvers();
       const cancelled = new api.Router({ driver: api.memoryDriver({ url: 'https://installed.example/cancel' }),

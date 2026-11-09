@@ -85,7 +85,7 @@ describe('reconstructed navigation correctness', () => {
         await expect(router.navigate('/fail').finished).rejects.toBe(failure);
       }
       expect(router.getCurrent().signal.aborted).toBe(false);
-      expect(errors).toHaveBeenCalledExactlyOnceWith(failure, router.getCurrent());
+      expect(errors).toHaveBeenCalledExactlyOnceWith(failure, router.getCurrent(), { info: undefined });
     });
   }
 
@@ -115,7 +115,7 @@ describe('reconstructed navigation correctness', () => {
       await router.start();
       await router.getInitialDispatch();
       await expect(router.navigate('/fail').finished).rejects.toBe(failure);
-      expect(errors).toHaveBeenCalledExactlyOnceWith(failure, router.getCurrent());
+      expect(errors).toHaveBeenCalledExactlyOnceWith(failure, router.getCurrent(), { info: undefined });
       expect(router.getCurrent().signal.aborted).toBe(false);
     });
   }
@@ -138,7 +138,7 @@ describe('reconstructed navigation correctness', () => {
       let readiness;
       expect(() => { readiness = router.refresh(); }).not.toThrow();
       await expect(readiness).rejects.toBe(failure);
-      expect(errors).toHaveBeenCalledExactlyOnceWith(failure, null);
+      expect(errors).toHaveBeenCalledExactlyOnceWith(failure, null, { info: undefined });
       expect(driver.currentEntry.url).toBe('https://example.test/page');
     });
   }

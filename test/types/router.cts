@@ -227,3 +227,19 @@ new ChildAppSwitcher(switchDefaults).switchTo('page', { reconstruct: false });
 // @ts-expect-error Reconstruction defaults are boolean.
 const invalidSwitchDefaults: ChildAppSwitcherOptions = { reconstruct: 'always' };
 void [namedRedirect, redirectRoutes, invalidHash, invalidSwitchDefaults];
+
+// Error events expose navigation info even without a committed Match.
+type RoutingErrorContext = import('@mnjs/router').RouteErrorContext;
+const errorContext: RoutingErrorContext = { info: { caller: 'navigation' } };
+const observedInfo: unknown = errorContext.info;
+// @ts-expect-error The error context describes originating info; consumers do not reassign it.
+errorContext.info = 'replacement';
+const ErrorAwareRouter = Router.extend({
+  onRouteError(_error: unknown, match: ActiveMatch | null, context: RoutingErrorContext) {
+    const origin: unknown = context.info;
+    const name: string | undefined = match?.name;
+    void [origin, name];
+  },
+});
+new ErrorAwareRouter({ driver }).on('route:error', (_error: unknown, _match: ActiveMatch | null, context: RoutingErrorContext) => context.info);
+void observedInfo;

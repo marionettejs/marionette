@@ -15,6 +15,22 @@
       "title": "lazy sidebar routes refresh after mounting and registration survives UI stop"
     },
     {
+      "file": "router-errors.spec.mjs",
+      "title": "native error context preserves info through sync redirect failures"
+    },
+    {
+      "file": "router-errors.spec.mjs",
+      "title": "native error context preserves info through async redirect failures"
+    },
+    {
+      "file": "router-errors.spec.mjs",
+      "title": "native shared Error and synchronous notification reentry retain each attempt info"
+    },
+    {
+      "file": "router-errors.spec.mjs",
+      "title": "native initial and refresh error contexts have absent info without inheriting prior navigation"
+    },
+    {
       "file": "router-native.spec.mjs",
       "title": "native empty, absent and identical fragments match the shared driver cases"
     },

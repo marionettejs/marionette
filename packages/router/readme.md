@@ -137,8 +137,13 @@ superseded results do not regain authority. Do not equate every undefined select
 result or fulfilled false Application result with cancellation of all underlying work.
 
 Overlay dismissal and focus are application policies. Subscribe to `route` for a
-commit-time choice or `route:ready` for returned-work completion; `route:error` may
-have a null Match if planning failed. Same-URL refresh emits routing notifications
+commit-time choice or `route:ready` for returned-work completion;
+`route:error(error, match, { info })` may have a null Match if planning failed.
+Its info is the originating navigation's value, also through redirects; initial
+dispatch and refresh supply undefined. Existing two-argument listeners still work,
+and promise failures retain the original error. Applications choose how to coordinate
+both observation paths; driver/setup failures can occur without a route event.
+Same-URL refresh emits routing notifications
 as well. `focusReset` and `scroll` independently accept `manual` or
 `after-transition`; refresh uses manual policy. The package does not close overlays
 or decide whether a departing overlay should restore focus.

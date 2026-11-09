@@ -61,3 +61,12 @@ const bookmarks = { legacy: { path: '/legacy', redirect: async() => bookmark } }
 const defaults = { reconstruct: true };
 new ChildAppSwitcher(defaults).switchTo('page', { reconstruct: false });
 void bookmarks;
+
+/** @type {import('@mnjs/router').RouteErrorContext} */
+const errorContext = { info: undefined };
+router.on('route:error', (error, match, context) => {
+  /** @type {import('@mnjs/router').RouteErrorContext} */
+  const origin = context;
+  void [error, match, origin.info];
+});
+void errorContext;

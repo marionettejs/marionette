@@ -14,7 +14,7 @@ type Plan = { hop: string; base?: never; pending?: never } |
 
 import { Application } from 'marionette';
 import type { ApplicationInstance, ApplicationConstructor } from 'marionette';
-import type { ActiveMatch, Match, InitialDispatchResult, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteTable, MountOptions, RouteHandler, MatcherResult, RedirectTarget } from './types.ts';
+import type { ActiveMatch, Match, RouteErrorContext, InitialDispatchResult, Params, Query, EntryState, RouterOptions, NavigateOptions, Driver, DriverEntry, DriverEvent, NavigationResult, NavigationOptions, DriverNavigateOptions, RouteTable, MountOptions, RouteHandler, MatcherResult, RedirectTarget } from './types.ts';
 
 import type { NamedRouteArgs, RouteNames } from './route-types.ts';
 import { Matcher, URL_FORM } from './matcher.ts';
@@ -495,16 +495,16 @@ async function attempt(router: RouterInstance, nav: Navigation, task: () => void
       throw new NavigationCancelled();
     }
     nav.chain.failure = { error };
-    reportError(router, error, nav.match);
+    reportError(router, error, nav.match, { info: nav.info });
     throw error;
   } finally {
     nav.release!();
   }
 }
 
-function reportError(router: RouterInstance, error: unknown, match: ActiveMatch | null) {
+function reportError(router: RouterInstance, error: unknown, match: ActiveMatch | null, context: RouteErrorContext) {
   try {
-    router.triggerMethod('route:error', error, match);
+    router.triggerMethod('route:error', error, match, context);
   } catch (notificationError) {
     // Reporting failures remain visible even for automatically dispatched work.
     queueMicrotask(() => {throw notificationError;});
@@ -632,7 +632,7 @@ export const Router = Application.extend({
     try {
       if (!claims(this, new URL(entry.url))) {return false;}
     } catch (error) {
-      reportError(this, error, null);
+      reportError(this, error, null, { info: undefined });
       throw error;
     }
     return navigateDriver(this, entry.url, { history: 'replace', state: entry.getState() }, newChain(false, { focusReset: 'manual', scroll: 'manual' })).finished;

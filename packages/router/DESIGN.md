@@ -186,7 +186,7 @@ button. Native Back can leave the app/document independently of the helper.
 | --- | --- | --- |
 | `route(match)` | `onRoute(match)` | Current Match committed, before the awaited handler |
 | `route:ready(match)` | `onRouteReady(match)` | Handler fulfilled and Match remains current |
-| `route:error(error, match)` | `onRouteError(error, match)` | Current routing failed; Match is null when failure precedes Match commitment |
+| `route:error(error, match, context)` | `onRouteError(error, match, context)` | Current routing failed; Match is null when failure precedes Match commitment |
 
 Hooks run before listeners through `triggerMethod`. Notification return values do
 not cancel navigation and returned Promises are not awaited. A synchronous hook
@@ -195,6 +195,21 @@ awaited handler, not an asynchronous notification hook.
 If error notification itself throws, that notification failure is reported through
 the host's ordinary error mechanism. It does not trigger another `route:error`
 or replace the original routing rejection.
+
+The third error argument is `RouteErrorContext`: `{ readonly info: unknown }`.
+It exposes that attempt's originating navigation `info`, including when `match`
+is null, and preserves the same value/reference through redirect hops. Initial
+dispatch and `refresh()` have `info: undefined`; they do not inherit the previous
+Match's info. An ordinary Driver navigation supplies its own event info.
+Existing two-argument listeners/hooks still receive the same error and Match.
+The promise rejects with the original error, without wrapping or attaching context.
+Context is captured from the failed attempt before notifications can navigate again;
+it is not inferred from the Error identity or the Router's current Match. Applications
+can use their own info values to coordinate promise and event error observation.
+The package adds no error-reporting or deduplication policy. Driver/setup failures
+outside a routing attempt can reject or throw without emitting `route:error`;
+continue to observe the requested operation's result. Cancelled/stale work does
+not acquire an error notification merely because it had info.
 
 `navigate()` synchronously returns `{ committed, finished }`, each a
 Promise<boolean>. Commitment concerns the URL; finished awaits the handler and
