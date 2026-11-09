@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { setImmediate as turn } from 'node:timers/promises';
 import { Application } from 'marionette';
 import { ChildAppSwitcher, memoryDriver } from '@mnjs/router';
-import { createDesk } from './desk.mjs';
+import { Desk, Activity } from './desk.mjs';
 
 export async function verifyConsumer() {
   const owned = [];
@@ -13,9 +13,13 @@ export async function verifyConsumer() {
     const main = document.body.appendChild(document.createElement('main'));
     const side = document.body.appendChild(document.createElement('aside'));
     const driver = memoryDriver({ url: `https://desk.example${path}` });
-    const app = createDesk({ main, side, driver, load });
-    owned.push(app.frame);
-    return { ...app, driver, main, side };
+    const desk = new Desk({ main, side, driver, load });
+    owned.push(desk);
+    const router = desk.getChildApp('navigation');
+    const catalog = desk.getChildApp('catalog');
+    const tools = desk.getChildApp('tools');
+    const page = catalog.getChildApp('page');
+    return { desk, router, catalog, tools, page, driver, main, side };
   }
   try {
     const first = Promise.withResolvers();
@@ -26,17 +30,20 @@ export async function verifyConsumer() {
     app.router.on('route:error', error => errors.push(error));
     assert.equal(app.catalog.isRunning(), false, 'Registration must not activate its feature');
     assert.equal(app.router.url('item', { desk: 'blue', id: 'a/b' }), '/blue/catalog/a%2Fb');
-    await app.start();
+    await app.desk.start();
+    assert.equal(app.catalog.isRunning(), true, 'Desk preparation starts its required Catalog');
+    assert.equal(app.router.isRunning(), false, 'Router activation remains explicit');
+    await app.router.start();
     const initial = app.router.getInitialDispatch();
     let ready = false;
     initial.then(() => { ready = true; });
     await turn();
     assert.equal(app.main.textContent, 'loading');
-    const presentation = app.catalog.page.initialPresentation();
-    const restarted = app.catalog.page.restart({ id: 'one', load: () => replacement.promise });
+    const presentation = app.page.initialPresentation();
+    const restarted = app.page.restart({ id: 'one', load: () => replacement.promise });
     await turn();
     assert.equal(ready, false, 'Original false start result must not complete required replacement presentation');
-    assert.equal(app.catalog.page.initialPresentation(), presentation);
+    assert.equal(app.page.initialPresentation(), presentation);
     replacement.resolve('Replacement content');
     assert.equal(await restarted, true);
     assert.equal((await initial).status, 'matched');
@@ -59,11 +66,15 @@ export async function verifyConsumer() {
     assert.equal(app.main.querySelector('[data-presentation="error"]').textContent, 'Handled request failure');
     assert.deepEqual(errors, []);
 
-    const activity = app.mountActivity();
+    const activity = app.tools.addChildApp('activity', new Activity({
+      router: app.router,
+      tools: app.tools,
+      region: app.tools.getRegion(),
+    }));
     assert.equal(activity.isRunning(), false);
-    const catalogView = app.catalog.page.getView();
+    const catalogView = app.page.getView();
     assert.equal(await app.router.navigate('activity', { desk: 'blue' }).finished, true);
-    assert.equal(app.catalog.page.getView(), catalogView, 'Sidebar ownership does not follow URL ancestry');
+    assert.equal(app.page.getView(), catalogView, 'Sidebar ownership does not follow URL ancestry');
     assert.equal(app.side.textContent, 'Activity inspector');
     assert.deepEqual(app.router.getCurrent().branch.map(entry => entry.name), ['desk', 'activity']);
     activity.stop();
@@ -72,27 +83,45 @@ export async function verifyConsumer() {
     activity.destroy();
     assert.equal(app.router.hasRoute('activity'), false);
     assert.equal(app.router.getCurrent(), null);
-    const recreated = app.mountActivity();
-    assert.notEqual(recreated, activity, 'Explicit lazy mount after destruction registers a new instance');
+    const recreated = app.tools.addChildApp('activity', new Activity({
+      router: app.router,
+      tools: app.tools,
+      region: app.tools.getRegion(),
+    }));
+    assert.notEqual(recreated, activity, 'Explicit child registration after destruction creates a new feature');
     assert.equal(await app.router.refresh(), true);
     assert.equal(app.side.textContent, 'Activity inspector');
 
     const landing = example('/green/activity');
-    await landing.start();
+    await landing.desk.start();
+    await landing.router.start();
     assert.deepEqual(await landing.router.getInitialDispatch(), { status: 'unmatched' });
-    const lazy = landing.mountActivity();
+    const lazy = landing.tools.addChildApp('activity', new Activity({
+      router: landing.router,
+      tools: landing.tools,
+      region: landing.tools.getRegion(),
+    }));
     assert.equal(lazy.isRunning(), false);
     assert.equal(landing.router.url('activity', { desk: 'green' }), '/green/activity');
     assert.equal(await landing.router.refresh(), true);
     assert.equal(landing.side.textContent, 'Activity inspector');
+    await landing.router.navigate('item', { desk: 'green', id: 'one' }).finished;
+    assert.equal(landing.main.textContent, 'Item one');
+    assert.equal(landing.side.textContent, '');
+    assert.equal(await landing.router.navigate('/red').finished, true);
+    assert.equal(landing.driver.currentEntry.url, 'https://desk.example/red/catalog');
+    assert.equal(landing.main.textContent, 'Catalog red');
+    assert.equal(landing.page.isRunning(), false);
+    assert.equal(landing.side.textContent, '');
 
     for (const operation of ['stop', 'destroy']) {
       const pending = Promise.withResolvers();
       const leaving = example('/blue/catalog/slow', () => pending.promise);
-      await leaving.start();
+      await leaving.desk.start();
+      await leaving.router.start();
       await turn();
       const outcome = leaving.router.getInitialDispatch();
-      leaving.frame[operation]();
+      leaving.desk[operation]();
       assert.deepEqual(await outcome, { status: 'cancelled' });
       pending.reject(new Error(`late failure after owner ${operation}`));
       await turn();
@@ -101,7 +130,8 @@ export async function verifyConsumer() {
 
     const late = Promise.withResolvers();
     const retired = example('/blue/catalog/retired', () => late.promise);
-    await retired.start();
+    await retired.desk.start();
+    await retired.router.start();
     await turn();
     retired.catalog.destroy();
     assert.deepEqual(await retired.router.getInitialDispatch(), { status: 'cancelled' });
@@ -112,9 +142,10 @@ export async function verifyConsumer() {
     const original = Promise.withResolvers();
     const replacementFailure = Promise.withResolvers();
     const handled = example('/red/catalog/replacing', () => original.promise);
-    await handled.start();
+    await handled.desk.start();
+    await handled.router.start();
     await turn();
-    const replacing = handled.catalog.page.restart({ id: 'replacing', load: () => replacementFailure.promise });
+    const replacing = handled.page.restart({ id: 'replacing', load: () => replacementFailure.promise });
     replacementFailure.reject(new Error('Replacement failed visibly'));
     assert.equal(await replacing, true);
     assert.equal((await handled.router.getInitialDispatch()).status, 'matched');
@@ -129,15 +160,16 @@ export async function verifyConsumer() {
         if (handledError) { throw new Error(markup); }
         return markup;
       });
-      await escaped.start();
+      await escaped.desk.start();
+      await escaped.router.start();
       assert.equal((await escaped.router.getInitialDispatch()).status, 'matched');
       const rendered = escaped.main.querySelector('[data-presentation]');
       assert.equal(rendered.textContent, markup);
       assert.equal(rendered.dataset.presentation, handledError ? 'error' : 'content');
       assert.equal(escaped.main.querySelector('img, b'), null, 'Content and handled errors stay text');
-      const view = escaped.catalog.page.getView();
+      const view = escaped.page.getView();
       assert.equal(view.isRendered(), true);
-      escaped.frame.stop();
+      escaped.desk.stop();
       assert.equal(view.isDestroyed(), true);
       assert.equal(escaped.main.textContent, '');
     }

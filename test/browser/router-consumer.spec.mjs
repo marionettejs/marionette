@@ -15,16 +15,21 @@ async function desk(page) {
     imports.textContent = JSON.stringify({ imports: { '@mnjs/router': '/router.js' } });
     document.head.append(imports);
     const { navigationDriver } = await import('/router.js');
-    const { createDesk } = await import('/desk.mjs');
+    const { Desk } = await import('/desk.mjs');
     const main = document.getElementById('content');
     const side = document.body.appendChild(document.createElement('aside'));
     side.id = 'inspector';
     const first = Promise.withResolvers();
     const replacement = Promise.withResolvers();
-    const app = createDesk({ main, side, driver: navigationDriver(), load: () => first.promise });
-    window.deskExample = { app, first, replacement };
+    const app = new Desk({ main, side, driver: navigationDriver(), load: () => first.promise });
+    const router = app.getChildApp('navigation');
+    const catalog = app.getChildApp('catalog');
+    const tools = app.getChildApp('tools');
+    const pageApp = catalog.getChildApp('page');
+    window.deskExample = { app, router, catalog, tools, pageApp, first, replacement };
     await app.start();
-    await app.router.getInitialDispatch();
+    await router.start();
+    await router.getInitialDispatch();
   });
 }
 
@@ -36,14 +41,14 @@ for (const failure of [false, true]) {
     await page.evaluate(() => {
       const state = window.deskExample;
       state.finished = false;
-      state.navigation = state.app.router.navigate('item', { desk: 'blue', id: 'one' }).finished.then(value => {
+      state.navigation = state.router.navigate('item', { desk: 'blue', id: 'one' }).finished.then(value => {
         state.finished = true; return value;
       });
     });
     await expect(page.locator('#content')).toHaveText('loading');
     await page.evaluate(() => {
       const state = window.deskExample;
-      state.restarted = state.app.catalog.page.restart({ id: 'one', load: () => state.replacement.promise });
+      state.restarted = state.pageApp.restart({ id: 'one', load: () => state.replacement.promise });
     });
     expect(await page.evaluate(() => window.deskExample.finished)).toBe(false);
     expect(await page.evaluate(async failed => {
@@ -60,17 +65,23 @@ for (const failure of [false, true]) {
 
 test('lazy sidebar routes refresh after mounting and registration survives UI stop', async({ page }) => {
   await desk(page);
-  await page.evaluate(() => {
-    window.deskExample.activity = window.deskExample.app.mountActivity();
+  await page.evaluate(async() => {
+    const { Activity } = await import('/desk.mjs');
+    const state = window.deskExample;
+    state.activity = state.tools.addChildApp('activity', new Activity({
+      router: state.router,
+      tools: state.tools,
+      region: state.tools.getRegion(),
+    }));
   });
   expect(await page.evaluate(() => window.deskExample.activity.isRunning())).toBe(false);
-  expect(await page.evaluate(() => window.deskExample.app.router.navigate('activity', { desk: 'green' }).finished)).toBe(true);
+  expect(await page.evaluate(() => window.deskExample.router.navigate('activity', { desk: 'green' }).finished)).toBe(true);
   await expect(page.locator('#inspector')).toHaveText('Activity inspector');
   expect(await page.evaluate(async() => {
     const state = window.deskExample; state.activity.stop();
-    const registered = state.app.router.hasRoute('activity');
-    const refreshed = await state.app.router.refresh();
+    const registered = state.router.hasRoute('activity');
+    const refreshed = await state.router.refresh();
     state.activity.destroy();
-    return { registered, refreshed, removed: !state.app.router.hasRoute('activity'), current: state.app.router.getCurrent() };
+    return { registered, refreshed, removed: !state.router.hasRoute('activity'), current: state.router.getCurrent() };
   })).toEqual({ registered: true, refreshed: true, removed: true, current: null });
 });

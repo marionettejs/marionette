@@ -43,6 +43,10 @@ export async function verifyCatalog() {
     assert.equal(region.textContent, '');
     assert.equal(await router.refresh(), true);
     assert.equal(region.textContent, 'Item 42');
+    const beforeRepeat = signals.length;
+    await router.navigate('catalog', { id: '42' }).finished;
+    await router.navigate('catalog', { id: '42' }).finished;
+    assert.equal(signals.length, beforeRepeat + 2, 'This example deliberately reloads repeated IDs');
 
     const obsolete = Promise.withResolvers(); work.set('old', obsolete);
     const pending = router.navigate('catalog', { id: 'old' });
@@ -51,6 +55,16 @@ export async function verifyCatalog() {
     assert.equal(await pending.finished, false);
     obsolete.resolve('stale'); await turn();
     assert.equal(region.textContent, 'Item new');
+
+    const away = Promise.withResolvers(); work.set('away', away);
+    router.mount({ outside: { path: '/outside', handler() { catalog.stop(); } } });
+    const departing = router.navigate('catalog', { id: 'away' });
+    await departing.committed;
+    await router.navigate('outside').finished;
+    assert.equal(await departing.finished, false);
+    away.resolve('obsolete after leaving'); await turn();
+    assert.equal(region.textContent, '', 'Leaving the feature must not attach stale preparation');
+    assert.equal(catalog.isRunning(), false);
 
     const retired = Promise.withResolvers(); work.set('retired', retired);
     const retiring = router.navigate('catalog', { id: 'retired' });

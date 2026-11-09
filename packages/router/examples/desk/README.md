@@ -2,7 +2,7 @@
 
 This small example uses a shared Router, an eager Catalog RouteApplication and
 a lazy Activity RouteApplication. Both mount below the named `desk` URL parent.
-Catalog belongs to the frame; Activity belongs to an independent tools Application.
+Catalog belongs to the Desk Application; Activity belongs to its tools child.
 Activity uses a sidebar Region while Catalog's page can remain attached. URL
 ancestry does not choose Application ownership or stop unrelated content.
 
@@ -13,28 +13,38 @@ template and a per-View Lit DOM adapter; ordinary expressions keep loaded conten
 and error messages as text. Give the example two DOM containers:
 
 ```js
-import { navigationDriver } from '@mnjs/router';
-import { createDesk } from './desk.mjs';
+import { Desk, Activity } from './desk.mjs';
 
-const app = createDesk({
-  main: document.querySelector('#main'),
-  side: document.querySelector('#side'),
-  driver: navigationDriver(),
-  load: async(id, { signal }) => {
+const desk = new Desk({
+  main: '#main',
+  side: '#side',
+  async load(id, { signal }) {
     const response = await fetch(`/api/catalog/${encodeURIComponent(id)}`, { signal });
     if (!response.ok) throw new Error(`Load failed: ${response.status}`);
     return response.text();
   },
 });
-await app.start(); // enables routing without waiting for its initial page
-const initial = await app.router.getInitialDispatch();
-app.mountActivity(); // registration only; it has not started Activity
-await app.router.refresh(); // handles an existing /:desk/activity deep link
-await app.router.navigate('item', { desk: 'blue', id: 'one' }).finished;
+const router = desk.getChildApp('navigation');
+const tools = desk.getChildApp('tools');
+await desk.start();
+await router.start(); // enables routing without waiting for its initial page
+const initial = await router.getInitialDispatch();
+if (initial.status === 'failed') {
+  desk.destroy();
+  throw initial.error;
+}
+tools.addChildApp('activity', new Activity({
+  router,
+  tools,
+  region: tools.getRegion(),
+})); // registration only; it has not started Activity
+await router.refresh(); // handles an existing /:desk/activity deep link
+await router.navigate('item', { desk: 'blue', id: 'one' }).finished;
+// Later, desk.stop() or desk.destroy() use normal Application ownership.
 ```
 
-Check the capabilities in `bootstrap.mjs` **before** importing an application
-module that eagerly constructs this example. The app chooses its unsupported
+Use the [pre-import capability check](../../readme.md#check-capabilities-before-eager-application-imports)
+before importing an application module that eagerly constructs a Desk. The app chooses its unsupported
 environment response. An injected memory driver removes only the native
 Navigation API requirement. Capability presence is not browser certification.
 
@@ -52,11 +62,17 @@ Neither behavior is inferred from a false value, and no rollback is promised.
 The example uses ordinary Applications directly; it does not require a selector.
 An unrelated tab group can use ChildAppSwitcher independently.
 
-Stop/restart retain feature route registration; destruction unmounts it. Frame
-stop/destroy ends routing and owned UI. Creating a new instance requires replacing
+Stop/restart retain feature route registration; destruction unmounts it.
+Desk stop/destroy ends routing and owned UI. Creating a new instance requires replacing
 its Application registration; restarting does not allocate one. In this example,
-calling `mountActivity()` again after destruction explicitly registers a new
-Activity instance. Calling it while the instance exists reuses it.
+the bootstrap lazily adds Activity with `tools.addChildApp`. Read an existing
+instance with `tools.getChildApp('activity')`; after destruction, explicitly add
+a new instance when needed. Starting Desk does not implicitly start its Router
+or tools child. Their required activation stays explicit in the bootstrap and
+Activity handler, rather than an asynchronous notification hook. Desk's ordinary
+`prepareStart` awaits its eager Catalog child. No Router override or application
+facade changes the meaning of `start`, `stop` or `destroy`. The bare `/:desk` URL
+redirects to that desk's Catalog index, which retires old item/sidebar content.
 
 From the framework checkout, run `npm run build` then
 `npm run test:router-tarball`. The test installs actual tarballs, copies this

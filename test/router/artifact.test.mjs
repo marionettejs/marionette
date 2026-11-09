@@ -20,7 +20,7 @@ function fixture(t) {
   write('readme.md', '# Router\n[Design](DESIGN.md#child-applications)\n[MIT](license.txt)\n');
   write('DESIGN.md', '# Design\n## Child applications\n');
   write('PROVENANCE.md', '# Provenance\n');
-  for (const file of ['examples/desk/README.md', 'examples/desk/desk.mjs', 'examples/desk/bootstrap.mjs',
+  for (const file of ['examples/desk/README.md', 'examples/desk/desk.mjs',
     'examples/catalog/README.md', 'examples/catalog/catalog.mjs']) { write(file, '# Example\n'); }
   for (const kind of ['import', 'require']) {
     for (const field of ['default', 'types']) { write(manifest.exports['.'][kind][field], 'export {};\n'); }

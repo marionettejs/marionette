@@ -37,76 +37,85 @@ const ReloadingPage = Application.extend({
   initialPresentation() { return this.presentation.promise; },
 });
 
-export function createDesk({ main, side, driver, load = async id => `Item ${id}` }) {
-  const frame = new Application({ region: { el: main } });
-  const router = frame.addChildApp('navigation', new Router({
-    driver,
-    routes: {
-      desk: { path: '/:desk', meta: { shell: 'desk' } },
-    },
-  }));
-  const tools = frame.addChildApp('tools', new Application());
-  const Feature = RouteApplication.withRouter(router);
-  let activity;
-  const Catalog = Feature.extend({
-    routeParent: 'desk',
-    routes: {
-      item: { path: 'catalog/:id', handler: 'showItem' },
-    },
-    initialize() {
-      this.page = this.addChildApp('page', new ReloadingPage({ region: frame.getRegion() }));
-    },
-    async showItem(match, { signal }) {
-      await this.start();
-      signal.throwIfAborted();
-      activity?.stop();
-      if (this.desk !== match.params.desk || this.item !== match.params.id) {
-        this.page.stop();
-        this.desk = match.params.desk;
-        this.item = match.params.id;
-      }
-      const starting = this.page.start({ id: match.params.id, load });
-      const presented = this.page.initialPresentation();
-      await starting; // May fulfill false because the page replaced its own work.
-      const outcome = await presented;
-      signal.throwIfAborted();
-      if (outcome.kind === 'stopped') { throw new Error('Required presentation stopped'); }
-      return outcome;
-    },
-  });
-  const catalog = frame.addChildApp('catalog', new Catalog());
+export const Catalog = RouteApplication.extend({
+  routeParent: 'desk',
+  routes: {
+    catalog: { path: 'catalog', handler: 'showCatalog' },
+    item: { path: 'catalog/:id', handler: 'showItem' },
+  },
+  initialize() {
+    this.addChildApp('page', new ReloadingPage({ region: this.getRegion() }));
+  },
+  async showItem(match) {
+    const { signal } = match;
+    signal.throwIfAborted();
+    this.getOption('tools').getChildApp('activity')?.stop();
+    const page = this.getChildApp('page');
+    if (this.desk !== match.params.desk || this.item !== match.params.id) {
+      page.stop();
+      this.desk = match.params.desk;
+      this.item = match.params.id;
+    }
+    const starting = page.start({ id: match.params.id, load: this.getOption('load') });
+    const presented = page.initialPresentation();
+    await starting; // May fulfill false because the page replaced its own work.
+    const outcome = await presented;
+    signal.throwIfAborted();
+    if (outcome.kind === 'stopped') { throw new Error('Required presentation stopped'); }
+    return outcome;
+  },
+  showCatalog(match) {
+    match.signal.throwIfAborted();
+    this.getOption('tools').getChildApp('activity')?.stop();
+    this.getChildApp('page').stop();
+    this.showView(new PresentationView({
+      model: { kind: 'content', value: `Catalog ${match.params.desk}` },
+    }));
+  },
+});
 
-  const Activity = Feature.extend({
-    routeParent: 'desk',
-    routes: {
-      activity: { path: 'activity', handler: 'showActivity' },
-    },
-    initialize() {
-      // Sidebar feature lives below tools, while URL ancestry is still /:desk.
-      this.page = this.addChildApp('page', new Application({ region: { el: side } }));
-    },
-    async showActivity(_match, { signal }) {
-      await tools.start();
-      signal.throwIfAborted();
-      await this.start();
-      signal.throwIfAborted();
-      await this.page.start();
-      signal.throwIfAborted();
-      this.page.showView(new PresentationView({
-        model: { kind: 'content', value: 'Activity inspector' },
-      }));
-    },
-  });
-  return {
-    frame, router, catalog, tools,
-    mountActivity() {
-      if (!activity || activity.isDestroyed()) { activity = tools.addChildApp('activity', new Activity()); }
-      return activity;
-    },
-    async start() {
-      await frame.start();
-      await router.start();
-      return frame;
-    },
-  };
-}
+export const Activity = RouteApplication.extend({
+  routeParent: 'desk',
+  routes: {
+    activity: { path: 'activity', handler: 'showActivity' },
+  },
+  async showActivity(match) {
+    const { signal } = match;
+    await this.getOption('tools').start();
+    signal.throwIfAborted();
+    return this.start({ routeSignal: signal });
+  },
+  onStart(_app, { routeSignal } = {}) {
+    if (routeSignal?.aborted) { return; }
+    this.showView(new PresentationView({
+      model: { kind: 'content', value: 'Activity inspector' },
+    }));
+  },
+});
+
+export const Desk = Application.extend({
+  load: async id => `Item ${id}`,
+  initialize(options) {
+    const router = this.addChildApp('navigation', new Router({
+      driver: options.driver,
+      routes: {
+        desk: {
+          path: '/:desk',
+          meta: { shell: 'desk' },
+          redirect: ({ params }) => ({ name: 'catalog', params }),
+        },
+      },
+    }));
+    const tools = this.addChildApp('tools', new Application({ region: { el: options.side } }));
+    this.addChildApp('catalog', new Catalog({
+      router,
+      tools,
+      region: { el: options.main },
+      load: this.getOption('load'),
+    }));
+  },
+  async prepareStart(_options, { signal }) {
+    await this.getChildApp('catalog').start();
+    signal.throwIfAborted();
+  },
+});

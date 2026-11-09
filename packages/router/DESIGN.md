@@ -350,6 +350,14 @@ feature context are accepted. It mounts with the feature as controller, and its
 leave them registered. Adding a feature to an app tree does not start it, its
 children or siblings, and does not create another navigation listener.
 
+Registration and activation are separate. A handler can run while its feature is
+stopped; dispatch does not implicitly call `start`, `prepareStart` or `onStart`.
+`route:ready` observes the work actually returned by the handler. Activate required
+features in ordinary startup, or return the feature's deliberate start/restart
+operation from its handler. Starting inside a handler happens before that handler
+completes, not after route readiness. Identity/reuse and independent panes remain
+explicit choices; route URL ancestry does not choose Application ownership.
+
 Configure the engine with an ordinary prototype default when it is already known
 at class-definition time. This does not search an owner chain or create a Router.
 `new RouteApplication({ router })` remains available, and configured constructors

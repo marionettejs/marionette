@@ -39,6 +39,14 @@
       "title": "Catalog README composes an ordinary Application with explicit route registration"
     },
     {
+      "file": "router-examples.spec.mjs",
+      "title": "Catalog README rejects a failed initial preparation instead of completing bootstrap"
+    },
+    {
+      "file": "router-examples.spec.mjs",
+      "title": "Desk README uses ordinary lifecycle and clears stale content at the parent destination"
+    },
+    {
       "file": "router-native.spec.mjs",
       "title": "native empty, absent and identical fragments match the shared driver cases"
     },

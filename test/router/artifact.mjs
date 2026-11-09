@@ -65,7 +65,7 @@ export function inspectRouterArchive(archive, expectedHash) {
   const entries = [manifest.exports['.'].import.default, manifest.exports['.'].require.default,
     manifest.exports['.'].import.types, manifest.exports['.'].require.types];
   entries.push('readme.md', 'DESIGN.md', 'PROVENANCE.md', 'examples/desk/README.md',
-    'examples/desk/desk.mjs', 'examples/desk/bootstrap.mjs', 'examples/catalog/README.md', 'examples/catalog/catalog.mjs');
+    'examples/desk/desk.mjs', 'examples/catalog/README.md', 'examples/catalog/catalog.mjs');
   for (const entry of entries) { assert.ok(members.includes(`package/${entry.replace(/^\.\//, '')}`), `Missing entry ${entry}`); }
   return { file: archive, sha256: hash, bytes: bytes.length, name: manifest.name, version: manifest.version,
     publicationAllowed: false, licenseSha256: sha256(license), files: members.map(path => path.slice('package/'.length)),

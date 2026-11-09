@@ -1,29 +1,53 @@
 import assert from 'node:assert/strict';
-import { boot, missingRouterCapabilities } from './bootstrap.mjs';
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { memoryDriver } from '@mnjs/router';
 
-for (const [owner, property, name] of [
-  [globalThis, 'URLPattern', 'URLPattern'], [AbortSignal, 'any', 'AbortSignal.any'],
-  [Promise, 'withResolvers', 'Promise.withResolvers'], [URL, 'canParse', 'URL.canParse'],
-]) {
-  const descriptor = Object.getOwnPropertyDescriptor(owner, property);
-  try {
-    Object.defineProperty(owner, property, { configurable: true, value: undefined });
-    let loaded = false;
-    const outcome = await boot(() => { loaded = true; return import('./eager-router.mjs'); }, { native: false });
-    assert.deepEqual(outcome, { status: 'unsupported', missing: [name] });
-    assert.equal(loaded, false, `${name}: eager application must not be imported`);
-    const api = await import('@mnjs/router'); // Importing optional tools itself is safe.
-    if (name === 'URLPattern') {
-      assert.throws(() => new api.Router({ driver: api.memoryDriver({ url: 'https://desk.example/' }), routes: { home: { path: '/' } } }), /URLPattern/);
-    }
-  } finally {
-    Object.defineProperty(owner, property, descriptor);
-  }
+// Execute the installed README's actual pre-import recipe, with a test-local
+// eager application. Capability presence here does not certify a browser.
+const packageRoot = dirname(fileURLToPath(import.meta.resolve('@mnjs/router/package.json')));
+const blocks = [...readFileSync(join(packageRoot, 'readme.md'), 'utf8').matchAll(/```js\n([\s\S]*?)\n```/g)];
+const recipe = blocks[1][1];
+const directory = mkdtempSync(join(import.meta.dirname, 'pre-import-'));
+cpSync(join(import.meta.dirname, 'eager-router.mjs'), join(directory, 'app.js'));
+const appSource = readFileSync(join(directory, 'app.js'), 'utf8');
+writeFileSync(join(directory, 'app.js'), `globalThis.eagerAppImports++;\n${appSource}`);
+const originalNavigation = Object.getOwnPropertyDescriptor(globalThis, 'navigation');
+Object.defineProperty(globalThis, 'navigation', { configurable: true, value: memoryDriver({ url: 'https://desk.example/' }) });
+globalThis.eagerAppImports = 0;
+let sequence = 0;
+async function runRecipe() {
+  const file = join(directory, `entry-${sequence++}.mjs`);
+  writeFileSync(file, recipe);
+  await import(pathToFileURL(file));
 }
-assert.ok(missingRouterCapabilities().includes('Navigation API'));
-assert.deepEqual(await boot(() => { throw new Error('must not load native app'); }), { status: 'unsupported', missing: ['Navigation API'] });
-assert.deepEqual(missingRouterCapabilities({ native: false }), []);
-const { app } = await boot(() => import('./eager-router.mjs'), { native: false });
-assert.deepEqual(await app.getInitialDispatch(), { status: 'unmatched' });
-app.destroy();
-console.log('Installed capability bootstrap: missing capabilities block eager construction; package import remains safe.');
+try {
+  for (const [owner, property, name] of [
+    [globalThis, 'URLPattern', 'URLPattern'], [AbortSignal, 'any', 'AbortSignal.any'],
+    [Promise, 'withResolvers', 'Promise.withResolvers'], [URL, 'canParse', 'URL.canParse'],
+    [globalThis, 'navigation', 'Navigation API'],
+  ]) {
+    const descriptor = Object.getOwnPropertyDescriptor(owner, property);
+    try {
+      Object.defineProperty(owner, property, { configurable: true, value: undefined });
+      await runRecipe();
+      assert.equal(globalThis.eagerAppImports, 0, `${name}: eager application must not be imported`);
+      const api = await import('@mnjs/router');
+      if (name === 'URLPattern') {
+        assert.throws(() => new api.Router({ driver: api.memoryDriver({ url: 'https://desk.example/' }), routes: { home: { path: '/' } } }), /URLPattern/);
+      }
+    } finally { Object.defineProperty(owner, property, descriptor); }
+  }
+  await runRecipe();
+  assert.equal(globalThis.eagerAppImports, 1);
+  const { router } = await import(pathToFileURL(join(directory, 'app.js')));
+  assert.equal(router.isRunning(), true);
+  assert.deepEqual(await router.getInitialDispatch(), { status: 'unmatched' });
+  router.destroy();
+  console.log('Installed README pre-import recipe: each missing capability blocks eager construction; supported presence permits startup.');
+} finally {
+  if (originalNavigation) { Object.defineProperty(globalThis, 'navigation', originalNavigation); } else { delete globalThis.navigation; }
+  delete globalThis.eagerAppImports;
+  rmSync(directory, { recursive: true, force: true });
+}

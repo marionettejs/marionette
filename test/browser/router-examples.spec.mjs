@@ -31,7 +31,7 @@ test('README routed feature owns named Views, escapes route text and destroys ow
     const escaped = heading.textContent === `Item ${value}` && heading.querySelector('img, b') === null;
     frame.stop();
     const stopped = !router.isRunning() && current.isDestroyed() && document.querySelector('#content').textContent === '';
-    await frame.start(); await router.start();
+    await frame.start(); await catalog.start(); await router.start();
     const initial = await router.getInitialDispatch();
     const restarted = catalog.getView();
     frame.destroy();
@@ -66,4 +66,47 @@ test('Catalog README composes an ordinary Application with explicit route regist
   });
   expect(result).toEqual({ owned: true, rendered: true, retained: true, retired: true, destroyed: true });
   await expect(page.locator('#content')).toBeEmpty();
+});
+
+test('Catalog README rejects a failed initial preparation instead of completing bootstrap', async({ page }) => {
+  await snippet(page, 'examples/catalog/README.md', ['frame', 'router', 'catalog']);
+  await page.route('**/catalog.mjs', route => route.fulfill({ path: routerArtifactPath('examples/catalog/catalog.mjs'), contentType: 'text/javascript' }));
+  await page.route('**/api/items/42', route => route.fulfill({ status: 503, json: { message: 'unavailable' } }));
+  const result = await page.evaluate(async() => {
+    history.replaceState(null, '', '/catalog/42');
+    return import('/snippet.mjs').then(() => 'incorrectly completed', error => error.message);
+  });
+  expect(result).toBe('Item request failed: 503');
+  await expect(page.locator('#content')).toBeEmpty();
+});
+
+test('Desk README uses ordinary lifecycle and clears stale content at the parent destination', async({ page }) => {
+  await snippet(page, 'examples/desk/README.md', ['desk', 'router', 'tools']);
+  await page.route('**/desk.mjs', route => route.fulfill({ path: routerArtifactPath('examples/desk/desk.mjs'), contentType: 'text/javascript' }));
+  await page.route('**/api/catalog/one', route => route.fulfill({ body: 'Loaded item one' }));
+  await page.evaluate(() => {
+    document.querySelector('#content').id = 'main';
+    const aside = document.body.appendChild(document.createElement('aside'));
+    aside.id = 'side';
+  });
+  await page.evaluate(async() => { window.deskReadme = await import('/snippet.mjs'); });
+  await expect(page.locator('#main')).toHaveText('Loaded item one');
+  const result = await page.evaluate(async() => {
+    const { desk, router, tools } = window.deskReadme;
+    const catalog = desk.getChildApp('catalog');
+    const pageApp = catalog.getChildApp('page');
+    const content = pageApp.getView();
+    await router.navigate('activity', { desk: 'blue' }).finished;
+    const independent = pageApp.getView() === content && tools.getChildApp('activity').isRunning();
+    await router.navigate('/red').finished;
+    const parent = { name: router.getCurrent().name, desk: router.getCurrent().params.desk,
+      main: document.querySelector('#main').textContent, side: document.querySelector('#side').textContent,
+      retired: content.isDestroyed() && !pageApp.isRunning() };
+    desk.stop();
+    const stopped = !router.isRunning() && !catalog.isRunning() && document.querySelector('#main').textContent === '';
+    desk.destroy();
+    return { independent, parent, stopped, destroyed: router.isDestroyed() && catalog.isDestroyed() };
+  });
+  expect(result).toEqual({ independent: true, parent: { name: 'catalog', desk: 'red', main: 'Catalog red', side: '', retired: true },
+    stopped: true, destroyed: true });
 });

@@ -16,12 +16,18 @@ export const catalogRoutes = {
 
 // An ordinary feature Application; route registration stays explicit in its caller.
 export const Catalog = Application.extend({
-  async routeTo(match, { signal }) {
+  async prepareStart({ id, routeSignal } = {}, { signal }) {
     const loadItem = this.getOption('loadItem');
-    const title = match.params.id === undefined ? 'Catalog' : await loadItem(match.params.id, { signal });
-    signal.throwIfAborted();
-    if (!await this.start()) { return; }
-    signal.throwIfAborted();
+    const current = routeSignal ? AbortSignal.any([signal, routeSignal]) : signal;
+    const title = id === undefined ? 'Catalog' : await loadItem(id, { signal: current });
+    current.throwIfAborted();
+    return title;
+  },
+  onStart(_app, { routeSignal } = {}, title) {
+    if (routeSignal?.aborted) { return; }
     this.showView(new CatalogView({ model: { title } }));
+  },
+  routeTo(match) {
+    return this.restart({ id: match.params.id, routeSignal: match.signal });
   },
 });

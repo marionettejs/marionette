@@ -47,9 +47,8 @@ const Catalog = RouteApplication.extend({
   routes: {
     item: { path: '/items/:id', handler: 'showItem' },
   },
-  async showItem(match, { signal }) {
-    if (!await this.start()) return;
-    signal.throwIfAborted();
+  showItem(match) {
+    match.signal.throwIfAborted();
     this.showView(new ItemView({ model: { id: match.params.id } }));
   },
 });
@@ -59,6 +58,7 @@ const router = frame.addChildApp('navigation', new Router());
 const catalog = frame.addChildApp('catalog', new Catalog({ router }));
 router.on('route:error', (error, match) => console.error(match?.name, error));
 await frame.start();
+await catalog.start();                        // this static feature is ready
 await router.start();                         // routing enabled
 const initial = await router.getInitialDispatch(); // first route outcome
 await router.navigate('item', { id: '42' }).finished;
@@ -68,9 +68,12 @@ await router.navigate('item', { id: '42' }).finished;
 Provide `#content`. The frame owns its shared Router and Catalog. Catalog owns
 its route definitions, handler, Region and displayed View. RouteApplication is an
 ordinary Application that registers those definitions at construction; navigation
-invokes its handler, whose returned work controls route readiness. Registration
-alone does not start Catalog. Stopping it retains its registration; destroying it
-retires the routes. The Router does not infer UI ownership from URL nesting.
+invokes its handler, whose returned work controls route readiness. This static
+feature is explicitly started before routing. Registration alone does not start
+it: omitting activation still dispatches handlers, but skips `prepareStart` and
+`onStart`. Stopping it retains its registration; destroying it retires the routes.
+After an owner stop/start, explicitly start its required children again. The
+Router does not infer UI ownership from URL nesting.
 
 The named View supplies a function template to Marionette's
 default renderer; `setDomApi(LitDomApi)` handles its Lit output for this View.
@@ -78,14 +81,17 @@ Plain model data needs no data adapter. Lit child expressions keep the ID as tex
 including HTML-like characters. A static default template can simply be a function
 returning trusted HTML; dynamic string HTML needs a safe templating integration.
 No global renderer override is needed here. For data-backed pages, return/await
-required work in the feature handler, pass its signal to requests, and check the
-signal again before effects after an await. Cancellation does not undo UI or
-arbitrary work already performed.
+required lifecycle work from the feature handler. The
+[data-backed Catalog](examples/catalog/README.md) loads in `prepareStart`, presents
+in synchronous `onStart`, and returns `restart()` from its route method. It
+deliberately reloads each dispatch rather than pretending that `start({ id })`
+reloads an active Application. Lifecycle and route signals have different
+lifetimes. Cancellation does not undo UI or arbitrary work already performed.
 Notification hooks are synchronous; returned promises are not awaited.
 
 RouteApplication is optional. An ordinary feature Application can register its
 route data through `router.mount(routes, { owner, controller })`. A local
-`routeTo(match, { signal })` method loads and presents that feature. The
+`routeTo(match)` method returns that feature's required lifecycle work. The
 [ordinary Catalog example](examples/catalog/README.md) uses an ordinary feature
 Application, area metadata and one such boundary, without a layer of per-route
 forwarders. Destruction retires its registration; stop/restart retain it.
@@ -112,14 +118,13 @@ The package is import-safe, but constructing a Router compiles route patterns.
 If `app.js` constructs one at module scope, check before importing `app.js`:
 
 ```js
-const required = {
-  URLPattern: typeof globalThis.URLPattern === 'function',
-  navigation: Boolean(globalThis.navigation),
-  abortSignalAny: typeof globalThis.AbortSignal?.any === 'function',
-  promiseWithResolvers: typeof Promise.withResolvers === 'function',
-  urlCanParse: typeof globalThis.URL?.canParse === 'function',
-};
-if (Object.values(required).every(Boolean)) {
+if (
+  typeof globalThis.URLPattern === 'function' &&
+  Boolean(globalThis.navigation) &&
+  typeof globalThis.AbortSignal?.any === 'function' &&
+  typeof Promise.withResolvers === 'function' &&
+  typeof globalThis.URL?.canParse === 'function'
+) {
   const { start } = await import('./app.js');
   await start();
 } else {
@@ -134,8 +139,8 @@ Application/routing operations; `URL.canParse` for `match(string)`. Tests can in
 that removes the Navigation API dependency, not the remaining Router requirements.
 `ChildAppSwitcher` alone does not need URLPattern or navigation. Transpilation
 supplies none of these Web APIs. Capability presence is not browser certification.
-The [executable bootstrap](examples/desk/bootstrap.mjs) tests the
-pre-import gate, including a deliberately eager router module.
+The installed-consumer check executes this exact recipe with a deliberately
+eager application module, checking that missing capabilities prevent its import.
 
 Initial native-browser certification targets Chromium with those capabilities.
 Standalone routing was verified on Chromium 154; consumer integration also has
@@ -187,7 +192,8 @@ or decide whether a departing overlay should restore focus.
 - **RouteApplication:** optional feature-owned definitions on the shared Router.
   Constructing registers without starting the feature. Stop/restart retain routes;
   destruction unmounts and cancels that registration's work. `routeParent` supplies
-  a named URL prefix. `withRouter(router)` configures ordinary declarative children.
+  a named URL prefix. A known router can be a normal `.extend({ router })` default;
+  `withRouter(router)` is an equivalent convenience.
 - **ChildAppSwitcher:** optional selectable child group, also useful without routing.
   Register/start the group, then `switchTo(name, { key, options, signal })`.
   Structural keys are snapshotted before lifecycle callbacks. Use small primitive,
