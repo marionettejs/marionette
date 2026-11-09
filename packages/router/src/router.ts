@@ -456,7 +456,11 @@ function assertHopAllowed(router: RouterInstance, nav: Navigation) {
 }
 
 function targetHref(router: RouterInstance, target: RedirectTarget, base: URL) {
-  if (typeof target !== 'string') {return router.url(target.name, target.params, { query: target.query });}
+  if (typeof target !== 'string') {
+    const url = new URL(router.url(target.name, target.params, { query: target.query }), base);
+    if (target.hash !== undefined) {url.hash = target.hash;}
+    return url.href;
+  }
   const url = new URL(target, base);
   if (url.origin !== base.origin) {throw new Error(`Redirect target must be same-origin: ${ target }`);}
   return url.href;

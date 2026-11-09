@@ -205,3 +205,25 @@ void [configuredBase, featureCount, featureLabel];
 
 const immutableSelectionKey: SelectionKey = [{ id: "one" }, [1, undefined]] as const;
 void new ChildAppSwitcher().switchTo("page", { key: immutableSelectionKey });
+
+// Named redirects explicitly opt into query/fragment forwarding.
+const namedRedirect: import('@mnjs/router').RedirectTarget = {
+  name: 'home', query: { view: 'full' }, hash: '#details',
+};
+const redirectRoutes: RouteTable = {
+  legacy: { path: '/legacy', redirect: () => namedRedirect },
+  asyncLegacy: { path: '/async-legacy', redirect: async() => ({ name: 'home', hash: 'café' }) },
+};
+// @ts-expect-error Named redirect hashes are strings.
+const invalidHash: import('@mnjs/router').RedirectTarget = { name: 'home', hash: 42 };
+// @ts-expect-error Fragment support is scoped to redirects, not url options.
+router.url('home', {}, { hash: 'details' });
+// @ts-expect-error Fragment support is scoped to redirects, not navigate options.
+router.navigate('home', {}, { hash: 'details' });
+const switchDefaults: ChildAppSwitcherOptions = { reconstruct: true };
+const RebuildingPages = ChildAppSwitcher.extend({ reconstruct: true, options: { reconstruct: true } });
+new RebuildingPages({ reconstruct: false }).switchTo('page', { reconstruct: undefined });
+new ChildAppSwitcher(switchDefaults).switchTo('page', { reconstruct: false });
+// @ts-expect-error Reconstruction defaults are boolean.
+const invalidSwitchDefaults: ChildAppSwitcherOptions = { reconstruct: 'always' };
+void [namedRedirect, redirectRoutes, invalidHash, invalidSwitchDefaults];

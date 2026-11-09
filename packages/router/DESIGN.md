@@ -453,7 +453,7 @@ Fetch any missing target data in the application's async callback:
 const CatalogRouter = Router.extend({
   routes() {
     const forward = (name, match, params = match.params) =>
-      this.url(name, params, { query: match.query }) + match.url.hash;
+      ({ name, params, query: match.query, hash: match.url.hash });
     return [
       { name: 'item', path: '/collections/:collectionId/items/:id' },
       { name: 'oldItem', path: '/legacy/:legacyId',
@@ -476,9 +476,14 @@ replaces that URL with the current item URL after the lookup. An error belongs t
 the intermediate lookup URL. No fetch policy, data source or lookup cache is built
 into the Router.
 
-Query and hash forwarding are explicit application choices. A named redirect
-without `query` does not inherit the source query. Named targets have no hash
-option; return a URL string with the hash when it must survive, as `forward` does.
+Query and hash forwarding are explicit application choices. A named target is
+`{ name, params?, query?, hash? }`. It builds the existing named URL against the
+captured navigation URL and sets its fragment only when `hash` is supplied.
+Omitting `query` or `hash` does not inherit either from the source. `hash` uses
+the platform `URL.hash` setter: `details` and `#details` both produce `#details`,
+an empty string omits the fragment, and `#` keeps an explicit empty fragment.
+Unicode is percent-encoded and existing escapes are preserved. This option belongs
+to redirect targets; `url()` and `navigate()` options are unchanged.
 
 To migrate from route aliases, replace each `aliases` entry with a separately named
 redirect route. Remove `getAliases()` and `Match.alias` consumers; those APIs and
@@ -620,6 +625,22 @@ options, including `region`. Update an already-running feature explicitly, or pa
 stops the selection and starts the same registered instance. This rebuilds UI
 without removing/recreating an Application. Inherited `restart()` retains the
 group's active children and does not repeat selection.
+
+`reconstruct` can also be a switcher default, using ordinary `getOption` resolution:
+constructor options override class `options`, which override the prototype property.
+A per-call boolean overrides that default, including explicit `false`; omitted or
+`undefined` uses the default, then the existing `false` behavior. A true default
+also replaces same-key pending preparation. Pass `false` to join that preparation
+or retain the running child. Key changes still stop/start even with `false`.
+`key`, `signal` and child startup `options` remain per-call, not group defaults.
+
+```js
+const Pages = ChildAppSwitcher.extend({ reconstruct: true });
+const pages = new Pages();
+// After group startup and page registration:
+await pages.switchTo('item', { key: itemId, options: { region: newHost } });
+await pages.switchTo('item', { key: itemId, reconstruct: false }); // retain/join
+```
 
 Keys are captured as structural value snapshots at the `switchTo` call, before
 child lifecycle callbacks. Changing the original object/array afterward cannot
@@ -792,5 +813,6 @@ Driver contract, minimum browser versions or any consuming application UI.
 
 A History API Driver, reflection, richer refresh intent and additional coordination
 hooks require concrete requirements; they are not prerequisites for this package's
-existing behavior. Resolve source rights, release versioning/inventory and native
-browser evidence before publication.
+existing behavior. The maintainer has confirmed the Marionette MIT license and
+the exact notice is shipped. Publication still requires separate approval and
+certification of the final version, archive, peers and supported browsers.

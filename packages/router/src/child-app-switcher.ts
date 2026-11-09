@@ -4,6 +4,7 @@ import { equalKeys, snapshotKey } from './selection-key.ts';
 
 export type SelectionKey = string | number | boolean | null | undefined | readonly SelectionKey[] | { [name: string]: SelectionKey };
 export interface ChildAppSwitcherOptions extends ApplicationOptions {
+  reconstruct?: boolean;
   onCleanupError?: (this: ChildAppSwitcherInstance, error: unknown, app: ApplicationInstance<object, unknown>) => void;
 }
 export interface SwitchOptions {
@@ -118,10 +119,11 @@ export const ChildAppSwitcher = Application.extend({
     const app = this.getChildApp(appName);
     if (!app) { throw new Error(`Child application "${ appName }" is not registered`); }
     const key = snapshotKey(selection.key);
+    const { reconstruct = this.getOption('reconstruct') as boolean | undefined } = selection;
     const intent = {};
     state.intent = intent;
     try {
-      const selected = await select(this, intent, app, appName, { ...selection, key });
+      const selected = await select(this, intent, app, appName, { ...selection, key, reconstruct });
       if (state.intent !== intent || !canSelect(this) || selection.signal?.aborted ||
           currentSelection(this)?.app !== selected || this.getChildApp(appName) !== selected || !selected?.isRunning()) { return; }
       return selected;

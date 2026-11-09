@@ -1,5 +1,5 @@
 import { Application } from 'marionette';
-import { Router, RouteApplication, defineRoutes, memoryDriver } from '@mnjs/router';
+import { Router, RouteApplication, ChildAppSwitcher, defineRoutes, memoryDriver } from '@mnjs/router';
 
 /** @type {import('@mnjs/router').RouteHandler} */
 const handleItem = (match, { signal }) => {
@@ -52,3 +52,12 @@ const dynamicRouter = router;
 const unmount = dynamicRouter.mount({ later: { path: '/later/:id', handler: 'showItem' } }, { controller: feature });
 dynamicRouter.url('later', { id: 'two' });
 unmount();
+
+/** @type {import('@mnjs/router').RedirectTarget} */
+const bookmark = { name: 'item', params: { id: 'one' }, hash: '#details' };
+/** @type {import('@mnjs/router').RouteTable} */
+const bookmarks = { legacy: { path: '/legacy', redirect: async() => bookmark } };
+/** @type {import('@mnjs/router').ChildAppSwitcherOptions} */
+const defaults = { reconstruct: true };
+new ChildAppSwitcher(defaults).switchTo('page', { reconstruct: false });
+void bookmarks;
