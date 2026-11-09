@@ -1,0 +1,14 @@
+packages/html/test/security.test.mjs
+  h_0f06c286dda36f 14-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "13a10d97fd710b6092ea4b98ce2723f56cb6e290",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
