@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { proVersion } from './consumer/version.js';
 const root = resolve(import.meta.dirname, '../../..');
 const output = process.argv[2] ?? resolve(root, 'test/tmp/formkit-pro/browser');
 const basePort = Number(process.argv[3] ?? 5190);
@@ -8,9 +9,9 @@ const selectedStack = process.argv[4];
 if (selectedStack && !['native', 'vue', 'react'].includes(selectedStack)) { throw new Error('Choose native, vue or react.'); }
 const require = createRequire(`${root}/package.json`);
 const { chromium } = require('playwright-core');
-const browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true });
+const browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true, chromiumSandbox: true });
 const receipts = { node: process.version, playwright: require('playwright-core/package.json').version,
-  proVersion: '0.130.4', coreVersion: '2.1.2', browser: browser.version(), stacks: {} };
+  proVersion, coreVersion: '2.1.2', browser: browser.version(), stacks: {} };
 mkdirSync(output, { recursive: true });
 try {
   for (const [stack, port] of [['native', basePort], ['vue', basePort + 1], ['react', basePort + 2]]) {

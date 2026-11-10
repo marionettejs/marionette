@@ -3,6 +3,39 @@
 Current master integration is being verified separately from the historical checkpoints
 below. See [OWNERSHIP.md](OWNERSHIP.md) for branch/source attribution and commands.
 
+The optional fixture now selects Pro 0.131.0 for bounded inline-calendar and
+custom-slot compatibility checks. Core stays at 2.1.2, Pro remains optional and
+no adapter runtime/performance change is included. Current writer checks and
+independent replay status are recorded in
+`packages/formkit/acceptance/PRO-01310.md`; earlier passes below retain their
+original versions and do not certify this release.
+
+The historical Pro 0.130.7 fixture checked a separate lifecycle and
+whole-day date-bound replay, with Core 2.1.2 unchanged. Pro remains optional; no
+adapter runtime dependency or performance experiment is added. See the
+release assessment at `packages/formkit/acceptance/PRO-01307.md` for exact scope and current results.
+Independent exact-candidate acceptance passed all eight gates and 547/547 tests,
+113/113 delivered lifecycle assertions, the native common collector 8/8, and
+12/12 date-bound cases across two native Pro versions and Vue/React controls.
+Both unexplained React follow-on interaction failures remain recorded; a later
+targeted pass does not erase them. No native regression was found within the
+bounded coverage. Historical placement limits remain; no heap, GC, performance
+or broader parity claim follows. The original 158-case helper remains
+unavailable: 0/158 replayed.
+
+The historical 0.130.5 comparison used Core pinned to
+2.1.2. Pro remains a consumer plugin, not an adapter dependency. Independent
+release-only acceptance passed all eight gates, 539 public tests and the exact
+older-regression collector (8/8 native). Final new scenarios pooled native and
+selected Vue controls: nine of 19 logical groups passed; ten strict placement
+groups failed with matching behavior. Updating `auto` to `above` while open did
+not reposition any of the five popup types. Reopening honored `above` for four;
+colorpicker stayed below. Earlier separate four-arm checks also found the static
+colorpicker limit in React; React was not repeated in the final addendum. No
+native-only regression or performance gain is claimed. The unavailable original
+158-check suite remains 0/158 executed in this replay. Older 0.130.4 receipts
+retain their original source/version attribution and do not validate 0.130.5.
+
 The [November 4 release assessment](https://github.com/marionettejs/marionette/blob/codex/formkit-master-integration-20261103/packages/formkit/acceptance/PRO-01304.md)
 records newer evidence: independent vault QA reported 137/137 Pro 0.130.3 checks
 on integrated source `b557f86b` with permanent Genesis imports. Pro 0.130.4 vault

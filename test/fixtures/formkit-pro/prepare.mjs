@@ -3,21 +3,24 @@ import { createHash } from 'node:crypto';
 import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { proVersion } from './consumer/version.js';
 
 const root = resolve(import.meta.dirname, '../../..');
 const stack = process.argv[2] ?? 'native';
 if (!['native', 'vue', 'react'].includes(stack)) { throw new Error('Choose native, vue or react.'); }
+const selectedPro = process.argv[3] ?? proVersion;
+if (!['0.130.5', '0.130.6', '0.130.7', '0.131.0'].includes(selectedPro)) { throw new Error('Choose a supported release comparison version.'); }
 const npm = process.env.npm_execpath;
 if (!npm) { throw new Error('Run via npm exec --call with the installed node and this script.'); }
 const consumer = mkdtempSync(join(tmpdir(), `mnjs-pro-${stack}-`));
-const output = join(root, 'test/tmp/formkit-pro', stack);
+const output = join(root, 'test/tmp/formkit-pro', selectedPro, stack);
 mkdirSync(output, { recursive: true });
 const hash = path => createHash('sha256').update(readFileSync(path)).digest('hex');
 const env = { ...process.env, NODE_PATH: '', ['npm_config_cache']: join(consumer, '.npm-cache') };
 function run(args, cwd = consumer) {
   return execFileSync(process.execPath, [npm, ...args], { cwd, env, encoding: 'utf8', timeout: 180000 });
 }
-const dependencies = { '@formkit/core': '2.1.2', '@formkit/themes': '2.1.2', '@formkit/pro': '0.130.4' };
+const dependencies = { '@formkit/core': '2.1.2', '@formkit/themes': '2.1.2', '@formkit/pro': selectedPro };
 const receipt = {
   sourceRevision: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
   sourceDirty: !!execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim(),
@@ -48,7 +51,11 @@ const port = { native: 5190, vue: 5191, react: 5192 }[stack];
 writeFileSync(join(consumer, 'package.json'), JSON.stringify({ private: true, name: `formkit-pro-${stack}-proof`, type: 'module',
   scripts: { dev: `vite --host 127.0.0.1 --port ${port} --strictPort`, build: 'vite build' }, dependencies,
   devDependencies: { vite: '8.3.0', typescript: '6.0.3' } }, null, 2));
-for (const file of ['index.html', 'shared.js', 'release-01304.js', 'pro-types.ts']) { copyFileSync(join(import.meta.dirname, 'consumer', file), join(consumer, file)); }
+for (const file of ['index.html', 'shared.js', 'release-01304.js', 'release-01305.js', 'release-01307.js', 'release-01310.js', 'pro-types.ts', 'inline-types.ts']) { copyFileSync(join(import.meta.dirname, 'consumer', file), join(consumer, file)); }
+writeFileSync(join(consumer, 'version.js'), `export const proVersion = ${JSON.stringify(selectedPro)};\n`);
+if (stack === 'native') {
+  for (const file of ['lifecycle-01307.js', 'lifecycle-session.js', 'interval-ledger.js']) { copyFileSync(join(import.meta.dirname, 'consumer', file), join(consumer, file)); }
+}
 copyFileSync(join(import.meta.dirname, 'consumer', `${stack}.js`), join(consumer, 'main.js'));
 writeFileSync(join(output, 'install.log'), run(['install', '--ignore-scripts']));
 const lockPath = join(consumer, 'package-lock.json');
@@ -69,7 +76,7 @@ writeFileSync(join(output, 'import.log'), execFileSync(process.execPath, ['--inp
   'import {createRequire} from \'node:module\';await import(\'@formkit/pro\');createRequire(import.meta.url)(\'@formkit/pro\');console.log(\'Pro ESM and CJS imports passed\');'], { cwd: consumer, env, encoding: 'utf8' }));
 writeFileSync(join(output, 'types.log'), execFileSync(process.execPath, [join(consumer, 'node_modules/typescript/bin/tsc'),
   '--noEmit', '--strict', '--module', 'NodeNext', '--moduleResolution', 'NodeNext', '--target', 'ES2022',
-  '--lib', 'ES2022,DOM,DOM.Iterable', 'pro-types.ts'], { cwd: consumer, env, encoding: 'utf8' }));
+  '--lib', 'ES2022,DOM,DOM.Iterable', 'pro-types.ts', ...(selectedPro === '0.131.0' ? ['inline-types.ts'] : [])], { cwd: consumer, env, encoding: 'utf8' }));
 writeFileSync(join(output, 'build.log'), run(['run', 'build']));
 copyFileSync(lockPath, join(output, 'package-lock.json'));
 writeFileSync(join(output, 'receipt.json'), `${JSON.stringify(receipt, null, 2)}\n`);

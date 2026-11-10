@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { proVersion } from './consumer/version.js';
 
 const root = resolve(import.meta.dirname, '../../..');
 const require = createRequire(`${root}/package.json`);
@@ -11,9 +12,9 @@ const stack = process.argv[4] ?? 'native';
 if (!['native', 'vue', 'react'].includes(stack)) { throw new Error('Choose native, vue or react.'); }
 mkdirSync(output, { recursive: true });
 const sanitize = value => String(value).replace(/fk-[a-f0-9]+/gi, '[project-key]');
-const browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true });
+const browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true, chromiumSandbox: true });
 const report = { stack, node: process.version, playwright: require('@playwright/test/package.json').version,
-  browser: browser.version(), coreVersion: '2.1.2', proVersion: '0.130.4', cases: [], pageErrors: [], requestFailures: [] };
+  browser: browser.version(), coreVersion: '2.1.2', proVersion, cases: [], pageErrors: [], requestFailures: [] };
 let page;
 try {
   page = await browser.newPage({ viewport: { width: 1280, height: 900 } });

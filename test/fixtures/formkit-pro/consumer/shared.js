@@ -1,10 +1,17 @@
 import { getNode } from '@formkit/core';
-import { createProPlugin, autocomplete, dropdown, taglist, datepicker, toggle, slider, repeater, currency, mask, transferlist } from '@formkit/pro';
-import { releaseScenario, releaseInitial, releaseReplacement, releaseSchema, installRelease } from './release-01304.js';
+import { createProPlugin, autocomplete, dropdown, taglist, datepicker, colorpicker, toggle, slider, repeater, currency, mask, transferlist } from '@formkit/pro';
+import * as release01304 from './release-01304.js';
+import * as release01305 from './release-01305.js';
+import * as release01307 from './release-01307.js';
+import * as release01310 from './release-01310.js';
+import { proVersion } from './version.js';
 import '@formkit/themes/genesis';
 import '@formkit/pro/genesis';
 
 export const mode = new URLSearchParams(location.search).get('mode') ?? 'pro';
+const release = release01310.releaseScenario ? release01310 : release01307.releaseScenario ? release01307 : release01305.releaseScenario ? release01305 : release01304;
+export const inlineRelease = release01310.releaseScenario ? release01310 : null;
+const { releaseScenario, releaseInitial, releaseSchema, installRelease } = release;
 export const observations = { mode, hostname: location.hostname, bootstrap: 'pending', mounted: [], submissions: [], errors: [] };
 export const show = () => { document.querySelector('#observations').textContent = JSON.stringify(observations, null, 2); };
 export const plugins = [];
@@ -13,7 +20,8 @@ window.addEventListener('unhandledrejection', event => { observations.errors.pus
 try {
   if (mode === 'pro') {
     plugins.push(createProPlugin(undefined, { autocomplete, dropdown, taglist, datepicker, toggle, slider, repeater,
-      ...(releaseScenario ? { currency, mask, transferlist } : {}) }));
+      ...(release01304.releaseScenario ? { currency, mask, transferlist } : {}),
+      ...(release01305.releaseScenario ? { colorpicker } : {}) }));
   }
   observations.bootstrap = 'ready';
 } catch (error) {
@@ -29,12 +37,12 @@ plugins.push(node => {
     });
   }
 });
-document.querySelector('#mode').textContent = `Mode: ${mode}; FormKit core 2.1.2; Pro 0.130.4`;
+document.querySelector('#mode').textContent = `Mode: ${mode}; FormKit core 2.1.2; Pro ${proVersion}`;
 document.querySelector('#bootstrap').textContent = observations.bootstrap === 'blocked' ? `Pro bootstrap blocked: ${observations.bootstrapError}` : 'Ready';
 show();
 export const initial = () => mode === 'pro' && releaseScenario ? releaseInitial() :
   ({ contact: { name: '', email: '' }, ...(mode === 'pro' ? { guests: [{ name: '' }], priority: 20, updates: false, topics: [] } : {}) });
-export const replacement = () => mode === 'pro' && releaseScenario ? releaseReplacement() :
+export const replacement = () => mode === 'pro' && releaseScenario ? (release.releaseReplacement ?? releaseInitial)() :
   ({ contact: { name: 'Ada', email: 'ada@example.test' }, ...(mode === 'pro' ? { team: 'Beta', city: 'Alpha', topics: ['Gamma'], updates: true, priority: 70, guests: [{ name: 'Grace' }] } : {}) });
 const choices = ['Alpha', 'Beta', 'Gamma'];
 export const schema = [

@@ -1,8 +1,16 @@
+// Evaluate the bridge before shared.js imports Pro and caches the timer API.
+import './lifecycle-session.js';
 import { FormView } from '@mnjs/formkit';
 import { getNode } from '@formkit/core';
 import { initial, schema, plugins, submit, install, observations } from './shared.js';
+import { runLifecycle } from './lifecycle-01307.js';
 document.querySelector('#mode').prepend('native: ');
-if (observations.bootstrap === 'ready') {
+const lifecycle = observations.mode === 'pro' && new URLSearchParams(location.search).get('scenario') === 'lifecycle-01307';
+if (observations.bootstrap === 'ready' && lifecycle) {
+  document.querySelector('#form').remove();
+  document.querySelector('#controls').hidden = true;
+  window.proof = { observations, runLifecycle: () => runLifecycle({ plugins }) };
+} else if (observations.bootstrap === 'ready') {
   let data = { localClasses: { input: 'local-first' }, fieldConfig: {} };
   const form = new FormView({ el: document.querySelector('#form'), formProps: { id: 'fixture-root' }, schema, schemaData: data, values: initial(), plugins, submit,
     config: { classes: { input: 'inherited' } } });
