@@ -118,9 +118,12 @@ class StyleMapDirective extends Directive {
         this._previousStyleProperties.add(name);
         const isImportant =
           typeof value === 'string' && value.endsWith(importantFlag);
-        if (name.includes('-') || name.includes('\\') || isImportant) {
+        const isCssName = name.includes('-') || name.includes('\\');
+        if (isCssName || isImportant) {
           style.setProperty(
-            unescapeProperty(name),
+            isCssName
+              ? unescapeProperty(name)
+              : name.replace(/(?:^(webkit|moz|ms|o)|)(?=[A-Z])/g, '-$&').toLowerCase(),
             isImportant
               ? (value as string).slice(0, flagTrim)
               : (value as string),

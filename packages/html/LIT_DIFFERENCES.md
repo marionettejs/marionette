@@ -34,6 +34,31 @@ No routine browser directive was removed merely to reduce bundle size. SSR/polyf
 - TypeScript uses upstream-compatible assignment-style class field emission, avoiding extra empty type-only fields while retaining the ES2022 target.
 - Distribution is ESM, with separate development/default conditions, TypeScript declarations and source-map inputs. The package has no runtime dependency on Lit or Marionette. @types/trusted-types is declared for public type consumers. The package remains unpublished.
 
+## Focused correctness corrections
+
+- `keyed` invalidates only its own slot in a compound binding, preserving sibling
+  `noChange` values. Replacing template content with an iterable disposes the old
+  template before replacing its committed-value record.
+- Static template caches follow individual string segments with separate caches
+  per tag wrapper, so HTML, SVG and MathML parsing cannot alias. `literal` checks
+  the static-value brand before accepting nested content; a JSON-shaped object
+  is not a trusted static value.
+- `styleMap` normalizes camelCase names for CSSOM `!important` updates. `classMap`
+  consistently uses only own enumerable keys. `range` throws for a zero step
+  rather than yielding indefinitely or silently producing an empty range.
+- Template preparation recognizes abrupt empty HTML comments (`<!-->` and
+  `<!--->`) as closed comments. Runtime diagnostics provide package-specific
+  guidance without linking users to Lit's diagnostic pages; upstream attribution
+  and reference links are retained in documentation and pristine fixtures.
+
+These changes do not add work to ordinary template update/attribute loops.
+Static cache traversal occurs only when composing static values, comment
+recognition runs during template preparation, and directive-specific validation
+stays within the affected directive. Measurements and verification limits must
+still accompany any performance claim. The segment cache avoids serialized keys
+while retaining a Map for each distinct prefix; this can use more memory for
+large numbers of unique static templates. Both cache designs retain templates.
+
 ## First-class Marionette DOM API
 
 The package exports HtmlDomApi plus named setContents, notifyAttach and notifyDetach from @mnjs/html/marionette. The default API remains compatible with runtime.setDomApi(HtmlDomApi). It does not mutate a global Marionette instance or replace other DOM methods.

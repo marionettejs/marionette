@@ -25,7 +25,8 @@ class ClassMapDirective extends Directive {
    * Stores the ClassInfo object applied to a given AttributePart.
    * Used to unset existing values when a new ClassInfo object is applied.
    */
-  private _previousClasses?: Set<string>;
+  private _previousClasses?: string[];
+  private _previousClassSet?: Set<string>;
   private _staticClasses?: Set<string>;
 
   constructor(partInfo: PartInfo) {
@@ -56,7 +57,6 @@ class ClassMapDirective extends Directive {
   override update(part: AttributePart, [classInfo]: DirectiveParameters<this>) {
     // Remember dynamic classes on the first render
     if (this._previousClasses === undefined) {
-      this._previousClasses = new Set();
       if (part.strings !== undefined) {
         this._staticClasses = new Set(
           part.strings
@@ -65,42 +65,53 @@ class ClassMapDirective extends Directive {
             .filter((s) => s !== '')
         );
       }
-      for (const name in classInfo) {
-        if (classInfo[name] && !this._staticClasses?.has(name)) {
-          this._previousClasses.add(name);
-        }
-      }
+      this._previousClasses = Object.keys(classInfo).filter(
+        name => classInfo[name] && !this._staticClasses?.has(name)
+      );
       return this.render(classInfo);
     }
 
     const classList = part.element.classList;
+    const previous = this._previousClasses;
+    const next = Object.keys(classInfo);
+    let count = 0;
+    for (const name of next) {
+      if (classInfo[name] && !this._staticClasses?.has(name)) next[count++] = name;
+    }
+    next.length = count;
 
-    // Remove old classes that no longer apply
-    for (const name of this._previousClasses) {
-      if (!(name in classInfo)) {
-        classList.remove(name);
-        this._previousClasses!.delete(name);
+    // Stable map order makes unchanged prefixes/suffixes cheap to skip.
+    // Compare only the changed span; Set membership bounds arbitrary reorders.
+    let start = 0;
+    let oldEnd = previous.length;
+    let newEnd = next.length;
+    while (start < oldEnd && start < newEnd && previous[start] === next[start]) {
+      start++;
+    }
+    while (oldEnd > start && newEnd > start && previous[oldEnd - 1] === next[newEnd - 1]) {
+      oldEnd--;
+      newEnd--;
+    }
+    const oldSet = newEnd > start && oldEnd - start > 1
+      ? (this._previousClassSet ??= new Set(previous)) : undefined;
+    // A key-order change alone requires no DOM writes or new membership set.
+    if (oldSet && previous.length === next.length && next.every(name => oldSet.has(name))) {
+      return noChange;
+    }
+    const nextSet = oldEnd > start && newEnd - start > 1 ? new Set(next.slice(start, newEnd)) : undefined;
+    for (let i = start; i < oldEnd; i++) {
+      if (nextSet ? !nextSet.has(previous[i]) : newEnd === start || next[start] !== previous[i]) {
+        classList.remove(previous[i]);
+        this._previousClassSet?.delete(previous[i]);
       }
     }
-
-    // Add or remove classes based on their classMap value
-    for (const name in classInfo) {
-      // We explicitly want a loose truthy check of `value` because it seems
-      // more convenient that '' and 0 are skipped.
-      const value = !!classInfo[name];
-      if (
-        value !== this._previousClasses.has(name) &&
-        !this._staticClasses?.has(name)
-      ) {
-        if (value) {
-          classList.add(name);
-          this._previousClasses.add(name);
-        } else {
-          classList.remove(name);
-          this._previousClasses.delete(name);
-        }
+    for (let i = start; i < newEnd; i++) {
+      if (oldSet ? !oldSet.has(next[i]) : oldEnd === start || previous[start] !== next[i]) {
+        classList.add(next[i]);
+        this._previousClassSet?.add(next[i]);
       }
     }
+    this._previousClasses = next;
     return noChange;
   }
 }

@@ -27,6 +27,9 @@ export function range(
   step?: number
 ): Iterable<number>;
 export function* range(startOrEnd: number, end?: number, step = 1) {
+  if (step === 0) {
+    throw new RangeError('range step must not be zero.');
+  }
   const start = end === undefined ? 0 : startOrEnd;
   end ??= startOrEnd;
   for (let i = start; step > 0 ? i < end : end < i; i += step) {

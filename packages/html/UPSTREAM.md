@@ -63,6 +63,11 @@ vendor or change the expected fixture set.
 - Property event checks preserve JavaScript casing, and single-expression property
   slots can carry foreign template objects as opaque data. These local contract
   corrections do not permit foreign directives or template-owned events.
+- Additional local corrections cover compound keyed bindings, template-to-iterable
+  disposal, collision-safe/tag-separated static caches and literal branding,
+  camelCase important styles, zero-step ranges, abrupt empty comments and
+  own-property class maps. `test/review-regressions.mjs` exercises these public
+  behaviors in Node and real browsers. Runtime diagnostics use local guidance.
 - The Rollup lock repair changes no dependency versions. The synthetic sanitizer
   hook fixture tests callback observation/rejection, not built-in URL security.
 

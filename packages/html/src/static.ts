@@ -71,8 +71,9 @@ export const unsafeStatic = (value: string): StaticValue => ({
 });
 
 const textFromStatic = (value: StaticValue) => {
-  if (value['_$mnHtmlStatic$'] !== undefined) {
-    return value['_$mnHtmlStatic$'];
+  const text = unwrapStaticValue(value);
+  if (text !== undefined) {
+    return text;
   } else {
     throw new Error(
       `Value passed to 'literal' function must be a 'literal' result: ${value}. Use 'unsafeStatic' to pass non-literal values, but
@@ -106,14 +107,18 @@ export const literal = (
   r: brand,
 });
 
-const stringsCache = new Map<string, TemplateStringsArray>();
+interface StaticStringsCache extends Map<string, StaticStringsCache> {
+  strings?: TemplateStringsArray;
+}
 
 /**
  * Wraps a lit-html template tag (`html` or `svg`) to add static value support.
  */
 export const withStatic =
-  (coreTag: typeof coreHtml | typeof coreSvg | typeof coreMathml) =>
-  (strings: TemplateStringsArray, ...values: unknown[]): TemplateResult => {
+  (coreTag: typeof coreHtml | typeof coreSvg | typeof coreMathml) => {
+  // Each tag owns its cache so parsed HTML/SVG/MathML templates cannot alias.
+  const stringsCache: StaticStringsCache = new Map();
+  return (strings: TemplateStringsArray, ...values: unknown[]): TemplateResult => {
     const l = values.length;
     let staticValue: string | undefined;
     let dynamicValue: unknown;
@@ -150,23 +155,27 @@ export const withStatic =
     }
 
     if (hasStatics) {
-      const key = staticStrings.join('$$lit$$');
-      strings = stringsCache.get(key)!;
+      // Follow the actual segment boundaries instead of serializing a key.
+      let cache = stringsCache;
+      for (const segment of staticStrings) {
+        let next = cache.get(segment);
+        if (next === undefined) cache.set(segment, (next = new Map()));
+        cache = next;
+      }
+      strings = cache.strings!;
       if (strings === undefined) {
         // Beware: in general this pattern is unsafe, and doing so may bypass
         // lit's security checks and allow an attacker to execute arbitrary
         // code and inject arbitrary content.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (staticStrings as any).raw = staticStrings;
-        stringsCache.set(
-          key,
-          (strings = staticStrings as unknown as TemplateStringsArray)
-        );
+        cache.strings = strings = staticStrings as unknown as TemplateStringsArray;
       }
       values = dynamicValues;
     }
     return coreTag(strings, ...values);
   };
+};
 
 /**
  * Interprets a template literal as an HTML template that can efficiently
