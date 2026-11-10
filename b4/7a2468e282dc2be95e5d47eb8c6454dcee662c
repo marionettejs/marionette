@@ -1,0 +1,128 @@
+.github/workflows/ci.yml
+  h_0f06c286dda36f 71-77,80-81
+.github/workflows/docs-pages.yml
+  h_0f06c286dda36f 48-54,57-58,73-80,107-112,123
+.github/workflows/release.yml
+  h_0f06c286dda36f 145-151,154-155
+config/api-contracts/inventory.json
+  h_0f06c286dda36f 12479,12486,12499-12501,12505-12507,12511,12513
+context7.json
+  h_0f06c286dda36f 24-25,27,31
+docs-site/navigation.json
+  h_0f06c286dda36f 179,206-217
+docs/agents.md
+  h_0f06c286dda36f 29-35,46,54,76,78
+docs/api.md
+  h_0f06c286dda36f 49
+docs/api/application.md
+  h_0f06c286dda36f 13-14,19
+docs/api/behavior.md
+  h_0f06c286dda36f 13-14,28
+docs/api/collection-view.md
+  h_0f06c286dda36f 9,14-15,21
+docs/api/providers/dom.md
+  h_0f06c286dda36f 5-9,19,62,64
+docs/api/region.md
+  h_0f06c286dda36f 7-8
+docs/api/runtime.md
+  h_0f06c286dda36f 9,13-14,16,33-34,38,51
+docs/api/shared/view-bindings.md
+  h_0f06c286dda36f 7,18,20,24-25,30
+docs/architecture.md
+  h_0f06c286dda36f 16,42,69-99,105-107
+docs/guides/accessibility-rendering.md
+  h_0f06c286dda36f 11,15-16,38,51,61
+docs/guides/async-requests.md
+  h_0f06c286dda36f 1-75
+docs/guides/composition.md
+  h_0f06c286dda36f 1-205
+docs/guides/existing-ui.md
+  h_0f06c286dda36f 11-12,24
+docs/guides/framework-migration.md
+  h_0f06c286dda36f 3-4,165,175-177,190,198,203,239
+docs/guides/lists.md
+  h_0f06c286dda36f 3,12-13,21,25,54
+docs/guides/local-editing.md
+  h_0f06c286dda36f 18-20,23,44,57-59,62
+docs/guides/migration.md
+  h_0f06c286dda36f 22
+docs/guides/production.md
+  h_0f06c286dda36f 11
+docs/guides/retained-restart.md
+  h_0f06c286dda36f 12-13,16
+docs/guides/routing.md
+  h_0f06c286dda36f 11-12,19,22,25,28,81-82,89,92,95,101
+docs/guides/testing.md
+  h_0f06c286dda36f 7,17,32,37-39,52,61-62,66
+docs/guides/typescript.md
+  h_0f06c286dda36f 40,44-46,68,84-85,93,128-129,142
+docs/integrations/setup.md
+  h_0f06c286dda36f 3,23,27,30,35,45,47
+docs/quick-start.md
+  h_0f06c286dda36f 7,11-19,27,31,54-55,57,77,79
+docs/readme.md
+  h_0f06c286dda36f 10-11,61
+docs/records.md
+  h_0f06c286dda36f 5-6,15,208,222
+examples/records/README.md
+  h_0f06c286dda36f 3-4,20
+examples/records/package-lock.json
+  h_0f06c286dda36f 12,55,65,69,71,75,94,140-159,183-186
+examples/records/package.json
+  h_0f06c286dda36f 20-21
+examples/records/scripts/build-local-packages.mjs
+  h_0f06c286dda36f 18
+examples/records/src/records-views.js
+  h_0f06c286dda36f 2
+examples/records/src/setup.js
+  h_0f06c286dda36f 3,7
+examples/records/vite.config.js
+  h_0f06c286dda36f 5
+llms.txt
+  h_0f06c286dda36f 7-9
+plugins/marionette/skills/marionette/SKILL.md
+  h_0f06c286dda36f 8,10,12,14,16
+readme.md
+  h_0f06c286dda36f 42,45,52-53,55,76
+scripts/docs/agent-routes.mjs
+  h_0f06c286dda36f 8-19,31,33-41,49
+skills/marionette/SKILL.md
+  h_0f06c286dda36f 8,10,15,17-18,22,25,27,29,31,33
+src/modules/collection-view.ts
+  h_0f06c286dda36f 45,47-48,53
+src/modules/view.ts
+  h_0f06c286dda36f 37,39-41,46
+test/README.md
+  h_0f06c286dda36f 210-230
+test/agent-docs/discovery.test.mjs
+  h_0f06c286dda36f 55-63
+test/agent-docs/retrieval.test.mjs
+  h_0f06c286dda36f 160-170
+test/docs/async-requests-checks.mjs
+  h_0f06c286dda36f 1-121
+test/docs/composition-guide-checks.mjs
+  h_0f06c286dda36f 1-172
+test/docs/html-candidate.mjs
+  h_0f06c286dda36f 1-22
+test/docs/installed-package.mjs
+  h_0f06c286dda36f 2,52,56,127-146
+test/docs/production-package.mjs
+  h_0f06c286dda36f 2,126-127,130,141,192
+test/docs/quick-start.mjs
+  h_0f06c286dda36f 2,20,92-96,126,130,138-141
+test/docs/quick-start.test.mjs
+  h_0f06c286dda36f 20,24-26,29-30
+test/docs/reference-examples.mjs
+  h_0f06c286dda36f 2-4,42,63-64,94,615-620
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b47a2468e282dc2be95e5d47eb8c6454dcee662c",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
