@@ -1,0 +1,210 @@
+packages/html/.gitignore
+  h_0f06c286dda36f 1-8
+packages/html/AGENTS.md
+  h_0f06c286dda36f 1-2,3,4-9
+packages/html/COMPATIBILITY.md
+  h_0f06c286dda36f 1-53
+packages/html/EXTRACTION.md
+  h_0f06c286dda36f 1-25
+packages/html/INTEGRATION.md
+  h_0f06c286dda36f 1-2,3-5,6-40
+packages/html/LICENSE
+  h_0f06c286dda36f 1-28
+packages/html/LIT_DIFFERENCES.md
+  h_0f06c286dda36f 1-2,3,4-34,35,36-56,57,58
+packages/html/PERFORMANCE.md
+  h_0f06c286dda36f 1-99
+packages/html/PROVENANCE.md
+  h_0f06c286dda36f 1-11,12,13-29,30,31-35,36,37-40,41,42-56,57,58-73,74,75-88,89,90-96,97-98,99,100-106
+packages/html/README.md
+  h_0f06c286dda36f 1-4,5,6-99
+packages/html/THIRD_PARTY_NOTICES.md
+  h_0f06c286dda36f 1-60
+packages/html/VALIDATION.md
+  h_0f06c286dda36f 1-4,5-13,14,15-17,18,19-20,21-30,31,32-33,34-41,42,43-82,83,84,85,86,87-92,93-112
+packages/html/guide.md
+  h_0f06c286dda36f 1-3,4-5,6-202
+packages/html/package-lock.json
+  h_0f06c286dda36f 1-335,336-363,364-377,378-724,725-1066,1067-1264
+packages/html/package.json
+  h_0f06c286dda36f 1-6,7-189,190-193,194-202,203,204-205,206-208,209-223,224-236,237
+packages/html/scripts/build-production.mjs
+  h_0f06c286dda36f 1-56
+packages/html/scripts/check-package.mjs
+  h_0f06c286dda36f 1-5,6,7-8,9,10,11-14,15-17,18,19-51,52-68,69-70,71,72
+packages/html/scripts/measure-size.mjs
+  h_0f06c286dda36f 1-21
+packages/html/scripts/test-browser.mjs
+  h_0f06c286dda36f 1-6,7-10,11-23,24-31,32-41,42-48,49-69,70-76,77,78-79,80-81,82,83-196,197-200,201-261,262-263,264-267,268,269-316,317,318-322
+packages/html/src/async-directive.ts
+  h_0f06c286dda36f 1-404
+packages/html/src/directive-helpers.ts
+  h_0f06c286dda36f 1-244
+packages/html/src/directive.ts
+  h_0f06c286dda36f 1-140
+packages/html/src/directives/async-append.ts
+  h_0f06c286dda36f 1-83
+packages/html/src/directives/async-replace.ts
+  h_0f06c286dda36f 1-116
+packages/html/src/directives/cache.ts
+  h_0f06c286dda36f 1-113
+packages/html/src/directives/choose.ts
+  h_0f06c286dda36f 1-45
+packages/html/src/directives/class-map.ts
+  h_0f06c286dda36f 1-128
+packages/html/src/directives/guard.ts
+  h_0f06c286dda36f 1-99
+packages/html/src/directives/if-defined.ts
+  h_0f06c286dda36f 1-15
+packages/html/src/directives/join.ts
+  h_0f06c286dda36f 1-40
+packages/html/src/directives/keyed.ts
+  h_0f06c286dda36f 1-59
+packages/html/src/directives/live.ts
+  h_0f06c286dda36f 1-103
+packages/html/src/directives/map.ts
+  h_0f06c286dda36f 1-33
+packages/html/src/directives/private-async-helpers.ts
+  h_0f06c286dda36f 1-88
+packages/html/src/directives/range.ts
+  h_0f06c286dda36f 1-35
+packages/html/src/directives/ref.ts
+  h_0f06c286dda36f 1-162
+packages/html/src/directives/repeat.ts
+  h_0f06c286dda36f 1-487
+packages/html/src/directives/style-map.ts
+  h_0f06c286dda36f 1-166
+packages/html/src/directives/template-content.ts
+  h_0f06c286dda36f 1-42
+packages/html/src/directives/unsafe-html.ts
+  h_0f06c286dda36f 1-76
+packages/html/src/directives/unsafe-mathml.ts
+  h_0f06c286dda36f 1-33
+packages/html/src/directives/unsafe-svg.ts
+  h_0f06c286dda36f 1-33
+packages/html/src/directives/until.ts
+  h_0f06c286dda36f 1-149
+packages/html/src/directives/when.ts
+  h_0f06c286dda36f 1-47
+packages/html/src/index.ts
+  h_0f06c286dda36f 1-7
+packages/html/src/is-server.ts
+  h_0f06c286dda36f 1-7
+packages/html/src/marionette-core.ts
+  h_0f06c286dda36f 1-44
+packages/html/src/marionette.ts
+  h_0f06c286dda36f 1-9
+packages/html/src/renderer.ts
+  h_0f06c286dda36f 1-1634
+packages/html/src/static.ts
+  h_0f06c286dda36f 1-193
+packages/html/src/template.ts
+  h_0f06c286dda36f 1-70,71,72-464
+packages/html/test/compatibility.test.mjs
+  h_0f06c286dda36f 1-207
+packages/html/test/docs.test.mjs
+  h_0f06c286dda36f 1-41
+packages/html/test/lifecycle.test.mjs
+  h_0f06c286dda36f 1-261
+packages/html/test/public-regressions.mjs
+  h_0f06c286dda36f 1-203,204-228
+packages/html/test/regressions.test.mjs
+  h_0f06c286dda36f 1-2,3,4-7,8-9
+packages/html/test/render.test.mjs
+  h_0f06c286dda36f 1-200
+packages/html/test/runtime-package.test.mjs
+  h_0f06c286dda36f 1-38
+packages/html/test/sanitizer-identity.test.mjs
+  h_0f06c286dda36f 1-16
+packages/html/test/sanitizer-late.test.mjs
+  h_0f06c286dda36f 1-28
+packages/html/test/security.test.mjs
+  h_0f06c286dda36f 1-13,14-31,32
+packages/html/test/setup.mjs
+  h_0f06c286dda36f 1-11
+packages/html/test/tsconfig.json
+  h_0f06c286dda36f 1
+packages/html/test/types.ts
+  h_0f06c286dda36f 1-37
+packages/html/test/upstream-markers.mjs
+  h_0f06c286dda36f 1-20
+packages/html/test/upstream-support.mjs
+  h_0f06c286dda36f 1-26
+packages/html/test/upstream.test.mjs
+  h_0f06c286dda36f 1-76
+packages/html/tsconfig.json
+  h_0f06c286dda36f 1-27
+packages/html/vendor/lit-html-3.3.3/LICENSE
+  h_0f06c286dda36f 1-28
+packages/html/vendor/lit-html-3.3.3/package.json
+  h_0f06c286dda36f 1-629
+packages/html/vendor/lit-html-3.3.3/test/class-map_test.ts
+  h_0f06c286dda36f 1-151
+packages/html/vendor/lit-html-3.3.3/test/core-source.ts
+  h_0f06c286dda36f 1-3335
+packages/html/vendor/lit-html-3.3.3/test/guard_test.ts
+  h_0f06c286dda36f 1-194
+packages/html/vendor/lit-html-3.3.3/test/if-defined_test.ts
+  h_0f06c286dda36f 1-173
+packages/html/vendor/lit-html-3.3.3/test/keyed_test.ts
+  h_0f06c286dda36f 1-43
+packages/html/vendor/lit-html-3.3.3/test/live_test.ts
+  h_0f06c286dda36f 1-217
+packages/html/vendor/lit-html-3.3.3/test/manifest.json
+  h_0f06c286dda36f 1-81
+packages/html/vendor/lit-html-3.3.3/test/ref_test.ts
+  h_0f06c286dda36f 1-402
+packages/html/vendor/lit-html-3.3.3/test/repeat_test.ts
+  h_0f06c286dda36f 1-686
+packages/html/vendor/lit-html-3.3.3/test/static_test.ts
+  h_0f06c286dda36f 1-188
+packages/html/vendor/lit-html-3.3.3/test/style-map_test.ts
+  h_0f06c286dda36f 1-218
+packages/html/vendor/lit-html-3.3.3/test/testing-utils.ts
+  h_0f06c286dda36f 1-20
+.github/workflows/html.yml
+  h_0f06c286dda36f 1-42,43-44,45-52,53
+docs-site/navigation.json
+  h_0f06c286dda36f 140-145
+docs/api.md
+  h_0f06c286dda36f 60-61
+docs/readme.md
+  h_0f06c286dda36f 59
+eslint.config.mjs
+  h_0f06c286dda36f 22-23
+package.json
+  h_0f06c286dda36f 124-127
+tsconfig.json
+  h_0f06c286dda36f 31-33
+packages/html/scripts/check-lockfile.mjs
+  h_0f06c286dda36f 1-22
+packages/html/test/lockfile.test.mjs
+  h_0f06c286dda36f 1-27
+packages/html/RELEASE.md
+  h_0f06c286dda36f 1-55
+packages/html/UPSTREAM.md
+  h_0f06c286dda36f 1-69
+packages/html/scripts/check-packed-browser.mjs
+  h_0f06c286dda36f 1-27
+packages/html/scripts/check-upstream.mjs
+  h_0f06c286dda36f 1-20,22-27,29-38
+packages/html/scripts/recover-upstream.mjs
+  h_0f06c286dda36f 1-39
+packages/html/test/packed-runtime.mjs
+  h_0f06c286dda36f 1-35
+packages/html/test/upstream-integrity.test.mjs
+  h_0f06c286dda36f 1-52
+packages/html/vendor/lit-html-3.3.3/sources.json
+  h_0f06c286dda36f 1-179
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a43b5b832101bda83d787e6b80238b6a5180a72c",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
