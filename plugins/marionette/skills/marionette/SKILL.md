@@ -5,27 +5,12 @@ description: Find installed Marionette guidance for application development, deb
 
 # Marionette applications
 
-Run `node <skill>/scripts/locate.mjs --project <application-directory>`, replacing
-`<skill>` with this skill directory. It reads package metadata without importing
-application code. Use `--package-root <physical-directory>` for an external store.
+Run `node <skill>/scripts/locate.mjs --project <application-directory>`; `<skill>` is this skill directory. It reads metadata without importing application code. External stores use `--package-root <physical-directory>`.
 
-Read the returned `skillPath` and follow that installed skill. Use its scripts and
-package-relative documentation, so instructions match the application version.
-The plugin version identifies this loader, not the framework release. For framework
-changes, follow that repository's guidance.
+Follow the returned `skillPath` for the package the feature imports; check imports when both packages are installed. The plugin version identifies the loader, not the framework.
 
-If the result identifies `backbone.marionette` 4.x, preserve its v4 contracts while
-working on the existing application. For an upgrade, choose an exact v5 target and
-read that target's packaged migration guide; do not interpret v5 instructions as
-v4 APIs. Older releases require their own version-specific guidance. If both packages are installed, determine which entrypoint the feature
-imports before selecting its guidance. Do not install or upgrade dependencies just
-to obtain a skill unless the task authorizes it.
+Keep `backbone.marionette` 4.x on v4 contracts; older releases need their own docs. Migration uses an exact v5 target's packaged guide. Do not install/upgrade merely to obtain guidance without task authorization.
 
-If an installed release has no packaged skill, use its own documentation or obtain
-its exact release/source revision. For a new project, select the intended release
-before loading guidance. Do not substitute this repository's current docs.
+No installed package: choose the intended release first for a new project. Missing skill: use that release's docs or exact source revision, never current repository docs.
 
-The plugin also connects the hosted documentation MCP. Read `marionette://catalog`
-and compare its package version and source revision with the installed artifact.
-Use installed documentation when they differ. Where present, the installed
-`docs/tooling.md#hosted-documentation-mcp` explains the request identity protocol.
+If using hosted MCP, read `marionette://catalog` before querying and match package version AND source revision to the installed artifact. Dirty, unknown or mismatched identity means use local docs. Follow the catalog's `requestIdentity`; installed `docs/tooling.md#hosted-documentation-mcp` explains the protocol where available.

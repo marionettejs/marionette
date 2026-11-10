@@ -15,12 +15,12 @@ In the entry module:
 ```js
 import { Region, View, setDataApi, setDomApi } from 'marionette';
 import { DataApi, Model } from '@mnjs/data';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
-import { live } from 'lit-html/directives/live.js';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
+import { live } from '@mnjs/html/directives/live.js';
 
 setDataApi(DataApi);
-setDomApi(LitDomApi);
+setDomApi(HtmlDomApi);
 
 const TitleEditor = View.extend({
   template: ({ title }) => html`
@@ -41,7 +41,7 @@ const editor = new TitleEditor({ model });
 region.show(editor);
 ```
 
-The input event changes the Model, whose observable change renders the View with Lit. Lit updates the existing nodes. Its `live` binding compares against the input's current DOM value, so typing keeps focus and selection while an external Model update changes the same input. Lit owns both the input binding and preview content; do not replace its interpolated content manually.
+The input event changes the Model, whose observable change renders the View with `@mnjs/html`. The renderer updates the existing nodes. Its `live` binding compares against the input's current DOM value, so typing keeps focus and selection while an external Model update changes the same input. The renderer owns both the input binding and preview content; do not replace its interpolated content manually.
 
 This is immediate local editing, with no separate draft or Save operation. If the selected data solution supplies a persistence method, a View can save its own model as part of a local interaction. `@mnjs/data` has no `save()` method; integrate an API layer or choose another data solution for persistence. Coordinate shared decisions, navigation, or readiness in an owner with the corresponding lifetime; see [architecture](../architecture.md).
 
@@ -54,12 +54,12 @@ For an explicit Save interaction, keep input in View-owned state and update the 
 ```js
 import { Region, View, setDataApi, setDomApi, setStateApi } from 'marionette';
 import { DataApi, Model, StateApi } from '@mnjs/data';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
-import { live } from 'lit-html/directives/live.js';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
+import { live } from '@mnjs/html/directives/live.js';
 
 setDataApi(DataApi);
-setDomApi(LitDomApi);
+setDomApi(HtmlDomApi);
 setStateApi(StateApi);
 
 async function saveTitle(id, title, signal) {

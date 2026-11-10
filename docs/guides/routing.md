@@ -8,24 +8,24 @@ This small application uses fragment links for two synchronous pages. Its Applic
 
 ```js
 import { Application, View } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const PageView = View.extend({
   template: () => html`
     <nav aria-label="Pages"><a href="#home">Home</a> <a href="#about">About</a></nav>
     <main class="content"></main>`,
   regions: { content: '.content' },
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 const HomeView = View.extend({
   template: () => html`<h1 tabindex="-1">Home</h1><p>Welcome.</p>`,
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 const AboutView = View.extend({
   template: () => html`<h1 tabindex="-1">About</h1><p>About this application.</p>`,
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 const NotFoundView = View.extend({
   template: () => html`<h1 tabindex="-1">Page not found</h1>`,
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 
 const NavigationApplication = Application.extend({
   onStart() {
@@ -78,27 +78,27 @@ When a destination needs readiness, let the navigation Application manage a chil
 
 ```js
 import { Application, View } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const ShellView = View.extend({
   template: () => html`
     <nav aria-label="Pages"><a href="#home">Home</a> <a href="#about">About</a></nav>
     <main class="content"></main>`,
   regions: { content: '.content' },
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 const MessageView = View.extend({
   template: ({ title, body }) => html`<h1>${title}</h1><p role="status">${body}</p>`,
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 const ContentView = View.extend({
   template: ({ title, body }) => html`<h1>${title}</h1><p>${body}</p>`,
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 const ErrorView = View.extend({
   template: ({ message }) => html`
     <h1>Could not load page</h1><p role="alert">${message}</p>
     <button type="button" class="retry">Retry</button>`,
   triggers: { 'click .retry': 'retry' },
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 
 const PageApplication = Application.extend({
   async prepareStart({ route }, { signal }) {

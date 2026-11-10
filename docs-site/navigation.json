@@ -176,7 +176,7 @@
   {
     "source": "docs/guides/local-editing.md",
     "route": "docs/guides/local-editing",
-    "title": "Edit a View’s own model",
+    "title": "Edit a View\u2019s own model",
     "section": "Guides"
   },
   {
@@ -201,6 +201,18 @@
     "source": "docs/guides/routing.md",
     "route": "docs/guides/routing",
     "title": "Connect navigation to feature ownership",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/composition.md",
+    "route": "docs/guides/composition",
+    "title": "Compose an application feature",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/async-requests.md",
+    "route": "docs/guides/async-requests",
+    "title": "Local requests, stale results and retries",
     "section": "Guides"
   },
   {

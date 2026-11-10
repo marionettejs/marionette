@@ -39,20 +39,20 @@ MCP access, lint, types, and installed documentation lookup.
 ## Try v5
 
 Packaged applications are verified on Node 22.22.2+ (22.x) and 24.15.0+ (24.x); use the latest patch of either LTS line. Newer Node versions may install; Node 26 is checked separately as advisory. For framework development or Git installs, select the pinned [source toolchain](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository).
-Install matching package versions in your browser application:
+Install matching core package versions in your browser application. The renderer is an independently versioned, unpublished local candidate; set `MNJS_HTML_TARBALL` to the absolute path of its verified tarball, as described in the [quick start](docs/quick-start.md):
 
 ```sh
-npm install --save-exact marionette@5.0.1 @mnjs/utils@5.0.1 @mnjs/radio@5.0.1 @mnjs/adapters@5.0.1 lit-html@3.3.3
+npm install --save-exact marionette@5.0.1 @mnjs/utils@5.0.1 @mnjs/radio@5.0.1 "$MNJS_HTML_TARBALL"
 ```
 
 Given `<div id="app"></div>` in your page, this module shows a dismissible panel:
 
 ```js
 import { Region, View, setDomApi } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
-setDomApi(LitDomApi);
+setDomApi(HtmlDomApi);
 
 const Notice = View.extend({
   template: () => html`
@@ -73,8 +73,7 @@ that Region also destroys the previous one. No separate DOM removal or event
 unbinding is needed.
 
 The [quick start](docs/quick-start.md) supplies the complete HTML and Vite setup.
-Continue with the [Records lesson](docs/records.md) to combine a list, detail panel,
-and asynchronous feature lifecycle. Upgrading an existing application? Use the
+Continue with the [composition starter](docs/guides/composition.md) for a compact list/detail feature with coordinated readiness, then the [Records lesson](docs/records.md) for loading, retry and error UI. Upgrading an existing application? Use the
 [v4-to-v5 migration guide](docs/guides/migration.md).
 
 ## Documentation

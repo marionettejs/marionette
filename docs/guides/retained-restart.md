@@ -9,11 +9,11 @@ This dashboard reloads a summary while preserving its page and unfinished notes.
 ```js
 import { Application, View, setDataApi, setDomApi } from 'marionette';
 import { Model, DataApi, StateApi } from '@mnjs/data';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 setDataApi(DataApi);
-setDomApi(LitDomApi);
+setDomApi(HtmlDomApi);
 
 async function loadSummary(signal) {
   const response = await fetch('/summary.json', { signal });

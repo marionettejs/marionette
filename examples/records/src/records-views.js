@@ -1,5 +1,5 @@
 import { CollectionView, View } from 'marionette';
-import { html } from 'lit-html';
+import { html } from '@mnjs/html';
 
 export const LoadingView = View.extend({
   template: () => html`<p role="status">Loading records…</p>`

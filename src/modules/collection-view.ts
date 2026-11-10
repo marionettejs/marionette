@@ -42,15 +42,15 @@ export interface ChildRenderOptions {
  * Configure managed repeated children. Plain arrays require explicit render(),
  * which rebuilds children; use an observable DataApi for incremental membership.
  * @example
- * // This example uses the optional Lit adapter for text interpolation.
+ * // This example uses the optional @mnjs/html adapter for text interpolation.
  * import { CollectionView, View } from 'marionette';
- * import LitDomApi from '@mnjs/adapters/dom/lit-html';
- * import { html } from 'lit-html';
+ * import HtmlDomApi from '@mnjs/html/marionette';
+ * import { html } from '@mnjs/html';
  * const Row = View.extend({
  *   tagName: 'li',
  *   template: ({ label }) => html`<button type="button">${label}</button>`,
  *   triggers: { 'click button': 'select' }
- * }).setDomApi(LitDomApi);
+ * }).setDomApi(HtmlDomApi);
  * const List = CollectionView.extend({ tagName: 'ul', childView: Row });
  * const list = new List({ collection: [{ label: 'First' }] });
  * // Show through a Region; the list owns and destroys its Row instances.

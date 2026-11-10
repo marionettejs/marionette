@@ -26,8 +26,13 @@ node -p "require.resolve('backbone.marionette/package.json')"
 Read the selected package's version and use its matching documentation. The paths
 below apply only to v5 and are relative to the installed `marionette` package's
 `docs/` directory. For rendering, observation or persistence changes, check the
-configured renderer or data provider. Choose one starting page or use an exact API
-lookup; follow additional references when the task needs their contract.
+configured renderer or data provider. Inspect the existing project before choosing
+its renderer, data runtime, router, build setup, or architecture; follow compatible
+existing choices. With no stack chosen, use the [Vite quick start](quick-start.md)
+with `@mnjs/html` for rendering. Add [@mnjs/data](integrations/setup.md)
+for observable records or shared state; plain object snapshots are sufficient when
+observation is unnecessary. After the first render, continue with the whole-application
+route below for managed composition and feature coordination.
 
 Shared API names such as `View.extend`, regions, triggers, `modelEvents`, and
 `CollectionView` remain valid in v5, but do not guarantee shared behavior: verify
@@ -38,6 +43,7 @@ If installed docs are absent, obtain the exact release or known source revision.
 <!-- task-routes:start -->
 | Task | Start with |
 | --- | --- |
+| Build an application, page, or composed feature | [Composition starter](guides/composition.md) |
 | Install and render a first View | [Quick start](quick-start.md) |
 | Migrate from another UI framework | [Framework migration](guides/framework-migration.md) |
 | Migrate an existing v4 application | [Migration guide](guides/migration.md) |
@@ -45,6 +51,7 @@ If installed docs are absent, obtain the exact release or known source revision.
 | Choose ownership and lifetimes | [Architecture](architecture.md) |
 | Bind a DOM event or trigger | [DOM events](api/shared/view-bindings.md#dom-events) |
 | Read or rebind named DOM elements | [UI bindings](api/shared/view-bindings.md#ui-bindings) |
+| Load local data, suppress stale results, or retry | [Local requests](guides/async-requests.md) |
 | Edit a model or retain a draft | [Local editing](guides/local-editing.md) |
 | Prepare, start, restart, or stop a feature | [Application](api/application.md) |
 | Restart while retaining a draft or shell | [Retained restart](guides/retained-restart.md) |
@@ -62,16 +69,13 @@ If installed docs are absent, obtain the exact release or known source revision.
 | Integrate an imperative control | [Widgets](guides/widgets.md) |
 | Check keyboard, focus, or rendering safety | [Accessibility and rendering](guides/accessibility-rendering.md) |
 | Build and deploy an application | [Production](guides/production.md) |
-| Apply the concepts in a composed feature | [Records lesson](records.md) |
 <!-- task-routes:end -->
 
 ## Apply the contract
 
-Keep local interaction in its View when that fits the task. An asynchronous call alone does not require an Application. A View may save its own model when the configured data layer supplies that operation. `@mnjs/data` supplies observable Models and Collections; fetching and persistence require an API layer or another provider. It does not supply `Model.save()`.
+Default to Views/Regions and CollectionView child Views for data-driven lists; this is a design default, not a core API requirement. Simple/static owning templates remain valid. Native delegation can handle inserted descendants but insertion does not create managed child Views. See [architecture](architecture.md#let-views-and-regions-manage-presentation) for renderer ownership, supported integrations and cleanup.
 
-Use Application preparation for feature readiness and `restart()` to repeat it while retaining active UI. Apply the current result in `onStart`; construct retained shells once. Coordinate shared decisions and work that survives panel replacement at the lifetime that owns them. Read [architecture](architecture.md) when deciding that ownership.
-
-Read method signatures, event payloads and cleanup for the APIs you change. Verify the affected interaction, including replacement, cancellation or teardown when relevant. A successful build does not establish those outcomes.
+Use Application for coordinated readiness/lifetime, not merely because a request or URL exists. [Architecture](architecture.md#choose-what-survives-an-operation) distinguishes stop, restart, destruction and later work; [local requests](guides/async-requests.md) covers ongoing races/retry. Keep local editing in its View when appropriate. Verify the changed interaction and teardown, distinguishing executed checks from source inspection.
 
 ## Local contract lookup
 

@@ -1,5 +1,7 @@
 # Migrate from another UI framework
 
+The rendering examples on this page use `@mnjs/html`. For `@mnjs/html`, follow the [quick start](../quick-start.md) and [composition starter](composition.md).
+
 Preserve the application's observable behavior while designing a native Marionette
 ownership tree. Translating each Vue component, React hook, or store into a similar
 Marionette file can preserve the old architecture's problems. Decide who owns data,
@@ -160,7 +162,7 @@ RecordPage.vue
 ```
 
 The native replacement below separates readiness from local interaction. It uses
-Lit for safe text interpolation and stable input updates, and observable state
+`@mnjs/html` for safe text interpolation and stable input updates, and observable state
 from `@mnjs/data`. Follow [setup](../integrations/setup.md) for matching companion
 packages. `GET /records/42.json` returns `{ "title": string }`; API access stays in
 `loadRecord`, which can move into the application's service module. See
@@ -170,9 +172,9 @@ and direct-link requirements.
 ```js
 import { Application, View } from 'marionette';
 import { Model, DataApi, StateApi } from '@mnjs/data';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
-import { live } from 'lit-html/directives/live.js';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
+import { live } from '@mnjs/html/directives/live.js';
 
 async function loadRecord(id, signal) {
   const response = await fetch(`/records/${encodeURIComponent(id)}.json`, { signal });
@@ -185,7 +187,7 @@ const PageView = View.extend({
     <section class="editor"></section><section class="summary"></section>`,
   regions: { editor: '.editor', summary: '.summary' },
   triggers: { 'click .reload': 'reload' },
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 const TitleEditorView = View.extend({
   template: ({ title }) => html`
     <label>Title <input class="title" .value=${live(title)}></label>`,
@@ -193,12 +195,12 @@ const TitleEditorView = View.extend({
   events: { 'input @ui.title': 'editTitle' },
   modelEvents: { 'change:title': 'render' },
   editTitle() { this.model.set('title', this.getUI('title')[0].value); },
-}).setDataApi(DataApi).setDomApi(LitDomApi);
+}).setDataApi(DataApi).setDomApi(HtmlDomApi);
 const SummaryView = View.extend({
   template: ({ loadedTitle, error }) => html`
     <p>Loaded title: ${loadedTitle}</p><p role="status">${error}</p>`,
   modelEvents: { 'change:loadedTitle': 'render', 'change:error': 'render' },
-}).setDataApi(DataApi).setDomApi(LitDomApi);
+}).setDataApi(DataApi).setDomApi(HtmlDomApi);
 
 const RecordApplication = Application.extend({
   createState() { return new Model({ title: '', loadedTitle: '', error: '' }); },
@@ -234,7 +236,7 @@ editor's `ui` map gives its owned control one name instead of repeated
 `querySelector` calls. Read `getUI('title')[0]` after binding; bindings rebind on
 render and are snapshots, so do not keep a stale element across replacement.
 The editor observes title changes so external updates also appear. Its rerender
-retains the input through the chosen Lit integration and `live()` binding; verify
+retains the input through the chosen `@mnjs/html` integration and `live()` binding; verify
 focus and caret behavior before substituting another renderer.
 
 Calling `start({ id: next })` on an active Application resolves `true` without

@@ -8,12 +8,12 @@ Use a native `button` for an action and a link with `href` for navigation. Label
 
 For a toggle button, keep its label stable and update `aria-pressed`. The [WAI button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/) describes keyboard activation and focus behavior.
 
-This View owns only local display state. Its class-scoped Lit adapter updates the same template's elements when the user toggles the setting.
+This View owns only local display state. Its class-scoped `@mnjs/html` adapter updates the same template's elements when the user toggles the setting.
 
 ```js
 import { Region, View } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const NotificationSettings = View.extend({
   tagName: 'section',
@@ -35,7 +35,7 @@ const NotificationSettings = View.extend({
   },
   focusHeading() { this.getUI('heading')[0].focus(); }
 });
-NotificationSettings.setDomApi(LitDomApi);
+NotificationSettings.setDomApi(HtmlDomApi);
 
 const mount = document.createElement('main');
 document.body.append(mount);
@@ -48,7 +48,7 @@ This is local state, with no persistence claim. When a server-backed setting bel
 
 ## Retain focus during updates; choose it during replacement
 
-The toggle does not dismiss its context, so focus should remain on the button. Lit can retain the existing nodes when this View renders the same template again. Changing template branches, removing an element, or choosing an insertion provider that replaces descendants can still remove the focused node. Test the actual rendering behavior you use.
+The toggle does not dismiss its context, so focus should remain on the button. `@mnjs/html` can retain the existing nodes when this View renders the same template again. Changing template branches, removing an element, or choosing an insertion provider that replaces descendants can still remove the focused node. Test the actual rendering behavior you use.
 
 Showing a different View in a [Region](../api/region.md#showing-a-view) destroys the current View and removes its content. Marionette does not choose a focus destination. For a user-requested screen transition, show the new View, then focus its heading or an appropriate first control. For example, another `NotificationSettings` instance named `nextSettings` can use `region.show(nextSettings); nextSettings.focusHeading();` after the transition is accepted. The heading's `tabindex="-1"` permits programmatic focus without adding an extra Tab stop.
 
@@ -58,7 +58,7 @@ Keep this focus decision with the owner performing the transition. An unrelated 
 
 Marionette's native DOM provider inserts template strings with `innerHTML`. It treats a string as HTML, so interpolating untrusted text into that string is unsafe. Use `textContent` for direct text updates or a template system that handles text interpolation.
 
-Ordinary string values in Lit child expressions, such as this example's title, become text. See [Lit expressions](https://lit.dev/docs/templates/expressions/#primitive-values). Raw HTML insertion, including Lit's [`unsafeHTML`](https://lit.dev/docs/templates/directives/#unsafehtml), requires trusted or sanitized HTML at the application's boundary. URL attributes also need the application's allowed-URL policy; text interpolation is not a complete security policy.
+Ordinary string values in `@mnjs/html` child expressions, such as this example's title, become text. Raw HTML insertion, including its optional `unsafeHTML` directive, requires trusted or sanitized HTML at the application's boundary. URL attributes also need the application's allowed-URL policy; text interpolation is not a complete security policy.
 
 Choose an integration whose output matches the [renderer and DOM provider](../api/providers/dom.md) contract. Keep renderer-owned nodes under that renderer's control rather than overwriting their contents independently.
 

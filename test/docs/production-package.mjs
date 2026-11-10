@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { htmlCandidate } from './html-candidate.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
@@ -122,9 +123,11 @@ export async function verifyProductionPackage({ artifactDirectory, reportPath, e
     report.artifacts = input.packages;
     report.releaseEvidenceSha256 = input.evidenceSha256;
     report.artifactScope = input.evidenceSha256 ? 'Candidate package hashes checked against supplied release evidence; this harness does not certify a release.' : 'Explicit candidate tarballs without a release-evidence manifest; package/bundle verification only.';
+    const renderer = htmlCandidate();
+    report.renderer = renderer;
     const dependencies = Object.fromEntries(input.packages.map(pkg => [pkg.name, `file:${pkg.file}`]));
     await writeFile(join(workspace, 'package.json'), JSON.stringify({ private: true, type: 'module', dependencies: {
-      ...dependencies, 'lit-html': '3.3.3', vite: '8.3.0',
+      ...dependencies, '@mnjs/html': `file:${renderer.path}`, vite: '8.3.0',
     } }, null, 2));
     const run = (command, args, cwd = workspace) => {
       const output = execFileSync(command, args, { cwd, encoding: 'utf8', timeout: 120_000,
@@ -135,7 +138,7 @@ export async function verifyProductionPackage({ artifactDirectory, reportPath, e
     const npmArgs = ['install', '--ignore-scripts', '--no-audit', '--no-fund'];
     if (process.env.npm_execpath) { run(process.execPath, [process.env.npm_execpath, ...npmArgs]); } else { run('npm', npmArgs); }
     report.consumerLockSha256 = hash(await readFile(join(workspace, 'package-lock.json')));
-    report.tooling = Object.fromEntries(await Promise.all(['vite', 'lit-html'].map(async name => [name,
+    report.tooling = Object.fromEntries(await Promise.all(['vite', '@mnjs/html'].map(async name => [name,
       JSON.parse(await readFile(join(workspace, 'node_modules', name, 'package.json'))).version])));
     for (const pkg of input.packages) {
       const installed = join(workspace, 'node_modules', pkg.name);
@@ -186,7 +189,7 @@ export default {
         const path = moduleId.split('?')[0].replaceAll('\\', '/');
         assert(path.startsWith(`${normalizedWorkspace}/app/`) || path.startsWith(`${normalizedWorkspace}/node_modules/`), `Bundle module escapes installed consumer: ${moduleId}`);
       }
-      for (const pkg of input.packages) {
+      for (const pkg of [...input.packages.filter(candidate => candidate.name !== '@mnjs/adapters'), renderer]) {
         assert(modules.some(module => module.includes(`/node_modules/${pkg.name}/dist/`)), `Bundle must consume installed ${pkg.name} distribution`);
       }
       report.builds.push({ id, modules: modules.map(module => module.replace(normalizedWorkspace, '<consumer>')),

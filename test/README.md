@@ -207,6 +207,27 @@ To intentionally refresh one external graph, use `npm --prefix
 test/fixtures/<name> update --package-lock-only --ignore-scripts`, review its
 manifest and lock together, then run that fixture. Never delete locks during tests.
 
+## HTML renderer for documentation checks
+
+The default examples use the independently versioned, not-yet-published
+`@mnjs/html` candidate. Before `docs:check`, `check:docs-examples`,
+`check:docs-installed`, `test:docs-production`, `verify -- --full` or
+`release:validate`, prepare an explicit archive from this checkout:
+
+```sh
+npm --prefix packages/html ci --ignore-scripts
+npm run test:html
+mkdir -p packages/html/artifacts
+npm pack ./packages/html --ignore-scripts --pack-destination packages/html/artifacts
+export MNJS_HTML_TARBALL="$PWD/packages/html/artifacts/mnjs-html-0.1.0.tgz"
+```
+
+Keep that environment variable for the validation command. The five coordinated
+release tarballs remain unchanged; the documentation harness records the separate
+renderer archive and hash. This does not publish or certify an HTML release.
+Rebuild and repack after changing renderer source. Hosted documentation and release
+validation prepare this archive explicitly too.
+
 ## Exact release candidates
 
 From a clean committed checkout:

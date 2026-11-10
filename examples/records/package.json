@@ -14,12 +14,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@mnjs/adapters": "file:../../packages/adapters",
     "@mnjs/data": "file:../../packages/data",
     "@mnjs/radio": "file:../../packages/radio",
     "@mnjs/utils": "file:../../packages/utils",
-    "lit-html": "3.3.3",
-    "marionette": "file:../.."
+    "marionette": "file:../..",
+    "@mnjs/html": "file:../../packages/html"
   },
   "devDependencies": {
     "vite": "8.3.3"

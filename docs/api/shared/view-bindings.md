@@ -4,7 +4,7 @@
 
 ## Templates and data
 
-`template` is a value understood by the renderer. The default renderer calls a template function as `template(data)`; it does not compile template strings. `template: false` disables template rendering. The default DOM provider inserts renderer output as HTML; choose a renderer/DOM integration appropriate to the output. [Setup](../../integrations/setup.md#configure-once) shows the Lit integration, whose ordinary interpolations render values as text.
+`template` is a value understood by the renderer. The default renderer calls a template function as `template(data)`; it does not compile template strings. `template: false` disables template rendering. The default DOM provider inserts renderer output as HTML; choose a renderer/DOM integration appropriate to the output. [Setup](../../integrations/setup.md#configure-once) shows the `@mnjs/html` integration, whose ordinary interpolations render values as text.
 
 | Method | Default contract and extension use |
 | --- | --- |
@@ -15,19 +15,19 @@
 | `mixinTemplateContext(data)` | Resolves `templateContext`, then shallow-merges its own enumerable properties over data. Does not mutate either input. Returns either input directly when the other is falsy. |
 | `attachElContent(output)` | Sends renderer output to `this.Dom.setContents(this.el, output)`. Override for a specialized insertion strategy that keeps the View's root. Returns no defined value. |
 
-Rendering obtains the template, prepares serialized data plus template context, calls the configured renderer with the View as `this`, and passes its return value to `attachElContent`. Falsy final template data becomes `{}`. The default template function itself receives no View context; use `templateContext` or serialization for View-derived values.
+Rendering obtains the template, prepares serialized data plus template context, calls the configured renderer with the View as `this`, and passes its return value to `attachElContent`. Falsy final template data becomes `{}`. The default template function itself receives no View context; use `templateContext` or serialization for View-derived values. The `@mnjs/html` DOM adapter preserves this template-call contract: it handles the returned template result, rather than passing a View to the template.
 
-This standalone example configures a subclass with Lit, renders plain supplied data, and cleans up:
+This standalone example configures a subclass with `@mnjs/html`, renders plain supplied data, and cleans up:
 
 ```js
 import { View } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const Greeting = View.extend({
   template: ({ name }) => html`<p>Hello, ${name}</p>`,
 });
-Greeting.setDomApi(LitDomApi);
+Greeting.setDomApi(HtmlDomApi);
 
 const greeting = new Greeting({ model: { name: 'Sam' } });
 greeting.render();

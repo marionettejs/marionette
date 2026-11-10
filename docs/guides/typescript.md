@@ -37,13 +37,13 @@ A native `class` can extend `CounterView` and inherit these types. Native class 
 
 DOM event targets and UI matches need runtime narrowing. With the native delegator, `delegateTarget` is the element matched by the selector; `target` can be a nested element. This example uses the native delegator; a custom delegator must provide the matched-element behavior this handler relies on. `getUI` can return `undefined`, and its default public query type is `ArrayLike<Element>`, so index it rather than assuming NodeList or jQuery methods.
 
-This local editor owns a plain state object. It uses a class-scoped Lit adapter to insert text safely and a delegated DOM handler to update state. Lit updates the preview while retaining the input and its caret.
+This local editor owns a plain state object. It uses a class-scoped `@mnjs/html` adapter to insert text safely and a delegated DOM handler to update state. `@mnjs/html` updates the preview while retaining the input and its caret.
 
 ```ts
 import { View, type DelegatedEvent } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
-import { live } from 'lit-html/directives/live.js';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
+import { live } from '@mnjs/html/directives/live.js';
 
 const EditorView = View.extend({
   template: ({ title }: { title: string }) => html`
@@ -65,7 +65,7 @@ const EditorView = View.extend({
     if (input instanceof HTMLInputElement) { input.focus(); }
   }
 });
-EditorView.setDomApi(LitDomApi);
+EditorView.setDomApi(HtmlDomApi);
 const editor = new EditorView().render();
 document.body.append(editor.el);
 editor.focusTitle();
@@ -81,8 +81,8 @@ TypeScript does not validate a server response. Treat parsed JSON as `unknown`, 
 
 ```ts
 import { Application, View, type LifecycleContext } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 type Summary = { title: string };
 const SummaryView = View.extend({
@@ -90,7 +90,7 @@ const SummaryView = View.extend({
   templateContext() { return { title: this.options.title }; },
   template: ({ title }: Summary) => html`<h1>${title}</h1>`
 });
-SummaryView.setDomApi(LitDomApi);
+SummaryView.setDomApi(HtmlDomApi);
 
 const SummaryApplication = Application.extend({
   async prepareStart(_options: unknown, { signal }: LifecycleContext): Promise<Summary> {
@@ -125,8 +125,8 @@ Marionette's `model` and `collection` properties are `unknown` at the general Vi
 ```ts
 import { View } from 'marionette';
 import { Model, DataApi } from '@mnjs/data';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 type TitleAttributes = { title: string };
 type TitleOptions = { model: Model<TitleAttributes> };
@@ -139,7 +139,7 @@ const TitleView = View.extend({
   modelEvents: { 'change:title': 'render' }
 });
 TitleView.setDataApi(DataApi);
-TitleView.setDomApi(LitDomApi);
+TitleView.setDomApi(HtmlDomApi);
 const model = new Model<TitleAttributes>({ title: 'Overview' });
 const title = new TitleView({ model }).render();
 const current: string | undefined = model.get('title');
