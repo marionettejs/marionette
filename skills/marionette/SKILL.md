@@ -14,6 +14,8 @@ With no stack chosen, use the Vite quick start with `@mnjs/html`; add `@mnjs/dat
 | --- | --- |
 | Build an application, page, or composed feature | `docs/guides/composition.md` |
 | Install and render a first View | `docs/quick-start.md` |
+| Migrate an existing v4 application | `docs/guides/migration.md` |
+| Test interaction, readiness, or teardown | `docs/guides/testing.md` |
 | Render, filter, or sort repeated children | `docs/guides/lists.md` |
 | Show, replace, or retain child UI | `docs/api/region.md` |
 | Choose ownership and lifetimes | `docs/architecture.md` |

@@ -73,6 +73,16 @@ await assert.rejects(failed.start(), /Unavailable/);
 assert.equal(failed.isRunning(), false);
 assert.equal(failed.getView(), undefined);
 failed.destroy();
+for (const id of [1, '1']) {
+  const numeric = new Feature({ region: { el: mount }, loadItems: async () => [{ id, title: 'One' }] });
+  await numeric.start();
+  const numericLayout = numeric.getView();
+  const numericRow = numericLayout.getChildView('items').children.first();
+  numericRow.el.querySelector('.label').click();
+  assert.equal(numericLayout.getChildView('detail').model, numeric.items.get(id));
+  assert.equal(numericLayout.getChildView('detail').el.textContent, 'One');
+  numeric.destroy();
+}
 mount.remove();
 // Verify this renderer's event boundary, rather than borrowing another renderer's API.
 for (const template of [() => html\`<button @click=\${() => {}}>Invalid</button>\`,

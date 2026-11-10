@@ -15,7 +15,7 @@ continue with the compact [composition starter](guides/composition.md) after the
 first render below. It combines managed Views/Regions, lists and feature readiness,
 with focused links for deeper needs; the first View is not a complete application template.
 
-`@mnjs/html` is currently an unpublished local candidate, version `0.1.0`, independently versioned from core. Obtain the verified candidate tarball and set `MNJS_HTML_TARBALL` to its absolute path before running the commands below. This recipe installs that file; it does not assume a registry release.
+`@mnjs/html` is independently versioned from core. This recipe pins version `0.1.0`; use its matching package documentation.
 
 Create a project directory:
 
@@ -24,7 +24,7 @@ mkdir marionette-example
 cd marionette-example
 npm init -y
 npm pkg set type=module scripts.dev="vite" scripts.build="vite build"
-npm install --ignore-scripts --save-exact marionette@5.0.1 @mnjs/utils@5.0.1 @mnjs/radio@5.0.1 "$MNJS_HTML_TARBALL"
+npm install --ignore-scripts --save-exact marionette@5.0.1 @mnjs/utils@5.0.1 @mnjs/radio@5.0.1 @mnjs/html@0.1.0
 npm install --ignore-scripts --save-dev --save-exact vite@8.3.0
 ```
 

@@ -1,3 +1,4 @@
+import { htmlCandidate } from '../docs/html-candidate.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
@@ -17,7 +18,7 @@ const packageInputs = [
 const adapterFixtures = new Set([
   'adapters-package-vite', 'backbone-adapter', 'backbone-adapter-types', 'cjs-adapters',
   'collection-removal-survivors', 'jquery-dom-api', 'jquery-dom-api-types',
-  'xstate-adapter-types', 'dom-adapters-package', 'docs-quick-start',
+  'xstate-adapter-types', 'dom-adapters-package',
 ]);
 
 function readOptions(args) {
@@ -72,7 +73,7 @@ function sha256(path) {
 // package may be added, removed, relocated, or re-resolved by the candidate overlay.
 function externalGraph(lock) {
   return Object.fromEntries(Object.entries(lock.packages).filter(([path]) =>
-    path && !packageInputs.some(input => path === `node_modules/${input.name}`))
+    path && path !== 'node_modules/@mnjs/html' && !packageInputs.some(input => path === `node_modules/${input.name}`))
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([path, entry]) => [path, {
       version: entry.version, resolved: entry.resolved, integrity: entry.integrity,
@@ -92,6 +93,7 @@ function selectedPackages(fixtureName) {
   if (fixtureName === 'core-types' || fixtureName === 'vite' || adapterFixtures.has(fixtureName)) {
     names.push('@mnjs/adapters');
   }
+  if (fixtureName === 'docs-quick-start') { names.push('@mnjs/html'); }
   return names;
 }
 
@@ -219,6 +221,17 @@ try {
   }
   if (artifacts.size !== packageInputs.length) {
     throw new Error(`Expected all five package artifacts; received ${artifacts.size}`);
+  }
+  if (selected.includes('docs-quick-start')) {
+    // This fixture's renderer is independent of the five coordinated artifacts.
+    // Prefer an explicitly supplied archive; otherwise prepare this checkout's
+    // version, so the full inventory and Node-current job cannot omit it.
+    if (!process.env.MNJS_HTML_TARBALL) { npm(['run', 'docs:prepare-html']); }
+    const renderer = htmlCandidate();
+    const frozenPath = resolve(packDir, 'html-renderer.tgz');
+    cpSync(renderer.path, frozenPath);
+    artifacts.set(renderer.name, frozenPath);
+    report.renderer = { ...renderer, sha256: sha256(frozenPath) };
   }
   report.npm = npm(['--version']).trim();
   // Snapshot documentation once so concurrent doc edits cannot change examples

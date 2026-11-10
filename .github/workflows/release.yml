@@ -143,16 +143,10 @@ jobs:
           --repository "${{ github.repository }}"
 
       - name: Prepare independent HTML renderer for documentation
-        run: |
-          npm --prefix packages/html ci --ignore-scripts
-          npm run test:html
-          mkdir -p packages/html/artifacts
-          npm pack ./packages/html --ignore-scripts --pack-destination packages/html/artifacts
+        run: npm run docs:prepare-html
 
       - name: Validate exact release candidate
         run: npm run release:validate -- --artifact-dir release
-        env:
-          MNJS_HTML_TARBALL: ${{ github.workspace }}/packages/html/artifacts/mnjs-html-0.1.0.tgz
 
       - name: Upload candidate diagnostics
         if: always()

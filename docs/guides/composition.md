@@ -26,7 +26,7 @@ const Row = View.extend({
   </button>`,
   modelEvents: { change: 'render' },
   events: { 'click .select-item': 'selectItem' },
-  selectItem(event) { this.trigger('select', event.delegateTarget.dataset.id); }
+  selectItem() { this.trigger('select', this.model.id); }
 });
 const List = CollectionView.extend({
   tagName: 'ul', childView: Row,
@@ -72,7 +72,7 @@ await app.start();
 
 The configured DataApi supplies model attributes to row/detail templates; use `templateContext` for View-local data.
 
-The Region mounts the layout; its Regions own list/detail replacement. The `@mnjs/html` DOM adapter leaves the configured event delegator in place. Here, in the native DOM handler, `event.delegateTarget` is the matched button; `event.target` may be its nested label/icon. View bindings follow the View's lifetime while `@mnjs/html` updates its descendants. Explicit child mappings forward the string ID unchanged to `viewEvents`; they add no child argument.
+The Region mounts the layout; its Regions own list/detail replacement. The `@mnjs/html` DOM adapter leaves the configured event delegator in place. When a native DOM handler needs the matched element, `event.delegateTarget` is the button; `event.target` may be its nested label/icon. View bindings follow the View's lifetime while `@mnjs/html` updates its descendants. Read the ID from the model rather than `dataset`, which coerces numeric IDs to strings. Explicit child mappings forward the original ID unchanged to `viewEvents`; they add no child argument.
 
 Selection replaces only detail. `restart()` retains the layout but resets rows/selection here. `stop()` destroys the owned UI while keeping the Application reusable; `destroy()` ends it and releases its private Collection. Borrowed data needs its own owner. Continue to [Records](../records.md) for loading/retry UI or [retained restart](retained-restart.md) for row/input identity.
 
@@ -89,7 +89,13 @@ Each checks a request revision on both success and failure, including teardown.
 Abort saves transport work when supported; revision checks remain necessary when
 a service ignores it. A host can call `page.load(nextId)` for another order or
 replace the page through its Region without allowing late results to affect the
-new destination.
+new destination. These page-local loaders consume service failures into recoverable UI
+and return `false`; the reusable [Preview loader](async-requests.md) instead rethrows
+a current failure for its caller to coordinate. Neither policy suppresses unexpected
+rendering or programming errors.
+
+Unlike the standalone starter's global setup, these embeddable classes configure
+`HtmlDomApi` per class so they do not change their host application's renderer.
 
 ```js
 import { Region, View } from 'marionette';

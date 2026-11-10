@@ -46,16 +46,10 @@ jobs:
         run: npm ci
 
       - name: Prepare candidate HTML renderer
-        run: |
-          npm --prefix packages/html ci --ignore-scripts
-          npm run test:html
-          mkdir -p packages/html/artifacts
-          npm pack ./packages/html --ignore-scripts --pack-destination packages/html/artifacts
+        run: npm run docs:prepare-html
 
       - name: Build and validate documentation
         run: npm run docs:check
-        env:
-          MNJS_HTML_TARBALL: ${{ github.workspace }}/packages/html/artifacts/mnjs-html-0.1.0.tgz
 
       - name: Pack consumer artifacts with the source toolchain
         run: |
@@ -74,7 +68,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: docs-html-artifact
-          path: packages/html/artifacts/mnjs-html-0.1.0.tgz
+          path: packages/html/artifacts/*.tgz
           if-no-files-found: error
           retention-days: 1
 
@@ -120,7 +114,6 @@ jobs:
         run: npm run check:docs-installed -- --artifact-dir test/tmp/consumer-artifacts
         env:
           npm_config_engine_strict: 'true'
-          MNJS_HTML_TARBALL: ${{ github.workspace }}/packages/html/artifacts/mnjs-html-0.1.0.tgz
 
       - name: Upload consumer evidence
         if: always()

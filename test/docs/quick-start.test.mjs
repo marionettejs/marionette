@@ -9,6 +9,7 @@ const root = resolve(import.meta.dirname, '../..');
 const version = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).version;
 const packages = releasePackages.map(pkg => ({ name: pkg.name, version,
   file: `${pkg.name.replace(/^@/, '').replace('/', '-')}-${version}.tgz` }));
+packages.push({ name: '@mnjs/html', version: '0.1.0', file: 'mnjs-html-0.1.0.tgz' });
 const docs = readFileSync(resolve(root, 'docs/quick-start.md'), 'utf8');
 const project = docs.split('## Create the project\n')[1]?.split('\n## ')[0];
 const setupBlock = project?.match(/```sh\n([\s\S]*?)```/);
@@ -17,16 +18,17 @@ const setup = setupBlock[1];
 
 test('quick-start certification replaces exact release npm specs with supplied artifact bytes', () => {
   const command = artifactSetupCommand(setup, packages);
-  for (const pkg of packages.filter(value => !['@mnjs/data', '@mnjs/adapters'].includes(value.name))) {
+  for (const pkg of packages.filter(value => !['@mnjs/data', '@mnjs/adapters', '@mnjs/html'].includes(value.name))) {
     assert(command.includes(`'../marionette-v5-artifacts/${pkg.file}'`), pkg.name);
     assert(!command.includes(`${pkg.name}@${version}`), pkg.name);
   }
-  assert(command.includes('"$MNJS_HTML_TARBALL"'));
+  assert(command.includes('../marionette-v5-artifacts/mnjs-html-0.1.0.tgz'));
+  assert(!command.includes('@mnjs/html@0.1.0'));
   assert(!command.includes('lit-html'));
   assert(!command.includes('@mnjs/adapters@'));
   assert(command.includes('vite@8.3.0'));
   assert(!command.includes('mnjs-data-'));
-  assert(docs.includes('unpublished local candidate'));
+  assert(!docs.includes('MNJS_HTML_TARBALL'));
   assert(docs.includes('independently versioned from core'));
   const data = readFileSync(resolve(root, 'docs/integrations/setup.md'), 'utf8');
   assert(data.includes(`npm install --ignore-scripts --save-exact @mnjs/data@${version}`));

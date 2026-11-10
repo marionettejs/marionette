@@ -27,6 +27,11 @@ export function artifactSetupCommand(command, packages) {
     assert.equal([...command.matchAll(pattern)].length, 1, `Quick start must pin ${spec} exactly once`);
     command = command.replace(pattern, (_, prefix) => `${prefix}${quote(`../marionette-v5-artifacts/${pkg.file}`)}`);
   }
+  const renderer = packages.find(pkg => pkg.name === '@mnjs/html');
+  assert(renderer, 'One HTML candidate artifact required');
+  const htmlSpec = `@mnjs/html@${renderer.version}`;
+  assert.equal(command.split(htmlSpec).length - 1, 1, 'Quick start must pin the HTML candidate exactly once');
+  command = command.replace(htmlSpec, quote(`../marionette-v5-artifacts/${renderer.file}`));
   assert(!command.includes('@mnjs/data@'), 'Quick start keeps observable data optional');
   return command;
 }

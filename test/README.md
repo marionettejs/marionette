@@ -209,24 +209,26 @@ manifest and lock together, then run that fixture. Never delete locks during tes
 
 ## HTML renderer for documentation checks
 
-The default examples use the independently versioned, not-yet-published
-`@mnjs/html` candidate. Before `docs:check`, `check:docs-examples`,
-`check:docs-installed`, `test:docs-production`, `verify -- --full` or
-`release:validate`, prepare an explicit archive from this checkout:
+The default examples use independently versioned `@mnjs/html`. Before
+`docs:check`, `check:docs-examples`, `check:docs-installed`,
+`test:docs-production`, `verify -- --full` or `release:validate`, prepare its
+source archive:
 
 ```sh
-npm --prefix packages/html ci --ignore-scripts
-npm run test:html
-mkdir -p packages/html/artifacts
-npm pack ./packages/html --ignore-scripts --pack-destination packages/html/artifacts
-export MNJS_HTML_TARBALL="$PWD/packages/html/artifacts/mnjs-html-0.1.0.tgz"
+npm run docs:prepare-html
 ```
 
-Keep that environment variable for the validation command. The five coordinated
-release tarballs remain unchanged; the documentation harness records the separate
-renderer archive and hash. This does not publish or certify an HTML release.
-Rebuild and repack after changing renderer source. Hosted documentation and release
-validation prepare this archive explicitly too.
+The version and archive name come from `packages/html/package.json`. Set
+`MNJS_HTML_TARBALL` only to override the prepared archive with a matching exact
+candidate. The five coordinated release tarballs remain unchanged; documentation
+and fixture reports record the separate renderer hash. Preparing it runs its build,
+not its full test suite; the HTML workflow owns renderer tests. This does not
+publish or certify an HTML release. Reprepare after changing renderer source.
+
+The fixture runner prepares this dependency when `docs-quick-start` is selected,
+unless an explicit archive is supplied. Registry installation in the public quick
+start requires the documented HTML version to be published before this guidance
+is released or deployed.
 
 ## Exact release candidates
 

@@ -160,7 +160,9 @@ test('canonical task routes match the skill and point at installed consumer page
   assert.equal(skillRoutes(guide, skill, { primary: true }), skill);
   const rowCount = text => text.split('<!-- task-routes:start -->')[1]
     .split('<!-- task-routes:end -->')[0].trim().split('\n').length - 2;
-  assert.equal(rowCount(skill), 8);
+  assert.equal(rowCount(skill), 10);
+  assert.ok(skill.includes('docs/guides/migration.md'), 'keep the v4 migration route visible');
+  assert.ok(skill.includes('docs/guides/testing.md'), 'keep interaction verification visible');
   assert.equal(rowCount(skillRoutes(guide, skill)), 26, 'full task index remains available');
   const missing = guide.replace(/^\| Build an application, page, or composed feature.*\n/m, '');
   assert.throws(() => skillRoutes(missing, skill, { primary: true }), /expected one primary route/);

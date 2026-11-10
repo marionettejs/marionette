@@ -8,6 +8,8 @@ const end = '<!-- task-routes:end -->';
 const primarySources = [
   'docs/guides/composition.md',
   'docs/quick-start.md',
+  'docs/guides/migration.md',
+  'docs/guides/testing.md',
   'docs/guides/lists.md',
   'docs/api/region.md',
   'docs/architecture.md',

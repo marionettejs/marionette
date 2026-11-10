@@ -46,6 +46,8 @@ const Preview = View.extend({
 }).setDomApi(HtmlDomApi);
 ```
 
+This reusable loader reports current failures to its caller after showing feedback. In contrast, the page-local loaders in [composition](composition.md#load-a-detail-page-in-stages) consume service failures into their own retry UI and return `false`. Choose and document one policy at each caller boundary; `false` is not an exception.
+
 Construct with `new Preview({ loadPreview })`, where the service returns a Promise for the preview data and may pass `signal` to fetch. Callers handle a current rejection with `try/catch` around `await preview.load(input)` or a rejection handler. DOM delegation does not await handler Promises: capture input/`delegateTarget` metadata synchronously, then attach a rejection handler to the task; `void preview.load(input)` alone does not handle failure. Stale success/failure resolves `false` without rendering. A new request captures new values; mutating an old input object does not change its request. For nested values, create an appropriate immutable snapshot too. Guard each additional awaited step before effects. A shared source or operation that must survive this View needs a surviving owner instead; do not reuse a startup signal as a permanent lifetime signal.
 
 ## Failed-promise cache policy belongs to the service

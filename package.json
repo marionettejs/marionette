@@ -127,7 +127,8 @@
     "test:html:browser": "npm --prefix packages/html run test:browser",
     "lint:html": "eslint --config packages/html/eslint.config.mjs packages/html/src packages/html/scripts packages/html/test --max-warnings=0",
     "coverage:html": "npm --prefix packages/html run build && cd packages/html && node ../../node_modules/c8/bin/c8.js --config coverage.json node --conditions=development --test --test-concurrency=1 test/*.test.mjs && node scripts/check-coverage.mjs",
-    "test:html:current-core": "npm run build && npm --prefix packages/html run build && cd packages/html && node scripts/check-current-core.mjs"
+    "test:html:current-core": "npm run build && npm --prefix packages/html run build && cd packages/html && node scripts/check-current-core.mjs",
+    "docs:prepare-html": "node scripts/docs/prepare-html.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"
