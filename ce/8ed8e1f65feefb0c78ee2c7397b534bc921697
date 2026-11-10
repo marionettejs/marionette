@@ -1,0 +1,19 @@
+docs/guides/composition.md
+  s_098636fa0c962b::t_e79ab6ab70b53d 29,75,92-98
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ce8ed8e1f65feefb0c78ee2c7397b534bc921697",
+  "prompts": {},
+  "sessions": {
+    "s_098636fa0c962b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0702a-0e3f-78c3-af1f-c71d8900f7fb",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
