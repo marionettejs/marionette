@@ -104,3 +104,11 @@ Rollup 4.63.5 records were restored from this repository's ancestor
 `39e3833f59d77874aa98ce1c6804723e6fc43cb6`, preserving exact versions, registry URLs
 and integrity hashes. A dependency-free preinstall check rejects incomplete
 optional entries. No runtime or development dependency version was upgraded.
+
+### Property-boundary corrections
+
+Property names retain JavaScript casing, so declared camelCase callback setters
+are not mistaken for native lowercase event handlers. Single-expression property
+slots may pass foreign template objects opaquely by identity; foreign directives
+and wrong-engine render positions retain their diagnostics. Public regressions
+exercise both build conditions, custom setters and security negative controls.

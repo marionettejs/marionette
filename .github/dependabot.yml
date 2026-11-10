@@ -78,6 +78,23 @@ updates:
     open-pull-requests-limit: 1
     ignore:
       - dependency-name: backbone
+  - package-ecosystem: npm
+    directory: /packages/html
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      html-tooling:
+        dependency-type: development
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      # Update the released compatibility baseline deliberately, not with tooling.
+      - dependency-name: marionette
+      # Preserve verified upstream provenance until a reviewed source update.
+      - dependency-name: lit-html
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
   - package-ecosystem: github-actions
     directory: /
     schedule:

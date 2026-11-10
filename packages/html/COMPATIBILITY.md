@@ -16,9 +16,9 @@ The directive names use kebab-case file subpaths, for example `@mnjs/html/direct
 
 ## Template and event ownership
 
-Use Marionette `events`, `triggers` and `ui` for View-owned interactions. Dynamic `@event` and ordinary dynamic `on*` attributes fail synchronously. Browser-known native handler property/boolean bindings are rejected; ordinary data such as `.one`, `.onboarding` and `?online` remains valid. Literal markup is trusted author code and is preserved.
+Use Marionette `events`, `triggers` and `ui` for View-owned interactions. Dynamic `@event` and ordinary dynamic `on*` attributes fail synchronously. Browser-known native handler property/boolean bindings are rejected; ordinary data such as `.one`, `.onboarding`, camelCase `.onChange`/`.onClick` callback properties and `?online` remains valid. Properties are case-sensitive; HTML attributes are not. Literal markup is trusted author code and is preserved.
 
-Import templates, directives and helpers consistently from this package and one build condition. Development diagnoses foreign engine values; production treats unsupported objects as ordinary values rather than running foreign directive constructors. Normal object coercion and property setters can still execute. This boundary is not an input security sandbox.
+Import templates, directives and helpers consistently from this package and one build condition. Single-expression property bindings may carry foreign template objects by identity as opaque application data, including through a local directive. This does not permit foreign directives or rendering foreign templates. Development diagnoses other foreign engine values; production treats unsupported objects as ordinary values rather than running foreign directive constructors. Normal object coercion and property setters can still execute. This boundary is not an input security sandbox.
 
 The renderer requires a browser DOM at import time. Optional `host` supplies ref callback context. Initial `isConnected` and later `RootPart.setConnected()` are distinct; direct adapter callers must send attach/detach notifications. The integrated DOM API preserves exact named function identities and bounded ownership without a public-render wrapper or an extra empty render.
 

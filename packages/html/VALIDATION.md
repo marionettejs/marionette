@@ -2,15 +2,16 @@
 
 Local verification on November 9, 2026 used Node 24.19.0 and npm 11.17.0:
 
-- `npm run check`: production 368 passing cases with 7 expected skips;
-  development 370 passing cases with 5 expected skips; declarations and isolated
+- `npm run check`: production 370 passing cases with 7 expected skips;
+  development 372 passing cases with 5 expected skips; declarations and isolated
   packed-consumer checks passed. All 32 JavaScript exports and runtime smoke
-  checks run from an extracted archive under both conditions. Both conditions run 375 cases. The packed file
+  checks run from an extracted archive under both conditions. Both conditions run 377 cases. The packed file
   allowlist contains 204 files, including this reference, notices and sources.
 - Upstream integrity checks and negative tests passed. Offline recovery verified
   the pinned archive SRI and reproduced all 28 removed reference implementations.
-  All 192 authored-source/distribution file hashes remain unchanged from the
-  preceding reviewed candidate; maintenance and packaging do not change runtime.
+  The subsequent property-boundary pass changes callback casing and the
+  development-only opaque foreign-template property exception. Earlier artifact
+  identities and application acceptance do not certify this new candidate.
 - All three executable package-reference examples passed (four documentation tests).
 - `npm run test:packed:browser`: the full suite passed against extracted archive
   files in both default and development conditions, including all 32 JS exports.
@@ -20,9 +21,20 @@ Local verification on November 9, 2026 used Node 24.19.0 and npm 11.17.0:
   New public regressions cover 12 escaped CSS property names, keyed cleanup,
   nested synchronous/async directive disposal, detach/reconnect, duplicate
   same-version Directive classes, repeat/cache ownership and attribute slots.
+  New cases verify declared camelCase callback setters, native event negative
+  controls, opaque foreign template property identity and keyed/noChange semantics.
+- The current-core integration lane packs the checkout core/utils/radio and HTML
+  into an isolated consumer, verifies import resolution and passes all 16 public
+  lifecycle cases in each build condition. Released Marionette 5.0.1 remains a
+  separate compatibility lane. Receipts record source state and archive integrity.
+- Dedicated authored-source/tooling lint passes. Source-mapped development Node
+  coverage measures all 32 authored TypeScript files: approximately 97% lines,
+  92% branches and 89% functions. Per-file absolute uncovered-count gates and
+  source inventory checks prevent regressions; this is not a 100% or browser
+  coverage claim. CI retains reports and candidate receipts for inspection.
 - Root build, lint and pinned actionlint passed. Documentation export, all 57
   executable core reference examples and 20 declaration fixtures passed; 86 site
-  pages built and 1,167 internal links validated. Installed core-documentation
+  pages built and 1,168 internal links validated. Installed core-documentation
   checks passed using the existing offline npm cache.
 
 The HTML package's clean offline install could not retrieve one uncached dependency.

@@ -136,7 +136,8 @@ its elapsed time is independent of the regular CI suites.
 ## Coverage means observable execution
 
 `npm run coverage` reports library coverage at `coverage/library/index.html`, with
-LCOV and JSON summaries alongside it. Every authored production file is included,
+LCOV and JSON summaries alongside it. Every authored production file in the core
+and coordinated packages is included,
 including unexecuted files. Functions remain at 100%. Each file defaults to 100% for
 all metrics; `config/coverage-exceptions.json` records the few private defensive
 branches that valid public operations cannot reach. Limits are absolute uncovered
@@ -144,7 +145,12 @@ counts per file and globally, so adding code cannot dilute them. Ratchet a limit
 down when public tests cover it; any increase needs an explicit reviewed reason.
 Do not hide uncovered code with ignores or test manufactured private states.
 
-`npm run coverage:tooling` separately reports every script/build module, including
+The independently built `packages/html` renderer has its own source-mapped
+`npm run coverage:html` report, including unexecuted authored sources, and
+`npm run lint:html` for its authored TypeScript and tooling. Its pristine upstream
+fixtures and generated output are not treated as authored production files.
+
+`npm run coverage:tooling` separately reports the core script/build modules, including
 zero-coverage files, at `coverage/tooling/index.html`. It captures subprocess CLI
 execution as well as in-process tests. This report must not inflate the library
 percentage. Review release failure/recovery tests together with the percentage;

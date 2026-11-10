@@ -74,10 +74,10 @@ try {
                 }, {manifest: packedManifest, development});
                 results.push({browser: name, packedSmoke: smoke});
             }
-            const regressions = await page.evaluate(async () => {
-                const {keyedRegressions, styleMapRegressions, syncAncestorRegressions, commentCloseRegressions} = await import('/test/public-regressions.mjs');
-                return {...styleMapRegressions(), ...await keyedRegressions(), ...await syncAncestorRegressions(), ...commentCloseRegressions()};
-            });
+            const regressions = await page.evaluate(async development => {
+                const {keyedRegressions, styleMapRegressions, syncAncestorRegressions, commentCloseRegressions, propertyBoundaryRegressions} = await import('/test/public-regressions.mjs');
+                return {...styleMapRegressions(), ...await keyedRegressions(), ...await syncAncestorRegressions(), ...commentCloseRegressions(), ...await propertyBoundaryRegressions(development)};
+            }, development);
             results.push({browser: name, upstreamRegressions: regressions});
             const result = await page.evaluate(async development => {
                 const { html, svg, render, nothing } = await import('@mnjs/html');

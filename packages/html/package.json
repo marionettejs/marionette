@@ -197,8 +197,8 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && node scripts/build-production.mjs",
-    "test": "node --test test/*.test.mjs",
-    "test:development": "node --conditions=development --test test/*.test.mjs",
+    "test": "node --test --test-concurrency=1 test/*.test.mjs",
+    "test:development": "node --conditions=development --test --test-concurrency=1 test/*.test.mjs",
     "check:types": "tsc -p test/tsconfig.json",
     "check": "node scripts/check-lockfile.mjs && npm run check:upstream && npm run build && npm test && npm run test:development && npm run check:types && node scripts/check-package.mjs",
     "prepack": "npm run check",

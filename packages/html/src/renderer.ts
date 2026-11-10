@@ -575,6 +575,8 @@ function trustFromTemplateString(
   stringFromTSA: string
 ): TrustedHTML {
   // A security check to prevent spoofing of Lit template results.
+  // Preserve upstream TemplateStringsArray validation in this scoped contract pass.
+  // eslint-disable-next-line no-prototype-builtins
   if (!isArray(tsa) || !tsa.hasOwnProperty('raw')) {
     let message = 'invalid template strings array';
     if (DEV_MODE) {
@@ -603,7 +605,9 @@ function trustFromTemplateString(
 export interface Template {el: HTMLTemplateElement; parts: TemplatePart[];}
 const isEventBinding = (prefix: string | undefined, name: string, node: Element) =>
   prefix === '@' || (/^on/i.test(name) &&
-    (prefix === undefined || name.toLowerCase() in node));
+    (prefix === undefined ||
+      (prefix === '.' ? name === name.toLowerCase() && name in node
+        : name.toLowerCase() in node)));
 
 const createTemplateElement = (html: TrustedHTML, _options?: RenderOptions) => {
   const el = d.createElement('template');
@@ -639,9 +643,13 @@ function resolveDirective(
 ): unknown {
   // Wrong-engine imports are author mistakes, not an untrusted-code boundary.
   // Namespaced brands keep foreign objects inert in both builds; diagnose only
-  // in development instead of inspecting every production render value.
+  // in development instead of inspecting every production render value. A complete
+  // property slot may carry a foreign template as opaque application data; that
+  // does not grant foreign directives or render-position interoperability.
   if (DEV_MODE && !isPrimitive(value) &&
-      ('_$litType$' in (value as object) || '_$litDirective$' in (value as object))) {
+      ('_$litDirective$' in (value as object) ||
+       ('_$litType$' in (value as object) &&
+        !(part.type === PROPERTY_PART && part.strings === undefined)))) {
     throw new Error('MN_HTML_FOREIGN_VALUE: import templates and directives from @mnjs/html.');
   }
   // Bail early if the value is explicitly noChange. Note, this means any

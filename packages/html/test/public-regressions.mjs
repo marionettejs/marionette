@@ -1,5 +1,5 @@
 // Shared public-API regressions, run in Node and real browsers.
-import {html, render, nothing} from '@mnjs/html';
+import {html, render, nothing, noChange} from '@mnjs/html';
 import {repeat} from '@mnjs/html/directives/repeat.js';
 import {cache} from '@mnjs/html/directives/cache.js';
 import {keyed} from '@mnjs/html/directives/keyed.js';
@@ -225,4 +225,57 @@ export function commentCloseRegressions() {
   catch (caught) { error = String(caught); }
   equal(error?.includes('MN_HTML_EVENT_BINDING'), true, 'alternate comment close preserves forbidden event binding diagnostic');
   return {commentCloseBindings: true, alternateCloseEventDiagnostic: true};
+}
+
+
+export async function propertyBoundaryRegressions(development) {
+  const root = document.createElement('div');
+  const tag = 'mn-property-contract';
+  if (!customElements.get(tag)) customElements.define(tag, class extends HTMLElement {
+    set onChange(value) { this.changeCallback = value; }
+    get onChange() { return this.changeCallback; }
+    set onClick(value) { this.clickCallback = value; }
+    get onClick() { return this.clickCallback; }
+    set footer(value) { this.footerValue = value; }
+    get footer() { return this.footerValue; }
+  });
+  const first = () => 'first';
+  const second = () => 'second';
+  const callbacks = value => html`<mn-property-contract .onChange=${value} .onClick=${value}></mn-property-contract>`;
+  render(callbacks(first), root);
+  const element = root.firstElementChild;
+  equal(element.onChange === first && element.onClick === first, true, 'declared camelCase callbacks');
+  render(callbacks(second), root);
+  equal(root.firstElementChild === element && element.onChange === second && element.onClick === second, true, 'callback updates retain identity');
+  for (const value of [html`<mn-property-contract .onchange=${first}></mn-property-contract>`,
+    html`<mn-property-contract .onclick=${first}></mn-property-contract>`,
+    html`<mn-property-contract ?onClick=${true}></mn-property-contract>`,
+    html`<mn-property-contract onClick=${first}></mn-property-contract>`]) {
+    let message = '';
+    try { render(value, root); } catch (error) { message = error.message; }
+    equal(message.includes('MN_HTML_EVENT_BINDING'), true, 'native event syntax remains rejected');
+  }
+  const lit = await import('lit-html');
+  const foreign = lit.html`<strong>opaque</strong>`;
+  const opaque = value => html`<mn-property-contract .footer=${value}></mn-property-contract>`;
+  render(opaque(foreign), root);
+  equal(root.firstElementChild.footer === foreign, true, 'foreign template property identity');
+  render(opaque(guard([foreign], () => foreign)), root);
+  equal(root.firstElementChild.footer === foreign && root.querySelector('strong') === null, true, 'nested local directive keeps opaque template');
+  const {classMap: foreignClassMap} = await import('lit-html/directives/class-map.js');
+  for (const value of [foreign, html`<div title=${foreign}></div>`,
+    html`<div .payload="prefix ${foreign}"></div>`, opaque(foreignClassMap({x: true}))]) {
+    let message = '';
+    try { render(value, root); } catch (error) { message = error.message; }
+    if (development) equal(message.includes('MN_HTML_FOREIGN_VALUE'), true, 'wrong engine diagnostics outside opaque template property');
+    else equal(message, '', 'production retains ordinary foreign value behavior');
+  }
+  const keyedView = (key, value) => html`${keyed(key, value)}`;
+  render(keyedView('first', html`<i>retained</i>`), root);
+  render(keyedView('first', noChange), root);
+  equal(root.textContent, 'retained', 'same-key noChange preserves content');
+  render(keyedView('second', noChange), root);
+  equal(root.textContent, '', 'new-key noChange clears old ownership');
+  render(nothing, root).setConnected(false);
+  return {callbackCase: true, opaqueForeignTemplate: true, keyedNoChange: true};
 }

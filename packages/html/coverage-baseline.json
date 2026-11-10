@@ -1,0 +1,197 @@
+{
+  "policy": "Maximum uncovered counts per authored source file; increases require review. Development Node public-suite coverage, not browser or universal behavior coverage.",
+  "files": {
+    "src/async-directive.ts": {
+      "lines": 4,
+      "statements": 4,
+      "functions": 0,
+      "branches": 2
+    },
+    "src/directive-helpers.ts": {
+      "lines": 3,
+      "statements": 3,
+      "functions": 2,
+      "branches": 5
+    },
+    "src/directive.ts": {
+      "lines": 2,
+      "statements": 2,
+      "functions": 1,
+      "branches": 0
+    },
+    "src/index.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "src/is-server.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "src/marionette-core.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "src/marionette.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "src/renderer.ts": {
+      "lines": 53,
+      "statements": 53,
+      "functions": 8,
+      "branches": 15
+    },
+    "src/static.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "src/template.ts": {
+      "lines": 16,
+      "statements": 16,
+      "functions": 0,
+      "branches": 6
+    },
+    "src/directives/async-append.ts": {
+      "lines": 2,
+      "statements": 2,
+      "functions": 0,
+      "branches": 1
+    },
+    "src/directives/async-replace.ts": {
+      "lines": 10,
+      "statements": 10,
+      "functions": 1,
+      "branches": 4
+    },
+    "src/directives/cache.ts": {
+      "lines": 2,
+      "statements": 2,
+      "functions": 0,
+      "branches": 2
+    },
+    "src/directives/choose.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 1
+    },
+    "src/directives/class-map.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "src/directives/guard.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "src/directives/if-defined.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "src/directives/join.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 1
+    },
+    "src/directives/keyed.ts": {
+      "lines": 3,
+      "statements": 3,
+      "functions": 1,
+      "branches": 0
+    },
+    "src/directives/live.ts": {
+      "lines": 8,
+      "statements": 8,
+      "functions": 1,
+      "branches": 2
+    },
+    "src/directives/map.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "src/directives/private-async-helpers.ts": {
+      "lines": 3,
+      "statements": 3,
+      "functions": 0,
+      "branches": 2
+    },
+    "src/directives/range.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 2
+    },
+    "src/directives/ref.ts": {
+      "lines": 2,
+      "statements": 2,
+      "functions": 1,
+      "branches": 0
+    },
+    "src/directives/repeat.ts": {
+      "lines": 14,
+      "statements": 14,
+      "functions": 1,
+      "branches": 3
+    },
+    "src/directives/style-map.ts": {
+      "lines": 13,
+      "statements": 13,
+      "functions": 0,
+      "branches": 1
+    },
+    "src/directives/template-content.ts": {
+      "lines": 2,
+      "statements": 2,
+      "functions": 0,
+      "branches": 1
+    },
+    "src/directives/unsafe-html.ts": {
+      "lines": 6,
+      "statements": 6,
+      "functions": 0,
+      "branches": 1
+    },
+    "src/directives/unsafe-mathml.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "src/directives/unsafe-svg.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 0
+    },
+    "src/directives/until.ts": {
+      "lines": 6,
+      "statements": 6,
+      "functions": 1,
+      "branches": 2
+    },
+    "src/directives/when.ts": {
+      "lines": 0,
+      "statements": 0,
+      "functions": 0,
+      "branches": 1
+    }
+  }
+}

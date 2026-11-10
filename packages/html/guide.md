@@ -18,7 +18,9 @@ npm install --save-exact /path/to/mnjs-html-0.1.0.tgz
 Use Node `^22.22.2 || >=24.15.0` for the package tools. Runtime imports require a
 browser DOM, or a DOM-enabled test environment initialized before import. This is
 not a server renderer and has no hydration API. The Marionette adapter is tested
-with Marionette 5.0.1; it has no runtime import of Marionette.
+with released Marionette 5.0.1 and, in a separate packed integration lane, the
+current repository checkout. It has no runtime import or required peer dependency
+on Marionette, so standalone rendering does not install the framework.
 
 | Import | Public surface |
 | --- | --- |
@@ -82,6 +84,15 @@ the Marionette adapter's first-render content replacement.
 | Initial `isConnected` | Initial directive connection state; defaults to connected for direct rendering. |
 | `root.setConnected(boolean)` | Explicitly updates directive connection state after rendering. Ordinary DOM movement does not invoke it automatically. |
 
+## Choosing a DOM integration
+
+Use `@mnjs/html/marionette` with this package's template results when Marionette
+should own events and lifecycle. Use the existing `@mnjs/adapters/dom/lit-html`
+with upstream Lit template results when the application deliberately uses Lit.
+Native string/Node templates can keep the default DomApi; do not install a
+template adapter without matching the values it consumes. This package does not
+change an application's configured renderer or adapter automatically.
+
 ## Marionette integration and ownership
 
 Configure an isolated runtime before constructing its Views. The default renderer
@@ -112,7 +123,9 @@ region.destroy();
 Use View `events`, `triggers` and `ui` for interactions. Dynamic `@event` bindings,
 ordinary dynamic `on*` attributes, and browser-known native handler property or
 boolean bindings throw `MN_HTML_EVENT_BINDING`. Ordinary data properties such as
-`.one` and boolean attributes such as `?online` remain valid. Static markup is
+`.one`, case-sensitive callback properties `.onChange`/`.onClick`, and boolean
+attributes such as `?online` remain valid. Lowercase native `.onchange`/`.onclick`
+and case-insensitive HTML `?onClick`/`onClick` bindings remain rejected. Static markup is
 trusted author code; these restrictions are not a security sandbox.
 
 `setContents(element, result)` first replaces existing contents, without hydration.
@@ -185,6 +198,16 @@ readable diagnostics. Keep templates, directives and helpers on one package
 version and one condition. Mixing engines or build conditions is unsupported.
 Production preserves escaping and Trusted Types, but has no custom sanitizer
 hooks. Development-only sanitizer diagnostics are not production protection.
+
+A single-expression property binding such as `.footer=${foreignTemplate}` may
+pass an upstream Lit template object unchanged to a custom-element setter in both
+builds. This is opaque application data, not shared renderer interoperability.
+Foreign directives and foreign templates in child, attribute or compound property
+positions remain unsupported and diagnosed in development.
+
+`keyed(newKey, noChange)` clears the old key's content and ownership; `noChange`
+does not preserve content across a changed key. With the same key it retains the
+existing content. Use a stable key when retaining the existing subtree is intended.
 
 ## Types and verification
 

@@ -10,7 +10,11 @@ to publish. No command below uploads a package, creates a tag or changes npm.
 Use the pinned repository Node/npm toolchain, then:
 
 ```sh
+npm ci --ignore-scripts
 npm --prefix packages/html ci --ignore-scripts
+npm run lint:html
+npm run coverage:html
+npm run test:html:current-core
 npm --prefix packages/html run check
 npm --prefix packages/html run test:packed:browser
 mkdir -p packages/html/artifacts

@@ -60,6 +60,9 @@ vendor or change the expected fixture set.
 - Nested synchronous-wrapper async disposal and `--!>` comment recognition are
   local public-regression fixes. The former preserves detach/reconnect and
   synchronous error semantics; the latter matches browser comment parsing.
+- Property event checks preserve JavaScript casing, and single-expression property
+  slots can carry foreign template objects as opaque data. These local contract
+  corrections do not permit foreign directives or template-owned events.
 - The Rollup lock repair changes no dependency versions. The synthetic sanitizer
   hook fixture tests callback observation/rejection, not built-in URL security.
 
