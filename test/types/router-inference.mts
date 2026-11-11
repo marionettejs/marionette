@@ -202,3 +202,18 @@ type LaterParentCatalog = import('@mnjs/router').RouteCatalog<[
 const laterParentRouter = new Router<LaterParentCatalog>();
 // @ts-expect-error A later parent does not retroactively make an earlier mount valid.
 laterParentRouter.url('catalogChild');
+
+// Assert names directly: a required-params error alone must not satisfy exclusion.
+// @ts-expect-error A missing-parent child is absent from the public name union.
+const missingCatalogChild: RouteNames<MissingParentCatalog> = 'catalogChild';
+// @ts-expect-error A later-parent child is absent from the public name union.
+const laterCatalogChild: RouteNames<LaterParentCatalog> = 'catalogChild';
+type ValidParentCatalog = import('@mnjs/router').RouteCatalog<[
+  typeof catalogParentTable,
+  { routes: typeof catalogChildTable; parent: 'catalogParent' },
+]>;
+const validCatalogChild: RouteNames<ValidParentCatalog> = 'catalogChild';
+const validCatalogParams: RouteParams<ValidParentCatalog, 'catalogChild'> = { desk: 'blue', id: 7 };
+new Router<ValidParentCatalog>().url(validCatalogChild, validCatalogParams);
+// @ts-expect-error A valid child's params retain its parent's required desk.
+const incompleteCatalogParams: RouteParams<ValidParentCatalog, 'catalogChild'> = { id: 7 };

@@ -21,6 +21,56 @@ it('does not commit an obsolete request reentered before the Router listener', a
   assert.equal(driver.currentEntry.url, 'https://routes.example/c');
 });
 
+it('does not let an already-aborted Driver event invalidate queued work', async() => {
+  const driver = memoryDriver({ url: 'https://routes.example/outside' });
+  let direct;
+  let queued;
+  driver.addEventListener('navigate', event => {
+    if (new URL(event.destination.url).pathname === '/b') { direct = driver.navigate('/d'); }
+  });
+  const work = Promise.withResolvers();
+  const entered = Promise.withResolvers();
+  const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' }, d: { path: '/d' } }, handler(match) {
+    if (match.name === 'a') {
+      match.signal.addEventListener('abort', () => { queued = router.navigate('c'); }, { once: true });
+      entered.resolve(); return work.promise;
+    }
+  } });
+  await router.start(); await router.getInitialDispatch();
+  const a = router.navigate('a'); await entered.promise;
+  const b = router.navigate('b');
+  // This mixed raw-call stack has no promised D-versus-C winner. Its already
+  // aborted B notification must still leave the queued operation observable.
+  await direct.finished.catch(() => {});
+  assert.deepEqual(await Promise.all([a.finished, b.finished, queued.finished]), [false, false, true]);
+  assert.equal(router.getCurrent().name, 'c');
+  assert.equal(router.getCurrent().signal.aborted, false);
+  work.resolve();
+});
+
+it('lets a later live hash navigation supersede queued work while staying native', async() => {
+  const driver = memoryDriver({ url: 'https://routes.example/outside' });
+  const work = Promise.withResolvers();
+  const entered = Promise.withResolvers();
+  const handled = [];
+  let queued;
+  const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' } }, handler(match) {
+    handled.push(match.name);
+    if (match.name === 'a') {
+      match.signal.addEventListener('abort', () => { queued = router.navigate('c'); }, { once: true });
+      entered.resolve(); return work.promise;
+    }
+  } });
+  await router.start(); await router.getInitialDispatch();
+  const a = router.navigate('a'); await entered.promise;
+  const b = router.navigate('b');
+  const fragment = driver.navigate('/a#details');
+  assert.deepEqual(await Promise.all([a.finished, b.finished, queued.finished, fragment.finished.then(() => true)]), [false, false, false, true]);
+  assert.equal(driver.currentEntry.url, 'https://routes.example/a#details');
+  assert.deepEqual(handled, ['a']);
+  work.resolve();
+});
+
 for (const initial of [false, true]) {
   it(`lets a later Driver event supersede deferred work after ${initial ? 'initial' : 'intercepted'} preparation`, async() => {
     const driver = memoryDriver({ url: `https://routes.example/${initial ? 'a' : 'outside'}` });

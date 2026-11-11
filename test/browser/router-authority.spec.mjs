@@ -77,7 +77,7 @@ for (const expectedOutcome of ['ready', 'error', 'abort-error', 'stop', 'last-ca
   });
 }
 
-for (const expectedAction of ['navigate', 'veto', 'stop']) {
+for (const expectedAction of ['navigate', 'veto', 'prior-veto', 'stop']) {
   test(`native refresh preflight ${expectedAction} does not reclaim stale authority`, async({ page }) => {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -97,6 +97,7 @@ for (const expectedAction of ['navigate', 'veto', 'stop']) {
           return true;
         }, handler(match) { handled.push(match.name); } });
       try {
+        if (action === 'prior-veto') { navigation.addEventListener('navigate', veto); }
         await router.start(); await router.getInitialDispatch();
         if (action === 'veto') { navigation.addEventListener('navigate', veto); }
         enabled = true;
@@ -178,6 +179,33 @@ test('native queued intent supersedes refresh preflight before its navigation ev
   expect(result).toEqual({ outcomes: [false, false, true, false], current: 'c', path: '/c', handled: ['a', 'c'] });
 });
 
+test('later native fragment navigation supersedes deferred work without routing the hash', async({ page }) => {
+  const result = await page.evaluate(async() => {
+    const { Router } = await import('/router.js');
+    history.replaceState(null, '', '/outside');
+    const entered = Promise.withResolvers();
+    const work = Promise.withResolvers();
+    const handled = [];
+    let queued;
+    const router = new Router({ routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' } }, handler(match) {
+      handled.push(match.name);
+      if (match.name === 'a') {
+        match.signal.addEventListener('abort', () => { queued = router.navigate('c'); }, { once: true });
+        entered.resolve(); return work.promise;
+      }
+    } });
+    try {
+      await router.start(); await router.getInitialDispatch();
+      const a = router.navigate('a'); await entered.promise;
+      const b = router.navigate('b');
+      const fragment = navigation.navigate('/a#details');
+      return { outcomes: await Promise.all([a.finished, b.finished, queued.finished, fragment.finished.then(() => true)]),
+        path: location.pathname + location.hash, handled };
+    } finally { router.destroy(); work.resolve(); }
+  });
+  expect(result).toEqual({ outcomes: [false, false, false, true], path: '/a#details', handled: ['a'] });
+});
+
 test('native queued Back dispatch follows completed abort-listener navigation', async({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -226,6 +254,57 @@ test('native state-update observer cannot replace a newer match state', async({ 
   });
   expect(result).toEqual({ outcome: true, current: 'b', state: { resource: 'b' }, path: '/b' });
 });
+
+for (const initiallyMarking of [false, true]) {
+  test(`native nested state notification keeps ${initiallyMarking ? 'initial' : 'updated'} Match state current`, async({ page }) => {
+    const result = await page.evaluate(async initial => {
+      const { Router } = await import('/router.js');
+      history.replaceState(null, '', '/a');
+      const router = new Router({ routes: { a: { path: '/a' } } });
+      const change = () => router.updateState({ fromObserver: true });
+      try {
+        if (initial) { navigation.addEventListener('currententrychange', change, { once: true }); }
+        await router.start(); await router.getInitialDispatch();
+        if (!initial) {
+          navigation.addEventListener('currententrychange', change, { once: true });
+          router.updateState({ outer: true });
+        }
+        return router.getCurrent().state;
+      } finally { navigation.removeEventListener('currententrychange', change); router.destroy(); }
+    }, initiallyMarking);
+    expect(result).toEqual(initiallyMarking ? { fromObserver: true } : { outer: true, fromObserver: true });
+  });
+}
+
+for (const stateReadAction of ['navigate', 'stop']) {
+  test(`native refresh state read can ${stateReadAction} without a stale replacement`, async({ page }) => {
+    const result = await page.evaluate(async action => {
+      const { Router, navigationDriver } = await import('/router.js');
+      history.replaceState(null, '', '/a');
+      const native = navigationDriver();
+      let notify = false;
+      let newer;
+      const driver = { ...native, get currentEntry() {
+        const entry = native.currentEntry;
+        return { url: entry.url, key: entry.key, index: entry.index, getState() {
+          if (notify) {
+            notify = false;
+            if (action === 'stop') { router.stop(); } else { newer = router.navigate('b'); }
+          }
+          return entry.getState();
+        } };
+      } };
+      const router = new Router({ driver, routes: { a: { path: '/a' }, b: { path: '/b' } } });
+      try {
+        await router.start(); await router.getInitialDispatch(); notify = true;
+        return { outcome: await router.refresh(), newer: newer ? await newer.finished : null,
+          path: location.pathname, running: router.isRunning() };
+      } finally { router.destroy(); }
+    }, stateReadAction);
+    expect(result).toEqual({ outcome: false, newer: stateReadAction === 'stop' ? null : true,
+      path: stateReadAction === 'stop' ? '/a' : '/b', running: stateReadAction !== 'stop' });
+  });
+}
 
 test('native currententrychange during initial marking preserves the newer match', async({ page }) => {
   const errors = [];

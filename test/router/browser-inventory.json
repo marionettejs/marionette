@@ -36,6 +36,10 @@
     },
     {
       "file": "router-authority.spec.mjs",
+      "title": "native refresh preflight prior-veto does not reclaim stale authority"
+    },
+    {
+      "file": "router-authority.spec.mjs",
       "title": "native refresh preflight stop does not reclaim stale authority"
     },
     {
@@ -52,11 +56,31 @@
     },
     {
       "file": "router-authority.spec.mjs",
+      "title": "later native fragment navigation supersedes deferred work without routing the hash"
+    },
+    {
+      "file": "router-authority.spec.mjs",
       "title": "native queued Back dispatch follows completed abort-listener navigation"
     },
     {
       "file": "router-authority.spec.mjs",
       "title": "native state-update observer cannot replace a newer match state"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native nested state notification keeps updated Match state current"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native nested state notification keeps initial Match state current"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native refresh state read can navigate without a stale replacement"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native refresh state read can stop without a stale replacement"
     },
     {
       "file": "router-authority.spec.mjs",

@@ -229,9 +229,17 @@ The driver still owns traversal scheduling; the helper does not debounce calls.
 A navigation requested synchronously by an outgoing route's abort listener keeps
 authority over the request that triggered that abort. At this native reentry
 boundary the Router defers the newer Driver call to a microtask, cancels obsolete
-route work, and observes both result promises. Further navigation, Back, or stop
-can supersede that deferred request normally. Controlled redirect hops proceed
+route work, and observes both result promises. Further Router navigation, Back,
+stop, or browser/Driver events after that synchronous dispatch returns can supersede
+the deferred request. Controlled redirect hops proceed
 immediately; this does not compensate browser history.
+
+Do not synchronously mix raw Driver or native navigation calls into that same
+abort/dispatch stack. The Driver contract cannot identify which initiating
+request produced a reentrant event; an inner raw event can arrive before the
+outer event. Such mixed calls have no guaranteed correlation or winner. Use
+Router navigation from route/abort callbacks. Ordinary browser navigation in a
+subsequent event retains its normal Driver behavior.
 
 Cancellation invalidates authority immediately, including after readiness. Router
 completion settles promptly on cancellation even when a handler/redirect ignores

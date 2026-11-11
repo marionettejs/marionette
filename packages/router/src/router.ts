@@ -327,7 +327,7 @@ function abortLocal(router: RouterInstance) {
 function intercepts(router: RouterInstance, event: DriverEvent, url: URL, chain: Chain) {
   // Ordinary hash changes stay native. A redirect's fragment destination still
   // owns the handler/readiness promised by the internally followed chain.
-  if (event.defaultPrevented || event.signal.aborted || !event.canIntercept || (event.hashChange && chain.hops === 0) || event.navigationType === 'reload') {return false;}
+  if (!event.canIntercept || (event.hashChange && chain.hops === 0) || event.navigationType === 'reload') {return false;}
   if (event.downloadRequest !== null || event.formData !== null) {return false;}
   return url.origin === new URL(getDriver(router).currentEntry.url).origin;
 }
@@ -340,8 +340,9 @@ function claims(router: RouterInstance, url: URL) {
 function onNavigate(router: RouterInstance, event: DriverEvent) {
   const internals = stateFor(router);
   internals.session!.revision++;
+  if (event.defaultPrevented || event.signal.aborted) {return;}
   const chain = takeChain(router, event);
-  // Suppress the interrupted request, not a genuinely later Driver event.
+  // Only a live event can supersede queued authority, even if it stays native.
   if (internals.queued?.blocked && internals.queued.blocked !== chain) {internals.queued = null;}
   const url = new URL(event.destination.url);
   if (!intercepts(router, event, url, chain)) {return;}
@@ -613,7 +614,7 @@ function commit(router: RouterInstance, base: Base, nav: Navigation) {
   const internals = stateFor(router);
   const entry = getDriver(router).currentEntry;
   const previous = internals.currentController;
-  const match = toMatch(base, nav, entry.key, mark(router, entry)) as ActiveMatch;
+  const match = toMatch(base, nav, entry.key, mark(router, entry, nav.signal)) as ActiveMatch;
   if (nav.signal.aborted) {return null;}
   nav.match = match;
   internals.current = match;
@@ -626,12 +627,12 @@ function commit(router: RouterInstance, base: Base, nav: Navigation) {
   return isCurrent(router, nav) ? match : null;
 }
 
-function mark(router: RouterInstance, entry: DriverEntry) {
+function mark(router: RouterInstance, entry: DriverEntry, signal: AbortSignal) {
   const stored = entry.getState();
   if (isMarked(stored) || !(stored === undefined || stored === null || isObject(stored))) {return stored;}
   const marked = withMarker(stored);
   getDriver(router).updateCurrentEntry({ state: marked });
-  return marked;
+  return signal.aborted ? marked : entry.getState();
 }
 
 export const Router = Application.extend({
@@ -687,7 +688,9 @@ export const Router = Application.extend({
       throw error;
     }
     if (internals.session !== session || session.revision !== revision) {return false;}
-    return navigateDriver(this, entry.url, { history: 'replace', state: entry.getState() }, newChain(false, { focusReset: 'manual', scroll: 'manual' })).finished;
+    const stored = entry.getState();
+    if (internals.session !== session || session.revision !== revision) {return false;}
+    return navigateDriver(this, entry.url, { history: 'replace', state: stored }, newChain(false, { focusReset: 'manual', scroll: 'manual' })).finished;
   },
 
   mount(this: RouterInstance, routes: RouteTable, options?: MountOptions) {
@@ -746,7 +749,10 @@ export const Router = Application.extend({
     if (isMarked(stored)) {next[MARKER] = true;} else {delete next[MARKER];}
     const match = internals.current;
     getDriver(this).updateCurrentEntry({ state: next });
-    if (internals.current === match && match?.key === entry.key) {match.state = publicState(next);}
+    if (internals.current === match && match?.key === entry.key) {
+      const storedAfter = entry.getState();
+      if (internals.current === match) {match.state = publicState(storedAfter);}
+    }
     return true;
   },
 

@@ -22,7 +22,7 @@ it('settles initial cancellation when a driver state read stops the owner', asyn
   assert.deepEqual(memory.documentNavigations, []);
 });
 
-for (const action of ['navigate', 'veto', 'stop']) {
+for (const action of ['navigate', 'veto', 'prior-veto', 'stop']) {
   it(`does not dispatch a stale refresh after preflight ${action}`, async() => {
     const driver = memoryDriver({ url: 'https://routes.example/a' });
     const handled = [];
@@ -36,6 +36,9 @@ for (const action of ['navigate', 'veto', 'stop']) {
         }
         return true;
       }, handler(match) { handled.push(match.name); } });
+    if (action === 'prior-veto') {
+      driver.addEventListener('navigate', event => { if (new URL(event.destination.url).pathname === '/b') { event.preventDefault(); } });
+    }
     await router.start(); await router.getInitialDispatch();
     if (action === 'veto') {
       driver.addEventListener('navigate', event => { if (new URL(event.destination.url).pathname === '/b') { event.preventDefault(); } });
@@ -125,3 +128,94 @@ for (const matched of [true, false]) {
     if (matched) { assert.deepEqual(router.getCurrent().state, { tab: 'details' }); }
   });
 }
+
+for (const initial of [false, true]) {
+  it(`reads the final stored state after a nested ${initial ? 'marking' : 'update'} observer`, async() => {
+    const memory = memoryDriver({ url: 'https://routes.example/a' });
+    let notify = initial;
+    const driver = { ...memory, get currentEntry() { return memory.currentEntry; }, updateCurrentEntry(options) {
+      memory.updateCurrentEntry(options);
+      if (notify) { notify = false; router.updateState({ fromObserver: true }); }
+    } };
+    const router = createRouter({ driver, routes: { a: { path: '/a' } } });
+    await router.start(); await router.getInitialDispatch();
+    if (!initial) { notify = true; router.updateState({ outer: true }); }
+    assert.deepEqual(router.getCurrent().state, initial ? { fromObserver: true } : { outer: true, fromObserver: true });
+  });
+}
+
+for (const action of ['navigate', 'stop']) {
+  it(`abandons refresh after a successful state read reenters ${action}`, async() => {
+    const memory = memoryDriver({ url: 'https://routes.example/a' });
+    let notify = false;
+    let newer;
+    const driver = { ...memory, get currentEntry() {
+      const entry = memory.currentEntry;
+      return { ...entry, getState() {
+        if (notify) {
+          notify = false;
+          if (action === 'stop') { router.stop(); } else { newer = router.navigate('b'); }
+        }
+        return entry.getState();
+      } };
+    } };
+    const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' } } });
+    await router.start(); await router.getInitialDispatch();
+    notify = true;
+    assert.equal(await router.refresh(), false);
+    if (newer) { assert.equal(await newer.finished, true); assert.equal(router.getCurrent().name, 'b'); }
+    assert.deepEqual(memory.documentNavigations, []);
+  });
+}
+
+for (const phase of ['mark', 'update', 'refresh']) {
+  it(`skips obsolete entry reads after ${phase} already navigated elsewhere`, async() => {
+    const memory = memoryDriver({ url: 'https://routes.example/a' });
+    let enabled = phase === 'mark';
+    let armed = false;
+    let newer;
+    let stale;
+    const driver = { ...memory, get currentEntry() {
+      const entry = memory.currentEntry;
+      return { ...entry, getState() {
+        if (armed && entry.url.endsWith('/a')) { armed = false; stale = router.navigate('c'); }
+        return entry.getState();
+      } };
+    }, updateCurrentEntry(options) {
+      memory.updateCurrentEntry(options);
+      if (enabled && phase !== 'refresh') { enabled = false; newer = router.navigate('b'); armed = true; }
+    } };
+    const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' } }, intercept() {
+      if (enabled && phase === 'refresh') { enabled = false; newer = router.navigate('b'); armed = true; }
+      return true;
+    } });
+    await router.start(); await router.getInitialDispatch();
+    if (phase !== 'mark') {
+      enabled = true;
+      if (phase === 'refresh') { assert.equal(await router.refresh(), false); } else { router.updateState({ outer: true }); }
+    }
+    assert.equal(await newer.finished, true);
+    assert.equal(stale, undefined);
+    assert.equal(router.getCurrent().name, 'b');
+  });
+}
+
+it('does not overwrite a newer match when the final state read navigates', async() => {
+  const memory = memoryDriver({ url: 'https://routes.example/a' });
+  let enabled = false;
+  let reading = false;
+  let newer;
+  const driver = { ...memory, get currentEntry() {
+    const entry = memory.currentEntry;
+    return { ...entry, getState() {
+      if (reading) { reading = false; newer = router.navigate('b', {}, { state: { page: 'b' } }); }
+      return entry.getState();
+    } };
+  }, updateCurrentEntry(options) { memory.updateCurrentEntry(options); if (enabled) { enabled = false; reading = true; } } };
+  const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' } } });
+  await router.start(); await router.getInitialDispatch(); enabled = true;
+  router.updateState({ outer: true });
+  assert.equal(await newer.finished, true);
+  assert.equal(router.getCurrent().name, 'b');
+  assert.deepEqual(router.getCurrent().state, { page: 'b' });
+});
