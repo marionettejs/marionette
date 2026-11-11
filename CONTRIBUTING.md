@@ -237,14 +237,15 @@ promise that diagnostic, and cover the contract with TypeScript consumer tests.
 Keep behavioral tests for valid inputs and runtime invariants. Do not add guards
 solely to protect against hypothetical mistakes made by agents.
 
-## Development package ownership
+## Package ownership
 
 `config/package-ownership.json` records all repository packages and their explicit
 root or HTML verification pipeline. The root pipeline's five coordinated release
 targets remain in `scripts/release/packages.mjs`. HTML is an independently versioned
 release candidate with its own build, coverage, artifact and workflow authorities;
-it is not a coordinated release target. FormKit and test helpers are owned development
-packages and do not join that release set by being built or packed locally.
+it is not a coordinated release target. FormKit remains a development package,
+while test helpers have a stable, independently released contract. Neither joins
+the coordinated release set by being built or packed locally.
 Normal verification consumes FormKit artifacts; CI also runs its separate native
 browser lane. The [FormKit compatibility record](packages/formkit/compatibility.md)
 bounds certified behavior and keeps new-owner results separate from archived totals.
