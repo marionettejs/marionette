@@ -210,7 +210,7 @@
   "devDependencies": {
     "typescript": "6.0.3",
     "terser": "5.51.2",
-    "jsdom": "30.1.1",
+    "jsdom": "31.0.0",
     "marionette": "5.0.1",
     "lit-html": "3.3.3",
     "@playwright/test": "1.63.0",
