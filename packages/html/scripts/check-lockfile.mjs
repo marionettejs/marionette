@@ -11,7 +11,9 @@ for (const [path, entry] of Object.entries(lock.packages)) {
   assert.ok(typeof entry.version === 'string' && entry.version.length > 0,
     `${path}: missing version, including optional platform dependencies`);
   assert.ok(entry.resolved?.startsWith('https://registry.npmjs.org/'), `${path}: missing registry resolution`);
-  assert.ok(entry.integrity?.startsWith('sha512-'), `${path}: missing pinned integrity`);
+  assert.ok(typeof entry.integrity === 'string' && /^sha512-[A-Za-z0-9+/]{86}==$/.test(entry.integrity) &&
+    Buffer.from(entry.integrity.slice(7), 'base64').toString('base64') === entry.integrity.slice(7),
+  `${path}: invalid pinned SHA-512 integrity`);
 }
 const rollup = lock.packages['node_modules/rollup'];
 for (const [name, version] of Object.entries(rollup.optionalDependencies)) {
