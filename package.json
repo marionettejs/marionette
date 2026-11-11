@@ -73,6 +73,7 @@
     "lint": "npm run lint:base -- --max-warnings=0",
     "lint:ci": "npm run lint:base -- --max-warnings=0",
     "performance:timing": "npm run build && node scripts/performance/timing.mjs",
+    "performance:router": "node test/router/benchmark/run.mjs",
     "release:artifact": "node scripts/release/build-artifact.mjs",
     "release:github": "node scripts/release/publish-github.mjs",
     "release:targets": "node scripts/release/check-targets.mjs",
