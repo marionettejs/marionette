@@ -4,8 +4,12 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+    # Limit version-update queues without restricting security updates.
+    open-pull-requests-limit: 2
     groups:
+      root-security:
+        applies-to: security-updates
+        patterns: ['*']
       typescript-eslint:
         patterns: ['@typescript-eslint/*']
       vitest:
@@ -57,8 +61,16 @@ updates:
       - /packages/test/examples
     schedule:
       interval: monthly
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 2
     groups:
+      consumer-security:
+        applies-to: security-updates
+        patterns: ['*']
+      # Use a named group while dependency-name grouping cannot reliably rebase.
+      # https://github.com/dependabot/dependabot-core/issues/14780
+      consumer-jsdom-major:
+        patterns: ['jsdom']
+        update-types: [major]
       consumer-dependencies:
         patterns: ['*']
         update-types: [minor, patch]
@@ -76,14 +88,21 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 1
+    groups:
+      backbone-fixture-security:
+        applies-to: security-updates
+        patterns: ['*']
     ignore:
       - dependency-name: backbone
   - package-ecosystem: npm
     directory: /packages/html
     schedule:
       interval: weekly
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 2
     groups:
+      html-security:
+        applies-to: security-updates
+        patterns: ['*']
       html-tooling:
         dependency-type: development
         patterns: ['*']
@@ -99,7 +118,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 1
     groups:
+      actions-security:
+        applies-to: security-updates
+        patterns: ['*']
       actions:
         patterns: ['*']
         update-types: [minor, patch]
