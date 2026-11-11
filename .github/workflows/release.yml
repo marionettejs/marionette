@@ -29,6 +29,7 @@ on:
       - 'test/fixtures/smoke.sh'
       - 'vitest.config.js'
       - 'playwright.config.mjs'
+      - 'playwright.core-release.config.mjs'
       - 'eslint.config.mjs'
   workflow_dispatch:
     inputs:

@@ -50,7 +50,10 @@ export const test = base.extend({
     for (const file of ['workspace.ts', 'workspace-views.ts', 'notes.ts', 'setup.ts']) {
       assets.set(`/consumer-fixture/${file}`, resolve(root, 'test/fixtures/data-package-starter', file));
     }
-    const litRoot = dirname(fileURLToPath(import.meta.resolve('lit-html')));
+    const litRoot = candidate.litDirectory ?? dirname(fileURLToPath(import.meta.resolve('lit-html')));
+    const urlPatternRoot = candidate.urlPatternDirectory ?? dirname(fileURLToPath(import.meta.resolve('urlpattern-polyfill')));
+    await addJavaScriptAssets(assets, urlPatternRoot, '/urlpattern');
+    imports['urlpattern-polyfill'] = '/urlpattern/index.js';
     for (const name of ['lit-html.js', 'async-directive.js', 'directive.js', 'directive-helpers.js', 'directives/live.js']) {
       assets.set(`/lit/${name}`, resolve(litRoot, name));
     }

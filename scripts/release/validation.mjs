@@ -17,7 +17,7 @@ export const candidateChecks = Object.freeze([
   ['coverage', 'coverage'],
   ['documentation', 'docs:check'],
   ['distribution', 'test:dist'],
-  ['browser', 'test:browser'],
+  ['browser', 'test:browser:core-release'],
   ['fixtures', 'test:fixtures'],
 ].map(([id, script]) => Object.freeze({ id, script })));
 

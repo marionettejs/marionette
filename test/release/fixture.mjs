@@ -129,7 +129,7 @@ async function successfulValidation(candidate) {
     ['public-tests', 'check:public-tests'], ['workflows', 'check:workflows'],
     ['source-types', 'check:types'], ['consumer-types', 'test:types'], ['lint', 'lint:ci'],
     ['tooling', 'coverage:tooling'], ['source', 'test:source'], ['coverage', 'coverage'],
-    ['documentation', 'docs:check'], ['distribution', 'test:dist'], ['browser', 'test:browser'],
+    ['documentation', 'docs:check'], ['distribution', 'test:dist'], ['browser', 'test:browser:core-release'],
     ['fixtures', 'test:fixtures'],
   ];
   const report = {
