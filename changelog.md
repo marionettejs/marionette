@@ -9,7 +9,7 @@ For the current v4 → v5 changes and replacements, see the
 [migration guide](docs/guides/migration.md). Entries below describe each release
 at the time it shipped; older prerelease APIs may have been superseded.
 
-### @mnjs/test 1.0.0 (unreleased)
+### @mnjs/test 1.0.0
 
 * Stabilize the existing mounting, readiness, owned-resource cleanup and optional
   runner APIs. Runtime, declarations and peer requirements are unchanged from 0.2.1.

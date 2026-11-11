@@ -92,14 +92,14 @@ command below also makes both explicit.
 
 ## Prepare release metadata and the merge window
 
-Keep the release PR unmerged and the changelog's `(unreleased)` marker while
+The release PR contains the final 1.0.0 package version, installation examples and
+changelog heading, without an `(unreleased)` marker. Keep the PR unmerged while
 publication is blocked. Before merging, confirm the authorized publishing account,
 version availability and the publication window with the other release owners.
 Do not merge while authentication or permission setup is unresolved: the README
 will recommend `@mnjs/test@1.0.0` as soon as this PR reaches `master`.
 
-When ready to release, remove `(unreleased)` from the `@mnjs/test 1.0.0` changelog
-heading in a reviewed commit and rerun the affected checks before merging. Then:
+Review the final metadata and require current-head checks before merging. Then:
 
 1. Merge the reviewed release PR into `master`.
 2. Build and certify the exact merged revision under the procedure below.
@@ -112,7 +112,7 @@ window to limit that gap. If final certification fails, stop publication; never
 publish unchecked bytes to close the gap. If the release must be deferred,
 restore `(unreleased)` and change consumer installation examples back to a
 verified published version in a reviewed commit. When resuming, finalize the
-metadata again and certify the new merged revision. Removing the marker does not
+metadata again and certify the new merged revision. Release metadata does not
 prove publication; announce availability only after registry verification passes.
 Do not edit release metadata after packing without rebuilding and certifying a
 new archive from the final revision.
