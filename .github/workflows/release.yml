@@ -100,6 +100,15 @@ jobs:
     if: needs.preflight.outputs.mode == 'dry-run'
     needs: preflight
     runs-on: ubuntu-24.04
+    container:
+      # Keep the image version/digest aligned with the Playwright lockfiles.
+      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d
+      options: --user 1001:1001 --shm-size=1g
+    defaults:
+      run:
+        shell: bash
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     outputs:
       npm_tag: ${{ steps.artifact.outputs.npm_tag }}
       prerelease: ${{ steps.artifact.outputs.prerelease }}
@@ -130,8 +139,9 @@ jobs:
       - name: Install pinned dependencies
         run: npm ci
 
-      - name: Install candidate browsers
-        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Verify provisioned browsers
+        timeout-minutes: 2
+        run: node scripts/checks/provisioned-browsers.mjs
 
       - name: Pack immutable release artifacts
         id: artifact
