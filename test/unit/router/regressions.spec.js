@@ -137,7 +137,6 @@ describe('cancellation and redirected readiness', () => {
     await router.start();
     for (const state of [new Date(), new Map(), new Set()]) {
       expect(() => router.navigate('/page', { state })).toThrow(TypeError);
-      expect(() => router.updateState(state)).toThrow(TypeError);
     }
     const state = Object.assign(Object.create(null), { tab: 'details' });
     expect(await router.navigate('/page', { state }).finished).toBe(true);

@@ -586,7 +586,7 @@ describe('Router.navigate', () => {
     }
   }
 
-  it('builds the URL from a route name, copying persistParams from the current match', async() => {
+  it('builds the URL from a route name, reusing shared-ancestor params from the current match', async() => {
     const context = await started();
 
     const { committed, finished } = context.router.navigate('worklist', { worklistId: 'owned-by' }, {
@@ -599,7 +599,7 @@ describe('Router.navigate', () => {
     assert.equal(lastRoute(context).query.get('clinicianId'), '7');
   });
 
-  it('lets explicit params override persistParams', async() => {
+  it('lets explicit params override shared-ancestor values', async() => {
     const context = await started();
 
     await context.router.navigate('worklist', { workspace: 'w2', worklistId: 'a' }).finished;
@@ -676,7 +676,7 @@ describe('Router.navigate', () => {
 });
 
 describe('Router.url and params', () => {
-  it('copies only missing persistParams that the target route declares', async() => {
+  it('copies only missing parameters on shared target nodes', async() => {
     const context = await started();
 
     assert.equal(context.router.url('worklist', { worklistId: 'a' }), '/w1/worklist/a');

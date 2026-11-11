@@ -21,11 +21,11 @@ for (const asynchronous of [false, true]) {
       const oldListeners = [];
       const Routes = Router.extend({ onRouteError(...args) { hooks.push(args); } });
       const router = new Routes({ routes: {
-        home: { path: '/' },
-        old: { path: '/old', redirect: () => asyncLookup ? Promise.resolve('/middle') : '/middle' },
-        middle: { path: '/middle', redirect: () => ({ name: 'fail', hash: '#details' }) },
-        fail: { path: '/fail', handler() { throw shared; } },
-      }, intercept(url) { if (planning && url.pathname === '/fail') { throw shared; } return true; } });
+        '/': { name: 'home' },
+        '/old': { name: 'old', redirect: () => asyncLookup ? Promise.resolve('/middle') : '/middle' },
+        '/middle': { name: 'middle', redirect: () => ({ name: 'fail', hash: '#details' }) },
+        '/fail': { name: 'fail', handler() { throw shared; } },
+      }, owns(url) { if (planning && url.pathname === '/fail') { throw shared; } return true; } });
       router.on('route:error', (...args) => events.push(args));
       router.on('route:error', (error, match) => oldListeners.push([error, match]));
       await router.start(); await router.getInitialDispatch();
@@ -67,8 +67,8 @@ test('native shared Error and synchronous notification reentry retain each attem
       if (hooks.length === 1) { newer = this.navigate('second', {}, { info: secondInfo }); }
     } });
     const router = new Routes({ routes: {
-      home: { path: '/' }, first: { path: '/first' }, second: { path: '/second', handler() { throw shared; } },
-    }, intercept(url) { if (url.pathname === '/first') { throw shared; } return true; } });
+      '/': { name: 'home' }, '/first': { name: 'first' }, '/second': { name: 'second', handler() { throw shared; } },
+    }, owns(url) { if (url.pathname === '/first') { throw shared; } return true; } });
     router.on('route:error', (...args) => events.push(args));
     await router.start(); await router.getInitialDispatch();
     const first = await router.navigate('first', {}, { info: firstInfo }).finished;
@@ -95,8 +95,8 @@ test('native initial and refresh error contexts have absent info without inherit
     let failing = true;
     let planning = false;
     const events = [];
-    const router = new Router({ routes: { home: { path: '/', handler() { if (failing) { throw error; } } } },
-      intercept() { if (planning) { throw error; } return true; } });
+    const router = new Router({ routes: { '/': { name: 'home', handler() { if (failing) { throw error; } } } },
+      owns() { if (planning) { throw error; } return true; } });
     router.on('route:error', (...args) => events.push(args));
     await router.start();
     const initial = await router.getInitialDispatch();
