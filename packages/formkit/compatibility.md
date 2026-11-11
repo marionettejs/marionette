@@ -1,335 +1,54 @@
-# Compatibility and verification boundary
+# Compatibility
 
-The current dependency support floor is FormKit 2.5.0. Core is a `^2.5.0` peer;
-the runtime family uses the same caret floor. Current upgrade verification is
-separate from the historical 2.1.2 checkpoints below. The native binding supports
-combined validation visibility modes and public `describeForm`/`fillForm` node
-operations. It does not populate the Vue/React `node.context.refs` DOM map; retain
-DOM references through the owning Marionette View instead. Pro 0.131.0 declares
-compatible peers, but that declaration alone does not certify Pro on this graph.
-Browser verification remains blocked by the existing cloud download restriction.
+The native adapter supports FormKit **2.5.0 and compatible 2.x releases** through
+`^2.5.0` constraints. Core is a peer dependency; the runtime siblings use the same
+floor. The current lock resolves that family to 2.5.0. Future versions admitted by
+the range still need application testing; a caret range is not advance certification.
 
-Current master integration is being verified separately from the historical checkpoints
-below. See [OWNERSHIP.md](OWNERSHIP.md) for branch/source attribution and commands.
+## Share one Core instance
 
-The release-only fixture update selected Pro 0.131.0 for bounded inline-calendar
-and custom-slot compatibility checks. It kept Core at 2.1.2 and Pro optional,
-and included no adapter runtime/performance change. Its writer checks and
-independent replay status are recorded in
-`packages/formkit/acceptance/PRO-01310.md`; earlier passes below retain their
-original versions and do not certify this release.
+Application code, the adapter and plugins must resolve the same Core module.
+Check the installed dependency graph and exercise registry lookups with the
+application's `getNode` and external nodes. An application Core below 2.5.0 is
+intentionally rejected by normal peer resolution. Avoid mixing independently
+pinned sibling packages, separately bundled Core copies or ESM/CommonJS graphs.
+Matching version strings alone does not establish a shared registry.
 
-The historical Pro 0.130.7 fixture checked a separate lifecycle and
-whole-day date-bound replay, with Core 2.1.2 unchanged. Pro remains optional; no
-adapter runtime dependency or performance experiment is added. See the
-release assessment at `packages/formkit/acceptance/PRO-01307.md` for exact scope and current results.
-Independent exact-candidate acceptance passed all eight gates and 547/547 tests,
-113/113 delivered lifecycle assertions, the native common collector 8/8, and
-12/12 date-bound cases across two native Pro versions and Vue/React controls.
-Both unexplained React follow-on interaction failures remain recorded; a later
-targeted pass does not erase them. No native regression was found within the
-bounded coverage. Historical placement limits remain; no heap, GC, performance
-or broader parity claim follows. The original 158-case helper remains
-unavailable: 0/158 replayed.
+## Verified behavior and boundaries
 
-The historical 0.130.5 comparison used Core pinned to
-2.1.2. Pro remains a consumer plugin, not an adapter dependency. Independent
-release-only acceptance passed all eight gates, 539 public tests and the exact
-older-regression collector (8/8 native). Final new scenarios pooled native and
-selected Vue controls: nine of 19 logical groups passed; ten strict placement
-groups failed with matching behavior. Updating `auto` to `above` while open did
-not reposition any of the five popup types. Reopening honored `above` for four;
-colorpicker stayed below. Earlier separate four-arm checks also found the static
-colorpicker limit in React; React was not repeated in the final addendum. No
-native-only regression or performance gain is claimed. The unavailable original
-158-check suite remains 0/158 executed in this replay. Older 0.130.4 receipts
-retain their original source/version attribution and do not validate 0.130.5.
+The public regression suite covers native inputs, conditional schemas, validation,
+cross-node and registry updates, slots, values/reset, submit/focus ordering and
+owned teardown. Upgrade regressions additionally cover combined validation
+visibility, `describeForm`/`fillForm`, empty aggregates, hydration/removal and
+duplicate registry ownership. Use the [verification instructions](OWNERSHIP.md)
+to test the current checkout or installed artifact.
 
-The [November 4 release assessment](https://github.com/marionettejs/marionette/blob/codex/formkit-master-integration-20261103/packages/formkit/acceptance/PRO-01304.md)
-records newer evidence: independent browser QA reported 137/137 Pro 0.130.3 checks
-on integrated source `b557f86b` with permanent Genesis imports. Pro 0.130.4 browser
-QA subsequently passed 137 baseline checks on `53134754`, but its new release
-collector passed only 5/8 groups. The [repeater repair](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/pro-drag-01304)
-at `7967f80c` corrects schema-accessor and section-class defects with local
-regressions. Independent browser QA then reported 137/137 baseline assertions and
-8/8 native release groups passed on `ffe7d95d`, with unchanged executable source.
-Actual repeater dragging passed before and after replacement. These are attributed
-QA results; the writer did not execute the retest or receive its raw artifacts.
-These results do not establish full parity or online license validation.
+- `validationVisibility` accepts combinations such as `blur dirty`.
+- Optional `@formkit/addons@^2.5.0` inspection/fill helpers operate on `form.node`.
+  Their default descriptions omit values; password/hidden redaction remains an
+  upstream helper contract, not a new adapter API.
+- The native renderer does not populate the Vue/React `node.context.refs` map.
+  Keep DOM references through the owning Marionette View.
+- Core 2.5.0 still retains an older File when a replacement has identical metadata.
+  The [strict diagnostic](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance)
+  remains available; it is not a passing gate or an adapter correction.
+- Current Node/JSDOM checks do not certify browser keyboard/layout behavior,
+  heap collection, performance parity or future dependency releases.
 
-The subsequent [passive-event repair](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/passive-events-20261105)
-at `16682abe` has public regressions and trusted Chromium touchstart/lifecycle
-coverage. It fixes delivery of official schema `Passive` bindings. Independent
-browser QA rebuilt published `ca183a606` with that unchanged executable source and
-reported 6/6 actual-Pro touch checks plus 8/8 targeted regressions passed, with
-zero failures, page errors or timeouts. The writer did not execute that QA or
-receive its raw artifacts. Coverage uses Chromium mobile/touch emulation; it does
-not establish physical-device or wider cross-browser parity. Earlier 137/137 plus
-8/8 Pro results retain their original source attribution and were not rerun.
+## Optional Pro
 
-The [November 5 focus and slot repair](https://github.com/marionettejs/marionette/blob/codex/formkit-master-integration-20261103/packages/formkit/acceptance/focus-slot-summary-20261105.md)
-was tested on clean `b0b16349` (production source `b94e9892`): 2,765 tests plus
-one expected failure, unchanged coverage thresholds, nine packed-consumer stages
-and 18 Chromium journeys passed. It corrects invalid focus selecting an inactive
-radio answer and slot expressions calling fallback text as a function. Independent
-source and regression review cleared. Independently reported Pro QA on `af59f37b`
-confirmed rating 28/28 and togglebuttons 68/68. Minimal colorpicker remained 1/3,
-with both auto-close cases failing.
-The subsequent [retained-subtree repair](https://github.com/marionettejs/marionette/blob/codex/formkit-master-integration-20261103/packages/formkit/acceptance/detached-subtree-20261105.md)
-passed independently reported Pro QA on exact `7b38043f`, with production source
-`3e49fc38`: 158 primary assertions passed, including all three original colorpicker
-cases, none skipped. Supplementary shared-reference checks remained 5/6; online license
-validation remains unverified. Raw QA artifacts were not transferred to the writer.
-Earlier Pro passes retain their original source/version attribution.
+Pro is not an adapter dependency. Pro 0.131.0 declares Core/utils/inputs peers that
+include 2.5.0. Clean consumer imports, declarations and builds are distinct from
+actual licensed-control browser acceptance. The
+[Pro fixture](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/test/fixtures/formkit-pro)
+documents that distinction and preserves the scenario helpers.
 
-The earlier [November 3 Pro acceptance record](https://github.com/marionettejs/marionette/blob/16aa74fe1160c15e0a3121839e4ab9e576d0c19d/packages/formkit/acceptance/pro-repeater-20261103/README.md) supersedes earlier blanket
-Pro-blocked statements for its tested scope: source `1d8e1680` passed **107/107**
-assertions with Core **2.1.2**, Pro **0.130.2**, and Chromium **154.0.8037.57**.
-That includes seven actual Pro control types and a combined form journey. It does
-not certify all Pro controls, full Vue/React parity, current-master integration,
-or online license validation (the validation request failed through the proxy).
+Historical Pro studies used Core 2.1.2. They include shared popup-placement,
+inline typing/model and panel-focus limitations, and two unexplained React
+follow-on interaction failures. They do not establish those outcomes on 2.5.0.
+The original 158-case helper is unavailable and has not been replayed. Online
+license validation remains unverified. Current browser verification is incomplete;
+no new Pro or framework-parity certificate follows from the dependency upgrade.
 
-The following research and ownership results retain their original revisions and
-versions; references to blocked Pro execution describe those earlier probes.
-
-Research baseline: FormKit **2.1.2**, Pro **0.130.0**, Marionette checkout
-**89adc915** (5.0.0-rc.2). Canonical `marionettejs/marionette` v5.0.0
-**0f2284ad4bbfe8c82ce82714471697a68c2acaeb** was fetched read-only. Used View,
-Region and lifecycle APIs in `src/modules/view.ts`, `src/mixins/view.ts`,
-`src/mixins/view-events.ts` and `src/index.ts` match the checkout. No upgrade,
-repository-setting change, publication or deployment is part of this work.
-
-The composed-Views iteration additionally compared the Region, child container,
-common View/Region helpers and CollectionView source against that exact v5.0.0
-object. Nine of ten relevant files match byte for byte. CollectionView differs
-only because stable v5 additionally copies the `RegionClass` constructor option;
-the example and adapter use the existing default Region APIs. This is a used-API
-compatibility inspection, not wholesale stable-v5 certification.
-
-## Package facts
-
-Registry manifests and licenses were inspected directly. Core is an exact 2.1.2 peer. Runtime dependencies
-are exact 2.1.2 MIT packages: `validation`, `rules`, `i18n`,
-`inputs`, `themes`, `utils`, and `observer`. `@formkit/addons` 2.1.2 is an MIT
-consumer plugin dependency used by tests and the advanced example. Vue and React
-bindings are MIT references, not runtime dependencies of this package.
-The historical undeclared Vue import described below applies to Pro 0.130.0.
-Clean Pro 0.130.7 and 0.131.0 consumers passed ESM/CommonJS import and build
-checks without Vue in the native and React dependency graphs. Pro is optional;
-the release fixtures do not add it to the adapter's runtime dependencies.
-`@formkit/schema` and `@formkit/common` returned registry 404 responses and are not
-assumed to exist. Pro is neither bundled nor a package/example dependency.
-
-## Implemented contracts
-
-| Area | Scope and evidence |
-| --- | --- |
-| Native controls | Official schemas for text variants, dates, number/range/color, textarea, radio, boolean/group checkboxes, single/multiple select, file, button, submit, group, list, meta. Matrix/edit tests; browser file and keyboard checks recorded separately. |
-| Values | Grouped values, defaults/reset, partial external snapshots, preserved opaque references in snapshots, source/notification suppression, synced nested lists and stable matching by `itemKey` or deep equality. |
-| Validation | Official rules, visibility modes, cross-field dependencies, localized/custom messages, sync/async custom rules, rejecting/stale/replaced/removed rules, settlement before submit. |
-| Form features | Native submit/reset, incomplete messages, submit hooks and callbacks, live/disabled async submit, server field/root errors, retry, cancellation and stale completion suppression. |
-| Schema | Core compiler/sugar, DOM/text/conditions/bindings/raw attrs, array/object/numeric loops, keys, transparent groups, native factories, schema replacement, scoped named slots and subscribed `$get`. |
-| Framework context | Native value/state/messages/ui/classes/fns/handlers; deep plain object/array mutations, mounted events, list UIDs, dynamic props and schemas. Frozen and opaque values retain their contracts. |
-| Themes/sections | Official section DOM, class generation/overrides, trusted SVG icons, section extensions and custom native definitions. Explicit remote themes/loaders are consumer policy. |
-| MIT addons | Integration tests use actual multi-step, local storage, floating labels and length countdown plugins; auto-height is exercised in the advanced browser example. No universal independent-resource cleanup claim for third-party plugins. |
-| Ownership | Every View-created node, including ignored controls, is released. Composed fields accept only live owned groups; form/group destruction ends detached descendant Views. Registry lookups and actors are borrowed. Retained generated elements lose owned listeners at teardown. |
-| Delivery | ESM/CJS and generated declarations; installed-package ESM/CJS edit/submit/reset/cleanup fixture, source tests, local Vite examples and Chromium tests. Release-set certification and other browser engines are separate stages. |
-
-The schema path is an explicit native integration, not Vue/React API parity.
-Framework-specific components require native factories or a consumer bridge.
-Schema application data updates are explicit. No universal third-party plugin,
-theme, compound-control accessibility or paid-control compatibility is claimed.
-The repository coverage policy remains unchanged; check executed reports before
-making an acceptance claim.
-
-Independent review added public regressions for keyed sibling/schema replacement,
-initial select values, component-to-HTML cleanup, adopted form reuse, render timing,
-submission error policy, delayed/no-op/native change origins, stopped propagation,
-native submit callback arguments, error-description IDs and detach/re-show drafts.
-Chromium retry regressions also verify the edited DOM value, public value snapshot,
-user change origin and cleared server errors before resubmission. Browser event
-listeners can have microtask checkpoints between capture and target phases; input
-ownership uses a weak event reference and error clearing runs in the control handler.
-An explicitly empty schema is still schema mode. Supplied form contents are
-cleared at construction, before Marionette classifies adopted DOM as rendered.
-The review checkpoint records failure against the earlier implementation and
-isolated assertion-sensitivity probes; passing line coverage alone is not acceptance.
-
-## Composed authoring boundary
-
-`fields` is now shorthand for official schemas; the duplicate static control renderer
-has been removed. `template` and `FieldView` add ordinary Marionette Region composition
-through the same native input factory. Explicit `preserve`/`clear` removal, group parents,
-field snapshot replacement, shallow input prop updates, source/notification suppression,
-reset baselines and detached descendant cleanup are covered by public regression tests.
-Group structure is independent of DOM layout. `RowView` now borrows a keyed group
-from an owned list for ordinary CollectionView composition. Three nested-object
-rows, native edits, reorder, add/remove, remount and explicit reset rebuilding
-have public and independent replay coverage. The [row contract](rows.md) bounds
-immutable string keys, named list paths and temporary versus terminal removal.
-Two levels of owned arrays are covered when every ancestor list is crossed through
-its owned RowView group. Inner keys are local to each outer key; full ancestor-key
-lineage governs reorder, defaults, exclusions, removal and reset. The frozen
-nested oracle and native journey exercise this bounded scope. Arbitrary depth,
-raw unowned array ancestors and direct Core graph mutation remain uncertified;
-existing official schema lists are a separate route. See the
-[row contract](rows.md) and new-owner verification for
-current measurements; the archived totals below retain their historical identity.
-
-The bounded custom-layout evaluation added a correction for schema reset after
-keyed reordering, including nested keyed/keyless permutations. Restored values,
-reset-event construction order, order-sensitive normalization and clean state are
-checked. A stricter independent case still fails surviving-control identity when
-reset restores a removed initial predecessor. Membership-changing reset can
-recreate/repurpose controls; stable widget identity/focus in that case is outside
-this iteration's guarantee. The exact failure is preserved. Public alternatives
-that replay list input or reorder the reset payload were rejected because they
-change normalizer dispatches or observable reset semantics.
-
-Official controls own input timing and DOM sections in all modes. Shorthand checkbox
-and select controls use the official native `input` event; text edits may settle after
-FormKit's configured delay. Error/help IDs, classes and absent ARIA attributes follow
-those sections. Consumers should use actual browser input events and await `node.settled`
-and the `validating` ledger before asserting settled state. This is an unpublished API
-iteration, not a compatibility alias for the removed static renderer.
-
-A separate private consumer spike was developed from an actual, pinned, actor-owned
-follow-up feature. Its source and domain data remain outside this public package.
-The pilot reuses the real feature machine and checks retained drafts, conditional controls,
-read-only changes, debounced edits, actor-authoritative calculations and cleanup. It is
-bounded evidence for the authoring API, not a completed customer application migration.
-Native select/date controls in that pilot are explicitly degraded stand-ins for existing
-Pro controls. The package does not copy its domain reducers or add an XState/Vue dependency.
-Full customer application checks, parent persistence/submission integration and paid
-control parity are unverified. No generic actor adapter or control builder was added.
-
-A later isolated test explicitly permits Vue under Marionette ownership. Actual
-Vue mounting, interaction and owner teardown pass; an owner lifetime guard is
-needed for callbacks retained through detached DOM. Genuine Pro registration
-remains failed and unskipped because that isolated process has no available
-authorized runnable licensed bootstrap. Actual Pro dropdown/date-picker mounting,
-interaction and teardown were not reached. This says nothing about the customer's
-license status. The native package still has no Vue/Pro dependency.
-
-## Pro 0.130.0: concrete execution blockers
-
-The user authorized unmodified private localhost development under the vendor's
-published permission. [FormKit Pro](https://formkit.com/pro) states localhost
-works without a key. Pro 0.130.0 was installed only in private `/tmp` probes.
-No private key, account registration, purchase, license bypass, vendor patch,
-proprietary code copy into this repository or public issue submission occurred.
-
-The official [React installation recipe](https://github.com/formkit/docs-content/blob/master/_install/pro-react.md)
-imports controls and `createProPlugin` from the root `@formkit/pro` entrypoint.
-That exact published version resolves ESM to `index.mjs`, CommonJS to `index.cjs`;
-its only other export is `@formkit/pro/genesis` CSS. Its declared peers are
-core/inputs/utils ^2.0.0, and dependencies are tempo and drag-and-drop.
-
-A clean installation of Pro/core/inputs/utils fails a Node ESM root import:
-`ERR_MODULE_NOT_FOUND: Cannot find package '@formkit/vue' imported from
-.../@formkit/pro/index.mjs`. Inspection found a bare side-effect
-`import "@formkit/vue"` with no named binding. The Vue package is undeclared in
-Pro's manifest. Vite likewise fails resolution; after installing Vue solely in
-the private harness, the development browser bundle includes Vue runtime code.
-A separate production build with Vue privately installed succeeds but retains
-FormKit Vue bindings/defaultConfig and Vue shared/reactivity/runtime-core modules.
-The same-installed-package React baseline without Pro retains no Vue modules.
-No import alias or vendor patch was used for that comparison.
-The same root import fails in a clean `@formkit/react` 2.1.2 installation with
-React/ReactDOM 19.2.0 and Pro 0.130.0. Its lockfile contains neither Vue nor
-`@formkit/vue`; a production Vite build also fails resolving that import before
-configuration or plugin creation. The official React recipe does not prescribe
-a Vue dependency, alias or alternate Pro entry. No public framework-neutral
-alternate export was found. These observations concern the published package,
-not a demonstrated defect in any particular Pro control.
-
-Published entry imports were checked without inspecting proprietary control
-implementation. The earliest verified affected release is **0.114.0**, published
-2023-08-11; adjacent **0.113.0**, published 2023-07-20, lacks the Vue import in both
-ESM and CommonJS. All sampled later releases through 0.130.0 include it. This
-locates an observed release boundary, not its source commit or every intervening
-version.
-
-The MIT Vue module's `defaultConfig()` installs its FormKit bindings and calls
-the error-decoder registration function when invoked. A bare module import does
-not invoke that function. In a controlled load, FormKit error 107 remains `E107`,
-a new core text node receives no definition or context, and Vue runtime globals
-are added. A positive control explicitly invokes defaultConfig and applies its
-five plugins: error 107 is decoded and a new text node gets a definition and
-bindings context. Thus no shared input registration or binding installation was
-observed from the bare import. The upstream development workspace includes both
-Vue and React, which could mask an undeclared import; that is an inference, not
-proof of how this import originated. Whether it is accidental build carryover or
-an intentional runtime dependency requires upstream confirmation. It was not
-removed or aliased. A supported neutral entry or corrected package export, with
-clean React/native installation checks, is needed.
-
-With dependencies resolved in a separate final harness without import aliases, unchanged
-`createProPlugin()`, `createProPlugin(undefined, { rating })`, and
-`createProPlugin('', { rating })` at `http://localhost:5190/keyless.html`
-(browser `location.hostname === 'localhost'`) throw during plugin creation:
-“A FormKit API key is required, please visit https://formkit.com/pro”. No actual
-Pro control mounted. The discrepancy with advertised keyless localhost behavior
-needs a vendor-supported setup or authorized key. The published TypeScript
-signature requires a string key; the React recipe supplies a project key and
-does not document a no-key invocation. Arbitrary substitute keys were not tried. This is a concrete runtime blocker, not a generic license objection.
-
-A bounded local proof on 2026-10-13 explicitly installed Vue 3.5.44 and
-`@formkit/vue` 2.1.2 alongside Pro 0.130.0, without peer overrides or import aliases.
-The Pro root import and Vite 8.3.3 production build succeeded. An ordinary Vue
-FormKit text control mounted and unmounted in system Chromium 154.0.8037.57.
-One `createProPlugin(undefined, { rating })` call on localhost still threw the
-API-key-required error, before any Pro control mounted. Explicit Vue dependencies
-therefore resolve import/build for this proof; they do not establish native
-Marionette Pro compatibility or resolve licensing/bootstrap setup.
-
-The Vue/FormKit proof baseline was 208,433 JavaScript bytes (60,435 gzip); adding
-the Pro rating/bootstrap path produced 286,123 bytes (75,919 gzip), an increase of
-77,690 raw bytes and 15,484 gzip bytes. Both bundles retain Vue and FormKit Vue
-modules. These are measured proof-bundle sizes, not the native package's size or
-a deployed application's budget. Vue remains a private proof dependency and was
-not added to this package's manifest. No application source was changed.
-
-At the Pro 0.130.0 checkpoint, all 14 controls remained unverified: autocomplete, dropdown, taglist,
-datepicker, colorpicker, currency, mask, unit, slider, rating, repeater, toggle,
-togglebuttons and transferlist. Their formatting, async options, pointer/keyboard
-behavior, popovers, compound ARIA, reset and repeated teardown require actual
-authorized browser execution. Native bindings alone do not establish compatibility.
-
-The published [Pro license](https://cdn.jsdelivr.net/npm/@formkit/pro@0.130.0/LICENSE.md)
-and [terms](https://formkit.com/terms) apply to those private probes. This package's
-MIT code does not redistribute Pro. A later public demonstration or proprietary
-control redistribution requires its own permitted setup.
-
-## Acceptance stages remaining at the research checkpoint
-
-The MIT native package is verified within the scope above without Pro. Paid-control
-parity requires resolving Pro's published import and localhost-key setup, then
-running actual Pro controls. Broaden browser coverage beyond Chromium and verify chosen themes and
-plugins against representative customer forms. The existing release artifact
-workflow covers its established package set; this local package needs separate
-release integration and certification before publication. The inspected actor-driven
-follow-up pilot exercises the public group-composition API with the saved feature
-machine, synthetic data, and native substitutes for Pro select/date controls.
-Later private checks connect native values to the actual full form engine,
-submission builder and mocked host, and exercise actual application consumer
-protocols. These remain bounded source integration checks. Full application
-migration, production persistence, host application UI and actual Pro interactions
-remain separate acceptance stages.
-
-Primary references: [architecture](https://formkit.com/essentials/architecture),
-[core API](https://formkit.com/api-reference/formkit-core),
-[validation API](https://formkit.com/api-reference/formkit-validation),
-[schema](https://formkit.com/essentials/schema),
-[custom inputs](https://formkit.com/essentials/custom-inputs),
-[MIT source/license](https://github.com/formkit/formkit),
-[Pro manifest](https://registry.npmjs.org/@formkit/pro/0.130.0).
-
-### Confirmed Core File replacement limit
-
-Core2.1.2 treats distinct Files with identical name, size, type and lastModified as
-equal and retains the old value, even with different contents. This fails through
-FieldView, bare public Core input and genuine Vue2.1.2 model updates. Snapshot
-copying preserves opaque references; it does not bypass Core input equality.
-The strict failing regression is preserved in the local acceptance evidence and
-was not counted as fixed. No vendor or value-metadata workaround was introduced.
+Full older results remain recoverable from the
+[immutable historical tree](https://github.com/marionettejs/marionette/tree/9b031550bb2737f052896ee0a0bfe032a54d5b55/packages/formkit/acceptance).

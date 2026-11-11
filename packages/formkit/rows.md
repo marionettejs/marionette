@@ -1,4 +1,4 @@
-# Row ownership acceptance supplement
+# Row ownership
 
 `RowView<Values>` and `RowOptions<Values>` are public exports of `@mnjs/formkit`.
 The values type is inferred from the supplied `FormView`; an explicitly typed
@@ -72,13 +72,11 @@ mutable row keys and arbitrary direct Core writes are outside this slice.
 `test/unit/formkit-rows.spec.js` exercises public construction and ownership:
 three keyed nested-object rows, addition/insertion/reordering, native edits,
 validation, terminal removal, remount/reset, independent same-named forms,
-delayed/detached work, duplicate ownership and unrelated host survival. The
-independent 34-case suite remains preserved outside this checkout and is replayed
-through the public entry, with original assertions unchanged.
+delayed/detached work, duplicate ownership and unrelated host survival.
 
 `test/unit/formkit-nested-rows.spec.js` adds eight independently authored cases
 for repeated local keys, two-level reorder/focus/errors, defaults and exclusions,
 ancestor deletion/recreation, detached cleanup, both reset paths and asynchronous
-validation/submission cancellation. They fail against the prior array-ancestor
-restriction and pass against the nested implementation. The repository acceptance record is
-`packages/formkit/acceptance/NESTED-ROWS.md`.
+validation/submission cancellation. The historical
+[nested-row record](https://github.com/marionettejs/marionette/blob/9b031550bb2737f052896ee0a0bfe032a54d5b55/packages/formkit/acceptance/NESTED-ROWS.md)
+retains its original source/version attribution.

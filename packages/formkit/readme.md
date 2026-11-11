@@ -5,7 +5,7 @@ a small `fields` shorthand, or ordinary Marionette templates and `FieldView`
 children in Regions. There is no Vue, React or Pro runtime dependency.
 This local development package has not been published. See the
 [compatibility record](compatibility.md) for verified scope and remaining limits.
-The [verification history](OWNERSHIP.md) identifies tested revisions and limits.
+The [verification instructions](OWNERSHIP.md) describe current checks and historical attribution.
 
 Conditional inputs use official schema conditions or explicit owner/Region
 composition.

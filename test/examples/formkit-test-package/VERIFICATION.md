@@ -1,5 +1,9 @@
 # Verified local consumer checkpoint
 
+This is a historical Core 2.1.2 receipt. The current fixture targets `^2.5.0`;
+rerun its installed-package checks for current evidence. These results do not
+certify the upgraded dependency graph.
+
 Executed 2026-10-12 in the canonical Marionette workspace. Node 24.19.0 and
 npm 11.17.0; published runtime Marionette 5.0.0. The helper is unpublished
 `@mnjs/test@0.1.0`, whose packed SHA-256 remains

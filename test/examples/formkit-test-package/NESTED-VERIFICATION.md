@@ -1,5 +1,9 @@
 # Verified nested FormKit consumer checkpoint
 
+This is a historical Core 2.1.2 receipt. The current fixture targets `^2.5.0`;
+rerun its installed-package checks for current evidence. These results do not
+certify the upgraded dependency graph.
+
 Measured 2026-10-12 after the coherent baab checkpoint was committed as
 `07ddd1a8eb439ca598bb5418aad4fc07c1687b3f`. Helper production source remains
 unchanged and Marionette remains canonical stable 5.0.0. The earlier
