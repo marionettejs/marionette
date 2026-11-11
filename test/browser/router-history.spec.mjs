@@ -522,6 +522,33 @@ test('History rejects script URL navigation before executing it', async({ page }
   expect(result).toEqual({ errors: ['NotSupportedError', 'NotSupportedError'], executed: false, path: '/', nativeReads: 0 });
 });
 
+test('History leaves non-HTTP anchor clicks browser-owned', async({ page }) => {
+  await page.evaluate(() => {
+    const { historyDriver } = window.historyApi;
+    const owner = new AbortController(); const driver = historyDriver(); const seen = [];
+    let navigations = 0;
+    driver.addEventListener('navigate', () => { navigations++; }, { signal: owner.signal });
+    // Observe Driver handling first, then stop the browser default so this test
+    // does not launch an external mail/phone/application handler.
+    document.addEventListener('click', event => {
+      seen.push({ prevented: event.defaultPrevented, trusted: event.isTrusted }); event.preventDefault();
+    }, { signal: owner.signal });
+    for (const [index, href] of ['mailto:docs@example.test', 'tel:+15555550123', 'web+mnjs:settings'].entries()) {
+      const link = document.body.appendChild(document.createElement('a'));
+      link.href = href; link.id = `browser-owned-${index}`; link.textContent = href;
+    }
+    window.browserOwnedLinks = { owner, seen, count: () => navigations };
+  });
+  for (let index = 0; index < 3; index++) { await page.locator(`#browser-owned-${index}`).click(); }
+  const result = await page.evaluate(() => {
+    const { owner, seen, count } = window.browserOwnedLinks;
+    const value = { seen, navigations: count(), path: location.pathname, nativeReads: window.nativeNavigationReads };
+    owner.abort(); return value;
+  });
+  expect(result).toEqual({ seen: Array.from({ length: 3 }, () => ({ prevented: false, trusted: true })),
+    navigations: 0, path: '/', nativeReads: 0 });
+});
+
 test('ordinary History fragments cancel pending route work without redispatching it', async({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.evaluate(async() => {

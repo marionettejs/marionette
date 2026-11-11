@@ -688,9 +688,11 @@ Navigation:
 - Unclaimed programmatic navigation/reload hands off to the document and rejects
   its local promises with AbortError. This does not claim cross-document readiness.
   Provided state is retained for reload; cross-document state delivery is not
-  provided by Location navigation. Like native `Navigation.navigate()`,
-  `javascript:` URLs reject with NotSupportedError before dispatch. Other
-  unclaimed schemes remain browser-owned; this is not an untrusted-URL sanitizer.
+  provided by Location navigation. Programmatic History navigation accepts only
+  HTTP(S) URLs; other schemes reject both promises with NotSupportedError before
+  dispatch or Location handoff. Ordinary mailto, tel and other non-HTTP anchor
+  links remain browser-owned. This restriction belongs to the History adapter;
+  the native adapter continues to delegate to the Navigation API.
   The adapter does not emulate native focus/scroll restoration or transition
   policies; applications retain presentation policy.
 - Window/document listeners are acquired by the first Driver subscription and

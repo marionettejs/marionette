@@ -512,6 +512,10 @@
     },
     {
       "file": "router-history.spec.mjs",
+      "title": "History leaves non-HTTP anchor clicks browser-owned"
+    },
+    {
+      "file": "router-history.spec.mjs",
       "title": "ordinary History fragments cancel pending route work without redispatching it"
     },
     {

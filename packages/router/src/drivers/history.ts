@@ -231,9 +231,9 @@ class HistoryDriver {
       this.#sync();
       const from = this.#current.url;
       const parsed = resolveUrl(target, from);
-      // Navigation.navigate rejects script URLs; Location.assign would run them.
-      // eslint-disable-next-line no-script-url -- Reject this protocol instead of executing it.
-      if (parsed.protocol === 'javascript:') {throw error('Script URL navigation is not supported', 'NotSupportedError');}
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        throw error('History navigation requires an HTTP(S) URL', 'NotSupportedError');
+      }
       const url = parsed.href;
       const mode = options.history ?? 'auto';
       if (!['auto', 'push', 'replace'].includes(mode)) {throw new TypeError(`Unknown history mode: ${ mode }`);}

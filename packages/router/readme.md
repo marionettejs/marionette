@@ -12,6 +12,10 @@ does not supply these APIs. There is no automatic driver selection. Capability
 presence alone does not establish browser compatibility. See the capability
 check below before importing an application that eagerly constructs a Router.
 
+Programmatic History-driver navigation accepts HTTP(S) destinations only.
+Other schemes reject with `NotSupportedError` before document handoff. Ordinary
+mailto, tel and other non-HTTP anchor links stay browser-owned.
+
 For the public 0.1.0 release, use Node 24.15 or newer and install the package with
 a compatible Marionette peer (minimum 5.0.1):
 

@@ -453,10 +453,39 @@ it('hands unclaimed programmatic navigation and reload to the browser', async() 
   assert.equal(fixture.errors.length, 3); // JSDOM records the real Location calls it cannot implement.
 });
 
+it('rejects non-HTTP(S) programmatic destinations before dispatch or Location handoff', async() => {
+  const fixture = context(); const { driver } = fixture;
+  const gate = Promise.withResolvers(); let signal; let events = 0;
+  driver.addEventListener('navigate', event => {
+    events++;
+    if (event.canIntercept) { signal = event.signal; event.intercept({ handler: () => gate.promise }); }
+  }, { signal: fixture.listeners.signal });
+  const pending = driver.navigate('/held'); await pending.committed;
+  const key = driver.currentEntry.key;
+  try {
+    for (const target of ['mailto:docs@example.test', 'tel:+15555550123', 'ftp://example.test/file',
+      'file:///unsupported', 'about:blank', 'blob:https://routes.example/example',
+      'data:text/plain,unsupported', 'vbscript:unsupported', 'web+mnjs:settings']) {
+      const result = driver.navigate(target);
+      const outcomes = await Promise.allSettled([result.committed, result.finished]);
+      for (const outcome of outcomes) {
+        assert.equal(outcome.status, 'rejected', target);
+        assert.equal(outcome.reason.name, 'NotSupportedError', target);
+      }
+      assert.equal(driver.currentEntry.key, key);
+      assert.equal(signal.aborted, false);
+    }
+    assert.equal(events, 1);
+    assert.deepEqual(fixture.errors, []);
+  } finally { gate.resolve(); }
+  await pending.finished;
+});
+
 for (const [attributes, mouse] of [
   [{}, { button: 1 }], [{}, { altKey: true }], [{}, { ctrlKey: true }], [{}, { metaKey: true }], [{}, { shiftKey: true }],
   [{ target: 'other-frame' }, {}], [{ download: '' }, {}],
   [{ href: 'https://elsewhere.example/a' }, {}], [{ href: 'mailto:test@example.test' }, {}],
+  [{ href: 'tel:+15555550123' }, {}], [{ href: 'web+mnjs:settings' }, {}],
   [{ href: '/#details' }, {}], [{ href: 'http://[' }, {}],
 ]) {
   it(`leaves browser-owned link ${JSON.stringify([attributes, mouse])} untouched`, () => {
