@@ -10,7 +10,9 @@
       "buildScript": "build:types",
       "coverage": [
         "src/**/*.{js,ts}"
-      ]
+      ],
+      "pipeline": "root",
+      "coordinatedRelease": true
     },
     {
       "id": "utils",
@@ -21,7 +23,9 @@
       "buildScript": "build:utils",
       "coverage": [
         "packages/utils/src/**/*.ts"
-      ]
+      ],
+      "pipeline": "root",
+      "coordinatedRelease": true
     },
     {
       "id": "radio",
@@ -32,7 +36,9 @@
       "buildScript": "build:radio",
       "coverage": [
         "packages/radio/src/**/*.ts"
-      ]
+      ],
+      "pipeline": "root",
+      "coordinatedRelease": true
     },
     {
       "id": "data",
@@ -43,7 +49,9 @@
       "buildScript": "build:data",
       "coverage": [
         "packages/data/src/**/*.ts"
-      ]
+      ],
+      "pipeline": "root",
+      "coordinatedRelease": true
     },
     {
       "id": "adapters",
@@ -54,7 +62,9 @@
       "buildScript": "build:adapters",
       "coverage": [
         "packages/adapters/src/**/*.ts"
-      ]
+      ],
+      "pipeline": "root",
+      "coordinatedRelease": true
     },
     {
       "id": "formkit",
@@ -123,7 +133,9 @@
         "test/unit/formkit.spec.js",
         "test/unit/formkit-adapter-repair.spec.js",
         "test/unit/formkit-hardening.spec.js"
-      ]
+      ],
+      "pipeline": "root",
+      "coordinatedRelease": false
     },
     {
       "id": "test",
@@ -136,6 +148,41 @@
       "coverage": [
         "packages/test/src/**/*.ts",
         "packages/test/src/**/*.js"
+      ],
+      "pipeline": "root",
+      "coordinatedRelease": false
+    },
+    {
+      "id": "html",
+      "name": "@mnjs/html",
+      "directory": "packages/html",
+      "role": "runtime",
+      "stage": "release-candidate",
+      "pipeline": "html",
+      "coordinatedRelease": false,
+      "buildScript": "build:html",
+      "verificationScript": "test:html",
+      "coverageScript": "coverage:html",
+      "workflow": ".github/workflows/html.yml",
+      "licenseFile": "LICENSE",
+      "coverage": [],
+      "requiredInputs": [
+        "packages/html/LICENSE",
+        "packages/html/THIRD_PARTY_NOTICES.md",
+        "packages/html/PROVENANCE.md",
+        "packages/html/RELEASE.md",
+        "packages/html/coverage.json",
+        "packages/html/coverage-baseline.json",
+        "packages/html/scripts/check-coverage.mjs",
+        "packages/html/scripts/check-package.mjs",
+        "packages/html/scripts/check-current-core.mjs",
+        "packages/html/scripts/check-packed-browser.mjs",
+        "packages/html/scripts/check-lockfile.mjs",
+        "packages/html/scripts/check-upstream.mjs",
+        "packages/html/scripts/build-production.mjs",
+        "packages/html/test/packed-runtime.mjs",
+        "packages/html/tsconfig.json",
+        "packages/html/test/tsconfig.json"
       ]
     }
   ]

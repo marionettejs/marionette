@@ -39,8 +39,9 @@ checked separately as advisory. The five stable manifests and owned development 
 
 `npm ci` builds the packages and checks the core distributions through `prepare`.
 Generated `dist/` directories and `src/version.js` are ignored by Git; edit source files
-and their co-located TypeScript contracts. Declarations are generated for every owned package, including development FormKit
-and test helpers; do not maintain separate handwritten copies. After source edits, run
+and their co-located TypeScript contracts. The root pipeline generates declarations
+for its owned packages, including development FormKit and test helpers; HTML uses
+its separate package pipeline. Do not maintain handwritten copies. After source edits, run
 `npm run build` before distribution or browser checks. The fixture runner builds
 once before packing local packages; supplying an artifact directory or all five
 tarballs skips rebuilding.
@@ -238,9 +239,11 @@ solely to protect against hypothetical mistakes made by agents.
 
 ## Development package ownership
 
-`config/package-ownership.json` includes all repository packages, their normal
-build commands and covered source. The five stable release targets remain in
-`scripts/release/packages.mjs`. FormKit and test helpers are owned development
+`config/package-ownership.json` records all repository packages and their explicit
+root or HTML verification pipeline. The root pipeline's five coordinated release
+targets remain in `scripts/release/packages.mjs`. HTML is an independently versioned
+release candidate with its own build, coverage, artifact and workflow authorities;
+it is not a coordinated release target. FormKit and test helpers are owned development
 packages and do not join that release set by being built or packed locally.
 Normal verification consumes FormKit artifacts; CI also runs its separate native
 browser lane. The [FormKit compatibility record](packages/formkit/compatibility.md)

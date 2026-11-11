@@ -1,6 +1,7 @@
 import { globSync, readFileSync } from 'node:fs';
 import { defineConfig } from 'vitest/config';
 import { fileURLToPath } from 'node:url';
+import { rootCoveragePatterns } from './scripts/checks/packages.mjs';
 
 const nodeTests = [
   // These suites supply their own JSDOM window and document.
@@ -16,9 +17,8 @@ const nodeTests = [
 ];
 
 
-// Every owned package participates; the private experiment is explicitly listed.
-const coverageFiles = JSON.parse(readFileSync(new URL('./config/package-ownership.json', import.meta.url), 'utf8'))
-  .packages.flatMap(entry => entry.coverage);
+// Root packages retain their existing coverage. HTML has its own package pipeline.
+const coverageFiles = rootCoveragePatterns(JSON.parse(readFileSync(new URL('./config/package-ownership.json', import.meta.url), 'utf8')).packages);
 const coverageExceptions = JSON.parse(readFileSync(new URL('./config/coverage-exceptions.json', import.meta.url), 'utf8'));
 const thresholds = { lines: 100, statements: 100, functions: 100, branches: 100 };
 for (const metric of ['lines', 'statements', 'functions', 'branches']) {

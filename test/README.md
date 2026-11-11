@@ -345,8 +345,11 @@ The restored `@mnjs/formkit` development package participates in normal build,
 unit coverage, source and declaration checks, public API inventory, lint and
 documentation delivery. The original suites and subsequent regression suites remain enabled; the unexported
 composition experiment is separately included in coverage, types and lint.
-`npm run check:packages` verifies the explicit owned-package inventory and its
-required inputs without adding development packages to the stable release set.
+`npm run check:packages` verifies every package's declared pipeline and required
+authorities without executing delegated checks. Root coverage and API inventory
+retain their existing scope; HTML uses its own package coverage, artifact checks
+and workflow. Its independent release candidate and the root development packages
+do not join the five-target coordinated release set.
 
 `npm run verify` runs the installed FormKit fixture, which retains four packed
 artifacts, a captured install lock, exact source/fixture hashes and stage logs in
