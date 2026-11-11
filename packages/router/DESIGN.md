@@ -43,11 +43,17 @@ Set instance declaration properties explicitly before compiling when needed.
 
 Registration snapshots route containers, definitions, children and top-level
 metadata without mutating callers. Redirect functions retain identity; nested
-metadata and opaque `data` retain their references. Method handlers resolve once
-at registration through Marionette's `resolveMethod` (`MN0019` on invalid methods).
-A mount's `controller` supplies their receiver; Router is the default controller.
-Only the matched leaf's own handler runs, falling back to Router's global handler
-when absent. Parent handlers are not inherited by child leaves.
+metadata and opaque `data` retain their references. In low-level Router tables,
+method handlers resolve once at registration through Marionette's `resolveMethod`
+(`MN0019` on invalid methods). A mount's `controller` supplies their receiver;
+Router is the default controller. Only the matched leaf's own handler runs,
+falling back to Router's global handler when absent. Parent handlers are not
+inherited by child leaves.
+
+RouteApplication tables instead register `routeTo` as the Router handler. Local
+method names resolve on that Application at dispatch, after branch selection. A
+handlerless Application leaf completes without a local callback; it does not
+fall through to Router's global handler.
 
 ## Lifetime and notifications
 
@@ -390,8 +396,8 @@ params plus `childRouteOptions(match, mount)` and the selected Region.
 its current View. A mount's `namespace` changes descendant names, not paths.
 
 `routeTo(match)` enters the appropriate table, and `routeBranch(match, index)`
-awaits selection then delegates to the selected child's next branch. A leaf clears
-only a currently selected child declared as a mount by that owner, then awaits its
+awaits selection then delegates to the selected child's next branch. A leaf calls
+`clearMountedChild()` to clear only a selected child declared as a mount by that owner, then awaits its
 local handler. Independent children/panes are not all stopped when a parent leaf
 runs. Local handlers that use manual selection own its explicit `clear()` policy.
 No per-route name-to-method forwarding map or second matcher is required.
@@ -705,7 +711,7 @@ underlying feature work stopped.
 A failed current startup rejects its original error and cleans the failed
 selection once. Optional onCleanupError(error, child) observes a secondary cleanup
 failure; without it that secondary error is discarded. The primary startup error
-wins. Normal synchronous stop/notification errors propagate through the ordinary
+wins when that observer returns normally. Normal synchronous stop/notification errors propagate through the ordinary
 failure boundary; no rollback or attempt-all cleanup is promised. clear() returns
 true as idempotent successful completion, including when there is no selection.
 

@@ -55,11 +55,12 @@ for (const mode of ['native', 'history']) {
         await router.navigate('workspace:item:overview', { team: 'blue', id: 'one' }).finished;
         const feature = root.getChildApp('feature');
         const item = feature.getChildApp('item');
-        const firstView = item.getView();
         await router.navigate('workspace:item:details', { tab: 'notes' }).finished;
         const retained = item.isRunning() && feature.getCurrent() === item && starts.length === 2;
+        const detailsView = item.getView();
+        const detailsAttached = detailsView.isAttached() && !detailsView.isDestroyed();
         await router.navigate('workspace:item:overview', { id: 'two' }).finished;
-        const replaced = firstView.isDestroyed() && feature.getChildApp('item') === item;
+        const replaced = detailsAttached && detailsView.isDestroyed() && feature.getChildApp('item') === item;
         await router.navigate('workspace:item:overview', { team: 'red' }).finished;
         const url = location.pathname;
         await router.navigate('parent').finished;
