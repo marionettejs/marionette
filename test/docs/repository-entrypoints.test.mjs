@@ -56,7 +56,7 @@ test('repository and consumer entrypoints expose their appropriate guidance and 
   }
 });
 
-test('README installation pins match the Marionette package version', async() => {
+test('README installation pins match each package version', async() => {
   const markdown = await readFile(resolve(root, 'readme.md'), 'utf8');
   const { version } = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
   const commands = marked.lexer(markdown)
@@ -69,6 +69,8 @@ test('README installation pins match the Marionette package version', async() =>
     .filter(Boolean);
   assert(specs.length, 'README must include Marionette installation commands');
   for (const [, name, pinned] of specs) {
-    assert.equal(pinned, version, `${name} must install the exact version described by this README`);
+    const expected = name === '@mnjs/html'
+      ? JSON.parse(await readFile(resolve(root, 'packages/html/package.json'), 'utf8')).version : version;
+    assert.equal(pinned, expected, `${name} must install the exact version described by this README`);
   }
 });

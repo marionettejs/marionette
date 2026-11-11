@@ -70,11 +70,27 @@ const app = new Feature({
 await app.start();
 ```
 
-The configured DataApi supplies model attributes to row/detail templates; use `templateContext` for View-local data.
+The configured DataApi supplies model attributes to row/detail templates. The default renderer calls `template(data)` as an unbound function, not a View method: do not read `this.model`, `this.collection` or other View state inside a template. Use the data argument for model attributes and `templateContext()` for View-local data; `this` inside `templateContext` is the View. The staged example below demonstrates this split.
 
 The Region mounts the layout; its Regions own list/detail replacement. The `@mnjs/html` DOM adapter leaves the configured event delegator in place. When a native DOM handler needs the matched element, `event.delegateTarget` is the button; `event.target` may be its nested label/icon. View bindings follow the View's lifetime while `@mnjs/html` updates its descendants. Read the ID from the model rather than `dataset`, which coerces numeric IDs to strings. Explicit child mappings forward the original ID unchanged to `viewEvents`; they add no child argument.
 
 Selection replaces only detail. `restart()` retains the layout but resets rows/selection here. `stop()` destroys the owned UI while keeping the Application reusable; `destroy()` ends it and releases its private Collection. Borrowed data needs its own owner. Continue to [Records](../records.md) for loading/retry UI or [retained restart](retained-restart.md) for row/input identity.
+
+### Handle rejected work at its owner
+
+`app.start()` rejects if current preparation fails. The starter's top-level `await`
+propagates that failure; a real host should catch it and present retry UI rather
+than leave an unhandled rejection. DOM delegation does not await async handler
+Promises. Handle expected service failures in the owning operation, or attach an
+explicit rejection handler when starting work from an event. `void task()` alone
+is not rejection handling. Unexpected rendering/programming errors still need
+an application error boundary or reporting path.
+
+If the service caches Promises, remove a rejected entry only if it is still that
+key's current Promise, so retries can recover and an obsolete rejection cannot
+delete a newer request. See the executable [failed-promise cache policy](async-requests.md#failed-promise-cache-policy-belongs-to-the-service).
+Keep shared cached work independent of a disposable View's abort signal unless
+the service explicitly owns cancellation for all consumers.
 
 ## Load a detail page in stages
 

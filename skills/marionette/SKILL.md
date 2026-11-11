@@ -7,7 +7,7 @@ description: Build, debug, review, or test Marionette v5 applications using thei
 
 For API details, use the docs shipped with the installed package. Keep an existing application's compatible renderer, data runtime, router and build setup; this skill does not authorize upgrades.
 
-With no stack chosen, use the Vite quick start with `@mnjs/html`; add `@mnjs/data` for observable records/shared state. Plain snapshots remain valid.
+With no stack chosen, install `marionette` with `@mnjs/html` using the Vite quick start; add `@mnjs/data` for observable records/shared state. Plain snapshots remain valid.
 
 <!-- task-routes:start -->
 | Task | Packaged page |
@@ -25,6 +25,8 @@ With no stack chosen, use the Vite quick start with `@mnjs/html`; add `@mnjs/dat
 <!-- task-routes:end -->
 
 Use `docs/agents.md` for the full task index and optional local search/section/symbol lookup. Direct Markdown reading is supported.
+
+The default renderer calls templates as unbound functions: `template(data)` has no View `this`. Read model attributes from the data argument; expose View-local values with `templateContext()`, where `this` is the View. Keep actions in View methods and bindings.
 
 Compose managed UI with Views and Regions. Default to CollectionView with child Views for data-driven lists. Update the smallest appropriate owner, preserving retained children.
 

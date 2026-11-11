@@ -100,9 +100,9 @@ export default async function setup() {
     const extraction = join(temporaryDirectory, 'html');
     await mkdir(extraction);
     execFileSync('tar', ['-xzf', renderer.path, '-C', extraction]);
-    const directory = join(extraction, 'package');
-    const manifest = JSON.parse(await readFile(join(directory, 'package.json'), 'utf8'));
-    candidate.packages.push({ ...renderer, id: 'html', directory, manifest, artifact: renderer.path });
+    const rendererDirectory = join(extraction, 'package');
+    const rendererManifest = JSON.parse(await readFile(join(rendererDirectory, 'package.json'), 'utf8'));
+    candidate.renderer = { ...renderer, id: 'html', directory: rendererDirectory, manifest: rendererManifest, artifact: renderer.path };
     const candidateFile = join(temporaryDirectory, 'candidate.json');
     await writeFile(candidateFile, JSON.stringify(candidate));
     process.env.MARIONETTE_BROWSER_CANDIDATE = candidateFile;
@@ -111,6 +111,7 @@ export default async function setup() {
     // Persist exact hashes next to the reports after the temporary packages go away.
     await writeFile(join(reportDirectory, 'candidate.json'), JSON.stringify({
       source: candidate.source,
+      renderer: { name: renderer.name, version: renderer.version, sha256: renderer.sha256, integrity: renderer.integrity },
       packages: candidate.packages.map(({ directory, manifest, artifact, ...entry }) => entry)
     }, null, 2));
     return cleanup;

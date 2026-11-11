@@ -9,6 +9,14 @@ document.body.append(mount);
 export const assertions = {
   'guides-composition-1': `
 assert.equal(app.isRunning(), true);
+const contextProbe = new View({
+  localTitle: 'View-local title',
+  templateContext() { return { title: this.getOption('localTitle') }; },
+  template(data) { assert.equal(this, undefined); return html\`<h2>\${data.title}</h2>\`; }
+});
+contextProbe.render();
+assert.equal(contextProbe.el.textContent, 'View-local title');
+contextProbe.destroy();
 const layout = app.getView();
 const list = layout.getChildView('items');
 const row = list.children.findByModel(app.items.get('alpha'));
