@@ -113,3 +113,54 @@ it('rejects explicit registration for an already destroyed feature', () => {
   assert.throws(() => feature.mountRoutes(router), /destroyed owner/);
   assert.equal(router.hasRoute('page'), false);
 });
+
+it('resolves Router handlers after initialize and binds their receiver and signal', async() => {
+  const calls = [];
+  const Routed = Router.extend({
+    routes: { '/items/:id': { name: 'item', handler: 'showItem' } },
+    initialize() { this.showItem = function(match, context) { calls.push([this, match.params.id, context.signal]); }; },
+  });
+  const router = own(new Routed({ driver: memoryDriver({ url: 'https://routes.example/outside' }) }));
+  await router.start();
+  await router.navigate('item', { id: '7' }).finished;
+  assert.deepEqual(calls, [[router, '7', router.getCurrent().signal]]);
+});
+
+it('snapshots controller methods at registration and chooses route handlers over the global fallback', async() => {
+  const calls = [];
+  const controller = { show(match) { calls.push([this, match.name]); } };
+  const router = own(new Router({ driver: memoryDriver({ url: 'https://routes.example/outside' }),
+    routes: [{ path: '/fallback', name: 'fallback' }], handler(match) { calls.push(['global', match.name]); } }));
+  const unmount = router.mount({ '/item': { name: 'item', handler: 'show' } }, { controller });
+  controller.show = () => { throw new Error('Replacement is not the registered handler'); };
+  await router.start();
+  await router.navigate('item').finished;
+  await router.navigate('fallback').finished;
+  assert.deepEqual(calls, [[controller, 'item'], ['global', 'fallback']]);
+  unmount();
+  assert.equal(router.hasRoute('item'), false);
+});
+
+it('does not inherit a parent handler into a child with only the global fallback', async() => {
+  const calls = [];
+  const router = own(new Router({ driver: memoryDriver({ url: 'https://routes.example/outside' }), routes: {
+    '/parent': { name: 'parent', handler(match) { calls.push(['parent', match.name]); }, children: { 'child': { name: 'child' } } },
+  }, handler(match) { calls.push(['fallback', match.name]); } }));
+  await router.start();
+  await router.navigate('parent').finished;
+  await router.navigate('child').finished;
+  assert.deepEqual(calls, [['parent', 'parent'], ['fallback', 'child']]);
+});
+
+it('rejects unresolved handlers without partially registering their table', () => {
+  const router = own(new Router({ driver: memoryDriver({ url: 'https://routes.example/outside' }), routes: { '/existing': { name: 'existing' } } }));
+  assert.throws(() => router.mount({
+    '/good': { name: 'good', handler() {} }, '/bad': { name: 'bad', handler: 'missing' },
+  }, { controller: {} }), error => error.code === 'MN0019' && /missing/.test(error.message));
+  assert.equal(router.hasRoute('good'), false);
+  assert.equal(router.hasRoute('bad'), false);
+  assert.equal(router.match('/existing').name, 'existing');
+  assert.throws(() => router.mount([{ path: '/section', handler: 'missing', children: [{ name: 'page', path: 'page' }] }],
+    { controller: {} }), error => error.code === 'MN0019' && /for "\/section"/.test(error.message));
+  assert.equal(router.hasRoute('page'), false);
+});

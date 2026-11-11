@@ -58,3 +58,20 @@ it('snapshots only own enumerable string-keyed primitive values', async() => {
   assert.equal(starts(), 2);
   assert.equal(key.id, 'two');
 });
+
+it('snapshots an incoming flat key before the outgoing child stop can mutate it', async() => {
+  const incoming = { id: 'before' };
+  const owner = new RouteApplication(); owners.push(owner);
+  const outgoing = owner.addChildApp('outgoing', new (Application.extend({ onStop() { incoming.id = 'after'; } }))());
+  let starts = 0;
+  const next = owner.addChildApp('next', new (Application.extend({ onStart() { starts++; } }))());
+  await owner.start();
+  await owner.switchTo('outgoing');
+  await owner.switchTo('next', { key: incoming });
+  assert.equal(incoming.id, 'after');
+  assert.equal(outgoing.isRunning(), false);
+  assert.equal(await owner.switchTo('next', { key: { id: 'before' } }), next);
+  assert.equal(starts, 1, 'Selection keeps the incoming value from before the stop callback');
+  await owner.switchTo('next', { key: incoming });
+  assert.equal(starts, 2);
+});

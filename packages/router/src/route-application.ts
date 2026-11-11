@@ -64,7 +64,7 @@ type DeclarationOf<S> = S extends { prototype: infer D } ? D : S;
 type RoutesOf<S> = DeclarationOf<S> extends { routes: infer R extends ApplicationRoutes } ? R : {};
 type ChildrenOf<S> = DeclarationOf<S> extends { childApps: infer C } ? C : {};
 type Namespaced<A extends string, B extends string> = string extends A | B ? string : A extends '' ? B : B extends '' ? A : `${ A }:${ B }`;
-type NamespaceOf<N> = 'namespace' extends keyof N ? Extract<N['namespace'], string> | (undefined extends N['namespace'] ? '' : never) : '';
+type NamespaceOf<N> = N extends undefined ? '' : 'namespace' extends keyof N ? Extract<N['namespace'], string> | (undefined extends N['namespace'] ? '' : never) : '';
 type NamedChildren<C> = { [Key in keyof C as Key extends string | number ? `${ Key }` : never]: C[Key] };
 type DeclaredNodes<R extends ApplicationRoutes> = R extends readonly (infer N)[] ? N
   : { [Path in keyof R & (string | number)]: R[Path] & { path: `${ Path }` } }[keyof R & (string | number)];
@@ -119,8 +119,10 @@ function compileTable(source: Source, namespace: string, table: object, ancestor
   });
 }
 
-export function routeTable<const S extends Source, const Options extends { namespace?: string } = {}>(source: S, options?: Options): CompiledApplicationRoutes<NoInfer<S>, NamespaceOf<NoInfer<Options>>> {
-  return compileTable(source, options?.namespace ?? '', {}) as unknown as CompiledApplicationRoutes<S, NamespaceOf<Options>>;
+export function routeTable<const S extends Source>(source: S): CompiledApplicationRoutes<NoInfer<S>>;
+export function routeTable<const S extends Source, const Options extends { namespace?: string } | undefined>(source: S, options: Options): CompiledApplicationRoutes<NoInfer<S>, NamespaceOf<Options>>;
+export function routeTable(source: Source, options?: { namespace?: string }): readonly RouteDefinition[] {
+  return compileTable(source, options?.namespace ?? '', {});
 }
 
 function firstStepIndex(match: ActiveMatch) {

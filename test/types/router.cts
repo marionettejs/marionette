@@ -252,3 +252,11 @@ const indexedName: RouteNames<typeof indexedTable> = 'known';
 // @ts-expect-error A dynamic path does not broaden a literal declared name.
 const indexedOther: RouteNames<typeof indexedTable> = 'other';
 void [indexedName, indexedOther];
+
+declare const optionalWholeOptions: { namespace: 'top' } | undefined;
+const optionalWholeTable = routeTable(Leaf, optionalWholeOptions);
+const optionalWholeBare: RouteNames<typeof optionalWholeTable> = 'detail';
+const optionalWholePrefixed: RouteNames<typeof optionalWholeTable> = 'top:detail';
+// @ts-expect-error An optional whole options object cannot invent another prefix.
+const optionalWholeOther: RouteNames<typeof optionalWholeTable> = 'wrong:detail';
+void [optionalWholeBare, optionalWholePrefixed, optionalWholeOther];
