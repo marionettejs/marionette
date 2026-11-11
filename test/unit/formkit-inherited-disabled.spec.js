@@ -87,7 +87,7 @@ it.each(['formProps', 'config'])('initializes newly acquired conditional control
 
 it.each(['formProps', 'config'])('initializes a later FieldView from %s and preserves an own false override', async source => {
   const form = mount({ ...inherited(source), template: () => '<div class="field"></div>', regions: { field: '.field' } });
-  const field = new FieldView({ form, name: 'title', input: { type: 'text' } });
+  const field = new FieldView({ form, name: 'title', removal: 'preserve', input: { type: 'text' } });
   form.showChildView('field', field);
   const node = field.node;
   const input = field.el.querySelector('input');
