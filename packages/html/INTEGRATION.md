@@ -67,7 +67,7 @@ explicit review, not an automatic regeneration command. This is not the core's
 CSS parsing), tooling execution or prove all supported behaviors are correct.
 Pristine fixture and generated distribution files do not inflate the source score.
 
-### CollectionView empty contents
+## CollectionView empty contents
 
 An `emptyView` without `childViewContainer` uses the CollectionView root and
 clears all of that root's existing contents. Use a dedicated child container

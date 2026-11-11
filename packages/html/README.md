@@ -31,7 +31,7 @@ region.show(new Counter());
 
 Use Marionette `events`, `triggers`, and `ui` for View-owned interactions. `@click=${handler}`, `.onclick=${handler}`, and native handler property/boolean bindings throw `MN_HTML_EVENT_BINDING` in both builds. Ordinary dynamic `on*` **attributes** are reserved because browsers can execute them even without a matching JavaScript property. Use `data-*` for custom attributes. Non-handler properties and boolean attributes such as `.one`, `.onboarding`, and `?online` remain supported.
 
-The integrated DOM API has no runtime import of Marionette. It exports both HtmlDomApi and the exact named setContents/notifyAttach/notifyDetach functions, commits directly to its bounded renderer part, and implements the public `setContents`, `notifyAttach`, and `notifyDetach` protocol and is tested against **Marionette 5.0.1**. Configure it explicitly before constructing Views.
+The integrated DOM API has no runtime import of Marionette. It exports `HtmlDomApi` and the exact named `setContents`, `notifyAttach`, and `notifyDetach` functions. The adapter commits directly to its bounded renderer part and is tested against **Marionette 5.0.1**. Its `detachContents` method disconnects and retires that part before clearing all contents. Configure the adapter explicitly before constructing Views.
 
 ## Plain templates
 

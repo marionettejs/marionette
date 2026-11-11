@@ -27,6 +27,12 @@ test('development hooks visit sinks, propagate policy failures and install once'
   assert.ok(seen.some(x => x[1] === 'value' && x[2] === 'property'));
   assert.ok(seen.some(x => x[1] === 'data'));
   assert.ok(seen.some(x => x[1] === 'href' && x[2] === 'attribute' && x[3] === 'https://example.test/'));
-  assert.throws(() => render(html`<p title=${'rejected-by-test-policy'}>blocked fixture</p>`, el), /rejected by test policy/);
+  const titled = value => html`<p title=${value}>policy fixture</p>`;
+  render(titled('previous-title'), el);
+  const existing = el.querySelector('p');
+  assert.throws(() => render(titled('rejected-by-test-policy'), el), /rejected by test policy/);
+  assert.equal(el.querySelector('p'), existing);
+  assert.equal(existing.getAttribute('title'), 'previous-title');
+  assert.equal(el.querySelector('[title="rejected-by-test-policy"]'), null);
   assert.throws(() => render.setSanitizer(() => x => x), /security policy/i);
 });

@@ -19,4 +19,4 @@ for (const [name, version] of Object.entries(rollup.optionalDependencies)) {
   assert.ok(entry, `Missing optional Rollup package ${name}`);
   if (name.startsWith('@rollup/')) assert.equal(entry.version, version, name);
 }
-console.log('Lockfile versions, integrity and all Rollup platform dependencies verified.');
+console.log('Lockfile version presence, registry resolutions and integrity verified; all Rollup optional dependencies present and @rollup platform versions matched.');

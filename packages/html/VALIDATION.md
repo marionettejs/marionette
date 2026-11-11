@@ -1,4 +1,6 @@
-# 0.1.0 package candidate verification
+# Historical 0.1.0 package verification
+
+This document records earlier checkpoints and their limits, not certification of the latest PR head. The current exact revision and hosted checks are recorded in [PR #3809](https://github.com/marionettejs/marionette/pull/3809). Historical counts, source hashes, application results and security-alert observations below must not be read as current status.
 
 Local verification on November 9, 2026 used Node 24.19.0 and npm 11.17.0:
 
