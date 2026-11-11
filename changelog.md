@@ -15,8 +15,8 @@ at the time it shipped; older prerelease APIs may have been superseded.
   runner APIs. Runtime, declarations and peer requirements are unchanged from 0.2.1.
 * Keep non-restoring `scope.reply()` cleanup. Clarify the consequence for long-lived
   owners and how to explicitly re-register a known handler after cleanup.
-* Defer automatic reply restoration; issues [#3803](https://github.com/marionettejs/marionette/issues/3803)
-  and [#3804](https://github.com/marionettejs/marionette/issues/3804) are closed as not planned.
+* Automatic reply restoration is not planned; see closed issues [#3803](https://github.com/marionettejs/marionette/issues/3803)
+  and [#3804](https://github.com/marionettejs/marionette/issues/3804).
 
 ### v5.0.1
 

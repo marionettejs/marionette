@@ -732,9 +732,10 @@ that callback, and its effective context. A later unrelated replacement remains
 installed, even if it uses the same original function or context. Overwriting an
 older reply follows Radio's existing behavior; cleanup does not restore that
 older handler. If the scoped registration is still current, cleanup leaves that
-request name unregistered. If its original owner must keep serving requests,
-explicitly re-register the known handler after cleanup, or keep the override for
-that owner's lifetime. Radio's normal default-reply behavior still applies.
+request name unregistered: later requests reach a registered `default` reply or
+return `undefined` (with a warning when Radio debugging is enabled). If its
+original owner must keep serving requests, explicitly re-register the known
+handler after cleanup, or keep the override for that owner's lifetime.
 Neither channel-wide `stopReplying()` nor `Radio.reset()` is used.
 Registration after cleanup begins is rejected before changing any reply.
 Hash registration is sequential: successfully registered keys are owned by the
@@ -813,6 +814,12 @@ repository's locked current versions. The installed Cypress adapter's queue/hook
 model runs in JSDOM in both profiles; it does not run Cypress or its bundled
 Electron. Installation profiles record the exact dependency versions and archive
 digest alongside their checks.
+
+The 1.0.0 packed profiles cover Vitest 4.1.0 and 5.0.5, DOM Testing Library 8.7.0
+and 10.4.2, and mount-utils 4.0.0 and 5.0.0. Native Cypress lanes cover 14.0.0 with
+mount-utils 4.0.0 and 16.2.1 with mount-utils 5.0.0. Cypress 15 has not been
+verified; neither have other versions absent from the recorded checks. Passing
+the adapter's JSDOM model is not native Cypress coverage.
 
 Vitest 4.1 is the builder-fixture API boundary; DOM Testing Library 8.7 is the
 generic query declaration boundary. Mount-utils keeps the existing v4 floor.

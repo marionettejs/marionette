@@ -20,9 +20,9 @@ optional peer requirements are unchanged from 0.2.1; no migration is required.
 `scope.reply()` continues to remove only its own current registration, preserve
 later replacements, and never restore a previously overwritten handler. The guide
 clarifies the consequence for long-lived owners and explicit re-registration.
-Reply restoration is not planned in issues
+Automatic reply restoration is not planned; see closed issues
 [#3803](https://github.com/marionettejs/marionette/issues/3803) and
-[#3804](https://github.com/marionettejs/marionette/issues/3804); it is not a 1.0 gate.
+[#3804](https://github.com/marionettejs/marionette/issues/3804).
 
 This section prepares the announcement; registry publication must be verified
 before describing the version as available. Record exact native runtime coverage
@@ -89,6 +89,21 @@ unexpected owner, or `latest` already targets a newer release. Never overwrite a
 existing version, silently bump the version or retarget another dist-tag.
 The manifest fixes public access and the public registry; the eventual publication
 command below also makes both explicit.
+
+## Prepare release metadata and the merge window
+
+Keep the release PR unmerged and the changelog's `(unreleased)` marker while
+publication is blocked. Before merging, confirm the authorized publishing account,
+version availability and the publication window with the other release owners.
+Do not merge while authentication or permission setup is unresolved: the README
+will recommend `@mnjs/test@1.0.0` as soon as this PR reaches `master`.
+
+When ready to release, remove `(unreleased)` from the `@mnjs/test 1.0.0` changelog
+heading in a reviewed commit and rerun the affected checks before merging. Then
+certify the actual merged source and publish its verified archive in that release
+window. Removing the marker does not prove publication; announce availability
+only after the registry checks below pass. Do not edit release metadata after
+packing without rebuilding and certifying a new archive from the final revision.
 
 ## Verify consumer documentation destinations
 
