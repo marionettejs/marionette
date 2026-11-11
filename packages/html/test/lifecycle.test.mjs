@@ -9,8 +9,14 @@ const { asyncAppend } = await import('@mnjs/html/directives/async-append.js');
 const { default: HtmlDomApi } = await import('@mnjs/html/marionette');
 const { createMarionette } = await import('marionette');
 const cleanup = [];
-afterEach(() => { for (const fn of cleanup.splice(0).reverse())
-    fn(); document.body.replaceChildren(); });
+afterEach(() => {
+    const failures = [];
+    for (const fn of cleanup.splice(0).reverse()) {
+        try { fn(); } catch (error) { failures.push(error); }
+    }
+    document.body.replaceChildren();
+    if (failures.length) throw new AggregateError(failures, 'Test cleanup failed');
+});
 function fixture() { const el = document.createElement('div'); document.body.append(el); return el; }
 function tracker() {
     const state = { active: 0, connected: 0, disconnected: 0, instances: 0 };

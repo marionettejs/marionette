@@ -2,7 +2,7 @@
 // archive's paths or source map contents before verifying the pinned SRI.
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {readFileSync, mkdirSync, writeFileSync} from 'node:fs';
+import {readFileSync, mkdirSync, writeFileSync, rmSync} from 'node:fs';
 import {join, dirname} from 'node:path';
 import {execFileSync} from 'node:child_process';
 
@@ -32,8 +32,13 @@ for (const [file, hash] of Object.entries(manifest.retainedMetadata)) {
 }
 // Refuse an existing directory; never overwrite a developer's comparison copy.
 mkdirSync(destination);
+try {
 for (const [file, content] of recovered) {
   mkdirSync(dirname(join(destination, file)), {recursive: true});
   writeFileSync(join(destination, file), content, {flag: 'wx'});
+}
+} catch (error) {
+  rmSync(destination, {recursive: true, force: true});
+  throw error;
 }
 console.log(`Recovered ${manifest.recoverableSources.length} verified sources and licensed package metadata.`);

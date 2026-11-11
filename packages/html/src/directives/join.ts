@@ -6,7 +6,8 @@
 
 /**
  * Returns an iterable containing the values in `items` interleaved with the
- * `joiner` value.
+ * `joiner` value. A supplied DOM Node retains its identity and moves when yielded
+ * again; use a joiner function returning a fresh Node for distinct separators.
  *
  * @example
  *

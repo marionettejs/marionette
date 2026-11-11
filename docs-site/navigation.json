@@ -140,7 +140,7 @@
   {
     "source": "packages/html/guide.md",
     "route": "docs/packages/html",
-    "title": "HTML templates",
+    "title": "@mnjs/html: tagged-template renderer",
     "section": "Companion packages"
   },
   {
