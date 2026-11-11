@@ -815,7 +815,7 @@ model runs in JSDOM in both profiles; it does not run Cypress or its bundled
 Electron. Installation profiles record the exact dependency versions and archive
 digest alongside their checks.
 
-The 1.0.0 packed profiles cover Vitest 4.1.0 and 5.0.5, DOM Testing Library 8.7.0
+The 1.0.0 packed profiles cover Vitest 4.1.0 and 5.1.0, DOM Testing Library 8.7.0
 and 10.4.2, and mount-utils 4.0.0 and 5.0.0. Native Cypress lanes cover 14.0.0 with
 mount-utils 4.0.0 and 16.2.1 with mount-utils 5.0.0. Cypress 15 has not been
 verified; neither have other versions absent from the recorded checks. Passing
