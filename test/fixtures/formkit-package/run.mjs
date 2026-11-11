@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdtempSync, writeFileSync, readFileSync, mkdirSync, copyFileSync, rmSync, readdirSync, existsSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -62,6 +62,21 @@ try {
     throw new Error('Unexpected FormKit package contents.');
   }
   const rootManifest = JSON.parse(readFileSync(join(root, 'package.json')));
+  // A second Core graph breaks registry lookups even when helper packages share
+  // compatible version ranges. Reject an incompatible application Core early.
+  const conflict = join(consumer, 'conflicting-core');
+  mkdirSync(conflict);
+  writeFileSync(join(conflict, 'package.json'), JSON.stringify({ private: true,
+    dependencies: { ...Object.fromEntries(packed.map(artifact => [artifact.name, `file:${artifact.path}`])),
+      '@formkit/core': '2.2.1' } }));
+  const rejected = spawnSync(process.execPath, [npm, 'install', '--ignore-scripts', '--no-audit', '--no-fund', '--json'],
+    { cwd: conflict, env, encoding: 'utf8', timeout: 180000 });
+  writeFileSync(join(output, 'conflicting-core.log'), `${rejected.stdout ?? ''}\n${rejected.stderr ?? ''}`);
+  if (rejected.error) { throw rejected.error; }
+  if (rejected.status === 0 || JSON.parse(rejected.stdout).error?.code !== 'ERESOLVE') {
+    throw new Error('An incompatible application Core must fail peer resolution.');
+  }
+  report.stages.push({ name: 'conflicting-core', passed: true, expectedExitCode: rejected.status });
   writeFileSync(join(consumer, 'package.json'), JSON.stringify({ private: true, type: 'module',
     devDependencies: { jsdom: rootManifest.devDependencies.jsdom } }));
   runNpm('install', ['install', '--ignore-scripts', ...packed.map(artifact => artifact.path)], consumer);
@@ -79,6 +94,12 @@ try {
     'const a=require(\'node:assert/strict\');const v=n=>require(n+\'/package.json\').version;' +
     `a.equal(v('marionette'),${JSON.stringify(rootManifest.version)});a.equal(v('@formkit/core'),'2.1.2');` +
     'console.log(JSON.stringify({core:v(\'marionette\'),formkit:v(\'@mnjs/formkit\'),formkitCore:v(\'@formkit/core\')}));']));
+  run('shared-core-graph', process.execPath, ['-e',
+    'const a=require("node:assert/strict");const {createRequire}=require("node:module");' +
+    'const expected=require.resolve("@formkit/core");' +
+    'for(const name of ["@mnjs/formkit","@formkit/inputs","@formkit/i18n","@formkit/observer","@formkit/rules","@formkit/themes","@formkit/validation"]){' +
+    'a.equal(createRequire(require.resolve(name)).resolve("@formkit/core"),expected,name);}' +
+    'console.log("Adapter and helper packages resolve the application Core instance.");']);
   copyFileSync(join(import.meta.dirname, 'verify.mjs'), join(consumer, 'verify.mjs'));
   console.log(run('runtime-esm-cjs', process.execPath, ['verify.mjs']));
   for (const extension of ['mts', 'cts']) {

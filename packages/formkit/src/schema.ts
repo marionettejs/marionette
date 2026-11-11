@@ -204,9 +204,15 @@ function ownElementListeners(target: HTMLElement): () => void {
   const previous = Object.getOwnPropertyDescriptor(target, 'addEventListener');
   const add = target.addEventListener.bind(target);
   target.addEventListener = (event: string, listener: EventListenerOrEventListenerObject | null, settings?: boolean | AddEventListenerOptions) => {
-    const configured = typeof settings === 'boolean' ? { capture: settings } : settings;
-    const signal = configured?.signal ? window.AbortSignal.any([configured.signal, controller.signal]) : controller.signal;
-    add(event, listener!, { ...configured, signal });
+    const configured = typeof settings === 'boolean' ? { __proto__: null, capture: settings } as AddEventListenerOptions : settings;
+    // Event options are a Web IDL dictionary: inherited/non-enumerable members
+    // count too. Read the standard members once, in dictionary order.
+    const capture = configured?.capture;
+    const once = configured?.once;
+    const passive = configured?.passive;
+    const source = configured?.signal;
+    const signal = source ? window.AbortSignal.any([source, controller.signal]) : controller.signal;
+    add(event, listener!, { capture, once, passive, signal });
   };
   return () => {
     controller.abort();

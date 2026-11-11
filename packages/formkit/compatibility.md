@@ -3,9 +3,9 @@
 Current master integration is being verified separately from the historical checkpoints
 below. See [OWNERSHIP.md](OWNERSHIP.md) for branch/source attribution and commands.
 
-The optional fixture now selects Pro 0.131.0 for bounded inline-calendar and
-custom-slot compatibility checks. Core stays at 2.1.2, Pro remains optional and
-no adapter runtime/performance change is included. Current writer checks and
+The release-only fixture update selected Pro 0.131.0 for bounded inline-calendar
+and custom-slot compatibility checks. It kept Core at 2.1.2 and Pro optional,
+and included no adapter runtime/performance change. Its writer checks and
 independent replay status are recorded in
 `packages/formkit/acceptance/PRO-01310.md`; earlier passes below retain their
 original versions and do not certify this release.
@@ -37,12 +37,12 @@ native-only regression or performance gain is claimed. The unavailable original
 retain their original source/version attribution and do not validate 0.130.5.
 
 The [November 4 release assessment](https://github.com/marionettejs/marionette/blob/codex/formkit-master-integration-20261103/packages/formkit/acceptance/PRO-01304.md)
-records newer evidence: independent vault QA reported 137/137 Pro 0.130.3 checks
-on integrated source `b557f86b` with permanent Genesis imports. Pro 0.130.4 vault
+records newer evidence: independent browser QA reported 137/137 Pro 0.130.3 checks
+on integrated source `b557f86b` with permanent Genesis imports. Pro 0.130.4 browser
 QA subsequently passed 137 baseline checks on `53134754`, but its new release
 collector passed only 5/8 groups. The [repeater repair](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/pro-drag-01304)
 at `7967f80c` corrects schema-accessor and section-class defects with local
-regressions. Independent vault QA then reported 137/137 baseline assertions and
+regressions. Independent browser QA then reported 137/137 baseline assertions and
 8/8 native release groups passed on `ffe7d95d`, with unchanged executable source.
 Actual repeater dragging passed before and after replacement. These are attributed
 QA results; the writer did not execute the retest or receive its raw artifacts.
@@ -51,7 +51,7 @@ These results do not establish full parity or online license validation.
 The subsequent [passive-event repair](https://github.com/marionettejs/marionette/tree/codex/formkit-master-integration-20261103/packages/formkit/acceptance/passive-events-20261105)
 at `16682abe` has public regressions and trusted Chromium touchstart/lifecycle
 coverage. It fixes delivery of official schema `Passive` bindings. Independent
-vault QA rebuilt published `ca183a606` with that unchanged executable source and
+browser QA rebuilt published `ca183a606` with that unchanged executable source and
 reported 6/6 actual-Pro touch checks plus 8/8 targeted regressions passed, with
 zero failures, page errors or timeouts. The writer did not execute that QA or
 receive its raw artifacts. Coverage uses Chromium mobile/touch emulation; it does
@@ -63,7 +63,7 @@ was tested on clean `b0b16349` (production source `b94e9892`): 2,765 tests plus
 one expected failure, unchanged coverage thresholds, nine packed-consumer stages
 and 18 Chromium journeys passed. It corrects invalid focus selecting an inactive
 radio answer and slot expressions calling fallback text as a function. Independent
-Astra source/oracle review cleared. Independently reported Pro QA on `af59f37b`
+source and regression review cleared. Independently reported Pro QA on `af59f37b`
 confirmed rating 28/28 and togglebuttons 68/68. Minimal colorpicker remained 1/3,
 with both auto-close cases failing.
 The subsequent [retained-subtree repair](https://github.com/marionettejs/marionette/blob/codex/formkit-master-integration-20261103/packages/formkit/acceptance/detached-subtree-20261105.md)
@@ -99,11 +99,15 @@ compatibility inspection, not wholesale stable-v5 certification.
 
 ## Package facts
 
-Registry manifests and licenses were inspected directly. Runtime dependencies
-are exact 2.1.2 MIT packages: `@formkit/core`, `validation`, `rules`, `i18n`,
+Registry manifests and licenses were inspected directly. Core is an exact 2.1.2 peer. Runtime dependencies
+are exact 2.1.2 MIT packages: `validation`, `rules`, `i18n`,
 `inputs`, `themes`, `utils`, and `observer`. `@formkit/addons` 2.1.2 is an MIT
 consumer plugin dependency used by tests and the advanced example. Vue and React
 bindings are MIT references, not runtime dependencies of this package.
+The historical undeclared Vue import described below applies to Pro 0.130.0.
+Clean Pro 0.130.7 and 0.131.0 consumers passed ESM/CommonJS import and build
+checks without Vue in the native and React dependency graphs. Pro is optional;
+the release fixtures do not add it to the adapter's runtime dependencies.
 `@formkit/schema` and `@formkit/common` returned registry 404 responses and are not
 assumed to exist. Pro is neither bundled nor a package/example dependency.
 
@@ -275,7 +279,7 @@ the Pro rating/bootstrap path produced 286,123 bytes (75,919 gzip), an increase 
 77,690 raw bytes and 15,484 gzip bytes. Both bundles retain Vue and FormKit Vue
 modules. These are measured proof-bundle sizes, not the native package's size or
 a deployed application's budget. Vue remains a private proof dependency and was
-not added to this package's manifest. No existing customer TCM was changed.
+not added to this package's manifest. No application source was changed.
 
 At the Pro 0.130.0 checkpoint, all 14 controls remained unverified: autocomplete, dropdown, taglist,
 datepicker, colorpicker, currency, mask, unit, slider, rating, repeater, toggle,
@@ -295,13 +299,13 @@ parity requires resolving Pro's published import and localhost-key setup, then
 running actual Pro controls. Broaden browser coverage beyond Chromium and verify chosen themes and
 plugins against representative customer forms. The existing release artifact
 workflow covers its established package set; this local package needs separate
-release integration and certification before publication. The inspected TCM
+release integration and certification before publication. The inspected actor-driven
 follow-up pilot exercises the public group-composition API with the saved feature
 machine, synthetic data, and native substitutes for Pro select/date controls.
 Later private checks connect native values to the actual full form engine,
 submission builder and mocked host, and exercise actual application consumer
 protocols. These remain bounded source integration checks. Full application
-migration, production persistence, Social Work UI and actual Pro interactions
+migration, production persistence, host application UI and actual Pro interactions
 remain separate acceptance stages.
 
 Primary references: [architecture](https://formkit.com/essentials/architecture),

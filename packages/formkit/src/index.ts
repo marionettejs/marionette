@@ -512,7 +512,7 @@ export class FormView<Values extends object = FormValues> extends View {
       // A delayed edit can return to the committed value without a value change.
       if (payload && this.notifyChanges && this.changeSource === 'user') { this.changeSource = 'programmatic'; }
     }));
-    this.on('before:destroy', () => this.dispose());
+    this.on('before:destroy', () => this.#dispose());
   }
 
   render() {
@@ -856,7 +856,7 @@ export class FormView<Values extends object = FormValues> extends View {
     return this;
   }
 
-  private dispose() {
+  #dispose() {
     this.disposed = true;
     this.formCleanup?.();
     for (const receipt of this.receipts) { this.node.off(receipt); }
@@ -886,7 +886,7 @@ export class FieldView<Values extends object = FormValues> extends View {
   constructor(options: FieldOptions<Values>) {
     super({ ...options, template: () => '' });
     this.fieldOptions = options;
-    this.on('before:destroy', () => this.release());
+    this.on('before:destroy', () => this.#release());
   }
 
   get node(): FormKitNode {
@@ -954,7 +954,7 @@ export class FieldView<Values extends object = FormValues> extends View {
     return this;
   }
 
-  private release() {
+  #release() {
     this.released = true;
     if (!this.mount) { return; }
     this.releaseNative!();

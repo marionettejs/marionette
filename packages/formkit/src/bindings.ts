@@ -1,6 +1,6 @@
 import { createClasses, createMessage, generateClassList, isNode } from '@formkit/core';
 import { cloneAny, empty, eq, token, undefine } from '@formkit/utils';
-import { certifyContext, contextChanged, contextObject, contextProxy, withRenderHint } from './invalidation.ts';
+import { certifyContext, contextChanged, contextObject, contextProxy, opaqueRender, withRenderHint } from './invalidation.ts';
 import type { FormKitFrameworkContext, FormKitMessage, FormKitNode, FormKitPlugin } from '@formkit/core';
 
 // Implements the public framework-context contract. The MIT v2.1.2 bindings are
@@ -146,9 +146,13 @@ export const nativeBindings: FormKitPlugin = node => {
     classes: { enumerable: true, configurable: true, get: () => contextObject(node, new Proxy({}, {
       get(target, section) {
         if (typeof section !== 'string' || section in Object.prototype) { return Reflect.get(target, section); }
-        return generateClassList(node, section,
-          typeof node.config.rootClasses === 'function' ? node.config.rootClasses(section, node) : {},
-          createClasses(section, node, node.config.classes?.[section]),
+        const rootClasses = typeof node.config.rootClasses === 'function' ? node.config.rootClasses(section, node) : {};
+        const classes = node.config.classes;
+        // Configured classes already disqualify native render reuse. Stop
+        // collecting a proof that cannot be used, preserving class read order.
+        if (classes) { opaqueRender(); }
+        return generateClassList(node, section, rootClasses,
+          createClasses(section, node, classes?.[section]),
           createClasses(section, node, node.props[`_${section}Class`]),
           createClasses(section, node, node.props[`${section}Class`])) ?? '';
       }

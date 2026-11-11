@@ -52,7 +52,6 @@
     "directory": "packages/formkit"
   },
   "dependencies": {
-    "@formkit/core": "2.1.2",
     "@formkit/validation": "2.1.2",
     "@formkit/rules": "2.1.2",
     "@formkit/i18n": "2.1.2",
@@ -62,6 +61,7 @@
     "@formkit/observer": "2.1.2"
   },
   "peerDependencies": {
+    "@formkit/core": "2.1.2",
     "marionette": "^5.0.0-rc.2"
   }
 }

@@ -20,18 +20,18 @@ case but timed out in the unchanged core jQuery-free bundling test. A subsequent
 canonical run on clean `b557f86b` passed all 2,740 tests plus one expected failure
 and every existing coverage threshold. The intermittent failures remain preserved.
 
-Independent vault QA reported 107/107 functional Pro 0.130.3 assertions at
+Independent browser QA reported 107/107 functional Pro 0.130.3 assertions at
 `db655482`. Extended positioning checks passed only 12/30 with the original
 fixture, then 30/30 with a transient positioning rule. The permanent fixture now
 imports the official base Genesis theme before the Pro extension. Independent
-vault QA then reported 137/137 assertions on `b557f86b` with that permanent theme
+browser QA then reported 137/137 assertions on `b557f86b` with that permanent theme
 setup: 107 functional plus 30 positioning/scrolling checks. Online license
 validation and direct Destroy-button reachability under an open panel remain
-unverified. Pro 0.130.4 vault QA on `53134754` passed those 137 baseline checks,
+unverified. Pro 0.130.4 browser QA on `53134754` passed those 137 baseline checks,
 but only 5/8 new release groups: repeater dragging failed. Source `7967f80c` repairs
 lost non-enumerable schema getters and default section-class naming, with four
 failing-then-passing public regressions, passing canonical coverage and local
-package/browser gates. Independent vault QA subsequently reported 137/137 baseline
+package/browser gates. Independent browser QA subsequently reported 137/137 baseline
 assertions and 8/8 native release groups passed on `ffe7d95d`, including both actual
 repeater drags. Executable source is unchanged from `7967f80c`; online license
 validation remains unverified. Raw positive-run artifacts were not available to
@@ -42,7 +42,7 @@ The November 5 passive-event repair at `16682abe` corrects native delivery of
 official schema `Passive` bindings and listener ownership. Local verification
 passed 19 focused cases, canonical coverage (2,748 plus one expected failure),
 all nine packed-consumer stages and 17 Chromium journeys, including trusted
-touchstart delivery. Independent vault QA rebuilt published `ca183a606` (unchanged
+touchstart delivery. Independent browser QA rebuilt published `ca183a606` (unchanged
 executable source `16682abe`) and reported 6/6 actual-Pro touch checks and 8/8
 targeted regressions passed, with zero failures, page errors or timeouts. This is
 Chromium mobile/touch emulation, not physical-device or cross-browser certification.
@@ -55,7 +55,7 @@ was tested on clean `b0b16349` (production source `b94e9892`): 2,765 tests plus
 one expected failure, unchanged coverage thresholds, nine packed-consumer stages
 and 18 Chromium journeys passed. It corrects invalid focus selecting an inactive
 radio answer and slot expressions calling fallback text as a function. Independent
-Astra source/oracle review cleared. Independently reported Pro QA on `af59f37b`
+source and regression review cleared. Independently reported Pro QA on `af59f37b`
 confirmed rating 28/28 and togglebuttons 68/68. Minimal colorpicker remained 1/3,
 with both auto-close cases failing.
 The subsequent [retained-subtree repair](https://github.com/marionettejs/marionette/blob/codex/formkit-master-integration-20261103/packages/formkit/acceptance/detached-subtree-20261105.md)

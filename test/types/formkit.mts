@@ -87,3 +87,13 @@ void [node, value];
 composed.showField('email', () => field);
 // @ts-expect-error conditional registration options are not exported
 type RetiredConditionalOptions = import('@mnjs/formkit').ConditionalFieldOptions<Profile>;
+
+// Consumer helpers must not collide with adapter cleanup internals.
+class ConsumerForm extends FormView { dispose() { return 'application'; } }
+class ConsumerField extends FieldView { release() { return 'application'; } }
+const consumerForm = new ConsumerForm({ schema: [] });
+consumerForm.dispose();
+const consumerField = new ConsumerField({ form: consumerForm, name: 'name', removal: 'preserve', input: { type: 'text' } });
+consumerField.release();
+consumerField.destroy();
+consumerForm.destroy();

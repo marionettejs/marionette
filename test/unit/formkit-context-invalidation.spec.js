@@ -254,6 +254,32 @@ it('does not speculatively invoke dynamic class accessors before rendering', asy
   expect(form.el.querySelector('.formkit-outer').classList.contains('odd')).toBe(!!(reads % 2));
 });
 
+it('preserves root, configured and local class evaluation order on explicit updates', async() => {
+  const calls = [];
+  let selected = false;
+  const form = mount({
+    config: {
+      rootClasses(section) {
+        if (section === 'input') { calls.push('root'); }
+        return { [`formkit-${section}`]: true };
+      },
+      classes: { get input() { calls.push('configured'); return { selected }; } }
+    },
+    schema: [{ $formkit: 'text', name: 'title',
+      inputClass: () => { calls.push('local'); return { local: true }; } }]
+  });
+  await settle(form);
+  calls.length = 0;
+  selected = true;
+  form.setSchemaData({});
+  expect(form.el.querySelector('input').classList.contains('selected')).toBe(true);
+  expect(form.el.querySelector('input').classList.contains('local')).toBe(true);
+  expect(calls.length).toBeGreaterThan(0);
+  for (let index = 0; index < calls.length; index += 3) {
+    expect(calls.slice(index, index + 3)).toEqual(['root', 'configured', 'local']);
+  }
+});
+
 it('preserves pending asynchronous validation and its eventual visible result', async() => {
   let enter;
   let release;

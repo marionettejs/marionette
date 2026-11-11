@@ -21,11 +21,29 @@ const modes = [
   { name: 'CommonJS', formkit: require('@mnjs/formkit'), marionette: require('marionette'), core: require('@formkit/core') }
 ];
 try {
-  for (const { name, formkit, marionette: { Region, View, CollectionView }, core: { getNode } } of modes) {
+  for (const { name, formkit, marionette: { Region, View, CollectionView }, core: { getNode, createNode } } of modes) {
     const { FieldView, FormView, RowView, SchemaView, SubmissionError, createSchemaRenderer, createViewComponents } = formkit;
     assert.deepEqual(Object.keys(formkit).sort(), ['FieldView', 'FormView', 'RowView', 'SchemaView', 'SubmissionError', 'createSchemaRenderer', 'createViewComponents']);
     for (const imported of [FieldView, FormView, RowView, SchemaView, SubmissionError, createSchemaRenderer, createViewComponents]) { assert.equal(typeof imported, 'function'); }
     assert.deepEqual(new SubmissionError('Failed', { email: ['Taken'] }).fieldErrors, { email: ['Taken'] });
+    {
+      const id = `packed-external-${name}`;
+      const external = createNode({ props: { id } });
+      external.context = { label: 'External registered node' };
+      const form = new FormView({ formProps: { actions: false, id: `packed-core-${name}` },
+        schema: { $el: 'output', children: `$get("${id}").label` } });
+      try {
+        document.body.append(form.el);
+        form.render();
+        assert.equal(getNode(form.node.props.id), form.node);
+        assert.equal(form.el.querySelector('output').textContent, 'External registered node');
+        form.destroy();
+        assert.equal(getNode(id), external, 'Registry nodes remain borrowed');
+      } finally {
+        form.destroy();
+        external.destroy();
+      }
+    }
     {
       const region = new Region({ el: document.body.appendChild(document.createElement('div')) });
       const form = new FormView({ values: { guests: [{ name: 'Ada' }] }, inputs: { rows: { type: 'list',

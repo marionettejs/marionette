@@ -158,7 +158,7 @@ export function contextRead(receiver: unknown, key: string, value: unknown) {
   }
 }
 export function expressionCalls(expression: string) {
-  if (!active) { return; }
+  if (!active || active.opaque) { return; }
   // Function-valued event bindings are not executions. Unknown executed functions
   // retain the full path, including registry lookup and application callbacks.
   const calls = expression.matchAll(/\$([A-Za-z0-9_.]+)\s*\(/g);

@@ -5,14 +5,24 @@ a small `fields` shorthand, or ordinary Marionette templates and `FieldView`
 children in Regions. There is no Vue, React or Pro runtime dependency.
 This local development package has not been published. See the
 [compatibility record](compatibility.md) for verified scope and remaining limits.
-The [canonical ownership checkpoint](OWNERSHIP.md) records the new owner's
-measurements separately from the transferred historical acceptance evidence.
+The [verification history](OWNERSHIP.md) identifies tested revisions and limits.
 
 Conditional inputs use official schema conditions or explicit owner/Region
-composition. The retired `showField`/`showIf` registration API is absent from this
-candidate; its original checkpoint and failing evidence are preserved separately.
-A declared-composition experiment remains outside shipped source and unexported
-pending acceptance; its repository tests and full coverage remain enabled.
+composition.
+
+## Share one FormKit Core
+
+`@formkit/core@2.1.2` is an exact peer dependency. Install that version alongside
+the development package or its local tarball. The remaining FormKit runtime
+packages stay pinned to 2.1.2; upgrading the family requires a compatibility check.
+An incompatible application Core now fails normal npm peer resolution instead
+of silently installing a second adapter Core.
+
+Registry lookups and borrowed nodes require the same Core instance throughout
+the application, adapter and plugins. Use consistent ESM or CommonJS imports;
+mixing module formats or separately bundled Core copies can create separate
+registries even when version strings match. Check `npm ls @formkit/core` when
+an application node is missing from `$get()` or `getNode()`.
 
 ## Use the native form
 
