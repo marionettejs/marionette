@@ -4,8 +4,9 @@
 
 For new templated UI, use the optional [@mnjs/html DOM adapter](../../../packages/html/guide.md#choosing-a-dom-integration)
 with that package's results and Marionette-owned events. Existing Lit and Morphdom
-integrations remain supported by [@mnjs/adapters](../../packages/adapters.md).
-Native string/Node output can retain the default DomApi. No optional renderer
+integrations remain supported by [@mnjs/adapters](../../packages/adapters.md);
+Lit template results use [`@mnjs/adapters/dom/lit-html`](../../integrations/setup.md#configure-once).
+Native HTML string output can retain the default DomApi. No optional renderer
 becomes a core dependency.
 
 Choose an existing integration when it fits. A renderer evaluates a template; DomApi applies the output and performs DOM operations; EventDelegator installs DOM listeners. These independent boundaries let a View keep its lifecycle and ownership rules while changing its integration.
