@@ -55,6 +55,15 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-24.04
+    container:
+      # Keep the image version/digest aligned with the Playwright lockfiles.
+      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d
+      options: --user 1001:1001 --shm-size=1g
+    defaults:
+      run:
+        shell: bash
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -82,9 +91,9 @@ jobs:
         run: npm run coverage:html
       - name: Verify packed current-core integration
         run: npm run test:html:current-core
-      - name: Install browser engines
-        working-directory: packages/html
-        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Verify provisioned browsers
+        timeout-minutes: 2
+        run: node scripts/checks/provisioned-browsers.mjs --package-dir packages/html
       - name: Verify browser and security contracts
         run: npm --prefix packages/html run test:packed:browser
       - name: Retain HTML coverage and candidate evidence

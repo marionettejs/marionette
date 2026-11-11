@@ -35,6 +35,24 @@ executable documentation and consumer lint, test, TypeScript and Vite recipes.
 Node 26 remains a separate advisory lane; new LTS lines require verification
 before the consumer support policy changes.
 
+## Browser CI environment
+
+The CI browser, agent-reference and timing jobs, release candidate build, and HTML
+verification run in the official Playwright Noble container, pinned by version
+and registry digest. The image supplies browser binaries and system
+libraries; the jobs still install the exact source Node/npm toolchain, run as a
+non-root user with private IPC, and launch Chromium, Firefox and WebKit before
+running the existing suites. Provisioning failures remain failures, not skipped
+test coverage. The root jobs use the release profile; HTML verifies its own
+independently maintained Playwright installation.
+
+When upgrading Playwright, update the matching image version and verified digest
+in the affected workflows. The container regression tests reject stale pins.
+The reporting-only timing job downloads the exact base revision's Chromium into
+a separate temporary cache without installing OS packages. It uses that cache
+only for the base measurement and retains the candidate image's browser cache.
+Reports still reject comparisons when browser or package versions differ.
+
 ## Choose the smallest useful check
 
 | Contract | Location | Command |

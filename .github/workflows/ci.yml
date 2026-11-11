@@ -125,6 +125,15 @@ jobs:
   browsers:
     name: Browsers (Node 24)
     runs-on: ubuntu-24.04
+    container:
+      # Keep the image version/digest aligned with the Playwright lockfiles.
+      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d
+      options: --user 1001:1001 --shm-size=1g
+    defaults:
+      run:
+        shell: bash
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
 
     steps:
       - name: Checkout
@@ -144,8 +153,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install supported browsers
-        run: npx playwright install --with-deps --only-shell --no-progress chromium firefox webkit
+      - name: Verify provisioned browsers
+        timeout-minutes: 2
+        run: node scripts/checks/provisioned-browsers.mjs
 
       - name: Test supported browsers
         run: npm run test:browser
@@ -169,6 +179,15 @@ jobs:
   agent-reference:
     name: Agent reference (Node 24)
     runs-on: ubuntu-24.04
+    container:
+      # Keep the image version/digest aligned with the Playwright lockfiles.
+      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d
+      options: --user 1001:1001 --shm-size=1g
+    defaults:
+      run:
+        shell: bash
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
 
     steps:
       - name: Checkout
@@ -188,8 +207,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install supported browsers
-        run: npx playwright install --with-deps --only-shell --no-progress chromium firefox webkit
+      - name: Verify provisioned browsers
+        timeout-minutes: 2
+        run: node scripts/checks/provisioned-browsers.mjs
 
       - name: Cache pinned agent reference environment
         run: npm run agent:cache
@@ -396,6 +416,15 @@ jobs:
     name: Performance timing (reporting only)
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
+    container:
+      # Keep the image version/digest aligned with the Playwright lockfiles.
+      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d
+      options: --user 1001:1001 --shm-size=1g
+    defaults:
+      run:
+        shell: bash
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
 
     steps:
       - name: Checkout
@@ -428,15 +457,23 @@ jobs:
           npm ci
           npm run build
 
-      - name: Install Chromium for both revisions
-        run: |
-          npx playwright install --with-deps chromium
-          (cd test/tmp/performance-base && npx playwright install chromium)
+      - name: Verify provisioned browsers
+        timeout-minutes: 2
+        run: node scripts/checks/provisioned-browsers.mjs
+
+      # The exact base may pin a different browser revision. Keep its download
+      # separate so Playwright cannot garbage-collect the candidate image cache.
+      - name: Install exact base Chromium
+        timeout-minutes: 10
+        working-directory: test/tmp/performance-base
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/playwright-base
+        run: npx --no-install playwright install chromium
 
       - name: Measure browser timing on exact base and candidate
         run: |
           set -euo pipefail
-          (cd test/tmp/performance-base && node scripts/performance/browser.mjs --profile baseline --output test/tmp/browser-timing.json)
+          (cd test/tmp/performance-base && PLAYWRIGHT_BROWSERS_PATH="${RUNNER_TEMP}/playwright-base" node scripts/performance/browser.mjs --profile baseline --output test/tmp/browser-timing.json)
           node scripts/performance/browser.mjs --profile baseline --output test/tmp/browser-timing.json
 
       - name: Measure hosted timing
