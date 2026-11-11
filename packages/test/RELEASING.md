@@ -109,10 +109,13 @@ heading in a reviewed commit and rerun the affected checks before merging. Then:
 Between merge and successful publication, the README on `master` points to a
 version that is not yet available. Keep these steps in the coordinated release
 window to limit that gap. If final certification fails, stop publication; never
-publish unchecked bytes to close the gap. Removing the marker does not prove
-publication; announce availability only after registry verification passes. Do
-not edit release metadata after packing without rebuilding and certifying a new
-archive from the final revision.
+publish unchecked bytes to close the gap. If the release must be deferred,
+restore `(unreleased)` and change consumer installation examples back to a
+verified published version in a reviewed commit. When resuming, finalize the
+metadata again and certify the new merged revision. Removing the marker does not
+prove publication; announce availability only after registry verification passes.
+Do not edit release metadata after packing without rebuilding and certifying a
+new archive from the final revision.
 
 ## Verify consumer documentation destinations
 
