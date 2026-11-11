@@ -189,7 +189,11 @@ const router = new Router({
 
 History and memory drivers also require `structuredClone`. The History adapter
 tracks only its dense known-entry window, not arbitrary prior browser history;
-document reloads and unknown entries reset that window. Browser Back/Forward is already
+document reloads and unknown entries reset that window. Ordinary fragment
+navigation can also reset this instance-local window; it does not erase actual
+browser history. Intercepted ordinary same-URL anchor clicks can push duplicate
+entries, whereas programmatic `history: 'auto'` replaces the current entry when
+the URL is unchanged. Browser Back/Forward is already
 committed and cannot be vetoed. It preserves caller state using reserved entry
 metadata, leaves unclaimed links/document navigation to the browser, and does
 not emulate native focus/scroll restoration. See the [precise boundary](DESIGN.md#history-api-driver).
