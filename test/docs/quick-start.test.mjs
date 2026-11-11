@@ -9,7 +9,7 @@ const root = resolve(import.meta.dirname, '../..');
 const version = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).version;
 const packages = releasePackages.map(pkg => ({ name: pkg.name, version,
   file: `${pkg.name.replace(/^@/, '').replace('/', '-')}-${version}.tgz` }));
-packages.push({ name: '@mnjs/html', version: '0.1.0', file: 'mnjs-html-0.1.0.tgz' });
+packages.push({ name: '@mnjs/html', version: '1.0.0', file: 'mnjs-html-1.0.0.tgz' });
 const docs = readFileSync(resolve(root, 'docs/quick-start.md'), 'utf8');
 const project = docs.split('## Create the project\n')[1]?.split('\n## ')[0];
 const setupBlock = project?.match(/```sh\n([\s\S]*?)```/);
@@ -22,8 +22,8 @@ test('quick-start certification replaces exact release npm specs with supplied a
     assert(command.includes(`'../marionette-v5-artifacts/${pkg.file}'`), pkg.name);
     assert(!command.includes(`${pkg.name}@${version}`), pkg.name);
   }
-  assert(command.includes('../marionette-v5-artifacts/mnjs-html-0.1.0.tgz'));
-  assert(!command.includes('@mnjs/html@0.1.0'));
+  assert(command.includes('../marionette-v5-artifacts/mnjs-html-1.0.0.tgz'));
+  assert(!command.includes('@mnjs/html@1.0.0'));
   assert(!command.includes('lit-html'));
   assert(!command.includes('@mnjs/adapters@'));
   assert(command.includes('vite@8.3.0'));

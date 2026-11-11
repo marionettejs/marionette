@@ -118,6 +118,33 @@ describe('owned Radio replies without global imports or resets', () => {
     expect(channel.request('answer')).toBe('new');
   });
 
+  it('allows a live owner to explicitly re-register its known handler after cleanup', async() => {
+    const channel = createRadio().channel('local');
+    const receiver = { answer: 'original' };
+    const handler = function() { return this.answer; };
+    channel.reply('answer', handler, receiver);
+    const scope = createTestScope();
+    scope.reply(channel, 'answer', 'temporary');
+    expect(channel.request('answer')).toBe('temporary');
+    await scope.cleanup();
+    expect(channel.request('answer')).toBeUndefined();
+
+    channel.reply('answer', handler, receiver);
+    await scope.cleanup();
+    expect(channel.request('answer')).toBe('original');
+  });
+
+  it('leaves the default reply available after removing an overwritten exact reply', async() => {
+    const channel = createRadio().channel('local');
+    channel.reply('default', (name, value) => `${name}:${value}`);
+    channel.reply('answer', 'original');
+    const scope = createTestScope();
+    scope.reply(channel, 'answer', 'temporary');
+    expect(channel.request('answer', 'fallback')).toBe('temporary');
+    await scope.cleanup();
+    expect(channel.request('answer', 'fallback')).toBe('answer:fallback');
+  });
+
   it('rejects registration after closure before creating a channel or changing a reply', async() => {
     const radio = createRadio();
     const scope = createTestScope();

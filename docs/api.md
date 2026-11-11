@@ -44,7 +44,7 @@ Use these contracts when implementing or adapting an integration. For configurat
 
 [@mnjs/adapters](packages/adapters.md) covers optional data and DOM integrations, their imports, configuration, observation, and cleanup.
 
-[@mnjs/html](../packages/html/guide.md) is the optional, separately versioned template renderer and Marionette DOM adapter. Its reference covers values, ownership, directives and security; the 0.1.0 candidate remains unpublished.
+[@mnjs/html](../packages/html/guide.md) is the optional, separately versioned template renderer and Marionette DOM adapter. Its reference covers values, ownership, directives and security; version 1.0.0 is published independently of core.
 
 ## Integration and task guides
 

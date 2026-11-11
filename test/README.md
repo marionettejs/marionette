@@ -35,6 +35,24 @@ executable documentation and consumer lint, test, TypeScript and Vite recipes.
 Node 26 remains a separate advisory lane; new LTS lines require verification
 before the consumer support policy changes.
 
+## Browser CI environment
+
+The CI browser, agent-reference and timing jobs, release candidate build, and HTML
+verification run in the official Playwright Noble container, pinned by version
+and registry digest. The image supplies browser binaries and system
+libraries; the jobs still install the exact source Node/npm toolchain, run as a
+non-root user with private IPC, and launch Chromium, Firefox and WebKit before
+running the existing suites. Provisioning failures remain failures, not skipped
+test coverage. The root jobs use the release profile; HTML verifies its own
+independently maintained Playwright installation.
+
+When upgrading Playwright, update the matching image version and verified digest
+in the affected workflows. The container regression tests reject stale pins.
+The reporting-only timing job downloads the exact base revision's Chromium into
+a separate temporary cache without installing OS packages. It uses that cache
+only for the base measurement and retains the candidate image's browser cache.
+Reports still reject comparisons when browser or package versions differ.
+
 ## Choose the smallest useful check
 
 | Contract | Location | Command |
@@ -211,7 +229,7 @@ manifest and lock together, then run that fixture. Never delete locks during tes
 The default examples use independently versioned `@mnjs/html`. Before
 `docs:check`, `check:docs-examples`, `check:docs-installed`,
 `test:docs-production`, `verify -- --full` or `release:validate`, prepare its
-source archive:
+published registry archive:
 
 ```sh
 npm run docs:prepare-html
@@ -220,9 +238,9 @@ npm run docs:prepare-html
 The version and archive name come from `packages/html/package.json`. Set
 `MNJS_HTML_TARBALL` only to override the prepared archive with a matching exact
 candidate. The five coordinated release tarballs remain unchanged; documentation
-and fixture reports record the separate renderer hash. Preparing it runs its build,
-not its full test suite; the HTML workflow owns renderer tests. This does not
-publish or certify an HTML release. Reprepare after changing renderer source.
+and fixture reports record the separate renderer hash. Preparation downloads the
+exact published version with npm pack; it does not rebuild checkout source. The
+HTML workflow owns renderer candidate tests. This does not publish an HTML release.
 
 The fixture runner prepares this dependency when `docs-quick-start` is selected,
 unless an explicit archive is supplied. Registry installation in the public quick

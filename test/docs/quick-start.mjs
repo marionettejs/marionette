@@ -14,7 +14,7 @@ const execute = promisify(execFile);
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const quote = value => `'${value.replaceAll(/'/g, '\'\\\'\'')}'`;
 
-// Certification exercises the documented npm recipe with the exact unpublished
+// Certification exercises the documented npm recipe with the exact separately hashed
 // package bytes. The resulting report distinguishes this from a registry install.
 export function artifactSetupCommand(command, packages) {
   for (const name of releasePackages.filter(pkg => !['@mnjs/data', '@mnjs/adapters'].includes(pkg.name)).map(pkg => pkg.name)) {
