@@ -436,6 +436,10 @@
     },
     {
       "file": "router-history.spec.mjs",
+      "title": "History fixture serves the selected URLPattern dependency in normal and installed runs"
+    },
+    {
+      "file": "router-history.spec.mjs",
       "title": "History driver with a URLPattern polyfill owns normal Marionette feature presentation"
     },
     {

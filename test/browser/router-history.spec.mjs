@@ -1,4 +1,7 @@
 import { expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+import { dirname, resolve as resolvePath } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { routerArtifactPath } from '../router/artifact.mjs';
 import { test as base } from './fixtures.mjs';
 
@@ -20,6 +23,22 @@ const test = base.extend({ page: async({ page }, use) => {
   await loadHistory(page);
   await use(page);
 } });
+
+test('History fixture serves the selected URLPattern dependency in normal and installed runs', async({ page, request, candidateServer }) => {
+  const candidate = JSON.parse(await readFile(process.env.MARIONETTE_BROWSER_CANDIDATE, 'utf8'));
+  const directory = candidate.urlPatternDirectory ?? dirname(fileURLToPath(import.meta.resolve('urlpattern-polyfill')));
+  const response = await request.get(`${candidateServer}/urlpattern/index.js`);
+  expect(response.ok()).toBe(true);
+  expect(await response.text()).toBe(await readFile(resolvePath(directory, 'index.js'), 'utf8'));
+  test.info().annotations.push({ type: 'polyfill-source', description: candidate.urlPatternDirectory ? 'installed-candidate' : 'checkout-dev-dependency' });
+  const result = await page.evaluate(async() => {
+    const { URLPattern } = await import('urlpattern-polyfill');
+    return { same: globalThis.URLPattern === URLPattern,
+      id: new URLPattern({ pathname: '/items/:id' }).exec('https://fixture.example/items/7').pathname.groups.id,
+      nativeReads: window.nativeNavigationReads };
+  });
+  expect(result).toEqual({ same: true, id: '7', nativeReads: 0 });
+});
 
 test('History driver with a URLPattern polyfill owns normal Marionette feature presentation', async({ page }) => {
   const markup = '<img src=x onerror="window.historyInjected=true"><b>Item & title</b>';
