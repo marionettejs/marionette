@@ -12469,7 +12469,7 @@
     "packages/router/src/query.ts": "c0f7a9f45401991472cabf707724c491ea056b302fce522fb2c7ce48c6cd7417",
     "packages/router/src/route-application.ts": "b92f85fb8fb617fa6c2ecdf73178b89f97c328f78584baef34653fcaa148f498",
     "packages/router/src/route-types.ts": "e677e857813a28e25da0d9e45a77495cf7499dcb79f601d4b50d338e7e3dfa9f",
-    "packages/router/src/router.ts": "fa922d5fe8163555f9911d16e887418a553f70926d3cd2d5705991dfdcb23c9a",
+    "packages/router/src/router.ts": "c4d98ebf66a494663ec1fabccfa1c385f5378c7ced49d78ca3d8d886aa015722",
     "packages/router/src/selection-key.ts": "1b425678728f4713605ac91aaedad14c4f114034534200b2808960ee6f972853",
     "packages/router/src/types.ts": "c009e4fdf2954e20fa39fe1d595dfa9151fea0b495c10d498b82fbb4c134a2cd",
     "packages/test/src/context.ts": "2480f1721ff900bbbb0de6648cbaef247786eff93009c0407a066f14cc72cdf0",

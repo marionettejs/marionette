@@ -549,6 +549,36 @@ test('History leaves non-HTTP anchor clicks browser-owned', async({ page }) => {
     navigations: 0, path: '/', nativeReads: 0 });
 });
 
+test('Router binding failure cleans History listeners without stopping Application and can restart', async({ page }) => {
+  const errors = []; page.on('pageerror', error => errors.push(error.message));
+  const result = await page.evaluate(async() => {
+    const { Application } = await import('marionette'); const { Router, historyDriver } = window.historyApi;
+    const driver = historyDriver(); const subscribe = driver.addEventListener; const signals = [];
+    const failure = new Error('binding failed'); let fail = true; let stops = 0;
+    driver.addEventListener = (type, listener, options) => {
+      subscribe(type, listener, options); signals.push(options.signal); if (fail) { throw failure; }
+    };
+    const router = new Router({ driver, routes: { home: { path: '/' } } });
+    const child = router.addChildApp('kept', new Application()); await child.start();
+    const failStop = () => { stops++; throw new Error('unexpected stop'); };
+    router.on('before:stop', failStop);
+    try {
+      const sameError = await router.start().then(() => false, error => error === failure);
+      const initial = await router.getInitialDispatch();
+      const failed = { sameError, status: initial.status, initialError: initial.error === failure,
+        running: router.isRunning(), child: child.isRunning(), canceled: await router.navigate('/ignored').finished,
+        aborted: signals[0].aborted, stops };
+      fail = false; const retried = await router.restart();
+      return { failed, retried, status: (await router.getInitialDispatch()).status, live: !signals[1].aborted,
+        child: child.isRunning(), nativeReads: window.nativeNavigationReads };
+    } finally { router.off('before:stop', failStop); router.destroy(); }
+  });
+  expect(result).toEqual({ failed: { sameError: true, status: 'failed', initialError: true, running: true,
+    child: true, canceled: false, aborted: true, stops: 0 }, retried: true, status: 'matched', live: true,
+  child: true, nativeReads: 0 });
+  expect(errors).toEqual([]);
+});
+
 test('ordinary History fragments cancel pending route work without redispatching it', async({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.evaluate(async() => {

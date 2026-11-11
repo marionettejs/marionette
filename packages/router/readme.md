@@ -244,6 +244,11 @@ Its info is the originating navigation's value, also through redirects; initial
 dispatch and refresh supply undefined. Existing two-argument listeners still work,
 and promise failures retain the original error. Applications choose how to coordinate
 both observation paths; driver/setup failures can occur without a route event.
+If synchronous Driver setup rejects `start()`, Router cancels its partial binding
+without stopping the Application or its children. Application remains activated
+with routing disabled. Use `restart()` to retry, or explicit stop/start; `start()`
+alone on an active Application does not retry. Use `stop()` or `destroy()` when
+abandoning that activation. The original failure is preserved.
 Same-URL refresh emits routing notifications
 as well. `focusReset` and `scroll` independently accept `manual` or
 `after-transition`; refresh uses manual policy. The package does not close overlays

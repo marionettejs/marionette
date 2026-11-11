@@ -124,7 +124,7 @@ it('reports a synchronous driver setup failure while ordinary Application start 
   const router = routerFor({ driver: { ...driver, addEventListener() {throw failure;} } });
   await assert.rejects(router.start(), error => error === failure);
   assert.deepEqual(await router.getInitialDispatch(), { status: 'failed', error: failure, match: null });
-  assert.equal(router.isRunning(), false);
+  assert.equal(router.isRunning(), true);
 });
 
 it('reports an explicit notFound handler as matched', async() => {

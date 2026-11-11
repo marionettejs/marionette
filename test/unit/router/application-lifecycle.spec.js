@@ -420,36 +420,44 @@ describe('Router Application ownership', () => {
 
 describe('Router binding acquisition failures', () => {
   for (const partiallyBound of [false, true]) {
-    it(`stops failed activation and permits retry after ${ partiallyBound ? 'partial' : 'failed' } binding`, async() => {
-      const failure = new Error('binding failed');
-      const driver = routing.memoryDriver({ url: 'https://routing.example/' });
-      const subscribe = driver.addEventListener.bind(driver);
-      let fail = true;
-      const signals = [];
-      driver.addEventListener = (type, listener, settings) => {
-        signals.push(settings.signal);
-        if (partiallyBound || !fail) { subscribe(type, listener, settings); }
-        if (fail) { throw failure; }
-      };
-      const router = own(new routing.Router({ driver, routes }));
-      let handled = 0;
-      router.on('route', () => { handled++; });
-      await assert.rejects(router.start(), error => error === failure);
-      assert.equal(router.isRunning(), false);
-      assert.equal(signals[0].aborted, true);
-      assert.equal(await router.navigate('page').finished, false);
-      assert.equal(router.getCurrent(), null);
-      fail = false;
-      assert.equal(await router.start(), true);
-      assert.equal(handled, 1);
-      assert.equal(await router.navigate('page').finished, true);
-      assert.equal(handled, 2);
-    });
+    for (const retry of ['restart', 'stop/start']) {
+      it(`cleans ${ partiallyBound ? 'partial' : 'failed' } binding without stopping Application and retries with ${retry}`, async() => {
+        const failure = new Error('binding failed');
+        const driver = routing.memoryDriver({ url: 'https://routing.example/' });
+        const subscribe = driver.addEventListener.bind(driver);
+        let fail = true;
+        const signals = [];
+        driver.addEventListener = (type, listener, settings) => {
+          signals.push(settings.signal);
+          if (partiallyBound || !fail) { subscribe(type, listener, settings); }
+          if (fail) { throw failure; }
+        };
+        const router = own(new routing.Router({ driver, routes }));
+        const child = router.addChildApp('kept', new Application()); await child.start();
+        let handled = 0;
+        router.on('route', () => { handled++; });
+        await assert.rejects(router.start(), error => error === failure);
+        assert.equal(router.isRunning(), true);
+        assert.equal(child.isRunning(), true);
+        assert.equal(signals[0].aborted, true);
+        assert.equal(await router.navigate('page').finished, false);
+        assert.equal(router.getCurrent(), null);
+        assert.equal(await router.start(), true); // Already active; does not retry binding.
+        assert.equal(signals.length, 1);
+        fail = false;
+        if (retry === 'restart') { assert.equal(await router.restart(), true); } else {
+          router.stop(); assert.equal(await router.start(), true);
+        }
+        assert.equal(handled, 1);
+        assert.equal(await router.navigate('page').finished, true);
+        assert.equal(handled, 2);
+      });
+    }
   }
 });
 
 
-it('preserves a binding failure and separately reports a synchronous stop notification failure', async() => {
+it('preserves a binding failure without stop notifications or a secondary global error', async() => {
   const failure = new Error('binding failed');
   const cleanupFailure = new Error('stop notification failed');
   const scheduled = [];
@@ -458,11 +466,57 @@ it('preserves a binding failure and separately reports a synchronous stop notifi
   let bindingSignal;
   driver.addEventListener = (_type, _listener, { signal }) => { bindingSignal = signal; throw failure; };
   const router = own(new routing.Router({ driver, routes }));
-  const failStop = () => { throw cleanupFailure; };
+  let stopped = false;
+  const failStop = () => { stopped = true; throw cleanupFailure; };
   router.on('before:stop', failStop);
   await assert.rejects(router.start(), error => error === failure);
   assert.equal(bindingSignal.aborted, true);
-  assert.equal(scheduled.length, 1);
-  assert.throws(scheduled[0], error => error === cleanupFailure);
+  assert.equal(router.isRunning(), true);
+  assert.equal(stopped, false);
+  assert.equal(scheduled.length, 0);
   router.off('before:stop', failStop);
+});
+
+it('preserves a retry requested by partial-binding cancellation', async() => {
+  const failure = new Error('binding failed'); const driver = routing.memoryDriver({ url: 'https://routing.example/' });
+  const subscribe = driver.addEventListener.bind(driver); const bindings = new Set(); const signals = [];
+  let router; let retry; let initial;
+  driver.addEventListener = (type, listener, options) => {
+    subscribe(type, listener, options); bindings.add(listener); signals.push(options.signal);
+    options.signal.addEventListener('abort', () => {
+      bindings.delete(listener);
+      if (signals.length === 1) { retry = router.restart(); }
+    }, { once: true });
+    if (signals.length === 1) { initial = router.getInitialDispatch(); throw failure; }
+  };
+  router = own(new routing.Router({ driver, routes }));
+  await assert.rejects(router.start(), error => error === failure);
+  assert.equal(await retry, true);
+  assert.deepEqual(await initial, { status: 'failed', error: failure, match: null });
+  assert.equal(signals[0].aborted, true); assert.equal(signals[1].aborted, false);
+  assert.equal(bindings.size, 1);
+  assert.equal((await router.getInitialDispatch()).status, 'matched');
+  assert.equal(await router.navigate('page').finished, true);
+});
+
+it('cancels route work delivered by a partial binding before setup throws', async() => {
+  const failure = new Error('binding failed'); const driver = routing.memoryDriver({ url: 'https://routing.example/' });
+  const subscribe = driver.addEventListener.bind(driver); const gate = deferred(); const ready = [];
+  let router; let pending;
+  driver.addEventListener = (type, listener, options) => {
+    subscribe(type, listener, options);
+    pending = router.navigate('page');
+    throw failure;
+  };
+  router = own(new routing.Router({ driver, routes, handler() { return gate.promise; } }));
+  router.on('route:ready', match => ready.push(match.name));
+  try {
+    await assert.rejects(router.start(), error => error === failure);
+    assert.equal(await pending.finished, false);
+    assert.equal(router.getCurrent().signal.aborted, true);
+    assert.equal(router.isRunning(), true);
+    assert.equal(await router.navigate('home').finished, false);
+  } finally { gate.resolve(); }
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(ready, []);
 });

@@ -93,10 +93,14 @@ starts join preparation; active starts resolve `true` without repeating it.
 Preparation and synchronous startup callback failures reject. Stop/destroy cancel
 pending preparation with a prompt `false` result under the Application contract.
 Driver binding and initial URL/state setup run in the activation notification.
-If the Router's own synchronous Driver setup fails, it stops through ordinary
-Application teardown and rejects `start()` with that original setup error.
-This cleanup is scoped to routing setup: a consumer's throwing `onStart` retains
-Application's ordinary post-activation callback-failure contract.
+If the Router's own synchronous Driver setup fails, it cancels its partial
+binding and attempts, then rejects `start()` with the original setup error.
+Application remains activated, as with other post-activation callback failures;
+Router does not call `stop()` or schedule a secondary global cleanup error.
+Routing is disabled, and an already-active `start()` does not retry binding.
+Use `restart()` to repeat preparation and binding, or explicitly stop/start for
+ordinary teardown and reactivation. Call `stop()` or `destroy()` when abandoning
+the failed activation. Consumer effects and children are not rolled back.
 
 Once activated, the Router acquires one Driver subscription and dispatches the
 current URL asynchronously. `start()` does not await that navigation. Current

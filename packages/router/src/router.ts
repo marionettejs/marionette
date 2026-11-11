@@ -207,14 +207,9 @@ function startRouting(router: RouterInstance) {
     dispatchInitial(router, session).then(initial.resolve);
   } catch (error) {
     initial.resolve({ status: 'failed', error, match: null });
-    // A failure acquiring our own binding must leave activation retryable.
-    // Consumer notification failures keep the ordinary Application contract.
+    // Release our partial binding and attempts. Application activation keeps
+    // its ordinary post-start failure semantics; callers choose stop or retry.
     stopRouting(router);
-    try {
-      router.stop();
-    } catch (cleanupError) {
-      queueMicrotask(() => {throw cleanupError;});
-    }
     throw error;
   }
 }
