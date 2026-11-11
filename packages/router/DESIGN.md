@@ -850,6 +850,31 @@ package declares no Radio channels.
 
 ## Package and validation boundary
 
+### Lifecycle integration remains under review
+
+The current API keeps route registration, dispatch and Application activation
+explicit. RouteApplication registers its handlers; it does not start itself before
+dispatch. ChildAppSwitcher selects a registered child by explicit identity and is
+also useful without routing. The examples demonstrate these existing contracts,
+not a settled automatic activation model.
+
+A remaining design question is whether a feature-local route declaration should
+also establish its initial activation, same-identity reuse or pending-start join,
+and changed-identity restart. A useful proposal must specify identity, startup
+options, navigation-away cancellation and stop/destroy behavior together. It
+should let children own their local handlers without parents repeating every
+descendant route, while preserving one Router matcher and explicit Application
+ownership. URL `routeParent` composition must remain distinct from UI ownership;
+independent panes must not become one implicit exclusive selection.
+
+This review branch does not implement that model. It adds no automatic activation,
+owner-chain discovery or second routing language, and retains `withRouter` as a
+convenience equivalent to an ordinary router default. The data-backed examples
+make their current reload/reuse choices explicit so that this decision can be
+reviewed separately from the correctness and declaration fixes.
+
+### Packaging
+
 Unsaved-change leave decisions remain application-owned. This package does not
 implement a routing guard API or history compensation.
 

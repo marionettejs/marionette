@@ -36,9 +36,11 @@ The maintainer clarified that the package uses Marionette's MIT license.
 The shipped `license.txt` copies the repository notice unchanged, including
 `Copyright (c) 2020 Paul Falgout`; this preparation invents no new holder or notice.
 The license choice and notice are settled. The package stays `private: true`
-because publication has not been authorized. Public pushes, publication, tags and
-deployment still require separate explicit approval; that permission boundary is
-not an unresolved licensing issue.
+because npm publication has not been authorized. The maintainer has authorized
+sharing this candidate on a router review branch in the Marionette repository.
+That approval does not authorize merging, npm publication, tags or deployment;
+those actions still require separate approval. This permission boundary is not an
+unresolved licensing issue.
 
 Historical reports and browser rehearsals are not fresh certification. A recorded
 WebKit traversal destination-state gap concerned redirect forwarding; ordinary
