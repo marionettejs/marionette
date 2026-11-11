@@ -673,7 +673,12 @@ Navigation:
   policies; applications retain presentation policy.
 - Window/document listeners are acquired by the first Driver subscription and
   released when its last subscription signal aborts. Detachment cancels pending
-  local work and traversal receipts. Share one Driver with the browser Router.
+  local work and traversal receipts. Non-current `back()`/`traverseTo()` calls
+  without an active `navigate` subscription reject both promises with
+  InvalidStateError before issuing `history.go()`. Current-key no-ops still
+  succeed without a subscription. Rebinding permits normal traversal again;
+  Router maintains its subscription while routing runs. Share one Driver with
+  the browser Router.
 
 These are implementation requirements, not additional browser certification.
 The installed-package tests name the engines actually exercised.

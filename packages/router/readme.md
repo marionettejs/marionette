@@ -194,6 +194,9 @@ while that request awaits commitment. A push/replace cancels that local request
 and permits another helper call. An interfering browser arrival cancels a live
 request if it reaches a different key; the actual location still dispatches.
 This adapter does not promise Navigation API traversal parity.
+Direct non-current Driver traversal requires an active `navigate` subscription;
+Router maintains one while routing runs. Detached calls reject with
+`InvalidStateError`; current-entry no-ops remain usable.
 
 Optimized ESM consumers can remove unused drivers; installed-package checks build
 and execute driver-only and Router combinations. A referenced fallback can remain

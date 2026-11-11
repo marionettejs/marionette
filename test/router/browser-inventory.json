@@ -577,6 +577,10 @@
     {
       "file": "router-history.spec.mjs",
       "title": "History forward then replace permits a new helper without stranding its receipt"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "detached History traversal rejects before go and recovers after subscription"
     }
   ]
 }

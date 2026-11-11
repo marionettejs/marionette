@@ -165,6 +165,48 @@ it('cancels a queued traversal if the owner unsubscribes before popstate', async
   await assert.rejects(pending.finished, { name: 'AbortError' });
 });
 
+for (const operation of ['back', 'traverseTo']) {
+  it(`rejects detached ${operation} before issuing go and permits traversal after rebind`, async() => {
+    const fixture = context(); const { driver, window } = fixture; intercept(fixture);
+    const a = await driver.navigate('/a').finished; const b = await driver.navigate('/b').finished;
+    fixture.listeners.abort();
+    const go = vi.spyOn(window.history, 'go');
+    const result = operation === 'back' ? driver.back() : driver.traverseTo(a.key);
+    assert.equal(go.mock.calls.length, 0, 'Detached helpers must not issue unobserved browser traversal');
+    const outcomes = await Promise.allSettled([result.committed, result.finished]);
+    assert.deepEqual(outcomes.map(outcome => [outcome.status, outcome.reason.name]), [
+      ['rejected', 'InvalidStateError'], ['rejected', 'InvalidStateError'],
+    ]);
+    assert.equal(outcomes[0].reason, outcomes[1].reason);
+    assert.equal(driver.currentEntry, b);
+    const next = new AbortController();
+    driver.addEventListener('navigate', event => event.intercept(), { signal: next.signal });
+    try {
+      const active = driver.back();
+      assert.equal(await active.committed, a); assert.equal(await active.finished, a);
+      assert.equal(await driver.traverseTo(b.key).finished, b);
+      assert.equal(go.mock.calls.length, 2);
+    } finally { next.abort(); }
+  });
+}
+
+it('keeps fresh unsubscribed current-entry no-ops and rejects unavailable destinations', async() => {
+  const fixture = context(); const { driver, window } = fixture;
+  const current = driver.currentEntry; const go = vi.spyOn(window.history, 'go');
+  const noop = driver.traverseTo(current.key);
+  assert.equal(await noop.committed, current); assert.equal(await noop.finished, current);
+  for (const result of [driver.back(), driver.traverseTo('unknown')]) {
+    const outcomes = await Promise.allSettled([result.committed, result.finished]);
+    assert.deepEqual(outcomes.map(outcome => [outcome.status, outcome.reason.name]), [
+      ['rejected', 'InvalidStateError'], ['rejected', 'InvalidStateError'],
+    ]);
+  }
+  assert.equal(go.mock.calls.length, 0);
+  intercept(fixture);
+  await driver.navigate('/active').finished;
+  assert.equal(await driver.back().finished, current);
+});
+
 it('observes a traversal completed while detached before a retained driver binds again', async() => {
   const fixture = context(); const { driver, window } = fixture; intercept(fixture);
   const a = await driver.navigate('/a').finished;

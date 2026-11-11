@@ -273,6 +273,9 @@ class HistoryDriver {
     if (existing) {return existing.result;}
     if (entry === this.#current) {return { committed: Promise.resolve(entry), finished: Promise.resolve(entry) };}
     const nav = new Transition();
+    if (!this.#listeners.size) {
+      nav.abort(error('History traversal requires an active navigate subscription', 'InvalidStateError')); return nav.result;
+    }
     // go() uses a relative delta when the browser processes it. A second queued
     // delta can reach a different key; do not promise an absolute destination.
     if (this.#traversals.size) {

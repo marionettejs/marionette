@@ -240,6 +240,42 @@ test('retained History routing resumes after a traversal arrived while stopped',
     current: 'a', handled: ['home', 'a', 'b', 'c', 'b', 'a'], nativeReads: 0 });
 });
 
+test('detached History traversal rejects before go and recovers after subscription', async({ page }) => {
+  const pageErrors = []; page.on('pageerror', error => pageErrors.push(error.message));
+  const result = await page.evaluate(async() => {
+    const { historyDriver } = window.historyApi;
+    const driver = historyDriver(); const first = new AbortController(); const next = new AbortController();
+    const original = history.go; let calls = 0;
+    history.go = function(...args) { calls++; return original.apply(this, args); };
+    const failures = async receipt => Promise.all([receipt.committed, receipt.finished].map(promise =>
+      promise.then(() => 'incorrect success', error => error.name)));
+    try {
+      const fresh = driver.currentEntry;
+      const noop = driver.traverseTo(fresh.key);
+      const freshNoop = await noop.committed === fresh && await noop.finished === fresh;
+      const freshFailure = await failures(driver.back());
+      driver.addEventListener('navigate', event => event.intercept(), { signal: first.signal });
+      const a = await driver.navigate('/a').finished; const b = await driver.navigate('/b').finished;
+      first.abort();
+      const detachedNoop = driver.traverseTo(b.key);
+      const same = await detachedNoop.committed === b && await detachedNoop.finished === b;
+      const detached = await Promise.all([failures(driver.back()), failures(driver.traverseTo(a.key))]);
+      const before = { calls, path: location.pathname, key: driver.currentEntry.key === b.key };
+      driver.addEventListener('navigate', event => event.intercept(), { signal: next.signal });
+      const active = driver.back();
+      const committed = await active.committed; const finished = await active.finished;
+      const forward = await driver.traverseTo(b.key).finished;
+      return { freshNoop, freshFailure, same, detached, before,
+        recovery: committed.key === a.key && finished.key === a.key && forward.key === b.key,
+        calls, nativeReads: window.nativeNavigationReads };
+    } finally { first.abort(); next.abort(); history.go = original; }
+  });
+  expect(result).toEqual({ freshNoop: true, freshFailure: ['InvalidStateError', 'InvalidStateError'], same: true,
+    detached: [['InvalidStateError', 'InvalidStateError'], ['InvalidStateError', 'InvalidStateError']],
+    before: { calls: 0, path: '/b', key: true }, recovery: true, calls: 2, nativeReads: 0 });
+  expect(pageErrors).toEqual([]);
+});
+
 for (const outcome of ['ready', 'error', 'abort-error', 'stop']) {
   test(`earlier History pop listener preserves newer ${outcome} authority`, async({ page }) => {
     const pageErrors = []; page.on('pageerror', error => pageErrors.push(error.message));
