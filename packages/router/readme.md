@@ -5,9 +5,10 @@ feature-owned registrations, and selectable child Applications. Use the tools
 individually. A Router does not infer UI ownership from URL nesting.
 
 **Browser support: tested on Chromium only. Firefox and WebKit are untested.**
-The default driver requires the **Navigation API** and **URLPattern**. It also
-uses `AbortSignal.any`, `Promise.withResolvers` and `URL.canParse`; transpilation
-does not supply these APIs. There is no automatic fallback driver. Capability
+Router requires **URLPattern**, `AbortSignal.any`, `Promise.withResolvers` and
+`URL.canParse`; the default driver additionally requires the **Navigation API**.
+An explicit `historyDriver()` uses the History API instead. Transpilation
+does not supply these APIs. There is no automatic driver selection. Capability
 presence alone does not establish browser compatibility. See the capability
 check below before importing an application that eagerly constructs a Router.
 
@@ -121,7 +122,8 @@ navigation and are rejected as names at registration.
 ## Check capabilities before eager application imports
 
 The package is import-safe, but constructing a Router compiles route patterns.
-If `app.js` constructs one at module scope, check before importing `app.js`:
+For the default native driver, if `app.js` constructs one at module scope,
+check before importing `app.js`:
 
 ```js
 if (
@@ -155,6 +157,53 @@ archive. Firefox and WebKit are untested and are not certified targets. There is
 automatic fallback driver. These browser requirements are independent of the
 core library's transpilation targets. Node consumer evidence currently uses
 Node 24.19.0; the declared minimum is 24.15.0.
+
+## Choose a History API driver explicitly
+
+`historyDriver()` has the same named-factory format as `memoryDriver()` and
+`navigationDriver()`. Driver injection and the native default are unchanged.
+Application code owns choosing and importing a driver; the package has no loader.
+If URLPattern is absent, install a consumer polyfill before constructing Router:
+
+```sh
+npm install urlpattern-polyfill
+```
+
+This is a driver configuration fragment, using the same Router and routes:
+
+```js
+import 'urlpattern-polyfill';
+import { Router, historyDriver } from '@mnjs/router';
+
+const router = new Router({
+  driver: historyDriver(),
+  routes: {
+    home: { path: '/' },
+  },
+});
+```
+
+History and memory drivers also require `structuredClone`. The History adapter
+tracks only its dense known-entry window, not arbitrary prior browser history;
+document reloads and unknown entries reset that window. Browser Back/Forward is already
+committed and cannot be vetoed. It preserves caller state using reserved entry
+metadata, leaves unclaimed links/document navigation to the browser, and does
+not emulate native focus/scroll restoration. See the [precise boundary](DESIGN.md#history-api-driver).
+Same-target live traversal calls join; a different helper destination rejects while
+the first physical traversal is outstanding. History exposes no cancellation
+notification for a suppressed `go()`, so this restriction can persist for that
+Driver. This adapter does not promise Navigation API traversal parity.
+
+Optimized ESM consumers can remove unused drivers; installed-package checks build
+and execute driver-only and Router combinations. A referenced fallback can remain
+in a shared bundle. Named exports do not promise a separately downloaded chunk:
+conditional imports and network splitting belong to the application's bundler.
+The History path is tested in Chromium with the Navigation API unused and an
+actual URLPattern polyfill. This is not full polyfill certification:
+`urlpattern-polyfill@10.1.0` differs from native URLPattern for `__proto__`
+parameter names and backslash syntax; avoid those inputs on that path. See
+[the compatibility limits](DESIGN.md#history-api-driver). Firefox and WebKit
+remain untested.
 
 ## Choose which completion you need
 
@@ -215,7 +264,7 @@ or decide whether a departing overlay should restore focus.
 These classes belong to Marionette's default Application family. An isolated
 `createMarionette()` tree cannot register them as children; `.extend()` does not
 change runtime identity. UI ownership/Regions remain ordinary Marionette choices.
-There is no automatic branch walker, History API fallback, leave guard or history
+There is no automatic branch walker, driver selection, leave guard or history
 compensation. Detailed [feature registration](DESIGN.md#feature-route-registration),
 [selection](DESIGN.md#child-applications), [types](DESIGN.md#typing-and-javascript)
 and [driver contracts](DESIGN.md#construction-options-and-extension) remain opt-in reading.

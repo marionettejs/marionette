@@ -433,6 +433,114 @@
     {
       "file": "router-planning.spec.mjs",
       "title": "native registration retirement during planning cancels initial work without document fallback"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History driver with a URLPattern polyfill owns normal Marionette feature presentation"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History Back and Forward retain known keys, dense indexes, state and required work"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "duplicate History Back callers share ready readiness"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "duplicate History Back callers share error readiness"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "duplicate History Back callers share abort-error readiness"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "duplicate History Back callers share redirect readiness"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "duplicate History Back callers share stop readiness"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History Back superseded by push keeps later ready traversal separate"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History Back superseded by push keeps later abort-error traversal separate"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History Back superseded by replace keeps later ready traversal separate"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History Back superseded by replace keeps later abort-error traversal separate"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "a distinct History Back after commitment supersedes the earlier destination work"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History reload reconstruction preserves user state and starts a new known window"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History link interception respects browser gestures, targets and unclaimed links"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History click routing detaches on stop and destruction, then rebinds once on restart"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History unknown entries expose a new dense window instead of invented prior history"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History state storage preserves cyclic graphs and aliases in the real browser"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History rejects script URL navigation before executing it"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "ordinary History fragments cancel pending route work without redispatching it"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "unclaimed History navigate performs a real document handoff"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "unclaimed History click performs a real document handoff"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History sync fragment redirect awaits destination work"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History async fragment redirect awaits destination work"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "distinct concurrent History traversal rejects without issuing a relative second go"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "retained History routing resumes after a traversal arrived while stopped"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History fragment classification survives public entry reads (false)"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History fragment classification survives public entry reads (true)"
     }
   ]
 }

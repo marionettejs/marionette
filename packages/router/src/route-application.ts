@@ -64,7 +64,7 @@ function constructRouteApplication(this: RouteApplicationInstance, options: Rout
   if (this.isDestroyed()) {unmount();}
 }
 
-export const RouteApplication = Application.extend({
+export const RouteApplication = /* @__PURE__ */ Application.extend({
   constructor: constructRouteApplication,
   routes: {},
 }, {

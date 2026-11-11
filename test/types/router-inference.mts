@@ -1,4 +1,4 @@
-import { Router, defineRoutes, memoryDriver, type RouterInstance, type RouterOptions, type RouteNames, type RouteParams, type RouteTable } from '@mnjs/router';
+import { Router, defineRoutes, memoryDriver, historyDriver, type Driver, type RouterInstance, type RouterOptions, type RouteNames, type RouteParams, type RouteTable } from '@mnjs/router';
 import { Application, type LifecycleContext } from 'marionette';
 
 const routes = defineRoutes([
@@ -217,3 +217,9 @@ const validCatalogParams: RouteParams<ValidParentCatalog, 'catalogChild'> = { de
 new Router<ValidParentCatalog>().url(validCatalogChild, validCatalogParams);
 // @ts-expect-error A valid child's params retain its parent's required desk.
 const incompleteCatalogParams: RouteParams<ValidParentCatalog, 'catalogChild'> = { id: 7 };
+
+const historyContract: Driver = historyDriver();
+new Router({ driver: historyContract });
+historyDriver({ window: globalThis.window });
+// @ts-expect-error History takes a Window; a URL belongs to memoryDriver.
+historyDriver({ url: 'https://example.test/' });

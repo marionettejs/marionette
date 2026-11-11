@@ -100,16 +100,22 @@ complete archive SHA256 must match across all receipts and the eventual publish.
 
 This consumer installs the exact archive with published minimum
 `marionette@5.0.1`, Utils/Radio 5.0.1, and optional example dependencies
-`@mnjs/adapters@5.0.1` and `lit-html@3.3.3`, without install scripts or overrides.
+`@mnjs/adapters@5.0.1`, `lit-html@3.3.3` and `urlpattern-polyfill@10.1.0`, without
+install scripts or overrides.
 It records registry locators/integrities and verifies ESM/CJS runtime and
 declarations, CheckJS, shipped documentation links, cancellation/retention,
-capability checks and actual executable examples. Controlled breaks prove missing
+capability checks, actual executable examples and optimized ESM consumers that
+remove unused drivers. History ESM/CJS consumers exercise state, Back/Forward
+and retained lifecycle using a real Window implementation. Controlled breaks prove missing
 rendering and unsafe interpolation are detected. Inspect the resolved dependency
 tree for duplicate/incompatible Marionette runtimes. Also check the newest
 compatible core if it differs from the minimum, preserving exact resolved versions.
 
-The initial native policy is **Chromium only**. Navigation API and URLPattern,
-plus the other documented Web APIs, are required. Firefox and WebKit are untested.
+The initial browser policy is **Chromium only**. The default driver requires the
+Navigation API and Router requires URLPattern plus the other documented Web APIs.
+The explicit History path is tested with native Navigation unavailable and the
+installed URLPattern polyfill; it does not certify other missing built-ins.
+Firefox and WebKit are untested.
 Use the pinned browser or an installed supported Chromium via
 `--chromium-executable /absolute/path/chromium`, recording its actual version.
 Do not weaken browser security or bypass download restrictions. Require every
@@ -118,7 +124,7 @@ missing, not a successful certification. Use a supported cloud execution boundar
 when a managed command wrapper prevents an installed browser's sandbox helper.
 
 Without `--registry-peers`, results are labeled `local-development`; without
-`--browser`, they do not establish native coverage. The separate core release
+`--browser`, they do not establish browser coverage. The separate core release
 retains its full three-engine exact inventory through
 `playwright.core-release.config.mjs`. Router certification does not weaken it.
 

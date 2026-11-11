@@ -1,5 +1,5 @@
 import { Application } from 'marionette';
-import { Router, RouteApplication, ChildAppSwitcher, defineRoutes, memoryDriver } from '@mnjs/router';
+import { Router, RouteApplication, ChildAppSwitcher, defineRoutes, memoryDriver, historyDriver } from '@mnjs/router';
 
 /** @type {import('@mnjs/router').RouteHandler} */
 const handleItem = (match, { signal }) => {
@@ -81,3 +81,9 @@ const ClearedDefault = InheritedDefault.extend({ router: undefined });
 // @ts-expect-error Clearing a prototype default requires a router option again.
 new ClearedDefault();
 new ClearedDefault({ router });
+
+/** @type {import('@mnjs/router').Driver} */
+const historyContract = historyDriver({ window: globalThis.window });
+new Router({ driver: historyContract });
+// @ts-expect-error A configured Window cannot be a scalar.
+historyDriver({ window: 1 });

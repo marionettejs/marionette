@@ -110,7 +110,7 @@ function constructSwitcher(this: ChildAppSwitcherInstance, options: ChildAppSwit
   });
   Application.call(this, options);
 }
-export const ChildAppSwitcher = Application.extend({
+export const ChildAppSwitcher = /* @__PURE__ */ Application.extend({
   constructor: constructSwitcher,
 
   async switchTo(this: ChildAppSwitcherInstance, appName: string, selection: SwitchOptions = {}) {

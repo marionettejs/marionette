@@ -6,6 +6,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { candidateOutput, inspectRouterArchive, sha256, validatePreparationReceipt, validateRouterPackage, verifyRouterBrowserReport, verifyRouterDocumentation } from './artifact.mjs';
+import { verifyDriverTreeShaking } from './tree-shaking.mjs';
+import { verifyHistoryPackage } from './history-package-check.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const npmCli = process.env.npm_execpath;
@@ -46,8 +48,8 @@ try {
   }
   const peers = values['registry-peers'] ? ['marionette@5.0.1', '@mnjs/utils@5.0.1'] :
     ['.package', 'packages/utils', 'packages/radio'].map(directory => pack(join(root, directory)));
-  const exampleDependencies = values['registry-peers'] ? ['@mnjs/adapters@5.0.1', 'lit-html@3.3.3'] :
-    ['packages/adapters', 'node_modules/lit-html', 'node_modules/@types/trusted-types'].map(directory => pack(join(root, directory)));
+  const exampleDependencies = values['registry-peers'] ? ['@mnjs/adapters@5.0.1', 'lit-html@3.3.3', 'urlpattern-polyfill@10.1.0'] :
+    ['packages/adapters', 'node_modules/lit-html', 'node_modules/@types/trusted-types', 'node_modules/urlpattern-polyfill'].map(directory => pack(join(root, directory)));
   writeFileSync(join(consumer, 'package.json'), '{"name":"router-tarball-consumer","private":true,"type":"module"}\n');
   execFileSync(process.execPath, [npmCli, 'install', '--ignore-scripts', '--strict-peer-deps', '--no-audit', '--no-fund',
     ...(values['registry-peers'] ? ['--registry=https://registry.npmjs.org/', '--fetch-retries=0', '--fetch-timeout=20000'] : ['--offline']),
@@ -63,7 +65,7 @@ try {
     if (values['registry-peers']) { assert.ok(entry.resolved.startsWith('https://registry.npmjs.org/')); }
     return { name, version: entry.version, resolved: entry.resolved, integrity: entry.integrity };
   });
-  report.exampleDependencies = [['@mnjs/adapters', '5.0.1'], ['lit-html', '3.3.3']].map(([name, version]) => {
+  report.exampleDependencies = [['@mnjs/adapters', '5.0.1'], ['lit-html', '3.3.3'], ['urlpattern-polyfill', '10.1.0']].map(([name, version]) => {
     const entry = lock.packages[`node_modules/${name}`];
     assert.equal(entry.version, version);
     if (values['registry-peers']) { assert.ok(entry.resolved.startsWith('https://registry.npmjs.org/')); }
@@ -228,6 +230,10 @@ try {
   }, files: typeFiles }));
   execFileSync(process.execPath, [join(root, 'node_modules/typescript/bin/tsc'), '-p', 'tsconfig.json'], { cwd: consumer, stdio: 'inherit' });
   report.checks.push('installed-esm-cjs-checkjs-types');
+  await verifyHistoryPackage(consumer);
+  report.checks.push('installed-history-esm-cjs');
+  report.treeShaking = await verifyDriverTreeShaking(consumer);
+  report.checks.push('optimized-esm-driver-consumers');
   writeFileSync(join(consumer, 'correctness-probes.mjs'), readFileSync(join(root, 'test/router/correctness-probes.mjs')));
   execFileSync(process.execPath, ['correctness-probes.mjs'], { cwd: consumer, stdio: 'inherit' });
   cpSync(join(installed, 'examples/desk'), join(consumer, 'desk'), { recursive: true });
@@ -267,7 +273,8 @@ try {
     writeFileSync(candidate, JSON.stringify({ source: { commit: report.archiveSourceCommit, verificationCommit: report.verificationCommit },
       packages: packages.filter(entry => entry.id !== 'router'),
       routerPackage: packages.find(entry => entry.id === 'router'), routerArchive: report.archive,
-      litDirectory: join(consumer, 'node_modules/lit-html') }));
+      litDirectory: join(consumer, 'node_modules/lit-html'),
+      urlPatternDirectory: join(consumer, 'node_modules/urlpattern-polyfill') }));
     execFileSync(process.execPath, [npmCli, 'run', 'test:router-browser'], { cwd: root, stdio: 'inherit', env: {
       ...process.env, MARIONETTE_BROWSER_CANDIDATE: candidate, MARIONETTE_ROUTER_PACKAGE_DIRECTORY: installed,
       ...(values['chromium-executable'] ? { MARIONETTE_ROUTER_CHROMIUM: resolve(values['chromium-executable']) } : {}),
@@ -275,7 +282,7 @@ try {
     const results = JSON.parse(readFileSync(join(root, 'test/tmp/router-browser/results.json')));
     const inventory = JSON.parse(readFileSync(join(root, 'test/router/browser-inventory.json')));
     report.browser = verifyRouterBrowserReport(results, inventory);
-    report.checks.push('native-chromium-exact-router-archive');
+    report.checks.push('chromium-native-and-history-exact-router-archive');
     if (output) { cpSync(join(root, 'test/tmp/router-browser/results.json'), join(output, 'browser-results.json')); }
   }
   assert.equal(git(['rev-parse', 'HEAD']), report.verificationCommit, 'Source changed during verification');

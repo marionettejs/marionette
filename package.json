@@ -184,6 +184,7 @@
     "terser": "5.51.2",
     "typescript": "6.0.3",
     "underscore": "^1.13.0",
+    "urlpattern-polyfill": "10.1.0",
     "vitest": "5.1.0",
     "xstate": "5.33.3",
     "yaml": "2.9.1"

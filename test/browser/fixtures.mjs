@@ -51,6 +51,10 @@ export const test = base.extend({
       assets.set(`/consumer-fixture/${file}`, resolve(root, 'test/fixtures/data-package-starter', file));
     }
     const litRoot = candidate.litDirectory ?? dirname(fileURLToPath(import.meta.resolve('lit-html')));
+    if (candidate.urlPatternDirectory) {
+      await addJavaScriptAssets(assets, candidate.urlPatternDirectory, '/urlpattern');
+      imports['urlpattern-polyfill'] = '/urlpattern/index.js';
+    }
     for (const name of ['lit-html.js', 'async-directive.js', 'directive.js', 'directive-helpers.js', 'directives/live.js']) {
       assets.set(`/lit/${name}`, resolve(litRoot, name));
     }

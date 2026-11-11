@@ -635,7 +635,7 @@ function mark(router: RouterInstance, entry: DriverEntry, signal: AbortSignal) {
   return signal.aborted ? marked : entry.getState();
 }
 
-export const Router = Application.extend({
+export const Router = /* @__PURE__ */ Application.extend({
   constructor: constructRouter,
   routes: [],
   persistParams: [],

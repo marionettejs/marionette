@@ -613,6 +613,77 @@ with `memoryDriver({ url })`. Its initial URL is required and must be absolute;
 relative navigation then resolves from its current entry. Native-browser
 conformance is separate evidence.
 
+## History API driver
+
+`historyDriver()` is an optional named export, like `memoryDriver()` and
+`navigationDriver()`. The application chooses a Driver and passes it to Router;
+the package does not detect capabilities, load drivers, or install polyfills.
+The native Navigation API adapter remains the default. Install a URLPattern
+polyfill before constructing Router when the runtime lacks URLPattern; the other
+documented built-in requirements still apply.
+
+The History adapter's supported boundary is deliberately smaller than native
+Navigation:
+
+- `entries()` exposes a dense window of entries known to this Driver instance;
+  `currentEntry.index` indexes that array. It cannot enumerate arbitrary browser
+  history. A new instance/document reload or an unknown entry starts a new window. Unknown
+  keys reject traversal, and `Router.back()` cannot promise access to prior
+  unknown entries. Foreign writes without a recognized stamp, or with a changed
+  URL, reset this window on the next Driver read/event. Copying a Driver stamp
+  into another entry at the same URL cannot be detected and is unsupported.
+  Use this Driver as the History writer; it does not patch global History methods.
+  Unobserved joint-history changes in other frames are outside this ownership
+  boundary too: relative `go()` can traverse a frame without a top-window pop.
+- Same-origin intercepted push/replace operations commit History state and await
+  required route work. Browser Back/Forward commits before `popstate` and is not
+  cancelable (`cancelTraverse: false`). Stale work is canceled; the Driver does not
+  undo traversal or compensate history. Live duplicate same-target helper calls share
+  readiness. A different non-current helper destination rejects with
+  InvalidStateError while a physical `go()` is outstanding, without issuing
+  another relative traversal. Current-key no-ops and invalid keys do not cancel
+  an existing request. Once the known destination is observed, a distinct
+  traversal can start even while that destination's handler is pending.
+  A new owned push/replace cancels older local traversal receipts with
+  AbortError; the browser may still deliver their physical traversal later. That
+  later pop is handled as a fresh event and is not attached to the canceled
+  receipt's readiness/error. The adapter cannot observe whether the browser
+  canceled a queued `go()`, and does not add a timeout or retry queue to infer it.
+  If the browser suppresses it without notification, distinct traversal helpers
+  remain blocked for that Driver; push/replace and browser navigation still work.
+  A new Driver does not cancel the old browser traversal. Do not combine helper
+  traversal with other simultaneous History writers; only document reconstruction
+  definitively ends that document's outstanding browser work.
+  `popstate` cannot identify user intent, so traversal reports `userInitiated: false`;
+  intercepted clicks use the original click's trusted-input flag.
+- Entry keys use reserved `@mnjs/router/history` metadata in native History state.
+  Plain object fields, including Router's ownership marker, remain intact; other
+  state values use an envelope. Driver `getState()` returns caller state with normal
+  structured-clone semantics. A previous instance's state is decoded but its keys
+  are not treated as known. Plain object state reserves the metadata key.
+- Unmodified same-origin links can be intercepted; modifiers, downloads, other
+  targets, forms and cross-origin links stay browser-owned. Unclaimed, uncanceled
+  clicks retain browser default behavior. Ordinary fragment links remain native;
+  controlled Router fragment redirects still participate in route readiness.
+- Unclaimed programmatic navigation/reload hands off to the document and rejects
+  its local promises with AbortError. This does not claim cross-document readiness.
+  Provided state is retained for reload; cross-document state delivery is not
+  provided by Location navigation. Script URLs reject with NotSupportedError.
+  The adapter does not emulate native focus/scroll restoration or transition
+  policies; applications retain presentation policy.
+- Window/document listeners are acquired by the first Driver subscription and
+  released when its last subscription signal aborts. Detachment cancels pending
+  local work and traversal receipts. Share one Driver with the browser Router.
+
+These are implementation requirements, not additional browser certification.
+The installed-package tests name the engines actually exercised.
+The tested `urlpattern-polyfill@10.1.0` does not reproduce native URLPattern for
+`__proto__` parameter groups or unfinished/literal-backslash patterns. It can
+produce `[object Object]` parameter values, accept an unfinished escape, or accept
+a generated path that native URLPattern rejects. Ordinary names, parameters and
+groups have separate passing evidence; this is not a claim of complete polyfill
+compatibility. The Router's native grammar contract is unchanged.
+
 ## Child Applications
 
 ChildAppSwitcher is an Application that owns one selectable child group. It does
@@ -909,7 +980,7 @@ behavior with the required peer. Focused headless native-navigation tests exerci
 the built router with packed Marionette peers; these do not certify the entire
 Driver contract, minimum browser versions or any consuming application UI.
 
-A History API Driver, reflection, richer refresh intent and additional coordination
+Reflection, richer refresh intent and additional coordination
 hooks require concrete requirements; they are not prerequisites for this package's
 existing behavior. The maintainer has confirmed the Marionette MIT license and
 the exact notice is shipped. Publication still requires separate approval and
