@@ -1,10 +1,12 @@
-import { Router, memoryDriver, navigationDriver, type ActiveMatch, type Match, type Driver, type NavigationResult, type RouterOptions, type RouterInstance, type RouteDefinition } from '@mnjs/router';
-import { ChildAppSwitcher, RouteApplication, defineRoutes, type ChildAppSwitcherInstance, type ChildAppSwitcherOptions, type RouteApplicationOptions, type RouteApplicationInstance, type RouteTable, type RouteHash, type RouteHandler, type MountOptions, type SelectionKey } from '@mnjs/router';
-// @ts-expect-error Runtime-bound constructor factories are not public package exports.
-import { createRouterClass, createChildAppSwitcherClass } from '@mnjs/router';
+import { Router, RouteApplication, routeTable, defineRoutes, memoryDriver, navigationDriver, historyDriver,
+  type Driver, type NavigationResult, type ActiveMatch, type Match, type RouterInstance, type RouterOptions,
+  type RouteDefinition, type RouteHash, type RouteTable, type RouteNames, type RouteParams,
+  type RouteApplicationInstance, type RouteApplicationOptions, type ApplicationRoutes, type SwitchOptions, type SelectionKey } from '@mnjs/router';
 import { Application, type LifecycleContext } from 'marionette';
+// @ts-expect-error Selection is private; the former public class is removed.
+import { ChildAppSwitcher } from '@mnjs/router';
 
-const driver: Driver = memoryDriver({ url: 'http://localhost/' });
+const driver: Driver = memoryDriver({ url: 'https://types.example/' });
 const customDriver: Driver = {
   get currentEntry() { return driver.currentEntry; },
   entries: driver.entries, navigate: driver.navigate, reload: driver.reload,
@@ -12,282 +14,200 @@ const customDriver: Driver = {
   addEventListener: driver.addEventListener,
 };
 navigationDriver(customDriver);
-// @ts-expect-error Driver capability flags are not a supported public field.
-void customDriver.capabilities;
-// @ts-expect-error Memory navigation requires an explicit initial document URL.
+historyDriver({ window: globalThis.window });
+// @ts-expect-error Static Driver capability flags are removed.
+customDriver.capabilities;
+// @ts-expect-error Memory needs an explicit initial URL.
 memoryDriver();
-// @ts-expect-error An options object alone supplies no initial URL.
-memoryDriver({});
+// @ts-expect-error History expects a Window.
+historyDriver({ window: 42 });
+// @ts-expect-error Driver.navigate does not accept interception policy.
+driver.navigate('/item', { scroll: 'manual' });
+driver.updateCurrentEntry({ state: { preserved: true } });
+
 const router = new Router({
-  routes: [{ name: 'home', path: '/' }], driver,
-  handler(match: ActiveMatch, { signal }) {
-    signal.throwIfAborted();
-    match.signal.throwIfAborted();
-    return Promise.resolve();
-  },
+  driver, routes: { '/': { name: 'home' } },
+  owns(url) { return url.pathname !== '/outside'; },
+  notFound: 'missing',
+  handler(match, { signal }) { signal.throwIfAborted(); return match.name; },
 });
-// @ts-expect-error Alias route configuration was removed; use a named redirect route.
-const removedAlias: RouteDefinition = { name: 'old', path: '/old', aliases: [] };
-void removedAlias;
-// @ts-expect-error Alias inspection was removed.
-router.getAliases();
-const result: NavigationResult<boolean> = router.navigate('home', {}, { state: { selected: 2 } });
+const result: NavigationResult<boolean> = router.navigate('/item', { state: { selected: 1 }, scroll: 'manual' });
 const readiness: Promise<boolean> = result.finished;
-const idle: Match | null = router.match('/');
+const idle: Match | null = router.match('/item');
 if (idle) {
-  // @ts-expect-error Pure matching provides no navigation signal.
+  // @ts-expect-error Pure matching has no navigation signal.
   idle.signal.throwIfAborted();
-  // @ts-expect-error Matches no longer expose alias metadata.
-  const oldAlias = idle.alias;
-  void oldAlias;
+  // @ts-expect-error Engine branch data is opaque.
+  idle.branch[0].data.mount;
 }
-navigationDriver(window.navigation);
-router.listenTo(router, 'route', (match: ActiveMatch) => match.name);
-const owner = new Application();
-const switcher: ChildAppSwitcherInstance = owner.addChildApp('pages', new ChildAppSwitcher());
-const extended = ChildAppSwitcher.extend({
-  initialize(_options: ChildAppSwitcherOptions) { this.getCurrent(); },
-  isSelected() { return this.getCurrent() !== null; },
-});
-const child = new extended({});
-const selected: boolean = child.isSelected();
-switcher.switchTo('page', { key: { id: 'one', branch: ['a'] }, options: { id: 'one' } });
-// @ts-expect-error Switcher keys are primitive, arrays or plain objects.
-switcher.switchTo('page', { key: new Map() });
-// @ts-expect-error Driver events have typed destinations and interception.
-driver.addEventListener('navigate', (event: { missing: string }) => event.missing);
-// @ts-expect-error Router state is a plain object, not a Map.
-router.updateState(new Map());
-void [readiness, selected];
+// @ts-expect-error Router state updates are deferred; Driver state updates remain.
+router.updateState({});
+// @ts-expect-error The old ownership callback is removed.
+const oldOwnership: RouterOptions = { intercept: () => true };
+// @ts-expect-error Not-found configuration is a name.
+const oldNotFound: RouterOptions = { notFound: { name: 'missing', within: () => true } };
+// @ts-expect-error Explicit persistence lists are removed.
+const oldPersistence: RouterOptions = { persistParams: ['team'] };
+// @ts-expect-error Scroll policy has no auto value.
+router.navigate('/item', { scroll: 'auto' });
+// @ts-expect-error Focus uses the native literal values.
+router.navigate('/item', { focusReset: 'preserve' });
 
-interface CatalogOptions extends RouterOptions { scope: string }
-const CatalogRouter = Router.extend({
-  options: { maxRedirects: 3 },
-  initialize(options: CatalogOptions) {
-    const scope: string = options.scope;
-    this.url('item', { id: scope });
-  },
-  routes() {
-    this.getOption('scope');
-    return [{ name: 'item', path: '/items/:id' }];
-  },
-  handler(match: ActiveMatch, { signal }: { signal: AbortSignal }) {
-    signal.throwIfAborted();
-    return this.showItem(match);
-  },
-  onRouteReady(match: ActiveMatch) { this.trigger('item:ready', match); },
-  showItem(match: ActiveMatch) { return this.url(match.name, match.params); },
-});
-const catalog = new CatalogRouter({ scope: 'public', driver });
-const base: RouterInstance = catalog;
-const itemUrl: string = catalog.showItem(catalog.getCurrent()!);
-const changed: boolean = catalog.updateState({ selected: 3 });
-catalog.destroy();
-// @ts-expect-error Subclass initialize requires its declared options.
-new CatalogRouter({ driver });
-const ownedRouter = owner.addChildApp('router', new Router({ driver }));
-const activated: Promise<boolean> = ownedRouter.start();
-const restarted: Promise<boolean> = ownedRouter.restart();
-const available: boolean = ownedRouter.canGoBack();
-const disposed: boolean = ownedRouter.destroy();
-void [activated, restarted, available, disposed];
-const PreparedRouter = Router.extend({
-  async prepareStart(_options: unknown, { signal }: LifecycleContext) {
-    signal.throwIfAborted();
-    return { prepared: true };
-  },
-});
-const preparedRouter = owner.addChildApp('prepared', new PreparedRouter({ driver }));
-preparedRouter.prepareStart(undefined, { signal: new AbortController().signal }) satisfies Promise<{ prepared: boolean }>;
-preparedRouter.onStart?.(preparedRouter, undefined, { prepared: true });
-// @ts-expect-error Ordinary Application startup results preserve the preparation return type.
-preparedRouter.onStart?.(preparedRouter, undefined, { prepared: 'yes' });
-switcher.start();
-switcher.switchTo('page', { reconstruct: true, signal: new AbortController().signal });
-const cleared: boolean = switcher.clear();
-void cleared;
-// @ts-expect-error Reconstruction is explicit; old outlet restart option is removed.
-switcher.switchTo('page', { restart: true });
-void [base, itemUrl, changed];
+const raw: RouteHash = {
+  '/items/:id': { name: 'item', handler: 'show' },
+  '/legacy/:id': { name: 'legacy', redirect: { name: 'item' } },
+};
+// @ts-expect-error Hash keys supply paths.
+const wrongHash: RouteHash = { item: { path: '/items/:id' } };
+// @ts-expect-error Route handlers are callbacks or method names.
+const badHandler: RouteDefinition = { path: '/', name: 'bad', handler: 42 };
+const callback = (match: ActiveMatch, { signal }: { signal: AbortSignal }) => { signal.throwIfAborted(); return match.name; };
+const engineRoutes: RouteTable = [{ path: '/items/:id', name: 'item', handler: callback, data: { custom: true } }];
+new Router({ routes: engineRoutes, driver });
+const numeric = defineRoutes({ 404: { name: 'missing' }, '410': { name: 'gone' } });
+new Router({ routes: numeric }).url('missing');
+new Router({ routes: numeric }).url('gone');
+const numericName: RouteNames<typeof numeric> = 'missing';
+// @ts-expect-error Numeric paths do not become route names.
+const numericPathName: RouteNames<typeof numeric> = '404';
 
-const routeCallback: RouteHandler = (match, { signal }) => {
-  signal.throwIfAborted();
-  return match.params.id;
-};
-const namedRoutes: RouteHash = {
-  'catalog:item': { path: '/catalog/:id', handler: 'showItem', children: {
-    'catalog:detail': { path: 'detail', handler: routeCallback },
-  } },
-};
-const readonlyRoutes: readonly RouteDefinition[] = [{ name: 'list', path: '/list', handler: routeCallback }];
-const declaredTable: RouteTable = readonlyRoutes;
-const hashRouter = new Router({ driver, routes: namedRoutes });
-const callbackRouter = new Router({ driver, routes: () => declaredTable });
-const LiteralRouter = Router.extend({ routes: defineRoutes({ declared: { path: '/declared/:id' } }) });
-const literalRouter = new LiteralRouter({ driver });
-literalRouter.url('declared', { id: 7 });
-// .extend() retains its ordinary broad route contract in this bounded pass.
-literalRouter.url('registered-at-runtime', { arbitrary: 7 });
-const controller = { showItem: routeCallback };
-const mountOptions: MountOptions = { parent: 'catalog:item', controller };
-const unmount: () => void = hashRouter.mount({ mounted: { path: 'mounted', handler: 'showItem' } }, mountOptions);
-hashRouter.mount(readonlyRoutes, { controller });
-// @ts-expect-error A hash key owns its route name; its definition cannot add another name.
-const duplicateHashName: RouteHash = { item: { name: 'other', path: '/item' } };
-// @ts-expect-error Route handlers are callbacks or controller method names.
-const invalidRouteHandler: RouteDefinition = { path: '/item', handler: 42 };
-// @ts-expect-error Nested route definitions accept the same hash/array forms, not strings.
-const invalidChildren: RouteDefinition = { path: '/item', children: 'detail' };
-// @ts-expect-error Controller bindings require an object.
-hashRouter.mount(namedRoutes, { controller: 'controller' });
+const Leaf = RouteApplication.extend({
+  routes: { 'detail/:detailId': { name: 'detail', handler: 'show' }, 404: { name: 'missing' } },
+  show(match: ActiveMatch) { return match.params.detailId; },
+});
+const Group = RouteApplication.extend({
+  childApps: { leaf: Leaf },
+  routes: { 'item/:id': { mount: 'leaf', namespace: 'item' } },
+});
+const Root = RouteApplication.extend({
+  childApps: { first: Group, second: Group, sidebar: Application },
+  routes: {
+    '/teams/:team': { mount: 'first', namespace: 'admin' },
+    '/archive/:archiveTeam': { mount: 'second', namespace: 'archive' },
+    '/': { name: 'home' },
+  },
+});
+const compiled = routeTable(Root);
+const strict = new Router({ routes: compiled });
+strict.url('admin:item:detail', { team: 'blue', id: 'one', detailId: 'two' });
+strict.url('archive:item:detail', { archiveTeam: 'old', id: 'one', detailId: 'two' });
+strict.navigate('admin:item:missing', { team: 'blue', id: 'one' });
+const compiledName: RouteNames<typeof compiled> = 'admin:item:detail';
+const compiledParams: RouteParams<typeof compiled, 'admin:item:detail'> = { team: 'blue', id: 'one', detailId: 'two' };
+// @ts-expect-error Compiled names retain namespaces.
+const wrongCompiledName: RouteNames<typeof compiled> = 'detail';
+// @ts-expect-error Different mounts retain their own parent parameters.
+strict.url('archive:item:detail', { team: 'blue', id: 'one', detailId: 'two' });
+// @ts-expect-error Compiled routes retain all required parameters.
+strict.url('admin:item:detail', { team: 'blue', id: 'one' });
+const explicit = new Router<typeof compiled>({ driver });
+explicit.url(compiledName, compiledParams);
+const sourceInstance = new Root();
+const fromInstance = routeTable(sourceInstance);
+new Router({ routes: fromInstance }).url('admin:item:detail', compiledParams);
+
+const Absolute = RouteApplication.extend({ routes: { '/absolute/:absoluteId': { name: 'absolute' } } });
+const AbsoluteRoot = RouteApplication.extend({
+  childApps: { absolute: Absolute }, routes: { '/teams/:team': { mount: 'absolute', namespace: 'admin' } },
+});
+const absolute = routeTable(AbsoluteRoot);
+new Router({ routes: absolute }).url('admin:absolute', { absoluteId: 'one' });
+// @ts-expect-error Absolute child paths reset URL params while retaining namespace.
+const inheritedAbsolute: RouteParams<typeof absolute, 'admin:absolute'> = { team: 'blue', absoluteId: 'one' };
+
+const PlainNamespace = RouteApplication.extend({ childApps: { leaf: Leaf }, routes: [
+  { path: '/without/:id', mount: 'leaf', namespace: '' },
+] });
+new Router({ routes: routeTable(PlainNamespace) }).url('detail', { id: 'one', detailId: 'two' });
+const Override = Leaf.extend({ routes: { 'new/:newId': { name: 'replacement' } } });
+const overridden = routeTable(Override);
+new Router({ routes: overridden }).url('replacement', { newId: 'one' });
+// @ts-expect-error Overridden declarations replace old leaf names.
+const overriddenOldName: RouteNames<typeof overridden> = 'detail';
+const Inherited = Root.extend({ label() { return 'root'; } });
+const inherited = routeTable(Inherited);
+new Router({ routes: inherited }).url('admin:item:detail', compiledParams);
+const dynamicDeclarations: ApplicationRoutes = {};
+const Dynamic = RouteApplication.extend({ routes: dynamicDeclarations });
+new Router({ routes: routeTable(Dynamic) }).url('registered-at-runtime', { arbitrary: 1 });
+
+const selection: RouteApplicationInstance = new RouteApplication();
+selection.addChildApp('page', new Application());
+selection.switchTo('page', { key: { id: 'one' }, restart: true, signal: new AbortController().signal, options: { id: 'one' } });
+const readonlyKey: SelectionKey = { id: 'one', optional: undefined } as const;
+const switchOptions: SwitchOptions = { key: readonlyKey, restart: false };
+selection.switchTo('page', switchOptions);
+const cleared: boolean = selection.clear();
+const selected = selection.getCurrent();
+// @ts-expect-error Arrays are not flat selection records.
+selection.switchTo('page', { key: ['one'] });
+// @ts-expect-error Nested records are not supported selection keys.
+selection.switchTo('page', { key: { nested: { id: 'one' } } });
+// @ts-expect-error Restart is per-call boolean.
+selection.switchTo('page', { restart: 'always' });
+// @ts-expect-error The former option is removed.
+selection.switchTo('page', { reconstruct: true });
+// @ts-expect-error The configured base helper is removed.
+RouteApplication.withRouter(router);
 
 interface FeatureOptions extends RouteApplicationOptions { prefix: string }
-const Feature = RouteApplication.extend({
-  initialize(options: FeatureOptions) { const prefix: string = options.prefix; void prefix; },
-  routes() {
-    return { featureItem: { path: '/features/:id', handler: 'showItem' } };
-  },
-  async prepareStart(_options: unknown, { signal }: LifecycleContext) {
-    signal.throwIfAborted();
-    return { loaded: true };
-  },
-  showItem(match: ActiveMatch, { signal }: { signal: AbortSignal }) {
-    signal.throwIfAborted();
-    return match.params.id;
-  },
+const Stateful = RouteApplication.extend({
+  initialize(options: FeatureOptions) { options.prefix.toUpperCase(); },
+  createState() { return { count: 0 }; },
+  async prepareStart(_options: unknown, { signal }: LifecycleContext) { signal.throwIfAborted(); return { loaded: true }; },
+  inspect() { return this.getState().count; },
+}, { kind: 'feature', label() { return this.kind.toUpperCase(); } });
+const stateful = new Stateful({ prefix: 'required' });
+const count: number = stateful.inspect();
+const stateCount: number = stateful.getState().count;
+const staticLabel: string = Stateful.label();
+stateful.onStart?.(stateful, undefined, { loaded: true });
+// @ts-expect-error Preparation result inference is preserved.
+stateful.onStart?.(stateful, undefined, { loaded: 'wrong' });
+// @ts-expect-error Required initializer options remain required.
+new Stateful();
+// @ts-expect-error Required initializer fields are not supplied by prototype defaults.
+new Stateful({});
+// @ts-expect-error State shape is retained.
+stateful.getState().missing;
+const suppliedState = new Stateful({ prefix: 'required', state: { supplied: true } });
+const supplied: boolean = suppliedState.getState().supplied;
+const CustomConstructor = RouteApplication.extend({
+  constructor(options: { token: string }) { RouteApplication.call(this, options); },
+  token() { return this.options.token; },
 });
-const featureInstance = new Feature({ router, prefix: 'public' });
-const feature = owner.addChildApp('feature', featureInstance);
-const featureBase: RouteApplicationInstance = feature;
-feature.prepareStart(undefined, { signal: new AbortController().signal }) satisfies Promise<{ loaded: boolean }>;
-type FeatureStartResult = Parameters<NonNullable<typeof feature.onStart>>[2];
-const featureStartResult: FeatureStartResult = { loaded: true };
-// @ts-expect-error Preparation results retain ordinary Application inference.
-const wrongFeatureStartResult: FeatureStartResult = { loaded: 'yes' };
-// @ts-expect-error A RouteApplication requires a shared Router.
-new RouteApplication();
-// @ts-expect-error Supplying routes does not replace the required Router.
-new RouteApplication({ routes: namedRoutes });
-// @ts-expect-error Extended initializer options are still required.
-new Feature({ router });
-new RouteApplication({ router, routes: namedRoutes });
-new RouteApplication({ router, routes: () => readonlyRoutes });
-void [hashRouter, callbackRouter, unmount, duplicateHashName, invalidRouteHandler, invalidChildren, featureBase];
+new CustomConstructor({ token: 'required' }).token() satisfies string;
+// @ts-expect-error A custom constructor keeps required arguments.
+new CustomConstructor();
+new RouteApplication({ onCleanupError(error, app) { void [error, app.isRunning(), this.getCurrent()]; } });
+const DeclarativeOwner = Application.extend({ childApps: { routed: Root } });
+const owner = new DeclarativeOwner();
+owner.addChildApp('routed', new Root());
+const remove: () => void = new Root().mountRoutes(router);
+remove();
+// @ts-expect-error Compilation does not widen an existing literal Router's catalog.
+router.url('admin:item:detail', compiledParams);
+// @ts-expect-error A leaf requires a string name.
+RouteApplication.extend({ routes: { '/bad': { name: 42 } } });
+// @ts-expect-error A leaf requires a name.
+RouteApplication.extend({ routes: { '/bad': { handler: 'show' } } });
+// @ts-expect-error Mount namespaces are strings.
+RouteApplication.extend({ routes: { '/bad': { mount: 'leaf', namespace: 42 } } });
+// @ts-expect-error Named mount regions are strings.
+RouteApplication.extend({ routes: { '/bad': { mount: 'leaf', region: 42 } } });
 
-const ConfiguredFeature = RouteApplication.withRouter(router).extend({
-  routes: namedRoutes,
-  routeParent: 'catalog:item',
-});
-const DeclarativeFrame = Application.extend({ childApps: { feature: ConfiguredFeature } });
-const declarative = new DeclarativeFrame();
-const configured = owner.addChildApp('configured', new ConfiguredFeature());
-configured.start();
-// @ts-expect-error Mount parent names are strings.
-new RouteApplication({ router, routeParent: 7 });
-const fakeChild = { cid: 'fake', start: async() => true, stop: () => true,
-  destroy: () => true, isRunning: () => false, isDestroyed: () => false, getName: () => 'fake' };
-// @ts-expect-error Core ownership still requires the complete Application contract.
-owner.addChildApp('fake', fakeChild);
-void declarative;
-
-const initialDispatch: Promise<import('@mnjs/router').InitialDispatchResult> | null = router.getInitialDispatch();
-initialDispatch?.then(outcome => {
-  if (outcome.status === 'matched') { const ready: ActiveMatch = outcome.match; void ready; }
-  if (outcome.status === 'failed') { const error: unknown = outcome.error; void error; }
-  if (outcome.status === 'unmatched') {
-    // @ts-expect-error An unmatched initial dispatch has no successful Match.
-    outcome.match;
-  }
-});
-
-const configuredBase: RouteApplicationInstance = configured;
-const StatefulFeature = RouteApplication.withRouter(router).extend({ state: { count: 0 } }, {
-  kind: 'feature',
-  label() { return this.kind.toUpperCase(); },
-});
-const statefulFeature = new StatefulFeature();
-const featureCount: number = statefulFeature.getState().count;
-const featureLabel: string = StatefulFeature.label();
-// @ts-expect-error Local declaration repair preserves typed feature state.
-statefulFeature.getState().missing;
-void [configuredBase, featureCount, featureLabel];
-
-const immutableSelectionKey: SelectionKey = [{ id: "one" }, [1, undefined]] as const;
-void new ChildAppSwitcher().switchTo("page", { key: immutableSelectionKey });
-
-// Named redirects explicitly opt into query/fragment forwarding.
-const namedRedirect: import('@mnjs/router').RedirectTarget = {
-  name: 'home', query: { view: 'full' }, hash: '#details',
-};
-const redirectRoutes: RouteTable = {
-  legacy: { path: '/legacy', redirect: () => namedRedirect },
-  asyncLegacy: { path: '/async-legacy', redirect: async() => ({ name: 'home', hash: 'café' }) },
-};
-// @ts-expect-error Named redirect hashes are strings.
-const invalidHash: import('@mnjs/router').RedirectTarget = { name: 'home', hash: 42 };
-// @ts-expect-error Fragment support is scoped to redirects, not url options.
-router.url('home', {}, { hash: 'details' });
-// @ts-expect-error Fragment support is scoped to redirects, not navigate options.
-router.navigate('home', {}, { hash: 'details' });
-const switchDefaults: ChildAppSwitcherOptions = { reconstruct: true };
-const RebuildingPages = ChildAppSwitcher.extend({ reconstruct: true, options: { reconstruct: true } });
-new RebuildingPages({ reconstruct: false }).switchTo('page', { reconstruct: undefined });
-new ChildAppSwitcher(switchDefaults).switchTo('page', { reconstruct: false });
-// @ts-expect-error Reconstruction defaults are boolean.
-const invalidSwitchDefaults: ChildAppSwitcherOptions = { reconstruct: 'always' };
-void [namedRedirect, redirectRoutes, invalidHash, invalidSwitchDefaults];
-
-// Error events expose navigation info even without a committed Match.
-type RoutingErrorContext = import('@mnjs/router').RouteErrorContext;
-const errorContext: RoutingErrorContext = { info: { caller: 'navigation' } };
-const observedInfo: unknown = errorContext.info;
-// @ts-expect-error The error context describes originating info; consumers do not reassign it.
-errorContext.info = 'replacement';
-const ErrorAwareRouter = Router.extend({
-  onRouteError(_error: unknown, match: ActiveMatch | null, context: RoutingErrorContext) {
-    const origin: unknown = context.info;
-    const name: string | undefined = match?.name;
-    void [origin, name];
+type ErrorContext = import('@mnjs/router').RouteErrorContext;
+const errorContext: ErrorContext = { info: { caller: 'navigation' } };
+// @ts-expect-error Navigation provenance is readonly.
+errorContext.info = 'changed';
+const ErrorAware = RouteApplication.extend({
+  handleRouteError(error: unknown, match: ActiveMatch, { mount, phase }: import('@mnjs/router').ApplicationRouteErrorContext) {
+    const name: string | undefined = mount;
+    const stage: 'start' | 'route' = phase;
+    void [match, name, stage];
+    throw error;
   },
 });
-new ErrorAwareRouter({ driver }).on('route:error', (_error: unknown, _match: ActiveMatch | null, context: RoutingErrorContext) => context.info);
-void observedInfo;
-
-// A router prototype default has the same constructor contract as withRouter.
-const DefaultFeature = RouteApplication.extend({
-  router,
-  routes: { defaultItem: { path: '/default/:id', handler: 'show' } },
-  createState() { return { selected: 0 }; },
-  show(match: ActiveMatch) { return match.params.id; },
-}, { category: 'feature' });
-const defaultFeature = new DefaultFeature();
-new DefaultFeature({});
-new DefaultFeature({ router: undefined });
-new DefaultFeature({ router: hashRouter });
-const selectedState: number = defaultFeature.getState().selected;
-const staticCategory: string = DefaultFeature.category;
-const InheritedDefault = DefaultFeature.extend({ label() { return this.getState().selected; } });
-new InheritedDefault().label() satisfies number;
-const DefaultOwner = Application.extend({ childApps: { feature: InheritedDefault } });
-new DefaultOwner();
-const ClearedDefault = InheritedDefault.extend({ router: undefined });
-// @ts-expect-error Clearing the inherited default restores required router options.
-new ClearedDefault();
-// @ts-expect-error An empty option object supplies no valid router.
-new ClearedDefault({});
-new ClearedDefault({ router });
-const InvalidDefault = RouteApplication.withRouter(router).extend({ router: null });
-// @ts-expect-error An invalid prototype default does not retain the helper's optional-router guarantee.
-new InvalidDefault();
-new InvalidDefault({ router });
-const RequiredFeature = DefaultFeature.extend({ initialize(options: { prefix: string }) { void options.prefix; } });
-// @ts-expect-error A router default does not erase unrelated required initializer options.
-new RequiredFeature();
-// @ts-expect-error Required initializer fields remain required.
-new RequiredFeature({});
-new RequiredFeature({ prefix: 'required' });
-const StrictInitializer = DefaultFeature.extend({ initialize(options: { router: RouterInstance; prefix: string }) { void options.router; } });
-// @ts-expect-error Prototype defaults are not copied into the raw initializer argument.
-new StrictInitializer({ prefix: 'required' });
-new StrictInitializer({ prefix: 'required', router });
-void [selectedState, staticCategory];
+new ErrorAware();
+void [readiness, oldOwnership, oldNotFound, oldPersistence, raw, wrongHash, badHandler, numericName, numericPathName,
+  wrongCompiledName, inheritedAbsolute, overriddenOldName, count, stateCount, staticLabel, supplied, cleared, selected];

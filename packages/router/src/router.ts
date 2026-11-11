@@ -114,7 +114,6 @@ export interface RouterMethods extends Omit<RouterOptions, keyof ApplicationInst
   hasRoute(name: string): boolean;
   canGoBack(): boolean;
   back(): Promise<boolean>;
-  updateState(state: EntryState): boolean;
 }
 interface LiteralRouteMethods<Routes extends RouteTable> {
   url(...args: NamedRouteArgs<Routes, { query?: Query }>): string;
@@ -233,13 +232,13 @@ function entryState(router: RouterInstance, href: string, history: NavigationOpt
   return withMarker(isObject(existing) ? existing : undefined);
 }
 
-function withPersisted(router: RouterInstance, name: string, params: Params, source = stateFor(router).current?.params) {
-  if (!source || !option(router, 'persistParams')!.length) {return params;}
-  const names = getMatcher(router).getParamNames(name);
-  const persisted = option(router, 'persistParams')!
-    .filter(key => names.includes(key) && !Object.hasOwn(params, key) && Object.hasOwn(source, key))
-    .map(key => [key, source[key]]);
-  return { ...Object.fromEntries(persisted), ...params };
+function withCurrentParams(router: RouterInstance, name: string, params: Params) {
+  const current = stateFor(router).current;
+  if (!current) {return params;}
+  const shared = getMatcher(router).getSharedParamNames(current.name, name)
+    .filter(key => !Object.hasOwn(params, key) && Object.hasOwn(current.params, key))
+    .map(key => [key, current.params[key]]);
+  return { ...Object.fromEntries(shared), ...params };
 }
 
 function urlTarget(router: RouterInstance, url: string, { query }: NavigateOptions) {
@@ -328,8 +327,12 @@ function intercepts(router: RouterInstance, event: DriverEvent, url: URL, chain:
 }
 
 function claims(router: RouterInstance, url: URL) {
-  if (!option(router, 'intercept')!.call(router, url)) {return false;}
-  return Boolean(getMatcher(router).match(url) ?? option(router, 'notFound')?.within(url));
+  if (!owns(router, url)) {return false;}
+  return Boolean(getMatcher(router).match(url) ?? option(router, 'notFound'));
+}
+
+function owns(router: RouterInstance, url: URL) {
+  return option(router, 'owns')?.call(router, url) ?? true;
 }
 
 function onNavigate(router: RouterInstance, event: DriverEvent) {
@@ -454,16 +457,20 @@ async function initialOutcome(router: RouterInstance, nav: Navigation): Promise<
 
 function planNavigation(router: RouterInstance, nav: Navigation): Plan | null {
   const { url } = nav;
-  if (!option(router, 'intercept')!.call(router, url)) {return null;}
+  if (!owns(router, url)) {return null;}
   const result = getMatcher(router).match(url);
-  if (!result) {return notFoundPlan(router, url);}
+  if (!result) {return notFoundPlan(router, nav);}
   return redirectPlan(router, result, nav);
 }
 
-function notFoundPlan(router: RouterInstance, url: URL): Plan | null {
-  const notFound = option(router, 'notFound');
-  if (!notFound?.within(url)) {return null;}
-  return { base: notFoundBase(notFound.name, getMatcher(router).matchPrefix(url), url), pending: null };
+function notFoundPlan(router: RouterInstance, nav: Navigation): Plan | null {
+  const name = option(router, 'notFound');
+  if (!name) {return null;}
+  const params = getMatcher(router).matchPrefix(nav.url);
+  const route = getMatcher(router).resolve(name, params, nav.url);
+  if (!route) {return { base: notFoundBase(name, params, nav.url), pending: null };}
+  nav.registration = route.registration;
+  return { base: route, pending: null, handler: route.handler };
 }
 
 function redirectPlan(router: RouterInstance, result: RegisteredMatch, nav: Navigation): Plan {
@@ -479,7 +486,7 @@ function redirectPlan(router: RouterInstance, result: RegisteredMatch, nav: Navi
   if (target === undefined || target === null) {return { base: result, pending: null, handler };}
   try {
     assertHopAllowed(router, nav);
-    return { hop: targetHref(router, target, nav.url, result.params) };
+    return { hop: targetHref(router, target, result) };
   } catch (error) {
     return { base: result, pending: rejection(error), handler };
   }
@@ -487,7 +494,8 @@ function redirectPlan(router: RouterInstance, result: RegisteredMatch, nav: Navi
 
 function callRedirect(result: MatcherResult, nav: Navigation) {
   try {
-    return result.redirect!(toMatch(result, nav, nav.key, nav.rawState) as ActiveMatch, { signal: nav.signal });
+    const redirect = result.redirect;
+    return typeof redirect === 'function' ? redirect(toMatch(result, nav, nav.key, nav.rawState) as ActiveMatch, { signal: nav.signal }) : redirect;
   } catch (error) {
     return rejection(error);
   }
@@ -498,12 +506,17 @@ function assertHopAllowed(router: RouterInstance, nav: Navigation) {
   if (nav.chain.hops >= maxRedirects) {throw new Error(`Redirect limit of ${ maxRedirects } exceeded`);}
 }
 
-function targetHref(router: RouterInstance, target: RedirectTarget, base: URL, params: Record<string, string>) {
+const URL_TARGET = /^(?:[/?#]|[a-z][a-z\d+.-]*:\/\/)/i;
+function targetHref(router: RouterInstance, target: RedirectTarget, source: Base) {
+  const base = source.url;
   if (typeof target !== 'string') {
-    const url = new URL(getMatcher(router).url(target.name, withPersisted(router, target.name, target.params ?? {}, params), { query: target.query }), base);
-    if (target.hash !== undefined) {url.hash = target.hash;}
+    const params = { ...source.params, ...target.params };
+    const query = target.query === undefined ? base.search : target.query;
+    const url = new URL(getMatcher(router).url(target.name, params, { query }), base);
+    url.hash = target.hash === undefined ? base.hash : target.hash;
     return url.href;
   }
+  if (!URL_TARGET.test(target)) {throw new TypeError(`Redirect target "${ target }" is not a URL; use { name: "${ target }" } for a named route`);}
   const url = new URL(target, base);
   if (url.origin !== base.origin) {throw new Error(`Redirect target must be same-origin: ${ target }`);}
   return url.href;
@@ -587,19 +600,19 @@ function reconcileRegistrations(router: RouterInstance) {
 async function run(router: RouterInstance, plan: Extract<Plan, { base: Base }>, nav: Navigation) {
   const match = commit(router, plan.base, nav);
   if (!match) {throw new NavigationCancelled();}
-  if (plan.pending && await redirected(router, nav, plan.pending)) {return;}
+  if (plan.pending && await redirected(router, nav, plan.pending, plan.base)) {return;}
   if (!isCurrent(router, nav)) {throw new NavigationCancelled();}
   await (plan.handler ?? option(router, 'handler'))?.call(router, match, { signal: match.signal });
   if (!isCurrent(router, nav)) {throw new NavigationCancelled();}
   router.triggerMethod('route:ready', match);
 }
 
-async function redirected(router: RouterInstance, nav: Navigation, pending: PromiseLike<RedirectTarget | null | undefined>) {
+async function redirected(router: RouterInstance, nav: Navigation, pending: PromiseLike<RedirectTarget | null | undefined>, source: Base) {
   const target = await pending;
   if (!isCurrent(router, nav)) {throw new NavigationCancelled();}
   if (target === undefined || target === null) {return false;}
   assertHopAllowed(router, nav);
-  nav.chain.followUp = hop(router, targetHref(router, target, nav.url, nav.match!.params), nav);
+  nav.chain.followUp = hop(router, targetHref(router, target, source), nav);
   return true;
 }
 
@@ -633,9 +646,7 @@ function mark(router: RouterInstance, entry: DriverEntry, signal: AbortSignal) {
 export const Router = /* @__PURE__ */ Application.extend({
   constructor: constructRouter,
   routes: [],
-  persistParams: [],
   maxRedirects: 5,
-  intercept: () => true,
 
   navigate(this: RouterInstance, nameOrUrl: string, params?: Params | NavigateOptions, options?: NavigateOptions): NavigationResult<boolean> {
     const internals = stateFor(this);
@@ -649,7 +660,7 @@ export const Router = /* @__PURE__ */ Application.extend({
   },
 
   url(this: RouterInstance, name: string, params: Params = {}, options: { query?: Query } = {}) {
-    return getMatcher(this).url(name, withPersisted(this, name, params), options);
+    return getMatcher(this).url(name, withCurrentParams(this, name, params), options);
   },
 
   match(this: RouterInstance, url: URL | string) {
@@ -732,23 +743,6 @@ export const Router = /* @__PURE__ */ Application.extend({
       internals.traversals.delete(request);
       throw error;
     }
-  },
-
-  updateState(this: RouterInstance, state: EntryState) {
-    if (!stateFor(this).session) { return false; }
-    const internals = stateFor(this);
-    assertState(state);
-    const entry = getDriver(this).currentEntry;
-    const stored = entry.getState();
-    const next = { ...(isObject(stored) ? stored : {}), ...state };
-    if (isMarked(stored)) {next[MARKER] = true;} else {delete next[MARKER];}
-    const match = internals.current;
-    getDriver(this).updateCurrentEntry({ state: next });
-    if (internals.current === match && match?.key === entry.key) {
-      const storedAfter = entry.getState();
-      if (internals.current === match) {match.state = publicState(storedAfter);}
-    }
-    return true;
   },
 
   canGoBack(this: RouterInstance) {

@@ -211,6 +211,22 @@ export class Matcher {
     return [...this.#route(name).names];
   }
 
+  getSharedParamNames(fromName: string, toName: string) {
+    const { byName } = this.#compiled();
+    const from = byName.get(fromName);
+    const to = byName.get(toName);
+    const names: string[] = [];
+    for (let index = 0; from && to && index < to.branch.length && from.branch[index] === to.branch[index]; index++) {
+      names.push(...to.branch[index].names);
+    }
+    return names;
+  }
+
+  resolve(name: string, params: Record<string, string>, url: URL) {
+    const route = this.#compiled().byName.get(name);
+    return route ? toResult(route, params, url) : null;
+  }
+
   has(name: string) {
     return this.#compiled().byName.has(name);
   }

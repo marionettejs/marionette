@@ -58,7 +58,7 @@ export type InitialDispatchResult =
   | { status: 'cancelled' }
   | { status: 'failed'; error: unknown; match: ActiveMatch | null };
 export type RedirectTarget = string | { name: string; params?: Params; query?: Query; hash?: string };
-export type Redirect = (match: ActiveMatch, context: { signal: AbortSignal }) => RedirectTarget | null | undefined | Promise<RedirectTarget | null | undefined>;
+export type Redirect = RedirectTarget | ((match: ActiveMatch, context: { signal: AbortSignal }) => RedirectTarget | null | undefined | Promise<RedirectTarget | null | undefined>);
 export type RouteHandler = (match: ActiveMatch, context: { signal: AbortSignal }) => unknown;
 export type RouteHash = Record<string, Omit<RouteDefinition, 'path'>>;
 export type RouteTable = readonly RouteDefinition[] | RouteHash;
@@ -77,7 +77,7 @@ export interface NavigateOptions extends NavigationOptions {
 }
 export type RouteSource = RouteTable | ((this: RouterInstance) => RouteTable);
 export interface RouterOptions extends ApplicationOptions {
-  routes?: RouteSource; driver?: Driver; intercept?: (this: RouterInstance, url: URL) => boolean;
-  notFound?: { name: string; within: (url: URL) => boolean }; persistParams?: string[];
+  routes?: RouteSource; driver?: Driver; owns?: (this: RouterInstance, url: URL) => boolean;
+  notFound?: string;
   handler?: (this: RouterInstance, match: ActiveMatch, context: { signal: AbortSignal }) => unknown; maxRedirects?: number;
 }
