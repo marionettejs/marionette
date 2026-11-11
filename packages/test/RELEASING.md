@@ -99,11 +99,20 @@ Do not merge while authentication or permission setup is unresolved: the README
 will recommend `@mnjs/test@1.0.0` as soon as this PR reaches `master`.
 
 When ready to release, remove `(unreleased)` from the `@mnjs/test 1.0.0` changelog
-heading in a reviewed commit and rerun the affected checks before merging. Then
-certify the actual merged source and publish its verified archive in that release
-window. Removing the marker does not prove publication; announce availability
-only after the registry checks below pass. Do not edit release metadata after
-packing without rebuilding and certifying a new archive from the final revision.
+heading in a reviewed commit and rerun the affected checks before merging. Then:
+
+1. Merge the reviewed release PR into `master`.
+2. Build and certify the exact merged revision under the procedure below.
+   Pre-merge checks do not replace this final certification.
+3. Publish the certified archive and verify the registry result.
+
+Between merge and successful publication, the README on `master` points to a
+version that is not yet available. Keep these steps in the coordinated release
+window to limit that gap. If final certification fails, stop publication; never
+publish unchecked bytes to close the gap. Removing the marker does not prove
+publication; announce availability only after registry verification passes. Do
+not edit release metadata after packing without rebuilding and certifying a new
+archive from the final revision.
 
 ## Verify consumer documentation destinations
 
