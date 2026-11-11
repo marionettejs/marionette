@@ -240,6 +240,64 @@ test('retained History routing resumes after a traversal arrived while stopped',
     current: 'a', handled: ['home', 'a', 'b', 'c', 'b', 'a'], nativeReads: 0 });
 });
 
+for (const outcome of ['ready', 'error', 'abort-error', 'stop']) {
+  test(`earlier History pop listener preserves newer ${outcome} authority`, async({ page }) => {
+    const pageErrors = []; page.on('pageerror', error => pageErrors.push(error.message));
+    const result = await page.evaluate(async mode => {
+      const { Router, historyDriver } = window.historyApi;
+      const driver = historyDriver(); const owner = new AbortController();
+      const entered = Promise.withResolvers(); const gate = Promise.withResolvers(); const handled = []; const errors = [];
+      const failure = mode === 'abort-error' ? new DOMException('independent fetch failed', 'AbortError') : new Error('newer work failed');
+      let armed = false; let newer;
+      window.addEventListener('popstate', () => { if (armed) { armed = false; newer = driver.navigate('/d'); } }, { signal: owner.signal });
+      const router = new Router({ driver, routes: { home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' }, d: { path: '/d' } }, async handler(match) {
+        handled.push(match.name);
+        if (match.name === 'd') {
+          entered.resolve(); await gate.promise;
+          if (mode === 'error' || mode === 'abort-error') { throw failure; }
+        }
+      } });
+      router.on('route:error', (error, match) => errors.push({ same: error === failure, name: match.name }));
+      try {
+        await router.start(); await router.getInitialDispatch();
+        await router.navigate('a').finished; await router.navigate('b').finished; armed = true;
+        const back = router.back(); await entered.promise;
+        const observed = newer.finished.then(entry => ({ path: new URL(entry.url).pathname }), error => ({ name: error.name, same: error === failure }));
+        let settled = false; observed.then(() => { settled = true; });
+        await Promise.resolve(); const early = settled;
+        if (mode === 'stop') { router.stop(); }
+        gate.resolve();
+        const value = { early, back: await back, newer: await observed, current: router.getCurrent().name,
+          handled: handled.slice(), errors: errors.slice(), nativeReads: window.nativeNavigationReads };
+        if (mode !== 'stop') { value.laterBack = await router.back(); }
+        return value;
+      } finally { router.destroy(); owner.abort(); gate.resolve(); }
+    }, outcome);
+    const expectedNavigation = outcome === 'ready' ? { path: '/d' } : { name: outcome === 'error' ? 'Error' : 'AbortError', same: outcome !== 'stop' };
+    expect(result).toEqual({ early: false, back: false, newer: expectedNavigation, current: 'd', handled: ['home', 'a', 'b', 'd'],
+      errors: outcome === 'error' || outcome === 'abort-error' ? [{ same: true, name: 'd' }] : [], nativeReads: 0,
+      ...(outcome !== 'stop' ? { laterBack: true } : {}) });
+    expect(pageErrors).toEqual([]);
+  });
+}
+
+test('History same-URL traversal still dispatches the distinct entry key and state', async({ page }) => {
+  const result = await page.evaluate(async() => {
+    const { historyDriver } = window.historyApi;
+    const driver = historyDriver(); const owner = new AbortController(); const events = [];
+    driver.addEventListener('navigate', event => { events.push(event); event.intercept(); }, { signal: owner.signal });
+    try {
+      const first = await driver.navigate('/a', { state: { version: 1 } }).finished;
+      const second = await driver.navigate('/a', { history: 'push', state: { version: 2 } }).finished;
+      const back = await driver.back().finished;
+      return { distinct: first.key !== second.key, key: back.key === first.key, state: back.getState(), index: back.index,
+        events: events.map(event => [event.navigationType, event.hashChange]), nativeReads: window.nativeNavigationReads };
+    } finally { owner.abort(); }
+  });
+  expect(result).toEqual({ distinct: true, key: true, state: { version: 1 }, index: 1,
+    events: [['push', false], ['push', false], ['traverse', false]], nativeReads: 0 });
+});
+
 test('History reload reconstruction preserves user state and starts a new known window', async({ page, candidateServer }) => {
   const html = await (await page.request.get(candidateServer)).text();
   await page.route('**/items/**', route => route.fulfill({ body: html, contentType: 'text/html' }));

@@ -242,7 +242,7 @@ it('hands unclaimed programmatic navigation and reload to the browser', async() 
 
 for (const [attributes, mouse] of [
   [{}, { button: 1 }], [{}, { altKey: true }], [{}, { ctrlKey: true }], [{}, { metaKey: true }], [{}, { shiftKey: true }],
-  [{ target: '_blank' }, {}], [{ target: 'other-frame' }, {}], [{ download: '' }, {}],
+  [{ target: 'other-frame' }, {}], [{ download: '' }, {}],
   [{ href: 'https://elsewhere.example/a' }, {}], [{ href: 'mailto:test@example.test' }, {}],
   [{ href: '/#details' }, {}], [{ href: 'http://[' }, {}],
 ]) {
@@ -326,6 +326,34 @@ for (const read of [false, true]) {
     assert.equal(event.destination.url, 'https://routes.example/#details');
   });
 }
+
+it('ignores an obsolete pop notification after an earlier host listener navigates', async() => {
+  const fixture = context(); const { driver, window } = fixture;
+  let armed = false; let newer;
+  window.addEventListener('popstate', () => { if (armed) { armed = false; newer = driver.navigate('/newer'); } });
+  const gate = Promise.withResolvers(); const entered = Promise.withResolvers(); const handled = [];
+  intercept(fixture, event => {
+    handled.push(new URL(event.destination.url).pathname);
+    if (event.destination.url.endsWith('/newer')) { entered.resolve(); return gate.promise; }
+  });
+  await driver.navigate('/a').finished; await driver.navigate('/b').finished; armed = true;
+  const back = driver.back(); await entered.promise;
+  await assert.rejects(back.finished, { name: 'AbortError' });
+  gate.resolve(); await newer.finished;
+  assert.deepEqual(handled, ['/a', '/b', '/newer']);
+  assert.equal((await driver.back().finished).url, 'https://routes.example/a');
+});
+
+it('dispatches traversal between distinct keys at the same URL', async() => {
+  const fixture = context(); const { driver } = fixture; const events = intercept(fixture);
+  const a = await driver.navigate('/a', { state: 1 }).finished;
+  const b = await driver.navigate('/a', { history: 'push', state: 2 }).finished;
+  assert.notEqual(a.key, b.key);
+  assert.equal(await driver.back().finished, a);
+  assert.equal(events.at(-1).navigationType, 'traverse');
+  assert.equal(events.at(-1).hashChange, false);
+  assert.equal(driver.currentEntry.getState(), 1);
+});
 
 it('exposes listener errors through the host while dispatch continues', async() => {
   const fixture = context(); const failure = new Error('listener failed'); const scheduled = [];

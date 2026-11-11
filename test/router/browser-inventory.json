@@ -541,6 +541,26 @@
     {
       "file": "router-history.spec.mjs",
       "title": "History fragment classification survives public entry reads (true)"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "earlier History pop listener preserves newer ready authority"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "earlier History pop listener preserves newer error authority"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "earlier History pop listener preserves newer abort-error authority"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "earlier History pop listener preserves newer stop authority"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History same-URL traversal still dispatches the distinct entry key and state"
     }
   ]
 }

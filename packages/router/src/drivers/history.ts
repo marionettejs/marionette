@@ -6,14 +6,21 @@ const error = (message: string, name: string) => new DOMException(message, name)
 const isObject = (value: unknown): value is Record<string, unknown> => Object.prototype.toString.call(value) === '[object Object]';
 type Stamp = { version: 1; scope: string; key: string; boxed: boolean; value?: unknown };
 
-function unpack(raw: unknown): { state: unknown; stamp?: Stamp } {
+function getStamp(raw: unknown): Stamp | undefined {
   const stamp = isObject(raw) ? raw[META] : undefined;
   if (isObject(stamp) && stamp.version === 1 && typeof stamp.scope === 'string' &&
       typeof stamp.key === 'string' && typeof stamp.boxed === 'boolean') {
+    return stamp as Stamp;
+  }
+}
+
+function unpack(raw: unknown): { state: unknown; stamp?: Stamp } {
+  const stamp = getStamp(raw);
+  if (stamp) {
     const state = structuredClone(raw) as Record<string, unknown>;
     const metadata = state[META] as Stamp;
     delete state[META];
-    return { state: metadata.boxed ? metadata.value : state, stamp: stamp as Stamp };
+    return { state: metadata.boxed ? metadata.value : state, stamp };
   }
   return { state: structuredClone(raw) };
 }
@@ -75,7 +82,7 @@ class HistoryDriver {
   #sequence = 0;
   #entries: DriverEntry[] = [];
   #current!: DriverEntry;
-  #url: string;
+  #position: DriverEntry;
   #states = new WeakMap<DriverEntry, unknown>();
   #listeners = new Map<(event: DriverEvent) => void, () => void>();
   #active: Transition | null = null;
@@ -84,8 +91,7 @@ class HistoryDriver {
 
   constructor(source: Window) {
     this.#source = source;
-    this.#url = source.location.href;
-    this.#reset(unpack(source.history.state).state);
+    this.#position = this.#reset(unpack(source.history.state).state);
   }
 
   get driver(): Driver {
@@ -157,7 +163,7 @@ class HistoryDriver {
       try {
         const entry = this.#sync();
         if (entry.key === this.#traversing) {this.#traversing = null;}
-        this.#url = entry.url;
+        this.#position = entry;
       } catch (reason) {
         this.#listeners.delete(listener); signal?.removeEventListener('abort', remove); throw reason;
       }
@@ -261,7 +267,7 @@ class HistoryDriver {
         this.#entries = previous; this.#current = old; throw reason;
       }
       if (this.#active === nav && !nav.controller.signal.aborted) {
-        this.#url = entry.url; nav.committed.resolve(entry); nav.finish(entry);
+        this.#position = entry; nav.committed.resolve(entry); nav.finish(entry);
       } else {nav.abort();}
     } catch (reason) {nav.abort(reason);}
     return nav.result;
@@ -289,17 +295,20 @@ class HistoryDriver {
     return nav.result;
   }
 
-  #pop = () => {
+  #pop = (event?: PopStateEvent) => {
     // Public entry reads can resynchronize the cache before this event arrives.
-    const from = this.#url;
+    const from = this.#position;
     const entry = this.#sync();
-    this.#url = entry.url;
-    if (entry.key === this.#traversing) {this.#traversing = null;}
+    const delivered = getStamp(event?.state);
+    if (entry.key === this.#traversing || delivered?.scope === this.#scope && delivered.key === this.#traversing) {this.#traversing = null;}
+    // An earlier host listener may already have started a newer owned navigation.
+    if (entry.key === from.key && entry.url === from.url) {return;}
+    this.#position = entry;
     const nav = this.#traversals.get(entry.key) ?? new Transition();
     nav.committed.resolve(entry);
     if (!this.#activate(nav)) {nav.abort(); return;}
     // popstate cannot distinguish user traversal from history.go() by other code.
-    if (this.#dispatch(nav, entry, 'traverse', from, false, undefined, false)) {nav.finish(entry);} else {nav.abort();}
+    if (this.#dispatch(nav, entry, 'traverse', from.url, false, undefined, false)) {nav.finish(entry);} else {nav.abort();}
   };
 
   #hash = () => {
