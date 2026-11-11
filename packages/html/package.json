@@ -213,8 +213,8 @@
     "jsdom": "30.1.1",
     "marionette": "5.0.1",
     "lit-html": "3.3.3",
-    "@playwright/test": "1.63.0",
-    "rollup": "4.63.5"
+    "@playwright/test": "1.65.0",
+    "rollup": "4.68.0"
   },
   "dependencies": {
     "@types/trusted-types": "2.0.7"
