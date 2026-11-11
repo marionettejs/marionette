@@ -16,7 +16,7 @@
     "fsevents@2.3.3": true
   },
   "devDependencies": {
-    "jsdom": "30.1.3",
+    "jsdom": "31.0.0",
     "vite": "8.3.5",
     "typescript": "6.0.3",
     "eslint": "10.14.0",
