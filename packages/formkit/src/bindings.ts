@@ -66,7 +66,7 @@ export const nativeBindings: FormKitPlugin = node => {
     receipts.push(receipt);
     return receipt;
   };
-  const context = reactive({
+  const initialContext = {
     ...node.props,
     attrs: node.props.attrs ?? {},
     node,
@@ -114,7 +114,10 @@ export const nativeBindings: FormKitPlugin = node => {
         node.emit('dom-input-event', event);
       }
     }
-  } as unknown as FormKitFrameworkContext, changed, () => contextChanged(node));
+  } as unknown as FormKitFrameworkContext;
+  // Inherited config values are absent from the own-property snapshot.
+  if (!Object.hasOwn(initialContext, 'disabled')) { initialContext.disabled = node.props.disabled; }
+  const context = reactive(initialContext, changed, () => contextChanged(node));
   const validationVisible = () => {
     if (context.state.submitted) { return true; }
     if (!shownValidation && !context.state.settled) { return false; }

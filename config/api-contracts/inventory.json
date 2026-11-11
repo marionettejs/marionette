@@ -15595,7 +15595,7 @@
     "packages/data/src/collection.ts": "fead862103e9686252b8b431a46fedbb6f720e623fad0a94cd174cc7e49a6900",
     "packages/data/src/index.ts": "69c337a8029e46835a923b38c5eb190de2f715137bae64fade4a6e37bb1e7a1b",
     "packages/data/src/model.ts": "1683287903de89258c304d9f6a3d7c13f3772ded1d955fe64283322b368fd937",
-    "packages/formkit/src/bindings.ts": "7ddca9c6d9636d7b0c981439b7e8d2eeeb17c3306b3c1b8486e812747d2e8105",
+    "packages/formkit/src/bindings.ts": "e4b9fd05087937d820c6e8bcb746df5691328c296b86c98ea82eef5c7abd5a11",
     "packages/formkit/src/composition-input.ts": "368bc69824422ed79f36aa7653ec77d079480aa2a24be209aae1888cddbb3973",
     "packages/formkit/src/composition.ts": "beda91fd9572493b310af8b5d59d0e1afd9ed69bca481e91f1302bd238db4afc",
     "packages/formkit/src/index.ts": "6f466d3c6ae98f464780f432bfd883552b2e22f2bb470c9f6673b7776f7eeb7e",
