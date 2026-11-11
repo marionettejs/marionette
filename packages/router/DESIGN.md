@@ -359,6 +359,11 @@ its stale `route:ready`. An unchanged registration survives matcher recompilatio
 Cancellation settles routing completion even if a handler ignores its signal;
 consumer code must still check that signal after awaits before applying effects.
 
+Registration changes can recompile the full active route table. Mount compiles
+immediately; unmount invalidates compilation until the next lookup, which
+reconciliation of current/pending work can trigger. Frequent registration changes
+across large catalogs can be costly.
+
 ## Feature route registration
 
 `RouteApplication` is an optional ordinary Application for a feature that owns
