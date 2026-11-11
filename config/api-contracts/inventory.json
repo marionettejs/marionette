@@ -15691,7 +15691,7 @@
     "docs/packages/data.md": "7b398e8c2ee1a38ea7fad8babfb97f45d5d873e1dacf97af9a8c8f57f83e870f",
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
     "docs/packages/utils.md": "158e2051ee438acd7e235f0f29ce45f42ad798bb6d460a871efd29904e2728ec",
-    "packages/formkit/readme.md": "8ebafff0c565815b44a25709632178a8f3313dd2bf021703434d6805d3ba2e73",
+    "packages/formkit/readme.md": "9a0d25d6f904ae48c9e255bc9d7a963a1bf5a7c2e5dccdba976bcd44a553173c",
     "test/browser/collection-deferred-lifecycle.spec.mjs": "e1e4bf980ea81566f0f11de712bb1298ef9250f967710eae8997a1413932d595",
     "test/browser/collection-empty-lifecycle.spec.mjs": "d5d3f88b1a7c9259f55c119415a722a52af7475b823d7214a77da9e9d316a90e",
     "test/browser/shadow-lifecycle.spec.mjs": "e91153c05faddec48cbb19dcab4afc30778acd9fd974dbb41f6e272c5af93d18",
