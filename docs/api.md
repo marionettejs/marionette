@@ -1,6 +1,6 @@
 # API reference
 
-These references target **5.0.0**. Use the page for the class or contract you need. Class pages define supported APIs and link shared contracts; task guides show how to use them.
+These references target **5.0.1**. Use the page for the class or contract you need. Class pages define supported APIs and link shared contracts; task guides show how to use them.
 
 ## Core classes
 
@@ -43,6 +43,8 @@ Use these contracts when implementing or adapting an integration. For configurat
 [@mnjs/utils: shared utilities](packages/utils.md) covers standalone component methods, callbacks, object helpers, and exports. Shared Events and class methods remain at their canonical references.
 
 [@mnjs/adapters](packages/adapters.md) covers optional data and DOM integrations, their imports, configuration, observation, and cleanup.
+
+[@mnjs/html](../packages/html/guide.md) is the optional, separately versioned template renderer and Marionette DOM adapter. Its reference covers values, ownership, directives and security; the 1.0.0 candidate remains unpublished.
 
 ## Integration and task guides
 

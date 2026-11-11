@@ -4,6 +4,32 @@ import { createGallery } from '@mnjs/test/playwright';
 import assert from 'node:assert/strict';
 import { createMarionette, Application, View } from 'marionette';
 import { createTestScope, mountApplication, mountView } from '@mnjs/test';
+import { createTestScope as createScopeOnly } from '@mnjs/test/scope';
+import { createRadio } from '@mnjs/radio';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+for (const createOwner of [createTestScope, createScopeOnly,
+  require('@mnjs/test').createTestScope, require('@mnjs/test/scope').createTestScope]) {
+  for (const named of [false, true]) {
+    const radio = createRadio();
+    const channel = radio.channel('hash');
+    const owner = createOwner();
+    const receiver = { prefix: 'owned:' };
+    const replies = { answer(value) { return this.prefix + value; }, disabled: false, ['__proto__']: 0 };
+    const returned = named ? owner.reply(radio, 'hash', replies, receiver) : owner.reply(channel, replies, receiver);
+    assert.equal(returned, channel);
+    assert.equal(channel.request('answer', 'yes'), 'owned:yes');
+    assert.equal(channel.request('disabled'), false);
+    assert.equal(channel.request('__proto__'), 0);
+    channel.reply('answer', replies.answer, receiver);
+    await owner.cleanup();
+    assert.equal(channel.request('answer', 'later'), 'owned:later');
+    assert.equal(channel.request('disabled'), undefined);
+    assert.equal(channel.request('__proto__'), undefined);
+  }
+}
+console.log('Installed root/scope ESM/CommonJS: per-key hash ownership and replacement safety passed.');
 
 const scope = createTestScope();
 const runtime = createMarionette();

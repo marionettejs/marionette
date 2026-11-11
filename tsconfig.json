@@ -29,5 +29,8 @@
     "src/**/*.ts",
     "packages/*/src/**/*.ts",
     "packages/formkit/acceptance/experimental/composition-prototype.ts"
+  ],
+  "exclude": [
+    "packages/html/**"
   ]
 }

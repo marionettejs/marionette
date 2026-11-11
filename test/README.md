@@ -142,15 +142,21 @@ LCOV and JSON summaries alongside it. Coverage uses two workers to bound resourc
 contention from V8 instrumentation and isolated DOM environments; CI and local
 verification use this same command. Ordinary unit-test scheduling, test timeouts,
 resource cycle counts and coverage thresholds are unchanged.
-Every authored production file is included,
-including unexecuted files. Functions remain at 100%. Each file defaults to 100% for
+Every authored production file in the core, adapters, data, utils, radio, FormKit
+and test helper sources is included, including unexecuted files. Functions remain
+at 100%. Each file defaults to 100% for
 all metrics; `config/coverage-exceptions.json` records the few private defensive
 branches that valid public operations cannot reach. Limits are absolute uncovered
 counts per file and globally, so adding code cannot dilute them. Ratchet a limit
 down when public tests cover it; any increase needs an explicit reviewed reason.
 Do not hide uncovered code with ignores or test manufactured private states.
 
-`npm run coverage:tooling` separately reports every script/build module, including
+The independently built `packages/html` renderer has its own source-mapped
+`npm run coverage:html` report, including unexecuted authored sources, and
+`npm run lint:html` for its authored TypeScript and tooling. Its pristine upstream
+fixtures and generated output are not treated as authored production files.
+
+`npm run coverage:tooling` separately reports the core script/build modules, including
 zero-coverage files, at `coverage/tooling/index.html`. It captures subprocess CLI
 execution as well as in-process tests. This report must not inflate the library
 percentage. Review release failure/recovery tests together with the percentage;
@@ -229,8 +235,8 @@ consumers against the original tarballs. Its separate validation record binds lo
 three-engine browser results, fixture results and lock hashes to the immutable
 release evidence. Failed/incomplete/mismatched evidence cannot be promoted.
 `config/release-promotion.json` separately authorizes stable publication and one
-exact prerelease version. The 5.0.0 preparation enables stable publication and
-retires the RC2 authorization. Publication still requires a successful manual dry run
+exact prerelease version. Publication requires the checked-in policy to enable
+the intended release channel, plus a successful manual dry run
 on the same merged source commit, an explicit publish dispatch with that certification
 run ID, and approval of the `stable-release` environment. Validation never grants
 publication permission.
@@ -255,9 +261,10 @@ does not prove how npm binds IDs internally; the repository-ID enforcement above
 is our independently verifiable GitHub-side guard. Settings verification and
 publication approval remain separate from passing this guard.
 
-After publication creates `v5.0.0`, add that existing tag to Context7's
-`previousVersions` when it becomes a historical documentation version. Do not
-advertise the tag during release preparation.
+When a published release becomes a historical documentation version, add its
+already-existing tag to Context7's `previousVersions` during the next release
+preparation. Never add an unpublished tag or advertise the version being prepared
+as an available historical release.
 
 ## Dependency maintenance
 
@@ -267,6 +274,18 @@ published runtime graph. The narrow Stryker override of `typed-rest-client`'s `q
 pin selects 6.17.1 to avoid its reported denial-of-service advisories; remove that
 override when Stryker's dependency chain accepts a fixed version natively. Every
 mutation/benchmark run remains development tooling with explicit scope and limits.
+
+The root and the `consumer-lint` and `data-package-starter` fixture manifests
+temporarily pin minimatch 11.0.4 for
+[GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249).
+The root also pins test-exclude's glob to 14.0.3: glob 13 bundles the old matcher,
+and its raw entry point expects pattern parts that minimatch 11 changed. Keep the
+exact pins as the verified pair, review newer security patches, and update all
+three locks together with lint, tooling coverage, bounded mutation and affected
+installed-consumer checks. Remove each minimatch override when its parent chains
+accept a patched version natively; remove the glob override when test-exclude
+accepts a compatible glob with a patched bundled matcher. Recheck discovery with
+the repository's include/exclude configuration when changing either dependency.
 
 Dependabot proposes weekly root tooling updates, with TypeScript ESLint, Vitest,
 and Stryker packages grouped by tool before the remaining development dependency

@@ -6,6 +6,7 @@
   "description": "Marionette v5 (npm: marionette) provides Views, Regions, CollectionViews and Applications. Core requires neither Backbone nor jQuery; optional adapters integrate Backbone Models and Collections.",
   "branch": "master",
   "previousVersions": [
+    { "tag": "v5.0.0" },
     { "tag": "v5.0.0-rc.2" }
   ],
   "folders": [

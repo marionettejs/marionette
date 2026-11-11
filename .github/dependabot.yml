@@ -4,8 +4,12 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+    # Limit version-update queues without restricting security updates.
+    open-pull-requests-limit: 2
     groups:
+      root-security:
+        applies-to: security-updates
+        patterns: ['*']
       typescript-eslint:
         patterns: ['@typescript-eslint/*']
       vitest:
@@ -26,11 +30,47 @@ updates:
       - dependency-name: typescript
         update-types: [version-update:semver-major]
   - package-ecosystem: npm
-    directories: ['/test/fixtures/*', '/packages/test/examples']
+    # Keep this inventory synchronized with config/release-validation.json.
+    directories:
+      - /test/fixtures/adapters-package-vite
+      - /test/fixtures/attachment-owner-document
+      - /test/fixtures/backbone-adapter-types
+      - /test/fixtures/cjs-adapters
+      - /test/fixtures/cjs-node
+      - /test/fixtures/collection-removal-survivors
+      - /test/fixtures/consumer-lint
+      - /test/fixtures/core-no-underscore
+      - /test/fixtures/core-types
+      - /test/fixtures/data-package-cjs
+      - /test/fixtures/data-package-esm
+      - /test/fixtures/data-package-starter
+      - /test/fixtures/data-package-types
+      - /test/fixtures/data-package-vite
+      - /test/fixtures/docs-package
+      - /test/fixtures/docs-quick-start
+      - /test/fixtures/dom-adapters-package
+      - /test/fixtures/esm-node
+      - /test/fixtures/jquery-dom-api
+      - /test/fixtures/jquery-dom-api-types
+      - /test/fixtures/no-default-export
+      - /test/fixtures/removed-core-adapters
+      - /test/fixtures/standalone-packages
+      - /test/fixtures/utils-package
+      - /test/fixtures/vite
+      - /test/fixtures/xstate-adapter-types
+      - /packages/test/examples
     schedule:
       interval: monthly
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 2
     groups:
+      consumer-security:
+        applies-to: security-updates
+        patterns: ['*']
+      # Use a named group while dependency-name grouping cannot reliably rebase.
+      # https://github.com/dependabot/dependabot-core/issues/14780
+      consumer-jsdom-major:
+        patterns: ['jsdom']
+        update-types: [major]
       consumer-dependencies:
         patterns: ['*']
         update-types: [minor, patch]
@@ -42,11 +82,47 @@ updates:
         update-types: [version-update:semver-major]
       - dependency-name: typescript-7
         update-types: [version-update:semver-major]
+  # Only the isolated minimum-version fixture keeps Backbone fixed.
+  - package-ecosystem: npm
+    directory: /test/fixtures/backbone-adapter
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 1
+    groups:
+      backbone-fixture-security:
+        applies-to: security-updates
+        patterns: ['*']
+    ignore:
+      - dependency-name: backbone
+  - package-ecosystem: npm
+    directory: /packages/html
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 2
+    groups:
+      html-security:
+        applies-to: security-updates
+        patterns: ['*']
+      html-tooling:
+        dependency-type: development
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      # Update the released compatibility baseline deliberately, not with tooling.
+      - dependency-name: marionette
+      # Preserve verified upstream provenance until a reviewed source update.
+      - dependency-name: lit-html
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 1
     groups:
+      actions-security:
+        applies-to: security-updates
+        patterns: ['*']
       actions:
         patterns: ['*']
         update-types: [minor, patch]

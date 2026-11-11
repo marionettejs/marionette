@@ -1,0 +1,100 @@
+name: HTML package
+
+on:
+  pull_request:
+    paths:
+      - 'packages/html/**'
+      - 'src/**'
+      - 'packages/utils/**'
+      - 'packages/radio/**'
+      - 'build/**'
+      - 'scripts/**'
+      - 'rollup.config.mjs'
+      - 'packages/data/**'
+      - 'packages/adapters/**'
+      - 'packages/test/**'
+      - 'test/**'
+      - 'types/**'
+      - 'package-lock.json'
+      - '.github/dependabot.yml'
+      - '.github/workflows/html.yml'
+      - '.nvmrc'
+      - 'config/release-profile.json'
+      - 'package.json'
+      - 'tsconfig.json'
+      - 'tsconfig.declarations.json'
+      - 'eslint.config.mjs'
+  push:
+    branches: [master]
+    paths:
+      - 'packages/html/**'
+      - 'src/**'
+      - 'packages/utils/**'
+      - 'packages/radio/**'
+      - 'build/**'
+      - 'scripts/**'
+      - 'rollup.config.mjs'
+      - 'packages/data/**'
+      - 'packages/adapters/**'
+      - 'packages/test/**'
+      - 'test/**'
+      - 'types/**'
+      - 'package-lock.json'
+      - '.github/dependabot.yml'
+      - '.github/workflows/html.yml'
+      - '.nvmrc'
+      - 'config/release-profile.json'
+      - 'package.json'
+      - 'tsconfig.json'
+      - 'tsconfig.declarations.json'
+      - 'eslint.config.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: packages/html/package-lock.json
+      - name: Verify source toolchain
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+      - name: Verify lockfile completeness
+        run: node packages/html/scripts/check-lockfile.mjs
+      - name: Install package dependencies
+        run: npm --prefix packages/html ci --ignore-scripts
+      - name: Install repository lint and coverage tools
+        run: npm ci --ignore-scripts
+      - name: Lint authored HTML sources and tooling
+        run: npm run lint:html
+      - name: Verify package, declarations and examples
+        run: npm run test:html
+      - name: Measure authored HTML source coverage
+        run: npm run coverage:html
+      - name: Verify packed current-core integration
+        run: npm run test:html:current-core
+      - name: Install browser engines
+        working-directory: packages/html
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Verify browser and security contracts
+        run: npm --prefix packages/html run test:packed:browser
+      - name: Retain HTML coverage and candidate evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.1
+        with:
+          name: html-validation-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            packages/html/coverage/runtime/
+            !packages/html/coverage/runtime/tmp/
+            packages/html/evidence/**/*.json
+          if-no-files-found: warn
+          retention-days: 14

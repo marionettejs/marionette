@@ -158,16 +158,17 @@ describe('CollectionView empty View attachment', () => {
     region.show(list);
     expect(empty.isAttached()).toBe(true);
     expect(empty.el.isConnected).toBe(true);
-    // Deferred-row attachment state is a separate pre-existing limitation:
-    // https://github.com/marionettejs/marionette/pull/3787#discussion_r4416516462
+    expect(manual.isAttached()).toBe(false);
     expect(manual.el.isConnected).toBe(false);
     expect(list.children.toArray()).toEqual([manual]);
     region.detachView();
     expect(empty.isAttached()).toBe(false);
     expect(events).toEqual(['empty:attach', 'empty:detach']);
+    expect(manual.isAttached()).toBe(false);
     region.show(list);
     list.filter();
     expect(empty.isDestroyed()).toBe(true);
+    expect(manual.isAttached()).toBe(true);
     expect(manual.el.isConnected).toBe(true);
     expect(list.children.toArray()).toEqual([manual]);
   });

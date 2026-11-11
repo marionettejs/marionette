@@ -1,7 +1,7 @@
 {
   "name": "marionette",
   "description": "A JavaScript library for structured interfaces, with explicit ownership and lifecycle. Built with agent-led development in mind.",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "type": "module",
   "homepage": "https://marionettejs.com/",
   "engines": {
@@ -127,7 +127,13 @@
     "test:formkit": "vitest run test/unit/formkit*.spec.js",
     "test:formkit-package": "node test/fixtures/formkit-package/run.mjs",
     "test:formkit-browser": "npm --prefix examples/formkit ci --ignore-scripts && playwright test --config test/formkit/playwright.config.mjs",
-    "check:packages": "node scripts/checks/packages.mjs"
+    "check:packages": "node scripts/checks/packages.mjs",
+    "build:html": "npm --prefix packages/html run build",
+    "test:html": "npm --prefix packages/html run check",
+    "test:html:browser": "npm --prefix packages/html run test:browser",
+    "lint:html": "eslint --config packages/html/eslint.config.mjs packages/html/src packages/html/scripts packages/html/test --max-warnings=0",
+    "coverage:html": "npm --prefix packages/html run build && cd packages/html && node ../../node_modules/c8/bin/c8.js --config coverage.json node --conditions=development --test --test-concurrency=1 test/*.test.mjs && node scripts/check-coverage.mjs",
+    "test:html:current-core": "npm run build && npm --prefix packages/html run build && cd packages/html && node scripts/check-current-core.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"
@@ -164,7 +170,7 @@
     "@types/jquery": "4.0.1",
     "@typescript-eslint/eslint-plugin": "8.72.1",
     "@typescript-eslint/parser": "8.72.1",
-    "@vitest/coverage-v8": "5.0.5",
+    "@vitest/coverage-v8": "5.1.0",
     "@vitest/eslint-plugin": "1.6.28",
     "ajv": "8.20.0",
     "backbone": "^1.4.0",
@@ -174,17 +180,17 @@
     "eslint": "10.14.0",
     "eslint-plugin-jsdoc": "65.4.2",
     "fast-check": "4.10.2",
-    "globals": "17.13.0",
+    "globals": "17.14.0",
     "jquery": "4.0.0",
-    "jsdom": "30.1.3",
+    "jsdom": "31.0.0",
     "lit-html": "3.3.3",
-    "marked": "18.1.2",
+    "marked": "18.1.3",
     "morphdom": "2.7.8",
-    "rollup": "4.67.2",
+    "rollup": "4.67.4",
     "terser": "5.51.2",
     "typescript": "6.0.3",
     "underscore": "^1.13.0",
-    "vitest": "5.0.5",
+    "vitest": "5.1.0",
     "xstate": "5.33.3",
     "yaml": "2.9.1"
   },
@@ -196,14 +202,18 @@
     "packages/radio"
   ],
   "dependencies": {
-    "@mnjs/radio": "5.0.0",
-    "@mnjs/utils": "5.0.0"
+    "@mnjs/radio": "5.0.1",
+    "@mnjs/utils": "5.0.1"
   },
   "overrides": {
     "@stryker-mutator/core": {
       "typed-rest-client": {
         "qs": "6.17.1"
       }
+    },
+    "minimatch": "11.0.4",
+    "test-exclude": {
+      "glob": "14.0.3"
     }
   },
   "peerDependencies": {

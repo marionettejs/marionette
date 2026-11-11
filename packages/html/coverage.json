@@ -1,0 +1,10 @@
+{
+  "all": true,
+  "extension": [".ts"],
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/node_modules/**"],
+  "exclude-after-remap": true,
+  "report-dir": "coverage/runtime",
+  "temp-directory": "coverage/runtime/tmp",
+  "reporter": ["text", "json", "json-summary", "lcov", "html"]
+}

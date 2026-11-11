@@ -4,7 +4,7 @@ Deploy the application bundle with its configured providers and verify it throug
 
 ## Keep installed packages coherent
 
-These docs target **5.0.0**. Follow the [quick start](../quick-start.md) to install matching package versions; keep the lockfile and use the documentation bundled with that installation. Verify your application against that exact installation before deployment.
+These docs target **5.0.1**. Follow the [quick start](../quick-start.md) to install matching package versions; keep the lockfile and use the documentation bundled with that installation. Verify your application against that exact installation before deployment.
 
 Use named ESM imports from `marionette` and the documented adapter subpaths. Build against installed packages rather than repository source aliases. Include the template engine required by the chosen adapter. Choose observable data and API access through [setup](../integrations/setup.md).
 

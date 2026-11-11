@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.tgz
+coverage/
+artifacts/
+
+# Generated local verification receipts; preserve separately for candidate evidence.
+evidence/

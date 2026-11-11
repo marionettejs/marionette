@@ -7,7 +7,7 @@ Continue from the [quick start](../quick-start.md). This page adds `@mnjs/data` 
 From the example project, install the data package at the same version as core:
 
 ```sh
-npm install --ignore-scripts --save-exact @mnjs/data@5.0.0
+npm install --ignore-scripts --save-exact @mnjs/data@5.0.1
 ```
 
 Use a different source with its compatible provider when it better fits your application. Views using plain template data do not require this package.

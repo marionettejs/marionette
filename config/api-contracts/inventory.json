@@ -1,11 +1,11 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "0aba589d7893e0b8017581ba7f62529911b059d68e66c5057d28586b6d314962",
+  "semanticsSha256": "f66e22624173325e9bd940639716a5294fa993c3a984f39144089b493752487d",
   "entrypoints": [
     {
       "name": "marionette",
-      "version": "5.0.0",
+      "version": "5.0.1",
       "kind": "runtime",
       "source": "src/index.ts",
       "conditions": {
@@ -1852,7 +1852,7 @@
               "length": "number",
               "map": "{ <Result>(callback: Callback<CollectionChild, Result, void>): Result[]; <Result, Context>(callback: Callback<CollectionChild, Result, Context>, context: Context): Result[]; }",
               "partition": "{ (predicate: Callback<CollectionChild, unknown, void>): [CollectionChild[], CollectionChild[]]; <Context>(predicate: Callback<CollectionChild, unknown, Context>, context: Context): [CollectionChild[], CollectionChild[]]; }",
-              "pluck": "{ <Key extends \"off\" | \"on\" | \"triggerMethod\" | \"destroy\" | \"cid\" | \"render\" | \"el\" | \"Dom\" | \"_isDestroying\" | \"_isDestroyed\" | \"model\" | \"monitorViewEvents\" | \"_getImmediateChildren\" | \"_parent\" | \"_isRendered\" | \"_isAttached\" | \"_isShown\" | \"_disableDetachEvents\" | \"_areViewEventsMonitored\">(key: Key): CollectionChild[Key][]; (key: PropertyKey): unknown[]; }",
+              "pluck": "{ <Key extends \"off\" | \"on\" | \"triggerMethod\" | \"destroy\" | \"cid\" | \"render\" | \"el\" | \"Dom\" | \"_isDestroying\" | \"_isDestroyed\" | \"model\" | \"monitorViewEvents\" | \"_getImmediateChildren\" | \"_parent\" | \"_isShown\" | \"_isAttached\" | \"_isRendered\" | \"_disableDetachEvents\" | \"_areViewEventsMonitored\">(key: Key): CollectionChild[Key][]; (key: PropertyKey): unknown[]; }",
               "reduce": "{ (callback: Reducer<CollectionChild, CollectionChild, void>): CollectionChild; <Result>(callback: Reducer<CollectionChild, Result, void>, initialValue: Result): Result; <Result, Context>(callback: Reducer<CollectionChild, Result, Context>, initialValue: Result, context: Context): Result; }",
               "reject": "{ (predicate: Callback<CollectionChild, unknown, void>): CollectionChild[]; <Context>(predicate: Callback<CollectionChild, unknown, Context>, context: Context): CollectionChild[]; }",
               "rest": "(count?: number | undefined) => CollectionChild[]",
@@ -6505,7 +6505,7 @@
     },
     {
       "name": "@mnjs/utils",
-      "version": "5.0.0",
+      "version": "5.0.1",
       "kind": "runtime",
       "source": "packages/utils/src/index.ts",
       "conditions": {
@@ -7213,7 +7213,7 @@
     },
     {
       "name": "@mnjs/radio",
-      "version": "5.0.0",
+      "version": "5.0.1",
       "kind": "runtime",
       "source": "packages/radio/src/index.ts",
       "conditions": {
@@ -7686,7 +7686,7 @@
     },
     {
       "name": "@mnjs/data",
-      "version": "5.0.0",
+      "version": "5.0.1",
       "kind": "runtime",
       "source": "packages/data/src/index.ts",
       "conditions": {
@@ -8323,7 +8323,7 @@
     },
     {
       "name": "@mnjs/adapters/backbone",
-      "version": "5.0.0",
+      "version": "5.0.1",
       "kind": "runtime",
       "source": "packages/adapters/src/data/backbone.ts",
       "conditions": {
@@ -8398,7 +8398,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/jquery",
-      "version": "5.0.0",
+      "version": "5.0.1",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/jquery.ts",
       "conditions": {
@@ -8458,7 +8458,7 @@
     },
     {
       "name": "@mnjs/adapters/xstate",
-      "version": "5.0.0",
+      "version": "5.0.1",
       "kind": "runtime",
       "source": "packages/adapters/src/data/xstate.ts",
       "conditions": {
@@ -8554,7 +8554,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/morphdom",
-      "version": "5.0.0",
+      "version": "5.0.1",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/morphdom.ts",
       "conditions": {
@@ -8594,7 +8594,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/lit-html",
-      "version": "5.0.0",
+      "version": "5.0.1",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/lit-html.ts",
       "conditions": {
@@ -15327,6 +15327,22 @@
     },
     {
       "source": "src/modules/collection-view.ts",
+      "event": "'before:attach'",
+      "kind": "literal",
+      "arguments": [
+        "view"
+      ]
+    },
+    {
+      "source": "src/modules/collection-view.ts",
+      "event": "'attach'",
+      "kind": "literal",
+      "arguments": [
+        "view"
+      ]
+    },
+    {
+      "source": "src/modules/collection-view.ts",
       "event": "'before:destroy:children'",
       "kind": "literal",
       "arguments": [
@@ -15597,9 +15613,9 @@
     "packages/test/src/cypress.js": "d0589b13c1634802f0490d28249c7b45f90a4835bd73368cd6d9336c513a0f9e",
     "packages/test/src/errors.ts": "a9f7fed430e0759b599ca2605ff952cc6f984068edd7c1b2f048d5312caed3a4",
     "packages/test/src/index.ts": "badac8b6efc5574ee03e2c9a1c9660537bf7d192ad6d82db47a6eb7b7c980264",
-    "packages/test/src/owner.ts": "887d4f0043333e02e9a840b48df6e8de72d2cc69448f96da2483fb6bfb2059af",
+    "packages/test/src/owner.ts": "d0bf1d5b56ed3592259cb3433206c53351503664db318ff3d4f6ed8efeee3b89",
     "packages/test/src/playwright.ts": "a7aa3d52acc4e34da1b17ca33cdbfbfa0ce982f2d40f94cc71198126afa4580d",
-    "packages/test/src/scope.ts": "2b7a6476caf67686915607858c54901baa2f8e65942f4afcb4bbb9854cd94b73",
+    "packages/test/src/scope.ts": "fb525e4c967542379ad2985e4520618d01593b1059cb036ca5aee8aaeb2c817a",
     "packages/test/src/session.ts": "c490602391e92f620af99a76fd66f50504ccfa3a70097c095804030349f2c5c5",
     "packages/test/src/testing-library.ts": "bd68a1e14395aa97d59159559840a3d59e4955129ae3d4f2a05a1e4355ec82c6",
     "packages/test/src/vitest.ts": "6e7662faf619428fb0bccc3531df33b3fed7fce7dcd463e65224255c3e8a7046",
@@ -15636,7 +15652,7 @@
     "src/modules/application.ts": "b849627a22170d6b985f7647c219206fd51ec166c420127ef2fefdd540775a19",
     "src/modules/behavior.ts": "94a30450a2aa414e4cdb2af263bb7e9be5acec55d170e268ee16abe2a62791c0",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
-    "src/modules/collection-view.ts": "9bae8e6dd615610220939938b63ae7f6fbc5440d2ac97f265387c0c964262b50",
+    "src/modules/collection-view.ts": "55060bbdc23115d10bfeb728ec94296f4fe684f166f58b06d79a793ef9123051",
     "src/modules/common/build-region.ts": "69fc222800674736c3385928e8a4b07932c1fd5ca7237b48fb4ab8f3a309022b",
     "src/modules/common/chainable-methods.ts": "5d61465f3de8bc0f84a3491e24067f7a711f2a7ebae08cb1a3d94375d9d153a2",
     "src/modules/common/monitor-view-events.ts": "e4f221ca598e2ce63c1cff766edbb2221d7cc7d1cb527086689e08b622a4f655",
@@ -15651,18 +15667,18 @@
     "src/runtime/renderer.ts": "9d3419a82872bc0ed017e2716cafe430b33833aab44d8cdf8c74746b1ecdab30",
     "src/runtime/state-api.ts": "109cad5a2d2aebda1d50c907009e62ee40c816983e9a5f09b59197d392ca4f31",
     "src/utils/extend.ts": "1df6dc34448491ad1e3254da1106d9c73108f2f17f6e8b77f9bc2691a0c8ba61",
-    "src/utils/is-el-attached.ts": "8f6a9b820641133e13fe2adfd019a2f9f8bc971620005d4c7f52b6c454ed7133",
+    "src/utils/is-el-attached.ts": "1586d5c27539e8c2d6662b3f45eaf5bf15dff3725b5458573c7461b2ee1917b6",
     "src/utils/subscribe-bindings.ts": "4337d7226b96fa2af73ad96136eced7af866a6d8130ea860ab076f2a77b7e4df"
   },
   "evidence": {
     "config/diagnostics/catalog.json": "89ca537fe5cacaef35d30f25aeb4d1ed4e1e8802c80c540f3672533c7b0145c4",
     "docs/api/application.md": "602a37e92b020739cf4ee62228a8f8e3205e94f7399cc62757d28aaa8fc57331",
     "docs/api/behavior.md": "6e34689d9144337d79fd5e96f8d0a00de6ed4710206e1ec266a735cd54333c60",
-    "docs/api/collection-view.md": "675eeb1a935746de030f7cb7ba2efa3093a60a33b4139047d9e375652c206d7c",
+    "docs/api/collection-view.md": "6d5efa095019d9e8a230f0e608f2598bbb1033194662f9965568bc5da5d862de",
     "docs/api/errors.md": "f4efcdd5da9dcf053b936fab32d6e200f8223f799e2517dee7753823b89946b2",
     "docs/api/mnobject.md": "89cfe4ac212de4ac5fd966cb427c1391749a2be623ccc9b6f16bb4c3497313bc",
     "docs/api/providers/data.md": "da9d70dbbc9750b0187640ea84f4a0280cdcf13b718b2ca32fe76efd709b7d38",
-    "docs/api/providers/dom.md": "4e15577d0cb904242671ecc840346379a1201b3ba234fdf18afb2e721aa42093",
+    "docs/api/providers/dom.md": "276aeea93e94a16fb78a9149d61e8a15d7cfc0502979d3cf7ac1954fb9c4e12a",
     "docs/api/region.md": "d6951eb046fbcf2a9b6c6bf43b83f71e02fa3696fbce61daadbd60af62221a60",
     "docs/api/runtime.md": "b82fc651c2ae6c076b7b8600310ba7e908d699f9bb2a817851be6b22fc8c2e6f",
     "docs/api/shared/common.md": "8982228a2345240414e35ba4f0967e95530f5966fe1254efd9a09575706d5b6a",
@@ -15676,6 +15692,7 @@
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
     "docs/packages/utils.md": "158e2051ee438acd7e235f0f29ce45f42ad798bb6d460a871efd29904e2728ec",
     "packages/formkit/readme.md": "c2608024b857123f61bee0753d32372e624e9ea2b0e4d6dd1020e6de8978a37f",
+    "test/browser/collection-deferred-lifecycle.spec.mjs": "e1e4bf980ea81566f0f11de712bb1298ef9250f967710eae8997a1413932d595",
     "test/browser/collection-empty-lifecycle.spec.mjs": "d5d3f88b1a7c9259f55c119415a722a52af7475b823d7214a77da9e9d316a90e",
     "test/browser/shadow-lifecycle.spec.mjs": "e91153c05faddec48cbb19dcab4afc30778acd9fd974dbb41f6e272c5af93d18",
     "test/contracts/dom-adapters.js": "fde66012b44e63769a4cece9008799a8b8f9aaa3701f108ff0dfbae5825afccb",
@@ -15695,7 +15712,8 @@
     "test/unit/behavior-lifecycle.spec.js": "8c70d05fa530d27eac901291a3487c9cacac1ef1d0c22a3adda917da5774d05a",
     "test/unit/behavior-ui-contract.spec.js": "6f1816708fc50311a124649bcbc3ad4ce01209ebf6d678b9f356fb0a0de6b55d",
     "test/unit/collection-view/collection-view-children.spec.js": "3383be2e1def6c561ce827bb4742b7d57e7f2396e99b0fd2b39b601accc327e4",
-    "test/unit/collection-view/collection-view-empty-lifecycle.spec.js": "41c656b72ed0d67cb7248ccf2fc95c27b84a4861869b2602359bc2a77a40fa21",
+    "test/unit/collection-view/collection-view-deferred-lifecycle.spec.js": "4e872798fb3ab47b1a23981f681c4e1474746e5084b3bab1a7dff51023fbb6bb",
+    "test/unit/collection-view/collection-view-empty-lifecycle.spec.js": "31db1c134794148f8b1714bce6bfd98f97786e9accc25e4c5bbb08e0f4036871",
     "test/unit/collection-view/collection-view-empty.spec.js": "c2f53e9e7fb3f8c147762db6c89d01e2411a3f77bfffe7b336303af9a4c8a2e5",
     "test/unit/collection-view/collection-view-lifecycle.spec.js": "6d331ff97770fcc755fc4f5ddaef20372ac000fa2948d53ead4670b7b56801ec",
     "test/unit/collection-view/collection-view-reconciliation.spec.js": "eb12c2369c5ad6e17fa34419e134732d4c7f34448ae1a4b08fbdd7e104304178",

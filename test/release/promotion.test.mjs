@@ -348,6 +348,30 @@ for (const version of ['5.0.0-beta.1', '5.0.0-beta.2', '5.0.0']) {
   });
 }
 
+test('release notes preserve upgrade actions and exact-source links in the staged body and dry-run preview', async t => {
+  const candidate = await promotion(t, {
+    version: '5.0.1', publication: { stable: true, prerelease: null },
+    releaseOpening: 'The AI is learning. Here are the actual fixes.',
+    releaseChanges: '#### Action required\n\n* Call `notifyAttach(el)` for direct Lit use. See [Lit](packages/adapters/readme.md#lit-html).\n\n#### Documentation\n\n* [Provider matching](docs/api/providers/data.md) is documentation only.',
+    releaseHistory: '\n### v5.0.0\n\n> Older opening.\n\n* Older release changes.\n',
+  });
+  const staged = candidate.exec('publish-github', 'stage');
+  assert.equal(staged.status, 0, staged.stderr);
+  const calls = await candidate.calls();
+  const create = calls.find(call => call.tool === 'gh' && call.args[1] === 'create');
+  const notes = create.args[create.args.indexOf('--notes') + 1];
+  assert.ok(notes.startsWith('The AI is learning. Here are the actual fixes.\n\n#### Action required'));
+  assert.ok(notes.includes('* Call `notifyAttach(el)`'));
+  assert.ok(notes.includes(`/blob/${candidate.commit}/packages/adapters/readme.md#lit-html`));
+  assert.ok(notes.includes(`/blob/${candidate.commit}/docs/api/providers/data.md`));
+  assert.equal(notes.includes('Older opening'), false);
+  assert.equal(notes.includes('Older release changes'), false);
+  const preview = candidate.exec('publish-github', 'dry-run');
+  assert.equal(preview.status, 0, preview.stderr);
+  assert.equal(JSON.parse(preview.stdout).notes, notes);
+  assert.deepEqual(await candidate.calls(), calls);
+});
+
 test('release notes use the verified commit rather than edited working copy prose', async t => {
   const candidate = await promotion(t);
   await writeFile(join(candidate.root, 'changelog.md'), '### v5.0.0-test.1\n\n> Unreviewed copy.\n');

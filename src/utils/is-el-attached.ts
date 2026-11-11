@@ -1,8 +1,7 @@
 import type { DomApi } from '../runtime/dom-api.ts';
 
 // Attachment follows shadow hosts; ordinary DomApi containment stays strict.
-export default function isElAttached(el: Element, Dom: Partial<DomApi>): boolean {
-  const documentEl = Dom.getDocumentEl!(el);
+export default function isElAttached(el: Element, Dom: Partial<DomApi>, documentEl = Dom.getDocumentEl!(el)): boolean {
   if (!documentEl) { return false; }
 
   let current: Element | undefined = el;
