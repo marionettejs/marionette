@@ -1,6 +1,7 @@
 # Installed router timing
 
-This single-arm study measures the existing repaired contract. It is informative,
+This harness measures the current route-owning contract. Historical result files
+measure their recorded earlier API, including its broader structural-key domain. It is informative,
 not a release gate, a production latency prediction or a comparison with another
 router. It consumes an exact prepared archive and published Marionette/Utils/Radio
 5.0.1 peers. Nothing imports checkout router source or private implementation APIs.
@@ -35,7 +36,7 @@ optimization and garbage collection are left enabled without forced collection.
 | --- | ---: |
 | `match`, `url`, 10 / 100 / 1,000 routes | 3,000 / 1,000 / 200 |
 | Named `memory-navigate`, 10 / 100 / 1,000 routes | 200 / 100 / 40 |
-| Scalar, fresh two-field and fresh nested same-key reuse | 1,000 each |
+| Scalar and fresh two-field same-key reuse | 1,000 each |
 | Changed two-field key, stop/start of the same child | 1,000 |
 | Two same-key callers joining one deferred preparation | 100 pairs |
 | Reused 100-field key, snapshotted each selection (stress) | 200 |
@@ -48,7 +49,7 @@ Every catalog is checked for matching and URL round trips before timing.
 Selection batches check returned authority and the applicable start/preparation
 and running/current invariants. The pending pair includes changed-key stop/start, deferred
 allocation, two callers and `Promise.all`: it is not a pure join-only microbenchmark.
-The first caller loses selection authority; the second joins the first options.
+Both same-key callers receive the same selected child; the second joins the first options.
 Fresh small keys include their allocation; the larger stress key reuses its input
 object but still incurs the supported snapshot cost. These are different workloads,
 not equivalent treatments whose difference isolates one implementation cost.

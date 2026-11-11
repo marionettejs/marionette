@@ -1,19 +1,20 @@
-# Feature routes with an ordinary Application
+# A Catalog that owns its routes and item lifecycle
 
-The [Catalog Application](catalog.mjs) owns its local `routeTo` operation and
-shows a named CatalogView. Its route table is ordinary data. Register it with
-the existing `Router.mount` API, choosing the Application as both controller
-and registration owner. No extra feature-registration or UI-mounting helper is needed.
+The [Catalog Application](catalog.mjs) declares its own list page and an Item mount.
+The Item child declares its local item/reviews leaves, loads in prepareStart and
+shows a named View through its Region. A mount starts/joins that child by its own
+id parameter before calling the leaf. Same ID retains preparation; changed ID
+stops/starts the registered instance. The list page stops the mounted Item.
 
-The View uses Marionette's default function-template renderer with Lit output and
-the per-View Lit DOM adapter. Install these optional example dependencies alongside
-the router and its Marionette peer: `@mnjs/adapters@5.0.1` and `lit-html@3.3.3`.
-Ordinary Lit child expressions escape text; do not use raw HTML for fetched titles.
+The View uses a function template and a per-View Lit DOM adapter. Install the
+optional consumer dependencies @mnjs/adapters@5.0.1 and lit-html@3.3.3 alongside
+the router and its Marionette peer. Ordinary Lit expressions keep fetched text
+escaped; no global renderer override or raw HTML insertion is needed.
 
 ```js
 import { Application } from 'marionette';
 import { Router } from '@mnjs/router';
-import { Catalog, catalogRoutes } from './catalog.mjs';
+import { Catalog } from './catalog.mjs';
 
 const frame = new Application();
 const router = frame.addChildApp('navigation', new Router());
@@ -25,47 +26,40 @@ const catalog = frame.addChildApp('catalog', new Catalog({
     return (await response.json()).title;
   },
 }));
-router.mount(catalogRoutes, { owner: catalog, controller: catalog });
+catalog.mountRoutes(router);
+router.on('route:error', (error, match) => console.error(match?.name, error));
 await frame.start();
+await catalog.start();
 await router.start();
 const initial = await router.getInitialDispatch();
 if (initial.status === 'failed') {
   frame.destroy();
   throw initial.error;
 }
-await router.navigate('catalog', { id: '42' }).finished;
+await router.navigate('catalog:item', { id: '42' }).finished;
+await router.navigate('catalog:reviews').finished; // same mounted item, no reload
 ```
 
-Check the required capabilities before eagerly constructing this Router, as in
-the [package bootstrap recipe](../../readme.md#check-capabilities-before-eager-application-imports).
-Supply `#content`. Registration does not start an Application or render UI.
-`routeTo` returns the ordinary `restart()` promise. Preparation loads data;
-the synchronous `onStart` notification presents CatalogView through its Region.
-This example deliberately reloads on every dispatch, including repeated IDs and
-refresh. `start({ id })` alone would retain an active Application without loading
-again. Use keyed child selection when retention is the desired policy.
+Provide #content and check [runtime requirements](../../readme.md#check-capabilities-before-eager-application-imports)
+before eager Router construction. Mounting registers only; start the root Catalog
+before dispatch. Mounted descendants activate through routeBranch. No route method
+repeats root startup or uses a second routing map. childRouteOptions explicitly
+passes the loader into the Item start options.
 
-The request observes both the Application preparation signal and route signal.
-Preparation and presentation check authority, so navigation away cannot attach
-stale UI even if a request ignores abort. A later `restart` cancels the previous
-preparation; stopping/destroying the owner cancels its lifecycle work. These are
-distinct from Router cancellation. Required work is returned to the Router.
-The bootstrap inspects the non-rejecting initial outcome and destroys its owner
-before rethrowing a failed initial dispatch; it does not silently accept failed
-startup. Other routing errors remain available through `route:error` and rejected
-operation promises according to the application's observation policy.
+A request observes the Application preparation signal; the mount separately checks
+route authority before dispatch. Same-key routes can share pending preparation,
+so aborting one route does not cancel that shared work. Changing the key or clearing
+the mounted child cancels its lifecycle preparation. The list route, owner teardown
+and a different area's explicit catalog.clear() prevent stale work from attaching.
+Independent panes can retain their own content. Preparation errors bubble through
+handleRouteError and then route:error unless handled; observe operation promises too.
+The initial result never rejects, so bootstrap checks its failed outcome explicitly.
 
-`catalog.stop()` stops its UI but leaves the route registered; navigating or
-refreshing that route may start it again. `catalog.destroy()` retires the
-registration and cancels its route work. Stopping/destroying the frame also stops
-routing. A different area's handler explicitly stops or clears content it leaves;
-it need not activate an area just to clean it up. Independent sidebars can remain
-owned elsewhere. Route metadata can describe the area an app chooses to present;
-it does not activate anything or derive ownership from URL paths.
+catalog.stop() retains registration but stops owned UI; explicitly start it before
+future dispatch. catalog.destroy() retires routes and cancels their work. Mounting
+an already-current URL requires router.refresh(). The old /products/:id route uses
+a named redirect, forwarding source params/query/hash. It has no duplicate handler.
 
-Keep a real feature's richer `routeTo` boundary local to that feature. The optional
-RouteApplication remains useful when the feature independently declares and owns
-its registrations, as in the [desk example](../desk/README.md). Neither pattern
-requires all features to use the same ownership shape. A feature that replaces its
-own first startup still owns its stable presentation promise; this small example
-does not implement that separate policy.
+The distinct [Desk example](../desk/README.md) demonstrates lazy independent route
+registration and a feature-owned replacement-presentation promise. That special
+readiness policy does not belong to every mounted feature.

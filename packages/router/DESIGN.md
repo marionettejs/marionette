@@ -1,85 +1,53 @@
 # Routing with Marionette v5
 
-This package uses Marionette's Application ownership and lifecycle
-conventions and leaves application-specific policy with its owners. Router owns
-routing activity; optional RouteApplication owns feature route registrations and
-ChildAppSwitcher owns a selectable child group. Match is plain
-typed data. [Source and license](PROVENANCE.md) identify the maintained source
-and the unchanged MIT notice.
+Router owns matching and navigation on one shared Driver. RouteApplication owns
+feature declarations, branch dispatch and one selectable child group, using
+ordinary Application preparation/start/stop/destroy. Views and Regions own UI.
+The [source/license reference](PROVENANCE.md) and [MIT notice](license.txt) identify
+this package. Application policy still chooses loading/error UI, services,
+permissions, independent panes, focus and reporting.
 
 ## Responsibilities
 
 | Responsibility | Owner |
 | --- | --- |
-| Compile/rank nested routes, build URLs, plan redirects | Router and its internal matcher |
-| Navigation/history event semantics | Injected Driver |
-| Current route decision and cancellation authority | Match and its AbortSignal |
-| Prepare/start/restart/stop features and own children | Application, including Router |
-| Own and switch one group of child Applications | Optional ChildAppSwitcher Application |
-| Register/unregister a feature's declarative routes | Optional RouteApplication |
-| Render, place child Views, manage DOM/focus/scroll | Views and Regions |
-| Service requests, permissions, loading/errors, analytics | Application policy |
+| Compile/rank one nested route table, generate URLs, follow redirects | Router |
+| URL/history event semantics | Injected Driver |
+| Current route authority | Match and its AbortSignal |
+| Declare feature routes and select mounted children | RouteApplication |
+| Async loading and startup readiness | Application.prepareStart |
+| Attached presentation and local interactions | Views and Regions |
+| Domain errors, reporting, ownership of independent panes | Application policy |
 
-A small application uses one Router handler. A larger application registers the
-Router and optional content groups in its Application tree. Use one browser Router
-to own navigation; nesting Applications does not create more browser listeners or
-automatically mount route definitions; a RouteApplication declares that registration
-explicitly. There is no global Radio channel, required
-child activation protocol, rendering adapter or parallel lifecycle framework.
-
-See Marionette's [architecture](https://github.com/marionettejs/marionette/blob/v5.0.1/docs/architecture.md),
-[Application](https://github.com/marionettejs/marionette/blob/v5.0.1/docs/api/application.md)
-and [events](https://github.com/marionettejs/marionette/blob/v5.0.1/docs/api/shared/events.md) contracts.
+Use one browser Router and explicit Application ownership. A URL mount selects
+one registered child within its RouteApplication; it does not discover owners or
+create another browser listener. A route-less RouteApplication also supports
+selection without a Router. Ordinary Router handlers/controllers remain available
+when Application branch dispatch is unnecessary.
 
 ## Construction, options and extension
 
-Router, RouteApplication and ChildAppSwitcher use callable Application constructors. Marionette's `.extend()` forwards through `parent.apply`; custom
-constructors may delegate with `Parent.call(this, options)` when needed.
-Ordinary applications should use `initialize` rather than override construction.
+Router and RouteApplication are callable Application constructors. Use normal
+`initialize`, `.extend`, `addChildApp` and start/stop/destroy. Custom constructors
+may delegate with `Parent.call(this, options)`. Required private state is installed
+before core construction invokes consumer hooks; there is no temporary hook swap.
 
-Required private routing state exists before `initialize`. Application first merges
-class `options` and supplied options; matching/configuration can then be used safely
-inside a subclass's initialization. Routes compile before construction returns.
-The implementation uses no temporary replacement of the user's `initialize` hook.
+Router options `routes`, `driver`, `handler`, `owns`, `notFound` and `maxRedirects`
+use ordinary `getOption` precedence. Constructor options override prototype defaults.
+A Router `routes()` factory runs once in its own context. RouteApplication's
+`routes` and `childApps` instead describe a static class topology; compilation
+reads properties without calling route or child factories or constructing children.
+Constructor route tables are unsupported. Core can instantiate constructor-supplied
+children, but those options do not redefine the class topology read by routeTable.
+Set instance declaration properties explicitly before compiling when needed.
 
-Configure `routes`, `driver`, `handler`, `intercept`, `notFound`, `persistParams` and
-`maxRedirects` through constructor options or class/prototype defaults. Constructor
-options take precedence through `getOption`. Class `options` merge shallowly, as
-other Marionette objects do; no second options store or deep-merging system exists.
-A `routes()` factory runs in Router context once per instance. Route tables accept
-arrays or name-keyed hashes, including in `children` and `mount`. Registration does
-not mutate them: it snapshots containers, definitions, children and top-level metadata. Later caller edits do not change registered routes;
-register/unregister explicitly. Redirect callbacks retain identity, and nested
-metadata values keep their original references (metadata copies remain shallow).
-
-The application-owned `catalog` below supplies its activation and notification
-methods; this is a configuration fragment.
-
-```js
-const CatalogRouter = Router.extend({
-  routes() {
-    return [
-      { name: 'home', path: '/' },
-      { name: 'item', path: '/items/:id' },
-    ];
-  },
-  handler(match, { signal }) {
-    return catalog.activate(match, { signal });
-  },
-  onRouteReady(match) {
-    catalog.announceReady(match);
-  },
-});
-const router = new CatalogRouter();
-```
-
-Policy callbacks use the Router as context where specified by the typed options.
-A route-specific `handler` is a function or controller method name. The root
-Router is its default controller; `mount(routes, { controller })` supplies another
-controller. Functions run with that controller as `this`; method names use
-Marionette's shared `resolveMethod` contract at registration, including `MN0019`
-for a missing or non-callable method. The matched route's handler is awaited. If it has none,
-Router's global `handler` is awaited instead; both do not run for one route.
+Registration snapshots route containers, definitions, children and top-level
+metadata without mutating callers. Redirect functions retain identity; nested
+metadata and opaque `data` retain their references. Method handlers resolve once
+at registration through Marionette's `resolveMethod` (`MN0019` on invalid methods).
+A mount's `controller` supplies their receiver; Router is the default controller.
+Only the matched leaf's own handler runs, falling back to Router's global handler
+when absent. Parent handlers are not inherited by child leaves.
 
 ## Lifetime and notifications
 
@@ -176,10 +144,8 @@ identity or use `listenTo`/`stopListening`; a broad `off('before:stop')` also re
 the Router's cleanup listeners. The package adds no protected event namespace.
 
 Until routing is enabled, and after stop or destroy, `navigate()` returns canceled committed/finished
-Promises; `refresh()` and `back()` resolve false; `canGoBack()` is false and
-`updateState()` returns false without writing browser state. Pure matching, URL
-building and route-table inspection/configuration remain available. Active
-`updateState()` returns true. `getCurrent()` identifies the last committed Match;
+Promises; `refresh()` and `back()` resolve false; `canGoBack()` is false. Pure matching, URL
+building and route-table inspection/configuration remain available. `getCurrent()` identifies the last committed Match;
 its signal is aborted when the run ends.
 
 `canGoBack()` reports whether the previous history entry was marked by this
@@ -257,31 +223,23 @@ teardown or general synchronous recovery policy.
 
 ## Route definitions and matching
 
-An array contains ordinary definitions, with optional `name` fields for named
-routes. A hash maps each route name to its definition; omit `name` inside that
-value. Both forms can be used in `children`. This grammar-only example does not
-activate navigation or render UI:
+An array contains `{ path, name?, handler?, children?, meta?, redirect?, data? }`
+definitions. A hash takes its path from each key and its optional name from the
+value. Own `path` fields in hash values are rejected to catch legacy declarations.
+Both forms can be nested. This pure matching example does not activate routing:
 
 ```js
-import { Router } from '@mnjs/router';
-
-const router = new Router({
-  routes: {
-    home: { path: '/' },
-    item: { path: '/items/:id' },
-  },
-});
+const router = new Router({ routes: {
+  '/': { name: 'home' },
+  '/items/:id': { name: 'item' },
+} });
 router.url('item', { id: 42 }); // /items/42
-router.match(new URL('https://example.test/items/42')).name; // item
+router.match('https://example.test/items/42').name; // item
 ```
 
-These are name-to-definition hashes, not pathname-to-action maps. Names remain
-globally unique across the table and all mounts; nesting does not invent name
-prefixes. One definition supplies matching, reverse URLs, navigation and links.
-Names must be nonempty strings without a leading `/` or a `scheme://` prefix;
-those forms are reserved for URL navigation. Registration rejects these ambiguous
-names, tightening the previously accepted domain in this package. Ordinary
-names such as `catalog:item` and names containing other punctuation remain valid.
+Names are globally unique, nonempty strings. Leading `/` or `scheme://`
+forms are reserved for URL navigation. Namespaces in Application mounts explicitly
+compose names; engine nesting alone does not invent prefixes.
 
 Internally, `pattern.ts` handles one pathname's grammar, encoding, native
 URLPattern execution and prefix patterns. `matcher.ts` owns the route table,
@@ -340,9 +298,12 @@ each parameter as a single value, including any slash it contains. Matching igno
 trailing path slashes; URL generation omits them except at `/`. Incoming URLs keep
 their original slashes: matching does not redirect or rewrite the browser URL.
 
-For `persistParams`, only omitted own keys inherit. Explicit `null`, `undefined`
-or `''` clears a value; a required parameter then fails generation. Inherited
-prototype properties are never supplied or persisted parameters.
+Named URL generation/navigation inherits only omitted own parameter keys from
+identical route nodes shared by current and target branches. Sharing a parameter
+name is insufficient. Absolute child paths reset inherited URL parameters.
+Explicit null, undefined or empty strings clear values; required values then fail
+generation. Prototype properties never supply parameters. Query/hash are not
+implicitly inherited by ordinary named navigation.
 
 Generation rejects missing/invalid parameters, destructive whole-path dot segments, static-route collisions
 and values that do not round trip through matching. Safe embedded dot values such
@@ -366,97 +327,85 @@ across large catalogs can be costly.
 
 ## Feature route registration
 
-`RouteApplication` is an optional ordinary Application for a feature that owns
-route registrations. Its constructor requires `{ router }`. It reads `routes`
-through `getOption` after `initialize`; arrays, named hashes and a factory in
-feature context are accepted. It mounts with the feature as controller, and its
-`before:destroy` listener unmounts those registrations. UI stop and retained restart
-leave them registered. Adding a feature to an app tree does not start it, its
-children or siblings, and does not create another navigation listener.
-
-Registration and activation are separate. A handler can run while its feature is
-stopped; dispatch does not implicitly call `start`, `prepareStart` or `onStart`.
-`route:ready` observes the work actually returned by the handler. Activate required
-features in ordinary startup, or return the feature's deliberate start/restart
-operation from its handler. Starting inside a handler happens before that handler
-completes, not after route readiness. Identity/reuse and independent panes remain
-explicit choices; route URL ancestry does not choose Application ownership.
-
-Configure the engine with an ordinary prototype default when it is already known
-at class-definition time. This does not search an owner chain or create a Router.
-`new RouteApplication({ router })` remains available, and configured constructors
-also accept an explicit per-instance router override. `routeParent` passes the
-named parent to `mount`, inheriting its URL prefix, params, branch and metadata.
-
-`RouteApplication.extend({ router })` permits no-argument construction, including
-ordinary declarative children and inherited defaults. Constructor `router` options
-override that default when non-undefined; undefined retains it. Clearing or replacing
-an inherited prototype default with an invalid value requires a valid constructor
-option again. `withRouter(router)` remains an equivalent convenience, not a required
-feature base. Reusable module-scope classes can instead take `{ router }` at construction.
-
-An explicit `initialize(options)` or custom constructor keeps its declared argument
-requirements, including unrelated required fields. Prototype defaults are not copied
-into its raw argument: `initialize` can receive undefined, and an object with a prefix
-will not acquire `options.router`. Read resolved defaults with `getOption`.
-
-This composition fragment assumes application-defined `loadCatalogPrerequisites`
-and `ItemApplication`; the [desk example](examples/desk/README.md) is executable.
+`routeTable(Source, { namespace? })` compiles a RouteApplication class, instance or
+static descriptor into an ordinary readonly route array. Leaves declare
+`{ name, handler?, redirect?, meta? }`; mounts declare
+`{ mount, namespace?, region?, meta? }`. Hash keys are paths; array entries also
+specify `path`. A mount must name a RouteApplication class in a `childApps` object.
+Compilation rejects missing mounts/names and cycles in the current ancestor stack;
+the same child class may be reused in independent sibling mounts.
 
 ```js
-const router = new Router({ routes: { workspace: { path: '/:workspace' } } });
-const Catalog = RouteApplication.extend({
-  router,
-  routeParent: 'workspace',
-  childApps: { content: ChildAppSwitcher },
-  routes: { item: { path: 'items/:id', handler: 'showItem' } },
-  async prepareStart(_options, { signal }) {
-    await loadCatalogPrerequisites({ signal });
+const Item = RouteApplication.extend({
+  routes: {
+    '': { name: 'item', handler: 'showItem' },
+    'reviews': { name: 'reviews', handler: 'showReviews' },
   },
-  async showItem(match, { signal }) {
-    if (!await this.start()) return;
+  async prepareStart({ id, load }, { signal }) {
+    const item = await load(id, { signal });
     signal.throwIfAborted();
-    const content = this.getChildApp('content');
-    await content.start();
-    signal.throwIfAborted();
-    const page = await content.switchTo('item', {
-      key: { id: match.params.id },
-      options: { id: match.params.id },
-      signal,
-    });
-    if (!page || signal.aborted) return;
-    return page.showItem(match);
+    return item;
   },
+  onStart(_app, _options, item) { this.item = item; },
+  showItem(match) { /* show a View through this Application's Region */ },
+  showReviews(match) { /* this.item is retained for this item identity */ },
 });
-const Frame = Application.extend({ childApps: { catalog: Catalog } });
-const frame = new Frame();
-frame.addChildApp('router', router);
-frame.getChildApp('catalog').getChildApp('content').addChildApp('item', new ItemApplication());
-await frame.start();
+const Catalog = RouteApplication.extend({
+  childApps: { item: Item },
+  routes: {
+    '/catalog': { name: 'catalog', handler: 'showList' },
+    '/catalog/:id': { mount: 'item', namespace: 'catalog' },
+  },
+  childRouteOptions() { return { load: this.getOption('load') }; },
+  showList() { /* parent page; its mounted item has already been stopped */ },
+});
+const catalog = frame.addChildApp('catalog', new Catalog({ region, load }));
+catalog.mountRoutes(router);
+await catalog.start();
 await router.start();
 ```
 
-The handler awaits ordinary feature preparation before child switching and
-rendering, and checks authority after awaits. Parent Applications remain running across their child routes;
-same-key child selection retains the page. UI stop/start retains route registration.
-Neither registration nor navigation automatically starts siblings.
+This is a lifecycle configuration fragment; the [complete example](examples/catalog/README.md)
+includes real escaped rendering and error observation. Start independently
+registered roots before dispatch, not necessarily before mounting. Registration
+alone neither activates a root nor rejects stopped handlers. Mounted descendants
+are started by branch dispatch; omitting root start skips its preparation and
+prevents selection even though a leaf can still run. No automatic root lifecycle
+or rollback is implied by `route:ready`.
 
-An ordinary Application can use explicit mounting with the same ownership policy:
+`mountRoutes(router, { parent? })` calls Router.mount with this Application as
+controller and registration owner, returning an explicit unmount function. A
+named `parent` composes URL paths without choosing UI ownership. Stop/restart
+retain registrations; destroy unmounts them. Mounting does not dispatch an existing
+URL: use active `refresh()` after lazy registration. Independently registered roots
+need their own explicit start and teardown.
 
-```js
-const unmount = router.mount(catalogRoutes, {
-  parent: 'catalog',
-  controller: catalog,
-  owner: catalog,
-});
-unmount(); // optional early retirement; idempotent
-```
+Each compiled table carries a private identity on its opaque branch data, so
+mounting one table below another dispatches only the matching table. Each level
+calls synchronous `before:route`/`onBeforeRoute(match)`, then rechecks route
+authority. A mount selects its child using only that entry's own params as the
+key; descendant params do not restart ancestors. Start options contain those
+params plus `childRouteOptions(match, mount)` and the selected Region.
+`getMountRegion()` defaults to this Application's Region, or a named Region on
+its current View. A mount's `namespace` changes descendant names, not paths.
 
-`owner` unmounts before its Application is destroyed. Omitting `owner` leaves
-explicit cleanup with the caller; `controller` alone establishes only handler
-binding. Router destruction releases mounted registrations and owner listeners.
-Mount/unmount does not dispatch the current URL or rewrite browser history; use
-active `refresh()` when it needs handling again.
+`routeTo(match)` enters the appropriate table, and `routeBranch(match, index)`
+awaits selection then delegates to the selected child's next branch. A leaf clears
+only a currently selected child declared as a mount by that owner, then awaits its
+local handler. Independent children/panes are not all stopped when a parent leaf
+runs. Local handlers that use manual selection own its explicit `clear()` policy.
+No per-route name-to-method forwarding map or second matcher is required.
+
+`handleRouteError(error, match, { mount, phase })` receives a current failure from
+this branch (`phase: 'start' | 'route'`). A child's rethrow reaches its parent's
+boundary, then Router `route:error` if nobody handles it. Returning a result means
+handled completion. Stale canceled errors are suppressed. The authorized async
+branch catch provides this error boundary; other synchronous callback failures
+still have ordinary failure semantics, with no attempt-all cleanup or recovery.
+
+Router.mount can also register ordinary engine definitions with an independent
+controller/owner. Owner destruction unmounts; controller binding alone establishes
+no ownership. Router destruction releases registrations and owner listeners.
 
 `match()` preserves a supplied URL object. Absolute URL strings are parsed without
 accessing a Driver. Relative strings resolve against the Driver's current URL,
@@ -476,21 +425,24 @@ parsing can reinterpret them as a host or separators; use `%5C` for literal data
 Backslashes inside parameter values are percent-encoded normally. Query conversion
 is shared by named URL generation and raw navigation targets.
 
-`notFound: { name, within(url) }` supplies a navigation-only fallback when no
-route matches and `within` accepts the URL. The Router's normal interception
-rules still apply. The handler receives the configured name, the unchanged URL
-and query, and parameters from the deepest matching unnamed branch prefix (or
-none). Equally deep prefixes use specificity, mount priority and stable definition
-order. A winning prefix with malformed parameter encoding yields no parameters;
-it cannot fall through to a shallower prefix. Its metadata and branch are empty. A fallback does not capture an unmatched
-tail or inherit a registered route's metadata/redirect.
-It does not register a route: pure `match()` still returns null, and `url(name)`
-requires a separately registered named route. Use this fallback to show a missing
-page within an explicitly owned URL scope; it does not replace wildcard routing.
+`notFound: 'missing'` chooses a fallback name only when no route matches.
+The fallback retains the unmatched URL/query and deepest matching unnamed-prefix
+params. A registered target supplies its handler and metadata; otherwise Router's
+global handler receives the fallback name with an empty branch and metadata. It does not capture
+an unmatched tail or borrow the prefix's branch data. Equally deep prefixes use
+specificity, mount priority and stable order; malformed winning-prefix encoding
+does not fall through. Pure `match()` still returns null. URL generation uses the
+registered route's real path, not the unmatched URL.
+
+`owns(url)` limits same-origin claims. Without it, notFound claims all same-origin
+URLs, including server endpoints; explicitly exclude those paths. The fallback's
+current Match does not gain the target's shared-node ancestry, so explicitly pass
+`match.params` when a subsequent named link needs those prefix values.
 
 Redirect callbacks return a same-origin URL or named target, optionally
 asynchronously. Ordinary redirect hops share `maxRedirects` (default 5).
-String targets, including relative paths and query/fragment-only targets, resolve
+String targets must begin `/`, `?`, `#` or `scheme://`; bare names are rejected.
+Query/fragment-only targets resolve
 against the captured navigation URL supplied to the redirect callback. This base
 is the same for synchronous and asynchronous callbacks; it does not depend on
 which entry has committed while a lookup is pending.
@@ -524,19 +476,17 @@ Fetch any missing target data in the application's async callback:
 ```js
 const CatalogRouter = Router.extend({
   routes() {
-    const forward = (name, match, params = match.params) =>
-      ({ name, params, query: match.query, hash: match.url.hash });
     return [
       { name: 'item', path: '/collections/:collectionId/items/:id' },
       { name: 'oldItem', path: '/legacy/:legacyId',
         redirect: async(match, { signal }) => {
           const item = await lookupItem(match.params.legacyId, { signal });
           if (signal.aborted) return;
-          return forward('item', match, { collectionId: item.collectionId, id: item.id });
+          return { name: 'item', params: { collectionId: item.collectionId, id: item.id } };
         },
       },
       { name: 'oldDetails', path: '/legacy/:legacyId/details',
-        redirect: match => forward('oldItem', match),
+        redirect: { name: 'oldItem' },
       },
     ];
   },
@@ -548,20 +498,15 @@ replaces that URL with the current item URL after the lookup. An error belongs t
 the intermediate lookup URL. No fetch policy, data source or lookup cache is built
 into the Router.
 
-Query and hash forwarding are explicit application choices. A named target is
-`{ name, params?, query?, hash? }`. It builds the existing named URL against the
-captured navigation URL and sets its fragment only when `hash` is supplied.
-Omitting `query` or `hash` does not inherit either from the source. `hash` uses
-the platform `URL.hash` setter: `details` and `#details` both produce `#details`,
-an empty string omits the fragment, and `#` keeps an explicit empty fragment.
-Unicode is percent-encoded and existing escapes are preserved. This option belongs
-to redirect targets; `url()` and `navigate()` options are unchanged.
-
-To migrate from route aliases, replace each `aliases` entry with a separately named
-redirect route. Remove `getAliases()` and `Match.alias` consumers; those APIs and
-the alias types/policies are removed. Keep retirement dates and bookmark policy
-with the application, using ordinary registration/mount/unmount as appropriate.
-There is no automatic alias metadata or `preserve` rendering mode.
+A named redirect target is `{ name, params?, query?, hash? }`. Omitted fields
+forward from the redirecting match for synchronous and asynchronous targets.
+Explicit parameter keys override forwarded values; explicit query replaces the
+forwarded query. Empty/nullish values clear parameters or query as supported by generation. The
+fragment follows the platform URL.hash setter: `details` and `#details` both
+produce `#details`, empty string clears it, and `#` keeps an explicit empty fragment.
+Unicode is encoded and existing escapes remain. This fragment option belongs to
+redirect targets, not ordinary url()/navigate() options. Source entry state and
+originating navigation info continue across redirect hops.
 
 Entry state is a plain object (including null-prototype objects), or null/undefined
 where permitted. A reserved `@mnjs/router` ownership marker is stripped from Match
@@ -582,7 +527,7 @@ await router.navigate('/items?filter=open', {
 }).finished;
 ```
 
-There is no query/hash inference. Options are snapshotted for that operation and
+Ordinary navigation has no query/hash inheritance; named redirects forward as described above. Options are snapshotted for that operation and
 its redirect hops; later independent navigations, links and history traversal use
 their own defaults. Policy does not enter history state or user `info`. It applies
 only to events intercepted by this Router; ordinary `hashChange` and document
@@ -658,7 +603,8 @@ Navigation:
   local transition and traversal receipts. Copying a Driver stamp
   into another entry at the same URL cannot be detected and is unsupported.
   Use this Driver as the History writer; it does not patch global History methods.
-  Unobserved joint-history changes in other frames are outside this ownership
+  Ordinary fragment navigation can also reset this instance-local window; it
+  does not erase actual browser history. Unobserved joint-history changes in other frames are outside this ownership
   boundary too: relative `go()` can traverse a frame without a top-window pop.
 - Same-origin intercepted push/replace operations commit History state and await
   required route work. Browser Back/Forward commits before `popstate` and is not
@@ -696,6 +642,8 @@ Navigation:
   targets, forms and cross-origin links stay browser-owned. Unclaimed, uncanceled
   clicks retain browser default behavior. Ordinary fragment links remain native;
   controlled Router fragment redirects still participate in route readiness.
+  Ordinary same-URL anchor clicks can push duplicate entries; programmatic
+  `history: 'auto'` replaces when the URL is unchanged.
 - Unclaimed programmatic navigation/reload hands off to the document and rejects
   its local promises with AbortError. This does not claim cross-document readiness.
   Provided state is retained for reload; cross-document state delivery is not
@@ -726,307 +674,85 @@ compatibility. The Router's native grammar contract is unchanged.
 
 ## Child Applications
 
-ChildAppSwitcher is an Application that owns one selectable child group. It does
-not render, borrow a Region to manipulate, or read Match. Register its pages beneath
-it; persistent sidebars and other independent features stay outside this group:
+RouteApplication has one selectable child group, also useful without routes or a
+Router. Register ordinary Application children and start the owner, then call
+`switchTo(name, { key, options, signal, restart })`. The implementation is private;
+there is no separate public selection class or child-routing language.
 
-```text
-Frame Application
-├─ Router
-└─ Catalog Application
-   ├─ Sidebar Application
-   └─ ChildAppSwitcher (content)
-      ├─ Item Application
-      └─ Search Application
-```
+Equal keys retain or join the same registered child. Same-key callers share an
+outcome and startup failure; a new joined call does not supersede the earlier one.
+A changed key or per-call `restart: true` stops/starts that same instance. Restart
+is not a class/constructor default. Running Application.start ignores new options;
+choose a changed key/restart when loading must repeat. Reconstructing an instance
+requires explicit owner registration replacement.
 
-This composition fragment assumes application-defined `SidebarApplication`,
-`ItemApplication`, and existing `contentRegion`/`sidebarRegion` instances.
+Selection keys are undefined/null/string/number/boolean or flat plain records
+(including null-prototype records) of those values. Own enumerable string keys are
+copied before any outgoing stop/incoming start callback. Missing fields differ
+from present undefined; values use Object.is, including NaN equality and signed
+zero distinction. Copies preserve own __proto__ fields as data. Nested containers,
+arrays, class instances, symbols, bigint and functions are unsupported. Hidden and
+symbol properties do not contribute identity. Use small resource identities.
+Invalid keys reject before selection side effects.
 
-```js
-import { Application } from 'marionette';
-import { Router, ChildAppSwitcher } from '@mnjs/router';
+The optional caller signal limits that caller's result; it never aborts shared
+child preparation. Aborted/superseded callers fulfill undefined. Owner stop/destroy
+still invalidates selection and cancels owned lifecycle work. Late failures remain
+observed, and obsolete work cannot clear a newer selection. Check authority after
+awaiting work before application effects. An undefined result does not prove all
+underlying feature work stopped.
 
-const CatalogPages = ChildAppSwitcher.extend({
-  async showRoute(match, region) {
-    if (match.name !== 'item') {
-      this.clear();
-      return;
-    }
-    const { id } = match.params;
-    if (!this.hasChildApp('item')) {
-      const { default: ItemApplication } = await import('./item-application.js');
-      if (match.signal.aborted) return;
-      if (!this.hasChildApp('item')) this.addChildApp('item', new ItemApplication());
-    }
-    if (match.signal.aborted) return;
-    const page = await this.switchTo('item', {
-      key: { id },
-      options: { id, region },
-      signal: match.signal,
-    });
-    if (!page || match.signal.aborted) return;
-    return page.showDetails(match);
-  },
-});
+A failed current startup rejects its original error and cleans the failed
+selection once. Optional onCleanupError(error, child) observes a secondary cleanup
+failure; without it that secondary error is discarded. The primary startup error
+wins. Normal synchronous stop/notification errors propagate through the ordinary
+failure boundary; no rollback or attempt-all cleanup is promised. clear() returns
+true as idempotent successful completion, including when there is no selection.
 
-const frame = new Application();
-const catalog = frame.addChildApp('catalog', new Application());
-const sidebar = catalog.addChildApp('sidebar', new SidebarApplication());
-const pages = catalog.addChildApp('content', new CatalogPages());
-const router = frame.addChildApp('router', new Router({
-  routes: [{ name: 'item', path: '/items/:id' }],
-  handler: match => pages.showRoute(match, contentRegion),
-}));
-router.on('route:error', (error, match) => {
-  console.error('Route failed:', match?.name, error);
-});
-await frame.start();
-await catalog.start();
-await sidebar.start({ region: sidebarRegion });
-await pages.start();
-await router.start(); // enables routing; route:ready reports completed route work
-// pages.stop() stops content descendants; sidebar remains active.
-// frame.stop()/destroy() also stop/destroy Router and the Catalog subtree.
-```
-
-`switchTo(name, { key, options, reconstruct, signal })` is an explicit operation
-on a running group. Before start, after stop and during/after destruction it resolves
-undefined without activating a child. Group start does not choose or automatically
-start a page. Registering a page does not start it either.
-
-Selection returns the authoritative running Application, or undefined when that
-call cannot expose one (superseded/canceled selection or a child-owned replacement
-of its requested start). Undefined does not mean all child work was cancelled.
-Reuse requires the same registered instance, name and
-structural key. Same-key calls join pending Application preparation; only the
-latest selection request returns the child. A running child ignores new start
-options, including `region`. Update an already-running feature explicitly, or pass
-`reconstruct: true` when a rebuilt host requires stop/start. A changed key also
-stops the selection and starts the same registered instance. This rebuilds UI
-without removing/recreating an Application. Inherited `restart()` retains the
-group's active children and does not repeat selection.
-
-`reconstruct` can also be a switcher default, using ordinary `getOption` resolution:
-constructor options override class `options`, which override the prototype property.
-A per-call boolean overrides that default, including explicit `false`; omitted or
-`undefined` uses the default, then the existing `false` behavior. A true default
-also replaces same-key pending preparation. Pass `false` to join that preparation
-or retain the running child. Key changes still stop/start even with `false`.
-`key`, `signal` and child startup `options` remain per-call, not group defaults.
-
-```js
-const Pages = ChildAppSwitcher.extend({ reconstruct: true });
-const pages = new Pages();
-// After group startup and page registration:
-await pages.switchTo('item', { key: itemId, options: { region: newHost } });
-await pages.switchTo('item', { key: itemId, reconstruct: false }); // retain/join
-```
-
-Keys are captured as structural value snapshots at the `switchTo` call, before
-child lifecycle callbacks. Changing the original object/array afterward cannot
-change the identity of an existing selection. Primitive equality uses `Object.is`
-(`NaN` equals itself; `-0` differs from `0`). Records compare own string keys
-without property-order significance; missing properties differ from explicit
-`undefined`. Array holes differ from explicit `undefined` and array length matters.
-Readonly arrays are accepted. Caller keys are neither mutated nor frozen.
-
-The value domain is strings, numbers, booleans, null, undefined, ordinary arrays
-and plain records (Object.prototype or null prototype) from this realm, recursively.
-Values must be acyclic own enumerable string data properties. Aliased subobjects
-are allowed. Accessors, symbols/symbol keys, non-enumerable record properties,
-extra named array properties, class instances, Date/Map/Set and cycles are rejected
-before retiring the current selection. Proxies are not supported key containers.
-This validation makes snapshot identity well-defined; it is not arbitrary object
-serialization. Prefer small scalar/composite keys over large state trees. Snapshot
-time/allocation scale with unique containers and own properties; aliases are
-preserved internally instead of expanded. Equality memoizes compared container
-pairs. Neither memo survives the operation.
-
-`clear()` invalidates pending selection and stops the selected child while keeping
-the group running. It reports idempotent success (`true`), including when already
-clear or unavailable. Use it for a fallback that leaves this content level. `stop()`
-disables the group and stops all registered children; `destroy()` destroys them.
-Independent sidebar Applications remain outside the group's stop scope. Do not
-make two groups own the same page: Application ownership permits one owner/name.
-
-The optional signal is checked before selection and before exposing its result.
-Aborting it does not stop child preparation; a newer same-key route must be able
-to join that work. Check route authority after every lazy import or other await,
-then pass the current signal to selection. Returning from an obsolete handler
-cannot undo a selection it already made. Every route handler must select or clear
-each content level it leaves; Application ownership alone does not choose a page.
-
-The returned child is authoritative. Do not re-read registration to bypass an
-undefined result. Return/await required detail activation. Application `onStart`
-is a synchronous notification, not an awaited child-start hook. Pages need no
-`showDetails` method when their preparation supplies all required readiness.
-
-If a child supersedes its own first start with restart, the original selection
-returns undefined and leaves the replacement running. Explicitly await that
-child-owned replacement when its readiness is required. `getCurrent()` identifies
-selection, not guaranteed running state; an independently stopped child can remain
-selected. Removed, replaced or self-destroyed registrations are no longer current.
-
-Startup failure cleans up the failed selection and rejects with the original error.
-An optional `onCleanupError(error, app)` reports a cleanup failure separately.
-The reporter is synchronous and should not throw.
-If it is omitted, that secondary stop error is discarded and the primary startup
-error is preserved. This is not an attempt-all cleanup guarantee. Synchronous
-cleanup failures outside failed-start cleanup retain Application's normal failure
-boundary.
-
-### Migrating the former helper
-
-Remove the former `{ owner }` option. Register the switcher as a child Application,
-move its selectable pages under it, and await its start before selection. Replace
-helper `stop()` calls that meant only "clear this content" with `clear()`; reserve
-Application `stop()` for disabling the group. Destroy now destroys the group's
-registered pages instead of leaving them with an external owner. Application
-`destroy()` returns `true`, rather than the former MnObject return value.
+Application preparation, route completion and feature presentation have distinct
+lifetimes. A page that replaces its own startup before first presentation can keep
+a feature-owned stable presentation promise; a fulfilled false start result does
+not complete that required replacement work. The [Desk example](examples/desk/README.md)
+shows this policy with loading/content/handled-error Views, late rejection and
+owner teardown. Later local refresh is a separate operation.
 
 ## Typing and JavaScript
 
-The declarations model `RouteTable`, route callbacks, controllers, mount options
-and ordinary Application extension. `defineRoutes()` is an identity helper that
-preserves a table's literal names and paths for bounded inference:
+Authored ESM/CJS declarations support TypeScript and CheckJS. defineRoutes retains
+path-keyed names/params for engine tables; routeTable recursively infers mounted
+class names, namespaces and composed paths. Numeric object keys stringify as in
+JavaScript. Absolute child paths reset URL params but preserve namespace prefixes.
+Optional namespace values/options include both possible name sets. Dynamic tables
+fall back to string/Params. mountRoutes does not widen an existing Router catalog:
+construct with `{ routes: routeTable(Root) }` or use an explicit Router generic.
 
-```ts
-import { Router, defineRoutes } from '@mnjs/router';
-
-const routes = defineRoutes({
-  item: { path: '/items/:id' },
-  search: { path: '/search{/:term}?' },
-});
-const router = new Router({ routes });
-router.url('item', { id: 42 });
-router.url('search');
-await router.start();
-await router.getInitialDispatch();
-await router.navigate('search', { term: 'open' }).finished;
-```
-
-For a preserved literal table, named calls check declared names, required pathname
-parameters and optional brace-group parameters. Required values are string/number;
-optional values can also be null/undefined. Nested definitions are included, and
-absolute children reset the URL parameter prefix. No second handwritten name map
-or runtime route registry is added. Literal inference does not replace native
-grammar, encoding, route precedence or generated-URL round-trip checks. Correlation
-between parameters in one optional group remains a runtime generation constraint.
-
-`.extend()` retains ordinary initializer options, methods and preparation results.
-It does not automatically infer a route catalog from subclass prototype defaults
-in this first pass. Constructor-supplied literal routes support inference; an
-explicit `RouterInstance<typeof routes>` can preserve the same catalog at a call
-boundary, without a handwritten parameter map. Full automatic subclass/catalog
-inference is deferred. Use `defineRoutes` or `satisfies RouteTable` to check a
-prototype declaration's shape. Preserve literal definitions when typed named calls are wanted; a broad
-`RouteTable` annotation or string pathname cannot supply literal inference.
-Route callbacks still receive the common `ActiveMatch` and `{ signal }`, rather
-than a per-handler inferred Match shape. Method-name strings use runtime
-`resolveMethod` checks. Callback `this` is not inferred from a separate mount's
-controller; named methods retain their normal `.extend()` context.
-
-Known feature tables can form a strict catalog independently of which modules are
-currently mounted. `RouteCatalog` is a type-only composition of the actual tables,
-in parent-before-child mount order:
-
-```ts
-const workspaceRoutes = defineRoutes({ workspace: { path: '/:workspace' } });
-const catalogRoutes = defineRoutes({ item: { path: 'items/:id' } });
-type KnownRoutes = RouteCatalog<[
-  typeof workspaceRoutes,
-  { routes: typeof catalogRoutes; parent: 'workspace' },
-]>;
-const router = new Router<KnownRoutes>();
-router.mount(workspaceRoutes);
-const unmount = router.mount(catalogRoutes, { parent: 'workspace' });
-router.url('item', { workspace: 'team', id: 42 });
-unmount();
-// Still type-correct; runtime now rejects the unavailable name.
-router.url('item', { workspace: 'team', id: 42 });
-```
-
-Import `RouteCatalog` as a type from `@mnjs/router`. Its entries reference feature
-definitions without a duplicate name/parameter map or runtime catalog registry.
-Named parents must occur in earlier entries; dynamic names/paths retain the
-existing broad runtime contract. Conditional feature availability remains a runtime
-check through `hasRoute`, matching and URL generation.
-
-Dynamic mounts do not grow a static route-name union or prove registration
-availability. Code working with arbitrary dynamically registered names can use a
-general `RouterInstance` reference and the shared `Params` contract; runtime
-validation still applies. Literal parameter inference also does not make a
-required parameter optional because `persistParams` may supply it at runtime;
-pass it explicitly for a strict literal call or use the general runtime contract.
-Inferring names through arbitrary Radio payloads or
-template engines is outside this bounded API.
-
-JavaScript uses the same hashes, arrays, callbacks and `defineRoutes()` helper.
-Optional JSDoc/checkJs can check the declared table and named calls; it is not
-required to run the router. Existing Radio callbacks explicitly call
-`router.navigate(name, params)` without a package-defined channel/event map.
-Templates can call the same `router.url('item', { id })` to generate an anchor URL;
-there is no separate template route registry or builder.
+RouteApplication.extend preserves ordinary Application required initializer/custom
+constructor arguments, state, static methods and preparation-result inference.
+Routes/childApps declarations retain literals without freezing unrelated state.
+BranchEntry.data is unknown; engine users must narrow their own opaque data.
+Required URL params remain required in types even when a shared current branch
+could supply them at runtime. SelectionKey and SwitchOptions are exported types;
+the selection implementation is private.
 
 ## Marionette runtime family
 
-Router, RouteApplication and ChildAppSwitcher are ordinary subclasses of Marionette's named
-`Application` export and belong to that default family. Their parent, registered
-children and borrowed Regions must belong to the same family. An isolated
-`createMarionette()` Application tree cannot register these classes as children.
-
-Use `.extend()` and normal Application provider configuration to customize them.
-Changing Radio or State providers does not change Application runtime identity,
-and subclassing does not rebase a class into another runtime. This package exposes
-no runtime-bound constructor factory. Radio/state behavior remains opt-in; the
-package declares no Radio channels.
+Router and RouteApplication extend Marionette's named default Application family.
+An isolated createMarionette() runtime cannot register these instances as children;
+extend() does not change that identity. Use the default family for this package's
+Application tree. No global provider or Radio bridge is installed.
 
 ## Package and validation boundary
 
-### Lifecycle integration remains under review
+The root named driver factories are application-selected and tree-shakable in
+optimized ESM consumers. Router's native default may remain in a live Router bundle
+with an explicit alternative driver; no automatic fallback or internal loader is
+present. Consumer bundlers control conditional imports/network chunks. The source
+build requires core declarations first (`npm run build` on a clean checkout).
 
-The current API keeps route registration, dispatch and Application activation
-explicit. RouteApplication registers its handlers; it does not start itself before
-dispatch. ChildAppSwitcher selects a registered child by explicit identity and is
-also useful without routing. The examples demonstrate these existing contracts,
-not a settled automatic activation model.
-
-A remaining design question is whether a feature-local route declaration should
-also establish its initial activation, same-identity reuse or pending-start join,
-and changed-identity restart. A useful proposal must specify identity, startup
-options, navigation-away cancellation and stop/destroy behavior together. It
-should let children own their local handlers without parents repeating every
-descendant route, while preserving one Router matcher and explicit Application
-ownership. URL `routeParent` composition must remain distinct from UI ownership;
-independent panes must not become one implicit exclusive selection.
-
-This review branch does not implement that model. It adds no automatic activation,
-owner-chain discovery or second routing language, and retains `withRouter` as a
-convenience equivalent to an ordinary router default. The data-backed examples
-make their current reload/reuse choices explicit so that this decision can be
-reviewed separately from the correctness and declaration fixes.
-
-### Packaging
-
-Unsaved-change leave decisions remain application-owned. This package does not
-implement a routing guard API or history compensation.
-
-`marionette` is a required compatible peer (`^5.0.1`), following the family
-integration convention. The tested minimum/current registry core is 5.0.1; the
-range does not certify future 5.x versions in advance. The package does not embed a second framework copy or import an
-application repository, external data layer or renderer. The three Application classes
-are exported from the root. There are no old-name aliases or separate adapter entry.
-
-Authored TypeScript generates ESM/CJS and declarations. Public tests cover class
-options/initialization, notifications, cleanup, navigation concurrency, switching,
-UI reconstruction, configured providers and the default runtime family boundary. Package fixtures verify installed ESM/CJS
-behavior with the required peer. Focused headless native-navigation tests exercise
-the built router with packed Marionette peers; these do not certify the entire
-Driver contract, minimum browser versions or any consuming application UI.
-
-Reflection, richer refresh intent and additional coordination
-hooks require concrete requirements; they are not prerequisites for this package's
-existing behavior. The maintainer has confirmed the Marionette MIT license and
-the exact notice is shipped. Publication still requires separate approval and
-certification of the final version, archive, peers and supported browsers.
+Browser support is tested Chromium only, with Navigation API for the default and
+an explicit History adapter/polyfill path. Firefox/WebKit and actual bfcache
+restoration are unverified. Capability presence is not certification. Node minimum
+is 24.15; source toolchain pins and core's separate consumer floor remain distinct.
+Installed archives test runtime, ESM/CJS declarations, dependencies, documentation,
+shipped examples and optimized consumers. Public API and behavior have separate
+unit/native evidence; pass counts alone are not a release decision.

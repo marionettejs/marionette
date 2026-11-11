@@ -1,4 +1,5 @@
-import { Application, View } from 'marionette';
+import { View } from 'marionette';
+import { RouteApplication } from '@mnjs/router';
 import LitDomApi from '@mnjs/adapters/dom/lit-html';
 import { html } from 'lit-html';
 
@@ -6,28 +7,30 @@ const CatalogView = View.extend({
   template: ({ title }) => html`<h1>${title}</h1>`,
 }).setDomApi(LitDomApi);
 
-export const catalogRoutes = {
-  catalog: {
-    path: '/catalog{/:id}?',
-    handler: 'routeTo',
-    meta: { area: 'catalog' },
+const Item = RouteApplication.extend({
+  routes: {
+    '': { name: 'item', handler: 'showItem' },
+    'reviews': { name: 'reviews', handler: 'showReviews' },
   },
-};
-
-// An ordinary feature Application; route registration stays explicit in its caller.
-export const Catalog = Application.extend({
-  async prepareStart({ id, routeSignal } = {}, { signal }) {
-    const loadItem = this.getOption('loadItem');
-    const current = routeSignal ? AbortSignal.any([signal, routeSignal]) : signal;
-    const title = id === undefined ? 'Catalog' : await loadItem(id, { signal: current });
-    current.throwIfAborted();
+  async prepareStart({ id, loadItem }, { signal }) {
+    const title = await loadItem(id, { signal });
+    signal.throwIfAborted();
     return title;
   },
-  onStart(_app, { routeSignal } = {}, title) {
-    if (routeSignal?.aborted) { return; }
-    this.showView(new CatalogView({ model: { title } }));
+  onStart(_app, _options, title) { this.title = title; },
+  showItem() { this.showView(new CatalogView({ model: { title: this.title } })); },
+  showReviews() { this.showView(new CatalogView({ model: { title: `Reviews: ${this.title}` } })); },
+});
+
+// The feature declares its children and URL branches together. Item owns loading;
+// the mount starts/reuses it by id before dispatching its local leaf handler.
+export const Catalog = RouteApplication.extend({
+  childApps: { item: Item },
+  routes: {
+    '/catalog': { name: 'catalog', handler: 'showCatalog', meta: { area: 'catalog' } },
+    '/catalog/:id': { mount: 'item', namespace: 'catalog', meta: { area: 'catalog' } },
+    '/products/:id': { name: 'legacyItem', redirect: { name: 'catalog:item' } },
   },
-  routeTo(match) {
-    return this.restart({ id: match.params.id, routeSignal: match.signal });
-  },
+  childRouteOptions() { return { loadItem: this.getOption('loadItem') }; },
+  showCatalog() { this.showView(new CatalogView({ model: { title: 'Catalog' } })); },
 });

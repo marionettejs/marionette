@@ -31,137 +31,15 @@ try {
     for (const api of [esm, cjs]) {
       const driver = api.memoryDriver({ url: 'https://example.test/' });
       assert.equal(driver.currentEntry.url, 'https://example.test/');
-      const switcher = new api.ChildAppSwitcher();
+      const switcher = new api.RouteApplication();
       switcher.destroy();
       assert.throws(() => new api.Router({ driver, routes: [{ name: 'item', path: '/item' }] }), /URLPattern/);
     }
     console.log('ESM/CJS imports and non-matching exports do not acquire URLPattern.');
   `);
 
-  run(`
-    import assert from 'node:assert/strict';
-    import { createRequire } from 'node:module';
-    import { Application } from 'marionette';
-    import * as esm from '@mnjs/router';
-    const require = createRequire(import.meta.url);
-    const cjs = require('@mnjs/router');
-    assert.throws(() => require('@mnjs/router/outlet'), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });
-    for (const api of [esm, cjs]) {
-      const BaseApplication = api === esm ? Application : require('marionette').Application;
-      assert.equal('createRouterClass' in api, false);
-      assert.equal('createChildAppSwitcherClass' in api, false);
-      const driver = api.memoryDriver({ url: 'http://localhost/' });
-      const Routes = api.Router.extend({
-        routes: [{ name: 'home', path: '/' }],
-        initialize() { this.initialized = this.url('home'); },
-      });
-      const router = new Routes({ driver });
-      assert.equal(router instanceof BaseApplication, true);
-      assert.equal(router.initialized, '/');
-      const Feature = api.RouteApplication.extend({
-        routes: { item: { path: '/items/:id', handler: 'showItem' } },
-        showItem(match) { this.item = match.params.id; },
-      });
-      const feature = new Feature({ router });
-      assert.equal(router.url('item', { id: 7 }), '/items/7');
-      assert.equal(await router.start(), true);
-      const initial = await router.getInitialDispatch();
-      assert.equal(initial.status, 'matched');
-      assert.equal(initial.match.name, 'home');
-      assert.equal(router.getCurrent().name, 'home');
-      assert.equal(router.canGoBack(), false);
-      assert.equal(await router.navigate('item', { id: 7 }).finished, true);
-      assert.equal(feature.item, '7');
-      const Configured = api.RouteApplication.withRouter(router).extend({
-        routes: { injected: { path: '/injected/:id', handler: 'show' } },
-        show(match) { this.shown = match.params.id; },
-      });
-      const Frame = BaseApplication.extend({ childApps: { feature: Configured } });
-      const frame = new Frame();
-      assert.equal(await router.navigate('injected', { id: 8 }).finished, true);
-      assert.equal(frame.getChildApp('feature').shown, '8');
-      frame.destroy();
-      assert.equal(router.hasRoute('injected'), false);
-      assert.equal(router.getCurrent(), null);
-      feature.destroy();
-      assert.equal(router.hasRoute('item'), false);
-      const DefaultFeature = api.RouteApplication.extend({
-        router,
-        routes: { defaultFeature: { path: '/default-feature' } },
-      });
-      const Inherited = DefaultFeature.extend({});
-      const DefaultFrame = BaseApplication.extend({ childApps: { feature: Inherited } });
-      const defaultFrame = new DefaultFrame();
-      assert.equal(router.hasRoute('defaultFeature'), true);
-      defaultFrame.destroy();
-      assert.equal(router.hasRoute('defaultFeature'), false);
-      const fallback = new Inherited({ router: undefined });
-      assert.equal(router.hasRoute('defaultFeature'), true);
-      fallback.destroy();
-      const Cleared = Inherited.extend({ router: undefined });
-      assert.throws(() => new Cleared(), /requires a router/);
-      const restored = new Cleared({ router });
-      assert.equal(router.hasRoute('defaultFeature'), true);
-      restored.destroy();
-      router.destroy();
-      assert.equal(await router.start(), false);
-      assert.equal(await router.navigate('/').finished, false);
-      assert.equal(router.isDestroyed(), true);
-      assert.deepEqual(driver.documentNavigations, []);
-
-      const owner = new BaseApplication();
-      const Extended = api.ChildAppSwitcher.extend({ initialize() { this.initialized = true; } });
-      const switcher = owner.addChildApp('pages', new Extended());
-      const page = switcher.addChildApp('page', new BaseApplication());
-      await switcher.start();
-      assert.equal(switcher.initialized, true);
-      assert.equal(await switcher.switchTo('page'), page);
-      assert.equal(await switcher.switchTo('page', { reconstruct: true }), page);
-      assert.equal(switcher.getChildApp('page'), page);
-      owner.destroy();
-      assert.equal(switcher.isDestroyed(), true);
-    }
-    // Verify child-owned readiness replacement against a plain Application control.
-    async function initialReplacement(Switcher, BaseApplication = Application) {
-      const first = Promise.withResolvers();
-      const replacement = Promise.withResolvers();
-      const replacing = Promise.withResolvers();
-      let runs = 0;
-      let restarted;
-      let stops = 0;
-      const Page = BaseApplication.extend({
-        prepareStart() {
-          runs++;
-          if (runs === 1) {
-            queueMicrotask(() => { restarted = this.restart(); replacing.resolve(); });
-            return first.promise;
-          }
-          return replacement.promise;
-        },
-      });
-      const owner = Switcher ? new Switcher() : new BaseApplication();
-      await owner.start();
-      const page = owner.addChildApp('page', new Page());
-      page.on('stop', () => stops++);
-      const switcher = Switcher ? owner : null;
-      const initial = switcher ? switcher.switchTo('page') : page.start();
-      await replacing.promise;
-      replacement.resolve();
-      assert.equal(await initial, switcher ? undefined : false);
-      assert.equal(await restarted, true);
-      assert.equal(page.isRunning(), true);
-      assert.equal(stops, 0);
-      assert.equal(runs, 2);
-      if (switcher) assert.equal(switcher.getCurrent(), page);
-      first.resolve();
-      owner.destroy();
-      assert.equal(page.isDestroyed(), true);
-    }
-    await initialReplacement(null);
-    await initialReplacement(esm.ChildAppSwitcher);
-    await initialReplacement(cjs.ChildAppSwitcher, require('marionette').Application);
-    console.log('Router/switcher ESM/CJS lifecycle, default Application family, reconstruction and child-restart control passed.');
-  `);
+  cpSync(join(root, 'test/router/consumer/package-smoke.mjs'), join(fixture, 'smoke.mjs'));
+  execFileSync(process.execPath, ['smoke.mjs'], { cwd: fixture, stdio: 'inherit' });
 } finally {
   rmSync(fixture, { recursive: true, force: true });
 }

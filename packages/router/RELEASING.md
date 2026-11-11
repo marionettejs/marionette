@@ -1,5 +1,9 @@
 # Release @mnjs/router 0.1.0
 
+**Release hold:** the route-owning Applications port is a review candidate. Do not
+publish, tag or release it without an explicit new release decision. The procedure
+below describes future certification; a publishable manifest is not authorization.
+
 This procedure releases only `@mnjs/router@0.1.0`, publicly, with npm dist-tag
 `latest` and Git tag `router-v0.1.0`. The unrelated existing `v0.1.0` tag must not
 be reused. Router is independently versioned; do not bump or enroll it in the
@@ -109,7 +113,8 @@ This consumer installs the exact archive with published minimum
 `@mnjs/adapters@5.0.1`, `lit-html@3.3.3` and `urlpattern-polyfill@10.1.0`, without
 install scripts or overrides.
 It records registry locators/integrities and verifies ESM/CJS runtime and
-declarations, CheckJS, shipped documentation links, cancellation/retention,
+declarations, CheckJS, namespaced routeTable inference, mounted lifecycle dispatch,
+shipped documentation links, cancellation/retention,
 capability checks, actual executable examples and optimized ESM consumers that
 remove unused drivers. History ESM/CJS consumers exercise state, Back/Forward
 and retained lifecycle using a real Window implementation. Controlled breaks prove missing
