@@ -36,7 +36,7 @@ const consumerCompression = { algorithm: 'brotli', quality: 11 };
 const consumerPeerExternalImports = ['backbone', 'jquery'];
 const consumerBundleContractPath = 'benchmarks/consumer-bundles/contract.json';
 const consumerToolchain = {
-  rollup: '4.67.4',
+  rollup: '4.68.0',
   rollupPluginTerser: '1.0.2',
   terser: '5.51.2',
 };
