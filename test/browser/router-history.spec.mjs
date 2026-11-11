@@ -643,3 +643,77 @@ for (const asynchronous of [false, true]) {
     expect(result).toEqual({ early: false, outcome: 'matched', handled: ['#details'], path: '/old#details', nativeReads: 0 });
   });
 }
+
+test('completed History Match survives an ignored fragment and is canceled by real replacement or stop', async({ page }) => {
+  const result = await page.evaluate(async() => {
+    const { Router, historyDriver } = window.historyApi;
+    const driver = historyDriver(); const handled = [];
+    const router = new Router({ driver, routes: { home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' } },
+      handler(match) { handled.push(match.name); },
+    });
+    try {
+      await router.start(); await router.getInitialDispatch(); await router.navigate('a').finished;
+      const current = router.getCurrent();
+      const changed = new Promise(resolve => window.addEventListener('hashchange', resolve, { once: true }));
+      location.hash = 'details'; await changed;
+      const fragment = { same: router.getCurrent() === current, aborted: current.signal.aborted, handled: handled.slice() };
+      await router.navigate('b').finished;
+      const replacement = router.getCurrent(); const active = !replacement.signal.aborted;
+      router.stop();
+      return { fragment, replacement: { previousAborted: current.signal.aborted, active, stopped: replacement.signal.aborted },
+        nativeReads: window.nativeNavigationReads };
+    } finally { router.destroy(); }
+  });
+  expect(result).toEqual({ fragment: { same: true, aborted: false, handled: ['home', 'a'] },
+    replacement: { previousAborted: true, active: true, stopped: true }, nativeReads: 0 });
+});
+
+for (const mode of ['auto', 'replace']) {
+  test(`History ${mode} replacement exposes proposed state and preserves committed snapshots`, async({ page }) => {
+    const result = await page.evaluate(async historyMode => {
+      const { historyDriver } = window.historyApi;
+      const driver = historyDriver(); const owner = new AbortController();
+      driver.updateCurrentEntry({ state: { value: 'updated-old' } }); const old = driver.currentEntry;
+      let destination; let proposed;
+      driver.addEventListener('navigate', event => {
+        destination = event.destination; proposed = destination.getState(); event.intercept();
+      }, { signal: owner.signal });
+      try {
+        const input = { value: 'new', nested: { count: 1 } };
+        const pending = driver.navigate('/', { history: historyMode, state: input }); input.nested.count = 2;
+        await pending.finished;
+        const committed = destination.getState(); destination.getState().nested.count = 99;
+        const isolated = destination.getState();
+        driver.updateCurrentEntry({ state: { value: 'later' } });
+        return { proposed, committed, isolated, live: destination.getState(), previous: old.getState(), nativeReads: window.nativeNavigationReads };
+      } finally { owner.abort(); }
+    }, mode);
+    expect(result).toEqual({ proposed: { value: 'new', nested: { count: 1 } }, committed: { value: 'new', nested: { count: 1 } },
+      isolated: { value: 'new', nested: { count: 1 } }, live: { value: 'later' }, previous: { value: 'updated-old' }, nativeReads: 0 });
+  });
+}
+
+for (const asynchronous of [false, true]) {
+  for (const conditional of [false, true]) {
+    test(`History ${asynchronous ? 'async' : 'sync'} replacement redirect ${conditional ? 'selects from' : 'forwards'} proposed state`, async({ page }) => {
+      const result = await page.evaluate(async({ deferred, select }) => {
+        const { Router, historyDriver } = window.historyApi;
+        history.replaceState({ value: 'old' }, ''); let enabled = false;
+        const router = new Router({ driver: historyDriver(), routes: {
+          source: { path: '/', redirect(match) {
+            if (!enabled) { return; }
+            const target = !select || match.state.value === 'new' ? '/new' : '/old';
+            return deferred ? Promise.resolve(target) : target;
+          } },
+          fresh: { path: '/new' }, stale: { path: '/old' },
+        } });
+        try {
+          await router.start(); await router.getInitialDispatch(); enabled = true;
+          const outcome = await router.navigate('source', {}, { history: 'replace', state: { value: 'new' } }).finished;
+          return { outcome, name: router.getCurrent().name, state: router.getCurrent().state, nativeReads: window.nativeNavigationReads };
+        } finally { router.destroy(); }
+      }, { deferred: asynchronous, select: conditional });
+      expect(result).toEqual({ outcome: true, name: 'fresh', state: { value: 'new' }, nativeReads: 0 });
+    });
+  }
+}

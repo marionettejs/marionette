@@ -181,7 +181,7 @@ it('preserves navigation started by canceled work during an unknown-entry pop', 
   } finally { gate.resolve(); }
 });
 
-it('keeps successful History signals live until the next navigation while awaiting every handler', async() => {
+it('keeps completed History signals live while pending handlers remain cancellable', async() => {
   const fixture = context(); const { driver } = fixture;
   const gate = Promise.withResolvers();
   const events = intercept(fixture, event => event.destination.url.endsWith('/slow') ? gate.promise : undefined);
@@ -193,9 +193,89 @@ it('keeps successful History signals live until the next navigation while awaiti
   gate.resolve(); await pending.finished;
   assert.equal(events[0].signal.aborted, false);
   await driver.navigate('/next').finished;
-  assert.equal(events[0].signal.aborted, true);
+  assert.equal(events[0].signal.aborted, false);
   assert.equal(events[1].signal.aborted, false);
 });
+
+it('keeps a completed Router Match live across an ignored fragment, then cancels it on replacement or stop', async() => {
+  const fixture = context(); const { driver, window } = fixture;
+  const handled = [];
+  const router = new Router({ driver, routes: { home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' } },
+    handler(match) { handled.push(match.name); },
+  });
+  fixture.routers.push(router);
+  await router.start(); await router.getInitialDispatch();
+  await router.navigate('a').finished; const current = router.getCurrent();
+  const changed = new Promise(resolve => window.addEventListener('hashchange', resolve, { once: true }));
+  window.location.hash = 'details'; await changed;
+  assert.equal(router.getCurrent(), current);
+  assert.equal(current.signal.aborted, false);
+  assert.deepEqual(handled, ['home', 'a']);
+  await router.navigate('b').finished;
+  assert.equal(current.signal.aborted, true);
+  const replacement = router.getCurrent(); assert.equal(replacement.signal.aborted, false);
+  router.stop(); assert.equal(replacement.signal.aborted, true);
+});
+
+it('synthetic pagehide leaves completed signals live but cancels pending History work', async() => {
+  const fixture = context(); const { driver, window } = fixture;
+  const gate = Promise.withResolvers();
+  const events = intercept(fixture, event => event.destination.url.endsWith('/pending') ? gate.promise : undefined);
+  await driver.navigate('/complete').finished;
+  window.dispatchEvent(new window.Event('pagehide'));
+  assert.equal(events[0].signal.aborted, false);
+  const pending = driver.navigate('/pending'); await pending.committed;
+  try {
+    window.dispatchEvent(new window.Event('pagehide'));
+    await assert.rejects(pending.finished, { name: 'AbortError' });
+    assert.equal(events[1].signal.aborted, true);
+  } finally { gate.resolve(); }
+});
+
+for (const history of ['auto', 'replace']) {
+  it(`exposes proposed ${history} replacement state before commit and preserves old entry snapshots`, async() => {
+    const fixture = context({ value: 'old' }); const { driver } = fixture;
+    const old = driver.currentEntry;
+    driver.updateCurrentEntry({ state: { value: 'updated-old' } });
+    const input = { value: 'new', nested: { count: 1 } }; let destination; let proposed;
+    driver.addEventListener('navigate', event => {
+      destination = event.destination;
+      proposed = destination.getState();
+      const copy = destination.getState(); if (copy.nested) { copy.nested.count = 99; }
+      event.intercept();
+    }, { signal: fixture.listeners.signal });
+    const pending = driver.navigate('/', { history, state: input }); input.nested.count = 2;
+    await pending.finished;
+    assert.deepEqual(proposed, { value: 'new', nested: { count: 1 } });
+    assert.deepEqual(destination.getState(), { value: 'new', nested: { count: 1 } });
+    assert.deepEqual(old.getState(), { value: 'updated-old' });
+    driver.updateCurrentEntry({ state: { value: 'later' } });
+    assert.deepEqual(destination.getState(), { value: 'later' });
+    assert.deepEqual(old.getState(), { value: 'updated-old' });
+  });
+}
+
+for (const asynchronous of [false, true]) {
+  for (const conditional of [false, true]) {
+    it(`${asynchronous ? 'async' : 'sync'} replacement redirect ${conditional ? 'selects from' : 'forwards'} new state`, async() => {
+      const fixture = context({ value: 'old' }); const { driver } = fixture;
+      let enabled = false;
+      const router = new Router({ driver, routes: {
+        source: { path: '/', redirect(match) {
+          if (!enabled) { return; }
+          const target = !conditional || match.state.value === 'new' ? '/new' : '/old';
+          return asynchronous ? Promise.resolve(target) : target;
+        } },
+        fresh: { path: '/new' }, stale: { path: '/old' },
+      } });
+      fixture.routers.push(router);
+      await router.start(); await router.getInitialDispatch(); enabled = true;
+      assert.equal(await router.navigate('source', {}, { history: 'replace', state: { value: 'new' } }).finished, true);
+      assert.equal(router.getCurrent().name, 'fresh');
+      assert.deepEqual(router.getCurrent().state, { value: 'new' });
+    });
+  }
+}
 
 it('joins duplicate traversal readiness and cancels pending work on last unsubscribe', async() => {
   const fixture = context();
@@ -660,19 +740,23 @@ it('settles pending traversal when a detectable foreign write resets its known w
 
 it('keeps navigation started by an outgoing abort listener authoritative during popstate', async() => {
   const fixture = context(); const { driver } = fixture;
+  const gate = Promise.withResolvers();
   let newer;
   intercept(fixture, event => {
     if (event.destination.url.endsWith('/b')) {
       event.signal.addEventListener('abort', () => { newer = driver.navigate('/c'); }, { once: true });
+      return gate.promise;
     }
   });
   await driver.navigate('/a').finished;
-  await driver.navigate('/b').finished;
+  const pending = driver.navigate('/b'); await pending.committed;
   const back = driver.back();
   assert.equal((await back.committed).url, 'https://routes.example/a');
   await assert.rejects(back.finished, { name: 'AbortError' });
+  await assert.rejects(pending.finished, { name: 'AbortError' });
   await newer.finished;
   assert.equal(driver.currentEntry.url, 'https://routes.example/c');
+  gate.resolve();
 });
 
 it('cancels traversal completion when its navigate listener starts a newer navigation', async() => {

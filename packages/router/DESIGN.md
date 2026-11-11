@@ -670,10 +670,16 @@ Navigation:
   which call caused the arrival or leave a permanent physical-traversal gate.
   `popstate` cannot identify user intent, so traversal reports `userInitiated: false`;
   intercepted clicks use the original click's trusted-input flag.
+  Successful completion is terminal for the Driver event's signal: later
+  navigation, fragments or `pagehide` do not retroactively abort it. Pending work
+  remains cancellable. Router separately invalidates its Match signal on a matched
+  replacement, stop or registration removal.
 - Entry keys use reserved `@mnjs/router/history` metadata in native History state.
   Plain object fields, including Router's ownership marker, remain intact; other
   state values use an envelope. Driver `getState()` returns caller state with normal
-  structured-clone semantics. A previous instance's state is decoded but its keys
+  structured-clone semantics. A proposed navigation destination reads its new
+  snapshot during dispatch; the committed current entry reads live state, while
+  earlier entry objects retain their snapshots. A previous instance's state is decoded but its keys
   are not treated as known. Plain object state reserves the metadata key.
 - Unmodified same-origin links can be intercepted; modifiers, downloads, other
   targets, forms and cross-origin links stay browser-owned. Unclaimed, uncanceled

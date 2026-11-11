@@ -593,6 +593,34 @@
     {
       "file": "router-history.spec.mjs",
       "title": "detached History traversal rejects before go and recovers after subscription"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "completed History Match survives an ignored fragment and is canceled by real replacement or stop"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History auto replacement exposes proposed state and preserves committed snapshots"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History replace replacement exposes proposed state and preserves committed snapshots"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History sync replacement redirect forwards proposed state"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History sync replacement redirect selects from proposed state"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History async replacement redirect forwards proposed state"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History async replacement redirect selects from proposed state"
     }
   ]
 }

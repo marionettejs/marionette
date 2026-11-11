@@ -46,12 +46,15 @@ class Transition {
   dispatching = true;
   intercepted = false;
   canceled = false;
+  settled = false;
 
   constructor() {
     this.committed.promise.catch(noop); this.finished.promise.catch(noop);
   }
   get result(): NavigationResult {return { committed: this.committed.promise, finished: this.finished.promise };}
   abort(reason: unknown = error('Navigation aborted', 'AbortError')) {
+    if (this.settled) {return;}
+    this.settled = true;
     this.handlers = [];
     this.controller.abort(reason);
     this.committed.reject(reason); this.finished.reject(reason);
@@ -60,8 +63,8 @@ class Transition {
     const work = this.handlers.map(async handler => handler());
     this.handlers = [];
     Promise.all(work).then(
-      () => this.finished.resolve(entry),
-      reason => {this.finished.reject(reason); this.controller.abort(reason);},
+      () => {this.settled = true; this.finished.resolve(entry);},
+      reason => {this.settled = true; this.finished.reject(reason); this.controller.abort(reason);},
     );
   }
 }
@@ -110,7 +113,7 @@ class HistoryDriver {
       get index() {return history.#entries.indexOf(entry);},
       getState: () => {
         const { state: current, stamp } = unpack(this.#source.history.state);
-        return stamp?.scope === this.#scope && stamp.key === key && this.#source.location.href === url ? current : structuredClone(this.#states.get(entry));
+        return this.#current === entry && stamp?.scope === this.#scope && stamp.key === key && this.#source.location.href === url ? current : structuredClone(this.#states.get(entry));
       },
     };
     this.#states.set(entry, state);
