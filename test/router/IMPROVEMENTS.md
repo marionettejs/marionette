@@ -2,7 +2,7 @@
 
 Base: `a613f8de3a7c5a9a4d9aebe42a5f04b64b3ac6d0`, inspected with canonical origin
 on 2026-11-05. Origin master remains `2828aebdc928a2e8121ee5f601a2d5012412068e`.
-The published candidate, d45 recovery ref and private recovery artifacts remain
+The preserved candidate, d45 recovery ref and private recovery artifacts remain
 unchanged. Work stays local on `codex/router-independent-improvements` for review.
 
 The complete supplied decision review and Claude follow-up were read as evidence,

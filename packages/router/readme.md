@@ -4,24 +4,27 @@ Optional routing tools for Marionette v5: named URLs and native navigation,
 feature-owned registrations, and selectable child Applications. Use the tools
 individually. A Router does not infer UI ownership from URL nesting.
 
-This development package is **private**. Install a supplied archive alongside its
-exact-version `marionette` peer. No publication is authorized by this
-preparation. [Source provenance and the publication hold](PROVENANCE.md) are
-recorded separately from the [MIT license](license.txt).
-[Advanced contracts](DESIGN.md) describe the full API.
-Report suspected vulnerabilities privately through the
-[repository security advisory form](https://github.com/marionettejs/marionette/security/advisories/new).
+**Browser support: tested on Chromium only. Firefox and WebKit are untested.**
+The default driver requires the **Navigation API** and **URLPattern**. It also
+uses `AbortSignal.any`, `Promise.withResolvers` and `URL.canParse`; transpilation
+does not supply these APIs. There is no automatic fallback driver. Capability
+presence alone does not establish browser compatibility. See the capability
+check below before importing an application that eagerly constructs a Router.
 
-For a supplied review archive, use Node 24.15 or newer and install the exact
-Marionette peer alongside it:
+For the public 0.1.0 release, use Node 24.15 or newer and install the package with
+a compatible Marionette peer (minimum 5.0.1):
 
 ```sh
-npm install marionette@5.0.1 /absolute/path/mnjs-router-0.1.0.tgz
+npm install @mnjs/router "marionette@^5.0.1"
 ```
 
-This command consumes a private archive; it does not claim that `0.1.0` is
-available on the public registry. The package is optional for Marionette 5;
-applications do not need it to use the core library.
+The declared peer range is `^5.0.1`; current installed/browser evidence uses 5.0.1,
+not future 5.x versions. The npm command assumes a published version; a candidate checkout or archive does
+not establish registry availability. Routing is optional for Marionette 5.
+[Advanced contracts](DESIGN.md) describe the full API. [Source and license](PROVENANCE.md)
+identify the maintained source and unchanged [MIT notice](license.txt).
+Report suspected vulnerabilities privately through the
+[repository security advisory form](https://github.com/marionettejs/marionette/security/advisories/new).
 
 ## Build a routed feature with Applications and Views
 
@@ -145,7 +148,7 @@ eager application module, checking that missing capabilities prevent its import.
 Initial native-browser certification targets Chromium with those capabilities.
 Standalone routing was verified on Chromium 154; consumer integration also has
 reported Chromium 151 evidence. Receipts identify the exact tested build and
-archive. Firefox and WebKit are not certified initial targets. There is no
+archive. Firefox and WebKit are untested and are not certified targets. There is no
 automatic fallback driver. These browser requirements are independent of the
 core library's transpilation targets. Node consumer evidence currently uses
 Node 24.19.0; the declared minimum is 24.15.0.

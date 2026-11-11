@@ -1,11 +1,11 @@
 # Routing with Marionette v5
 
-This private package uses Marionette's Application ownership and lifecycle
+This package uses Marionette's Application ownership and lifecycle
 conventions and leaves application-specific policy with its owners. Router owns
 routing activity; optional RouteApplication owns feature route registrations and
 ChildAppSwitcher owns a selectable child group. Match is plain
-typed data. [Source provenance](PROVENANCE.md) records
-original revisions and the unresolved publication requirements.
+typed data. [Source and license](PROVENANCE.md) identify the maintained source
+and the unchanged MIT notice.
 
 ## Responsibilities
 
@@ -261,7 +261,7 @@ globally unique across the table and all mounts; nesting does not invent name
 prefixes. One definition supplies matching, reverse URLs, navigation and links.
 Names must be nonempty strings without a leading `/` or a `scheme://` prefix;
 those forms are reserved for URL navigation. Registration rejects these ambiguous
-names, tightening the previously accepted domain in this private package. Ordinary
+names, tightening the previously accepted domain in this package. Ordinary
 names such as `catalog:item` and names containing other punctuation remain valid.
 
 Internally, `pattern.ts` handles one pathname's grammar, encoding, native
@@ -878,8 +878,9 @@ reviewed separately from the correctness and declaration fixes.
 Unsaved-change leave decisions remain application-owned. This package does not
 implement a routing guard API or history compensation.
 
-`marionette` is a required exact-version peer, following the family integration
-convention. The package does not embed a second framework copy or import an
+`marionette` is a required compatible peer (`^5.0.1`), following the family
+integration convention. The tested minimum/current registry core is 5.0.1; the
+range does not certify future 5.x versions in advance. The package does not embed a second framework copy or import an
 application repository, external data layer or renderer. The three Application classes
 are exported from the root. There are no old-name aliases or separate adapter entry.
 

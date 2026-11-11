@@ -1,110 +1,150 @@
-# Private router preparation
+# Release @mnjs/router 0.1.0
 
-This procedure prepares only `@mnjs/router@0.1.0`. It grants no authority to push,
-merge, publish, tag or deploy. Keep `private: true`. The maintainer has confirmed
-the Marionette MIT license, and its exact notice is included. Publication permission
-remains withheld; this is separate from the settled license choice.
-No command below publishes or creates persistent access.
+This procedure releases only `@mnjs/router@0.1.0`, publicly, with npm dist-tag
+`latest` and Git tag `router-v0.1.0`. The unrelated existing `v0.1.0` tag must not
+be reused. Router is independently versioned; do not bump or enroll it in the
+coordinated five-package 5.x publisher. The independent
+[`@mnjs/test` procedure](../test/RELEASING.md) is the precedent, not evidence that
+its publisher session or package-specific trust applies to this new package.
 
-The router has its own version and archive. Do not enroll it in the five-package
-5.x publisher or bump core packages for this preparation. The independent
-[`@mnjs/test` procedure](../test/RELEASING.md) is the precedent for a future
-separately approved publication. The unrelated existing `v0.1.0` tag must not be
-reused. If a router tag is later approved, use `router-v0.1.0`; create none now.
+The manifest omits `private` and fixes public access/the npm registry. Preparation
+and verification never publish. Their `publishableManifest: true` records a
+technical manifest check, not authenticated scope authority, review approval or
+permission to skip final certification. The maintainer has confirmed Marionette's
+MIT license; the archive preserves its exact attribution.
 
-## Prepare one archive
+## Review and merge source
 
-Use clean committed source and the Node/npm versions in
-[`config/release-profile.json`](../../config/release-profile.json). Existing
-dependencies must be installed. Record exact source, tool versions and results.
-Run the focused source and package checks:
+Rebase onto current master, open a PR, review `packages/router/src` directly and
+resolve supported correctness findings. Require current-head CI and consolidated
+source/docs/package review before the protected merge. Honor repository rules;
+never bypass required checks or reviews. Keep core and unrelated packages intact.
+
+The public README and examples describe the package as consumers install it.
+Keep `DESIGN.md`, the concise source/license reference and exact MIT notice in the
+archive. Development/recovery logs, private application history, credentials and
+Library identities do not belong in the consumer payload.
+
+## Confirm publisher authority and version availability
+
+Use the release owner's existing authorized npm session and ordinary 2FA flow:
 
 ```sh
+npm whoami --registry=https://registry.npmjs.org/
+npm view @mnjs/router versions dist-tags maintainers --json --registry=https://registry.npmjs.org/
+npm view marionette versions dist-tags --json --registry=https://registry.npmjs.org/
+```
+
+Confirm the approved npm account can create a **public** package in the `@mnjs`
+scope. A registry 404 alone establishes neither scope membership nor publishing
+authority. Trusted publishing, if used, must actually cover this package and
+workflow. Do not create credentials, organization grants or trusted-publisher
+settings as a workaround. Authentication/access failures block publication; stop
+that operation and coordinate the supported publisher handoff.
+
+Confirm 0.1.0 is unused and assigning `latest` is appropriate. Do not overwrite an
+existing version, invent a different version or retarget another dist-tag. Keep
+Marionette within `^5.0.1`. Verify both the minimum 5.0.1 and the newest available
+compatible core; when they resolve to the same published bytes, record that fact.
+Future compatible releases are not already browser-certified. The ordinary Utils
+dependency is checked independently of the Marionette peer.
+
+## Build and check the final merged revision
+
+Final publication evidence must come from clean committed `master`, after the
+reviewed merge, using the Node/npm versions in
+[`config/release-profile.json`](../../config/release-profile.json). Record the full
+source SHA and check results outside the checkout. A PR-head receipt does not
+certify a later merge. Any source edit or merge requires fresh final certification.
+Coordinate a short release freeze with other writers before packing.
+
+```sh
+git rev-parse HEAD
+git status --porcelain --untracked-files=all
 npm run check:release-profile
-npm run build:router
-npm test -- test/unit/router
+npm ci --ignore-scripts
+npm run build
+npm test
 npm run test:types
 npm run lint
 npm run check:public-tests
 npm run check:api-contracts
 npm run test:router-tooling
 npm run test:router-package
+npm run test:source
+npm run test:dist
 ```
 
-Pack once into a new directory outside the checkout:
+Require empty Git status before and after. Then prepare **one** archive into a new
+empty directory outside the checkout:
 
 ```sh
-npm run router:prepare -- --output /absolute/path/router-candidate
+npm run router:prepare -- --output /absolute/path/router-release
 ```
 
-Preparation rebuilds only the router, requires clean source before and after,
-verifies the exact Marionette MIT notice and private flag, and writes the archive,
-SHA256 and `router-candidate.json`. Keep those files together. This is a private
-candidate, not a public release certificate.
+This rebuilds only the router, verifies the public manifest, peer/dependency
+contract and exact MIT notice, then writes the archive, SHA256 and
+`router-candidate.json`. Keep those files together. After this pack, do not edit
+source, rebuild or repack the bytes selected for publication.
 
-## Verify those exact bytes
-
-Use the archive and its recorded hash, without repacking:
+## Certify those exact bytes
 
 ```sh
-npm run test:router-tarball -- --artifact /absolute/path/router-candidate/mnjs-router-0.1.0.tgz --sha256 RECORDED_SHA256 --registry-peers --browser --output /absolute/path/router-verification
+npm run test:router-tarball -- --artifact /absolute/path/router-release/mnjs-router-0.1.0.tgz --sha256 RECORDED_SHA256 --registry-peers --browser --output /absolute/path/router-verification
 ```
 
-This installs the archive with published `marionette@5.0.1`, `@mnjs/utils@5.0.1`
-and the transitive Radio peer, without install scripts or resolution overrides.
-The UI example checks also install their explicit optional consumer dependencies,
-`@mnjs/adapters@5.0.1` and `lit-html@3.3.3`, and record their registry identities.
-These are not router runtime dependencies. Native examples use those installed
-renderer bytes, including the exact README snippets. Controlled breaks of an
-isolated example copy prove missing rendering and unsafe interpolation are caught.
-It verifies installed ESM/CJS runtime, both declaration entry points and CheckJS,
-shipped documentation links, cancellation/retention and the desk consumer. Native
-tests load the installed router and peer bytes, not checkout router output.
-The receipt retains peer versions, registry locators/integrities, lockfile,
-archive hash, source cleanliness and requested native results.
-`verificationCommit`/`verificationDirty` describe the verifier checkout. An adjacent
-`router-candidate.json` binds preparation source to the archive hash and must match
-that checkout. Without it, `archiveSourceCommit` remains null: successful byte and
-consumer checks do not establish archive source lineage. Keep the preparation
-receipt beside the archive for final private preparation.
+Require `passed-public-candidate`, clean verifier source, and identical
+`archiveSourceCommit`, `verificationCommit` and final merged HEAD. Keep the adjacent
+preparation receipt: without it the verifier leaves archive source null. The
+complete archive SHA256 must match across all receipts and the eventual publish.
 
-Initial native certification is Chromium-only, with all documented capabilities.
-Standalone evidence at runtime checkpoint `4ecb97d5` used Chromium 154; the app
-owner also reports Chromium 151 integration evidence. These are tested builds,
-not a promise about every browser with similar APIs. Firefox/WebKit remain
-uncertified initial targets; no fallback or core transpilation policy is changed.
-Use an installed supported Chromium with `--chromium-executable /absolute/path/to/chromium`
-when the pinned Playwright executable is unavailable. Record its actual version;
-do not weaken security or bypass download restrictions. Missing native coverage
-is reported as missing. The router inventory requires every declared Chromium
-case once, with no failures, retries or skips.
+This consumer installs the exact archive with published minimum
+`marionette@5.0.1`, Utils/Radio 5.0.1, and optional example dependencies
+`@mnjs/adapters@5.0.1` and `lit-html@3.3.3`, without install scripts or overrides.
+It records registry locators/integrities and verifies ESM/CJS runtime and
+declarations, CheckJS, shipped documentation links, cancellation/retention,
+capability checks and actual executable examples. Controlled breaks prove missing
+rendering and unsafe interpolation are detected. Inspect the resolved dependency
+tree for duplicate/incompatible Marionette runtimes. Also check the newest
+compatible core if it differs from the minimum, preserving exact resolved versions.
 
-Without `--registry-peers`, the development check packs local peers and labels
-that evidence `local-development`. It does not establish published-peer
-compatibility. Without `--browser`, it does not establish native coverage.
-Registry failures remain pending checks; do not silently substitute local peers.
+The initial native policy is **Chromium only**. Navigation API and URLPattern,
+plus the other documented Web APIs, are required. Firefox and WebKit are untested.
+Use the pinned browser or an installed supported Chromium via
+`--chromium-executable /absolute/path/chromium`, recording its actual version.
+Do not weaken browser security or bypass download restrictions. Require every
+inventory case once with no failures, retries or skips. Missing checks remain
+missing, not a successful certification. Use a supported cloud execution boundary
+when a managed command wrapper prevents an installed browser's sandbox helper.
 
-The core release uses `playwright.core-release.config.mjs`, which excludes only
-router-owned specs. Its existing three-engine exact inventory remains required.
-Router preparation uses its own inventory/configuration and does not dilute that
-core guarantee. Regular development discovery includes the router only in its
-Chromium project; all core cases retain the three original engines. The previous
-573-versus-372 mismatch contained 201 router entries across three projects. The
-declared initial policy has separate exact release inventories: all 372 core
-entries plus the router's Chromium cases. The router inventory grows with reviewed
-regressions without enrolling them in the coupled core publisher.
+Without `--registry-peers`, results are labeled `local-development`; without
+`--browser`, they do not establish native coverage. The separate core release
+retains its full three-engine exact inventory through
+`playwright.core-release.config.mjs`. Router certification does not weaken it.
 
-## Future release decision
+## Publish only the certified archive, then tag
 
-Even a passing preparation receipt has `publicationAllowed: false`. A future
-release requires explicit publication approval, an approved npm
-publisher, current namespace/version checks, an intentional public-manifest and
-verification-policy change, and a newly certified archive from the final approved
-revision. Never remove the private guard as part of routine preparation. A 404
-does not establish namespace ownership or publishing authority. No credentials,
-trusted publishers or account grants are created by these tools.
+Recheck publisher identity/scope authority, version availability, final source,
+clean status and archive digest immediately before publication. Honor normal
+2FA/trusted-publishing requirements. Publish the tarball directly:
 
-The current declared/verified peer is 5.0.1. Optional inclusion in Marionette 5.1
-needs verification against the actual 5.1 candidate before changing that contract;
-this preparation does not publish or alter core. App layout, multipanel behavior
-and feature policy remain consumer concerns.
+```sh
+npm publish /absolute/path/router-release/mnjs-router-0.1.0.tgz --ignore-scripts --access public --tag latest --registry=https://registry.npmjs.org/
+```
+
+Do not substitute a source directory, which would repack. If the outcome is
+uncertain, query registry state before retrying. Verify public version 0.1.0,
+`dist-tags.latest`, and `dist.integrity`; download the registry archive through the
+ordinary supported registry route and compare its full SHA256 with the certified
+archive before announcing availability.
+
+Only after confirmed publication, create and push the package-specific tag at the
+certified source revision:
+
+```sh
+git tag -a router-v0.1.0 CERTIFIED_SOURCE_SHA -m '@mnjs/router 0.1.0'
+git push origin refs/tags/router-v0.1.0
+```
+
+Verify the remote tag resolves to that exact source. Publication/tagging do not
+authorize deployment or a coordinated core release.

@@ -41,11 +41,13 @@ function fixture(t) {
   return { directory, pkg, write, pack };
 }
 
-test('accepts only a private MIT package preserving exact attribution and peers', () => {
+test('accepts only a public MIT package preserving exact attribution and peers', () => {
   validateRouterPackage(manifest, notice);
-  for (const changed of [{ ...manifest, private: false }, { ...manifest, license: 'UNLICENSED' },
+  for (const changed of [{ ...manifest, private: true }, { ...manifest, private: false },
+    { ...manifest, publishConfig: { access: 'restricted', registry: 'https://registry.npmjs.org/' } },
+    { ...manifest, publishConfig: { access: 'public', registry: 'https://unapproved.example/' } }, { ...manifest, license: 'UNLICENSED' },
     { ...manifest, version: '99.0.0' }, { ...manifest, dependencies: { '@mnjs/utils': '^5.0.1' } },
-    { ...manifest, peerDependencies: { marionette: '^5.0.1' } }]) {
+    { ...manifest, peerDependencies: { marionette: '5.0.1' } }]) {
     assert.throws(() => validateRouterPackage(changed, notice));
   }
   assert.throws(() => validateRouterPackage(manifest, Buffer.from('MIT without the existing attribution')), /exact Marionette/);
@@ -55,11 +57,25 @@ test('inspects the actual archive and records its license and browser bytes', t 
   const f = fixture(t);
   const archive = f.pack();
   const receipt = inspectRouterArchive(archive, sha256(readFileSync(archive)));
-  assert.equal(receipt.publicationAllowed, false);
+  assert.equal(receipt.publishableManifest, true);
   assert.equal(receipt.licenseSha256, sha256(notice));
   assert.equal(receipt.browserModuleSha256, sha256(readFileSync(join(f.pkg, 'dist/index.js'))));
   assert.ok(receipt.files.includes('license.txt'));
   assert.throws(() => inspectRouterArchive(archive, '0'.repeat(64)), /SHA256 mismatch/);
+});
+
+test('failed archive validation does not claim a publishable manifest', t => {
+  const f = fixture(t);
+  f.write('package.json', JSON.stringify({ ...manifest, private: true }));
+  const archive = f.pack();
+  const output = join(f.directory, 'verification');
+  const result = spawnSync(process.execPath, [join(root, 'test/router/tarball.mjs'), '--artifact', archive,
+    '--sha256', sha256(readFileSync(archive)), '--output', output], { encoding: 'utf8', env: process.env });
+  assert.notEqual(result.status, 0);
+  const receipt = JSON.parse(readFileSync(join(output, 'router-verification.json')));
+  assert.equal(receipt.status, 'failed');
+  assert.equal(receipt.publishableManifest, false);
+  assert.deepEqual(receipt.checks, []);
 });
 
 test('rejects unexpected packed material and missing public entries', t => {
@@ -99,12 +115,12 @@ test('binds preparation source to the archive instead of attributing it to a dif
   const commitB = 'b'.repeat(40);
   const archive = { sha256: 'c'.repeat(64), bytes: 100, name: '@mnjs/router', version: manifest.version,
     licenseSha256: sha256(notice), browserModuleSha256: 'd'.repeat(64) };
-  const receipt = { schemaVersion: 1, sourceCommit: commitA, sourceDirty: false, publicationAllowed: false, archive };
+  const receipt = { schemaVersion: 1, sourceCommit: commitA, sourceDirty: false, publishableManifest: true, archive };
   assert.equal(validatePreparationReceipt(receipt, archive, commitA), commitA);
   assert.throws(() => validatePreparationReceipt(receipt, archive, commitB), /source commits differ/);
   assert.throws(() => validatePreparationReceipt(receipt, { ...archive, sha256: 'e'.repeat(64) }, commitA), /sha256 differs/);
   assert.throws(() => validatePreparationReceipt({ ...receipt, sourceDirty: true }, archive, commitA));
-  assert.throws(() => validatePreparationReceipt({ ...receipt, publicationAllowed: true }, archive, commitA));
+  assert.throws(() => validatePreparationReceipt({ ...receipt, publishableManifest: false }, archive, commitA));
 });
 
 test('keeps output outside the source even through an existing directory alias', t => {
@@ -124,6 +140,7 @@ test('browser evidence requires every declared case once and an actual executabl
       tests: [{ projectName: 'router-chromium', status: 'expected', expectedStatus: 'passed', results: [{ status: 'passed' }] }] }] }] };
   assert.equal(verifyRouterBrowserReport(report, inventory).version, 'Chromium 154');
   for (const mutate of [r => { r.config.metadata = {}; }, r => { r.errors.push({ message: 'runner error' }); },
+    r => { r.errors = ''; }, r => { r.errors = { length: 0 }; },
     r => { r.stats.skipped = 1; }, r => { r.stats.expected = 2; }, r => { r.suites = []; },
     r => { r.suites[0].specs[0].tests[0].results.push({ status: 'passed' }); },
     r => { r.suites[0].specs[0].tests[0].projectName = 'webkit'; }]) {

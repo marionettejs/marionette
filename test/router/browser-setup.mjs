@@ -12,6 +12,6 @@ export default function setup(config) {
   assert.ok(router, 'Browser certification requires the installed router archive');
   assert.equal(resolve(router.directory), resolve(process.env.MARIONETTE_ROUTER_PACKAGE_DIRECTORY));
   assert.equal(sha256(readFileSync(resolve(router.directory, 'dist/index.js'))), candidate.routerArchive.browserModuleSha256);
-  assert.equal(candidate.routerArchive.publicationAllowed, false);
+  assert.equal(candidate.routerArchive.publishableManifest, true);
   config.metadata.routerBrowserVersion = execFileSync(process.env.MARIONETTE_ROUTER_CHROMIUM ?? chromium.executablePath(), ['--version'], { encoding: 'utf8' }).trim();
 }

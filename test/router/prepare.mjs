@@ -27,7 +27,7 @@ const archive = resolve(output, packed.filename);
 const identity = inspectRouterArchive(archive, sha256(readFileSync(archive)));
 assert.equal(git(['rev-parse', 'HEAD']), commit);
 assert.equal(git(['status', '--porcelain', '--untracked-files=all']), '');
-const receipt = { schemaVersion: 1, sourceCommit: commit, sourceDirty: false, publicationAllowed: false,
+const receipt = { schemaVersion: 1, sourceCommit: commit, sourceDirty: false, publishableManifest: true,
   node: process.versions.node, npm: npmVersion, archive: { ...identity, file: packed.filename } };
 writeFileSync(resolve(output, 'router-candidate.json'), `${JSON.stringify(receipt, null, 2)}\n`);
 writeFileSync(resolve(output, `${packed.filename}.sha256`), `${identity.sha256}  ${packed.filename}\n`);

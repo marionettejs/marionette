@@ -45,8 +45,8 @@ of 37 distributes targets across each catalog; it is coprime to all three sizes.
 Named URL generation includes the intentional round-trip identity check.
 Memory navigation awaits `finished`, using replace/manual focus/manual scroll.
 Every catalog is checked for matching and URL round trips before timing.
-Every selection batch checks returned authority, start/preparation counts and
-running/current state. The pending pair includes changed-key stop/start, deferred
+Selection batches check returned authority and the applicable start/preparation
+and running/current invariants. The pending pair includes changed-key stop/start, deferred
 allocation, two callers and `Promise.all`: it is not a pure join-only microbenchmark.
 The first caller loses selection authority; the second joins the first options.
 Fresh small keys include their allocation; the larger stress key reuses its input

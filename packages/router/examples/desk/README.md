@@ -6,7 +6,7 @@ Catalog belongs to the Desk Application; Activity belongs to its tools child.
 Activity uses a sidebar Region while Catalog's page can remain attached. URL
 ancestry does not choose Application ownership or stop unrelated content.
 
-Copy this folder into an ESM application with the matching private router and
+Copy this folder into an ESM application with the matching router and
 Marionette peer packages installed, plus the optional example dependencies
 `@mnjs/adapters@5.0.1` and `lit-html@3.3.3`. PresentationView uses a function
 template and a per-View Lit DOM adapter; ordinary expressions keep loaded content

@@ -1,66 +1,15 @@
-# Source provenance and publication status
+# Source and license
 
-This private development package originated from `packages/router` in
-RoundingWell/app-frontend at **0c730dceffc60bb5c85ceb31be2ee49f6956dcff**.
-This factual source record preserves provenance; the public API, documentation and
-examples are generic Marionette v5 routing and contain no application-domain policy.
+`@mnjs/router` is maintained with Marionette in the
+[Marionette repository](https://github.com/marionettejs/marionette/tree/master/packages/router).
+Its authored TypeScript produces the shipped ESM/CommonJS runtime and declarations.
+The package uses Marionette's default Application family; it does not embed a
+second Marionette runtime or an application-specific routing framework.
 
-The receiving branch begins at Marionette master
-**909890031209404fd8a375447abf51cc3a35ebfe**. No commits from the separate earlier
-History API prototype at **950e4c6dc67ca3e6e378267a95845dc6965eeaa4** were merged.
-The initial refinement commits are **1a26e38ba0b431ca272d91ef643e2dfdc306833f** and
-**e1884c0657ac08dae5e883d14d879913e054348e**.
+The package is distributed under Marionette's [MIT license](license.txt), with
+its existing notice preserved exactly: `Copyright (c) 2020 Paul Falgout`.
 
-The package has since been revised to use Marionette Application construction,
-configuration, preparation, extension, notifications and registered-child ownership.
-Router owns its routing lifetime; ChildAppSwitcher owns a selectable child group.
-ChildAppSwitcher replaces the previous coordinator terminology, and reconstruction
-means stop/start of the same registered Application. Match remains plain data; Driver, matching,
-redirect, cancellation and readiness machinery remain routing-specific.
-
-Both classes use Marionette's default Application family through ordinary
-`.extend()` construction. Runtime-bound constructor factories have been removed;
-`canGoBack()` is a regular method rather than a prototype-installed getter.
-Router inherits Application lifecycle methods and leaves `prepareStart` to
-consumers. Initial route dispatch begins on activation; navigation readiness and
-route errors remain separate from Application startup completion.
-
-Declarative named hashes and per-route handlers now share the same route table
-used for matching and URL generation. Optional RouteApplication owns a feature's
-registrations through ordinary Application destruction; it adds no navigation
-engine or automatic feature activation. Public types describe that API, with
-bounded literal name/parameter inference from `defineRoutes()` and no second
-handwritten route-name map. Runtime matching remains the grammar authority.
-
-The maintainer clarified that the package uses Marionette's MIT license.
-The shipped `license.txt` copies the repository notice unchanged, including
-`Copyright (c) 2020 Paul Falgout`; this preparation invents no new holder or notice.
-The license choice and notice are settled. The package stays `private: true`
-because npm publication has not been authorized. The maintainer has authorized
-sharing this candidate on a router review branch in the Marionette repository.
-That approval does not authorize merging, npm publication, tags or deployment;
-those actions still require separate approval. This permission boundary is not an
-unresolved licensing issue.
-
-Historical reports and browser rehearsals are not fresh certification. A recorded
-WebKit traversal destination-state gap concerned redirect forwarding; ordinary
-committed traversal can retain current-entry state. This branch does not guess a
-browser workaround or claim fresh Safari parity. Build, Node, package and UI fixture
-results must identify the tested branch revision; native-browser and real focus/
-scroll evidence remain separate requirements.
-
-The verified surviving baseline is
-**d45d74e297bbb24d441467ca9b56eb160a06257e**. Eight later correctness repairs were
-reconstructed and verified at **c29ca486786659595dbe7d35791537c6b07ac475**; the
-original missing repair commits were not recovered. That candidate and its
-historical reproduction/verification logs remain preserved separately.
-
-This integration transplants the complete reconstructed router onto upstream
-**e318f24e0fc55520d182c1541f17e4881daf0a54**, retaining current core and shared
-tooling. The private package's exact Marionette peer and Utils dependency follow
-the upstream **5.0.1** manifests. It remains version **0.1.0**, `private: true`;
-no package publication or release is performed by this integration.
-
-Runtime correctness checkpoint **4ecb97d592aa5a96c6960c89ddd837ac8368c4c2**
-has 633 router unit and 67 native Chromium test passes. Those historical results
-do not certify subsequent packaging changes or a future public archive.
+[DESIGN.md](DESIGN.md) documents routing, readiness, cancellation and ownership
+contracts. The [README](readme.md) states the tested browser boundary and runtime
+requirements. Historical development and recovery receipts are not consumer API
+contracts or certification of a released archive.

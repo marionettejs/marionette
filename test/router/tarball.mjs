@@ -21,7 +21,7 @@ const output = values.output && candidateOutput(root, values.output);
 if (output) { mkdirSync(output, { recursive: true }); assert.equal(readdirSync(output).length, 0, 'Use a new empty receipt directory'); }
 const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
 const report = { schemaVersion: 1, verificationCommit: git(['rev-parse', 'HEAD']), verificationDirty: Boolean(git(['status', '--porcelain'])),
-  archiveSourceCommit: null, publicationAllowed: false, status: 'running',
+  archiveSourceCommit: null, publishableManifest: false, status: 'running',
   node: process.versions.node, npm: execFileSync(process.execPath, [npmCli, '--version'], { encoding: 'utf8' }).trim(),
   peerMode: values['registry-peers'] ? 'registry' : 'local-development', checks: [] };
 const temporary = mkdtempSync(join(tmpdir(), 'mnjs-router-tarball-'));
@@ -37,6 +37,7 @@ try {
   };
   const routerTarball = values.artifact ? resolve(values.artifact) : pack(join(root, 'packages/router'));
   report.archive = inspectRouterArchive(routerTarball, values.sha256 ?? sha256(readFileSync(routerTarball)));
+  report.publishableManifest = true;
   const preparationFile = join(dirname(routerTarball), 'router-candidate.json');
   if (values.artifact && existsSync(preparationFile)) {
     const preparation = JSON.parse(readFileSync(preparationFile));
@@ -279,7 +280,7 @@ try {
   }
   assert.equal(git(['rev-parse', 'HEAD']), report.verificationCommit, 'Source changed during verification');
   report.verificationDirty ||= Boolean(git(['status', '--porcelain']));
-  report.status = 'passed-private-preparation';
+  report.status = 'passed-public-candidate';
   if (output) { cpSync(join(consumer, 'package-lock.json'), join(output, 'installed-package-lock.json')); }
   console.log(`Router tarball SHA-256: ${createHash('sha256').update(readFileSync(routerTarball)).digest('hex')}`);
 } catch (error) {

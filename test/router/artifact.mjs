@@ -27,7 +27,7 @@ export function candidateOutput(sourceRoot, output) {
 
 export function validatePreparationReceipt(receipt, archive, verificationCommit) {
   assert.equal(receipt.schemaVersion, 1);
-  assert.equal(receipt.publicationAllowed, false);
+  assert.equal(receipt.publishableManifest, true);
   assert.equal(receipt.sourceDirty, false);
   assert.match(receipt.sourceCommit, /^[a-f0-9]{40}$/);
   assert.equal(receipt.sourceCommit, verificationCommit, 'Archive preparation and verifier source commits differ');
@@ -40,11 +40,12 @@ export function validatePreparationReceipt(receipt, archive, verificationCommit)
 export function validateRouterPackage(manifest, license) {
   assert.equal(manifest.name, '@mnjs/router');
   assert.equal(manifest.version, sourceManifest.version);
-  assert.equal(manifest.private, true, 'Preparation requires the no-publication guard');
+  assert.equal(manifest.private, undefined, 'Public candidates must omit the private flag');
+  assert.deepEqual(manifest.publishConfig, { access: 'public', registry: 'https://registry.npmjs.org/' });
   assert.equal(manifest.license, 'MIT');
   assert.deepEqual(Buffer.from(license), notice, 'Preserve the exact Marionette license notice');
   assert.deepEqual(manifest.dependencies, { '@mnjs/utils': '5.0.1' });
-  assert.deepEqual(manifest.peerDependencies, { marionette: '5.0.1' });
+  assert.deepEqual(manifest.peerDependencies, { marionette: '^5.0.1' });
 }
 
 export function inspectRouterArchive(archive, expectedHash) {
@@ -68,7 +69,7 @@ export function inspectRouterArchive(archive, expectedHash) {
     'examples/desk/desk.mjs', 'examples/catalog/README.md', 'examples/catalog/catalog.mjs');
   for (const entry of entries) { assert.ok(members.includes(`package/${entry.replace(/^\.\//, '')}`), `Missing entry ${entry}`); }
   return { file: archive, sha256: hash, bytes: bytes.length, name: manifest.name, version: manifest.version,
-    publicationAllowed: false, licenseSha256: sha256(license), files: members.map(path => path.slice('package/'.length)),
+    publishableManifest: true, licenseSha256: sha256(license), files: members.map(path => path.slice('package/'.length)),
     browserModuleSha256: sha256(read('dist/index.js')) };
 }
 
@@ -132,7 +133,7 @@ export function verifyRouterBrowserReport(results, inventory) {
   const sorted = entries => entries.map(entry => JSON.stringify([entry.file, entry.title])).sort();
   assert.ok(inventory.tests.length > 0);
   assert.deepEqual(sorted(observed), sorted(inventory.tests));
-  assert.equal(results.errors.length, 0);
+  assert.deepEqual(results.errors, [], 'Browser report errors must be an empty array');
   assert.equal(results.stats.expected, observed.length);
   assert.equal(results.stats.skipped + results.stats.flaky + results.stats.unexpected, 0);
   const version = results.config.metadata.routerBrowserVersion;
