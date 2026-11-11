@@ -37,8 +37,13 @@ try {
       if (name === 'URLPattern') {
         assert.throws(() => new api.Router({ driver: api.memoryDriver({ url: 'https://desk.example/' }), routes: { home: { path: '/' } } }), /URLPattern/);
       }
-    } finally { Object.defineProperty(owner, property, descriptor); }
+    } finally {
+      if (descriptor) { Object.defineProperty(owner, property, descriptor); } else { delete owner[property]; }
+    }
   }
+  assert.ok(typeof globalThis.URLPattern === 'function' && typeof AbortSignal.any === 'function' &&
+    typeof Promise.withResolvers === 'function' && typeof URL.canParse === 'function',
+  'Successful-runtime probe requires URLPattern, AbortSignal.any, Promise.withResolvers and URL.canParse in a supported Router runtime');
   await runRecipe();
   assert.equal(globalThis.eagerAppImports, 1);
   const { router } = await import(pathToFileURL(join(directory, 'app.js')));

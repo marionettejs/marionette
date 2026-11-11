@@ -46,7 +46,8 @@ test('accepts only a public MIT package preserving exact attribution and peers',
   for (const changed of [{ ...manifest, private: true }, { ...manifest, private: false },
     { ...manifest, publishConfig: { access: 'restricted', registry: 'https://registry.npmjs.org/' } },
     { ...manifest, publishConfig: { access: 'public', registry: 'https://unapproved.example/' } }, { ...manifest, license: 'UNLICENSED' },
-    { ...manifest, version: '99.0.0' }, { ...manifest, dependencies: { '@mnjs/utils': '^5.0.1' } },
+    { ...manifest, version: '99.0.0' }, { ...manifest, dependencies: { '@mnjs/utils': '5.0.1' } },
+    { ...manifest, dependencies: { '@mnjs/utils': '^5.0.0' } },
     { ...manifest, peerDependencies: { marionette: '5.0.1' } }]) {
     assert.throws(() => validateRouterPackage(changed, notice));
   }

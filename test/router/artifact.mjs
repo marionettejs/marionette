@@ -44,7 +44,7 @@ export function validateRouterPackage(manifest, license) {
   assert.deepEqual(manifest.publishConfig, { access: 'public', registry: 'https://registry.npmjs.org/' });
   assert.equal(manifest.license, 'MIT');
   assert.deepEqual(Buffer.from(license), notice, 'Preserve the exact Marionette license notice');
-  assert.deepEqual(manifest.dependencies, { '@mnjs/utils': '5.0.1' });
+  assert.deepEqual(manifest.dependencies, { '@mnjs/utils': '^5.0.1' });
   assert.deepEqual(manifest.peerDependencies, { marionette: '^5.0.1' });
 }
 

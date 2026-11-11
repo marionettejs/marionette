@@ -6,12 +6,14 @@ import { Desk, Activity } from './desk.mjs';
 
 export async function verifyConsumer() {
   const owned = [];
+  const hosts = [];
   const unhandled = [];
   const observe = error => unhandled.push(error);
   process.on('unhandledRejection', observe);
   function example(path, load) {
     const main = document.body.appendChild(document.createElement('main'));
     const side = document.body.appendChild(document.createElement('aside'));
+    hosts.push(main, side);
     const driver = memoryDriver({ url: `https://desk.example${path}` });
     const desk = new Desk({ main, side, driver, load });
     owned.push(desk);
@@ -193,6 +195,7 @@ export async function verifyConsumer() {
     console.log('Installed desk consumer: optional feature registration, lazy refresh, parent URLs, stable replacement readiness, handled error, sidebar retention, owner cancellation and shared selection passed.');
   } finally {
     for (const owner of owned) { owner.destroy(); }
+    for (const host of hosts) { host.remove(); }
     process.off('unhandledRejection', observe);
   }
 }

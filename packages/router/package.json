@@ -52,7 +52,7 @@
     "directory": "packages/router"
   },
   "dependencies": {
-    "@mnjs/utils": "5.0.1"
+    "@mnjs/utils": "^5.0.1"
   },
   "peerDependencies": {
     "marionette": "^5.0.1"

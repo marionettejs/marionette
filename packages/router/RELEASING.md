@@ -46,8 +46,10 @@ Confirm 0.1.0 is unused and assigning `latest` is appropriate. Do not overwrite 
 existing version, invent a different version or retarget another dist-tag. Keep
 Marionette within `^5.0.1`. Verify both the minimum 5.0.1 and the newest available
 compatible core; when they resolve to the same published bytes, record that fact.
-Future compatible releases are not already browser-certified. The ordinary Utils
-dependency is checked independently of the Marionette peer.
+Future compatible releases are not already browser-certified. Router's ordinary
+Utils dependency is `^5.0.1`, permitting compatible deduplication independently of
+the Marionette peer. Certification still installs the actual 5.0.1 minimum bytes;
+the range is not a claim that future versions have already passed these checks.
 
 ## Build and check the final merged revision
 
@@ -81,6 +83,10 @@ empty directory outside the checkout:
 ```sh
 npm run router:prepare -- --output /absolute/path/router-release
 ```
+
+On a clean checkout, use the full `npm run build` above first. The narrower
+`build:router`/`router:prepare` steps consume core's generated declarations at
+`dist/types/esm/index.d.ts`; they do not generate those core declarations.
 
 This rebuilds only the router, verifies the public manifest, peer/dependency
 contract and exact MIT notice, then writes the archive, SHA256 and

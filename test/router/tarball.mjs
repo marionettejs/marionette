@@ -241,6 +241,7 @@ try {
   cpSync(join(installed, 'examples/catalog'), join(consumer, 'catalog'), { recursive: true });
   cpSync(join(root, 'test/router/consumer/catalog-verify.mjs'), join(consumer, 'catalog/verify.mjs'));
   execFileSync(process.execPath, ['desk/capabilities-probe.mjs'], { cwd: consumer, stdio: 'inherit' });
+  execFileSync(process.execPath, ['desk/capabilities-absent.mjs'], { cwd: consumer, stdio: 'inherit' });
   execFileSync(process.execPath, [join(root, 'test/router/consumer-check.mjs'), consumer], { cwd: consumer, stdio: 'inherit' });
   // Break copies of the shipped example, then require the real consumer checks
   // to reject missing rendering and unsafe HTML. Restore before native verification.

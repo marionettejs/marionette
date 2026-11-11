@@ -1,6 +1,6 @@
 # Router integration checks
 
-This is the historical November 5 integration receipt. Current private preparation
+This is the historical November 5 integration receipt. Current package verification
 uses [the router procedure](../../packages/router/RELEASING.md), the maintained
 browser inventory and exact-source archive receipts. Results below do not certify
 later source or packaging changes.

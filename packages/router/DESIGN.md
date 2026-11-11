@@ -607,11 +607,24 @@ it describes how this Document was entered, not the latest same-document event.
 later memory navigations do not rewrite this document metadata. Initial redirect
 hops retain `initial: true` and report the hop's `replace` type.
 
+The standalone Driver interface also exposes capabilities, `reload()` and
+`back()`. Router uses `currentEntry`, optional activation metadata, `entries()`,
+`navigate()`, `traverseTo()`, `updateCurrentEntry()` and the `navigate` subscription;
+its own `back()` computes the eligible entry and invokes `traverseTo()`, and
+`refresh()` uses replace navigation rather than Driver `reload()`. Implement the
+full public Driver contract, not only that Router-used subset. Shared automated
+Driver conformance runs against memory and History adapters. Separate installed
+Chromium specifications exercise native behavior; they are not a run of the
+entire shared conformance suite against the native adapter.
+
 The Router does not prescribe loading/error UI, authentication, service access or
 server fallback policy. Node tests use the same public contracts
 with `memoryDriver({ url })`. Its initial URL is required and must be absolute;
 relative navigation then resolves from its current entry. Native-browser
 conformance is separate evidence.
+Memory's settled signals are not retroactively aborted by later navigation;
+pending handlers remain supersedable until `finished` settles. Completed attempts
+are then released by the Driver.
 
 ## History API driver
 
@@ -809,7 +822,8 @@ preserved internally instead of expanded. Equality memoizes compared container
 pairs. Neither memo survives the operation.
 
 `clear()` invalidates pending selection and stops the selected child while keeping
-the group running. Use it for a fallback that leaves this content level. `stop()`
+the group running. It reports idempotent success (`true`), including when already
+clear or unavailable. Use it for a fallback that leaves this content level. `stop()`
 disables the group and stops all registered children; `destroy()` destroys them.
 Independent sidebar Applications remain outside the group's stop scope. Do not
 make two groups own the same page: Application ownership permits one owner/name.
@@ -834,7 +848,11 @@ selected. Removed, replaced or self-destroyed registrations are no longer curren
 
 Startup failure cleans up the failed selection and rejects with the original error.
 An optional `onCleanupError(error, app)` reports a cleanup failure separately.
-Synchronous cleanup failures retain Application's normal failure boundary.
+The reporter is synchronous and should not throw.
+If it is omitted, that secondary stop error is discarded and the primary startup
+error is preserved. This is not an attempt-all cleanup guarantee. Synchronous
+cleanup failures outside failed-start cleanup retain Application's normal failure
+boundary.
 
 ### Migrating the former helper
 
