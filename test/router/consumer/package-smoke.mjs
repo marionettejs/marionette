@@ -7,6 +7,49 @@ const require = createRequire(import.meta.url);
 const cjs = require('@mnjs/router');
 assert.throws(() => require('@mnjs/router/outlet'), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });
 
+// Keep the plain Application control: a child-owned replacement is separate
+// from the first start/selection result in both installed module formats.
+async function initialReplacement(Selector, Base) {
+  const first = Promise.withResolvers();
+  const replacement = Promise.withResolvers();
+  const replacing = Promise.withResolvers();
+  let runs = 0;
+  let restarted;
+  let stops = 0;
+  const Page = Base.extend({
+    prepareStart() {
+      runs++;
+      if (runs === 1) {
+        queueMicrotask(() => { restarted = this.restart(); replacing.resolve(); });
+        return first.promise;
+      }
+      return replacement.promise;
+    },
+  });
+  const owner = Selector ? new Selector() : new Base();
+  try {
+    await owner.start();
+    const page = owner.addChildApp('page', new Page());
+    page.on('stop', () => stops++);
+    const initial = Selector ? owner.switchTo('page') : page.start();
+    await replacing.promise;
+    replacement.resolve();
+    assert.equal(await initial, Selector ? undefined : false);
+    assert.equal(await restarted, true);
+    assert.equal(page.isRunning(), true);
+    assert.equal(stops, 0);
+    assert.equal(runs, 2);
+    if (Selector) { assert.equal(owner.getCurrent(), page); }
+    first.resolve();
+    owner.destroy();
+    assert.equal(page.isDestroyed(), true);
+  } finally { owner.destroy(); }
+}
+
+await initialReplacement(null, Application);
+await initialReplacement(esm.RouteApplication, Application);
+await initialReplacement(cjs.RouteApplication, require('marionette').Application);
+
 for (const [format, api, Base] of [['ESM', esm, Application], ['CJS', cjs, require('marionette').Application]]) {
   const owned = [];
   const own = app => { owned.push(app); return app; };
