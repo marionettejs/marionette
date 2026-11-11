@@ -22,8 +22,9 @@ export interface SchemaOptions {
   /** Trusted application HTML only. Native input schemas use this for SVG icons. */
   allowHTML?: boolean;
 }
+type SchemaListener = { listener: EventListener; handler?: EventListener };
 type RecordNode = { node: Node; end?: Node; pending?: DocumentFragment; kind: string; keep?: boolean;
-  children?: Map<string, RecordNode>; component?: SchemaComponent; listeners?: Map<string, EventListener>;
+  children?: Map<string, RecordNode>; component?: SchemaComponent; listeners?: Map<string, SchemaListener>;
   attributes?: Set<string>; html?: string; releaseEvents?: () => void; input?: boolean };
 type Evaluated = { key: string; schema: FormKitSchemaNode | Node; scope: Scope; text?: unknown };
 type Normalized = FormKitSchemaDOMNode & { $cmp?: string; props?: FormKitSchemaComponent['props'] };
@@ -166,12 +167,36 @@ function nodes(record: RecordNode): Node[] {
 }
 function isPassiveSchemaEvent(attribute: string) { return attribute.length > 9 && attribute.endsWith('Passive'); }
 function schemaEventName(attribute: string) { return attribute.slice(2, isPassiveSchemaEvent(attribute) ? -7 : undefined).toLowerCase(); }
+function prepareListeners(record: RecordNode, entries: [string, unknown][]) {
+  const listeners = record.listeners!;
+  let names: string[] | undefined;
+  for (const [attribute, value] of entries) {
+    if (/^on[A-Z]/.test(attribute) && value != null) { (names ??= []).push(attribute); }
+  }
+  if (!names && !listeners.size) { return; }
+  let reusable = listeners.size === (names?.length ?? 0);
+  if (reusable && names) {
+    const previous = listeners.keys();
+    reusable = names.every(name => previous.next().value === name && listeners.get(name)!.handler !== undefined);
+  }
+  listeners.forEach((binding, attribute) => {
+    if (!reusable) { record.node.removeEventListener(schemaEventName(attribute), binding.listener); }
+    // Attribute callbacks can dispatch events or reenter rendering. Reactivate
+    // each binding only when its authored position is reached below.
+    binding.handler = undefined;
+  });
+  if (!reusable) { listeners.clear(); }
+}
 function cleanup(record: RecordNode, remove = true) {
   // Release descendant resources without dismantling a detached DOM subtree.
   // The renderer retains an adopted root, so its owned child roots need removal.
   record.children?.forEach(child => cleanup(child, remove && record.keep === true));
+  record.listeners?.forEach(binding => { binding.handler = undefined; });
   record.releaseEvents?.();
-  record.listeners?.forEach((listener, attribute) => record.node.removeEventListener(schemaEventName(attribute), listener));
+  record.listeners?.forEach((binding, attribute) => {
+    record.node.removeEventListener(schemaEventName(attribute), binding.listener); binding.handler = undefined;
+  });
+  record.listeners?.clear();
   record.component?.destroy();
   if (remove && !record.keep) { nodes(record).forEach(node => node.parentNode?.removeChild(node)); }
 }
@@ -325,18 +350,25 @@ function createRenderer(host: Host, options: SchemaOptions, existingRoot?: Eleme
           }
         }
         const attributes = new Set<string>();
-        record.listeners!.forEach((listener, attribute) => element.removeEventListener(schemaEventName(attribute), listener));
-        record.listeners!.clear();
-        for (const [attribute, value] of Object.entries(attrs)) {
+        const entries = Object.entries(attrs);
+        prepareListeners(record, entries);
+        for (const [attribute, value] of entries) {
           if (/^on[A-Z]/.test(attribute)) {
             if (value != null) {
               if (typeof value !== 'function') { throw new Error('Schema event attributes require function bindings.'); }
               const event = schemaEventName(attribute);
               const handler = value as EventListener;
-              const listener: EventListener = nativeEvent => handler.call(element, nativeEvent);
-              element.addEventListener(event, listener, isPassiveSchemaEvent(attribute) ? { passive: true } : undefined);
+              if (disposed) { continue; }
+              // Reentry may have replaced the tracked binding during an earlier
+              // attribute setter. Resolve its current state at activation time.
+              let binding = record.listeners!.get(attribute);
+              if (!binding) {
+                const created: SchemaListener = { listener: nativeEvent => created.handler?.call(element, nativeEvent), handler };
+                element.addEventListener(event, created.listener, isPassiveSchemaEvent(attribute) ? { passive: true } : undefined);
+                binding = created;
+              } else { binding.handler = handler; }
               // Plain and passive bindings can target the same native event.
-              record.listeners!.set(attribute, listener);
+              record.listeners!.set(attribute, binding);
             }
             continue;
           }
