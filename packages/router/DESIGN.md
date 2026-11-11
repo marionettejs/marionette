@@ -640,20 +640,20 @@ Navigation:
   cancelable (`cancelTraverse: false`). Stale work is canceled; the Driver does not
   undo traversal or compensate history. Live duplicate same-target helper calls share
   readiness. A different non-current helper destination rejects with
-  InvalidStateError while a physical `go()` is outstanding, without issuing
+  InvalidStateError while a live request awaits commitment, without issuing
   another relative traversal. Current-key no-ops and invalid keys do not cancel
-  an existing request. Once the known destination is observed, a distinct
+  an existing request. Once the known destination commits, a distinct
   traversal can start even while that destination's handler is pending.
   A new owned push/replace cancels older local traversal receipts with
   AbortError; the browser may still deliver their physical traversal later. That
   later pop is handled as a fresh event and is not attached to the canceled
   receipt's readiness/error. The adapter cannot observe whether the browser
   canceled a queued `go()`, and does not add a timeout or retry queue to infer it.
-  If the browser suppresses it without notification, distinct traversal helpers
-  remain blocked for that Driver; push/replace and browser navigation still work.
-  A new Driver does not cancel the old browser traversal. Do not combine helper
-  traversal with other simultaneous History writers; only document reconstruction
-  definitively ends that document's outstanding browser work.
+  Canceling a local receipt permits a new helper request. Every observed traversal
+  reconciles actual location and settles the live receipt: it succeeds only at
+  its requested key and cancels on a different key. An earlier canceled `go()`
+  can interfere with the newer request; the adapter does not pretend to identify
+  which call caused the arrival or leave a permanent physical-traversal gate.
   `popstate` cannot identify user intent, so traversal reports `userInitiated: false`;
   intercepted clicks use the original click's trusted-input flag.
 - Entry keys use reserved `@mnjs/router/history` metadata in native History state.

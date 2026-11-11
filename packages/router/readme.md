@@ -189,10 +189,11 @@ document reloads and unknown entries reset that window. Browser Back/Forward is 
 committed and cannot be vetoed. It preserves caller state using reserved entry
 metadata, leaves unclaimed links/document navigation to the browser, and does
 not emulate native focus/scroll restoration. See the [precise boundary](DESIGN.md#history-api-driver).
-Same-target live traversal calls join; a different helper destination rejects while
-the first physical traversal is outstanding. History exposes no cancellation
-notification for a suppressed `go()`, so this restriction can persist for that
-Driver. This adapter does not promise Navigation API traversal parity.
+Same-target live traversal calls join; a different helper destination rejects
+while that request awaits commitment. A push/replace cancels that local request
+and permits another helper call. An interfering browser arrival cancels a live
+request if it reaches a different key; the actual location still dispatches.
+This adapter does not promise Navigation API traversal parity.
 
 Optimized ESM consumers can remove unused drivers; installed-package checks build
 and execute driver-only and Router combinations. A referenced fallback can remain

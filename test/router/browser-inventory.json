@@ -561,6 +561,22 @@
     {
       "file": "router-history.spec.mjs",
       "title": "History same-URL traversal still dispatches the distinct entry key and state"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History back then push permits a new helper without stranding its receipt"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History back then replace permits a new helper without stranding its receipt"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History forward then push permits a new helper without stranding its receipt"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History forward then replace permits a new helper without stranding its receipt"
     }
   ]
 }

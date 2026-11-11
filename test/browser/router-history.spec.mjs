@@ -298,6 +298,43 @@ test('History same-URL traversal still dispatches the distinct entry key and sta
     events: [['push', false], ['push', false], ['traverse', false]], nativeReads: 0 });
 });
 
+for (const direction of ['back', 'forward']) {
+  for (const historyMode of ['push', 'replace']) {
+    test(`History ${direction} then ${historyMode} permits a new helper without stranding its receipt`, async({ page }) => {
+      const pageErrors = []; page.on('pageerror', error => pageErrors.push(error.message));
+      const result = await page.evaluate(async({ direction: movement, historyMode: mode }) => {
+        const { historyDriver } = window.historyApi;
+        const driver = historyDriver(); const owner = new AbortController();
+        const arrived = Promise.withResolvers(); const gate = Promise.withResolvers(); let hold = false;
+        driver.addEventListener('navigate', event => event.intercept({ handler() {
+          if (hold) {
+            if (event.navigationType === 'traverse') { arrived.resolve(); }
+            return gate.promise;
+          }
+        } }), { signal: owner.signal });
+        const observe = promise => promise.then(entry => ({ key: entry.key }), error => ({ error: error.name }));
+        try {
+          await driver.navigate('/a').finished; const b = await driver.navigate('/b').finished;
+          const c = await driver.navigate('/c').finished;
+          if (movement === 'forward') { await driver.back().finished; }
+          hold = true;
+          const old = observe(driver.traverseTo(movement === 'forward' ? c.key : b.key).finished);
+          const newer = observe(driver.navigate('/d', { history: mode }).finished);
+          const expected = driver.entries()[driver.currentEntry.index - 1];
+          const last = observe(driver.back().finished);
+          await arrived.promise; gate.resolve();
+          const [oldResult, newResult, lastResult] = await Promise.all([old, newer, last]);
+          return { old: oldResult.error, newer: newResult.error,
+            last: lastResult.error ?? (lastResult.key === expected.key ? 'requested-key' : 'WRONG KEY'), nativeReads: window.nativeNavigationReads };
+        } finally { owner.abort(); gate.resolve(); }
+      }, { direction, historyMode });
+      expect(result.old).toBe('AbortError'); expect(result.newer).toBe('AbortError');
+      expect(direction === 'forward' && historyMode === 'push' ? ['requested-key'] : ['requested-key', 'AbortError']).toContain(result.last);
+      expect(result.nativeReads).toBe(0); expect(pageErrors).toEqual([]);
+    });
+  }
+}
+
 test('History reload reconstruction preserves user state and starts a new known window', async({ page, candidateServer }) => {
   const html = await (await page.request.get(candidateServer)).text();
   await page.route('**/items/**', route => route.fulfill({ body: html, contentType: 'text/html' }));

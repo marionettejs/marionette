@@ -147,14 +147,14 @@ it('rejects distinct concurrent traversal without canceling the valid request or
   assert.equal(await driver.traverseTo(a.key).finished, a);
 });
 
-it('does not issue another traversal while a canceled physical go is still unobserved', async() => {
+it('permits another traversal after supersession without keeping an unobservable physical gate', async() => {
   const fixture = context(); const { driver } = fixture; intercept(fixture);
-  const a = await driver.navigate('/a').finished;
-  await driver.navigate('/b').finished; await driver.navigate('/c').finished;
+  await driver.navigate('/a').finished;
+  await driver.navigate('/b').finished; const c = await driver.navigate('/c').finished;
   const back = driver.back();
   await driver.navigate('/new').finished;
   await assert.rejects(back.finished, { name: 'AbortError' });
-  await assert.rejects(driver.traverseTo(a.key).finished, { name: 'InvalidStateError' });
+  assert.equal(await driver.back().finished, c);
 });
 
 it('cancels a queued traversal if the owner unsubscribes before popstate', async() => {
