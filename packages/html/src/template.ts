@@ -178,7 +178,14 @@ const getTemplateHtml = (
       lastIndex = regex.lastIndex;
       if (regex === textEndRegex) {
         if (match[COMMENT_START] === '!--') {
-          regex = commentEndRegex;
+          // HTML also closes an empty comment with <!--> or <!--->.
+          if (s[lastIndex] === '>') {
+            lastIndex++;
+          } else if (s[lastIndex] === '-' && s[lastIndex + 1] === '>') {
+            lastIndex += 2;
+          } else {
+            regex = commentEndRegex;
+          }
         } else if (match[COMMENT_START] !== undefined) {
           // We started a weird comment, like </{
           regex = comment2EndRegex;
@@ -192,8 +199,7 @@ const getTemplateHtml = (
         } else if (match[DYNAMIC_TAG_NAME] !== undefined) {
           if (DEV_MODE) {
             throw new Error(
-              'Bindings in tag names are not supported. Please use static templates instead. ' +
-                'See https://lit.dev/docs/templates/expressions/#static-expressions'
+              'Bindings in tag names are not supported. Use the corresponding html, svg, or mathml tag from @mnjs/html/static for trusted static tag names.'
             );
           }
           regex = tagEndRegex;
@@ -328,8 +334,7 @@ class PreparedTemplate implements Template {
             ) {
               const m =
                 `Expressions are not supported inside \`${tag}\` ` +
-                `elements. See https://lit.dev/msg/expression-in-${tag} for more ` +
-                `information.`;
+                `elements. ${tag === 'textarea' ? 'Bind the .value property instead.' : 'Render the template content outside the template element.'}`;
               if (tag === 'template') {
                 throw new Error(m);
               } else issueWarning('', m);

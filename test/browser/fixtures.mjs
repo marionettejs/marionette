@@ -36,7 +36,7 @@ export const test = base.extend({
       const prefix = `/packages/${entry.id}`;
       await addJavaScriptAssets(assets, join(entry.directory, 'dist'), `${prefix}/dist`);
       for (const [subpath, condition] of Object.entries(entry.manifest.exports)) {
-        const target = condition?.import?.default;
+        const target = condition?.import?.default || condition?.default;
         if (!target) { continue; }
         const specifier = subpath === '.' ? entry.name : `${entry.name}${subpath.slice(1)}`;
         const url = `${prefix}/${target.replace(/^\.\//, '')}`;

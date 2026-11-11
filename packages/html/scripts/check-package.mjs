@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtemp, readFile, writeFile, mkdir, cp } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile, mkdir, cp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -32,6 +32,7 @@ const core = await readFile('dist/renderer.js', 'utf8');
 for (const forbidden of ['addEventListener', 'removeEventListener', 'litHtmlVersions', 'litHtmlPolyfillSupport', 'ShadyDOM'])
     assert.equal(core.includes(forbidden), false, `Unexpected ${forbidden}`);
 const temp = await mkdtemp(join(tmpdir(), 'mnjs-html-consumer-'));
+try {
 const tar = JSON.parse(execFileSync('npm', ['pack', '--ignore-scripts', '--json', '--pack-destination', temp], { encoding: 'utf8' }))[0];
 const destination = join(temp, 'node_modules/@mnjs/html');
 await mkdir(destination, { recursive: true });
@@ -70,3 +71,7 @@ const evidenceDir = process.env.EVIDENCE_DIR ?? 'evidence';
 await mkdir(evidenceDir, { recursive: true });
 await writeFile(`${evidenceDir}/package-check.json`, JSON.stringify({ date: new Date().toISOString(), files: files.size, packedConsumerTypes: 'passed with only declared production type dependency', packedRuntime: 'all JS exports and runtime smoke passed under default and development; external JSDOM test host', tarball: tar.filename, integrity: tar.integrity, shasum: tar.shasum }, null, 2) + '\n');
 console.log(`Package check passed: ${files.size} files; notices, exports and isolated packed-consumer types verified.`);
+
+} finally {
+  await rm(temp, {recursive: true, force: true});
+}

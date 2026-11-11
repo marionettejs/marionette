@@ -8,9 +8,9 @@ const sourceFiles = directory => readdirSync(directory, {withFileTypes: true}).f
   const path = join(directory, entry.name);
   return entry.isDirectory() ? sourceFiles(path) : path.endsWith('.ts') ? [path] : [];
 });
-const expected = sourceFiles('src').sort();
+const expected = sourceFiles('src').map(path => path.replaceAll('\\', '/')).sort();
 assert.deepEqual(Object.keys(baseline.files).sort(), expected, 'Every authored source needs a reviewed coverage gate');
-const actual = Object.fromEntries(Object.entries(summary).filter(([path]) => path !== 'total').map(([path, data]) => [relative(resolve('.'), path), data]));
+const actual = Object.fromEntries(Object.entries(summary).filter(([path]) => path !== 'total').map(([path, data]) => [relative(resolve('.'), path).replaceAll('\\', '/'), data]));
 assert.deepEqual(Object.keys(actual).sort(), expected, 'Coverage must include every authored source, including unexecuted files');
 for (const path of expected) {
   for (const metric of ['lines', 'statements', 'functions', 'branches']) {

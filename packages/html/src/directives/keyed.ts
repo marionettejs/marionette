@@ -14,6 +14,9 @@ import {
 } from '../directive.js';
 import {setChildPartValue, setCommittedValue} from '../directive-helpers.js';
 
+// Match the empty, nonprimitive interpolation state used by AttributePart.
+const resetInterpolation = new String();
+
 class Keyed<T> extends Directive {
   key: unknown = nothing;
 
@@ -28,6 +31,11 @@ class Keyed<T> extends Directive {
       // Preserve the keyed directive itself while clearing nested directives.
       if (part.type === PartType.CHILD) {
         setChildPartValue(part, nothing, this);
+      } else if (
+        part.type !== PartType.ELEMENT && part.strings !== undefined
+      ) {
+        // Invalidate only this interpolation; keep sibling values for noChange.
+        (part._$committedValue as unknown[])[this.__attributeIndex!] = resetInterpolation;
       } else {
         setCommittedValue(part);
       }

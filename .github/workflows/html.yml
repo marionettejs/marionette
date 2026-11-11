@@ -8,6 +8,13 @@ on:
       - 'packages/utils/**'
       - 'packages/radio/**'
       - 'build/**'
+      - 'scripts/**'
+      - 'rollup.config.mjs'
+      - 'packages/data/**'
+      - 'packages/adapters/**'
+      - 'packages/test/**'
+      - 'test/**'
+      - 'types/**'
       - 'package-lock.json'
       - '.github/dependabot.yml'
       - '.github/workflows/html.yml'
@@ -15,6 +22,7 @@ on:
       - 'config/release-profile.json'
       - 'package.json'
       - 'tsconfig.json'
+      - 'tsconfig.declarations.json'
       - 'eslint.config.mjs'
   push:
     branches: [master]
@@ -24,6 +32,13 @@ on:
       - 'packages/utils/**'
       - 'packages/radio/**'
       - 'build/**'
+      - 'scripts/**'
+      - 'rollup.config.mjs'
+      - 'packages/data/**'
+      - 'packages/adapters/**'
+      - 'packages/test/**'
+      - 'test/**'
+      - 'types/**'
       - 'package-lock.json'
       - '.github/dependabot.yml'
       - '.github/workflows/html.yml'
@@ -31,6 +46,7 @@ on:
       - 'config/release-profile.json'
       - 'package.json'
       - 'tsconfig.json'
+      - 'tsconfig.declarations.json'
       - 'eslint.config.mjs'
 
 permissions:
@@ -79,6 +95,6 @@ jobs:
           path: |
             packages/html/coverage/runtime/
             !packages/html/coverage/runtime/tmp/
-            packages/html/evidence/*.json
+            packages/html/evidence/**/*.json
           if-no-files-found: warn
           retention-days: 14

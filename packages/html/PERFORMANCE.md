@@ -94,6 +94,8 @@ The original prototype was 3,525 core / 4,367 core-plus-repeat gzip bytes. Resto
 
 ## Evidence and remaining limits
 
+The following paths describe historical local archives, not evidence included in a clean checkout. Their availability and hashes have not been reverified here. Treat these measurements as historical reports rather than reproducible evidence for the current PR head. Current package and browser checks produce new ignored evidence files, uploaded by the HTML workflow.
+
 Machine-readable renderer and application summaries, correctness results and source hashes are in evidence/improvements-2026-11-07/. Full raw samples, frozen fixtures, harness provenance and the interrupted original lifecycle study are retained in the sibling `../mnjs-html-benchmark-evidence-2026-11-07/` directory. Its `retention-manifest.json` verifies every file’s SHA256/byte count and every symlink target before/after retention. The optimized study’s `RESULTS.md` includes full total/script/paint tables. See the local evidence index for specific paths. Clean production-only dependency installation passed offline; the full development npm ci remains blocked by registry access and a missing cached archive.
 
 The application comparisons support practical similarity on this machine and workload, with small positive and negative differences. They do not prove the absolute no-slowdown goal: the focused repeat reversal and nested-noop results remain above Lit, and a finite suite cannot establish universal parity. State-preserving native movement was retained as useful functionality rather than removed to improve a benchmark. No benchmark-specific heuristics were added.

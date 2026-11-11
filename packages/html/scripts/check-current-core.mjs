@@ -15,6 +15,7 @@ try {
     packages: []};
   for (const [name, directory] of [['marionette', '.package'], ['@mnjs/utils', 'packages/utils'], ['@mnjs/radio', 'packages/radio'], ['@mnjs/html', 'packages/html']]) {
     const packed = JSON.parse(execFileSync('npm', ['pack', resolve(root, directory), '--ignore-scripts', '--json', '--pack-destination', temporary], {encoding: 'utf8'}))[0];
+    assert.equal(packed.name, name, 'Unexpected packed package identity');
     const destination = join(temporary, 'node_modules', name);
     mkdirSync(destination, {recursive: true});
     execFileSync('tar', ['-xzf', join(temporary, packed.filename), '--strip-components=1', '-C', destination]);

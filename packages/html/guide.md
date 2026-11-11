@@ -89,7 +89,7 @@ the Marionette adapter's first-render content replacement.
 Use `@mnjs/html/marionette` with this package's template results when Marionette
 should own events and lifecycle. Use the existing `@mnjs/adapters/dom/lit-html`
 with upstream Lit template results when the application deliberately uses Lit.
-Native string/Node templates can keep the default DomApi; do not install a
+Native HTML-string templates can keep the default DomApi; do not install a
 template adapter without matching the values it consumes. This package does not
 change an application's configured renderer or adapter automatically.
 
@@ -197,7 +197,7 @@ The default export condition selects production output; `development` selects
 readable diagnostics. Keep templates, directives and helpers on one package
 version and one condition. Mixing engines or build conditions is unsupported.
 Production preserves escaping and Trusted Types, but has no custom sanitizer
-hooks. Development-only sanitizer diagnostics are not production protection.
+hooks. Development-only sanitizer hooks can transform or reject values; they are not production protection.
 
 A single-expression property binding such as `.footer=${foreignTemplate}` may
 pass an upstream Lit template object unchanged to a custom-element setter in both

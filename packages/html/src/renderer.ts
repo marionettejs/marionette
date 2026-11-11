@@ -210,9 +210,6 @@ if (DEV_MODE) {
    * can be done by users.
    */
   issueWarning = (code: string, warning: string) => {
-    warning += code
-      ? ` See https://lit.dev/msg/${code} for more information.`
-      : '';
     if (
       !issuedWarnings!.has(warning) &&
       !issuedWarnings!.has(code)
@@ -394,7 +391,7 @@ const tag =
         issueWarning(
           '',
           `Static values 'literal' or 'unsafeStatic' cannot be used as values to non-static templates.\n` +
-            `Please use the static 'html' tag function. See https://lit.dev/docs/templates/expressions/#static-expressions`
+            `Import the static 'html' tag from '@mnjs/html/static'.`
         );
       }
     }
@@ -1171,8 +1168,8 @@ class ChildPart implements Disconnectable {
     // render. If value is not an array, clear this part and make a new
     // array for ChildParts.
     if (!isArray(this._$committedValue)) {
-      this._$committedValue = [];
       this._$clear();
+      this._$committedValue = [];
     }
 
     // Lets us keep track of how many items we stamped so we can clear leftover

@@ -66,3 +66,12 @@ explicit review, not an automatic regeneration command. This is not the core's
 100% policy, and it does not include browser-only execution (for example escaped
 CSS parsing), tooling execution or prove all supported behaviors are correct.
 Pristine fixture and generated distribution files do not inflate the source score.
+
+### CollectionView empty contents
+
+An `emptyView` without `childViewContainer` uses the CollectionView root and
+clears all of that root's existing contents. Use a dedicated child container
+when the template has a persistent header or other surrounding markup. The HTML
+adapter disconnects and retires its cached template part when contents are
+cleared; a later template render creates a fresh part rather than reusing
+removed markers. Clearing contents does not detach the root element itself.

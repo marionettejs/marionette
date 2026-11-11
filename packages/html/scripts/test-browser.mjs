@@ -76,6 +76,26 @@ try {
             }
             const regressions = await page.evaluate(async development => {
                 const {keyedRegressions, styleMapRegressions, syncAncestorRegressions, commentCloseRegressions, propertyBoundaryRegressions} = await import('/test/public-regressions.mjs');
+                const {registerReviewRegressions} = await import('/test/review-regressions.mjs');
+                const check = (condition, label) => { if (!condition) throw new Error(label); };
+                const assertions = {
+                    equal: (actual, expected) => check(Object.is(actual, expected), `${actual} !== ${expected}`),
+                    ok: value => check(value, 'Expected truthy result'),
+                    match: (value, pattern) => check(pattern.test(value), `${value} does not match ${pattern}`),
+                    doesNotMatch: (value, pattern) => check(!pattern.test(value), `${value} matches ${pattern}`),
+                    doesNotThrow: callback => callback(),
+                    throws: (callback, expected) => {
+                        let error;
+                        try { callback(); } catch (caught) { error = caught; }
+                        check(error !== undefined, 'Expected an exception');
+                        check(typeof expected === 'function' ? expected(error) : expected.test(error.message), error.message);
+                    },
+                };
+                registerReviewRegressions((name, options, callback) => {
+                    if (typeof options === 'function') callback = options;
+                    else if (options.skip) return;
+                    try { callback(); } catch (error) { throw new Error(`${name}: ${error.message}`, {cause: error}); }
+                }, assertions, development);
                 return {...styleMapRegressions(), ...await keyedRegressions(), ...await syncAncestorRegressions(), ...commentCloseRegressions(), ...await propertyBoundaryRegressions(development)};
             }, development);
             results.push({browser: name, upstreamRegressions: regressions});

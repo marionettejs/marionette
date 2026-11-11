@@ -1,3 +1,4 @@
+import { htmlCandidate } from '../docs/html-candidate.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
@@ -90,6 +91,18 @@ export default async function setup() {
       }
       candidate.packages.push({ ...entry, directory, manifest, artifact: tarball });
     }
+    // The renderer is independent of the five coordinated release packages.
+    // Verify and record its archive separately, including release-manifest runs.
+    if (!process.env.MNJS_HTML_TARBALL) {
+      execFileSync(process.execPath, [process.env.npm_execpath, 'run', 'docs:prepare-html'], { cwd: root, stdio: 'inherit' });
+    }
+    const renderer = htmlCandidate();
+    const extraction = join(temporaryDirectory, 'html');
+    await mkdir(extraction);
+    execFileSync('tar', ['-xzf', renderer.path, '-C', extraction]);
+    const directory = join(extraction, 'package');
+    const manifest = JSON.parse(await readFile(join(directory, 'package.json'), 'utf8'));
+    candidate.packages.push({ ...renderer, id: 'html', directory, manifest, artifact: renderer.path });
     const candidateFile = join(temporaryDirectory, 'candidate.json');
     await writeFile(candidateFile, JSON.stringify(candidate));
     process.env.MARIONETTE_BROWSER_CANDIDATE = candidateFile;

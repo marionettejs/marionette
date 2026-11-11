@@ -34,7 +34,7 @@ At the time of this prototype's research, MDN browser-compat-data lists moveBefo
 
 A synchronous render can create a placeholder that is updated later. This is compatible with Marionette provided ownership remains within the renderer's range and applications account for later updates not refreshing Marionette UI/Regions. `AsyncDirective` also supports resource/subscription cleanup independently of promises.
 
-An AbortSignal is one-shot. Replacing the disconnect/reconnect protocol with it would need a fresh signal per connection and a specified reconnection contract. That breaking redesign is deferred. Full-container `replaceChildren()` clearing is also inappropriate when Region/CollectionView children lie outside the template's range. Upstream bounded clearing remains.
+An AbortSignal is one-shot. Replacing the disconnect/reconnect protocol with it would need a fresh signal per connection and a specified reconnection contract. That breaking redesign is deferred. During ordinary template updates, full-container `replaceChildren()` clearing is inappropriate when Region/CollectionView children lie outside the template’s range. Upstream bounded clearing remains. An explicit Marionette `detachContents` operation instead clears all contents by contract; the adapter first disconnects and retires its cached part.
 
 ## Security and import effects
 

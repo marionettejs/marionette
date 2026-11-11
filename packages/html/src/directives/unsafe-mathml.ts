@@ -10,7 +10,7 @@ import {UnsafeHTMLDirective} from './unsafe-html.js';
 const MATHML_RESULT = 3;
 
 class UnsafeMathMLDirective extends UnsafeHTMLDirective {
-  static override directiveName = 'unsafeMath';
+  static override directiveName = 'unsafeMathML';
   static override resultType = MATHML_RESULT;
 }
 

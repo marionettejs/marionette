@@ -1,4 +1,3 @@
-import { htmlCandidate } from '../docs/html-candidate.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
@@ -227,6 +226,7 @@ try {
     // Prefer an explicitly supplied archive; otherwise prepare this checkout's
     // version, so the full inventory and Node-current job cannot omit it.
     if (!process.env.MNJS_HTML_TARBALL) { npm(['run', 'docs:prepare-html']); }
+    const { htmlCandidate } = await import('../docs/html-candidate.mjs');
     const renderer = htmlCandidate();
     const frozenPath = resolve(packDir, 'html-renderer.tgz');
     cpSync(renderer.path, frozenPath);
