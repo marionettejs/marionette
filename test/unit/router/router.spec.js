@@ -138,11 +138,21 @@ describe('Router construction', () => {
     const router = createRouter({ routes: baseRoutes() });
 
     await assert.rejects(router.start(), TypeError);
-    assert.equal(router.isRunning(), false);
+    assert.equal(router.isRunning(), true);
+    assert.equal((await router.getInitialDispatch()).status, 'failed');
+    assert.equal(await router.navigate('/w1/schedule').finished, false);
+    assert.equal(router.getCurrent(), null);
     globalThis.navigation = memoryDriver({ url: 'https://routing.example/' });
     try {
       assert.equal(await router.start(), true);
       assert.equal(router.isRunning(), true);
+      assert.equal(router.getCurrent(), null);
+      assert.equal(await router.navigate('/w1/schedule').finished, false);
+
+      assert.equal(await router.restart(), true);
+      assert.equal((await router.getInitialDispatch()).status, 'matched');
+      assert.equal(await router.navigate('/w1/schedule').finished, true);
+      assert.equal(router.getCurrent().name, 'schedule');
     } finally {
       router.stop();
       delete globalThis.navigation;
