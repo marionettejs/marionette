@@ -95,7 +95,6 @@ class HistoryDriver {
   get driver(): Driver {
     const history = this;
     return {
-      capabilities: { cancelTraverse: false, interceptsLinks: true },
       get currentEntry() {history.#sync(); return history.#current;},
       entries: () => {history.#sync(); return history.#entries.slice();},
       navigate: (url, options) => this.#navigate(url, options),

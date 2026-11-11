@@ -611,7 +611,7 @@ it describes how this Document was entered, not the latest same-document event.
 later memory navigations do not rewrite this document metadata. Initial redirect
 hops retain `initial: true` and report the hop's `replace` type.
 
-The standalone Driver interface also exposes capabilities, `reload()` and
+The standalone Driver interface also exposes `reload()` and
 `traverseTo()`. Router uses `currentEntry`, optional activation metadata, `entries()`,
 `navigate()`, `back()`, `updateCurrentEntry()` and the `navigate` subscription;
 its own `back()` checks the preceding entry's ownership and invokes Driver `back()`, and
@@ -620,6 +620,8 @@ full public Driver contract, not only that Router-used subset. Shared automated
 Driver conformance runs against memory and History adapters. Separate installed
 Chromium specifications exercise native behavior; they are not a run of the
 entire shared conformance suite against the native adapter.
+Use each event's `cancelable` and `canIntercept` fields for that navigation;
+Driver does not expose separate static capability flags.
 
 The Router does not prescribe loading/error UI, authentication, service access or
 server fallback policy. Node tests use the same public contracts
@@ -655,7 +657,7 @@ Navigation:
   boundary too: relative `go()` can traverse a frame without a top-window pop.
 - Same-origin intercepted push/replace operations commit History state and await
   required route work. Browser Back/Forward commits before `popstate` and is not
-  cancelable (`cancelTraverse: false`). Stale work is canceled; the Driver does not
+  cancelable (`event.cancelable` is false). Stale work is canceled; the Driver does not
   undo traversal or compensate history. Live duplicate same-target helper calls share
   readiness. A different non-current helper destination rejects with
   InvalidStateError while a live request awaits commitment, without issuing

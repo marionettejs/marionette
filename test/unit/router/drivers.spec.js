@@ -13,6 +13,15 @@ driverConformance({
   assert,
 });
 
+it('built-in driver factories expose no static capability flags', () => {
+  const driver = memoryDriver({ url: 'https://routes.example/' });
+  const adapted = navigationDriver(driver);
+  assert.equal(Object.hasOwn(driver, 'capabilities'), false);
+  assert.equal(Object.hasOwn(adapted, 'capabilities'), false);
+  assert.equal(adapted.currentEntry, driver.currentEntry);
+  for (const name of ['reload', 'back', 'traverseTo']) { assert.equal(typeof adapted[name], 'function'); }
+});
+
 for (const [target, override, expected] of [
   ['https://routes.example/page', undefined, true],
   ['https://other.example/page', undefined, false],

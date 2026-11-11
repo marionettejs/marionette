@@ -24,7 +24,7 @@ export async function verifyHistoryPackage(consumer) {
       assert.deepEqual(router.getCurrent().state, { tab: 'details' });
       assert.equal(await router.back(), true);
       assert.equal(router.getCurrent().name, 'home');
-      assert.equal(driver.capabilities.cancelTraverse, false);
+      assert.equal(Object.hasOwn(driver, 'capabilities'), false);
       const future = driver.entries().at(-1);
       await driver.traverseTo(future.key).finished;
       assert.equal(router.getCurrent().params.id, '7');

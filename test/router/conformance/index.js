@@ -124,10 +124,7 @@ export function driverConformance({ name, createDriver, describe, it, assert }) 
   }
 
   describe(`driver conformance: ${ name }`, () => {
-    scenario('exposes capabilities, the current entry and entries', async({ driver }) => {
-      assert.equal(typeof driver.capabilities.cancelTraverse, 'boolean');
-      assert.equal(typeof driver.capabilities.interceptsLinks, 'boolean');
-
+    scenario('exposes the current entry and entries', async({ driver }) => {
       const { currentEntry } = driver;
       assert.equal(typeof currentEntry.url, 'string');
       assert.equal(typeof currentEntry.key, 'string');
@@ -428,19 +425,20 @@ export function driverConformance({ name, createDriver, describe, it, assert }) 
       assert.notEqual(driver.currentEntry.key, before);
     });
 
-    scenario('traversals are cancelable when the driver says so', async h => {
+    scenario('traversal cancellation follows the event cancelable flag', async h => {
       const { driver } = h;
-      if (!driver.capabilities.cancelTraverse) {return;}
-      await h.go(h.url('a'));
+      const first = await h.go(h.url('a'));
       const second = await h.go(h.url('b'));
       h.behavior.prevent = true;
 
-      const error = await failureOf(() => driver.back());
-
-      assert.equal(error.name, 'AbortError');
+      const back = driver.back();
+      const outcomes = await Promise.allSettled([back.committed, back.finished]);
       assert.equal(h.last().navigationType, 'traverse');
-      assert.equal(h.last().cancelable, true);
-      assert.equal(driver.currentEntry.key, second.key);
+      for (const outcome of outcomes) {
+        assert.equal(outcome.status, h.last().cancelable ? 'rejected' : 'fulfilled');
+        if (h.last().cancelable) {assert.equal(outcome.reason.name, 'AbortError');}
+      }
+      assert.equal(driver.currentEntry.key, h.last().cancelable ? second.key : first.key);
     });
 
     scenario('removes listeners when their signal aborts', async h => {

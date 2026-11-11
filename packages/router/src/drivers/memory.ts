@@ -9,7 +9,6 @@ export function memoryDriver({ url, activation }: { url: string; activation?: Dr
   const history = new MemoryHistory(new URL(url).href);
 
   return {
-    capabilities: { cancelTraverse: true, interceptsLinks: true },
     activation,
     get currentEntry() {
       return history.current;

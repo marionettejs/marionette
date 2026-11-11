@@ -25,7 +25,6 @@ export interface DriverEvent {
   intercept(options?: { handler?: () => unknown; focusReset?: NavigateOptions['focusReset']; scroll?: NavigateOptions['scroll'] }): void;
 }
 export interface Driver {
-  capabilities: { cancelTraverse: boolean; interceptsLinks: boolean };
   readonly currentEntry: DriverEntry;
   readonly activation?: { readonly navigationType: NavigationType } | null;
   entries(): DriverEntry[];

@@ -5,6 +5,15 @@ import { createRouterClass, createChildAppSwitcherClass } from '@mnjs/router';
 import { Application, type LifecycleContext } from 'marionette';
 
 const driver: Driver = memoryDriver({ url: 'http://localhost/' });
+const customDriver: Driver = {
+  get currentEntry() { return driver.currentEntry; },
+  entries: driver.entries, navigate: driver.navigate, reload: driver.reload,
+  back: driver.back, traverseTo: driver.traverseTo, updateCurrentEntry: driver.updateCurrentEntry,
+  addEventListener: driver.addEventListener,
+};
+navigationDriver(customDriver);
+// @ts-expect-error Driver capability flags are not a supported public field.
+void customDriver.capabilities;
 // @ts-expect-error Memory navigation requires an explicit initial document URL.
 memoryDriver();
 // @ts-expect-error An options object alone supplies no initial URL.

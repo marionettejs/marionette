@@ -39,6 +39,15 @@ it('requires a Window only when the history factory is called', () => {
   assert.throws(() => historyDriver(), /browser Window/);
 });
 
+it('provides a field-free History Driver for HTTP navigation', async() => {
+  const fixture = context(undefined, 'http://routes.example/'); const { driver } = fixture;
+  const events = intercept(fixture);
+  assert.equal(Object.hasOwn(driver, 'capabilities'), false);
+  await driver.navigate('/page').finished;
+  assert.equal(driver.currentEntry.url, 'http://routes.example/page');
+  assert.equal(events[0].canIntercept, true);
+});
+
 for (const state of [undefined, null, 7, 'text', [1, { a: 2 }], new Date('2026-01-01'), new Map([['a', 1]]), { '@mnjs/router': true, nested: { a: 1 } }]) {
   it(`preserves structured-clone state (${Object.prototype.toString.call(state)}) across a fresh driver`, async() => {
     const fixture = context(state);

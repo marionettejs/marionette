@@ -1,6 +1,18 @@
 import { Application } from 'marionette';
 import { Router, RouteApplication, ChildAppSwitcher, defineRoutes, memoryDriver, historyDriver } from '@mnjs/router';
 
+const memory = memoryDriver({ url: 'https://example.test/' });
+/** @type {import('@mnjs/router').Driver} */
+const customDriver = {
+  get currentEntry() { return memory.currentEntry; },
+  entries: memory.entries, navigate: memory.navigate, reload: memory.reload,
+  back: memory.back, traverseTo: memory.traverseTo, updateCurrentEntry: memory.updateCurrentEntry,
+  addEventListener: memory.addEventListener,
+};
+new Router({ driver: customDriver });
+// @ts-expect-error Driver capability flags are not a supported public field.
+void customDriver.capabilities;
+
 /** @type {import('@mnjs/router').RouteHandler} */
 const handleItem = (match, { signal }) => {
   signal.throwIfAborted();
