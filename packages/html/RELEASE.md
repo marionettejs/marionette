@@ -10,6 +10,7 @@ to publish. No command below uploads a package, creates a tag or changes npm.
 Use the pinned repository Node/npm toolchain, then:
 
 ```sh
+node packages/html/scripts/check-lockfile.mjs
 npm ci --ignore-scripts
 npm --prefix packages/html ci --ignore-scripts
 npm run lint:html

@@ -28,7 +28,7 @@ class Keyed<T> extends Directive {
   override update(part: Part, [k, v]: DirectiveParameters<this>) {
     if (k !== this.key) {
       // Dispose the previous child value before committing its replacement.
-      // Preserve the keyed directive itself while clearing nested directives.
+      // Child parts preserve this directive while disposing nested child values.
       if (part.type === PartType.CHILD) {
         setChildPartValue(part, nothing, this);
       } else if (
@@ -51,8 +51,9 @@ interface KeyedFunc {
 
 /**
  * Associates a renderable value with a unique key. When the key changes, the
- * previous DOM is removed and disposed before rendering the next value, even
- * if the value - such as a template - is the same.
+ * previous child DOM is removed and disposed before rendering the next value,
+ * even if that value is the same template. Attribute/property bindings instead
+ * invalidate their committed value; they do not promise child-DOM disposal.
  *
  * This is useful for forcing re-renders of stateful components, or working
  * with code that expects new data to generate new HTML elements, such as some

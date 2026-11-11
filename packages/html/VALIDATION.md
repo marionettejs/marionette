@@ -123,3 +123,11 @@ runtime snapshots. Removing compiled handling changes the ordinary application
 hash, so old timings are historical evidence, not proof of this artifact's
 performance. No universal parity or leak-freedom claim is made. Review evidence
 and source hashes were recorded in separate local archives; those historical archives are not included in this checkout and have not been reverified here.
+
+## Current acceptance boundaries
+
+The historical observations above do not close current release gates. The PR
+records exact-head CI results. CodeQL findings require individual disposition;
+a passing check is not evidence that historical alerts were dismissed. Complete
+application-suite and fresh-install acceptance must use the exact candidate
+archive. Those application gates remain open until their receipts are recorded.
