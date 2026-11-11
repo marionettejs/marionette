@@ -53,7 +53,7 @@ function pipeline(entry) {
     assert(Object.hasOwn(rootCoverage, entry.id), `Invalid root pipeline binding: ${entry.id}`);
     assert.equal(entry.directory, entry.id === 'core' ? '.' : `packages/${entry.id}`, `Invalid root directory: ${entry.id}`);
     assert.equal(entry.name, entry.id === 'core' ? 'marionette' : `@mnjs/${entry.id}`, `Invalid root name: ${entry.id}`);
-    assert.equal(entry.stage, ['formkit', 'test'].includes(entry.id) ? 'development' : 'stable', `Invalid root stage: ${entry.id}`);
+    assert.equal(entry.stage, entry.id === 'formkit' ? 'development' : 'stable', `Invalid root stage: ${entry.id}`);
   }
 }
 

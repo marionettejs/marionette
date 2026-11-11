@@ -58,6 +58,9 @@ test('accepts the untouched HTML ESM/development/LICENSE pipeline and retains ex
   assert.equal(json(root, htmlManifest).exports['.'].import, undefined);
   assert.ok(json(root, htmlManifest).exports['.'].development);
   assert.ok(json(root, htmlManifest).files.includes('LICENSE'));
+  const helper = metadata.packages.find(row => row.id === 'test');
+  assert.equal(helper.stage, 'stable');
+  assert.equal(helper.coordinatedRelease, false);
   assert.deepEqual(metadata.packages.filter(row => row.coordinatedRelease).map(row => row.id).sort(), [...coordinatedIds].sort());
   assert.deepEqual(await checkPackages(root), { packages: 8, coordinated: 5 });
 });
@@ -100,6 +103,7 @@ const cases = [
   }, /Invalid root directory/],
   ['wrong root metadata name', root => entry(root, 'test', row => { row.name = '@mnjs/other'; }), /Invalid root name/],
   ['changed root maturity', root => entry(root, 'formkit', row => { row.stage = 'stable'; }), /Invalid root stage/],
+  ['stable helper mislabeled as development', root => entry(root, 'test', row => { row.stage = 'development'; }), /Invalid root stage/],
   ['HTML mislabeled as development', root => entry(root, 'html', row => { row.stage = 'development'; }), /Invalid HTML pipeline binding/],
   ['HTML mislabeled as testing', root => entry(root, 'html', row => { row.role = 'testing'; }), /Invalid HTML pipeline binding/],
   ['missing root coverage', root => entry(root, 'data', row => { row.coverage = []; }), /Root coverage changed/],
@@ -107,6 +111,7 @@ const cases = [
   ['missing independent API member', root => write(root, 'scripts/api-contracts/inventory.mjs', `export const packageRoots = ${JSON.stringify(apiRoots.slice(0, -1))};`), /Root runtime API inventory/],
   ['missing release membership', root => entry(root, 'data', row => { delete row.coordinatedRelease; }), /Missing coordinated release membership/],
   ['changed coordinated membership', root => entry(root, 'formkit', row => { row.coordinatedRelease = true; }), /Coordinated release set changed/],
+  ['stable helper added to coordinated release', root => entry(root, 'test', row => { row.coordinatedRelease = true; }), /Coordinated release set changed/],
   ['changed independent release authority', root => write(root, 'scripts/release/packages.mjs', `export const releasePackages = ${JSON.stringify([...coordinatedIds, 'html'].map(id => ({ id })))};`), /Coordinated release set changed/],
   ['missing exports', root => edit(root, 'packages/utils/package.json', value => { delete value.exports; }), /Missing artifact exports or content/],
   ['missing artifact content', root => edit(root, htmlManifest, value => { value.files = []; }), /Missing artifact exports or content/],

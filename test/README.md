@@ -348,7 +348,7 @@ composition experiment is separately included in coverage, types and lint.
 `npm run check:packages` verifies every package's declared pipeline and required
 authorities without executing delegated checks. Root coverage and API inventory
 retain their existing scope; HTML uses its own package coverage, artifact checks
-and workflow. Its independent release candidate and the root development packages
+and workflow. HTML, optional FormKit and the independently released test helpers
 do not join the five-target coordinated release set.
 
 `npm run verify` runs the installed FormKit fixture, which retains four packed

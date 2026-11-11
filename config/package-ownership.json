@@ -142,7 +142,7 @@
       "name": "@mnjs/test",
       "directory": "packages/test",
       "role": "testing",
-      "stage": "development",
+      "stage": "stable",
       "buildScript": "build:test",
       "verificationScript": "test:helpers:consumer",
       "coverage": [

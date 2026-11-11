@@ -34,13 +34,13 @@ not intrinsic browser-runtime API requirements. A future development-dependency
 bump must not silently raise these floors: changing consumer support requires an
 explicit policy review and installed-artifact verification. Newer Node versions
 may install the packages; the LTS matrix records the verified set, with Node 26
-checked separately as advisory. The five stable manifests and owned development manifests must match
+checked separately as advisory. All owned package manifests must match
 `consumerNodeRange`; `npm run check:packages` checks the complete ownership set.
 
 `npm ci` builds the packages and checks the core distributions through `prepare`.
 Generated `dist/` directories and `src/version.js` are ignored by Git; edit source files
 and their co-located TypeScript contracts. The root pipeline generates declarations
-for its owned packages, including development FormKit and test helpers; HTML uses
+for its owned packages, including optional FormKit and independently released test helpers; HTML uses
 its separate package pipeline. Do not maintain handwritten copies. After source edits, run
 `npm run build` before distribution or browser checks. The fixture runner builds
 once before packing local packages; supplying an artifact directory or all five
