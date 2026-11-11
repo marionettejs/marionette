@@ -16,7 +16,7 @@ afterEach(() => {
 it('exposes initial matched readiness separately from running and publishes the promise before route notifications', async() => {
   const work = Promise.withResolvers();
   let calls = 0;
-  const router = routerFor({ routes: { initial: { path: '/initial', handler() {calls++; return work.promise;} } } });
+  const router = routerFor({ routes: { '/initial': { name: 'initial', handler() {calls++; return work.promise;} } } });
   assert.equal(router.getInitialDispatch(), null);
   let observed;
   router.on('route', () => {observed = router.getInitialDispatch();});
@@ -54,8 +54,8 @@ it('reports an unmatched initial URL while keeping routing enabled', async() => 
 for (const cancel of ['stop', 'destroy', 'supersede', 'unmount']) {
   it(`reports cancelled initial work promptly on ${ cancel } without awaiting ignored consumer work`, async() => {
     const work = Promise.withResolvers();
-    const router = routerFor({ routes: { latest: { path: '/latest' } } });
-    const unmount = router.mount({ initial: { path: '/initial', handler() {return work.promise;} } });
+    const router = routerFor({ routes: { '/latest': { name: 'latest' } } });
+    const unmount = router.mount({ '/initial': { name: 'initial', handler() {return work.promise;} } });
     const ready = [];
     router.on('route:ready', match => ready.push(match.name));
     await router.start();
@@ -71,8 +71,8 @@ for (const cancel of ['stop', 'destroy', 'supersede', 'unmount']) {
 for (const phase of ['planning', 'handler', 'ready']) {
   it(`reports failed initial ${ phase } work without rejecting the outcome or disabling routing`, async() => {
     const failure = new Error('initial failed');
-    const router = routerFor({ routes: { initial: { path: '/initial' } },
-      intercept() {if (phase === 'planning') {throw failure;} return true;},
+    const router = routerFor({ routes: { '/initial': { name: 'initial' } },
+      owns() {if (phase === 'planning') {throw failure;} return true;},
       handler() {if (phase === 'handler') {throw failure;}},
     });
     if (phase === 'ready') {router.on('route:ready', () => {throw failure;});}
@@ -96,13 +96,13 @@ for (const asynchronous of [false, true]) {
       const work = Promise.withResolvers();
       const target = { name: 'final' };
       const router = routerFor({ routes: {
-        initial: { path: '/initial', redirect: () => asynchronous ? Promise.resolve(target) : target },
-        final: { path: '/final', async handler() {
+        '/initial': { name: 'initial', redirect: () => asynchronous ? Promise.resolve(target) : target },
+        '/final': { name: 'final', async handler() {
           entered.resolve();
           if (destination === 'failed') {throw failure;}
           if (destination === 'cancelled') {await work.promise;}
         } },
-      }, intercept: url => !(destination === 'unmatched' && url.pathname === '/final') });
+      }, owns: url => !(destination === 'unmatched' && url.pathname === '/final') });
       await router.start();
       const initial = router.getInitialDispatch();
       if (destination === 'cancelled') {
@@ -128,7 +128,7 @@ it('reports a synchronous driver setup failure while ordinary Application start 
 });
 
 it('reports an explicit notFound handler as matched', async() => {
-  const router = routerFor({ notFound: { name: 'notFound', within: () => true } });
+  const router = routerFor({ owns: () => true, notFound: 'notFound' });
   await router.start();
   const result = await router.getInitialDispatch();
   assert.equal(result.status, 'matched');

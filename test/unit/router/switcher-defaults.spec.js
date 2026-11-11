@@ -1,118 +1,90 @@
 import assert from 'node:assert/strict';
-import { afterEach, describe, it } from 'vitest';
+import { afterEach, it } from 'vitest';
 import { Application } from 'marionette';
-import { ChildAppSwitcher } from '@mnjs/router';
+import { RouteApplication } from '@mnjs/router';
 
-const groups = new Set();
-afterEach(() => { for (const group of groups) { group.destroy(); } groups.clear(); });
-async function createGroup(definition = {}, options = {}, Page = Application) {
-  const Pages = ChildAppSwitcher.extend(definition);
-  const group = new Pages(options);
-  groups.add(group);
-  const page = group.addChildApp('page', new Page());
-  await group.start();
-  return { group, page };
-}
+const owners = [];
+afterEach(() => { for (const app of owners.splice(0)) { app.destroy(); } });
+function owner(Group = RouteApplication, options) { const app = new Group(options); owners.push(app); return app; }
 
-describe('ChildAppSwitcher reconstruction defaults', () => {
-  const cases = [
-    ['existing false', {}, {}, {}, false],
-    ['prototype true', { reconstruct: true }, {}, {}, true],
-    ['class options true', { options: { reconstruct: true }, reconstruct: false }, {}, {}, true],
-    ['constructor true', { reconstruct: false }, { reconstruct: true }, {}, true],
-    ['constructor true over class false', { options: { reconstruct: false } }, { reconstruct: true }, {}, true],
-    ['constructor false over class true', { options: { reconstruct: true } }, { reconstruct: false }, {}, false],
-    ['call false over class true', { reconstruct: true }, {}, { reconstruct: false }, false],
-    ['call false over constructor true', {}, { reconstruct: true }, { reconstruct: false }, false],
-    ['call true over constructor false', {}, { reconstruct: false }, { reconstruct: true }, true],
-    ['call undefined falls back to class', { reconstruct: true }, {}, { reconstruct: undefined }, true],
-  ];
-  for (const [label, definition, options, selection, restarts] of cases) {
-    it(`resolves ${label} while keeping child start options per-call`, async() => {
-      const runs = [];
-      const Page = Application.extend({ onStart(app, startOptions) { runs.push(startOptions); } });
-      const { group, page } = await createGroup(definition, options, Page);
-      await group.switchTo('page', { key: 'same', options: { id: 'first' } });
-      let stops = 0;
-      page.on('stop', () => { stops++; });
-      assert.equal(await group.switchTo('page', { key: 'same', options: { id: 'second' }, ...selection }), page);
-      assert.equal(stops, Number(restarts));
-      assert.deepEqual(runs, restarts ? [{ id: 'first' }, { id: 'second' }] : [{ id: 'first' }]);
-      assert.equal(group.getChildApp('page'), page);
-    });
-  }
+it('uses restart only from the call while preserving the registered instance', async() => {
+  let constructed = 0;
+  const starts = [];
+  const Group = RouteApplication.extend({ options: { restart: true } });
+  const pages = owner(Group, { restart: true });
+  const page = pages.addChildApp('page', new (Application.extend({
+    initialize() { constructed++; },
+    onStart(_app, options) { starts.push(options.id); },
+  }))());
+  await pages.start();
+  await pages.switchTo('page', { key: 'one', options: { id: 'first' } });
+  await pages.switchTo('page', { key: 'one', options: { id: 'ignored' } });
+  await pages.switchTo('page', { key: 'one', restart: true, options: { id: 'restarted' } });
+  await pages.switchTo('page', { key: 'one', restart: false, options: { id: 'ignored-again' } });
+  assert.deepEqual(starts, ['first', 'restarted']);
+  assert.equal(pages.getCurrent(), page);
+  assert.equal(constructed, 1);
+});
 
-  it('joins retained same-key preparation when a call disables the default', async() => {
-    const work = Promise.withResolvers();
-    const preparations = [];
-    const runs = [];
-    const Page = Application.extend({
-      prepareStart(options) { preparations.push(options); return work.promise; },
-      onStart(app, options) { runs.push(options); },
-    });
-    const { group, page } = await createGroup({ reconstruct: true }, {}, Page);
-    const first = group.switchTo('page', { key: { id: 1 }, options: { id: 'first' } });
-    const second = group.switchTo('page', { key: { id: 1 }, reconstruct: false, options: { id: 'ignored' } });
-    work.resolve();
-    assert.equal(await first, undefined);
-    assert.equal(await second, page);
-    assert.deepEqual(preparations, [{ id: 'first' }]);
-    assert.deepEqual(runs, [{ id: 'first' }]);
-  });
+it('same-key callers share pending preparation and its outcome', async() => {
+  const gate = Promise.withResolvers();
+  let preparations = 0;
+  const pages = owner();
+  const page = pages.addChildApp('page', new (Application.extend({ prepareStart() { preparations++; return gate.promise; } }))());
+  await pages.start();
+  const first = pages.switchTo('page', { key: 'one' });
+  const second = pages.switchTo('page', { key: 'one' });
+  gate.resolve();
+  assert.equal(await first, page);
+  assert.equal(await second, page);
+  assert.equal(preparations, 1);
+});
 
-  it('restarts same-key preparation by default and only exposes the replacement', async() => {
-    const work = [Promise.withResolvers(), Promise.withResolvers()];
-    const preparations = [];
-    const runs = [];
-    const Page = Application.extend({
-      prepareStart(options, { signal }) { preparations.push({ options, signal }); return work[preparations.length - 1].promise; },
-      onStart(app, options) { runs.push(options); },
-    });
-    const { group, page } = await createGroup({}, { reconstruct: true }, Page);
-    const first = group.switchTo('page', { key: 'same', options: { id: 'first' } });
-    const second = group.switchTo('page', { key: 'same', options: { id: 'second' } });
-    assert.equal(preparations.length, 2);
-    assert.equal(await first, undefined);
-    assert.equal(preparations[0].signal.aborted, true);
-    work[1].resolve();
-    assert.equal(await second, page);
-    work[0].reject(new Error('obsolete preparation'));
-    await work[0].promise.catch(() => {});
-    assert.deepEqual(runs, [{ id: 'second' }]);
-  });
+it('an explicit restart replaces pending work without reconstructing its child', async() => {
+  const gates = [];
+  const signals = [];
+  const pages = owner();
+  const page = pages.addChildApp('page', new (Application.extend({
+    prepareStart(_options, { signal }) { signals.push(signal); const gate = Promise.withResolvers(); gates.push(gate); return gate.promise; },
+  }))());
+  await pages.start();
+  const first = pages.switchTo('page', { key: 'one' });
+  const second = pages.switchTo('page', { key: 'one', restart: true });
+  assert.equal(await first, undefined);
+  assert.equal(signals[0].aborted, true);
+  assert.equal(signals[1].aborted, false);
+  gates[1].resolve();
+  assert.equal(await second, page);
+  gates[0].reject(new Error('obsolete preparation'));
+  await Promise.resolve();
+  assert.equal(pages.getCurrent(), page);
+});
 
-  it('keeps changed-key reconstruction even when a call overrides the default with false', async() => {
-    const runs = [];
-    const { group, page } = await createGroup({ reconstruct: true }, {}, Application.extend({
-      onStart(app, options) { runs.push(options); },
-    }));
-    await group.switchTo('page', { key: 1, options: { id: 1 } });
-    assert.equal(await group.switchTo('page', { key: 2, reconstruct: false, options: { id: 2 } }), page);
-    assert.deepEqual(runs, [{ id: 1 }, { id: 2 }]);
-  });
+it('caller cancellation leaves shared preparation available to another caller', async() => {
+  const gate = Promise.withResolvers();
+  const controller = new AbortController();
+  let lifecycleSignal;
+  const pages = owner();
+  const page = pages.addChildApp('page', new (Application.extend({
+    prepareStart(_options, { signal }) { lifecycleSignal = signal; return gate.promise; },
+  }))());
+  await pages.start();
+  const first = pages.switchTo('page', { key: 'one', signal: controller.signal });
+  controller.abort();
+  const second = pages.switchTo('page', { key: 'one' });
+  gate.resolve();
+  assert.equal(await first, undefined);
+  assert.equal(await second, page);
+  assert.equal(lifecycleSignal.aborted, false);
+});
 
-  it('preserves current startup errors when a default reconstruction fails', async() => {
-    const error = new Error('replacement failed');
-    let attempts = 0;
-    const { group, page } = await createGroup({ reconstruct: true }, {}, Application.extend({
-      prepareStart() { if (++attempts === 2) { throw error; } },
-    }));
-    await group.switchTo('page', { key: 1 });
-    await assert.rejects(group.switchTo('page', { key: 1 }), reason => reason === error);
-    assert.equal(page.isRunning(), false);
-    assert.equal(group.getCurrent(), null);
-  });
-
-  it('keeps the caller signal per-call and leaves shared preparation running after caller abort', async() => {
-    const work = Promise.withResolvers();
-    const controller = new AbortController();
-    const { group, page } = await createGroup({ reconstruct: true }, {}, Application.extend({ prepareStart: () => work.promise }));
-    const first = group.switchTo('page', { signal: controller.signal });
-    controller.abort();
-    const second = group.switchTo('page', { reconstruct: false });
-    work.resolve();
-    assert.equal(await first, undefined);
-    assert.equal(await second, page);
-    assert.equal(page.isRunning(), true);
-  });
+it('changed keys still restart when the call explicitly disables forced restart', async() => {
+  const starts = [];
+  const pages = owner();
+  const page = pages.addChildApp('page', new (Application.extend({ onStart(_app, options) { starts.push(options.id); } }))());
+  await pages.start();
+  await pages.switchTo('page', { key: 'one', options: { id: 'one' } });
+  await pages.switchTo('page', { key: 'two', restart: false, options: { id: 'two' } });
+  assert.deepEqual(starts, ['one', 'two']);
+  assert.equal(pages.getCurrent(), page);
 });

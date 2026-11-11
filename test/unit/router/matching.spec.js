@@ -168,9 +168,9 @@ describe('Router matching: meta and branch', () => {
     const matcher = routerFor(inventory());
     const { branch } = matcher.match('/w/patient/p1/workflow');
     assert.deepEqual(branch, [
-      { name: undefined, path: '/:workspace', params: { workspace: 'w' }, meta: { scope: 'workspace' } },
-      { name: 'patient', path: '/:workspace/patient/:patientId', params: { patientId: 'p1' }, meta: { area: 'patients', page: 'patient' } },
-      { name: 'patient:workflow', path: '/:workspace/patient/:patientId/workflow', params: {}, meta: { page: 'workflow' } },
+      { name: undefined, path: '/:workspace', params: { workspace: 'w' }, meta: { scope: 'workspace' }, data: undefined },
+      { name: 'patient', path: '/:workspace/patient/:patientId', params: { patientId: 'p1' }, meta: { area: 'patients', page: 'patient' }, data: undefined },
+      { name: 'patient:workflow', path: '/:workspace/patient/:patientId/workflow', params: {}, meta: { page: 'workflow' }, data: undefined },
     ]);
   });
 
@@ -594,7 +594,7 @@ describe('Router matching: leading brace groups', () => {
 
 describe('Router matching: not-found prefixes', () => {
   function fallback(routes, url = 'http://localhost/fixed/value/missing') {
-    return createRouter({ routes, driver: memoryDriver({ url }), notFound: { name: 'missing', within: () => true } });
+    return createRouter({ routes, driver: memoryDriver({ url }), owns: () => true, notFound: 'missing' });
   }
 
   it('breaks equal-depth ties by specificity before definition or mount order', async() => {

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, it } from 'vitest';
 import assert from 'node:assert/strict';
 import { createMarionette, Application } from 'marionette';
-import { ChildAppSwitcher } from '@mnjs/router';
+import { RouteApplication } from '@mnjs/router';
 
 function deferred() {
   const result = {};
@@ -21,7 +21,7 @@ const RecordingPage = Application.extend({
   },
 });
 
-describe('ChildAppSwitcher', () => {
+describe('RouteApplication', () => {
   let owner;
   let switcher;
   let cleanupErrors;
@@ -30,7 +30,7 @@ describe('ChildAppSwitcher', () => {
     cleanupErrors = [];
     owner = new Application();
     await owner.start();
-    switcher = owner.addChildApp('pages', new ChildAppSwitcher({ onCleanupError: (error, app) => cleanupErrors.push([error, app]) }));
+    switcher = owner.addChildApp('pages', new RouteApplication({ onCleanupError: (error, app) => cleanupErrors.push([error, app]) }));
     await switcher.start();
   });
 
@@ -103,7 +103,7 @@ describe('ChildAppSwitcher', () => {
       let stops = 0;
       page.on('stop', () => stops++);
 
-      await switchTo('page', { key: { id: '1' }, reconstruct: true });
+      await switchTo('page', { key: { id: '1' }, restart: true });
 
       assert.equal(stops, 1);
       assert.equal(page.runs.length, 2);
@@ -113,11 +113,11 @@ describe('ChildAppSwitcher', () => {
   describe('reuse', () => {
     it('keeps the running child when the key is equal', async() => {
       const page = addPage('page');
-      await switchTo('page', { key: { id: '1', scope: ['a'] } });
+      await switchTo('page', { key: { id: '1', scope: 'a' } });
       let stops = 0;
       page.on('stop', () => stops++);
 
-      const shown = await switchTo('page', { key: { id: '1', scope: ['a'] } });
+      const shown = await switchTo('page', { key: { id: '1', scope: 'a' } });
 
       assert.equal(shown, page);
       assert.equal(stops, 0);
@@ -144,7 +144,7 @@ describe('ChildAppSwitcher', () => {
       assert.deepEqual(page.runs, [{ id: '1' }, { id: '2' }]);
     });
 
-    it('resolves only the latest selection of a still-preparing child', async() => {
+    it('shares the outcome when another caller joins a still-preparing selection', async() => {
       const ready = deferred();
       const Slow = RecordingPage.extend({ prepareStart: () => ready.promise });
       const page = addPage('page', Slow);
@@ -153,7 +153,7 @@ describe('ChildAppSwitcher', () => {
       const second = switchTo('page');
       ready.resolve();
 
-      assert.equal(await first, undefined);
+      assert.equal(await first, page);
       assert.equal(await second, page);
       assert.equal(page.runs.length, 1);
     });
@@ -223,7 +223,7 @@ describe('ChildAppSwitcher', () => {
     });
 
     it('only selects after the group has activated, including from its start notification', async() => {
-      const Pages = ChildAppSwitcher.extend({
+      const Pages = RouteApplication.extend({
         childApps: { page: RecordingPage },
         onBeforeStart() {
           this.early = this.switchTo('page');
@@ -362,7 +362,7 @@ describe('ChildAppSwitcher', () => {
         const unexpected = () => { throw new Error('lower-priority reporter called'); };
         const definition = configuration === 'prototype' ? { onCleanupError: report } :
           { options: { onCleanupError: configuration === 'class options' ? report : unexpected }, onCleanupError: unexpected };
-        const Pages = ChildAppSwitcher.extend(definition);
+        const Pages = RouteApplication.extend(definition);
         const pages = owner.addChildApp('configured-pages', new Pages(
           configuration === 'constructor override' ? { onCleanupError: report } : {}
         ));
@@ -378,7 +378,7 @@ describe('ChildAppSwitcher', () => {
     );
 
     it('preserves the original startup failure when no cleanup reporter is configured', async() => {
-      const pages = owner.addChildApp('unreported-pages', new ChildAppSwitcher());
+      const pages = owner.addChildApp('unreported-pages', new RouteApplication());
 
       const { error, failure } = await failDuringCleanup(pages);
 
@@ -517,16 +517,16 @@ describe('ChildAppSwitcher', () => {
       assert.equal(child.isRunning(), false);
     });
 
-    it('rejects only the newest selection when a reused start fails', async() => {
+    it('shares the rejection when callers join one preparation', async() => {
       const failure = new Error('page failed');
       const ready = deferred();
       addPage('page', Application.extend({ prepareStart: () => ready.promise }));
       const first = switchTo('page');
       const second = switchTo('page');
+      const results = Promise.allSettled([first, second]);
       ready.reject(failure);
 
-      assert.equal(await first, undefined);
-      await assert.rejects(second, failure);
+      assert.deepEqual(await results, [{ status: 'rejected', reason: failure }, { status: 'rejected', reason: failure }]);
       assert.equal(switcher.getCurrent(), null);
     });
   });
@@ -623,7 +623,7 @@ describe('ChildAppSwitcher', () => {
     it('keeps selectors in the default Application family', () => {
       const runtime = createMarionette();
       const scopedOwner = new runtime.Application();
-      const pages = new ChildAppSwitcher();
+      const pages = new RouteApplication();
       assert.throws(() => scopedOwner.addChildApp('pages', pages), { code: 'MN0031' });
       assert.equal(scopedOwner.hasChildApp('pages'), false);
       pages.destroy();

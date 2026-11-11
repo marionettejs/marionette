@@ -1,64 +1,75 @@
 import assert from 'node:assert/strict';
 import { afterEach, it } from 'vitest';
 import { Application } from 'marionette';
-import { RouteApplication, memoryDriver } from '@mnjs/router';
-import { createRouter } from './helpers.js';
+import { RouteApplication, Router, routeTable, memoryDriver } from '@mnjs/router';
 
-const owned = new Set();
-afterEach(() => { for (const app of owned) { app.destroy(); } owned.clear(); });
-function routerFor() { return createRouter({ driver: memoryDriver({ url: 'https://defaults.example/configured' }) }); }
+const owned = [];
+const own = app => { owned.push(app); return app; };
+afterEach(() => { for (const app of owned.splice(0).reverse()) { app.destroy(); } });
 
-for (const style of ['extend', 'withRouter']) {
-  it(`${style} defaults support no-argument children, inheritance, state and methods`, async() => {
-    const router = routerFor();
-    const Base = style === 'extend' ? RouteApplication.extend({ router }) : RouteApplication.withRouter(router);
-    const initializers = [];
-    const Feature = Base.extend({
-      routes: { configured: { path: '/configured', handler: 'show' } },
-      createState() { return { count: 1 }; },
-      initialize(options) { initializers.push(options); },
-      show(match) { this.shown = match.name; },
-    }, { category: 'feature' });
-    const Inherited = Feature.extend({});
-    const Frame = Application.extend({ childApps: { feature: Inherited } });
-    const frame = new Frame(); owned.add(frame);
-    const feature = frame.getChildApp('feature');
-    assert.deepEqual(initializers, [undefined], 'Defaults do not populate raw initializer arguments');
-    assert.equal(feature.getState().count, 1);
-    assert.equal(Inherited.category, 'feature');
-    await router.start(); await router.getInitialDispatch();
-    assert.equal(feature.shown, 'configured');
-    frame.destroy();
-    assert.equal(router.hasRoute('configured'), false);
+it('constructs route-less groups without a Router, including declarative children', async() => {
+  const Group = RouteApplication.extend({ childApps: { page: Application } });
+  const Frame = Application.extend({ childApps: { group: Group } });
+  const frame = own(new Frame());
+  const group = frame.getChildApp('group');
+  await frame.start();
+  await group.start();
+  assert.equal(await group.switchTo('page'), group.getChildApp('page'));
+});
+
+it('compiles inherited and overridden class declarations without construction', () => {
+  let constructions = 0;
+  const Base = RouteApplication.extend({
+    routes: { '/base/:id': { name: 'base' } },
+    initialize() { constructions++; },
   });
+  const Inherited = Base.extend({});
+  const Override = Inherited.extend({ routes: { '/override/:other': { name: 'override' } } });
+  const router = own(new Router());
+  router.mount(routeTable(Inherited), { controller: own(new Inherited()) });
+  router.mount(routeTable(Override), { controller: own(new Override()) });
+  const count = constructions;
+  routeTable(Inherited);
+  routeTable(Override);
+  assert.equal(constructions, count);
+  assert.equal(router.url('base', { id: 'one' }), '/base/one');
+  assert.equal(router.url('override', { other: 'two' }), '/override/two');
+});
 
-  it(`${style} defaults permit constructor overrides and undefined fallback`, () => {
-    const router = routerFor();
-    const other = routerFor();
-    const Base = style === 'extend' ? RouteApplication.extend({ router }) : RouteApplication.withRouter(router);
-    const Feature = Base.extend({ routes: { configured: { path: '/configured' } } });
-    const fallback = new Feature({ router: undefined }); owned.add(fallback);
-    assert.equal(router.hasRoute('configured'), true);
-    fallback.destroy();
-    const override = new Feature({ router: other }); owned.add(override);
-    assert.equal(router.hasRoute('configured'), false);
-    assert.equal(other.hasRoute('configured'), true);
-    override.destroy();
-    assert.equal(other.hasRoute('configured'), false);
-  });
+it('requires explicit mounting and preserves registrations through stop and restart', async() => {
+  const Feature = RouteApplication.extend({ routes: { '/item/:id': { name: 'item' } } });
+  const router = own(new Router({ driver: memoryDriver({ url: 'https://routes.example/' }) }));
+  const feature = own(new Feature());
+  assert.equal(router.hasRoute('item'), false);
+  const unmount = feature.mountRoutes(router);
+  await feature.start();
+  feature.stop();
+  assert.equal(router.hasRoute('item'), true);
+  await feature.start();
+  await feature.restart();
+  assert.equal(router.hasRoute('item'), true);
+  unmount(); unmount();
+  assert.equal(router.hasRoute('item'), false);
+});
 
-  for (const value of [undefined, null]) {
-    it(`${style} does not retain a cleared/invalid inherited prototype default (${value})`, () => {
-      const router = routerFor();
-      const Base = style === 'extend' ? RouteApplication.extend({ router }) : RouteApplication.withRouter(router);
-      const Invalid = Base.extend({ router: value }).extend({ routes: { configured: { path: '/configured' } } });
-      assert.throws(() => new Invalid(), /requires a router/);
-      const recovered = new Invalid({ router }); owned.add(recovered);
-      assert.equal(router.hasRoute('configured'), true);
-    });
-  }
-}
+it('keeps ordinary initialize options, state and static methods', () => {
+  const Feature = RouteApplication.extend({
+    initialize(options) { this.label = options.label; },
+    createState() { return { count: 1 }; },
+    inspect() { return this.label; },
+  }, { category: 'feature' });
+  const feature = own(new Feature({ label: 'catalog' }));
+  assert.equal(feature.inspect(), 'catalog');
+  assert.equal(feature.getState().count, 1);
+  assert.equal(Feature.category, 'feature');
+});
 
-it('still requires a valid router when no default was configured', () => {
-  assert.throws(() => new RouteApplication(), /requires a router/);
+it('does not invoke class declaration factories while compiling', () => {
+  let calls = 0;
+  const Feature = RouteApplication.extend({ childApps() { calls++; return { page: Application }; } });
+  assert.deepEqual(routeTable(Feature), []);
+  assert.equal(calls, 0);
+  const feature = own(new Feature());
+  assert.equal(calls, 1);
+  assert.equal(feature.hasChildApp('page'), true);
 });

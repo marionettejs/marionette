@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Application } from 'marionette';
 import { memoryDriver } from '@mnjs/router';
-import { ChildAppSwitcher } from '@mnjs/router';
+import { RouteApplication } from '@mnjs/router';
 import { createRouter } from './helpers.js';
 
 const owners = new Set();
@@ -150,7 +150,7 @@ describe('Application selection and extension', () => {
     const owner = ownerFor();
     const initialize = vi.fn();
     const onDestroy = vi.fn();
-    const Extended = ChildAppSwitcher.extend({ initialize, onDestroy, label() { return 'selected'; } });
+    const Extended = RouteApplication.extend({ initialize, onDestroy, label() { return 'selected'; } });
     function construct(options) { Extended.call(this, options); }
     const Delegating = Extended.extend({ constructor: construct });
     const switcher = owner.addChildApp('pages', new Delegating());
@@ -168,7 +168,7 @@ describe('Application selection and extension', () => {
 
   it('starts the replacement instance registered under the same name and key', async() => {
     const owner = ownerFor();
-    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const switcher = owner.addChildApp('pages', new RouteApplication());
     const first = switcher.addChildApp('page', new Application());
     await switcher.start();
     await switcher.switchTo('page', { key: { id: 'one' } });
@@ -197,7 +197,7 @@ describe('Application selection and extension', () => {
         return replacement.promise;
       },
     });
-    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const switcher = owner.addChildApp('pages', new RouteApplication());
     const page = switcher.addChildApp('page', new Page());
     const stops = vi.fn();
     page.on('stop', stops);
@@ -216,7 +216,7 @@ describe('Application selection and extension', () => {
 
   it('retains a selection when the group restarts itself during its first start notification', async() => {
     const owner = ownerFor();
-    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const switcher = owner.addChildApp('pages', new RouteApplication());
     const child = switcher.addChildApp('page', new Application());
     let shown;
     let restarted;
@@ -234,8 +234,8 @@ describe('Application selection and extension', () => {
     const owner = ownerFor();
     await owner.start();
     const sidebar = owner.addChildApp('sidebar', new Application());
-    const pages = owner.addChildApp('pages', new ChildAppSwitcher());
-    const page = pages.addChildApp('page', new ChildAppSwitcher());
+    const pages = owner.addChildApp('pages', new RouteApplication());
+    const page = pages.addChildApp('page', new RouteApplication());
     const details = page.addChildApp('details', new Application());
     await sidebar.start();
     await pages.start();
@@ -289,7 +289,7 @@ describe('public matching contracts', () => {
 
   it('takes not-found params from the deepest unnamed prefix, including after mounts change', async() => {
     const { router } = setup({ routes: [{ name: 'root', path: '/' }],
-      notFound: { name: 'missing', within: () => true },
+      owns: () => true, notFound: 'missing',
     });
     await router.start();
     await router.navigate('/w1/unknown').finished;
@@ -314,7 +314,7 @@ describe('selection cancellation ownership', () => {
     const owner = ownerFor();
     const prepare = vi.fn();
     const Page = Application.extend({ onBeforeStart() { this.stop(); }, prepareStart: prepare });
-    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const switcher = owner.addChildApp('pages', new RouteApplication());
     const page = switcher.addChildApp('page', new Page());
     await switcher.start();
     expect(await switcher.switchTo('page')).toBeUndefined();
@@ -325,7 +325,7 @@ describe('selection cancellation ownership', () => {
   it('destroys the group children while leaving sibling features independent', async() => {
     const owner = ownerFor();
     const sidebar = owner.addChildApp('sidebar', new Application());
-    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const switcher = owner.addChildApp('pages', new RouteApplication());
     const page = switcher.addChildApp('page', new Application());
     await sidebar.start();
     await switcher.start();

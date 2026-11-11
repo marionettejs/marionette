@@ -1,7 +1,7 @@
 import { afterEach, it } from 'vitest';
 import assert from 'node:assert/strict';
 import { Application } from 'marionette';
-import { Router, RouteApplication, ChildAppSwitcher, memoryDriver } from '@mnjs/router';
+import { Router, RouteApplication, memoryDriver } from '@mnjs/router';
 
 const owned = new Set();
 const own = value => { owned.add(value); return value; };
@@ -11,8 +11,17 @@ const routerFor = (options = {}) => own(new Router({ driver: memoryDriver({ url:
 it('rejects an already destroyed registration owner', () => {
   const router = routerFor();
   const owner = new Application(); owner.destroy();
-  assert.throws(() => router.mount({ page: { path: '/page' } }, { owner }), /destroyed owner/);
+  assert.throws(() => router.mount({ '/page': { name: 'page' } }, { owner }), /destroyed owner/);
   assert.equal(router.hasRoute('page'), false);
+});
+
+it('retires registration when resolving its controller method destroys the owner', () => {
+  const router = routerFor();
+  const owner = own(new Application());
+  const controller = { get show() { owner.destroy(); return () => {}; } };
+  const unmount = router.mount({ '/page': { name: 'page', handler: 'show' } }, { owner, controller });
+  assert.equal(router.hasRoute('page'), false);
+  unmount();
 });
 
 // A conforming driver may commit and schedule its intercepted handler later.
@@ -45,7 +54,7 @@ it('cancels removed handler work promptly, clears current, and suppresses stale 
   const ready = [];
   const errors = [];
   const router = routerFor();
-  const unmount = router.mount({ item: { path: '/item', async handler() { entered.resolve(); await work.promise; } } });
+  const unmount = router.mount({ '/item': { name: 'item', async handler() { entered.resolve(); await work.promise; } } });
   router.on('route:ready', match => ready.push(match.name));
   router.on('route:error', error => errors.push(error));
   await router.start();
@@ -64,11 +73,11 @@ it('cancels removed handler work promptly, clears current, and suppresses stale 
 
 it('removes a pending registration before commit without disturbing the retained current route', async() => {
   const { driver, dispatch } = heldDriver('/pending');
-  const router = routerFor({ driver, routes: { current: { path: '/current' } } });
+  const router = routerFor({ driver, routes: { '/current': { name: 'current' } } });
   await router.start();
   await router.navigate('current').finished;
   const current = router.getCurrent();
-  const unmount = router.mount({ pending: { path: '/pending' } });
+  const unmount = router.mount({ '/pending': { name: 'pending' } });
   const pending = router.navigate('pending');
   unmount();
   dispatch.resolve();
@@ -78,8 +87,8 @@ it('removes a pending registration before commit without disturbing the retained
 
 it('removes current without cancelling an unrelated newer navigation awaiting commit', async() => {
   const { driver, dispatch } = heldDriver('/newer');
-  const router = routerFor({ driver, routes: { newer: { path: '/newer' } } });
-  const unmount = router.mount({ current: { path: '/current' } });
+  const router = routerFor({ driver, routes: { '/newer': { name: 'newer' } } });
+  const unmount = router.mount({ '/current': { name: 'current' } });
   await router.start();
   await router.navigate('current').finished;
   const current = router.getCurrent();
@@ -97,14 +106,14 @@ it('uses registration identity when an abort listener remounts and navigates the
   const work = gate();
   const ready = [];
   const router = routerFor();
-  const unmount = router.mount({ page: { path: '/old', async handler() { entered.resolve(); await work.promise; } } });
+  const unmount = router.mount({ '/old': { name: 'page', async handler() { entered.resolve(); await work.promise; } } });
   router.on('route:ready', match => ready.push(match.url.pathname));
   await router.start();
   const old = router.navigate('page');
   await entered.promise;
   let replacement;
   router.getCurrent().signal.addEventListener('abort', () => {
-    router.mount({ page: { path: '/new' } });
+    router.mount({ '/new': { name: 'page' } });
     replacement = router.navigate('page');
   }, { once: true });
   unmount();
@@ -119,9 +128,9 @@ it('uses registration identity when an abort listener remounts and navigates the
 it('owner destruction cancels a pending redirect and prevents its late destination', async() => {
   const redirect = gate();
   const entered = gate();
-  const router = routerFor({ routes: { destination: { path: '/destination' } } });
+  const router = routerFor({ routes: { '/destination': { name: 'destination' } } });
   const owner = own(new Application());
-  router.mount({ old: { path: '/old', redirect() { entered.resolve(); return redirect.promise; } } }, { owner });
+  router.mount({ '/old': { name: 'old', redirect() { entered.resolve(); return redirect.promise; } } }, { owner });
   await router.start();
   const attempt = router.navigate('old');
   await entered.promise;
@@ -137,11 +146,11 @@ it('does not invalidate pending work when unrelated registrations recompile the 
   const entered = gate();
   const work = gate();
   const router = routerFor();
-  router.mount({ retained: { path: '/retained', async handler() { entered.resolve(); await work.promise; } } });
+  router.mount({ '/retained': { name: 'retained', async handler() { entered.resolve(); await work.promise; } } });
   await router.start();
   const attempt = router.navigate('retained');
   await entered.promise;
-  const removeOther = router.mount({ other: { path: '/other' } });
+  const removeOther = router.mount({ '/other': { name: 'other' } });
   removeOther();
   assert.equal(router.getCurrent().signal.aborted, false);
   work.resolve();
@@ -151,7 +160,7 @@ it('does not invalidate pending work when unrelated registrations recompile the 
 it('suppresses a handler when its registration is removed during the route notification', async() => {
   let calls = 0;
   const router = routerFor();
-  const unmount = router.mount({ removed: { path: '/removed', handler() {calls++;} } });
+  const unmount = router.mount({ '/removed': { name: 'removed', handler() {calls++;} } });
   router.on('route', unmount);
   await router.start();
   assert.equal(await router.navigate('removed').finished, false);
@@ -163,14 +172,15 @@ it('parent removal invalidates descendant work and remount restores its relative
   const entered = gate();
   const work = gate();
   const router = routerFor();
-  const removeParent = router.mount({ workspace: { path: '/:workspace', meta: { shell: true } } });
+  const removeParent = router.mount({ '/:workspace': { name: 'workspace', meta: { shell: true } } });
   let calls = 0;
   const Feature = RouteApplication.extend({
-    routeParent: 'workspace',
-    routes: { item: { path: 'items/:id', handler: 'show', meta: { feature: true } } },
+    routes: { 'items/:id': { name: 'item', handler: 'show', meta: { feature: true } } },
     async show() { if (++calls === 1) { entered.resolve(); await work.promise; } },
   });
-  own(new Feature({ router }));
+  const feature = own(new Feature());
+  feature.mountRoutes(router, { parent: 'workspace' });
+  await feature.start();
   const match = router.match('/team/items/7');
   assert.equal(router.url('item', { workspace: 'team', id: 7 }), '/team/items/7');
   assert.deepEqual(match.meta, { shell: true, feature: true });
@@ -181,7 +191,7 @@ it('parent removal invalidates descendant work and remount restores its relative
   removeParent();
   assert.equal(await attempt.finished, false);
   assert.equal(router.hasRoute('item'), false);
-  router.mount({ workspace: { path: '/:workspace' } });
+  router.mount({ '/:workspace': { name: 'workspace' } });
   assert.equal(router.hasRoute('item'), true);
   assert.equal(await router.navigate('item', { workspace: 'team', id: 8 }).finished, true);
   work.resolve();
@@ -192,9 +202,9 @@ it('parent removal invalidates descendant work and remount restores its relative
 it('invalidates all retired descendants before an abort listener can remount their parent', async() => {
   const { driver, dispatch } = heldDriver('/team/pages/2');
   const router = routerFor({ driver });
-  const removeParent = router.mount({ workspace: { path: '/:workspace' } });
+  const removeParent = router.mount({ '/:workspace': { name: 'workspace' } });
   let pendingSignal;
-  router.mount({ page: { path: 'pages/:id', redirect(match, { signal }) {
+  router.mount({ 'pages/:id': { name: 'page', redirect(match, { signal }) {
     if (match.params.id === '2') {pendingSignal = signal;}
   } } }, { parent: 'workspace' });
   await router.start();
@@ -202,7 +212,7 @@ it('invalidates all retired descendants before an abort listener can remount the
   const current = router.getCurrent();
   const pending = router.navigate('page', { workspace: 'team', id: 2 });
   pendingSignal.addEventListener('abort', () => {
-    router.mount({ workspace: { path: '/:workspace', meta: { replacement: true } } });
+    router.mount({ '/:workspace': { name: 'workspace', meta: { replacement: true } } });
   }, { once: true });
   removeParent();
   assert.equal(pendingSignal.aborted, true);
@@ -215,20 +225,22 @@ it('invalidates all retired descendants before an abort listener can remount the
   assert.equal(router.getCurrent().meta.replacement, true);
 });
 
-it('injects one configured router into declarative childApps without starting UI or discovering owners', async() => {
+it('mounts a declarative child explicitly without discovering a Router through ownership', async() => {
   const router = routerFor();
   const calls = [];
-  const Feature = RouteApplication.withRouter(router).extend({
-    routes: { feature: { path: '/feature', handler: 'show' } },
+  const Feature = RouteApplication.extend({
+    routes: { '/feature': { name: 'feature', handler: 'show' } },
     show() { calls.push(this); },
   });
   const Frame = Application.extend({ childApps: { feature: Feature } });
   const frame = own(new Frame());
   const feature = frame.getChildApp('feature');
   frame.addChildApp('router', router);
+  feature.mountRoutes(router);
   assert.equal(router.hasRoute('feature'), true);
   assert.equal(feature.isRunning(), false);
   await frame.start();
+  await feature.start();
   await router.start();
   assert.equal(await router.navigate('feature').finished, true);
   assert.deepEqual(calls, [feature]);
@@ -237,51 +249,41 @@ it('injects one configured router into declarative childApps without starting UI
   assert.equal(router.hasRoute('feature'), false);
 });
 
-it('awaits route activation and checks cancellation before switching children or rendering', async() => {
+it('mount selection awaits child lifecycle and cancels a branch replaced by a parent page', async() => {
   const preparation = gate();
   const entered = gate();
   const rendered = [];
-  const router = routerFor({ routes: { elsewhere: { path: '/elsewhere' } } });
-  const Feature = RouteApplication.extend({
-    routes: { page: { path: '/page', handler: 'showPage' }, detail: { path: '/page/detail', handler: 'showPage' } },
-    initialize() {
-      this.pages = this.addChildApp('pages', new ChildAppSwitcher());
-      this.pages.addChildApp('page', new Application());
-    },
-    async prepareStart() { entered.resolve(); await preparation.promise; },
-    async startOnRoute(match) {
-      if (!await this.start()) {return false;}
-      match.signal.throwIfAborted();
-      return true;
-    },
-    async showPage(match, { signal }) {
-      if (!await this.startOnRoute(match)) {return;}
-      await this.pages.start();
-      signal.throwIfAborted();
-      const page = await this.pages.switchTo('page', { key: 'retained', signal });
-      if (!page || signal.aborted) {return;}
-      rendered.push(match.name);
-    },
+  const Page = RouteApplication.extend({
+    routes: { '': { name: 'page', handler: 'show' }, 'detail': { name: 'detail', handler: 'show' } },
+    prepareStart() { entered.resolve(); return preparation.promise; },
+    show(match) { rendered.push(match.name); },
   });
-  const feature = own(new Feature({ router }));
+  const Feature = RouteApplication.extend({
+    childApps: { page: Page },
+    routes: { '/page': { mount: 'page' }, '/elsewhere': { name: 'elsewhere' } },
+  });
+  const router = routerFor();
+  const feature = own(new Feature());
+  feature.mountRoutes(router);
+  await feature.start();
   await router.start();
   const obsolete = router.navigate('page');
   await entered.promise;
   await router.navigate('elsewhere').finished;
   preparation.resolve();
   assert.equal(await obsolete.finished, false);
-  await feature.start();
-  assert.equal(feature.pages.getCurrent(), null);
+  assert.equal(feature.getCurrent(), null);
   assert.deepEqual(rendered, []);
   await router.navigate('page').finished;
-  const page = feature.pages.getCurrent();
+  const page = feature.getCurrent();
   await router.navigate('detail').finished;
-  assert.equal(feature.pages.getCurrent(), page);
+  assert.equal(feature.getCurrent(), page);
   assert.deepEqual(rendered, ['page', 'detail']);
   feature.stop();
   assert.equal(router.hasRoute('page'), true);
+  await feature.start();
   await router.navigate('page').finished;
-  assert.equal(feature.pages.getCurrent(), page);
+  assert.equal(feature.getCurrent(), page);
 });
 
 it('keeps core rejection of fake child applications', () => {
