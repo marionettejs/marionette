@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "marionette": "5.0.0",
-    "@formkit/core": "2.1.2",
-    "@formkit/validation": "2.1.2"
+    "@formkit/core": "^2.5.0",
+    "@formkit/validation": "^2.5.0"
   },
   "devDependencies": {
     "@testing-library/dom": "10.4.1",

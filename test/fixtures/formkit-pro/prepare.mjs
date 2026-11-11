@@ -20,7 +20,7 @@ const env = { ...process.env, NODE_PATH: '', ['npm_config_cache']: join(consumer
 function run(args, cwd = consumer) {
   return execFileSync(process.execPath, [npm, ...args], { cwd, env, encoding: 'utf8', timeout: 180000 });
 }
-const dependencies = { '@formkit/core': '2.1.2', '@formkit/themes': '2.1.2', '@formkit/pro': selectedPro };
+const dependencies = { '@formkit/core': '2.5.0', '@formkit/themes': '2.5.0', '@formkit/pro': selectedPro };
 const receipt = {
   sourceRevision: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
   sourceDirty: !!execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim(),
@@ -34,17 +34,17 @@ if (stack === 'native') {
     dependencies[packed.name] = `file:${path}`;
     receipt.artifacts.push({ name: packed.name, version: packed.version, sha256: hash(path) });
   }
-  Object.assign(dependencies, { '@formkit/inputs': '2.1.2', '@formkit/utils': '2.1.2' });
+  Object.assign(dependencies, { '@formkit/inputs': '2.5.0', '@formkit/utils': '2.5.0' });
 } else if (stack === 'vue') {
-  Object.assign(dependencies, { '@formkit/vue': '2.1.2', vue: '3.5.44' });
+  Object.assign(dependencies, { '@formkit/vue': '2.5.0', vue: '3.5.44' });
 } else {
-  Object.assign(dependencies, { '@formkit/react': '2.1.2', react: '19.2.0', 'react-dom': '19.2.0' });
+  Object.assign(dependencies, { '@formkit/react': '2.5.0', react: '19.2.0', 'react-dom': '19.2.0' });
 }
-// The official wrappers use ranges for their sibling packages. Pin the complete
-// reference runtime so a newer Core release cannot silently change the comparison.
+// Pin the complete reference runtime to the tested caret floor so all three
+// consumers compare the same Core family. The adapter's public ranges remain caret.
 if (stack !== 'native') {
   for (const name of ['inputs', 'utils', 'observer', 'validation', 'rules', 'i18n', 'dev']) {
-    dependencies[`@formkit/${name}`] = '2.1.2';
+    dependencies[`@formkit/${name}`] = '2.5.0';
   }
 }
 const port = { native: 5190, vue: 5191, react: 5192 }[stack];
@@ -67,7 +67,7 @@ receipt.versions = Object.fromEntries(Object.entries(lock.packages).filter(([pat
   .map(([path, value]) => [path, value.version]));
 receipt.formkitRuntime = Object.fromEntries(Object.entries(receipt.versions).filter(([path]) =>
   /(?:^|\/)node_modules\/@formkit\/(?:core|utils|inputs|observer|validation|rules|i18n|themes|dev|vue|react)$/.test(path)));
-if (Object.values(receipt.formkitRuntime).some(version => version !== '2.1.2')) {
+if (Object.values(receipt.formkitRuntime).some(version => version !== '2.5.0')) {
   throw new Error(`Unexpected FormKit runtime versions: ${JSON.stringify(receipt.formkitRuntime)}`);
 }
 receipt.vuePackages = Object.keys(lock.packages).filter(path => /(?:^|\/)node_modules\/(?:vue|@vue\/[^/]+|@formkit\/vue)$/.test(path));

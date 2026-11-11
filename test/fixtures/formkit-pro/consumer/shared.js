@@ -37,7 +37,7 @@ plugins.push(node => {
     });
   }
 });
-document.querySelector('#mode').textContent = `Mode: ${mode}; FormKit core 2.1.2; Pro ${proVersion}`;
+document.querySelector('#mode').textContent = `Mode: ${mode}; FormKit core 2.5.0; Pro ${proVersion}`;
 document.querySelector('#bootstrap').textContent = observations.bootstrap === 'blocked' ? `Pro bootstrap blocked: ${observations.bootstrapError}` : 'Ready';
 show();
 export const initial = () => mode === 'pro' && releaseScenario ? releaseInitial() :

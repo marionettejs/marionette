@@ -16,7 +16,7 @@ export async function captureLifecycle(page, { origin = 'http://localhost:5190',
     if (!response.ok()) { throw new Error('Prepared receipt is required.'); }
     const consumer = await response.json();
     if (consumer.stack !== 'native' || consumer.versions?.['node_modules/@formkit/pro'] !== expectedProVersion ||
-      consumer.versions?.['node_modules/@formkit/core'] !== '2.1.2') { throw new Error('Consumer version or stack mismatch.'); }
+      consumer.versions?.['node_modules/@formkit/core'] !== '2.5.0') { throw new Error('Consumer version or stack mismatch.'); }
     report.consumer = { sourceRevision: consumer.sourceRevision, sourceDirty: consumer.sourceDirty,
       artifacts: consumer.artifacts, versions: consumer.versions, lockSha256: consumer.lockSha256 };
     await page.goto(`${origin}/?mode=pro&scenario=lifecycle-01307`);

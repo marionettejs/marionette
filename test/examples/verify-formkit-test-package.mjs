@@ -74,7 +74,7 @@ try {
   report.lockSha256 = hash(join(consumer, 'package-lock.json'));
   npm('locked-install', ['ci', '--ignore-scripts', '--no-audit', '--no-fund']);
   assert.equal(hash(join(consumer, 'package-lock.json')), report.lockSha256);
-  run('versions', process.execPath, ['-e', 'const a=require(\'node:assert/strict\');const version=n=>require(n+\'/package.json\').version;a.equal(version(\'marionette\'),\'5.0.0\');a.equal(version(\'@mnjs/test\'),process.argv[1]);a.equal(version(\'@formkit/core\'),\'2.1.2\');console.log(JSON.stringify({marionette:version(\'marionette\'),helper:version(\'@mnjs/test\'),formkit:version(\'@mnjs/formkit\'),core:version(\'@formkit/core\')}));', helperVersion]);
+  run('versions', process.execPath, ['-e', 'const a=require(\'node:assert/strict\');const version=n=>require(n+\'/package.json\').version;a.equal(version(\'marionette\'),\'5.0.0\');a.equal(version(\'@mnjs/test\'),process.argv[1]);a.equal(version(\'@formkit/core\'),\'2.5.0\');console.log(JSON.stringify({marionette:version(\'marionette\'),helper:version(\'@mnjs/test\'),formkit:version(\'@mnjs/formkit\'),core:version(\'@formkit/core\')}));', helperVersion]);
   npm('formkit-types', ['run', 'test:types']);
   npm('formkit-dom', ['test']);
   if (values.browser) {

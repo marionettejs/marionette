@@ -2,7 +2,7 @@
 
 This fixture installs Pro 0.131.0 into independent native, Vue, and React consumers.
 The native consumer uses freshly packed local packages. Reference consumers use
-FormKit 2.1.2, Vue 3.5.44 or React/ReactDOM 19.2.0. Each install captures a lock,
+FormKit 2.5.0, Vue 3.5.44 or React/ReactDOM 19.2.0. Each install captures a lock,
 reinstalls with `npm ci`, checks the dependency graph and ESM/CommonJS imports,
 and builds with Vite 8.3.0. A strict TypeScript 6.0.3 check covers the Pro plugin
 and the `currencyDisplay`, `popoverPosition` and month-pagination/minDate/maxDate declarations. On 0.131.0, a separate
@@ -10,12 +10,13 @@ strict fixture also checks the new `inline` declaration. Older comparison
 versions retain all their existing declaration checks.
 Vue packages are forbidden in native and React installs. The adapter itself has
 no Pro dependency; this opt-in fixture owns its version selection in
-`consumer/version.js`. Core remains pinned to 2.1.2.
+`consumer/version.js`. This comparison pins the complete Core family to 2.5.0;
+the adapter itself declares a `^2.5.0` support floor.
 For isolated release controls, pass `0.130.5`, `0.130.6` or `0.130.7` after the stack to
 `prepare.mjs`. Outputs are versioned under `test/tmp/formkit-pro/<version>/<stack>`;
 each generated consumer label records its selected version.
 
-All three consumers import base Genesis (`@formkit/themes/genesis`, pinned 2.1.2)
+All three consumers import base Genesis (`@formkit/themes/genesis`, pinned 2.5.0)
 before the Pro Genesis extension. The extension does not replace the base theme.
 In particular, base Genesis makes input inners positioned containers for popovers.
 The collector checks computed positioning and containment using an absolute
@@ -145,7 +146,8 @@ The default seven-control journey remains available. The opt-in URL
 release claims: USD/JPY/KWD currency precision without symbols, an explicit
 precision override, reactive mask presentation, late dropdown-family options,
 duplicate-valued draggable repeater rows, and searchable transfer-list targets.
-Core stays pinned to 2.1.2; this patch does not test a Core upgrade.
+Current prepares use Core 2.5.0. Historical release receipts retain their original
+2.1.2 graph and do not certify the upgraded consumer.
 
 In the existing authorized development consumer, run:
 
@@ -164,7 +166,7 @@ Vue observer diagnosis and subsequent adapter repair are retained in the
 The last argument may be `vue` or `react` for an independently prepared reference
 consumer. Unlike the general three-stack collector, this command takes that
 consumer's actual port, with no offset. The prepared source receipt must match
-the chosen stack, Core 2.1.2 and the selected Pro version.
+the chosen stack, Core 2.5.0 and the selected Pro version.
 
 The collector has eight grouped cases. It checks visible presentation separately
 from canonical values, requires real dragstart/dragend events and changed row
@@ -309,7 +311,7 @@ limits. This receipt update changes no executable fixture or assertion.
 
 ## Pro 0.131.0 inline and slot scenarios
 
-The selected version is now 0.131.0; Core and base Genesis stay at 2.1.2. The
+The selected Pro version is 0.131.0; current Core and base Genesis are 2.5.0. The
 existing Pro Genesis import picks up the shipped inline rule. This does not add
 Regenesis or upgrade its version. See the separate
 [release assessment](../../../packages/formkit/acceptance/PRO-01310.md).

@@ -14,7 +14,7 @@ mkdirSync(output, { recursive: true });
 const sanitize = value => String(value).replace(/fk-[a-f0-9]+/gi, '[project-key]');
 const browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true, chromiumSandbox: true });
 const report = { stack, node: process.version, playwright: require('@playwright/test/package.json').version,
-  browser: browser.version(), coreVersion: '2.1.2', proVersion, cases: [], pageErrors: [], requestFailures: [] };
+  browser: browser.version(), coreVersion: '2.5.0', proVersion, cases: [], pageErrors: [], requestFailures: [] };
 let page;
 try {
   page = await browser.newPage({ viewport: { width: 1280, height: 900 } });

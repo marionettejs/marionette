@@ -121,11 +121,14 @@ export const nativeBindings: FormKitPlugin = node => {
   const validationVisible = () => {
     if (context.state.submitted) { return true; }
     if (!shownValidation && !context.state.settled) { return false; }
-    switch (node.props.validationVisibility ?? (node.props.type === 'checkbox' ? 'dirty' : 'blur')) {
+    const visibility = node.props.validationVisibility ?? (node.props.type === 'checkbox' ? 'dirty' : 'blur');
+    switch (visibility) {
       case 'live': return true;
       case 'blur': return context.state.blurred;
       case 'dirty': return context.state.dirty;
-      default: return false;
+      case 'submit': return false;
+      default: return String(visibility).split(/[\s,|]+/).some(mode => mode === 'live' ||
+        mode === 'blur' && context.state.blurred || mode === 'dirty' && context.state.dirty);
     }
   };
   Object.defineProperties(context.state, {

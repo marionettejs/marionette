@@ -92,8 +92,14 @@ try {
   }
   report.versions = JSON.parse(run('versions', process.execPath, ['-e',
     'const a=require(\'node:assert/strict\');const v=n=>require(n+\'/package.json\').version;' +
-    `a.equal(v('marionette'),${JSON.stringify(rootManifest.version)});a.equal(v('@formkit/core'),'2.1.2');` +
+    `a.equal(v('marionette'),${JSON.stringify(rootManifest.version)});a.equal(v('@formkit/core'),'2.5.0');` +
     'console.log(JSON.stringify({core:v(\'marionette\'),formkit:v(\'@mnjs/formkit\'),formkitCore:v(\'@formkit/core\')}));']));
+  report.entrypointRegistry = JSON.parse(run('entrypoint-registry', process.execPath, ['--input-type=module', '-e',
+    'import a from "node:assert/strict";import {createRequire} from "node:module";' +
+    'import * as esm from "@formkit/core";const common=createRequire(import.meta.url)("@formkit/core");' +
+    'const node=esm.createNode({props:{id:"packed-entrypoint-registry"}});' +
+    'try{a.equal(esm.getNode(node.props.id),node);console.log(JSON.stringify({' +
+    'sameFormat:true,mixedFormatsShareRegistry:common.getNode(node.props.id)===node}));}finally{node.destroy();}']));
   run('shared-core-graph', process.execPath, ['-e',
     'const a=require("node:assert/strict");const {createRequire}=require("node:module");' +
     'const expected=require.resolve("@formkit/core");' +

@@ -52,16 +52,16 @@
     "directory": "packages/formkit"
   },
   "dependencies": {
-    "@formkit/validation": "2.1.2",
-    "@formkit/rules": "2.1.2",
-    "@formkit/i18n": "2.1.2",
-    "@formkit/inputs": "2.1.2",
-    "@formkit/themes": "2.1.2",
-    "@formkit/utils": "2.1.2",
-    "@formkit/observer": "2.1.2"
+    "@formkit/validation": "^2.5.0",
+    "@formkit/rules": "^2.5.0",
+    "@formkit/i18n": "^2.5.0",
+    "@formkit/inputs": "^2.5.0",
+    "@formkit/themes": "^2.5.0",
+    "@formkit/utils": "^2.5.0",
+    "@formkit/observer": "^2.5.0"
   },
   "peerDependencies": {
-    "@formkit/core": "2.1.2",
+    "@formkit/core": "^2.5.0",
     "marionette": "^5.0.0-rc.2"
   }
 }

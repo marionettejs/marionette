@@ -1,6 +1,6 @@
 # @mnjs/formkit (development)
 
-Marionette-owned native forms backed by FormKit 2.1.2. `FormView` owns one official FormKit runtime. Author inputs with a schema,
+Marionette-owned native forms backed by FormKit 2.5. `FormView` owns one official FormKit runtime. Author inputs with a schema,
 a small `fields` shorthand, or ordinary Marionette templates and `FieldView`
 children in Regions. There is no Vue, React or Pro runtime dependency.
 This local development package has not been published. See the
@@ -12,11 +12,12 @@ composition.
 
 ## Share one FormKit Core
 
-`@formkit/core@2.1.2` is an exact peer dependency. Install that version alongside
-the development package or its local tarball. The remaining FormKit runtime
-packages stay pinned to 2.1.2; upgrading the family requires a compatibility check.
-An incompatible application Core now fails normal npm peer resolution instead
-of silently installing a second adapter Core.
+`@formkit/core@^2.5.0` is a peer dependency. Install it alongside the development
+package or its local tarball. The adapter's runtime family also uses `^2.5.0`.
+The support floor is 2.5.0; older Core releases fail normal npm peer resolution.
+Keep Core and its sibling packages aligned in the application lockfile. A caret
+range permits compatible updates; it does not certify every future release or
+guarantee that an independently pinned plugin shares the application's Core.
 
 Registry lookups and borrowed nodes require the same Core instance throughout
 the application, adapter and plugins. Use consistent ESM or CommonJS imports;

@@ -1,5 +1,14 @@
 # Compatibility and verification boundary
 
+The current dependency support floor is FormKit 2.5.0. Core is a `^2.5.0` peer;
+the runtime family uses the same caret floor. Current upgrade verification is
+separate from the historical 2.1.2 checkpoints below. The native binding supports
+combined validation visibility modes and public `describeForm`/`fillForm` node
+operations. It does not populate the Vue/React `node.context.refs` DOM map; retain
+DOM references through the owning Marionette View instead. Pro 0.131.0 declares
+compatible peers, but that declaration alone does not certify Pro on this graph.
+Browser verification remains blocked by the existing cloud download restriction.
+
 Current master integration is being verified separately from the historical checkpoints
 below. See [OWNERSHIP.md](OWNERSHIP.md) for branch/source attribution and commands.
 
