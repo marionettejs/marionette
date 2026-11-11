@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { after, test } from 'node:test';
@@ -67,6 +67,18 @@ test('the actual repository command reports metadata validation without claiming
   assert.match(output, /Verified 8 owned packages/);
   assert.match(output, /5 coordinated release targets remain unchanged/);
   assert.match(output, /Delegated checks were not executed/);
+});
+
+test('root declaration admission rejects HTML before touching its package-owned outputs', () => {
+  const root = fixture();
+  write(root, 'build/declarations.mjs', read(repository, 'build/declarations.mjs'));
+  symlinkSync(resolve(repository, 'node_modules'), resolve(root, 'node_modules'), 'dir');
+  const marker = 'packages/html/dist/types/esm/owned-marker';
+  write(root, marker, 'Owned by the HTML pipeline.');
+  const result = spawnSync(process.execPath, [resolve(root, 'build/declarations.mjs'), 'html'], { cwd: root, encoding: 'utf8' });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Unknown declaration package: html/);
+  assert.equal(read(root, marker), 'Owned by the HTML pipeline.');
 });
 
 const cases = [

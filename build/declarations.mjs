@@ -6,7 +6,7 @@ import ts from 'typescript';
 const root = resolve(import.meta.dirname, '..');
 const packageName = process.argv[2];
 const ownedPackages = JSON.parse(readFileSync(join(root, 'config/package-ownership.json'), 'utf8')).packages;
-if (packageName && !ownedPackages.some(entry => entry.id !== 'core' && entry.id === packageName)) {
+if (packageName && !ownedPackages.some(entry => entry.pipeline === 'root' && entry.id !== 'core' && entry.id === packageName)) {
   throw new Error(`Unknown declaration package: ${packageName}`);
 }
 const packageRoot = packageName ? join(root, 'packages', packageName) : root;
