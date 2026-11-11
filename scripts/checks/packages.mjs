@@ -88,9 +88,12 @@ function htmlPipeline(entry, pkg, manifest, root) {
   const document = parseDocument(readFileSync(resolve(root, entry.workflow), 'utf8'), { uniqueKeys: true });
   assert.deepEqual(document.errors, [], 'Invalid HTML workflow YAML');
   const workflow = document.toJS();
+  assert(workflow.on?.pull_request && workflow.on?.push, 'Missing automatic HTML workflow triggers');
+  assert.deepEqual(workflow.on.push.branches, ['master'], 'HTML workflow master-push trigger changed');
   const job = workflow.jobs?.verify;
   assert(job && Array.isArray(job.steps), 'Missing HTML verification job');
   assert(!job['continue-on-error'] && job.if === undefined, 'HTML verification job can be ignored');
+  assert.equal(job.needs, undefined, 'HTML verification job has an unreviewed prerequisite');
   for (const defaults of [workflow.defaults, job.defaults]) {
     assert(!defaults?.run?.shell && !defaults?.run?.['working-directory'], 'HTML workflow overrides required command execution');
   }
@@ -102,6 +105,9 @@ function htmlPipeline(entry, pkg, manifest, root) {
         `HTML workflow command can be ignored or redirected: ${command}`);
     }
   }
+  const lock = job.steps.findIndex(step => step.run?.trim() === htmlWorkflowCommands[0]);
+  const install = job.steps.findIndex(step => step.run?.trim() === htmlWorkflowCommands[1]);
+  assert(lock < install, 'HTML lockfile validation must precede package installation');
 }
 
 export async function checkPackages(root) {

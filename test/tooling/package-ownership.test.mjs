@@ -145,11 +145,23 @@ const cases = [
   ['no-op package browser authority', root => edit(root, htmlManifest, value => { value.scripts['test:packed:browser'] = 'echo passed'; }), /Wrong HTML package command/],
   ['missing workflow', root => rmSync(resolve(root, workflowFile)), /Missing HTML workflow authority/],
   ['invalid workflow YAML', root => write(root, workflowFile, 'jobs: {}\njobs: {}\n'), /Invalid HTML workflow YAML/],
+  ['manual-only HTML workflow triggers', root => workflow(root, value => { value.on = { workflow_dispatch: {} }; }), /Missing automatic HTML workflow triggers/],
+  ['missing HTML pull-request trigger', root => workflow(root, value => { delete value.on.pull_request; }), /Missing automatic HTML workflow triggers/],
+  ['redirected HTML push branch', root => workflow(root, value => { value.on.push.branches = ['other']; }), /HTML workflow master-push trigger changed/],
   ['missing workflow job', root => workflow(root, value => { delete value.jobs.verify; }), /Missing HTML verification job/],
+  ['skipped prerequisite for HTML verification', root => workflow(root, value => {
+    value.jobs.prepare = { 'runs-on': 'ubuntu-24.04', if: false, steps: [{ run: 'true' }] };
+    value.jobs.verify.needs = 'prepare';
+  }), /HTML verification job has an unreviewed prerequisite/],
   ['ignored workflow job', root => workflow(root, value => { value.jobs.verify['continue-on-error'] = true; }), /HTML verification job can be ignored/],
   ['skipped workflow job', root => workflow(root, value => { value.jobs.verify.if = false; }), /HTML verification job can be ignored/],
   ['workflow shell override', root => workflow(root, value => { value.defaults = { run: { shell: 'bash {0}' } }; }), /overrides required command execution/],
   ['workflow working-directory override', root => workflow(root, value => { value.jobs.verify.defaults = { run: { 'working-directory': 'packages/html' } }; }), /overrides required command execution/],
+  ['HTML lock validation after package installation', root => workflow(root, value => {
+    const steps = value.jobs.verify.steps;
+    const index = steps.findIndex(step => step.run === 'node packages/html/scripts/check-lockfile.mjs');
+    steps.push(...steps.splice(index, 1));
+  }), /HTML lockfile validation must precede package installation/],
   ['gate removed but named in comment', root => {
     workflow(root, value => { value.jobs.verify.steps = value.jobs.verify.steps.filter(step => step.run !== 'npm run coverage:html'); });
     write(root, workflowFile, read(root, workflowFile) + '\n# npm run coverage:html\n');
