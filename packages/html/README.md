@@ -2,7 +2,7 @@
 
 A browser template renderer for Marionette-owned interfaces, with incremental DOM updates, keyed lists, directives, an integrated DOM API.
 
-Version 0.1.0 is an unpublished package candidate. Publication requires the separate approval and checks in RELEASE.md. It does not change Marionette or other installed adapters.
+Version 1.0.0 is an unpublished package candidate. Publication requires the separate approval and checks in RELEASE.md. It does not change Marionette or other installed adapters.
 
 See the [package reference](guide.md) for entrypoints, template values, render options, directive identity, lifecycle and security contracts. [Repository integration](INTEGRATION.md) explains independent builds and local archive installation.
 

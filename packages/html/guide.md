@@ -1,7 +1,7 @@
 # @mnjs/html reference
 
 A separately versioned browser template renderer and Marionette DOM adapter.
-Version 0.1.0 is an unpublished package candidate. Publication requires the
+Version 1.0.0 is an unpublished package candidate. Publication requires the
 separate approval and checks in RELEASE.md. It is optional and does not select or change the
 renderer for an application that has already configured one.
 
@@ -12,7 +12,7 @@ Install that exact archive into the consuming application, rather than assuming
 that this version is available from the registry:
 
 ```sh
-npm install --save-exact /path/to/mnjs-html-0.1.0.tgz
+npm install --save-exact /path/to/mnjs-html-1.0.0.tgz
 ```
 
 Use Node `^22.22.2 || >=24.15.0` for the package tools. Runtime imports require a

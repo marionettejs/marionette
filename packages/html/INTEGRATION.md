@@ -1,6 +1,6 @@
 # Optional renderer in this repository
 
-`@mnjs/html` 0.1.0 is independently versioned and remains unpublished.
+`@mnjs/html` 1.0.0 is independently versioned and remains unpublished.
 Its manifest is prepared for public access; publication requires the separate
 approval and checks in [RELEASE.md](./RELEASE.md). It is not part of the
 coordinated Marionette core release. The core build and runtime do not import it.
@@ -34,13 +34,13 @@ mkdir -p packages/html/artifacts
 npm pack ./packages/html --ignore-scripts --pack-destination packages/html/artifacts
 ```
 
-This PR does not publish the resulting `mnjs-html-0.1.0.tgz`. Publication requires
+This PR does not publish the resulting `mnjs-html-1.0.0.tgz`. Publication requires
 a separate release decision. Runtime TypeScript originates from the November 8,
 2026 renderer-only freeze, with focused compatibility fixes listed in
 [PROVENANCE.md](./PROVENANCE.md). Compiler/Vite extraction and router work are excluded.
 The historical alpha archive SHA-256 was
 `d1089e973cf2a0c3efc06ea92f65bc1530534b5ad768b5ff323daf6590430ddb`.
-Source fixes, version and package documentation changes mean the 0.1.0 archive has a different
+Source fixes, version and package documentation changes mean the 1.0.0 archive has a different
 digest; the historical digest is not an identity claim for this archive.
 
 The released compatibility lane keeps its pinned `marionette@5.0.1`. The separate

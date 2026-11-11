@@ -47,14 +47,14 @@ validation work were extracted before this initial runtime-only package. A
 verified full working-tree backup and extracted files are preserved separately;
 the separate archive records recovery details. No compiler runtime protocol is shipped here.
 
-## Package-only 0.1.0 addition
+## Package-only 1.0.0 addition
 
-The 0.1.0 package addition imports the reviewed runtime-only source with the focused
+The 1.0.0 package addition imports the reviewed runtime-only source with the focused
 upstream-derived fixes described below. Its source originates from the November 8, 2026
 0.1.0-alpha.0 freeze, whose historical archive SHA-256 is
 `d1089e973cf2a0c3efc06ea92f65bc1530534b5ad768b5ff323daf6590430ddb`.
 The version and package documentation changed, so that digest does not identify
-the 0.1.0 archive. The package remains unpublished; version metadata
+the 1.0.0 archive. The package remains unpublished; version metadata
 is not a registry-publication claim. Core skills and renderer defaults are outside
 this package-only change.
 

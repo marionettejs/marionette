@@ -1,6 +1,6 @@
 # Working on @mnjs/html
 
-This is an unpublished 0.1.0 release candidate. Preserve upstream source headers and the complete BSD-3-Clause and MIT notices. Compare implementation changes against verified upstream sources recovered as described in UPSTREAM.md, preserve the pristine vendor fixtures, and document intentional compatibility changes.
+This is an unpublished 1.0.0 release candidate. Preserve upstream source headers and the complete BSD-3-Clause and MIT notices. Compare implementation changes against verified upstream sources recovered as described in UPSTREAM.md, preserve the pristine vendor fixtures, and document intentional compatibility changes.
 
 Use authored TypeScript source. Run npm run check after changes. For DOM movement, lifecycle or security changes, run npm run test:browser against the built output. Tests import public package entrypoints and assert observable DOM identity, events, ownership and externally tracked cleanup; do not probe private Part or Marionette internals.
 

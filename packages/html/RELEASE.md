@@ -1,4 +1,4 @@
-# Preparing @mnjs/html 0.1.0
+# Preparing @mnjs/html 1.0.0
 
 This is an independently versioned package. The repository's coordinated core
 release workflow explicitly publishes five other packages; do not add HTML to

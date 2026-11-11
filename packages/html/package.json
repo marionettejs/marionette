@@ -1,6 +1,6 @@
 {
   "name": "@mnjs/html",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Lit-derived templates with Marionette-owned events and lifecycle.",
   "type": "module",
   "license": "BSD-3-Clause AND MIT",

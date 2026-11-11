@@ -7,7 +7,7 @@ import {pathToFileURL} from 'node:url';
 const root = resolve('.');
 const pkg = JSON.parse(await readFile('package.json', 'utf8'));
 assert.equal(pkg.private, undefined, 'Release candidate must not retain private publication blocker');
-assert.equal(pkg.version, '0.1.0', 'Package addition targets version 0.1.0');
+assert.equal(pkg.version, '1.0.0', 'Package addition targets version 1.0.0');
 assert.deepEqual(pkg.publishConfig, {access: 'public'});
 assert.deepEqual(pkg.repository, {type: 'git', url: 'https://github.com/marionettejs/marionette.git', directory: 'packages/html'});
 assert.equal(pkg.bugs.url, 'https://github.com/marionettejs/marionette/issues');
