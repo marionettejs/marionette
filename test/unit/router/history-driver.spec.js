@@ -106,6 +106,97 @@ it('resets the dense known window after foreign History writes and unknown trave
   assert.equal(driver.currentEntry.url, 'https://routes.example/a');
 });
 
+for (const read of ['currentEntry', 'entries']) {
+  it(`cancels pending routing work when ${read} detects an unknown History entry`, async() => {
+    const fixture = context(); const { driver, window } = fixture;
+    const gate = Promise.withResolvers(); const ready = [];
+    const router = new Router({ driver, routes: { home: { path: '/' }, page: { path: '/page' } },
+      handler(match) { if (match.name === 'page') { return gate.promise; } },
+    });
+    fixture.routers.push(router);
+    router.on('route:ready', match => ready.push(match.name));
+    await router.start(); await router.getInitialDispatch();
+    const pending = router.navigate('page');
+    await pending.committed;
+    const match = router.getCurrent();
+    window.history.pushState({ foreign: true }, '', '/outside');
+    try {
+      const entry = read === 'currentEntry' ? driver.currentEntry : driver.entries()[0];
+      assert.equal(entry.url, 'https://routes.example/outside');
+      assert.equal(match.signal.aborted, true);
+      assert.equal(await pending.finished, false);
+    } finally { gate.resolve(); }
+    await new Promise(resolve => setImmediate(resolve));
+    assert.deepEqual(ready, ['home']);
+    assert.equal(await router.navigate('home').finished, true);
+  });
+}
+
+it('preserves newer routing started while a detected reset writes its metadata', async() => {
+  const fixture = context(); const { driver, window } = fixture;
+  const gate = Promise.withResolvers();
+  const router = new Router({ driver, routes: { home: { path: '/' }, page: { path: '/page' }, newer: { path: '/newer' } },
+    handler(match) { if (match.name === 'page') { return gate.promise; } },
+  });
+  fixture.routers.push(router);
+  await router.start(); await router.getInitialDispatch();
+  const pending = router.navigate('page'); await pending.committed;
+  window.history.pushState({}, '', '/outside');
+  const replace = window.history.replaceState.bind(window.history);
+  let newer;
+  vi.spyOn(window.history, 'replaceState').mockImplementation((...args) => {
+    replace(...args);
+    if (!newer) { newer = router.navigate('newer'); }
+  });
+  try {
+    assert.equal(driver.currentEntry.url, 'https://routes.example/newer');
+    assert.equal(await newer.finished, true);
+    assert.equal(await pending.finished, false);
+    assert.equal(router.getCurrent().name, 'newer');
+    assert.equal(router.getCurrent().signal.aborted, false);
+  } finally { gate.resolve(); }
+});
+
+it('preserves navigation started by canceled work during an unknown-entry pop', async() => {
+  const fixture = context(); const { driver, window } = fixture;
+  const gate = Promise.withResolvers(); const events = [];
+  let newer;
+  driver.addEventListener('navigate', event => {
+    events.push(event);
+    event.intercept({ handler: () => event.destination.url.endsWith('/slow') ? gate.promise : undefined });
+    if (event.destination.url.endsWith('/slow')) {
+      event.signal.addEventListener('abort', () => { newer = driver.navigate('/newer'); }, { once: true });
+    }
+  }, { signal: fixture.listeners.signal });
+  await driver.navigate('/a').finished;
+  window.history.pushState({}, '', '/foreign');
+  const pending = driver.navigate('/slow'); await pending.committed;
+  const arrived = new Promise(resolve => window.addEventListener('popstate', resolve, { once: true }));
+  window.history.go(-2); await arrived;
+  try {
+    assert.equal((await newer.finished).url, 'https://routes.example/newer');
+    await assert.rejects(pending.finished, { name: 'AbortError' });
+    assert.equal(events.at(-1).signal.aborted, false);
+    assert.deepEqual(events.map(event => new URL(event.destination.url).pathname), ['/a', '/slow', '/newer']);
+  } finally { gate.resolve(); }
+});
+
+it('keeps successful History signals live until the next navigation while awaiting every handler', async() => {
+  const fixture = context(); const { driver } = fixture;
+  const gate = Promise.withResolvers();
+  const events = intercept(fixture, event => event.destination.url.endsWith('/slow') ? gate.promise : undefined);
+  const pending = driver.navigate('/slow'); await pending.committed;
+  let settled = false;
+  pending.finished.then(() => { settled = true; });
+  await Promise.resolve(); assert.equal(settled, false);
+  assert.equal(events[0].signal.aborted, false);
+  gate.resolve(); await pending.finished;
+  assert.equal(events[0].signal.aborted, false);
+  await driver.navigate('/next').finished;
+  assert.equal(events[0].signal.aborted, true);
+  assert.equal(events[1].signal.aborted, false);
+});
+
 it('joins duplicate traversal readiness and cancels pending work on last unsubscribe', async() => {
   const fixture = context();
   const { driver } = fixture;

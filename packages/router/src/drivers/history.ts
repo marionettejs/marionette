@@ -52,11 +52,14 @@ class Transition {
   }
   get result(): NavigationResult {return { committed: this.committed.promise, finished: this.finished.promise };}
   abort(reason: unknown = error('Navigation aborted', 'AbortError')) {
+    this.handlers = [];
     this.controller.abort(reason);
     this.committed.reject(reason); this.finished.reject(reason);
   }
   finish(entry: DriverEntry) {
-    Promise.all(this.handlers.map(async handler => handler())).then(
+    const work = this.handlers.map(async handler => handler());
+    this.handlers = [];
+    Promise.all(work).then(
       () => this.finished.resolve(entry),
       reason => {this.finished.reject(reason); this.controller.abort(reason);},
     );
@@ -118,11 +121,12 @@ class HistoryDriver {
     const entry = this.#entry(this.#source.location.href, state);
     const stored = pack(state, this.#scope, entry.key);
     const previous = this.#entries; const old = this.#current;
+    const active = this.#active;
     this.#entries = [entry]; this.#current = entry;
     try {this.#source.history.replaceState(stored, '');} catch (reason) {
       this.#entries = previous; this.#current = old; throw reason;
     }
-    this.#cancelTraversals();
+    if (this.#active === active) {this.#leave();}
     return this.#current;
   }
 
@@ -293,7 +297,7 @@ class HistoryDriver {
     const from = this.#position;
     const entry = this.#sync();
     // An earlier host listener may already have started a newer owned navigation.
-    if (entry.key === from.key && entry.url === from.url) {return;}
+    if (this.#position !== from || (entry.key === from.key && entry.url === from.url)) {return;}
     this.#position = entry;
     const nav = this.#traversals.get(entry.key) ?? new Transition();
     nav.committed.resolve(entry);

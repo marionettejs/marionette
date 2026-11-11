@@ -512,6 +512,18 @@
     },
     {
       "file": "router-history.spec.mjs",
+      "title": "History currentEntry reset cancels obsolete route readiness"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History entries reset cancels obsolete route readiness"
+    },
+    {
+      "file": "router-history.spec.mjs",
+      "title": "History unknown-entry reset preserves navigation from outgoing abort work"
+    },
+    {
+      "file": "router-history.spec.mjs",
       "title": "unclaimed History navigate performs a real document handoff"
     },
     {

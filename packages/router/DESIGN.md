@@ -608,9 +608,9 @@ later memory navigations do not rewrite this document metadata. Initial redirect
 hops retain `initial: true` and report the hop's `replace` type.
 
 The standalone Driver interface also exposes capabilities, `reload()` and
-`back()`. Router uses `currentEntry`, optional activation metadata, `entries()`,
-`navigate()`, `traverseTo()`, `updateCurrentEntry()` and the `navigate` subscription;
-its own `back()` computes the eligible entry and invokes `traverseTo()`, and
+`traverseTo()`. Router uses `currentEntry`, optional activation metadata, `entries()`,
+`navigate()`, `back()`, `updateCurrentEntry()` and the `navigate` subscription;
+its own `back()` checks the preceding entry's ownership and invokes Driver `back()`, and
 `refresh()` uses replace navigation rather than Driver `reload()`. Implement the
 full public Driver contract, not only that Router-used subset. Shared automated
 Driver conformance runs against memory and History adapters. Separate installed
@@ -643,7 +643,8 @@ Navigation:
   history. A new instance/document reload or an unknown entry starts a new window. Unknown
   keys reject traversal, and `Router.back()` cannot promise access to prior
   unknown entries. Foreign writes without a recognized stamp, or with a changed
-  URL, reset this window on the next Driver read/event. Copying a Driver stamp
+  URL, reset this window on the next Driver read/event and cancel the previous
+  local transition and traversal receipts. Copying a Driver stamp
   into another entry at the same URL cannot be detected and is unsupported.
   Use this Driver as the History writer; it does not patch global History methods.
   Unobserved joint-history changes in other frames are outside this ownership
@@ -681,7 +682,9 @@ Navigation:
 - Unclaimed programmatic navigation/reload hands off to the document and rejects
   its local promises with AbortError. This does not claim cross-document readiness.
   Provided state is retained for reload; cross-document state delivery is not
-  provided by Location navigation. Script URLs reject with NotSupportedError.
+  provided by Location navigation. Like native `Navigation.navigate()`,
+  `javascript:` URLs reject with NotSupportedError before dispatch. Other
+  unclaimed schemes remain browser-owned; this is not an untrusted-URL sanitizer.
   The adapter does not emulate native focus/scroll restoration or transition
   policies; applications retain presentation policy.
 - Window/document listeners are acquired by the first Driver subscription and

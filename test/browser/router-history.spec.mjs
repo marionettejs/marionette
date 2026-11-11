@@ -533,7 +533,9 @@ for (const read of [false, true]) {
     const result = await page.evaluate(async shouldRead => {
       const { Router, historyDriver } = window.historyApi;
       const driver = historyDriver(); const owner = new AbortController(); const arrived = Promise.withResolvers();
-      driver.addEventListener('navigate', event => arrived.resolve(event), { signal: owner.signal });
+      let count = 0;
+      driver.addEventListener('navigate', event => { count++; arrived.resolve(event); }, { signal: owner.signal });
+      const hash = new Promise(resolve => window.addEventListener('hashchange', resolve, { once: true, signal: owner.signal }));
       const handled = [];
       const router = new Router({ driver, routes: { home: { path: '/' } }, handler(match) { handled.push(match.name); } });
       try {
@@ -541,12 +543,68 @@ for (const read of [false, true]) {
         location.hash = 'details';
         if (shouldRead) { driver.currentEntry; driver.entries(); }
         const event = await arrived.promise;
-        return { hashChange: event.hashChange, path: new URL(event.destination.url).hash, handled, nativeReads: window.nativeNavigationReads };
+        await hash; await new Promise(resolve => setTimeout(resolve, 0));
+        return { count, hashChange: event.hashChange, path: new URL(event.destination.url).hash, handled, nativeReads: window.nativeNavigationReads };
       } finally { router.destroy(); owner.abort(); }
     }, read);
-    expect(result).toEqual({ hashChange: true, path: '#details', handled: ['home'], nativeReads: 0 });
+    expect(result).toEqual({ count: 1, hashChange: true, path: '#details', handled: ['home'], nativeReads: 0 });
   });
 }
+
+for (const read of ['currentEntry', 'entries']) {
+  test(`History ${read} reset cancels obsolete route readiness`, async({ page }) => {
+    const result = await page.evaluate(async method => {
+      const { Router, historyDriver } = window.historyApi;
+      const driver = historyDriver(); const gate = Promise.withResolvers(); const ready = [];
+      const router = new Router({ driver, routes: { home: { path: '/' }, page: { path: '/page' } },
+        handler(match) { if (match.name === 'page') { return gate.promise; } },
+      });
+      router.on('route:ready', match => ready.push(match.name));
+      try {
+        await router.start(); await router.getInitialDispatch();
+        const pending = router.navigate('page'); await pending.committed;
+        const match = router.getCurrent();
+        history.pushState({ outside: true }, '', '/outside');
+        const entry = method === 'currentEntry' ? driver.currentEntry : driver.entries()[0];
+        const outcome = await pending.finished;
+        gate.resolve(); await new Promise(resolve => setTimeout(resolve, 0));
+        const canceled = { outcome, aborted: match.signal.aborted, ready: ready.slice(), path: new URL(entry.url).pathname,
+          state: entry.getState(), entries: driver.entries().length };
+        const recovered = await router.navigate('home').finished;
+        return { canceled, recovered, nativeReads: window.nativeNavigationReads };
+      } finally { gate.resolve(); router.destroy(); }
+    }, read);
+    expect(result).toEqual({ canceled: { outcome: false, aborted: true, ready: ['home'], path: '/outside',
+      state: { outside: true }, entries: 1 }, recovered: true, nativeReads: 0 });
+  });
+}
+
+test('History unknown-entry reset preserves navigation from outgoing abort work', async({ page }) => {
+  const result = await page.evaluate(async() => {
+    const { historyDriver } = window.historyApi;
+    const driver = historyDriver(); const owner = new AbortController(); const gate = Promise.withResolvers();
+    const events = []; let newer;
+    driver.addEventListener('navigate', event => {
+      events.push(event);
+      event.intercept({ handler: () => event.destination.url.endsWith('/slow') ? gate.promise : undefined });
+      if (event.destination.url.endsWith('/slow')) {
+        event.signal.addEventListener('abort', () => { newer = driver.navigate('/newer'); }, { once: true });
+      }
+    }, { signal: owner.signal });
+    try {
+      await driver.navigate('/a').finished;
+      history.pushState({}, '', '/foreign');
+      const pending = driver.navigate('/slow'); await pending.committed;
+      const popped = new Promise(resolve => window.addEventListener('popstate', resolve, { once: true, signal: owner.signal }));
+      history.go(-2); await popped;
+      await newer.finished;
+      const outcome = await pending.finished.then(() => 'unexpected success', error => error.name);
+      return { outcome, handled: events.map(event => new URL(event.destination.url).pathname),
+        path: location.pathname, aborted: events.at(-1).signal.aborted, nativeReads: window.nativeNavigationReads };
+    } finally { gate.resolve(); owner.abort(); }
+  });
+  expect(result).toEqual({ outcome: 'AbortError', handled: ['/a', '/slow', '/newer'], path: '/newer', aborted: false, nativeReads: 0 });
+});
 
 for (const operation of ['navigate', 'click']) {
   test(`unclaimed History ${operation} performs a real document handoff`, async({ page }) => {
