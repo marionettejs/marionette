@@ -13,14 +13,16 @@ Use Marionette 5 and Node.js `^22.22.2 || >=24.15.0`:
 
 ```sh
 npm install --save-exact marionette@5.0.1
-npm install --save-dev --save-exact @mnjs/test@0.2.1
+npm install --save-dev --save-exact @mnjs/test@1.0.0
 ```
 
 Install only the optional tools your tests use. Component tests can stay in
 Cypress; the helper does not require a second runner.
 
 The helper is separately versioned: these examples use Marionette 5.0.1 with
-`@mnjs/test` 0.2.1. A coordinated runtime patch does not require a helper release.
+`@mnjs/test` 1.0.0. A coordinated runtime patch does not require a helper release.
+Version 1.0 retains the 0.2.1 APIs and ownership behavior, including non-restoring
+scoped replies; no migration from 0.2.1 is required.
 
 ## Use the runner-independent core
 

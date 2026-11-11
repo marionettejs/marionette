@@ -1,6 +1,6 @@
 # Test Views and Applications
 
-Consumer reference for `@mnjs/test` **0.2.1** with Marionette **5.x**.
+Consumer reference for `@mnjs/test` **1.0.0** with Marionette **5.x**.
 For installation and a first complete test, start with the [package README](readme.md).
 Mounting requires a DOM; importing the neutral entry and creating a cleanup scope do not.
 Repository-example links follow `master` and may change; this installed guide
@@ -731,7 +731,11 @@ Every registration has its own callback identity. Cleanup filters by request nam
 that callback, and its effective context. A later unrelated replacement remains
 installed, even if it uses the same original function or context. Overwriting an
 older reply follows Radio's existing behavior; cleanup does not restore that
-older handler. Neither channel-wide `stopReplying()` nor `Radio.reset()` is used.
+older handler. If the scoped registration is still current, cleanup leaves that
+request name unregistered. If its original owner must keep serving requests,
+explicitly re-register the known handler after cleanup, or keep the override for
+that owner's lifetime. Radio's normal default-reply behavior still applies.
+Neither channel-wide `stopReplying()` nor `Radio.reset()` is used.
 Registration after cleanup begins is rejected before changing any reply.
 Hash registration is sequential: successfully registered keys are owned by the
 scope even if a later property read or registration throws. It is not an atomic
@@ -789,7 +793,7 @@ record.
 
 The 5.0.0 version in this historical table is not the current installation pin.
 Use the [installation instructions](readme.md#install) for Marionette 5.0.1 and
-the separately versioned `@mnjs/test` 0.2.1.
+the separately versioned `@mnjs/test` 1.0.0.
 
 | Entry / runner | Version and checks |
 | --- | --- |
@@ -799,7 +803,7 @@ the separately versioned `@mnjs/test` 0.2.1.
 | `@mnjs/test/cypress` | Cypress 16.1.1 / Electron and mount-utils 5.0.0; component lifecycle and expected-failure cleanup probes. |
 | `@mnjs/test/testing-library` | DOM Testing Library 10.4.1; ESM/CommonJS and types, scoped queries, replacement, readiness and existing runner cleanup. |
 
-The ownership candidate's optional peers accept Vitest `>=4.1.0`, DOM Testing
+The optional peers accept Vitest `>=4.1.0`, DOM Testing
 Library `>=8.7.0` and mount-utils `>=4`, alongside Cypress `>=14`.
 The packed minimum profile installs Vitest 4.1.0, DOM Testing Library 8.7.0 and
 mount-utils 4.0.0 with strict peer resolution and no overrides. It passes ESM and

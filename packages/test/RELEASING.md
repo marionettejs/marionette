@@ -1,6 +1,6 @@
 # Release @mnjs/test
 
-This procedure releases only `@mnjs/test@0.2.1`, publicly, with dist-tag `latest`.
+This procedure releases only `@mnjs/test@1.0.0`, publicly, with dist-tag `latest`.
 The release owner is Paul Falgout or a publisher he explicitly authorizes. Record
 that person's approved npm username with the release receipt; a GitHub identity is
 not evidence of npm access. This document prepares the release and grants no
@@ -11,21 +11,20 @@ The root `release:*` commands and `.github/workflows/release.yml` coordinate
 They do **not** certify or publish this helper. Do not dispatch that workflow for
 an independent helper release or add the helper to its package inventory.
 
-## 0.2.1 release notes
+## 1.0.0 release notes
 
-Hash-form `scope.reply()` now gives each own enumerable string key its own callback
-and disposer. Both channel and named-Radio forms preserve supplied/default contexts,
-constants and literal names. Cleanup preserves later replacements that reuse the
-same original function and context.
+Promote the existing mounting, readiness, owned-resource cleanup and optional
+runner APIs to the stable 1.x contract. Runtime, declarations, Node support and
+optional peer requirements are unchanged from 0.2.1; no migration is required.
 
-Installed ESM/CommonJS declarations support hash calls and contextual receivers,
-including falsy contexts, possibly falsy primitive variables and mutable/readonly
-object contexts. Existing single-name behavior and peer requirements are unchanged.
-Cleanup still does not restore overwritten replies or reset channels. Restoration
-remains separate work in issues [#3803](https://github.com/marionettejs/marionette/issues/3803)
-and [#3804](https://github.com/marionettejs/marionette/issues/3804).
+`scope.reply()` continues to remove only its own current registration, preserve
+later replacements, and never restore a previously overwritten handler. The guide
+clarifies the consequence for long-lived owners and explicit re-registration.
+Reply restoration is not planned in issues
+[#3803](https://github.com/marionettejs/marionette/issues/3803) and
+[#3804](https://github.com/marionettejs/marionette/issues/3804); it is not a 1.0 gate.
 
-This section prepares the patch announcement; registry publication must be verified
+This section prepares the announcement; registry publication must be verified
 before describing the version as available. Record exact native runtime coverage
 with the final artifact receipt, including any untested Cypress versions.
 
@@ -42,7 +41,7 @@ the `esnext.disposable` library reference so consumers need no tsconfig workarou
 Validate these exact floors against the same packed archive:
 
 ```sh
-npm run test:helpers:consumer -- --minimum-peers --artifact /absolute/path/mnjs-test-0.2.1.tgz --sha256 RECORDED_SHA256 --output /absolute/path/minimum-peers
+npm run test:helpers:consumer -- --minimum-peers --artifact /absolute/path/mnjs-test-1.0.0.tgz --sha256 RECORDED_SHA256 --output /absolute/path/minimum-peers
 ```
 
 This profile resolves Vitest/browser provider 4.1.0, DOM Testing Library 8.7.0 and
@@ -84,7 +83,7 @@ read-only evidence; honor organization/team permissions and normal 2FA requireme
 Authentication, permission or network failures are blockers, not reasons to change
 credentials or registry settings silently.
 
-Confirm that `0.2.1` is available and that assigning `latest` is still appropriate.
+Confirm that `1.0.0` is available and that assigning `latest` is still appropriate.
 Stop for a maintainer decision if the version exists, the package belongs to an
 unexpected owner, or `latest` already targets a newer release. Never overwrite an
 existing version, silently bump the version or retarget another dist-tag.
@@ -147,7 +146,7 @@ npm pack ./packages/test --ignore-scripts --json --pack-destination /absolute/pa
 Record the archive's SHA256 with a portable Node command:
 
 ```sh
-node --input-type=module -e "import{readFileSync}from'node:fs';import{createHash}from'node:crypto';console.log(createHash('sha256').update(readFileSync(process.argv[1])).digest('hex'))" /absolute/path/to/mnjs-test-release/mnjs-test-0.2.1.tgz
+node --input-type=module -e "import{readFileSync}from'node:fs';import{createHash}from'node:crypto';console.log(createHash('sha256').update(readFileSync(process.argv[1])).digest('hex'))" /absolute/path/to/mnjs-test-release/mnjs-test-1.0.0.tgz
 ```
 
 On a provisioned cloud runner with Chromium, the Cypress binary matching
@@ -155,7 +154,7 @@ On a provisioned cloud runner with Chromium, the Cypress binary matching
 pass the same archive and its recorded hash to the verifier:
 
 ```sh
-npm run test:helpers:consumer -- --artifact /absolute/path/to/mnjs-test-release/mnjs-test-0.2.1.tgz --sha256 RECORDED_SHA256 --browser --cypress --output /absolute/path/to/mnjs-test-release/verification
+npm run test:helpers:consumer -- --artifact /absolute/path/to/mnjs-test-release/mnjs-test-1.0.0.tgz --sha256 RECORDED_SHA256 --browser --cypress --output /absolute/path/to/mnjs-test-release/verification
 ```
 
 `--artifact` and `--sha256` are required together. This mode verifies the digest,
@@ -203,7 +202,7 @@ Only after the release owner authorizes this exact archive, account, version and
 dist-tag, run:
 
 ```sh
-npm publish /absolute/path/to/mnjs-test-release/mnjs-test-0.2.1.tgz --ignore-scripts --access public --tag latest --registry=https://registry.npmjs.org/
+npm publish /absolute/path/to/mnjs-test-release/mnjs-test-1.0.0.tgz --ignore-scripts --access public --tag latest --registry=https://registry.npmjs.org/
 ```
 
 Honor npm's normal authentication/2FA flow. If the outcome is uncertain, inspect

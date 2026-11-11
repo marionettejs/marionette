@@ -9,6 +9,15 @@ For the current v4 → v5 changes and replacements, see the
 [migration guide](docs/guides/migration.md). Entries below describe each release
 at the time it shipped; older prerelease APIs may have been superseded.
 
+### @mnjs/test 1.0.0 (unreleased)
+
+* Stabilize the existing mounting, readiness, owned-resource cleanup and optional
+  runner APIs. Runtime, declarations and peer requirements are unchanged from 0.2.1.
+* Keep non-restoring `scope.reply()` cleanup. Clarify the consequence for long-lived
+  owners and how to explicitly re-register a known handler after cleanup.
+* Defer automatic reply restoration; issues [#3803](https://github.com/marionettejs/marionette/issues/3803)
+  and [#3804](https://github.com/marionettejs/marionette/issues/3804) are closed as not planned.
+
 ### v5.0.1
 
 > Apparently owning a View and presenting it are different things. The AI has now read that part. Marionette 5.0.1 fixes lifecycle timing for deferred rows and empty Views, shadow-root containment, retained-row rendering, Behavior UI binding and Radio `replyOnce()` cancellation. The five package versions move together; `@mnjs/utils` and `@mnjs/data` have no source changes. No benchmark victory lap; this is a patch release.
