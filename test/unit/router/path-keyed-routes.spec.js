@@ -5,6 +5,13 @@ import { Router } from '@mnjs/router';
 const routers = [];
 afterEach(() => { for (const router of routers.splice(0)) { router.destroy(); } });
 
+it('rejects legacy own-path hash values instead of silently changing their URL', () => {
+  const router = new Router();
+  routers.push(router);
+  assert.throws(() => router.mount({ home: { path: '/', name: 'home' } }), /hash entry "home" cannot contain "path"/);
+  assert.equal(router.hasRoute('home'), false);
+});
+
 it('takes route names from values and pathname parameters from hash keys', () => {
   const router = new Router({
     routes: {
@@ -18,6 +25,14 @@ it('takes route names from values and pathname parameters from hash keys', () =>
   assert.equal(router.match('https://routes.example/items/two').name, 'item');
   assert.deepEqual(router.match('https://routes.example/items/two').params, { id: 'two' });
   assert.equal(router.hasRoute('/items/:id'), false);
+});
+
+it('resolves a method on an unnamed prefix without making the prefix a named route', () => {
+  const PrefixRouter = Router.extend({ show() {} });
+  const router = new PrefixRouter({ routes: { '/prefix': { handler: 'show', children: { 'child': { name: 'child' } } } } });
+  routers.push(router);
+  assert.equal(router.match('https://routes.example/prefix'), null);
+  assert.equal(router.match('https://routes.example/prefix/child').name, 'child');
 });
 
 it('retains opaque node data without merging it across mixed hash and array children', () => {

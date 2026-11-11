@@ -6,6 +6,40 @@ const owned = [];
 afterEach(() => { for (const app of owned.splice(0).reverse()) { app.destroy(); } });
 const own = app => { owned.push(app); return app; };
 
+test('class route hashes reject the legacy own-path spelling', () => {
+  const Legacy = RouteApplication.extend({ routes: { home: { path: '/', name: 'home' } } });
+  assert.throws(() => routeTable(Legacy), /hash entry "home" cannot contain "path"/);
+});
+
+test('routeTo diagnoses an ordinary engine match that was not compiled for an Application', async() => {
+  const root = own(new RouteApplication());
+  const router = own(new Router({ driver: memoryDriver({ url: 'https://router.test/outside' }), routes: { '/plain': { name: 'plain' } } }));
+  await router.start();
+  await router.navigate('plain').finished;
+  assert.throws(() => root.routeTo(router.getCurrent()), /not compiled by routeTable/);
+});
+
+test('mount cycles name the invalid path while sibling reuse of one class remains valid', () => {
+  const Cycle = RouteApplication.extend({ routes: { self: { mount: 'loop' } } });
+  Cycle.prototype.childApps = { loop: Cycle };
+  assert.throws(() => routeTable(Cycle), /Route "self" mounts "loop" in a route cycle/);
+  const A = RouteApplication.extend({ routes: { first: { mount: 'b' } } });
+  const B = RouteApplication.extend({ routes: { second: { mount: 'a' } } });
+  A.prototype.childApps = { b: B };
+  B.prototype.childApps = { a: A };
+  assert.throws(() => routeTable(A), /Route "second" mounts "a" in a route cycle/);
+
+  const Leaf = RouteApplication.extend({ routes: { 'detail/:id': { name: 'detail' } } });
+  const Root = RouteApplication.extend({
+    childApps: { 42: Leaf, other: Leaf },
+    routes: { 'first/:parent': { mount: '42', namespace: 'first' }, 'second/:other': { mount: 'other', namespace: 'second' } },
+  });
+  const router = own(new Router());
+  own(new Root()).mountRoutes(router);
+  assert.equal(router.url('first:detail', { parent: 'p', id: 'one' }), '/first/p/detail/one');
+  assert.equal(router.url('second:detail', { other: 'q', id: 'two' }), '/second/q/detail/two');
+});
+
 async function start(Root, url = 'https://router.test/') {
   const router = own(new Router({ driver: memoryDriver({ url }) }));
   const root = own(new Root());

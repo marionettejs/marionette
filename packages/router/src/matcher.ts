@@ -54,7 +54,10 @@ function snapshotRoutes(routes: RouteTable, controller: object): RegisteredRoute
   const array = Array.isArray(routes);
   const prototype = !array && routes && typeof routes === 'object' ? Object.getPrototypeOf(routes) : undefined;
   if (!array && prototype !== Object.prototype && prototype !== null) {throw new TypeError('mount() requires an array of route definitions or a route hash');}
-  const definitions: readonly RouteDefinition[] = array ? routes : Object.entries(routes).map(([path, definition]) => ({ ...definition, path }));
+  const definitions: readonly RouteDefinition[] = array ? routes : Object.entries(routes).map(([path, definition]) => {
+    if (Object.hasOwn(definition, 'path')) {throw new TypeError(`Route hash entry "${ path }" cannot contain "path"; use the hash key or an array definition`);}
+    return { ...definition, path };
+  });
   return definitions.map(definition => {
     assertDefinition(definition);
     const handler = definition.handler === undefined ? undefined : resolveMethod(controller, definition.handler, definition.name ?? definition.path).bind(controller) as RouteHandler;

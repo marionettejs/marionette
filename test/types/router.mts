@@ -172,14 +172,19 @@ new Stateful({});
 stateful.getState().missing;
 const suppliedState = new Stateful({ prefix: 'required', state: { supplied: true } });
 const supplied: boolean = suppliedState.getState().supplied;
+interface ConstructorOptions extends RouteApplicationOptions { token: string }
 const CustomConstructor = RouteApplication.extend({
-  constructor(options: { token: string }) { RouteApplication.call(this, options); },
+  constructor(options: ConstructorOptions) { RouteApplication.call(this, options); },
   token() { return this.options.token; },
 });
 new CustomConstructor({ token: 'required' }).token() satisfies string;
 // @ts-expect-error A custom constructor keeps required arguments.
 new CustomConstructor();
 new RouteApplication({ onCleanupError(error, app) { void [error, app.isRunning(), this.getCurrent()]; } });
+// @ts-expect-error Route declarations belong to the class, even alongside valid options.
+new RouteApplication({ region: { el: '#content' }, routes: { '/wrong': { name: 'wrong' } } });
+// @ts-expect-error Typo-only options retain ordinary Application weak-type checking.
+new RouteApplication({ onCleanupEror() {} });
 const DeclarativeOwner = Application.extend({ childApps: { routed: Root } });
 const owner = new DeclarativeOwner();
 owner.addChildApp('routed', new Root());
@@ -209,5 +214,41 @@ const ErrorAware = RouteApplication.extend({
   },
 });
 new ErrorAware();
+const StatefulAlias = RouteApplication.extend({ state: { count: 0 } });
+const statefulAlias: RouteApplicationInstance = new StatefulAlias();
+const RequiredAlias = RouteApplication.extend({ initialize(options: { token: string }) { void options.token; } });
+const requiredAlias: RouteApplicationInstance = new RequiredAlias({ token: 'one' });
+const NumericChild = RouteApplication.extend({ childApps: { 42: Leaf }, routes: { '/p/:parent': { mount: '42', namespace: 'num' } } });
+const numericChildTable = routeTable(NumericChild);
+new Router({ routes: numericChildTable }).url('num:detail', { parent: 1, detailId: 2 });
+// @ts-expect-error Numeric child registration does not erase required params.
+new Router({ routes: numericChildTable }).url('num:detail');
+const optionalMount: { mount: 'leaf'; namespace?: 'maybe' } = { mount: 'leaf', namespace: 'maybe' };
+const OptionalNamespace = RouteApplication.extend({ childApps: { leaf: Leaf }, routes: { '/optional': optionalMount } });
+const optionalTable = routeTable(OptionalNamespace);
+const optionalPrefixed: RouteNames<typeof optionalTable> = 'maybe:detail';
+const optionalUnprefixed: RouteNames<typeof optionalTable> = 'detail';
+const optionalOptions: { namespace?: 'outer' } = {};
+const optionalOuter = routeTable(Leaf, optionalOptions);
+const optionalOuterPrefixed: RouteNames<typeof optionalOuter> = 'outer:detail';
+const optionalOuterBare: RouteNames<typeof optionalOuter> = 'detail';
+const inline = new Router({ routes: routeTable(Root) });
+inline.url('admin:item:detail', compiledParams);
+// @ts-expect-error Inline routeTable results preserve names.
+inline.url('fake');
+// @ts-expect-error Inline routeTable results preserve required params.
+inline.url('admin:item:detail');
+// @ts-expect-error Dynamic top-level namespace options cannot invent a known literal name.
+const wrongOptionalNamespace: RouteNames<typeof optionalOuter> = 'other:detail';
+void [statefulAlias, requiredAlias, optionalPrefixed, optionalUnprefixed, optionalOuterPrefixed, optionalOuterBare, wrongOptionalNamespace];
+
 void [readiness, oldOwnership, oldNotFound, oldPersistence, raw, wrongHash, badHandler, numericName, numericPathName,
   wrongCompiledName, inheritedAbsolute, overriddenOldName, count, stateCount, staticLabel, supplied, cleared, selected];
+
+const indexedDeclarations: Record<string, { name: 'known' }> = { '/known': { name: 'known' } };
+const Indexed = RouteApplication.extend({ routes: indexedDeclarations });
+const indexedTable = routeTable(Indexed);
+const indexedName: RouteNames<typeof indexedTable> = 'known';
+// @ts-expect-error A dynamic path does not broaden a literal declared name.
+const indexedOther: RouteNames<typeof indexedTable> = 'other';
+void [indexedName, indexedOther];

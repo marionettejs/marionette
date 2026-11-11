@@ -12,7 +12,7 @@ export type ApplicationRouteMount = { mount: string; namespace?: string; region?
 export type ApplicationRouteDefinition = (ApplicationRouteLeaf | ApplicationRouteMount) & { path: string };
 export type ApplicationRoutes = readonly ApplicationRouteDefinition[] | Record<string, ApplicationRouteLeaf | ApplicationRouteMount>;
 export interface RouteApplicationOptions extends ApplicationOptions {
-  [option: string]: unknown;
+  routes?: never;
   onCleanupError?: (this: RouteApplicationInstance, error: unknown, app: ApplicationInstance<object, unknown>) => void;
 }
 export interface ApplicationRouteErrorContext { mount: string | undefined; phase: 'start' | 'route' }
@@ -30,7 +30,8 @@ interface Methods {
   clear(): boolean;
   getCurrent(): ApplicationInstance<object, unknown> | null;
 }
-export type RouteApplicationInstance = ApplicationInstance<object, unknown> & Methods;
+// Preserve core hook receivers when adding route operations to a general alias.
+export type RouteApplicationInstance = Omit<ApplicationInstance<object, unknown>, keyof Methods> & Methods;
 type ArgumentsFor<Props, Previous extends unknown[]> = Props extends { constructor: (...args: infer Args) => unknown } ? Args
   : Props extends { initialize: (...args: infer Args) => unknown } ? Args : Previous;
 type CreatedState<Props> = Props extends { createState: (...args: never[]) => infer State } ? State : object;
@@ -63,20 +64,21 @@ type DeclarationOf<S> = S extends { prototype: infer D } ? D : S;
 type RoutesOf<S> = DeclarationOf<S> extends { routes: infer R extends ApplicationRoutes } ? R : {};
 type ChildrenOf<S> = DeclarationOf<S> extends { childApps: infer C } ? C : {};
 type Namespaced<A extends string, B extends string> = string extends A | B ? string : A extends '' ? B : B extends '' ? A : `${ A }:${ B }`;
-type NamespaceOf<N> = N extends { namespace: infer S extends string } ? S : '';
+type NamespaceOf<N> = 'namespace' extends keyof N ? Extract<N['namespace'], string> | (undefined extends N['namespace'] ? '' : never) : '';
+type NamedChildren<C> = { [Key in keyof C as Key extends string | number ? `${ Key }` : never]: C[Key] };
 type DeclaredNodes<R extends ApplicationRoutes> = R extends readonly (infer N)[] ? N
   : { [Path in keyof R & (string | number)]: R[Path] & { path: `${ Path }` } }[keyof R & (string | number)];
 type CompiledNode<N, Children, Namespace extends string> = N extends { path: infer Path extends string }
   ? N extends { mount: infer Mount extends string }
-    ? string extends keyof Children ? RouteDefinition : Mount extends keyof Children
-      ? { path: Path; data: unknown; meta?: Record<string, unknown>; children: CompiledApplicationRoutes<Children[Mount], Namespaced<Namespace, NamespaceOf<N>>> }
+    ? string extends keyof NamedChildren<Children> ? RouteDefinition : Mount extends keyof NamedChildren<Children>
+      ? { path: Path; data: unknown; meta?: Record<string, unknown>; children: CompiledApplicationRoutes<NamedChildren<Children>[Mount], Namespaced<Namespace, NamespaceOf<N>>> }
       : never
     : N extends { name: infer Name extends string }
       ? Omit<RouteDefinition, 'path' | 'name' | 'children' | 'handler'> & { path: Path; name: Namespaced<Namespace, Name>; handler: 'routeTo'; data: unknown }
       : never
   : never;
 export type CompiledApplicationRoutes<S, Namespace extends string = ''> = readonly (
-  ApplicationRoutes extends RoutesOf<S> ? RouteDefinition : string extends keyof RoutesOf<S> ? RouteDefinition
+  ApplicationRoutes extends RoutesOf<S> ? RouteDefinition
     : CompiledNode<DeclaredNodes<RoutesOf<S>>, ChildrenOf<S>, Namespace>
 )[];
 const joinName = (...parts: (string | undefined)[]) => parts.filter(Boolean).join(':');
@@ -87,7 +89,10 @@ class RouteStep {
 }
 
 function definitionsOf(routes: ApplicationRoutes): readonly ApplicationRouteDefinition[] {
-  return Array.isArray(routes) ? routes : Object.entries(routes).map(([path, definition]) => ({ ...definition, path }));
+  return Array.isArray(routes) ? routes : Object.entries(routes).map(([path, definition]) => {
+    if (Object.hasOwn(definition, 'path')) {throw new TypeError(`Route hash entry "${ path }" cannot contain "path"; use the hash key or an array definition`);}
+    return { ...definition, path };
+  });
 }
 
 function mountedApplication(childApps: Declaration['childApps'], mount: string, path: string) {
@@ -98,22 +103,24 @@ function mountedApplication(childApps: Declaration['childApps'], mount: string, 
   return Child;
 }
 
-function compileTable(source: Source, namespace: string, table: object): RouteDefinition[] {
+function compileTable(source: Source, namespace: string, table: object, ancestors: readonly Source[] = []): RouteDefinition[] {
   const declaration = typeof source === 'function' ? source.prototype as Declaration : source as Declaration;
+  const stack = [...ancestors, source];
   const { routes = {}, childApps } = declaration;
   return definitionsOf(routes).map(definition => {
     const { path, mount, region, name, handler, redirect, meta } = definition;
     if (mount !== undefined) {
       const Child = mountedApplication(childApps, mount, path);
-      return { path, meta, data: new RouteStep(table, undefined, mount, region), children: compileTable(Child, joinName(namespace, definition.namespace), table) };
+      if (stack.includes(Child)) {throw new TypeError(`Route "${ path }" mounts "${ mount }" in a route cycle`);}
+      return { path, meta, data: new RouteStep(table, undefined, mount, region), children: compileTable(Child, joinName(namespace, definition.namespace), table, stack) };
     }
     if (typeof name !== 'string' || !name) {throw new TypeError(`Route "${ path }" requires a name`);}
     return { path, name: joinName(namespace, name), meta, redirect, handler: 'routeTo', data: new RouteStep(table, handler) };
   });
 }
 
-export function routeTable<const S extends Source, const Namespace extends string = ''>(source: S, { namespace = '' as Namespace }: { namespace?: Namespace } = {}): CompiledApplicationRoutes<S, Namespace> {
-  return compileTable(source, namespace, {}) as unknown as CompiledApplicationRoutes<S, Namespace>;
+export function routeTable<const S extends Source, const Options extends { namespace?: string } = {}>(source: S, options?: Options): CompiledApplicationRoutes<NoInfer<S>, NamespaceOf<NoInfer<Options>>> {
+  return compileTable(source, options?.namespace ?? '', {}) as unknown as CompiledApplicationRoutes<S, NamespaceOf<Options>>;
 }
 
 function firstStepIndex(match: ActiveMatch) {
