@@ -209,7 +209,7 @@ manifest and lock together, then run that fixture. Never delete locks during tes
 ## Exact release candidates
 
 The independently versioned router follows its
-[private preparation procedure](../packages/router/RELEASING.md). The core
+[release procedure](../packages/router/RELEASING.md). The core
 publisher below remains limited to its five framework packages. Its browser
 check uses `playwright.core-release.config.mjs`, preserving the exact core
 inventory while router-owned cases have separate Chromium certification.

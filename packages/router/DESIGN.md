@@ -226,6 +226,13 @@ When a driver coalesces queued Back calls to the same preceding entry, those
 callers share the routing chain's readiness, redirects and operational failures.
 The driver still owns traversal scheduling; the helper does not debounce calls.
 
+A navigation requested synchronously by an outgoing route's abort listener keeps
+authority over the request that triggered that abort. At this native reentry
+boundary the Router defers the newer Driver call to a microtask, cancels obsolete
+route work, and observes both result promises. Further navigation, Back, or stop
+can supersede that deferred request normally. Controlled redirect hops proceed
+immediately; this does not compensate browser history.
+
 Cancellation invalidates authority immediately, including after readiness. Router
 completion settles promptly on cancellation even when a handler/redirect ignores
 its signal. That underlying work remains observed and can continue until it
@@ -486,6 +493,9 @@ remain associated with that source URL. Cancellation invalidates a stale redirec
 result, but application code must pass/check the signal before its own effects.
 This authority boundary also applies when synchronous planning callbacks start a
 newer navigation, including during initial dispatch.
+`refresh()` also abandons its captured entry when its interception preflight
+stops routing or requests a newer navigation, including a vetoed request. It does
+not turn that obsolete preflight into document navigation.
 
 ### Old bookmarks and renamed features
 

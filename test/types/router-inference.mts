@@ -183,3 +183,22 @@ shared.url('runtime', { id: 7 });
 // @ts-expect-error A dynamic mount cannot erase required known feature params.
 shared.url('feature', { id: 7 });
 removeRuntimeOnly();
+
+// A static catalog cannot advertise children of missing or later parents.
+const catalogParentTable = defineRoutes({ catalogParent: { path: '/:desk' } });
+const catalogChildTable = defineRoutes({ catalogChild: { path: 'children/:id' } });
+type MissingParentCatalog = import('@mnjs/router').RouteCatalog<[
+  typeof catalogParentTable,
+  { routes: typeof catalogChildTable; parent: 'misspelled' },
+]>;
+const missingParentRouter = new Router<MissingParentCatalog>();
+missingParentRouter.url('catalogParent', { desk: 'blue' });
+// @ts-expect-error The missing parent cannot register this child.
+missingParentRouter.url('catalogChild');
+type LaterParentCatalog = import('@mnjs/router').RouteCatalog<[
+  { routes: typeof catalogChildTable; parent: 'catalogParent' },
+  typeof catalogParentTable,
+]>;
+const laterParentRouter = new Router<LaterParentCatalog>();
+// @ts-expect-error A later parent does not retroactively make an earlier mount valid.
+laterParentRouter.url('catalogChild');

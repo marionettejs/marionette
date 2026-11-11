@@ -209,7 +209,7 @@ class MemoryHistory {
     return this.#navigateTo(target, { history, state, info });
   }
 
-  simulate(target: string, { navigationType = 'push', userInitiated = true, canIntercept = true, ...flags }: SimulateOptions = {}) {
+  simulate(target: string, { navigationType = 'push', userInitiated = true, canIntercept, ...flags }: SimulateOptions = {}) {
     if (!SIMULATED_TYPES.includes(navigationType)) {
       throw new TypeError(`Cannot simulate navigationType: ${ navigationType }`);
     }

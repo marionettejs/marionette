@@ -1,6 +1,6 @@
 type InterceptionPolicy = Readonly<Pick<NavigateOptions, 'focusReset' | 'scroll'>>;
 type Chain = { initial: boolean; hops: number; followUp: NavigationResult<boolean> | null; policy: InterceptionPolicy; dispatch?: { match: ActiveMatch | null }; failure?: { error: unknown } };
-type Session = { controller: AbortController };
+type Session = { controller: AbortController; revision: number };
 type Navigation = {
   url: URL; chain: Chain; controller: AbortController; signal: AbortSignal;
   navigationType: DriverEvent['navigationType']; initial: boolean; info: unknown; userInitiated: boolean;
@@ -142,6 +142,7 @@ type RouterState = {
   session: Session | null;
   local: AbortController | null;
   chain: Chain | null;
+  queued: { blocked: Chain | null } | null;
   current: ActiveMatch | null;
   currentController: AbortController | null;
   currentNavigation: Navigation | null;
@@ -172,6 +173,7 @@ function stopRouting(router: RouterInstance) {
   internals.local = null;
   internals.currentController = null;
   internals.session = null;
+  internals.queued = null;
   internals.traversals.clear();
   local?.abort();
   currentController?.abort();
@@ -179,7 +181,7 @@ function stopRouting(router: RouterInstance) {
 }
 function constructRouter(this: RouterInstance, options?: RouterOptions) {
   states.set(this, {
-    matcher: null, resolvedDriver: null, session: null, local: null, chain: null,
+    matcher: null, resolvedDriver: null, session: null, local: null, chain: null, queued: null,
     current: null, currentController: null, currentNavigation: null, pending: new Set(), initialDispatch: null, traversals: new Set()
   });
   // Application establishes its stopping guard before notifying listeners, so
@@ -198,11 +200,11 @@ function startRouting(router: RouterInstance) {
   internals.initialDispatch = initial.promise;
   try {
     const driver = getDriver(router);
-    const session: Session = { controller: new AbortController() };
+    const session: Session = { controller: new AbortController(), revision: 0 };
     internals.session = session;
     driver.addEventListener('navigate', event => onNavigate(router, event), { signal: session.controller.signal });
     // Activation and initial page readiness have distinct observable outcomes.
-    dispatchInitial(router, session).then(initial.resolve, error => initial.resolve({ status: 'failed', error, match: null }));
+    dispatchInitial(router, session).then(initial.resolve);
   } catch (error) {
     initial.resolve({ status: 'failed', error, match: null });
     // A failure acquiring our own binding must leave activation retryable.
@@ -236,14 +238,12 @@ function entryState(router: RouterInstance, href: string, history: NavigationOpt
   return withMarker(isObject(existing) ? existing : undefined);
 }
 
-function withPersisted(router: RouterInstance, name: string, params: Params) {
-  const internals = stateFor(router);
-  const current = internals.current;
-  if (!current || !option(router, 'persistParams')!.length) {return params;}
+function withPersisted(router: RouterInstance, name: string, params: Params, source = stateFor(router).current?.params) {
+  if (!source || !option(router, 'persistParams')!.length) {return params;}
   const names = getMatcher(router).getParamNames(name);
   const persisted = option(router, 'persistParams')!
-    .filter(key => names.includes(key) && !Object.hasOwn(params, key) && Object.hasOwn(current.params, key))
-    .map(key => [key, current.params[key]]);
+    .filter(key => names.includes(key) && !Object.hasOwn(params, key) && Object.hasOwn(source, key))
+    .map(key => [key, source[key]]);
   return { ...Object.fromEntries(persisted), ...params };
 }
 
@@ -253,8 +253,39 @@ function urlTarget(router: RouterInstance, url: string, { query }: NavigateOptio
   return target.href;
 }
 
+function queueNavigation(router: RouterInstance, href: string, options: DriverNavigateOptions, chain: Chain): NavigationResult<boolean> {
+  const internals = stateFor(router);
+  const target = new URL(href, getDriver(router).currentEntry.url).href;
+  const committed = Promise.withResolvers<boolean>();
+  const finished = Promise.withResolvers<boolean>();
+  committed.promise.catch(noop); finished.promise.catch(noop);
+  const queued = internals.queued = { blocked: internals.chain };
+  internals.session!.revision++;
+  queueMicrotask(() => {
+    if (internals.queued !== queued) {
+      committed.resolve(false); finished.resolve(false); return;
+    }
+    internals.queued = null;
+    internals.currentNavigation?.controller.abort();
+    try {
+      const result = navigateDriver(router, target, options, chain);
+      result.committed.then(committed.resolve, committed.reject);
+      result.finished.then(finished.resolve, finished.reject);
+    } catch (error) {committed.reject(error); finished.reject(error);}
+  });
+  return { committed: committed.promise, finished: finished.promise };
+}
+
 function navigateDriver(router: RouterInstance, href: string, options: DriverNavigateOptions, chain: Chain): NavigationResult<boolean> {
   const internals = stateFor(router);
+  const current = internals.currentNavigation;
+  // Native navigation can resume an older request after a synchronous abort
+  // listener navigates, even leaving that request's result pending. Defer only
+  // public requests reentering this boundary; controlled redirect hops proceed.
+  if (chain.hops === 0 && current?.signal.aborted && !current.controller.signal.aborted) {
+    return queueNavigation(router, href, options, chain);
+  }
+  internals.queued = null;
   internals.chain = chain;
   try {
     return settle(getDriver(router).navigate(href, options), chain);
@@ -307,15 +338,26 @@ function claims(router: RouterInstance, url: URL) {
 }
 
 function onNavigate(router: RouterInstance, event: DriverEvent) {
+  const internals = stateFor(router);
+  internals.session!.revision++;
   const chain = takeChain(router, event);
+  // Suppress the interrupted request, not a genuinely later Driver event.
+  if (internals.queued?.blocked && internals.queued.blocked !== chain) {internals.queued = null;}
   const url = new URL(event.destination.url);
   if (!intercepts(router, event, url, chain)) {return;}
   const nav = navigationFor(router, event, url, chain);
   let task: () => void | Promise<void>;
   try {
-    const plan = planNavigation(router, nav);
-    if (!plan) {nav.release!(); return;}
-    task = () => execute(router, plan, nav);
+    if (internals.queued) {
+      internals.queued.blocked = chain;
+      nav.controller.abort();
+      if (event.cancelable) {event.preventDefault();}
+      task = noop;
+    } else {
+      const plan = planNavigation(router, nav);
+      if (!plan) {nav.release!(); return;}
+      task = () => execute(router, plan, nav);
+    }
   } catch (error) {
     // Claim failed planning as a rejected transition rather than letting a
     // synchronous listener exception fall through to document navigation.
@@ -325,6 +367,11 @@ function onNavigate(router: RouterInstance, event: DriverEvent) {
   // alone still needs an intercepted canceled attempt, rather than document fallback.
   if (event.defaultPrevented || event.signal.aborted) {nav.release!(); return;}
   abortLocal(router);
+  if (internals.queued) {
+    internals.queued.blocked = chain;
+    nav.controller.abort();
+    if (event.cancelable) {event.preventDefault();}
+  }
   // Aborting initial work can synchronously navigate from an abort listener too.
   if (event.defaultPrevented || event.signal.aborted) {nav.release!(); return;}
   event.intercept({ handler: () => waitForAttempt(router, nav, task), ...chain.policy });
@@ -436,7 +483,7 @@ function redirectPlan(router: RouterInstance, result: RegisteredMatch, nav: Navi
   if (target === undefined || target === null) {return { base: result, pending: null, handler };}
   try {
     assertHopAllowed(router, nav);
-    return { hop: targetHref(router, target, nav.url) };
+    return { hop: targetHref(router, target, nav.url, result.params) };
   } catch (error) {
     return { base: result, pending: rejection(error), handler };
   }
@@ -455,9 +502,9 @@ function assertHopAllowed(router: RouterInstance, nav: Navigation) {
   if (nav.chain.hops >= maxRedirects) {throw new Error(`Redirect limit of ${ maxRedirects } exceeded`);}
 }
 
-function targetHref(router: RouterInstance, target: RedirectTarget, base: URL) {
+function targetHref(router: RouterInstance, target: RedirectTarget, base: URL, params: Record<string, string>) {
   if (typeof target !== 'string') {
-    const url = new URL(router.url(target.name, target.params, { query: target.query }), base);
+    const url = new URL(getMatcher(router).url(target.name, withPersisted(router, target.name, target.params ?? {}, params), { query: target.query }), base);
     if (target.hash !== undefined) {url.hash = target.hash;}
     return url.href;
   }
@@ -556,7 +603,7 @@ async function redirected(router: RouterInstance, nav: Navigation, pending: Prom
   if (!isCurrent(router, nav)) {throw new NavigationCancelled();}
   if (target === undefined || target === null) {return false;}
   assertHopAllowed(router, nav);
-  nav.chain.followUp = hop(router, targetHref(router, target, nav.url), nav);
+  nav.chain.followUp = hop(router, targetHref(router, target, nav.url, nav.match!.params), nav);
   return true;
 }
 
@@ -567,6 +614,7 @@ function commit(router: RouterInstance, base: Base, nav: Navigation) {
   const entry = getDriver(router).currentEntry;
   const previous = internals.currentController;
   const match = toMatch(base, nav, entry.key, mark(router, entry)) as ActiveMatch;
+  if (nav.signal.aborted) {return null;}
   nav.match = match;
   internals.current = match;
   internals.currentController = nav.controller;
@@ -627,14 +675,18 @@ export const Router = Application.extend({
 
   async refresh(this: RouterInstance) {
     const internals = stateFor(this);
-    if (!internals.session) {return Promise.resolve(false);}
+    const session = internals.session;
+    if (!session) {return false;}
+    const revision = session.revision;
     const entry = getDriver(this).currentEntry;
     try {
       if (!claims(this, new URL(entry.url))) {return false;}
     } catch (error) {
+      if (internals.session !== session || session.revision !== revision) {return false;}
       reportError(this, error, null, { info: undefined });
       throw error;
     }
+    if (internals.session !== session || session.revision !== revision) {return false;}
     return navigateDriver(this, entry.url, { history: 'replace', state: entry.getState() }, newChain(false, { focusReset: 'manual', scroll: 'manual' })).finished;
   },
 
@@ -668,6 +720,8 @@ export const Router = Application.extend({
   back(this: RouterInstance) {
     const internals = stateFor(this);
     if (!this.canGoBack()) {return Promise.resolve(false);}
+    internals.queued = null;
+    internals.session!.revision++;
     const driver = getDriver(this);
     const key = driver.entries()[driver.currentEntry.index - 1].key;
     // Drivers may coalesce queued traversals. Every caller must then follow the
@@ -689,8 +743,10 @@ export const Router = Application.extend({
     const entry = getDriver(this).currentEntry;
     const stored = entry.getState();
     const next = { ...(isObject(stored) ? stored : {}), ...state };
+    if (isMarked(stored)) {next[MARKER] = true;} else {delete next[MARKER];}
+    const match = internals.current;
     getDriver(this).updateCurrentEntry({ state: next });
-    if (internals.current?.key === entry.key) {internals.current.state = publicState(next);}
+    if (internals.current === match && match?.key === entry.key) {match.state = publicState(next);}
     return true;
   },
 

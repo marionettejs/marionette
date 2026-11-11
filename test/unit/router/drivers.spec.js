@@ -13,6 +13,44 @@ driverConformance({
   assert,
 });
 
+for (const [target, override, expected] of [
+  ['https://routes.example/page', undefined, true],
+  ['https://other.example/page', undefined, false],
+  ['https://other.example/page', true, true],
+  ['https://routes.example/page', false, false],
+]) {
+  it(`simulates interception capability for ${target} with override ${override}`, async() => {
+    const driver = memoryDriver({ url: 'https://routes.example/' });
+    let capability;
+    driver.addEventListener('navigate', event => {
+      capability = event.canIntercept;
+      if (expected) { event.intercept(); } else { assert.throws(() => event.intercept(), { name: 'SecurityError' }); }
+    });
+    await driver.simulate(target, { canIntercept: override }).finished;
+    assert.equal(capability, expected);
+  });
+}
+
+it('settles a second traversal requested during the first traversal dispatch at the same current entry', async() => {
+  const driver = memoryDriver({ url: 'https://routes.example/a' });
+  const target = driver.currentEntry;
+  await driver.navigate('/b').finished;
+  let second;
+  let traversals = 0;
+  driver.addEventListener('navigate', event => {
+    event.intercept();
+    if (event.navigationType === 'traverse') {
+      traversals++;
+      second = driver.traverseTo(target.key);
+    }
+  });
+  const first = driver.traverseTo(target.key);
+  assert.equal((await first.finished).key, target.key);
+  assert.equal((await second.finished).key, target.key);
+  assert.equal(traversals, 1);
+  assert.equal(driver.currentEntry.url, target.url);
+});
+
 function record(driver, { intercept = true } = {}) {
   const events = [];
   driver.addEventListener('navigate', event => {

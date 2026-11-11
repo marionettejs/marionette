@@ -763,7 +763,7 @@ describe('Router synchronous redirects', () => {
   it('follows chains and accepts same-origin URL string targets with query', async() => {
     const context = await started();
     context.router.mount([
-      { name: 'first', path: '/first', redirect: () => ({ name: 'worklist', params: { worklistId: 'x' }, query: { a: '1' } }) },
+      { name: 'first', path: '/first', redirect: () => ({ name: 'worklist', params: { workspace: 'w1', worklistId: 'x' }, query: { a: '1' } }) },
       { name: 'second', path: '/second', redirect: () => '/first' },
       { name: 'third', path: '/third', redirect: () => 'http://localhost/second#frag' },
     ]);

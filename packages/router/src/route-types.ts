@@ -73,7 +73,9 @@ export type RouteParams<R extends RouteTable, Name extends RouteNames<R>> = stri
 
 type CatalogEntry = RouteTable | { routes: RouteTable; parent?: string };
 type CatalogNode<Entry, Previous extends RouteTable> = Entry extends { routes: infer Routes extends RouteTable }
-  ? { path: Entry extends { parent: infer Parent extends string } ? NamedPath<Previous, Parent> : ''; children: Routes }
+  ? Entry extends { parent: infer Parent extends string }
+    ? [NamedPath<Previous, Parent>] extends [never] ? never : { path: NamedPath<Previous, Parent>; children: Routes }
+    : { path: ''; children: Routes }
   : Entry extends RouteTable ? { path: ''; children: Entry } : never;
 type ComposeCatalog<Entries extends readonly CatalogEntry[], Previous extends readonly unknown[] = []> =
   Entries extends readonly [infer Head, ...infer Tail extends readonly CatalogEntry[]]

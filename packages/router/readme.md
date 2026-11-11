@@ -110,6 +110,9 @@ Redirects use ordinary routes; relative string targets resolve against the
 redirect's navigation URL, consistently for sync and async callbacks.
 Named redirects accept `{ name, params?, query?, hash? }`; forwarding is explicit,
 for example `{ name: 'item', params: match.params, query: match.query, hash: match.url.hash }`.
+Configured `persistParams` keys come from the redirecting match for both sync and
+async targets, including initial dispatch. Explicit params override or clear them;
+ordinary `router.url()` still persists from the current committed match.
 Omitted query/hash do not inherit from the source. `hash` follows `URL.hash`
 semantics, including optional leading `#`, empty string and explicit empty `#`.
 Route names cannot start with `/` or `scheme://`; those spellings select raw URL

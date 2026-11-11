@@ -53,6 +53,7 @@ describe('selection key value snapshots', () => {
     [new Array(2), [1, 2], false], [[1, 2], new Array(2), false],
     [new Array(1), [undefined], false], [[undefined], new Array(1), false],
     [new Array(2), new Array(2), true],
+    [[1], [1, 2], false],
     [NaN, NaN, true], [-0, 0, false], [Infinity, Infinity, true],
     [undefined, null, false],
     [{ a: [1, { b: undefined }], c: null }, { c: null, a: [1, { b: undefined }] }, true],
@@ -67,6 +68,22 @@ describe('selection key value snapshots', () => {
       expect(pages.getCurrent()).toBe(page);
     });
   }
+
+  it('reuses equal aliased subtrees across different sharing layouts', async() => {
+    const { pages, page } = await setup();
+    const leaf = { id: 'one' };
+    const shared = { left: leaf, right: leaf };
+    await pages.switchTo('page', { key: shared });
+    const stop = vi.fn();
+    page.on('stop', stop);
+    const equalLeaf = { id: 'one' };
+    await pages.switchTo('page', { key: { left: equalLeaf, right: equalLeaf } });
+    await pages.switchTo('page', { key: { left: { id: 'one' }, right: { id: 'one' } } });
+    expect(stop).not.toHaveBeenCalled();
+    leaf.id = 'two';
+    await pages.switchTo('page', { key: shared });
+    expect(stop).toHaveBeenCalledTimes(1);
+  });
 
   it('supports frozen and null-prototype data, aliasing and the own __proto__ key without changing callers', async() => {
     const { pages, page } = await setup();

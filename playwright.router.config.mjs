@@ -7,6 +7,8 @@ export default defineConfig({
   globalSetup: './test/router/browser-setup.mjs',
   outputDir: './test/tmp/router-browser/results',
   reporter: [['list'], ['json', { outputFile: './test/tmp/router-browser/results.json' }]],
-  projects: [{ name: 'router-chromium', use: { browserName: 'chromium',
-    ...(process.env.MARIONETTE_ROUTER_CHROMIUM ? { launchOptions: { executablePath: process.env.MARIONETTE_ROUTER_CHROMIUM } } : {}) } }],
+  projects: [{ name: 'router-chromium', use: { browserName: 'chromium', launchOptions: {
+    chromiumSandbox: true,
+    ...(process.env.MARIONETTE_ROUTER_CHROMIUM ? { executablePath: process.env.MARIONETTE_ROUTER_CHROMIUM } : {})
+  } } }],
 });

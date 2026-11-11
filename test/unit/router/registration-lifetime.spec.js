@@ -8,6 +8,13 @@ const own = value => { owned.add(value); return value; };
 const gate = () => Promise.withResolvers();
 const routerFor = (options = {}) => own(new Router({ driver: memoryDriver({ url: 'https://routes.example/outside' }), ...options }));
 
+it('rejects an already destroyed registration owner', () => {
+  const router = routerFor();
+  const owner = new Application(); owner.destroy();
+  assert.throws(() => router.mount({ page: { path: '/page' } }, { owner }), /destroyed owner/);
+  assert.equal(router.hasRoute('page'), false);
+});
+
 // A conforming driver may commit and schedule its intercepted handler later.
 function heldDriver(path) {
   const dispatch = gate();

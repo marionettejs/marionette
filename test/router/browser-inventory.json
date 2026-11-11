@@ -3,6 +3,90 @@
   "policy": "initial-chromium",
   "tests": [
     {
+      "file": "router-authority.spec.mjs",
+      "title": "pending native abort reentry preserves ready authority"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "pending native abort reentry preserves error authority"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "pending native abort reentry preserves abort-error authority"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "pending native abort reentry preserves stop authority"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "pending native abort reentry preserves last-caller authority"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "pending native abort reentry preserves driver-error authority"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native refresh preflight navigate does not reclaim stale authority"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native refresh preflight veto does not reclaim stale authority"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native refresh preflight stop does not reclaim stale authority"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "later native navigation supersedes a deferred request from intercepted work"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "later native navigation supersedes a deferred request from initial work"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native queued intent supersedes refresh preflight before its navigation event"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native queued Back dispatch follows completed abort-listener navigation"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native state-update observer cannot replace a newer match state"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native currententrychange during initial marking preserves the newer match"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native state updates preserve owned entry eligibility"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native state updates preserve unowned entry eligibility"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native named redirect persistence is sync and subsequent"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native named redirect persistence is sync and initial"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native named redirect persistence is async and subsequent"
+    },
+    {
+      "file": "router-authority.spec.mjs",
+      "title": "native named redirect persistence is async and initial"
+    },
+    {
       "file": "router-consumer.spec.mjs",
       "title": "feature-owned replacement delays native readiness until attached content"
     },

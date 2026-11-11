@@ -222,19 +222,11 @@ export class Matcher {
     const registered = snapshotRoutes(routes, controller);
     if (parent !== undefined && !this.has(parent)) {throw new Error(`Unknown parent route "${ parent }"`);}
     const mount = { routes: registered, parent };
-    const previous = this.#state;
+    const compiled = compile([...this.#mounts, mount]);
     this.#mounts.push(mount);
-    this.#state = null;
-    try {
-      this.#compiled();
-    } catch (error) {
-      this.#mounts.pop();
-      this.#state = previous;
-      throw error;
-    }
+    this.#state = compiled;
     return () => {
       const index = this.#mounts.indexOf(mount);
-      if (index === -1) {return;}
       this.#mounts.splice(index, 1);
       this.#state = null;
     };
