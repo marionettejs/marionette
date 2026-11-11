@@ -4,11 +4,67 @@ import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync,
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import { candidateOutput, inspectRouterArchive, sha256, validatePreparationReceipt, validateRouterPackage, verifyRouterBrowserReport, verifyRouterDocumentation } from './artifact.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const manifest = JSON.parse(readFileSync(join(root, 'packages/router/package.json')));
 const notice = readFileSync(join(root, 'license.txt'));
+
+for (const outcome of ['success', 'nonzero', 'launch-error', 'timeout']) {
+  test(`retention launcher bounds children and preserves ${outcome} diagnostics`, () => {
+    const program = `
+      import assert from 'node:assert/strict';
+      import { spawnSync } from 'node:child_process';
+      import { verifyHistoryRetention } from ${JSON.stringify(pathToFileURL(join(root, 'test/router/history-retention-probes.mjs')).href)};
+      const outcome = ${JSON.stringify(outcome)};
+      const modes = []; const children = [];
+      const launch = (executable, args, options) => {
+        assert.ok(Number.isFinite(options.timeout) && options.timeout > 0 && options.timeout <= 30000);
+        assert.equal(options.killSignal, 'SIGKILL');
+        assert.equal(args[0], '--expose-gc');
+        modes.push(args.at(-1));
+        const source = outcome === 'timeout' ? 'process.on("SIGTERM",()=>{}); setInterval(()=>{},1000)' :
+          'console.log("fixture stdout"); console.error("fixture stderr"); process.exitCode=' + (outcome === 'nonzero' ? 7 : 0);
+        const child = spawnSync(outcome === 'launch-error' ? '/missing-router-retention-executable' : executable,
+          ['-e', source], { ...options, timeout: 500 });
+        children.push({ status: child.status, signal: child.signal, code: child.error?.code });
+        return child;
+      };
+      let failure;
+      try { verifyHistoryRetention(${JSON.stringify(root)}, launch); } catch (error) {
+        assert.ok(error instanceof AggregateError);
+        failure = error.errors.map(item => ({ message: item.message, code: item.cause?.code }));
+      }
+      console.log('RETENTION_RESULT ' + JSON.stringify({ modes, children, failure }));
+    `;
+    const result = spawnSync(process.execPath, ['--input-type=module', '-e', program], {
+      encoding: 'utf8', timeout: 10000, killSignal: 'SIGKILL',
+    });
+    assert.equal(result.error, undefined);
+    assert.equal(result.status, 0, result.stderr);
+    const report = JSON.parse(result.stdout.match(/^RETENTION_RESULT (.+)$/m)[1]);
+    assert.deepEqual(report.modes, ['complete', 'failed', 'veto']);
+    if (outcome === 'success') {
+      assert.equal(report.failure, undefined);
+      assert.ok(report.children.every(child => child.status === 0));
+    } else {
+      assert.equal(report.failure.length, 3);
+      for (const [index, failure] of report.failure.entries()) {
+        assert.match(failure.message, new RegExp(`History retention ${report.modes[index]}:`));
+        if (outcome === 'nonzero') { assert.match(failure.message, /exit 7/); } else {
+          assert.equal(failure.code, outcome === 'timeout' ? 'ETIMEDOUT' : 'ENOENT');
+        }
+      }
+      if (outcome === 'timeout') { assert.ok(report.children.every(child => child.signal === 'SIGKILL')); }
+    }
+    if (outcome === 'success' || outcome === 'nonzero') {
+      assert.equal(result.stdout.match(/fixture stdout/g).length, 3);
+      assert.equal(result.stderr.match(/fixture stderr/g).length, 3);
+    }
+    assert.doesNotMatch(result.stderr, /ERR_INVALID_ARG_TYPE/);
+  });
+}
 
 function fixture(t) {
   const directory = mkdtempSync(join(tmpdir(), 'router-artifact-test-'));

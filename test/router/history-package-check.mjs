@@ -1,15 +1,13 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { JSDOM } from 'jsdom';
+import { verifyHistoryRetention } from './history-retention-probes.mjs';
 
 export async function verifyHistoryPackage(consumer) {
-  const retention = spawnSync(process.execPath, [resolve(import.meta.dirname, 'history-retention-probes.mjs'), consumer], { encoding: 'utf8' });
-  process.stdout.write(retention.stdout); process.stderr.write(retention.stderr);
-  assert.equal(retention.status, 0, 'Installed History driver retention probes must pass');
+  verifyHistoryRetention(consumer);
   const require = createRequire(resolve(consumer, 'package.json'));
   const manifest = require('@mnjs/router/package.json');
   const esm = await import(pathToFileURL(resolve(consumer, 'node_modules/@mnjs/router', manifest.exports['.'].import.default)));
