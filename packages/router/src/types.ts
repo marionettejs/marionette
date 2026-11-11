@@ -43,7 +43,7 @@ export interface MemoryDriver extends Driver {
   simulate(target: string, options?: SimulateOptions): NavigationResult;
   documentNavigations: string[];
 }
-export interface BranchEntry { name: string | undefined; path: string; params: Record<string, string>; meta: Record<string, unknown> }
+export interface BranchEntry { name: string | undefined; path: string; params: Record<string, string>; meta: Record<string, unknown>; data: unknown }
 export interface Match {
   name: string; params: Record<string, string>; query: URLSearchParams; url: URL;
   meta: Record<string, unknown>; branch: BranchEntry[];
@@ -60,11 +60,11 @@ export type InitialDispatchResult =
 export type RedirectTarget = string | { name: string; params?: Params; query?: Query; hash?: string };
 export type Redirect = (match: ActiveMatch, context: { signal: AbortSignal }) => RedirectTarget | null | undefined | Promise<RedirectTarget | null | undefined>;
 export type RouteHandler = (match: ActiveMatch, context: { signal: AbortSignal }) => unknown;
-export type RouteHash = Record<string, Omit<RouteDefinition, 'name'>>;
+export type RouteHash = Record<string, Omit<RouteDefinition, 'path'>>;
 export type RouteTable = readonly RouteDefinition[] | RouteHash;
 export interface MountOptions { parent?: string; controller?: object; owner?: ApplicationInstance<object, unknown> }
 export interface RouteDefinition {
-  name?: string; path: string; children?: RouteTable; meta?: Record<string, unknown>;
+  name?: string; path: string; children?: RouteTable; meta?: Record<string, unknown>; data?: unknown;
   redirect?: Redirect;
   handler?: string | RouteHandler;
 }

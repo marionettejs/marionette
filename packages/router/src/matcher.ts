@@ -54,7 +54,7 @@ function snapshotRoutes(routes: RouteTable, controller: object): RegisteredRoute
   const array = Array.isArray(routes);
   const prototype = !array && routes && typeof routes === 'object' ? Object.getPrototypeOf(routes) : undefined;
   if (!array && prototype !== Object.prototype && prototype !== null) {throw new TypeError('mount() requires an array of route definitions or a route hash');}
-  const definitions: readonly RouteDefinition[] = array ? routes : Object.entries(routes).map(([name, definition]) => ({ ...definition, name }));
+  const definitions: readonly RouteDefinition[] = array ? routes : Object.entries(routes).map(([path, definition]) => ({ ...definition, path }));
   return definitions.map(definition => {
     assertDefinition(definition);
     const handler = definition.handler === undefined ? undefined : resolveMethod(controller, definition.handler, definition.name ?? definition.path).bind(controller) as RouteHandler;
@@ -84,6 +84,7 @@ function compileNode(definition: RegisteredRoute, parent: Node, state: State, mo
     path,
     names: ownNames,
     meta: { ...definition.meta },
+    data: definition.data,
   };
   const node = {
     path,
@@ -137,6 +138,7 @@ function toResult(route: Route, params: Record<string, string>, target: URL): Re
       path: item.path,
       params: pick(params, item.names),
       meta: { ...item.meta },
+      data: item.data,
     })),
     redirect: route.redirect,
     handler: route.handler,

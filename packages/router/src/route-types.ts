@@ -57,7 +57,7 @@ type NodeSpecs<Node, Parent extends string> = Node extends { path: infer Path ex
 type TableSpecs<R extends RouteTable, Parent extends string = ''> = R extends readonly (infer Node)[]
   ? number extends R['length'] ? RouteSpec : NodeSpecs<Node, Parent>
   : string extends keyof R ? RouteSpec
-    : { [Name in keyof R & string]: NodeSpecs<Omit<R[Name], 'name'> & { name: Name }, Parent> }[keyof R & string];
+    : { [Path in keyof R & string]: NodeSpecs<Omit<R[Path], 'path'> & { path: Path }, Parent> }[keyof R & string];
 
 /** Names from arrays, route hashes and their literal children; dynamic tables use string. */
 export type RouteNames<R extends RouteTable> = TableSpecs<R>['name'];
