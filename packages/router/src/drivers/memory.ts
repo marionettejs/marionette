@@ -321,6 +321,8 @@ class MemoryHistory {
   #start(init: Init, navigation = new Navigation()) {
     this.#supersedeOthers();
     this.#active.add(navigation);
+    const release = () => {this.#active.delete(navigation);};
+    navigation.finished.promise.then(release, release);
     navigation.dispatching = true;
     this.#dispatch(createEvent(navigation, init, this.#destination(init)));
     navigation.dispatching = false;

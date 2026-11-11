@@ -5,7 +5,8 @@ import { Router, memoryDriver } from '@mnjs/router';
 
 // Each process owns its rejection listener and GC roots. Exercise only public
 // router/driver behavior; no pending-set reads or private instrumentation.
-const modes = ['route-stop', 'route-unmount', 'route-navigate', 'driver-veto', 'retention'];
+const modes = ['route-stop', 'route-unmount', 'route-navigate', 'driver-veto', 'retention',
+  'memory-complete', 'memory-failed', 'memory-veto'];
 const mode = process.argv[2];
 if (!mode) {
   let failed = false;
@@ -16,6 +17,33 @@ if (!mode) {
     if (result.status !== 0) { failed = true; }
   }
   if (failed) { process.exitCode = 1; }
+} else if (mode.startsWith('memory-')) {
+  assert.ok(modes.includes(mode));
+  assert.equal(typeof globalThis.gc, 'function', 'Run with --expose-gc');
+  const driver = memoryDriver({ url: 'https://probe.test/outside' });
+  const failure = new Error('handler failure');
+  async function finish() {
+    const payload = { marker: 'captured handler data' };
+    const reference = new WeakRef(payload);
+    const listeners = new AbortController();
+    driver.addEventListener('navigate', event => {
+      event.intercept({ handler() {
+        assert.equal(payload.marker, 'captured handler data');
+        if (mode === 'memory-failed') { throw failure; }
+      } });
+      if (mode === 'memory-veto') { event.preventDefault(); }
+    }, { signal: listeners.signal });
+    const result = driver.navigate('/page');
+    const outcomes = await Promise.allSettled([result.committed, result.finished]);
+    assert.equal(outcomes[1].status, mode === 'memory-complete' ? 'fulfilled' : 'rejected');
+    listeners.abort();
+    return reference;
+  }
+  const reference = await finish();
+  for (let index = 0; index < 12; index++) { await turn(); globalThis.gc(); }
+  const retained = reference.deref() !== undefined;
+  console.log(JSON.stringify({ mode, retained, current: driver.currentEntry.url }));
+  assert.equal(retained, false, 'A live memory driver must release its final settled handler data');
 } else if (mode === 'retention') {
   assert.equal(typeof globalThis.gc, 'function', 'Run with --expose-gc');
   const driver = memoryDriver({ url: 'https://probe.test/outside' });
@@ -32,7 +60,8 @@ if (!mode) {
   }
   for (let index = 0; index < 256; index++) { await veto(index); }
   listeners.abort();
-  // Retire the driver's last veto too, then keep the stopped router reachable.
+  // Commit an ordinary route before stopping; final-driver-handler retention
+  // has separate cases above. Keep the stopped router reachable during GC.
   assert.equal(await router.navigate('/page').finished, true);
   router.stop();
   for (let index = 0; index < 12; index++) { await turn(); globalThis.gc(); }

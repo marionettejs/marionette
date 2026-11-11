@@ -69,6 +69,49 @@ async function rejectionOf(promise) {
   throw new Error('Expected the promise to reject');
 }
 
+for (const outcome of ['complete', 'failed']) {
+  it(`preserves the settled ${outcome} signal when later navigation starts`, async() => {
+    const driver = memoryDriver({ url: 'https://signals.example/' });
+    const signals = []; const failure = new Error('independent handler failure');
+    driver.addEventListener('navigate', event => {
+      signals.push(event.signal);
+      event.intercept({ handler() {
+        if (outcome === 'failed' && event.destination.url.endsWith('/first')) { throw failure; }
+      } });
+    });
+    const first = driver.navigate('/first');
+    await first.committed;
+    if (outcome === 'failed') { await assert.rejects(first.finished, error => error === failure); } else { await first.finished; }
+    assert.equal(signals[0].aborted, false);
+    await driver.navigate('/second').finished;
+    assert.equal(signals[0].aborted, false);
+    assert.equal(signals[1].aborted, false);
+  });
+}
+
+it('keeps committed pending navigation supersedable after an older attempt settles', async() => {
+  const driver = memoryDriver({ url: 'https://signals.example/' });
+  const firstWork = Promise.withResolvers(); const secondWork = Promise.withResolvers(); const signals = [];
+  driver.addEventListener('navigate', event => {
+    signals.push(event.signal);
+    event.intercept({ handler() {
+      if (event.destination.url.endsWith('/first')) { return firstWork.promise; }
+      if (event.destination.url.endsWith('/second')) { return secondWork.promise; }
+    } });
+  });
+  const first = driver.navigate('/first'); await first.committed;
+  const second = driver.navigate('/second'); await second.committed;
+  await assert.rejects(first.finished, { name: 'AbortError' });
+  assert.equal(signals[1].aborted, false);
+  const third = driver.navigate('/third');
+  assert.equal(signals[1].aborted, true);
+  await assert.rejects(second.finished, { name: 'AbortError' }); await third.finished;
+  firstWork.reject(new Error('obsolete first work')); secondWork.resolve();
+  await Promise.resolve();
+  assert.equal(driver.currentEntry.url, 'https://signals.example/third');
+  assert.equal(signals[2].aborted, false);
+});
+
 describe('memoryDriver', () => {
   it('keeps document activation distinct from later same-document navigation types', async() => {
     const activation = { navigationType: 'traverse' };
