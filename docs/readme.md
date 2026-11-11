@@ -56,6 +56,7 @@ contracts. When upgrading from v4, start with the [migration guide](guides/migra
 - [@mnjs/radio: channels and requests](packages/radio.md): scoped communication, request/reply handlers, and cleanup.
 - [@mnjs/utils](packages/utils.md): standalone component and object utilities.
 - [@mnjs/adapters](packages/adapters.md): optional Backbone, XState, Lit, Morphdom, and jQuery contracts.
+- [@mnjs/html](../packages/html/guide.md): optional browser templates, directive lifetimes and Marionette DOM integration; the separately versioned 1.0.0 candidate is unpublished.
 - [Renderer and data setup](integrations/setup.md): configure Lit and `@mnjs/data`.
 
 The [records source](../examples/records/src/main.js) is included for reading alongside the lesson. Its [README](../examples/records/README.md) explains the repository development commands.

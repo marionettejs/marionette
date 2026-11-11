@@ -2,6 +2,11 @@
 
 [API index](../../api.md) · [Runtime configuration](../runtime.md) · [View rendering](../shared/view-bindings.md#templates-and-data)
 
+For renderer-specific integration, use Marionette’s [`@mnjs/adapters/dom/lit-html`](../../integrations/setup.md#configure-once) adapter with Lit template
+results, or the optional [@mnjs/html DOM adapter](../../../packages/html/guide.md#choosing-a-dom-integration)
+with that package's results and Marionette-owned events. Native HTML string output
+can retain the default DomApi. Neither optional adapter becomes a core dependency.
+
 Choose an existing integration when it fits. A renderer evaluates a template; DomApi applies the output and performs DOM operations; EventDelegator installs DOM listeners. These independent boundaries let a View keep its lifecycle and ownership rules while changing its integration.
 
 ## Renderer

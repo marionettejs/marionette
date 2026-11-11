@@ -1,0 +1,179 @@
+{
+  "package": "lit-html@3.3.3",
+  "archive": "https://registry.npmjs.org/lit-html/-/lit-html-3.3.3.tgz",
+  "integrity": "sha512-el8M6jK2o3RXBnrSHX3ZKrsN8zEV63pSExTO1wYJz7QndGYZ8353e2a5PPX+qHe2aGayfnchQmkAojaWAREOIA==",
+  "retainedMetadata": {
+    "LICENSE": "2b66f9390afde29edfe4314daff93f01fb182e1178053e228120178987e5db75",
+    "package.json": "9c0052af049941508481d808ff092dc8b9077faa58dad60316c24832089487e6"
+  },
+  "recoverableSources": [
+    {
+      "file": "async-directive.ts",
+      "map": "development/async-directive.js.map",
+      "source": "../src/async-directive.ts",
+      "sha256": "5373a7ad996bed00cfd110380885ca875bba0d2faaa0ebeab9579280f8af6e5b"
+    },
+    {
+      "file": "directive-helpers.ts",
+      "map": "development/directive-helpers.js.map",
+      "source": "../src/directive-helpers.ts",
+      "sha256": "224fa422739021f17900585affa5abf009b589b4177d9f64605ebda8f9f3dddf"
+    },
+    {
+      "file": "directive.ts",
+      "map": "development/directive.js.map",
+      "source": "../src/directive.ts",
+      "sha256": "ee982b8280e25588ab0c5ba72f86c004a0e9bd5c5fda62fec1479a53dfbcf29a"
+    },
+    {
+      "file": "directives/async-append.ts",
+      "map": "development/directives/async-append.js.map",
+      "source": "../../src/directives/async-append.ts",
+      "sha256": "6f1692671f971345f092e3592b067fce6809a3cb98e495b8a19262f3f68121da"
+    },
+    {
+      "file": "directives/async-replace.ts",
+      "map": "development/directives/async-replace.js.map",
+      "source": "../../src/directives/async-replace.ts",
+      "sha256": "d28883d64f341294e0b1200ee43139c40981befb6f9f6509227f0f154ca5a135"
+    },
+    {
+      "file": "directives/cache.ts",
+      "map": "development/directives/cache.js.map",
+      "source": "../../src/directives/cache.ts",
+      "sha256": "5208578d0cacba7cfe38cfcd7562f3685bdb558306eb6f29b6dc48740d954540"
+    },
+    {
+      "file": "directives/choose.ts",
+      "map": "development/directives/choose.js.map",
+      "source": "../../src/directives/choose.ts",
+      "sha256": "0fdcd2b4edfac6af753cad7e1ac160f021d533a526ac931beecbe7dc0909dd1f"
+    },
+    {
+      "file": "directives/class-map.ts",
+      "map": "development/directives/class-map.js.map",
+      "source": "../../src/directives/class-map.ts",
+      "sha256": "827bed7cd0b84ce6e7ec283b53f8df576f28e335d8d592d2791a40a8b92ef81c"
+    },
+    {
+      "file": "directives/guard.ts",
+      "map": "development/directives/guard.js.map",
+      "source": "../../src/directives/guard.ts",
+      "sha256": "e6917cbfeac525b1a4a8745d4492005a501c5b2ed278d7fa3e4ff69f1f66cace"
+    },
+    {
+      "file": "directives/if-defined.ts",
+      "map": "development/directives/if-defined.js.map",
+      "source": "../../src/directives/if-defined.ts",
+      "sha256": "b09210983acc6a927e92cb1bd6f0d986305186288a6fb3e1dbbc57b4ec8c947c"
+    },
+    {
+      "file": "directives/join.ts",
+      "map": "development/directives/join.js.map",
+      "source": "../../src/directives/join.ts",
+      "sha256": "5ec240a65118a80bbe561489967e85589030025c4504430561c3236380ad339b"
+    },
+    {
+      "file": "directives/keyed.ts",
+      "map": "development/directives/keyed.js.map",
+      "source": "../../src/directives/keyed.ts",
+      "sha256": "09d6be13b513a7449788aecc17044f37d03880c5c5c2705ef87c6613efae4a5b"
+    },
+    {
+      "file": "directives/live.ts",
+      "map": "development/directives/live.js.map",
+      "source": "../../src/directives/live.ts",
+      "sha256": "c9f7e26f542f938488520fdbf98442d4e34214634f232638c12798b2d4ab84b8"
+    },
+    {
+      "file": "directives/map.ts",
+      "map": "development/directives/map.js.map",
+      "source": "../../src/directives/map.ts",
+      "sha256": "aead69a25b3aa038c85a257b98470975a03f6a7bab6681e3b87773d8f0e8b480"
+    },
+    {
+      "file": "directives/private-async-helpers.ts",
+      "map": "development/directives/private-async-helpers.js.map",
+      "source": "../../src/directives/private-async-helpers.ts",
+      "sha256": "5047e42f687403c9b6439ed0792b70e98a743ffed6565b4e0589f89aafd1af9e"
+    },
+    {
+      "file": "directives/range.ts",
+      "map": "development/directives/range.js.map",
+      "source": "../../src/directives/range.ts",
+      "sha256": "f941f13905a0b032c032e52fefbc21c14edffe99bd7341e66682cff33ce0d468"
+    },
+    {
+      "file": "directives/ref.ts",
+      "map": "development/directives/ref.js.map",
+      "source": "../../src/directives/ref.ts",
+      "sha256": "b5527cfb25def3d1b3654bafab31745f7c6720338a4fc46bfded3ad9b8c32f3d"
+    },
+    {
+      "file": "directives/repeat.ts",
+      "map": "development/directives/repeat.js.map",
+      "source": "../../src/directives/repeat.ts",
+      "sha256": "0ed97c8b9ccc3df1dc1e82df938609439d89de5e0e8a0acc8c357de1761b3d06"
+    },
+    {
+      "file": "directives/style-map.ts",
+      "map": "development/directives/style-map.js.map",
+      "source": "../../src/directives/style-map.ts",
+      "sha256": "dacc6be0952385c65aad5841486523d86fd33a46eb3ab111610df7a94944eb0e"
+    },
+    {
+      "file": "directives/template-content.ts",
+      "map": "development/directives/template-content.js.map",
+      "source": "../../src/directives/template-content.ts",
+      "sha256": "19d31f3764f6906f5ad983d17fefb515105c0579e6c4e9fced28b7921f096c34"
+    },
+    {
+      "file": "directives/unsafe-html.ts",
+      "map": "development/directives/unsafe-html.js.map",
+      "source": "../../src/directives/unsafe-html.ts",
+      "sha256": "0202cd849b0b919c9bf45d4cf5640c8eaa963fbccea331a65bfa1b76387ed02f"
+    },
+    {
+      "file": "directives/unsafe-mathml.ts",
+      "map": "development/directives/unsafe-mathml.js.map",
+      "source": "../../src/directives/unsafe-mathml.ts",
+      "sha256": "07eeaff758341d198a1b3a37a61d06cc8b3e40d7e44fa6c299afed4b32369534"
+    },
+    {
+      "file": "directives/unsafe-svg.ts",
+      "map": "development/directives/unsafe-svg.js.map",
+      "source": "../../src/directives/unsafe-svg.ts",
+      "sha256": "e84a74193149832cdefeb86c2feed2005a14f40b1f91863c200542b6db9faa08"
+    },
+    {
+      "file": "directives/until.ts",
+      "map": "development/directives/until.js.map",
+      "source": "../../src/directives/until.ts",
+      "sha256": "bc8dbd688a3e9ce34709391beb7b968a3c3eda1a8e285176cb0b66fc1ccabc4c"
+    },
+    {
+      "file": "directives/when.ts",
+      "map": "development/directives/when.js.map",
+      "source": "../../src/directives/when.ts",
+      "sha256": "f53fddede1588d0cce3ad222a9fb6d6a86a859f9cae1eee7952a00f8f22c2575"
+    },
+    {
+      "file": "is-server.ts",
+      "map": "development/is-server.js.map",
+      "source": "../src/is-server.ts",
+      "sha256": "f663450ae7a2201a09188e87db88f19c3ae9eb8bc4e5deef6dcac88a20458e38"
+    },
+    {
+      "file": "lit-html.ts",
+      "map": "development/lit-html.js.map",
+      "source": "../src/lit-html.ts",
+      "sha256": "ec498c043cf596ba4b4c8e5bc11b8b5755c302d6f908bc167dd794ed1908153e"
+    },
+    {
+      "file": "static.ts",
+      "map": "development/static.js.map",
+      "source": "../src/static.ts",
+      "sha256": "9602fbddb55cecdb24958eb2aa21c50bbf370980ad5d4184c0823f9a67a91fc1"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync, mkdirSync, copyFileSync, readFileSync, writeFileSync, rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {spawnSync} from 'node:child_process';
+
+test('lock validator rejects incomplete optional platform metadata', () => {
+  const root = mkdtempSync(join(tmpdir(), 'html-lock-'));
+  try {
+    mkdirSync(join(root, 'scripts'));
+    copyFileSync(new URL('../scripts/check-lockfile.mjs', import.meta.url), join(root, 'scripts/check-lockfile.mjs'));
+    copyFileSync(new URL('../package.json', import.meta.url), join(root, 'package.json'));
+    const lock = JSON.parse(readFileSync(new URL('../package-lock.json', import.meta.url)));
+    const run = () => {
+      writeFileSync(join(root, 'package-lock.json'), JSON.stringify(lock));
+      return spawnSync(process.execPath, [join(root, 'scripts/check-lockfile.mjs')], {encoding: 'utf8'});
+    };
+    assert.equal(run().status, 0);
+    const entry = Object.values(lock.packages).find(value => value.integrity);
+    const validIntegrity = entry.integrity;
+    for (const invalid of ['sha512-', 'sha512-YQ==', 'sha512-' + 'A'.repeat(86) + '==junk']) {
+      entry.integrity = invalid;
+      const rejected = run();
+      assert.notEqual(rejected.status, 0);
+      assert.match(rejected.stderr, /invalid pinned SHA-512 integrity/);
+    }
+    entry.integrity = validIntegrity;
+    lock.packages['node_modules/rollup/node_modules/@rollup/rollup-linux-x64-gnu'] = {dev: true, optional: true};
+    const failed = run();
+    assert.notEqual(failed.status, 0);
+    assert.match(failed.stderr, /missing version, including optional platform dependencies/);
+  } finally {
+    rmSync(root, {recursive: true, force: true});
+  }
+});

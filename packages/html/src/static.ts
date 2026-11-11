@@ -1,0 +1,199 @@
+/**
+ * @license
+ * Copyright 2020 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+import {
+  html as coreHtml,
+  svg as coreSvg,
+  mathml as coreMathml,
+  TemplateResult,
+} from './index.js';
+
+export interface StaticValue {
+  /** The value to interpolate as-is into the template. */
+  _$mnHtmlStatic$: string;
+
+  /**
+   * A value that can't be decoded from ordinary JSON, make it harder for
+   * an attacker-controlled data that goes through JSON.parse to produce a valid
+   * StaticValue.
+   */
+  r: typeof brand;
+}
+
+/**
+ * Prevents JSON injection attacks.
+ *
+ * The goals of this brand:
+ *   1) fast to check
+ *   2) code is small on the wire
+ *   3) multiple versions of Lit in a single page will all produce mutually
+ *      interoperable StaticValues
+ *   4) normal JSON.parse (without an unusual reviver) can not produce a
+ *      StaticValue
+ *
+ * Symbols satisfy (1), (2), and (4). We use Symbol.for to satisfy (3), but
+ * we don't care about the key, so we break ties via (2) and use the empty
+ * string.
+ */
+const brand = Symbol.for('');
+
+/** Safely extracts the string part of a StaticValue. */
+const unwrapStaticValue = (value: unknown): string | undefined => {
+  if ((value as Partial<StaticValue>)?.r !== brand) {
+    return undefined;
+  }
+  return (value as Partial<StaticValue>)?.['_$mnHtmlStatic$'];
+};
+
+/**
+ * Wraps a string so that it behaves like part of the static template
+ * strings instead of a dynamic value.
+ *
+ * Users must take care to ensure that adding the static string to the template
+ * results in well-formed HTML, or else templates may break unexpectedly.
+ *
+ * Note that this function is unsafe to use on untrusted content, as it will be
+ * directly parsed into HTML. Do not pass user input to this function
+ * without sanitizing it.
+ *
+ * Static values can be changed, but they will cause a complete re-render
+ * since they effectively create a new template.
+ */
+export const unsafeStatic = (value: string): StaticValue => ({
+  ['_$mnHtmlStatic$']: value,
+  r: brand,
+});
+
+const textFromStatic = (value: StaticValue) => {
+  const text = unwrapStaticValue(value);
+  if (text !== undefined) {
+    return text;
+  } else {
+    throw new Error(
+      `Value passed to 'literal' function must be a 'literal' result: ${value}. Use 'unsafeStatic' to pass non-literal values, but
+            take care to ensure page security.`
+    );
+  }
+};
+
+/**
+ * Tags a string literal so that it behaves like part of the static template
+ * strings instead of a dynamic value.
+ *
+ * The only values that may be used in template expressions are other tagged
+ * `literal` results or `unsafeStatic` values (note that untrusted content
+ * should never be passed to `unsafeStatic`).
+ *
+ * Users must take care to ensure that adding the static string to the template
+ * results in well-formed HTML, or else templates may break unexpectedly.
+ *
+ * Static values can be changed, but they will cause a complete re-render since
+ * they effectively create a new template.
+ */
+export const literal = (
+  strings: TemplateStringsArray,
+  ...values: unknown[]
+): StaticValue => ({
+  ['_$mnHtmlStatic$']: values.reduce(
+    (acc, v, idx) => acc + textFromStatic(v as StaticValue) + strings[idx + 1],
+    strings[0]
+  ) as string,
+  r: brand,
+});
+
+interface StaticStringsCache extends Map<string, StaticStringsCache> {
+  strings?: TemplateStringsArray;
+}
+
+/**
+ * Wraps a lit-html template tag (`html` or `svg`) to add static value support.
+ */
+export const withStatic =
+  (coreTag: typeof coreHtml | typeof coreSvg | typeof coreMathml) => {
+  // Each tag owns its cache so parsed HTML/SVG/MathML templates cannot alias.
+  const stringsCache: StaticStringsCache = new Map();
+  return (strings: TemplateStringsArray, ...values: unknown[]): TemplateResult => {
+    const l = values.length;
+    let staticValue: string | undefined;
+    let dynamicValue: unknown;
+    const staticStrings: Array<string> = [];
+    const dynamicValues: Array<unknown> = [];
+    let i = 0;
+    let hasStatics = false;
+    let s: string;
+
+    while (i < l) {
+      s = strings[i];
+      // Collect any unsafeStatic values, and their following template strings
+      // so that we treat a run of template strings and unsafe static values as
+      // a single template string.
+      while (
+        i < l &&
+        ((dynamicValue = values[i]),
+        (staticValue = unwrapStaticValue(dynamicValue))) !== undefined
+      ) {
+        s += staticValue + strings[++i];
+        hasStatics = true;
+      }
+      // If the last value is static, we don't need to push it.
+      if (i !== l) {
+        dynamicValues.push(dynamicValue);
+      }
+      staticStrings.push(s);
+      i++;
+    }
+    // If the last value isn't static (which would have consumed the last
+    // string), then we need to add the last string.
+    if (i === l) {
+      staticStrings.push(strings[l]);
+    }
+
+    if (hasStatics) {
+      // Follow the actual segment boundaries instead of serializing a key.
+      let cache = stringsCache;
+      for (const segment of staticStrings) {
+        let next = cache.get(segment);
+        if (next === undefined) cache.set(segment, (next = new Map()));
+        cache = next;
+      }
+      strings = cache.strings!;
+      if (strings === undefined) {
+        // Beware: in general this pattern is unsafe, and doing so may bypass
+        // lit's security checks and allow an attacker to execute arbitrary
+        // code and inject arbitrary content.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (staticStrings as any).raw = staticStrings;
+        cache.strings = strings = staticStrings as unknown as TemplateStringsArray;
+      }
+      values = dynamicValues;
+    }
+    return coreTag(strings, ...values);
+  };
+};
+
+/**
+ * Interprets a template literal as an HTML template that can efficiently
+ * render to and update a container.
+ *
+ * Includes static value support from `lit-html/static.js`.
+ */
+export const html = withStatic(coreHtml);
+
+/**
+ * Interprets a template literal as an SVG template that can efficiently
+ * render to and update a container.
+ *
+ * Includes static value support from `lit-html/static.js`.
+ */
+export const svg = withStatic(coreSvg);
+
+/**
+ * Interprets a template literal as MathML fragment that can efficiently render
+ * to and update a container.
+ *
+ * Includes static value support from `lit-html/static.js`.
+ */
+export const mathml = withStatic(coreMathml);

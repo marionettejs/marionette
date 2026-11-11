@@ -1,0 +1,237 @@
+{
+  "name": "@mnjs/html",
+  "version": "1.0.0",
+  "description": "Lit-derived templates with Marionette-owned events and lifecycle.",
+  "type": "module",
+  "license": "BSD-3-Clause AND MIT",
+  "sideEffects": [
+    "./dist/index.js",
+    "./dist/development/index.js",
+    "./dist/marionette.js",
+    "./dist/development/marionette.js",
+    "./dist/template.js",
+    "./dist/development/template.js"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/development/index.d.ts",
+      "development": "./dist/development/index.js",
+      "default": "./dist/index.js"
+    },
+    "./marionette": {
+      "types": "./dist/development/marionette.d.ts",
+      "development": "./dist/development/marionette.js",
+      "default": "./dist/marionette.js"
+    },
+    "./directive": {
+      "types": "./dist/development/directive.d.ts",
+      "development": "./dist/development/directive.js",
+      "default": "./dist/directive.js"
+    },
+    "./async-directive": {
+      "types": "./dist/development/async-directive.d.ts",
+      "development": "./dist/development/async-directive.js",
+      "default": "./dist/async-directive.js"
+    },
+    "./directive-helpers": {
+      "types": "./dist/development/directive-helpers.d.ts",
+      "development": "./dist/development/directive-helpers.js",
+      "default": "./dist/directive-helpers.js"
+    },
+    "./directives/async-append.js": {
+      "types": "./dist/development/directives/async-append.d.ts",
+      "development": "./dist/development/directives/async-append.js",
+      "default": "./dist/directives/async-append.js"
+    },
+    "./directives/async-replace.js": {
+      "types": "./dist/development/directives/async-replace.d.ts",
+      "development": "./dist/development/directives/async-replace.js",
+      "default": "./dist/directives/async-replace.js"
+    },
+    "./directives/cache.js": {
+      "types": "./dist/development/directives/cache.d.ts",
+      "development": "./dist/development/directives/cache.js",
+      "default": "./dist/directives/cache.js"
+    },
+    "./directives/choose.js": {
+      "types": "./dist/development/directives/choose.d.ts",
+      "development": "./dist/development/directives/choose.js",
+      "default": "./dist/directives/choose.js"
+    },
+    "./directives/class-map.js": {
+      "types": "./dist/development/directives/class-map.d.ts",
+      "development": "./dist/development/directives/class-map.js",
+      "default": "./dist/directives/class-map.js"
+    },
+    "./directives/guard.js": {
+      "types": "./dist/development/directives/guard.d.ts",
+      "development": "./dist/development/directives/guard.js",
+      "default": "./dist/directives/guard.js"
+    },
+    "./directives/if-defined.js": {
+      "types": "./dist/development/directives/if-defined.d.ts",
+      "development": "./dist/development/directives/if-defined.js",
+      "default": "./dist/directives/if-defined.js"
+    },
+    "./directives/join.js": {
+      "types": "./dist/development/directives/join.d.ts",
+      "development": "./dist/development/directives/join.js",
+      "default": "./dist/directives/join.js"
+    },
+    "./directives/keyed.js": {
+      "types": "./dist/development/directives/keyed.d.ts",
+      "development": "./dist/development/directives/keyed.js",
+      "default": "./dist/directives/keyed.js"
+    },
+    "./directives/live.js": {
+      "types": "./dist/development/directives/live.d.ts",
+      "development": "./dist/development/directives/live.js",
+      "default": "./dist/directives/live.js"
+    },
+    "./directives/map.js": {
+      "types": "./dist/development/directives/map.d.ts",
+      "development": "./dist/development/directives/map.js",
+      "default": "./dist/directives/map.js"
+    },
+    "./directives/range.js": {
+      "types": "./dist/development/directives/range.d.ts",
+      "development": "./dist/development/directives/range.js",
+      "default": "./dist/directives/range.js"
+    },
+    "./directives/repeat.js": {
+      "types": "./dist/development/directives/repeat.d.ts",
+      "development": "./dist/development/directives/repeat.js",
+      "default": "./dist/directives/repeat.js"
+    },
+    "./directives/style-map.js": {
+      "types": "./dist/development/directives/style-map.d.ts",
+      "development": "./dist/development/directives/style-map.js",
+      "default": "./dist/directives/style-map.js"
+    },
+    "./directives/until.js": {
+      "types": "./dist/development/directives/until.d.ts",
+      "development": "./dist/development/directives/until.js",
+      "default": "./dist/directives/until.js"
+    },
+    "./directives/when.js": {
+      "types": "./dist/development/directives/when.d.ts",
+      "development": "./dist/development/directives/when.js",
+      "default": "./dist/directives/when.js"
+    },
+    "./package.json": "./package.json",
+    "./directives/ref.js": {
+      "types": "./dist/development/directives/ref.d.ts",
+      "development": "./dist/development/directives/ref.js",
+      "default": "./dist/directives/ref.js"
+    },
+    "./directives/template-content.js": {
+      "types": "./dist/development/directives/template-content.d.ts",
+      "development": "./dist/development/directives/template-content.js",
+      "default": "./dist/directives/template-content.js"
+    },
+    "./directives/unsafe-html.js": {
+      "types": "./dist/development/directives/unsafe-html.d.ts",
+      "development": "./dist/development/directives/unsafe-html.js",
+      "default": "./dist/directives/unsafe-html.js"
+    },
+    "./directives/unsafe-svg.js": {
+      "types": "./dist/development/directives/unsafe-svg.d.ts",
+      "development": "./dist/development/directives/unsafe-svg.js",
+      "default": "./dist/directives/unsafe-svg.js"
+    },
+    "./directives/unsafe-mathml.js": {
+      "types": "./dist/development/directives/unsafe-mathml.d.ts",
+      "development": "./dist/development/directives/unsafe-mathml.js",
+      "default": "./dist/directives/unsafe-mathml.js"
+    },
+    "./static": {
+      "types": "./dist/development/static.d.ts",
+      "development": "./dist/development/static.js",
+      "default": "./dist/static.js"
+    },
+    "./directive.js": {
+      "types": "./dist/development/directive.d.ts",
+      "development": "./dist/development/directive.js",
+      "default": "./dist/directive.js"
+    },
+    "./async-directive.js": {
+      "types": "./dist/development/async-directive.d.ts",
+      "development": "./dist/development/async-directive.js",
+      "default": "./dist/async-directive.js"
+    },
+    "./directive-helpers.js": {
+      "types": "./dist/development/directive-helpers.d.ts",
+      "development": "./dist/development/directive-helpers.js",
+      "default": "./dist/directive-helpers.js"
+    },
+    "./static.js": {
+      "types": "./dist/development/static.d.ts",
+      "development": "./dist/development/static.js",
+      "default": "./dist/static.js"
+    },
+    "./is-server.js": {
+      "types": "./dist/development/is-server.d.ts",
+      "development": "./dist/development/is-server.js",
+      "default": "./dist/is-server.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/development/index.d.ts",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "PROVENANCE.md",
+    "COMPATIBILITY.md",
+    "src/",
+    "VALIDATION.md",
+    "guide.md",
+    "INTEGRATION.md",
+    "UPSTREAM.md",
+    "LIT_DIFFERENCES.md",
+    "RELEASE.md"
+  ],
+  "engines": {
+    "node": "^22.22.2 || >=24.15.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/build-production.mjs",
+    "test": "node --test --test-concurrency=1 test/*.test.mjs",
+    "test:development": "node --conditions=development --test --test-concurrency=1 test/*.test.mjs",
+    "check:types": "tsc -p test/tsconfig.json",
+    "check": "node scripts/check-lockfile.mjs && npm run check:upstream && npm run build && npm test && npm run test:development && npm run check:types && node scripts/check-package.mjs",
+    "prepack": "npm run check",
+    "test:browser": "node scripts/test-browser.mjs",
+    "size": "node scripts/measure-size.mjs",
+    "check:upstream": "node scripts/check-upstream.mjs",
+    "test:packed:browser": "node scripts/check-packed-browser.mjs"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "terser": "5.51.2",
+    "jsdom": "30.1.1",
+    "marionette": "5.0.1",
+    "lit-html": "3.3.3",
+    "@playwright/test": "1.63.0",
+    "rollup": "4.63.5"
+  },
+  "dependencies": {
+    "@types/trusted-types": "2.0.7"
+  },
+  "browserslist": [
+    "baseline widely available"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marionettejs/marionette.git",
+    "directory": "packages/html"
+  },
+  "homepage": "https://github.com/marionettejs/marionette/tree/master/packages/html#readme",
+  "bugs": {
+    "url": "https://github.com/marionettejs/marionette/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
