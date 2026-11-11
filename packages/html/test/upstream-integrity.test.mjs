@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {existsSync, mkdtempSync, mkdirSync, cpSync, copyFileSync, readFileSync, writeFileSync, rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 
 test('upstream integrity rejects changed, missing and extra fixtures and helper drift', () => {
@@ -40,7 +41,7 @@ test('upstream recovery rejects an unverified archive before creating a destinat
     const archive = join(root, 'invalid.tgz');
     writeFileSync(archive, 'not the pinned archive');
     const result = spawnSync(process.execPath, [
-      new URL('../scripts/recover-upstream.mjs', import.meta.url).pathname,
+      fileURLToPath(new URL('../scripts/recover-upstream.mjs', import.meta.url)),
       archive, join(root, 'recovered'),
     ], {encoding: 'utf8'});
     assert.notEqual(result.status, 0);

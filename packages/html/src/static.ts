@@ -4,9 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-// Any new exports need to be added to the export statement in
-// `packages/lit/src/index.all.ts`.
-
 import {
   html as coreHtml,
   svg as coreSvg,

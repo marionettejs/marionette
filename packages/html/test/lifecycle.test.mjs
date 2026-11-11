@@ -259,3 +259,53 @@ test('keyed reordering keeps subscriptions; deleting a key releases only that ke
     render(nothing, el);
     for (const {state} of trackers.values()) assert.equal(state.active, 0);
 });
+
+test('CollectionView root emptyView clears subscriptions and allows later template commits', () => {
+    const mn = runtime();
+    const { state, sub } = tracker();
+    const region = new mn.Region({ el: fixture() });
+    cleanup.push(() => region.destroy());
+    const Empty = mn.View.extend({ template: () => html`<b>empty</b>` });
+    let alternate = false;
+    const list = new mn.CollectionView({
+        emptyView: Empty,
+        template: () => alternate ? html`<section>${sub()}</section>` : html`<header>${sub()}</header>`,
+    });
+    region.show(list);
+    assert.equal(list.el.textContent, 'empty');
+    assert.equal(state.active, 0);
+    alternate = true;
+    list.emptyView = false;
+    list.render();
+    assert.equal(list.el.querySelector('section')?.textContent, 'sub');
+    assert.equal(state.active, 1);
+    const section = list.el.querySelector('section');
+    list.render();
+    assert.equal(list.el.querySelector('section'), section);
+    assert.equal(state.active, 1);
+    list.emptyView = Empty;
+    const child = new mn.View({ template: () => html`<i>child</i>` });
+    list.addChildView(child);
+    assert.equal(child.el.parentNode, list.el);
+    list.removeChildView(child);
+    assert.equal(list.el.textContent, 'empty');
+    assert.equal(state.active, 0);
+});
+test('adapter content clearing never reconnects a retired async template', async () => {
+    const el = fixture();
+    const pending = deferred();
+    const { state, sub } = tracker();
+    HtmlDomApi.notifyAttach(el);
+    HtmlDomApi.setContents(el, until(pending.promise, 'loading'));
+    HtmlDomApi.detachContents(el);
+    HtmlDomApi.setContents(el, html`<p>${sub('replacement')}</p>`);
+    cleanup.push(() => HtmlDomApi.notifyDetach(el));
+    HtmlDomApi.notifyDetach(el);
+    HtmlDomApi.notifyAttach(el);
+    pending.resolve(html`<b>retired</b>`);
+    await tick();
+    assert.equal(el.textContent, 'replacement');
+    assert.equal(state.active, 1);
+    HtmlDomApi.detachContents(el);
+    assert.equal(state.active, 0);
+});

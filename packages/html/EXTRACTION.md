@@ -1,7 +1,7 @@
 # Runtime-only extraction: 2026-11-08
 
 The initial package now contains the browser renderer and Marionette DOM API.
-Experimental compiler/Vite work is preserved separately, not discarded:
+The original extraction recorded a separate local compiler/Vite backup at the paths below. These are historical provenance references, not files shipped in this checkout; the backup contents have not been reverified from this checkout:
 
 - Full working-tree backup: `../mnjs-html-compiler-extracted-2026-11-08/full-working-tree/`.
 - Extracted files: `../mnjs-html-compiler-extracted-2026-11-08/extracted-files/`.

@@ -61,7 +61,7 @@ large numbers of unique static templates. Both cache designs retain templates.
 
 ## First-class Marionette DOM API
 
-The package exports HtmlDomApi plus named setContents, notifyAttach and notifyDetach from @mnjs/html/marionette. The default API remains compatible with runtime.setDomApi(HtmlDomApi). It does not mutate a global Marionette instance or replace other DOM methods.
+The package exports HtmlDomApi plus named setContents, notifyAttach and notifyDetach from @mnjs/html/marionette. The default API remains compatible with runtime.setDomApi(HtmlDomApi). It does not mutate a global Marionette instance. Its detachContents override disconnects and retires the cached part before clearing contents, preserving Marionette’s explicit remove-all contract without adding checks to ordinary template updates.
 
 Before: Marionette attachElContent → adapter setContents → public render → ChildPart commit. The adapter already looked up its WeakMap, then render looked up the root Part again and required a fresh renderBefore options object. First render called render(nothing) and render(value).
 

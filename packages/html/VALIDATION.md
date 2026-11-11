@@ -48,8 +48,7 @@ A separate, fixed 12-pair no-async sanity check compared only the lazy disposal
 hook change, with identical source toolchain and production builds. On this Mac,
 1,000-row synchronous mount medians were 3.60 ms in both arms; 20-update batches
 were 10.10 ms before and 9.80 ms after. The paired mount ratio's bootstrap 95%
-interval was 0.959–1.096. This small synthetic check found no material slowdown;
-it does not establish zero overhead, paint speed or application performance.
+interval was 0.959–1.096. That interval permits roughly a 9.6% mount slowdown, so this small synthetic check is inconclusive about material overhead. It does not establish zero overhead, paint speed or application performance.
 
 The package remains unpublished. CI is separately identified below; neither local checks nor CI establish
 registry contents or a deployed documentation website.
@@ -121,4 +120,4 @@ Earlier CPU and memory studies are preserved with their exact compiler-enabled
 runtime snapshots. Removing compiled handling changes the ordinary application
 hash, so old timings are historical evidence, not proof of this artifact's
 performance. No universal parity or leak-freedom claim is made. Review evidence
-and source hashes are retained separately in the repository.
+and source hashes were recorded in separate local archives; those historical archives are not included in this checkout and have not been reverified here.

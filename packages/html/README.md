@@ -78,7 +78,7 @@ See [COMPATIBILITY.md](COMPATIBILITY.md) for runtime contracts and security boun
 
 Text interpolation uses text nodes; ordinary attribute interpolation cannot escape into additional markup. Static template markup and explicit unsafe APIs are trusted author code. Properties such as `.innerHTML`, supplied Nodes and dangerous URLs still require application-level validation. Event restrictions do not make the renderer a sanitizer or security sandbox.
 
-Production has no custom sanitizer hooks. Default escaping and the `mnjs-html` Trusted Types policy remain enabled. The development build exposes optional sanitizer diagnostics; do not rely on a development-only policy to protect production. See the runtime contracts for CSP requirements.
+Production has no custom sanitizer hooks. Default escaping and the `mnjs-html` Trusted Types policy remain enabled. The development build exposes optional sanitizer hooks that can transform or reject values; do not rely on a development-only policy to protect production. See the runtime contracts for CSP requirements.
 
 ## Develop
 

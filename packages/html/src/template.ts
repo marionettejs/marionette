@@ -199,7 +199,7 @@ const getTemplateHtml = (
         } else if (match[DYNAMIC_TAG_NAME] !== undefined) {
           if (DEV_MODE) {
             throw new Error(
-              'Bindings in tag names are not supported. Use the html tag from @mnjs/html/static for trusted static tag names.'
+              'Bindings in tag names are not supported. Use the corresponding html, svg, or mathml tag from @mnjs/html/static for trusted static tag names.'
             );
           }
           regex = tagEndRegex;

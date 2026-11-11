@@ -39,6 +39,14 @@ export function notifyDetach(el: Element): void {
   contents.get(el)?.setConnected(false);
 }
 
+// Region clearing can remove renderer markers as well as ordinary contents.
+// Invalidate the part at that ownership boundary, not on every template update.
+function detachContents(el: Element): void {
+  contents.get(el)?.setConnected(false);
+  contents.delete(el);
+  el.replaceChildren();
+}
+
 /** Install with runtime.setDomApi(HtmlDomApi). Requires Marionette >= 5.0.1. */
-export const HtmlDomApi = {setContents, notifyAttach, notifyDetach};
+export const HtmlDomApi = {setContents, notifyAttach, notifyDetach, detachContents};
 export default HtmlDomApi;
