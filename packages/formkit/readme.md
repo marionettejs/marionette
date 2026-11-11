@@ -424,7 +424,7 @@ replace it. Async rules are guarded against stale values, rejection and teardown
 Current rule rejection becomes a failed validation and a public `validation-error`
 node event; obsolete results do not change current validation.
 
-Official MIT addons are consumer dependencies: install `@formkit/addons@2.1.2`
+Official MIT addons are consumer dependencies: install `@formkit/addons@^2.5.0`
 and pass plugin factories in `plugins`. Multi-step navigation, local storage,
 length countdown and floating labels are covered by integration tests. Plugin
 resources attached to window/document or external observers remain the plugin's
