@@ -35,7 +35,8 @@ function validateSlot(schema) {
 function validateFields(specs) {
   if(!Array.isArray(specs))throw new TypeError('Fields must be an array');
   const names=new Set();
-  for(const spec of specs){const type=spec.type??'text';if(!['text','group'].includes(type))throw new TypeError('Only text/group supported');if(!spec.name||names.has(spec.name))throw new TypeError('Unique sibling names required');names.add(spec.name);
+  for(const spec of specs){const type=spec.type??'text';if(!['text','checkbox','group'].includes(type))throw new TypeError('Only text/single checkbox/group supported');if(!spec.name||names.has(spec.name))throw new TypeError('Unique sibling names required');names.add(spec.name);
+    if(type==='checkbox'){if(spec.options!==undefined)throw new TypeError('Checkbox options are unsupported');for(const key of ['onValue','offValue'])if(spec[key]!==undefined&&spec[key]!==null&&!['string','number','boolean'].includes(typeof spec[key]))throw new TypeError('Checkbox values must be scalar');}
     if(type==='group')validateFields(spec.children??[]);
     else if(spec.children){if(Array.isArray(spec.children)||typeof spec.children!=='object')throw new TypeError('Text children must be named schema slots');for(const key of Object.keys(spec.children)){if(!['label','help'].includes(key))throw new TypeError('Only label/help schema slots supported');validateSlot(spec.children[key]);}}
   }
@@ -65,7 +66,8 @@ function createField(node,spec,view,initial) {
       for(const[name,slot]of slotControllers)if(name in nextSlots&&nextSlots[name]!==currentSlots[name])slot.update(nextSlots[name]);
       currentSlots=nextSlots;node.context.slots=Object.fromEntries(Object.keys(currentSlots).map(name=>[name,true]));renderer.refresh();
       }
-      for(const key of ['label','help','disabled','validation','validationVisibility'])node.props[key]=next[key]??(key==='validation'?'required':key==='validationVisibility'?'live':undefined);
+      if(node.props.type==='checkbox'){node.props.onValue=next.onValue===undefined?true:next.onValue;node.props.offValue=next.offValue===undefined?false:next.offValue;}
+      for(const key of ['label','help','disabled','validation','validationVisibility'])node.props[key]=next[key]??(key==='validationVisibility'?'live':undefined);
     }
     field.spec=next;
   },disposeView(remove=true){if(dead)return;dead=true;renderer?.destroy(remove);for(const slot of slotControllers.values())slot.destroy(remove);for(const child of children.values())child.disposeView(remove);if(remove)el.remove();},disposeNodes(){for(const child of children.values())child.disposeNodes();children.clear();node.destroy();},destroy(){if(dead)return;field.disposeView();field.disposeNodes();}};
@@ -76,8 +78,8 @@ function createField(node,spec,view,initial) {
 function reconcile(view,parent,map,specs,anchor,initial) {
   for(const spec of specs)if(map.has(spec.name)&&map.get(spec.name).node.props.type!==(spec.type??'text'))throw new TypeError('Changing an existing field type is unsupported');
   const staged=new Map();
-  try{for(const spec of specs){if(view._ending)break;if(map.has(spec.name))continue;const type=spec.type??'text',value=initial?.[spec.name]??(type==='group'?{}:'');const {children,...props}=spec;
-    const node=createNode({parent,name:spec.name,value,props:{...props,type,attrs:spec.attrs??{},id:`experiment-${view.cid}-${++view._fieldId}`,__slots:type==='group'?{default:true}:Object.fromEntries(Object.keys(children??{}).map(name=>[name,true])),validation:spec.validation??(type==='text'?'required':undefined),validationVisibility:spec.validationVisibility??'live'}});
+  try{for(const spec of specs){if(view._ending)break;if(map.has(spec.name))continue;const type=spec.type??'text',value=Object.hasOwn(initial??{},spec.name)?initial[spec.name]:spec.value;const {children,...props}=spec;
+    const node=createNode({parent,name:spec.name,value,props:{...props,type,attrs:spec.attrs??{},id:`experiment-${view.cid}-${++view._fieldId}`,__slots:type==='group'?{default:true}:Object.fromEntries(Object.keys(children??{}).map(name=>[name,true])),validation:spec.validation,validationVisibility:spec.validationVisibility??'live'}});
     staged.set(spec.name,createField(node,spec,view,value));
   }}catch(error){for(const field of staged.values())field.destroy();throw error;}
   if(view._ending){for(const field of staged.values())field.destroy();return;}

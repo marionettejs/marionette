@@ -39,6 +39,7 @@ export function renderSections({host,schema,context,metrics,slots={},reuseRoot=f
     function attr(name,value){if(name==='key')return;if(/^on[A-Z]/.test(name)){const event=name.slice(2).toLowerCase();const previous=listeners.get(event);if(previous===value)return;if(previous)element.removeEventListener(event,previous);if(typeof value==='function'){element.addEventListener(event,value);listeners.set(event,value);}else listeners.delete(event);return;}
       if(name==='innerHTML'){if(value)throw new TypeError('Raw icon HTML outside supported text slice');return;}
       if(name==='value'){const next=String(value??'');if(element.value!==next){element.value=next;metric('domWrites');}return;}
+      if(name==='checked'){const next=!!value;if(element.checked!==next){element.checked=next;metric('domWrites');}return;}
       if(name==='disabled'){const next=!!value&&value!=='false';if(element.disabled!==next){element.disabled=next;metric('domWrites');}return;}
       if(value===undefined||value===null||value===false){if(element.hasAttribute(name)){element.removeAttribute(name);metric('domWrites');}}else{const next=String(value);if(element.getAttribute(name)!==next){element.setAttribute(name,next);metric('domWrites');}}
     }
@@ -47,10 +48,11 @@ export function renderSections({host,schema,context,metrics,slots={},reuseRoot=f
     // those attributes (or remove them when the bag is cleared).
     const explicitAttrs=new Set(Object.keys(entry.attrs??{}));
     let boundKeys=[];if(entry.bind)binding(entry.bind,locals,owner,values=>{for(const key of boundKeys)if(!(key in(values??{})))attr(key,undefined);boundKeys=Object.keys(values??{}).filter(key=>!explicitAttrs.has(key));for(const key of boundKeys)attr(key,values[key]);});
-    for(const[name,value]of Object.entries(entry.attrs??{})){
-      if(value&&typeof value==='object'&&Object.hasOwn(value,'if')){binding(value.if,locals,owner,test=>attr(name,test?value.then:value.else));}
-      else binding(value,locals,owner,next=>attr(name,next));
+    function attributeValue(name,value,lifetime){
+      if(value&&typeof value==='object'&&Object.hasOwn(value,'if')){let branch=scope();lifetime.add(()=>branch.destroy());binding(value.if,locals,lifetime,test=>{branch.destroy();branch=scope();attributeValue(name,test?value.then:value.else,branch);});}
+      else binding(value,locals,lifetime,next=>attr(name,next));
     }
+    for(const[name,value]of Object.entries(entry.attrs??{}))attributeValue(name,value,owner);
     draw(entry.children,element,null,locals,owner);
   }
   try{draw(schema,host,null,{},root);}catch(error){dead=true;root.destroy();effects.clear();throw error;}
