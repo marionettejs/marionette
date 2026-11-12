@@ -6,18 +6,28 @@ const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), 'ut
 
 test('routing guidance links the released companion without broadening browser support', () => {
   const guide = read('docs/guides/routing.md');
-  const router = JSON.parse(read('packages/router/package.json'));
-  const html = JSON.parse(read('packages/html/package.json'));
-  assert(guide.includes(`@mnjs/router@${router.version}`));
-  assert(guide.includes(`@mnjs/html@${html.version}`));
+  const companions = JSON.parse(read('test/docs/companion-versions.json'));
+  for (const version of Object.values(companions)) { assert.match(version, /^\d+\.\d+\.\d+$/); }
+  assert(guide.includes(`@mnjs/router@${companions['@mnjs/router']}`));
+  assert(guide.includes(`@mnjs/html@${companions['@mnjs/html']}`));
   assert(guide.includes('node_modules/@mnjs/router/readme.md'));
-  assert(read('docs/packages/router.md').includes(`router-v${router.version}/packages/router`));
+  assert(read('docs/packages/router.md').includes(`router-v${companions['@mnjs/router']}/packages/router`));
   for (const capability of ['URLPattern', 'AbortSignal.any', 'Promise.withResolvers', 'URL.canParse', 'structuredClone']) {
     assert(guide.includes(capability), capability);
   }
   assert.match(guide, /Firefox and WebKit are untested/);
   assert.match(guide, /mountRoutes\(router\).*registers routes but does not activate/);
   assert.match(guide, /Stop retains registrations; destroy\s+unmounts them/);
+});
+
+test('consumer Router docs describe versions rather than temporary release preparation', () => {
+  const router = JSON.parse(read('packages/router/package.json'));
+  const page = read('docs/packages/router.md');
+  assert(page.includes(`Version ${router.version} updates`));
+  assert(page.includes('pre-v1 package'));
+  for (const path of ['docs/packages/router.md', 'docs/packages/adapters.md']) {
+    assert.doesNotMatch(read(path), /being prepared|preparation includes|work in progress/i);
+  }
 });
 
 test('consumer entrypoints preserve existing routers and expose companion guidance', () => {

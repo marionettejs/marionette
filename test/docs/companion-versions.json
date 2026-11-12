@@ -1,0 +1,5 @@
+{
+  "marionette": "5.0.1",
+  "@mnjs/router": "0.1.0",
+  "@mnjs/html": "1.0.0"
+}

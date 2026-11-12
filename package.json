@@ -1,7 +1,7 @@
 {
   "name": "marionette",
   "description": "A JavaScript library for structured interfaces, with explicit ownership and lifecycle. Built with agent-led development in mind.",
-  "version": "5.0.1",
+  "version": "5.1.0",
   "type": "module",
   "homepage": "https://marionettejs.com/",
   "engines": {
@@ -137,7 +137,8 @@
     "test:router-tooling": "node --test test/router/artifact.test.mjs",
     "test:router-browser": "playwright test --config playwright.router.config.mjs",
     "test:browser:core-release": "playwright test --config playwright.core-release.config.mjs",
-    "docs:check-router": "node test/docs/router-companion.mjs"
+    "docs:check-router": "node test/docs/router-companion.mjs",
+    "test:package-compatibility": "node test/package-compatibility/run.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"
@@ -200,8 +201,8 @@
     "packages/router"
   ],
   "dependencies": {
-    "@mnjs/radio": "5.0.1",
-    "@mnjs/utils": "5.0.1"
+    "@mnjs/radio": "5.1.0",
+    "@mnjs/utils": "5.1.0"
   },
   "overrides": {
     "@stryker-mutator/core": {

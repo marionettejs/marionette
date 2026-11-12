@@ -65,6 +65,7 @@ Reports still reject comparisons when browser or package versions differ.
 | Installed ESM/CJS/Vite/TypeScript and executable docs | `fixtures/` | `npm run test:fixtures -- --fixture esm-node` |
 | CLI, release, docs, performance and benchmark infrastructure | `tooling/`, `release/`, `docs/`, `performance/`, `agent-benchmark/` | `npm run test:tooling` |
 | Static production import graph | `source/` | `npm run test:source` |
+| Standalone Data and Data/Adapters against npm 5.0.1 and the local candidate | `package-compatibility/` | `npm run build && npm run test:package-compatibility` |
 | Built ESM/CJS/UMD exports | `dist/` | `npm run test:dist` |
 | Consumer documentation, package discovery and runnable recipes | `docs/`, `agent-docs/` | `npm run docs:check` |
 | Published Router/HTML example and TypeScript consumer (Node 24.15.0+) | `docs/router-companion.mjs` | `npm run docs:check-router` |

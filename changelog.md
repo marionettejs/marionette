@@ -9,6 +9,43 @@ For the current v4 → v5 changes and replacements, see the
 [migration guide](docs/guides/migration.md). Entries below describe each release
 at the time it shipped; older prerelease APIs may have been superseded.
 
+### v5.1.0
+
+> Apparently, “optional” and “worth a minor release” are not opposites. Marionette 5.1 gives HTML templates and feature-owned routing a proper place in the stack. Two more opinions. Neither compulsory.
+
+Marionette 5.1 brings two independently versioned companion packages into the
+recommended path for building new applications:
+
+* **`@mnjs/html`** provides tagged-template rendering, incremental DOM updates,
+  keyed lists, and directives, with a DOM API designed for Marionette-owned Views.
+  Keep interactions in `events`, `triggers`, and `ui`; let the template describe
+  the content.
+* **`@mnjs/router`** connects named URLs with feature-owned routes and Application
+  lifecycles. Features register their own routes, prepare their data, and manage
+  their child Applications without moving every destination into one central
+  routing file.
+* **Updated guides and agent skills** connect the first rendered View to composed
+  and routed features, with executable examples and guidance for testing readiness,
+  interactions, and teardown.
+
+The coordinated packages `marionette`, `@mnjs/utils`, `@mnjs/radio`, `@mnjs/data`,
+and `@mnjs/adapters` move to **5.1.0**. HTML, Router, and the test helpers retain
+their independent versioning. The pre-v1 Router **0.1.1** updates its Catalog
+example to HTML and its Desk instructions to accept a compatible Adapters version
+instead of pinning 5.0.1. Its runtime and public API are unchanged;
+it is published separately from the five coordinated packages. Neither HTML nor
+Router becomes a required core dependency. Adapters’ core peer and Data’s nonoptional Utils peer now accept
+`^5.0.1`; core, Utils, and Radio keep their exact shared-runtime alignment. Data
+uses the shared Utils instance rather than installing a private copy.
+
+Existing compatible renderers, data integrations, and host routers remain
+supported. This release introduces no core runtime API changes.
+
+Start with the [quick start](docs/quick-start.md), explore
+[HTML templates](packages/html/guide.md), or build a
+[routed feature](docs/packages/router.md). Check Router’s documented browser
+requirements before adopting it.
+
 ### @mnjs/test 1.0.0
 
 * Stabilize the existing mounting, readiness, owned-resource cleanup and optional

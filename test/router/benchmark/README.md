@@ -13,7 +13,7 @@ Keep its `router-candidate.json` receipt beside it; the archive source and harne
 revision are recorded separately. Run from the repository root:
 
 ```sh
-npm run performance:router -- --artifact /absolute/path/mnjs-router-0.1.0.tgz --sha256 RECORDED_SHA256 --output /absolute/path/new-study
+npm run performance:router -- --artifact /absolute/path/mnjs-router-0.1.1.tgz --sha256 RECORDED_SHA256 --output /absolute/path/new-study
 npm run performance:router -- --native --output /absolute/path/new-study --chromium-executable /absolute/path/chromium
 ```
 

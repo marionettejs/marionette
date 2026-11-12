@@ -6,8 +6,10 @@ tools. Both register beneath the named desk URL prefix; URL ancestry does not
 choose exclusive UI ownership or stop unrelated panes.
 
 Copy this folder into an ESM application with the router/Marionette peer plus
-@mnjs/adapters@5.0.1 and lit-html@3.3.3. PresentationView uses a function template
-and Lit DOM adapter; loaded content and error messages remain escaped text.
+`@mnjs/adapters` whose core peer range includes the installed Marionette version,
+and `lit-html@3.3.3`.
+PresentationView uses a function template and Lit DOM adapter; loaded content
+and error messages remain escaped text.
 Provide #main and #side:
 
 ```js

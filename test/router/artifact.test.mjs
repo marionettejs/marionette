@@ -167,6 +167,22 @@ test('neither preparation entry point accepts a publication mode', () => {
   }
 });
 
+test('registry peer selection requires registry mode and an explicit supported evidence version', () => {
+  const currentVersion = JSON.parse(readFileSync(join(root, 'package.json'))).version;
+  for (const [args, diagnostic] of [
+    [['--registry-peer-version', currentVersion], /requires --registry-peers/],
+    [['--registry-peers', '--registry-peer-version', '5.0.0'], /minimum 5.0.1 or current/],
+    [['--registry-peers', '--registry-peer-version', '^5.0.1'], /minimum 5.0.1 or current/],
+    [['--registry-peers', '--registry-peer-version', 'latest'], /minimum 5.0.1 or current/],
+  ]) {
+    const result = spawnSync(process.execPath, [join(root, 'test/router/tarball.mjs'), ...args], {
+      encoding: 'utf8', env: { ...process.env, npm_execpath: 'unused-before-argument-validation' },
+    });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, diagnostic);
+  }
+});
+
 test('binds preparation source to the archive instead of attributing it to a different verifier commit', () => {
   const commitA = 'a'.repeat(40);
   const commitB = 'b'.repeat(40);

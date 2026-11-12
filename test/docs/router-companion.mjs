@@ -8,12 +8,19 @@ const [major, minor] = process.versions.node.split('.').map(Number);
 assert(major > 24 || (major === 24 && minor >= 15), 'Router documentation check requires Node 24.15+');
 assert(process.env.npm_execpath, 'Run npm run docs:check-router');
 const root = resolve(import.meta.dirname, '../..');
+// Published evidence versions are independent of unreleased source manifests.
+const companions = JSON.parse(readFileSync(join(root, 'test/docs/companion-versions.json')));
 const directory = join(root, 'test/tmp/router-docs');
 mkdirSync(directory, { recursive: true });
 writeFileSync(join(directory, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
 const run = (file, args) => execFileSync(file, args, { cwd: directory, stdio: 'inherit', timeout: 180_000 });
 run(process.execPath, [process.env.npm_execpath, 'install', '--ignore-scripts', '--no-audit', '--no-fund',
-  'marionette@5.0.1', '@mnjs/router@0.1.0', '@mnjs/html@1.0.0', 'jsdom@30.1.0', 'typescript@6.0.3']);
+  ...Object.entries(companions).map(([name, version]) => `${name}@${version}`),
+  'jsdom@30.1.0', 'typescript@6.0.3']);
+for (const [name, version] of Object.entries(companions)) {
+  const installed = JSON.parse(readFileSync(join(directory, 'node_modules', name, 'package.json')));
+  assert.equal(installed.version, version, `${name} must match the recorded published evidence`);
+}
 for (const [name, paths] of [
   ['@mnjs/html', ['guide.md', 'LIT_DIFFERENCES.md']],
   ['@mnjs/router', ['readme.md', 'DESIGN.md', 'examples/catalog/catalog.mjs']],

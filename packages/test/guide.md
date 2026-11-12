@@ -793,7 +793,7 @@ described below; archive-specific native runner results belong with the release
 record.
 
 The 5.0.0 version in this historical table is not the current installation pin.
-Use the [installation instructions](readme.md#install) for Marionette 5.0.1 and
+Use the [installation instructions](readme.md#install) for Marionette 5.1.0 and
 the separately versioned `@mnjs/test` 1.0.0.
 
 | Entry / runner | Version and checks |

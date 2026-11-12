@@ -45,6 +45,9 @@ jobs:
       - name: Test packed testing-helper consumer (DOM)
         run: npm run test:helpers:consumer
 
+      - name: Test optional packages standalone and against minimum/candidate core
+        run: npm run test:package-compatibility
+
       - name: Prepare published HTML renderer for documentation
         run: npm run docs:prepare-html
 

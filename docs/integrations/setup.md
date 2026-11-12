@@ -4,10 +4,12 @@ Continue from the [quick start](../quick-start.md). This page adds `@mnjs/data` 
 
 ## Add observable data
 
-From the example project, install the data package at the same version as core:
+From the example project, install the current data package. Its nonoptional Utils
+peer accepts `^5.0.1`, using the same instance as core and Radio rather than a
+private copy; Data does not require an identical core version:
 
 ```sh
-npm install --ignore-scripts --save-exact @mnjs/data@5.0.1
+npm install --ignore-scripts --save-exact @mnjs/data@5.1.0
 ```
 
 Use a different source with its compatible provider when it better fits your application. Views using plain template data do not require this package.

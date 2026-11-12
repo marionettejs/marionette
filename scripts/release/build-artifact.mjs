@@ -4,7 +4,7 @@ import { appendFile, mkdir, readFile, readdir, realpath, writeFile } from 'node:
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import process from 'node:process';
 import { readArguments } from './arguments.mjs';
-import { releasePackages, stagedCoreManifest } from './packages.mjs';
+import { optionalPackagePeerRange, releasePackages, stagedCoreManifest } from './packages.mjs';
 import { publicationEnabled } from './publication.mjs';
 import { buildDevelopmentKit } from '../docs/development-kit.mjs';
 
@@ -128,14 +128,20 @@ for (const configuration of releasePackages) {
   if (manifest.version !== packageJson.version) {
     throw new Error(`${manifest.name} version ${manifest.version} does not match ${packageJson.version}.`);
   }
-  if (['radio', 'core', 'data'].includes(configuration.id) && manifest.dependencies?.['@mnjs/utils'] !== packageJson.version) {
+  if (['radio', 'core'].includes(configuration.id) && manifest.dependencies?.['@mnjs/utils'] !== packageJson.version) {
     throw new Error(`${manifest.name} utils dependency ${manifest.dependencies?.['@mnjs/utils'] || 'missing'} does not match ${packageJson.version}.`);
   }
   if (configuration.id === 'core' && manifest.dependencies?.['@mnjs/radio'] !== packageJson.version) {
     throw new Error(`Core Radio dependency ${manifest.dependencies?.['@mnjs/radio'] || 'missing'} does not match ${packageJson.version}.`);
   }
-  if (configuration.id === 'adapters' && manifest.peerDependencies?.marionette !== packageJson.version) {
-    throw new Error(`${manifest.name} Marionette peer ${manifest.peerDependencies?.marionette || 'missing'} does not match ${packageJson.version}.`);
+  if (configuration.id === 'data' && (manifest.peerDependencies?.['@mnjs/utils'] !== optionalPackagePeerRange ||
+      manifest.peerDependenciesMeta?.['@mnjs/utils']?.optional || manifest.dependencies?.['@mnjs/utils'] ||
+      manifest.optionalDependencies?.['@mnjs/utils'])) {
+    throw new Error(`${manifest.name} requires a nonoptional Utils peer ${optionalPackagePeerRange}, not a private dependency.`);
+  }
+  if (configuration.id === 'adapters' && (manifest.peerDependencies?.marionette !== optionalPackagePeerRange ||
+      manifest.peerDependenciesMeta?.marionette?.optional)) {
+    throw new Error(`${manifest.name} Marionette peer ${manifest.peerDependencies?.marionette || 'missing'}${manifest.peerDependenciesMeta?.marionette?.optional ? ' (optional)' : ''} must be a nonoptional ${optionalPackagePeerRange} peer.`);
   }
 
   const packedManifest = configuration.id === 'core' ?
