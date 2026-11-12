@@ -92,7 +92,6 @@ describe('Marionette Router construction and lifecycle', () => {
     expect(await router.navigate('/page').finished).toBe(false);
     expect(await router.refresh()).toBe(false);
     expect(await router.back()).toBe(false);
-    expect(router.updateState({ tab: 'stopped' })).toBe(false);
     expect(router.canGoBack()).toBe(false);
     expect(router.url('page')).toBe('/page');
     expect(router.match('/page').name).toBe('page');
@@ -208,7 +207,7 @@ describe('Marionette Router construction and lifecycle', () => {
     const isolatedOwner = own(new runtime.Application());
     const Router = routing.Router.extend({ Radio: runtime.Radio, State: runtime.Application.prototype.State });
     const router = own(new Router({ routes, driver: memory() }));
-    const pages = own(new routing.ChildAppSwitcher());
+    const pages = own(new routing.RouteApplication());
     expect(() => isolatedOwner.addChildApp('router', router)).toThrow(/same Marionette runtime/);
     expect(() => isolatedOwner.addChildApp('pages', pages)).toThrow(/same Marionette runtime/);
     expect(routing).not.toHaveProperty('createRouterClass');
@@ -219,7 +218,7 @@ describe('Marionette Router construction and lifecycle', () => {
 describe('child Application switching', () => {
   it('makes destruction terminal before hooks run and destroys its owned children', async() => {
     const owner = own(new Application());
-    const Switcher = routing.ChildAppSwitcher.extend({
+    const Switcher = routing.RouteApplication.extend({
       onBeforeDestroy() { this.attempted = this.switchTo('page'); },
     });
     const switcher = owner.addChildApp('pages', new Switcher());
@@ -236,15 +235,15 @@ describe('child Application switching', () => {
   });
 
   it('exports a switcher with same-instance reconstruction semantics', async() => {
-    expect(typeof routing.ChildAppSwitcher).toBe('function');
+    expect(typeof routing.RouteApplication).toBe('function');
     const owner = own(new Application());
     let preparations = 0;
     const Page = Application.extend({ prepareStart() { preparations++; } });
-    const switcher = owner.addChildApp('pages', new routing.ChildAppSwitcher());
+    const switcher = owner.addChildApp('pages', new routing.RouteApplication());
     const page = switcher.addChildApp('page', new Page());
     await switcher.start();
     expect(await switcher.switchTo('page')).toBe(page);
-    expect(await switcher.switchTo('page', { reconstruct: true })).toBe(page);
+    expect(await switcher.switchTo('page', { restart: true })).toBe(page);
     expect(switcher.getChildApp('page')).toBe(page);
     expect(preparations).toBe(2);
     owner.destroy();
@@ -265,7 +264,7 @@ describe('same-instance UI reconstruction', () => {
         this.showView();
       },
     });
-    const switcher = owner.addChildApp('pages', new routing.ChildAppSwitcher());
+    const switcher = owner.addChildApp('pages', new routing.RouteApplication());
     const page = switcher.addChildApp('page', new Page());
     try {
       await switcher.start();
@@ -275,7 +274,7 @@ describe('same-instance UI reconstruction', () => {
       expect(await switcher.switchTo('page')).toBe(page);
       expect(page.getView()).toBe(first);
       expect(region.el.querySelector('input').value).toBe('draft');
-      expect(await switcher.switchTo('page', { reconstruct: true })).toBe(page);
+      expect(await switcher.switchTo('page', { restart: true })).toBe(page);
       expect(switcher.getChildApp('page')).toBe(page);
       expect(first.isDestroyed()).toBe(true);
       expect(page.getView()).not.toBe(first);

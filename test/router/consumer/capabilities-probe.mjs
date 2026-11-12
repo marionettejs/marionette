@@ -35,7 +35,7 @@ try {
       assert.equal(globalThis.eagerAppImports, 0, `${name}: eager application must not be imported`);
       const api = await import('@mnjs/router');
       if (name === 'URLPattern') {
-        assert.throws(() => new api.Router({ driver: api.memoryDriver({ url: 'https://desk.example/' }), routes: { home: { path: '/' } } }), /URLPattern/);
+        assert.throws(() => new api.Router({ driver: api.memoryDriver({ url: 'https://desk.example/' }), routes: { '/': { name: 'home'} } }), /URLPattern/);
       }
     } finally {
       if (descriptor) { Object.defineProperty(owner, property, descriptor); } else { delete owner[property]; }

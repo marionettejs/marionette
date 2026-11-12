@@ -12,7 +12,7 @@ async function example(page, { initialRedirect = false, deferStart = false, cust
     contentType: 'text/javascript',
   }));
   await page.evaluate(async({ redirectInitially, deferInitialStart, preparesApplication }) => {
-    const { Router, ChildAppSwitcher } = await import('/router.js');
+    const { Router, RouteApplication } = await import('/router.js');
     const { Application, View } = await import('marionette');
     document.head.insertAdjacentHTML('beforeend', '<style>body{margin:0;min-height:3500px}#anchor{margin-top:1800px}</style>');
     document.body.insertAdjacentHTML('beforeend', '<input id="before"><input id="target"><div id="anchor">Anchor</div>');
@@ -28,7 +28,7 @@ async function example(page, { initialRedirect = false, deferStart = false, cust
       prepareStart() { state.preparations++; return gates.get('prepare')?.promise; },
       onStart() { this.showView(new View({ template: () => '<input id="child-input">' })); },
     });
-    const switcher = owner.addChildApp('content', new ChildAppSwitcher());
+    const switcher = owner.addChildApp('content', new RouteApplication());
     switcher.addChildApp('page', new Page());
     await owner.start();
     await switcher.start();
@@ -41,7 +41,7 @@ async function example(page, { initialRedirect = false, deferStart = false, cust
       prepareStart() { state.applicationPreparations++; return gates.get('application')?.promise; },
     }) : Router;
     const router = state.router = owner.addChildApp('router', new RouterClass({
-      intercept() { if (state.failPlanning) { throw new Error('planning failed'); } return true; },
+      owns() { if (state.failPlanning) { throw new Error('planning failed'); } return true; },
       routes: [
         { name: 'home', path: '/', redirect: redirectInitially ? () => '/next' : undefined },
         { name: 'old', path: '/old', redirect: () => '/next' },
@@ -112,7 +112,7 @@ test('native Back to a distinct earlier entry supersedes the still-preparing des
   await example(page);
   const result = await page.evaluate(async() => {
     const state = window.routerExample;
-    state.router.mount({ first: { path: '/first' }, second: { path: '/second' }, third: { path: '/third' } });
+    state.router.mount({ '/first': { name: 'first' }, '/second': { name: 'second' }, '/third': { name: 'third' } });
     await state.router.navigate('first').finished;
     await state.router.navigate('second').finished;
     await state.router.navigate('third').finished;
@@ -149,9 +149,9 @@ for (const outcome of ['fulfilled', 'error', 'abort-error', 'redirected', 'redir
         if (state.historyGated) { state.historyEntered.resolve(); return state.historyWork.promise; }
       };
       state.router.mount({
-        'history-source': { path: '/history-source', redirect: () => state.historyGated && redirected ? Promise.resolve('/history-target') : undefined, handler },
-        'history-target': { path: '/history-target', handler },
-        'history-next': { path: '/history-next' },
+        '/history-source': { name: 'history-source', redirect: () => state.historyGated && redirected ? Promise.resolve('/history-target') : undefined, handler },
+        '/history-target': { name: 'history-target', handler },
+        '/history-next': { name: 'history-next' },
       });
       await state.router.navigate('history-source').finished;
       await state.router.navigate('history-next').finished;
@@ -196,8 +196,8 @@ for (const initial of [false, true]) {
           handlers: [], ready: [], settled: false,
         };
         const router = state.router = new Router({ routes: {
-          home: { path: '/' },
-          page: { path: '/page', redirect(match) {
+          '/': { name: 'home' },
+          '/page': { name: 'page', redirect(match) {
             const target = match.url.hash ? undefined : '#details';
             return asyncLookup ? Promise.resolve(target) : target;
           }, handler(match) {
@@ -246,16 +246,15 @@ async function snapshot(page) {
 async function featureExample(page) {
   await example(page);
   await page.evaluate(async() => {
-    const { RouteApplication } = await import('/router.js');
-    const { View } = await import('marionette');
+    const { Application, View } = await import('marionette');
     const state = window.routerExample;
     state.featureCalls = [];
     state.featurePreparations = 0;
-    const Feature = RouteApplication.extend({
+    const Feature = Application.extend({
       region: '#content',
       routes: {
-        'feature:item': { path: '/features/:id', handler: 'showItem' },
-        'feature:callback': { path: '/feature-callback/:id', handler(match, context) { return this.renderRoute(match, context, 'function'); } },
+        '/features/:id': { name: 'feature:item', handler: 'showItem' },
+        '/feature-callback/:id': { name: 'feature:callback', handler(match, context) { return this.renderRoute(match, context, 'function'); } },
       },
       prepareStart() { state.featurePreparations++; return state.gates.get('feature-prepare')?.promise; },
       showItem(match, context) { return this.renderRoute(match, context, 'method'); },
@@ -268,7 +267,8 @@ async function featureExample(page) {
         this.showView(new View({ template: () => `<input id="feature-input" value="${match.params.id}"><p id="feature-heading">${match.params.id}</p>` }));
       },
     });
-    state.feature = state.owner.addChildApp('feature', new Feature({ router: state.router }));
+    state.feature = state.owner.addChildApp('feature', new Feature());
+    state.router.mount(state.feature.routes, { owner: state.feature, controller: state.feature });
     // The earlier feature registration wins until destruction unmounts it.
     state.router.mount([{ name: 'feature:fallback', path: '/features/:id' }]);
   });

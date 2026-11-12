@@ -33,95 +33,102 @@ Report suspected vulnerabilities privately through the
 
 ## Build a routed feature with Applications and Views
 
-This UI example chooses Lit for escaped text interpolation. Install its optional
-consumer dependencies; the router itself requires neither:
-
-```sh
-npm install @mnjs/adapters@5.0.1 lit-html@3.3.3
-```
+A feature declares the URL portion it owns and the children that handle deeper
+portions. Mounts select and start those children before their local handlers run.
+Data loading belongs in Application preparation, not a second loader in each handler.
+The [complete Catalog example](examples/catalog/README.md) uses this structure:
 
 ```js
-import { Application, View } from 'marionette';
-import { Router, RouteApplication } from '@mnjs/router';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
-
-const ItemView = View.extend({
-  template: ({ id }) => html`<h1>Item ${id}</h1>`,
-}).setDomApi(LitDomApi);
-
-const Catalog = RouteApplication.extend({
-  region: { el: '#content' },
-  routes: {
-    item: { path: '/items/:id', handler: 'showItem' },
-  },
-  showItem(match) {
-    match.signal.throwIfAborted();
-    this.showView(new ItemView({ model: { id: match.params.id } }));
-  },
-});
+import { Application } from 'marionette';
+import { Router } from '@mnjs/router';
+import { Catalog } from './examples/catalog/catalog.mjs';
 
 const frame = new Application();
 const router = frame.addChildApp('navigation', new Router());
-const catalog = frame.addChildApp('catalog', new Catalog({ router }));
+const catalog = frame.addChildApp('catalog', new Catalog({
+  region: { el: '#content' },
+  async loadItem(id, { signal }) {
+    const response = await fetch(`/api/items/${encodeURIComponent(id)}`, { signal });
+    if (!response.ok) throw new Error(`Item request failed: ${response.status}`);
+    return (await response.json()).title;
+  },
+}));
+catalog.mountRoutes(router);
 router.on('route:error', (error, match) => console.error(match?.name, error));
 await frame.start();
-await catalog.start();                        // this static feature is ready
-await router.start();                         // routing enabled
-const initial = await router.getInitialDispatch(); // first route outcome
-await router.navigate('item', { id: '42' }).finished;
-// Later, frame.destroy() destroys its Router, Catalog and displayed View.
+await catalog.start(); // start the root owner before route dispatch
+await router.start();
+const initial = await router.getInitialDispatch();
+if (initial.status === 'failed') {
+  frame.destroy();
+  throw initial.error;
+}
+await router.navigate('catalog:item', { id: '42' }).finished;
+// Later, frame.destroy() tears down routing, children and displayed Views.
 ```
 
-Provide `#content`. The frame owns its shared Router and Catalog. Catalog owns
-its route definitions, handler, Region and displayed View. RouteApplication is an
-ordinary Application that registers those definitions at construction; navigation
-invokes its handler, whose returned work controls route readiness. This static
-feature is explicitly started before routing. Registration alone does not start
-it: omitting activation still dispatches handlers, but skips `prepareStart` and
-`onStart`. Stopping it retains its registration; destroying it retires the routes.
-After an owner stop/start, explicitly start its required children again. The
-Router does not infer UI ownership from URL nesting.
+Provide `#content` and copy the shipped example folder alongside this bootstrap.
+It uses named Views with function templates, Regions and optional Lit integration:
+install `@mnjs/adapters@5.0.1` and `lit-html@3.3.3`. Lit expressions escape fetched
+titles; the router has no renderer dependency. Plain model data needs no data adapter.
 
-The named View supplies a function template to Marionette's
-default renderer; `setDomApi(LitDomApi)` handles its Lit output for this View.
-Plain model data needs no data adapter. Lit child expressions keep the ID as text,
-including HTML-like characters. A static default template can simply be a function
-returning trusted HTML; dynamic string HTML needs a safe templating integration.
-No global renderer override is needed here. For data-backed pages, return/await
-required lifecycle work from the feature handler. The
-[data-backed Catalog](examples/catalog/README.md) loads in `prepareStart`, presents
-in synchronous `onStart`, and returns `restart()` from its route method. It
-deliberately reloads each dispatch rather than pretending that `start({ id })`
-reloads an active Application. Lifecycle and route signals have different
-lifetimes. Cancellation does not undo UI or arbitrary work already performed.
-Notification hooks are synchronous; returned promises are not awaited.
+Catalog's class-level routes contain `/catalog` as its own page and
+`/catalog/:id` as a mount of its declared Item child. Item owns `prepareStart`,
+its View and local item/reviews routes. Moving between those leaves retains the
+same item. Changing `id` stops and starts the same registered Item instance.
+Returning to Catalog's own page stops its selected mounted child. Independent
+panes remain ordinary children with their own Regions; URL ancestry alone does
+not make them exclusive.
 
-RouteApplication is optional. An ordinary feature Application can register its
-route data through `router.mount(routes, { owner, controller })`. A local
-`routeTo(match)` method returns that feature's required lifecycle work. The
-[ordinary Catalog example](examples/catalog/README.md) uses an ordinary feature
-Application, area metadata and one such boundary, without a layer of per-route
-forwarders. Destruction retires its registration; stop/restart retain it.
-A Router-level handler remains a lower-level option for small integrations.
-Another area's handler explicitly stops or clears the content it leaves, without
-activating an area just to clean it up. Use optional RouteApplication when a feature
-independently owns its declarative registration.
+Registration is explicit: `mountRoutes(router, { parent? })` returns an unmount
+function, binds this Application as controller/owner and does not start it.
+Start each independently registered root before dispatch; mounted descendants
+start through branch selection. Mounting before start is supported. Omitting root
+activation can still call a leaf handler while child selection does nothing;
+`route:ready` only certifies returned work, not that setup was performed.
+Stop retains routes; destroy unmounts them. After owner stop/start, explicitly
+start its required roots and Router again.
 
-`url('item', { id: '42' })` builds a checked named URL. Paths support static text,
-named parameters and optional brace groups; there are no splats, inline regex or
-repeated parameters. See the [grammar](DESIGN.md#route-definitions-and-matching).
-Redirects use ordinary routes; relative string targets resolve against the
-redirect's navigation URL, consistently for sync and async callbacks.
-Named redirects accept `{ name, params?, query?, hash? }`; forwarding is explicit,
-for example `{ name: 'item', params: match.params, query: match.query, hash: match.url.hash }`.
-Configured `persistParams` keys come from the redirecting match for both sync and
-async targets, including initial dispatch. Explicit params override or clear them;
-ordinary `router.url()` still persists from the current committed match.
-Omitted query/hash do not inherit from the source. `hash` follows `URL.hash`
-semantics, including optional leading `#`, empty string and explicit empty `#`.
-Route names cannot start with `/` or `scheme://`; those spellings select raw URL
-navigation and are rejected as names at registration.
+`routeTable(Catalog)` compiles declarations without constructing Applications.
+Class-level `routes` and `childApps` are data, not factories. Non-undefined constructor
+`routes` throw before Application initialization; undefined is equivalent to omission.
+Constructor child registrations do not redefine the compiled
+class route topology. `mountRoutes` also accepts routes/children assigned as
+instance properties before compilation. There is one matcher and one browser
+Router, not a router per child. Ordinary `router.mount(routes, { owner, controller })`
+and a Router-level handler remain lower-level options.
+
+Hashes are keyed by paths; names are explicit values. Hash values must be plain
+objects (including null-prototype objects), not string shorthands or arrays.
+Arrays of definitions use `{ path, name }`.
+Leaf entries are `{ name, handler?, meta?, redirect? }`; mount entries are
+`{ mount, namespace?, region?, meta? }`. Namespaces prefix descendant names with
+colons. A mount key contains only that node's own parameters, not all descendants.
+`childRouteOptions(match, mount)` supplies extra start options;
+`getMountRegion(region)` chooses the Region. Required start and handler work is
+returned through `routeBranch`; notifications remain synchronous.
+
+Each owner may mount a registered child name only once. For two placements of the
+same class, declare two child registrations with distinct names. A different path,
+namespace or Region does not create a separate child identity; duplicate mounts
+are rejected during compilation. Selection keys still contain only own mount params.
+
+Named navigation inherits omitted parameters only from route nodes shared by
+current and target branches. Equal parameter names on unrelated nodes do not
+establish identity. Explicit null, undefined or empty values clear a parameter.
+Named redirects use `{ name, params?, query?, hash? }` and forward omitted source
+params/query/hash. Explicit parameter keys override or clear forwarded values; an explicit query replaces it. String redirects must
+be URLs starting with `/`, `?`, `#` or `scheme://`; bare route names are rejected.
+Relative query/fragment URLs resolve against the captured redirect URL for both
+sync and async callbacks. Route names beginning `/` or `scheme://` are
+reserved for URL navigation.
+
+`owns(url)` optionally limits same-origin routing. `notFound: 'missing'` dispatches
+that fallback name for an unmatched URL, retaining that URL and deepest-prefix
+params. **Without `owns`, notFound claims every same-origin URL**, including paths
+normally served by the server. Exclude those paths explicitly. A not-found Match
+does not acquire the target route's URL ancestry: pass `match.params` explicitly
+when generating a link that needs those prefix values.
 
 ## Check capabilities before eager application imports
 
@@ -149,7 +156,7 @@ compilation; `AbortSignal.any` for route signals; `Promise.withResolvers` for
 Application/routing operations; `URL.canParse` for `match(string)`. Tests can inject
 `memoryDriver({ url: 'https://example.test/' })` instead of the native driver;
 that removes the Navigation API dependency, not the remaining Router requirements.
-`ChildAppSwitcher` alone does not need URLPattern or navigation. Transpilation
+A route-less `RouteApplication` used only for selection does not need URLPattern or navigation. Transpilation
 supplies none of these Web APIs. Capability presence is not browser certification.
 The installed-consumer check executes this exact recipe with a deliberately
 eager application module, checking that missing capabilities prevent its import.
@@ -182,7 +189,7 @@ import { Router, historyDriver } from '@mnjs/router';
 const router = new Router({
   driver: historyDriver(),
   routes: {
-    home: { path: '/' },
+    '/': { name: 'home' },
   },
 });
 ```
@@ -237,7 +244,8 @@ replacement work, late failures and owner teardown. A local refresh after first
 presentation has a separate operation promise; initial readiness is not perpetual.
 
 A switch caller's signal only limits that caller's result; aborting it deliberately
-does not cancel shared child preparation. Current activation failures reject;
+does not cancel shared child preparation. The aborted caller promptly fulfills
+undefined while preparation continues. Current activation failures reject;
 superseded results do not regain authority. Do not equate every undefined selector
 result or fulfilled false Application result with cancellation of all underlying work.
 
@@ -258,40 +266,43 @@ as well. `focusReset` and `scroll` independently accept `manual` or
 `after-transition`; refresh uses manual policy. The package does not close overlays
 or decide whether a departing overlay should restore focus.
 
-## Add only the composition tools you need
+## Selection without routing
 
-- **Router alone:** routes plus one handler, or explicit `mount` with a controller.
-- **RouteApplication:** optional feature-owned definitions on the shared Router.
-  Constructing registers without starting the feature. Stop/restart retain routes;
-  destruction unmounts and cancels that registration's work. `routeParent` supplies
-  a named URL prefix. A known router can be a normal `.extend({ router })` default;
-  `withRouter(router)` is an equivalent convenience.
-- **ChildAppSwitcher:** optional selectable child group, also useful without routing.
-  Register/start the group, then `switchTo(name, { key, options, signal })`.
-  Structural keys are snapshotted before lifecycle callbacks. Use small primitive,
-  array or plain-data keys; holes differ from undefined, and cycles/unsupported
-  objects are rejected. See the [key contract](DESIGN.md#child-applications).
-  Equal keys reuse/join the same child; running Applications ignore new start options.
-  Changed keys or `reconstruct: true` stop/start that **same instance**. A class or
-  constructor `reconstruct` default can suit rebuilt hosts; an explicit per-call
-  `false` retains/joins the same-key child. Key, signal and child options stay
-  per-call. Replace its owner registration explicitly when a genuinely new
-  instance is required.
+A route-less `RouteApplication` can select ordinary Application children through
+`switchTo(name, { key, options, signal, restart })`, `clear()` and `getCurrent()`.
+Start the owner first. There is one selection group per owner. Same-key calls join
+one outcome and share startup failure. Changed keys or per-call `restart: true`
+stop/start the registered instance; they do not construct a replacement. Running
+Applications ignore new start options. Replace a child registration explicitly
+when a new instance is required. `clear()` is idempotent and returns nothing.
 
-These classes belong to Marionette's default Application family. An isolated
-`createMarionette()` tree cannot register them as children; `.extend()` does not
-change runtime identity. UI ownership/Regions remain ordinary Marionette choices.
-There is no automatic branch walker, driver selection, leave guard or history
-compensation. Detailed [feature registration](DESIGN.md#feature-route-registration),
-[selection](DESIGN.md#child-applications), [types](DESIGN.md#typing-and-javascript)
-and [driver contracts](DESIGN.md#construction-options-and-extension) remain opt-in reading.
+Keys are primitives (undefined, null, string, number or boolean) or flat records
+of those values. Own enumerable string fields are snapshotted before lifecycle
+callbacks, so later mutation cannot relabel an active child. Comparison uses
+`Object.is`; missing fields differ from undefined. Nested objects, arrays and
+other value types are rejected. Use small identity records, not application state
+trees. Caller signals suppress only that caller's result and do not cancel shared
+Application preparation. Stop/destroy still cancel owned lifecycle work.
+Optional `onCleanupError(error, child)` observes a secondary cleanup failure after
+failed startup; the primary startup error wins. Without the hook that secondary
+failure is discarded. Synchronous normal stop failures are not rolled back.
 
-`canGoBack()` only checks the preceding entry's router marker. A matched initial
-entry is marked too. `back()` awaits readiness when eligible and returns false
-otherwise; it does not restrict the browser's Back button or guarantee staying
-inside the app/document.
+`handleRouteError(error, match, { mount, phase })` handles a branch failure locally;
+phase is `start` or `route`. Rethrowing bubbles to the parent branch and ultimately
+Router's `route:error`. Resolving is an explicitly handled result. Cancellation
+suppresses stale branch errors. The package does not choose an error screen or
+reporting policy.
 
-From a built checkout, `npm run test:router-tarball` packs and installs the actual
-packages into an isolated consumer, then runs the basic ESM/CJS checks, cancellation
-probes, capability bootstrap and the two-feature desk example. Native navigation
-checks are separate; memory/JSDOM tests do not certify browser history or focus.
+Router and RouteApplication belong to Marionette's default Application family.
+An isolated `createMarionette()` tree cannot register them as children. No global
+Radio bridge, service locator, leave guard or history compensation is installed.
+See [contracts](DESIGN.md), [feature registration](DESIGN.md#feature-route-registration),
+[selection](DESIGN.md#child-applications) and [types](DESIGN.md#typing-and-javascript).
+
+`canGoBack()` checks the preceding entry's router marker. A matched initial entry
+is marked too. `back()` awaits its route readiness when eligible; it does not
+restrict browser Back or guarantee staying within the app/document.
+
+From a built checkout, `npm run test:router-tarball` installs actual archives and
+checks ESM/CJS, declarations, tree shaking, cancellation, the bootstrap recipe and
+shipped examples. Memory/JSDOM checks do not certify browser history or focus.

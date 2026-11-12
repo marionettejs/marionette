@@ -34,7 +34,7 @@ it('rejects interception of a synchronously superseded memory DriverEvent like n
   assert.equal(failure?.name, 'InvalidStateError');
 });
 
-for (const phase of ['redirect', 'intercept', 'within']) {
+for (const phase of ['redirect', 'owns-matched', 'owns-missing']) {
   for (const outcome of ['ready', 'failed', 'stopped']) {
     it(`preserves the newer ${outcome} navigation from synchronous ${phase} planning`, async() => {
       const invalid = [];
@@ -46,10 +46,10 @@ for (const phase of ['redirect', 'intercept', 'within']) {
       let newer;
       const reenter = () => { newer = router.navigate('/next'); };
       router = createRouter({ driver: nativeBoundary(memory, invalid), routes: {
-        home: { path: '/home' }, next: { path: '/next' },
-        ...(phase === 'within' ? {} : { source: { path: '/source', redirect: phase === 'redirect' ? reenter : undefined } }),
-      }, intercept(url) { if (phase === 'intercept' && url.pathname === '/source') { reenter(); } return true; },
-      notFound: { name: 'missing', within(url) { if (phase === 'within' && url.pathname === '/source') { reenter(); return true; } return false; } },
+        '/home': { name: 'home' }, '/next': { name: 'next' },
+        ...(phase === 'owns-missing' ? {} : { '/source': { name: 'source', redirect: phase === 'redirect' ? reenter : undefined } }),
+      }, owns(url) { if (phase.startsWith('owns') && url.pathname === '/source') { reenter(); } return true; },
+      notFound: 'missing',
       handler(match) {
         handlers.push(match.name);
         if (match.name === 'next' && outcome === 'failed') { throw failure; }
@@ -82,10 +82,10 @@ for (const phase of ['redirect', 'intercept', 'within']) {
     let router;
     const stop = () => { router.stop(); };
     router = createRouter({ driver: nativeBoundary(memory, invalid), routes: {
-      home: { path: '/home' },
-      ...(phase === 'within' ? {} : { source: { path: '/source', redirect: phase === 'redirect' ? stop : undefined } }),
-    }, intercept(url) { if (phase === 'intercept' && url.pathname === '/source') { stop(); } return true; },
-    notFound: { name: 'missing', within(url) { if (phase === 'within' && url.pathname === '/source') { stop(); return true; } return false; } },
+      '/home': { name: 'home' },
+      ...(phase === 'owns-missing' ? {} : { '/source': { name: 'source', redirect: phase === 'redirect' ? stop : undefined } }),
+    }, owns(url) { if (phase.startsWith('owns') && url.pathname === '/source') { stop(); } return true; },
+    notFound: 'missing',
     handler(match) { handlers.push(match.name); } });
     await router.start(); await router.getInitialDispatch();
     assert.equal(await router.navigate('/source').finished, false);
@@ -104,7 +104,7 @@ it('rechecks driver authority after aborting initial work whose abort callback n
   const handlers = [];
   let newer;
   const router = createRouter({ driver: nativeBoundary(memory, invalid), routes: {
-    home: { path: '/home' }, source: { path: '/source' }, next: { path: '/next' },
+    '/home': { name: 'home' }, '/source': { name: 'source' }, '/next': { name: 'next' },
   }, handler(match) {
     handlers.push(match.name);
     if (match.name === 'home') {
@@ -123,7 +123,7 @@ it('rechecks driver authority after aborting initial work whose abort callback n
   assert.deepEqual(invalid, []);
 });
 
-for (const phase of ['redirect-hop', 'redirect-continue', 'intercept', 'within']) {
+for (const phase of ['redirect-hop', 'redirect-continue', 'owns-matched', 'owns-missing']) {
   it(`does not execute cancelled initial ${phase} planning after a newer navigation`, async() => {
     const memory = memoryDriver({ url: 'https://routes.example/source' });
     const handlers = [];
@@ -131,12 +131,12 @@ for (const phase of ['redirect-hop', 'redirect-continue', 'intercept', 'within']
     let newer;
     const reenter = () => { newer = router.navigate('/next'); };
     router = createRouter({ driver: memory, routes: {
-      next: { path: '/next' }, stale: { path: '/stale' },
-      ...(phase === 'within' ? {} : { source: { path: '/source', redirect: phase.startsWith('redirect') ? () => {
+      '/next': { name: 'next' }, '/stale': { name: 'stale' },
+      ...(phase === 'owns-missing' ? {} : { '/source': { name: 'source', redirect: phase.startsWith('redirect') ? () => {
         reenter(); return phase === 'redirect-hop' ? '/stale' : undefined;
       } : undefined } }),
-    }, intercept(url) { if (phase === 'intercept' && url.pathname === '/source') { reenter(); } return true; },
-    notFound: { name: 'missing', within(url) { if (phase === 'within' && url.pathname === '/source') { reenter(); return true; } return false; } },
+    }, owns(url) { if (phase.startsWith('owns') && url.pathname === '/source') { reenter(); } return true; },
+    notFound: 'missing',
     handler(match) { handlers.push(match.name); } });
     await router.start();
     assert.deepEqual(await router.getInitialDispatch(), { status: 'cancelled' });
@@ -154,11 +154,11 @@ it('retiring a planned registration still cancels initial work without document 
   const memory = memoryDriver({ url: 'https://routes.example/home' });
   const handlers = [];
   const router = createRouter({ driver: nativeBoundary(memory, invalid), routes: {
-    home: { path: '/home' },
+    '/home': { name: 'home' },
   }, handler(match) { handlers.push(match.name); return work.promise; } });
   await router.start();
   const initial = router.getInitialDispatch();
-  const unmount = router.mount({ source: { path: '/source', redirect() { unmount(); } } });
+  const unmount = router.mount({ '/source': { name: 'source', redirect() { unmount(); } } });
   assert.equal(await router.navigate('/source').finished, false);
   assert.deepEqual(await initial, { status: 'cancelled' });
   assert.equal(memory.currentEntry.url, 'https://routes.example/source');

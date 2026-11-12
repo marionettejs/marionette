@@ -5,6 +5,12 @@ import { test } from './fixtures.mjs';
 async function loadRouter(page) {
   test.skip(!await page.evaluate(() => 'navigation' in window), 'Navigation API unavailable');
   await page.route('**/router.js', route => route.fulfill({ path: routerArtifactPath('dist/index.js'), contentType: 'text/javascript' }));
+  await page.evaluate(() => {
+    const map = document.createElement('script');
+    map.type = 'importmap';
+    map.textContent = JSON.stringify({ imports: { '@mnjs/router': '/router.js' } });
+    document.head.append(map);
+  });
 }
 
 for (const asynchronous of [false, true]) {
@@ -21,12 +27,12 @@ for (const asynchronous of [false, true]) {
       const ready = [];
       const errors = [];
       const router = new Router({ routes: {
-        home: { path: '/' },
-        source: { path: '/source/:id', redirect(match) {
+        '/': { name: 'home' },
+        '/source/:id': { name: 'source', redirect(match) {
           const named = { name: 'item', params: match.params, ...target };
           return asyncLookup ? Promise.resolve(named) : named;
         } },
-        item: { path: '/items/:id', handler(match) { matches++; entered.resolve(match); return work.promise; } },
+        '/items/:id': { name: 'item', handler(match) { matches++; entered.resolve(match); return work.promise; } },
       } });
       router.on('route:ready', match => ready.push(match.name));
       router.on('route:error', error => errors.push(error.message));
@@ -68,11 +74,11 @@ for (const asynchronous of [false, true]) {
       router.destroy();
       return { cases, cancellation, errors, matches };
     }, asynchronous);
-    const suffixes = ['', '#details', '#details', '', '#', '#caf%C3%A9/%E9%9B%AA?x=1#inner', '#%E9%9B%AA'];
+    const suffixes = ['#old', '#details', '#details', '', '#', '#caf%C3%A9/%E9%9B%AA?x=1#inner', '#%E9%9B%AA'];
     expect(result.cases).toEqual(suffixes.map(hash => ({
-      pending: { settled: false, url: `/items/42${hash}`, query: 0, aborted: false,
+      pending: { settled: false, url: `/items/42?discard=1${hash}`, query: 1, aborted: false,
         state: { selected: '42' }, ready: 0, entries: 1 },
-      finished: true, committed: true, back: true, backKey: true, url: `/items/42${hash}`, state: { selected: '42' },
+      finished: true, committed: true, back: true, backKey: true, url: `/items/42?discard=1${hash}`, state: { selected: '42' },
     })));
     expect(result.cancellation).toEqual({ result: false, aborted: true, url: '/items/cancel?view=full#details', current: 'home' });
     expect(result.errors).toEqual([]);
@@ -88,7 +94,7 @@ for (const asynchronous of [false, true]) {
       const work = Promise.withResolvers();
       const ready = [];
       const router = new Router({ routes: {
-        home: { path: '/', redirect(match) {
+        '/': { name: 'home', redirect(match) {
           const target = match.url.hash ? undefined : { name: 'home', hash: '#details' };
           return asyncLookup ? Promise.resolve(target) : target;
         }, handler(match) { entered.resolve(match); return work.promise; } },
@@ -114,10 +120,10 @@ for (const asynchronous of [false, true]) {
   });
 }
 
-test('switcher reconstruction defaults rebuild native UI while false retains shared preparation', async({ page }) => {
+test('per-call restart rebuilds native UI while same-key callers retain shared preparation', async({ page }) => {
   await loadRouter(page);
   const result = await page.evaluate(async() => {
-    const { ChildAppSwitcher } = await import('/router.js');
+    const { RouteApplication } = await import('/router.js');
     const { Application, View } = await import('marionette');
     let work;
     let attempts = 0;
@@ -126,20 +132,19 @@ test('switcher reconstruction defaults rebuild native UI while false retains sha
       prepareStart() { attempts++; return work?.promise; },
       onStart(app, options) { this.showView(new View({ template: () => options.text })); },
     });
-    const Pages = ChildAppSwitcher.extend({ reconstruct: true });
-    const pages = new Pages();
+    const pages = new RouteApplication();
     const child = pages.addChildApp('page', new Page());
     await pages.start();
     await pages.switchTo('page', { key: 1, options: { text: 'first' } });
-    await pages.switchTo('page', { key: 1, options: { text: 'second' } });
+    await pages.switchTo('page', { key: 1, restart: true, options: { text: 'second' } });
     const rebuilt = document.querySelector('#content').textContent;
-    await pages.switchTo('page', { key: 1, reconstruct: false, options: { text: 'ignored' } });
+    await pages.switchTo('page', { key: 1, restart: false, options: { text: 'ignored' } });
     const retained = document.querySelector('#content').textContent;
     work = Promise.withResolvers();
     const caller = new AbortController();
     const old = pages.switchTo('page', { key: 2, signal: caller.signal, options: { text: 'shared' } });
     caller.abort();
-    const current = pages.switchTo('page', { key: 2, reconstruct: false, options: { text: 'ignored' } });
+    const current = pages.switchTo('page', { key: 2, restart: false, options: { text: 'ignored' } });
     work.resolve();
     const oldUndefined = await old === undefined;
     const shared = await current === child;
@@ -150,7 +155,7 @@ test('switcher reconstruction defaults rebuild native UI while false retains sha
   expect(result).toEqual({ rebuilt: 'second', retained: 'second', oldUndefined: true, shared: true, shown: 'shared', attempts: 3, empty: '' });
 });
 
-test('ordinary feature data mounts with a local controller and explicit native owner lifetime', async({ page }) => {
+test('route-owning Catalog mounts with keyed preparation and explicit native owner lifetime', async({ page }) => {
   await loadRouter(page);
   await page.route('**/catalog.js', route => route.fulfill({ path: routerArtifactPath('examples/catalog/catalog.mjs'), contentType: 'text/javascript' }));
   const pageErrors = [];
@@ -158,7 +163,7 @@ test('ordinary feature data mounts with a local controller and explicit native o
   const result = await page.evaluate(async() => {
     const { Router } = await import('/router.js');
     const { Application } = await import('marionette');
-    const { Catalog, catalogRoutes } = await import('/catalog.js');
+    const { Catalog } = await import('/catalog.js');
     history.replaceState(null, '', '/catalog');
     const frame = new Application();
     const router = frame.addChildApp('navigation', new Router());
@@ -169,17 +174,18 @@ test('ordinary feature data mounts with a local controller and explicit native o
       if (id === 'slow') { obsoleteSignal = signal; entered.resolve(); return work.promise; }
       return Promise.resolve(`Item ${id}`);
     } }));
-    router.mount(catalogRoutes, { owner: catalog, controller: catalog });
+    catalog.mountRoutes(router);
     const activeBefore = catalog.isRunning();
-    await frame.start(); await router.start();
+    await frame.start(); await catalog.start(); await router.start();
     const initial = (await router.getInitialDispatch()).status;
     const list = document.querySelector('#content').textContent;
-    await router.navigate('catalog', { id: '42' }).finished;
+    await router.navigate('catalog:item', { id: '42' }).finished;
     catalog.stop();
     const registered = router.hasRoute('catalog');
+    await catalog.start();
     await router.refresh();
     const refreshed = document.querySelector('#content').textContent;
-    const pending = router.navigate('catalog', { id: 'slow' }).finished;
+    const pending = router.navigate('catalog:item', { id: 'slow' }).finished;
     await entered.promise;
     catalog.destroy();
     const cancelled = await pending;

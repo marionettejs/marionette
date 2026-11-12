@@ -69,16 +69,17 @@ test('lazy sidebar routes refresh after mounting and registration survives UI st
     const { Activity } = await import('/desk.mjs');
     const state = window.deskExample;
     state.activity = state.tools.addChildApp('activity', new Activity({
-      router: state.router,
-      tools: state.tools,
       region: state.tools.getRegion(),
     }));
+    state.activity.mountRoutes(state.router, { parent: 'desk' });
+    await state.tools.start();
+    await state.activity.start();
   });
-  expect(await page.evaluate(() => window.deskExample.activity.isRunning())).toBe(false);
+  expect(await page.evaluate(() => window.deskExample.activity.isRunning())).toBe(true);
   expect(await page.evaluate(() => window.deskExample.router.navigate('activity', { desk: 'green' }).finished)).toBe(true);
   await expect(page.locator('#inspector')).toHaveText('Activity inspector');
   expect(await page.evaluate(async() => {
-    const state = window.deskExample; state.activity.stop();
+    const state = window.deskExample; state.activity.clear();
     const registered = state.router.hasRoute('activity');
     const refreshed = await state.router.refresh();
     state.activity.destroy();

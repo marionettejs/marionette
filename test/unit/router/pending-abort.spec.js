@@ -11,7 +11,7 @@ it('does not commit an obsolete request reentered before the Router listener', a
   driver.addEventListener('navigate', event => {
     if (new URL(event.destination.url).pathname === '/b') { newer = router.navigate('c'); }
   });
-  const router = createRouter({ driver, routes: { b: { path: '/b' }, c: { path: '/c' } }, handler(match) { handled.push(match.name); } });
+  const router = createRouter({ driver, routes: { '/b': { name: 'b' }, '/c': { name: 'c' } }, handler(match) { handled.push(match.name); } });
   await router.start(); await router.getInitialDispatch();
   const b = router.navigate('b');
   assert.equal(await b.committed, false);
@@ -30,7 +30,7 @@ it('does not let an already-aborted Driver event invalidate queued work', async(
   });
   const work = Promise.withResolvers();
   const entered = Promise.withResolvers();
-  const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' }, d: { path: '/d' } }, handler(match) {
+  const router = createRouter({ driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' }, '/d': { name: 'd' } }, handler(match) {
     if (match.name === 'a') {
       match.signal.addEventListener('abort', () => { queued = router.navigate('c'); }, { once: true });
       entered.resolve(); return work.promise;
@@ -54,7 +54,7 @@ it('lets a later live hash navigation supersede queued work while staying native
   const entered = Promise.withResolvers();
   const handled = [];
   let queued;
-  const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' } }, handler(match) {
+  const router = createRouter({ driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' } }, handler(match) {
     handled.push(match.name);
     if (match.name === 'a') {
       match.signal.addEventListener('abort', () => { queued = router.navigate('c'); }, { once: true });
@@ -78,7 +78,7 @@ for (const initial of [false, true]) {
     const entered = Promise.withResolvers();
     const handled = [];
     let newer;
-    const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' }, d: { path: '/d' } }, handler(match) {
+    const router = createRouter({ driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' }, '/d': { name: 'd' } }, handler(match) {
       handled.push(match.name);
       if (match.name === 'a') {
         match.signal.addEventListener('abort', () => { newer = router.navigate('c'); }, { once: true });
@@ -110,7 +110,7 @@ for (const initial of [false, true]) {
     const work = Promise.withResolvers();
     const handled = [];
     let newer;
-    const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' } }, handler(match) {
+    const router = createRouter({ driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' } }, handler(match) {
       handled.push(match.name);
       if (match.name === 'a') {
         match.signal.addEventListener('abort', () => { newer = router.navigate('c'); }, { once: true });
@@ -137,8 +137,8 @@ it('lets queued public intent supersede refresh preflight before a DriverEvent e
   let enabled = false;
   let newer;
   let refreshing;
-  const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' } },
-    intercept(url) {
+  const router = createRouter({ driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' } },
+    owns(url) {
       if (enabled && url.pathname === '/a') { enabled = false; newer = router.navigate('c'); }
       return true;
     }, handler(match) {
@@ -165,7 +165,7 @@ it('does not execute queued work superseded by coalesced Back callers', async() 
   const work = Promise.withResolvers();
   const handled = [];
   let newer;
-  const router = createRouter({ driver, routes: { home: { path: '/home' }, a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' } },
+  const router = createRouter({ driver, routes: { '/home': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' } },
     handler(match) {
       handled.push(match.name);
       if (match.name === 'a') {
@@ -187,9 +187,9 @@ it('keeps a queued destination when the outgoing feature retires its registratio
   const entered = Promise.withResolvers();
   const work = Promise.withResolvers();
   let newer;
-  const router = createRouter({ driver, routes: { b: { path: '/b' }, c: { path: '/c' } } });
+  const router = createRouter({ driver, routes: { '/b': { name: 'b' }, '/c': { name: 'c' } } });
   const feature = router.addChildApp('feature', new Application());
-  router.mount({ a: { path: '/a', handler(match) {
+  router.mount({ '/a': { name: 'a', handler(match) {
     match.signal.addEventListener('abort', () => { newer = router.navigate('c'); feature.destroy(); }, { once: true });
     entered.resolve(); return work.promise;
   } } }, { owner: feature });
@@ -217,7 +217,7 @@ for (const outcome of ['ready', 'error', 'abort-error', 'stop', 'last-caller', '
     let newer;
     let latest;
     const info = { origin: 'abort-listener' };
-    const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' }, d: { path: '/d' } },
+    const router = createRouter({ driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' }, '/d': { name: 'd' } },
       handler(match) {
         handled.push(match.name);
         if (match.name === 'a') {

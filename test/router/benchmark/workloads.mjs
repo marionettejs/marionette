@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 
 export function catalog(size) {
-  return Object.fromEntries(Array.from({ length: size }, (_, index) => [`r${index}`, {
-    path: index % 2 ? `/r${index}/:id` : `/r${index}/static`,
+  return Object.fromEntries(Array.from({ length: size }, (_, index) => [index % 2 ? `/r${index}/:id` : `/r${index}/static`, {
+    name: `r${index}`,
   }]));
 }
 
-export async function workloads({ Router, memoryDriver, ChildAppSwitcher, Application }) {
+export async function workloads({ Router, memoryDriver, RouteApplication, Application }) {
   const cases = [];
   for (const size of [10, 100, 1000]) {
     const targets = Array.from({ length: size }, (_, index) => ({ name: `r${index}`,
@@ -55,7 +55,6 @@ export async function workloads({ Router, memoryDriver, ChildAppSwitcher, Applic
   const keys = {
     scalar: () => '42',
     'flat-fresh': () => ({ id: '42', mode: 'read' }),
-    'nested-fresh': () => ({ resource: { type: 'item', id: '42' }, tab: ['details', 1] }),
     'stress-100-fields': (() => {
       const key = Object.fromEntries(Array.from({ length: 100 }, (_, index) => [`field${index}`, index]));
       return () => key;
@@ -63,7 +62,7 @@ export async function workloads({ Router, memoryDriver, ChildAppSwitcher, Applic
   };
   for (const [name, key] of Object.entries(keys)) {
     let starts = 0;
-    const pages = new ChildAppSwitcher();
+    const pages = new RouteApplication();
     const page = pages.addChildApp('page', new (Application.extend({ onStart() { starts++; } }))());
     await pages.start();
     assert.equal(await pages.switchTo('page', { key: key() }), page);
@@ -81,7 +80,7 @@ export async function workloads({ Router, memoryDriver, ChildAppSwitcher, Applic
     let starts = 0;
     let preparations = 0;
     let received;
-    const pages = new ChildAppSwitcher();
+    const pages = new RouteApplication();
     const page = pages.addChildApp('page', new (Application.extend({
       prepareStart(options) { preparations++; received = options.id; return options.gate; },
       onStart() { starts++; },
@@ -101,7 +100,7 @@ export async function workloads({ Router, memoryDriver, ChildAppSwitcher, Applic
             const second = pages.switchTo('page', { key: { id, mode: 'read' }, options: { id: 'ignored' } });
             gate.resolve();
             const result = await Promise.all([first, second]);
-            correct += result[0] === undefined && result[1] === page && received === id;
+            correct += result[0] === page && result[1] === page && received === id;
           } else {
             correct += await pages.switchTo('page', { key: { id, mode: 'read' }, options: { id } }) === page && received === id;
           }

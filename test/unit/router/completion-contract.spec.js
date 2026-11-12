@@ -5,7 +5,7 @@ import { createRouter } from './helpers.js';
 it('completes a current handler that intentionally fulfills false', async() => {
   const ready = vi.fn();
   const router = createRouter({ driver: memoryDriver({ url: 'https://example.test/page' }),
-    routes: { page: { path: '/page', handler: () => Promise.resolve(false) } },
+    routes: { '/page': { name: 'page', handler: () => Promise.resolve(false) } },
   });
   router.on('route:ready', ready);
   expect(await router.start()).toBe(true);
@@ -19,7 +19,7 @@ it('settles cancellation before ignored handler work ends and observes its late 
   const entered = Promise.withResolvers();
   const errors = vi.fn();
   const router = createRouter({ driver: memoryDriver({ url: 'https://example.test/outside' }),
-    routes: { page: { path: '/page', handler() { entered.resolve(); return pending.promise; } } },
+    routes: { '/page': { name: 'page', handler() { entered.resolve(); return pending.promise; } } },
   });
   router.on('route:error', errors);
   await router.start();
@@ -37,7 +37,7 @@ it('marks a matched initial entry for the helper without restricting raw Back', 
   await driver.navigate('/initial').finished;
   const initialKey = driver.currentEntry.key;
   const router = createRouter({ driver, routes: {
-    initial: { path: '/initial' }, next: { path: '/next' },
+    '/initial': { name: 'initial' }, '/next': { name: 'next' },
   } });
   await router.start();
   await router.getInitialDispatch();

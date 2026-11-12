@@ -64,14 +64,6 @@
     },
     {
       "file": "router-authority.spec.mjs",
-      "title": "native state-update observer cannot replace a newer match state"
-    },
-    {
-      "file": "router-authority.spec.mjs",
-      "title": "native nested state notification keeps updated Match state current"
-    },
-    {
-      "file": "router-authority.spec.mjs",
       "title": "native nested state notification keeps initial Match state current"
     },
     {
@@ -85,14 +77,6 @@
     {
       "file": "router-authority.spec.mjs",
       "title": "native currententrychange during initial marking preserves the newer match"
-    },
-    {
-      "file": "router-authority.spec.mjs",
-      "title": "native state updates preserve owned entry eligibility"
-    },
-    {
-      "file": "router-authority.spec.mjs",
-      "title": "native state updates preserve unowned entry eligibility"
     },
     {
       "file": "router-authority.spec.mjs",
@@ -144,7 +128,7 @@
     },
     {
       "file": "router-examples.spec.mjs",
-      "title": "Catalog README composes an ordinary Application with explicit route registration"
+      "title": "Catalog README composes mounted Applications with explicit root activation"
     },
     {
       "file": "router-examples.spec.mjs",
@@ -372,11 +356,11 @@
     },
     {
       "file": "router-options.spec.mjs",
-      "title": "switcher reconstruction defaults rebuild native UI while false retains shared preparation"
+      "title": "per-call restart rebuilds native UI while same-key callers retain shared preparation"
     },
     {
       "file": "router-options.spec.mjs",
-      "title": "ordinary feature data mounts with a local controller and explicit native owner lifetime"
+      "title": "route-owning Catalog mounts with keyed preparation and explicit native owner lifetime"
     },
     {
       "file": "router-planning.spec.mjs",
@@ -388,19 +372,19 @@
     },
     {
       "file": "router-planning.spec.mjs",
-      "title": "native intercept planning navigate preserves ready outcome without host errors"
+      "title": "native owns-matched planning navigate preserves ready outcome without host errors"
     },
     {
       "file": "router-planning.spec.mjs",
-      "title": "native intercept planning stop preserves stopped outcome without host errors"
+      "title": "native owns-matched planning stop preserves stopped outcome without host errors"
     },
     {
       "file": "router-planning.spec.mjs",
-      "title": "native within planning navigate preserves ready outcome without host errors"
+      "title": "native owns-missing planning navigate preserves ready outcome without host errors"
     },
     {
       "file": "router-planning.spec.mjs",
-      "title": "native within planning stop preserves stopped outcome without host errors"
+      "title": "native owns-missing planning stop preserves stopped outcome without host errors"
     },
     {
       "file": "router-planning.spec.mjs",
@@ -633,6 +617,38 @@
     {
       "file": "router-history.spec.mjs",
       "title": "History async replacement redirect selects from proposed state"
+    },
+    {
+      "file": "router-route-applications.spec.mjs",
+      "title": "native route-owning nested mounts retain own keys and stop only selected descendants"
+    },
+    {
+      "file": "router-route-applications.spec.mjs",
+      "title": "native route-owning same-key startup joins while changed keys supersede stale presentation"
+    },
+    {
+      "file": "router-route-applications.spec.mjs",
+      "title": "native route-owning failures carry start and route phases through parent boundaries"
+    },
+    {
+      "file": "router-route-applications.spec.mjs",
+      "title": "history route-owning nested mounts retain own keys and stop only selected descendants"
+    },
+    {
+      "file": "router-route-applications.spec.mjs",
+      "title": "history route-owning same-key startup joins while changed keys supersede stale presentation"
+    },
+    {
+      "file": "router-route-applications.spec.mjs",
+      "title": "history route-owning failures carry start and route phases through parent boundaries"
+    },
+    {
+      "file": "router-route-applications.spec.mjs",
+      "title": "native route-owning fallback provenance and compiled cleanup survive declaration edits"
+    },
+    {
+      "file": "router-route-applications.spec.mjs",
+      "title": "history route-owning fallback provenance and compiled cleanup survive declaration edits"
     }
   ]
 }

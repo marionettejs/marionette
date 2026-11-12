@@ -17,23 +17,26 @@ async function snippet(page, documentPath, names) {
 }
 
 test('README routed feature owns named Views, escapes route text and destroys owned UI', async({ page }) => {
-  await snippet(page, 'readme.md', ['frame', 'router', 'catalog', 'ItemView']);
+  await snippet(page, 'readme.md', ['frame', 'router', 'catalog']);
+  await page.route('**/catalog.mjs', route => route.fulfill({ path: routerArtifactPath('examples/catalog/catalog.mjs'), contentType: 'text/javascript' }));
+  await page.route('**/api/items/**', route => route.fulfill({ json: { title: `Item ${decodeURIComponent(new URL(route.request().url()).pathname.split('/').at(-1))}` } }));
   await page.evaluate(async() => { window.readmeExample = await import('/snippet.mjs'); });
   await expect(page.getByRole('heading')).toHaveText('Item 42');
   const markup = '<img src=x onerror="globalThis.exampleInjected=true"><b>untrusted & text</b>';
   const result = await page.evaluate(async value => {
-    const { frame, router, catalog, ItemView } = window.readmeExample;
-    const first = catalog.getView();
-    const named = first instanceof ItemView && first.isRendered() && first.isAttached();
-    await router.navigate('item', { id: value }).finished;
-    const current = catalog.getView();
+    const { frame, router, catalog } = window.readmeExample;
+    const item = catalog.getChildApp('item');
+    const first = item.getView();
+    const named = first.isRendered() && first.isAttached() && Boolean(first.el.querySelector('h1'));
+    await router.navigate('catalog:item', { id: value }).finished;
+    const current = item.getView();
     const heading = current.el.querySelector('h1');
     const escaped = heading.textContent === `Item ${value}` && heading.querySelector('img, b') === null;
     frame.stop();
     const stopped = !router.isRunning() && current.isDestroyed() && document.querySelector('#content').textContent === '';
     await frame.start(); await catalog.start(); await router.start();
     const initial = await router.getInitialDispatch();
-    const restarted = catalog.getView();
+    const restarted = catalog.getChildApp('item').getView();
     frame.destroy();
     return { named, escaped, replaced: first.isDestroyed(), stopped, initial: initial.status,
       destroyed: restarted.isDestroyed() && router.isDestroyed() };
@@ -42,23 +45,25 @@ test('README routed feature owns named Views, escapes route text and destroys ow
   await expect(page.locator('#content')).toBeEmpty();
 });
 
-test('Catalog README composes an ordinary Application with explicit route registration', async({ page }) => {
+test('Catalog README composes mounted Applications with explicit root activation', async({ page }) => {
   await snippet(page, 'examples/catalog/README.md', ['frame', 'router', 'catalog']);
   await page.route('**/catalog.mjs', route => route.fulfill({ path: routerArtifactPath('examples/catalog/catalog.mjs'), contentType: 'text/javascript' }));
   const markup = '<img src=x><b>Catalog & title</b>';
   await page.route('**/api/items/42', route => route.fulfill({ json: { title: markup } }));
   await page.evaluate(async() => { window.catalogExample = await import('/snippet.mjs'); });
-  await expect(page.getByRole('heading')).toHaveText(markup);
+  await expect(page.getByRole('heading')).toHaveText(`Reviews: ${markup}`);
   await expect(page.locator('#content img, #content b')).toHaveCount(0);
   const result = await page.evaluate(async() => {
     const { frame, router, catalog } = window.catalogExample;
     const owned = frame.getChildApp('catalog') === catalog;
-    const view = catalog.getView();
+    const item = catalog.getChildApp('item');
+    const view = item.getView();
     const rendered = view.isRendered() && view.isAttached();
     catalog.stop();
     const retained = router.hasRoute('catalog') && view.isDestroyed();
+    await catalog.start();
     await router.refresh();
-    const replacement = catalog.getView();
+    const replacement = item.getView();
     catalog.destroy();
     const retired = !router.hasRoute('catalog') && replacement.isDestroyed();
     frame.destroy();

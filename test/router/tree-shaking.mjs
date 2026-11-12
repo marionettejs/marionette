@@ -34,7 +34,7 @@ export async function verifyDriverTreeShaking(consumer) {
   for (const scenario of scenarios) {
     const entry = resolve(directory, `${scenario.name}-entry.mjs`);
     writeFileSync(entry, `import { ${scenario.imports} } from '@mnjs/router';
-      const routes = { home: { path: '/' }, item: { path: '/items/:id' } };
+      const routes = { '/': { name: 'home' }, '/items/:id': { name: 'item' } };
       export const create = options => ${scenario.value};\n`);
     const bundle = await rollup({ input: entry, plugins: [
       { name: 'installed-package-exports', resolveId: name => packages.get(name) },

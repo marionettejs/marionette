@@ -14,13 +14,12 @@ export async function verifyHistoryPackage(consumer) {
   for (const [format, api] of [['ESM', esm], ['CJS', require('@mnjs/router')]]) {
     const dom = new JSDOM('', { url: 'https://installed-history.example/' });
     const driver = api.historyDriver({ window: dom.window });
-    const router = new api.Router({ driver, routes: { home: { path: '/' }, item: { path: '/items/:id' } } });
+    const router = new api.Router({ driver, routes: { '/': { name: 'home'}, '/items/:id': { name: 'item'} } });
     try {
       await router.start();
       assert.equal((await router.getInitialDispatch()).status, 'matched');
-      await router.navigate('item', { id: 7 }).finished;
+      await router.navigate('item', { id: 7 }, { state: { tab: 'details' } }).finished;
       assert.equal(dom.window.location.pathname, '/items/7');
-      router.updateState({ tab: 'details' });
       assert.deepEqual(router.getCurrent().state, { tab: 'details' });
       assert.equal(await router.back(), true);
       assert.equal(router.getCurrent().name, 'home');

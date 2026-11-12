@@ -1,11 +1,10 @@
 export { defineRoutes } from './route-types.ts';
 export type { RouteNames, RouteParams, RouteCatalog } from './route-types.ts';
-export { RouteApplication } from './route-application.ts';
-export type { RouteApplicationInstance, RouteApplicationOptions, RouteApplicationConstructor, ConfiguredRouteApplicationOptions } from './route-application.ts';
+export { RouteApplication, routeTable } from './route-application.ts';
+export type { RouteApplicationInstance, RouteApplicationOptions, RouteApplicationConstructor, ApplicationRoutes, ApplicationRouteDefinition, ApplicationRouteLeaf, ApplicationRouteMount, ApplicationRouteErrorContext } from './route-application.ts';
 export { Router } from './router.ts';
 export type { RouterInstance, RouterConstructor } from './router.ts';
-export { ChildAppSwitcher } from './child-app-switcher.ts';
-export type { ChildAppSwitcherInstance, ChildAppSwitcherOptions, SwitchOptions, SelectionKey } from './child-app-switcher.ts';
+export type { SwitchOptions, SelectionKey } from './selection.ts';
 export { memoryDriver } from './drivers/memory.ts';
 export { navigationDriver } from './drivers/navigation.ts';
 export { historyDriver } from './drivers/history.ts';

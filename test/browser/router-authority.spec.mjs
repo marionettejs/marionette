@@ -30,7 +30,7 @@ for (const expectedOutcome of ['ready', 'error', 'abort-error', 'stop', 'last-ca
       let newer;
       let latest;
       const info = { source: 'abort-listener' };
-      const router = new Router({ driver, routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' }, d: { path: '/d' } },
+      const router = new Router({ driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' }, '/d': { name: 'd' } },
         handler(match) {
           handled.push(match.name);
           if (match.name === 'a') {
@@ -88,8 +88,8 @@ for (const expectedAction of ['navigate', 'veto', 'prior-veto', 'stop']) {
       let newer;
       const handled = [];
       const veto = event => { if (new URL(event.destination.url).pathname === '/b') { event.preventDefault(); } };
-      const router = new Router({ routes: { a: { path: '/a' }, b: { path: '/b' } },
-        intercept(url) {
+      const router = new Router({ routes: { '/a': { name: 'a' }, '/b': { name: 'b' } },
+        owns(url) {
           if (enabled && url.pathname === '/a') {
             enabled = false;
             if (action === 'stop') { router.stop(); } else { newer = router.navigate('b'); }
@@ -123,7 +123,7 @@ for (const initiallyPending of [false, true]) {
       const entered = Promise.withResolvers();
       const handled = [];
       let newer;
-      const router = new Router({ routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' }, d: { path: '/d' } }, handler(match) {
+      const router = new Router({ routes: { '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' }, '/d': { name: 'd' } }, handler(match) {
         handled.push(match.name);
         if (match.name === 'a') {
           match.signal.addEventListener('abort', () => { newer = router.navigate('c'); }, { once: true });
@@ -156,8 +156,8 @@ test('native queued intent supersedes refresh preflight before its navigation ev
     let enabled = false;
     let newer;
     let refreshing;
-    const router = new Router({ routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' } },
-      intercept(url) {
+    const router = new Router({ routes: { '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' } },
+      owns(url) {
         if (enabled && url.pathname === '/a') { enabled = false; newer = router.navigate('c'); }
         return true;
       }, handler(match) {
@@ -187,7 +187,7 @@ test('later native fragment navigation supersedes deferred work without routing 
     const work = Promise.withResolvers();
     const handled = [];
     let queued;
-    const router = new Router({ routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' } }, handler(match) {
+    const router = new Router({ routes: { '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' } }, handler(match) {
       handled.push(match.name);
       if (match.name === 'a') {
         match.signal.addEventListener('abort', () => { queued = router.navigate('c'); }, { once: true });
@@ -216,7 +216,7 @@ test('native queued Back dispatch follows completed abort-listener navigation', 
     const work = Promise.withResolvers();
     const handled = [];
     let newer;
-    const router = new Router({ routes: { home: { path: '/home' }, a: { path: '/a' }, c: { path: '/c' } }, handler(match) {
+    const router = new Router({ routes: { '/home': { name: 'home' }, '/a': { name: 'a' }, '/c': { name: 'c' } }, handler(match) {
       handled.push(match.name);
       if (match.name === 'a') {
         match.signal.addEventListener('abort', () => { newer = router.navigate('c'); }, { once: true });
@@ -237,44 +237,20 @@ test('native queued Back dispatch follows completed abort-listener navigation', 
   expect(errors).toEqual([]);
 });
 
-test('native state-update observer cannot replace a newer match state', async({ page }) => {
+test('native nested state notification keeps initial Match state current', async({ page }) => {
   const result = await page.evaluate(async() => {
     const { Router } = await import('/router.js');
     history.replaceState(null, '', '/a');
-    let newer;
-    const router = new Router({ routes: { a: { path: '/a' }, b: { path: '/b' } } });
-    const change = () => { newer = router.navigate('b', {}, { history: 'replace', state: { resource: 'b' } }); };
+    const router = new Router({ routes: { '/a': { name: 'a' } } });
+    const change = () => navigation.updateCurrentEntry({ state: { ...navigation.currentEntry.getState(), fromObserver: true } });
+    navigation.addEventListener('currententrychange', change, { once: true });
     try {
       await router.start(); await router.getInitialDispatch();
-      navigation.addEventListener('currententrychange', change, { once: true });
-      router.updateState({ tab: 'a' });
-      return { outcome: await newer.finished, current: router.getCurrent().name,
-        state: router.getCurrent().state, path: location.pathname };
+      return router.getCurrent().state;
     } finally { navigation.removeEventListener('currententrychange', change); router.destroy(); }
   });
-  expect(result).toEqual({ outcome: true, current: 'b', state: { resource: 'b' }, path: '/b' });
+  expect(result).toEqual({ fromObserver: true });
 });
-
-for (const initiallyMarking of [false, true]) {
-  test(`native nested state notification keeps ${initiallyMarking ? 'initial' : 'updated'} Match state current`, async({ page }) => {
-    const result = await page.evaluate(async initial => {
-      const { Router } = await import('/router.js');
-      history.replaceState(null, '', '/a');
-      const router = new Router({ routes: { a: { path: '/a' } } });
-      const change = () => router.updateState({ fromObserver: true });
-      try {
-        if (initial) { navigation.addEventListener('currententrychange', change, { once: true }); }
-        await router.start(); await router.getInitialDispatch();
-        if (!initial) {
-          navigation.addEventListener('currententrychange', change, { once: true });
-          router.updateState({ outer: true });
-        }
-        return router.getCurrent().state;
-      } finally { navigation.removeEventListener('currententrychange', change); router.destroy(); }
-    }, initiallyMarking);
-    expect(result).toEqual(initiallyMarking ? { fromObserver: true } : { outer: true, fromObserver: true });
-  });
-}
 
 for (const stateReadAction of ['navigate', 'stop']) {
   test(`native refresh state read can ${stateReadAction} without a stale replacement`, async({ page }) => {
@@ -294,7 +270,7 @@ for (const stateReadAction of ['navigate', 'stop']) {
           return entry.getState();
         } };
       } };
-      const router = new Router({ driver, routes: { a: { path: '/a' }, b: { path: '/b' } } });
+      const router = new Router({ driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' } } });
       try {
         await router.start(); await router.getInitialDispatch(); notify = true;
         return { outcome: await router.refresh(), newer: newer ? await newer.finished : null,
@@ -314,7 +290,7 @@ test('native currententrychange during initial marking preserves the newer match
     history.replaceState(null, '', '/a');
     const handled = [];
     let newer;
-    const router = new Router({ routes: { a: { path: '/a' }, b: { path: '/b' } }, handler(match) { handled.push(match.name); } });
+    const router = new Router({ routes: { '/a': { name: 'a' }, '/b': { name: 'b' } }, handler(match) { handled.push(match.name); } });
     const change = () => { newer = router.navigate('b'); };
     navigation.addEventListener('currententrychange', change, { once: true });
     try {
@@ -327,25 +303,6 @@ test('native currententrychange during initial marking preserves the newer match
   expect(errors).toEqual([]);
 });
 
-for (const expectedMatched of [true, false]) {
-  test(`native state updates preserve ${expectedMatched ? 'owned' : 'unowned'} entry eligibility`, async({ page }) => {
-    const result = await page.evaluate(async matched => {
-      const { Router } = await import('/router.js');
-      history.replaceState(null, '', matched ? '/a' : '/outside');
-      const router = new Router({ routes: { a: { path: '/a' }, b: { path: '/b' } } });
-      try {
-        await router.start(); await router.getInitialDispatch();
-        router.updateState({ '@mnjs/router': !matched, tab: 'details' });
-        await router.navigate('b').finished;
-        const eligible = router.canGoBack();
-        const wentBack = await router.back();
-        return { eligible, wentBack, current: router.getCurrent().name, state: router.getCurrent().state };
-      } finally { router.destroy(); }
-    }, expectedMatched);
-    expect(result).toEqual({ eligible: expectedMatched, wentBack: expectedMatched, current: expectedMatched ? 'a' : 'b', state: expectedMatched ? { tab: 'details' } : {} });
-  });
-}
-
 for (const expectedAsync of [false, true]) {
   for (const expectedInitial of [false, true]) {
     test(`native named redirect persistence is ${expectedAsync ? 'async' : 'sync'} and ${expectedInitial ? 'initial' : 'subsequent'}`, async({ page }) => {
@@ -355,9 +312,9 @@ for (const expectedAsync of [false, true]) {
         const entered = Promise.withResolvers();
         const work = Promise.withResolvers();
         let paused = initial;
-        const router = new Router({ persistParams: ['desk'], routes: {
-          desk: { path: '/:desk', redirect() { const target = { name: 'catalog' }; return asynchronous ? Promise.resolve(target) : target; } },
-          catalog: { path: '/:desk/catalog', handler(match) { if (paused) { entered.resolve(match); return work.promise; } } },
+        const router = new Router({ routes: {
+          '/:desk': { name: 'desk', redirect() { const target = { name: 'catalog' }; return asynchronous ? Promise.resolve(target) : target; } },
+          '/:desk/catalog': { name: 'catalog', handler(match) { if (paused) { entered.resolve(match); return work.promise; } } },
         } });
         try {
           await router.start();
@@ -373,7 +330,7 @@ for (const expectedAsync of [false, true]) {
             path: location.pathname + location.search + location.hash, current: router.getCurrent().name };
         } finally { router.destroy(); work.resolve(); }
       }, { asynchronous: expectedAsync, initial: expectedInitial });
-      expect(result).toEqual({ desk: 'red', early: false, outcome: expectedInitial ? 'matched' : true, path: '/red/catalog', current: 'catalog' });
+      expect(result).toEqual({ desk: 'red', early: false, outcome: expectedInitial ? 'matched' : true, path: '/red/catalog?drop=1#old', current: 'catalog' });
     });
   }
 }

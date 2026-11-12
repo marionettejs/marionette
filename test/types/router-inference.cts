@@ -2,15 +2,15 @@ import { Router, defineRoutes, memoryDriver, historyDriver, type Driver, type Ro
 import { Application, type LifecycleContext } from 'marionette';
 
 const routes = defineRoutes({
-  home: { path: '/' },
-  item: { path: '/items/:id{/:tab}?' },
-  file: { path: '/file-:id.:ext' },
-  workspace: { path: '/:workspace', children: [
+  '/': { name: "home" },
+  '/items/:id{/:tab}?': { name: "item" },
+  '/file-:id.:ext': { name: "file" },
+  '/:workspace': { name: "workspace", children: [
     { name: 'child', path: 'child/:id' },
     { name: 'absolute', path: '/absolute/:id' },
   ] },
 });
-const literalPath: '/' = routes.home.path;
+const literalPath: 'home' = routes['/'].name;
 let name: RouteNames<typeof routes> = 'child';
 // @ts-expect-error Hash and child-array names remain literal.
 name = 'typo';
@@ -65,9 +65,9 @@ custom.onStart?.(custom, undefined, { prepared: 'wrong' });
 void [literalPath, name, child, missingParent, absolute, optional, nullable, count];
 
 // Static feature catalogs compose declarations independently of runtime availability.
-const workspaceRoutes = defineRoutes({ workspace: { path: '/:workspace' } });
-const featureRoutes = defineRoutes({ feature: { path: 'features/:id{/:tab}?' } });
-const nestedRoutes = defineRoutes({ nestedFeature: { path: 'nested/:childId' } });
+const workspaceRoutes = defineRoutes({ '/:workspace': { name: "workspace" } });
+const featureRoutes = defineRoutes({ 'features/:id{/:tab}?': { name: "feature" } });
+const nestedRoutes = defineRoutes({ 'nested/:childId': { name: "nestedFeature" } });
 type KnownFeatures = import('@mnjs/router').RouteCatalog<[
   typeof workspaceRoutes,
   { routes: typeof featureRoutes; parent: 'workspace' },
@@ -97,8 +97,8 @@ shared.url('feature', { id: 7 });
 removeRuntimeOnly();
 
 // A static catalog cannot advertise children of missing or later parents.
-const catalogParentTable = defineRoutes({ catalogParent: { path: '/:desk' } });
-const catalogChildTable = defineRoutes({ catalogChild: { path: 'children/:id' } });
+const catalogParentTable = defineRoutes({ '/:desk': { name: "catalogParent" } });
+const catalogChildTable = defineRoutes({ 'children/:id': { name: "catalogChild" } });
 type MissingParentCatalog = import('@mnjs/router').RouteCatalog<[
   typeof catalogParentTable,
   { routes: typeof catalogChildTable; parent: 'misspelled' },

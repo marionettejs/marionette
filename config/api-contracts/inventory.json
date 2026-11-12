@@ -12442,6 +12442,14 @@
       "arguments": [
         "match"
       ]
+    },
+    {
+      "source": "packages/router/src/route-application.ts",
+      "event": "'before:route'",
+      "kind": "literal",
+      "arguments": [
+        "match"
+      ]
     }
   ],
   "sources": {
@@ -12459,19 +12467,19 @@
     "packages/radio/src/index.ts": "24171247f65ecb3697629883abe9d248395b090d566ea70ac7c1b856d1cd7940",
     "packages/radio/src/radio.ts": "42a799d58d602c0fbbb4fcbc16170e1a89dad55c47d5f00ffaed69c8ee3d877f",
     "packages/radio/src/requests.ts": "87c52bfae0bdd5646b248a07da69e278192b3722a552355eef8144e227d0daa4",
-    "packages/router/src/child-app-switcher.ts": "737f009506d04674ccb01f80e5c0ebfb3549dc76a06d8e8778ea211bcfb732d5",
     "packages/router/src/drivers/history.ts": "14815da42a8b69be6a139b8cda522a6d52bda99a0742aa8a0d2267aacc8ba022",
     "packages/router/src/drivers/memory.ts": "3b514c1e50d1e74059ee1a716fe223f914f9243e822507ce3eedbe7bba3bb23c",
     "packages/router/src/drivers/navigation.ts": "da7c760d28b10e5c2e8702926985a0c3dd7a7418f7b56e377400dd17aa13de29",
-    "packages/router/src/index.ts": "4cf987cf9e54f39ba797164a1b3d899f090aaf922ea6107c5619ee870ccc2621",
-    "packages/router/src/matcher.ts": "84bd79ae17115312c5398bf163de70fd0797898eb5e68ea4a47413d6b343e61a",
+    "packages/router/src/index.ts": "738db6d4fe5fea9eabb641761ac7f03ce901378f74ad7dfb3cd634ea98ba65cf",
+    "packages/router/src/matcher.ts": "1d7b9e1f105e4be44306594ebd81973bfd101ee34250bcdaf0b165ba0583ffbf",
     "packages/router/src/pattern.ts": "c35c5947becea43013944725d9a249605442265d8f82ccd8f36a93fb4c01ba08",
     "packages/router/src/query.ts": "c0f7a9f45401991472cabf707724c491ea056b302fce522fb2c7ce48c6cd7417",
-    "packages/router/src/route-application.ts": "b92f85fb8fb617fa6c2ecdf73178b89f97c328f78584baef34653fcaa148f498",
-    "packages/router/src/route-types.ts": "e677e857813a28e25da0d9e45a77495cf7499dcb79f601d4b50d338e7e3dfa9f",
-    "packages/router/src/router.ts": "c4d98ebf66a494663ec1fabccfa1c385f5378c7ced49d78ca3d8d886aa015722",
-    "packages/router/src/selection-key.ts": "1b425678728f4713605ac91aaedad14c4f114034534200b2808960ee6f972853",
-    "packages/router/src/types.ts": "c5e0cf07152e2b18188e7e9a4b44cc2bec4fc159969630d215c6335e5dc559a0",
+    "packages/router/src/route-application.ts": "120612524922ff400a813d8436dd1f8e94b3cb80ce4aeac8571014c87b3f251f",
+    "packages/router/src/route-types.ts": "fc730e038bff44e25c25be39af6f0c02f55bb062eda1e7a0d0ec7f309c444c41",
+    "packages/router/src/router.ts": "8039a4bf49f03ee9aa979fb5e5cf271b5620456a1a8fce038832668aebfbd015",
+    "packages/router/src/selection-key.ts": "8d2007c10c6e6df576441b13b2d46cf086243464879a9d2d7e9927014c945030",
+    "packages/router/src/selection.ts": "5c9b5a7cd6fb0511545b56606a247896d1b89c64cb12b4a06b53195a445f4767",
+    "packages/router/src/types.ts": "433d2acbdfbde8ae735e5f0b5e21f87d9908653069a147b67a40c62f19e44500",
     "packages/test/src/context.ts": "2480f1721ff900bbbb0de6648cbaef247786eff93009c0407a066f14cc72cdf0",
     "packages/test/src/cypress.js": "d0589b13c1634802f0490d28249c7b45f90a4835bd73368cd6d9336c513a0f9e",
     "packages/test/src/errors.ts": "a9f7fed430e0759b599ca2605ff952cc6f984068edd7c1b2f048d5312caed3a4",

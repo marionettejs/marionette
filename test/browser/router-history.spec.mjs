@@ -50,10 +50,11 @@ test('History driver with a URLPattern polyfill owns normal Marionette feature p
     const region = new Region({ el: '#content' });
     const Item = View.extend({ template: ({ value }) => html`<h1>${value}</h1>` }).setDomApi(LitDomApi);
     const frame = new Application();
-    const router = frame.addChildApp('router', new Router({ driver: historyDriver(), routes: { home: { path: '/' } } }));
-    const Catalog = RouteApplication.extend({ routes: { item: { path: '/items/:id', handler: 'showItem' } },
+    const router = frame.addChildApp('router', new Router({ driver: historyDriver(), routes: { '/': { name: 'home' } } }));
+    const Catalog = RouteApplication.extend({ routes: { '/items/:id': { name: 'item', handler: 'showItem' } },
       showItem(match) { this.showView(new Item({ model: { value: match.params.id } })); } });
-    const catalog = frame.addChildApp('catalog', new Catalog({ router, region }));
+    const catalog = frame.addChildApp('catalog', new Catalog({ region }));
+    catalog.mountRoutes(router);
     try {
       await frame.start(); await catalog.start(); await router.start(); await router.getInitialDispatch();
       await router.navigate('item', { id: title }).finished;
@@ -75,7 +76,7 @@ test('History Back and Forward retain known keys, dense indexes, state and requi
     const driver = historyDriver();
     const gate = Promise.withResolvers(); const entered = Promise.withResolvers();
     let hold = false;
-    const router = new Router({ driver, routes: { home: { path: '/' }, item: { path: '/items/:id' } }, handler(match) {
+    const router = new Router({ driver, routes: { '/': { name: 'home' }, '/items/:id': { name: 'item' } }, handler(match) {
       if (hold && match.params.id === '1') { entered.resolve(); return gate.promise; }
     } });
     try {
@@ -108,9 +109,9 @@ for (const outcome of ['ready', 'error', 'abort-error', 'redirect', 'stop']) {
       const failure = mode === 'abort-error' ? new DOMException('independent fetch abort', 'AbortError') : new Error('destination failed');
       let hold = false;
       const router = new Router({ driver: historyDriver(), routes: {
-        home: { path: '/' },
-        a: { path: '/a', redirect() { if (hold && mode === 'redirect') { return { name: 'final' }; } } },
-        b: { path: '/b' }, final: { path: '/final' },
+        '/': { name: 'home' },
+        '/a': { name: 'a', redirect() { if (hold && mode === 'redirect') { return { name: 'final' }; } } },
+        '/b': { name: 'b' }, '/final': { name: 'final' },
       }, async handler(match) {
         if (hold && (match.name === 'a' || match.name === 'final')) {
           entered.resolve(); await gate.promise;
@@ -144,7 +145,7 @@ for (const historyMode of ['push', 'replace']) {
         const failure = new DOMException('independent later traversal failure', 'AbortError');
         const ready = []; const errors = []; let hold = false;
         const router = new Router({ driver, routes: {
-          home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' }, d: { path: '/d' },
+          '/': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' }, '/d': { name: 'd' },
         }, async handler(match) {
           if (hold && match.name === 'd') { await gate.promise; }
           if (hold && match.name === 'b') {
@@ -186,7 +187,7 @@ test('a distinct History Back after commitment supersedes the earlier destinatio
     const driver = historyDriver(); const entered = Promise.withResolvers(); const gate = Promise.withResolvers();
     const ready = []; const errors = []; let hold = false;
     const router = new Router({ driver, routes: {
-      home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' },
+      '/': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' },
     }, handler(match) { if (hold && match.name === 'b') { entered.resolve(); return gate.promise; } } });
     router.on('route:ready', match => ready.push(match.name)); router.on('route:error', error => errors.push(error.message));
     try {
@@ -239,7 +240,7 @@ test('retained History routing resumes after a traversal arrived while stopped',
   const result = await page.evaluate(async() => {
     const { Router, historyDriver } = window.historyApi;
     const driver = historyDriver(); const handled = [];
-    const router = new Router({ driver, routes: { home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' } },
+    const router = new Router({ driver, routes: { '/': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' } },
       handler(match) { handled.push(match.name); } });
     try {
       await router.start(); await router.getInitialDispatch();
@@ -305,7 +306,7 @@ for (const outcome of ['ready', 'error', 'abort-error', 'stop']) {
       const failure = mode === 'abort-error' ? new DOMException('independent fetch failed', 'AbortError') : new Error('newer work failed');
       let armed = false; let newer;
       window.addEventListener('popstate', () => { if (armed) { armed = false; newer = driver.navigate('/d'); } }, { signal: owner.signal });
-      const router = new Router({ driver, routes: { home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' }, d: { path: '/d' } }, async handler(match) {
+      const router = new Router({ driver, routes: { '/': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' }, '/d': { name: 'd' } }, async handler(match) {
         handled.push(match.name);
         if (match.name === 'd') {
           entered.resolve(); await gate.promise;
@@ -396,7 +397,7 @@ test('History reload reconstruction preserves user state and starts a new known 
   const before = await page.evaluate(async() => {
     const { Router, historyDriver } = window.historyApi;
     const driver = historyDriver();
-    const router = new Router({ driver, routes: { item: { path: '/items/:id' } } });
+    const router = new Router({ driver, routes: { '/items/:id': { name: 'item' } } });
     await router.start(); await router.getInitialDispatch();
     await router.navigate('item', { id: 7 }, { state: { tab: 'saved' } }).finished;
     window.historyBeforeReload = router;
@@ -406,7 +407,7 @@ test('History reload reconstruction preserves user state and starts a new known 
   const result = await page.evaluate(async oldKey => {
     const { Router, historyDriver } = window.historyApi;
     const driver = historyDriver();
-    const router = new Router({ driver, routes: { item: { path: '/items/:id' } } });
+    const router = new Router({ driver, routes: { '/items/:id': { name: 'item' } } });
     try {
       await router.start(); const initial = await router.getInitialDispatch();
       const unknown = await driver.traverseTo(oldKey).finished.then(() => 'incorrect success', error => error.name);
@@ -422,7 +423,7 @@ test('History reload reconstruction preserves user state and starts a new known 
 test('History link interception respects browser gestures, targets and unclaimed links', async({ page }) => {
   await page.evaluate(async() => {
     const { Router, historyDriver } = window.historyApi;
-    const router = new Router({ driver: historyDriver(), routes: { item: { path: '/items/:id' } } });
+    const router = new Router({ driver: historyDriver(), routes: { '/items/:id': { name: 'item' } } });
     await router.start(); await router.getInitialDispatch();
     window.historyLinks = { router, observed: [] };
     document.querySelector('#content').innerHTML = '<a id="ordinary" href="/items/1">Item</a><a id="target" target="_blank" href="/items/2">Target</a><a id="download" download href="/items/2">Download</a><a id="unclaimed" href="/outside">Outside</a>';
@@ -447,7 +448,7 @@ test('History click routing detaches on stop and destruction, then rebinds once 
   await page.evaluate(async() => {
     const { Router, historyDriver } = window.historyApi;
     const handled = [];
-    const router = new Router({ driver: historyDriver(), routes: { item: { path: '/items/:id' } }, handler(match) { handled.push(match.params.id); } });
+    const router = new Router({ driver: historyDriver(), routes: { '/items/:id': { name: 'item' } }, handler(match) { handled.push(match.params.id); } });
     await router.start(); await router.getInitialDispatch();
     window.historyLifetime = { router, handled, claimed: [] };
     document.querySelector('#content').innerHTML = '<a id="one" href="/items/1">One</a><a id="two" href="/items/2">Two</a>';
@@ -558,7 +559,7 @@ test('Router binding failure cleans History listeners without stopping Applicati
     driver.addEventListener = (type, listener, options) => {
       subscribe(type, listener, options); signals.push(options.signal); if (fail) { throw failure; }
     };
-    const router = new Router({ driver, routes: { home: { path: '/' } } });
+    const router = new Router({ driver, routes: { '/': { name: 'home' } } });
     const child = router.addChildApp('kept', new Application()); await child.start();
     const failStop = () => { stops++; throw new Error('unexpected stop'); };
     router.on('before:stop', failStop);
@@ -584,7 +585,7 @@ test('ordinary History fragments cancel pending route work without redispatching
   await page.evaluate(async() => {
     const { Router, historyDriver } = window.historyApi;
     const gate = Promise.withResolvers(); const entered = Promise.withResolvers(); const handled = []; const ready = [];
-    const router = new Router({ driver: historyDriver(), routes: { home: { path: '/' }, slow: { path: '/slow' } }, handler(match) {
+    const router = new Router({ driver: historyDriver(), routes: { '/': { name: 'home' }, '/slow': { name: 'slow' } }, handler(match) {
       handled.push(match.name); if (match.name === 'slow') { entered.resolve(); return gate.promise; }
     } });
     router.on('route:ready', match => ready.push(match.name));
@@ -613,7 +614,7 @@ for (const read of [false, true]) {
       driver.addEventListener('navigate', event => { count++; arrived.resolve(event); }, { signal: owner.signal });
       const hash = new Promise(resolve => window.addEventListener('hashchange', resolve, { once: true, signal: owner.signal }));
       const handled = [];
-      const router = new Router({ driver, routes: { home: { path: '/' } }, handler(match) { handled.push(match.name); } });
+      const router = new Router({ driver, routes: { '/': { name: 'home' } }, handler(match) { handled.push(match.name); } });
       try {
         await router.start(); await router.getInitialDispatch();
         location.hash = 'details';
@@ -632,7 +633,7 @@ for (const read of ['currentEntry', 'entries']) {
     const result = await page.evaluate(async method => {
       const { Router, historyDriver } = window.historyApi;
       const driver = historyDriver(); const gate = Promise.withResolvers(); const ready = [];
-      const router = new Router({ driver, routes: { home: { path: '/' }, page: { path: '/page' } },
+      const router = new Router({ driver, routes: { '/': { name: 'home' }, '/page': { name: 'page' } },
         handler(match) { if (match.name === 'page') { return gate.promise; } },
       });
       router.on('route:ready', match => ready.push(match.name));
@@ -687,7 +688,7 @@ for (const operation of ['navigate', 'click']) {
     await page.route('**/document-destination', route => route.fulfill({ body: '<!doctype html><title>Document handoff</title><p>New document</p>', contentType: 'text/html' }));
     await page.evaluate(async() => {
       const { Router, historyDriver } = window.historyApi;
-      const router = new Router({ driver: historyDriver(), routes: { home: { path: '/' } } });
+      const router = new Router({ driver: historyDriver(), routes: { '/': { name: 'home' } } });
       await router.start(); await router.getInitialDispatch(); window.historyHandoff = router;
     });
     if (operation === 'click') {
@@ -707,7 +708,7 @@ for (const asynchronous of [false, true]) {
       const { Router, historyDriver } = window.historyApi;
       history.replaceState(null, '', '/old');
       const entered = Promise.withResolvers(); const gate = Promise.withResolvers(); const handled = [];
-      const router = new Router({ driver: historyDriver(), routes: { old: { path: '/old', redirect(match) {
+      const router = new Router({ driver: historyDriver(), routes: { '/old': { name: 'old', redirect(match) {
         const target = match.url.hash ? undefined : '#details'; return deferred ? Promise.resolve(target) : target;
       }, handler(match) { handled.push(match.url.hash); entered.resolve(); return gate.promise; } } } });
       try {
@@ -724,7 +725,7 @@ test('completed History Match survives an ignored fragment and is canceled by re
   const result = await page.evaluate(async() => {
     const { Router, historyDriver } = window.historyApi;
     const driver = historyDriver(); const handled = [];
-    const router = new Router({ driver, routes: { home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' } },
+    const router = new Router({ driver, routes: { '/': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' } },
       handler(match) { handled.push(match.name); },
     });
     try {
@@ -776,12 +777,12 @@ for (const asynchronous of [false, true]) {
         const { Router, historyDriver } = window.historyApi;
         history.replaceState({ value: 'old' }, ''); let enabled = false;
         const router = new Router({ driver: historyDriver(), routes: {
-          source: { path: '/', redirect(match) {
+          '/': { name: 'source', redirect(match) {
             if (!enabled) { return; }
             const target = !select || match.state.value === 'new' ? '/new' : '/old';
             return deferred ? Promise.resolve(target) : target;
           } },
-          fresh: { path: '/new' }, stale: { path: '/old' },
+          '/new': { name: 'fresh' }, '/old': { name: 'stale' },
         } });
         try {
           await router.start(); await router.getInitialDispatch(); enabled = true;

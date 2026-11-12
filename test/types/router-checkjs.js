@@ -1,6 +1,5 @@
 import { Application } from 'marionette';
-import { Router, RouteApplication, ChildAppSwitcher, defineRoutes, memoryDriver, historyDriver } from '@mnjs/router';
-
+import { Router, RouteApplication, routeTable, defineRoutes, memoryDriver, historyDriver } from '@mnjs/router';
 const memory = memoryDriver({ url: 'https://example.test/' });
 /** @type {import('@mnjs/router').Driver} */
 const customDriver = {
@@ -9,93 +8,60 @@ const customDriver = {
   back: memory.back, traverseTo: memory.traverseTo, updateCurrentEntry: memory.updateCurrentEntry,
   addEventListener: memory.addEventListener,
 };
-new Router({ driver: customDriver });
-// @ts-expect-error Driver capability flags are not a supported public field.
-void customDriver.capabilities;
-
+// @ts-expect-error Static Driver capability flags are removed.
+customDriver.capabilities;
 /** @type {import('@mnjs/router').RouteHandler} */
-const handleItem = (match, { signal }) => {
-  signal.throwIfAborted();
-  return match.params.id;
-};
+const handleItem = (match, { signal }) => { signal.throwIfAborted(); return match.params.id; };
 const routes = defineRoutes({
-  item: { path: '/items/:id', handler: handleItem },
-  search: { path: '/search{/:term}?' },
+  '/items/:id': { name: 'item', handler: handleItem },
+  '/search{/:term}?': { name: 'search' },
+  404: { name: 'missing' },
 });
-const router = new Router({ routes, driver: memoryDriver({ url: 'https://example.test/' }) });
-router.url('item', { id: 0 });
-router.navigate('item', { id: 'one' });
+const router = new Router({ routes, driver: customDriver, owns: url => url.pathname !== '/outside', notFound: 'missing' });
+router.url('item', { id: 'one' });
 router.url('search');
-router.url('search', { term: 'open' });
-// @ts-expect-error A literal route requires its declared id parameter.
+router.url('missing');
+// @ts-expect-error A known route needs its id.
 router.url('item');
-// @ts-expect-error Declared route names are checked in JavaScript too.
-router.navigate('missing');
-
-const Feature = RouteApplication.extend({
-  routes: { featureItem: { path: '/feature/:id', handler: 'showItem' } },
-  /**
-   * @param {unknown} _options Application startup options.
-   * @param {import('marionette').LifecycleContext} context Preparation authority.
-   * @returns {Promise<{ loaded: boolean }>} Prepared feature data.
-   */
-  async prepareStart(_options, { signal }) {
-    signal.throwIfAborted();
-    return { loaded: true };
-  },
+// @ts-expect-error Path keys do not become route names.
+router.url('/items/:id');
+const Child = RouteApplication.extend({
+  routes: { 'detail/:id': { name: 'detail', handler: 'show' } },
   /**
    * @param {import('@mnjs/router').ActiveMatch} match Current route.
-   * @param {{ signal: AbortSignal }} context Navigation authority.
-   * @returns {string} Selected item identifier.
+   * @returns {string} Selected identifier.
    */
-  showItem(match, { signal }) {
-    signal.throwIfAborted();
-    return match.params.id;
-  },
+  show(match) { return match.params.id; },
 });
+const Root = RouteApplication.extend({
+  childApps: { child: Child },
+  routes: { '/teams/:team': { mount: 'child', namespace: 'team' } },
+});
+const compiled = routeTable(Root);
+new Router({ routes: compiled }).url('team:detail', { team: 'blue', id: 'one' });
+// @ts-expect-error Namespaced names remain checked in JavaScript.
+new Router({ routes: compiled }).url('detail', { team: 'blue', id: 'one' });
+// @ts-expect-error Parent parameters remain required in JavaScript.
+new Router({ routes: compiled }).url('team:detail', { id: 'one' });
 const owner = new Application();
-const feature = new Feature({ router });
-owner.addChildApp('feature', feature);
-// @ts-expect-error Feature registrations require a shared Router in JavaScript too.
-new Feature();
-
-/** @type {import('@mnjs/router').RouterInstance} */
-const dynamicRouter = router;
-const unmount = dynamicRouter.mount({ later: { path: '/later/:id', handler: 'showItem' } }, { controller: feature });
-dynamicRouter.url('later', { id: 'two' });
-unmount();
-
-/** @type {import('@mnjs/router').RedirectTarget} */
-const bookmark = { name: 'item', params: { id: 'one' }, hash: '#details' };
-/** @type {import('@mnjs/router').RouteTable} */
-const bookmarks = { legacy: { path: '/legacy', redirect: async() => bookmark } };
-/** @type {import('@mnjs/router').ChildAppSwitcherOptions} */
-const defaults = { reconstruct: true };
-new ChildAppSwitcher(defaults).switchTo('page', { reconstruct: false });
-void bookmarks;
-
+const root = owner.addChildApp('root', new Root());
+root.mountRoutes(router);
+const pages = new RouteApplication();
+pages.addChildApp('page', new Application());
+pages.switchTo('page', { key: { id: 'one' }, restart: true });
+// @ts-expect-error Selection is flat.
+pages.switchTo('page', { key: ['one'] });
+// @ts-expect-error The configured base helper is removed.
+RouteApplication.withRouter(router);
+// @ts-expect-error Router state mutation is deferred.
+router.updateState({});
 /** @type {import('@mnjs/router').RouteErrorContext} */
-const errorContext = { info: undefined };
-router.on('route:error', (error, match, context) => {
-  /** @type {import('@mnjs/router').RouteErrorContext} */
-  const origin = context;
-  void [error, match, origin.info];
-});
-void errorContext;
-
-const DefaultFeature = RouteApplication.extend({ router, routes: { configured: { path: '/configured' } } });
-new DefaultFeature();
-new DefaultFeature({});
-new DefaultFeature({ router: undefined });
-const InheritedDefault = DefaultFeature.extend({});
-new InheritedDefault();
-const ClearedDefault = InheritedDefault.extend({ router: undefined });
-// @ts-expect-error Clearing a prototype default requires a router option again.
-new ClearedDefault();
-new ClearedDefault({ router });
-
-/** @type {import('@mnjs/router').Driver} */
-const historyContract = historyDriver({ window: globalThis.window });
-new Router({ driver: historyContract });
-// @ts-expect-error A configured Window cannot be a scalar.
+const provenance = { info: undefined };
+/** @type {import('@mnjs/router').RedirectTarget} */
+const target = { name: 'item', params: { id: 'one' }, hash: '#details' };
+/** @type {import('@mnjs/router').RouteTable} */
+const redirects = { '/legacy/:id': { name: 'legacy', redirect: target } };
+new Router({ routes: redirects, driver: historyDriver({ window: globalThis.window }) });
+// @ts-expect-error History requires a Window.
 historyDriver({ window: 1 });
+void provenance;
