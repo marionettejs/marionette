@@ -68,8 +68,8 @@ await router.navigate('catalog:item', { id: '42' }).finished;
 ```
 
 Provide `#content` and copy the shipped example folder alongside this bootstrap.
-It uses named Views with function templates, Regions and optional Lit integration:
-install `@mnjs/adapters@5.0.1` and `lit-html@3.3.3`. Lit expressions escape fetched
+It uses named Views with function templates, Regions and optional `@mnjs/html` integration:
+install a compatible `@mnjs/html` version (verified with 1.0.0). HTML expressions escape fetched
 titles; the router has no renderer dependency. Plain model data needs no data adapter.
 
 Catalog's class-level routes contain `/catalog` as its own page and

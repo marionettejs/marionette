@@ -24,7 +24,7 @@ For named URLs and feature-owned route transitions in a new application, use opt
 | Bind a DOM event or trigger | `docs/api/shared/view-bindings.md#dom-events` |
 | Connect URLs and destination lifetimes | `docs/guides/routing.md` |
 | Build a feature with @mnjs/router | `docs/packages/router.md` |
-| Use @mnjs/html templates and directives | `packages/html/guide.md` |
+| Use @mnjs/html templates and directives | `docs/packages/html.md` |
 | Load local data, suppress stale results, or retry | `docs/guides/async-requests.md` |
 <!-- task-routes:end -->
 

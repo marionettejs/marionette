@@ -268,5 +268,17 @@
     "route": "docs/packages/test/guide",
     "title": "Testing helper reference",
     "section": "Development packages"
+  },
+  {
+    "source": "docs/packages/html.md",
+    "route": "docs/packages/html-reference",
+    "title": "Installed HTML reference",
+    "section": "Companion packages"
+  },
+  {
+    "source": "docs/guides/fragment-navigation.md",
+    "route": "docs/guides/fragment-navigation",
+    "title": "Optional native fragment navigation",
+    "section": "Guides"
   }
 ]

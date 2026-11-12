@@ -19,7 +19,7 @@ assert.equal(host.querySelector('button').textContent, 'Count: 0');
 next.destroy();
 host.remove();
 `,
-  'guides-routing-1': `
+  'guides-fragment-navigation-1': `
 const shell = app.getView();
 const home = shell.getChildView('content');
 assert.equal(home.el.querySelector('h1').textContent, 'Home');

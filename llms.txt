@@ -69,3 +69,6 @@ Version-matched Markdown for `marionette` v5, whose core requires neither Backbo
 
 - [Testing helpers](packages/test/readme.md)
 - [Testing helper reference](packages/test/guide.md)
+
+- [Installed HTML reference](docs/packages/html.md)
+- [Optional native fragment navigation](docs/guides/fragment-navigation.md)

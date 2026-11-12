@@ -74,7 +74,7 @@ does not stop the Application or end its ongoing authority: the feature owner mu
 stop or destroy it when ending the run. After showing the ShellView instance `shell`, pass
 `shell.getRegion('destination')` as `region` to the child instance's
 `start({ region, id })`. The
-[asynchronous routing example](routing.md#route-to-asynchronous-features) shows the
+[asynchronous routing example](fragment-navigation.md#route-to-asynchronous-features) shows the
 complete shell-to-child handoff;
 [child Application ownership](../api/application.md#child-applications) explains
 registration and cleanup.
@@ -251,7 +251,7 @@ data after stop/start, although the Application retains its state source. Preser
 drafts across reconstruction requires an explicit policy, such as drafts keyed by id.
 For initial readiness failure, the caller
 handles rejection and stops the failed run before error presentation; the
-[routing example](routing.md#route-to-asynchronous-features) supplies that boundary.
+[routing example](fragment-navigation.md#route-to-asynchronous-features) supplies that boundary.
 `reloadRecord` reports current lifecycle rejections, including startup-callback
 failures; it is not a load-only error classifier. Reporting feedback does not roll
 back partial updates or establish safe recovery from callback bugs. Follow the

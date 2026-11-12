@@ -27,3 +27,21 @@ test('consumer entrypoints preserve existing routers and expose companion guidan
     assert(content.includes('Preserve an existing host router'), page);
   }
 });
+
+test('primary routing example uses Router while native navigation stays an alternative', () => {
+  const guide = read('docs/guides/routing.md');
+  assert.match(guide, /import \{ Router, RouteApplication \} from '@mnjs\/router'/);
+  assert(!guide.includes('addEventListener(\'hashchange\''));
+  assert(guide.includes('fragment-navigation.md'));
+  assert(read('docs/guides/fragment-navigation.md').includes('addEventListener(\'hashchange\''));
+  assert(read('test/docs/router-companion.mjs').includes('\'docs/guides/routing.md\''));
+});
+
+test('HTML task route prioritizes installed companion docs over the core snapshot', () => {
+  const skill = read('skills/marionette/SKILL.md');
+  assert.match(skill, /Use @mnjs\/html templates and directives \| `docs\/packages\/html.md`/);
+  const guide = read('docs/packages/html.md');
+  assert(guide.indexOf('node_modules/@mnjs/html/guide.md') < guide.indexOf('../../packages/html/guide.md'));
+  assert.match(guide, /take precedence/);
+  assert.match(guide, /source tag matching the installed HTML release/);
+});

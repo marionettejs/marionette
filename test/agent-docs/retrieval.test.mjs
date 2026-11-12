@@ -162,7 +162,7 @@ test('canonical task routes match the skill and point at installed consumer page
     .split('<!-- task-routes:end -->')[0].trim().split('\n').length - 2;
   assert.equal(rowCount(skill), 12);
   assert.ok(skill.includes('docs/packages/router.md'), 'keep routed composition visible');
-  assert.ok(skill.includes('packages/html/guide.md'), 'keep renderer guidance visible');
+  assert.ok(skill.includes('docs/packages/html.md'), 'keep renderer guidance visible');
   assert.ok(skill.includes('docs/guides/migration.md'), 'keep the v4 migration route visible');
   assert.ok(skill.includes('docs/guides/testing.md'), 'keep interaction verification visible');
   assert.equal(rowCount(skillRoutes(guide, skill)), 28, 'full task index remains available');

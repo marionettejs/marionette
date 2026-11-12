@@ -21,10 +21,11 @@ for (const [name, paths] of [
     assert(readFileSync(join(directory, 'node_modules', name, path), 'utf8').length, `${name}/${path}`);
   }
 }
-const markdown = readFileSync(join(root, 'docs/packages/router.md'), 'utf8');
+const markdown = readFileSync(join(root, 'docs/guides/routing.md'), 'utf8');
 const fences = [...markdown.matchAll(/```js\n([\s\S]*?)```/g)];
 assert.equal(fences.length, 1, 'Update the companion fixture for changed runnable examples');
 writeFileSync(join(directory, 'app.mjs'), fences[0][1]);
+writeFileSync(join(directory, 'catalog.mjs'), readFileSync(join(root, 'packages/router/examples/catalog/catalog.mjs'), 'utf8'));
 writeFileSync(join(directory, 'check.mjs'), `
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
@@ -75,6 +76,28 @@ const failed = createApp({ driver: memoryDriver({ url: 'https://example.test/cat
 await assert.rejects(failed.start(), /initial failed/);
 assert(failed.frame.isDestroyed());
 assert(failed.router.isDestroyed());
+// Execute the revised source Catalog against the same published public packages.
+const { Catalog: SourceCatalog } = await import('./catalog.mjs');
+const { Router } = await import('@mnjs/router');
+const sourceLoads = [];
+const sourceRouter = new Router({ driver: memoryDriver({ url: 'https://example.test/catalog/42' }) });
+const sourceCatalog = new SourceCatalog({ region: { el: '#app' },
+  loadItem: async id => { sourceLoads.push(id); return '<img src=x> Item ' + id; } });
+sourceCatalog.mountRoutes(sourceRouter);
+await sourceCatalog.start(); await sourceRouter.start();
+assert.equal((await sourceRouter.getInitialDispatch()).status, 'matched');
+const sourceItem = sourceCatalog.getChildApp('item');
+assert.equal(document.querySelector('h1').textContent, '<img src=x> Item 42');
+assert.equal(document.querySelector('img'), null);
+await sourceRouter.navigate('catalog:reviews').finished;
+assert.deepEqual(sourceLoads, ['42']);
+assert.equal(document.querySelector('h1').textContent, 'Reviews: <img src=x> Item 42');
+await sourceRouter.navigate('catalog:item', { id: '43' }).finished;
+assert.deepEqual(sourceLoads, ['42', '43']);
+assert.equal(sourceCatalog.getChildApp('item'), sourceItem);
+sourceCatalog.destroy(); sourceRouter.destroy();
+assert(sourceItem.isDestroyed());
+assert.equal(document.querySelector('h1'), null);
 dom.window.close();
 console.log('Published companion example: initial dispatch, escaping, retention, reload, failure recovery, cancellation and destruction passed.');
 `);

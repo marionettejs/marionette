@@ -78,7 +78,7 @@ files are already included in that companion's package.
 | Enhance existing markup | [Existing HTML](guides/existing-html.md) |
 | Embed a feature in another UI | [Existing UI](guides/existing-ui.md) |
 | Build a feature with @mnjs/router | [Routed HTML feature](packages/router.md) |
-| Use @mnjs/html templates and directives | [HTML guide](../packages/html/guide.md) |
+| Use @mnjs/html templates and directives | [HTML guide](packages/html.md) |
 | Connect URLs and destination lifetimes | [Navigation](guides/routing.md) |
 | Show, replace, or retain child UI | [Region](api/region.md) |
 | Render, filter, or sort repeated children | [Lists](guides/lists.md) |
