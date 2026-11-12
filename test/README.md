@@ -255,7 +255,12 @@ The independently versioned router follows its
 [release procedure](../packages/router/RELEASING.md). The core
 publisher below remains limited to its five framework packages. Its browser
 check uses `playwright.core-release.config.mjs`, preserving the exact core
-inventory while router-owned cases have separate Chromium certification.
+inventory while router-owned cases have separate Chromium, Firefox and WebKit
+certification. The browser CI job runs both the source-checkout Router cases and
+`test:router-tarball -- --browser` against an exact installed archive. The Router
+validator requires the full inventory once per engine, actual executable versions
+and zero failures, retries or skips. Playwright WebKit results do not certify
+every shipping Safari/iOS version.
 
 From a clean committed checkout:
 

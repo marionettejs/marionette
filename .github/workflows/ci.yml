@@ -164,7 +164,12 @@ jobs:
         run: node scripts/checks/provisioned-browsers.mjs
 
       - name: Test supported browsers
+        id: browser_suite
         run: npm run test:browser
+
+      - name: Test exact installed Router archive on all engines
+        if: ${{ !cancelled() && steps.browser_suite.outcome != 'skipped' }}
+        run: npm run test:router-tarball -- --browser --output "${RUNNER_TEMP}/router-browser-verification"
 
       - name: Validate native browser performance workloads
         run: npm run test:browser-performance
@@ -175,6 +180,8 @@ jobs:
         with:
           name: browsers-node-24
           path: |
+            ${{ runner.temp }}/router-browser-verification/
+            test/tmp/router-browser/
             test/tmp/browser/results.json
             test/tmp/browser/results.xml
             test/tmp/browser/report/

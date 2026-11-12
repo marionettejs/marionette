@@ -5,6 +5,7 @@ import { readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { marked } from 'marked';
+import { routerBrowserNames, routerBrowserPolicy } from './browser-policy.mjs';
 import { documentSections } from '../../scripts/docs/sections.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
@@ -113,30 +114,39 @@ export function routerArtifactPath(path) {
 
 export function verifyRouterBrowserReport(results, inventory) {
   assert.equal(inventory.schemaVersion, 1);
-  assert.equal(inventory.policy, 'initial-chromium');
+  assert.equal(inventory.policy, routerBrowserPolicy);
   const observed = [];
+  const projects = routerBrowserNames.map(name => `router-${name}`);
   const visit = suites => {
     for (const suite of suites) {
       for (const spec of suite.specs ?? []) {
         for (const test of spec.tests) {
-          assert.equal(test.projectName, 'router-chromium');
+          assert.ok(projects.includes(test.projectName), `Unexpected Router project ${test.projectName}`);
           assert.equal(test.status, 'expected');
           assert.equal(test.expectedStatus, 'passed');
-          assert.deepEqual(test.results.map(result => result.status), ['passed']);
-          observed.push({ file: spec.file, title: spec.title });
+          assert.deepEqual(test.results.map(result => [result.status, result.retry]), [['passed', 0]]);
+          observed.push([spec.file, spec.title, test.projectName]);
         }
       }
       visit(suite.suites ?? []);
     }
   };
   visit(results.suites);
-  const sorted = entries => entries.map(entry => JSON.stringify([entry.file, entry.title])).sort();
+  const sorted = entries => entries.map(entry => JSON.stringify(entry)).sort();
   assert.ok(inventory.tests.length > 0);
-  assert.deepEqual(sorted(observed), sorted(inventory.tests));
+  assert.equal(new Set(inventory.tests.map(({ file, title }) => JSON.stringify([file, title]))).size,
+    inventory.tests.length, 'Router inventory must not contain duplicate cases');
+  const expected = inventory.tests.flatMap(({ file, title }) => projects.map(project => [file, title, project]));
+  assert.deepEqual(sorted(observed), sorted(expected));
   assert.deepEqual(results.errors, [], 'Browser report errors must be an empty array');
-  assert.equal(results.stats.expected, observed.length);
-  assert.equal(results.stats.skipped + results.stats.flaky + results.stats.unexpected, 0);
-  const version = results.config.metadata.routerBrowserVersion;
-  assert.ok(typeof version === 'string' && version.length > 0, 'Record the actual Chromium executable version');
-  return { policy: 'initial-chromium', ...results.stats, version };
+  assert.equal(results.stats.expected, expected.length);
+  for (const field of ['skipped', 'flaky', 'unexpected']) { assert.equal(results.stats[field], 0); }
+  const versions = results.config.metadata.routerBrowserVersions;
+  assert.deepEqual(Object.keys(versions).sort(), [...routerBrowserNames].sort(), 'Record every actual engine version');
+  for (const name of routerBrowserNames) {
+    assert.ok(typeof versions[name] === 'string' && versions[name].trim().length > 0, `Record the actual ${name} version`);
+  }
+  return { policy: routerBrowserPolicy, ...results.stats, engines: routerBrowserNames.map(name => ({
+    name, version: versions[name], expected: inventory.tests.length,
+  })) };
 }

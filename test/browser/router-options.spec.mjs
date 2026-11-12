@@ -3,7 +3,7 @@ import { routerArtifactPath } from '../router/artifact.mjs';
 import { test } from './fixtures.mjs';
 
 async function loadRouter(page) {
-  test.skip(!await page.evaluate(() => 'navigation' in window), 'Navigation API unavailable');
+  expect(await page.evaluate(() => 'navigation' in window), 'Native Navigation API is required').toBe(true);
   await page.route('**/router.js', route => route.fulfill({ path: routerArtifactPath('dist/index.js'), contentType: 'text/javascript' }));
   await page.evaluate(() => {
     const map = document.createElement('script');

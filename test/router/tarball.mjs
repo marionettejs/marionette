@@ -146,15 +146,20 @@ try {
       routerPackage: packages.find(entry => entry.id === 'router'), routerArchive: report.archive,
       litDirectory: join(consumer, 'node_modules/lit-html'),
       urlPatternDirectory: join(consumer, 'node_modules/urlpattern-polyfill') }));
-    execFileSync(process.execPath, [npmCli, 'run', 'test:router-browser'], { cwd: root, stdio: 'inherit', env: {
-      ...process.env, MARIONETTE_BROWSER_CANDIDATE: candidate, MARIONETTE_ROUTER_PACKAGE_DIRECTORY: installed,
-      ...(values['chromium-executable'] ? { MARIONETTE_ROUTER_CHROMIUM: resolve(values['chromium-executable']) } : {}),
-    } });
-    const results = JSON.parse(readFileSync(join(root, 'test/tmp/router-browser/results.json')));
-    const inventory = JSON.parse(readFileSync(join(root, 'test/router/browser-inventory.json')));
-    report.browser = verifyRouterBrowserReport(results, inventory);
-    report.checks.push('chromium-native-and-history-exact-router-archive');
-    if (output) { cpSync(join(root, 'test/tmp/router-browser/results.json'), join(output, 'browser-results.json')); }
+    const resultsFile = join(root, 'test/tmp/router-browser/results.json');
+    rmSync(resultsFile, { force: true });
+    try {
+      execFileSync(process.execPath, [npmCli, 'run', 'test:router-browser'], { cwd: root, stdio: 'inherit', env: {
+        ...process.env, MARIONETTE_BROWSER_CANDIDATE: candidate, MARIONETTE_ROUTER_PACKAGE_DIRECTORY: installed,
+        ...(values['chromium-executable'] ? { MARIONETTE_ROUTER_CHROMIUM: resolve(values['chromium-executable']) } : {}),
+      } });
+      const results = JSON.parse(readFileSync(resultsFile));
+      const inventory = JSON.parse(readFileSync(join(root, 'test/router/browser-inventory.json')));
+      report.browser = verifyRouterBrowserReport(results, inventory);
+      report.checks.push('chromium-firefox-webkit-native-and-history-exact-router-archive');
+    } finally {
+      if (output && existsSync(resultsFile)) { cpSync(resultsFile, join(output, 'browser-results.json')); }
+    }
   }
   assert.equal(git(['rev-parse', 'HEAD']), report.verificationCommit, 'Source changed during verification');
   report.verificationDirty ||= Boolean(git(['status', '--porcelain']));

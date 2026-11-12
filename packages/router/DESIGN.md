@@ -780,9 +780,12 @@ with an explicit alternative driver; no automatic fallback or internal loader is
 present. Consumer bundlers control conditional imports/network chunks. The source
 build requires core declarations first (`npm run build` on a clean checkout).
 
-Browser support is tested Chromium only, with Navigation API for the default and
-an explicit History adapter/polyfill path. Firefox/WebKit and actual bfcache
-restoration are unverified. Capability presence is not certification. Node minimum
+Browser validation targets Chromium, Firefox and Playwright WebKit, with the
+actual Navigation API for the default and an explicit History adapter/polyfill
+path on each engine. Passing exact-archive receipts establish tested coverage;
+capability presence and configured projects are not certification. Playwright
+WebKit does not certify every shipping Safari/iOS version. Actual bfcache
+restoration remains unverified. Node minimum
 is 24.15; source toolchain pins and core's separate consumer floor remain distinct.
 Installed archives test runtime, ESM/CJS declarations, dependencies, documentation,
 shipped examples and optimized consumers. Public API and behavior have separate

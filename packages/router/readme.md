@@ -4,7 +4,9 @@ Optional routing tools for Marionette v5: named URLs and native navigation,
 feature-owned registrations, and selectable child Applications. Use the tools
 individually. A Router does not infer UI ownership from URL nesting.
 
-**Browser support: tested on Chromium only. Firefox and WebKit are untested.**
+**Browser validation: Chromium, Firefox and Playwright WebKit are CI targets.**
+Compatibility evidence requires a passing receipt for the exact archive and
+engine versions; adding a test target alone does not establish support.
 Router requires **URLPattern**, `AbortSignal.any`, `Promise.withResolvers` and
 `URL.canParse`; the default driver additionally requires the **Navigation API**.
 An explicit `historyDriver()` uses the History API instead. Transpilation
@@ -162,13 +164,16 @@ supplies none of these Web APIs. Capability presence is not browser certificatio
 The installed-consumer check executes this exact recipe with a deliberately
 eager application module, checking that missing capabilities prevent its import.
 
-Initial native-browser certification targets Chromium with those capabilities.
-Standalone routing was verified on Chromium 154; consumer integration also has
-reported Chromium 151 evidence. Receipts identify the exact tested build and
-archive. Firefox and WebKit are untested and are not certified targets. There is no
-automatic fallback driver. These browser requirements are independent of the
-core library's transpilation targets. Node consumer evidence currently uses
-Node 24.19.0; the declared minimum is 24.15.0.
+The source-checkout and exact-installed-archive suites target Chromium, Firefox
+and Playwright WebKit with the actual Navigation API. Each archive receipt must
+record all three executable versions and every inventory case passing once, with
+no failures, retries or skips. Existing standalone evidence covers Chromium 154;
+consumer integration also has reported Chromium 151 evidence. Those earlier
+receipts do not certify Firefox or WebKit. Playwright WebKit results do not
+certify every shipping Safari or iOS version. There is no automatic fallback
+driver. These browser requirements are independent of the core library's
+transpilation targets. Node consumer evidence currently uses Node 24.19.0; the
+declared minimum is 24.15.0.
 
 ## Choose a History API driver explicitly
 
@@ -218,12 +223,12 @@ Optimized ESM consumers can remove unused drivers; installed-package checks buil
 and execute driver-only and Router combinations. A referenced fallback can remain
 in a shared bundle. Named exports do not promise a separately downloaded chunk:
 conditional imports and network splitting belong to the application's bundler.
-The History path is tested in Chromium with the Navigation API unused and an
-actual URLPattern polyfill. This is not full polyfill certification:
+The same three-engine matrix exercises the History path with a throwing
+Navigation API getter and an actual installed URLPattern polyfill. This is not full polyfill certification:
 `urlpattern-polyfill@10.1.0` differs from native URLPattern for `__proto__`
 parameter names and backslash syntax; avoid those inputs on that path. See
-[the compatibility limits](DESIGN.md#history-api-driver). Firefox and WebKit
-remain untested.
+[the compatibility limits](DESIGN.md#history-api-driver). Passing receipts,
+rather than capability detection, establish the observed engine coverage.
 
 ## Choose which completion you need
 

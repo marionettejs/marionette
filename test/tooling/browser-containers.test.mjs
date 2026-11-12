@@ -65,6 +65,10 @@ test('timing installs and runs the exact base browser outside the candidate imag
 test('the container repair preserves browser suites, exact-artifact validation and the required aggregate', () => {
   const includesRun = (job, command) => job.steps.some(step => step.run === command);
   assert.ok(includesRun(workflows.ci.jobs.browsers, 'npm run test:browser'));
+  const archive = workflows.ci.jobs.browsers.steps.find(step => step.name === 'Test exact installed Router archive on all engines');
+  assert.equal(archive.run, 'npm run test:router-tarball -- --browser --output "${RUNNER_TEMP}/router-browser-verification"');
+  assert.equal(archive.if, "${{ !cancelled() && steps.browser_suite.outcome != 'skipped' }}");
+  assert.equal(workflows.ci.jobs.browsers.steps.find(step => step.run === 'npm run test:browser').id, 'browser_suite');
   assert.ok(includesRun(workflows.ci.jobs.browsers, 'npm run test:browser-performance'));
   assert.ok(includesRun(workflows.ci.jobs['agent-reference'], 'npm run test:agent-app'));
   assert.ok(includesRun(workflows.html.jobs.verify, 'npm --prefix packages/html run test:packed:browser'));

@@ -206,24 +206,46 @@ test('keeps output outside the source even through an existing directory alias',
   assert.throws(() => candidateOutput(f.pkg, join(alias, 'new-output')), /outside the source/);
 });
 
-test('browser evidence requires every declared case once and an actual executable version', () => {
-  const inventory = { schemaVersion: 1, policy: 'initial-chromium', tests: [{ file: 'router.spec.mjs', title: 'route' }] };
-  const report = { config: { metadata: { routerBrowserVersion: 'Chromium 154' } }, errors: [],
-    stats: { expected: 1, skipped: 0, flaky: 0, unexpected: 0 }, suites: [{ specs: [{ file: 'router.spec.mjs', title: 'route',
-      tests: [{ projectName: 'router-chromium', status: 'expected', expectedStatus: 'passed', results: [{ status: 'passed' }] }] }] }] };
-  assert.equal(verifyRouterBrowserReport(report, inventory).version, 'Chromium 154');
+test('browser evidence requires every case once on each engine and actual versions', () => {
+  const names = ['chromium', 'firefox', 'webkit'];
+  const inventory = { schemaVersion: 1, policy: 'chromium-firefox-webkit', tests: [{ file: 'router.spec.mjs', title: 'route' }] };
+  const report = { config: { metadata: { routerBrowserVersions: { chromium: '158.0.8127.18', firefox: '159.0', webkit: '27.2' } } }, errors: [],
+    stats: { expected: 3, skipped: 0, flaky: 0, unexpected: 0 }, suites: [{ specs: [{ file: 'router.spec.mjs', title: 'route',
+      tests: names.map(name => ({ projectName: `router-${name}`, status: 'expected', expectedStatus: 'passed', results: [{ status: 'passed', retry: 0 }] })) }] }] };
+  assert.deepEqual(verifyRouterBrowserReport(report, inventory).engines, names.map(name => ({
+    name, version: report.config.metadata.routerBrowserVersions[name], expected: 1,
+  })));
   for (const mutate of [r => { r.config.metadata = {}; }, r => { r.errors.push({ message: 'runner error' }); },
     r => { r.errors = ''; }, r => { r.errors = { length: 0 }; },
-    r => { r.stats.skipped = 1; }, r => { r.stats.expected = 2; }, r => { r.suites = []; },
-    r => { r.suites[0].specs[0].tests[0].results.push({ status: 'passed' }); },
-    r => { r.suites[0].specs[0].tests[0].projectName = 'webkit'; }]) {
+    r => { r.stats.skipped = 1; }, r => { r.stats.flaky = 1; }, r => { r.stats.unexpected = 1; },
+    r => { r.stats.skipped = -1; r.stats.flaky = 1; },
+    r => { r.stats.expected = 4; }, r => { r.suites = []; },
+    r => { r.suites[0].specs[0].tests[0].results.push({ status: 'passed', retry: 1 }); },
+    r => { r.suites[0].specs[0].tests[0].results[0].retry = 1; },
+    r => { r.suites[0].specs[0].tests[0].expectedStatus = 'failed'; },
+    r => { r.suites[0].specs[0].tests[0].projectName = 'webkit'; },
+    r => { r.suites[0].specs[0].tests.push(structuredClone(r.suites[0].specs[0].tests[0])); },
+  ]) {
     const changed = structuredClone(report);
     mutate(changed);
     assert.throws(() => verifyRouterBrowserReport(changed, inventory));
   }
+  for (const [index, name] of names.entries()) {
+    for (const mutate of [r => { delete r.config.metadata.routerBrowserVersions[name]; },
+      r => { r.config.metadata.routerBrowserVersions[name] = ' '; },
+      r => { r.suites[0].specs[0].tests.splice(index, 1); r.stats.expected--; },
+      r => { r.suites[0].specs[0].tests[index].results[0].status = 'skipped'; },
+      r => { r.suites[0].specs[0].tests[index].status = 'flaky'; }]) {
+      const changed = structuredClone(report);
+      mutate(changed);
+      assert.throws(() => verifyRouterBrowserReport(changed, inventory));
+    }
+  }
+  assert.throws(() => verifyRouterBrowserReport(report, { ...inventory, policy: 'initial-chromium' }));
+  assert.throws(() => verifyRouterBrowserReport(report, { ...inventory, tests: [...inventory.tests, ...inventory.tests] }));
 });
 
-test('router discovery uses the complete Chromium inventory in dedicated and development configurations', () => {
+test('router discovery uses every inventory case on all engines in both configurations', () => {
   const discover = config => {
     const result = JSON.parse(execFileSync(process.execPath, [join(root, 'node_modules/@playwright/test/cli.js'), 'test',
       '--config', config, '--list', '--reporter=json'], { cwd: root, encoding: 'utf8' }));
@@ -238,7 +260,23 @@ test('router discovery uses the complete Chromium inventory in dedicated and dev
     return cases.map(entry => JSON.stringify(entry)).sort();
   };
   const router = JSON.parse(readFileSync(join(root, 'test/router/browser-inventory.json'))).tests;
-  assert.deepEqual(discover('playwright.router.config.mjs'), router.map(({ file, title }) => JSON.stringify([file, title, 'router-chromium'])).sort());
+  const expected = prefix => router.flatMap(({ file, title }) => ['chromium', 'firefox', 'webkit']
+    .map(name => JSON.stringify([file, title, `${prefix}${name}`]))).sort();
+  assert.deepEqual(discover('playwright.router.config.mjs'), expected('router-'));
   const regular = discover('playwright.config.mjs').map(entry => JSON.parse(entry)).filter(([file]) => file.startsWith('router-'));
-  assert.deepEqual(regular.map(entry => JSON.stringify(entry)).sort(), router.map(({ file, title }) => JSON.stringify([file, title, 'chromium'])).sort());
+  assert.deepEqual(regular.map(entry => JSON.stringify(entry)).sort(), expected(''));
+  const core = discover('playwright.core-release.config.mjs').map(entry => JSON.parse(entry));
+  assert.ok(core.length > 0);
+  assert.ok(core.every(([file]) => !file.startsWith('router-')), 'Core release retains its separate inventory');
+});
+
+test('Router projects launch their named engines and preserve Chromium sandboxing', async() => {
+  const { default: dedicated } = await import('../../playwright.router.config.mjs');
+  const { default: development } = await import('../../playwright.config.mjs');
+  const names = ['chromium', 'firefox', 'webkit'];
+  assert.deepEqual(dedicated.projects.map(({ name, use }) => [name, use.browserName]),
+    names.map(name => [`router-${name}`, name]));
+  assert.equal(dedicated.projects[0].use.launchOptions.chromiumSandbox, true);
+  assert.deepEqual(development.projects.map(({ name, use }) => [name, use.browserName]),
+    names.map(name => [name, name]));
 });

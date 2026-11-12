@@ -6,7 +6,7 @@ import { hashChanges } from '../router/conformance/hash-changes.js';
 // Built router against the fixture's packed Marionette peer. No browser profile
 // or private router internals are used.
 async function example(page, { initialRedirect = false, deferStart = false, customPreparation = false } = {}) {
-  test.skip(!await page.evaluate(() => 'navigation' in window), 'Navigation API unavailable');
+  expect(await page.evaluate(() => 'navigation' in window), 'Native Navigation API is required').toBe(true);
   await page.route('**/router.js', route => route.fulfill({
     path: routerArtifactPath('dist/index.js'),
     contentType: 'text/javascript',
@@ -755,7 +755,7 @@ for (const cancellation of ['stop', 'veto']) {
 }
 
 test('cross-document back exposes traverse activation to initial routing', async({ page, candidateServer }) => {
-  test.skip(!await page.evaluate(() => 'navigation' in window), 'Navigation API unavailable');
+  expect(await page.evaluate(() => 'navigation' in window), 'Native Navigation API is required').toBe(true);
   await page.route('**/away', route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><p>Other document</p>' }));
   await page.goto(`${candidateServer}/away`);
   await page.goBack();
