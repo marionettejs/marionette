@@ -85,7 +85,7 @@ test('the container repair preserves browser suites, exact-artifact validation a
   }
 });
 
-test('Router archive uses a standard Linux host and gates certification on configured launches', () => {
+test('Router archive keeps independent engine evidence without relaxing the required gate', () => {
   const job = workflows.ci.jobs['router-browsers'];
   assert.equal(job['runs-on'], 'ubuntu-24.04');
   assert.equal(job.container, undefined);
@@ -95,10 +95,19 @@ test('Router archive uses a standard Linux host and gates certification on confi
   assert.ok(helper.run.includes('const helper = \'/opt/google/chrome/chrome-sandbox\''));
   assert.ok(helper.run.includes('info.uid === 0'));
   assert.ok(helper.run.includes('CHROME_DEVEL_SANDBOX='));
-  const probe = job.steps.find(step => step.id === 'browser_probe');
+  assert.equal(helper.id, 'chromium_sandbox');
+  assert.equal(helper['continue-on-error'], true);
+  const probe = job.steps.find(step => step.run === 'node test/router/browser-probes.mjs');
   assert.equal(probe.run, 'node test/router/browser-probes.mjs');
+  assert.equal(probe['continue-on-error'], true);
   const archive = job.steps.find(step => step.name === 'Test exact installed Router archive on all engines');
   assert.equal(archive.run, 'npm run test:router-tarball -- --browser --output "${RUNNER_TEMP}/router-browser-verification"');
-  assert.equal(archive.if, '${{ !cancelled() && steps.browser_probe.outputs.engines_ready == \'true\' }}');
+  assert.equal(archive.if, undefined);
+  assert.equal(archive['continue-on-error'], undefined);
+  assert.equal(archive.env.MARIONETTE_ROUTER_BROWSER_PROBES, 'test/tmp/router-browser-probes.json');
+  for (const step of [probe, archive]) {
+    assert.equal(step.env.MARIONETTE_ROUTER_CHROMIUM_SETUP_ERROR,
+      '${{ steps.chromium_sandbox.outcome != \'success\' && \'Existing Chromium sandbox helper failed its safety guard; no launch attempted.\' || \'\' }}');
+  }
   assert.ok(!job.steps.some(step => /sysctl|apparmor|seccomp|--no-sandbox|--privileged|--cap-add/.test(step.run ?? '')));
 });

@@ -217,6 +217,8 @@ jobs:
         run: npx --no-install playwright install --with-deps chromium firefox webkit
 
       - name: Select the preinstalled Chrome sandbox helper
+        id: chromium_sandbox
+        continue-on-error: true # Retain Firefox/WebKit evidence; certification still requires Chromium.
         run: |
           node --input-type=module <<'JS'
           import assert from 'node:assert/strict';
@@ -233,11 +235,15 @@ jobs:
           JS
 
       - name: Verify configured engine launches and diagnose raw behavior
-        id: browser_probe
+        continue-on-error: true # Raw diagnostics do not suppress the installed suites.
+        env:
+          MARIONETTE_ROUTER_CHROMIUM_SETUP_ERROR: ${{ steps.chromium_sandbox.outcome != 'success' && 'Existing Chromium sandbox helper failed its safety guard; no launch attempted.' || '' }}
         run: node test/router/browser-probes.mjs
 
       - name: Test exact installed Router archive on all engines
-        if: ${{ !cancelled() && steps.browser_probe.outputs.engines_ready == 'true' }}
+        env:
+          MARIONETTE_ROUTER_CHROMIUM_SETUP_ERROR: ${{ steps.chromium_sandbox.outcome != 'success' && 'Existing Chromium sandbox helper failed its safety guard; no launch attempted.' || '' }}
+          MARIONETTE_ROUTER_BROWSER_PROBES: test/tmp/router-browser-probes.json
         run: npm run test:router-tarball -- --browser --output "${RUNNER_TEMP}/router-browser-verification"
 
       - name: Retain complete or partial Router evidence

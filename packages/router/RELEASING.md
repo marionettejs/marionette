@@ -199,6 +199,12 @@ environment. The container also failed sandboxed archive Chromium launch.
 Archive certification needs an approved sandbox-capable runner/setup with actual
 passing launches and inventory receipts. Do not substitute source-checkout
 results or call an unverified stock host supported.
+The verifier keeps one installed archive/consumer and executes each engine in a
+separate process, retaining raw JSON, blobs and traces per engine. It merges the
+available blobs using Playwright, then requires the full three-engine inventory
+and successful engine processes. A blocked engine is recorded as never run, not
+skipped; partial Firefox/WebKit evidence cannot pass certification or the required
+CI aggregate. Receipts record host platform/architecture as well as browser versions.
 An existing supported Chromium can still be selected with
 `--chromium-executable /absolute/path/chromium`; it changes only the Chromium lane.
 The receipt records each actual browser version. Require every inventory case

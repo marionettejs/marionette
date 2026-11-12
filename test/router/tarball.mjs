@@ -6,9 +6,10 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, 
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { candidateOutput, inspectRouterArchive, sha256, validatePreparationReceipt, validateRouterPackage, verifyRouterBrowserReport, verifyRouterDocumentation } from './artifact.mjs';
+import { candidateOutput, inspectRouterArchive, sha256, validatePreparationReceipt, validateRouterPackage, verifyRouterDocumentation } from './artifact.mjs';
 import { verifyDriverTreeShaking } from './tree-shaking.mjs';
 import { verifyHistoryPackage } from './history-package-check.mjs';
+import { runRouterBrowserExecutions, verifyRouterBrowserExecutions } from './browser-executions.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 // Keep the published minimum-compatibility lane independent of the local candidate.
@@ -34,6 +35,7 @@ const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).t
 const report = { schemaVersion: 1, verificationCommit: git(['rev-parse', 'HEAD']), verificationDirty: Boolean(git(['status', '--porcelain'])),
   archiveSourceCommit: null, publishableManifest: false, status: 'running',
   node: process.versions.node, npm: execFileSync(process.execPath, [npmCli, '--version'], { encoding: 'utf8' }).trim(),
+  host: { platform: process.platform, architecture: process.arch },
   peerMode: values['registry-peers'] ? 'registry' : 'local-development', checks: [] };
 const temporary = mkdtempSync(join(tmpdir(), 'mnjs-router-tarball-'));
 try {
@@ -70,6 +72,7 @@ try {
   assert.equal(sha256(readFileSync(join(installed, 'dist/index.js'))), report.archive.browserModuleSha256);
   report.documentation = verifyRouterDocumentation(installed);
   const lock = JSON.parse(readFileSync(join(consumer, 'package-lock.json')));
+  if (output) { cpSync(join(consumer, 'package-lock.json'), join(output, 'installed-package-lock.json')); }
   const candidateVersion = directory => JSON.parse(readFileSync(join(root, directory, 'package.json'))).version;
   report.peers = [['marionette', '.package'], ['@mnjs/utils', 'packages/utils'], ['@mnjs/radio', 'packages/radio']].map(([name, directory]) => {
     const entry = lock.packages[`node_modules/${name}`];
@@ -146,25 +149,25 @@ try {
       routerPackage: packages.find(entry => entry.id === 'router'), routerArchive: report.archive,
       litDirectory: join(consumer, 'node_modules/lit-html'),
       urlPatternDirectory: join(consumer, 'node_modules/urlpattern-polyfill') }));
-    const resultsFile = join(root, 'test/tmp/router-browser/results.json');
-    rmSync(resultsFile, { force: true });
+    const browserDirectory = join(root, 'test/tmp/router-browser');
     try {
-      execFileSync(process.execPath, [npmCli, 'run', 'test:router-browser'], { cwd: root, stdio: 'inherit', env: {
-        ...process.env, MARIONETTE_BROWSER_CANDIDATE: candidate, MARIONETTE_ROUTER_PACKAGE_DIRECTORY: installed,
-        ...(values['chromium-executable'] ? { MARIONETTE_ROUTER_CHROMIUM: resolve(values['chromium-executable']) } : {}),
-      } });
-      const results = JSON.parse(readFileSync(resultsFile));
+      const execution = runRouterBrowserExecutions({ root, directory: browserDirectory,
+        probes: process.env.MARIONETTE_ROUTER_BROWSER_PROBES ? JSON.parse(readFileSync(process.env.MARIONETTE_ROUTER_BROWSER_PROBES, 'utf8')) : undefined,
+        blockedChromium: process.env.MARIONETTE_ROUTER_CHROMIUM_SETUP_ERROR, env: {
+          ...process.env, MARIONETTE_BROWSER_CANDIDATE: candidate, MARIONETTE_ROUTER_PACKAGE_DIRECTORY: installed,
+          ...(values['chromium-executable'] ? { MARIONETTE_ROUTER_CHROMIUM: resolve(values['chromium-executable']) } : {}),
+        } });
+      report.browserExecutions = execution.attempts;
       const inventory = JSON.parse(readFileSync(join(root, 'test/router/browser-inventory.json')));
-      report.browser = verifyRouterBrowserReport(results, inventory);
+      report.browser = verifyRouterBrowserExecutions(execution, inventory);
       report.checks.push('chromium-firefox-webkit-native-and-history-exact-router-archive');
     } finally {
-      if (output && existsSync(resultsFile)) { cpSync(resultsFile, join(output, 'browser-results.json')); }
+      if (output && existsSync(browserDirectory)) { cpSync(browserDirectory, join(output, 'browser-evidence'), { recursive: true }); }
     }
   }
   assert.equal(git(['rev-parse', 'HEAD']), report.verificationCommit, 'Source changed during verification');
   report.verificationDirty ||= Boolean(git(['status', '--porcelain']));
   report.status = 'passed-public-candidate';
-  if (output) { cpSync(join(consumer, 'package-lock.json'), join(output, 'installed-package-lock.json')); }
   console.log(`Router tarball SHA-256: ${createHash('sha256').update(readFileSync(routerTarball)).digest('hex')}`);
 } catch (error) {
   report.status = 'failed';

@@ -3,7 +3,7 @@
 import * as browserTypes from '@playwright/test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { routerBrowserProjects } from './browser-policy.mjs';
 import { hashChanges } from './conformance/hash-changes.js';
@@ -20,6 +20,10 @@ try {
   for (const { use } of routerBrowserProjects) {
     const entry = { engine: use.browserName, probes: {} };
     report.push(entry);
+    if (use.browserName === 'chromium' && process.env.MARIONETTE_ROUTER_CHROMIUM_SETUP_ERROR) {
+      entry.blocked = process.env.MARIONETTE_ROUTER_CHROMIUM_SETUP_ERROR;
+      continue;
+    }
     let browser;
     try {
       browser = await browserTypes[use.browserName].launch({ headless: true, ...use.launchOptions });
@@ -114,9 +118,6 @@ try {
   const output = resolve(import.meta.dirname, '../tmp/router-browser-probes.json');
   await mkdir(resolve(import.meta.dirname, '../tmp'), { recursive: true });
   await writeFile(output, `${JSON.stringify(report, null, 2)}\n`);
-  if (process.env.GITHUB_OUTPUT) {
-    await appendFile(process.env.GITHUB_OUTPUT, `engines_ready=${report.length === 3 && report.every(entry => !entry.launchError)}\n`);
-  }
   console.log(JSON.stringify(report, null, 2));
 }
-if (report.some(entry => entry.launchError || Object.values(entry.probes).some(probe => probe.error))) { process.exitCode = 1; }
+if (report.some(entry => entry.blocked || entry.launchError || Object.values(entry.probes).some(probe => probe.error))) { process.exitCode = 1; }

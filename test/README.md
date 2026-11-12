@@ -128,7 +128,7 @@ Chromium, Firefox and WebKit from the checked-in release profile.
 The Node 24 CI suites run in parallel: core checks and unit coverage, tooling
 coverage, browser contracts, agent reference controls, and Linux package fixtures.
 Each job installs and builds its own checkout and uploads its own reports. The
-`Node 24` aggregate check succeeds only when all five suites succeed; a failed,
+`Node 24` aggregate check succeeds only when all six required suites succeed; a failed,
 cancelled, or skipped suite does not pass the aggregate check. macOS package smoke
 runs alongside these jobs, and Windows package smoke runs on master pushes.
 On PRs, Linux and macOS run `bash test/fixtures/smoke.sh` after `npm ci`: it packs
@@ -257,10 +257,14 @@ publisher below remains limited to its five framework packages. Its browser
 check uses `playwright.core-release.config.mjs`, preserving the exact core
 inventory while router-owned cases have separate Chromium, Firefox and WebKit
 certification. The existing browser job runs the source-checkout Router cases. A separate
-standard Ubuntu Linux job installs the pinned engines and libraries, verifies
-the configured launches (including Chromium sandboxing), then runs
-`test:router-tarball -- --browser` against an exact installed archive. Setup
-failures remain blocking; the job does not change host security policy. The Router
+standard Ubuntu Linux job installs the pinned engines and libraries, checks the
+existing Chromium sandbox helper, and runs `test:router-tarball -- --browser`
+against one exact installed archive. Each engine executes independently. A failed
+Chromium safety guard blocks its launch while Firefox/WebKit can still produce
+evidence; that partial evidence never passes certification or the required job.
+The current stock host has failed the guard and is not a verified sandbox-capable
+certification environment. Setup failures remain blocking; the job does not
+change host security policy. The Router
 validator requires the full inventory once per engine, actual executable versions
 and zero failures, retries or skips. Playwright WebKit results do not certify
 every shipping Safari/iOS version.
@@ -270,6 +274,11 @@ explicitly; they do not skip those cases or normalize Router runtime behavior.
 Passing this inventory includes those differences and does not establish native
 behavior identical to Chromium or Firefox. Separate native diagnostics preserve
 the raw receipts in `test/tmp/router-diagnostics/`.
+Installed per-engine JSON/blob/trace evidence and the merged report live under
+`test/tmp/router-browser/` and are copied to the receipt's `browser-evidence/`
+directory, including on failure. The verification receipt distinguishes blocked
+engines with zero cases from engines that ran and failed. The installed lockfile
+is retained even when browser certification fails.
 
 From a clean committed checkout:
 
