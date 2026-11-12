@@ -123,7 +123,7 @@ test('native empty, absent and identical fragments match the shared driver cases
 });
 
 test('native Back to a distinct earlier entry supersedes the still-preparing destination', async({ page }) => {
-  await example(page, { observe: true });
+  await example(page, { observe: !!test.info().config.metadata.routerNativeTrace });
   const result = await page.evaluate(async() => {
     const state = window.routerExample;
     state.router.mount({ '/first': { name: 'first' }, '/second': { name: 'second' }, '/third': { name: 'third' } });
@@ -140,18 +140,18 @@ test('native Back to a distinct earlier entry supersedes the still-preparing des
     const first = state.router.back();
     await firstEntered.promise;
     const obsolete = await second;
-    state.observer.record('helper:second:settled', null, { outcome: obsolete });
+    state.observer?.record('helper:second:settled', null, { outcome: obsolete });
     state.gates.get('first').resolve();
     const current = await first;
-    state.observer.record('helper:first:settled', null, { outcome: current });
+    state.observer?.record('helper:first:settled', null, { outcome: current });
     state.gates.get('second').reject(new Error('obsolete second destination'));
     await new Promise(resolveTurn => setTimeout(resolveTurn, 0));
-    const contract = state.observer.snapshot('before-cleanup');
-    state.observer.stop();
+    const contract = state.observer?.snapshot('before-cleanup') ?? null;
+    state.observer?.stop();
     return { obsolete, current, name: state.router.getCurrent().name, errors: state.errors, contract };
   });
   const { contract, ...outcome } = result;
-  console.log('Router distinct Back contract:', JSON.stringify(contract));
+  if (contract) { console.log('Router distinct Back contract:', JSON.stringify(contract)); }
   expect(outcome).toEqual({ obsolete: false, current: true, name: 'first', errors: [] });
 });
 

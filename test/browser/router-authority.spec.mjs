@@ -209,40 +209,42 @@ test('later native fragment navigation supersedes deferred work without routing 
 test('native queued Back dispatch follows completed abort-listener navigation', async({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
-  const result = await page.evaluate(async() => {
+  const result = await page.evaluate(async observesNavigation => {
     const { Router } = await import('/router.js');
-    const observer = (await import('/router-observer.js')).observeNavigation();
+    const observer = observesNavigation ? (await import('/router-observer.js')).observeNavigation() : null;
     history.replaceState(null, '', '/home');
     const entered = Promise.withResolvers();
     const work = Promise.withResolvers();
     const handled = [];
     let newer;
-    const router = new Router({ driver: observer.driver, routes: { '/home': { name: 'home' }, '/a': { name: 'a' }, '/c': { name: 'c' } }, handler(match) {
-      observer.record('handler:enter', match);
+    const router = new Router({ ...(observer ? { driver: observer.driver } : {}), routes: { '/home': { name: 'home' }, '/a': { name: 'a' }, '/c': { name: 'c' } }, handler(match) {
+      observer?.record('handler:enter', match);
       handled.push(match.name);
       if (match.name === 'a') {
         match.signal.addEventListener('abort', () => { newer = router.navigate('c'); }, { once: true });
-        work.promise.then(() => observer.record('handler:fulfilled', match),
-          error => observer.record('handler:rejected', match, { error: error.name }));
+        if (observer) {
+          work.promise.then(() => observer.record('handler:fulfilled', match),
+            error => observer.record('handler:rejected', match, { error: error.name }));
+        }
         entered.resolve(); return work.promise;
       }
-      observer.record('handler:fulfilled', match);
+      observer?.record('handler:fulfilled', match);
     } });
-    observer.connect(router);
+    observer?.connect(router);
     try {
       await router.start(); await router.getInitialDispatch();
       const a = router.navigate('a'); await entered.promise;
       const back = router.back();
       const first = await Promise.all([a.finished, back]);
       const outcomes = [...first, await newer.finished];
-      observer.record('helpers:settled', null, { outcomes });
-      return { outcomes, current: router.getCurrent().name, path: location.pathname, handled, contract: observer.snapshot('before-cleanup') };
-    } finally { observer.stop(); router.destroy(); work.resolve(); }
-  });
+      observer?.record('helpers:settled', null, { outcomes });
+      return { outcomes, current: router.getCurrent().name, path: location.pathname, handled, contract: observer?.snapshot('before-cleanup') ?? null };
+    } finally { observer?.stop(); router.destroy(); work.resolve(); }
+  }, !!test.info().config.metadata.routerNativeTrace);
   // The raw Navigation API also dispatches this queued traversal after C finishes.
   // Driver scheduling is retained; Router does not compensate history.
   const { contract, ...outcome } = result;
-  console.log('Router abort-reentry Back contract:', JSON.stringify(contract));
+  if (contract) { console.log('Router abort-reentry Back contract:', JSON.stringify(contract)); }
   expect(outcome).toEqual({ outcomes: [false, true, true], current: 'home', path: '/home', handled: ['home', 'a', 'c', 'home'] });
   expect(errors).toEqual([]);
 });

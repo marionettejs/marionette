@@ -65,6 +65,10 @@ test('timing installs and runs the exact base browser outside the candidate imag
 test('the container repair preserves browser suites, exact-artifact validation and the required aggregate', () => {
   const includesRun = (job, command) => job.steps.some(step => step.run === command);
   assert.ok(includesRun(workflows.ci.jobs.browsers, 'npm run test:browser'));
+  const trace = workflows.ci.jobs.browsers.steps.find(step => step.name === 'Trace native Router contract failures separately');
+  assert.equal(trace.run, 'npm run test:browser -- --config playwright.router-diagnostics.config.mjs');
+  assert.equal(trace.if, '${{ !cancelled() && steps.browser_suite.outcome != \'skipped\' }}');
+  assert.equal(workflows.ci.jobs.browsers.steps.find(step => step.run === 'npm run test:browser').id, 'browser_suite');
   assert.ok(includesRun(workflows.ci.jobs.browsers, 'npm run test:browser-performance'));
   assert.ok(includesRun(workflows.ci.jobs['agent-reference'], 'npm run test:agent-app'));
   assert.ok(includesRun(workflows.html.jobs.verify, 'npm --prefix packages/html run test:packed:browser'));
@@ -87,6 +91,10 @@ test('Router archive uses a standard Linux host and gates certification on confi
   assert.equal(job.container, undefined);
   const install = job.steps.find(step => step.name === 'Install pinned browser binaries and libraries');
   assert.equal(install.run, 'npx --no-install playwright install --with-deps chromium firefox webkit');
+  const helper = job.steps.find(step => step.name === 'Select the preinstalled Chrome sandbox helper');
+  assert.ok(helper.run.includes('const helper = \'/opt/google/chrome/chrome-sandbox\''));
+  assert.ok(helper.run.includes('info.uid === 0'));
+  assert.ok(helper.run.includes('CHROME_DEVEL_SANDBOX='));
   const probe = job.steps.find(step => step.id === 'browser_probe');
   assert.equal(probe.run, 'node test/router/browser-probes.mjs');
   const archive = job.steps.find(step => step.name === 'Test exact installed Router archive on all engines');

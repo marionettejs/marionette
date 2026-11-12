@@ -276,11 +276,20 @@ test('router discovery uses every inventory case on all engines in both configur
   const core = discover('playwright.core-release.config.mjs').map(entry => JSON.parse(entry));
   assert.ok(core.length > 0);
   assert.ok(core.every(([file]) => !file.startsWith('router-')), 'Core release retains its separate inventory');
+  const diagnostic = discover('playwright.router-diagnostics.config.mjs').map(entry => JSON.parse(entry));
+  assert.equal(diagnostic.length, 6, 'Two native contract cases on each engine');
+  assert.ok(diagnostic.every(([, title]) => title === 'native Back to a distinct earlier entry supersedes the still-preparing destination' ||
+    title === 'native queued Back dispatch follows completed abort-listener navigation'));
+  assert.deepEqual([...new Set(diagnostic.map(([, , project]) => project))].sort(), ['chromium', 'firefox', 'webkit']);
 });
 
 test('Router projects launch their named engines and preserve Chromium sandboxing', async() => {
   const { default: dedicated } = await import('../../playwright.router.config.mjs');
   const { default: development } = await import('../../playwright.config.mjs');
+  const { default: diagnostic } = await import('../../playwright.router-diagnostics.config.mjs');
+  assert.equal(diagnostic.metadata.routerNativeTrace, true);
+  assert.notEqual(diagnostic.outputDir, development.outputDir);
+  assert.notEqual(diagnostic.reporter[1][1].outputFile, development.reporter[2][1].outputFile);
   const names = ['chromium', 'firefox', 'webkit'];
   assert.deepEqual(dedicated.projects.map(({ name, use }) => [name, use.browserName]),
     names.map(name => [`router-${name}`, name]));

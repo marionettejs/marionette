@@ -164,7 +164,12 @@ jobs:
         run: node scripts/checks/provisioned-browsers.mjs
 
       - name: Test supported browsers
+        id: browser_suite
         run: npm run test:browser
+
+      - name: Trace native Router contract failures separately
+        if: ${{ !cancelled() && steps.browser_suite.outcome != 'skipped' }}
+        run: npm run test:browser -- --config playwright.router-diagnostics.config.mjs
 
       - name: Validate native browser performance workloads
         run: npm run test:browser-performance
@@ -175,6 +180,7 @@ jobs:
         with:
           name: browsers-node-24
           path: |
+            test/tmp/router-diagnostics/
             test/tmp/browser/results.json
             test/tmp/browser/results.xml
             test/tmp/browser/report/
@@ -209,6 +215,22 @@ jobs:
 
       - name: Install pinned browser binaries and libraries
         run: npx --no-install playwright install --with-deps chromium firefox webkit
+
+      - name: Select the preinstalled Chrome sandbox helper
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { appendFileSync, readFileSync, statSync } from 'node:fs';
+          import { createHash } from 'node:crypto';
+          const helper = '/opt/google/chrome/chrome-sandbox';
+          const info = statSync(helper);
+          assert.ok(info.isFile() && info.uid === 0 && (info.mode & 0o4000) !== 0 &&
+            (info.mode & 0o22) === 0 && (info.mode & 0o111) !== 0,
+            'Require the existing root-owned setuid helper; never install or change its permissions');
+          console.log(JSON.stringify({ helper, uid: info.uid, mode: (info.mode & 0o7777).toString(8),
+            sha256: createHash('sha256').update(readFileSync(helper)).digest('hex') }));
+          appendFileSync(process.env.GITHUB_ENV, `CHROME_DEVEL_SANDBOX=${helper}\n`);
+          JS
 
       - name: Verify configured engine launches and diagnose raw behavior
         id: browser_probe
