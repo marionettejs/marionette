@@ -99,7 +99,7 @@ async function position(page, { focus: targetFocus = 'before', scroll: targetScr
   }, { focus: targetFocus, scroll: targetScroll });
 }
 
-test('native empty, absent and identical fragments match the shared driver cases', async({ page }) => {
+test('native empty, absent and identical fragments match the shared driver cases', async({ page, browserName }) => {
   const actual = await page.evaluate(async cases => {
     const events = [];
     const observed = [];
@@ -119,10 +119,21 @@ test('native empty, absent and identical fragments match the shared driver cases
     return observed;
   }, hashChanges);
   console.log('Router native fragment observations:', JSON.stringify(actual));
-  expect(actual.map(({ hashChange }) => hashChange)).toEqual(hashChanges.map(({ expected }) => expected));
+  // WebKit's two fragment-removal flags differ from the standard/shared cases.
+  // See packages/router/readme.md#known-native-webkit-differences (upstream link pending).
+  const expectedFlags = browserName === 'webkit' ? [true, true, false, true, true, false, false] : hashChanges.map(({ expected }) => expected);
+  expect(actual.map(({ hashChange }) => hashChange)).toEqual(expectedFlags);
+  expect(actual).toHaveLength(hashChanges.length);
+  for (const [index, event] of actual.entries()) {
+    expect(new URL(event.source).pathname + new URL(event.source).hash).toBe(hashChanges[index].from.replace(/#$/, ''));
+    expect(new URL(event.destination).pathname + new URL(event.destination).hash).toBe(hashChanges[index].to.replace(/#$/, ''));
+    expect(event.sourceFragment).toBe(hashChanges[index].from.includes('#') ? hashChanges[index].from.split('#')[1] : null);
+    expect(event.destinationFragment).toBe(hashChanges[index].to.includes('#') ? hashChanges[index].to.split('#')[1] : null);
+  }
+  expect(actual.slice(3, 5).map(({ sameDocument }) => sameDocument)).toEqual([false, false]);
 });
 
-test('native Back to a distinct earlier entry supersedes the still-preparing destination', async({ page }) => {
+test('native Back to a distinct earlier entry supersedes the still-preparing destination', async({ page, browserName }) => {
   await example(page, { observe: !!test.info().config.metadata.routerNativeTrace });
   const result = await page.evaluate(async() => {
     const state = window.routerExample;
@@ -135,6 +146,7 @@ test('native Back to a distinct earlier entry supersedes the still-preparing des
     state.router.once('route', secondEntered.resolve);
     const second = state.router.back();
     await secondEntered.promise;
+    const secondMatch = state.router.getCurrent();
     const firstEntered = Promise.withResolvers();
     state.router.once('route', firstEntered.resolve);
     const first = state.router.back();
@@ -148,11 +160,26 @@ test('native Back to a distinct earlier entry supersedes the still-preparing des
     await new Promise(resolveTurn => setTimeout(resolveTurn, 0));
     const contract = state.observer?.snapshot('before-cleanup') ?? null;
     state.observer?.stop();
-    return { obsolete, current, name: state.router.getCurrent().name, errors: state.errors, contract };
+    return { obsolete, current, name: state.router.getCurrent().name, errors: state.errors, contract,
+      aborted: state.router.getCurrent().signal.aborted, obsoleteAborted: secondMatch.signal.aborted,
+      ready: state.ready.map(match => match.path), handled: state.entered.slice(-1),
+      entryMatches: state.router.getCurrent().key === navigation.currentEntry.key };
   });
   const { contract, ...outcome } = result;
   if (contract) { console.log('Router distinct Back contract:', JSON.stringify(contract)); }
-  expect(outcome).toEqual({ obsolete: false, current: true, name: 'first', errors: [] });
+  // The current route is ready on every engine; WebKit rejects the native Back
+  // receipt with AbortError. Keep that transparent helper result explicit.
+  // See packages/router/readme.md#known-native-webkit-differences (upstream link pending).
+  expect(outcome).toEqual({ obsolete: false, current: browserName !== 'webkit', name: 'first', errors: [],
+    aborted: false, obsoleteAborted: true, ready: ['/', '/first', '/second', '/third', '/first'],
+    handled: ['first'], entryMatches: true });
+  if (contract) {
+    expect(contract.current).toMatchObject({ name: 'first', current: true, aborted: false });
+    expect(contract.trace.filter(event => event.type === 'router:error')).toEqual([]);
+    expect(contract.trace.filter(event => event.type === 'driver:back:finished').map(({ status, error }) => ({ status, error })))
+      .toEqual([{ status: 'rejected', error: 'AbortError' }, browserName === 'webkit' ?
+        { status: 'rejected', error: 'AbortError' } : { status: 'fulfilled', error: undefined }]);
+  }
 });
 
 for (const outcome of ['fulfilled', 'error', 'abort-error', 'redirected', 'redirected-error', 'redirected-abort-error', 'stopped']) {

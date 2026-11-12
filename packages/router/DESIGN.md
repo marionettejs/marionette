@@ -203,6 +203,14 @@ When a driver coalesces queued Back calls to the same preceding entry, those
 callers share the routing chain's readiness, redirects and operational failures.
 The driver still owns traversal scheduling; the helper does not debounce calls.
 
+The pinned native WebKit engine has a documented exception to this readiness
+contract: in two overlapping Back scenarios the native finished receipt rejects
+`AbortError` and Router's helper resolves `false`, although returned handler work
+completed, `route:ready` fired, and the current Match signal remains un-aborted.
+See [known native WebKit differences](readme.md#known-native-webkit-differences)
+for the exact cases and evidence. Router preserves this native result; passing
+engine-specific expectations does not establish uniform native completion semantics.
+
 A navigation requested synchronously by an outgoing route's abort listener keeps
 authority over the request that triggered that abort. At this native reentry
 boundary the Router defers the newer Driver call to a microtask, cancels obsolete

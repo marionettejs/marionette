@@ -264,6 +264,12 @@ failures remain blocking; the job does not change host security policy. The Rout
 validator requires the full inventory once per engine, actual executable versions
 and zero failures, retries or skips. Playwright WebKit results do not certify
 every shipping Safari/iOS version.
+The native tests assert the pinned WebKit engine's
+[documented differences](../packages/router/readme.md#known-native-webkit-differences)
+explicitly; they do not skip those cases or normalize Router runtime behavior.
+Passing this inventory includes those differences and does not establish native
+behavior identical to Chromium or Firefox. Separate native diagnostics preserve
+the raw receipts in `test/tmp/router-diagnostics/`.
 
 From a clean committed checkout:
 

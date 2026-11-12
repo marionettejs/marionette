@@ -76,6 +76,9 @@ published minimum and newest compatible core. When both resolve to 5.0.1, record
 that they are the same registry bytes rather than claiming two different lanes.
 Keep the required three-engine archive checks; local-candidate evidence alone is not
 enough to publish Router.
+Review the [known native WebKit differences](readme.md#known-native-webkit-differences)
+alongside any passing receipt. The tests intentionally assert the observed
+engine-specific results; they do not establish identical native semantics.
 
 Then certify the coordinated 5.1.0 candidate, including a companion check using
 the actual published Router 0.1.1 archive and published HTML 1.0.0. Use the Router

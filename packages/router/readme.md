@@ -13,6 +13,7 @@ An explicit `historyDriver()` uses the History API instead. Transpilation
 does not supply these APIs. There is no automatic driver selection. Capability
 presence alone does not establish browser compatibility. See the capability
 check below before importing an application that eagerly constructs a Router.
+The pinned WebKit engine has [known native differences](#known-native-webkit-differences).
 
 Programmatic History-driver navigation accepts HTTP(S) destinations only.
 Other schemes reject with `NotSupportedError` before document handoff. Ordinary
@@ -33,6 +34,43 @@ not establish registry availability. Routing is optional for Marionette 5.
 identify the maintained source and unchanged [MIT notice](license.txt).
 Report suspected vulnerabilities privately through the
 [repository security advisory form](https://github.com/marionettejs/marionette/security/advisories/new).
+
+## Known native WebKit differences
+
+Playwright WebKit 27.2 has two observed Navigation API differences. Router keeps
+the native driver's results and event classification; it does not normalize them.
+
+- Removing a fragment (`/page#top` or `/page#` to `/page`) reports
+  `hashChange: true` with `destination.sameDocument: false`. Chromium 158 and
+  Firefox 159 report `hashChange: false`. The
+  [HTML navigate-event algorithm](https://html.spec.whatwg.org/multipage/nav-history-apis.html#fire-navigate-event)
+  requires a same-document destination for `hashChange: true`. Router leaves
+  ordinary native hash changes browser-owned, so WebKit's classification can
+  prevent an otherwise owned fragment-removal navigation from reaching a route
+  handler and allow document navigation instead.
+- In two overlapping Back scenarios, native `back().finished` rejects
+  `AbortError` even though the destination handler has completed, `route:ready`
+  has fired, and the current Match signal remains un-aborted. Router's `back()`
+  consequently resolves `false`. This occurs when a second Back supersedes a
+  still-preparing destination, and when an abort listener navigates before an
+  already queued Back arrives. The `false` receipt in these cases does not mean
+  that no destination became ready. Operational handler failures still reject;
+  they are not converted into successful navigation.
+
+The browser tests retain these cases and assert WebKit's exact observed results,
+including current entry identity, signal state, readiness and error isolation.
+Separate diagnostics retain the raw native receipts. The
+[reproducer and CI evidence](https://github.com/marionettejs/marionette/actions/runs/43291118434)
+show the original differences before the engine-specific expectations.
+**Upstream WebKit bug link pending:** no matching public report has been verified;
+no upstream issue has been filed for these observations.
+
+Applications needing different completion or fragment-routing behavior can
+explicitly choose [the History driver](#choose-a-history-api-driver-explicitly)
+before constructing the Router. It has its own documented limits and is not
+selected automatically. Playwright WebKit coverage does not certify every
+shipping Safari or iOS version. Source-checkout results also do not replace
+certification of an exact installed package archive.
 
 ## Build a routed feature with Applications and Views
 
@@ -240,6 +278,10 @@ rather than capability detection, establish the observed engine coverage.
 | `route(match)` | Router Match committed, before its awaited handler. |
 | `navigate(...).finished`, `refresh()`, `back()` | Returned handler/redirect work completed while current; true, false on cancellation, rejection on current operational failure. |
 | `route:ready` | Handler fulfilled and Match remains current. A fulfilled false or handled error presentation may still be successful. |
+
+The [native WebKit Back exception](#known-native-webkit-differences) qualifies
+this completion contract: the helper can resolve `false` from the native receipt
+despite completed returned work and a ready, current, un-aborted Match.
 
 Router cancellation settles completion promptly even when ignored work continues.
 It does not discover detached work or wait for every feature-owned replacement.
