@@ -3,8 +3,8 @@
 import { compile } from '@formkit/core';
 import { subscribeReactiveStore } from './upstream-bindings.mjs';
 
-export function renderSections({host,schema,context,metrics}) {
-  let dead=false;const effects=new Set();
+export function renderSections({host,schema,context,metrics,slots={},reuseRoot=false}) {
+  let dead=false,rootUsed=false;const effects=new Set();
   const metric=key=>metrics[key]=(metrics[key]??0)+1;
   function scope(){const disposers=[];return {add:fn=>disposers.push(fn),destroy(){for(const fn of disposers.splice(0).reverse())fn();}};}
   const root=scope();
@@ -18,6 +18,7 @@ export function renderSections({host,schema,context,metrics}) {
     const equal=(a,b)=>Array.isArray(a)&&Array.isArray(b)?a.length===b.length&&a.every(([k,v],i)=>k===b[i][0]&&Object.is(v,b[i][1])):Object.is(a,b);
     const fn=compile(value).provide(required=>{tokens=required;return Object.fromEntries(required.map(token=>[token,()=>read(token,locals)]));});
     const effect=(force=false)=>{if(dead)return;const next=tokens.map(token=>{metric('tokenChecks');return snapshot(read(token,locals));});
+      if(dead)return;
       if(!force&&initialized&&next.every((v,i)=>equal(v,last[i])))return;last=next;initialized=true;metric('expressionEvaluations');apply(fn());};
     effects.add(effect);owner.add(()=>effects.delete(effect));effect(true);
   }
@@ -25,13 +26,15 @@ export function renderSections({host,schema,context,metrics}) {
   function draw(entry,parent,before,locals,owner){
     if(entry==null||entry===false)return;
     if(Array.isArray(entry)){for(const child of entry)draw(child,parent,before,locals,owner);return;}
+    if(typeof entry==='string'&&entry.startsWith('$slots.')&&Object.hasOwn(slots,entry.slice(7))){const cleanup=slots[entry.slice(7)]({parent,before,context});if(cleanup)owner.add(cleanup);return;}
     if(typeof entry!=='object'){const text=document.createTextNode('');parent.insertBefore(text,before);owner.add(()=>text.remove());binding(entry,locals,owner,value=>{const next=value==null?'':String(value);if(text.data!==next){text.data=next;metric('domWrites');}});return;}
     if(entry.for){const [name,source]=entry.for;const bounds=range(parent,before,owner);let children=scope();owner.add(()=>children.destroy());binding(source,locals,owner,values=>{children.destroy();children=scope();metric('structuralChanges');for(const [key,value]of Object.entries(values??{})){const inner=Object.assign(Object.create(locals),{[name]:value});draw({...entry,for:undefined},parent,bounds.end,inner,children);}});return;}
     if(Object.hasOwn(entry,'if')){const bounds=range(parent,before,owner);let child=scope(),previous;owner.add(()=>child.destroy());const yes=Object.hasOwn(entry,'then')?entry.then:Object.fromEntries(Object.entries(entry).filter(([key])=>key!=='if'));binding(entry.if,locals,owner,value=>{const flag=!!value;if(flag===previous)return;previous=flag;child.destroy();child=scope();metric('structuralChanges');draw(flag?yes:entry.else,parent,bounds.end,locals,child);});return;}
     if(!Object.hasOwn(entry,'$el'))throw new TypeError('Unsupported official section node');
     if(entry.$el===null)return;
     if(typeof entry.$el!=='string'||entry.$el.startsWith('$'))throw new TypeError('Dynamic section tag unsupported');
-    const element=document.createElement(entry.$el);parent.insertBefore(element,before);owner.add(()=>element.remove());
+    const reuse=reuseRoot&&!rootUsed&&parent===host&&host.tagName.toLowerCase()===entry.$el;
+    const element=reuse?host:document.createElement(entry.$el);if(reuse)rootUsed=true;else{parent.insertBefore(element,before);owner.add(()=>element.remove());}
     const listeners=new Map();owner.add(()=>{for(const [name,fn]of listeners)element.removeEventListener(name,fn);});
     function attr(name,value){if(name==='key')return;if(/^on[A-Z]/.test(name)){const event=name.slice(2).toLowerCase();const previous=listeners.get(event);if(previous===value)return;if(previous)element.removeEventListener(event,previous);if(typeof value==='function'){element.addEventListener(event,value);listeners.set(event,value);}else listeners.delete(event);return;}
       if(name==='innerHTML'){if(value)throw new TypeError('Raw icon HTML outside supported text slice');return;}

@@ -1,7 +1,7 @@
 // Experimental slice. React 2.5.0 store/class-cache patterns adapted under MIT;
 // see LICENSE.formkit. DOM renderer and Marionette ownership are new code.
 import { View, Region } from 'marionette';
-import { createNode, createClasses, generateClassList, reset } from '@formkit/core';
+import { createNode, reset } from '@formkit/core';
 import { createLibraryPlugin, inputs } from '@formkit/inputs';
 import { bindings } from './upstream-bindings.mjs';
 import { renderSections } from './section-renderer.mjs';
@@ -32,9 +32,12 @@ export class ExperimentalFormView extends View {
   get tagName() { return 'form'; }
   get template() { return false; }
   initialize(options = {}) {
-    this.metrics = { contextNotifications:0,tokenChecks:0,expressionEvaluations:0,domWrites:0,structuralChanges:0 };
+    this.metrics = { contextNotifications:0,tokenChecks:0,expressionEvaluations:0,domWrites:0,structuralChanges:0,coreNodesCreated:0,coreNodesDestroyed:0,coreInputEvents:0,coreCommitEvents:0,coreMessageEvents:0,classRootEvaluations:0 };
     this._fieldId = 0; this._ending = false;
     this.config = { delay: 0, locale: 'en', rootClasses: section => ({[`formkit-${section}`]:true}), ...options.config, classes: options.classes ?? options.config?.classes };
+    const rootClasses=this.config.rootClasses;
+    this.config.rootClasses=(section,node)=>{this.metrics.classRootEvaluations++;return rootClasses(section,node);};
+    const countCore=node=>{this.metrics.coreNodesCreated++;for(const[event,key]of [['input','coreInputEvents'],['commit','coreCommitEvents'],['message-added','coreMessageEvents'],['message-updated','coreMessageEvents'],['message-removed','coreMessageEvents'],['destroyed','coreNodesDestroyed']])node.on(event,()=>this.metrics[key]++);};
     this.fields = new Map(); this.initialValues = structuredClone(options.values ?? {});
     const terminalSubmission = Symbol('terminal submission');
     const wrapSubmitCallback = (callback, awaitResult = false) => (...args) => {
@@ -47,25 +50,23 @@ export class ExperimentalFormView extends View {
       return result;
     };
     this.node = createNode({ name: 'form', value: this.initialValues, config: this.config,
-      props: { ...options.formProps, type: 'form', actions: false, onSubmit: wrapSubmitCallback(options.onSubmit, true), onSubmitInvalid: wrapSubmitCallback(options.onSubmitInvalid), onSubmitRaw: wrapSubmitCallback(options.onSubmitRaw) },
-      plugins: [createLibraryPlugin(inputs), bindings, createValidationPlugin(rules), createI18nPlugin({ en })] });
-    this.formMessages = document.createElement('ul'); this.formMessages.className = 'formkit-messages';
-    this._formStore = createStore(); this._formStore.subscribe(() => {
-      this.formMessages.replaceChildren(...this.node.store.reduce((all, message) => {
-        if (message.visible && (message.type === 'error' || message.meta.showAsMessage)) { const li = document.createElement('li'); li.textContent = String(message.value); all.push(li); } return all;
-      }, []));
-    });
-    this._formReceipts = ['message-added', 'message-updated', 'message-removed'].map(event => this.node.on(event, () => this._formStore.notify()));
-    this._onSubmit = event => { this.lastSubmission = this.node.context.handlers.submit(event).catch(error => { if (error !== terminalSubmission) throw error; }); };
-    this.el.addEventListener('submit', this._onSubmit);
+      props: { ...options.formProps, type: 'form', attrs: options.formProps?.attrs ?? {}, id: `experiment-form-${this.cid}`, __slots: {default:true}, actions: false, onSubmit: wrapSubmitCallback(options.onSubmit, true), onSubmitInvalid: wrapSubmitCallback(options.onSubmitInvalid), onSubmitRaw: wrapSubmitCallback(options.onSubmitRaw) },
+      plugins: [countCore, createLibraryPlugin(inputs), bindings, createValidationPlugin(rules), createI18nPlugin({ en })] });
+    const submitHandler=this.node.context.handlers.submit;
+    this._onSubmit = event => { this.lastSubmission = submitHandler(event).catch(error => { if (error !== terminalSubmission) throw error; }); };
+    this.node.context.handlers.submit=this._onSubmit;
+    this._rootRenderer=renderSections({host:this.el,schema:this.node.props.definition.schema({}),context:this.node.context,metrics:this.metrics,reuseRoot:true,
+      slots:{default:({parent,before})=>{this._fieldAnchor=document.createComment('fields');parent.insertBefore(this._fieldAnchor,before);return()=>this._fieldAnchor.remove();}}});
     this.specs = options.fields ?? Array.from({ length: options.count ?? 1 }, (_, i) => ({ name: `field${i}`, label: `Field ${i}`, validation: 'required' }));
-    this.on('before:destroy', () => { this._ending = true; this._formStore.destroy(); for (const receipt of this._formReceipts) this.node.off(receipt); this.el.removeEventListener('submit', this._onSubmit); for (const field of this.fields.values()) field.destroy(); this.fields.clear(); this.node.destroy(); });
+    this.on('before:destroy', () => { this._ending = true; this._rootRenderer.destroy(); for (const field of this.fields.values()) field.destroy(); this.fields.clear(); this.node.destroy(); });
   }
   render() {
     if (this.isDestroyed()) return this;
     this.triggerMethod('before:render', this);
     if (this._ending || this.isDestroyed()) return this;
-    this.setFields(this.specs); for (const field of this.fields.values()) field.refresh();
+    this.node.context.refreshClasses();this._rootRenderer.refresh();
+    if (this._ending || this.isDestroyed()) return this;
+    this.setFields(this.specs); for (const field of this.fields.values()) { field.refresh(); if (this._ending || this.isDestroyed()) return this; }
     this._isRendered = true; this.triggerMethod('render', this); return this;
   }
   setFields(specs) {
@@ -79,11 +80,12 @@ export class ExperimentalFormView extends View {
         const node = createNode({ parent: this.node, name: spec.name, type: 'input', value: this.initialValues[spec.name] ?? '', props: { ...spec, type: 'text', attrs: spec.attrs ?? {}, id: `experiment-${this.cid}-${++this._fieldId}`, label: spec.label, validation: spec.validation ?? 'required', validationVisibility: spec.validationVisibility ?? 'live', disabled: spec.disabled } });
         field = createField(node, spec, this.config, this.metrics); this.fields.set(spec.name, field);
       } else { for(const key of ['label','help','disabled']) field.node.props[key] = spec[key]; field.node.props.validation = spec.validation ?? 'required'; field.node.props.validationVisibility = spec.validationVisibility ?? 'live'; }
-      this.el.append(field.el);
+      this._fieldAnchor.parentNode.insertBefore(field.el,this._fieldAnchor);
     }
-    this.el.append(this.formMessages);
+
     this.specs = specs;
   }
+  get formMessages() { return this.el.querySelector(':scope > .formkit-messages'); }
   resetForm() { if (!this._ending && !this.isDestroyed()) reset(this.node); }
   submit() { if (this._ending || this.isDestroyed()) return Promise.resolve();
     this.el.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); return this.lastSubmission;

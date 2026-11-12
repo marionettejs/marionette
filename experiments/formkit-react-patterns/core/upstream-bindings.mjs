@@ -4,6 +4,7 @@
 import {createMessage,createClasses,generateClassList} from '@formkit/core';
 import {cloneAny,camel,token,undefine,shallowClone,eq,has,empty} from '@formkit/utils';
 import {createObserver} from '@formkit/observer';
+import {watchClass,assertClassAlive} from './class-watch.mjs';
 const __getOwnPropNames=Object.getOwnPropertyNames;
 const __esm=(fn,res)=>function(){return fn&&(res=(0,fn[__getOwnPropNames(fn)[0]])(fn=0)),res;};
 function isObject2(value) {
@@ -193,23 +194,27 @@ var init_bindings = __esm({
               const observedNode = createObserver(node);
               classObservers.add(observedNode);
               let initialized = false;
-              observedNode.watch((observed) => {
+              watchClass(observedNode, (observed) => {
                 const rootClasses = typeof observed.config.rootClasses === "function" ? observed.config.rootClasses(property, observed) : {};
+                assertClassAlive(observed);
                 const globalConfigClasses = observed.config.classes ? createClasses(
                   property,
                   observed,
                   observed.config.classes[property]
                 ) : {};
+                assertClassAlive(observed);
                 const classesPropClasses = createClasses(
                   property,
                   observed,
                   observed.props[`_${property}Class`]
                 );
+                assertClassAlive(observed);
                 const sectionPropClasses = createClasses(
                   property,
                   observed,
                   observed.props[`${property}Class`]
                 );
+                assertClassAlive(observed);
                 const generatedClassName = generateClassList(
                   observed,
                   property,
@@ -218,6 +223,7 @@ var init_bindings = __esm({
                   classesPropClasses,
                   sectionPropClasses
                 ) ?? "";
+                assertClassAlive(observed);
                 className = generatedClassName;
                 target[property] = generatedClassName;
                 if (initialized) {
