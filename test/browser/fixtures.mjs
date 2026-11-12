@@ -29,6 +29,7 @@ export const test = base.extend({
   candidateServer: [async({}, use) => {
     const candidate = JSON.parse(await readFile(process.env.MARIONETTE_BROWSER_CANDIDATE, 'utf8'));
     const assets = new Map([
+      ['/router-observer.js', resolve(root, 'test/router/navigation-observer.js')],
       ['/contracts.js', resolve(root, 'test/contracts/dom-adapters.js')],
       ['/underscore.js', resolve(root, 'node_modules/underscore/underscore-umd.js')],
       ['/backbone.js', resolve(root, 'node_modules/backbone/backbone.js')],

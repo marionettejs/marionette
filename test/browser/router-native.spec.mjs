@@ -5,14 +5,15 @@ import { hashChanges } from '../router/conformance/hash-changes.js';
 
 // Built router against the fixture's packed Marionette peer. No browser profile
 // or private router internals are used.
-async function example(page, { initialRedirect = false, deferStart = false, customPreparation = false } = {}) {
+async function example(page, { initialRedirect = false, deferStart = false, customPreparation = false, observe = false } = {}) {
   expect(await page.evaluate(() => 'navigation' in window), 'Native Navigation API is required').toBe(true);
   await page.route('**/router.js', route => route.fulfill({
     path: routerArtifactPath('dist/index.js'),
     contentType: 'text/javascript',
   }));
-  await page.evaluate(async({ redirectInitially, deferInitialStart, preparesApplication }) => {
+  await page.evaluate(async({ redirectInitially, deferInitialStart, preparesApplication, observesNavigation }) => {
     const { Router, RouteApplication } = await import('/router.js');
+    const observer = observesNavigation ? (await import('/router-observer.js')).observeNavigation() : null;
     const { Application, View } = await import('marionette');
     document.head.insertAdjacentHTML('beforeend', '<style>body{margin:0;min-height:3500px}#anchor{margin-top:1800px}</style>');
     document.body.insertAdjacentHTML('beforeend', '<input id="before"><input id="target"><div id="anchor">Anchor</div>');
@@ -33,7 +34,7 @@ async function example(page, { initialRedirect = false, deferStart = false, cust
     await owner.start();
     await switcher.start();
     const state = window.routerExample = {
-      gates, gate, owner, switcher, entered: [], ready: [], errors: [],
+      gates, gate, owner, switcher, observer, entered: [], ready: [], errors: [],
       initial: Promise.withResolvers(), preparations: 0, applicationPreparations: 0, focus: false,
     };
     if (redirectInitially) { gate('next'); }
@@ -41,6 +42,7 @@ async function example(page, { initialRedirect = false, deferStart = false, cust
       prepareStart() { state.applicationPreparations++; return gates.get('application')?.promise; },
     }) : Router;
     const router = state.router = owner.addChildApp('router', new RouterClass({
+      ...(observer ? { driver: observer.driver } : {}),
       owns() { if (state.failPlanning) { throw new Error('planning failed'); } return true; },
       routes: [
         { name: 'home', path: '/', redirect: redirectInitially ? () => '/next' : undefined },
@@ -49,6 +51,7 @@ async function example(page, { initialRedirect = false, deferStart = false, cust
         { name: 'page', path: '/:page' },
       ],
       async handler(match) {
+        observer?.record('handler:enter', match);
         if (match.params.page === 'lazy-child') {
           state.loading = true;
           await gates.get('lazy').promise;
@@ -60,10 +63,17 @@ async function example(page, { initialRedirect = false, deferStart = false, cust
           switcher.clear();
         }
         state.entered.push(match.params.page ?? match.name);
-        await gates.get(match.params.page ?? match.name)?.promise;
-        if (state.fail) { throw new Error('route failed'); }
+        try {
+          await gates.get(match.params.page ?? match.name)?.promise;
+          if (state.fail) { throw new Error('route failed'); }
+          observer?.record('handler:fulfilled', match);
+        } catch (error) {
+          observer?.record('handler:rejected', match, { error: error.name });
+          throw error;
+        }
       },
     }));
+    observer?.connect(router);
     router.on('route:ready', match => {
       state.ready.push({ initial: match.initial, type: match.navigationType, path: match.url.pathname });
       if (match.initial) { state.initial.resolve({ ready: true }); }
@@ -78,7 +88,7 @@ async function example(page, { initialRedirect = false, deferStart = false, cust
       await state.start;
       if (!redirectInitially) { await state.initial.promise; }
     }
-  }, { redirectInitially: initialRedirect, deferInitialStart: deferStart, preparesApplication: customPreparation });
+  }, { redirectInitially: initialRedirect, deferInitialStart: deferStart, preparesApplication: customPreparation, observesNavigation: observe });
 }
 
 async function position(page, { focus: targetFocus = 'before', scroll: targetScroll = 700 } = {}) {
@@ -92,24 +102,28 @@ async function position(page, { focus: targetFocus = 'before', scroll: targetScr
 test('native empty, absent and identical fragments match the shared driver cases', async({ page }) => {
   const actual = await page.evaluate(async cases => {
     const events = [];
-    const flags = [];
+    const observed = [];
+    const fragment = href => href.includes('#') ? href.slice(href.indexOf('#') + 1) : null;
     navigation.addEventListener('navigate', event => {
-      events.push(event.hashChange);
+      events.push({ hashChange: event.hashChange, sameDocument: event.destination.sameDocument,
+        source: location.href, destination: event.destination.url,
+        sourceFragment: fragment(location.href), destinationFragment: fragment(event.destination.url) });
       if (event.canIntercept) { event.intercept({ handler() {} }); }
     });
     for (const { from, to } of cases) {
       history.replaceState({}, '', from);
       const offset = events.length;
       await navigation.navigate(to).finished;
-      flags.push(...events.slice(offset));
+      observed.push(...events.slice(offset));
     }
-    return flags;
+    return observed;
   }, hashChanges);
-  expect(actual).toEqual(hashChanges.map(({ expected }) => expected));
+  console.log('Router native fragment observations:', JSON.stringify(actual));
+  expect(actual.map(({ hashChange }) => hashChange)).toEqual(hashChanges.map(({ expected }) => expected));
 });
 
 test('native Back to a distinct earlier entry supersedes the still-preparing destination', async({ page }) => {
-  await example(page);
+  await example(page, { observe: true });
   const result = await page.evaluate(async() => {
     const state = window.routerExample;
     state.router.mount({ '/first': { name: 'first' }, '/second': { name: 'second' }, '/third': { name: 'third' } });
@@ -126,13 +140,19 @@ test('native Back to a distinct earlier entry supersedes the still-preparing des
     const first = state.router.back();
     await firstEntered.promise;
     const obsolete = await second;
+    state.observer.record('helper:second:settled', null, { outcome: obsolete });
     state.gates.get('first').resolve();
     const current = await first;
+    state.observer.record('helper:first:settled', null, { outcome: current });
     state.gates.get('second').reject(new Error('obsolete second destination'));
     await new Promise(resolveTurn => setTimeout(resolveTurn, 0));
-    return { obsolete, current, name: state.router.getCurrent().name, errors: state.errors };
+    const contract = state.observer.snapshot('before-cleanup');
+    state.observer.stop();
+    return { obsolete, current, name: state.router.getCurrent().name, errors: state.errors, contract };
   });
-  expect(result).toEqual({ obsolete: false, current: true, name: 'first', errors: [] });
+  const { contract, ...outcome } = result;
+  console.log('Router distinct Back contract:', JSON.stringify(contract));
+  expect(outcome).toEqual({ obsolete: false, current: true, name: 'first', errors: [] });
 });
 
 for (const outcome of ['fulfilled', 'error', 'abort-error', 'redirected', 'redirected-error', 'redirected-abort-error', 'stopped']) {

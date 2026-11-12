@@ -65,17 +65,11 @@ test('timing installs and runs the exact base browser outside the candidate imag
 test('the container repair preserves browser suites, exact-artifact validation and the required aggregate', () => {
   const includesRun = (job, command) => job.steps.some(step => step.run === command);
   assert.ok(includesRun(workflows.ci.jobs.browsers, 'npm run test:browser'));
-  const archive = workflows.ci.jobs.browsers.steps.find(step => step.name === 'Test exact installed Router archive on all engines');
-  assert.equal(archive.run, 'npm run test:router-tarball -- --browser --output "${RUNNER_TEMP}/router-browser-verification"');
-  assert.equal(archive.if, '${{ !cancelled() && steps.browser_suite.outcome != \'skipped\' }}');
-  const probes = workflows.ci.jobs.browsers.steps.find(step => step.run === 'node test/router/browser-probes.mjs');
-  assert.equal(probes.if, archive.if);
-  assert.equal(workflows.ci.jobs.browsers.steps.find(step => step.run === 'npm run test:browser').id, 'browser_suite');
   assert.ok(includesRun(workflows.ci.jobs.browsers, 'npm run test:browser-performance'));
   assert.ok(includesRun(workflows.ci.jobs['agent-reference'], 'npm run test:agent-app'));
   assert.ok(includesRun(workflows.html.jobs.verify, 'npm --prefix packages/html run test:packed:browser'));
   assert.ok(includesRun(workflows.release.jobs.build, 'npm run release:validate -- --artifact-dir release'));
-  assert.deepEqual(workflows.ci.jobs.test.needs, ['core', 'tooling', 'browsers', 'agent-reference', 'linux-package-smoke']);
+  assert.deepEqual(workflows.ci.jobs.test.needs, ['core', 'tooling', 'browsers', 'router-browsers', 'agent-reference', 'linux-package-smoke']);
   assert.equal(workflows.ci.jobs.test.name, 'Node 24');
   assert.equal(workflows.ci.jobs.test.if, 'always()');
   for (const workflow of Object.values(workflows)) {
@@ -87,8 +81,16 @@ test('the container repair preserves browser suites, exact-artifact validation a
   }
 });
 
-test('optional macOS and Windows smoke jobs do not run on pull requests', () => {
-  for (const name of ['package-smoke', 'windows-package-smoke']) {
-    assert.equal(workflows.ci.jobs[name].if, 'github.event_name == \'push\'');
-  }
+test('Router archive uses a standard Linux host and gates certification on configured launches', () => {
+  const job = workflows.ci.jobs['router-browsers'];
+  assert.equal(job['runs-on'], 'ubuntu-24.04');
+  assert.equal(job.container, undefined);
+  const install = job.steps.find(step => step.name === 'Install pinned browser binaries and libraries');
+  assert.equal(install.run, 'npx --no-install playwright install --with-deps chromium firefox webkit');
+  const probe = job.steps.find(step => step.id === 'browser_probe');
+  assert.equal(probe.run, 'node test/router/browser-probes.mjs');
+  const archive = job.steps.find(step => step.name === 'Test exact installed Router archive on all engines');
+  assert.equal(archive.run, 'npm run test:router-tarball -- --browser --output "${RUNNER_TEMP}/router-browser-verification"');
+  assert.equal(archive.if, '${{ !cancelled() && steps.browser_probe.outputs.engines_ready == \'true\' }}');
+  assert.ok(!job.steps.some(step => /sysctl|apparmor|seccomp|--no-sandbox|--privileged|--cap-add/.test(step.run ?? '')));
 });

@@ -141,13 +141,15 @@ for (const historyMode of ['push', 'replace']) {
       const pageErrors = []; page.on('pageerror', error => pageErrors.push(error.message));
       const result = await page.evaluate(async({ historyMode: mode, outcome: expected }) => {
         const { Router, historyDriver } = window.historyApi;
-        const driver = historyDriver(); const entered = Promise.withResolvers(); const gate = Promise.withResolvers();
+        const driver = historyDriver();
+        let entered = Promise.withResolvers(); let gate = Promise.withResolvers();
+        const newerGate = Promise.withResolvers();
         const failure = new DOMException('independent later traversal failure', 'AbortError');
         const ready = []; const errors = []; let hold = false;
         const router = new Router({ driver, routes: {
           '/': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' }, '/d': { name: 'd' },
         }, async handler(match) {
-          if (hold && match.name === 'd') { await gate.promise; }
+          if (hold && match.name === 'd') { await newerGate.promise; }
           if (hold && match.name === 'b') {
             entered.resolve(); await gate.promise;
             if (expected === 'abort-error') { throw failure; }
@@ -162,19 +164,67 @@ for (const historyMode of ['push', 'replace']) {
           await router.navigate('c').finished; hold = true;
           const back = router.back();
           const newer = router.navigate('d', {}, { history: mode }).finished;
+          // Cancellation of the local receipt must not depend on a browser pop.
+          const canceled = await back;
+          // A physical queued traversal is optional. This deadline releases only
+          // the fixture's /d work; it infers nothing about browser cancellation.
+          let release;
+          const arrived = await Promise.race([entered.promise.then(() => true),
+            new Promise(resolve => { release = setTimeout(() => resolve(false), 1000); })]);
+          clearTimeout(release);
+          if (!arrived) { newerGate.resolve(); }
+          const newerOutcome = await newer;
+          const before = { canceled, newer: newerOutcome, current: router.getCurrent().name,
+            index: driver.currentEntry.index, path: location.pathname, ready: ready.slice(), errors: errors.slice() };
+          if (arrived) {
+            before.key = driver.currentEntry.key === b.key;
+            before.state = router.getCurrent().state;
+            const complete = new Promise(resolve => router.once(expected === 'ready' ? 'route:ready' : 'route:error', resolve));
+            gate.resolve(); await complete;
+          }
+          const queued = { arrived, before, ready: ready.slice(), errors: errors.slice() };
+          // Establish a fresh known predecessor and prove canceled receipts do
+          // not join a later explicit Back's readiness or operational failure.
+          newerGate.resolve(); hold = false;
+          await router.navigate('b', {}, { state: { page: 'later-b' } }).finished; const laterB = driver.currentEntry;
+          await router.navigate('c').finished;
+          const readyOffset = ready.length; const errorOffset = errors.length;
+          entered = Promise.withResolvers(); gate = Promise.withResolvers(); hold = true;
+          let settled = false;
+          const later = router.back().then(value => { settled = true; return { value }; }, error => {
+            settled = true; return { error: error.name, same: error === failure };
+          });
           await entered.promise;
-          const before = { back: await back, newer: await newer, ready: ready.slice(), errors: errors.slice(),
-            key: driver.currentEntry.key === b.key, index: driver.currentEntry.index,
-            path: location.pathname, state: router.getCurrent().state };
-          const complete = new Promise(resolve => router.once(expected === 'ready' ? 'route:ready' : 'route:error', resolve));
-          gate.resolve(); await complete;
-          return { before, ready, errors, nativeReads: window.nativeNavigationReads };
-        } finally { router.destroy(); gate.resolve(); }
+          const laterBefore = { settled, canceled: await back, newer: await newer,
+            key: driver.currentEntry.key === laterB.key, index: driver.currentEntry.index === laterB.index,
+            path: location.pathname, state: router.getCurrent().state,
+            ready: ready.slice(readyOffset), errors: errors.slice(errorOffset) };
+          gate.resolve(); const laterOutcome = await later;
+          return { queued, laterBefore, laterOutcome,
+            ready: ready.slice(readyOffset), errors: errors.slice(errorOffset),
+            path: location.pathname, current: router.getCurrent().name, nativeReads: window.nativeNavigationReads };
+        } finally { router.destroy(); gate.resolve(); newerGate.resolve(); }
       }, { historyMode, outcome });
-      expect(result).toEqual({ before: { back: false, newer: false, ready: ['home', 'a', 'b', 'c'], errors: [],
-        key: true, index: 2, path: '/b', state: { page: 'b' } },
-      ready: outcome === 'ready' ? ['home', 'a', 'b', 'c', 'b'] : ['home', 'a', 'b', 'c'],
-      errors: outcome === 'ready' ? [] : [{ same: true, name: 'b' }], nativeReads: 0 });
+      console.log('Router History canceled traversal contract:', JSON.stringify(result));
+      const fails = outcome === 'abort-error';
+      const freshErrors = fails ? [{ same: true, name: 'b' }] : [];
+      if (result.queued.arrived) {
+        expect(result.queued).toEqual({ arrived: true,
+          before: { canceled: false, newer: false, current: 'b', index: 2, path: '/b', ready: ['home', 'a', 'b', 'c'], errors: [],
+            key: true, state: { page: 'b' } },
+          ready: fails ? ['home', 'a', 'b', 'c'] : ['home', 'a', 'b', 'c', 'b'], errors: freshErrors });
+      } else {
+        expect(result.queued).toEqual({ arrived: false,
+          before: { canceled: false, newer: true, current: 'd', index: historyMode === 'replace' ? 3 : 4, path: '/d', ready: ['home', 'a', 'b', 'c', 'd'], errors: [] },
+          ready: ['home', 'a', 'b', 'c', 'd'], errors: [] });
+      }
+      expect(result.laterBefore).toEqual({ settled: false, canceled: false, newer: !result.queued.arrived,
+        key: true, index: true, path: '/b', state: { page: 'later-b' }, ready: [], errors: [] });
+      expect(result.laterOutcome).toEqual(fails ? { error: 'AbortError', same: true } : { value: true });
+      expect(result.ready).toEqual(fails ? [] : ['b']);
+      expect(result.errors).toEqual(freshErrors);
+      expect({ path: result.path, current: result.current, nativeReads: result.nativeReads })
+        .toEqual({ path: '/b', current: 'b', nativeReads: 0 });
       expect(pageErrors).toEqual([]);
     });
   }

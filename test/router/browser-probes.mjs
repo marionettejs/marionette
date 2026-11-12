@@ -1,8 +1,9 @@
 // Raw browser operations: no Router import, driver replacement or polyfills.
 // These diagnostics explain engine differences; they do not certify Router tests.
 import * as browserTypes from '@playwright/test';
+import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { routerBrowserProjects } from './browser-policy.mjs';
 import { hashChanges } from './conformance/hash-changes.js';
@@ -14,6 +15,7 @@ const server = createServer((request, response) => {
 await new Promise(done => server.listen(0, '127.0.0.1', done));
 const origin = `http://127.0.0.1:${server.address().port}`;
 const report = [];
+const profile = JSON.parse(await readFile(new URL('../../config/release-profile.json', import.meta.url)));
 try {
   for (const { use } of routerBrowserProjects) {
     const entry = { engine: use.browserName, probes: {} };
@@ -22,6 +24,7 @@ try {
     try {
       browser = await browserTypes[use.browserName].launch({ headless: true, ...use.launchOptions });
       entry.version = browser.version();
+      assert.equal(entry.version, profile.browsers.playwright.browserBuilds.find(({ name }) => name === use.browserName).version);
       const run = async(name, operation, argument) => {
         const page = await browser.newPage();
         try {
@@ -35,9 +38,12 @@ try {
       await run('capabilities', () => ({ navigation: typeof navigation, URLPattern: typeof URLPattern }));
       await run('nativeHashChanges', async cases => {
         const events = [];
-        const flags = [];
+        const observed = [];
+        const fragment = href => href.includes('#') ? href.slice(href.indexOf('#') + 1) : null;
         navigation.addEventListener('navigate', event => {
-          events.push(event.hashChange);
+          events.push({ hashChange: event.hashChange, sameDocument: event.destination.sameDocument,
+            source: location.href, destination: event.destination.url,
+            sourceFragment: fragment(location.href), destinationFragment: fragment(event.destination.url) });
           if (event.canIntercept) { event.intercept({ handler() {} }); }
         });
         for (const { from, to } of cases) {
@@ -45,9 +51,9 @@ try {
           // replaceState also emits a navigate event; compare only navigate().
           const offset = events.length;
           await navigation.navigate(to).finished;
-          flags.push(...events.slice(offset));
+          observed.push(...events.slice(offset));
         }
-        return { cases, flags };
+        return { cases, observed };
       }, hashChanges);
       await run('historyBackThenPush', async() => {
         for (const path of ['/a', '/b', '/c']) { history.pushState({ path }, '', path); }
@@ -108,6 +114,9 @@ try {
   const output = resolve(import.meta.dirname, '../tmp/router-browser-probes.json');
   await mkdir(resolve(import.meta.dirname, '../tmp'), { recursive: true });
   await writeFile(output, `${JSON.stringify(report, null, 2)}\n`);
+  if (process.env.GITHUB_OUTPUT) {
+    await appendFile(process.env.GITHUB_OUTPUT, `engines_ready=${report.length === 3 && report.every(entry => !entry.launchError)}\n`);
+  }
   console.log(JSON.stringify(report, null, 2));
 }
 if (report.some(entry => entry.launchError || Object.values(entry.probes).some(probe => probe.error))) { process.exitCode = 1; }

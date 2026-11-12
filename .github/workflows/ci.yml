@@ -164,16 +164,7 @@ jobs:
         run: node scripts/checks/provisioned-browsers.mjs
 
       - name: Test supported browsers
-        id: browser_suite
         run: npm run test:browser
-
-      - name: Test exact installed Router archive on all engines
-        if: ${{ !cancelled() && steps.browser_suite.outcome != 'skipped' }}
-        run: npm run test:router-tarball -- --browser --output "${RUNNER_TEMP}/router-browser-verification"
-
-      - name: Diagnose raw Router browser behavior
-        if: ${{ !cancelled() && steps.browser_suite.outcome != 'skipped' }}
-        run: node test/router/browser-probes.mjs
 
       - name: Validate native browser performance workloads
         run: npm run test:browser-performance
@@ -184,14 +175,58 @@ jobs:
         with:
           name: browsers-node-24
           path: |
-            ${{ runner.temp }}/router-browser-verification/
-            test/tmp/router-browser/
-            test/tmp/router-browser-probes.json
             test/tmp/browser/results.json
             test/tmp/browser/results.xml
             test/tmp/browser/report/
             test/tmp/browser/results/
             test/tmp/performance/browser-report.json
+          if-no-files-found: warn
+
+  router-browsers:
+    name: Router archive browsers (Node 24)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare published HTML renderer
+        run: npm run docs:prepare-html
+
+      - name: Install pinned browser binaries and libraries
+        run: npx --no-install playwright install --with-deps chromium firefox webkit
+
+      - name: Verify configured engine launches and diagnose raw behavior
+        id: browser_probe
+        run: node test/router/browser-probes.mjs
+
+      - name: Test exact installed Router archive on all engines
+        if: ${{ !cancelled() && steps.browser_probe.outputs.engines_ready == 'true' }}
+        run: npm run test:router-tarball -- --browser --output "${RUNNER_TEMP}/router-browser-verification"
+
+      - name: Retain complete or partial Router evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: router-browsers-node-24
+          path: |
+            ${{ runner.temp }}/router-browser-verification/
+            test/tmp/router-browser/
+            test/tmp/router-browser-probes.json
           if-no-files-found: warn
 
   agent-reference:
@@ -293,7 +328,7 @@ jobs:
 
   test:
     name: Node 24
-    needs: [core, tooling, browsers, agent-reference, linux-package-smoke]
+    needs: [core, tooling, browsers, router-browsers, agent-reference, linux-package-smoke]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -304,7 +339,6 @@ jobs:
 
   package-smoke:
     name: Package smoke (macOS arm64)
-    if: github.event_name == 'push'
     runs-on: macos-15
 
     steps:

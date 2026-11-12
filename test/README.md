@@ -256,8 +256,11 @@ The independently versioned router follows its
 publisher below remains limited to its five framework packages. Its browser
 check uses `playwright.core-release.config.mjs`, preserving the exact core
 inventory while router-owned cases have separate Chromium, Firefox and WebKit
-certification. The browser CI job runs both the source-checkout Router cases and
-`test:router-tarball -- --browser` against an exact installed archive. The Router
+certification. The existing browser job runs the source-checkout Router cases. A separate
+standard Ubuntu Linux job installs the pinned engines and libraries, verifies
+the configured launches (including Chromium sandboxing), then runs
+`test:router-tarball -- --browser` against an exact installed archive. Setup
+failures remain blocking; the job does not change host security policy. The Router
 validator requires the full inventory once per engine, actual executable versions
 and zero failures, retries or skips. Playwright WebKit results do not certify
 every shipping Safari/iOS version.
