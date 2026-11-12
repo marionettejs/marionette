@@ -84,3 +84,9 @@ test('the container repair preserves browser suites, exact-artifact validation a
     }
   }
 });
+
+test('optional macOS and Windows smoke jobs do not run on pull requests', () => {
+  for (const name of ['package-smoke', 'windows-package-smoke']) {
+    assert.equal(workflows.ci.jobs[name].if, "github.event_name == 'push'");
+  }
+});

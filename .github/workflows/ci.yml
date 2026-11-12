@@ -299,6 +299,7 @@ jobs:
 
   package-smoke:
     name: Package smoke (macOS arm64)
+    if: github.event_name == 'push'
     runs-on: macos-15
 
     steps:
