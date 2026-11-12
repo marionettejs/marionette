@@ -9,7 +9,7 @@ reports the resolved companion root and existing documentation files without
 importing its runtime.
 
 These independently released files take precedence over the HTML snapshot bundled
-with core. Do not assume installing HTML updates Marionette's bundled skill.
+with core.
 Preserve the application's compatible renderer and version; HTML is recommended
 for new applications, not required by Router.
 

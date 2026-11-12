@@ -42,24 +42,6 @@ If installed docs are absent, obtain the exact release or known source revision.
 
 For named URLs and feature-owned route transitions in a new application, use optional `@mnjs/router`; first check its browser and Node requirements in [routing](guides/routing.md). Preserve an existing host router.
 
-## Installed companion contracts
-
-Companions are independently versioned. From the application directory, resolve
-`@mnjs/html/package.json` or `@mnjs/router/package.json`, read its version, then
-read these files beside that manifest (they are files, not JavaScript exports):
-
-| Package | Installed references |
-| --- | --- |
-| `@mnjs/html` | `guide.md`, `LIT_DIFFERENCES.md` |
-| `@mnjs/router` | `readme.md`, `DESIGN.md`, `examples/catalog/` |
-
-The core docs helper searches core's manifest, not those installed companion
-packages. The [Router feature](packages/router.md) demonstrates composition; the
-installed package remains the version-matched authority. Core-bundled skill
-changes ship to npm consumers with the next Marionette release. Updating a
-companion does not replace an already installed core skill; its own reference
-files are already included in that companion's package.
-
 <!-- task-routes:start -->
 | Task | Start with |
 | --- | --- |

@@ -40,14 +40,6 @@ Prefer View `events`/`triggers`/`ui`. With native selector delegation, `event.de
 
 Choose Application for coordinated readiness and start/stop/restart lifetime; a URL or local request alone does not require it. `stop()` keeps the Application reusable; `destroy()` ends its lifetime. Startup cancellation and later-request handling are separate; see `docs/architecture.md`.
 
-## Installed companions
-
-Resolve the companion's exported `package.json` from the application directory,
-read its version, then read files beside it: `@mnjs/html` has `guide.md` and
-`LIT_DIFFERENCES.md`; `@mnjs/router` has `readme.md` and `DESIGN.md`.
-These are separate from core's docs helper and manifest. See `docs/packages/router.md`
-for an HTML feature and deterministic memory-driver testing. The installed
-companion reference wins over a different repository version.
-
-This core-bundled skill reaches npm consumers only with a Marionette release.
-Installing a companion alone does not update the core skill.
+`@mnjs/html` and `@mnjs/router` are versioned separately; follow
+`docs/packages/html.md` and `docs/packages/router.md` to their installed references,
+which take precedence over core's bundled copies.
