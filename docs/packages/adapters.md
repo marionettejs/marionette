@@ -198,3 +198,13 @@ root.innerHTML = '<button>Open</button>';
 const buttons: JQuery<HTMLButtonElement> = JQueryDomApi.findEl<HTMLButtonElement>(root, 'button');
 void actorApi;
 ```
+
+## Use the Router Catalog with HTML
+
+The published Router 0.1.0 Catalog example uses optional Lit integration; that is
+compatible, not a Router requirement. The current [routing guide](../guides/routing.md)
+and revised Router source Catalog use `@mnjs/html` and `@mnjs/html/marionette`.
+The source example change reaches consumers only in a subsequent Router release.
+When adapting the published 0.1.0 example, replace `lit-html` with `@mnjs/html`
+and `@mnjs/adapters/dom/lit-html` with `@mnjs/html/marionette`. Keep the function
+templates and View event bindings. No Router runtime change is needed.

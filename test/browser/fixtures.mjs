@@ -32,11 +32,11 @@ export const test = base.extend({
       ['/morphdom.js', resolve(dirname(fileURLToPath(import.meta.resolve('morphdom'))), 'morphdom-esm.js')]
     ]);
     const imports = { jquery: '/jquery.js', morphdom: '/morphdom.js', 'lit-html': '/lit/lit-html.js', 'lit-html/': '/lit/' };
-    for (const entry of candidate.packages) {
+    for (const entry of [...candidate.packages, candidate.renderer]) {
       const prefix = `/packages/${entry.id}`;
       await addJavaScriptAssets(assets, join(entry.directory, 'dist'), `${prefix}/dist`);
       for (const [subpath, condition] of Object.entries(entry.manifest.exports)) {
-        const target = condition?.import?.default;
+        const target = condition?.import?.default || condition?.default;
         if (!target) { continue; }
         const specifier = subpath === '.' ? entry.name : `${entry.name}${subpath.slice(1)}`;
         const url = `${prefix}/${target.replace(/^\.\//, '')}`;

@@ -6,14 +6,14 @@ A Marionette runtime is a family of classes with shared configuration choices an
 
 ## Configure the default runtime
 
-Import the named setters in your application's setup module, before constructing Views. For example, install the Lit DOM adapter once:
+Import the named setters in your application's setup module, before constructing Views. For example, configure the `@mnjs/html` DOM adapter once:
 
 ```js
 import { View, setDomApi } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
-setDomApi(LitDomApi);
+setDomApi(HtmlDomApi);
 
 const Heading = View.extend({
   template: () => html`<h1>Overview</h1>`,
@@ -30,12 +30,12 @@ The default renderer already calls the template function with its data. Configur
 ```ts
 import { createMarionette } from 'marionette';
 import { Model, DataApi } from '@mnjs/data';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const runtime = createMarionette();
 runtime.setDataApi(DataApi);
-runtime.setDomApi(LitDomApi);
+runtime.setDomApi(HtmlDomApi);
 
 const Heading = runtime.View.extend({
   template: ({ title }: { title: string }) => html`<h1>${title}</h1>`,
@@ -48,7 +48,7 @@ heading.render();
 title.set('title', 'Updated overview');
 ```
 
-The default renderer evaluates the function; Lit inserts its result. DataApi supplies the Model's attributes and subscriptions. Configure StateApi separately if an owner's `stateEvents` or owned-state disposal needs it. The View borrows the Model; its owner manages the Model's lifetime. See [observable data and API access](../integrations/setup.md#observable-data-and-api-access) for the boundary between observation and persistence.
+The default renderer evaluates the function; `@mnjs/html` inserts its result. DataApi supplies the Model's attributes and subscriptions. Configure StateApi separately if an owner's `stateEvents` or owned-state disposal needs it. The View borrows the Model; its owner manages the Model's lifetime. See [observable data and API access](../integrations/setup.md#observable-data-and-api-access) for the boundary between observation and persistence.
 
 ## Choose a configuration scope
 

@@ -1,11 +1,11 @@
 import { View } from 'marionette';
 import { RouteApplication } from '@mnjs/router';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const CatalogView = View.extend({
   template: ({ title }) => html`<h1>${title}</h1>`,
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 
 const Item = RouteApplication.extend({
   routes: {

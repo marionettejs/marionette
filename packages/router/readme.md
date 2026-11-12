@@ -68,8 +68,8 @@ await router.navigate('catalog:item', { id: '42' }).finished;
 ```
 
 Provide `#content` and copy the shipped example folder alongside this bootstrap.
-It uses named Views with function templates, Regions and optional Lit integration:
-install `@mnjs/adapters@5.0.1` and `lit-html@3.3.3`. Lit expressions escape fetched
+It uses named Views with function templates, Regions and optional `@mnjs/html` integration:
+install a compatible `@mnjs/html` version (verified with 1.0.0). HTML expressions escape fetched
 titles; the router has no renderer dependency. Plain model data needs no data adapter.
 
 Catalog's class-level routes contain `/catalog` as its own page and
@@ -302,6 +302,10 @@ See [contracts](DESIGN.md), [feature registration](DESIGN.md#feature-route-regis
 `canGoBack()` checks the preceding entry's router marker. A matched initial entry
 is marked too. `back()` awaits its route readiness when eligible; it does not
 restrict browser Back or guarantee staying within the app/document.
+
+Prepare the example renderer separately with `npm run docs:prepare-html`, or
+set `MNJS_HTML_TARBALL` to an existing HTML archive for an offline run. The verifier
+does not fetch the renderer implicitly.
 
 From a built checkout, `npm run test:router-tarball` installs actual archives and
 checks ESM/CJS, declarations, tree shaking, cancellation, the bootstrap recipe and

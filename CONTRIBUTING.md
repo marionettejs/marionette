@@ -81,7 +81,7 @@ The build prepares `.package` with the core runtime and selected consumer docs a
 their repository-relative paths. Release and fixture tooling use this same staged
 core package. Its generated `package.json` includes `docs-manifest.json` and the
 consumer skill. The source manifest keeps a narrow runtime-and-root-guides allowlist
-for direct root packs and Git installs; use `.package` for the documented candidate.
+for direct root packs and Git installs; use `.package` for the documented candidate. Core-bundled skill and docs changes reach npm consumers only with a `marionette` release; companion package releases do not update them.
 
 Local packing does not establish registry publication. Release evidence and version
 labels must come from the actual published artifact.

@@ -10,13 +10,13 @@ This standalone TypeScript example loads a summary before showing it. `/summary.
 
 ```ts
 import { Application, View, type ApplicationInstance, type LifecycleContext } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 type Summary = { title: string };
 const SummaryView = View.extend({
   template: ({ title }: Summary) => html`<h1>${title}</h1>`,
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 
 const SummaryApplication = Application.extend({
   async prepareStart(_options: unknown, { signal }: LifecycleContext): Promise<Summary> {

@@ -1,6 +1,6 @@
 # Show, sort, and filter a list
 
-Use CollectionView for repeated children that share one placement rule. A surrounding View can own the list's local controls and Region. Add an Application when the feature needs API readiness or broader coordination; sorting a displayed list does not require one.
+For data-driven lists, default to CollectionView with child Views that share one placement rule. This is a design default, not a core API requirement; simple/static repetition in one owning template remains valid. A surrounding View can own the list's local controls and Region. Add an Application when the feature needs API readiness or broader coordination; sorting a displayed list does not require one.
 
 This catalog uses the optional `@mnjs/data` Collection for observable membership. Install the rendering and data packages from [setup](../integrations/setup.md).
 
@@ -9,8 +9,8 @@ This catalog uses the optional `@mnjs/data` Collection for observable membership
 ```js
 import { CollectionView, Region, View } from 'marionette';
 import { Collection, DataApi } from '@mnjs/data';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const ItemView = View.extend({
   tagName: 'li',
@@ -18,11 +18,11 @@ const ItemView = View.extend({
     <strong>${label}</strong>
     <label>Notes for ${label} <input></label>`,
   modelEvents: { change: 'render' },
-}).setDataApi(DataApi).setDomApi(LitDomApi);
+}).setDataApi(DataApi).setDomApi(HtmlDomApi);
 const EmptyView = View.extend({
   tagName: 'li',
   template: () => html`No matching items.`,
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 const ItemList = CollectionView.extend({
   tagName: 'ul',
   childView: ItemView,
@@ -51,7 +51,7 @@ const CatalogView = View.extend({
     this.list.setComparator(this.descending ?
       (left, right) => right.model.get('label').localeCompare(left.model.get('label')) : 'label');
   },
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 
 const items = new Collection([
   { id: 'a', label: 'Apricot', available: true },

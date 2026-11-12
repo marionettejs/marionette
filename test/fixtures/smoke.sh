@@ -13,10 +13,10 @@ for index in "${!directories[@]}"; do
   arguments+=("${flags[$index]}" "$artifacts/$filename")
 done
 
-# CJS runtime, standalone ESM/CJS, types, bundling/maps, adapters, Backbone lists.
+# CJS runtime, standalone ESM/CJS, types, bundling/maps, adapters, Backbone lists, and the documented quick start.
 # Full fixture coverage remains on master pushes and release certification.
 status=0
-for fixture in cjs-node standalone-packages core-types vite cjs-adapters collection-removal-survivors; do
+for fixture in cjs-node standalone-packages core-types vite cjs-adapters collection-removal-survivors docs-quick-start; do
   if ! npm run test:fixtures -- "${arguments[@]}" --fixture "$fixture" \
     --report "test/tmp/fixture-reports/smoke-$fixture.json"; then
     status=1

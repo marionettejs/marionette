@@ -38,6 +38,11 @@ function scenario() {
   mkdirSync(resolve(root, 'config'));
   json(resolve(root, 'config/release-validation.json'), { schemaVersion: 1, fixtures: ['sample', 'unselected'] });
   copyCoverageFixture(resolve(repository, 'test/fixtures/run.mjs'), resolve(root, 'test/fixtures/run.mjs'));
+  mkdirSync(resolve(root, 'test/docs'), { recursive: true });
+  mkdirSync(resolve(root, 'packages/html'), { recursive: true });
+  copyCoverageFixture(resolve(repository, 'test/docs/html-candidate.mjs'), resolve(root, 'test/docs/html-candidate.mjs'));
+  json(resolve(root, 'packages/html/package.json'), { version: '1.0.0' });
+  pack(root, '@mnjs/html', { exports: { '.': './index.js', './marionette': './index.js' } });
   cpSync(resolve(temporary, 'package-lock.json'), resolve(fixture, 'package-lock.json'));
   cpSync(resolve(temporary, 'package.json'), resolve(fixture, 'package.json'));
   for (const name of names) {
@@ -68,7 +73,7 @@ function command(root, args = [], env = {}) {
   return {
     args: [resolve(root, 'test/fixtures/run.mjs'), '--fixture', 'sample', '--artifact-dir', resolve(root, 'artifacts'), '--report', resolve(root, 'report.json'), ...args],
     options: { cwd: root, encoding: 'utf8', env: {
-      ...process.env, 'npm_execpath': npmCli, NODE_PATH: resolve(root, 'node_modules'),
+      ...process.env, MNJS_HTML_TARBALL: resolve(root, 'mnjshtml.tgz'), 'npm_execpath': npmCli, NODE_PATH: resolve(root, 'node_modules'),
       PATH: `${resolve(root, 'node_modules/.bin')}${delimiter}${process.env.PATH}`, ...env,
     } },
   };

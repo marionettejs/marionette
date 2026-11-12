@@ -6,7 +6,7 @@ import { delimiter, join, resolve } from 'node:path';
 import { test } from 'node:test';
 
 const smoke = resolve(import.meta.dirname, '../fixtures/smoke.sh');
-const fixtures = ['cjs-node', 'standalone-packages', 'core-types', 'vite', 'cjs-adapters', 'collection-removal-survivors'];
+const fixtures = ['cjs-node', 'standalone-packages', 'core-types', 'vite', 'cjs-adapters', 'collection-removal-survivors', 'docs-quick-start'];
 
 for (const failure of ['', 'cjs-node', 'pack']) {
   test(`packed smoke completes diagnostics and propagates ${failure || 'success'}`, async t => {

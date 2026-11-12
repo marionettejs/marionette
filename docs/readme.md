@@ -7,7 +7,8 @@ contracts. When upgrading from v4, start with the [migration guide](guides/migra
 
 ## Choose a starting point
 
-- New project: [quick start](quick-start.md) for the first render; use the optional progression below as the feature grows.
+- Whole application, page, or composed feature: start with the [composition guide](guides/composition.md).
+- New project with no stack chosen: use the [Vite quick start](quick-start.md) with `@mnjs/html`. Add [@mnjs/data](integrations/setup.md) for observable records or shared state; plain snapshots also work.
 - Existing application: choose a task or class reference below; follow additional contracts when needed.
 - Agent work: [task routing and lookup](agents.md), with optional [skill/plugin setup](tooling.md#agent-installation).
 
@@ -56,8 +57,9 @@ contracts. When upgrading from v4, start with the [migration guide](guides/migra
 - [@mnjs/radio: channels and requests](packages/radio.md): scoped communication, request/reply handlers, and cleanup.
 - [@mnjs/utils](packages/utils.md): standalone component and object utilities.
 - [@mnjs/adapters](packages/adapters.md): optional Backbone, XState, Lit, Morphdom, and jQuery contracts.
-- [@mnjs/html](../packages/html/guide.md): optional browser templates, directive lifetimes and Marionette DOM integration; the separately versioned 1.0.0 candidate is unpublished.
-- [Renderer and data setup](integrations/setup.md): configure Lit and `@mnjs/data`.
+- [@mnjs/html](../packages/html/guide.md): optional browser templates, directive lifetimes and Marionette DOM integration; version 1.0.0 is published independently of core.
+- [@mnjs/router](packages/router.md): optional feature-owned routing, installed contracts and a runnable HTML feature.
+- [Renderer and data setup](integrations/setup.md): configure `@mnjs/html` and `@mnjs/data`.
 
 The [records source](../examples/records/src/main.js) is included for reading alongside the lesson. Its [README](../examples/records/README.md) explains the repository development commands.
 

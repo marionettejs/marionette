@@ -1,6 +1,6 @@
 // Run the guide against controlled requests that deliberately ignore abort.
 export const preparations = {
-  'guides-routing-2': `
+  'guides-fragment-navigation-2': `
 const requests = [];
 function deferred() {
   let resolve, reject;
@@ -30,7 +30,7 @@ window.removeEventListener = (type, listener, ...options) => {
 };
 
 export const assertions = {
-  'guides-routing-2': `
+  'guides-fragment-navigation-2': `
 const turn = () => new Promise(resolve => setImmediate(resolve));
 function navigate(hash) {
   window.history.replaceState(null, '', hash);

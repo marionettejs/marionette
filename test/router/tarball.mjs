@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { htmlCandidate } from '../docs/html-candidate.mjs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -48,12 +49,14 @@ try {
   }
   const peers = values['registry-peers'] ? ['marionette@5.0.1', '@mnjs/utils@5.0.1'] :
     ['.package', 'packages/utils', 'packages/radio'].map(directory => pack(join(root, directory)));
+  const renderer = htmlCandidate();
+  report.renderer = renderer;
   const exampleDependencies = values['registry-peers'] ? ['@mnjs/adapters@5.0.1', 'lit-html@3.3.3', 'urlpattern-polyfill@10.1.0'] :
     ['packages/adapters', 'node_modules/lit-html', 'node_modules/@types/trusted-types', 'node_modules/urlpattern-polyfill'].map(directory => pack(join(root, directory)));
   writeFileSync(join(consumer, 'package.json'), '{"name":"router-tarball-consumer","private":true,"type":"module"}\n');
   execFileSync(process.execPath, [npmCli, 'install', '--ignore-scripts', '--strict-peer-deps', '--no-audit', '--no-fund',
     ...(values['registry-peers'] ? ['--registry=https://registry.npmjs.org/', '--fetch-retries=0', '--fetch-timeout=20000'] : ['--offline']),
-    '--cache', join(temporary, 'cache'), routerTarball, ...peers, ...exampleDependencies], { cwd: consumer, stdio: 'inherit' });
+    '--cache', join(temporary, 'cache'), routerTarball, renderer.path, ...peers, ...exampleDependencies], { cwd: consumer, stdio: 'inherit' });
   const installed = join(consumer, 'node_modules/@mnjs/router');
   validateRouterPackage(JSON.parse(readFileSync(join(installed, 'package.json'))), readFileSync(join(installed, 'license.txt')));
   assert.equal(sha256(readFileSync(join(installed, 'dist/index.js'))), report.archive.browserModuleSha256);
@@ -65,6 +68,8 @@ try {
     if (values['registry-peers']) { assert.ok(entry.resolved.startsWith('https://registry.npmjs.org/')); }
     return { name, version: entry.version, resolved: entry.resolved, integrity: entry.integrity };
   });
+  const installedRenderer = JSON.parse(readFileSync(join(consumer, 'node_modules/@mnjs/html/package.json')));
+  assert.equal(installedRenderer.version, renderer.version);
   report.exampleDependencies = [['@mnjs/adapters', '5.0.1'], ['lit-html', '3.3.3'], ['urlpattern-polyfill', '10.1.0']].map(([name, version]) => {
     const entry = lock.packages[`node_modules/${name}`];
     assert.equal(entry.version, version);
@@ -110,7 +115,8 @@ try {
     ['template: ({ title }) => html`<h1>${unsafeHTML(title)}</h1>`', 'Fetched titles must remain text'],
   ]) {
     try {
-      writeFileSync(catalogFile, `import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';\n${catalogSource.replace(template, replacement)}`);
+      const unsafeImport = catalogSource.includes('from \'@mnjs/html\'') ? '@mnjs/html/directives/unsafe-html.js' : 'lit-html/directives/unsafe-html.js';
+      writeFileSync(catalogFile, `import { unsafeHTML } from '${unsafeImport}';\n${catalogSource.replace(template, replacement)}`);
       const broken = spawnSync(process.execPath, [join(root, 'test/router/consumer-check.mjs'), consumer, '--catalog-only'], { cwd: consumer, encoding: 'utf8' });
       assert.equal(broken.error, undefined);
       assert.notEqual(broken.status, 0, 'Controlled example break must fail');
@@ -127,6 +133,7 @@ try {
     const candidate = join(temporary, 'browser-candidate.json');
     writeFileSync(candidate, JSON.stringify({ source: { commit: report.archiveSourceCommit, verificationCommit: report.verificationCommit },
       packages: packages.filter(entry => entry.id !== 'router'),
+      renderer: { id: 'html', name: '@mnjs/html', directory: join(consumer, 'node_modules/@mnjs/html'), manifest: installedRenderer },
       routerPackage: packages.find(entry => entry.id === 'router'), routerArchive: report.archive,
       litDirectory: join(consumer, 'node_modules/lit-html'),
       urlPatternDirectory: join(consumer, 'node_modules/urlpattern-polyfill') }));

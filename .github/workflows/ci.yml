@@ -45,6 +45,9 @@ jobs:
       - name: Test packed testing-helper consumer (DOM)
         run: npm run test:helpers:consumer
 
+      - name: Prepare published HTML renderer for documentation
+        run: npm run docs:prepare-html
+
       - name: Test router package and installed archive
         run: npm run test:router-package && npm run test:router-tarball
 

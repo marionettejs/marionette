@@ -1,8 +1,8 @@
 import { setDataApi, setDomApi, setRenderer, setStateApi } from 'marionette';
 import { DataApi, StateApi } from '@mnjs/data';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
 
 setDataApi(DataApi);
 setStateApi(StateApi);
-setDomApi(LitDomApi);
+setDomApi(HtmlDomApi);
 setRenderer((template, data) => template(data));

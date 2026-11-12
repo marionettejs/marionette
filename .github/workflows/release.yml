@@ -153,6 +153,9 @@ jobs:
           --source-ref "${{ github.ref }}"
           --repository "${{ github.repository }}"
 
+      - name: Prepare independent HTML renderer for documentation
+        run: npm run docs:prepare-html
+
       - name: Validate exact release candidate
         run: npm run release:validate -- --artifact-dir release
 

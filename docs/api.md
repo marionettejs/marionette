@@ -44,11 +44,11 @@ Use these contracts when implementing or adapting an integration. For configurat
 
 [@mnjs/adapters](packages/adapters.md) covers optional data and DOM integrations, their imports, configuration, observation, and cleanup.
 
-[@mnjs/html](../packages/html/guide.md) is the optional, separately versioned template renderer and Marionette DOM adapter. Its reference covers values, ownership, directives and security; the 1.0.0 candidate remains unpublished.
+[@mnjs/html](../packages/html/guide.md) is the optional, separately versioned template renderer and Marionette DOM adapter. Its reference covers values, ownership, directives and security; version 1.0.0 is published independently of core.
 
 ## Integration and task guides
 
-[Renderer and data setup](integrations/setup.md) connects Lit and `@mnjs/data` to Marionette. Integration guides explain configuration and use; package references define the APIs supplied by each package.
+[Renderer and data setup](integrations/setup.md) connects `@mnjs/html` and `@mnjs/data` to Marionette. Integration guides explain configuration and use; package references define the APIs supplied by each package.
 
 [Check and debug an application](tooling.md) covers consumer lint, declaration checks, and diagnostic lookup. [Practical TypeScript](guides/typescript.md) covers options, handlers, state and lifecycle results. [Migration](guides/migration.md) and [consumer testing](guides/testing.md) provide upgrade and verification paths.
 

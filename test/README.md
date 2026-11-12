@@ -67,6 +67,7 @@ Reports still reject comparisons when browser or package versions differ.
 | Static production import graph | `source/` | `npm run test:source` |
 | Built ESM/CJS/UMD exports | `dist/` | `npm run test:dist` |
 | Consumer documentation, package discovery and runnable recipes | `docs/`, `agent-docs/` | `npm run docs:check` |
+| Published Router/HTML example and TypeScript consumer (Node 24.15.0+) | `docs/router-companion.mjs` | `npm run docs:check-router` |
 
 `npm ci` uses the pinned toolchain and builds packages through `prepare`. `npm test`
 is deliberately fast: it runs unit tests without a hidden type/build pretest.
@@ -224,6 +225,29 @@ To intentionally refresh one external graph, use `npm --prefix
 test/fixtures/<name> update --package-lock-only --ignore-scripts`, review its
 manifest and lock together, then run that fixture. Never delete locks during tests.
 
+## HTML renderer for documentation checks
+
+The default examples use independently versioned `@mnjs/html`. Before
+`docs:check`, `check:docs-examples`, `check:docs-installed`,
+`test:docs-production`, `verify -- --full` or `release:validate`, prepare its
+published registry archive:
+
+```sh
+npm run docs:prepare-html
+```
+
+The version and archive name come from `packages/html/package.json`. Set
+`MNJS_HTML_TARBALL` only to override the prepared archive with a matching exact
+candidate. The five coordinated release tarballs remain unchanged; documentation
+and fixture reports record the separate renderer hash. Preparation downloads the
+exact published version with npm pack; it does not rebuild checkout source. The
+HTML workflow owns renderer candidate tests. This does not publish an HTML release.
+
+The fixture runner prepares this dependency when `docs-quick-start` is selected,
+unless an explicit archive is supplied. Registry installation in the public quick
+start requires the documented HTML version to be published before this guidance
+is released or deployed.
+
 ## Exact release candidates
 
 The independently versioned router follows its
@@ -346,3 +370,13 @@ Packed checks verify both files and their relative links/anchors, execute the
 README's own Vitest configuration/test, then exercise the reference recipes.
 Repository examples follow `master`; validate their merged destinations before
 publication as described in the helper release procedure.
+
+The dedicated Router documentation check installs published Router 0.1.0, HTML
+1.0.0 and Marionette 5.0.1 in an isolated consumer fixture. These pins identify
+reproducible evidence, not a mandatory application stack. It executes the actual
+routed HTML guide with `memoryDriver`, tests loading/retention/failure/cancellation
+and cleanup, and compiles public TypeScript imports. It runs in the source Node
+24 documentation job, separately from core's Node 22 consumer matrix. Memory/DOM
+checks do not establish native-browser behavior. Update pins and evidence together
+when intentionally testing a later companion release. No package is published by
+this check.

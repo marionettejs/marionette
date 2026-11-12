@@ -6,9 +6,9 @@ shows a named View through its Region. A mount starts/joins that child by its ow
 id parameter before calling the leaf. Same ID retains preparation; changed ID
 stops/starts the registered instance. The list page stops the mounted Item.
 
-The View uses a function template and a per-View Lit DOM adapter. Install the
-optional consumer dependencies @mnjs/adapters@5.0.1 and lit-html@3.3.3 alongside
-the router and its Marionette peer. Ordinary Lit expressions keep fetched text
+The View uses a function template and a per-View HTML DOM adapter. Install the
+optional consumer dependency @mnjs/html alongside
+the router and its Marionette peer. Ordinary HTML expressions keep fetched text
 escaped; no global renderer override or raw HTML insertion is needed.
 
 ```js

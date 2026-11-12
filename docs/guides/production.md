@@ -8,7 +8,7 @@ These docs target **5.0.1**. Follow the [quick start](../quick-start.md) to inst
 
 Use named ESM imports from `marionette` and the documented adapter subpaths. Build against installed packages rather than repository source aliases. Include the template engine required by the chosen adapter. Choose observable data and API access through [setup](../integrations/setup.md).
 
-Configure providers before constructing consumers. A shared setup module suits one class family; class setters such as `View.extend(...).setDomApi(LitDomApi)` suit a configured subclass. Configure CollectionView and its child View classes when both consume that adapter. Use an isolated runtime when independently configured features coexist. [Runtime configuration](../api/runtime.md) explains these scopes; changing providers on live instances does not rebuild them.
+Configure providers before constructing consumers. A shared setup module suits one class family; class setters such as `View.extend(...).setDomApi(HtmlDomApi)` suit a configured subclass. Configure CollectionView and its child View classes when both consume that adapter. Use an isolated runtime when independently configured features coexist. [Runtime configuration](../api/runtime.md) explains these scopes; changing providers on live instances does not rebuild them.
 
 ## Build the browser artifact
 

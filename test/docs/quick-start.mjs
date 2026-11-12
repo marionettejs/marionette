@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { htmlCandidate } from './html-candidate.mjs';
 import { execFile, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
@@ -13,10 +14,10 @@ const execute = promisify(execFile);
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const quote = value => `'${value.replaceAll(/'/g, '\'\\\'\'')}'`;
 
-// Certification exercises the documented npm recipe with the exact unpublished
+// Certification exercises the documented npm recipe with the exact separately hashed
 // package bytes. The resulting report distinguishes this from a registry install.
 export function artifactSetupCommand(command, packages) {
-  for (const name of releasePackages.filter(pkg => pkg.name !== '@mnjs/data').map(pkg => pkg.name)) {
+  for (const name of releasePackages.filter(pkg => !['@mnjs/data', '@mnjs/adapters'].includes(pkg.name)).map(pkg => pkg.name)) {
     const matches = packages.filter(pkg => pkg.name === name);
     assert.equal(matches.length, 1, `One candidate artifact required: ${name}`);
     const pkg = matches[0];
@@ -26,6 +27,11 @@ export function artifactSetupCommand(command, packages) {
     assert.equal([...command.matchAll(pattern)].length, 1, `Quick start must pin ${spec} exactly once`);
     command = command.replace(pattern, (_, prefix) => `${prefix}${quote(`../marionette-v5-artifacts/${pkg.file}`)}`);
   }
+  const renderer = packages.find(pkg => pkg.name === '@mnjs/html');
+  assert(renderer, 'One HTML candidate artifact required');
+  const htmlSpec = `@mnjs/html@${renderer.version}`;
+  assert.equal(command.split(htmlSpec).length - 1, 1, 'Quick start must pin the HTML candidate exactly once');
+  command = command.replace(htmlSpec, quote(`../marionette-v5-artifacts/${renderer.file}`));
   assert(!command.includes('@mnjs/data@'), 'Quick start keeps observable data optional');
   return command;
 }
@@ -88,6 +94,11 @@ export async function verifyQuickStart({ packageRoot, artifactDirectory, browser
       assert.equal(report.packages.filter(pkg => pkg.name === entry.name).length, 1, entry.name);
     }
     assert.equal(new Set(report.packages.map(pkg => pkg.version)).size, 1, 'Candidate versions match');
+    const renderer = htmlCandidate();
+    await copyFile(renderer.path, join(artifacts, renderer.file));
+    assert.equal(hash(await readFile(join(artifacts, renderer.file))), renderer.sha256);
+    report.packages.push(renderer);
+    env.MNJS_HTML_TARBALL = join(artifacts, renderer.file);
     const manifest = JSON.parse(await readFile(join(packageRoot, 'package.json'), 'utf8'));
     assert.equal(report.packages.find(pkg => pkg.name === 'marionette').version, manifest.version);
     const source = await readFile(join(packageRoot, 'docs/quick-start.md'), 'utf8');
@@ -117,11 +128,11 @@ export async function verifyQuickStart({ packageRoot, artifactDirectory, browser
       const pkg = report.packages.find(candidate => candidate.name === name);
       assert(pkg, `Unexpected Marionette package: ${path}`);
       assert.notEqual(name, '@mnjs/data', 'Optional data must remain absent');
-      assert.equal(entry.resolved, `file:../marionette-v5-artifacts/${pkg.file}`, path);
+      assert.equal(resolve(project, entry.resolved.replace(/^file:/, '')), join(artifacts, pkg.file), path);
       assert.equal(entry.integrity, pkg.integrity, path);
       assert.equal(entry.version, pkg.version, path);
     }
-    for (const pkg of report.packages.filter(entry => entry.name !== '@mnjs/data')) {
+    for (const pkg of report.packages.filter(entry => !['@mnjs/data', '@mnjs/adapters'].includes(entry.name))) {
       const installed = JSON.parse(await readFile(join(project, 'node_modules', pkg.name, 'package.json'), 'utf8'));
       assert.equal(installed.name, pkg.name);
       assert.equal(installed.version, pkg.version);
@@ -129,8 +140,10 @@ export async function verifyQuickStart({ packageRoot, artifactDirectory, browser
       assert.equal(lock.packages[`node_modules/${pkg.name}`]?.version, pkg.version, pkg.name);
       pkg.installed = true;
     }
-    assert.throws(() => createRequire(join(project, 'package.json')).resolve('@mnjs/data'), { code: 'MODULE_NOT_FOUND' });
-    assert.equal(lock.packages['node_modules/@mnjs/data'], undefined);
+    for (const optional of ['@mnjs/data', '@mnjs/adapters']) {
+      assert.throws(() => createRequire(join(project, 'package.json')).resolve(optional), { code: 'MODULE_NOT_FOUND' });
+      assert.equal(lock.packages[`node_modules/${optional}`], undefined);
+    }
     const installedCore = join(project, 'node_modules/marionette');
     assert.equal(await readFile(join(installedCore, 'docs/quick-start.md'), 'utf8'), source);
     const docsManifest = JSON.parse(await readFile(join(installedCore, 'docs-manifest.json'), 'utf8'));

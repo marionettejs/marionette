@@ -13,7 +13,7 @@ Marionette organizes UI around ownership: who prepares a feature, who presents i
 | Reuse interaction behavior across Views | A [Behavior](api/behavior.md), whose lifetime follows its host View. |
 | Own nonvisual state or communication | An [MnObject](api/mnobject.md), with events, state access, and explicit destruction. |
 
-A View with Regions is enough for visual composition. Add an Application when a feature needs readiness, coordinated effects, or an independently managed lifetime. A parent Application can own the page and start child features even when the parent has no asynchronous preparation. Registering a child establishes ownership; starting it is an explicit decision.
+Choose an Application to coordinate readiness before UI activation, own a start/stop lifetime, repeat readiness with restart, cancel obsolete startup, or orchestrate work across Views. For example, prepare required records before displaying a list/detail feature, then own that feature’s readiness, restart and start/stop lifetime. A View with Regions is enough for visual composition; a host router plus a Region can own simple destination replacement. A single request or URL does not by itself require Application. A parent Application can own the page and start child features even when the parent has no asynchronous preparation. Registering a child establishes ownership; starting it is an explicit decision.
 
 A View can save an edit to its own model when the chosen data layer provides that operation. Keep [local interaction](api/view.md#local-interaction-and-feature-coordination) in its View and shared workflow decisions with their feature owner.
 
@@ -39,7 +39,7 @@ Show loading or error presentation through Views and Regions. The caller of `sta
 
 Notification hooks such as `onStart` do not await returned Promises. If a child must be ready before the parent activates, include that work in parent preparation and handle cleanup if preparation fails. If the page can be ready while its child loads, start the child from the active parent and handle its failure there. See [child Application ownership](api/application.md#child-applications).
 
-Pass the preparation signal to the service where supported. Marionette prevents a cancelled preparation result from activating the Application. Additional side effects after an `await` must also respect cancellation. Once preparation finishes, that signal is no longer a feature-lifetime signal; later requests need their own policy.
+Pass the preparation signal to the service where supported. Marionette prevents a cancelled preparation result from activating the Application. Additional side effects after an `await` must also respect cancellation. Cancellation prevents obsolete preparation from activating UI; transport abort still depends on the service honoring the signal. Once preparation finishes, that signal is no longer a feature-lifetime signal; later requests need their own [concurrency and retry policy](guides/async-requests.md).
 
 ## Choose what survives an operation
 
@@ -66,14 +66,44 @@ State supplied to another object is borrowed. State created through `createState
 
 ## Let Views and Regions manage presentation
 
-Use templates for presentation, CollectionView for repeated children, and Regions for child placement and teardown.
+For data-driven lists, default to CollectionView with child Views for record identity
+and managed child lifetime. This is a design recommendation, not a core API
+requirement. Simple/static repetition may stay in one owning View's template.
+See [lists](guides/lists.md) for managed rows.
 
-Choose updates at the boundary that changed. Rendering a containing View can destroy child Views, so preserve an active editor when updating an independent status or panel. Bounded changes to a View's own controls, such as a button's disabled state, are appropriate. Keep those updates inside the owning View. The [View rendering contract](api/view.md) explains child cleanup; the [CollectionView reference](api/collection-view.md) explains record and child identity.
+Hand-assembling application HTML and inserting it with `innerHTML`, `outerHTML` or
+`insertAdjacentHTML` does not create child Views. With the native delegator, a
+parent View's registered events can still handle matching inserted descendants;
+separate child Views supply per-child bindings, lifecycle and cleanup. Parent
+delegation alone does not supply those child lifetimes.
+
+HTML strings are supported renderer output: the default DOM provider inserts
+renderer output as HTML. A template function returning HTML through that pipeline
+is not the same as writing behind existing managed children. Keep managed View and
+child View replacement under the configured renderer, Regions and child lifecycle;
+update the smallest appropriate data/View owner or show a child in a Region,
+preserving retained children. See [templates and data](api/shared/view-bindings.md#templates-and-data).
+
+Prefer View `events`/`triggers` and named `ui` bindings for normal View interactions;
+they connect selectors and handlers to View lifetime. DOM reads are different from
+writes: `document.querySelector` is a lookup and can locate a mount point. It does
+not itself replace HTML or bypass child cleanup.
+
+Choose updates at the boundary that changed. Rerendering an already-rendered View resets its Regions and destroys their children, so preserve an active editor when updating an independent status or panel. With `template: false`, `render()` is a no-op and does not reset Regions or emit render events; compose existing markup explicitly. Bounded changes to a View's own controls, such as a button's disabled state, are appropriate. Keep those updates inside the owning View. The [View rendering contract](api/view.md) explains child cleanup; the [CollectionView reference](api/collection-view.md) explains record and child identity.
+
+Direct DOM integration also fits [imperative widgets](guides/widgets.md),
+[existing markup](guides/existing-html.md), and [prerendered DOM](api/view.md#existing-elements).
+Scope reads and writes to the owning View or widget boundary and respect child
+Region ownership. Manual listeners, including `addEventListener`, can serve external
+targets or widget integrations; release them and widget resources at the owning
+lifetime's teardown. These integrations do not require changing the rest of the renderer.
 
 ## Clean up at the ownership boundary
 
 Regions destroy replaced Views. CollectionView destroys removed children. Destroying a Marionette object releases its event subscriptions and incoming callbacks; a retained listener needs no per-View `destroy` handler to call `stopListening(view)`.
 
-Application `stop()` retains the Application, its state, and subscriptions to surviving sources. Explicitly end subscriptions whose purpose lasts only for that run. Release external resources such as timers, service requests, or widget handles at the lifetime that owns them; attaching a resource to an arbitrary property does not make it framework-owned. See [event cleanup](api/shared/events.md#cleanup).
+A View's `onBeforeDestroy` can release View-owned resources and invalidate pending completions before child teardown. Work that must survive that View needs a surviving owner instead.
+
+Application `stop()` retains the Application, its state, and subscriptions to surviving sources. Use `onStop` to end active-run effects such as Window listeners or timers. `restart()` calls `onStart` again without `onStop`, so guard effect installation against duplicates. Ongoing service work still needs its own concurrency and cancellation policy. Release external resources at the lifetime that owns them; attaching a resource to an arbitrary property does not make it framework-owned. See [readiness and ongoing effects](api/application.md#readiness-and-ongoing-effects) and [event cleanup](api/shared/events.md#cleanup).
 
 For a runnable feature using preparation, selection, child Applications, and retry, continue with the [records lesson](records.md).

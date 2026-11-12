@@ -99,6 +99,10 @@ source, rebuild or repack the bytes selected for publication.
 
 ## Certify those exact bytes
 
+Prepare the example renderer with `npm run docs:prepare-html` before verification,
+or provide an existing archive through `MNJS_HTML_TARBALL`. The verifier consumes
+that archive without implicitly fetching a renderer.
+
 ```sh
 npm run test:router-tarball -- --artifact /absolute/path/router-release/mnjs-router-0.1.0.tgz --sha256 RECORDED_SHA256 --registry-peers --browser --output /absolute/path/router-verification
 ```

@@ -1,6 +1,6 @@
 # Differences from lit-html 3.3.3
 
-This inventory describes observable APIs and behavior, not formatting-only edits. Pristine test fixtures and the license remain under vendor/lit-html-3.3.3; sources.json records verified recovery inputs for the unused original implementations. This is an unpublished browser-rendering package for Marionette 5.0.1 and its `baseline widely available` browser target.
+This inventory describes observable APIs and behavior, not formatting-only edits. Pristine test fixtures and the license remain under vendor/lit-html-3.3.3; sources.json records verified recovery inputs for the unused original implementations. This is an independently published browser-rendering package for Marionette 5.0.1 and its `baseline widely available` browser target.
 
 ## Retained functionality
 
@@ -32,7 +32,7 @@ No routine browser directive was removed merely to reduce bundle size. SSR/polyf
 - Same-parent keyed content moves optionally use native moveBefore, preserving focus/selection and supported native state. The renderer's own empty boundary markers use insertBefore; the feature/parent check is hoisted once per range. New nodes and cross-parent/cache transfers retain insertBefore. Unsupported browsers use insertBefore. Detached same-parent moves and fallback paths are covered. Native movement may have a runtime cost; see measured evidence rather than assuming newer means faster.
 - Production output has exact development-flag assertions, debug-output checks and one deterministic shared private-property map. Mangled internal names stay in the _$ namespace, avoiding collisions with custom Directive subclass fields. Quoted protocol keys remain stable. End users should not use _$ names for their own fields.
 - TypeScript uses upstream-compatible assignment-style class field emission, avoiding extra empty type-only fields while retaining the ES2022 target.
-- Distribution is ESM, with separate development/default conditions, TypeScript declarations and source-map inputs. The package has no runtime dependency on Lit or Marionette. @types/trusted-types is declared for public type consumers. The package remains unpublished.
+- Distribution is ESM, with separate development/default conditions, TypeScript declarations and source-map inputs. The package has no runtime dependency on Lit or Marionette. @types/trusted-types is declared for public type consumers. The package is independently published as `@mnjs/html`; source documentation edits require a subsequent release.
 
 ## Focused correctness corrections
 

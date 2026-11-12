@@ -4,6 +4,8 @@
 
 A Region owns the placement and lifetime of one View or CollectionView. Showing another View destroys the current one. Detaching releases it for reuse. A View can own named Regions for composition; an Application can use a Region to display its root View.
 
+For a Region filled after first paint, reserve its space in application CSS or render the surrounding chrome with its content; Region does not reserve layout space.
+
 ## Construction and options
 
 `new Region(options?)` configures the Region and calls `initialize(options)`. It does not resolve a selector, render a View, or change the DOM. Supply `el` before showing content. Unlike View, Region has no `preinitialize` hook.

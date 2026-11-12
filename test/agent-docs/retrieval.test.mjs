@@ -157,7 +157,21 @@ test('symbol index resolves every reviewed contract heading to exactly one consu
 test('canonical task routes match the skill and point at installed consumer pages', async() => {
   const guide = await readFile(resolve(root, 'docs/agents.md'), 'utf8');
   const skill = await readFile(resolve(root, 'skills/marionette/SKILL.md'), 'utf8');
-  assert.equal(skillRoutes(guide, skill), skill);
+  assert.equal(skillRoutes(guide, skill, { primary: true }), skill);
+  const rowCount = text => text.split('<!-- task-routes:start -->')[1]
+    .split('<!-- task-routes:end -->')[0].trim().split('\n').length - 2;
+  assert.equal(rowCount(skill), 12);
+  assert.ok(skill.includes('docs/packages/router.md'), 'keep routed composition visible');
+  assert.ok(skill.includes('docs/packages/html.md'), 'keep renderer guidance visible');
+  assert.ok(skill.includes('docs/guides/migration.md'), 'keep the v4 migration route visible');
+  assert.ok(skill.includes('docs/guides/testing.md'), 'keep interaction verification visible');
+  assert.equal(rowCount(skillRoutes(guide, skill)), 28, 'full task index remains available');
+  const missing = guide.replace(/^\| Build an application, page, or composed feature.*\n/m, '');
+  assert.throws(() => skillRoutes(missing, skill, { primary: true }), /expected one primary route/);
+  const duplicate = guide.replace('| Choose ownership and lifetimes |',
+    '| Duplicate | [Architecture](architecture.md) |\n| Choose ownership and lifetimes |');
+  assert.throws(() => skillRoutes(duplicate, skill, { primary: true }), /found 2/);
+  assert.ok(skill.includes('docs/agents.md'), 'compact entry retains full index fallback');
   const pages = JSON.parse(await readFile(resolve(root, 'docs-site/navigation.json'), 'utf8'));
   const published = new Set(pages.filter(isConsumerPage).map(page => page.source));
   const table = skill.split('<!-- task-routes:start -->')[1].split('<!-- task-routes:end -->')[0];

@@ -2,179 +2,142 @@
 
 Marionette v5 supplies UI and Application lifecycles. Choose browser navigation or a separate router for URL matching and history. Connect route decisions to the owner that shows or starts the destination feature.
 
-## Keep a shell while changing its content
+## Use the optional Router for routed applications
 
-This small application uses fragment links for two synchronous pages. Its Application owns the shell and the browser subscription; the content Region owns the current page. No data provider is needed. The rendering packages are described in [setup](../integrations/setup.md).
+For a new application needing named URLs, nested feature routes or coordinated
+route transitions, use optional `@mnjs/router` with compatible Marionette peers. The HTML-first
+example is verified with `@mnjs/router@0.1.0` and `@mnjs/html@1.0.0`; these
+are tested versions, not a Router renderer requirement. Router is independently versioned and optional, not part of
+core's coordinated release. Keep an existing host router rather than adding a
+second global URL owner. The [native fragment-navigation alternative](fragment-navigation.md) remains
+valid when you do not need a routing package.
 
-```js
-import { Application, View } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+Start with the copyable HTML feature below.
+Read the installed `node_modules/@mnjs/router/readme.md` and `DESIGN.md` for
+version-matched contracts; [companion discovery](../packages/router.md#read-the-installed-contract-first)
+identifies the renderer and larger example paths. No framework checkout is needed.
 
-const PageView = View.extend({
-  template: () => html`
-    <nav aria-label="Pages"><a href="#home">Home</a> <a href="#about">About</a></nav>
-    <main class="content"></main>`,
-  regions: { content: '.content' },
-}).setDomApi(LitDomApi);
-const HomeView = View.extend({
-  template: () => html`<h1 tabindex="-1">Home</h1><p>Welcome.</p>`,
-}).setDomApi(LitDomApi);
-const AboutView = View.extend({
-  template: () => html`<h1 tabindex="-1">About</h1><p>About this application.</p>`,
-}).setDomApi(LitDomApi);
-const NotFoundView = View.extend({
-  template: () => html`<h1 tabindex="-1">Page not found</h1>`,
-}).setDomApi(LitDomApi);
+Use one browser `Router` and let each `RouteApplication` declare the routes and
+children it owns. A mount selects its registered child before dispatching the
+child's local handler. Keep required data loading in `prepareStart`, apply the
+prepared result in `onStart`, and let Views and Regions own displayed content.
+The route matcher does not infer ownership from URL nesting. Do not duplicate
+Application preparation with a separate route-handler loading system.
 
-const NavigationApplication = Application.extend({
-  onStart() {
-    if (!this.getView()) {
-      this.showView(new PageView());
-      this.onHashChange = () => this.showRoute();
-      window.addEventListener('hashchange', this.onHashChange);
-    }
-    this.showRoute({ focus: false });
-  },
-  showRoute({ focus = true } = {}) {
-    const route = window.location.hash || '#home';
-    if (route === this.currentRoute) return;
-    this.currentRoute = route;
-    const Destination = route === '#home' ? HomeView :
-      route === '#about' ? AboutView : NotFoundView;
-    const destination = new Destination();
-    this.getView().showChildView('content', destination);
-    const heading = destination.el.querySelector('h1');
-    document.title = heading.textContent;
-    if (focus) heading.focus();
-  },
-  onStop() {
-    window.removeEventListener('hashchange', this.onHashChange);
-    this.currentRoute = undefined;
-  },
-});
+`mountRoutes(router)` registers routes but does not activate the root owner.
+Start independently registered roots before starting the Router; mounted children
+start through selection. Await `router.getInitialDispatch()` and handle a failed
+initial dispatch. For later named navigation, await the returned handle's
+`.finished` promise: `true` means completed, `false` means cancelled, and
+failure rejects. Handle rejection at its owner. Changing a mount's own
+parameters stops and starts the same registered child instance; changing a leaf
+under the same mount can retain that child. Stop retains registrations; destroy
+unmounts them. After stop/start, explicitly restart required roots and Router.
 
-const mount = document.createElement('div');
-document.body.append(mount);
-const app = new NavigationApplication({ region: { el: mount } });
-await app.start();
-```
+**Check the supported environment before choosing this package.** Version 0.1.0
+is tested on Chromium only; Firefox and WebKit are untested. It requires
+`URLPattern`, `AbortSignal.any`, `Promise.withResolvers` and `URL.canParse`; the
+default driver also requires the Navigation API. `historyDriver()` is an explicit
+alternative, not an automatic fallback, and additionally needs `structuredClone`.
+Transpilation does not supply these APIs. Follow the
+[capability check and driver contracts](https://github.com/marionettejs/marionette/blob/router-v0.1.0/packages/router/readme.md#check-capabilities-before-eager-application-imports)
+before eagerly constructing a Router. Router's Node minimum is 24.15, independent
+of core's Node 22 consumer floor. A missing capability is not a reason to silently
+replace a host's navigation policy.
 
-Startup reads the current fragment explicitly, so a direct link to `#about` works. Following a link changes the URL; `hashchange` selects the destination. Browser Back/Forward uses the same path. The shell and its navigation remain mounted while Region replacement destroys the previous page. Repeated dispatch of the same route keeps the current page. Unknown fragments show a separate not-found View.
+## A minimal HTML feature
 
-Each destination updates the document title. Later navigation moves focus to its heading; startup leaves focus alone. Decide the focus policy for your actual navigation, especially when a route update merely filters retained content. A route parameter change need not replace the whole feature: update its owned state or use the destination Application’s [retained restart](retained-restart.md) when appropriate.
-
-Stopping destroys the shell and its children and removes the Window listener. Starting again reads the current URL and creates a fresh shell. Native `addEventListener` subscriptions need this explicit cleanup; Marionette's `listenTo` cleanup handles Marionette event sources, not Window subscriptions. Restart retains the shell and subscription; this example installs them only when no root exists. Route changes update the content Region directly.
-
-## Choose the URL owner
-
-Fragment navigation is useful for a small standalone application. If an existing host already owns routing, let it select the feature and follow the [existing UI boundary](existing-ui.md). Avoid starting a second global URL listener for an embedded feature.
-
-For path-based routing, configure the server to serve the application entry for valid direct links and reloads. A History API implementation must handle `popstate` for traversal and explicitly dispatch its own `pushState`/`replaceState` transitions: those calls do not emit `popstate`, and changing a fragment through them does not emit `hashchange`. See the browser contracts for [pushState](https://developer.mozilla.org/en-US/docs/Web/API/History/pushState) and [hashchange](https://developer.mozilla.org/en-US/docs/Web/API/Window/hashchange_event). Choose a routing library when matching, nested routes, redirects, or transition policies warrant it; Marionette ownership remains the same.
-
-## Route to asynchronous features
-
-When a destination needs readiness, let the navigation Application manage a child Application in the content Region. This independent example expects `GET /pages/home.json` and `GET /pages/about.json` to return `{ "title": string, "body": string }`. It keeps the shell while stopping the previous child run, then replaces the content with loading, the ready page, or an error. These Views share one Region, so only one is visible.
+Use this as `app.js` after the [quick start](../quick-start.md), add `@mnjs/router`,
+and keep `<div id="app"></div>` in the page. Install compatible peers according to
+the installed Router manifest. This example uses no data provider: plain object
+snapshots supply each View's template data.
 
 ```js
 import { Application, View } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import { Router, RouteApplication } from '@mnjs/router';
+import { html } from '@mnjs/html';
+import HtmlDomApi from '@mnjs/html/marionette';
 
-const ShellView = View.extend({
-  template: () => html`
-    <nav aria-label="Pages"><a href="#home">Home</a> <a href="#about">About</a></nav>
-    <main class="content"></main>`,
-  regions: { content: '.content' },
-}).setDomApi(LitDomApi);
-const MessageView = View.extend({
-  template: ({ title, body }) => html`<h1>${title}</h1><p role="status">${body}</p>`,
-}).setDomApi(LitDomApi);
-const ContentView = View.extend({
-  template: ({ title, body }) => html`<h1>${title}</h1><p>${body}</p>`,
-}).setDomApi(LitDomApi);
-const ErrorView = View.extend({
-  template: ({ message }) => html`
-    <h1>Could not load page</h1><p role="alert">${message}</p>
-    <button type="button" class="retry">Retry</button>`,
-  triggers: { 'click .retry': 'retry' },
-}).setDomApi(LitDomApi);
+const Page = View.extend({
+  template: ({ title }) => html`<h1>${title}</h1>`,
+}).setDomApi(HtmlDomApi);
 
-const PageApplication = Application.extend({
-  async prepareStart({ route }, { signal }) {
-    const response = await fetch(`/pages/${route.slice(1)}.json`, { signal });
-    if (!response.ok) throw new Error('The page request failed.');
-    return response.json();
+const Item = RouteApplication.extend({
+  routes: {
+    '': { name: 'item', handler: 'showItem' },
+    'reviews': { name: 'reviews', handler: 'showReviews' },
   },
-  onStart(_app, _options, page) {
-    this.showView(new ContentView({ model: page }));
-    document.title = page.title;
+  async prepareStart({ id, loadItem }, { signal }) {
+    return loadItem(id, { signal });
   },
+  onStart(_app, _options, title) { this.title = title; },
+  showItem() { this.showView(new Page({ model: { title: this.title } })); },
+  showReviews() { this.showView(new Page({ model: { title: `Reviews: ${this.title}` } })); },
+});
+const Catalog = RouteApplication.extend({
+  childApps: { item: Item },
+  routes: {
+    '/catalog': { name: 'catalog', handler: 'showCatalog' },
+    '/catalog/:id': { mount: 'item', namespace: 'catalog' },
+  },
+  childRouteOptions() { return { loadItem: this.getOption('loadItem') }; },
+  showCatalog() { this.showView(new Page({ model: { title: 'Catalog' } })); },
 });
 
-const NavigationApplication = Application.extend({
-  childApps: { page: PageApplication },
-  onStart() {
-    if (this.getView()) return;
-    this.showView(new ShellView());
-    this.onHashChange = () => {
-      this.navigationTask = this.showRoute();
-      this.navigationTask.catch(error => console.error(error));
-    };
-    window.addEventListener('hashchange', this.onHashChange);
-    this.onHashChange();
-  },
-  async showRoute() {
-    if (!this.isRunning()) return false;
-    const route = window.location.hash || '#home';
-    if (route === this.currentRoute) return false;
-    this.currentRoute = route;
-    const child = this.getChildApp('page');
-    child.stop();
-    const region = this.getView().getRegion('content');
-    if (route !== '#home' && route !== '#about') {
-      document.title = 'Page not found';
-      region.show(new MessageView({ model: {
-        title: 'Page not found', body: 'Choose Home or About.',
-      } }));
-      return true;
-    }
-    document.title = 'Loading page…';
-    region.show(new MessageView({ model: {
-      title: 'Loading page…', body: 'Please wait.',
-    } }));
-    try {
-      return await child.start({ region, route });
-    } catch (error) {
-      child.stop();
-      this.currentRoute = undefined;
-      document.title = 'Could not load page';
-      const errorView = new ErrorView({ model: { message: error.message } });
-      this.listenTo(errorView, { retry: this.onHashChange });
-      region.show(errorView);
-      return false;
-    }
-  },
-  onBeforeStop() {
-    this.currentRoute = undefined;
-    window.removeEventListener('hashchange', this.onHashChange);
-  },
-});
-
-const mount = document.createElement('div');
-document.body.append(mount);
-const app = new NavigationApplication({ region: { el: mount } });
-await app.start();
+export function createApp({ driver, loadItem = async id => `Item ${id}` } = {}) {
+  const frame = new Application();
+  const router = frame.addChildApp('navigation', new Router({ driver }));
+  const catalog = frame.addChildApp('catalog', new Catalog({
+    region: { el: '#app' }, loadItem,
+  }));
+  catalog.mountRoutes(router);
+  return {
+    frame, router, catalog,
+    async start() {
+      try {
+        if (!await frame.start() || !await catalog.start() || !await router.start()) {
+          frame.destroy();
+          return { status: 'cancelled' };
+        }
+        const result = await router.getInitialDispatch();
+        if (result.status === 'failed') throw result.error;
+        return result;
+      } catch (error) {
+        frame.destroy();
+        throw error;
+      }
+    },
+  };
+}
 ```
 
-The URL selects the destination as soon as it changes. A failed request keeps that URL and shows an error View; Retry dispatches the current URL again. An unknown fragment shows a not-found View. Repeating a route that is loading or ready leaves it alone.
+In the browser entry module, import `createApp`, create it without a driver to use
+the native Navigation API, and await `app.start()` inside the host's error boundary.
+Serve `/catalog` and `/catalog/42` through the same application entry. The initial
+URL is dispatched by startup. Unmatched URLs have no fallback in this minimal
+example; choose the host's missing-page policy explicitly.
 
-The owner stops the outgoing child before starting the next destination. Stopping the child cancels its pending start, which resolves `false`; obsolete failures do not reject that cancelled call. The next destination starts a new preparation. Stopping the outgoing child aborts its preparation signal; an obsolete result cannot activate even if the transport ignores abort. A rejected start is stopped before error presentation replaces its UI.
+For an interaction, return or await
+`app.router.navigate('catalog:item', { id: '42' }).finished` and handle its rejection.
+The promise resolves `false` for cancellation, not success. Keep event handlers
+in View `events`/`triggers`, not template event bindings. Required loading runs in
+Item preparation once per selected ID; moving to its reviews leaf retains that
+prepared child. Changing ID reloads it. `app.frame.destroy()` tears down Router,
+feature Applications and displayed Views. No manually maintained route-to-View
+registry or second loader is needed.
 
-`await app.start()` activates the shell; `navigationTask` tracks the separately started page transition. The child loads readiness data in `prepareStart` and renders it in `onStart`.
+The factory's `driver` argument is an explicit testing/integration seam. For a
+memory test, import `memoryDriver` from `@mnjs/router` and pass
+`memoryDriver({ url: 'https://example.test/catalog/42' })`. Await `app.start()`,
+navigate to the reviews leaf and a different ID, assert rendered content/loading,
+then destroy the frame. Memory/History drivers additionally require
+`structuredClone`; memory does not remove the package's other capabilities.
 
-Stop is unconditional here: `onBeforeStop` removes the Window subscription before child teardown. Stop destroys the shell; a later start creates a new one and reads the current URL. Restart retains the shell, the Window listener, and the current child run. Destroy also disposes the registered child. See [Application composition](../api/application.md#child-applications) and [consumer testing](testing.md).
+The executable companion check runs this exact fence against public npm packages,
+with the memory driver and a DOM environment, and separately compiles a TypeScript
+consumer. It is distinct from core's Node 22 checks because Router has a higher
+Node floor. It does not establish real-browser behavior or benchmark performance.
 
-## Check navigation
+## Alternatives and browser verification
 
-Test direct links, link clicks, Back/Forward, unknown routes, and repeat selection. Verify shell identity survives page changes, outgoing pages are destroyed, and stop/start removes and reinstalls one URL subscription; restart retains that single subscription. Use a real browser for history and focus behavior.
+Keep an existing host router and follow the [existing UI boundary](existing-ui.md). For a small standalone application without a routing package, use the [native fragment examples](fragment-navigation.md). Do not combine those global listeners with Router. Test direct links, Back/Forward, focus and scroll in a real browser; memory-driver checks do not certify them.

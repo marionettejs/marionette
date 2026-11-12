@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir, readFile, realpath } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -146,7 +146,7 @@ test('plugin loader selects installed guidance without importing application cod
   const { mkdtemp, mkdir, rm, writeFile, symlink } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const { spawnSync } = await import('node:child_process');
-  const root = await mkdtemp(resolve(tmpdir(), 'marionette-plugin-'));
+  const root = await realpath(await mkdtemp(resolve(tmpdir(), 'marionette-plugin-')));
   t.after(() => rm(root, { recursive: true, force: true }));
   const app = resolve(root, 'app');
   const store = resolve(root, 'store/marionette');
@@ -166,6 +166,7 @@ test('plugin loader selects installed guidance without importing application cod
   assert.equal(selected.packageVersion, '5.0.0-rc.2');
   assert.equal(await readFile(selected.skillPath, 'utf8'), 'Instructions from installed release');
   assert.deepEqual(JSON.parse(run('--package-root', store).stdout).packages, [selected]);
+  assert.deepEqual(JSON.parse(run('--package-root', store).stdout).companionPackages, []);
   const legacy = resolve(app, 'node_modules/backbone.marionette');
   await mkdir(legacy);
   await writeFile(resolve(legacy, 'package.json'), JSON.stringify({ name: 'backbone.marionette', version: '4.1.3' }));
@@ -183,4 +184,98 @@ test('plugin loader selects installed guidance without importing application cod
   await rm(resolve(store, 'skills'), { recursive: true });
   assert.match(JSON.parse(run('--package-root', store).stdout).packages[0].guidance, /No packaged skill/);
   assert.equal(run('--unknown', store).status, 1);
+});
+
+test('plugin loader discovers installed companion contracts without runtime imports', async t => {
+  const { mkdtemp, mkdir, rm, writeFile, symlink } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const { spawnSync } = await import('node:child_process');
+  const root = await realpath(await mkdtemp(resolve(tmpdir(), 'marionette-companions-')));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const app = resolve(root, 'app');
+  await mkdir(resolve(app, 'node_modules/@mnjs'), { recursive: true });
+  await mkdir(resolve(app, 'src/feature'), { recursive: true });
+  const run = () => {
+    const result = spawnSync(process.execPath, [resolve(pluginSkill, 'scripts/locate.mjs')], {
+      cwd: resolve(app, 'src/feature'), encoding: 'utf8',
+    });
+    assert.equal(result.status, 0, result.stderr);
+    return JSON.parse(result.stdout);
+  };
+  assert.deepEqual(run().companionPackages, []);
+  const specs = [
+    { name: '@mnjs/html', version: '1.0.0', documentNames: ['guide.md', 'LIT_DIFFERENCES.md'] },
+    { name: '@mnjs/router', version: '0.1.0', documentNames: ['readme.md', 'DESIGN.md'] },
+  ];
+  for (const { name, version, documentNames } of specs) {
+    const packageRoot = resolve(root, 'store', name);
+    await mkdir(packageRoot, { recursive: true });
+    await writeFile(resolve(packageRoot, 'package.json'), JSON.stringify({
+      name, version, exports: { '.': './explode.js', './package.json': './package.json' },
+    }));
+    await writeFile(resolve(packageRoot, 'explode.js'), 'throw new Error("must not import companion runtime");');
+    for (const file of documentNames) { await writeFile(resolve(packageRoot, file), `${name} ${version}: ${file}`); }
+    await symlink(packageRoot, resolve(app, 'node_modules', name), 'dir');
+  }
+  const result = run();
+  assert.deepEqual(result.packages, [], 'Companions must not masquerade as a core package');
+  for (const [index, { name, version, documentNames }] of specs.entries()) {
+    const companion = result.companionPackages[index];
+    const packageRoot = resolve(root, 'store', name);
+    assert.deepEqual(companion, { packageName: name, packageVersion: version, packageRoot,
+      documentation: documentNames.map(file => resolve(packageRoot, file)), missingDocumentation: [] });
+    assert.equal(await readFile(companion.documentation[0], 'utf8'), `${name} ${version}: ${documentNames[0]}`);
+  }
+  await rm(resolve(root, 'store/@mnjs/router/DESIGN.md'));
+  assert.deepEqual(run().companionPackages[1].missingDocumentation, ['DESIGN.md']);
+  assert.deepEqual(run().companionPackages[1].documentation, [resolve(root, 'store/@mnjs/router/readme.md')]);
+  await rm(resolve(app, 'node_modules/@mnjs/html'));
+  assert.deepEqual(run().companionPackages.map(item => item.packageName), ['@mnjs/router']);
+  await writeFile(resolve(root, 'store/@mnjs/router/package.json'), JSON.stringify({
+    name: '@mnjs/router', version: '0.1.0', exports: { '.': './explode.js' },
+  }));
+  const unavailable = run().companionPackages[0];
+  assert.equal(unavailable.packageName, '@mnjs/router');
+  assert.match(unavailable.guidance, /does not export package.json/);
+  assert.equal(unavailable.packageVersion, undefined);
+});
+
+test('optional companion failures preserve core discovery and reject escaping document links', async t => {
+  const { mkdtemp, mkdir, rm, writeFile, symlink } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const { spawnSync } = await import('node:child_process');
+  const root = await realpath(await mkdtemp(resolve(tmpdir(), 'marionette-companion-errors-')));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const core = resolve(root, 'node_modules/marionette');
+  const html = resolve(root, 'node_modules/@mnjs/html');
+  const router = resolve(root, 'node_modules/@mnjs/router');
+  await mkdir(resolve(core, 'skills/marionette'), { recursive: true });
+  await mkdir(html, { recursive: true });
+  await mkdir(router, { recursive: true });
+  await writeFile(resolve(core, 'package.json'), JSON.stringify({ name: 'marionette', version: '5.0.1' }));
+  await writeFile(resolve(core, 'skills/marionette/SKILL.md'), 'Core guidance');
+  await writeFile(resolve(router, 'package.json'), JSON.stringify({ name: '@mnjs/router', version: '0.1.0' }));
+  await writeFile(resolve(router, 'readme.md'), 'Router guidance');
+  await writeFile(resolve(router, 'DESIGN.md'), 'Router contracts');
+  const run = () => {
+    const result = spawnSync(process.execPath, [resolve(pluginSkill, 'scripts/locate.mjs'), '--project', root], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    const found = JSON.parse(result.stdout);
+    assert.equal(found.packages[0].skillPath, resolve(core, 'skills/marionette/SKILL.md'));
+    assert.equal(found.companionPackages[1].packageVersion, '0.1.0');
+    const failed = found.companionPackages[0];
+    assert.equal(failed.packageName, '@mnjs/html');
+    assert.equal(failed.documentation, undefined);
+    assert.match(failed.guidance, /lookup failed/);
+    return failed;
+  };
+  await writeFile(resolve(html, 'package.json'), '{invalid json');
+  assert.match(run().error, /JSON|property|Invalid package config/i);
+  await writeFile(resolve(html, 'package.json'), JSON.stringify({ name: '@mnjs/html', version: '1.0.0' }));
+  await writeFile(resolve(root, 'outside.md'), 'Outside package');
+  await symlink(resolve(root, 'outside.md'), resolve(html, 'guide.md'));
+  assert.match(run().error, /escapes package root: guide.md/);
+  await rm(resolve(html, 'guide.md'));
+  await mkdir(resolve(html, 'guide.md'));
+  assert.match(run().error, /not a file: guide.md/);
 });
