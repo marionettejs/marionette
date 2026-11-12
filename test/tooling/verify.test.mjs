@@ -15,7 +15,7 @@ for (const full of [false, true]) {
         writeFileSync(npm, `import { appendFileSync } from 'node:fs';\nappendFileSync(${JSON.stringify(log)}, process.argv[3] + '\\n');\n`);
         const env = { ...process.env, npm_execpath: npm };
         if (supplied) { env.MNJS_HTML_TARBALL = resolve(dir, 'supplied.tgz'); } else { delete env.MNJS_HTML_TARBALL; }
-        execFileSync(process.execPath, [resolve('scripts/checks/verify.mjs'), ...(full ? ['--full'] : [])], { env });
+        execFileSync(process.execPath, [resolve(import.meta.dirname, '../../scripts/checks/verify.mjs'), ...(full ? ['--full'] : [])], { env });
         const commands = readFileSync(log, 'utf8').trim().split('\n');
         assert(commands.includes('test:router-tarball'));
         assert.equal(commands.includes('docs:prepare-html'), !supplied);
