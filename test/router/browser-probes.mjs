@@ -34,14 +34,18 @@ try {
       };
       await run('capabilities', () => ({ navigation: typeof navigation, URLPattern: typeof URLPattern }));
       await run('nativeHashChanges', async cases => {
+        const events = [];
         const flags = [];
         navigation.addEventListener('navigate', event => {
-          flags.push(event.hashChange);
+          events.push(event.hashChange);
           if (event.canIntercept) { event.intercept({ handler() {} }); }
         });
         for (const { from, to } of cases) {
           history.replaceState(null, '', from);
+          // replaceState also emits a navigate event; compare only navigate().
+          const offset = events.length;
           await navigation.navigate(to).finished;
+          flags.push(...events.slice(offset));
         }
         return { cases, flags };
       }, hashChanges);
