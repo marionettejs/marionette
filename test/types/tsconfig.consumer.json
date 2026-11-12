@@ -6,7 +6,9 @@
     "strict": true,
     "skipLibCheck": false,
     "noEmit": true,
-    "types": []
+    "types": [],
+    "allowJs": true,
+    "checkJs": true
   },
   "files": [
     "consumer.mts",
@@ -62,6 +64,11 @@
     "fixed-root.mts",
     "fixed-root.cts",
     "trusted-contracts.mts",
-    "trusted-contracts.cts"
+    "trusted-contracts.cts",
+    "router.mts",
+    "router.cts",
+    "router-inference.mts",
+    "router-inference.cts",
+    "router-checkjs.js"
   ]
 }

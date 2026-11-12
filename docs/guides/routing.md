@@ -2,6 +2,51 @@
 
 Marionette v5 supplies UI and Application lifecycles. Choose browser navigation or a separate router for URL matching and history. Connect route decisions to the owner that shows or starts the destination feature.
 
+## Use the optional Router for routed applications
+
+For a new application needing named URLs, nested feature routes or coordinated
+route transitions, use `@mnjs/router@0.1.0` with `marionette@^5.0.1` and
+`@mnjs/html@1.0.0`. Router is independently versioned and optional, not part of
+core's coordinated release. Keep an existing host router rather than adding a
+second global URL owner. The small fragment-navigation examples below remain
+valid when you do not need a routing package.
+
+Start with the [Router's feature-owned Catalog example](https://github.com/marionettejs/marionette/blob/router-v0.1.0/packages/router/readme.md#build-a-routed-feature-with-applications-and-views)
+and its [complete source](https://github.com/marionettejs/marionette/tree/router-v0.1.0/packages/router/examples/catalog).
+The shipped 0.1.0 example uses optional Lit integration; that is a compatible
+renderer choice, not a Router requirement. For the HTML-first setup in this guide,
+replace its `lit-html` import with `@mnjs/html`, and its
+`@mnjs/adapters/dom/lit-html` adapter with `@mnjs/html/marionette`. Keep the same
+function templates and View event bindings. No Router runtime change is needed.
+
+Use one browser `Router` and let each `RouteApplication` declare the routes and
+children it owns. A mount selects its registered child before dispatching the
+child's local handler. Keep required data loading in `prepareStart`, apply the
+prepared result in `onStart`, and let Views and Regions own displayed content.
+The route matcher does not infer ownership from URL nesting. Do not duplicate
+Application preparation with a separate route-handler loading system.
+
+`mountRoutes(router)` registers routes but does not activate the root owner.
+Start independently registered roots before starting the Router; mounted children
+start through selection. Await `router.getInitialDispatch()` and handle a failed
+initial dispatch. For later named navigation, await the returned handle's
+`.finished` promise: `true` means completed, `false` means cancelled, and
+failure rejects. Handle rejection at its owner. Changing a mount's own
+parameters stops and starts the same registered child instance; changing a leaf
+under the same mount can retain that child. Stop retains registrations; destroy
+unmounts them. After stop/start, explicitly restart required roots and Router.
+
+**Check the supported environment before choosing this package.** Version 0.1.0
+is tested on Chromium only; Firefox and WebKit are untested. It requires
+`URLPattern`, `AbortSignal.any`, `Promise.withResolvers` and `URL.canParse`; the
+default driver also requires the Navigation API. `historyDriver()` is an explicit
+alternative, not an automatic fallback, and additionally needs `structuredClone`.
+Transpilation does not supply these APIs. Follow the
+[capability check and driver contracts](https://github.com/marionettejs/marionette/blob/router-v0.1.0/packages/router/readme.md#check-capabilities-before-eager-application-imports)
+before eagerly constructing a Router. Router's Node minimum is 24.15, independent
+of core's Node 22 consumer floor. A missing capability is not a reason to silently
+replace a host's navigation policy.
+
 ## Keep a shell while changing its content
 
 This small application uses fragment links for two synchronous pages. Its Application owns the shell and the browser subscription; the content Region owns the current page. No data provider is needed. The rendering packages are described in [setup](../integrations/setup.md).

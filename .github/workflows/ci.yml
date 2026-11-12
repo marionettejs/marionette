@@ -45,6 +45,9 @@ jobs:
       - name: Test packed testing-helper consumer (DOM)
         run: npm run test:helpers:consumer
 
+      - name: Test router package and installed archive
+        run: npm run test:router-package && npm run test:router-tarball
+
       - name: Verify browser profile
         run: npm run check:browser-profile
 

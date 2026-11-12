@@ -40,6 +40,8 @@ the v5 contract. For v4 upgrades, read the [migration guide](guides/migration.md
 
 If installed docs are absent, obtain the exact release or known source revision. Current website docs may describe a different version.
 
+For named URLs and feature-owned route transitions in a new application, use optional `@mnjs/router`; first check its browser and Node requirements in [routing](guides/routing.md). Preserve an existing host router.
+
 <!-- task-routes:start -->
 | Task | Start with |
 | --- | --- |

@@ -9,6 +9,8 @@ For API details, use the docs shipped with the installed package. Keep an existi
 
 With no stack chosen, install `marionette` with `@mnjs/html` using the Vite quick start; add `@mnjs/data` for observable records/shared state. Plain snapshots remain valid.
 
+For named URLs and feature-owned route transitions in a new application, use optional `@mnjs/router`; first check its browser and Node requirements in `docs/guides/routing.md`. Preserve an existing host router.
+
 <!-- task-routes:start -->
 | Task | Packaged page |
 | --- | --- |

@@ -7,11 +7,11 @@ import test from 'node:test';
 
 const root = resolve(import.meta.dirname, '../..');
 
-test('release browser inventory matches every current Playwright case and engine', () => {
+test('core release browser inventory matches every core case and engine', () => {
   const inventory = JSON.parse(readFileSync(resolve(root, 'config/release-validation.json'), 'utf8'));
   const profile = JSON.parse(readFileSync(resolve(root, 'config/release-profile.json'), 'utf8'));
   const report = JSON.parse(execFileSync(process.execPath, [
-    fileURLToPath(import.meta.resolve('@playwright/test/cli')), 'test', '--list', '--reporter=json'
+    fileURLToPath(import.meta.resolve('@playwright/test/cli')), 'test', '--config', 'playwright.core-release.config.mjs', '--list', '--reporter=json'
   ], { cwd: root, encoding: 'utf8', timeout: 30_000, maxBuffer: 10 * 1024 * 1024 }));
   assert.deepEqual(report.errors, []);
   const actual = [];

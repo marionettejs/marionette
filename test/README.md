@@ -249,6 +249,12 @@ is released or deployed.
 
 ## Exact release candidates
 
+The independently versioned router follows its
+[release procedure](../packages/router/RELEASING.md). The core
+publisher below remains limited to its five framework packages. Its browser
+check uses `playwright.core-release.config.mjs`, preserving the exact core
+inventory while router-owned cases have separate Chromium certification.
+
 From a clean committed checkout:
 
 ```sh
