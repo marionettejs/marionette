@@ -142,7 +142,13 @@ for (const historyMode of ['push', 'replace']) {
       const result = await page.evaluate(async({ historyMode: mode, outcome: expected }) => {
         const { Router, historyDriver } = window.historyApi;
         const driver = historyDriver();
-        let entered = Promise.withResolvers(); let gate = Promise.withResolvers();
+        // A late old pop can still supersede later work and fail the test, but
+        // it cannot enter or complete a different entry's gated phase.
+        const phases = new Map();
+        const phaseFor = key => {
+          const phase = { entered: Promise.withResolvers(), work: Promise.withResolvers(), completed: Promise.withResolvers() };
+          phases.set(key, phase); return phase;
+        };
         const newerGate = Promise.withResolvers();
         const failure = new DOMException('independent later traversal failure', 'AbortError');
         const ready = []; const errors = []; let hold = false;
@@ -150,18 +156,22 @@ for (const historyMode of ['push', 'replace']) {
           '/': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' }, '/d': { name: 'd' },
         }, async handler(match) {
           if (hold && match.name === 'd') { await newerGate.promise; }
-          if (hold && match.name === 'b') {
-            entered.resolve(); await gate.promise;
+          const phase = phases.get(match.key);
+          if (phase) {
+            phase.entered.resolve(match); await phase.work.promise;
             if (expected === 'abort-error') { throw failure; }
           }
         } });
         router.on('route:ready', match => ready.push(match.name));
         router.on('route:error', (error, match) => errors.push({ same: error === failure, name: match.name }));
+        router.on('route:ready', match => phases.get(match.key)?.completed.resolve());
+        router.on('route:error', (error, match) => phases.get(match.key)?.completed.resolve());
         try {
           await router.start(); await router.getInitialDispatch();
           await router.navigate('a').finished;
           await router.navigate('b', {}, { state: { page: 'b' } }).finished; const b = driver.currentEntry;
           await router.navigate('c').finished; hold = true;
+          const queuedPhase = phaseFor(b.key);
           const back = router.back();
           const newer = router.navigate('d', {}, { history: mode }).finished;
           // Cancellation of the local receipt must not depend on a browser pop.
@@ -169,7 +179,7 @@ for (const historyMode of ['push', 'replace']) {
           // A physical queued traversal is optional. This deadline releases only
           // the fixture's /d work; it infers nothing about browser cancellation.
           let release;
-          const arrived = await Promise.race([entered.promise.then(() => true),
+          const arrived = await Promise.race([queuedPhase.entered.promise.then(() => true),
             new Promise(resolve => { release = setTimeout(() => resolve(false), 1000); })]);
           clearTimeout(release);
           if (!arrived) { newerGate.resolve(); }
@@ -179,8 +189,7 @@ for (const historyMode of ['push', 'replace']) {
           if (arrived) {
             before.key = driver.currentEntry.key === b.key;
             before.state = router.getCurrent().state;
-            const complete = new Promise(resolve => router.once(expected === 'ready' ? 'route:ready' : 'route:error', resolve));
-            gate.resolve(); await complete;
+            queuedPhase.work.resolve(); await queuedPhase.completed.promise;
           }
           const queued = { arrived, before, ready: ready.slice(), errors: errors.slice() };
           // Establish a fresh known predecessor and prove canceled receipts do
@@ -189,21 +198,22 @@ for (const historyMode of ['push', 'replace']) {
           await router.navigate('b', {}, { state: { page: 'later-b' } }).finished; const laterB = driver.currentEntry;
           await router.navigate('c').finished;
           const readyOffset = ready.length; const errorOffset = errors.length;
-          entered = Promise.withResolvers(); gate = Promise.withResolvers(); hold = true;
+          const laterPhase = phaseFor(laterB.key); hold = true;
           let settled = false;
           const later = router.back().then(value => { settled = true; return { value }; }, error => {
             settled = true; return { error: error.name, same: error === failure };
           });
-          await entered.promise;
+          const laterMatch = await laterPhase.entered.promise;
           const laterBefore = { settled, canceled: await back, newer: await newer,
             key: driver.currentEntry.key === laterB.key, index: driver.currentEntry.index === laterB.index,
+            distinct: laterB.key !== b.key, matchKey: laterMatch.key === laterB.key,
             path: location.pathname, state: router.getCurrent().state,
             ready: ready.slice(readyOffset), errors: errors.slice(errorOffset) };
-          gate.resolve(); const laterOutcome = await later;
+          laterPhase.work.resolve(); const laterOutcome = await later;
           return { queued, laterBefore, laterOutcome,
             ready: ready.slice(readyOffset), errors: errors.slice(errorOffset),
             path: location.pathname, current: router.getCurrent().name, nativeReads: window.nativeNavigationReads };
-        } finally { router.destroy(); gate.resolve(); newerGate.resolve(); }
+        } finally { router.destroy(); for (const phase of phases.values()) { phase.work.resolve(); } newerGate.resolve(); }
       }, { historyMode, outcome });
       console.log('Router History canceled traversal contract:', JSON.stringify(result));
       const fails = outcome === 'abort-error';
@@ -219,7 +229,7 @@ for (const historyMode of ['push', 'replace']) {
           ready: ['home', 'a', 'b', 'c', 'd'], errors: [] });
       }
       expect(result.laterBefore).toEqual({ settled: false, canceled: false, newer: !result.queued.arrived,
-        key: true, index: true, path: '/b', state: { page: 'later-b' }, ready: [], errors: [] });
+        key: true, index: true, distinct: true, matchKey: true, path: '/b', state: { page: 'later-b' }, ready: [], errors: [] });
       expect(result.laterOutcome).toEqual(fails ? { error: 'AbortError', same: true } : { value: true });
       expect(result.ready).toEqual(fails ? [] : ['b']);
       expect(result.errors).toEqual(freshErrors);

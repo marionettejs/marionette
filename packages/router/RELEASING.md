@@ -189,8 +189,16 @@ Router also requires URLPattern and the other documented Web APIs. The explicit
 History path makes Navigation access throw and installs the actual URLPattern
 polyfill on each engine; it does not certify other missing built-ins.
 
-Use the Playwright engines pinned in the release profile and the matching official
-container described in [the test guide](../../test/README.md#browser-ci-environment).
+Use the Playwright engines pinned in the release profile. Source-checkout CI uses
+the matching official container described in
+[the test guide](../../test/README.md#browser-ci-environment).
+The separate installed-archive job currently uses the standard Ubuntu host and
+requires an existing compatible root-owned setuid Chromium sandbox helper.
+That host's safety guard currently fails; it is not a verified certification
+environment. The container also failed sandboxed archive Chromium launch.
+Archive certification needs an approved sandbox-capable runner/setup with actual
+passing launches and inventory receipts. Do not substitute source-checkout
+results or call an unverified stock host supported.
 An existing supported Chromium can still be selected with
 `--chromium-executable /absolute/path/chromium`; it changes only the Chromium lane.
 The receipt records each actual browser version. Require every inventory case

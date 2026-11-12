@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { routerArtifactPath } from '../router/artifact.mjs';
 import { test } from './fixtures.mjs';
-import { hashChanges } from '../router/conformance/hash-changes.js';
+import { fragmentRecord, hashChanges, removesFragment } from '../router/conformance/hash-changes.js';
 
 // Built router against the fixture's packed Marionette peer. No browser profile
 // or private router internals are used.
@@ -121,16 +121,16 @@ test('native empty, absent and identical fragments match the shared driver cases
   console.log('Router native fragment observations:', JSON.stringify(actual));
   // WebKit's two fragment-removal flags differ from the standard/shared cases.
   // See packages/router/readme.md#known-native-webkit-differences (upstream link pending).
-  const expectedFlags = browserName === 'webkit' ? [true, true, false, true, true, false, false] : hashChanges.map(({ expected }) => expected);
+  const expectedFlags = hashChanges.map(entry => browserName === 'webkit' && removesFragment(entry) ? true : entry.expected);
   expect(actual.map(({ hashChange }) => hashChange)).toEqual(expectedFlags);
   expect(actual).toHaveLength(hashChanges.length);
   for (const [index, event] of actual.entries()) {
     expect(new URL(event.source).pathname + new URL(event.source).hash).toBe(hashChanges[index].from.replace(/#$/, ''));
     expect(new URL(event.destination).pathname + new URL(event.destination).hash).toBe(hashChanges[index].to.replace(/#$/, ''));
-    expect(event.sourceFragment).toBe(hashChanges[index].from.includes('#') ? hashChanges[index].from.split('#')[1] : null);
-    expect(event.destinationFragment).toBe(hashChanges[index].to.includes('#') ? hashChanges[index].to.split('#')[1] : null);
+    expect(event.sourceFragment).toBe(fragmentRecord(hashChanges[index].from));
+    expect(event.destinationFragment).toBe(fragmentRecord(hashChanges[index].to));
+    if (removesFragment(hashChanges[index])) { expect(event.sameDocument).toBe(false); }
   }
-  expect(actual.slice(3, 5).map(({ sameDocument }) => sameDocument)).toEqual([false, false]);
 });
 
 test('native Back to a distinct earlier entry supersedes the still-preparing destination', async({ page, browserName }) => {

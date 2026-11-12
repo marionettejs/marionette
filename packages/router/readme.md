@@ -37,17 +37,19 @@ Report suspected vulnerabilities privately through the
 
 ## Known native WebKit differences
 
-Playwright WebKit 27.2 has two observed Navigation API differences. Router keeps
-the native driver's results and event classification; it does not normalize them.
+The pinned Playwright WebKit build has two observed Navigation API differences.
+The [release profile](https://github.com/marionettejs/marionette/blob/master/config/release-profile.json)
+and each test receipt identify the tested versions; these observations do not
+guarantee behavior of other builds. Router keeps the native driver's results and
+event classification; it does not normalize them.
 
 - Removing a fragment (`/page#top` or `/page#` to `/page`) reports
-  `hashChange: true` with `destination.sameDocument: false`. Chromium 158 and
-  Firefox 159 report `hashChange: false`. The
+  `hashChange: true` with `destination.sameDocument: false`. The tested Chromium
+  and Firefox builds report `hashChange: false`. The
   [HTML navigate-event algorithm](https://html.spec.whatwg.org/multipage/nav-history-apis.html#fire-navigate-event)
-  requires a same-document destination for `hashChange: true`. Router leaves
-  ordinary native hash changes browser-owned, so WebKit's classification can
-  prevent an otherwise owned fragment-removal navigation from reaching a route
-  handler and allow document navigation instead.
+  requires a same-document destination for `hashChange: true`. This raw API test
+  does not establish whether a Router-owned navigation dispatches a handler or
+  replaces the document; those effects must not be inferred from the flag alone.
 - In two overlapping Back scenarios, native `back().finished` rejects
   `AbortError` even though the destination handler has completed, `route:ready`
   has fired, and the current Match signal remains un-aborted. Router's `back()`
