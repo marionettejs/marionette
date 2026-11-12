@@ -16,15 +16,16 @@ Programmatic History-driver navigation accepts HTTP(S) destinations only.
 Other schemes reject with `NotSupportedError` before document handoff. Ordinary
 mailto, tel and other non-HTTP anchor links stay browser-owned.
 
-For the public 0.1.0 release, use Node 24.15 or newer and install the package with
+Use Node 24.15 or newer and install the package with
 a compatible Marionette peer (minimum 5.0.1):
 
 ```sh
 npm install @mnjs/router "marionette@^5.0.1"
 ```
 
-The declared peer range is `^5.0.1`; current installed/browser evidence uses 5.0.1,
-not future 5.x versions. The npm command assumes a published version; a candidate checkout or archive does
+The declared peer range is `^5.0.1`. Compatibility receipts identify the exact
+core versions checked; the range does not certify untested future versions.
+The npm command assumes a published version; a candidate checkout or archive does
 not establish registry availability. Routing is optional for Marionette 5.
 [Advanced contracts](DESIGN.md) describe the full API. [Source and license](PROVENANCE.md)
 identify the maintained source and unchanged [MIT notice](license.txt).

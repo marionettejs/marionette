@@ -12,16 +12,22 @@ import { verifyHistoryPackage } from './history-package-check.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 // Keep the published minimum-compatibility lane independent of the local candidate.
-const registryPeerVersion = '5.0.1';
+const minimumRegistryPeerVersion = '5.0.1';
+const currentCoreVersion = JSON.parse(readFileSync(join(root, 'package.json'))).version;
 const npmCli = process.env.npm_execpath;
 if (!npmCli) {throw new Error('Run through npm run test:router-tarball, after npm run build.');}
 const { values } = parseArgs({ options: {
   artifact: { type: 'string' }, sha256: { type: 'string' }, output: { type: 'string' },
-  'registry-peers': { type: 'boolean', default: false }, browser: { type: 'boolean', default: false },
+  'registry-peers': { type: 'boolean', default: false },
+  'registry-peer-version': { type: 'string' }, browser: { type: 'boolean', default: false },
   'chromium-executable': { type: 'string' },
 } });
 assert.equal(Boolean(values.artifact), Boolean(values.sha256), '--artifact and --sha256 are required together');
 assert.ok(!values['chromium-executable'] || values.browser, '--chromium-executable requires --browser');
+assert.ok(!values['registry-peer-version'] || values['registry-peers'], '--registry-peer-version requires --registry-peers');
+const registryPeerVersion = values['registry-peer-version'] ?? minimumRegistryPeerVersion;
+assert.ok([minimumRegistryPeerVersion, currentCoreVersion].includes(registryPeerVersion),
+  '--registry-peer-version must be the minimum 5.0.1 or current coordinated source version');
 const output = values.output && candidateOutput(root, values.output);
 if (output) { mkdirSync(output, { recursive: true }); assert.equal(readdirSync(output).length, 0, 'Use a new empty receipt directory'); }
 const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
