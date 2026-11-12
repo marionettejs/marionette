@@ -27,8 +27,5 @@ body=body.replace('const cachedClasses = {};','let contextAlive = true;\n      c
 .replace('  store.subscribers.clear();','  store.dead = true;\n  store.subscribers.clear();')
 .replace('if (!store) return () => {','if (!store || store.dead) return () => {')
 .replace('if (!node) return "";','if (!node || !contextAlive) return "";');
-body=body.replace('observedNode.watch((observed) => {','watchClass(observedNode, (observed) => {');
-for(const needle of ['                const globalConfigClasses =','                const classesPropClasses =','                const sectionPropClasses =','                const generatedClassName =','                className = generatedClassName;'])body=body.replace(needle,'                assertClassAlive(observed);\n'+needle);
-const finalHeader=header.replace("import {createObserver} from '@formkit/observer';","import {createObserver} from '@formkit/observer';\nimport {watchClass,assertClassAlive} from './class-watch.mjs';");
-const result=finalHeader+body+'\ninit_bindings();\nexport {bindings_default as bindings, subscribeReactiveStore, getReactiveStore};\n';
+const result=header+body+'\ninit_bindings();\nexport {bindings_default as bindings, subscribeReactiveStore, getReactiveStore};\n';
 if(process.argv[2])writeFileSync(process.argv[2],result);else if(readFileSync(new URL('./upstream-bindings.mjs',import.meta.url),'utf8')!==result)throw Error('Extracted source differs');else console.log('Exact source extraction matches');
