@@ -576,9 +576,12 @@ describe('RouteApplication', () => {
       const child = addPage('page', Application.extend({ prepareStart: () => ready.promise }));
       const controller = new AbortController();
       const selecting = switchTo('page', { signal: controller.signal });
+      const failure = new Error('obsolete route');
+      const observedFailure = assert.rejects(switchTo('page'), error => error === failure);
       controller.abort();
-      ready.reject(new Error('obsolete route'));
+      ready.reject(failure);
       assert.equal(await selecting, undefined);
+      await observedFailure;
       assert.equal(child.isRunning(), false);
       assert.equal(switcher.getCurrent(), null);
     });

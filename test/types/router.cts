@@ -262,3 +262,11 @@ const optionalWholePrefixed: RouteNames<typeof optionalWholeTable> = 'top:detail
 // @ts-expect-error An optional whole options object cannot invent another prefix.
 const optionalWholeOther: RouteNames<typeof optionalWholeTable> = 'wrong:detail';
 void [optionalWholeBare, optionalWholePrefixed, optionalWholeOther];
+
+// Cleanup accepts optional registered Match context and preserves manual calls.
+const cleanupOwner = new RouteApplication();
+cleanupOwner.clearMountedChild();
+const cleanupMatch = strict.getCurrent();
+if (cleanupMatch?.signal && cleanupMatch.navigationType) {
+  cleanupOwner.clearMountedChild({ ...cleanupMatch, signal: cleanupMatch.signal, navigationType: cleanupMatch.navigationType });
+}

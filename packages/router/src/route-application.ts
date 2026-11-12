@@ -22,7 +22,7 @@ interface Methods {
   routeTo(match: ActiveMatch): Promise<unknown>;
   routeBranch(match: ActiveMatch, index: number): Promise<unknown>;
   onBeforeRoute?(match: ActiveMatch): unknown;
-  clearMountedChild(): void;
+  clearMountedChild(match?: ActiveMatch): void;
   childRouteOptions(match: ActiveMatch, mount: string): Record<string, unknown>;
   getMountRegion(region?: string): RegionInstance | undefined;
   handleRouteError(error: unknown, match: ActiveMatch, context: ApplicationRouteErrorContext): unknown;
@@ -85,7 +85,7 @@ const joinName = (...parts: (string | undefined)[]) => parts.filter(Boolean).joi
 
 // Each compilation owns its branch nodes, independently of other data users.
 class RouteStep {
-  constructor(readonly table: object, readonly handler?: string | RouteHandler, readonly mount?: string, readonly region?: string) {}
+  constructor(readonly table: object, readonly mounts: ReadonlySet<string>, readonly handler?: string | RouteHandler, readonly mount?: string, readonly region?: string) {}
 }
 
 function definitionsOf(routes: ApplicationRoutes): readonly ApplicationRouteDefinition[] {
@@ -117,10 +117,10 @@ function compileTable(source: Source, namespace: string, table: object, ancestor
       mounts.add(mount);
       const Child = mountedApplication(childApps, mount, path);
       if (stack.includes(Child)) {throw new TypeError(`Route "${ path }" mounts "${ mount }" in a route cycle`);}
-      return { path, meta, data: new RouteStep(table, undefined, mount, region), children: compileTable(Child, joinName(namespace, definition.namespace), table, stack) };
+      return { path, meta, data: new RouteStep(table, mounts, undefined, mount, region), children: compileTable(Child, joinName(namespace, definition.namespace), table, stack) };
     }
     if (typeof name !== 'string' || !name) {throw new TypeError(`Route "${ path }" requires a name`);}
-    return { path, name: joinName(namespace, name), meta, redirect, handler: 'routeTo', data: new RouteStep(table, handler) };
+    return { path, name: joinName(namespace, name), meta, redirect, handler: 'routeTo', data: new RouteStep(table, mounts, handler) };
   });
 }
 
@@ -171,7 +171,7 @@ export const RouteApplication = /* @__PURE__ */ Application.extend({
       this.triggerMethod('before:route', match);
       if (signal.aborted) {return;}
       if (mount === undefined) {
-        this.clearMountedChild();
+        this.clearMountedChild(match);
         if (signal.aborted || handler === undefined) {return;}
         return await (resolveMethod(this, handler, match.name) as RouteHandler).call(this, match, { signal });
       }
@@ -189,9 +189,12 @@ export const RouteApplication = /* @__PURE__ */ Application.extend({
     }
   },
 
-  clearMountedChild(this: RouteApplicationInstance) {
+  clearMountedChild(this: RouteApplicationInstance, match?: ActiveMatch) {
     const current = this.getCurrent();
-    if (current && definitionsOf(this.routes).some(({ mount }) => mount !== undefined && this.getChildApp(mount) === current)) {this.clear();}
+    if (!current) {return;}
+    const step = match?.branch.at(-1)?.data;
+    const mounts = step instanceof RouteStep ? step.mounts : definitionsOf(this.routes).flatMap(({ mount }) => mount === undefined ? [] : [mount]);
+    if ([...mounts].some(mount => this.getChildApp(mount) === current)) {this.clear();}
   },
 
   childRouteOptions() {return {};},

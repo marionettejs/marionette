@@ -641,6 +641,14 @@
     {
       "file": "router-route-applications.spec.mjs",
       "title": "history route-owning failures carry start and route phases through parent boundaries"
+    },
+    {
+      "file": "router-route-applications.spec.mjs",
+      "title": "native route-owning fallback provenance and compiled cleanup survive declaration edits"
+    },
+    {
+      "file": "router-route-applications.spec.mjs",
+      "title": "history route-owning fallback provenance and compiled cleanup survive declaration edits"
     }
   ]
 }

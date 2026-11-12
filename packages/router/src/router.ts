@@ -6,6 +6,7 @@ type Navigation = {
   navigationType: DriverEvent['navigationType']; initial: boolean; info: unknown; userInitiated: boolean;
   key: string; rawState: unknown; match: ActiveMatch | null;
   registration?: object;
+  notFound?: true;
   release?: () => void;
 };
 type Base = Pick<MatcherResult, 'name' | 'params' | 'url' | 'query' | 'meta' | 'branch'>;
@@ -233,8 +234,8 @@ function entryState(router: RouterInstance, href: string, history: NavigationOpt
 }
 
 function withCurrentParams(router: RouterInstance, name: string, params: Params) {
-  const current = stateFor(router).current;
-  if (!current) {return params;}
+  const { current, currentNavigation } = stateFor(router);
+  if (!current || currentNavigation?.notFound) {return params;}
   const shared = getMatcher(router).getSharedParamNames(current.name, name)
     .filter(key => !Object.hasOwn(params, key) && Object.hasOwn(current.params, key))
     .map(key => [key, current.params[key]]);
@@ -466,6 +467,7 @@ function planNavigation(router: RouterInstance, nav: Navigation): Plan | null {
 function notFoundPlan(router: RouterInstance, nav: Navigation): Plan | null {
   const name = option(router, 'notFound');
   if (!name) {return null;}
+  nav.notFound = true;
   const params = getMatcher(router).matchPrefix(nav.url);
   const route = getMatcher(router).resolve(name, params, nav.url);
   if (!route) {return { base: notFoundBase(name, params, nav.url), pending: null };}

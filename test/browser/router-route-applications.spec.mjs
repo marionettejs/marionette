@@ -16,6 +16,63 @@ async function routerModule(page, mode) {
 }
 
 for (const mode of ['native', 'history']) {
+  test(`${mode} route-owning fallback provenance and compiled cleanup survive declaration edits`, async({ page }) => {
+    await routerModule(page, mode);
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    const result = await page.evaluate(async driver => {
+      history.replaceState(null, '', '/tenant/blue/unknown');
+      const { Router, RouteApplication, historyDriver } = await import('/router.js');
+      const { Application } = await import('marionette');
+      const seen = [];
+      const Item = RouteApplication.extend({ routes: { '': { name: 'item' } } });
+      const Feature = RouteApplication.extend({
+        childApps: { item: Item },
+        routes: { item: { mount: 'item' }, parent: { name: 'parent' }, missing: { name: 'missing', handler: 'missing' } },
+        missing(match) { seen.push([match.params.tenant, match.url.pathname]); },
+      });
+      const Root = RouteApplication.extend({
+        childApps: { feature: Feature, sidebar: Application },
+        routes: { '/tenant/:tenant': { mount: 'feature' } },
+      });
+      const root = new Root();
+      const router = new Router({ ...(driver === 'history' ? { driver: historyDriver() } : {}), notFound: 'missing' });
+      root.mountRoutes(router);
+      try {
+        await root.start();
+        await root.getChildApp('sidebar').start();
+        await router.start();
+        const initial = await router.getInitialDispatch();
+        let explicitParamsRequired = false;
+        try { router.url('parent'); } catch { explicitParamsRequired = true; }
+        await router.navigate('item', router.getCurrent().params).finished;
+        const feature = root.getChildApp('feature');
+        feature.routes = {};
+        await router.navigate('parent').finished;
+        const snapshotCleaned = !feature.getChildApp('item').isRunning() && feature.getCurrent() === null;
+
+        const gate = Promise.withResolvers();
+        const controller = new AbortController();
+        const pages = root.addChildApp('pages', new RouteApplication());
+        let lifecycleSignal;
+        const child = pages.addChildApp('child', new (Application.extend({
+          prepareStart(_options, { signal }) { lifecycleSignal = signal; return gate.promise; },
+        }))());
+        await pages.start();
+        const cancelled = pages.switchTo('child', { signal: controller.signal });
+        const joined = pages.switchTo('child');
+        controller.abort();
+        const released = await cancelled === undefined && !child.isRunning() && !lifecycleSignal.aborted;
+        gate.resolve();
+        return { seen, status: initial.status, explicitParamsRequired, snapshotCleaned,
+          sidebar: root.getChildApp('sidebar').isRunning(), released, joined: await joined === child };
+      } finally { router.destroy(); root.destroy(); }
+    }, mode);
+    expect(result).toEqual({ seen: [['blue', '/tenant/blue/unknown']], status: 'matched', explicitParamsRequired: true,
+      snapshotCleaned: true, sidebar: true, released: true, joined: true });
+    expect(errors).toEqual([]);
+  });
+
   test(`${mode} route-owning nested mounts retain own keys and stop only selected descendants`, async({ page }) => {
     await routerModule(page, mode);
     const errors = [];

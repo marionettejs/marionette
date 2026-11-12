@@ -10,7 +10,7 @@ export interface SwitchOptions {
   signal?: AbortSignal;
 }
 type Owner = ApplicationInstance<object, unknown>;
-type Selection = { app: Owner; appName: string; key: SelectionKey; failed?: boolean };
+type Selection = { app: Owner; appName: string; key: SelectionKey; activation?: { start: Promise<boolean>; result: Promise<boolean> } };
 type State = { selection: Selection | null; intent: object | null; stopping: boolean };
 const states = new WeakMap<Owner, State>();
 const stateFor = (owner: Owner) => states.get(owner)!;
@@ -42,16 +42,35 @@ function cleanup(owner: Owner, selection: Selection) {
   }
 }
 
-// Same-key callers join one selection; failed preparation is cleaned up once.
-async function activate(owner: Owner, selection: Selection, options?: ApplicationStartOptions) {
-  try {return await selection.app.start(options);} catch (error) {
-    if (!selection.failed) {
-      if (currentSelection(owner) !== selection) {return false;}
-      selection.failed = true;
-      cleanup(owner, selection);
-    }
+// Each preparation owns one shared outcome and cleanup, including later retries.
+async function completeStart(owner: Owner, selection: Selection, start: Promise<boolean>) {
+  try {return await start;} catch (error) {
+    if (currentSelection(owner) !== selection || selection.activation?.start !== start) {return false;}
+    cleanup(owner, selection);
     throw error;
+  } finally {
+    if (selection.activation?.start === start) {delete selection.activation;}
   }
+}
+
+function activate(owner: Owner, selection: Selection, options?: ApplicationStartOptions) {
+  const start = selection.app.start(options);
+  if (selection.activation?.start === start) {return selection.activation.result;}
+  const result = completeStart(owner, selection, start);
+  selection.activation = { start, result };
+  return result;
+}
+
+// Release only the caller; shared preparation and its eventual error stay observed.
+function callerResult(work: Promise<boolean>, signal?: AbortSignal): Promise<boolean> {
+  if (!signal) {return work;}
+  return new Promise((resolve, reject) => {
+    const abort = () => {signal.removeEventListener('abort', abort); resolve(false);};
+    signal.addEventListener('abort', abort, { once: true });
+    work.then(value => {signal.removeEventListener('abort', abort); resolve(value);},
+      error => {signal.removeEventListener('abort', abort); reject(error);});
+    if (signal.aborted) {abort();}
+  });
 }
 
 function choose(owner: Owner, intent: object, app: Owner, appName: string, key: SelectionKey, restart?: boolean) {
@@ -64,7 +83,7 @@ function choose(owner: Owner, intent: object, app: Owner, appName: string, key: 
   return state.selection;
 }
 
-// Install mandatory invalidation before Application invokes consumer hooks.
+// Register before consumer event listeners. Method hooks still run before events.
 export function initSelection(owner: Owner) {
   const state: State = { selection: null, intent: null, stopping: false };
   states.set(owner, state);
@@ -87,7 +106,7 @@ export async function switchTo(owner: Owner, appName: string, selection: SwitchO
   const chosen = choose(owner, intent, app, appName, key, selection.restart);
   if (!chosen) {return;}
   try {
-    const started = await activate(owner, chosen, selection.options);
+    const started = await callerResult(activate(owner, chosen, selection.options), selection.signal);
     if (!started || currentSelection(owner) !== chosen || !canSelect(owner) || selection.signal?.aborted || !app.isRunning()) {return;}
     return app;
   } catch (error) {

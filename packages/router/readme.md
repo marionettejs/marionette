@@ -244,7 +244,8 @@ replacement work, late failures and owner teardown. A local refresh after first
 presentation has a separate operation promise; initial readiness is not perpetual.
 
 A switch caller's signal only limits that caller's result; aborting it deliberately
-does not cancel shared child preparation. Current activation failures reject;
+does not cancel shared child preparation. The aborted caller promptly fulfills
+undefined while preparation continues. Current activation failures reject;
 superseded results do not regain authority. Do not equate every undefined selector
 result or fulfilled false Application result with cancellation of all underlying work.
 

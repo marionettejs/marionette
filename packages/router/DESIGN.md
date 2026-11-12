@@ -404,8 +404,12 @@ its current View. A mount's `namespace` changes descendant names, not paths.
 
 `routeTo(match)` enters the appropriate table, and `routeBranch(match, index)`
 awaits selection then delegates to the selected child's next branch. A leaf calls
-`clearMountedChild()` to clear only a selected child declared as a mount by that owner, then awaits its
-local handler. Independent children/panes are not all stopped when a parent leaf
+`clearMountedChild(match)` to clear only a selected child declared as a mount by
+that owner's compiled table, then awaits its local handler. The optional Match
+context lets the default implementation use that registration's snapshot even
+if live declarations later change. A manual no-argument call uses current
+declarations. Existing no-argument overrides remain valid; forward Match when
+delegating to the default implementation. Independent children/panes are not all stopped when a parent leaf
 runs. Local handlers that use manual selection own its explicit `clear()` policy.
 No per-route name-to-method forwarding map or second matcher is required.
 
@@ -448,9 +452,10 @@ does not fall through. Pure `match()` still returns null. URL generation uses th
 registered route's real path, not the unmatched URL.
 
 `owns(url)` limits same-origin claims. Without it, notFound claims all same-origin
-URLs, including server endpoints; explicitly exclude those paths. The fallback's
-current Match does not gain the target's shared-node ancestry, so explicitly pass
-`match.params` when a subsequent named link needs those prefix values.
+URLs, including server endpoints; explicitly exclude those paths. A registered
+fallback retains its target branch for dispatch, but its params are not implicitly
+forwarded through that target's URL ancestry. Explicitly pass `match.params` when
+a subsequent named link needs those prefix values.
 
 Redirect callbacks return a same-origin URL or named target, optionally
 asynchronously. Ordinary redirect hops share `maxRedirects` (default 5).
@@ -709,18 +714,28 @@ symbol properties do not contribute identity. Use small resource identities.
 Invalid keys reject before selection side effects.
 
 The optional caller signal limits that caller's result; it never aborts shared
-child preparation. Aborted/superseded callers fulfill undefined. Owner stop/destroy
+child preparation. Aborted callers promptly fulfill undefined while preparation
+continues for other callers; late failures remain observed. Superseded callers
+also fulfill undefined. Owner stop/destroy
 still invalidates selection and cancels owned lifecycle work. Late failures remain
 observed, and obsolete work cannot clear a newer selection. Check authority after
 awaiting work before application effects. An undefined result does not prove all
 underlying feature work stopped.
 
-A failed current startup rejects its original error and cleans the failed
-selection once. Optional onCleanupError(error, child) observes a secondary cleanup
+A failed current startup rejects its original error and cleans that preparation
+once for all joined callers. A later preparation has its own cleanup. Once a
+current failure is observed, successful cleanup selecting another child does not
+hide that original error. A failure already obsolete before observation is
+suppressed. Optional onCleanupError(error, child) observes a secondary cleanup
 failure; without it that secondary error is discarded. The primary startup error
 wins when that observer returns normally. Normal synchronous stop/notification errors propagate through the ordinary
 failure boundary; no rollback or attempt-all cleanup is promised. clear() returns
 nothing and is idempotent, including when there is no selection or the owner is stopped.
+Method hooks run before internal lifecycle event listeners. A same-key selection
+from a child's before-stop hook receives Application's blocked-start result and
+can retain that stopped child as the selection; use an explicit later selection
+to activate it. A child's onStop can start the next run. Throwing synchronous
+hooks still abort ordinary teardown without recovery guarantees.
 
 Application preparation, route completion and feature presentation have distinct
 lifetimes. A page that replaces its own startup before first presentation can keep
@@ -737,7 +752,10 @@ class names, namespaces and composed paths. Numeric object keys stringify as in
 JavaScript. Absolute child paths reset URL params but preserve namespace prefixes.
 Optional namespace values/options include both possible name sets. Dynamic tables
 fall back to string/Params. mountRoutes does not widen an existing Router catalog:
-construct with `{ routes: routeTable(Root) }` or use an explicit Router generic.
+use an explicit `Router<typeof table>` generic for the compiled catalog, then
+mount with the root Application as controller/owner (normally root.mountRoutes).
+Passing a compiled table directly as Router constructor routes resolves routeTo
+on the Router, which has no such method.
 
 RouteApplication.extend preserves ordinary Application required initializer/custom
 constructor arguments, state, static methods and preparation-result inference.

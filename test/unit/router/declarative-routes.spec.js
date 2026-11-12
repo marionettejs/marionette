@@ -123,7 +123,10 @@ it('resolves Router handlers after initialize and binds their receiver and signa
   const router = own(new Routed({ driver: memoryDriver({ url: 'https://routes.example/outside' }) }));
   await router.start();
   await router.navigate('item', { id: '7' }).finished;
-  assert.deepEqual(calls, [[router, '7', router.getCurrent().signal]]);
+  assert.equal(calls.length, 1);
+  assert.strictEqual(calls[0][0], router);
+  assert.equal(calls[0][1], '7');
+  assert.strictEqual(calls[0][2], router.getCurrent().signal);
 });
 
 it('snapshots controller methods at registration and chooses route handlers over the global fallback', async() => {
@@ -152,7 +155,7 @@ it('does not inherit a parent handler into a child with only the global fallback
   assert.deepEqual(calls, [['parent', 'parent'], ['fallback', 'child']]);
 });
 
-it('rejects unresolved handlers without partially registering their table', () => {
+it('validates handler methods before registering a route table', () => {
   const router = own(new Router({ driver: memoryDriver({ url: 'https://routes.example/outside' }), routes: { '/existing': { name: 'existing' } } }));
   assert.throws(() => router.mount({
     '/good': { name: 'good', handler() {} }, '/bad': { name: 'bad', handler: 'missing' },
