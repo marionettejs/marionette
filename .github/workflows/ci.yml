@@ -45,6 +45,9 @@ jobs:
       - name: Test packed testing-helper consumer (DOM)
         run: npm run test:helpers:consumer
 
+      - name: Prepare published HTML renderer for documentation
+        run: npm run docs:prepare-html
+
       - name: Test router package and installed archive
         run: npm run test:router-package && npm run test:router-tarball
 
@@ -70,9 +73,6 @@ jobs:
 
       - name: Coverage
         run: npm run coverage
-
-      - name: Prepare published HTML renderer for documentation
-        run: npm run docs:prepare-html
 
       - name: Validate documentation and agent resources
         run: npm run docs:check && npm run test:agent-docs

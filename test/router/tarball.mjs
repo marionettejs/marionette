@@ -49,9 +49,6 @@ try {
   }
   const peers = values['registry-peers'] ? ['marionette@5.0.1', '@mnjs/utils@5.0.1'] :
     ['.package', 'packages/utils', 'packages/radio'].map(directory => pack(join(root, directory)));
-  if (!process.env.MNJS_HTML_TARBALL) {
-    execFileSync(process.execPath, [npmCli, 'run', 'docs:prepare-html'], { cwd: root, stdio: 'inherit' });
-  }
   const renderer = htmlCandidate();
   report.renderer = renderer;
   const exampleDependencies = values['registry-peers'] ? ['@mnjs/adapters@5.0.1', 'lit-html@3.3.3', 'urlpattern-polyfill@10.1.0'] :

@@ -303,6 +303,10 @@ See [contracts](DESIGN.md), [feature registration](DESIGN.md#feature-route-regis
 is marked too. `back()` awaits its route readiness when eligible; it does not
 restrict browser Back or guarantee staying within the app/document.
 
+Prepare the example renderer separately with `npm run docs:prepare-html`, or
+set `MNJS_HTML_TARBALL` to an existing HTML archive for an offline run. The verifier
+does not fetch the renderer implicitly.
+
 From a built checkout, `npm run test:router-tarball` installs actual archives and
 checks ESM/CJS, declarations, tree shaking, cancellation, the bootstrap recipe and
 shipped examples. Memory/JSDOM checks do not certify browser history or focus.

@@ -86,6 +86,14 @@ for (const action of ['stop', 'destroy']) {
   assert.equal(cancelled.catalog.isRunning(), false);
   cancelled.frame.destroy();
 }
+for (const name of ['catalog', 'router']) {
+  const cancelled = createApp({ driver: memoryDriver({ url: 'https://example.test/catalog/42' }) });
+  cancelled[name].on('before:start', () => cancelled[name].stop());
+  assert.deepEqual(await cancelled.start(), { status: 'cancelled' });
+  assert(cancelled.frame.isDestroyed());
+  assert(cancelled.catalog.isDestroyed());
+  assert(cancelled.router.isDestroyed());
+}
 // Execute the revised source Catalog against the same published public packages.
 const { Catalog: SourceCatalog } = await import('./catalog.mjs');
 const { Router } = await import('@mnjs/router');
