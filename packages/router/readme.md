@@ -38,7 +38,7 @@ Report suspected vulnerabilities privately through the
 ## Known native WebKit differences
 
 The pinned Playwright WebKit build has two observed Navigation API differences.
-The [release profile](https://github.com/marionettejs/marionette/blob/master/config/release-profile.json)
+The [observed release profile](https://github.com/marionettejs/marionette/blob/f6ff6833967d432c591151c9b64fce724ca98a8a/config/release-profile.json)
 and each test receipt identify the tested versions; these observations do not
 guarantee behavior of other builds. Router keeps the native driver's results and
 event classification; it does not normalize them.

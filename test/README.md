@@ -126,7 +126,8 @@ Chromium, Firefox and WebKit from the checked-in release profile.
 ## CI jobs
 
 The Node 24 CI suites run in parallel: core checks and unit coverage, tooling
-coverage, browser contracts, agent reference controls, and Linux package fixtures.
+coverage, browser contracts, exact-installed Router archive browsers, agent
+reference controls, and Linux package fixtures.
 Each job installs and builds its own checkout and uploads its own reports. The
 `Node 24` aggregate check succeeds only when all six required suites succeed; a failed,
 cancelled, or skipped suite does not pass the aggregate check. macOS package smoke
@@ -146,7 +147,8 @@ Each suite uploads the following repository report paths:
 | --- | --- |
 | `coverage-node-24` | `coverage/`, `test/tmp/unit-results.xml`, `test/tmp/test-package-consumer/` |
 | `tooling-node-24` | `coverage/tooling/`, excluding temporary `coverage/tooling/tmp/` data; retained for 7 days |
-| `browsers-node-24` | `test/tmp/browser/results.json`, `test/tmp/browser/results.xml`, `test/tmp/browser/report/`, `test/tmp/browser/results/`, `test/tmp/performance/browser-report.json` |
+| `browsers-node-24` | `test/tmp/browser/results.json`, `test/tmp/browser/results.xml`, `test/tmp/browser/report/`, `test/tmp/browser/results/`, `test/tmp/router-diagnostics/`, `test/tmp/performance/browser-report.json` |
+| `router-browsers-node-24` | `${RUNNER_TEMP}/router-browser-verification/` (archive identity, installed lockfile, per-engine execution results and `browser-evidence/`), `test/tmp/router-browser/`, `test/tmp/router-browser-probes.json` |
 | `agent-reference-node-24` | `test/tmp/agent-reference-app/`, `test/tmp/agent-reference/reference-report.json`, `test/tmp/agent-reference/artifacts/artifact-input.json`, `test/tmp/agent-fixtures/fixture-controls.json` |
 | `fixtures-node-24` | `test/tmp/fixture-reports/` |
 
