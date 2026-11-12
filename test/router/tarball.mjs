@@ -11,6 +11,8 @@ import { verifyDriverTreeShaking } from './tree-shaking.mjs';
 import { verifyHistoryPackage } from './history-package-check.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
+// Keep the published minimum-compatibility lane independent of the local candidate.
+const registryPeerVersion = '5.0.1';
 const npmCli = process.env.npm_execpath;
 if (!npmCli) {throw new Error('Run through npm run test:router-tarball, after npm run build.');}
 const { values } = parseArgs({ options: {
@@ -47,11 +49,11 @@ try {
     report.archiveSourceCommit = validatePreparationReceipt(preparation, report.archive, report.verificationCommit);
     if (output) { cpSync(preparationFile, join(output, 'router-candidate.json')); }
   }
-  const peers = values['registry-peers'] ? ['marionette@5.0.1', '@mnjs/utils@5.0.1'] :
+  const peers = values['registry-peers'] ? [`marionette@${registryPeerVersion}`, `@mnjs/utils@${registryPeerVersion}`] :
     ['.package', 'packages/utils', 'packages/radio'].map(directory => pack(join(root, directory)));
   const renderer = htmlCandidate();
   report.renderer = renderer;
-  const exampleDependencies = values['registry-peers'] ? ['@mnjs/adapters@5.0.1', 'lit-html@3.3.3', 'urlpattern-polyfill@10.1.0'] :
+  const exampleDependencies = values['registry-peers'] ? [`@mnjs/adapters@${registryPeerVersion}`, 'lit-html@3.3.3', 'urlpattern-polyfill@10.1.0'] :
     ['packages/adapters', 'node_modules/lit-html', 'node_modules/@types/trusted-types', 'node_modules/urlpattern-polyfill'].map(directory => pack(join(root, directory)));
   writeFileSync(join(consumer, 'package.json'), '{"name":"router-tarball-consumer","private":true,"type":"module"}\n');
   execFileSync(process.execPath, [npmCli, 'install', '--ignore-scripts', '--strict-peer-deps', '--no-audit', '--no-fund',
@@ -65,13 +67,13 @@ try {
   const candidateVersion = directory => JSON.parse(readFileSync(join(root, directory, 'package.json'))).version;
   report.peers = [['marionette', '.package'], ['@mnjs/utils', 'packages/utils'], ['@mnjs/radio', 'packages/radio']].map(([name, directory]) => {
     const entry = lock.packages[`node_modules/${name}`];
-    assert.equal(entry.version, values['registry-peers'] ? '5.0.1' : candidateVersion(directory));
+    assert.equal(entry.version, values['registry-peers'] ? registryPeerVersion : candidateVersion(directory));
     if (values['registry-peers']) { assert.ok(entry.resolved.startsWith('https://registry.npmjs.org/')); }
     return { name, version: entry.version, resolved: entry.resolved, integrity: entry.integrity };
   });
   const installedRenderer = JSON.parse(readFileSync(join(consumer, 'node_modules/@mnjs/html/package.json')));
   assert.equal(installedRenderer.version, renderer.version);
-  report.exampleDependencies = [['@mnjs/adapters', values['registry-peers'] ? '5.0.1' : candidateVersion('packages/adapters')], ['lit-html', '3.3.3'], ['urlpattern-polyfill', '10.1.0']].map(([name, version]) => {
+  report.exampleDependencies = [['@mnjs/adapters', values['registry-peers'] ? registryPeerVersion : candidateVersion('packages/adapters')], ['lit-html', '3.3.3'], ['urlpattern-polyfill', '10.1.0']].map(([name, version]) => {
     const entry = lock.packages[`node_modules/${name}`];
     assert.equal(entry.version, version);
     if (values['registry-peers']) { assert.ok(entry.resolved.startsWith('https://registry.npmjs.org/')); }

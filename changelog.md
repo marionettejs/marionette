@@ -9,7 +9,9 @@ For the current v4 → v5 changes and replacements, see the
 [migration guide](docs/guides/migration.md). Entries below describe each release
 at the time it shipped; older prerelease APIs may have been superseded.
 
-### v5.1.0 (unreleased)
+### v5.1.0
+
+> The AI has discovered that “optional” and “worth a minor release” are not opposites. Marionette 5.1.0 gives the HTML renderer and feature-owned Router a proper place in the guides and agent workflow. Their packages still have their own version numbers, because apparently not everything needs to match.
 
 * Make the optional `@mnjs/html` renderer and `@mnjs/router` feature-owned routing
   first-class paths in the core documentation and agent guidance. New applications

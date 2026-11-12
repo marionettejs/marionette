@@ -331,6 +331,21 @@ test('standalone GitHub staging rejects stable publication with only prerelease 
   assert.deepEqual(await candidate.calls(), []);
 });
 
+test('the checked-in release entry previews the current package version without external calls', async t => {
+  const repository = resolve(import.meta.dirname, '../..');
+  const { version } = JSON.parse(await readFile(join(repository, 'package.json')));
+  const releaseChangelog = await readFile(join(repository, 'changelog.md'), 'utf8');
+  const candidate = await promotion(t, { version, releaseChangelog });
+  const result = candidate.exec('publish-github', 'dry-run');
+  assert.equal(result.status, 0, result.stderr);
+  const preview = JSON.parse(result.stdout);
+  assert.equal(preview.tag, `v${version}`);
+  assert.ok(preview.opening.length);
+  assert.ok(preview.notes.includes(`npm install marionette@${version}`));
+  assert.ok(preview.notes.includes('HTML, Router and test helpers are independently versioned'));
+  assert.deepEqual(await candidate.calls(), []);
+});
+
 for (const version of ['5.0.0-beta.1', '5.0.0-beta.2', '5.0.0']) {
   test(`release notes link installation and migration to the exact candidate for ${version}`, async t => {
     const candidate = await promotion(t, { version, publication: { stable: true, prerelease: version.includes('-') ? version : null } });
@@ -379,6 +394,17 @@ test('release notes use the verified commit rather than edited working copy pros
   assert.equal(result.status, 0, result.stderr);
   const create = (await candidate.calls()).find(call => call.tool === 'gh' && call.args[1] === 'create');
   assert.equal(create.args[create.args.indexOf('--notes') + 1].split('\n')[0], 'Opening for 5.0.0-test.1.');
+});
+
+test('a decorated version heading fails the dry run even with an opening', async t => {
+  const version = '5.0.0-test.1';
+  const candidate = await promotion(t, {
+    version, releaseChangelog: `### v${version} (unreleased)\n\n> A valid opening under the wrong heading.\n`,
+  });
+  const result = candidate.exec('publish-github', 'dry-run');
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /must start with a release-specific opening blockquote/);
+  assert.deepEqual(await candidate.calls(), []);
 });
 
 test('a missing release opening fails the dry run before external calls', async t => {

@@ -138,7 +138,7 @@ const releaseNotes = releaseSection.join('\n').trim().replace(/^> /, '')
 const notes = [
   releaseNotes,
   '',
-  `Install core: \`npm install marionette@${evidence.release.version}\`. Keep companion package versions aligned.`,
+  `Install core: \`npm install marionette@${evidence.release.version}\`. Keep Utils, Radio and any optional Data/Adapters aligned with core. HTML, Router and test helpers are independently versioned.`,
   '',
   `[Changes](${sourceUrl}/changelog.md) · [Migration guide](${sourceUrl}/docs/guides/migration.md) · [Quick start](${sourceUrl}/docs/quick-start.md)`,
   ...(evidence.release.prerelease ? [
