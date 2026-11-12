@@ -195,7 +195,9 @@ for (const historyMode of ['push', 'replace']) {
           // Establish a fresh known predecessor and prove canceled receipts do
           // not join a later explicit Back's readiness or operational failure.
           newerGate.resolve(); hold = false;
-          await router.navigate('b', {}, { state: { page: 'later-b' } }).finished; const laterB = driver.currentEntry;
+          // Explicit push allocates a distinct entry even if the old pop left
+          // /b current; auto would replace it and deliberately preserve its key.
+          await router.navigate('b', {}, { history: 'push', state: { page: 'later-b' } }).finished; const laterB = driver.currentEntry;
           await router.navigate('c').finished;
           const readyOffset = ready.length; const errorOffset = errors.length;
           const laterPhase = phaseFor(laterB.key); hold = true;
