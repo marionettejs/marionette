@@ -86,7 +86,16 @@ function reconcile(view,parent,map,specs,anchor,initial) {
   for(const spec of specs){if(view._ending)break;let field=map.get(spec.name);if(!field){field=staged.get(spec.name);map.set(spec.name,field);staged.delete(spec.name);}else field.update(spec);
     if(view._ending)break;
   }
-  if(!view._ending){let cursor=anchor;for(let i=specs.length-1;i>=0;i--){const element=map.get(specs[i].name).el;if(element.nextSibling!==cursor)anchor.parentNode.insertBefore(element,cursor);cursor=element;}}
+  if(!view._ending){
+    const elements=specs.map(spec=>map.get(spec.name).el);
+    const active=anchor.ownerDocument.activeElement;
+    const pivot=elements.findIndex(element=>element.contains(active));
+    const place=(first,last,cursor)=>{for(let i=last;i>=first;i--){const element=elements[i];if(element.nextSibling!==cursor)anchor.parentNode.insertBefore(element,cursor);cursor=element;}};
+    // Moving a focused ancestor with insertBefore blurs it in real browsers.
+    // Keep that retained subtree attached; move only its siblings around it.
+    if(pivot<0)place(0,elements.length-1,anchor);
+    else{place(pivot+1,elements.length-1,anchor);place(0,pivot-1,elements[pivot]);}
+  }
   }finally{for(const field of staged.values())field.destroy();}
 }
 
