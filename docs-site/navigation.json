@@ -144,6 +144,12 @@
     "section": "Companion packages"
   },
   {
+    "source": "docs/packages/router.md",
+    "route": "docs/packages/router",
+    "title": "@mnjs/router: feature-owned routing",
+    "section": "Companion packages"
+  },
+  {
     "source": "docs/integrations/setup.md",
     "route": "docs/integrations/setup",
     "title": "Setup and data",
@@ -176,7 +182,7 @@
   {
     "source": "docs/guides/local-editing.md",
     "route": "docs/guides/local-editing",
-    "title": "Edit a View\u2019s own model",
+    "title": "Edit a View’s own model",
     "section": "Guides"
   },
   {

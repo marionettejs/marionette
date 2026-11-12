@@ -67,6 +67,7 @@ Reports still reject comparisons when browser or package versions differ.
 | Static production import graph | `source/` | `npm run test:source` |
 | Built ESM/CJS/UMD exports | `dist/` | `npm run test:dist` |
 | Consumer documentation, package discovery and runnable recipes | `docs/`, `agent-docs/` | `npm run docs:check` |
+| Published Router/HTML example and TypeScript consumer (Node 24+) | `docs/router-companion.mjs` | `npm run docs:check-router` |
 
 `npm ci` uses the pinned toolchain and builds packages through `prepare`. `npm test`
 is deliberately fast: it runs unit tests without a hidden type/build pretest.
@@ -369,3 +370,13 @@ Packed checks verify both files and their relative links/anchors, execute the
 README's own Vitest configuration/test, then exercise the reference recipes.
 Repository examples follow `master`; validate their merged destinations before
 publication as described in the helper release procedure.
+
+The dedicated Router documentation check installs published Router 0.1.0, HTML
+1.0.0 and Marionette 5.0.1 in an isolated consumer fixture. These pins identify
+reproducible evidence, not a mandatory application stack. It executes the actual
+routed HTML guide with `memoryDriver`, tests loading/retention/failure/cancellation
+and cleanup, and compiles public TypeScript imports. It runs in the source Node
+24 documentation job, separately from core's Node 22 consumer matrix. Memory/DOM
+checks do not establish native-browser behavior. Update pins and evidence together
+when intentionally testing a later companion release. No package is published by
+this check.

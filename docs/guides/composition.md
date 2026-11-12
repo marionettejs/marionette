@@ -2,7 +2,7 @@
 
 Use the existing project's compatible renderer, data runtime, router and build setup. With none chosen, follow the [Vite/@mnjs/html quick start](../quick-start.md) and add [@mnjs/data](../integrations/setup.md) when observation/shared state is useful; plain snapshots also work. This installed-app example combines a managed list, detail Region and coordinated readiness. It needs no framework repository checkout.
 
-For named URLs and feature-owned route transitions in a new application, use optional `@mnjs/router`; first check its browser and Node requirements in [routing](routing.md). Preserve an existing host router.
+For named URLs and feature-owned route transitions in a new application, use optional `@mnjs/router`; first check its browser and Node requirements in [the routed HTML feature](../packages/router.md#a-minimal-html-feature) and [routing](routing.md). Preserve an existing host router.
 
 ## A complete starting point
 

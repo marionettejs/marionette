@@ -4,7 +4,7 @@ Test what a user or owning component can observe: rendered content, interaction,
 
 The optional [@mnjs/test development package](../../packages/test/readme.md) provides mounting and scoped cleanup alongside your chosen runner and assertions. Start with its README for installation and a complete test, then use the [helper reference](../../packages/test/guide.md) for runner setup, scoped queries and lifecycle contracts. The helper ships its own version-matched reference.
 
-This recipe uses Node's built-in test runner and JSDOM. Use a [supported Node LTS release](../quick-start.md). First install `marionette`, the local `@mnjs/html` candidate, and `@mnjs/data` using the [package installation](../quick-start.md) and [data setup](../integrations/setup.md). Add the DOM implementation used here:
+This recipe uses Node's built-in test runner and JSDOM. Use a [supported Node LTS release](../quick-start.md). First install `marionette`, `@mnjs/html`, and `@mnjs/data` using the [package installation](../quick-start.md) and [data setup](../integrations/setup.md). Add the DOM implementation used here:
 
 ```sh
 npm install --save-dev --save-exact jsdom@30.1.0
@@ -208,3 +208,17 @@ These tests do not need an HTTP server, timers, or a complete application. The p
 JSDOM verifies DOM changes, delegated events, public lifecycle outcomes, and cleanup. It cannot establish real layout, focus and caret behavior while typing, browser navigation, or accessibility quality. Add browser tests for those user interactions and run them against your built consumer bundle. Test the behavior your application promises, including the chosen renderer and data provider.
 
 In your application, import your application setup first, then the real View and Application modules and test their promised public behavior with these patterns. See [local editing](local-editing.md), [retained restart](retained-restart.md), and [tooling](../tooling.md) for related contracts and checks.
+
+## Test a routed feature
+
+Use the [routed HTML factory](../packages/router.md#a-minimal-html-feature) with
+`memoryDriver({ url: 'https://example.test/catalog/42' })` instead of a real
+browser driver. Install Router's required Node/capabilities first; its Node floor
+is higher than core's. Assert initial dispatch, rendered data, same-ID retention,
+changed-ID loading, failure/cancellation and final teardown through public APIs.
+Read `node_modules/@mnjs/router/readme.md` and `DESIGN.md` for the installed
+navigation result types. TypeScript consumers should import declarations from
+`@mnjs/router` and `@mnjs/html`, not source directories. The companion documentation
+check compiles those public imports separately from core's lower-Node fixtures.
+A memory-driver pass does not test browser Back/Forward, native links, focus,
+scroll, or server handling of direct URLs; verify those in a supported browser.

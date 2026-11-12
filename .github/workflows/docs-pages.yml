@@ -49,7 +49,7 @@ jobs:
         run: npm run docs:prepare-html
 
       - name: Build and validate documentation
-        run: npm run docs:check
+        run: npm run docs:check && npm run docs:check-router
 
       - name: Pack consumer artifacts with the source toolchain
         run: |

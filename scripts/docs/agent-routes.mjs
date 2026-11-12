@@ -15,6 +15,8 @@ const primarySources = [
   'docs/architecture.md',
   'docs/api/shared/view-bindings.md#dom-events',
   'docs/guides/routing.md',
+  'docs/packages/router.md',
+  'packages/html/guide.md',
   'docs/guides/async-requests.md',
 ];
 

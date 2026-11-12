@@ -23,6 +23,8 @@ For named URLs and feature-owned route transitions in a new application, use opt
 | Choose ownership and lifetimes | `docs/architecture.md` |
 | Bind a DOM event or trigger | `docs/api/shared/view-bindings.md#dom-events` |
 | Connect URLs and destination lifetimes | `docs/guides/routing.md` |
+| Build a feature with @mnjs/router | `docs/packages/router.md` |
+| Use @mnjs/html templates and directives | `packages/html/guide.md` |
 | Load local data, suppress stale results, or retry | `docs/guides/async-requests.md` |
 <!-- task-routes:end -->
 
@@ -37,3 +39,15 @@ Do not manually assemble and insert application HTML outside the configured rend
 Prefer View `events`/`triggers`/`ui`. With native selector delegation, `event.delegateTarget` is the matched descendant; `event.target` may be nested.
 
 Choose Application for coordinated readiness and start/stop/restart lifetime; a URL or local request alone does not require it. `stop()` keeps the Application reusable; `destroy()` ends its lifetime. Startup cancellation and later-request handling are separate; see `docs/architecture.md`.
+
+## Installed companions
+
+Resolve the companion's exported `package.json` from the application directory,
+read its version, then read files beside it: `@mnjs/html` has `guide.md` and
+`LIT_DIFFERENCES.md`; `@mnjs/router` has `readme.md` and `DESIGN.md`.
+These are separate from core's docs helper and manifest. See `docs/packages/router.md`
+for an HTML feature and deterministic memory-driver testing. The installed
+companion reference wins over a different repository version.
+
+This core-bundled skill reaches npm consumers only with a Marionette release.
+Installing a companion alone does not update the core skill.

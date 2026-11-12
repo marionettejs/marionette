@@ -1,6 +1,6 @@
 # Differences from lit-html 3.3.3
 
-This inventory describes observable APIs and behavior, not formatting-only edits. Pristine test fixtures and the license remain under vendor/lit-html-3.3.3; sources.json records verified recovery inputs for the unused original implementations. This is an unpublished browser-rendering package for Marionette 5.0.1 and its `baseline widely available` browser target.
+This inventory describes observable APIs and behavior, not formatting-only edits. Pristine test fixtures and the license remain under vendor/lit-html-3.3.3; sources.json records verified recovery inputs for the unused original implementations. This is an independently published browser-rendering package for Marionette 5.0.1 and its `baseline widely available` browser target.
 
 ## Retained functionality
 

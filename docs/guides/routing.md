@@ -5,16 +5,17 @@ Marionette v5 supplies UI and Application lifecycles. Choose browser navigation 
 ## Use the optional Router for routed applications
 
 For a new application needing named URLs, nested feature routes or coordinated
-route transitions, use `@mnjs/router@0.1.0` with `marionette@^5.0.1` and
-`@mnjs/html@1.0.0`. Router is independently versioned and optional, not part of
+route transitions, use optional `@mnjs/router` with compatible Marionette peers. The HTML-first
+example is verified with `@mnjs/router@0.1.0` and `@mnjs/html@1.0.0`; these
+are tested versions, not a Router renderer requirement. Router is independently versioned and optional, not part of
 core's coordinated release. Keep an existing host router rather than adding a
 second global URL owner. The small fragment-navigation examples below remain
 valid when you do not need a routing package.
 
-Start with the [Router's feature-owned Catalog example](https://github.com/marionettejs/marionette/blob/router-v0.1.0/packages/router/readme.md#build-a-routed-feature-with-applications-and-views)
-and its [complete source](https://github.com/marionettejs/marionette/tree/router-v0.1.0/packages/router/examples/catalog).
-The Router has no renderer dependency. Use the [Catalog renderer adaptation](../packages/adapters.md#use-the-router-catalog-with-html)
-for this guide's HTML-first setup; its function templates and View bindings remain unchanged.
+Start with the [copyable HTML feature](../packages/router.md#a-minimal-html-feature).
+Read the installed `node_modules/@mnjs/router/readme.md` and `DESIGN.md` for
+version-matched contracts; [companion discovery](../packages/router.md#read-the-installed-contract-first)
+identifies the renderer and larger example paths. No framework checkout is needed.
 
 Use one browser `Router` and let each `RouteApplication` declare the routes and
 children it owns. A mount selects its registered child before dispatching the

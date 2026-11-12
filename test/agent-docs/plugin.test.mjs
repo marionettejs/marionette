@@ -166,6 +166,7 @@ test('plugin loader selects installed guidance without importing application cod
   assert.equal(selected.packageVersion, '5.0.0-rc.2');
   assert.equal(await readFile(selected.skillPath, 'utf8'), 'Instructions from installed release');
   assert.deepEqual(JSON.parse(run('--package-root', store).stdout).packages, [selected]);
+  assert.deepEqual(JSON.parse(run('--package-root', store).stdout).companionPackages, []);
   const legacy = resolve(app, 'node_modules/backbone.marionette');
   await mkdir(legacy);
   await writeFile(resolve(legacy, 'package.json'), JSON.stringify({ name: 'backbone.marionette', version: '4.1.3' }));
@@ -183,4 +184,58 @@ test('plugin loader selects installed guidance without importing application cod
   await rm(resolve(store, 'skills'), { recursive: true });
   assert.match(JSON.parse(run('--package-root', store).stdout).packages[0].guidance, /No packaged skill/);
   assert.equal(run('--unknown', store).status, 1);
+});
+
+test('plugin loader discovers installed companion contracts without runtime imports', async t => {
+  const { mkdtemp, mkdir, rm, writeFile, symlink } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const { spawnSync } = await import('node:child_process');
+  const root = await mkdtemp(resolve(tmpdir(), 'marionette-companions-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const app = resolve(root, 'app');
+  await mkdir(resolve(app, 'node_modules/@mnjs'), { recursive: true });
+  await mkdir(resolve(app, 'src/feature'), { recursive: true });
+  const run = () => {
+    const result = spawnSync(process.execPath, [resolve(pluginSkill, 'scripts/locate.mjs')], {
+      cwd: resolve(app, 'src/feature'), encoding: 'utf8',
+    });
+    assert.equal(result.status, 0, result.stderr);
+    return JSON.parse(result.stdout);
+  };
+  assert.deepEqual(run().companionPackages, []);
+  const specs = [
+    { name: '@mnjs/html', version: '1.0.0', documentNames: ['guide.md', 'LIT_DIFFERENCES.md'] },
+    { name: '@mnjs/router', version: '0.1.0', documentNames: ['readme.md', 'DESIGN.md'] },
+  ];
+  for (const { name, version, documentNames } of specs) {
+    const packageRoot = resolve(root, 'store', name);
+    await mkdir(packageRoot, { recursive: true });
+    await writeFile(resolve(packageRoot, 'package.json'), JSON.stringify({
+      name, version, exports: { '.': './explode.js', './package.json': './package.json' },
+    }));
+    await writeFile(resolve(packageRoot, 'explode.js'), 'throw new Error("must not import companion runtime");');
+    for (const file of documentNames) { await writeFile(resolve(packageRoot, file), `${name} ${version}: ${file}`); }
+    await symlink(packageRoot, resolve(app, 'node_modules', name), 'dir');
+  }
+  const result = run();
+  assert.deepEqual(result.packages, [], 'Companions must not masquerade as a core package');
+  for (const [index, { name, version, documentNames }] of specs.entries()) {
+    const companion = result.companionPackages[index];
+    const packageRoot = resolve(root, 'store', name);
+    assert.deepEqual(companion, { packageName: name, packageVersion: version, packageRoot,
+      documentation: documentNames.map(file => resolve(packageRoot, file)), missingDocumentation: [] });
+    assert.equal(await readFile(companion.documentation[0], 'utf8'), `${name} ${version}: ${documentNames[0]}`);
+  }
+  await rm(resolve(root, 'store/@mnjs/router/DESIGN.md'));
+  assert.deepEqual(run().companionPackages[1].missingDocumentation, ['DESIGN.md']);
+  assert.deepEqual(run().companionPackages[1].documentation, [resolve(root, 'store/@mnjs/router/readme.md')]);
+  await rm(resolve(app, 'node_modules/@mnjs/html'));
+  assert.deepEqual(run().companionPackages.map(item => item.packageName), ['@mnjs/router']);
+  await writeFile(resolve(root, 'store/@mnjs/router/package.json'), JSON.stringify({
+    name: '@mnjs/router', version: '0.1.0', exports: { '.': './explode.js' },
+  }));
+  const unavailable = run().companionPackages[0];
+  assert.equal(unavailable.packageName, '@mnjs/router');
+  assert.match(unavailable.guidance, /does not export package.json/);
+  assert.equal(unavailable.packageVersion, undefined);
 });

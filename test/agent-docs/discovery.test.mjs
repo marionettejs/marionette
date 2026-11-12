@@ -15,7 +15,7 @@ function localLinks(markdown) {
 
 function checkDiscoveryCoverage(markdown, navigation) {
   const linked = localLinks(markdown).map(href => href.split('#')[0]);
-  const pages = navigation.filter(page => page.source.startsWith('docs/') && !page.source.startsWith('docs/maintainers/'))
+  const pages = navigation.filter(page => page.section !== 'Maintaining Marionette')
     .map(page => page.source);
   assert.equal(new Set(linked).size, linked.length, 'llms discovery repeats a local target');
   assert.deepEqual([...linked].sort(), [...pages].sort(), 'llms discovery must expose every consumer navigation page');

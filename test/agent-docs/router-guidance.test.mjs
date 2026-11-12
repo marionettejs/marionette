@@ -10,7 +10,8 @@ test('routing guidance links the released companion without broadening browser s
   const html = JSON.parse(read('packages/html/package.json'));
   assert(guide.includes(`@mnjs/router@${router.version}`));
   assert(guide.includes(`@mnjs/html@${html.version}`));
-  assert(guide.includes(`router-v${router.version}/packages/router/readme.md`));
+  assert(guide.includes('node_modules/@mnjs/router/readme.md'));
+  assert(read('docs/packages/router.md').includes(`router-v${router.version}/packages/router`));
   for (const capability of ['URLPattern', 'AbortSignal.any', 'Promise.withResolvers', 'URL.canParse', 'structuredClone']) {
     assert(guide.includes(capability), capability);
   }

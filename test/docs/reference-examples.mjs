@@ -36,7 +36,8 @@ const pages = ['api', 'packages', 'integrations', 'guides'].flatMap(section =>
   readdirSync(join(installed, 'docs', section), { recursive: true }).filter(name => name.endsWith('.md'))
     .sort().map(name => `docs/${section}/${name}`))
   // This multi-file Node test recipe is executed by consumer-testing.mjs in the installed check.
-  .filter(path => path !== 'docs/guides/testing.md');
+  // Router has its own Node floor and published-companion fixture.
+  .filter(path => !['docs/guides/testing.md', 'docs/packages/router.md'].includes(path));
 pages.push('readme.md');
 const preparations = {
   ...compositionPreparations,

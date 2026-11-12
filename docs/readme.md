@@ -58,6 +58,7 @@ contracts. When upgrading from v4, start with the [migration guide](guides/migra
 - [@mnjs/utils](packages/utils.md): standalone component and object utilities.
 - [@mnjs/adapters](packages/adapters.md): optional Backbone, XState, Lit, Morphdom, and jQuery contracts.
 - [@mnjs/html](../packages/html/guide.md): optional browser templates, directive lifetimes and Marionette DOM integration; version 1.0.0 is published independently of core.
+- [@mnjs/router](packages/router.md): optional feature-owned routing, installed contracts and a runnable HTML feature.
 - [Renderer and data setup](integrations/setup.md): configure `@mnjs/html` and `@mnjs/data`.
 
 The [records source](../examples/records/src/main.js) is included for reading alongside the lesson. Its [README](../examples/records/README.md) explains the repository development commands.
