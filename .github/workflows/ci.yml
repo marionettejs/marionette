@@ -188,10 +188,13 @@ jobs:
             test/tmp/performance/browser-report.json
           if-no-files-found: warn
 
-  router-browsers:
-    name: Router archive browsers (Node 24)
+  router-browser-candidate:
+    name: Router archive producer (Linux x64)
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    outputs:
+      source_sha: ${{ steps.candidate.outputs.source_sha }}
+      archive_sha256: ${{ steps.candidate.outputs.archive_sha256 }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -210,41 +213,109 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare the exact Router archive from clean canonical source
+        id: candidate
+        run: |
+          npm run router:prepare -- --output "${RUNNER_TEMP}/router-browser-candidate"
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { execFileSync } from 'node:child_process';
+          import { appendFileSync, readFileSync } from 'node:fs';
+          import { join } from 'node:path';
+          const receipt = JSON.parse(readFileSync(join(process.env.RUNNER_TEMP, 'router-browser-candidate/router-candidate.json')));
+          const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+          assert.equal(receipt.sourceCommit, head);
+          assert.equal(receipt.sourceDirty, false);
+          assert.match(receipt.archive.sha256, /^[a-f0-9]{64}$/);
+          appendFileSync(process.env.GITHUB_OUTPUT, 'source_sha=' + head + '\narchive_sha256=' + receipt.archive.sha256 + '\n');
+          JS
+
+      - name: Transfer the archive and adjacent preparation evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: router-browser-candidate
+          path: ${{ runner.temp }}/router-browser-candidate/
+          if-no-files-found: error
+
+  router-browsers:
+    name: Router archive browsers (macOS arm64)
+    needs: router-browser-candidate
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - name: Checkout the exact archive producer source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.router-browser-candidate.outputs.source_sha }}
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host macos-arm64 --runner macos-15
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Prepare published HTML renderer
         run: npm run docs:prepare-html
 
-      - name: Install pinned browser binaries and libraries
-        run: npx --no-install playwright install --with-deps chromium firefox webkit
+      - name: Receive the exact Linux-produced Router archive
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: router-browser-candidate
+          path: ${{ runner.temp }}/router-browser-candidate
 
-      - name: Select the preinstalled Chrome sandbox helper
-        id: chromium_sandbox
-        continue-on-error: true # Retain Firefox/WebKit evidence; certification still requires Chromium.
-        run: |
-          node --input-type=module <<'JS'
-          import assert from 'node:assert/strict';
-          import { appendFileSync, readFileSync, statSync } from 'node:fs';
-          import { createHash } from 'node:crypto';
-          const helper = '/opt/google/chrome/chrome-sandbox';
-          const info = statSync(helper);
-          assert.ok(info.isFile() && info.uid === 0 && (info.mode & 0o4000) !== 0 &&
-            (info.mode & 0o22) === 0 && (info.mode & 0o111) !== 0,
-            'Require the existing root-owned setuid helper; never install or change its permissions');
-          console.log(JSON.stringify({ helper, uid: info.uid, mode: (info.mode & 0o7777).toString(8),
-            sha256: createHash('sha256').update(readFileSync(helper)).digest('hex') }));
-          appendFileSync(process.env.GITHUB_ENV, `CHROME_DEVEL_SANDBOX=${helper}\n`);
-          JS
+      - name: Install pinned browser binaries
+        run: npx --no-install playwright install chromium firefox webkit
 
       - name: Verify configured engine launches and diagnose raw behavior
         continue-on-error: true # Raw diagnostics do not suppress the installed suites.
-        env:
-          MARIONETTE_ROUTER_CHROMIUM_SETUP_ERROR: ${{ steps.chromium_sandbox.outcome != 'success' && 'Existing Chromium sandbox helper failed its safety guard; no launch attempted.' || '' }}
         run: node test/router/browser-probes.mjs
 
       - name: Test exact installed Router archive on all engines
         env:
-          MARIONETTE_ROUTER_CHROMIUM_SETUP_ERROR: ${{ steps.chromium_sandbox.outcome != 'success' && 'Existing Chromium sandbox helper failed its safety guard; no launch attempted.' || '' }}
           MARIONETTE_ROUTER_BROWSER_PROBES: test/tmp/router-browser-probes.json
-        run: npm run test:router-tarball -- --browser --output "${RUNNER_TEMP}/router-browser-verification"
+          ROUTER_SOURCE_SHA: ${{ needs.router-browser-candidate.outputs.source_sha }}
+          ROUTER_ARCHIVE_SHA256: ${{ needs.router-browser-candidate.outputs.archive_sha256 }}
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { execFileSync, spawnSync } from 'node:child_process';
+          import { createHash } from 'node:crypto';
+          import { readFileSync } from 'node:fs';
+          import { dirname, join, resolve } from 'node:path';
+          const git = args => execFileSync('git', args, { encoding: 'utf8' }).trim();
+          const source = process.env.ROUTER_SOURCE_SHA;
+          const directory = resolve(process.env.RUNNER_TEMP, 'router-browser-candidate');
+          // This lane requires the adjacent receipt; absence cannot mean null provenance.
+          const prepared = JSON.parse(readFileSync(join(directory, 'router-candidate.json')));
+          const archive = resolve(directory, prepared.archive.file);
+          const output = join(process.env.RUNNER_TEMP, 'router-browser-verification');
+          assert.equal(dirname(archive), directory);
+          assert.equal(git(['rev-parse', 'HEAD']), source);
+          assert.equal(git(['status', '--porcelain', '--untracked-files=all']), '');
+          assert.equal(prepared.sourceCommit, source);
+          assert.equal(prepared.sourceDirty, false);
+          assert.equal(prepared.archive.sha256, process.env.ROUTER_ARCHIVE_SHA256);
+          assert.equal(createHash('sha256').update(readFileSync(archive)).digest('hex'), process.env.ROUTER_ARCHIVE_SHA256);
+          const run = spawnSync('npm', ['run', 'test:router-tarball', '--', '--artifact', archive,
+            '--sha256', process.env.ROUTER_ARCHIVE_SHA256, '--registry-peers', '--browser', '--output', output], { stdio: 'inherit' });
+          assert.equal(git(['status', '--porcelain', '--untracked-files=all']), '');
+          const verified = JSON.parse(readFileSync(join(output, 'router-verification.json')));
+          assert.equal(verified.archiveSourceCommit, source);
+          assert.equal(verified.verificationCommit, source);
+          assert.equal(verified.verificationDirty, false);
+          assert.equal(verified.host.platform, 'darwin');
+          assert.equal(verified.host.architecture, 'arm64');
+          assert.equal(run.error, undefined);
+          assert.equal(run.status, 0);
+          assert.equal(verified.status, 'passed-public-candidate');
+          JS
 
       - name: Retain complete or partial Router evidence
         if: always()
@@ -253,6 +324,7 @@ jobs:
           name: router-browsers-node-24
           path: |
             ${{ runner.temp }}/router-browser-verification/
+            ${{ runner.temp }}/router-browser-candidate/
             test/tmp/router-browser/
             test/tmp/router-browser-probes.json
           if-no-files-found: warn

@@ -192,13 +192,19 @@ polyfill on each engine; it does not certify other missing built-ins.
 Use the Playwright engines pinned in the release profile. Source-checkout CI uses
 the matching official container described in
 [the test guide](../../test/README.md#browser-ci-environment).
-The separate installed-archive job currently uses the standard Ubuntu host and
-requires an existing compatible root-owned setuid Chromium sandbox helper.
-That host's safety guard currently fails; it is not a verified certification
-environment. The container also failed sandboxed archive Chromium launch.
-Archive certification needs an approved sandbox-capable runner/setup with actual
-passing launches and inventory receipts. Do not substitute source-checkout
-results or call an unverified stock host supported.
+The installed-archive workflow prepares the tarball on canonical Ubuntu Linux,
+then transfers those same bytes and their adjacent `router-candidate.json` to
+GitHub-hosted `macos-15` arm64 for browser verification with registry peers.
+The producer's source commit must equal both archiveSourceCommit and
+verificationCommit; the SHA-256 must match the producer output, preparation
+receipt and archive. This workflow requires the preparation receipt and clean
+verifier source before/after, including `verificationDirty: false`.
+The verifier explicitly uses `--artifact` and `--sha256`; it must not repack Router
+on macOS. Existing renderer identity and published-peer integrity checks remain.
+Browser results on this lane are macOS evidence, not Linux archive certification.
+The earlier Linux container/stock-host sandbox failures remain missing Linux
+archive coverage; no helper or host-security changes are made to bypass them.
+Require actual passing launches and inventory receipts before claiming validation.
 The verifier keeps one installed archive/consumer and executes each engine in a
 separate process, retaining raw JSON, blobs and traces per engine. It merges the
 available blobs using Playwright, then requires the full three-engine inventory

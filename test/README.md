@@ -148,7 +148,8 @@ Each suite uploads the following repository report paths:
 | `coverage-node-24` | `coverage/`, `test/tmp/unit-results.xml`, `test/tmp/test-package-consumer/` |
 | `tooling-node-24` | `coverage/tooling/`, excluding temporary `coverage/tooling/tmp/` data; retained for 7 days |
 | `browsers-node-24` | `test/tmp/browser/results.json`, `test/tmp/browser/results.xml`, `test/tmp/browser/report/`, `test/tmp/browser/results/`, `test/tmp/router-diagnostics/`, `test/tmp/performance/browser-report.json` |
-| `router-browsers-node-24` | `${RUNNER_TEMP}/router-browser-verification/` (archive identity, installed lockfile, per-engine execution results and `browser-evidence/`), `test/tmp/router-browser/`, `test/tmp/router-browser-probes.json` |
+| `router-browser-candidate` | Canonical Linux producer's `${RUNNER_TEMP}/router-browser-candidate/`: exact `.tgz`, adjacent `router-candidate.json` and SHA-256 file |
+| `router-browsers-node-24` | macOS verifier's `${RUNNER_TEMP}/router-browser-verification/` (archive identity, installed lockfile, per-engine execution results and `browser-evidence/`), received `${RUNNER_TEMP}/router-browser-candidate/`, `test/tmp/router-browser/`, `test/tmp/router-browser-probes.json` |
 | `agent-reference-node-24` | `test/tmp/agent-reference-app/`, `test/tmp/agent-reference/reference-report.json`, `test/tmp/agent-reference/artifacts/artifact-input.json`, `test/tmp/agent-fixtures/fixture-controls.json` |
 | `fixtures-node-24` | `test/tmp/fixture-reports/` |
 
@@ -259,14 +260,17 @@ publisher below remains limited to its five framework packages. Its browser
 check uses `playwright.core-release.config.mjs`, preserving the exact core
 inventory while router-owned cases have separate Chromium, Firefox and WebKit
 certification. The existing browser job runs the source-checkout Router cases. A separate
-standard Ubuntu Linux job installs the pinned engines and libraries, checks the
-existing Chromium sandbox helper, and runs `test:router-tarball -- --browser`
-against one exact installed archive. Each engine executes independently. A failed
-Chromium safety guard blocks its launch while Firefox/WebKit can still produce
-evidence; that partial evidence never passes certification or the required job.
-The current stock host has failed the guard and is not a verified sandbox-capable
-certification environment. Setup failures remain blocking; the job does not
-change host security policy. The Router
+canonical Ubuntu producer prepares one archive from clean source. The dependent
+GitHub-hosted `macos-15` arm64 job checks out that exact producer SHA, receives the
+archive and adjacent preparation receipt, and verifies the recorded digest before
+running `test:router-tarball -- --artifact ... --sha256 ... --registry-peers --browser`.
+It requires matching producer/archive/verifier commits and clean verifier source
+before and after execution. Each engine executes independently with the pinned
+configuration, including sandboxed Chromium. A known launch failure blocks that
+engine without another launch attempt; partial evidence never passes certification
+or the required job. These are macOS archive-browser results. Earlier Linux
+archive sandbox failures are not certified by this lane. Host security policy is
+unchanged. The Router
 validator requires the full inventory once per engine, actual executable versions
 and zero failures, retries or skips. Playwright WebKit results do not certify
 every shipping Safari/iOS version.

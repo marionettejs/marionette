@@ -86,28 +86,41 @@ test('the container repair preserves browser suites, exact-artifact validation a
 });
 
 test('Router archive keeps independent engine evidence without relaxing the required gate', () => {
+  const producer = workflows.ci.jobs['router-browser-candidate'];
+  assert.equal(producer['runs-on'], 'ubuntu-24.04');
+  assert.equal(producer.outputs.source_sha, '${{ steps.candidate.outputs.source_sha }}');
+  assert.equal(producer.outputs.archive_sha256, '${{ steps.candidate.outputs.archive_sha256 }}');
+  assert.ok(producer.steps.find(step => step.id === 'candidate').run.includes('npm run router:prepare'));
+  const transfer = producer.steps.find(step => step.uses?.startsWith('actions/upload-artifact@'));
+  assert.equal(transfer.with.name, 'router-browser-candidate');
+  assert.equal(transfer.with['if-no-files-found'], 'error');
   const job = workflows.ci.jobs['router-browsers'];
-  assert.equal(job['runs-on'], 'ubuntu-24.04');
+  assert.equal(job['runs-on'], 'macos-15');
+  assert.equal(job.needs, 'router-browser-candidate');
   assert.equal(job.container, undefined);
-  const install = job.steps.find(step => step.name === 'Install pinned browser binaries and libraries');
-  assert.equal(install.run, 'npx --no-install playwright install --with-deps chromium firefox webkit');
-  const helper = job.steps.find(step => step.name === 'Select the preinstalled Chrome sandbox helper');
-  assert.ok(helper.run.includes('const helper = \'/opt/google/chrome/chrome-sandbox\''));
-  assert.ok(helper.run.includes('info.uid === 0'));
-  assert.ok(helper.run.includes('CHROME_DEVEL_SANDBOX='));
-  assert.equal(helper.id, 'chromium_sandbox');
-  assert.equal(helper['continue-on-error'], true);
+  const checkout = job.steps.find(step => step.uses?.startsWith('actions/checkout@'));
+  assert.equal(checkout.with.ref, '${{ needs.router-browser-candidate.outputs.source_sha }}');
+  assert.ok(job.steps.some(step => step.run?.includes('--host macos-arm64 --runner macos-15')));
+  const receive = job.steps.find(step => step.uses?.startsWith('actions/download-artifact@'));
+  assert.equal(receive.with.name, transfer.with.name);
+  const install = job.steps.find(step => step.name === 'Install pinned browser binaries');
+  assert.equal(install.run, 'npx --no-install playwright install chromium firefox webkit');
   const probe = job.steps.find(step => step.run === 'node test/router/browser-probes.mjs');
   assert.equal(probe.run, 'node test/router/browser-probes.mjs');
   assert.equal(probe['continue-on-error'], true);
   const archive = job.steps.find(step => step.name === 'Test exact installed Router archive on all engines');
-  assert.equal(archive.run, 'npm run test:router-tarball -- --browser --output "${RUNNER_TEMP}/router-browser-verification"');
+  assert.ok(archive.run.includes('\'--artifact\', archive'));
+  assert.ok(archive.run.includes('\'--sha256\', process.env.ROUTER_ARCHIVE_SHA256, \'--registry-peers\', \'--browser\''));
+  for (const assertion of ['readFileSync(join(directory, \'router-candidate.json\'))',
+    'assert.equal(prepared.sourceCommit, source)', 'assert.equal(prepared.sourceDirty, false)',
+    'assert.equal(verified.archiveSourceCommit, source)', 'assert.equal(verified.verificationCommit, source)',
+    'assert.equal(verified.verificationDirty, false)', 'assert.equal(run.status, 0)',
+    'assert.equal(verified.host.platform, \'darwin\')', 'assert.equal(verified.host.architecture, \'arm64\')']) {
+    assert.ok(archive.run.includes(assertion), assertion);
+  }
+  assert.equal(archive.run.match(/git\(\['status', '--porcelain', '--untracked-files=all'\]\)/g).length, 2);
   assert.equal(archive.if, undefined);
   assert.equal(archive['continue-on-error'], undefined);
   assert.equal(archive.env.MARIONETTE_ROUTER_BROWSER_PROBES, 'test/tmp/router-browser-probes.json');
-  for (const step of [probe, archive]) {
-    assert.equal(step.env.MARIONETTE_ROUTER_CHROMIUM_SETUP_ERROR,
-      '${{ steps.chromium_sandbox.outcome != \'success\' && \'Existing Chromium sandbox helper failed its safety guard; no launch attempted.\' || \'\' }}');
-  }
-  assert.ok(!job.steps.some(step => /sysctl|apparmor|seccomp|--no-sandbox|--privileged|--cap-add/.test(step.run ?? '')));
+  assert.ok(!job.steps.some(step => /chrome-sandbox|chmod|sysctl|apparmor|seccomp|--no-sandbox|--privileged|--cap-add/.test(step.run ?? '')));
 });
