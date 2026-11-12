@@ -548,7 +548,9 @@ test('History link interception respects browser gestures, targets and unclaimed
   });
   await page.locator('#ordinary').click();
   expect(await page.evaluate(() => window.historyLinks.router.getCurrent().userInitiated)).toBe(true);
-  await page.locator('#ordinary').click({ modifiers: ['Control'] });
+  // Control-click opens the context menu on macOS. Exercise the platform's
+  // modified-link gesture while still requiring a trusted, unclaimed click.
+  await page.locator('#ordinary').click({ modifiers: ['ControlOrMeta'] });
   await page.locator('#target').click(); await page.locator('#download').click(); await page.locator('#unclaimed').click();
   const result = await page.evaluate(() => {
     const value = { observed: window.historyLinks.observed, path: location.pathname, nativeReads: window.nativeNavigationReads };
