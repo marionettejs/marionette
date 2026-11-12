@@ -4,10 +4,12 @@ The small helpers behind Marionette, available for your own components.
 Marionette and `@mnjs/data` import these same implementations.
 
 ```bash
-npm install --save-exact @mnjs/utils@5.0.1
+npm install --save-exact @mnjs/utils@5.1.0
 ```
 
-Use the same version for all Marionette packages. Core and data
+Use matching versions of `marionette`, `@mnjs/utils`, `@mnjs/radio`,
+`@mnjs/data` and `@mnjs/adapters`. The optional `@mnjs/html`, `@mnjs/router`
+and `@mnjs/test` packages are independently versioned. Core and data
 install utils automatically as a regular dependency. Add it directly when your
 application imports it.
 

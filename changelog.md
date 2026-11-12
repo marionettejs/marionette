@@ -9,6 +9,21 @@ For the current v4 → v5 changes and replacements, see the
 [migration guide](docs/guides/migration.md). Entries below describe each release
 at the time it shipped; older prerelease APIs may have been superseded.
 
+### v5.1.0 (unreleased)
+
+* Make the optional `@mnjs/html` renderer and `@mnjs/router` feature-owned routing
+  first-class paths in the core documentation and agent guidance. New applications
+  start with HTML templates and compose routed features with Views, Regions and
+  Applications; existing compatible stacks remain supported.
+* Document renderer ownership, cancellation and cleanup, and ship executable
+  quick-start and routed-feature examples with the version-matched guidance.
+* Coordinate `marionette`, `@mnjs/utils`, `@mnjs/radio`, `@mnjs/data` and
+  `@mnjs/adapters` at 5.1.0, including their exact internal dependencies and
+  plugin metadata. This version preparation does not change their runtime APIs.
+* Keep the optional packages separately versioned: `@mnjs/html` 1.0.0,
+  `@mnjs/router` 0.1.0 and `@mnjs/test` 1.0.0. They are not added as required
+  dependencies of core, and their documented minimum compatibility remains intact.
+
 ### @mnjs/test 1.0.0
 
 * Stabilize the existing mounting, readiness, owned-resource cleanup and optional

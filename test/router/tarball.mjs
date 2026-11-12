@@ -62,15 +62,16 @@ try {
   assert.equal(sha256(readFileSync(join(installed, 'dist/index.js'))), report.archive.browserModuleSha256);
   report.documentation = verifyRouterDocumentation(installed);
   const lock = JSON.parse(readFileSync(join(consumer, 'package-lock.json')));
-  report.peers = ['marionette', '@mnjs/utils', '@mnjs/radio'].map(name => {
+  const candidateVersion = directory => JSON.parse(readFileSync(join(root, directory, 'package.json'))).version;
+  report.peers = [['marionette', '.package'], ['@mnjs/utils', 'packages/utils'], ['@mnjs/radio', 'packages/radio']].map(([name, directory]) => {
     const entry = lock.packages[`node_modules/${name}`];
-    assert.equal(entry.version, '5.0.1');
+    assert.equal(entry.version, values['registry-peers'] ? '5.0.1' : candidateVersion(directory));
     if (values['registry-peers']) { assert.ok(entry.resolved.startsWith('https://registry.npmjs.org/')); }
     return { name, version: entry.version, resolved: entry.resolved, integrity: entry.integrity };
   });
   const installedRenderer = JSON.parse(readFileSync(join(consumer, 'node_modules/@mnjs/html/package.json')));
   assert.equal(installedRenderer.version, renderer.version);
-  report.exampleDependencies = [['@mnjs/adapters', '5.0.1'], ['lit-html', '3.3.3'], ['urlpattern-polyfill', '10.1.0']].map(([name, version]) => {
+  report.exampleDependencies = [['@mnjs/adapters', values['registry-peers'] ? '5.0.1' : candidateVersion('packages/adapters')], ['lit-html', '3.3.3'], ['urlpattern-polyfill', '10.1.0']].map(([name, version]) => {
     const entry = lock.packages[`node_modules/${name}`];
     assert.equal(entry.version, version);
     if (values['registry-peers']) { assert.ok(entry.resolved.startsWith('https://registry.npmjs.org/')); }

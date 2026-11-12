@@ -42,7 +42,7 @@ Packaged applications are verified on Node 22.22.2+ (22.x) and 24.15.0+ (24.x); 
 Install matching core package versions in your browser application. The renderer is independently versioned; follow the matching [quick start](docs/quick-start.md):
 
 ```sh
-npm install --ignore-scripts --save-exact marionette@5.0.1 @mnjs/utils@5.0.1 @mnjs/radio@5.0.1 @mnjs/html@1.0.0
+npm install --ignore-scripts --save-exact marionette@5.1.0 @mnjs/utils@5.1.0 @mnjs/radio@5.1.0 @mnjs/html@1.0.0
 ```
 
 Given `<div id="app"></div>` in your page, this module shows a dismissible panel:
