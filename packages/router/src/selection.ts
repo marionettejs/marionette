@@ -97,10 +97,9 @@ export async function switchTo(owner: Owner, appName: string, selection: SwitchO
 }
 
 export function clearSelection(owner: Owner) {
-  if (!canSelect(owner)) {return true;}
+  if (!canSelect(owner)) {return;}
   stateFor(owner).intent = null;
   stopSelection(owner);
-  return true;
 }
 
 export function currentApp(owner: Owner) {

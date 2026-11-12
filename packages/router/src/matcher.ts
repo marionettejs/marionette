@@ -55,6 +55,8 @@ function snapshotRoutes(routes: RouteTable, controller: object): RegisteredRoute
   const prototype = !array && routes && typeof routes === 'object' ? Object.getPrototypeOf(routes) : undefined;
   if (!array && prototype !== Object.prototype && prototype !== null) {throw new TypeError('mount() requires an array of route definitions or a route hash');}
   const definitions: readonly RouteDefinition[] = array ? routes : Object.entries(routes).map(([path, definition]) => {
+    const entryPrototype = definition && typeof definition === 'object' ? Object.getPrototypeOf(definition) : undefined;
+    if (entryPrototype !== Object.prototype && entryPrototype !== null) {throw new TypeError(`Route hash entry "${ path }" must be a plain object`);}
     if (Object.hasOwn(definition, 'path')) {throw new TypeError(`Route hash entry "${ path }" cannot contain "path"; use the hash key or an array definition`);}
     return { ...definition, path };
   });

@@ -27,7 +27,7 @@ interface Methods {
   getMountRegion(region?: string): RegionInstance | undefined;
   handleRouteError(error: unknown, match: ActiveMatch, context: ApplicationRouteErrorContext): unknown;
   switchTo(appName: string, selection?: SwitchOptions): Promise<ApplicationInstance<object, unknown> | undefined>;
-  clear(): boolean;
+  clear(): void;
   getCurrent(): ApplicationInstance<object, unknown> | null;
 }
 // Preserve core hook receivers when adding route operations to a general alias.
@@ -90,6 +90,8 @@ class RouteStep {
 
 function definitionsOf(routes: ApplicationRoutes): readonly ApplicationRouteDefinition[] {
   return Array.isArray(routes) ? routes : Object.entries(routes).map(([path, definition]) => {
+    const entryPrototype = definition && typeof definition === 'object' ? Object.getPrototypeOf(definition) : undefined;
+    if (entryPrototype !== Object.prototype && entryPrototype !== null) {throw new TypeError(`Route hash entry "${ path }" must be a plain object`);}
     if (Object.hasOwn(definition, 'path')) {throw new TypeError(`Route hash entry "${ path }" cannot contain "path"; use the hash key or an array definition`);}
     return { ...definition, path };
   });
@@ -107,9 +109,12 @@ function compileTable(source: Source, namespace: string, table: object, ancestor
   const declaration = typeof source === 'function' ? source.prototype as Declaration : source as Declaration;
   const stack = [...ancestors, source];
   const { routes = {}, childApps } = declaration;
+  const mounts = new Set<string>();
   return definitionsOf(routes).map(definition => {
     const { path, mount, region, name, handler, redirect, meta } = definition;
     if (mount !== undefined) {
+      if (mounts.has(mount)) {throw new TypeError(`Route "${ path }" selects child "${ mount }", which is already mounted in this Application`);}
+      mounts.add(mount);
       const Child = mountedApplication(childApps, mount, path);
       if (stack.includes(Child)) {throw new TypeError(`Route "${ path }" mounts "${ mount }" in a route cycle`);}
       return { path, meta, data: new RouteStep(table, undefined, mount, region), children: compileTable(Child, joinName(namespace, definition.namespace), table, stack) };
@@ -132,6 +137,7 @@ function firstStepIndex(match: ActiveMatch) {
 }
 
 function constructRouteApplication(this: RouteApplicationInstance, options?: RouteApplicationOptions) {
+  if (options?.routes !== undefined) {throw new TypeError('RouteApplication constructor routes are unsupported; declare routes on the class or instance before mounting');}
   initSelection(this);
   Application.call(this, options);
 }
@@ -148,7 +154,7 @@ export const RouteApplication = /* @__PURE__ */ Application.extend({
     return switchTo(this, appName, selection);
   },
 
-  clear(this: RouteApplicationInstance) {return clearSelection(this);},
+  clear(this: RouteApplicationInstance) {clearSelection(this);},
   getCurrent(this: RouteApplicationInstance) {return currentApp(this);},
 
   routeTo(this: RouteApplicationInstance, match: ActiveMatch) {

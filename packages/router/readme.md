@@ -90,20 +90,28 @@ Stop retains routes; destroy unmounts them. After owner stop/start, explicitly
 start its required roots and Router again.
 
 `routeTable(Catalog)` compiles declarations without constructing Applications.
-Class-level `routes` and `childApps` are data, not factories. Constructor `routes`
-are unsupported; constructor child registrations do not redefine the compiled
+Class-level `routes` and `childApps` are data, not factories. Non-undefined constructor
+`routes` throw before Application initialization; undefined is equivalent to omission.
+Constructor child registrations do not redefine the compiled
 class route topology. `mountRoutes` also accepts routes/children assigned as
 instance properties before compilation. There is one matcher and one browser
 Router, not a router per child. Ordinary `router.mount(routes, { owner, controller })`
 and a Router-level handler remain lower-level options.
 
-Hashes are keyed by paths; names are explicit values. Arrays use `{ path, name }`.
+Hashes are keyed by paths; names are explicit values. Hash values must be plain
+objects (including null-prototype objects), not string shorthands or arrays.
+Arrays of definitions use `{ path, name }`.
 Leaf entries are `{ name, handler?, meta?, redirect? }`; mount entries are
 `{ mount, namespace?, region?, meta? }`. Namespaces prefix descendant names with
 colons. A mount key contains only that node's own parameters, not all descendants.
 `childRouteOptions(match, mount)` supplies extra start options;
 `getMountRegion(region)` chooses the Region. Required start and handler work is
 returned through `routeBranch`; notifications remain synchronous.
+
+Each owner may mount a registered child name only once. For two placements of the
+same class, declare two child registrations with distinct names. A different path,
+namespace or Region does not create a separate child identity; duplicate mounts
+are rejected during compilation. Selection keys still contain only own mount params.
 
 Named navigation inherits omitted parameters only from route nodes shared by
 current and target branches. Equal parameter names on unrelated nodes do not
@@ -265,7 +273,7 @@ Start the owner first. There is one selection group per owner. Same-key calls jo
 one outcome and share startup failure. Changed keys or per-call `restart: true`
 stop/start the registered instance; they do not construct a replacement. Running
 Applications ignore new start options. Replace a child registration explicitly
-when a new instance is required. `clear()` returns successful idempotent `true`.
+when a new instance is required. `clear()` is idempotent and returns nothing.
 
 Keys are primitives (undefined, null, string, number or boolean) or flat records
 of those values. Own enumerable string fields are snapshotted before lifecycle

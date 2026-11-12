@@ -37,7 +37,8 @@ use ordinary `getOption` precedence. Constructor options override prototype defa
 A Router `routes()` factory runs once in its own context. RouteApplication's
 `routes` and `childApps` instead describe a static class topology; compilation
 reads properties without calling route or child factories or constructing children.
-Constructor route tables are unsupported. Core can instantiate constructor-supplied
+Non-undefined constructor route tables throw before child creation or initialization;
+undefined is equivalent to omission. Core can instantiate constructor-supplied
 children, but those options do not redefine the class topology read by routeTable.
 Set instance declaration properties explicitly before compiling when needed.
 
@@ -231,7 +232,9 @@ teardown or general synchronous recovery policy.
 
 An array contains `{ path, name?, handler?, children?, meta?, redirect?, data? }`
 definitions. A hash takes its path from each key and its optional name from the
-value. Own `path` fields in hash values are rejected to catch legacy declarations.
+value. Hash values must be plain objects, including null-prototype objects;
+malformed values throw a TypeError identifying the offending path before normalization.
+Own `path` fields in hash values are rejected to catch legacy declarations.
 Both forms can be nested. This pure matching example does not activate routing:
 
 ```js
@@ -340,6 +343,10 @@ static descriptor into an ordinary readonly route array. Leaves declare
 specify `path`. A mount must name a RouteApplication class in a `childApps` object.
 Compilation rejects missing mounts/names and cycles in the current ancestor stack;
 the same child class may be reused in independent sibling mounts.
+Each owner's declaration may use a child mount name only once. Duplicate names
+are rejected even when paths, namespaces or Regions differ. Register the same class
+under distinct child names for independent placements; those names remain local
+to each owner. Mount identity continues to use only that node's own params.
 
 ```js
 const Item = RouteApplication.extend({
@@ -713,7 +720,7 @@ selection once. Optional onCleanupError(error, child) observes a secondary clean
 failure; without it that secondary error is discarded. The primary startup error
 wins when that observer returns normally. Normal synchronous stop/notification errors propagate through the ordinary
 failure boundary; no rollback or attempt-all cleanup is promised. clear() returns
-true as idempotent successful completion, including when there is no selection.
+nothing and is idempotent, including when there is no selection or the owner is stopped.
 
 Application preparation, route completion and feature presentation have distinct
 lifetimes. A page that replaces its own startup before first presentation can keep

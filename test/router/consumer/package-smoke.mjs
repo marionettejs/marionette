@@ -56,6 +56,20 @@ for (const [format, api, Base] of [['ESM', esm, Application], ['CJS', cjs, requi
   try {
     assert.equal('ChildAppSwitcher' in api, false);
     assert.equal('withRouter' in api.RouteApplication, false);
+    assert.throws(() => own(new api.RouteApplication({ routes: {} })), /constructor routes/);
+    const validation = own(new api.Router());
+    for (const value of [null, 'home', []]) {
+      assert.throws(() => validation.mount({ '/broken': value }), /hash entry "\/broken" must be a plain object/);
+      assert.throws(() => api.routeTable(api.RouteApplication.extend({ routes: { '/broken': value } })), /hash entry "\/broken" must be a plain object/);
+    }
+    validation.mount({ '/plain': Object.assign(Object.create(null), { name: 'plain' }) });
+    assert.equal(validation.url('plain'), '/plain');
+    const Mounted = api.RouteApplication.extend({ routes: { '': { name: 'item' } } });
+    const Duplicate = api.RouteApplication.extend({
+      childApps: { item: Mounted },
+      routes: { '/first/:id': { mount: 'item', namespace: 'first' }, '/second/:id': { mount: 'item', namespace: 'second' } },
+    });
+    assert.throws(() => api.routeTable(Duplicate), /child "item", which is already mounted/);
     const waiting = Promise.withResolvers();
     const entered = Promise.withResolvers();
     const starts = [];
@@ -177,6 +191,10 @@ for (const [format, api, Base] of [['ESM', esm, Application], ['CJS', cjs, requi
     assert.equal(runs, 1);
     await pages.switchTo('page', { key: { id: 1 }, restart: true });
     assert.equal(runs, 2);
+    assert.equal(pages.clear(), undefined);
+    assert.equal(pages.getCurrent(), null);
+    assert.equal(pageApp.isRunning(), false);
+    assert.equal(pages.clear(), undefined);
     console.log(`${format} installed Router: owned branches, keyed lifecycle, cancellation, raw error provenance, redirects and selection passed.`);
   } finally {
     for (const app of owned.reverse()) { app.destroy(); }

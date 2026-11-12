@@ -291,7 +291,7 @@ describe('RouteApplication', () => {
       const independent = addPage('independent');
       await independent.start();
       await switchTo('page');
-      assert.equal(switcher.clear(), true);
+      assert.equal(switcher.clear(), undefined);
       assert.equal(switcher.isRunning(), true);
       assert.equal(page.isRunning(), false);
       assert.equal(independent.isRunning(), true);
@@ -300,9 +300,9 @@ describe('RouteApplication', () => {
     });
 
     it('can clear an empty or stopped group without activating it', () => {
-      assert.equal(switcher.clear(), true);
+      assert.equal(switcher.clear(), undefined);
       switcher.stop();
-      assert.equal(switcher.clear(), true);
+      assert.equal(switcher.clear(), undefined);
       assert.equal(switcher.isRunning(), false);
     });
 

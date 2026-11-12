@@ -137,7 +137,9 @@ selection.switchTo('page', { key: { id: 'one' }, restart: true, signal: new Abor
 const readonlyKey: SelectionKey = { id: 'one', optional: undefined } as const;
 const switchOptions: SwitchOptions = { key: readonlyKey, restart: false };
 selection.switchTo('page', switchOptions);
-const cleared: boolean = selection.clear();
+const cleared: void = selection.clear();
+// @ts-expect-error clear has no changed-state or success result.
+const clearChanged: boolean = selection.clear();
 const selected = selection.getCurrent();
 // @ts-expect-error Arrays are not flat selection records.
 selection.switchTo('page', { key: ['one'] });
@@ -243,7 +245,7 @@ const wrongOptionalNamespace: RouteNames<typeof optionalOuter> = 'other:detail';
 void [statefulAlias, requiredAlias, optionalPrefixed, optionalUnprefixed, optionalOuterPrefixed, optionalOuterBare, wrongOptionalNamespace];
 
 void [readiness, oldOwnership, oldNotFound, oldPersistence, raw, wrongHash, badHandler, numericName, numericPathName,
-  wrongCompiledName, inheritedAbsolute, overriddenOldName, count, stateCount, staticLabel, supplied, cleared, selected];
+  wrongCompiledName, inheritedAbsolute, overriddenOldName, count, stateCount, staticLabel, supplied, cleared, clearChanged, selected];
 
 const indexedDeclarations: Record<string, { name: 'known' }> = { '/known': { name: 'known' } };
 const Indexed = RouteApplication.extend({ routes: indexedDeclarations });
