@@ -11,20 +11,35 @@ at the time it shipped; older prerelease APIs may have been superseded.
 
 ### v5.1.0
 
-> The AI has discovered that “optional” and “worth a minor release” are not opposites. Marionette 5.1.0 gives the HTML renderer and feature-owned Router a proper place in the guides and agent workflow. Their packages still have their own version numbers, because apparently not everything needs to match.
+> Apparently, “optional” and “worth a minor release” are not opposites. Marionette 5.1 gives HTML templates and feature-owned routing a proper place in the stack. Two more opinions. Neither compulsory.
 
-* Make the optional `@mnjs/html` renderer and `@mnjs/router` feature-owned routing
-  first-class paths in the core documentation and agent guidance. New applications
-  start with HTML templates and compose routed features with Views, Regions and
-  Applications; existing compatible stacks remain supported.
-* Document renderer ownership, cancellation and cleanup, and ship executable
-  quick-start and routed-feature examples with the version-matched guidance.
-* Coordinate `marionette`, `@mnjs/utils`, `@mnjs/radio`, `@mnjs/data` and
-  `@mnjs/adapters` at 5.1.0, including their exact internal dependencies and
-  plugin metadata. This version preparation does not change their runtime APIs.
-* Keep the optional packages separately versioned: `@mnjs/html` 1.0.0,
-  `@mnjs/router` 0.1.0 and `@mnjs/test` 1.0.0. They are not added as required
-  dependencies of core, and their documented minimum compatibility remains intact.
+Marionette 5.1 brings two independently versioned companion packages into the
+recommended path for building new applications:
+
+* **`@mnjs/html`** provides tagged-template rendering, incremental DOM updates,
+  keyed lists, and directives, with a DOM API designed for Marionette-owned Views.
+  Keep interactions in `events`, `triggers`, and `ui`; let the template describe
+  the content.
+* **`@mnjs/router`** connects named URLs with feature-owned routes and Application
+  lifecycles. Features register their own routes, prepare their data, and manage
+  their child Applications without moving every destination into one central
+  routing file.
+* **Updated guides and agent skills** connect the first rendered View to composed
+  and routed features, with executable examples and guidance for testing readiness,
+  interactions, and teardown.
+
+The coordinated packages `marionette`, `@mnjs/utils`, `@mnjs/radio`, `@mnjs/data`,
+and `@mnjs/adapters` move to **5.1.0**. HTML, Router, and the test helpers retain
+their independent versions. Neither HTML nor Router becomes a required core
+dependency.
+
+Existing compatible renderers, data integrations, and host routers remain
+supported. This release introduces no core runtime API changes.
+
+Start with the [quick start](docs/quick-start.md), explore
+[HTML templates](packages/html/guide.md), or build a
+[routed feature](docs/packages/router.md). Check Router’s documented browser
+requirements before adopting it.
 
 ### @mnjs/test 1.0.0
 
