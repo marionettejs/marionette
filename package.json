@@ -137,7 +137,8 @@
     "test:router-tooling": "node --test test/router/artifact.test.mjs",
     "test:router-browser": "playwright test --config playwright.router.config.mjs",
     "test:browser:core-release": "playwright test --config playwright.core-release.config.mjs",
-    "docs:check-router": "node test/docs/router-companion.mjs"
+    "docs:check-router": "node test/docs/router-companion.mjs",
+    "test:package-compatibility": "node test/package-compatibility/run.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"

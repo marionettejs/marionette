@@ -6,7 +6,7 @@ For named URLs and feature-owned route transitions in a new application, use opt
 
 ## A complete starting point
 
-After quick-start setup, install the matching `@mnjs/data` version, keep `<div id="app"></div>` in `index.html`, and use this as `main.js`. Replace `loadItems` with your API layer; it should accept the preparation signal when transport cancellation is supported.
+After quick-start setup, install a compatible `@mnjs/data` version using the [data setup guide](../integrations/setup.md), keep `<div id="app"></div>` in `index.html`, and use this as `main.js`. Replace `loadItems` with your API layer; it should accept the preparation signal when transport cancellation is supported.
 
 Render useful content as soon as its required data is ready; use Applications when async work needs feature-level coordination and Views for local requests, loading independent sections without blocking ready UI while preserving cleanup, error handling and [stale-result protection](async-requests.md).
 

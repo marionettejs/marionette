@@ -10,9 +10,10 @@ async function buildFixture(t, { version = '5.0.0-test.1', manifestMutation } = 
     const directory = resolve(candidate.root, id === 'core' ? '.' : `packages/${id}`);
     await mkdir(directory, { recursive: true });
     const manifest = { name, version };
-    if (['radio', 'core', 'data'].includes(id)) { manifest.dependencies = { '@mnjs/utils': version }; }
+    if (['radio', 'core'].includes(id)) { manifest.dependencies = { '@mnjs/utils': version }; }
     if (id === 'core') { manifest.dependencies['@mnjs/radio'] = version; }
-    if (id === 'adapters') { manifest.peerDependencies = { marionette: version }; }
+    if (id === 'data') { manifest.peerDependencies = { '@mnjs/utils': '^5.0.1' }; }
+    if (id === 'adapters') { manifest.peerDependencies = { marionette: '^5.0.1' }; }
     manifestMutation?.(id, manifest);
     await writeFile(resolve(directory, 'package.json'), JSON.stringify(manifest));
   }
@@ -90,7 +91,7 @@ console.log(JSON.stringify(process.env.RELEASE_TEST_PACK_FAILURE === 'count' ? [
   return { ...candidate, commit, calls, output: resolve(candidate.directory, 'built-artifact') };
 }
 
-for (const version of ['5.0.0-test.1', '5.0.0']) {
+for (const version of ['5.0.0-test.1', '5.0.0', '5.1.0']) {
   test(`artifact construction packs and certifies all five packages for ${version}`, async t => {
     const candidate = await buildFixture(t, { version });
     const githubOutput = resolve(candidate.directory, 'github-output');
@@ -157,6 +158,18 @@ for (const [name, mutate, error] of [
   ['version skew', (id, manifest) => { if (id === 'data') { manifest.version = '4.0.0'; } }, /does not match/],
   ['utils dependency skew', (id, manifest) => { if (id === 'radio') { delete manifest.dependencies; } }, /utils dependency missing/],
   ['Radio dependency skew', (id, manifest) => { if (id === 'core') { delete manifest.dependencies['@mnjs/radio']; } }, /Core Radio dependency missing/],
+  ['core utils widened', (id, manifest) => { if (id === 'core') { manifest.dependencies['@mnjs/utils'] = '^5.0.1'; } }, /utils dependency.*does not match/],
+  ['Radio utils widened', (id, manifest) => { if (id === 'radio') { manifest.dependencies['@mnjs/utils'] = '^5.0.1'; } }, /utils dependency.*does not match/],
+  ['core Radio widened', (id, manifest) => { if (id === 'core') { manifest.dependencies['@mnjs/radio'] = '^5.0.1'; } }, /Core Radio dependency.*does not match/],
+  ['data utils missing', (id, manifest) => { if (id === 'data') { delete manifest.peerDependencies; } }, /nonoptional Utils peer/],
+  ['data utils private dependency', (id, manifest) => { if (id === 'data') { manifest.dependencies = { '@mnjs/utils': '^5.0.1' }; } }, /not a private dependency/],
+  ['data utils optional dependency', (id, manifest) => { if (id === 'data') { manifest.optionalDependencies = { '@mnjs/utils': '^5.0.1' }; } }, /not a private dependency/],
+  ['data utils exact peer', (id, manifest) => { if (id === 'data') { manifest.peerDependencies['@mnjs/utils'] = manifest.version; } }, /nonoptional Utils peer/],
+  ['data utils unsupported floor', (id, manifest) => { if (id === 'data') { manifest.peerDependencies['@mnjs/utils'] = '^5.0.0'; } }, /nonoptional Utils peer/],
+  ['data utils optional peer', (id, manifest) => { if (id === 'data') { manifest.peerDependenciesMeta = { '@mnjs/utils': { optional: true } }; } }, /nonoptional Utils peer/],
+  ['adapter core optional peer', (id, manifest) => { if (id === 'adapters') { manifest.peerDependenciesMeta = { marionette: { optional: true } }; } }, /Marionette peer.*does not match/],
+  ['adapter core exact pin', (id, manifest) => { if (id === 'adapters') { manifest.peerDependencies.marionette = manifest.version; } }, /Marionette peer.*does not match \^5\.0\.1/],
+  ['adapter core unsupported major', (id, manifest) => { if (id === 'adapters') { manifest.peerDependencies.marionette = '>=5.0.1'; } }, /Marionette peer.*does not match \^5\.0\.1/],
   ['adapter peer skew', (id, manifest) => { if (id === 'adapters') { delete manifest.peerDependencies; } }, /Marionette peer missing/],
 ]) {
   test(`artifact construction rejects ${name}`, async t => {

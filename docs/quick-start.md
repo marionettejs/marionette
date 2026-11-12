@@ -4,7 +4,7 @@ This guide targets Marionette 5.1.0 and is verified on the supported Node LTS li
 
 ## Install matching packages
 
-Use matching `5.1.0` versions of `marionette`, `@mnjs/utils`, `@mnjs/radio`, and any optional `@mnjs/adapters` or `@mnjs/data` packages you use. Pin the versions explicitly when installing these packages. The independently versioned renderer below does not need `@mnjs/adapters`.
+Use matching `5.1.0` versions of `marionette`, `@mnjs/utils`, and `@mnjs/radio` to preserve their shared runtime identity. Optional Data 5.1.0 has a nonoptional Utils peer `^5.0.1`; Adapters 5.1.0 supports core `^5.0.1`. Neither requires an identical package version. Keep one shared Utils instance across core, Radio, and Data. Pin the selected versions explicitly for reproducible installs. The independently versioned renderer below does not need `@mnjs/adapters`.
 
 ## Create the project
 

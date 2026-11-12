@@ -1,3 +1,7 @@
+// Verified lower bound for optional Data/Adapters peer contracts, independent of release numbering.
+export const optionalPackageMinimumVersion = '5.0.1';
+export const optionalPackagePeerRange = `^${optionalPackageMinimumVersion}`;
+
 export const releasePackages = Object.freeze([
   { id: 'utils', name: '@mnjs/utils', directory: 'packages/utils' },
   { id: 'radio', name: '@mnjs/radio', directory: 'packages/radio' },

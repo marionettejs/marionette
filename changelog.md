@@ -31,7 +31,9 @@ recommended path for building new applications:
 The coordinated packages `marionette`, `@mnjs/utils`, `@mnjs/radio`, `@mnjs/data`,
 and `@mnjs/adapters` move to **5.1.0**. HTML, Router, and the test helpers retain
 their independent versions. Neither HTML nor Router becomes a required core
-dependency.
+dependency. Adapters’ core peer and Data’s nonoptional Utils peer now accept
+`^5.0.1`; core, Utils, and Radio keep their exact shared-runtime alignment. Data
+uses the shared Utils instance rather than installing a private copy.
 
 Existing compatible renderers, data integrations, and host routers remain
 supported. This release introduces no core runtime API changes.

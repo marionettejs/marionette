@@ -7,6 +7,10 @@ separate module graphs and no import-time installation; unused integrations stay
 out of the application bundle. Source is grouped into `data` and `dom`,
 while each integration remains an explicit package subpath.
 
+Adapters 5.1.0 support Marionette `^5.0.1` (5.0.1 through compatible 5.x
+releases), not only an identically numbered core release. The examples below pin
+the current coordinated release for reproducibility.
+
 ## Adapter conventions
 
 - `SomethingApi` is an object implementing an existing runtime contract.
