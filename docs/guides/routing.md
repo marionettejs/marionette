@@ -13,11 +13,8 @@ valid when you do not need a routing package.
 
 Start with the [Router's feature-owned Catalog example](https://github.com/marionettejs/marionette/blob/router-v0.1.0/packages/router/readme.md#build-a-routed-feature-with-applications-and-views)
 and its [complete source](https://github.com/marionettejs/marionette/tree/router-v0.1.0/packages/router/examples/catalog).
-The shipped 0.1.0 example uses optional Lit integration; that is a compatible
-renderer choice, not a Router requirement. For the HTML-first setup in this guide,
-replace its `lit-html` import with `@mnjs/html`, and its
-`@mnjs/adapters/dom/lit-html` adapter with `@mnjs/html/marionette`. Keep the same
-function templates and View event bindings. No Router runtime change is needed.
+The Router has no renderer dependency. Use the [Catalog renderer adaptation](../packages/adapters.md#use-the-router-catalog-with-html)
+for this guide's HTML-first setup; its function templates and View bindings remain unchanged.
 
 Use one browser `Router` and let each `RouteApplication` declare the routes and
 children it owns. A mount selects its registered child before dispatching the
