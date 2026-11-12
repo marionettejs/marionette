@@ -2,10 +2,10 @@ import { JSDOM } from 'jsdom';
 import assert from 'node:assert/strict';
 const dom = new JSDOM('<!doctype html><body><div id="host"></div>', { url: 'http://localhost' });
 for (const name of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver']) globalThis[name] = dom.window[name];
-const { mount, createStore } = await import('./index.mjs');
+const { mount } = await import('./index.mjs');
 const tick = () => new Promise(r => setTimeout(r, 25));
-const store = createStore(); let called = 0; store.subscribe(() => called++); store.notify(); store.notify(); await tick(); assert.equal(called,1); assert.equal(store.getSnapshot(),2); store.notify(); store.destroy(); await tick(); assert.equal(called,1);
-const form = mount({host:document.querySelector('#host'),count:3,classes:{input:n=>({changed:!!n.value})}});
+
+const form = mount({instrument:true,host:document.querySelector('#host'),count:3,classes:{input:n=>({changed:!!n.value})}});
 await tick();
 assert.equal(form.form.el.tagName,'FORM');
 assert.equal(document.querySelectorAll('input').length,3);

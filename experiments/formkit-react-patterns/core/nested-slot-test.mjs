@@ -2,7 +2,7 @@ import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';const dom=ne
 const {mount}=await import('./index.mjs');const tick=()=>new Promise(r=>setTimeout(r,25));const host=document.querySelector('#host');
 const label={$el:'label',attrs:{for:'$id','data-cross-label':'true'},children:"$label + ': ' + $values.contact.first"};
 const fields=[{type:'group',name:'contact',children:[{name:'first',label:'First'},{name:'last',label:'Last',children:{label}}]},{name:'outside',label:'Outside'}];
-const api=mount({host,fields,values:{contact:{first:'Ada',last:'Lovelace'},outside:'outside'}});await tick();
+const api=mount({instrument:true,host,fields,values:{contact:{first:'Ada',last:'Lovelace'},outside:'outside'}});await tick();
 assert.equal(api.node.at('contact').type,'group');assert.equal(host.querySelectorAll('input').length,3);assert.equal(host.querySelector('[data-cross-label]').textContent,'Last: Ada');const last=host.querySelector('[data-cross-label]').control;
 await api.node.at('contact.first').input('Grace');await tick();assert.equal(host.querySelector('[data-cross-label]').textContent,'Last: Grace');assert.equal(host.querySelector('[data-cross-label]').control,last);assert.deepEqual(api.node.value,{contact:{first:'Grace',last:'Lovelace'},outside:'outside'});
 const created=api.metrics.coreNodesCreated;assert.throws(()=>api.setFields([{name:'bad',children:{label:{$cmp:'Anything'}}}]),TypeError);assert.equal(api.metrics.coreNodesCreated,created);assert.ok(api.node.at('contact.first'));

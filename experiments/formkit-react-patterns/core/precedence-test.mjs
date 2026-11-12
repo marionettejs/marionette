@@ -1,7 +1,7 @@
 import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
 const dom=new JSDOM('<body><div id="host"></div>');for(const key of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver'])globalThis[key]=dom.window[key];
 const {mount}=await import('./index.mjs');const tick=()=>new Promise(r=>setTimeout(r,25));
-const instance=mount({host:document.querySelector('#host'),fields:[{name:'x',label:'X',attrs:{placeholder:'initial',id:'bad-initial',class:'bad-initial'}}]});await tick();
+const instance=mount({instrument:true,host:document.querySelector('#host'),fields:[{name:'x',label:'X',attrs:{placeholder:'initial',id:'bad-initial',class:'bad-initial'}}]});await tick();
 const node=instance.node.at('x'),input=document.querySelector('input'),id=input.id,classes=input.className;
 assert.notEqual(id,'bad-initial');assert.notEqual(classes,'bad-initial');
 node.context.attrs.id='bad-update';node.context.attrs.class='bad-update';node.context.attrs.placeholder='updated';node.props.help='notify';await tick();

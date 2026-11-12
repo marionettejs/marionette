@@ -5,7 +5,7 @@ for(const name of ['window','document','Node','Element','HTMLElement','HTMLFormE
 const { mount }=await import('./index.mjs');
 const { createSchemaController }=await import('./schema.mjs');
 const tick=()=>new Promise(r=>setTimeout(r,25));
-const instance=mount({host:document.querySelector('#host'),fields:[{name:'f0',label:'Toggle'}],values:{f0:''}});
+const instance=mount({instrument:true,host:document.querySelector('#host'),fields:[{name:'f0',label:'Toggle'}],values:{f0:''}});
 let calls=0;
 const schema=[{$formkit:'text',name:'f0',label:'Toggle'},{if:"$values.f0 === 'show'",then:{$formkit:'text',name:'extra',label:'Extra'},else:{$formkit:'text',name:'fallback',label:'Fallback'}}];
 const controller=createSchemaController({node:instance.node,schema,onFields:fields=>{calls++;instance.setFields(fields);}});

@@ -5,7 +5,7 @@ import { subscribeReactiveStore } from './upstream-bindings.mjs';
 
 export function renderSections({host,schema,context,metrics,slots={},reuseRoot=false,data={}}) {
   let dead=false,rootUsed=false,removeDom=true;const effects=new Set();
-  const metric=key=>metrics[key]=(metrics[key]??0)+1;
+  const metric=key=>{if(metrics?.enabled)metrics[key]=(metrics[key]??0)+1;};
   function scope(){const disposers=[];return {add:fn=>disposers.push(fn),destroy(){for(const fn of disposers.splice(0).reverse())fn();}};}
   const root=scope();
   function read(path,locals){let object=locals,parts=path.split('.');if(!(parts[0] in locals))object=parts[0] in data?data:context;for(const part of parts){if(object==null)return undefined;object=object[part];}return object;}
@@ -19,7 +19,7 @@ export function renderSections({host,schema,context,metrics,slots={},reuseRoot=f
     const fn=compile(value).provide(required=>{tokens=required;return Object.fromEntries(required.map(token=>[token,()=>read(token,locals)]));});
     const effect=(force=false)=>{if(dead)return;const next=tokens.map(token=>{metric('tokenChecks');return snapshot(read(token,locals));});
       if(dead)return;
-      if(!force&&initialized&&next.every((v,i)=>equal(v,last[i])))return;last=next;initialized=true;metric('expressionEvaluations');apply(fn());};
+      if(!force&&initialized&&next.every((v,i)=>typeof v!=='function'&&equal(v,last[i])))return;last=next;initialized=true;metric('expressionEvaluations');apply(fn());};
     effects.add(effect);owner.add(()=>effects.delete(effect));effect(true);
   }
   function range(parent,before,owner){const start=document.createComment('section'),end=document.createComment('/section');parent.insertBefore(start,before);parent.insertBefore(end,before);owner.add(()=>{if(!removeDom)return;let n=start;while(n){const next=n.nextSibling;n.remove();if(n===end)break;n=next;}});return {start,end};}
@@ -39,6 +39,7 @@ export function renderSections({host,schema,context,metrics,slots={},reuseRoot=f
     function attr(name,value){if(name==='key')return;if(/^on[A-Z]/.test(name)){const event=name.slice(2).toLowerCase();const previous=listeners.get(event);if(previous===value)return;if(previous)element.removeEventListener(event,previous);if(typeof value==='function'){element.addEventListener(event,value);listeners.set(event,value);}else listeners.delete(event);return;}
       if(name==='innerHTML'){if(value)throw new TypeError('Raw icon HTML outside supported text slice');return;}
       if(name==='value'){const next=String(value??'');if(element.value!==next){element.value=next;metric('domWrites');}return;}
+      if(name==='selected'){const next=!!value;if(element.selected!==next){element.selected=next;metric('domWrites');}return;}
       if(name==='checked'){const next=!!value;if(element.checked!==next){element.checked=next;metric('domWrites');}return;}
       if(name==='disabled'){const next=!!value&&value!=='false';if(element.disabled!==next){element.disabled=next;metric('domWrites');}return;}
       if(value===undefined||value===null||value===false){if(element.hasAttribute(name)){element.removeAttribute(name);metric('domWrites');}}else{const next=String(value);if(element.getAttribute(name)!==next){element.setAttribute(name,next);metric('domWrites');}}
@@ -57,5 +58,5 @@ export function renderSections({host,schema,context,metrics,slots={},reuseRoot=f
   }
   try{draw(schema,host,null,{},root);}catch(error){dead=true;root.destroy();effects.clear();throw error;}
   const unsubscribe=subscribeReactiveStore(context,()=>{if(dead)return;metric('contextNotifications');for(const effect of [...effects])if(effects.has(effect))effect();});
-  return {refresh(){for(const effect of [...effects])if(effects.has(effect))effect(true);},destroy(remove=true){if(dead)return;removeDom=remove;dead=true;unsubscribe();root.destroy();effects.clear();}};
+  return {update(){for(const effect of [...effects])if(effects.has(effect))effect();},refresh(){for(const effect of [...effects])if(effects.has(effect))effect(true);},destroy(remove=true){if(dead)return;removeDom=remove;dead=true;unsubscribe();root.destroy();effects.clear();}};
 }

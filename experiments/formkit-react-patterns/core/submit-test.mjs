@@ -6,7 +6,7 @@ for(const name of ['window','document','Node','Element','HTMLElement','HTMLFormE
 const { mount }=await import('./index.mjs');
 const tick=()=>new Promise(r=>setTimeout(r,25));
 let invalid=0,raw=0,submitted=[];
-const instance=mount({host:document.querySelector('#host'),count:1,values:{field0:''},onSubmitInvalid:()=>invalid++,onSubmitRaw:()=>raw++,onSubmit:value=>{submitted.push(value);value.field0='mutated callback copy';}});
+const instance=mount({instrument:true,host:document.querySelector('#host'),count:1,values:{field0:''},onSubmitInvalid:()=>invalid++,onSubmitRaw:()=>raw++,onSubmit:value=>{submitted.push(value);value.field0='mutated callback copy';}});
 assert.deepEqual(instance.node.props.definition.features,inputs.form.features); assert.equal(instance.node.props.isForm,true); assert.deepEqual(instance.node.children[0].props.definition.features,inputs.text.features);
 await tick();await instance.submit();await tick();assert.equal(raw,1);assert.equal(invalid,1);assert.equal(submitted.length,0);assert.equal(instance.node.store.submitted.value,true);assert.ok(instance.form.formMessages.textContent.length>0);
 await instance.node.at('field0').input('valid');await tick();await instance.submit();assert.equal(raw,2);assert.equal(invalid,1);assert.equal(submitted.length,1);assert.equal(instance.node.value.field0,'valid');

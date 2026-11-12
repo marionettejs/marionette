@@ -1,5 +1,6 @@
 // Experimental slice. React 2.5.0 store/class-cache patterns adapted under MIT;
 // see LICENSE.formkit. DOM renderer and Marionette ownership are new code.
+import { installValueFacade } from './value-facade.mjs';
 import { View, Region } from 'marionette';
 import { createNode, compile, reset } from '@formkit/core';
 import { createLibraryPlugin, inputs } from '@formkit/inputs';
@@ -9,18 +10,6 @@ import { renderSections } from './section-renderer.mjs';
 import { createValidationPlugin } from '@formkit/validation';
 import * as rules from '@formkit/rules';
 import { createI18nPlugin, en } from '@formkit/i18n';
-
-export function createStore() {
-  let version = 0, pending = false, dead = false;
-  const subscribers = new Set();
-  return {
-    getSnapshot: () => version,
-    subscribe(fn) { if (dead) return () => {}; subscribers.add(fn); return () => subscribers.delete(fn); },
-    notify() { if (dead) return; version++; if (pending) return; pending = true;
-      queueMicrotask(() => { pending = false; for (const fn of [...subscribers]) { if (dead) break; if (subscribers.has(fn)) fn(); } }); },
-    destroy() { dead = true; subscribers.clear(); }
-  };
-}
 
 function validateSlot(schema) {
   if(Array.isArray(schema)){schema.forEach(validateSlot);return;}
@@ -35,7 +24,13 @@ function validateSlot(schema) {
 function validateFields(specs) {
   if(!Array.isArray(specs))throw new TypeError('Fields must be an array');
   const names=new Set();
-  for(const spec of specs){const type=spec.type??'text';if(!['text','checkbox','group'].includes(type))throw new TypeError('Only text/single checkbox/group supported');if(!spec.name||names.has(spec.name))throw new TypeError('Unique sibling names required');names.add(spec.name);
+  for(const spec of specs){const type=spec.type??'text';if(!['text','textarea','checkbox','select','group'].includes(type))throw new TypeError('Only text/textarea/single checkbox/single select/group supported');if(!spec.name||names.has(spec.name))throw new TypeError('Unique sibling names required');names.add(spec.name);
+    if(type==='select'){
+      if(spec.multiple!==undefined||spec.attrs?.multiple!==undefined||spec.optionsLoader!==undefined)throw new TypeError('Multiple/async select unsupported');
+      if(!spec.options||typeof spec.options!=='object')throw new TypeError('Select requires synchronous flat options');
+      if(Array.isArray(spec.options))for(const option of spec.options){if(option==null||!['string','number','object'].includes(typeof option)||typeof option==='object'&&('group'in option||'options'in option||!('value'in option)||!('label'in option)))throw new TypeError('Only flat select options supported');}
+      if(spec.children)throw new TypeError('Custom select slots unsupported');
+    }
     if(type==='checkbox'){if(spec.options!==undefined)throw new TypeError('Checkbox options are unsupported');for(const key of ['onValue','offValue'])if(spec[key]!==undefined&&spec[key]!==null&&!['string','number','boolean'].includes(typeof spec[key]))throw new TypeError('Checkbox values must be scalar');}
     if(type==='group')validateFields(spec.children??[]);
     else if(spec.children){if(Array.isArray(spec.children)||typeof spec.children!=='object')throw new TypeError('Text children must be named schema slots');for(const key of Object.keys(spec.children)){if(!['label','help'].includes(key))throw new TypeError('Only label/help schema slots supported');validateSlot(spec.children[key]);}}
@@ -50,7 +45,7 @@ function createField(node,spec,view,initial) {
     const update=schema=>{
       const nextHost=document.createElement('span');nextHost.dataset.experimentSlot=name;
       const nextObserver=createObserver(view.node),data={get values(){return nextObserver.value;}};let nextRenderer;
-      try{nextRenderer=renderSections({host:nextHost,schema,context,metrics:view.metrics,data});nextObserver.watch(()=>nextRenderer.refresh());}
+      try{nextRenderer=renderSections({host:nextHost,schema,context,metrics:view.metrics,data});nextObserver.watch(()=>nextRenderer.update());}
       catch(error){nextObserver.kill();nextRenderer?.destroy();throw error;}
       if(host){observer.kill();active.destroy();host.replaceWith(nextHost);}else parent.insertBefore(nextHost,before);
       host=nextHost;active=nextRenderer;observer=nextObserver;
@@ -66,29 +61,29 @@ function createField(node,spec,view,initial) {
       for(const[name,slot]of slotControllers)if(name in nextSlots&&nextSlots[name]!==currentSlots[name])slot.update(nextSlots[name]);
       currentSlots=nextSlots;node.context.slots=Object.fromEntries(Object.keys(currentSlots).map(name=>[name,true]));renderer.refresh();
       }
+      if(node.props.type==='textarea'&&next.attrs!==field.spec.attrs)node.props.attrs=next.attrs??{};
+      if(node.props.type==='select'&&next.options!==field.spec.options)node.props.options=next.options;
       if(node.props.type==='checkbox'){node.props.onValue=next.onValue===undefined?true:next.onValue;node.props.offValue=next.offValue===undefined?false:next.offValue;}
       for(const key of ['label','help','disabled','validation','validationVisibility'])node.props[key]=next[key]??(key==='validationVisibility'?'live':undefined);
     }
     field.spec=next;
-  },disposeView(remove=true){if(dead)return;dead=true;renderer?.destroy(remove);for(const slot of slotControllers.values())slot.destroy(remove);for(const child of children.values())child.disposeView(remove);if(remove)el.remove();},disposeNodes(){for(const child of children.values())child.disposeNodes();children.clear();node.destroy();},destroy(){if(dead)return;field.disposeView();field.disposeNodes();}};
+  },disposeView(remove=true){if(dead)return;dead=true;renderer?.destroy(remove);for(const slot of slotControllers.values())slot.destroy(remove);for(const child of children.values())child.disposeView(remove);if(remove)el.remove();},disposeNodes(parentFirst=false){if(parentFirst)node.destroy();for(const child of children.values())child.disposeNodes(parentFirst);children.clear();if(!parentFirst)node.destroy();},destroy(){if(dead)return;field.disposeView();field.disposeNodes();}};
   try{renderer=renderSections({host:el,schema:node.props.definition.schema({}),context:node.context,metrics:view.metrics,slots});field.update(spec);return field;}
   catch(error){field.destroy();throw error;}
 }
 
 function reconcile(view,parent,map,specs,anchor,initial) {
   for(const spec of specs)if(map.has(spec.name)&&map.get(spec.name).node.props.type!==(spec.type??'text'))throw new TypeError('Changing an existing field type is unsupported');
-  const staged=new Map();
-  try{for(const spec of specs){if(view._ending)break;if(map.has(spec.name))continue;const type=spec.type??'text',value=Object.hasOwn(initial??{},spec.name)?initial[spec.name]:spec.value;const {children,...props}=spec;
-    const node=createNode({parent,name:spec.name,value,props:{...props,type,attrs:spec.attrs??{},id:`experiment-${view.cid}-${++view._fieldId}`,__slots:type==='group'?{default:true}:Object.fromEntries(Object.keys(children??{}).map(name=>[name,true])),validation:spec.validation,validationVisibility:spec.validationVisibility??'live'}});
-    staged.set(spec.name,createField(node,spec,view,value));
-  }}catch(error){for(const field of staged.values())field.destroy();throw error;}
-  if(view._ending){for(const field of staged.values())field.destroy();return;}
-  try{
-  for(const[name,field]of map)if(!specs.some(spec=>spec.name===name)){field.destroy();map.delete(name);}
-  for(const spec of specs){if(view._ending)break;let field=map.get(spec.name);if(!field){field=staged.get(spec.name);map.set(spec.name,field);staged.delete(spec.name);}else field.update(spec);
-    if(view._ending)break;
+  for(const spec of specs)if(map.get(spec.name)?.node.props.type==='select'&&map.get(spec.name).spec.placeholder!==spec.placeholder)throw new TypeError('Live placeholder changes are not yet supported');
+  const names=new Set(specs.map(spec=>spec.name));
+  for(const[name,field]of map)if(!names.has(name)){field.destroy();map.delete(name);}
+  for(const spec of specs){
+    let field=map.get(spec.name);
+    if(!field){const type=spec.type??'text',value=Object.hasOwn(initial??{},spec.name)?initial[spec.name]:spec.value;const {children,...props}=spec;
+      const node=createNode({parent,name:spec.name,value,props:{...props,type,attrs:spec.attrs??{},id:`experiment-${view.cid}-${++view._fieldId}`,__slots:type==='group'?{default:true}:Object.fromEntries(Object.keys(children??{}).map(name=>[name,true])),validation:spec.validation,validationVisibility:spec.validationVisibility??'live'}});
+      field=createField(node,spec,view,value);map.set(spec.name,field);
+    }else field.update(spec);
   }
-  if(!view._ending){
     const elements=specs.map(spec=>map.get(spec.name).el);
     const active=anchor.ownerDocument.activeElement;
     const pivot=elements.findIndex(element=>element.contains(active));
@@ -97,39 +92,38 @@ function reconcile(view,parent,map,specs,anchor,initial) {
     // Keep that retained subtree attached; move only its siblings around it.
     if(pivot<0)place(0,elements.length-1,anchor);
     else{place(pivot+1,elements.length-1,anchor);place(0,pivot-1,elements[pivot]);}
-  }
-  }finally{for(const field of staged.values())field.destroy();}
 }
+
 
 export class ExperimentalFormView extends View {
   get tagName() { return 'form'; }
   get template() { return false; }
   initialize(options = {}) {
-    this.metrics = { contextNotifications:0,tokenChecks:0,expressionEvaluations:0,domWrites:0,structuralChanges:0,coreNodesCreated:0,coreNodesDestroyed:0,coreInputEvents:0,coreCommitEvents:0,coreMessageEvents:0,classRootEvaluations:0 };
+    this.metrics = { enabled:options.instrument===true, contextNotifications:0,tokenChecks:0,expressionEvaluations:0,domWrites:0,structuralChanges:0,coreNodesCreated:0,coreNodesDestroyed:0,coreInputEvents:0,coreCommitEvents:0,coreMessageEvents:0,classRootEvaluations:0 };
     this._fieldId = 0; this._ending = false;
     this.config = { delay: 0, locale: 'en', rootClasses: section => ({[`formkit-${section}`]:true}), ...options.config, classes: options.classes ?? options.config?.classes };
     const rootClasses=this.config.rootClasses;
-    this.config.rootClasses=(section,node)=>{this.metrics.classRootEvaluations++;return rootClasses(section,node);};
+    if(this.metrics.enabled)this.config.rootClasses=(section,node)=>{this.metrics.classRootEvaluations++;return rootClasses(section,node);};
     const countCore=node=>{this.metrics.coreNodesCreated++;for(const[event,key]of [['input','coreInputEvents'],['commit','coreCommitEvents'],['message-added','coreMessageEvents'],['message-updated','coreMessageEvents'],['message-removed','coreMessageEvents'],['destroyed','coreNodesDestroyed']])node.on(event,()=>this.metrics[key]++);};
     this.fields = new Map(); this.initialValues = structuredClone(options.values ?? {});
     this.node = createNode({ name: 'form', value: this.initialValues, config: this.config,
       props: { ...options.formProps, type: 'form', attrs: options.formProps?.attrs ?? {}, id: `experiment-form-${this.cid}`, __slots: {default:true}, actions: false, onSubmit: options.onSubmit ?? (()=>{}), onSubmitInvalid: options.onSubmitInvalid, onSubmitRaw: options.onSubmitRaw },
-      plugins: [countCore, createLibraryPlugin(inputs), bindings, createValidationPlugin(rules), createI18nPlugin({ en })] });
+      plugins: [...(this.metrics.enabled?[countCore]:[]), createLibraryPlugin(inputs), node=>{if(node.props.type==='select')node.props.options=node.props.options;}, bindings, createValidationPlugin(rules), createI18nPlugin({ en })] });
+    this._disposeFacade=installValueFacade(this);
     const submitHandler=this.node.context.handlers.submit;
     this._onSubmit = event => { this.lastSubmission = submitHandler(event); };
     this.node.context.handlers.submit=this._onSubmit;
     this._rootRenderer=renderSections({host:this.el,schema:this.node.props.definition.schema({}),context:this.node.context,metrics:this.metrics,reuseRoot:true,
       slots:{default:({parent,before})=>{this._fieldAnchor=document.createComment('fields');parent.insertBefore(this._fieldAnchor,before);return(remove=true)=>{if(remove)this._fieldAnchor.remove();};}}});
     this.specs = options.fields ?? Array.from({ length: options.count ?? 1 }, (_, i) => ({ name: `field${i}`, label: `Field ${i}`, validation: 'required' }));
-    this.on('before:destroy', () => { this._ending = true; this._rootRenderer.destroy(false); for (const field of this.fields.values()) field.disposeView(false); for (const field of this.fields.values()) field.disposeNodes(); this.fields.clear(); this.node.destroy(); this.el.replaceChildren(); });
+    this.on('before:destroy', () => { this._ending = true; this._disposeFacade(); this._rootRenderer.destroy(false); for (const field of this.fields.values()) field.disposeView(false); this.node.destroy(); for (const field of this.fields.values()) field.disposeNodes(true); this.fields.clear(); this.el.replaceChildren(); });
   }
   render() {
     if (this.isDestroyed()) return this;
     this.triggerMethod('before:render', this);
-    if (this._ending || this.isDestroyed()) return this;
     this.node.context.refreshClasses();this._rootRenderer.refresh();
-    if (this._ending || this.isDestroyed()) return this;
-    this.setFields(this.specs); for (const field of this.fields.values()) { field.refresh(); if (this._ending || this.isDestroyed()) return this; }
+    if(!this._isRendered)this.setFields(this.specs);
+    for (const field of this.fields.values()) field.refresh();
     this._isRendered = true; this.triggerMethod('render', this); return this;
   }
   setFields(specs) {
@@ -145,8 +139,8 @@ export class ExperimentalFormView extends View {
   }
 }
 
-export function mount({ host, count = 1, fields, values = {}, classes, config, onSubmit, onSubmitInvalid, onSubmitRaw, formProps } = {}) {
+export function mount({ instrument=false, host, count = 1, fields, values = {}, classes, config, onSubmit, onSubmitInvalid, onSubmitRaw, formProps } = {}) {
   const region = new Region({ el: host });
-  const form = new ExperimentalFormView({ count, fields, values, classes, config, onSubmit, onSubmitInvalid, onSubmitRaw, formProps }); region.show(form);
+  const form = new ExperimentalFormView({ instrument, count, fields, values, classes, config, onSubmit, onSubmitInvalid, onSubmitRaw, formProps }); region.show(form);
   return { form, node: form.node, metrics: form.metrics, setFields: specs => form.setFields(specs), reset: () => form.resetForm(), submit: () => form.submit(), destroy: () => region.destroy() };
 }
