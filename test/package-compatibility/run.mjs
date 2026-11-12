@@ -89,10 +89,17 @@ collection.add(model);
     npm(['ls', '--all'], consumer); // Reject unresolved/invalid peers rather than masking them with legacy-peer-deps.
     cpSync(join(root, 'test/fixtures/data-package-esm/validate.mjs'), join(consumer, 'data.mjs'));
     cpSync(join(root, 'test/fixtures/data-package-cjs/validate.cjs'), join(consumer, 'data.cjs'));
-    cpSync(join(root, 'test/fixtures/backbone-adapter'), join(consumer, 'backbone'), { recursive: true });
+    // This consumer deliberately installs every adapter peer. Reuse the real
+    // interop probes, not the standalone fixture's absent-peer isolation wrapper.
+    const backboneProbes = ['validate-esm-backbone-first.mjs', 'validate-esm-adapter-first.mjs',
+      'validate-cjs-backbone-first.cjs', 'validate-cjs-adapter-first.cjs'];
+    mkdirSync(join(consumer, 'backbone'));
+    for (const file of ['assert-adapter.cjs', ...backboneProbes]) {
+      cpSync(join(root, 'test/fixtures/backbone-adapter', file), join(consumer, 'backbone', file));
+    }
     cpSync(join(root, 'test/fixtures/dom-adapters-package/integration.mjs'), join(consumer, 'integration.mjs'));
     cpSync(join(import.meta.dirname, 'runtime.mjs'), join(consumer, 'runtime.mjs'));
-    for (const file of ['data.mjs', 'data.cjs', 'backbone/validate.mjs']) {
+    for (const file of ['data.mjs', 'data.cjs', ...backboneProbes.map(probe => `backbone/${probe}`)]) {
       execFileSync(process.execPath, [file], { cwd: consumer, stdio: 'inherit', timeout: 120000 });
     }
     for (const format of ['esm', 'cjs']) {

@@ -20,7 +20,7 @@ Install only the optional tools your tests use. Component tests can stay in
 Cypress; the helper does not require a second runner.
 
 The helper is separately versioned: these examples use Marionette 5.1.0 with
-`@mnjs/test` 1.0.0. A coordinated runtime patch does not require a helper release.
+`@mnjs/test` 1.0.0. A compatible runtime update does not require a helper release.
 Version 1.0 retains the 0.2.1 APIs and ownership behavior, including non-restoring
 scoped replies; no migration from 0.2.1 is required.
 

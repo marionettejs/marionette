@@ -167,9 +167,9 @@ for (const [name, mutate, error] of [
   ['data utils exact peer', (id, manifest) => { if (id === 'data') { manifest.peerDependencies['@mnjs/utils'] = manifest.version; } }, /nonoptional Utils peer/],
   ['data utils unsupported floor', (id, manifest) => { if (id === 'data') { manifest.peerDependencies['@mnjs/utils'] = '^5.0.0'; } }, /nonoptional Utils peer/],
   ['data utils optional peer', (id, manifest) => { if (id === 'data') { manifest.peerDependenciesMeta = { '@mnjs/utils': { optional: true } }; } }, /nonoptional Utils peer/],
-  ['adapter core optional peer', (id, manifest) => { if (id === 'adapters') { manifest.peerDependenciesMeta = { marionette: { optional: true } }; } }, /Marionette peer.*does not match/],
-  ['adapter core exact pin', (id, manifest) => { if (id === 'adapters') { manifest.peerDependencies.marionette = manifest.version; } }, /Marionette peer.*does not match \^5\.0\.1/],
-  ['adapter core unsupported major', (id, manifest) => { if (id === 'adapters') { manifest.peerDependencies.marionette = '>=5.0.1'; } }, /Marionette peer.*does not match \^5\.0\.1/],
+  ['adapter core optional peer', (id, manifest) => { if (id === 'adapters') { manifest.peerDependenciesMeta = { marionette: { optional: true } }; } }, /Marionette peer.*\(optional\).*must be a nonoptional/],
+  ['adapter core exact pin', (id, manifest) => { if (id === 'adapters') { manifest.peerDependencies.marionette = manifest.version; } }, /Marionette peer.*must be a nonoptional \^5\.0\.1/],
+  ['adapter core unsupported major', (id, manifest) => { if (id === 'adapters') { manifest.peerDependencies.marionette = '>=5.0.1'; } }, /Marionette peer.*must be a nonoptional \^5\.0\.1/],
   ['adapter peer skew', (id, manifest) => { if (id === 'adapters') { delete manifest.peerDependencies; } }, /Marionette peer missing/],
 ]) {
   test(`artifact construction rejects ${name}`, async t => {

@@ -4,6 +4,7 @@ import { relative, resolve } from 'node:path';
 import { JSDOM } from 'jsdom';
 import { rollup } from 'rollup';
 import compile from '../../build/babel.js';
+import { optionalPackagePeerRange } from '../../scripts/release/packages.mjs';
 
 import './public-source.mjs';
 
@@ -102,7 +103,7 @@ assert.equal(Object.hasOwn(packageJson.peerDependencies || {}, 'jquery'), false)
 assert.equal(Object.hasOwn(packageJson.dependencies || {}, 'jquery'), false);
 assert.equal(Marionette.VERSION, packageJson.version);
 assert.equal(adaptersPackageJson.version, packageJson.version);
-assert.equal(adaptersPackageJson.peerDependencies.marionette, packageJson.version);
+assert.equal(adaptersPackageJson.peerDependencies.marionette, optionalPackagePeerRange);
 assert.deepEqual(nonDeclarativeConfigFiles, []);
 
 // This static architecture check inspects the build graph. It does not invoke

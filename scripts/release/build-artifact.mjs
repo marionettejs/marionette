@@ -141,7 +141,7 @@ for (const configuration of releasePackages) {
   }
   if (configuration.id === 'adapters' && (manifest.peerDependencies?.marionette !== optionalPackagePeerRange ||
       manifest.peerDependenciesMeta?.marionette?.optional)) {
-    throw new Error(`${manifest.name} Marionette peer ${manifest.peerDependencies?.marionette || 'missing'} does not match ${optionalPackagePeerRange}.`);
+    throw new Error(`${manifest.name} Marionette peer ${manifest.peerDependencies?.marionette || 'missing'}${manifest.peerDependenciesMeta?.marionette?.optional ? ' (optional)' : ''} must be a nonoptional ${optionalPackagePeerRange} peer.`);
   }
 
   const packedManifest = configuration.id === 'core' ?
