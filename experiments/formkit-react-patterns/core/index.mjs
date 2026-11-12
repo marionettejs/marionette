@@ -3,18 +3,11 @@
 import { View, Region } from 'marionette';
 import { createNode, createClasses, generateClassList, reset } from '@formkit/core';
 import { createLibraryPlugin, inputs } from '@formkit/inputs';
-import { createObserver } from '@formkit/observer';
+import { bindings } from './upstream-bindings.mjs';
+import { renderSections } from './section-renderer.mjs';
 import { createValidationPlugin } from '@formkit/validation';
 import * as rules from '@formkit/rules';
 import { createI18nPlugin, en } from '@formkit/i18n';
-
-// Deliberately minimal feature context, not React's complete context plugin.
-function featureContext(node) {
-  node.ledger.count('blocking', message => message.blocking);
-  node.ledger.count('errors', message => message.type === 'error');
-  node.context = { node, handlers: {}, fns: {}, state: {} };
-  node.on('destroyed', () => { node.context = undefined; });
-}
 
 export function createStore() {
   let version = 0, pending = false, dead = false;
@@ -29,51 +22,19 @@ export function createStore() {
 }
 
 function createField(node, spec, config, metrics) {
-  const store = createStore(), observers = [], receipts = [], cache = new Map();
-  let dead = false;
-  const el = document.createElement('div');
-  const label = document.createElement('label'), input = document.createElement('input'), messages = document.createElement('ul');
-  input.type = 'text'; input.id = String(node.props.id); input.name = String(node.name);
-  label.htmlFor = input.id; el.append(label, input, messages);
-  function section(name) {
-    if (!cache.has(name)) {
-      cache.set(name, '');
-      const observed = createObserver(node); observers.push(observed);
-      observed.watch(n => {
-        metrics.classEvaluations++;
-        return generateClassList(n, name,
-          { [`formkit-${name}`]: true },
-          createClasses(name, n, config.classes?.[name]),
-          createClasses(name, n, n.props[`${name}Class`])) ?? '';
-      }, value => { cache.set(name, value); store.notify(); });
-    }
-    return cache.get(name);
-  }
-  function paint() {
-    if (dead) return; metrics.paints++;
-    el.className = section('outer'); label.className = section('label'); input.className = section('input'); messages.className = section('messages');
-    label.textContent = node.props.label ?? String(node.name);
-    if (input.value !== String(node._value ?? '')) input.value = String(node._value ?? '');
-    input.disabled = !!node.props.disabled;
-    const visible = node.store.reduce((all, m) => { if (m.visible && (m.type === 'validation' || m.type === 'error')) all.push(m); return all; }, []);
-    messages.replaceChildren(...visible.map(m => { const li = document.createElement('li'); li.id = `${input.id}-${m.key}`; li.textContent = String(m.value); li.className = section('message'); return li; }));
-    if (visible.length) { input.setAttribute('aria-describedby', visible.map(m => `${input.id}-${m.key}`).join(' ')); input.setAttribute('aria-invalid', 'true'); }
-    else { input.removeAttribute('aria-describedby'); input.removeAttribute('aria-invalid'); }
-  }
-  const onInput = () => node.input(input.value);
-  input.addEventListener('input', onInput);
-  for (const event of ['input', 'commit', 'message-added', 'message-updated', 'message-removed', 'prop:label', 'prop:disabled']) receipts.push(node.on(event, () => store.notify()));
-  store.subscribe(paint); paint();
-  return { el, node, spec, refresh() { for (const observer of observers) observer.kill(); observers.length = 0; cache.clear(); paint(); }, destroy() { if (dead) return; dead = true; store.destroy(); input.removeEventListener('input', onInput); for (const receipt of receipts) node.off(receipt); for (const observer of observers) observer.kill(); node.destroy(); el.remove(); } };
+  const el=document.createElement('div'); el.dataset.experimentField=String(node.name);
+  const renderer=renderSections({host:el,schema:node.props.definition.schema({}),context:node.context,metrics});
+  let dead=false;
+  return {el,node,spec,refresh(){node.context.refreshClasses();renderer.refresh();},destroy(){if(dead)return;dead=true;renderer.destroy();node.destroy();el.remove();}};
 }
 
 export class ExperimentalFormView extends View {
   get tagName() { return 'form'; }
   get template() { return false; }
   initialize(options = {}) {
-    this.metrics = { paints: 0, classEvaluations: 0 };
+    this.metrics = { contextNotifications:0,tokenChecks:0,expressionEvaluations:0,domWrites:0,structuralChanges:0 };
     this._fieldId = 0; this._ending = false;
-    this.config = { delay: 0, locale: 'en', ...options.config, classes: options.classes ?? options.config?.classes };
+    this.config = { delay: 0, locale: 'en', rootClasses: section => ({[`formkit-${section}`]:true}), ...options.config, classes: options.classes ?? options.config?.classes };
     this.fields = new Map(); this.initialValues = structuredClone(options.values ?? {});
     const terminalSubmission = Symbol('terminal submission');
     const wrapSubmitCallback = (callback, awaitResult = false) => (...args) => {
@@ -87,7 +48,7 @@ export class ExperimentalFormView extends View {
     };
     this.node = createNode({ name: 'form', value: this.initialValues, config: this.config,
       props: { ...options.formProps, type: 'form', actions: false, onSubmit: wrapSubmitCallback(options.onSubmit, true), onSubmitInvalid: wrapSubmitCallback(options.onSubmitInvalid), onSubmitRaw: wrapSubmitCallback(options.onSubmitRaw) },
-      plugins: [createLibraryPlugin(inputs), featureContext, createValidationPlugin(rules), createI18nPlugin({ en })] });
+      plugins: [createLibraryPlugin(inputs), bindings, createValidationPlugin(rules), createI18nPlugin({ en })] });
     this.formMessages = document.createElement('ul'); this.formMessages.className = 'formkit-messages';
     this._formStore = createStore(); this._formStore.subscribe(() => {
       this.formMessages.replaceChildren(...this.node.store.reduce((all, message) => {
@@ -115,9 +76,9 @@ export class ExperimentalFormView extends View {
     for (const spec of specs) {
       let field = this.fields.get(spec.name);
       if (!field) {
-        const node = createNode({ parent: this.node, name: spec.name, type: 'input', value: this.initialValues[spec.name] ?? '', props: { type: 'text', id: `experiment-${this.cid}-${++this._fieldId}`, label: spec.label, validation: spec.validation ?? 'required', validationVisibility: 'live', disabled: spec.disabled } });
+        const node = createNode({ parent: this.node, name: spec.name, type: 'input', value: this.initialValues[spec.name] ?? '', props: { ...spec, type: 'text', attrs: spec.attrs ?? {}, id: `experiment-${this.cid}-${++this._fieldId}`, label: spec.label, validation: spec.validation ?? 'required', validationVisibility: spec.validationVisibility ?? 'live', disabled: spec.disabled } });
         field = createField(node, spec, this.config, this.metrics); this.fields.set(spec.name, field);
-      } else { field.node.props.label = spec.label; field.node.props.disabled = spec.disabled; field.node.props.validation = spec.validation ?? 'required'; }
+      } else { for(const key of ['label','help','disabled']) field.node.props[key] = spec[key]; field.node.props.validation = spec.validation ?? 'required'; field.node.props.validationVisibility = spec.validationVisibility ?? 'live'; }
       this.el.append(field.el);
     }
     this.el.append(this.formMessages);

@@ -1,0 +1,1 @@
+{"arm":"experiment","count":20,"status":"PASS","checks":["mount count/value","required messages/classes/label/error associations","six input-event bindings","focus/control identity","external input","reset","add/remove field","destroy"],"limits":["JSDOM only; no layout, genuine keyboard, paint or timing evidence","Full accessibility and cleanup leak checks still pending"]}

@@ -1,0 +1,18 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+'' !== 'Example'
+
+    at file://[experiment-root]/harness/context-check.mjs:15:8 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: '',
+  expected: 'Example',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.1

@@ -1,0 +1,1 @@
+{"arm":"vue","status":"PASS","checks":["official help/description association","blur visibility/context","dirty state and cleared validation","reset dirty","destroy"],"limits":["JSDOM only; no full context/prop parity"]}

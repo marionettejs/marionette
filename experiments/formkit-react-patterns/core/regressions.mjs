@@ -8,8 +8,8 @@ const one=mount({host:document.querySelector('#one'),count:2}),two=mount({host:d
 await tick();
 const ids=[...document.querySelectorAll('[id]')].map(el=>el.id); assert.equal(new Set(ids).size,ids.length);
 for (const input of document.querySelectorAll('input')) {
- const label=input.parentElement.querySelector('label'); assert.equal(label.control,input);
- for(const id of input.getAttribute('aria-describedby').split(' ')) assert.ok(input.parentElement.contains(document.getElementById(id)));
+ const label=input.closest('[data-experiment-field]').querySelector('label'); assert.equal(label.control,input);
+ for(const id of input.getAttribute('aria-describedby').split(' ')) assert.ok(input.closest('[data-experiment-field]').contains(document.getElementById(id)));
 }
 one.destroy(); one.setFields([{name:'late',label:'Late'}]); await tick();
 assert.equal(one.form.fields.size,0); assert.equal(one.node.children.length,0); assert.equal(one.form.el.querySelectorAll('input').length,0);

@@ -1,31 +1,31 @@
-# React-pattern experiment: intentionally narrow core
+# Isolated React-pattern FormKit experiment
 
-This is a private experiment, not `@mnjs/formkit`, a complete schema renderer, or an upstream parity claim. It does not modify the current adapter.
+This is an unpublished experimental adapter, not a replacement for the current `@mnjs/formkit` work. Prior small hand-built renderer checkpoints remain in `checkpoints/`.
 
-## Interface
+## Current architecture
 
-`mount({host, count, fields, values, classes, config, formProps, onSubmit, onSubmitInvalid, onSubmitRaw})` returns `{form,node,metrics,setFields,reset,submit,destroy}`. `submit()` dispatches a real cancelable DOM form submit and returns its feature-handler promise. The default onSubmit is a no-op to prevent accidental native page submission in this experiment. `form` is an actual Marionette View mounted through a Region. `node` is a FormKit Core node defined by the official inputs-library `form` definition, with official `text` child definitions and validation/rules/English i18n plugins. The library form feature installs its real submit handler, blocking validation, callbacks and reset state. A deliberately minimal feature context supplies handlers and blocking/error ledgers; it is not the full React context plugin. Fields are flat text declarations `{name,label,validation,disabled}`. Default names are `field0` through `fieldN-1`.
+- `upstream-bindings.mjs` extracts the complete published React2.5.0 reactive store and bindings context, with the React hook removed. This includes upstream handlers, state, messages, validity/visibility, props, class observer caching and lazy aggregate snapshots. There is no React runtime import. `node core/extract-bindings.mjs` verifies byte-for-byte reproduction from the locked published module plus explicit adaptations.
+- Adaptations are observer ownership cleanup, explicit class-cache refresh, terminal context guards, and membership-checked store dispatch. MIT copyright/license retained in `LICENSE.formkit`.
+- `section-renderer.mjs` renders the actual official `inputs.text` definition's generated section schema. It does not substitute a hard-coded input. Wrapper, inner, label, input, help and message-loop structure comes from that schema. Each expression uses official `compile/provide`, tracks its token values and patches its own DOM binding. Context bag entries are compared shallowly for in-place changes when notified.
+- Context notifications still scan that field's registered bindings. This is not property-level subscription dispatch or constant total work. Counters distinguish context notifications, token checks, expression evaluations, DOM writes and structural changes. They exclude uninstrumented Core, snapshot and observer work.
+- `index.mjs` provides real Marionette View/Region ownership and official FormKit library form/text features. The root form shell and incomplete-message list remain adapter-owned, not a complete rendering of the form definition's schema. Each text definition has an extra adapter-owned field host around its actual section tree.
 
-## Update contract
+## Interface and contract
 
-Input, commit, message and supported prop notifications schedule a local field paint through a microtask-batched versioned store. Section classes use official `createObserver` reads and `createClasses`/`generateClassList`; only notified dependencies invalidate those caches. Silent closure mutation does not itself notify. `form.render()` explicitly rebuilds class observers and repaints retained controls, without replacing their input DOM nodes. This is an experiment-only contract, not a change to the existing adapter.
+`mount({host,count,fields,values,classes,config,formProps,onSubmit,onSubmitInvalid,onSubmitRaw})` returns `{form,node,metrics,setFields,reset,submit,destroy}`. Fields use `{name,label,validation,validationVisibility,disabled,help,attrs,type:'text'}`; section-class props accepted at initial mount through the Core props. Defaults: required validation, live visibility, empty text value, no actions. `submit()` dispatches real DOM submission to the official form handler. The default submission callback is a no-op, preventing accidental native navigation.
 
-## Provenance
+Automatic updates follow notified upstream context/Core changes. Silent closure mutation does not itself notify. `form.render()` explicitly refreshes class caches and section bindings while preserving stable controls. Terminal submission cancellation uses a private sentinel only; user callback errors/rejections remain observable. Destruction removes subscriptions, DOM listeners and owned Core nodes.
 
-Store batching/subscription and per-section observer class caching adapt the patterns in published `@formkit/react` 2.5.0 `dist/index.mjs` (source modules `reactiveStore.ts`, `bindings.ts`), under MIT. Copyright (c) 2021–2026 FormKit, Inc.; complete license retained in `LICENSE.formkit`. Upstream source: https://github.com/formkit/formkit/tree/v2.5.0/packages/react . Dependency versions are pinned in the experiment root lockfile. No React rendering code is used by this core: the direct DOM and Marionette lifecycle integration are new, much narrower code.
+`schema.mjs` is a separate narrow schema controller, not a general FormKitSchema replacement. See `SCHEMA.md` for its explicit subset.
+
+## Limits
+
+No full arbitrary schema/component renderer, slots, icons/raw HTML, nested groups/lists, Pro controls, arbitrary input types or complete API compatibility is claimed. Raw icon HTML and unsupported section nodes throw. Official text sections are consumed, but not every upstream section override or binding shape is implemented. Dynamic replacement of arbitrary props and class definitions is not fully covered. Root form actions and full form sections remain unimplemented. Upstream full context is retained, but this does not establish complete semantics across all inputs.
+
+The upstream context's lazy aggregate value snapshots remain unchanged; renderer counters are not proof that all snapshot or Core work scales linearly. Existing copies for submit payloads also remain official behavior. The simple `createStore` test helper is separate from the actual extracted context store, which has its own lifetime regressions.
 
 ## Verification
 
-`node core/test.mjs` uses JSDOM for structural/behavioral smoke checks. JSDOM is not a browser performance test, layout/accessibility audit, or evidence of paint timing.
+Run `node core/{test,regressions,submit-test,submit-terminal-test,schema-test,sections-test}.mjs` individually. Section tests cover actual official nested markup, upstream blur visibility, help/error ID references, mutable bags on notified refresh, valid/complete state, retained input, and destruction of real context-store subscribers/class accessors. Shared harnesses compare the same fixtures across adapters.
 
-## Missing and deliberately unsupported
-
-No FormKit Schema expression interpreter, nested groups/lists, arbitrary upstream input definitions, select/radio/checkbox/Pro controls, slots/components, FormKit input-feature hooks, summary/icon UI, blur/dirty validation visibility, or full config/prop parity. `setFields` is explicit topology input, not automatic conditional schema interpretation. Live visible validation is the only visibility mode. Messages are rebuilt locally; input nodes are retained. The root now uses the upstream form definition, but its schema is not rendered wholesale: actions are deliberately false; only fields and root incomplete/error messages are rendered. Thus it cannot yet be a performance winner on equivalent full-form behavior; first compare the same limited slice and label it as such.
-
-There is one observer cleanup path per field and a single destroy owner; replacing/removing fields kills observers, event receipts and DOM listeners before destroying the child Core node. Pending store paints are canceled on destroy.
-
-## Tested submit milestone
-
-`node core/submit-test.mjs` verifies actual official form/text features, invalid/valid/raw callbacks, submitted flags, incomplete UI, detached submit payload and reset to explicitly supplied initial values. `node harness/submit.mjs experiment 3` also passes the same DOM-submit case as Vue, React and the current adapter.
-
-Supported field declaration props are precisely `name`, `label`, `validation`, `disabled`, and `type` restricted to text; arbitrary `attrs`, `help`, `options`, `number`, icons, sectionsSchema and custom slots are not rendered. `config` passes to Core but only `classes` plus listed features are bound to DOM. `formProps` pass to Core features, with `type=form`, `actions=false` and submit callbacks controlled by mount options. This pass-through is not a promise that every prop has rendered UI support. Async callbacks use upstream behavior but destruction races, non-live visibility and full upstream context state are not yet established.
+JSDOM checks and renderer counters are not browser timing, layout, genuine-keyboard or complete accessibility evidence. No performance superiority or browser readiness is claimed without the separate real-browser protocol passing.

@@ -8,6 +8,9 @@ The experiment uses Marionette Views/Regions with FormKit observer caches, micro
 
 Shared JSDOM checks cover Vue, React, source-built compatible adapter303ddfbb and experiment, including200/400 fields. Browser timing is not established: cloud browser launch/access constraints remain. No benchmark ranking is claimed.
 
-Source, tests, lockfile, review reports, source provenance and a generated first-party comparator bundle are included. No installed dependencies, caches, browser profiles or bundled third-party code. current-303ddfbb/index.mjs bundles only the first-party comparator source; third-party dependencies remain external. current-303ddfbb/ is a frozen source comparator, not the proposed replacement; its13 source blobs match the recorded provenance. MIT notices retained.
+Source, tests, lockfile, reports, provenance and generated first-party comparator bundle are included. No installed dependencies, caches, browser profiles or bundled third-party code; comparator dependencies remain external. current-303ddfbb/ is a frozen source comparator, not the proposed replacement; its13 source blobs match the recorded provenance. MIT notices retained.
 
 From this directory: npm ci --ignore-scripts --cache ./npm-cache, then the commands in RUN.md. Review actual supported behavior, lifecycle cleanup, subscription costs, missing upstream behavior and fixture fairness. Do not infer full parity from the passing narrow suite.
+
+## Latest successor
+Actual published React2.5 context/store bindings now replace the earlier stub; official text-definition section schema drives the renderer instead of hand-coded field markup. Extraction is reproducible with core/extract-bindings.mjs. Read SECTION-REVIEW.md and evidence/react-context-successor/COUNTERS.md. Renderer counters are not browser timing or whole-adapter scaling. Root form shell, extra field host, and unsupported feature limitations remain explicit.

@@ -19,5 +19,5 @@ form.form.config.classes = { input: () => ({ silent }) }; form.form.render(); aw
 assert.ok(!input.classList.contains('silent')); silent = true;
 form.node.at('extra').input('unrelated'); await tick(); assert.ok(!input.classList.contains('silent'));
 form.form.render(); await tick(); assert.ok(input.classList.contains('silent')); assert.equal(document.querySelector('input'), input);
-const before = form.metrics.paints; form.destroy(); await tick(); assert.equal(document.querySelector('#host').childElementCount,0); assert.equal(form.metrics.paints,before);
+const before = form.metrics.domWrites; form.destroy(); await tick(); assert.equal(document.querySelector('#host').childElementCount,0); assert.equal(form.metrics.domWrites,before);
 console.log(JSON.stringify({passed:true,checks:['store batching','store destruction cancels notification','required validation','form tag','DOM/Core input','focus and identity','observed classes','messages','dynamic removal/addition','reset','silent closure stays stale on unrelated changes','explicit render refreshes silent closure and preserves input','teardown'],metrics:form.metrics}));

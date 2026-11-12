@@ -1,4 +1,4 @@
-Publication note: referenced browser/preflight.html and evidence/browser-preflight logs/profile are local-only artifacts omitted from this branch. browser/page.mjs is included source, not verified browser execution.
+Publication note: referenced browser/preflight.html and evidence/browser-preflight logs/profile are local-only, omitted from this branch. browser/page.mjs is source, not verified rendered evidence.
 
 # Experiment checkpoint
 
@@ -30,3 +30,11 @@ Final independent checkpoint: SCHEMA-REVIEW.md accepts restricted schema behavio
 ## Supported browser discovery
 
 Catalog shows the connected Dot cloud computer and connected Mac only; Mac not used. Saved cloud configurations include marionette and benchmark environments, but no new task/environment was created. Supported managed cloud Chrome is available; attempted own file-based preflight was explicitly rejected by URL policy because only http/https protocols are allowed. Stopped that route; no protocol/security bypass, publication or transfer. Self-contained browser/preflight.html is prepared locally but not rendered/QA-verified. It bundles production dependencies with same Genesis CSS and visible controls; no timed samples collected.
+
+## React-context and official-text-section successor
+
+The hand-coded text markup and stub field context have been replaced. Actual published React2.5 context/store bindings are extracted reproducibly (without React runtime), with documented observer/lifetime adaptations. Official text definition section schema drives wrapper/inner/label/input/help/messages via individually patched compiled bindings. Root form shell/incomplete UI and per-field host remain adapter-owned, and general schema/slots/icons are not supported.
+
+Renderer-only counter evidence for200/400 fields: mount token checks50,400/100,800; expressions23,800/47,600; counted DOM writes5,800/11,600. First Core edit at both sizes:3local context notifications,180token checks,6expression evaluations,5DOM writes,1structural change. These exclude whole Core/observer/snapshot/layout cost and are not browser timing or a speed ranking.
+
+Actual context dispatch/class cache terminal regressions were fixed; extraction and section/context suites pass. Independent section review found bind-bag attrs could overwrite higher-priority explicit schema attrs; corrected rendererd9582314 excludes explicit keys from lower-priority writes/removals, with5regressions. Same-key message updates were independently tested. See SECTION-REVIEW.md and UPSTREAM-BINDINGS-REVIEW.md for exact scope. Browser timing gate remains unchanged, zero samples.

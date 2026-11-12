@@ -8,10 +8,14 @@ node core/regressions.mjs
 node core/submit-test.mjs
 node core/submit-terminal-test.mjs
 node core/schema-test.mjs
+node core/sections-test.mjs
+node core/precedence-test.mjs
+node core/extract-bindings.mjs
 for arm in vue react current experiment; do
   node harness/check.mjs "$arm" 20
   node harness/cross-field.mjs "$arm" 20
   node harness/submit.mjs "$arm" 3
+  node harness/context-check.mjs "$arm"
   node harness/schema-check.mjs "$arm"
 done
 ```
@@ -21,3 +25,5 @@ done
 All commands above use JSDOM. They cannot establish browser timing, keyboard/touch/layout, complete accessibility or general FormKit feature parity. Do not rank speed from these runtimes. See PROTOCOL.md for the unexecuted fair browser protocol and scope limitations.
 
 The fresh sandbox-enabled Chromium preflight failed before page execution. Do not add no-sandbox/disable-setuid-sandbox flags or change security settings to make it run.
+
+Renderer-only counters: `node harness/counters.mjs 200` and `400`. These do not measure wall-clock/browser performance or whole Core work.
