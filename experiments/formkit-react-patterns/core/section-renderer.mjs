@@ -38,7 +38,12 @@ export function renderSections({host,schema,context,metrics,slots={},reuseRoot=f
     const listeners=new Map();owner.add(()=>{for(const [name,fn]of listeners)element.removeEventListener(name,fn);});
     function attr(name,value){if(name==='key')return;if(/^on[A-Z]/.test(name)){const event=name.slice(2).toLowerCase();const previous=listeners.get(event);if(previous===value)return;if(previous)element.removeEventListener(event,previous);if(typeof value==='function'){element.addEventListener(event,value);listeners.set(event,value);}else listeners.delete(event);return;}
       if(name==='innerHTML'){if(value)throw new TypeError('Raw icon HTML outside supported text slice');return;}
-      if(name==='value'){const next=String(value??'');if(element.value!==next){element.value=next;metric('domWrites');}return;}
+      if(name==='value'){
+        // An option without a value attribute derives its value from label text.
+        // Materialize explicit empty values before children are inserted, too.
+        if(element.tagName==='OPTION'&&value==null){if(element.hasAttribute('value')){element.removeAttribute('value');metric('domWrites');}return;}
+        const next=String(value??'');if(element.value!==next||(element.tagName==='OPTION'&&!element.hasAttribute('value'))){element.value=next;metric('domWrites');}return;
+      }
       if(name==='selected'){const next=!!value;if(element.selected!==next){element.selected=next;metric('domWrites');}return;}
       if(name==='checked'){const next=!!value;if(element.checked!==next){element.checked=next;metric('domWrites');}return;}
       if(name==='disabled'){const next=!!value&&value!=='false';if(element.disabled!==next){element.disabled=next;metric('domWrites');}return;}
