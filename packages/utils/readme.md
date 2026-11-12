@@ -7,11 +7,11 @@ Marionette and `@mnjs/data` import these same implementations.
 npm install --save-exact @mnjs/utils@5.1.0
 ```
 
-Use matching versions of `marionette`, `@mnjs/utils`, `@mnjs/radio`,
-`@mnjs/data` and `@mnjs/adapters`. The optional `@mnjs/html`, `@mnjs/router`
-and `@mnjs/test` packages are independently versioned. Core and data
-install utils automatically as a regular dependency. Add it directly when your
-application imports it.
+Use matching versions of `marionette`, `@mnjs/utils`, `@mnjs/radio`, and any
+optional `@mnjs/data` or `@mnjs/adapters` packages you use. The optional
+`@mnjs/html`, `@mnjs/router` and `@mnjs/test` packages are independently versioned.
+Core and data install utils automatically as a regular dependency. Add it directly
+when your application imports it.
 
 ## Building a component
 
