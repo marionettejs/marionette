@@ -68,6 +68,8 @@ test('the container repair preserves browser suites, exact-artifact validation a
   const archive = workflows.ci.jobs.browsers.steps.find(step => step.name === 'Test exact installed Router archive on all engines');
   assert.equal(archive.run, 'npm run test:router-tarball -- --browser --output "${RUNNER_TEMP}/router-browser-verification"');
   assert.equal(archive.if, '${{ !cancelled() && steps.browser_suite.outcome != \'skipped\' }}');
+  const probes = workflows.ci.jobs.browsers.steps.find(step => step.run === 'node test/router/browser-probes.mjs');
+  assert.equal(probes.if, archive.if);
   assert.equal(workflows.ci.jobs.browsers.steps.find(step => step.run === 'npm run test:browser').id, 'browser_suite');
   assert.ok(includesRun(workflows.ci.jobs.browsers, 'npm run test:browser-performance'));
   assert.ok(includesRun(workflows.ci.jobs['agent-reference'], 'npm run test:agent-app'));

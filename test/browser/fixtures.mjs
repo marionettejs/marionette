@@ -20,6 +20,10 @@ async function addJavaScriptAssets(assets, directory, prefix) {
 }
 
 export const test = base.extend({
+  browserVersion: [async({ browser }, use, testInfo) => {
+    testInfo.annotations.push({ type: 'browser-version', description: browser.version() });
+    await use();
+  }, { auto: true }],
   // Playwright requires fixture dependencies to be an object destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
   candidateServer: [async({}, use) => {
@@ -31,7 +35,7 @@ export const test = base.extend({
       ['/jquery.js', resolve(root, 'node_modules/jquery/dist-module/jquery.module.js')],
       ['/morphdom.js', resolve(dirname(fileURLToPath(import.meta.resolve('morphdom'))), 'morphdom-esm.js')]
     ]);
-    const imports = { jquery: '/jquery.js', morphdom: '/morphdom.js', 'lit-html': '/lit/lit-html.js', 'lit-html/': '/lit/' };
+    const imports = { '@mnjs/router': '/router.js', jquery: '/jquery.js', morphdom: '/morphdom.js', 'lit-html': '/lit/lit-html.js', 'lit-html/': '/lit/' };
     for (const entry of [...candidate.packages, candidate.renderer]) {
       const prefix = `/packages/${entry.id}`;
       await addJavaScriptAssets(assets, join(entry.directory, 'dist'), `${prefix}/dist`);

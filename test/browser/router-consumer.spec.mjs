@@ -11,9 +11,6 @@ async function desk(page) {
     path: routerArtifactPath('examples/desk/desk.mjs'), contentType: 'text/javascript',
   }));
   await page.evaluate(async() => {
-    const imports = document.createElement('script'); imports.type = 'importmap';
-    imports.textContent = JSON.stringify({ imports: { '@mnjs/router': '/router.js' } });
-    document.head.append(imports);
     const { navigationDriver } = await import('/router.js');
     const { Desk } = await import('/desk.mjs');
     const main = document.getElementById('content');

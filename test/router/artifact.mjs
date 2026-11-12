@@ -116,6 +116,7 @@ export function verifyRouterBrowserReport(results, inventory) {
   assert.equal(inventory.schemaVersion, 1);
   assert.equal(inventory.policy, routerBrowserPolicy);
   const observed = [];
+  const versions = {};
   const projects = routerBrowserNames.map(name => `router-${name}`);
   const visit = suites => {
     for (const suite of suites) {
@@ -125,6 +126,13 @@ export function verifyRouterBrowserReport(results, inventory) {
           assert.equal(test.status, 'expected');
           assert.equal(test.expectedStatus, 'passed');
           assert.deepEqual(test.results.map(result => [result.status, result.retry]), [['passed', 0]]);
+          const engine = test.projectName.slice('router-'.length);
+          const annotations = test.annotations.filter(({ type }) => type === 'browser-version');
+          assert.equal(annotations.length, 1, `Record the actual ${engine} version on every test`);
+          const version = annotations[0].description;
+          assert.ok(typeof version === 'string' && version.trim().length > 0, `Record the actual ${engine} version`);
+          if (versions[engine]) { assert.equal(version, versions[engine], `Consistent ${engine} executables`); }
+          versions[engine] = version;
           observed.push([spec.file, spec.title, test.projectName]);
         }
       }
@@ -141,11 +149,7 @@ export function verifyRouterBrowserReport(results, inventory) {
   assert.deepEqual(results.errors, [], 'Browser report errors must be an empty array');
   assert.equal(results.stats.expected, expected.length);
   for (const field of ['skipped', 'flaky', 'unexpected']) { assert.equal(results.stats[field], 0); }
-  const versions = results.config.metadata.routerBrowserVersions;
   assert.deepEqual(Object.keys(versions).sort(), [...routerBrowserNames].sort(), 'Record every actual engine version');
-  for (const name of routerBrowserNames) {
-    assert.ok(typeof versions[name] === 'string' && versions[name].trim().length > 0, `Record the actual ${name} version`);
-  }
   return { policy: routerBrowserPolicy, ...results.stats, engines: routerBrowserNames.map(name => ({
     name, version: versions[name], expected: inventory.tests.length,
   })) };

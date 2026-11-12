@@ -5,12 +5,6 @@ import { test } from './fixtures.mjs';
 async function loadRouter(page) {
   expect(await page.evaluate(() => 'navigation' in window), 'Native Navigation API is required').toBe(true);
   await page.route('**/router.js', route => route.fulfill({ path: routerArtifactPath('dist/index.js'), contentType: 'text/javascript' }));
-  await page.evaluate(() => {
-    const map = document.createElement('script');
-    map.type = 'importmap';
-    map.textContent = JSON.stringify({ imports: { '@mnjs/router': '/router.js' } });
-    document.head.append(map);
-  });
 }
 
 for (const asynchronous of [false, true]) {

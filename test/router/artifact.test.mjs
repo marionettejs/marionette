@@ -209,13 +209,14 @@ test('keeps output outside the source even through an existing directory alias',
 test('browser evidence requires every case once on each engine and actual versions', () => {
   const names = ['chromium', 'firefox', 'webkit'];
   const inventory = { schemaVersion: 1, policy: 'chromium-firefox-webkit', tests: [{ file: 'router.spec.mjs', title: 'route' }] };
-  const report = { config: { metadata: { routerBrowserVersions: { chromium: '158.0.8127.18', firefox: '159.0', webkit: '27.2' } } }, errors: [],
+  const versions = { chromium: '158.0.8127.18', firefox: '159.0', webkit: '27.2' };
+  const report = { errors: [],
     stats: { expected: 3, skipped: 0, flaky: 0, unexpected: 0 }, suites: [{ specs: [{ file: 'router.spec.mjs', title: 'route',
-      tests: names.map(name => ({ projectName: `router-${name}`, status: 'expected', expectedStatus: 'passed', results: [{ status: 'passed', retry: 0 }] })) }] }] };
+      tests: names.map(name => ({ projectName: `router-${name}`, annotations: [{ type: 'browser-version', description: versions[name] }], status: 'expected', expectedStatus: 'passed', results: [{ status: 'passed', retry: 0 }] })) }] }] };
   assert.deepEqual(verifyRouterBrowserReport(report, inventory).engines, names.map(name => ({
-    name, version: report.config.metadata.routerBrowserVersions[name], expected: 1,
+    name, version: versions[name], expected: 1,
   })));
-  for (const mutate of [r => { r.config.metadata = {}; }, r => { r.errors.push({ message: 'runner error' }); },
+  for (const mutate of [r => { r.errors.push({ message: 'runner error' }); },
     r => { r.errors = ''; }, r => { r.errors = { length: 0 }; },
     r => { r.stats.skipped = 1; }, r => { r.stats.flaky = 1; }, r => { r.stats.unexpected = 1; },
     r => { r.stats.skipped = -1; r.stats.flaky = 1; },
@@ -230,9 +231,10 @@ test('browser evidence requires every case once on each engine and actual versio
     mutate(changed);
     assert.throws(() => verifyRouterBrowserReport(changed, inventory));
   }
-  for (const [index, name] of names.entries()) {
-    for (const mutate of [r => { delete r.config.metadata.routerBrowserVersions[name]; },
-      r => { r.config.metadata.routerBrowserVersions[name] = ' '; },
+  for (const index of names.keys()) {
+    for (const mutate of [r => { r.suites[0].specs[0].tests[index].annotations = []; },
+      r => { r.suites[0].specs[0].tests[index].annotations[0].description = ' '; },
+      r => { r.suites[0].specs[0].tests[index].annotations.push({ type: 'browser-version', description: 'other' }); },
       r => { r.suites[0].specs[0].tests.splice(index, 1); r.stats.expected--; },
       r => { r.suites[0].specs[0].tests[index].results[0].status = 'skipped'; },
       r => { r.suites[0].specs[0].tests[index].status = 'flaky'; }]) {
@@ -241,6 +243,12 @@ test('browser evidence requires every case once on each engine and actual versio
       assert.throws(() => verifyRouterBrowserReport(changed, inventory));
     }
   }
+  const inconsistent = structuredClone(report);
+  const second = structuredClone(inconsistent.suites[0].specs[0]); second.title = 'other route';
+  second.tests[0].annotations[0].description = 'other build';
+  inconsistent.suites[0].specs.push(second); inconsistent.stats.expected = 6;
+  assert.throws(() => verifyRouterBrowserReport(inconsistent, { ...inventory, tests: [...inventory.tests,
+    { file: 'router.spec.mjs', title: 'other route' }] }), /Consistent chromium executables/);
   assert.throws(() => verifyRouterBrowserReport(report, { ...inventory, policy: 'initial-chromium' }));
   assert.throws(() => verifyRouterBrowserReport(report, { ...inventory, tests: [...inventory.tests, ...inventory.tests] }));
 });
