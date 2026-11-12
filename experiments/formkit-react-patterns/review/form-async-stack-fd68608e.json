@@ -1,0 +1,16 @@
+{
+  "pending": {
+    "calls": 1,
+    "rootDisabled": true,
+    "childDisabled": true,
+    "domDisabled": true,
+    "loading": true
+  },
+  "afterDestroy": {
+    "children": 0,
+    "dom": "",
+    "loading": false,
+    "context": null
+  }
+}
+{"validAfterRawDestroy":0,"rawError":"TypeError: Cannot convert undefined or null to object\n    at Object.keys (<anonymous>)\n    at clone (file://[experiment-root]/node_modules/@formkit/utils/dist/index.mjs:284:27)\n    at handleSubmit (file://[experiment-root]/node_modules/@formkit/inputs/dist/index.mjs:828:35)\n    at async file://[experiment-root]/review/form-async-stack.mjs:2:185"}
