@@ -4,7 +4,8 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 
 // Router's independent Node floor must not silently raise core's Node 22 floor.
-assert(Number(process.versions.node.split('.')[0]) >= 24, 'Router documentation check requires Node 24+');
+const [major, minor] = process.versions.node.split('.').map(Number);
+assert(major > 24 || (major === 24 && minor >= 15), 'Router documentation check requires Node 24.15+');
 assert(process.env.npm_execpath, 'Run npm run docs:check-router');
 const root = resolve(import.meta.dirname, '../..');
 const directory = join(root, 'test/tmp/router-docs');
@@ -76,6 +77,15 @@ const failed = createApp({ driver: memoryDriver({ url: 'https://example.test/cat
 await assert.rejects(failed.start(), /initial failed/);
 assert(failed.frame.isDestroyed());
 assert(failed.router.isDestroyed());
+for (const action of ['stop', 'destroy']) {
+  const cancelled = createApp({ driver: memoryDriver({ url: 'https://example.test/catalog/42' }) });
+  const pending = cancelled.start();
+  cancelled.frame[action]();
+  assert.deepEqual(await pending, { status: 'cancelled' });
+  assert.equal(cancelled.router.isRunning(), false);
+  assert.equal(cancelled.catalog.isRunning(), false);
+  cancelled.frame.destroy();
+}
 // Execute the revised source Catalog against the same published public packages.
 const { Catalog: SourceCatalog } = await import('./catalog.mjs');
 const { Router } = await import('@mnjs/router');

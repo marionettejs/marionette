@@ -5,7 +5,7 @@
 For new templated UI, use the optional [@mnjs/html DOM adapter](../../../packages/html/guide.md#choosing-a-dom-integration)
 with that package's results and Marionette-owned events. Existing Lit and Morphdom
 integrations remain supported by [@mnjs/adapters](../../packages/adapters.md);
-Lit template results use [`@mnjs/adapters/dom/lit-html`](../../integrations/setup.md#configure-once).
+Lit template results use [`@mnjs/adapters/dom/lit-html`](../../packages/adapters.md#lit-html).
 Native HTML string output can retain the default DomApi. No optional renderer
 becomes a core dependency.
 
@@ -17,7 +17,7 @@ Choose an existing integration when it fits. A renderer evaluates a template; Do
 
 Marionette serializes data and applies template context before calling the renderer; a falsy final data value becomes `{}`. It passes every return value to `attachElContent`, whose default calls `Dom.setContents(el, output)`. A Promise is not awaited, and `undefined` does not mean “skip insertion.” If a renderer performs insertion itself, override `attachElContent` to match that strategy and keep the View's fixed root. Usually, putting insertion in DomApi keeps the responsibilities simpler.
 
-The native `setContents` treats strings as HTML. Choose an integration such as [`@mnjs/html`](../../integrations/setup.md#configure-once) for templated UI with ordinary text interpolation. This small text-only class demonstrates a typed DomApi overlay without building a new template engine:
+The native `setContents` treats strings as HTML. Choose an integration such as [`@mnjs/html`](../../packages/adapters.md#lit-html) for templated UI with ordinary text interpolation. This small text-only class demonstrates a typed DomApi overlay without building a new template engine:
 
 ```ts
 import { View, type DomApiContract } from 'marionette';

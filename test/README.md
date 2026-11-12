@@ -67,7 +67,7 @@ Reports still reject comparisons when browser or package versions differ.
 | Static production import graph | `source/` | `npm run test:source` |
 | Built ESM/CJS/UMD exports | `dist/` | `npm run test:dist` |
 | Consumer documentation, package discovery and runnable recipes | `docs/`, `agent-docs/` | `npm run docs:check` |
-| Published Router/HTML example and TypeScript consumer (Node 24+) | `docs/router-companion.mjs` | `npm run docs:check-router` |
+| Published Router/HTML example and TypeScript consumer (Node 24.15.0+) | `docs/router-companion.mjs` | `npm run docs:check-router` |
 
 `npm ci` uses the pinned toolchain and builds packages through `prepare`. `npm test`
 is deliberately fast: it runs unit tests without a hidden type/build pretest.

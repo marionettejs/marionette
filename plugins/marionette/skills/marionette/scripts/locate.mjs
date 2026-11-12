@@ -1,6 +1,6 @@
 import { readFile, realpath, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { dirname, resolve } from 'node:path';
+import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 
 const companionDocs = {
   '@mnjs/html': ['guide.md', 'LIT_DIFFERENCES.md'],
@@ -11,34 +11,44 @@ async function findCompanions(project) {
   const require = createRequire(resolve(project, 'package.json'));
   const companions = [];
   for (const [name, files] of Object.entries(companionDocs)) {
-    let manifestPath;
     try {
-      manifestPath = await realpath(require.resolve(`${name}/package.json`));
-    } catch (error) {
-      if (error.code === 'MODULE_NOT_FOUND') { continue; }
-      if (error.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
-        companions.push({ packageName: name, guidance: 'This installed package does not export package.json. Read its metadata and documentation from its physical package directory.' });
-        continue;
-      }
-      throw error;
-    }
-    const packageRoot = dirname(manifestPath);
-    const metadata = JSON.parse(await readFile(manifestPath, 'utf8'));
-    if (metadata.name !== name) { throw new Error(`Expected ${name} package metadata.`); }
-    const documentation = [];
-    const missingDocumentation = [];
-    for (const file of files) {
-      const path = resolve(packageRoot, file);
+      let manifestPath;
       try {
-        if (!(await stat(path)).isFile()) { throw new Error(`Documentation is not a file: ${path}`); }
-        documentation.push(path);
+        manifestPath = await realpath(require.resolve(`${name}/package.json`));
       } catch (error) {
-        if (error.code !== 'ENOENT') { throw error; }
-        missingDocumentation.push(file);
+        if (error.code === 'MODULE_NOT_FOUND') { continue; }
+        if (error.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
+          companions.push({ packageName: name, guidance: 'This installed package does not export package.json. Use your package manager to locate its installed directory, then read package.json and the documented Markdown files directly; do not import its runtime or use the core-only --package-root option.' });
+          continue;
+        }
+        throw error;
       }
+      const packageRoot = dirname(manifestPath);
+      const metadata = JSON.parse(await readFile(manifestPath, 'utf8'));
+      if (metadata.name !== name) { throw new Error(`Expected ${name} package metadata.`); }
+      const documentation = [];
+      const missingDocumentation = [];
+      for (const file of files) {
+        try {
+          const path = await realpath(resolve(packageRoot, file));
+          const local = relative(packageRoot, path);
+          if (local === '..' || local.startsWith(`..${sep}`) || isAbsolute(local)) {
+            throw new Error(`Documentation escapes package root: ${file}`);
+          }
+          if (!(await stat(path)).isFile()) { throw new Error(`Documentation is not a file: ${file}`); }
+          documentation.push(path);
+        } catch (error) {
+          if (error.code !== 'ENOENT') { throw error; }
+          missingDocumentation.push(file);
+        }
+      }
+      companions.push({ packageName: name, packageVersion: metadata.version, packageRoot,
+        documentation, missingDocumentation });
+    } catch (error) {
+      companions.push({ packageName: name,
+        guidance: 'Companion documentation lookup failed. Inspect this installed package before using its guidance; core and other companion results remain available.',
+        error: error.message });
     }
-    companions.push({ packageName: name, packageVersion: metadata.version, packageRoot,
-      documentation, missingDocumentation });
   }
   return companions;
 }

@@ -42,6 +42,7 @@ Version-matched Markdown for `marionette` v5, whose core requires neither Backbo
 - [@mnjs/adapters: optional integrations](docs/packages/adapters.md)
 
 - [@mnjs/html: tagged-template renderer](packages/html/guide.md)
+- [Installed HTML reference](docs/packages/html.md)
 - [@mnjs/router: feature-owned routing](docs/packages/router.md)
 
 ## Integration and learning guides
@@ -56,6 +57,7 @@ Version-matched Markdown for `marionette` v5, whose core requires neither Backbo
 - [Existing HTML](docs/guides/existing-html.md)
 - [Integrate with existing UI](docs/guides/existing-ui.md)
 - [Navigation and feature ownership](docs/guides/routing.md)
+- [Optional native fragment navigation](docs/guides/fragment-navigation.md)
 - [Lists](docs/guides/lists.md)
 - [Imperative controls](docs/guides/widgets.md)
 - [Accessibility and rendering](docs/guides/accessibility-rendering.md)
@@ -69,6 +71,3 @@ Version-matched Markdown for `marionette` v5, whose core requires neither Backbo
 
 - [Testing helpers](packages/test/readme.md)
 - [Testing helper reference](packages/test/guide.md)
-
-- [Installed HTML reference](docs/packages/html.md)
-- [Optional native fragment navigation](docs/guides/fragment-navigation.md)

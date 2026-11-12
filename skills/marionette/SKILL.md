@@ -5,7 +5,7 @@ description: Build, debug, review, or test Marionette v5 applications using thei
 
 # Marionette applications
 
-For API details, use the docs shipped with the installed package. Keep an existing application's compatible renderer, data runtime, router and build setup; this skill does not authorize upgrades.
+For API details, use the docs shipped with the installed package. If absent, obtain the exact release or known source revision, not current website contracts. Keep an existing application's compatible renderer, data runtime, router and build setup; this skill does not authorize upgrades.
 
 With no stack chosen, install `marionette` with `@mnjs/html` using the Vite quick start; add `@mnjs/data` for observable records/shared state. Plain snapshots remain valid.
 
@@ -43,3 +43,6 @@ Choose Application for coordinated readiness and start/stop/restart lifetime; a 
 `@mnjs/html` and `@mnjs/router` are versioned separately; follow
 `docs/packages/html.md` and `docs/packages/router.md` to their installed references,
 which take precedence over core's bundled copies.
+
+Before finishing, run the project’s appropriate checks; use `docs/guides/testing.md`
+for behavior verification and `docs/tooling.md` for available tooling.

@@ -128,7 +128,7 @@ try {
     'docs/readme.md', 'docs/api/providers/dom.md']);
   const rendererReferences = [];
   for (const { source } of [...manifest.pages, ...manifest.assets, { source: 'readme.md' }]) {
-    if (!/\.(md|js)$/.test(source)) { continue; }
+    if (!/\.(md|[cm]?[jt]s)$/.test(source)) { continue; }
     const text = readFileSync(join(packageRoot, source), 'utf8');
     const matches = text.split('\n').flatMap((line, index) =>
       /\bLit\b|lit-html|LitDomApi/.test(line) ? [{ line: index + 1, text: line }] : []);

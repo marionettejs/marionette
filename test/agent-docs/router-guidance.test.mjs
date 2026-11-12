@@ -17,7 +17,7 @@ test('routing guidance links the released companion without broadening browser s
   }
   assert.match(guide, /Firefox and WebKit are untested/);
   assert.match(guide, /mountRoutes\(router\).*registers routes but does not activate/);
-  assert.match(guide, /Stop retains registrations; destroy\nunmounts them/);
+  assert.match(guide, /Stop retains registrations; destroy\s+unmounts them/);
 });
 
 test('consumer entrypoints preserve existing routers and expose companion guidance', () => {
@@ -41,6 +41,7 @@ test('HTML task route prioritizes installed companion docs over the core snapsho
   const skill = read('skills/marionette/SKILL.md');
   assert.match(skill, /Use @mnjs\/html templates and directives \| `docs\/packages\/html.md`/);
   const guide = read('docs/packages/html.md');
+  assert(guide.includes('node_modules/@mnjs/html/guide.md'));
   assert(guide.indexOf('node_modules/@mnjs/html/guide.md') < guide.indexOf('../../packages/html/guide.md'));
   assert.match(guide, /take precedence/);
   assert.match(guide, /source tag matching the installed HTML release/);

@@ -613,6 +613,7 @@ report.tools = Object.fromEntries(['typescript', 'jsdom'].map(name => [name, JSO
 rmSync(output, { recursive: true, force: true });
 mkdirSync(output, { recursive: true });
 if (!process.argv[2]) {
+  assert(process.env.npm_execpath, 'Run npm run check:docs-examples');
   const renderer = htmlCandidate();
   writeFileSync(join(output, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
   const install = spawnSync(process.execPath, [process.env.npm_execpath, 'install', '--prefix', output,

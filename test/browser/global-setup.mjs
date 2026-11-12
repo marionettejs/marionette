@@ -33,7 +33,7 @@ export default async function setup() {
       await mkdir(artifactDirectory);
       const npmCli = process.env.npm_execpath;
       if (!npmCli) {
-        throw new Error('Run browser tests through npm, or supply MARIONETTE_BROWSER_ARTIFACT_MANIFEST.');
+        throw new Error('Run browser tests through npm, or supply MARIONETTE_BROWSER_ARTIFACT_MANIFEST and MNJS_HTML_TARBALL.');
       }
       evidence = { schemaVersion: 3, packages: [] };
       for (const configuration of packages) {
@@ -94,6 +94,9 @@ export default async function setup() {
     // The renderer is independent of the five coordinated release packages.
     // Verify and record its archive separately, including release-manifest runs.
     if (!process.env.MNJS_HTML_TARBALL) {
+      if (!process.env.npm_execpath) {
+        throw new Error('Supply MNJS_HTML_TARBALL with manifest-only browser setup, or run through npm to prepare the published renderer.');
+      }
       execFileSync(process.execPath, [process.env.npm_execpath, 'run', 'docs:prepare-html'], { cwd: root, stdio: 'inherit' });
     }
     const renderer = htmlCandidate();

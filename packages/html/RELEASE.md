@@ -1,4 +1,7 @@
-# Preparing @mnjs/html 1.0.0
+# Preparing an independent @mnjs/html release
+
+Version 1.0.0 is published on npm. These instructions govern subsequent
+candidates; do not republish or overwrite that immutable version.
 
 This is an independently versioned package. The repository's coordinated core
 release workflow explicitly publishes five other packages; do not add HTML to
@@ -48,12 +51,12 @@ repacking and updating its identity and integration evidence.
 
 After an authorized publication, verify registry version, dist-tag and tarball
 integrity against the approved artifact, then smoke-test the registry archive.
-No registry content or publication success is claimed by this preparation.
+Candidate checks alone do not establish registry content or publication success.
 
 ## Withdrawal / rollback limits
 
-There is no earlier published HTML release established by this work. Do not
-promise rollback to an unknown version. npm versions are immutable in ordinary
+Version 1.0.0 is an established release, but a rollback still needs compatibility
+verification for the consuming application. Do not promise rollback to an unknown version. npm versions are immutable in ordinary
 use; a defect may require a corrective version and application dependency rollback
 or version pin. Dist-tag moves/deprecation and any unpublish action require a
 separate reviewed decision under npm's applicable policy. Preserve the source and

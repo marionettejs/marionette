@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir, readFile, realpath } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -146,7 +146,7 @@ test('plugin loader selects installed guidance without importing application cod
   const { mkdtemp, mkdir, rm, writeFile, symlink } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const { spawnSync } = await import('node:child_process');
-  const root = await mkdtemp(resolve(tmpdir(), 'marionette-plugin-'));
+  const root = await realpath(await mkdtemp(resolve(tmpdir(), 'marionette-plugin-')));
   t.after(() => rm(root, { recursive: true, force: true }));
   const app = resolve(root, 'app');
   const store = resolve(root, 'store/marionette');
@@ -190,7 +190,7 @@ test('plugin loader discovers installed companion contracts without runtime impo
   const { mkdtemp, mkdir, rm, writeFile, symlink } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const { spawnSync } = await import('node:child_process');
-  const root = await mkdtemp(resolve(tmpdir(), 'marionette-companions-'));
+  const root = await realpath(await mkdtemp(resolve(tmpdir(), 'marionette-companions-')));
   t.after(() => rm(root, { recursive: true, force: true }));
   const app = resolve(root, 'app');
   await mkdir(resolve(app, 'node_modules/@mnjs'), { recursive: true });
@@ -238,4 +238,44 @@ test('plugin loader discovers installed companion contracts without runtime impo
   assert.equal(unavailable.packageName, '@mnjs/router');
   assert.match(unavailable.guidance, /does not export package.json/);
   assert.equal(unavailable.packageVersion, undefined);
+});
+
+test('optional companion failures preserve core discovery and reject escaping document links', async t => {
+  const { mkdtemp, mkdir, rm, writeFile, symlink } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const { spawnSync } = await import('node:child_process');
+  const root = await realpath(await mkdtemp(resolve(tmpdir(), 'marionette-companion-errors-')));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const core = resolve(root, 'node_modules/marionette');
+  const html = resolve(root, 'node_modules/@mnjs/html');
+  const router = resolve(root, 'node_modules/@mnjs/router');
+  await mkdir(resolve(core, 'skills/marionette'), { recursive: true });
+  await mkdir(html, { recursive: true });
+  await mkdir(router, { recursive: true });
+  await writeFile(resolve(core, 'package.json'), JSON.stringify({ name: 'marionette', version: '5.0.1' }));
+  await writeFile(resolve(core, 'skills/marionette/SKILL.md'), 'Core guidance');
+  await writeFile(resolve(router, 'package.json'), JSON.stringify({ name: '@mnjs/router', version: '0.1.0' }));
+  await writeFile(resolve(router, 'readme.md'), 'Router guidance');
+  await writeFile(resolve(router, 'DESIGN.md'), 'Router contracts');
+  const run = () => {
+    const result = spawnSync(process.execPath, [resolve(pluginSkill, 'scripts/locate.mjs'), '--project', root], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    const found = JSON.parse(result.stdout);
+    assert.equal(found.packages[0].skillPath, resolve(core, 'skills/marionette/SKILL.md'));
+    assert.equal(found.companionPackages[1].packageVersion, '0.1.0');
+    const failed = found.companionPackages[0];
+    assert.equal(failed.packageName, '@mnjs/html');
+    assert.equal(failed.documentation, undefined);
+    assert.match(failed.guidance, /lookup failed/);
+    return failed;
+  };
+  await writeFile(resolve(html, 'package.json'), '{invalid json');
+  assert.match(run().error, /JSON|property|Invalid package config/i);
+  await writeFile(resolve(html, 'package.json'), JSON.stringify({ name: '@mnjs/html', version: '1.0.0' }));
+  await writeFile(resolve(root, 'outside.md'), 'Outside package');
+  await symlink(resolve(root, 'outside.md'), resolve(html, 'guide.md'));
+  assert.match(run().error, /escapes package root: guide.md/);
+  await rm(resolve(html, 'guide.md'));
+  await mkdir(resolve(html, 'guide.md'));
+  assert.match(run().error, /not a file: guide.md/);
 });

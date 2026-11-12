@@ -27,7 +27,7 @@ The adapter retains the end-marker, WeakMap contents, and WeakSet notification s
 
 ## Distribution
 
-The npm file allowlist includes full licenses, this provenance, compatibility documentation, sources and compiled output. Generated declaration/source maps have their corresponding sources in the archive. `@types/trusted-types` is a production type dependency because the public declarations refer to it. Test/browser/build dependencies are development-only. The package is unpublished; the manifest is prepared for an explicitly approved public release.
+The npm file allowlist includes full licenses, this provenance, compatibility documentation, sources and compiled output. Generated declaration/source maps have their corresponding sources in the archive. `@types/trusted-types` is a production type dependency because the public declarations refer to it. Test/browser/build dependencies are development-only. The package is independently published; subsequent releases still require explicit approval.
 
 ## Upstream regression tests
 
@@ -54,9 +54,9 @@ upstream-derived fixes described below. Its source originates from the November 
 0.1.0-alpha.0 freeze, whose historical archive SHA-256 is
 `d1089e973cf2a0c3efc06ea92f65bc1530534b5ad768b5ff323daf6590430ddb`.
 The version and package documentation changed, so that digest does not identify
-the 1.0.0 archive. The package remains unpublished; version metadata
-is not a registry-publication claim. Core skills and renderer defaults are outside
-this package-only change.
+the published 1.0.0 archive. This section records package preparation, not a
+registry integrity receipt. Core skills and renderer defaults were outside
+that package-only change.
 
 
 ### Post-freeze compatibility fixes

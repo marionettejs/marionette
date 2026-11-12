@@ -95,9 +95,9 @@ export function createApp({ driver, loadItem = async id => `Item ${id}` } = {}) 
     frame, router, catalog,
     async start() {
       try {
-        await frame.start();
-        await catalog.start();
-        await router.start();
+        if (!await frame.start()) return { status: 'cancelled' };
+        if (!await catalog.start()) return { status: 'cancelled' };
+        if (!await router.start()) return { status: 'cancelled' };
         const result = await router.getInitialDispatch();
         if (result.status === 'failed') throw result.error;
         return result;

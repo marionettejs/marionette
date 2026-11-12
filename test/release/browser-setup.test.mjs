@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -23,14 +24,14 @@ async function browserSetup(t) {
   const packed = spawnSync('tar', ['-czf', renderer, '-C', resolve(input, '..'), 'package'], { encoding: 'utf8' });
   assert.equal(packed.status, 0, packed.stderr);
 
-  function run() {
+  function run(environment = {}) {
     return spawnSync(process.execPath, ['--input-type=module', '--eval', `
       import setup from ${JSON.stringify(pathToFileURL(script).href)};
       const cleanup = await setup();
       await cleanup();
     `], {
       cwd: candidate.root, encoding: 'utf8', timeout: 30000,
-      env: { ...process.env, MNJS_HTML_TARBALL: renderer, MARIONETTE_BROWSER_ARTIFACT_MANIFEST: resolve(candidate.artifacts, 'release-evidence.json') },
+      env: { ...process.env, MNJS_HTML_TARBALL: renderer, MARIONETTE_BROWSER_ARTIFACT_MANIFEST: resolve(candidate.artifacts, 'release-evidence.json'), ...environment },
     });
   }
   return { ...candidate, setup: run };
@@ -43,7 +44,8 @@ test('browser setup records exact supplied package identities and hashes', async
   const report = JSON.parse(await readFile(resolve(candidate.root, 'test/tmp/browser/candidate.json')));
   assert.equal(report.renderer.name, '@mnjs/html');
   assert.equal(report.renderer.version, '0.1.0');
-  assert.match(report.renderer.sha256, /^[a-f0-9]{64}$/);
+  assert.equal(report.renderer.sha256, createHash('sha256').update(
+    await readFile(resolve(candidate.artifacts, 'html.tgz'))).digest('hex'));
   assert.deepEqual({ source: report.source, packages: report.packages }, {
     source: candidate.evidence.source,
     packages: candidate.evidence.packages.map(({ manifest, ...entry }) => entry),
@@ -59,4 +61,12 @@ test('browser setup rejects special and escaping filenames before reading a tarb
     assert.equal(result.status, 1, file);
     assert.match(result.stderr, /Browser artifact must be a tarball filename/);
   }
+});
+
+
+test('manifest-only browser setup requires an explicit renderer without npm', async t => {
+  const candidate = await browserSetup(t);
+  const result = candidate.setup({ npm_execpath: undefined, MNJS_HTML_TARBALL: undefined });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Supply MNJS_HTML_TARBALL with manifest-only browser setup/);
 });

@@ -10,7 +10,8 @@ Run `node <skill>/scripts/locate.mjs --project <application-directory>`; `<skill
 Follow the returned `skillPath` for the package the feature imports; check imports when both packages are installed. The plugin version identifies the loader, not the framework.
 
 The `--project` lookup returns `companionPackages` with installed documentation
-paths. Read those paths and check each companion's version.
+paths. Read those paths and check each companion's version; follow returned
+`guidance` when documentation is unavailable.
 
 Keep `backbone.marionette` 4.x on v4 contracts; older releases need their own docs. Migration uses an exact v5 target's packaged guide. Do not install/upgrade merely to obtain guidance without task authorization.
 

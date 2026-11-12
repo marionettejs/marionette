@@ -70,9 +70,9 @@ function sha256(path) {
 
 // Compare package identities, not npm's incidental dev/peer flags. No registry
 // package may be added, removed, relocated, or re-resolved by the candidate overlay.
-function externalGraph(lock) {
+function externalGraph(lock, fixtureName) {
   return Object.fromEntries(Object.entries(lock.packages).filter(([path]) =>
-    path && path !== 'node_modules/@mnjs/html' && !packageInputs.some(input => path === `node_modules/${input.name}`))
+    path && !(fixtureName === 'docs-quick-start' && path === 'node_modules/@mnjs/html') && !packageInputs.some(input => path === `node_modules/${input.name}`))
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([path, entry]) => [path, {
       version: entry.version, resolved: entry.resolved, integrity: entry.integrity,
@@ -223,8 +223,8 @@ try {
   }
   if (selected.includes('docs-quick-start')) {
     // This fixture's renderer is independent of the five coordinated artifacts.
-    // Prefer an explicitly supplied archive; otherwise prepare this checkout's
-    // version, so the full inventory and Node-current job cannot omit it.
+    // Prefer an explicitly supplied archive; otherwise fetch the published renderer
+    // matching the source manifest version, not a build of this checkout.
     if (!process.env.MNJS_HTML_TARBALL) { npm(['run', 'docs:prepare-html']); }
     const { htmlCandidate } = await import('../docs/html-candidate.mjs');
     const renderer = htmlCandidate();
@@ -253,13 +253,13 @@ try {
       cpSync(docsSnapshot, resolve(fixtureRoot, 'docs'), { recursive: true });
       assertIsolated(fixtureDir);
       const lockPath = resolve(fixtureDir, 'package-lock.json');
-      const lockedGraph = externalGraph(readJson(lockPath));
+      const lockedGraph = externalGraph(readJson(lockPath), name);
       result.lockSha256 = sha256(lockPath);
       stage = result.stage = 'candidate-lock';
       npm(['install', '--package-lock-only', '--ignore-scripts', '--save-exact',
         ...selectedPackages(name).map(packageName => artifacts.get(packageName))], fixtureDir);
       const candidateLock = readJson(lockPath);
-      result.graph = externalGraph(candidateLock);
+      result.graph = externalGraph(candidateLock, name);
       if (JSON.stringify(result.graph) !== JSON.stringify(lockedGraph)) {
         throw new Error('Candidate installation changed the committed external dependency graph. Update the fixture lockfile explicitly.');
       }

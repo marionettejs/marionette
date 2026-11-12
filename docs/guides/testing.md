@@ -213,8 +213,8 @@ In your application, import your application setup first, then the real View and
 
 Use the [routed HTML factory](../packages/router.md#a-minimal-html-feature) with
 `memoryDriver({ url: 'https://example.test/catalog/42' })` instead of a real
-browser driver. Install Router's required Node/capabilities first; its Node floor
-is higher than core's. Assert initial dispatch, rendered data, same-ID retention,
+browser driver. Router 0.1.0 needs Node 24.15 or newer; the memory driver also
+requires `structuredClone`. Check the [full capability requirements](routing.md#use-the-optional-router-for-routed-applications) first; core has a lower Node floor. Assert initial dispatch, rendered data, same-ID retention,
 changed-ID loading, failure/cancellation and final teardown through public APIs.
 Read `node_modules/@mnjs/router/readme.md` and `DESIGN.md` for the installed
 navigation result types. TypeScript consumers should import declarations from
