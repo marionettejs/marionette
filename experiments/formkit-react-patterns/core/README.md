@@ -14,7 +14,7 @@ This is an unpublished experimental adapter, not a replacement for the current `
 
 `mount({host,count,fields,values,classes,config,formProps,onSubmit,onSubmitInvalid,onSubmitRaw})` returns `{form,node,metrics,setFields,reset,submit,destroy}`. Fields use `{name,label,validation,validationVisibility,disabled,help,attrs,type:'text'}`; section-class props accepted at initial mount through the Core props. Defaults: required validation, live visibility, empty text value, no actions. `submit()` dispatches real DOM submission to the official form handler. The default submission callback is a no-op, preventing accidental native navigation.
 
-Automatic updates follow notified upstream context/Core changes. Silent closure mutation does not itself notify. `form.render()` explicitly refreshes class caches and section bindings while preserving stable controls. Terminal submission cancellation uses a private sentinel only; user callback errors/rejections remain observable. Destruction removes subscriptions, DOM listeners and owned Core nodes.
+Automatic updates follow notified upstream context/Core changes. Silent closure mutation does not itself notify. `form.render()` explicitly refreshes class caches and section bindings while preserving stable controls. Submission uses the official callback behavior; user callback errors/rejections remain observable. No early-submit cancellation protocol is added. Destruction removes subscriptions, DOM listeners and owned Core nodes.
 
 `schema.mjs` is a separate narrow schema controller, not a general FormKitSchema replacement. See `SCHEMA.md` for its explicit subset.
 
@@ -26,10 +26,22 @@ The upstream context's lazy aggregate value snapshots remain unchanged; renderer
 
 ## Verification
 
-Run `node core/{test,regressions,submit-test,submit-terminal-test,schema-test,sections-test}.mjs` individually. Section tests cover actual official nested markup, upstream blur visibility, help/error ID references, mutable bags on notified refresh, valid/complete state, retained input, and destruction of real context-store subscribers/class accessors. Shared harnesses compare the same fixtures across adapters.
+Run `node core/{test,regressions,submit-test,submit-completion-test,schema-test,sections-test}.mjs` individually. Section tests cover actual official nested markup, upstream blur visibility, help/error ID references, mutable bags on notified refresh, valid/complete state, retained input, and destruction of real context-store subscribers/class accessors. Shared harnesses compare the same fixtures across adapters.
 
 JSDOM checks and renderer counters are not browser timing, layout, genuine-keyboard or complete accessibility evidence. No performance superiority or browser readiness is claimed without the separate real-browser protocol passing.
 
 ## Root-form milestone counters
 
 Core counters count observed node creation/destruction and local input/commit/message events across root and fields. `classRootEvaluations` counts configured root-class callback executions, not every observer callback. Renderer counters now include the root form. Snapshot copying, observer internals and all Core operations are still not exhaustively instrumented; none of these counters is a whole-path timing or memory measurement. `root-schema-test.mjs` validates actual root schema attributes, incomplete-message ID/type, async loading, reset and teardown. The 200/400 field counter evidence is in `evidence/root-schema-counters-*.json`.
+
+## Nested-group and scoped-slot milestone
+
+Field declarations additionally accept `{type:'group',name,children:[...]}`. Each group uses the official library group definition, Core parentage, and its fragment/default-slot schema. Nested text fields remain ordinary official text nodes. Sibling names must be unique; this is not keyed list support. Removing a declaration destroys its owned descendants and removes their Core values using upstream behavior; reset delegates to Core.
+
+Text declarations may provide `children:{label: schema,help: schema}`. This `children` named-slot shorthand is an explicit limited Marionette adapter API, NOT accepted upstream FormKitSchema syntax. The equivalent Vue/React comparison uses component slots. These slots are evaluated with the field's upstream context (`$label`, `$id`, etc.). The supplied `$values` data points at the root form's value and is tracked through the official Core observer. It is not an upstream reserved variable. A cross-field slot therefore responds to notified root commits without rebuilding its text control. This broad root-value observation is not fine-grained path subscriptions. Slot schemas support the existing limited DOM/condition/text bindings; unsupported components, loops and dynamic tags reject before topology changes. A small adapter span hosts each slot.
+
+No general `$cmp` renderer, arbitrary external components, keyed repeated lists, new input types or general FormKitSchema support is added. Existing `schema.mjs` controller still has its earlier flat subset. Changing a text declaration's named-slot object replaces only its presentation subtree, preserving the existing Core node, input DOM and edited value. Adding/removing supported slot overrides is also supported. Expressions precompile before topology changes; failed new renderer construction cleans its resources and new sibling construction is staged before old siblings are removed. This does not promise rollback of arbitrary user callback side effects or a fully atomic multi-field batch. Existing-field type replacement is explicitly rejected. Tests in `nested-slot-test.mjs` cover the concrete nested/contact fixture and lifecycle, not all upstream compositions.
+
+## Callback contract correction
+
+The experimental terminal-safe observer helper, five class guards and early-submit sentinel were removed after upstream contract review. Class evaluation uses actual `observer.watch`; destructive callback recovery is not an acceptance requirement. Historical probes are retained under `checkpoints/exploratory-callback-recovery` as exploratory evidence, not runnable current acceptance tests. Normal owned cleanup, notified classes and explicit refresh remain. `submit-completion-test.mjs` verifies normal synchronous/async submit-driven owner destruction, destruction while a returned promise settles, and original user errors. No rollback or attempt-all cleanup guarantee is inferred from synchronous callback failures.

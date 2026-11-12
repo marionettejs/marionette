@@ -15,6 +15,6 @@ From this directory: npm ci --ignore-scripts --cache ./npm-cache, then the comma
 ## Latest successor
 Actual published React2.5 context/store bindings now replace the earlier stub; official text-definition section schema drives the renderer instead of hand-coded field markup. Extraction is reproducible with core/extract-bindings.mjs. Read SECTION-REVIEW.md and evidence/react-context-successor/COUNTERS.md. Renderer counters are not browser timing or whole-adapter scaling. Root form shell, extra field host, and unsupported feature limitations remain explicit.
 
-## Reviewed root-form successor
+## Current reviewed successor
 
-The current branch now renders the official root form schema/default slot and messages, with terminal-safe class evaluation. See ROOT-FORM-REVIEW.md and core/root-schema-test.mjs. Frozen browser studies of da45f45c do not include this successor; no browser performance claim applies to it. Nested groups/components remain deferred. Core-event and renderer counters are partial instrumentation, not exhaustive whole-path cost.
+Includes official root-form schema, limited nested groups/scoped slots, restored upstream observer.watch without unsupported callback recovery, child-first ledger-preserving bulk DOM disposal and position-aware retained-host placement. See CALLBACK-CONTRACT-REASSESSMENT.md, NESTED-SLOT-REVIEW.md and TEARDOWN-CORRECTION-REVIEW.md. Earlier root-first approval was withdrawn. Checkpoints preserve the simplified pre-optimization comparison. This successor has not yet been browser-timed; previous da45f45c measurements do not describe it. General components, keyed lists and broad input-type support remain out of scope. Benchmark raw evidence is not included in this code publication.

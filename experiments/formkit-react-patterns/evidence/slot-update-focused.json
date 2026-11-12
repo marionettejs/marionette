@@ -1,0 +1,1 @@
+{"passed":true,"checks":["presentation slot updates preserve node/input/edited value","slot remove/add preserves input","malformed expressions fail before topology mutation","failed runtime construction destroys all new resources"]}
