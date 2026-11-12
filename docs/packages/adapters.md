@@ -201,11 +201,9 @@ void actorApi;
 
 ## Use the Router Catalog with HTML
 
-The published Router 0.1.0 Catalog example uses optional Lit integration; that is
-compatible, not a Router requirement. The current [routing guide](../guides/routing.md)
-and revised Router source Catalog use `@mnjs/html` and `@mnjs/html/marionette`.
-Router 0.1.1 preparation includes that source example change; it reaches consumers
-only after the independent Router patch is published.
-When adapting the published 0.1.0 example, replace `lit-html` with `@mnjs/html`
+The Router 0.1.0 Catalog example uses optional Lit integration; that is
+compatible, not a Router requirement. Router 0.1.1 and the
+[routing guide](../guides/routing.md) use `@mnjs/html` and `@mnjs/html/marionette`.
+When adapting the 0.1.0 example, replace `lit-html` with `@mnjs/html`
 and `@mnjs/adapters/dom/lit-html` with `@mnjs/html/marionette`. Keep the function
 templates and View event bindings. No Router runtime change is needed.

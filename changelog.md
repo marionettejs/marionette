@@ -30,9 +30,9 @@ recommended path for building new applications:
 
 The coordinated packages `marionette`, `@mnjs/utils`, `@mnjs/radio`, `@mnjs/data`,
 and `@mnjs/adapters` move to **5.1.0**. HTML, Router, and the test helpers retain
-their independent versioning. Router **0.1.1** is prepared alongside this release
-with an HTML Catalog example and Desk instructions that accept a compatible
-Adapters version instead of pinning 5.0.1. Its runtime and public API are unchanged;
+their independent versioning. The pre-v1 Router **0.1.1** updates its Catalog
+example to HTML and its Desk instructions to accept a compatible Adapters version
+instead of pinning 5.0.1. Its runtime and public API are unchanged;
 it is published separately from the five coordinated packages. Neither HTML nor
 Router becomes a required core dependency. Adapters’ core peer and Data’s nonoptional Utils peer now accept
 `^5.0.1`; core, Utils, and Radio keep their exact shared-runtime alignment. Data

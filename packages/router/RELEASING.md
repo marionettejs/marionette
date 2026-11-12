@@ -1,8 +1,11 @@
 # Release @mnjs/router 0.1.1
 
-**Preparation only:** the 0.1.1 patch is prepared alongside Marionette 5.1.0.
-Neither this document nor the version bump authorizes merging, publishing or
-tagging. Require the release decision and final certification below.
+Router is an independently versioned pre-v1 package. The 0.1.1 patch accompanies
+Marionette 5.1.0 with the example and documentation changes below.
+
+**Publication authorization:** neither this procedure nor a version bump
+authorizes merging, publishing or tagging. Require the release decision and final
+certification below.
 
 Compared with published Router 0.1.0, this patch updates the Catalog example from
 Lit to optional `@mnjs/html`, documents explicit renderer preparation, and removes

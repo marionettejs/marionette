@@ -4,9 +4,10 @@ Router is an optional, independently released companion. It is renderer-agnostic
 `@mnjs/html` is the recommended choice for a new application, not a Router
 requirement. The example below is verified with Router 0.1.0, HTML 1.0.0 and
 Marionette 5.0.1; these are evidence versions, not a requirement to pin every
-compatible application to those exact versions. Router 0.1.1 is being prepared
-with the HTML Catalog example and updated Desk dependency guidance. The published
-0.1.0 evidence and fallback links below are not relabeled as 0.1.1 results.
+compatible application to those exact versions. Router is a pre-v1 package with
+its own release cadence. Version 0.1.1 updates the shipped Catalog example to HTML
+and the Desk instructions to accept an Adapters version compatible with the
+installed core. Its runtime and public API are unchanged from 0.1.0.
 
 ## Read the installed contract first
 
