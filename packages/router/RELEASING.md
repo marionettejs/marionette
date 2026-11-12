@@ -65,18 +65,35 @@ Utils dependency is `^5.0.1`, permitting compatible deduplication independently 
 the Marionette peer. Certification still installs the actual 5.0.1 minimum bytes;
 the range is not a claim that future versions have already passed these checks.
 
-## Coordinate the 5.1.0 release order
+## Coordinate Router first, then Marionette 5.1.0
 
 One reviewed PR can prepare both releases, but the five-package publisher does
-not publish Router. After the merged-source certification and separately
-authorized coordinated release, verify all five 5.1.0 registry packages and the
-Adapters `^5.0.1` peer before certifying Router against that published stack.
-Then publish only the independently certified Router archive. Do not publish
-Router from local-candidate evidence alone or make 0.1.1 availability a prerequisite
-for the core publisher. A failure in either publication remains a separate result.
+not publish Router. After an authorized merge and final certification of the clean
+merged source, publish Router 0.1.1 first against the currently published compatible
+stack. Its core peer and Utils dependency remain `^5.0.1`; it does not require
+Marionette or Adapters 5.1.0 to exist. Certify the exact Router archive with the
+published minimum and newest compatible core. When both resolve to 5.0.1, record
+that they are the same registry bytes rather than claiming two different lanes.
+Keep the required Chromium archive checks; local-candidate evidence alone is not
+enough to publish Router.
 
-The published 0.1.0 documentation fixture and tag links remain historical evidence
-until the new registry bytes are verified; do not relabel them as 0.1.1 results.
+Then certify the coordinated 5.1.0 candidate, including a companion check using
+the actual published Router 0.1.1 archive and published HTML 1.0.0. Use the Router
+verifier's local-development lane for those core candidate tarballs, in addition
+to the five-package publisher's full final certification. The core release's
+browser inventory deliberately excludes Router, so it does not replace that
+companion check. Publish the five packages only after separate authorization and
+the normal merged-source certification gates.
+
+After the five 5.1.0 registry packages are verified, check the same Router archive
+against that published stack as described below. Record this as follow-up
+compatibility evidence, not a prerequisite for the earlier Router publication.
+Do not republish Router or silently change its version. A failure in either
+publication or its verification remains a separate result.
+
+The 0.1.0 documentation fixture and tag links remain historical evidence; update
+them only alongside an intentional check of the newly published bytes, not merely
+because a source manifest changed.
 
 ## Build and check the final merged revision
 
@@ -156,9 +173,11 @@ npm run test:router-tarball -- --artifact /absolute/path/router-release/mnjs-rou
 
 The explicit registry version must be either the minimum 5.0.1 or the current
 coordinated source version. It selects core, Utils, Radio and Adapters together;
-registry locators and exact resolved versions are checked and recorded. Before
-publication, the local-development lane can exercise the 5.1.0 candidates, but
-it does not replace this final registry and browser certification.
+registry locators and exact resolved versions are checked and recorded. This
+5.1.0 run follows the coordinated release; it does not require publishing core
+before Router. The earlier 5.0.1 exact-archive Chromium certification remains the
+Router-first publication gate. Local 5.1.0 candidate checks are additional
+compatibility evidence, not a claim that 5.1.0 registry bytes already exist.
 
 The initial browser policy is **Chromium only**. The default driver requires the
 Navigation API and Router requires URLPattern plus the other documented Web APIs.
