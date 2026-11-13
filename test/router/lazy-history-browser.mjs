@@ -7,6 +7,15 @@ import { routerBrowserNames, routerBrowserPolicy, routerBrowserProjects } from '
 
 export const navigationModes = ['available', 'undefined', 'throwing'];
 
+export async function withBrowserDeadline(operation, label, milliseconds = 10000) {
+  let timer;
+  try {
+    return await Promise.race([operation, new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`${label} did not settle within ${milliseconds}ms`)), milliseconds);
+    })]);
+  } finally { clearTimeout(timer); }
+}
+
 export function verifyLazyHistoryBrowserReport(report, engines = routerBrowserNames) {
   assert.equal(report.policy, routerBrowserPolicy);
   assert.deepEqual(report.engines.map(entry => entry.name).sort(), [...engines].sort());
@@ -25,6 +34,17 @@ export function verifyLazyHistoryBrowserReport(report, engines = routerBrowserNa
   return { engines: report.engines.length, cases: report.engines.length * navigationModes.length };
 }
 
+export function createLazyHistoryServer(directory) {
+  return createServer((request, response) => {
+    const pathname = new URL(request.url, 'http://localhost').pathname;
+    if (pathname !== '/' && !/^\/assets\/[\w.-]+\.js$/.test(pathname)) { response.writeHead(404).end(); return; }
+    let contents;
+    try { contents = readFileSync(resolve(directory, 'dist', pathname === '/' ? 'index.html' : pathname.slice(1))); } catch { response.writeHead(404).end('Not found'); return; }
+    response.setHeader('content-type', pathname.endsWith('.js') ? 'text/javascript' : 'text/html');
+    response.end(contents);
+  });
+}
+
 // Use the same launch policy as the complete Router inventory. A blocked engine
 // is retained as a failure; it cannot prevent the other engines' evidence.
 export async function verifyLazyHistoryBrowsers(directory, graph, {
@@ -34,12 +54,7 @@ export async function verifyLazyHistoryBrowsers(directory, graph, {
   assert.ok(engines.every(name => routerBrowserNames.includes(name)));
   const evidence = resolve(directory, 'browser-evidence');
   mkdirSync(evidence, { recursive: true });
-  const server = createServer((request, response) => {
-    const pathname = new URL(request.url, 'http://localhost').pathname;
-    if (pathname !== '/' && !/^\/assets\/[\w.-]+\.js$/.test(pathname)) { response.writeHead(404).end(); return; }
-    response.setHeader('content-type', pathname.endsWith('.js') ? 'text/javascript' : 'text/html');
-    response.end(readFileSync(resolve(directory, 'dist', pathname === '/' ? 'index.html' : pathname.slice(1))));
-  });
+  const server = createLazyHistoryServer(directory);
   await new Promise((ready, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', ready); });
   const report = { policy: routerBrowserPolicy, requestedEngines: [...engines], engines: [] };
   try {
@@ -81,13 +96,13 @@ export async function verifyLazyHistoryBrowsers(directory, graph, {
             assert.equal(await page.evaluate(() => globalThis.routerConsumerError), undefined);
             const fallback = mode !== 'available';
             assert.equal(await page.evaluate(() => globalThis.routerConsumer.fallback), fallback);
-            await page.evaluate(async() => {
+            await withBrowserDeadline(page.evaluate(async() => {
               const { router } = globalThis.routerConsumer;
               if (!await router.navigate('item', { id: 7 }, { state: { tab: 'details' } }).finished) {throw new Error('Navigation canceled');}
               if (router.getCurrent().params.id !== '7' || router.getCurrent().state.tab !== 'details') {throw new Error('Wrong route/state');}
               if (!await router.back() || router.getCurrent().name !== 'home') {throw new Error('Back failed');}
               router.destroy();
-            });
+            }), `${name}/${mode} navigation`);
             assert.equal(graph.historyImplementation.some(file => requests.includes(file)), fallback || graph.baseline);
             const expected = fallback ? [...graph.staticClosure, ...graph.historyExclusiveAssets] : graph.staticClosure;
             assert.deepEqual([...new Set(requests)].sort(), [...new Set(expected)].sort());

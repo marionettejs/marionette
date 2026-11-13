@@ -5,12 +5,40 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
 import { pathToFileURL } from 'node:url';
+import { get } from 'node:http';
 import { candidateOutput, inspectRouterArchive, sha256, validatePreparationReceipt, validateRouterPackage, verifyRouterBrowserReport, verifyRouterDocumentation } from './artifact.mjs';
-import { verifyLazyHistoryBrowserReport } from './lazy-history-browser.mjs';
+import { createLazyHistoryServer, verifyLazyHistoryBrowserReport, withBrowserDeadline } from './lazy-history-browser.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const manifest = JSON.parse(readFileSync(join(root, 'packages/router/package.json')));
 const notice = readFileSync(join(root, 'license.txt'));
+
+test('standalone navigation deadline bounds a pending promise and preserves settled outcomes', async() => {
+  assert.equal(await withBrowserDeadline(Promise.resolve('ready'), 'fixture'), 'ready');
+  const error = new Error('navigation failed');
+  await assert.rejects(withBrowserDeadline(Promise.reject(error), 'fixture'), value => value === error);
+  await assert.rejects(withBrowserDeadline(new Promise(() => {}), 'fixture navigation', 20), /fixture navigation did not settle within 20ms/);
+});
+
+test('missing production assets return 404 without crashing the standalone server', async t => {
+  const directory = mkdtempSync(join(tmpdir(), 'router-http-assets-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  mkdirSync(join(directory, 'dist/assets'), { recursive: true });
+  writeFileSync(join(directory, 'dist/assets/present.js'), 'export const present = true;');
+  const server = createLazyHistoryServer(directory);
+  await new Promise(ready => server.listen(0, '127.0.0.1', ready));
+  t.after(() => new Promise(closed => server.close(closed)));
+  const request = path => new Promise((done, reject) => {
+    get(`http://127.0.0.1:${server.address().port}${path}`, response => {
+      let body = '';
+      response.setEncoding('utf8');
+      response.on('data', chunk => { body += chunk; });
+      response.on('end', () => done({ status: response.statusCode, body }));
+    }).on('error', reject);
+  });
+  assert.deepEqual(await request('/assets/missing.js'), { status: 404, body: 'Not found' });
+  assert.deepEqual(await request('/assets/present.js'), { status: 200, body: 'export const present = true;' });
+});
 
 test('standalone browser evidence requires every engine, probe mode and Chromium sandbox', () => {
   const report = { policy: 'chromium-firefox-webkit', engines: ['chromium', 'firefox', 'webkit'].map(name => ({

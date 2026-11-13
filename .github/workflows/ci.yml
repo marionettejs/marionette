@@ -306,7 +306,10 @@ jobs:
           const run = spawnSync('npm', ['run', 'test:router-tarball', '--', '--artifact', archive,
             '--sha256', process.env.ROUTER_ARCHIVE_SHA256, '--registry-peers', '--browser', '--output', output], { stdio: 'inherit' });
           assert.equal(git(['status', '--porcelain', '--untracked-files=all']), '');
+          assert.equal(run.error, undefined);
+          assert.equal(run.status, 0);
           const verified = JSON.parse(readFileSync(join(output, 'router-verification.json')));
+          assert.equal(verified.status, 'passed-public-candidate');
           assert.equal(verified.archiveSourceCommit, source);
           assert.equal(verified.verificationCommit, source);
           assert.equal(verified.verificationDirty, false);
@@ -317,9 +320,15 @@ jobs:
             assert.equal(entry.status, 'passed');
             assert.deepEqual(entry.branches.map(branch => branch.mode), ['available', 'undefined', 'throwing']);
           }
-          assert.equal(run.error, undefined);
-          assert.equal(run.status, 0);
-          assert.equal(verified.status, 'passed-public-candidate');
+          console.log('Router standalone evidence: ' + JSON.stringify({
+            sourceCommit: verified.verificationCommit, archiveSha256: verified.archive.sha256,
+            host: verified.host, vite: verified.lazyHistory.vite,
+            staticClosure: verified.lazyHistory.staticClosure,
+            historyExclusiveAssets: verified.lazyHistory.historyExclusiveAssets,
+            chunks: verified.lazyHistory.chunks.map(({ file, bytes, imports, dynamicImports, implementations }) =>
+              ({ file, bytes, imports, dynamicImports, implementations })),
+            browser: verified.lazyHistory.browser,
+          }));
           JS
 
       - name: Retain complete or partial Router evidence

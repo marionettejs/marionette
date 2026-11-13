@@ -193,8 +193,11 @@ Require all nine cases to pass alongside the complete root-entry inventory.
 These are separate results: the root inventory alone does not certify the
 separately compiled standalone entry. The CI aggregate requires both. Preserve
 all emitted chunks, maps, manifest, per-engine JSON and `historyExclusiveAssets`
-from the receipt directory when preparing application preload and service-worker
-precache exclusions. A blocked engine cannot be reported as a passing target.
+as evidence of the verifier consumer's split. Applications must derive preload
+and service-worker precache exclusions from their own final production graph and
+manifest; do not copy the verifier's asset names or closures into an application.
+Its chunk layout and exclusive dependencies can differ. A blocked engine cannot
+be reported as a passing target.
 For a diagnostic rerun against an installed consumer, use
 `node test/router/lazy-history.mjs CONSUMER --browser`; `--engine firefox` selects
 a subset and does not satisfy the three-engine gate.
