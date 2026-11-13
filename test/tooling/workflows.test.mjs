@@ -173,7 +173,7 @@ test('documentation builds and packs once for the local check and all six consum
   assert(!build.steps.some(step => /docs:check/.test(step.run || '')));
   assert.deepEqual(workflow.jobs.deploy.needs, ['documentation', 'consumer-lts']);
   assert.equal(check.env.MARIONETTE_ARTIFACT_DIR, '${{ github.workspace }}/test/tmp/candidate');
-  assert.equal(workflow.jobs['consumer-lts'].strategy.matrix.node.length, 6);
+  assert.deepEqual(workflow.jobs['consumer-lts'].strategy.matrix.node, ['22.22.2', '22', '24.15.0', '24', '26.0.0', '26']);
   const steps = workflow.jobs['consumer-lts'].steps;
   assert(steps.findIndex(step => step.run?.includes('release:verify')) < steps.findIndex(step => step.name === 'Setup consumer Node'));
 });
