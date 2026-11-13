@@ -26,7 +26,7 @@
     "jsdom": "31.0.0",
     "playwright": "1.65.0",
     "typescript": "6.0.3",
-    "vite": "8.3.6",
+    "vite": "8.3.7",
     "vitest": "5.1.0",
     "typescript-7": "npm:typescript@7.0.2"
   }

@@ -26,7 +26,7 @@ test('quick-start certification replaces exact release npm specs with supplied a
   assert(!command.includes('@mnjs/html@1.0.0'));
   assert(!command.includes('lit-html'));
   assert(!command.includes('@mnjs/adapters@'));
-  assert(command.includes('vite@8.3.0'));
+  assert.match(command, /^npm install --ignore-scripts --save-dev vite@8$/m);
   assert(!command.includes('mnjs-data-'));
   assert(!docs.includes('MNJS_HTML_TARBALL'));
   assert(docs.includes('independently versioned from core'));

@@ -52,7 +52,7 @@ external pins. Both run ESM/CommonJS, type, optional-peer isolation and JSDOM
 checks; `--browser` adds Vitest Browser Mode and the Playwright gallery. Cypress
 installation scripts remain disabled in both profiles; these checks do not run
 Cypress. The Linux helper workflow also runs a focused Cypress 14.0.0 component
-lane using mount-utils 4.0.0, dev-server 6.0.1 and Vite 6.4.0. Its existing
+lane using mount-utils 4.0.0, dev-server 6.0.1 and Vite 6.4.6. Its existing
 lifecycle, fixture and explicit-unmount specs run in bundled Electron; failure
 probes using `Cypress.expose` remain on Cypress 16. Record the actual lane result
 and browser version with the release receipt. Cypress 15 native runtime has not
