@@ -198,3 +198,19 @@ test('required documentation check keeps its public name and rejects unsuccessfu
     assert.equal(checked.status, result === 'success' ? 0 : 1, `${result}: ${checked.stderr}`);
   }
 });
+
+
+test('Windows candidate restoration runs on PRs with explicit GNU tar validation', async() => {
+  const workflow = parse(await readFile(resolve(import.meta.dirname, '../../.github/workflows/ci.yml'), 'utf8'));
+  const windows = workflow.jobs['windows-package-smoke'];
+  assert.equal(windows.if, undefined);
+  assert.equal(windows['runs-on'], 'windows-2025');
+  assert.equal(windows.needs, 'candidate');
+  const portability = windows.steps.findIndex(step => step.run === 'node --test test/release/archive.test.mjs');
+  const restore = windows.steps.findIndex(step => step.uses === './.github/actions/restore-candidate');
+  const fixtures = windows.steps.findIndex(step => step.run === 'npm run test:fixtures -- --artifact-dir test/tmp/candidate');
+  assert(portability >= 0 && portability < restore && restore < fixtures);
+  assert.equal(windows.steps[portability].shell, 'bash');
+  assert.equal(windows.steps[portability].env.MNJS_REQUIRE_GNU_TAR, '1');
+  assert.equal(windows.steps[fixtures].if, undefined);
+});

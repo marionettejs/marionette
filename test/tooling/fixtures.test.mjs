@@ -40,6 +40,8 @@ function scenario() {
   copyCoverageFixture(resolve(repository, 'test/fixtures/run.mjs'), resolve(root, 'test/fixtures/run.mjs'));
   mkdirSync(resolve(root, 'test/docs'), { recursive: true });
   mkdirSync(resolve(root, 'packages/html'), { recursive: true });
+  mkdirSync(resolve(root, 'scripts/release'), { recursive: true });
+  copyCoverageFixture(resolve(repository, 'scripts/release/archive.mjs'), resolve(root, 'scripts/release/archive.mjs'));
   copyCoverageFixture(resolve(repository, 'test/docs/html-candidate.mjs'), resolve(root, 'test/docs/html-candidate.mjs'));
   json(resolve(root, 'packages/html/package.json'), { version: '1.0.0' });
   pack(root, '@mnjs/html', { exports: { '.': './index.js', './marionette': './index.js' } });
