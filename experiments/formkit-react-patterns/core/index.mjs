@@ -72,6 +72,12 @@ function createField(node,spec,view,initial) {
   catch(error){field.destroy();throw error;}
 }
 
+function createFieldNode(view,parent,spec,initial) {
+  const type=spec.type??'text',value=Object.hasOwn(initial??{},spec.name)?initial[spec.name]:spec.value;
+  const {children,...props}=spec;
+  return createNode({parent,name:spec.name,value,props:{...props,type,attrs:spec.attrs??{},id:`experiment-${view.cid}-${++view._fieldId}`,__slots:type==='group'?{default:true}:Object.fromEntries(Object.keys(children??{}).map(name=>[name,true])),validation:spec.validation,validationVisibility:spec.validationVisibility??'live'}});
+}
+
 function reconcile(view,parent,map,specs,anchor,initial) {
   for(const spec of specs)if(map.has(spec.name)&&map.get(spec.name).node.props.type!==(spec.type??'text'))throw new TypeError('Changing an existing field type is unsupported');
   for(const spec of specs)if(map.get(spec.name)?.node.props.type==='select'&&map.get(spec.name).spec.placeholder!==spec.placeholder)throw new TypeError('Live placeholder changes are not yet supported');
@@ -79,8 +85,10 @@ function reconcile(view,parent,map,specs,anchor,initial) {
   for(const[name,field]of map)if(!names.has(name)){field.destroy();map.delete(name);}
   for(const spec of specs){
     let field=map.get(spec.name);
-    if(!field){const type=spec.type??'text',value=Object.hasOwn(initial??{},spec.name)?initial[spec.name]:spec.value;const {children,...props}=spec;
-      const node=createNode({parent,name:spec.name,value,props:{...props,type,attrs:spec.attrs??{},id:`experiment-${view.cid}-${++view._fieldId}`,__slots:type==='group'?{default:true}:Object.fromEntries(Object.keys(children??{}).map(name=>[name,true])),validation:spec.validation,validationVisibility:spec.validationVisibility??'live'}});
+    if(!field){
+      const node=view._initialNodes?.get(parent)?.get(spec.name)??createFieldNode(view,parent,spec,initial);
+      view._initialNodes?.get(parent)?.delete(spec.name);
+      const value=Object.hasOwn(initial??{},spec.name)?initial[spec.name]:spec.value;
       field=createField(node,spec,view,value);map.set(spec.name,field);
     }else field.update(spec);
   }
@@ -121,15 +129,33 @@ export class ExperimentalFormView extends View {
   render() {
     if (this.isDestroyed()) return this;
     this.triggerMethod('before:render', this);
-    this.node.context.refreshClasses();this._rootRenderer.refresh();
     if(!this._isRendered)this.setFields(this.specs);
-    for (const field of this.fields.values()) field.refresh();
+    else{
+      this.node.context.refreshClasses();this._rootRenderer.refresh();
+      for (const field of this.fields.values()) field.refresh();
+    }
     this._isRendered = true; this.triggerMethod('render', this); return this;
   }
   setFields(specs) {
     if (this._ending || this.isDestroyed()) return;
     validateFields(specs);
-    reconcile(this,this.node,this.fields,specs,this._fieldAnchor,this.initialValues);
+    if(!this._isRendered&&this.fields.size===0){
+      
+      this._initialNodes=new Map();
+      const prepare=(parent,specs,initial)=>{
+        const nodes=new Map();this._initialNodes.set(parent,nodes);
+        for(const spec of specs){const node=createFieldNode(this,parent,spec,initial);nodes.set(spec.name,node);if(node.type==='group')prepare(node,spec.children??[],node.value);}
+      };
+      try {
+        prepare(this.node,specs,this.initialValues);
+        this.node.context.refreshClasses();this._rootRenderer.refresh();
+        reconcile(this,this.node,this.fields,specs,this._fieldAnchor,this.initialValues);
+      } finally {
+        // Only unclaimed construction resources; no rollback of rendered fields.
+        for(const nodes of this._initialNodes.values())for(const node of nodes.values())node.destroy();
+        this._initialNodes=undefined;
+      }
+    }else reconcile(this,this.node,this.fields,specs,this._fieldAnchor,this.initialValues);
     this.specs = specs;
   }
   get formMessages() { return this.el.querySelector(':scope > .formkit-messages'); }
