@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "policy": "initial-chromium",
+  "policy": "chromium-firefox-webkit",
   "tests": [
     {
       "file": "router-authority.spec.mjs",

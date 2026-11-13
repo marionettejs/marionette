@@ -4,16 +4,10 @@ import { routerArtifactPath } from '../router/artifact.mjs';
 import { test } from './fixtures.mjs';
 
 async function snippet(page, documentPath, names) {
-  test.skip(!await page.evaluate(() => 'navigation' in window), 'Navigation API unavailable');
+  expect(await page.evaluate(() => 'navigation' in window), 'Native Navigation API is required').toBe(true);
   const source = readFileSync(routerArtifactPath(documentPath), 'utf8').match(/```js\n([\s\S]*?)\n```/)[1];
   await page.route('**/router.js', route => route.fulfill({ path: routerArtifactPath('dist/index.js'), contentType: 'text/javascript' }));
   await page.route('**/snippet.mjs', route => route.fulfill({ body: `${source}\nexport { ${names.join(', ')} };`, contentType: 'text/javascript' }));
-  await page.evaluate(() => {
-    const map = document.createElement('script');
-    map.type = 'importmap';
-    map.textContent = JSON.stringify({ imports: { '@mnjs/router': '/router.js' } });
-    document.head.append(map);
-  });
 }
 
 test('README routed feature owns named Views, escapes route text and destroys owned UI', async({ page }) => {

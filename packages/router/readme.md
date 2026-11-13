@@ -4,13 +4,16 @@ Optional routing tools for Marionette v5: named URLs and native navigation,
 feature-owned registrations, and selectable child Applications. Use the tools
 individually. A Router does not infer UI ownership from URL nesting.
 
-**Browser support: tested on Chromium only. Firefox and WebKit are untested.**
+**Browser validation: Chromium, Firefox and Playwright WebKit are CI targets.**
+Compatibility evidence requires a passing receipt for the exact archive and
+engine versions; adding a test target alone does not establish support.
 Router requires **URLPattern**, `AbortSignal.any`, `Promise.withResolvers` and
 `URL.canParse`; the default driver additionally requires the **Navigation API**.
 An explicit `historyDriver()` uses the History API instead. Transpilation
 does not supply these APIs. There is no automatic driver selection. Capability
 presence alone does not establish browser compatibility. See the capability
 check below before importing an application that eagerly constructs a Router.
+The pinned WebKit engine has [known native differences](#known-native-webkit-differences).
 
 Programmatic History-driver navigation accepts HTTP(S) destinations only.
 Other schemes reject with `NotSupportedError` before document handoff. Ordinary
@@ -31,6 +34,45 @@ not establish registry availability. Routing is optional for Marionette 5.
 identify the maintained source and unchanged [MIT notice](license.txt).
 Report suspected vulnerabilities privately through the
 [repository security advisory form](https://github.com/marionettejs/marionette/security/advisories/new).
+
+## Known native WebKit differences
+
+The pinned Playwright WebKit build has two observed Navigation API differences.
+The [observed release profile](https://github.com/marionettejs/marionette/blob/f6ff6833967d432c591151c9b64fce724ca98a8a/config/release-profile.json)
+and each test receipt identify the tested versions; these observations do not
+guarantee behavior of other builds. Router keeps the native driver's results and
+event classification; it does not normalize them.
+
+- Removing a fragment (`/page#top` or `/page#` to `/page`) reports
+  `hashChange: true` with `destination.sameDocument: false`. The tested Chromium
+  and Firefox builds report `hashChange: false`. The
+  [HTML navigate-event algorithm](https://html.spec.whatwg.org/multipage/nav-history-apis.html#fire-navigate-event)
+  requires a same-document destination for `hashChange: true`. This raw API test
+  does not establish whether a Router-owned navigation dispatches a handler or
+  replaces the document; those effects must not be inferred from the flag alone.
+- In two overlapping Back scenarios, native `back().finished` rejects
+  `AbortError` even though the destination handler has completed, `route:ready`
+  has fired, and the current Match signal remains un-aborted. Router's `back()`
+  consequently resolves `false`. This occurs when a second Back supersedes a
+  still-preparing destination, and when an abort listener navigates before an
+  already queued Back arrives. The `false` receipt in these cases does not mean
+  that no destination became ready. Operational handler failures still reject;
+  they are not converted into successful navigation.
+
+The browser tests retain these cases and assert WebKit's exact observed results,
+including current entry identity, signal state, readiness and error isolation.
+Separate diagnostics retain the raw native receipts. The
+[reproducer and CI evidence](https://github.com/marionettejs/marionette/actions/runs/43291118434)
+show the original differences before the engine-specific expectations.
+**Upstream WebKit bug link pending:** no matching public report has been verified;
+no upstream issue has been filed for these observations.
+
+Applications needing different completion or fragment-routing behavior can
+explicitly choose [the History driver](#choose-a-history-api-driver-explicitly)
+before constructing the Router. It has its own documented limits and is not
+selected automatically. Playwright WebKit coverage does not certify every
+shipping Safari or iOS version. Source-checkout results also do not replace
+certification of an exact installed package archive.
 
 ## Build a routed feature with Applications and Views
 
@@ -162,13 +204,16 @@ supplies none of these Web APIs. Capability presence is not browser certificatio
 The installed-consumer check executes this exact recipe with a deliberately
 eager application module, checking that missing capabilities prevent its import.
 
-Initial native-browser certification targets Chromium with those capabilities.
-Standalone routing was verified on Chromium 154; consumer integration also has
-reported Chromium 151 evidence. Receipts identify the exact tested build and
-archive. Firefox and WebKit are untested and are not certified targets. There is no
-automatic fallback driver. These browser requirements are independent of the
-core library's transpilation targets. Node consumer evidence currently uses
-Node 24.19.0; the declared minimum is 24.15.0.
+The source-checkout and exact-installed-archive suites target Chromium, Firefox
+and Playwright WebKit with the actual Navigation API. Each archive receipt must
+record all three executable versions and every inventory case passing once, with
+no failures, retries or skips. Existing standalone evidence covers Chromium 154;
+consumer integration also has reported Chromium 151 evidence. Those earlier
+receipts do not certify Firefox or WebKit. Playwright WebKit results do not
+certify every shipping Safari or iOS version. There is no automatic fallback
+driver. These browser requirements are independent of the core library's
+transpilation targets. Node consumer evidence currently uses Node 24.19.0; the
+declared minimum is 24.15.0.
 
 ## Choose a History API driver explicitly
 
@@ -218,12 +263,12 @@ Optimized ESM consumers can remove unused drivers; installed-package checks buil
 and execute driver-only and Router combinations. A referenced fallback can remain
 in a shared bundle. Named exports do not promise a separately downloaded chunk:
 conditional imports and network splitting belong to the application's bundler.
-The History path is tested in Chromium with the Navigation API unused and an
-actual URLPattern polyfill. This is not full polyfill certification:
+The same three-engine matrix exercises the History path with a throwing
+Navigation API getter and an actual installed URLPattern polyfill. This is not full polyfill certification:
 `urlpattern-polyfill@10.1.0` differs from native URLPattern for `__proto__`
 parameter names and backslash syntax; avoid those inputs on that path. See
-[the compatibility limits](DESIGN.md#history-api-driver). Firefox and WebKit
-remain untested.
+[the compatibility limits](DESIGN.md#history-api-driver). Passing receipts,
+rather than capability detection, establish the observed engine coverage.
 
 ## Choose which completion you need
 
@@ -235,6 +280,10 @@ remain untested.
 | `route(match)` | Router Match committed, before its awaited handler. |
 | `navigate(...).finished`, `refresh()`, `back()` | Returned handler/redirect work completed while current; true, false on cancellation, rejection on current operational failure. |
 | `route:ready` | Handler fulfilled and Match remains current. A fulfilled false or handled error presentation may still be successful. |
+
+The [native WebKit Back exception](#known-native-webkit-differences) qualifies
+this completion contract: the helper can resolve `false` from the native receipt
+despite completed returned work and a ready, current, un-aborted Match.
 
 Router cancellation settles completion promptly even when ignored work continues.
 It does not discover detached work or wait for every feature-owned replacement.

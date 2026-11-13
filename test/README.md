@@ -126,9 +126,10 @@ Chromium, Firefox and WebKit from the checked-in release profile.
 ## CI jobs
 
 The Node 24 CI suites run in parallel: core checks and unit coverage, tooling
-coverage, browser contracts, agent reference controls, and Linux package fixtures.
+coverage, browser contracts, exact-installed Router archive browsers, agent
+reference controls, and Linux package fixtures.
 Each job installs and builds its own checkout and uploads its own reports. The
-`Node 24` aggregate check succeeds only when all five suites succeed; a failed,
+`Node 24` aggregate check succeeds only when all six required suites succeed; a failed,
 cancelled, or skipped suite does not pass the aggregate check. macOS package smoke
 runs alongside these jobs, and Windows package smoke runs on master pushes.
 On PRs, Linux and macOS run `bash test/fixtures/smoke.sh` after `npm ci`: it packs
@@ -146,7 +147,9 @@ Each suite uploads the following repository report paths:
 | --- | --- |
 | `coverage-node-24` | `coverage/`, `test/tmp/unit-results.xml`, `test/tmp/test-package-consumer/` |
 | `tooling-node-24` | `coverage/tooling/`, excluding temporary `coverage/tooling/tmp/` data; retained for 7 days |
-| `browsers-node-24` | `test/tmp/browser/results.json`, `test/tmp/browser/results.xml`, `test/tmp/browser/report/`, `test/tmp/browser/results/`, `test/tmp/performance/browser-report.json` |
+| `browsers-node-24` | `test/tmp/browser/results.json`, `test/tmp/browser/results.xml`, `test/tmp/browser/report/`, `test/tmp/browser/results/`, `test/tmp/router-diagnostics/`, `test/tmp/performance/browser-report.json` |
+| `router-browser-candidate` | Canonical Linux producer's `${RUNNER_TEMP}/router-browser-candidate/`: exact `.tgz`, adjacent `router-candidate.json` and SHA-256 file |
+| `router-browsers-node-24` | macOS verifier's `${RUNNER_TEMP}/router-browser-verification/` (archive identity, installed lockfile, per-engine execution results and `browser-evidence/`), received `${RUNNER_TEMP}/router-browser-candidate/`, `test/tmp/router-browser/`, `test/tmp/router-browser-probes.json` |
 | `agent-reference-node-24` | `test/tmp/agent-reference-app/`, `test/tmp/agent-reference/reference-report.json`, `test/tmp/agent-reference/artifacts/artifact-input.json`, `test/tmp/agent-fixtures/fixture-controls.json` |
 | `fixtures-node-24` | `test/tmp/fixture-reports/` |
 
@@ -255,7 +258,33 @@ The independently versioned router follows its
 [release procedure](../packages/router/RELEASING.md). The core
 publisher below remains limited to its five framework packages. Its browser
 check uses `playwright.core-release.config.mjs`, preserving the exact core
-inventory while router-owned cases have separate Chromium certification.
+inventory while router-owned cases have separate Chromium, Firefox and WebKit
+certification. The existing browser job runs the source-checkout Router cases. A separate
+canonical Ubuntu producer prepares one archive from clean source. The dependent
+GitHub-hosted `macos-15` arm64 job checks out that exact producer SHA, receives the
+archive and adjacent preparation receipt, and verifies the recorded digest before
+running `test:router-tarball -- --artifact ... --sha256 ... --registry-peers --browser`.
+It requires matching producer/archive/verifier commits and clean verifier source
+before and after execution. Each engine executes independently with the pinned
+configuration, including sandboxed Chromium. A known launch failure blocks that
+engine without another launch attempt; partial evidence never passes certification
+or the required job. These are macOS archive-browser results. Earlier Linux
+archive sandbox failures are not certified by this lane. Host security policy is
+unchanged. The Router
+validator requires the full inventory once per engine, actual executable versions
+and zero failures, retries or skips. Playwright WebKit results do not certify
+every shipping Safari/iOS version.
+The native tests assert the pinned WebKit engine's
+[documented differences](../packages/router/readme.md#known-native-webkit-differences)
+explicitly; they do not skip those cases or normalize Router runtime behavior.
+Passing this inventory includes those differences and does not establish native
+behavior identical to Chromium or Firefox. Separate native diagnostics preserve
+the raw receipts in `test/tmp/router-diagnostics/`.
+Installed per-engine JSON/blob/trace evidence and the merged report live under
+`test/tmp/router-browser/` and are copied to the receipt's `browser-evidence/`
+directory, including on failure. The verification receipt distinguishes blocked
+engines with zero cases from engines that ran and failed. The installed lockfile
+is retained even when browser certification fails.
 
 From a clean committed checkout:
 
