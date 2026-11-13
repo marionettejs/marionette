@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "marionette",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "Build and debug Marionette applications with version-matched documentation.",
   "author": {
     "name": "Marionette.js",
