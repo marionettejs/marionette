@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { test } from 'node:test';
 import { extractTar, readTarFile } from '../../scripts/release/archive.mjs';
 
@@ -29,13 +29,32 @@ test('the targeted archive tool is available and honors the GNU runner requireme
   if (process.env.MNJS_REQUIRE_GNU_TAR === '1') { assert.match(version.stdout, /GNU tar/); }
 });
 
+test('stdin avoids GNU tar remote-host parsing of an existing drive/colon archive', async t => {
+  const version = spawnSync('tar', ['--version'], { encoding: 'utf8' });
+  if (!/GNU tar/.test(version.stdout)) {
+    t.skip('Remote-host path parsing is specific to GNU tar');
+    return;
+  }
+  const candidate = await archive(t);
+  // On Unix the relative spelling places the colon before any slash, as an
+  // absolute Windows drive-letter path does on the hosted Git Bash runner.
+  const path = process.platform === 'win32' ? candidate.path : basename(candidate.path);
+  // If a drive name resolves, Node rejects that hostname as a missing script
+  // instead of attempting a real remote shell. Bound hostname lookup as well.
+  const legacy = spawnSync('tar', [`--rsh-command=${process.execPath}`, '-xOf', path, 'package/package.json'], {
+    cwd: candidate.directory, encoding: 'utf8', timeout: 5000,
+  });
+  assert.ifError(legacy.error);
+  assert.notEqual(legacy.status, 0, 'GNU tar must reject the remote-host spelling');
+  assert.deepEqual(JSON.parse(readTarFile(await readFile(candidate.path), 'package/package.json')), candidate.manifest);
+});
+
 for (const gzip of [false, true]) {
   test(`manifest reading handles ${gzip ? 'gzip' : 'raw'} bytes despite drive/colon paths and spaces`, async t => {
     const candidate = await archive(t, gzip);
     const bytes = await readFile(candidate.path);
     assert.deepEqual(JSON.parse(readTarFile(bytes, 'package/package.json', { gzip })), candidate.manifest);
   });
-
 }
 
 test('snapshot extraction handles raw bytes into a directory with spaces', async t => {
