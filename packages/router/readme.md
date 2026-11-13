@@ -315,8 +315,12 @@ distinct factory identity from the root export; importing both factories can
 retain two copies. Choose one import path for History in an application. The
 package does not control network, preload or service-worker policy.
 
-The existing three-engine matrix exercises the root History export with a throwing
-Navigation API getter and an actual installed URLPattern polyfill. This is not full polyfill certification:
+The standalone entry has Chromium production-consumer coverage. The existing
+complete three-engine History inventory uses the root export; it does not certify
+the standalone entry on Firefox or WebKit.
+
+The same three-engine matrix exercises the History path with a throwing
+Navigation API getter and an actual installed URLPattern polyfill.
 `urlpattern-polyfill@10.1.0` differs from native URLPattern for `__proto__`
 parameter names and backslash syntax; avoid those inputs on that path. See
 [the compatibility limits](DESIGN.md#history-api-driver). Passing receipts,
