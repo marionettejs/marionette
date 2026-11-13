@@ -292,6 +292,7 @@ is retained even when browser certification fails.
 From a clean committed checkout:
 
 ```sh
+MNJS_SKIP_PREPARE=1 npm ci
 npm run release:artifact -- --output release
 npm run release:validate -- --artifact-dir release
 npm run release:verify -- --artifact-dir release --require-validation
@@ -303,6 +304,31 @@ the release test surface. Certification requires every declared browser case in
 every engine from the release profile, plus every fixture; a reduced passing report
 cannot silently reduce the release requirements.
 
+
+The release workflow uploads immutable input packages before validation. Independent
+source, tooling, documentation, distribution, browser and fixture lanes write
+`candidate-validation-<group>.json` and matching checksums. `release:validate --group
+<group>` runs one lane; `release:validate --join` checks all six lane records and
+produces the same complete certificate as the local command above. The final job
+requires every lane, platform shard and consumer Node job to succeed, then verifies
+all logs, browser cases and locked fixtures before uploading `certified-candidate`.
+Missing, failed, stale or altered evidence blocks that gate. Re-running a lane
+revokes its previous result and any complete certificate in that directory.
+
+CI and documentation candidates use `release:artifact --validation-only`. They retain
+the actual source repository, including forks, and cannot satisfy publication's
+`--require-validation` verification. Their same-run compiled-output archive binds
+all generated files, the renderer archive, source commit, lockfile and toolchain to
+a SHA-256 value obtained from the producer job. It is a build transfer, not a cache
+or publication input. Fixture, browser, documentation and agent-reference consumers
+reuse the original package tarballs; they do not rebuild them.
+
+Master CI remains distinct from release certification: its current aggregate does
+not produce the complete release certificate or promotion rehearsal. Publication
+continues to require a successful trusted manual dry run on the exact merged SHA.
+A PR-head artifact, a different merge commit or an ordinary CI artifact cannot replace
+that certification. Consolidating those workflows would require routing master CI
+through the complete trusted certifier, rather than accepting its current artifact.
 
 Candidate validation runs required checks and tests browser/distribution/fixture
 consumers against the original tarballs. Its separate validation record binds logs,

@@ -43,9 +43,13 @@ tarballs built with the pinned source toolchain. All five manifests must match `
 Generated `dist/` directories and `src/version.js` are ignored by Git; edit source files
 and their co-located TypeScript contracts. Declarations are generated for all five
 packages; do not maintain separate handwritten copies. After source edits, run
-`npm run build` before distribution or browser checks. The fixture runner builds
-once before packing local packages; supplying an artifact directory or all five
-tarballs skips rebuilding.
+`npm run build` before distribution or browser checks.
+
+CI sets `MNJS_SKIP_PREPARE=1` for installation, then explicitly builds one candidate
+and transfers its exact packages and compiled outputs. This skips only the root
+preparation script; dependency install scripts still follow npm's checked-in policy.
+The fixture runner builds once before packing local packages; supplying an artifact
+directory or all five tarballs skips rebuilding.
 
 `npm pack` and npm Git installs
 run `prepare` automatically under your selected Node/npm; npm does not select the
@@ -69,7 +73,7 @@ issue before requesting review.
 From the framework checkout, using the toolchain in the release profile:
 
 ```sh
-npm ci --ignore-scripts
+MNJS_SKIP_PREPARE=1 npm ci
 npm run build
 mkdir -p ../marionette-v5-artifacts
 npm pack ./.package ./packages/utils ./packages/radio ./packages/adapters ./packages/data --ignore-scripts --pack-destination ../marionette-v5-artifacts

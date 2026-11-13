@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict';
+import { prepareArtifacts } from '../../scripts/agent-benchmark/harness.mjs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { parseArgs } from 'node:util';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { optionalPackageMinimumVersion, optionalPackagePeerRange, releasePackages } from '../../scripts/release/packages.mjs';
 
+const { values } = parseArgs({ options: { 'artifact-dir': { type: 'string' } } });
 const root = resolve(import.meta.dirname, '../..');
 const npmCli = process.env.npm_execpath;
 assert.ok(npmCli, 'Run npm run test:package-compatibility after npm run build');
@@ -17,10 +20,16 @@ const json = file => JSON.parse(readFileSync(file, 'utf8'));
 try {
   const artifacts = join(temporary, 'artifacts');
   mkdirSync(artifacts);
+  const supplied = values['artifact-dir'] && await prepareArtifacts({
+    manifestPath: resolve(values['artifact-dir'], 'release-evidence.json'), output: artifacts,
+  });
   const packages = new Map(releasePackages.map(configuration => {
     const manifest = json(join(root, configuration.directory, 'package.json'));
-    const [packed] = JSON.parse(npm(['pack', join(root, configuration.id === 'core' ? '.package' : configuration.directory),
-      '--ignore-scripts', '--json', '--pack-destination', artifacts]));
+    const entry = supplied && supplied.packages.find(item => item.id === configuration.id);
+    const packed = entry ? { filename: entry.tarball.file, integrity: entry.tarball.integrity } : JSON.parse(npm([
+      'pack', join(root, configuration.id === 'core' ? '.package' : configuration.directory),
+      '--ignore-scripts', '--json', '--pack-destination', artifacts]))[0];
+    if (entry) { assert.equal(entry.version, manifest.version); }
     return [configuration.id, { ...configuration, version: manifest.version, archive: join(artifacts, packed.filename), integrity: packed.integrity }];
   }));
   const standalone = join(temporary, 'standalone');

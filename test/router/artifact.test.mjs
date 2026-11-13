@@ -367,3 +367,66 @@ test('Router projects launch their named engines and preserve Chromium sandboxin
   assert.deepEqual(development.projects.map(({ name, use }) => [name, use.browserName]),
     names.map(name => [name, name]));
 });
+
+for (const mode of ['build', 'reuse', 'failed-restore']) {
+  test(`Router preparation ${mode} preserves the exact archive and never bypasses a failed restore`, t => {
+    const f = fixture(t);
+    const archive = f.pack();
+    const source = join(f.directory, 'source');
+    const output = join(f.directory, 'prepared');
+    const calls = join(f.directory, 'npm-calls.jsonl');
+    const npm = join(f.directory, 'npm.cjs');
+    mkdirSync(join(source, 'test/router'), { recursive: true });
+    mkdirSync(join(source, 'config'));
+    writeFileSync(join(source, 'package.json'), '{"type":"module"}');
+    const profile = JSON.parse(readFileSync(join(root, 'config/release-profile.json')));
+    writeFileSync(join(source, 'config/release-profile.json'), JSON.stringify(profile));
+    writeFileSync(join(source, 'test/router/prepare.mjs'), readFileSync(join(root, 'test/router/prepare.mjs')));
+    writeFileSync(join(source, 'test/router/artifact.mjs'),
+      `export { candidateOutput, inspectRouterArchive, sha256 } from ${JSON.stringify(pathToFileURL(join(root, 'test/router/artifact.mjs')).href)};`);
+    writeFileSync(npm, `
+const { appendFileSync, copyFileSync } = require('node:fs');
+const { join } = require('node:path');
+const args = process.argv.slice(2);
+appendFileSync(${JSON.stringify(calls)}, JSON.stringify(args) + '\\n');
+if (args[0] === '--version') console.log(${JSON.stringify(profile.source.npm)});
+else if (args[0] === 'run') {
+  if (${JSON.stringify(mode)} === 'failed-restore') process.exit(7);
+} else if (args[0] === 'pack') {
+  copyFileSync(${JSON.stringify(archive)}, join(args.at(-1), 'router.tgz'));
+  console.log(JSON.stringify([{ filename: 'router.tgz' }]));
+} else process.exit(99);
+`);
+    const git = args => execFileSync('git', args, { cwd: source, encoding: 'utf8' }).trim();
+    git(['init', '-q']); git(['add', '.']);
+    git(['-c', 'user.name=Tests', '-c', 'user.email=tests@example.invalid', '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'clean fixture']);
+    const checksum = 'a'.repeat(64);
+    const result = spawnSync(process.execPath, [join(source, 'test/router/prepare.mjs'), '--output', output,
+      ...(mode === 'build' ? [] : ['--build-sha256', checksum])], {
+      encoding: 'utf8', env: { ...process.env, npm_execpath: npm },
+    });
+    assert.equal(result.status, mode === 'failed-restore' ? 1 : 0, result.stderr);
+    const commands = readFileSync(calls, 'utf8').trim().split('\n').map(JSON.parse);
+    assert.deepEqual(commands.filter(args => args[0] === 'run'), mode === 'build' ? [['run', 'build:router']] :
+      [['run', 'release:outputs', '--', '--mode', 'restore', '--sha256', checksum]]);
+    assert.equal(commands.filter(args => args[0] === 'pack').length, mode === 'failed-restore' ? 0 : 1);
+    if (mode !== 'failed-restore') {
+      const receipt = JSON.parse(readFileSync(join(output, 'router-candidate.json')));
+      assert.equal(receipt.sourceCommit, git(['rev-parse', 'HEAD']));
+      assert.equal(receipt.sourceDirty, false);
+      assert.equal(receipt.archive.sha256, sha256(readFileSync(archive)));
+      assert.equal(receipt.buildOutputsSha256, mode === 'build' ? undefined : checksum);
+    }
+  });
+}
+
+
+test('explicit invalid Router build hashes cannot fall back to a local build', () => {
+  for (const checksum of ['', 'invalid', 'a'.repeat(63)]) {
+    const result = spawnSync(process.execPath, [join(root, 'test/router/prepare.mjs'), '--output', '/unused-before-hash-validation',
+      '--build-sha256', checksum], { encoding: 'utf8', env: { ...process.env, npm_execpath: '/unused-before-hash-validation' } });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Supply the producer build SHA-256/);
+    assert.doesNotMatch(result.stderr, /MODULE_NOT_FOUND|ENOENT/);
+  }
+});

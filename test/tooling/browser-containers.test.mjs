@@ -10,7 +10,7 @@ const workflows = Object.fromEntries(await Promise.all(['ci', 'html', 'release']
   [name, parse(await readFile(resolve(root, `.github/workflows/${name}.yml`), 'utf8'))])));
 const browserJobs = [
   ['ci', 'browsers'], ['ci', 'agent-reference'], ['ci', 'performance-timing'],
-  ['release', 'build'], ['html', 'verify'],
+  ['release', 'candidate-checks'], ['html', 'verify'],
 ];
 
 test('browser CI images match their independently maintained Playwright scope', async() => {
@@ -72,8 +72,8 @@ test('the container repair preserves browser suites, exact-artifact validation a
   assert.ok(includesRun(workflows.ci.jobs.browsers, 'npm run test:browser-performance'));
   assert.ok(includesRun(workflows.ci.jobs['agent-reference'], 'npm run test:agent-app'));
   assert.ok(includesRun(workflows.html.jobs.verify, 'npm --prefix packages/html run test:packed:browser'));
-  assert.ok(includesRun(workflows.release.jobs.build, 'npm run release:validate -- --artifact-dir release'));
-  assert.deepEqual(workflows.ci.jobs.test.needs, ['core', 'tooling', 'browsers', 'router-browsers', 'agent-reference', 'linux-package-smoke', 'node-lts']);
+  assert.ok(includesRun(workflows.release.jobs['candidate-checks'], 'npm run release:validate -- --artifact-dir release --group "${{ matrix.group }}"'));
+  assert.deepEqual(workflows.ci.jobs.test.needs, ['source-checks', 'core', 'tooling', 'browsers', 'router-browsers', 'agent-reference', 'linux-package-smoke', 'node-lts']);
   assert.equal(workflows.ci.jobs.test.name, 'Node 24');
   assert.equal(workflows.ci.jobs.test.if, 'always()');
   for (const workflow of Object.values(workflows)) {

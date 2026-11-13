@@ -54,3 +54,24 @@ if (args[0] === 'pack') {
     assert.deepEqual(await readdir(join(root, 'tmp')), [], 'packed artifacts are removed on success and failure');
   });
 }
+
+test('smoke consumes the supplied candidate for every fixture without packing', async t => {
+  const root = await mkdtemp(join(tmpdir(), 'marionette-smoke-reuse-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await mkdir(join(root, 'test/fixtures'), { recursive: true });
+  await mkdir(join(root, 'bin'));
+  await cp(smoke, join(root, 'test/fixtures/smoke.sh'));
+  const log = join(root, 'calls.jsonl');
+  await writeFile(join(root, 'bin/npm'), `#!/usr/bin/env node
+require('node:fs').appendFileSync(${JSON.stringify(log)}, JSON.stringify(process.argv.slice(2)) + '\\n');
+if (process.argv[2] === 'pack') process.exit(88);
+if (process.argv.includes('cjs-node')) process.exit(3);
+`, { mode: 0o755 });
+  const result = spawnSync('bash', ['test/fixtures/smoke.sh', '--artifact-dir', 'prebuilt'], {
+    cwd: root, encoding: 'utf8', env: { ...process.env, PATH: `${join(root, 'bin')}${delimiter}${process.env.PATH}` },
+  });
+  assert.equal(result.status, 1, result.stderr);
+  const calls = (await readFile(log, 'utf8')).trim().split('\n').map(JSON.parse);
+  assert.deepEqual(calls.map(args => args[args.indexOf('--fixture') + 1]), fixtures);
+  assert(calls.every(args => args[0] === 'run' && args[1] === 'test:fixtures' && args[3] === '--artifact-dir' && args[4] === 'prebuilt'));
+});

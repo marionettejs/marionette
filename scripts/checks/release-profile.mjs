@@ -105,7 +105,7 @@ function validateWorkflow() {
     /^ {4}continue-on-error:/m.test(consumerJob)) {
     fail(`${profile.source.consumerJob} must test Node ${profile.source.consumerNodeMajor} as a required job`);
   }
-  if (!job(consumerWorkflow, 'test').match(/^ {4}needs:.*\bnode-lts\b/m)) {
+  if (!job(consumerWorkflow, 'test').match(/^ {4}needs:.*(?<![A-Za-z0-9_-])node-lts(?![A-Za-z0-9_-])/m)) {
     fail('CI aggregate must require node-lts');
   }
   for (const [file, versions] of [
@@ -118,9 +118,10 @@ function validateWorkflow() {
       fail(`${file} must require the consumer Node matrix ${matrix}`);
     }
   }
-  if (!job(workflowContents.get('release.yml') || '', 'promotion-dry-run')
-    .match(/^ {4}needs:.*\bconsumer-lts\b/m)) {
-    fail('Release promotion must require consumer-lts');
+  const releaseWorkflow = workflowContents.get('release.yml') || '';
+  if (!job(releaseWorkflow, 'promotion-dry-run').match(/^ {4}needs:.*(?<![A-Za-z0-9_-])certification(?![A-Za-z0-9_-])/m) ||
+      !job(releaseWorkflow, 'certification').match(/^ {4}needs:.*(?<![A-Za-z0-9_-])consumer-lts(?![A-Za-z0-9_-])/m)) {
+    fail('Release promotion must require consumer-lts through certification');
   }
 
   for (const host of profile.hosts) {

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { prepareArtifacts } from '../../scripts/agent-benchmark/harness.mjs';
 import { htmlCandidate } from '../docs/html-candidate.mjs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -19,11 +20,13 @@ const currentCoreVersion = JSON.parse(readFileSync(join(root, 'package.json'))).
 const npmCli = process.env.npm_execpath;
 if (!npmCli) {throw new Error('Run through npm run test:router-tarball, after npm run build.');}
 const { values } = parseArgs({ options: {
+  'artifact-dir': { type: 'string' },
   artifact: { type: 'string' }, sha256: { type: 'string' }, output: { type: 'string' },
   'registry-peers': { type: 'boolean', default: false },
   'registry-peer-version': { type: 'string' }, browser: { type: 'boolean', default: false },
   'chromium-executable': { type: 'string' },
 } });
+assert.ok(!values['artifact-dir'] || !values['registry-peers'], '--artifact-dir requires local candidate peers');
 assert.equal(Boolean(values.artifact), Boolean(values.sha256), '--artifact and --sha256 are required together');
 assert.ok(!values['chromium-executable'] || values.browser, '--chromium-executable requires --browser');
 assert.ok(!values['registry-peer-version'] || values['registry-peers'], '--registry-peer-version requires --registry-peers');
@@ -49,6 +52,10 @@ try {
       '--ignore-scripts', '--json', '--cache', join(temporary, 'cache'), '--pack-destination', artifacts], { cwd: root, encoding: 'utf8' }));
     return join(artifacts, result.filename);
   };
+  const supplied = values['artifact-dir'] && await prepareArtifacts({
+    manifestPath: resolve(values['artifact-dir'], 'release-evidence.json'), output: artifacts,
+  });
+  const candidateArchive = id => supplied.packages.find(entry => entry.id === id).path;
   const routerTarball = values.artifact ? resolve(values.artifact) : pack(join(root, 'packages/router'));
   report.archive = inspectRouterArchive(routerTarball, values.sha256 ?? sha256(readFileSync(routerTarball)));
   report.publishableManifest = true;
@@ -59,11 +66,13 @@ try {
     if (output) { cpSync(preparationFile, join(output, 'router-candidate.json')); }
   }
   const peers = values['registry-peers'] ? [`marionette@${registryPeerVersion}`, `@mnjs/utils@${registryPeerVersion}`] :
-    ['.package', 'packages/utils', 'packages/radio'].map(directory => pack(join(root, directory)));
+    supplied ? ['core', 'utils', 'radio'].map(candidateArchive) :
+      ['.package', 'packages/utils', 'packages/radio'].map(directory => pack(join(root, directory)));
   const renderer = htmlCandidate();
   report.renderer = renderer;
   const exampleDependencies = values['registry-peers'] ? [`@mnjs/adapters@${registryPeerVersion}`, 'lit-html@3.3.3', 'urlpattern-polyfill@10.1.0'] :
-    ['packages/adapters', 'node_modules/lit-html', 'node_modules/@types/trusted-types', 'node_modules/urlpattern-polyfill'].map(directory => pack(join(root, directory)));
+    [supplied ? candidateArchive('adapters') : pack(join(root, 'packages/adapters')),
+      ...['node_modules/lit-html', 'node_modules/@types/trusted-types', 'node_modules/urlpattern-polyfill'].map(directory => pack(join(root, directory)))];
   writeFileSync(join(consumer, 'package.json'), '{"name":"router-tarball-consumer","private":true,"type":"module"}\n');
   execFileSync(process.execPath, [npmCli, 'install', '--ignore-scripts', '--strict-peer-deps', '--no-audit', '--no-fund',
     ...(values['registry-peers'] ? ['--registry=https://registry.npmjs.org/', '--fetch-retries=0', '--fetch-timeout=20000'] : ['--offline']),

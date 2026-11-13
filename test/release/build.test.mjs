@@ -230,3 +230,19 @@ test('release output rejects the staging tree and symlink aliases before buildin
   }
   assert.equal(await readFile(candidate.calls, 'utf8'), '');
 });
+
+test('validation-only construction preserves fork provenance while release construction rejects it', async t => {
+  const candidate = await buildFixture(t);
+  const rejected = candidate.run('build-artifact', ['--output', candidate.output, '--repository', 'contributor/marionette']);
+  assert.equal(rejected.status, 1);
+  assert.match(rejected.stderr, /does not match/);
+  const result = candidate.run('build-artifact', ['--output', candidate.output, '--validation-only', '--repository', 'contributor/marionette']);
+  assert.equal(result.status, 0, result.stderr);
+  const evidence = JSON.parse(await readFile(resolve(candidate.output, 'release-evidence.json')));
+  assert.equal(evidence.validationOnly, true);
+  assert.equal(evidence.source.repository, 'contributor/marionette');
+  assert.equal(candidate.run('verify-artifact', ['--artifact-dir', candidate.output]).status, 0);
+  const publication = candidate.run('verify-artifact', ['--artifact-dir', candidate.output, '--require-validation']);
+  assert.equal(publication.status, 1);
+  assert.match(publication.stderr, /Validation-only artifacts cannot be certified/);
+});

@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - '.github/workflows/**'
+      - '.github/actions/**'
       - '.nvmrc'
       - 'scripts/checks/release-profile.mjs'
       - 'config/diagnostics/**'
@@ -22,10 +23,15 @@ on:
 permissions:
   contents: read
 
+env:
+  MNJS_SKIP_PREPARE: '1'
+
 jobs:
   build:
-    name: Build and validate
+    name: Build immutable documentation candidate
     runs-on: ubuntu-24.04
+    outputs:
+      build_sha256: ${{ steps.outputs.outputs.sha256 }}
 
     steps:
       - name: Checkout
@@ -45,22 +51,29 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Construct immutable documentation candidate
+        run: npm run release:artifact -- --validation-only --output test/tmp/candidate
+
       - name: Prepare candidate HTML renderer
         run: npm run docs:prepare-html
 
-      - name: Build and validate documentation
-        run: npm run docs:check && npm run docs:check-router
+      - name: Capture compiled outputs
+        id: outputs
+        run: npm run release:outputs -- --mode capture
 
-      - name: Pack consumer artifacts with the source toolchain
-        run: |
-          mkdir -p test/tmp/consumer-artifacts
-          npm pack ./.package ./packages/utils ./packages/radio ./packages/data ./packages/adapters --ignore-scripts --pack-destination test/tmp/consumer-artifacts
+      - name: Upload compiled outputs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: build-outputs-${{ github.sha }}
+          path: test/tmp/build-outputs/
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Upload consumer artifacts
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: consumer-artifacts
-          path: test/tmp/consumer-artifacts/*.tgz
+          name: candidate-${{ github.sha }}
+          path: test/tmp/candidate/
           if-no-files-found: error
           retention-days: 1
 
@@ -71,6 +84,42 @@ jobs:
           path: packages/html/artifacts/*.tgz
           if-no-files-found: error
           retention-days: 1
+
+  documentation:
+    name: Build and validate
+    needs: build
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require successful candidate build
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+        run: test "$BUILD_RESULT" = success
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Restore exact candidate
+        uses: ./.github/actions/restore-candidate
+        with:
+          source-sha: ${{ github.sha }}
+          build-sha256: ${{ needs.build.outputs.build_sha256 }}
+
+      - name: Build and validate documentation
+        run: npm run docs:check && npm run docs:check-router
+        env:
+          MARIONETTE_ARTIFACT_DIR: ${{ github.workspace }}/test/tmp/candidate
 
       - name: Upload Pages artifact
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && vars.DOCS_PAGES_ENABLED == 'true'
@@ -95,14 +144,23 @@ jobs:
       - name: Download prebuilt consumer artifacts
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: consumer-artifacts
-          path: test/tmp/consumer-artifacts
+          name: candidate-${{ github.sha }}
+          path: test/tmp/candidate
 
       - name: Download verified renderer artifact
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: docs-html-artifact
           path: packages/html/artifacts
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Verify exact documentation candidate
+        run: npm run release:verify -- --artifact-dir test/tmp/candidate --source-commit "${{ github.sha }}"
 
       - name: Setup consumer Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -111,7 +169,7 @@ jobs:
           check-latest: true
 
       - name: Verify installed packages on consumer LTS
-        run: npm run check:docs-installed -- --artifact-dir test/tmp/consumer-artifacts
+        run: npm run check:docs-installed -- --artifact-dir test/tmp/candidate
         env:
           npm_config_engine_strict: 'true'
 
@@ -127,7 +185,7 @@ jobs:
   deploy:
     name: Deploy
     if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && vars.DOCS_PAGES_ENABLED == 'true'
-    needs: build
+    needs: [documentation, consumer-lts]
     concurrency:
       group: documentation-pages
       cancel-in-progress: false
