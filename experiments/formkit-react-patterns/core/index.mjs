@@ -1,9 +1,10 @@
 // Experimental slice. React 2.5.0 store/class-cache patterns adapted under MIT;
 // see LICENSE.formkit. DOM renderer and Marionette ownership are new code.
 import { installValueFacade } from './value-facade.mjs';
+import { camel } from '@formkit/utils';
 import { View, Region } from 'marionette';
 import { createNode, compile, reset } from '@formkit/core';
-import { createLibraryPlugin, inputs } from '@formkit/inputs';
+import { createLibraryPlugin, inputs, runtimeProps } from '@formkit/inputs';
 import { createObserver } from '@formkit/observer';
 import { bindings } from './upstream-bindings.mjs';
 import { renderSections } from './section-renderer.mjs';
@@ -54,17 +55,23 @@ function createField(node,spec,view,initial) {
     update(currentSlots[name]);slotControllers.set(name,controller);return(remove=true)=>controller.destroy(remove);
   };
   const field={el,node,spec,children,refresh(){if(dead)return;node.context.refreshClasses();renderer.refresh();for(const slot of slotControllers.values())slot.refresh();for(const child of children.values())child.refresh();},update(next){
-    if(node.type==='group'){node.props.disabled=next.disabled;reconcile(view,node,children,next.children??[],anchor,initial??{});}
+    if(node.type==='group'){node.props.disabled=nativeProps(next).props.disabled;reconcile(view,node,children,next.children??[],anchor,initial??{});}
     else {
       if(next.children!==field.spec.children){
       const nextSlots=next.children??{};
       for(const[name,slot]of slotControllers)if(name in nextSlots&&nextSlots[name]!==currentSlots[name])slot.update(nextSlots[name]);
       currentSlots=nextSlots;node.context.slots=Object.fromEntries(Object.keys(currentSlots).map(name=>[name,true]));renderer.refresh();
       }
-      if(node.props.type==='textarea'&&next.attrs!==field.spec.attrs)node.props.attrs=next.attrs??{};
+      if(next.attrs!==field.spec.attrs){
+        const {props,attrs}=nativeProps(next);
+        for(const key of Object.keys(attrs))if((node.props.definition.props??[]).includes?.(key)){node.props[key]=attrs[key];delete attrs[key];}
+        node.props.attrs=attrs;
+        for(const key of generalProps)if(key in props&&key!=='id'&&key!=='name'&&key!=='type')node.props[key]=props[key];
+      }
       if(node.props.type==='select'&&next.options!==field.spec.options)node.props.options=next.options;
-      if(node.props.type==='checkbox'){node.props.onValue=next.onValue===undefined?true:next.onValue;node.props.offValue=next.offValue===undefined?false:next.offValue;}
-      for(const key of ['label','help','disabled','validation','validationVisibility'])node.props[key]=next[key]??(key==='validationVisibility'?'live':undefined);
+      if(node.props.type==='checkbox'){const values=nativeProps(next).attrs;node.props.onValue=values.onValue===undefined?true:values.onValue;node.props.offValue=values.offValue===undefined?false:values.offValue;}
+      const normalized=nativeProps(next).props;
+      for(const key of ['label','help','disabled','validation','validationVisibility'])node.props[key]=normalized[key]??(key==='validationVisibility'?'live':undefined);
     }
     field.spec=next;
   },disposeView(remove=true){if(dead)return;dead=true;renderer?.destroy(remove);for(const slot of slotControllers.values())slot.destroy(remove);for(const child of children.values())child.disposeView(remove);if(remove)el.remove();},disposeNodes(parentFirst=false){if(parentFirst)node.destroy();for(const child of children.values())child.disposeNodes(parentFirst);children.clear();if(!parentFirst)node.destroy();},destroy(){if(dead)return;field.disposeView();field.disposeNodes();}};
@@ -72,10 +79,27 @@ function createField(node,spec,view,initial) {
   catch(error){field.destroy();throw error;}
 }
 
+const generalProps=new Set([...runtimeProps,'label','help','disabled','validationVisibility']);
+function nativeProps(spec) {
+  const {children,attrs={},value,...direct}=spec;
+  const props={...direct},domAttrs={};
+  const definition=inputs[spec.type??'text'];
+  const keys=Array.isArray(definition.props)?definition.props:Object.keys(definition.props??{});
+  for(const [key,value]of Object.entries(attrs)){
+    const name=camel(key);
+    if(generalProps.has(name)){if(!Object.hasOwn(props,name))props[name]=value;}
+    else domAttrs[keys.includes(name)?name:key]=value;
+  }
+  // Definition props enter via attrs so the installed official feature hooks
+  // normalize them during addProps, exactly once on initial construction.
+  for(const key of keys)if(Object.hasOwn(props,key)){domAttrs[key]=props[key];delete props[key];}
+  return {props,attrs:domAttrs};
+}
+
 function createFieldNode(view,parent,spec,initial) {
   const type=spec.type??'text',value=Object.hasOwn(initial??{},spec.name)?initial[spec.name]:spec.value;
-  const {children,...props}=spec;
-  return createNode({parent,name:spec.name,value,props:{...props,type,attrs:spec.attrs??{},id:`experiment-${view.cid}-${++view._fieldId}`,__slots:type==='group'?{default:true}:Object.fromEntries(Object.keys(children??{}).map(name=>[name,true])),validation:spec.validation,validationVisibility:spec.validationVisibility??'live'}});
+  const {children}=spec;const {props,attrs}=nativeProps(spec);
+  return createNode({parent,name:spec.name,value,props:{...props,type,attrs,id:`experiment-${view.cid}-${++view._fieldId}`,__slots:type==='group'?{default:true}:Object.fromEntries(Object.keys(children??{}).map(name=>[name,true])),validationVisibility:props.validationVisibility??'live'}});
 }
 
 function reconcile(view,parent,map,specs,anchor,initial) {
@@ -109,22 +133,22 @@ export class ExperimentalFormView extends View {
   initialize(options = {}) {
     this.metrics = { enabled:options.instrument===true, contextNotifications:0,tokenChecks:0,expressionEvaluations:0,domWrites:0,structuralChanges:0,coreNodesCreated:0,coreNodesDestroyed:0,coreInputEvents:0,coreCommitEvents:0,coreMessageEvents:0,classRootEvaluations:0 };
     this._fieldId = 0; this._ending = false;
-    this.config = { delay: 0, locale: 'en', rootClasses: section => ({[`formkit-${section}`]:true}), ...options.config, classes: options.classes ?? options.config?.classes };
+    this.config = { locale: 'en', rootClasses: section => ({[`formkit-${section}`]:true}), ...options.config, classes: options.classes ?? options.config?.classes };
     const rootClasses=this.config.rootClasses;
     if(this.metrics.enabled)this.config.rootClasses=(section,node)=>{this.metrics.classRootEvaluations++;return rootClasses(section,node);};
     const countCore=node=>{this.metrics.coreNodesCreated++;for(const[event,key]of [['input','coreInputEvents'],['commit','coreCommitEvents'],['message-added','coreMessageEvents'],['message-updated','coreMessageEvents'],['message-removed','coreMessageEvents'],['destroyed','coreNodesDestroyed']])node.on(event,()=>this.metrics[key]++);};
     this.fields = new Map(); this.initialValues = structuredClone(options.values ?? {});
     this.node = createNode({ name: 'form', value: this.initialValues, config: this.config,
       props: { ...options.formProps, type: 'form', attrs: options.formProps?.attrs ?? {}, id: `experiment-form-${this.cid}`, __slots: {default:true}, actions: false, onSubmit: options.onSubmit ?? (()=>{}), onSubmitInvalid: options.onSubmitInvalid, onSubmitRaw: options.onSubmitRaw },
-      plugins: [...(this.metrics.enabled?[countCore]:[]), createLibraryPlugin(inputs), node=>{if(node.props.type==='select')node.props.options=node.props.options;}, bindings, createValidationPlugin(rules), createI18nPlugin({ en })] });
-    this._disposeFacade=installValueFacade(this);
+      plugins: [...(this.metrics.enabled?[countCore]:[]), createLibraryPlugin(inputs), bindings, createValidationPlugin(rules), createI18nPlugin({ en })] });
+    this._facade=installValueFacade(this);
     const submitHandler=this.node.context.handlers.submit;
     this._onSubmit = event => { this.lastSubmission = submitHandler(event); };
     this.node.context.handlers.submit=this._onSubmit;
     this._rootRenderer=renderSections({host:this.el,schema:this.node.props.definition.schema({}),context:this.node.context,metrics:this.metrics,reuseRoot:true,
       slots:{default:({parent,before})=>{this._fieldAnchor=document.createComment('fields');parent.insertBefore(this._fieldAnchor,before);return(remove=true)=>{if(remove)this._fieldAnchor.remove();};}}});
     this.specs = options.fields ?? Array.from({ length: options.count ?? 1 }, (_, i) => ({ name: `field${i}`, label: `Field ${i}`, validation: 'required' }));
-    this.on('before:destroy', () => { this._ending = true; this._disposeFacade(); this._rootRenderer.destroy(false); for (const field of this.fields.values()) field.disposeView(false); this.node.destroy(); for (const field of this.fields.values()) field.disposeNodes(true); this.fields.clear(); this.el.replaceChildren(); });
+    this.on('before:destroy', () => { this._ending = true; this._facade.destroy(); this._rootRenderer.destroy(false); for (const field of this.fields.values()) field.disposeView(false); this.node.destroy(); for (const field of this.fields.values()) field.disposeNodes(true); this.fields.clear(); this.el.replaceChildren(); });
   }
   render() {
     if (this.isDestroyed()) return this;
@@ -136,7 +160,12 @@ export class ExperimentalFormView extends View {
     }
     this._isRendered = true; this.triggerMethod('render', this); return this;
   }
-  setFields(specs) {
+  getValues() { return this._facade.getValues(); }
+  getFormState() { return this._facade.getFormState(); }
+  setValues(values,options) { return this._facade.setValues(values,options); }
+  setErrors(errors,fieldErrors) { return this._facade.setErrors(errors,fieldErrors); }
+  setFields(specs) { return this._facade.batch('setFields',()=>this._setFields(specs)); }
+  _setFields(specs) {
     if (this._ending || this.isDestroyed()) return;
     validateFields(specs);
     if(!this._isRendered&&this.fields.size===0){
@@ -159,7 +188,7 @@ export class ExperimentalFormView extends View {
     this.specs = specs;
   }
   get formMessages() { return this.el.querySelector(':scope > .formkit-messages'); }
-  resetForm() { if (!this._ending && !this.isDestroyed()) reset(this.node); }
+  resetForm() { return this._facade.batch('resetForm',()=>{if(!this._ending&&!this.isDestroyed())reset(this.node);}); }
   submit() { if (this._ending || this.isDestroyed()) return Promise.resolve();
     this.el.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); return this.lastSubmission;
   }

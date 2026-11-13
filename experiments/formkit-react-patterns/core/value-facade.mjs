@@ -29,16 +29,14 @@ export function installValueFacade(view) {
     }),node.on('commit',committed),...['message-added.deep','message-updated.deep','message-removed.deep'].map(name=>node.on(name,()=>{if(!operation)emitState();}))];
   const capture=event=>{nativeEvent=event;};
   view.el.addEventListener('input',capture,true);view.el.addEventListener('change',capture,true);if(metrics.enabled)metrics.facadeListeners=receipts.length+2;
-  for(const [name,origin] of [['setFields','programmatic'],['resetForm','reset']]) {
-    const original=view[name];view[name]=function(...args){
-      if(dead)return;
-      const before=name==='resetForm'?(count('resetComparisonSnapshots'),cloneAny(node.value)):undefined;
-      const outer=operation;operation={source:origin};
-      try{return original.apply(this,args);}finally{operation=outer;source=origin;if(name==='resetForm')dirty=!eq(before,node.value);if(!outer)committed({origin:node});}
-    };
-  }
-  view.getValues=snapshot;view.getFormState=state;
-  view.setValues=(values,options={})=>{
+  const batch=(name,callback)=>{
+    if(dead)return;
+    const origin=name==='resetForm'?'reset':'programmatic';
+    const before=name==='resetForm'?(count('resetComparisonSnapshots'),cloneAny(node.value)):undefined;
+    const outer=operation;operation={source:origin};
+    try{return callback();}finally{operation=outer;source=origin;if(name==='resetForm')dirty=!eq(before,node.value);if(!outer)committed({origin:node});}
+  };
+  const setValues=(values,options={})=>{
     if(dead)return view;
     const candidate=merge(node.value,cloneAny(values)),changed=!eq(candidate,node.value),previous=operation;operation={source:options.source??'programmatic'};
     try{if(changed)node.input(candidate,false);}
@@ -46,6 +44,7 @@ export function installValueFacade(view) {
     if(changed&&options.notify!==false&&listens()){count('valueChangeEvents');view.triggerMethod('form:change',snapshot(),state(),{source:options.source??'programmatic'});}
     source='programmatic';emitState();return view;
   };
-  view.setErrors=(errors=[],fieldErrors={})=>{if(dead)return;node.clearErrors();node.setErrors(errors,fieldErrors);};
-  return ()=>{dead=true;for(const receipt of receipts)node.off(receipt);view.el.removeEventListener('input',capture,true);view.el.removeEventListener('change',capture,true);metrics.facadeListeners=0;};
+  const setErrors=(errors=[],fieldErrors={})=>{if(dead)return;node.clearErrors();node.setErrors(errors,fieldErrors);};
+  const destroy=()=>{dead=true;for(const receipt of receipts)node.off(receipt);view.el.removeEventListener('input',capture,true);view.el.removeEventListener('change',capture,true);metrics.facadeListeners=0;};
+  return {getValues:snapshot,getFormState:state,setValues,setErrors,batch,destroy};
 }
