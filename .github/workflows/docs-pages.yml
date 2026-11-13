@@ -86,10 +86,16 @@ jobs:
           retention-days: 1
 
   documentation:
-    name: Validate documentation
+    name: Build and validate
     needs: build
+    if: always()
     runs-on: ubuntu-24.04
     steps:
+      - name: Require successful candidate build
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+        run: test "$BUILD_RESULT" = success
+
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

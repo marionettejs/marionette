@@ -177,3 +177,24 @@ test('documentation builds and packs once for the local check and all six consum
   const steps = workflow.jobs['consumer-lts'].steps;
   assert(steps.findIndex(step => step.run?.includes('release:verify')) < steps.findIndex(step => step.name === 'Setup consumer Node'));
 });
+
+test('required documentation check keeps its public name and rejects unsuccessful builds', async() => {
+  const workflow = parse(await readFile(resolve(import.meta.dirname, '../../.github/workflows/docs-pages.yml'), 'utf8'));
+  const validation = workflow.jobs.documentation;
+  // This exact check name is required by the default-branch ruleset.
+  assert.equal(validation.name, 'Build and validate');
+  assert.equal(Object.values(workflow.jobs).filter(job => job.name === 'Build and validate').length, 1);
+  assert.notEqual(workflow.jobs.build.name, 'Build and validate');
+  assert.equal(validation.needs, 'build');
+  assert.equal(validation.if, 'always()');
+  assert.equal(validation['continue-on-error'], undefined);
+  assert(validation.steps.some(step => step.run === 'npm run docs:check && npm run docs:check-router'));
+  const gate = validation.steps[0];
+  assert.equal(gate.env.BUILD_RESULT, '${{ needs.build.result }}');
+  for (const result of ['success', 'failure', 'cancelled', 'skipped', '']) {
+    const checked = spawnSync('bash', ['-e', '-c', gate.run], {
+      encoding: 'utf8', env: { ...process.env, BUILD_RESULT: result },
+    });
+    assert.equal(checked.status, result === 'success' ? 0 : 1, `${result}: ${checked.stderr}`);
+  }
+});
