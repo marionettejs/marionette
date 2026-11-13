@@ -13,6 +13,7 @@ import { releasePackages } from '../../scripts/release/packages.mjs';
 // --artifact-dir consumes tarballs packed with the source toolchain on another Node.
 const root = resolve(import.meta.dirname, '../..');
 const { values } = parseArgs({ options: { 'artifact-dir': { type: 'string' } } });
+values['artifact-dir'] ||= process.env.MARIONETTE_ARTIFACT_DIR;
 const directory = realpathSync(mkdtempSync(join(tmpdir(), 'marionette-installed-docs-')));
 const artifacts = join(directory, 'artifacts');
 mkdirSync(artifacts);

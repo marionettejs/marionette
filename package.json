@@ -90,7 +90,7 @@
     "test:release-promotion": "node --test test/release/*.test.mjs",
     "test:data": "vitest run test/unit/data-package",
     "test:source": "node test/source/validate.mjs",
-    "prepare": "npm run build && npm run test:dist",
+    "prepare": "node build/prepare.mjs",
     "check:types": "tsc -p tsconfig.json",
     "test:types": "node test/types/run.mjs",
     "build:types": "node build/declarations.mjs",
@@ -138,7 +138,8 @@
     "test:router-browser": "playwright test --config playwright.router.config.mjs",
     "test:browser:core-release": "playwright test --config playwright.core-release.config.mjs",
     "docs:check-router": "node test/docs/router-companion.mjs",
-    "test:package-compatibility": "node test/package-compatibility/run.mjs"
+    "test:package-compatibility": "node test/package-compatibility/run.mjs",
+    "release:outputs": "node scripts/release/build-outputs.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"

@@ -189,6 +189,7 @@ for (const packageEvidence of evidence.packages) {
 }
 
 if (args['require-validation']) {
+  if (evidence.validationOnly) { throw new Error('Validation-only artifacts cannot be certified for publication.'); }
   await verifyCandidateValidation(artifactDir, evidenceBytes);
   console.log('Complete candidate validation verified.');
 }

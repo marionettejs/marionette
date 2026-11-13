@@ -118,9 +118,10 @@ function validateWorkflow() {
       fail(`${file} must require the consumer Node matrix ${matrix}`);
     }
   }
-  if (!job(workflowContents.get('release.yml') || '', 'promotion-dry-run')
-    .match(/^ {4}needs:.*\bconsumer-lts\b/m)) {
-    fail('Release promotion must require consumer-lts');
+  const releaseWorkflow = workflowContents.get('release.yml') || '';
+  if (!job(releaseWorkflow, 'promotion-dry-run').match(/^ {4}needs:.*\bcertification\b/m) ||
+      !job(releaseWorkflow, 'certification').match(/^ {4}needs:.*\bconsumer-lts\b/m)) {
+    fail('Release promotion must require consumer-lts through certification');
   }
 
   for (const host of profile.hosts) {

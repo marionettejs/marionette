@@ -11,6 +11,7 @@ import { buildDevelopmentKit } from '../docs/development-kit.mjs';
 const root = resolve(import.meta.dirname, '../..');
 const args = readArguments({
   output: { type: 'string', default: 'release' },
+  'validation-only': { type: 'boolean', default: false },
   'source-commit': { type: 'string', default: process.env.GITHUB_SHA },
   'source-ref': { type: 'string', default: process.env.GITHUB_REF || 'local' },
   repository: { type: 'string', default: process.env.GITHUB_REPOSITORY || 'marionettejs/marionette' },
@@ -106,7 +107,7 @@ const releaseProfile = await readJson('config/release-profile.json');
 const promotionPolicy = await readJson('config/release-promotion.json');
 // Validate authorization shape even when building a disabled dry-run candidate.
 publicationEnabled(promotionPolicy, packageJson.version);
-if (repository !== promotionPolicy.repository) {
+if (!args['validation-only'] && repository !== promotionPolicy.repository) {
   throw new Error(`Repository ${repository} does not match ${promotionPolicy.repository}.`);
 }
 
@@ -209,6 +210,7 @@ const prerelease = packageJson.version.includes('-');
 const npmTag = prerelease ? promotionPolicy.npm.prereleaseTag : promotionPolicy.npm.stableTag;
 const evidence = {
   schemaVersion: 3,
+  ...(args['validation-only'] ? { validationOnly: true } : {}),
   packages,
   release: {
     tag: `v${packageJson.version}`,

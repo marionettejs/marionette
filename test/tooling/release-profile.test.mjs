@@ -48,6 +48,7 @@ test('release profile rejects consumer support and required verification drift',
     ['docs-pages.yml', '\'22.22.2\', ', '', /must require the consumer Node matrix/],
     ['docs-pages.yml', ', \'26.0.0\'', '', /must require the consumer Node matrix/],
     ['release.yml', ', \'26\'', '', /must require the consumer Node matrix/],
+    ['release.yml', ', certification]', ']', /promotion must require consumer-lts/],
     ['release.yml', ', consumer-lts]', ']', /promotion must require consumer-lts/],
   ]) {
     const path = join(root, '.github/workflows', file);

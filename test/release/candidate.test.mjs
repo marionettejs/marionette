@@ -115,3 +115,76 @@ test('an invalid-artifact retry revokes old success before preflight fails', asy
   assert.equal(verify.status, 1);
   assert.match(verify.stderr, /candidate-validation.json/);
 });
+
+const groups = ['source', 'tooling', 'documentation', 'distribution', 'browser', 'fixtures'];
+
+async function grouped(t) {
+  const candidate = await orchestrator(t);
+  for (const group of groups) {
+    const result = candidate.run('validate-candidate', ['--artifact-dir', candidate.artifacts, '--group', group]);
+    assert.equal(result.status, 0, result.stderr);
+  }
+  return candidate;
+}
+
+test('independent lanes join the complete certificate without rerunning any checks or rebuilding', async t => {
+  const candidate = await grouped(t);
+  const before = await readFile(candidate.calls, 'utf8');
+  const joined = candidate.run('validate-candidate', ['--artifact-dir', candidate.artifacts, '--join']);
+  assert.equal(joined.status, 0, joined.stderr);
+  assert.equal(await readFile(candidate.calls, 'utf8'), before);
+  const calls = before.trim().split('\n').map(line => JSON.parse(line));
+  assert.equal(calls.length, 16);
+  assert(!calls.some(call => ['build', 'release:artifact'].includes(call.args[1])));
+  const verify = candidate.run('verify-artifact', ['--artifact-dir', candidate.artifacts, '--require-validation']);
+  assert.equal(verify.status, 0, verify.stderr);
+});
+
+for (const mutation of ['missing', 'checksum', 'source', 'evidence', 'failed', 'duplicate', 'script', 'signal', 'log', 'attachment']) {
+  test(`joining rejects ${mutation} lane evidence and revokes the old certificate`, async t => {
+    const candidate = await grouped(t);
+    await successfulValidation(candidate);
+    const path = resolve(candidate.artifacts, 'candidate-validation-browser.json');
+    const partial = JSON.parse(await readFile(path));
+    if (mutation === 'missing') { await rm(path); } else {
+      if (mutation === 'source') { partial.sourceCommit = 'a'.repeat(40); }
+      if (mutation === 'evidence') { partial.evidenceSha512 = 'b'.repeat(128); }
+      if (mutation === 'failed') { partial.status = 'failed'; }
+      if (mutation === 'duplicate') { partial.checks.push(partial.checks[0]); }
+      if (mutation === 'script') { partial.checks[0].script = 'build'; }
+      if (mutation === 'signal') { partial.checks[0].signal = 'SIGTERM'; }
+      if (mutation === 'attachment') { partial.attachments = []; }
+      const text = JSON.stringify(partial);
+      await writeFile(path, text);
+      const { createHash } = await import('node:crypto');
+      const checksum = createHash('sha512').update(text).digest('hex');
+      await writeFile(resolve(candidate.artifacts, 'candidate-validation-browser.sha512'), `${mutation === 'checksum' ? 'wrong' : checksum}  candidate-validation-browser.json\n`);
+      if (mutation === 'log') { await writeFile(resolve(candidate.artifacts, partial.checks[0].log.file), 'tampered'); }
+    }
+    const result = candidate.run('validate-candidate', ['--artifact-dir', candidate.artifacts, '--join']);
+    assert.equal(result.status, 1, result.stdout);
+    assert.equal(candidate.run('verify-artifact', ['--artifact-dir', candidate.artifacts, '--require-validation']).status, 1);
+  });
+}
+
+test('failed lane retry revokes both its previous result and the complete certificate', async t => {
+  const candidate = await grouped(t);
+  await successfulValidation(candidate);
+  await writeFile(candidate.npmCli, 'process.exit(3);');
+  const result = candidate.run('validate-candidate', ['--artifact-dir', candidate.artifacts, '--group', 'browser']);
+  assert.equal(result.status, 1);
+  const partial = JSON.parse(await readFile(resolve(candidate.artifacts, 'candidate-validation-browser.json')));
+  assert.equal(partial.status, 'failed');
+  assert.equal(partial.checks[0].exitCode, 3);
+  assert.equal(candidate.run('validate-candidate', ['--artifact-dir', candidate.artifacts, '--join']).status, 1);
+});
+
+for (const args of [['--group', 'unknown'], ['--group', 'source', '--join']]) {
+  test(`candidate lane selection rejects ${args.join(' ')}`, async t => {
+    const candidate = await orchestrator(t);
+    const result = candidate.run('validate-candidate', ['--artifact-dir', candidate.artifacts, ...args]);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Choose one known/);
+    assert.equal(await readFile(candidate.calls, 'utf8'), '');
+  });
+}

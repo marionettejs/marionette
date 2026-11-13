@@ -15,9 +15,91 @@ concurrency:
   group: ci-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
+env:
+  MNJS_SKIP_PREPARE: '1'
+
 jobs:
+  candidate:
+    name: Build immutable candidate
+    runs-on: ubuntu-24.04
+    outputs:
+      build_sha256: ${{ steps.outputs.outputs.sha256 }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and pack once from clean source
+        run: npm run release:artifact -- --validation-only --output test/tmp/candidate
+
+      - name: Prepare independent HTML renderer
+        run: npm run docs:prepare-html
+
+      - name: Capture compiled outputs
+        id: outputs
+        run: npm run release:outputs -- --mode capture
+
+      - name: Upload candidate before validation
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: candidate-${{ github.sha }}
+          path: test/tmp/candidate/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+      - name: Upload compiled outputs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: build-outputs-${{ github.sha }}
+          path: test/tmp/build-outputs/
+          if-no-files-found: error
+          retention-days: 7
+
+  source-checks:
+    name: Fast source checks
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify source contracts
+        run: |
+          npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+          npm run check:browser-profile
+          npm run check:diagnostics
+          npm run check:api-contracts
+          npm run check:public-tests
+          npm run check:workflows
+          npm run lint:ci
+
   core:
     name: Core (Node 24)
+    needs: candidate
     runs-on: ubuntu-24.04
 
     steps:
@@ -41,44 +123,31 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # The root prepare script builds the packages during npm ci.
+      - name: Restore exact candidate
+        uses: ./.github/actions/restore-candidate
+        with:
+          source-sha: ${{ github.sha }}
+          build-sha256: ${{ needs.candidate.outputs.build_sha256 }}
+
       - name: Test packed testing-helper consumer (DOM)
         run: npm run test:helpers:consumer
 
       - name: Test optional packages standalone and against minimum/candidate core
-        run: npm run test:package-compatibility
-
-      - name: Prepare published HTML renderer for documentation
-        run: npm run docs:prepare-html
+        run: npm run test:package-compatibility -- --artifact-dir test/tmp/candidate
 
       - name: Test router package and installed archive
-        run: npm run test:router-package && npm run test:router-tarball
-
-      - name: Verify browser profile
-        run: npm run check:browser-profile
-
-      - name: Verify diagnostic catalog
-        run: npm run check:diagnostics
-
-      - name: Verify public API contracts
-        run: npm run check:api-contracts
-
-      - name: Check public test boundaries and workflows
-        run: |
-          npm run check:public-tests
-          npm run check:workflows
+        run: npm run test:router-package && npm run test:router-tarball -- --artifact-dir test/tmp/candidate
 
       - name: Test source ESM
         run: npm run test:source
-
-      - name: Lint
-        run: npm run lint:ci
 
       - name: Coverage
         run: npm run coverage
 
       - name: Validate documentation and agent resources
         run: npm run docs:check && npm run test:agent-docs
+        env:
+          MARIONETTE_ARTIFACT_DIR: ${{ github.workspace }}/test/tmp/candidate
 
       - name: Upload suite reports
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -93,6 +162,7 @@ jobs:
 
   tooling:
     name: Tooling (Node 24)
+    needs: candidate
     runs-on: ubuntu-24.04
 
     steps:
@@ -112,6 +182,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Restore exact candidate
+        uses: ./.github/actions/restore-candidate
+        with:
+          source-sha: ${{ github.sha }}
+          build-sha256: ${{ needs.candidate.outputs.build_sha256 }}
 
       - name: Test tooling with separate coverage
         run: npm run coverage:tooling
@@ -130,6 +206,7 @@ jobs:
 
   browsers:
     name: Browsers (Node 24)
+    needs: candidate
     runs-on: ubuntu-24.04
     container:
       # Keep the image version/digest aligned with the Playwright lockfiles.
@@ -140,6 +217,7 @@ jobs:
         shell: bash
     env:
       PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      MARIONETTE_BROWSER_ARTIFACT_MANIFEST: ${{ github.workspace }}/test/tmp/candidate/release-evidence.json
 
     steps:
       - name: Checkout
@@ -158,6 +236,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Restore exact candidate
+        uses: ./.github/actions/restore-candidate
+        with:
+          source-sha: ${{ github.sha }}
+          build-sha256: ${{ needs.candidate.outputs.build_sha256 }}
 
       - name: Verify provisioned browsers
         timeout-minutes: 2
@@ -345,6 +429,7 @@ jobs:
 
   agent-reference:
     name: Agent reference (Node 24)
+    needs: candidate
     runs-on: ubuntu-24.04
     container:
       # Keep the image version/digest aligned with the Playwright lockfiles.
@@ -355,6 +440,7 @@ jobs:
         shell: bash
     env:
       PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      MARIONETTE_BROWSER_ARTIFACT_MANIFEST: ${{ github.workspace }}/test/tmp/candidate/release-evidence.json
 
     steps:
       - name: Checkout
@@ -374,6 +460,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Restore exact candidate
+        uses: ./.github/actions/restore-candidate
+        with:
+          source-sha: ${{ github.sha }}
+          build-sha256: ${{ needs.candidate.outputs.build_sha256 }}
+
       - name: Verify provisioned browsers
         timeout-minutes: 2
         run: node scripts/checks/provisioned-browsers.mjs
@@ -386,7 +478,7 @@ jobs:
 
       - name: Validate reference corpus controls
         run: |
-          npm run agent:reference -- --output test/tmp/agent-reference
+          npm run agent:reference -- --manifest test/tmp/candidate/release-evidence.json --output test/tmp/agent-reference
           npm run agent:fixtures -- --manifest test/tmp/agent-reference/artifacts/artifact-input.json --output test/tmp/agent-fixtures
 
       - name: Upload suite reports
@@ -403,6 +495,7 @@ jobs:
 
   linux-package-smoke:
     name: Package smoke (Linux x64)
+    needs: candidate
     runs-on: ubuntu-24.04
 
     steps:
@@ -423,13 +516,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Restore exact candidate
+        uses: ./.github/actions/restore-candidate
+        with:
+          source-sha: ${{ github.sha }}
+          build-sha256: ${{ needs.candidate.outputs.build_sha256 }}
+
       - name: Test packed consumer smoke fixtures
         if: github.event_name == 'pull_request'
-        run: bash test/fixtures/smoke.sh
+        run: bash test/fixtures/smoke.sh --artifact-dir test/tmp/candidate
 
       - name: Test complete package fixture inventory
         if: github.event_name == 'push'
-        run: npm run test:fixtures
+        run: npm run test:fixtures -- --artifact-dir test/tmp/candidate
 
       - name: Upload suite reports
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -442,6 +541,7 @@ jobs:
 
   node-lts:
     name: Node 26 LTS packages
+    needs: candidate
     runs-on: ubuntu-24.04
 
     steps:
@@ -453,18 +553,27 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Restore exact candidate
+        uses: ./.github/actions/restore-candidate
+        with:
+          source-sha: ${{ github.sha }}
+          build-sha256: ${{ needs.candidate.outputs.build_sha256 }}
+
+      - name: Setup consumer Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
           node-version: 26
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
       - name: Test package fixtures
-        run: npm run test:fixtures
+        run: npm run test:fixtures -- --artifact-dir test/tmp/candidate
 
   test:
     name: Node 24
-    needs: [core, tooling, browsers, router-browsers, agent-reference, linux-package-smoke, node-lts]
+    needs: [source-checks, core, tooling, browsers, router-browsers, agent-reference, linux-package-smoke, node-lts]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -475,6 +584,7 @@ jobs:
 
   package-smoke:
     name: Package smoke (macOS arm64)
+    needs: candidate
     runs-on: macos-15
 
     steps:
@@ -495,17 +605,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Restore exact candidate
+        uses: ./.github/actions/restore-candidate
+        with:
+          source-sha: ${{ github.sha }}
+          build-sha256: ${{ needs.candidate.outputs.build_sha256 }}
+
       - name: Test packed consumer smoke fixtures
         if: github.event_name == 'pull_request'
-        run: bash test/fixtures/smoke.sh
+        run: bash test/fixtures/smoke.sh --artifact-dir test/tmp/candidate
 
       - name: Test complete package fixture inventory
         if: github.event_name == 'push'
-        run: npm run test:fixtures
+        run: npm run test:fixtures -- --artifact-dir test/tmp/candidate
 
   windows-package-smoke:
     name: Package smoke (Windows x64)
     if: github.event_name == 'push'
+    needs: candidate
     runs-on: windows-2025
 
     steps:
@@ -526,8 +643,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Restore exact candidate
+        uses: ./.github/actions/restore-candidate
+        with:
+          source-sha: ${{ github.sha }}
+          build-sha256: ${{ needs.candidate.outputs.build_sha256 }}
+
       - name: Test package fixtures
-        run: npm run test:fixtures
+        run: npm run test:fixtures -- --artifact-dir test/tmp/candidate
 
   size:
     name: Bundle size
@@ -555,6 +678,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build exact pull request head
+        run: npm run build && npm run test:dist
+
       - name: Checkout exact pull request base
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -565,8 +691,7 @@ jobs:
       - name: Build base branch
         working-directory: bundle-size-base
         run: |
-          npm ci
-          npm run build
+          MNJS_SKIP_PREPARE= npm ci
 
       - name: Measure and compare bundle sizes
         id: measure
@@ -604,6 +729,7 @@ jobs:
   performance-timing:
     name: Performance timing (reporting only)
     if: github.event_name == 'pull_request'
+    needs: candidate
     runs-on: ubuntu-24.04
     container:
       # Keep the image version/digest aligned with the Playwright lockfiles.
@@ -633,6 +759,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Restore exact candidate
+        uses: ./.github/actions/restore-candidate
+        with:
+          source-sha: ${{ github.sha }}
+          build-sha256: ${{ needs.candidate.outputs.build_sha256 }}
+
       - name: Checkout exact pull request base
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -643,8 +775,7 @@ jobs:
       - name: Build pull request base
         working-directory: test/tmp/performance-base
         run: |
-          npm ci
-          npm run build
+          MNJS_SKIP_PREPARE= npm ci
 
       - name: Verify provisioned browsers
         timeout-minutes: 2

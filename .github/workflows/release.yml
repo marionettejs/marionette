@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/**'
+      - '.github/actions/**'
       - '.nvmrc'
       - '**/.npmrc'
       - '**/.npmignore'
@@ -52,6 +53,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
+  MNJS_SKIP_PREPARE: '1'
   SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
   PROMOTION_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.publish && 'publish' || 'dry-run' }}
 
@@ -101,16 +103,8 @@ jobs:
     if: needs.preflight.outputs.mode == 'dry-run'
     needs: preflight
     runs-on: ubuntu-24.04
-    container:
-      # Keep the image version/digest aligned with the Playwright lockfiles.
-      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d
-      options: --user 1001:1001 --shm-size=1g
-    defaults:
-      run:
-        shell: bash
-    env:
-      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     outputs:
+      build_sha256: ${{ steps.outputs.outputs.sha256 }}
       npm_tag: ${{ steps.artifact.outputs.npm_tag }}
       prerelease: ${{ steps.artifact.outputs.prerelease }}
       tag: ${{ steps.artifact.outputs.tag }}
@@ -140,10 +134,6 @@ jobs:
       - name: Install pinned dependencies
         run: npm ci
 
-      - name: Verify provisioned browsers
-        timeout-minutes: 2
-        run: node scripts/checks/provisioned-browsers.mjs
-
       - name: Pack immutable release artifacts
         id: artifact
         run: >-
@@ -156,25 +146,25 @@ jobs:
       - name: Prepare independent HTML renderer for documentation
         run: npm run docs:prepare-html
 
-      - name: Validate exact release candidate
-        run: npm run release:validate -- --artifact-dir release
-
-      - name: Upload candidate diagnostics
-        if: always()
+      - name: Upload independent renderer
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: candidate-diagnostics-${{ env.SOURCE_SHA }}
-          path: |
-            release/*.json
-            release/*.sha512
-            release/*.log
-            test/tmp/browser/report/
-            test/tmp/browser/results/
-            test/tmp/browser/results.xml
-            coverage/
-            !coverage/tooling/tmp/
-          if-no-files-found: warn
-          retention-days: 30
+          name: release-html-${{ env.SOURCE_SHA }}
+          path: packages/html/artifacts/*.tgz
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Capture compiled outputs
+        id: outputs
+        run: npm run release:outputs -- --mode capture
+
+      - name: Upload compiled outputs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: build-outputs-${{ env.SOURCE_SHA }}
+          path: test/tmp/build-outputs/
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Upload immutable release artifact
         id: upload
@@ -190,6 +180,147 @@ jobs:
         run: >-
           echo "Workflow artifact SHA-256: ${{ steps.upload.outputs.artifact-digest }}"
           >> "${GITHUB_STEP_SUMMARY}"
+
+  candidate-checks:
+    name: Candidate ${{ matrix.group }}
+    if: needs.preflight.outputs.mode == 'dry-run'
+    needs: [preflight, build]
+    runs-on: ubuntu-24.04
+    container:
+      # Keep the image version/digest aligned with the Playwright lockfiles.
+      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d
+      options: --user 1001:1001 --shm-size=1g
+    defaults:
+      run:
+        shell: bash
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [source, tooling, documentation, distribution, browser, fixtures]
+    steps:
+      - name: Checkout exact source commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download immutable candidate
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-candidate-${{ env.SOURCE_SHA }}
+          path: release
+
+      - name: Verify immutable candidate
+        run: npm run release:verify -- --artifact-dir release --source-commit "${{ env.SOURCE_SHA }}"
+
+      - name: Download compiled outputs
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: build-outputs-${{ env.SOURCE_SHA }}
+          path: test/tmp/build-outputs
+
+      - name: Restore compiled outputs
+        env:
+          BUILD_OUTPUT_SHA256: ${{ needs.build.outputs.build_sha256 }}
+        run: npm run release:outputs -- --mode restore --sha256 "$BUILD_OUTPUT_SHA256"
+
+      - name: Verify provisioned browsers
+        if: matrix.group == 'browser'
+        timeout-minutes: 2
+        run: node scripts/checks/provisioned-browsers.mjs
+
+      - name: Validate independent candidate checks
+        run: npm run release:validate -- --artifact-dir release --group "${{ matrix.group }}"
+
+      - name: Upload lane evidence and diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: candidate-checks-${{ matrix.group }}-${{ env.SOURCE_SHA }}
+          path: |
+            release/candidate-validation-*.json
+            release/candidate-validation-*.sha512
+            release/validation-*.log
+            release/browser-*.json
+            release/fixtures-report.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload lane diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: candidate-diagnostics-${{ matrix.group }}-${{ env.SOURCE_SHA }}
+          path: |
+            test/tmp/browser/report/
+            test/tmp/browser/results/
+            test/tmp/browser/results.xml
+            coverage/
+            !coverage/tooling/tmp/
+          if-no-files-found: warn
+          retention-days: 30
+
+  certification:
+    name: Certify exact candidate
+    if: always() && needs.preflight.outputs.mode == 'dry-run'
+    needs: [preflight, build, candidate-checks, package-smoke, consumer-lts]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every validation lane
+        env:
+          SUITE_RESULTS: ${{ toJSON(needs) }}
+        run: jq -e 'all(.[]; .result == "success")' <<< "$SUITE_RESULTS"
+
+      - name: Checkout exact source commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Download immutable candidate
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-candidate-${{ env.SOURCE_SHA }}
+          path: release
+
+      - name: Download independent validation evidence
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: candidate-checks-*-${{ env.SOURCE_SHA }}
+          merge-multiple: true
+          path: release
+
+      - name: Join and verify complete candidate certificate
+        run: npm run release:validate -- --artifact-dir release --join
+
+      - name: Upload certified candidate
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: certified-candidate-${{ env.SOURCE_SHA }}
+          path: release/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0
 
   package-smoke:
     name: Release package smoke (${{ matrix.name }})
@@ -232,7 +363,21 @@ jobs:
           --artifact-dir release
           --source-commit "${{ env.SOURCE_SHA }}"
           --repository "${{ github.repository }}"
-          --require-validation
+
+      - name: Download independent renderer
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-html-${{ env.SOURCE_SHA }}
+          path: packages/html/artifacts
+
+      - name: Select transferred renderer
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          import { appendFileSync } from 'node:fs';
+          import { htmlCandidate } from './test/docs/html-candidate.mjs';
+          appendFileSync(process.env.GITHUB_ENV, `MNJS_HTML_TARBALL=${htmlCandidate().path}\n`);
+          JS
 
       - name: Test exact packed package fixtures
         run: >-
@@ -285,10 +430,21 @@ jobs:
           --artifact-dir release
           --source-commit "${{ env.SOURCE_SHA }}"
           --repository "${{ github.repository }}"
-          --require-validation
 
-      - name: Prepare independent HTML renderer for documentation
-        run: npm run docs:prepare-html
+      - name: Download independent renderer
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-html-${{ env.SOURCE_SHA }}
+          path: packages/html/artifacts
+
+      - name: Select transferred renderer
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          import { appendFileSync } from 'node:fs';
+          import { htmlCandidate } from './test/docs/html-candidate.mjs';
+          appendFileSync(process.env.GITHUB_ENV, `MNJS_HTML_TARBALL=${htmlCandidate().path}\n`);
+          JS
 
       - name: Setup consumer Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -320,7 +476,7 @@ jobs:
   promotion-dry-run:
     name: Promotion dry run
     if: needs.preflight.outputs.mode == 'dry-run'
-    needs: [preflight, build, package-smoke, consumer-lts]
+    needs: [preflight, build, certification]
     runs-on: ubuntu-24.04
 
     steps:
@@ -340,7 +496,7 @@ jobs:
       - name: Download immutable release artifact
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: release-candidate-${{ env.SOURCE_SHA }}
+          name: certified-candidate-${{ env.SOURCE_SHA }}
           path: release
 
       - name: Verify release evidence
@@ -459,7 +615,7 @@ jobs:
       - name: Download certified release artifact
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: release-candidate-${{ env.SOURCE_SHA }}
+          name: certified-candidate-${{ env.SOURCE_SHA }}
           path: release
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
@@ -503,7 +659,7 @@ jobs:
       - name: Download certified release artifact
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: release-candidate-${{ env.SOURCE_SHA }}
+          name: certified-candidate-${{ env.SOURCE_SHA }}
           path: release
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
@@ -557,7 +713,7 @@ jobs:
       - name: Download certified release artifact
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: release-candidate-${{ env.SOURCE_SHA }}
+          name: certified-candidate-${{ env.SOURCE_SHA }}
           path: release
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
