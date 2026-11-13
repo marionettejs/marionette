@@ -85,7 +85,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: ['22.22.2', '22', '24.15.0', '24']
+        node: ['22.22.2', '22', '24.15.0', '24', '26.0.0', '26']
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

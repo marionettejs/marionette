@@ -29,11 +29,13 @@ Run `npm run test:docs-production -- --artifact-dir /absolute/path/to/five-tarba
 
 The Documentation workflow builds with the pinned source toolchain, then runs
 `npm run check:docs-installed -- --artifact-dir <five-tarball-directory>` on
-Node 22.22.2, latest 22.x, 24.15.0 and latest 24.x.
+Node 22.22.2, latest 22.x, 24.15.0, latest 24.x, 26.0.0 and latest 26.x.
 It installs all five tarballs and checks ESM/CommonJS behavior, packaged helpers,
 executable documentation and consumer lint, test, TypeScript and Vite recipes.
-Node 26 remains a separate advisory lane; new LTS lines require verification
-before the consumer support policy changes.
+These are required checks. CI also requires the full package fixture suite on
+latest Node 26. Release promotion requires both Node 26 versions to pass all
+package fixtures and installed documentation recipes against the same immutable
+five-tarball candidate, without rebuilding it on the consumer Node version.
 
 ## Browser CI environment
 
@@ -129,8 +131,9 @@ The Node 24 CI suites run in parallel: core checks and unit coverage, tooling
 coverage, browser contracts, exact-installed Router archive browsers, agent
 reference controls, and Linux package fixtures.
 Each job installs and builds its own checkout and uploads its own reports. The
-`Node 24` aggregate check succeeds only when all six required suites succeed; a failed,
-cancelled, or skipped suite does not pass the aggregate check. macOS package smoke
+`Node 24` aggregate check also requires the Node 26 LTS package fixture job;
+all seven required suites must succeed. A failed, cancelled, or skipped suite
+does not pass the aggregate check. macOS package smoke
 runs alongside these jobs, and Windows package smoke runs on master pushes.
 On PRs, Linux and macOS run `bash test/fixtures/smoke.sh` after `npm ci`: it packs
 the built outputs once without lifecycle scripts and supplies those same five

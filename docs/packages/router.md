@@ -2,13 +2,9 @@
 
 Router is an optional, independently released companion. It is renderer-agnostic:
 `@mnjs/html` is the recommended choice for a new application, not a Router
-requirement. The example below is verified with Router 0.1.1, HTML 1.0.0 and
-Marionette 5.1.0. These are published-package evidence versions, not a requirement
-to pin every compatible application to those exact versions.
-Router is a pre-v1 package with its own release cadence.
-Version 0.1.1 updates the Catalog example to HTML
-and the Desk instructions to accept an Adapters version compatible with the
-installed core. Its runtime and public API are unchanged from 0.1.0.
+requirement. Install compatible Marionette peers according to the Router manifest.
+Router is a pre-v1 package with its own release cadence; read the installed
+contract when selecting drivers or upgrading.
 
 ## Read the installed contract first
 
@@ -18,13 +14,23 @@ capabilities, `node_modules/@mnjs/router/DESIGN.md` for detailed contracts, and
 These files belong to the installed Router version, not to core's documentation
 manifest. When working with HTML, use `node_modules/@mnjs/html/guide.md` and
 `node_modules/@mnjs/html/LIT_DIFFERENCES.md`. Read the package versions first.
-The [tagged Router source](https://github.com/marionettejs/marionette/tree/router-v0.1.1/packages/router)
-is a fallback for 0.1.1 when installed files are unavailable.
+When installed files are unavailable, use the
+[Router source](https://github.com/marionettejs/marionette/tree/master/packages/router)
+at the tag matching the installed release.
 
 Router requires Node 24.15 or newer. Check the [routing capability and driver
 requirements](../guides/routing.md#use-the-optional-router-for-routed-applications)
 before constructing it. A memory driver makes tests deterministic; it does not
 exercise browser navigation, focus, scroll or direct-link server behavior.
+
+## Published example verification
+
+The runnable [routing example](../guides/routing.md#a-minimal-html-feature) is
+verified with published `marionette@5.1.0`, `@mnjs/router@0.1.1` and
+`@mnjs/html@1.0.0`. These identify the reproducible documentation fixture, not a
+requirement to pin every compatible application to those exact versions.
+The [Router 0.1.1 source](https://github.com/marionettejs/marionette/tree/router-v0.1.1/packages/router)
+belongs to that recorded fixture; consult the installed contract for other versions.
 
 ## Browser coverage
 

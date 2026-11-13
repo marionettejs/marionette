@@ -251,10 +251,76 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+  consumer-lts:
+    name: Release consumer Node ${{ matrix.node }}
+    if: needs.preflight.outputs.mode == 'dry-run'
+    needs: [preflight, build]
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['26.0.0', '26']
+    steps:
+      - name: Checkout exact source commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
+
+      - name: Setup source toolchain for evidence verification
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+
+      - name: Download immutable release artifact
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-candidate-${{ env.SOURCE_SHA }}
+          path: release
+
+      - name: Verify release evidence
+        run: >-
+          npm run release:verify --
+          --artifact-dir release
+          --source-commit "${{ env.SOURCE_SHA }}"
+          --repository "${{ github.repository }}"
+          --require-validation
+
+      - name: Prepare independent HTML renderer for documentation
+        run: npm run docs:prepare-html
+
+      - name: Setup consumer Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          check-latest: true
+
+      - name: Test exact packed package fixtures
+        run: npm run test:fixtures -- --artifact-dir release --report test/tmp/release-consumer-fixtures.json
+        env:
+          npm_config_engine_strict: 'true'
+
+      - name: Verify installed documentation recipes
+        run: npm run check:docs-installed -- --artifact-dir release
+        env:
+          npm_config_engine_strict: 'true'
+
+      - name: Upload consumer evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-consumer-node-${{ matrix.node }}-${{ env.SOURCE_SHA }}
+          path: |
+            test/tmp/release-consumer-fixtures.json
+            test/tmp/docs-installed/report.json
+          if-no-files-found: error
+          retention-days: 30
+
   promotion-dry-run:
     name: Promotion dry run
     if: needs.preflight.outputs.mode == 'dry-run'
-    needs: [preflight, build, package-smoke]
+    needs: [preflight, build, package-smoke, consumer-lts]
     runs-on: ubuntu-24.04
 
     steps:

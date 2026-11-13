@@ -1,10 +1,10 @@
 # Install and render a View
 
-This guide targets Marionette 5.1.1 and is verified on the supported Node LTS lines: Node 22.22.2+ (22.x) or 24.15.0+ (24.x). Use the latest patch of either line. Newer Node versions may install; Node 26 remains advisory until its LTS support is verified. The [documentation index](readme.md) identifies this package version.
+This guide belongs to the installed Marionette package. Supported consumer Node LTS lines are 22.22.2+ (22.x), 24.15.0+ (24.x) and 26.x, with required installed-package verification at each floor and latest patch. Use the latest patch of a supported line. The [documentation index](readme.md) routes to the bundled guides.
 
 ## Install matching packages
 
-Use matching `5.1.1` versions of `marionette`, `@mnjs/utils`, and `@mnjs/radio` to preserve their shared runtime identity. Optional Data 5.1.1 has a nonoptional Utils peer `^5.0.1`; Adapters 5.1.1 supports core `^5.0.1`. Neither requires an identical package version. Keep one shared Utils instance across core, Radio, and Data. Pin the selected versions explicitly for reproducible installs. The independently versioned renderer below does not need `@mnjs/adapters`.
+Use matching versions of `marionette`, `@mnjs/utils`, and `@mnjs/radio` to preserve their shared runtime identity. Optional Data has a nonoptional Utils peer `^5.0.1`; Adapters supports core `^5.0.1`. Neither requires an identical package version. Keep one shared Utils instance across core, Radio, and Data. Pin the selected versions explicitly for reproducible installs. The independently versioned renderer below does not need `@mnjs/adapters`.
 
 ## Create the project
 

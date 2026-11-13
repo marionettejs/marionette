@@ -5,10 +5,11 @@ Marionette v5 supplies UI and Application lifecycles. Choose browser navigation 
 ## Use the optional Router for routed applications
 
 For a new application needing named URLs, nested feature routes or coordinated
-route transitions, use optional `@mnjs/router` with compatible Marionette peers. The HTML-first
-example is verified with `@mnjs/router@0.1.1`, `@mnjs/html@1.0.0` and Marionette 5.1.0; these
-are tested versions, not a Router renderer requirement. Router is independently versioned and optional, not part of
-core's coordinated release. Keep an existing host router rather than adding a
+route transitions, use optional `@mnjs/router` with compatible Marionette peers.
+The HTML-first example uses `@mnjs/html`; Router works with other renderers too.
+Router is independently versioned and optional, with its own release cadence.
+The [published example verification](../packages/router.md#published-example-verification)
+records the exact packages used to check this example. Keep an existing host router rather than adding a
 second global URL owner. The [native fragment-navigation alternative](fragment-navigation.md) remains
 valid when you do not need a routing package.
 
@@ -34,14 +35,14 @@ parameters stops and starts the same registered child instance; changing a leaf
 under the same mount can retain that child. Stop retains registrations; destroy
 unmounts them. After stop/start, explicitly restart required roots and Router.
 
-Router 0.1.1's runtime is tested on **Chromium, Firefox and Playwright WebKit**;
+Router has passing coverage on **Chromium, Firefox and Playwright WebKit**;
 the [browser coverage notes](../packages/router.md#browser-coverage) link the passing
 installed-archive run and describe native WebKit differences. Router requires
 `URLPattern`, `AbortSignal.any`, `Promise.withResolvers` and `URL.canParse`; the
 default driver also requires the Navigation API. `historyDriver()` is an explicit
 alternative, not an automatic fallback, and additionally needs `structuredClone`.
 Transpilation does not supply these APIs. Follow the
-[capability check and driver contracts](https://github.com/marionettejs/marionette/blob/router-v0.1.1/packages/router/readme.md#check-capabilities-before-eager-application-imports)
+[installed capability and driver contracts](../packages/router.md#read-the-installed-contract-first)
 before eagerly constructing a Router. Router's Node minimum is 24.15, independent
 of core's Node 22 consumer floor. A missing capability is not a reason to silently
 replace a host's navigation policy.

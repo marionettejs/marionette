@@ -426,13 +426,35 @@ jobs:
             test/tmp/fixture-reports/
           if-no-files-found: warn
 
+  node-lts:
+    name: Node 26 LTS packages
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test package fixtures
+        run: npm run test:fixtures
+
   test:
     name: Node 24
-    needs: [core, tooling, browsers, router-browsers, agent-reference, linux-package-smoke]
+    needs: [core, tooling, browsers, router-browsers, agent-reference, linux-package-smoke, node-lts]
     if: always()
     runs-on: ubuntu-24.04
     steps:
-      - name: Require every Node 24 suite to pass
+      - name: Require every core and consumer suite to pass
         env:
           SUITE_RESULTS: ${{ toJSON(needs) }}
         run: jq -e 'all(.[]; .result == "success")' <<< "$SUITE_RESULTS"

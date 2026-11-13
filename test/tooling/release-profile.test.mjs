@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
 
-test('release profile rejects broader and narrower engines in every published package', async t => {
+test('release profile rejects consumer support and required verification drift', async t => {
   const repository = resolve(import.meta.dirname, '../..');
   const root = await mkdtemp(join(tmpdir(), 'marionette-release-profile-'));
   t.after(() => rm(root, { recursive: true, force: true, maxRetries: 3 }));
@@ -42,4 +42,22 @@ test('release profile rejects broader and narrower engines in every published pa
       await writeFile(path, original);
     }
   }
+  for (const [file, before, after, message] of [
+    ['ci.yml', 'name: Node 26 LTS packages', 'continue-on-error: true\n    name: Node 26 LTS packages', /must test Node 26 as a required job/],
+    ['ci.yml', ', node-lts]', ']', /aggregate must require node-lts/],
+    ['docs-pages.yml', '\'22.22.2\', ', '', /must require the consumer Node matrix/],
+    ['docs-pages.yml', ', \'26.0.0\'', '', /must require the consumer Node matrix/],
+    ['release.yml', ', \'26\'', '', /must require the consumer Node matrix/],
+    ['release.yml', ', consumer-lts]', ']', /promotion must require consumer-lts/],
+  ]) {
+    const path = join(root, '.github/workflows', file);
+    const original = await readFile(path, 'utf8');
+    assert(original.includes(before), before);
+    await writeFile(path, original.replace(before, after));
+    const result = run();
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stderr, message);
+    await writeFile(path, original);
+  }
+
 });

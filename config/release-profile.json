@@ -3,11 +3,23 @@
   "source": {
     "node": "24.19.0",
     "npm": "11.17.0",
-    "advisoryNodeMajor": "26",
-    "advisoryWorkflow": "node-current.yml",
-    "advisoryJob": "package-smoke",
     "consumerNodeRange": "^22.22.2 || >=24.15.0",
-    "lockfileVersion": 3
+    "lockfileVersion": 3,
+    "consumerNodeMajor": "26",
+    "consumerWorkflow": "ci.yml",
+    "consumerJob": "node-lts",
+    "consumerNodeVersions": [
+      "22.22.2",
+      "22",
+      "24.15.0",
+      "24",
+      "26.0.0",
+      "26"
+    ],
+    "releaseConsumerNodeVersions": [
+      "26.0.0",
+      "26"
+    ]
   },
   "hosts": [
     {

@@ -2,7 +2,7 @@
 
 Observable `Model` and ordered `Collection` sources for Marionette v5. This
 package uses `@mnjs/utils` and works without Marionette core or a DOM.
-This README describes `@mnjs/data` 5.1.1. Its nonoptional Utils peer is `^5.0.1`,
+Its nonoptional Utils peer is `^5.0.1`,
 so Data does not need an identical core version. Share one Utils instance across
 core, Radio, and Data: their event graph must not mix separately installed copies.
 

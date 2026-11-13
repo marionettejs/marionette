@@ -28,13 +28,16 @@ npm ci
 
 Consumer LTS compatibility is checked separately from this pinned source toolchain.
 See the [quick start](docs/quick-start.md) for the verified consumer versions.
-The Node 22.22.2 and 24.15.0 floors are tested support boundaries for the complete
+The Node 22.22.2, 24.15.0 and 26.0.0 floors are tested support boundaries for the complete
 consumer experience, including the documented JSDOM 30 testing recipe; they are
 not intrinsic browser-runtime API requirements. A future development-dependency
 bump must not silently raise these floors: changing consumer support requires an
-explicit policy review and installed-artifact verification. Newer Node versions
-may install the packages; the LTS matrix records the verified set, with Node 26
-checked separately as advisory. All five manifests must match `consumerNodeRange`.
+explicit policy review and installed-artifact verification. Node 26 entered
+[Active LTS on October 28, 2026](https://github.com/nodejs/Release/blob/main/schedule.json).
+The required consumer matrix covers the floor and latest patch of Node 22, 24
+and 26. CI also requires the Node 26 package fixtures, and release promotion
+requires Node 26 fixtures and documentation recipes against the exact candidate
+tarballs built with the pinned source toolchain. All five manifests must match `consumerNodeRange`.
 
 `npm ci` builds the packages and checks the core distributions through `prepare`.
 Generated `dist/` directories and `src/version.js` are ignored by Git; edit source files

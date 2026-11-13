@@ -22,6 +22,9 @@ at the time it shipped; older prerelease APIs may have been superseded.
   and document native WebKit fragment/Back differences without changing routing
   behavior. The runnable companion example now checks Router 0.1.1 with published
   Marionette 5.1.0 and HTML 1.0.0.
+* Add Node 26 to required consumer LTS verification alongside Node 22 and 24.
+  Check installed documentation recipes at each line's floor and latest patch;
+  require Node 26 fixtures and recipes against the exact release candidate.
 * Move the five coordinated packages `marionette`, `@mnjs/utils`, `@mnjs/radio`,
   `@mnjs/data` and `@mnjs/adapters` to **5.1.1**, with matching core/Radio/Utils
   dependencies. Data's nonoptional Utils peer and Adapters' core peer remain

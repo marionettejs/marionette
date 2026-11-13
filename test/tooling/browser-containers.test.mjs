@@ -73,7 +73,7 @@ test('the container repair preserves browser suites, exact-artifact validation a
   assert.ok(includesRun(workflows.ci.jobs['agent-reference'], 'npm run test:agent-app'));
   assert.ok(includesRun(workflows.html.jobs.verify, 'npm --prefix packages/html run test:packed:browser'));
   assert.ok(includesRun(workflows.release.jobs.build, 'npm run release:validate -- --artifact-dir release'));
-  assert.deepEqual(workflows.ci.jobs.test.needs, ['core', 'tooling', 'browsers', 'router-browsers', 'agent-reference', 'linux-package-smoke']);
+  assert.deepEqual(workflows.ci.jobs.test.needs, ['core', 'tooling', 'browsers', 'router-browsers', 'agent-reference', 'linux-package-smoke', 'node-lts']);
   assert.equal(workflows.ci.jobs.test.name, 'Node 24');
   assert.equal(workflows.ci.jobs.test.if, 'always()');
   for (const workflow of Object.values(workflows)) {

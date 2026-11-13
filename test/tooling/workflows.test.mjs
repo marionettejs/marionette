@@ -75,3 +75,27 @@ test('npm publication dry runs exercise absent versions and leave occupied versi
     assert.match(step.run, /--ignore-scripts/);
   }
 });
+
+
+test('required Node LTS release checks consume the certified artifacts without rebuilding', async() => {
+  const workflow = parse(await readFile(resolve(import.meta.dirname, '../../.github/workflows/release.yml'), 'utf8'));
+  const consumer = workflow.jobs['consumer-lts'];
+  assert.equal(consumer['continue-on-error'], undefined);
+  assert.deepEqual(consumer.needs, ['preflight', 'build']);
+  const steps = consumer.steps;
+  const download = steps.find(step => step.uses?.startsWith('actions/download-artifact@'));
+  assert.equal(download.with.name, 'release-candidate-${{ env.SOURCE_SHA }}');
+  const verify = steps.find(step => step.run?.includes('release:verify'));
+  assert.match(verify.run, /--require-validation/);
+  assert.match(verify.run, /--source-commit/);
+  const setup = steps.find(step => step.with?.['node-version']);
+  assert(steps.indexOf(verify) < steps.indexOf(setup));
+  for (const command of ['test:fixtures', 'check:docs-installed']) {
+    const step = steps.find(candidate => candidate.run?.includes(command));
+    assert.match(step.run, /--artifact-dir release/);
+    assert.equal(step.env.npm_config_engine_strict, 'true');
+    assert(steps.indexOf(setup) < steps.indexOf(step));
+  }
+  assert(!steps.some(step => /npm ci|npm run build|release:artifact/.test(step.run || '')));
+  assert(workflow.jobs['promotion-dry-run'].needs.includes('consumer-lts'));
+});
