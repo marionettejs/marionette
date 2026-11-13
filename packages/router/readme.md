@@ -208,9 +208,9 @@ macOS arm64. All 162 inventory cases passed once on each engine, with no
 failures, retries or skips. The Linux-produced Router 0.1.1 archive came from
 [`ec981e0b`](https://github.com/marionettejs/marionette/commit/ec981e0ba43d14ea1a35695fe3b9b17ad271555d),
 with SHA-256 `e7c45fbecd159aab6bfef6ce10e2bf7b928cc7509523446cc11313e1fd344cdd`.
-Its runtime matches published Router 0.1.1; its documentation includes the newer
-browser findings. This supersedes the Chromium-only coverage statement in the
-published 0.1.1 README. The [known native WebKit differences](#known-native-webkit-differences)
+Its runtime matches published Router 0.1.1. This README records the expanded
+browser coverage, updating the Chromium-only statement in the published 0.1.1
+README. The [known native WebKit differences](#known-native-webkit-differences)
 remain part of the tested behavior.
 
 The same revision also passed the source-checkout browser suite on Linux.
