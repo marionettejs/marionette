@@ -4,7 +4,7 @@ import test from 'node:test';
 
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
 
-test('routing guidance links the released companion without broadening browser support', () => {
+test('routing guidance links the released companion and recorded browser coverage', () => {
   const guide = read('docs/guides/routing.md');
   const companions = JSON.parse(read('test/docs/companion-versions.json'));
   for (const version of Object.values(companions)) { assert.match(version, /^\d+\.\d+\.\d+$/); }
@@ -15,7 +15,8 @@ test('routing guidance links the released companion without broadening browser s
   for (const capability of ['URLPattern', 'AbortSignal.any', 'Promise.withResolvers', 'URL.canParse', 'structuredClone']) {
     assert(guide.includes(capability), capability);
   }
-  assert.match(guide, /Firefox and WebKit are untested/);
+  assert.match(guide, /Chromium, Firefox and Playwright WebKit/);
+  assert(guide.includes('../packages/router.md#browser-coverage'));
   assert.match(guide, /mountRoutes\(router\).*registers routes but does not activate/);
   assert.match(guide, /Stop retains registrations; destroy\s+unmounts them/);
 });

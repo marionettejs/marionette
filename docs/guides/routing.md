@@ -6,7 +6,7 @@ Marionette v5 supplies UI and Application lifecycles. Choose browser navigation 
 
 For a new application needing named URLs, nested feature routes or coordinated
 route transitions, use optional `@mnjs/router` with compatible Marionette peers. The HTML-first
-example is verified with `@mnjs/router@0.1.0` and `@mnjs/html@1.0.0`; these
+example is verified with `@mnjs/router@0.1.1`, `@mnjs/html@1.0.0` and Marionette 5.1.0; these
 are tested versions, not a Router renderer requirement. Router is independently versioned and optional, not part of
 core's coordinated release. Keep an existing host router rather than adding a
 second global URL owner. The [native fragment-navigation alternative](fragment-navigation.md) remains
@@ -34,13 +34,14 @@ parameters stops and starts the same registered child instance; changing a leaf
 under the same mount can retain that child. Stop retains registrations; destroy
 unmounts them. After stop/start, explicitly restart required roots and Router.
 
-**Check the supported environment before choosing this package.** Version 0.1.0
-is tested on Chromium only; Firefox and WebKit are untested. It requires
+Router 0.1.1's runtime is tested on **Chromium, Firefox and Playwright WebKit**;
+the [browser coverage notes](../packages/router.md#browser-coverage) link the passing
+installed-archive run and describe native WebKit differences. Router requires
 `URLPattern`, `AbortSignal.any`, `Promise.withResolvers` and `URL.canParse`; the
 default driver also requires the Navigation API. `historyDriver()` is an explicit
 alternative, not an automatic fallback, and additionally needs `structuredClone`.
 Transpilation does not supply these APIs. Follow the
-[capability check and driver contracts](https://github.com/marionettejs/marionette/blob/router-v0.1.0/packages/router/readme.md#check-capabilities-before-eager-application-imports)
+[capability check and driver contracts](https://github.com/marionettejs/marionette/blob/router-v0.1.1/packages/router/readme.md#check-capabilities-before-eager-application-imports)
 before eagerly constructing a Router. Router's Node minimum is 24.15, independent
 of core's Node 22 consumer floor. A missing capability is not a reason to silently
 replace a host's navigation policy.

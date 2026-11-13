@@ -46,7 +46,7 @@ await router.navigate('item', { desk: 'blue', id: 'one' }).finished;
 Use the [pre-import capability recipe](../../readme.md#check-capabilities-before-eager-application-imports)
 where application modules eagerly construct Router. The application chooses its
 Driver and unsupported-environment response. A memory driver removes the native
-Navigation requirement only; capability presence is not browser certification.
+Navigation requirement only.
 
 Activity declares a mounted panel. Its local leaf shows a View after ordinary
 selection/start. Catalog explicitly clears that independent panel when product
@@ -74,5 +74,6 @@ sidebar content. Start activates normal Applications, not an example facade.
 
 From a built checkout, npm run test:router-tarball executes the actual shipped
 example with gated replacement readiness, escaped rendering, handled errors,
-lazy registration, named URLs, independent regions and teardown. Separate Chromium
-checks exercise the same modules; memory/JSDOM results are not browser certification.
+lazy registration, named URLs, independent regions and teardown. The
+[three-engine installed-archive suite](../../readme.md#browser-validation)
+also exercises these modules in Chromium, Firefox and Playwright WebKit.
