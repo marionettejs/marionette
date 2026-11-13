@@ -60,4 +60,23 @@ test('release profile rejects consumer support and required verification drift',
     await writeFile(path, original);
   }
 
+  // A following job must not supply a missing promotion dependency, including
+  // valid job IDs with underscores or uppercase letters.
+  const releasePath = join(root, '.github/workflows/release.yml');
+  const original = await readFile(releasePath, 'utf8');
+  const missingGate = original.replace(', consumer-lts]', ']');
+  const following = missingGate.slice(missingGate.indexOf('  certified_artifact:\n'),
+    missingGate.indexOf('  publication-targets:\n'));
+  assert(following.includes('    needs: preflight'));
+  for (const id of ['certified_artifact', 'Certified_Artifact']) {
+    const workflow = missingGate.replace(following,
+      following.replace('    needs: preflight', '    needs: [preflight, consumer-lts]'))
+      .replaceAll('certified_artifact', id);
+    await writeFile(releasePath, workflow);
+    const result = run();
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stderr, /promotion must require consumer-lts/);
+  }
+  await writeFile(releasePath, original);
+
 });

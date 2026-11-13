@@ -35,9 +35,9 @@ parameters stops and starts the same registered child instance; changing a leaf
 under the same mount can retain that child. Stop retains registrations; destroy
 unmounts them. After stop/start, explicitly restart required roots and Router.
 
-Router has passing coverage on **Chromium, Firefox and Playwright WebKit**;
-the [browser coverage notes](../packages/router.md#browser-coverage) link the passing
-installed-archive run and describe native WebKit differences. Router requires
+The [recorded browser run](../packages/router.md#browser-coverage) passes on
+**Chromium, Firefox and Playwright WebKit**. Those notes identify the tested Router
+release and describe native WebKit differences. Router requires
 `URLPattern`, `AbortSignal.any`, `Promise.withResolvers` and `URL.canParse`; the
 default driver also requires the Navigation API. `historyDriver()` is an explicit
 alternative, not an automatic fallback, and additionally needs `structuredClone`.

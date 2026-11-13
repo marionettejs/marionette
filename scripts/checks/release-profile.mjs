@@ -99,7 +99,7 @@ function validateWorkflow() {
   }
 
   const consumerWorkflow = workflowContents.get(profile.source.consumerWorkflow) || '';
-  const job = (workflow, id) => workflow.match(new RegExp(`^ {2}${id}:\\n[\\s\\S]*?(?=^ {2}[a-z0-9-]+:|(?![\\s\\S]))`, 'm'))?.[0] || '';
+  const job = (workflow, id) => workflow.match(new RegExp(`^ {2}${id}:\\n[\\s\\S]*?(?=^ {2}[A-Za-z0-9_-]+:|(?![\\s\\S]))`, 'm'))?.[0] || '';
   const consumerJob = job(consumerWorkflow, profile.source.consumerJob);
   if (!consumerJob.includes(`node-version: ${profile.source.consumerNodeMajor}\n`) ||
     /^ {4}continue-on-error:/m.test(consumerJob)) {

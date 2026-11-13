@@ -89,6 +89,7 @@ test('required Node LTS release checks consume the certified artifacts without r
   assert.match(verify.run, /--require-validation/);
   assert.match(verify.run, /--source-commit/);
   const setup = steps.find(step => step.with?.['node-version']);
+  assert(steps.indexOf(download) < steps.indexOf(verify));
   assert(steps.indexOf(verify) < steps.indexOf(setup));
   for (const command of ['test:fixtures', 'check:docs-installed']) {
     const step = steps.find(candidate => candidate.run?.includes(command));

@@ -1,6 +1,6 @@
 # Install and render a View
 
-This guide belongs to the installed Marionette package. Supported consumer Node LTS lines are 22.22.2+ (22.x), 24.15.0+ (24.x) and 26.x, with required installed-package verification at each floor and latest patch. Use the latest patch of a supported line. The [documentation index](readme.md) routes to the bundled guides.
+This guide belongs to the installed Marionette package. Supported consumer Node LTS lines are 22.22.2+ (22.x), 24.15.0+ (24.x) and 26.x, with required installed-package verification at each floor and latest patch. Use the latest patch of a supported line. Optional companions have their own requirements; `@mnjs/router` requires Node 24.15.0 or newer. The [documentation index](readme.md) routes to the bundled guides.
 
 ## Install matching packages
 

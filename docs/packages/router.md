@@ -14,9 +14,11 @@ capabilities, `node_modules/@mnjs/router/DESIGN.md` for detailed contracts, and
 These files belong to the installed Router version, not to core's documentation
 manifest. When working with HTML, use `node_modules/@mnjs/html/guide.md` and
 `node_modules/@mnjs/html/LIT_DIFFERENCES.md`. Read the package versions first.
-When installed files are unavailable, use the
-[Router source](https://github.com/marionettejs/marionette/tree/master/packages/router)
-at the tag matching the installed release.
+When installed files are unavailable, select the `router-v<installed-version>`
+tag matching the installed release from the
+[repository tags](https://github.com/marionettejs/marionette/tags) and read its
+`packages/router/` directory. The [published example verification](#published-example-verification)
+links the exact source tag used for this guide's fixture.
 
 Router requires Node 24.15 or newer. Check the [routing capability and driver
 requirements](../guides/routing.md#use-the-optional-router-for-routed-applications)
