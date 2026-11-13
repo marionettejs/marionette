@@ -214,7 +214,7 @@
     "marionette": "5.0.1",
     "lit-html": "3.3.3",
     "@playwright/test": "1.65.0",
-    "rollup": "4.68.0"
+    "rollup": "4.68.2"
   },
   "dependencies": {
     "@types/trusted-types": "2.0.7"
