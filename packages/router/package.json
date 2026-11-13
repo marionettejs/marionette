@@ -19,6 +19,17 @@
       },
       "default": "./dist/index.js"
     },
+    "./history": {
+      "import": {
+        "types": "./dist/types/esm/drivers/history.d.ts",
+        "default": "./dist/history.js"
+      },
+      "require": {
+        "types": "./dist/types/cjs/drivers/history.d.ts",
+        "default": "./dist/history.cjs"
+      },
+      "default": "./dist/history.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [

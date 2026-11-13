@@ -78,8 +78,10 @@ function fixture(t) {
   write('PROVENANCE.md', '# Provenance\n');
   for (const file of ['examples/desk/README.md', 'examples/desk/desk.mjs',
     'examples/catalog/README.md', 'examples/catalog/catalog.mjs']) { write(file, '# Example\n'); }
-  for (const kind of ['import', 'require']) {
-    for (const field of ['default', 'types']) { write(manifest.exports['.'][kind][field], 'export {};\n'); }
+  for (const entry of ['.', './history']) {
+    for (const kind of ['import', 'require']) {
+      for (const field of ['default', 'types']) { write(manifest.exports[entry][kind][field], 'export {};\n'); }
+    }
   }
   const pack = () => {
     const files = [];
@@ -144,6 +146,19 @@ test('rejects unexpected packed material and missing public entries', t => {
   rmSync(join(f.pkg, 'dist/index.cjs'));
   archive = f.pack();
   assert.throws(() => inspectRouterArchive(archive, sha256(readFileSync(archive))), /Missing entry/);
+});
+
+test('requires every public History runtime and declaration in the archive', t => {
+  const f = fixture(t);
+  for (const kind of ['import', 'require']) {
+    for (const field of ['default', 'types']) {
+      const entry = manifest.exports['./history'][kind][field];
+      rmSync(join(f.pkg, entry));
+      const archive = f.pack();
+      assert.throws(() => inspectRouterArchive(archive, sha256(readFileSync(archive))), /Missing entry/);
+      f.write(entry, 'export {};\n');
+    }
+  }
 });
 
 test('checks installed documentation anchors, files and package boundaries', t => {

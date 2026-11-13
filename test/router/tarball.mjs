@@ -8,6 +8,7 @@ import { dirname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { candidateOutput, inspectRouterArchive, sha256, validatePreparationReceipt, validateRouterPackage, verifyRouterDocumentation } from './artifact.mjs';
 import { verifyDriverTreeShaking } from './tree-shaking.mjs';
+import { verifyLazyHistory } from './lazy-history.mjs';
 import { verifyHistoryPackage } from './history-package-check.mjs';
 import { runRouterBrowserExecutions, verifyRouterBrowserExecutions } from './browser-executions.mjs';
 
@@ -107,6 +108,9 @@ try {
   report.checks.push('installed-history-esm-cjs');
   report.treeShaking = await verifyDriverTreeShaking(consumer);
   report.checks.push('optimized-esm-driver-consumers');
+  report.lazyHistory = await verifyLazyHistory(consumer);
+  report.checks.push('vite-production-lazy-history');
+  if (output) { cpSync(join(consumer, 'router-lazy-history'), join(output, 'router-lazy-history'), { recursive: true }); }
   writeFileSync(join(consumer, 'correctness-probes.mjs'), readFileSync(join(root, 'test/router/correctness-probes.mjs')));
   execFileSync(process.execPath, ['correctness-probes.mjs'], { cwd: consumer, stdio: 'inherit' });
   cpSync(join(installed, 'examples/desk'), join(consumer, 'desk'), { recursive: true });

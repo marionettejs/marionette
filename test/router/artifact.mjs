@@ -64,8 +64,8 @@ export function inspectRouterArchive(archive, expectedHash) {
   const manifest = JSON.parse(read('package.json'));
   const license = read('license.txt');
   validateRouterPackage(manifest, license);
-  const entries = [manifest.exports['.'].import.default, manifest.exports['.'].require.default,
-    manifest.exports['.'].import.types, manifest.exports['.'].require.types];
+  const entries = ['.', './history'].flatMap(entry => ['import', 'require']
+    .flatMap(kind => [manifest.exports[entry][kind].default, manifest.exports[entry][kind].types]));
   entries.push('readme.md', 'DESIGN.md', 'PROVENANCE.md', 'examples/desk/README.md',
     'examples/desk/desk.mjs', 'examples/catalog/README.md', 'examples/catalog/catalog.mjs');
   for (const entry of entries) { assert.ok(members.includes(`package/${entry.replace(/^\.\//, '')}`), `Missing entry ${entry}`); }

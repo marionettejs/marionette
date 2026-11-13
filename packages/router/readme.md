@@ -265,9 +265,53 @@ Router maintains one while routing runs. Detached calls reject with
 `InvalidStateError`; current-entry no-ops remain usable.
 
 Optimized ESM consumers can remove unused drivers; installed-package checks build
-and execute driver-only and Router combinations. A referenced fallback can remain
-in a shared bundle. Named exports do not promise a separately downloaded chunk:
-conditional imports and network splitting belong to the application's bundler.
+and execute driver-only and Router combinations.
+
+### Download History only when needed
+
+The public `@mnjs/router/history` entry exports the named `historyDriver` factory
+in ESM and CommonJS, with declarations for both. It has the same API and behavior
+as the root factory. Existing root imports and the native default remain supported.
+
+A bundled application can import Router statically and load History only when
+Navigation is absent, before starting the Router:
+
+```js
+import { Router } from '@mnjs/router';
+
+// Supply any missing URLPattern/other required APIs before constructing Router.
+const driver = globalThis.navigation
+  ? undefined
+  : (await import('@mnjs/router/history')).historyDriver();
+const router = new Router({ driver, routes: { '/': { name: 'home' } } });
+await router.start();
+await router.getInitialDispatch();
+```
+
+Keep the fallback import on the public History entry. A dynamic wrapper that
+imports `historyDriver` from the root can share the root's statically loaded
+bundle and download History even when the wrapper is never requested. Neither
+driver is selected automatically by the package. Capability detection alone does
+not establish browser compatibility or supply other missing APIs.
+
+Verify the final production graph: no History implementation or History-only
+static dependency may appear in the native entry's static import closure. Identify
+the emitted History chunk and its exclusive dependencies from the bundler's
+manifest/module graph, rather than a guessed filename. Avoid grouping History
+with eager dependencies through manual chunk rules, and exclude these lazy assets
+from preload/prefetch rules and service-worker install precaching. Precaching all
+JavaScript downloads History even on native browsers. Keep runtime script caching
+so the fallback can be cached after its first requested use; excluding it from
+precache also means first offline use requires an already cached copy.
+
+This is a bundler code-splitting contract, verified by the installed production
+consumer check. Direct unbundled root ESM imports still download the bundled
+History implementation. Eager root `historyDriver` imports also retain it.
+The History entry is independently compiled from the same source and has a
+distinct factory identity from the root export; importing both factories can
+retain two copies. Choose one import path for History in an application. The
+package does not control network, preload or service-worker policy.
+
 The same three-engine matrix exercises the History path with a throwing
 Navigation API getter and an actual installed URLPattern polyfill.
 `urlpattern-polyfill@10.1.0` differs from native URLPattern for `__proto__`

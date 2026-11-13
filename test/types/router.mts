@@ -3,6 +3,12 @@ import { Router, RouteApplication, routeTable, defineRoutes, memoryDriver, navig
   type RouteDefinition, type RouteHash, type RouteTable, type RouteNames, type RouteParams,
   type RouteApplicationInstance, type RouteApplicationOptions, type ApplicationRoutes, type SwitchOptions, type SelectionKey } from '@mnjs/router';
 import { Application, type LifecycleContext } from 'marionette';
+import { historyDriver as separateHistoryDriver } from '@mnjs/router/history';
+const historyFactory: typeof historyDriver = separateHistoryDriver;
+const historyInstance: Driver = historyFactory({ window: globalThis.window });
+// @ts-expect-error The separate History entry requires a Window too.
+separateHistoryDriver({ window: 42 });
+void historyInstance;
 // @ts-expect-error Selection is private; the former public class is removed.
 import { ChildAppSwitcher } from '@mnjs/router';
 

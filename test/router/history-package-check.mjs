@@ -11,9 +11,10 @@ export async function verifyHistoryPackage(consumer) {
   const require = createRequire(resolve(consumer, 'package.json'));
   const manifest = require('@mnjs/router/package.json');
   const esm = await import(pathToFileURL(resolve(consumer, 'node_modules/@mnjs/router', manifest.exports['.'].import.default)));
-  for (const [format, api] of [['ESM', esm], ['CJS', require('@mnjs/router')]]) {
+  const historyEsm = await import(pathToFileURL(resolve(consumer, 'node_modules/@mnjs/router', manifest.exports['./history'].import.default)));
+  for (const [format, api, history] of [['ESM', esm, historyEsm], ['CJS', require('@mnjs/router'), require('@mnjs/router/history')]]) {
     const dom = new JSDOM('', { url: 'https://installed-history.example/' });
-    const driver = api.historyDriver({ window: dom.window });
+    const driver = history.historyDriver({ window: dom.window });
     const router = new api.Router({ driver, routes: { '/': { name: 'home'}, '/items/:id': { name: 'item'} } });
     try {
       await router.start();

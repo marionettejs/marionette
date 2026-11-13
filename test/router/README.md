@@ -1,5 +1,28 @@
 # Router integration checks
 
+## Lazy History package consumer
+
+`test:router-tarball` builds an installed consumer with Vite in production mode.
+It requires History in the dynamic fallback graph and outside the native static
+import closure, and requires the unused memory driver to be removed. The verifier
+retains the inputs, emitted chunks, source maps, manifest and module/byte report
+under `router-lazy-history/` in its output receipt directory.
+
+To additionally check actual browser requests and both drivers' initial dispatch,
+stateful navigation and Back, supply an already installed archive consumer:
+
+```sh
+node test/router/lazy-history.mjs /absolute/path/consumer --browser
+```
+
+`MARIONETTE_ROUTER_CHROMIUM` can select a supported installed Chromium executable.
+Without `--browser`, this check establishes the production graph only. It does
+not certify Firefox/WebKit, application preload/service-worker behavior, or the
+complete Router browser inventory. `--baseline` reproduces the old conditional
+wrapper that imports History from the root; it expects History to remain eager.
+
+## Historical integration receipt
+
 This is the historical November 5 integration receipt. Current package verification
 uses [the router procedure](../../packages/router/RELEASING.md), the maintained
 browser inventory and exact-source archive receipts. Results below do not certify

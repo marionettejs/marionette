@@ -1,5 +1,10 @@
 import { Application } from 'marionette';
 import { Router, RouteApplication, routeTable, defineRoutes, memoryDriver, historyDriver } from '@mnjs/router';
+import { historyDriver as separateHistoryDriver } from '@mnjs/router/history';
+/** @type {typeof historyDriver} */
+const historyFactory = separateHistoryDriver;
+// @ts-expect-error The separate History entry requires a Window.
+historyFactory({ window: 42 });
 const memory = memoryDriver({ url: 'https://example.test/' });
 /** @type {import('@mnjs/router').Driver} */
 const customDriver = {
