@@ -108,6 +108,10 @@ test('CI builds once and source checks remain independent of candidate artifacts
   assert.equal(workflow.on.candidate, undefined);
   assert.equal(workflow.env.MNJS_SKIP_PREPARE, '1');
   assert.equal(workflow.jobs['source-checks'].needs, undefined);
+  assert(!workflow.jobs['source-checks'].steps.some(step => step.run?.includes('check:diagnostics')));
+  assert(workflow.jobs.core.steps.some(step => step.run === 'npm run check:diagnostics'));
+  assert.equal(workflow.jobs['router-browser-candidate'].needs, 'candidate');
+  assert.match(workflow.jobs['router-browser-candidate'].steps.find(step => step.id === 'candidate').run, /--build-sha256/);
   const commands = workflow.jobs.candidate.steps.filter(step => step.run).map(step => step.run).join('\n');
   assert.equal(commands.match(/npm run release:artifact/g).length, 1);
   assert(!commands.includes('npm run build'));
