@@ -161,20 +161,23 @@ capability checks, actual executable examples and optimized ESM consumers that
 remove unused drivers. History ESM/CJS consumers exercise state, Back/Forward
 and retained lifecycle using a real Window implementation. Controlled breaks prove missing
 rendering and unsafe interpolation are detected. Inspect the resolved dependency
-tree for duplicate/incompatible Marionette runtimes. This source checkout uses
-coordinated core 5.1.0, so the additional published-stack check is:
+tree for duplicate/incompatible Marionette runtimes. Check the source checkout's
+coordinated core version after that stack is published:
 
 ```sh
-npm run test:router-tarball -- --artifact /absolute/path/router-release/mnjs-router-0.2.0.tgz --sha256 RECORDED_SHA256 --registry-peers --registry-peer-version 5.1.0 --browser --output /absolute/path/router-verification-5.1.0
+router_core_version=$(node -p "require('./package.json').version")
+npm run test:router-tarball -- --artifact /absolute/path/router-release/mnjs-router-0.2.0.tgz --sha256 RECORDED_SHA256 --registry-peers --registry-peer-version "$router_core_version" --browser --output /absolute/path/router-verification-current
 ```
 
 The explicit registry version must be either the minimum 5.0.1 or the current
 coordinated source version. It selects core, Utils, Radio and Adapters together;
-registry locators and exact resolved versions are checked and recorded. This
-5.1.0 check does not certify the separate 5.1.1 candidate. After integration with
-core 5.1.1, build and certify from that clean source and select 5.1.1 only after
-its coordinated registry packages exist. Preserve exact preparation/verifier
-source identity. Local core candidate checks remain development evidence.
+registry locators and exact resolved versions are checked and recorded. A source
+checkout at core 5.1.0 can check the published 5.1.0 stack; it does not certify the
+separate 5.1.1 candidate. After integration with core 5.1.1, the verifier permits
+5.0.1 or 5.1.1, not the older 5.1.0 lane. Select 5.1.1 only after its registry
+packages exist. Do not rebase solely to choose a registry lane. Preserve exact
+preparation/verifier source identity. Local core candidate checks remain
+development evidence.
 
 ### Standalone History entry certification
 
