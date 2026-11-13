@@ -2,7 +2,7 @@
   "name": "@mnjs/router",
   "description": "Named routing and child Application switching for Marionette v5",
   "license": "MIT",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -35,6 +35,7 @@
   "files": [
     "dist/",
     "readme.md",
+    "changelog.md",
     "DESIGN.md",
     "PROVENANCE.md",
     "license.txt",

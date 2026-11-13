@@ -269,9 +269,12 @@ and execute driver-only and Router combinations.
 
 ### Download History only when needed
 
-The public `@mnjs/router/history` entry exports the named `historyDriver` factory
+Added in 0.2.0, the public `@mnjs/router/history` entry exports the named `historyDriver` factory
 in ESM and CommonJS, with declarations for both. It has the same API and behavior
 as the root factory. Existing root imports and the native default remain supported.
+Applications using `^0.1.1` must update their dependency range to adopt 0.2.0;
+see the [changelog](changelog.md). A candidate archive does not establish registry
+availability.
 
 A bundled application can import Router statically and load History only when
 Navigation is absent, before starting the Router:
@@ -312,8 +315,8 @@ distinct factory identity from the root export; importing both factories can
 retain two copies. Choose one import path for History in an application. The
 package does not control network, preload or service-worker policy.
 
-The same three-engine matrix exercises the History path with a throwing
-Navigation API getter and an actual installed URLPattern polyfill.
+The existing three-engine matrix exercises the root History export with a throwing
+Navigation API getter and an actual installed URLPattern polyfill. This is not full polyfill certification:
 `urlpattern-polyfill@10.1.0` differs from native URLPattern for `__proto__`
 parameter names and backslash syntax; avoid those inputs on that path. See
 [the compatibility limits](DESIGN.md#history-api-driver). Passing receipts,

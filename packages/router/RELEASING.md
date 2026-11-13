@@ -1,20 +1,23 @@
-# Release @mnjs/router 0.1.1
+# Prepare @mnjs/router 0.2.0
 
-Router is an independently versioned pre-v1 package. The 0.1.1 patch accompanies
-Marionette 5.1.0 with the example and documentation changes below.
+Router is an independently versioned pre-v1 package. This branch prepares 0.2.0
+with the public `@mnjs/router/history` entry; it does not release it. See the
+[consumer changelog](changelog.md). Applications using `^0.1.1` must explicitly
+update their dependency range to adopt 0.2.0.
 
 **Publication authorization:** neither this procedure nor a version bump
 authorizes merging, publishing or tagging. Require the release decision and final
 certification below.
 
-Compared with published Router 0.1.0, this patch updates the Catalog example from
-Lit to optional `@mnjs/html`, documents explicit renderer preparation, and removes
-the Desk example's incompatible exact Adapters 5.0.1 instruction for core 5.1.
-Router runtime source, public API, Node floor, peer range and Utils range are unchanged.
+Compared with published Router 0.1.1, this minor adds an independently built
+History entry in ESM/CommonJS with declarations for both. Existing root named
+exports, native driver selection, authored runtime source, Node floor, peer range
+and Utils range are unchanged. Root and standalone History factories have distinct
+identities; consumers should use one History import path consistently.
 
-This procedure releases only `@mnjs/router@0.1.1`, publicly, with npm dist-tag
-`latest` and Git tag `router-v0.1.1`. Do not reuse the existing
-`router-v0.1.0` or unrelated `v0.1.0` tags. Router is independently versioned;
+This procedure releases only `@mnjs/router@0.2.0`, publicly, with npm dist-tag
+`latest` and Git tag `router-v0.2.0`. Do not reuse the existing
+`router-v0.1.0`, `router-v0.1.1` or unrelated core tags. Router is independently versioned;
 do not align its version with core or enroll it in the coordinated five-package
 5.x publisher. The independent
 [`@mnjs/test` procedure](../test/RELEASING.md) is the precedent, not evidence that
@@ -32,7 +35,7 @@ Rebase onto current master, open a PR, review `packages/router/src` directly and
 resolve supported correctness findings. Require current-head CI and consolidated
 source/docs/package review before the protected merge. Honor repository rules;
 never bypass required checks or reviews. Review the core release separately from
-this Router patch even when they share a preparation PR.
+this Router minor even when they share a preparation PR.
 
 The public README and examples describe the package as consumers install it.
 Keep `DESIGN.md`, the concise source/license reference and exact MIT notice in the
@@ -56,7 +59,7 @@ workflow. Do not create credentials, organization grants or trusted-publisher
 settings as a workaround. Authentication/access failures block publication; stop
 that operation and coordinate the supported publisher handoff.
 
-Confirm 0.1.1 is unused and assigning `latest` is appropriate. Do not overwrite an
+Confirm 0.2.0 is unused and assigning `latest` is appropriate. Do not overwrite an
 existing version, invent a different version or retarget another dist-tag. Keep
 Marionette within `^5.0.1`. Verify both the minimum 5.0.1 and the newest available
 compatible core; when they resolve to the same published bytes, record that fact.
@@ -65,38 +68,30 @@ Utils dependency is `^5.0.1`, permitting compatible deduplication independently 
 the Marionette peer. Certification still installs the actual 5.0.1 minimum bytes;
 the range is not a claim that future versions have already passed these checks.
 
-## Coordinate Router first, then Marionette 5.1.0
+## Coordinate with Marionette 5.1.1
 
-One reviewed PR can prepare both releases, but the five-package publisher does
-not publish Router. After an authorized merge and final certification of the clean
-merged source, publish Router 0.1.1 first against the currently published compatible
-stack. Its core peer and Utils dependency remain `^5.0.1`; it does not require
-Marionette or Adapters 5.1.0 to exist. Certify the exact Router archive with the
-published minimum and newest compatible core. When both resolve to 5.0.1, record
-that they are the same registry bytes rather than claiming two different lanes.
-Keep the required three-engine archive checks; local-candidate evidence alone is not
-enough to publish Router.
+Router 0.2.0 and the coordinated core 5.1.1 release are separate version lines,
+archives and publication decisions. The five-package publisher does not publish
+Router. Its core peer and Utils dependency remain `^5.0.1`; Router does not require
+5.1.1 to be published first. Certify the exact Router archive with the published
+5.0.1 minimum and the newest compatible coordinated stack supported by the verifier.
+
+[Core PR #3845](https://github.com/marionettejs/marionette/pull/3845) owns 5.1.1
+preparation. Retain its Router browser-coverage and published-package documentation
+corrections when integrating these branches. Do not replace the historical
+published Router 0.1.1 companion evidence with an unpublished 0.2.0 candidate.
+Update registry-backed companion checks only after verifying published 0.2.0 bytes.
+
+A core candidate companion check using local archives is additional development
+evidence, not registry or publication certification. Use the Router verifier's
+local-development lane for the compatible source checkout. The core release's
+browser inventory excludes Router, so it does not replace Router's independent
+certification. Neither release authorizes the other; honor separate approval and
+merged-source certification gates.
+
 Review the [known native WebKit differences](readme.md#known-native-webkit-differences)
-alongside any passing receipt. The tests intentionally assert the observed
-engine-specific results; they do not establish identical native semantics.
-
-Then certify the coordinated 5.1.0 candidate, including a companion check using
-the actual published Router 0.1.1 archive and published HTML 1.0.0. Use the Router
-verifier's local-development lane for those core candidate tarballs, in addition
-to the five-package publisher's full final certification. The core release's
-browser inventory deliberately excludes Router, so it does not replace that
-companion check. Publish the five packages only after separate authorization and
-the normal merged-source certification gates.
-
-After the five 5.1.0 registry packages are verified, check the same Router archive
-against that published stack as described below. Record this as follow-up
-compatibility evidence, not a prerequisite for the earlier Router publication.
-Do not republish Router or silently change its version. A failure in either
-publication or its verification remains a separate result.
-
-The 0.1.0 documentation fixture and tag links remain historical evidence; update
-them only alongside an intentional check of the newly published bytes, not merely
-because a source manifest changed.
+alongside any passing receipt. The tests assert observed engine-specific results;
+they do not establish identical native semantics.
 
 ## Build and check the final merged revision
 
@@ -147,7 +142,7 @@ or provide an existing archive through `MNJS_HTML_TARBALL`. The verifier consume
 that archive without implicitly fetching a renderer.
 
 ```sh
-npm run test:router-tarball -- --artifact /absolute/path/router-release/mnjs-router-0.1.1.tgz --sha256 RECORDED_SHA256 --registry-peers --browser --output /absolute/path/router-verification
+npm run test:router-tarball -- --artifact /absolute/path/router-release/mnjs-router-0.2.0.tgz --sha256 RECORDED_SHA256 --registry-peers --browser --output /absolute/path/router-verification
 ```
 
 Require `passed-public-candidate`, clean verifier source, and identical
@@ -166,21 +161,38 @@ capability checks, actual executable examples and optimized ESM consumers that
 remove unused drivers. History ESM/CJS consumers exercise state, Back/Forward
 and retained lifecycle using a real Window implementation. Controlled breaks prove missing
 rendering and unsafe interpolation are detected. Inspect the resolved dependency
-tree for duplicate/incompatible Marionette runtimes. After the coordinated 5.1.0
-packages are published, verify the **same archive**
-against the current coordinated version as well, in a separate receipt directory:
+tree for duplicate/incompatible Marionette runtimes. This source checkout uses
+coordinated core 5.1.0, so the additional published-stack check is:
 
 ```sh
-npm run test:router-tarball -- --artifact /absolute/path/router-release/mnjs-router-0.1.1.tgz --sha256 RECORDED_SHA256 --registry-peers --registry-peer-version 5.1.0 --browser --output /absolute/path/router-verification-5.1.0
+npm run test:router-tarball -- --artifact /absolute/path/router-release/mnjs-router-0.2.0.tgz --sha256 RECORDED_SHA256 --registry-peers --registry-peer-version 5.1.0 --browser --output /absolute/path/router-verification-5.1.0
 ```
 
 The explicit registry version must be either the minimum 5.0.1 or the current
 coordinated source version. It selects core, Utils, Radio and Adapters together;
 registry locators and exact resolved versions are checked and recorded. This
-5.1.0 run follows the coordinated release; it does not require publishing core
-before Router. The earlier 5.0.1 exact-archive browser certification remains the
-Router-first publication gate. Local 5.1.0 candidate checks are additional
-compatibility evidence, not a claim that 5.1.0 registry bytes already exist.
+5.1.0 check does not certify the separate 5.1.1 candidate. After integration with
+core 5.1.1, build and certify from that clean source and select 5.1.1 only after
+its coordinated registry packages exist. Preserve exact preparation/verifier
+source identity. Local core candidate checks remain development evidence.
+
+### Standalone History entry certification
+
+The installed verifier now checks standalone History ESM/CommonJS state,
+Back/Forward and retained lifecycle with JSDOM, plus a production Vite graph that
+keeps History out of the native static closure and removes unused memory code.
+The optional `test/router/lazy-history.mjs CONSUMER --browser` check records actual
+Chromium requests for both native and unsupported branches. Retain its emitted
+chunks, maps, manifest, bytes and `historyExclusiveAssets` when preparing
+application preload and service-worker precache exclusions.
+
+The existing complete browser inventory still uses the **root** History export.
+It does not independently certify the separately compiled standalone entry.
+Before publication, require exact-archive standalone-entry checks on Chromium,
+Firefox and WebKit as well, recording actual executable versions, fallback
+navigation and download boundaries. The current new-entry browser evidence is
+Chromium-only; the standalone three-engine gate remains outstanding. Prior full
+root-entry browser evidence must not be described as standalone-entry coverage.
 
 The browser policy is **Chromium, Firefox and Playwright WebKit**. Both the
 source-checkout suite and exact-installed-archive suite run the complete Router
@@ -235,11 +247,11 @@ clean status and archive digest immediately before publication. Honor normal
 2FA/trusted-publishing requirements. Publish the tarball directly:
 
 ```sh
-npm publish /absolute/path/router-release/mnjs-router-0.1.1.tgz --ignore-scripts --access public --tag latest --registry=https://registry.npmjs.org/
+npm publish /absolute/path/router-release/mnjs-router-0.2.0.tgz --ignore-scripts --access public --tag latest --registry=https://registry.npmjs.org/
 ```
 
 Do not substitute a source directory, which would repack. If the outcome is
-uncertain, query registry state before retrying. Verify public version 0.1.1,
+uncertain, query registry state before retrying. Verify public version 0.2.0,
 `dist-tags.latest`, and `dist.integrity`; download the registry archive through the
 ordinary supported registry route and compare its full SHA256 with the certified
 archive before announcing availability.
@@ -248,8 +260,8 @@ Only after confirmed publication, create and push the package-specific tag at th
 certified source revision:
 
 ```sh
-git tag -a router-v0.1.1 CERTIFIED_SOURCE_SHA -m '@mnjs/router 0.1.1'
-git push origin refs/tags/router-v0.1.1
+git tag -a router-v0.2.0 CERTIFIED_SOURCE_SHA -m '@mnjs/router 0.2.0'
+git push origin refs/tags/router-v0.2.0
 ```
 
 Verify the remote tag resolves to that exact source. Publication/tagging do not

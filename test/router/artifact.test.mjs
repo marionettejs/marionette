@@ -76,6 +76,7 @@ function fixture(t) {
   write('readme.md', '# Router\n[Design](DESIGN.md#child-applications)\n[MIT](license.txt)\n');
   write('DESIGN.md', '# Design\n## Child applications\n');
   write('PROVENANCE.md', '# Provenance\n');
+  write('changelog.md', '# Changelog\n');
   for (const file of ['examples/desk/README.md', 'examples/desk/desk.mjs',
     'examples/catalog/README.md', 'examples/catalog/catalog.mjs']) { write(file, '# Example\n'); }
   for (const entry of ['.', './history']) {
@@ -140,12 +141,15 @@ test('failed archive validation does not claim a publishable manifest', t => {
 test('rejects unexpected packed material and missing public entries', t => {
   const f = fixture(t);
   f.write('.npmrc', 'unexpected package file');
-  let archive = f.pack();
+  const archive = f.pack();
   assert.throws(() => inspectRouterArchive(archive, sha256(readFileSync(archive))), /Unexpected router payload/);
   rmSync(join(f.pkg, '.npmrc'));
-  rmSync(join(f.pkg, 'dist/index.cjs'));
-  archive = f.pack();
-  assert.throws(() => inspectRouterArchive(archive, sha256(readFileSync(archive))), /Missing entry/);
+  for (const entry of ['dist/index.cjs', 'changelog.md']) {
+    rmSync(join(f.pkg, entry));
+    const incomplete = f.pack();
+    assert.throws(() => inspectRouterArchive(incomplete, sha256(readFileSync(incomplete))), /Missing entry/);
+    f.write(entry, 'fixture\n');
+  }
 });
 
 test('requires every public History runtime and declaration in the archive', t => {
@@ -163,7 +167,7 @@ test('requires every public History runtime and declaration in the archive', t =
 
 test('checks installed documentation anchors, files and package boundaries', t => {
   const f = fixture(t);
-  assert.deepEqual(verifyRouterDocumentation(f.pkg), { pages: 5, relativeLinks: 2 });
+  assert.deepEqual(verifyRouterDocumentation(f.pkg), { pages: 6, relativeLinks: 2 });
   f.write('readme.md', '[Missing](DESIGN.md#missing)');
   assert.throws(() => verifyRouterDocumentation(f.pkg), /Missing anchor/);
   f.write('readme.md', '[Missing](absent.md)');
