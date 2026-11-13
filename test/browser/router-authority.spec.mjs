@@ -206,34 +206,61 @@ test('later native fragment navigation supersedes deferred work without routing 
   expect(result).toEqual({ outcomes: [false, false, false, true], path: '/a#details', handled: ['a'] });
 });
 
-test('native queued Back dispatch follows completed abort-listener navigation', async({ page }) => {
+test('native queued Back dispatch follows completed abort-listener navigation', async({ page, browserName }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
-  const result = await page.evaluate(async() => {
+  const result = await page.evaluate(async observesNavigation => {
     const { Router } = await import('/router.js');
+    const observer = observesNavigation ? (await import('/router-observer.js')).observeNavigation() : null;
     history.replaceState(null, '', '/home');
     const entered = Promise.withResolvers();
     const work = Promise.withResolvers();
     const handled = [];
+    const ready = [];
+    const routeErrors = [];
     let newer;
-    const router = new Router({ routes: { '/home': { name: 'home' }, '/a': { name: 'a' }, '/c': { name: 'c' } }, handler(match) {
+    const router = new Router({ ...(observer ? { driver: observer.driver } : {}), routes: { '/home': { name: 'home' }, '/a': { name: 'a' }, '/c': { name: 'c' } }, handler(match) {
+      observer?.record('handler:enter', match);
       handled.push(match.name);
       if (match.name === 'a') {
         match.signal.addEventListener('abort', () => { newer = router.navigate('c'); }, { once: true });
+        if (observer) {
+          work.promise.then(() => observer.record('handler:fulfilled', match),
+            error => observer.record('handler:rejected', match, { error: error.name }));
+        }
         entered.resolve(); return work.promise;
       }
+      observer?.record('handler:fulfilled', match);
     } });
+    observer?.connect(router);
+    router.on('route:ready', match => ready.push(match.name));
+    router.on('route:error', error => routeErrors.push(error.name));
     try {
       await router.start(); await router.getInitialDispatch();
       const a = router.navigate('a'); await entered.promise;
       const back = router.back();
       const first = await Promise.all([a.finished, back]);
-      return { outcomes: [...first, await newer.finished], current: router.getCurrent().name, path: location.pathname, handled };
-    } finally { router.destroy(); work.resolve(); }
-  });
+      const outcomes = [...first, await newer.finished];
+      observer?.record('helpers:settled', null, { outcomes });
+      return { outcomes, current: router.getCurrent().name, path: location.pathname, handled, ready, routeErrors,
+        aborted: router.getCurrent().signal.aborted, entryMatches: router.getCurrent().key === navigation.currentEntry.key,
+        contract: observer?.snapshot('before-cleanup') ?? null };
+    } finally { observer?.stop(); router.destroy(); work.resolve(); }
+  }, !!test.info().config.metadata.routerNativeTrace);
   // The raw Navigation API also dispatches this queued traversal after C finishes.
   // Driver scheduling is retained; Router does not compensate history.
-  expect(result).toEqual({ outcomes: [false, true, true], current: 'home', path: '/home', handled: ['home', 'a', 'c', 'home'] });
+  const { contract, ...outcome } = result;
+  if (contract) { console.log('Router abort-reentry Back contract:', JSON.stringify(contract)); }
+  // WebKit's raw Back finished receipt rejects AbortError despite this ready,
+  // un-aborted current route. See packages/router/readme.md#known-native-webkit-differences.
+  expect(outcome).toEqual({ outcomes: [false, browserName !== 'webkit', true], current: 'home', path: '/home',
+    handled: ['home', 'a', 'c', 'home'], ready: ['home', 'c', 'home'], routeErrors: [], aborted: false, entryMatches: true });
+  if (contract) {
+    expect(contract.current).toMatchObject({ name: 'home', current: true, aborted: false });
+    expect(contract.trace.filter(event => event.type === 'router:error')).toEqual([]);
+    expect(contract.trace.filter(event => event.type === 'driver:back:finished').map(({ status, error }) => ({ status, error })))
+      .toEqual([browserName === 'webkit' ? { status: 'rejected', error: 'AbortError' } : { status: 'fulfilled', error: undefined }]);
+  }
   expect(errors).toEqual([]);
 });
 

@@ -74,8 +74,11 @@ stack. Its core peer and Utils dependency remain `^5.0.1`; it does not require
 Marionette or Adapters 5.1.0 to exist. Certify the exact Router archive with the
 published minimum and newest compatible core. When both resolve to 5.0.1, record
 that they are the same registry bytes rather than claiming two different lanes.
-Keep the required Chromium archive checks; local-candidate evidence alone is not
+Keep the required three-engine archive checks; local-candidate evidence alone is not
 enough to publish Router.
+Review the [known native WebKit differences](readme.md#known-native-webkit-differences)
+alongside any passing receipt. The tests intentionally assert the observed
+engine-specific results; they do not establish identical native semantics.
 
 Then certify the coordinated 5.1.0 candidate, including a companion check using
 the actual published Router 0.1.1 archive and published HTML 1.0.0. Use the Router
@@ -175,21 +178,50 @@ The explicit registry version must be either the minimum 5.0.1 or the current
 coordinated source version. It selects core, Utils, Radio and Adapters together;
 registry locators and exact resolved versions are checked and recorded. This
 5.1.0 run follows the coordinated release; it does not require publishing core
-before Router. The earlier 5.0.1 exact-archive Chromium certification remains the
+before Router. The earlier 5.0.1 exact-archive browser certification remains the
 Router-first publication gate. Local 5.1.0 candidate checks are additional
 compatibility evidence, not a claim that 5.1.0 registry bytes already exist.
 
-The initial browser policy is **Chromium only**. The default driver requires the
-Navigation API and Router requires URLPattern plus the other documented Web APIs.
-The explicit History path is tested with native Navigation unavailable and the
-installed URLPattern polyfill; it does not certify other missing built-ins.
-Firefox and WebKit are untested.
-Use the pinned browser or an installed supported Chromium via
-`--chromium-executable /absolute/path/chromium`, recording its actual version.
-Do not weaken browser security or bypass download restrictions. Require every
-inventory case once with no failures, retries or skips. Missing checks remain
-missing, not a successful certification. Use a supported cloud execution boundary
-when a managed command wrapper prevents an installed browser's sandbox helper.
+The browser policy is **Chromium, Firefox and Playwright WebKit**. Both the
+source-checkout suite and exact-installed-archive suite run the complete Router
+inventory on every engine. The default driver exercises the actual Navigation API;
+Router also requires URLPattern and the other documented Web APIs. The explicit
+History path makes Navigation access throw and installs the actual URLPattern
+polyfill on each engine; it does not certify other missing built-ins.
+
+Use the Playwright engines pinned in the release profile. Source-checkout CI uses
+the matching official container described in
+[the test guide](../../test/README.md#browser-ci-environment).
+The installed-archive workflow prepares the tarball on canonical Ubuntu Linux,
+then transfers those same bytes and their adjacent `router-candidate.json` to
+GitHub-hosted `macos-15` arm64 for browser verification with registry peers.
+The producer's source commit must equal both archiveSourceCommit and
+verificationCommit; the SHA-256 must match the producer output, preparation
+receipt and archive. This workflow requires the preparation receipt and clean
+verifier source before/after, including `verificationDirty: false`.
+The verifier explicitly uses `--artifact` and `--sha256`; it must not repack Router
+on macOS. Existing renderer identity and published-peer integrity checks remain.
+Browser results on this lane are macOS evidence, not Linux archive certification.
+The earlier Linux container/stock-host sandbox failures remain missing Linux
+archive coverage; no helper or host-security changes are made to bypass them.
+Require actual passing launches and inventory receipts before claiming validation.
+The verifier keeps one installed archive/consumer and executes each engine in a
+separate process, retaining raw JSON, blobs and traces per engine. It merges the
+available blobs using Playwright, then requires the full three-engine inventory
+and successful engine processes. A blocked engine is recorded as never run, not
+skipped; partial Firefox/WebKit evidence cannot pass certification or the required
+CI aggregate. Receipts record host platform/architecture as well as browser versions.
+An existing supported Chromium can still be selected with
+`--chromium-executable /absolute/path/chromium`; it changes only the Chromium lane.
+The receipt records each actual browser version. Require every inventory case
+once on each engine with no failures, retries or skips, including native
+capability failures. Missing checks remain missing, not successful certification.
+Playwright WebKit coverage does not certify every shipping Safari or iOS version.
+Do not weaken browser security or bypass download restrictions. Use a supported
+cloud execution boundary when a managed command wrapper prevents an installed
+browser's sandbox helper. Earlier Chromium-only receipts remain evidence only
+for their original archive, verifier policy and executable; they do not establish
+the expanded coverage.
 
 Without `--registry-peers`, results are labeled `local-development`; without
 `--browser`, they do not establish browser coverage. The separate core release

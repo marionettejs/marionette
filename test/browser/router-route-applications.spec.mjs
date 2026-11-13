@@ -3,7 +3,7 @@ import { routerArtifactPath } from '../router/artifact.mjs';
 import { test } from './fixtures.mjs';
 
 async function routerModule(page, mode) {
-  if (mode === 'native') { test.skip(!await page.evaluate(() => 'navigation' in window), 'Navigation API unavailable'); }
+  if (mode === 'native') { expect(await page.evaluate(() => 'navigation' in window), 'Native Navigation API is required').toBe(true); }
   await page.route('**/router.js', route => route.fulfill({ path: routerArtifactPath('dist/index.js'), contentType: 'text/javascript' }));
   await page.evaluate(async driver => {
     history.replaceState(null, '', '/outside');

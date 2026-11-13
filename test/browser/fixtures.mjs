@@ -20,18 +20,23 @@ async function addJavaScriptAssets(assets, directory, prefix) {
 }
 
 export const test = base.extend({
+  browserVersion: [async({ browser }, use, testInfo) => {
+    testInfo.annotations.push({ type: 'browser-version', description: browser.version() });
+    await use();
+  }, { auto: true }],
   // Playwright requires fixture dependencies to be an object destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
   candidateServer: [async({}, use) => {
     const candidate = JSON.parse(await readFile(process.env.MARIONETTE_BROWSER_CANDIDATE, 'utf8'));
     const assets = new Map([
+      ['/router-observer.js', resolve(root, 'test/router/navigation-observer.js')],
       ['/contracts.js', resolve(root, 'test/contracts/dom-adapters.js')],
       ['/underscore.js', resolve(root, 'node_modules/underscore/underscore-umd.js')],
       ['/backbone.js', resolve(root, 'node_modules/backbone/backbone.js')],
       ['/jquery.js', resolve(root, 'node_modules/jquery/dist-module/jquery.module.js')],
       ['/morphdom.js', resolve(dirname(fileURLToPath(import.meta.resolve('morphdom'))), 'morphdom-esm.js')]
     ]);
-    const imports = { jquery: '/jquery.js', morphdom: '/morphdom.js', 'lit-html': '/lit/lit-html.js', 'lit-html/': '/lit/' };
+    const imports = { '@mnjs/router': '/router.js', jquery: '/jquery.js', morphdom: '/morphdom.js', 'lit-html': '/lit/lit-html.js', 'lit-html/': '/lit/' };
     for (const entry of [...candidate.packages, candidate.renderer]) {
       const prefix = `/packages/${entry.id}`;
       await addJavaScriptAssets(assets, join(entry.directory, 'dist'), `${prefix}/dist`);
