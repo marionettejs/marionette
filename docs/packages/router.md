@@ -25,6 +25,13 @@ requirements](../guides/routing.md#use-the-optional-router-for-routed-applicatio
 before constructing it. A memory driver makes tests deterministic; it does not
 exercise browser navigation, focus, scroll or direct-link server behavior.
 
+## Conditional History downloads
+
+When the installed Router exports `@mnjs/router/history`, applications can import
+that entry conditionally to defer History downloads. Existing root named exports
+remain supported. Consult the installed Router changelog before upgrading across
+minor versions, and its README for bundler, preload and service-worker requirements.
+
 ## Published example verification
 
 The runnable [routing example](../guides/routing.md#a-minimal-html-feature) is

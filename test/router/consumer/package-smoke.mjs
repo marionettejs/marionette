@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import * as esm from '@mnjs/router';
+import { historyDriver } from '@mnjs/router/history';
 import { Application } from 'marionette';
 
 const require = createRequire(import.meta.url);
 const cjs = require('@mnjs/router');
+assert.notEqual(esm.historyDriver, historyDriver, 'History is independently bundled for a separate download boundary');
+assert.notEqual(cjs.historyDriver, require('@mnjs/router/history').historyDriver);
 assert.throws(() => require('@mnjs/router/outlet'), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });
 
 // Keep the plain Application control: a child-owned replacement is separate

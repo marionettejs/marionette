@@ -18,8 +18,15 @@ try {
   });
   run(`
     import assert from 'node:assert/strict';
+    import { createRequire } from 'node:module';
+    const history = await import('@mnjs/router/history');
+    const historyCjs = createRequire(import.meta.url)('@mnjs/router/history');
+    for (const api of [history, historyCjs]) {
+      assert.deepEqual(Object.keys(api), ['historyDriver']);
+      assert.throws(() => api.historyDriver(), /browser Window/);
+    }
     await assert.rejects(import('@mnjs/router'), error => error.code === 'ERR_MODULE_NOT_FOUND' && error.message.includes('marionette'));
-    console.log('Router requires its declared Marionette peer.');
+    console.log('History entry imports without browser resources or Marionette; Router requires its declared peer.');
   `);
   symlinkSync(root, join(modules, 'marionette'), 'junction');
   run(`

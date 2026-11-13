@@ -8,6 +8,7 @@ import { dirname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { candidateOutput, inspectRouterArchive, sha256, validatePreparationReceipt, validateRouterPackage, verifyRouterDocumentation } from './artifact.mjs';
 import { verifyDriverTreeShaking } from './tree-shaking.mjs';
+import { verifyLazyHistory } from './lazy-history.mjs';
 import { verifyHistoryPackage } from './history-package-check.mjs';
 import { runRouterBrowserExecutions, verifyRouterBrowserExecutions } from './browser-executions.mjs';
 
@@ -107,6 +108,9 @@ try {
   report.checks.push('installed-history-esm-cjs');
   report.treeShaking = await verifyDriverTreeShaking(consumer);
   report.checks.push('optimized-esm-driver-consumers');
+  report.lazyHistory = await verifyLazyHistory(consumer);
+  report.checks.push('vite-production-lazy-history');
+  if (output) { cpSync(join(consumer, 'router-lazy-history'), join(output, 'router-lazy-history'), { recursive: true }); }
   writeFileSync(join(consumer, 'correctness-probes.mjs'), readFileSync(join(root, 'test/router/correctness-probes.mjs')));
   execFileSync(process.execPath, ['correctness-probes.mjs'], { cwd: consumer, stdio: 'inherit' });
   cpSync(join(installed, 'examples/desk'), join(consumer, 'desk'), { recursive: true });
@@ -150,6 +154,7 @@ try {
       litDirectory: join(consumer, 'node_modules/lit-html'),
       urlPatternDirectory: join(consumer, 'node_modules/urlpattern-polyfill') }));
     const browserDirectory = join(root, 'test/tmp/router-browser');
+    const browserFailures = [];
     try {
       const execution = runRouterBrowserExecutions({ root, directory: browserDirectory,
         probes: process.env.MARIONETTE_ROUTER_BROWSER_PROBES ? JSON.parse(readFileSync(process.env.MARIONETTE_ROUTER_BROWSER_PROBES, 'utf8')) : undefined,
@@ -161,9 +166,25 @@ try {
       const inventory = JSON.parse(readFileSync(join(root, 'test/router/browser-inventory.json')));
       report.browser = verifyRouterBrowserExecutions(execution, inventory);
       report.checks.push('chromium-firefox-webkit-native-and-history-exact-router-archive');
+    } catch (error) {
+      report.rootBrowserError = error.message;
+      browserFailures.push(error);
     } finally {
       if (output && existsSync(browserDirectory)) { cpSync(browserDirectory, join(output, 'browser-evidence'), { recursive: true }); }
     }
+    try {
+      report.lazyHistory = await verifyLazyHistory(consumer, { browser: true,
+        executablePath: values['chromium-executable'] && resolve(values['chromium-executable']),
+      });
+      report.checks.push('chromium-firefox-webkit-standalone-history-downloads');
+    } catch (error) {
+      report.standaloneBrowserError = error.message;
+      report.lazyHistory = JSON.parse(readFileSync(join(consumer, 'router-lazy-history/report.json')));
+      browserFailures.push(error);
+    } finally {
+      if (output) { cpSync(join(consumer, 'router-lazy-history'), join(output, 'router-lazy-history'), { recursive: true }); }
+    }
+    if (browserFailures.length) { throw new AggregateError(browserFailures, 'Router browser verification failed'); }
   }
   assert.equal(git(['rev-parse', 'HEAD']), report.verificationCommit, 'Source changed during verification');
   report.verificationDirty ||= Boolean(git(['status', '--porcelain']));

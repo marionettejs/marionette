@@ -5,11 +5,62 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
 import { pathToFileURL } from 'node:url';
+import { get } from 'node:http';
 import { candidateOutput, inspectRouterArchive, sha256, validatePreparationReceipt, validateRouterPackage, verifyRouterBrowserReport, verifyRouterDocumentation } from './artifact.mjs';
+import { createLazyHistoryServer, verifyLazyHistoryBrowserReport, withBrowserDeadline } from './lazy-history-browser.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const manifest = JSON.parse(readFileSync(join(root, 'packages/router/package.json')));
 const notice = readFileSync(join(root, 'license.txt'));
+
+test('standalone navigation deadline bounds a pending promise and preserves settled outcomes', async() => {
+  assert.equal(await withBrowserDeadline(Promise.resolve('ready'), 'fixture'), 'ready');
+  const error = new Error('navigation failed');
+  await assert.rejects(withBrowserDeadline(Promise.reject(error), 'fixture'), value => value === error);
+  await assert.rejects(withBrowserDeadline(new Promise(() => {}), 'fixture navigation', 20), /fixture navigation did not settle within 20ms/);
+});
+
+test('missing production assets return 404 without crashing the standalone server', async t => {
+  const directory = mkdtempSync(join(tmpdir(), 'router-http-assets-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  mkdirSync(join(directory, 'dist/assets'), { recursive: true });
+  writeFileSync(join(directory, 'dist/assets/present.js'), 'export const present = true;');
+  const server = createLazyHistoryServer(directory);
+  await new Promise(ready => server.listen(0, '127.0.0.1', ready));
+  t.after(() => new Promise(closed => server.close(closed)));
+  const request = path => new Promise((done, reject) => {
+    get(`http://127.0.0.1:${server.address().port}${path}`, response => {
+      let body = '';
+      response.setEncoding('utf8');
+      response.on('data', chunk => { body += chunk; });
+      response.on('end', () => done({ status: response.statusCode, body }));
+    }).on('error', reject);
+  });
+  assert.deepEqual(await request('/assets/missing.js'), { status: 404, body: 'Not found' });
+  assert.deepEqual(await request('/assets/present.js'), { status: 200, body: 'export const present = true;' });
+});
+
+test('standalone browser evidence requires every engine, probe mode and Chromium sandbox', () => {
+  const report = { policy: 'chromium-firefox-webkit', engines: ['chromium', 'firefox', 'webkit'].map(name => ({
+    name, version: 'recorded executable', status: 'passed', ...(name === 'chromium' ? { chromiumSandbox: true } : {}),
+    branches: ['available', 'undefined', 'throwing'].map(mode => ({
+      mode, fallback: mode !== 'available', initialDispatch: 'matched', navigationStateAndBack: 'passed',
+      navigationGetterReads: mode === 'throwing' ? 1 : 0,
+    })),
+  })) };
+  assert.deepEqual(verifyLazyHistoryBrowserReport(report), { engines: 3, cases: 9 });
+  for (const change of [
+    value => value.engines.pop(),
+    value => { value.engines[1].name = 'chromium'; },
+    value => { value.engines[0].chromiumSandbox = false; },
+    value => { value.engines[1].status = 'failed'; },
+    value => value.engines[2].branches.pop(),
+    value => { value.engines[2].branches[2].navigationGetterReads = 2; },
+  ]) {
+    const broken = structuredClone(report); change(broken);
+    assert.throws(() => verifyLazyHistoryBrowserReport(broken));
+  }
+});
 
 for (const outcome of ['success', 'nonzero', 'launch-error', 'timeout']) {
   test(`retention launcher bounds children and preserves ${outcome} diagnostics`, () => {
@@ -76,10 +127,13 @@ function fixture(t) {
   write('readme.md', '# Router\n[Design](DESIGN.md#child-applications)\n[MIT](license.txt)\n');
   write('DESIGN.md', '# Design\n## Child applications\n');
   write('PROVENANCE.md', '# Provenance\n');
+  write('changelog.md', '# Changelog\n');
   for (const file of ['examples/desk/README.md', 'examples/desk/desk.mjs',
     'examples/catalog/README.md', 'examples/catalog/catalog.mjs']) { write(file, '# Example\n'); }
-  for (const kind of ['import', 'require']) {
-    for (const field of ['default', 'types']) { write(manifest.exports['.'][kind][field], 'export {};\n'); }
+  for (const entry of ['.', './history']) {
+    for (const kind of ['import', 'require']) {
+      for (const field of ['default', 'types']) { write(manifest.exports[entry][kind][field], 'export {};\n'); }
+    }
   }
   const pack = () => {
     const files = [];
@@ -138,17 +192,33 @@ test('failed archive validation does not claim a publishable manifest', t => {
 test('rejects unexpected packed material and missing public entries', t => {
   const f = fixture(t);
   f.write('.npmrc', 'unexpected package file');
-  let archive = f.pack();
+  const archive = f.pack();
   assert.throws(() => inspectRouterArchive(archive, sha256(readFileSync(archive))), /Unexpected router payload/);
   rmSync(join(f.pkg, '.npmrc'));
-  rmSync(join(f.pkg, 'dist/index.cjs'));
-  archive = f.pack();
-  assert.throws(() => inspectRouterArchive(archive, sha256(readFileSync(archive))), /Missing entry/);
+  for (const entry of ['dist/index.cjs', 'changelog.md']) {
+    rmSync(join(f.pkg, entry));
+    const incomplete = f.pack();
+    assert.throws(() => inspectRouterArchive(incomplete, sha256(readFileSync(incomplete))), /Missing entry/);
+    f.write(entry, 'fixture\n');
+  }
+});
+
+test('requires every public History runtime and declaration in the archive', t => {
+  const f = fixture(t);
+  for (const kind of ['import', 'require']) {
+    for (const field of ['default', 'types']) {
+      const entry = manifest.exports['./history'][kind][field];
+      rmSync(join(f.pkg, entry));
+      const archive = f.pack();
+      assert.throws(() => inspectRouterArchive(archive, sha256(readFileSync(archive))), /Missing entry/);
+      f.write(entry, 'export {};\n');
+    }
+  }
 });
 
 test('checks installed documentation anchors, files and package boundaries', t => {
   const f = fixture(t);
-  assert.deepEqual(verifyRouterDocumentation(f.pkg), { pages: 5, relativeLinks: 2 });
+  assert.deepEqual(verifyRouterDocumentation(f.pkg), { pages: 6, relativeLinks: 2 });
   f.write('readme.md', '[Missing](DESIGN.md#missing)');
   assert.throws(() => verifyRouterDocumentation(f.pkg), /Missing anchor/);
   f.write('readme.md', '[Missing](absent.md)');

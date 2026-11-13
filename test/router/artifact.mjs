@@ -55,7 +55,7 @@ export function inspectRouterArchive(archive, expectedHash) {
   assert.match(expectedHash, /^[a-f0-9]{64}$/, 'Supply the recorded SHA256');
   assert.equal(hash, expectedHash, 'Router archive SHA256 mismatch');
   const members = execFileSync('tar', ['-tzf', archive], { encoding: 'utf8' }).trim().split('\n');
-  const allowed = new Set(['dist', 'examples', 'package.json', 'readme.md', 'DESIGN.md', 'PROVENANCE.md', 'license.txt']);
+  const allowed = new Set(['dist', 'examples', 'package.json', 'readme.md', 'changelog.md', 'DESIGN.md', 'PROVENANCE.md', 'license.txt']);
   for (const member of members) {
     assert.ok(member.startsWith('package/') && !member.split('/').includes('..'), `Unexpected archive path ${member}`);
     assert.ok(allowed.has(member.split('/')[1]), `Unexpected router payload ${member}`);
@@ -64,9 +64,9 @@ export function inspectRouterArchive(archive, expectedHash) {
   const manifest = JSON.parse(read('package.json'));
   const license = read('license.txt');
   validateRouterPackage(manifest, license);
-  const entries = [manifest.exports['.'].import.default, manifest.exports['.'].require.default,
-    manifest.exports['.'].import.types, manifest.exports['.'].require.types];
-  entries.push('readme.md', 'DESIGN.md', 'PROVENANCE.md', 'examples/desk/README.md',
+  const entries = ['.', './history'].flatMap(entry => ['import', 'require']
+    .flatMap(kind => [manifest.exports[entry][kind].default, manifest.exports[entry][kind].types]));
+  entries.push('readme.md', 'changelog.md', 'DESIGN.md', 'PROVENANCE.md', 'examples/desk/README.md',
     'examples/desk/desk.mjs', 'examples/catalog/README.md', 'examples/catalog/catalog.mjs');
   for (const entry of entries) { assert.ok(members.includes(`package/${entry.replace(/^\.\//, '')}`), `Missing entry ${entry}`); }
   return { file: archive, sha256: hash, bytes: bytes.length, name: manifest.name, version: manifest.version,
