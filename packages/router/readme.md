@@ -12,7 +12,8 @@ for the archive and engine versions.
 Router requires **URLPattern**, `AbortSignal.any`, `Promise.withResolvers` and
 `URL.canParse`; the default driver additionally requires the **Navigation API**.
 An explicit `historyDriver()` uses the History API instead. Transpilation
-does not supply these APIs. There is no automatic driver selection. See the capability
+does not supply these APIs. Router defaults to the Navigation driver; selecting
+History requires an explicit driver. See the capability
 check below before importing an application that eagerly constructs a Router.
 The pinned WebKit engine has [known native differences](#known-native-webkit-differences).
 
@@ -269,12 +270,11 @@ and execute driver-only and Router combinations.
 
 ### Download History only when needed
 
-Added in 0.2.0, the public `@mnjs/router/history` entry exports the named `historyDriver` factory
+The public `@mnjs/router/history` entry exports the named `historyDriver` factory
 in ESM and CommonJS, with declarations for both. It has the same API and behavior
 as the root factory. Existing root imports and the native default remain supported.
-Applications using `^0.1.1` must update their dependency range to adopt 0.2.0;
-see the [changelog](changelog.md). A candidate archive does not establish registry
-availability.
+Use the installed package's [changelog](changelog.md) when upgrading across minor
+versions; pre-v1 caret ranges do not include the next minor.
 
 A bundled application can import Router statically and load History only when
 Navigation is absent, before starting the Router:
@@ -283,7 +283,9 @@ Navigation is absent, before starting the Router:
 import { Router } from '@mnjs/router';
 
 // Supply any missing URLPattern/other required APIs before constructing Router.
-const driver = globalThis.navigation
+let hasNavigation = false;
+try { hasNavigation = Boolean(globalThis.navigation); } catch {}
+const driver = hasNavigation
   ? undefined
   : (await import('@mnjs/router/history')).historyDriver();
 const router = new Router({ driver, routes: { '/': { name: 'home' } } });
@@ -293,8 +295,9 @@ await router.getInitialDispatch();
 
 Keep the fallback import on the public History entry. A dynamic wrapper that
 imports `historyDriver` from the root can share the root's statically loaded
-bundle and download History even when the wrapper is never requested. Neither
-driver is selected automatically by the package. Capability detection alone does
+bundle and download History even when the wrapper is never requested. Router uses
+`navigationDriver()` when no driver is supplied; History is never selected
+automatically. Capability detection alone does
 not establish browser compatibility or supply other missing APIs.
 
 Verify the final production graph: no History implementation or History-only
@@ -315,9 +318,15 @@ distinct factory identity from the root export; importing both factories can
 retain two copies. Choose one import path for History in an application. The
 package does not control network, preload or service-worker policy.
 
-The standalone entry has Chromium production-consumer coverage. The existing
-complete three-engine History inventory uses the root export; it does not certify
-the standalone entry on Firefox or WebKit.
+The installed-archive verifier checks the standalone entry on Chromium, Firefox
+and WebKit with Navigation available, undefined and exposed by a throwing getter.
+It records actual executable versions, initial readiness, stateful navigation,
+Back and requested JavaScript assets. Chromium uses the same enabled sandbox
+policy as the complete Router inventory. Passing receipts establish coverage for
+their exact archive and engines; a configured target alone does not.
+
+The complete History inventory uses the root export. Its results are recorded
+separately from the standalone production-consumer matrix.
 
 The same three-engine matrix exercises the History path with a throwing
 Navigation API getter and an actual installed URLPattern polyfill.

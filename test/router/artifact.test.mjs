@@ -6,10 +6,33 @@ import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { candidateOutput, inspectRouterArchive, sha256, validatePreparationReceipt, validateRouterPackage, verifyRouterBrowserReport, verifyRouterDocumentation } from './artifact.mjs';
+import { verifyLazyHistoryBrowserReport } from './lazy-history-browser.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const manifest = JSON.parse(readFileSync(join(root, 'packages/router/package.json')));
 const notice = readFileSync(join(root, 'license.txt'));
+
+test('standalone browser evidence requires every engine, probe mode and Chromium sandbox', () => {
+  const report = { policy: 'chromium-firefox-webkit', engines: ['chromium', 'firefox', 'webkit'].map(name => ({
+    name, version: 'recorded executable', status: 'passed', ...(name === 'chromium' ? { chromiumSandbox: true } : {}),
+    branches: ['available', 'undefined', 'throwing'].map(mode => ({
+      mode, fallback: mode !== 'available', initialDispatch: 'matched', navigationStateAndBack: 'passed',
+      navigationGetterReads: mode === 'throwing' ? 1 : 0,
+    })),
+  })) };
+  assert.deepEqual(verifyLazyHistoryBrowserReport(report), { engines: 3, cases: 9 });
+  for (const change of [
+    value => value.engines.pop(),
+    value => { value.engines[1].name = 'chromium'; },
+    value => { value.engines[0].chromiumSandbox = false; },
+    value => { value.engines[1].status = 'failed'; },
+    value => value.engines[2].branches.pop(),
+    value => { value.engines[2].branches[2].navigationGetterReads = 2; },
+  ]) {
+    const broken = structuredClone(report); change(broken);
+    assert.throws(() => verifyLazyHistoryBrowserReport(broken));
+  }
+});
 
 for (const outcome of ['success', 'nonzero', 'launch-error', 'timeout']) {
   test(`retention launcher bounds children and preserves ${outcome} diagnostics`, () => {

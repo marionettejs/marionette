@@ -9,16 +9,25 @@ retains the inputs, emitted chunks, source maps, manifest and module/byte report
 under `router-lazy-history/` in its output receipt directory.
 
 To additionally check actual browser requests and both drivers' initial dispatch,
-stateful navigation and Back, supply an already installed archive consumer:
+stateful navigation and Back on Chromium, Firefox and WebKit, supply an already
+installed archive consumer:
 
 ```sh
 node test/router/lazy-history.mjs /absolute/path/consumer --browser
 ```
 
 `MARIONETTE_ROUTER_CHROMIUM` can select a supported installed Chromium executable.
-Without `--browser`, this check establishes the production graph only. It does
-not certify Firefox/WebKit, application preload/service-worker behavior, or the
-complete Router browser inventory. `--baseline` reproduces the old conditional
+The check uses the complete Router inventory's launch policy, including
+`chromiumSandbox: true`. Each engine runs with Navigation available, undefined,
+and exposed by a throwing getter. Per-engine JSON and the complete graph report
+retain successes and failures. `--engine firefox` can select a diagnostic subset;
+the exact-archive CI gate requires all three engines and all nine cases.
+
+`test:router-tarball -- --browser` runs this matrix in addition to the complete
+root-entry browser inventory, against the same installed archive. Without
+`--browser`, this check establishes the production graph only. It does not certify
+application preload/service-worker behavior or replace the complete Router
+browser inventory. `--baseline` reproduces the old conditional
 wrapper that imports History from the root; it expects History to remain eager.
 
 ## Historical integration receipt

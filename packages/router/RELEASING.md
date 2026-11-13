@@ -68,7 +68,7 @@ Utils dependency is `^5.0.1`, permitting compatible deduplication independently 
 the Marionette peer. Certification still installs the actual 5.0.1 minimum bytes;
 the range is not a claim that future versions have already passed these checks.
 
-## Coordinate with Marionette 5.1.1
+## Coordinate independent releases
 
 Router 0.2.0 and the coordinated core 5.1.1 release are separate version lines,
 archives and publication decisions. The five-package publisher does not publish
@@ -76,9 +76,9 @@ Router. Its core peer and Utils dependency remain `^5.0.1`; Router does not requ
 5.1.1 to be published first. Certify the exact Router archive with the published
 5.0.1 minimum and the newest compatible coordinated stack supported by the verifier.
 
-[Core PR #3845](https://github.com/marionettejs/marionette/pull/3845) owns 5.1.1
-preparation. Retain its Router browser-coverage and published-package documentation
-corrections when integrating these branches. Do not replace the historical
+[Core change #3845](https://github.com/marionettejs/marionette/pull/3845) records
+the 5.1.1 compatibility guidance. Retain its Router browser-coverage and
+published-package documentation corrections. Do not replace the historical
 published Router 0.1.1 companion evidence with an unpublished 0.2.0 candidate.
 Update registry-backed companion checks only after verifying published 0.2.0 bytes.
 
@@ -171,31 +171,33 @@ npm run test:router-tarball -- --artifact /absolute/path/router-release/mnjs-rou
 
 The explicit registry version must be either the minimum 5.0.1 or the current
 coordinated source version. It selects core, Utils, Radio and Adapters together;
-registry locators and exact resolved versions are checked and recorded. A source
-checkout at core 5.1.0 can check the published 5.1.0 stack; it does not certify the
-separate 5.1.1 candidate. After integration with core 5.1.1, the verifier permits
-5.0.1 or 5.1.1, not the older 5.1.0 lane. Select 5.1.1 only after its registry
-packages exist. Do not rebase solely to choose a registry lane. Preserve exact
+registry locators and exact resolved versions are checked and recorded. Older
+coordinated versions other than the minimum are not selectable from this checkout.
+Select the current coordinated version only after all of its registry packages
+exist. Do not rebase solely to choose a registry lane. Preserve exact
 preparation/verifier source identity. Local core candidate checks remain
 development evidence.
 
 ### Standalone History entry certification
 
-The installed verifier now checks standalone History ESM/CommonJS state,
-Back/Forward and retained lifecycle with JSDOM, plus a production Vite graph that
-keeps History out of the native static closure and removes unused memory code.
-The optional `test/router/lazy-history.mjs CONSUMER --browser` check records actual
-Chromium requests for both native and unsupported branches. Retain its emitted
-chunks, maps, manifest, bytes and `historyExclusiveAssets` when preparing
-application preload and service-worker precache exclusions.
+The installed verifier checks both root and standalone History ESM/CommonJS
+state, Back/Forward and retained lifecycle with JSDOM, plus a production Vite graph
+that keeps History out of the native static closure and removes unused memory.
+With `--browser`, the same exact-archive consumer additionally runs the standalone
+production matrix on Chromium, Firefox and WebKit. Each engine checks Navigation
+available, undefined and exposed by a throwing getter, for nine required cases.
+The matrix uses the complete Router inventory's launch policy, including
+`chromiumSandbox: true`, and records actual executable versions and requests.
 
-The existing complete browser inventory still uses the **root** History export.
-It does not independently certify the separately compiled standalone entry.
-Before publication, require exact-archive standalone-entry checks on Chromium,
-Firefox and WebKit as well, recording actual executable versions, fallback
-navigation and download boundaries. The current new-entry browser evidence is
-Chromium-only; the standalone three-engine gate remains outstanding. Prior full
-root-entry browser evidence must not be described as standalone-entry coverage.
+Require all nine cases to pass alongside the complete root-entry inventory.
+These are separate results: the root inventory alone does not certify the
+separately compiled standalone entry. The CI aggregate requires both. Preserve
+all emitted chunks, maps, manifest, per-engine JSON and `historyExclusiveAssets`
+from the receipt directory when preparing application preload and service-worker
+precache exclusions. A blocked engine cannot be reported as a passing target.
+For a diagnostic rerun against an installed consumer, use
+`node test/router/lazy-history.mjs CONSUMER --browser`; `--engine firefox` selects
+a subset and does not satisfy the three-engine gate.
 
 The browser policy is **Chromium, Firefox and Playwright WebKit**. Both the
 source-checkout suite and exact-installed-archive suite run the complete Router

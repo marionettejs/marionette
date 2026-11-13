@@ -12,7 +12,12 @@ export async function verifyHistoryPackage(consumer) {
   const manifest = require('@mnjs/router/package.json');
   const esm = await import(pathToFileURL(resolve(consumer, 'node_modules/@mnjs/router', manifest.exports['.'].import.default)));
   const historyEsm = await import(pathToFileURL(resolve(consumer, 'node_modules/@mnjs/router', manifest.exports['./history'].import.default)));
-  for (const [format, api, history] of [['ESM', esm, historyEsm], ['CJS', require('@mnjs/router'), require('@mnjs/router/history')]]) {
+  const cjs = require('@mnjs/router');
+  const historyCjs = require('@mnjs/router/history');
+  for (const [format, api, history] of [
+    ['ESM root', esm, esm], ['CJS root', cjs, cjs],
+    ['ESM standalone', esm, historyEsm], ['CJS standalone', cjs, historyCjs],
+  ]) {
     const dom = new JSDOM('', { url: 'https://installed-history.example/' });
     const driver = history.historyDriver({ window: dom.window });
     const router = new api.Router({ driver, routes: { '/': { name: 'home'}, '/items/:id': { name: 'item'} } });
@@ -57,6 +62,32 @@ export async function verifyHistoryPackage(consumer) {
     router?.destroy(); dom.window.close();
     for (const [name, descriptor] of previous) {
       if (descriptor) { Object.defineProperty(globalThis, name, descriptor); } else { delete globalThis[name]; }
+    }
+  }
+  const fallbackRecipe = blocks.find(block => block[1].includes('await import(\'@mnjs/router/history\')'));
+  assert.ok(fallbackRecipe, 'Keep the public lazy History recipe executable');
+  for (const mode of ['undefined', 'throwing']) {
+    const fallbackDom = new JSDOM('', { url: 'https://installed-fallback.example/' });
+    const saved = new Map(['window', 'navigation'].map(name => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
+    let reads = 0;
+    let fallbackRouter;
+    try {
+      Object.defineProperty(globalThis, 'window', { configurable: true, value: fallbackDom.window });
+      Object.defineProperty(globalThis, 'navigation', mode === 'undefined' ? { configurable: true, value: undefined } : {
+        configurable: true, get() { reads++; throw new Error('Navigation getter is unavailable'); },
+      });
+      const recipe = resolve(consumer, `lazy-history-readme-${mode}.mjs`);
+      writeFileSync(recipe, `${fallbackRecipe[1]}\nexport { router };\n`);
+      ({ router: fallbackRouter } = await import(pathToFileURL(recipe)));
+      assert.equal((await fallbackRouter.getInitialDispatch()).status, 'matched');
+      assert.equal(fallbackRouter.getCurrent().name, 'home');
+      assert.equal(reads, mode === 'throwing' ? 1 : 0);
+      console.log(`Installed lazy README recipe: ${mode} Navigation, standalone fallback and initial readiness passed.`);
+    } finally {
+      fallbackRouter?.destroy(); fallbackDom.window.close();
+      for (const [name, descriptor] of saved) {
+        if (descriptor) { Object.defineProperty(globalThis, name, descriptor); } else { delete globalThis[name]; }
+      }
     }
   }
 }

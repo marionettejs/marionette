@@ -312,6 +312,11 @@ jobs:
           assert.equal(verified.verificationDirty, false);
           assert.equal(verified.host.platform, 'darwin');
           assert.equal(verified.host.architecture, 'arm64');
+          assert.deepEqual(verified.lazyHistory.browser.engines.map(entry => entry.name).sort(), ['chromium', 'firefox', 'webkit']);
+          for (const entry of verified.lazyHistory.browser.engines) {
+            assert.equal(entry.status, 'passed');
+            assert.deepEqual(entry.branches.map(branch => branch.mode), ['available', 'undefined', 'throwing']);
+          }
           assert.equal(run.error, undefined);
           assert.equal(run.status, 0);
           assert.equal(verified.status, 'passed-public-candidate');

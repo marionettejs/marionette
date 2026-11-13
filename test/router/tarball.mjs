@@ -154,6 +154,7 @@ try {
       litDirectory: join(consumer, 'node_modules/lit-html'),
       urlPatternDirectory: join(consumer, 'node_modules/urlpattern-polyfill') }));
     const browserDirectory = join(root, 'test/tmp/router-browser');
+    const browserFailures = [];
     try {
       const execution = runRouterBrowserExecutions({ root, directory: browserDirectory,
         probes: process.env.MARIONETTE_ROUTER_BROWSER_PROBES ? JSON.parse(readFileSync(process.env.MARIONETTE_ROUTER_BROWSER_PROBES, 'utf8')) : undefined,
@@ -165,9 +166,25 @@ try {
       const inventory = JSON.parse(readFileSync(join(root, 'test/router/browser-inventory.json')));
       report.browser = verifyRouterBrowserExecutions(execution, inventory);
       report.checks.push('chromium-firefox-webkit-native-and-history-exact-router-archive');
+    } catch (error) {
+      report.rootBrowserError = error.message;
+      browserFailures.push(error);
     } finally {
       if (output && existsSync(browserDirectory)) { cpSync(browserDirectory, join(output, 'browser-evidence'), { recursive: true }); }
     }
+    try {
+      report.lazyHistory = await verifyLazyHistory(consumer, { browser: true,
+        executablePath: values['chromium-executable'] && resolve(values['chromium-executable']),
+      });
+      report.checks.push('chromium-firefox-webkit-standalone-history-downloads');
+    } catch (error) {
+      report.standaloneBrowserError = error.message;
+      report.lazyHistory = JSON.parse(readFileSync(join(consumer, 'router-lazy-history/report.json')));
+      browserFailures.push(error);
+    } finally {
+      if (output) { cpSync(join(consumer, 'router-lazy-history'), join(output, 'router-lazy-history'), { recursive: true }); }
+    }
+    if (browserFailures.length) { throw new AggregateError(browserFailures, 'Router browser verification failed'); }
   }
   assert.equal(git(['rev-parse', 'HEAD']), report.verificationCommit, 'Source changed during verification');
   report.verificationDirty ||= Boolean(git(['status', '--porcelain']));

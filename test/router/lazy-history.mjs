@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
-import { createServer } from 'node:http';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as defaultBundler from 'vite';
-import { chromium } from '@playwright/test';
+import { parseArgs } from 'node:util';
+import { verifyLazyHistoryBrowsers, verifyLazyHistoryBrowserReport } from './lazy-history-browser.mjs';
 
 const markers = {
   history: 'historyDriver requires a browser Window',
@@ -14,13 +14,15 @@ const markers = {
 
 // Consume only installed public exports. Retain the complete production output,
 // manifest, source maps and graph so downstream precache rules can identify assets.
-export async function verifyLazyHistory(consumer, { baseline = false, browser = false, executablePath, bundler = defaultBundler } = {}) {
+export async function verifyLazyHistory(consumer, { baseline = false, browser = false, executablePath, engines, bundler = defaultBundler } = {}) {
   const directory = resolve(consumer, baseline ? 'router-lazy-root' : 'router-lazy-history');
   mkdirSync(directory, { recursive: true });
   writeFileSync(resolve(directory, 'index.html'), '<!doctype html><title>Router consumer</title><script type="module" src="/main.js"></script>');
   writeFileSync(resolve(directory, 'main.js'), `import { Router } from '@mnjs/router';
     async function start() {
-      const fallback = !globalThis.navigation;
+      let hasNavigation = false;
+      try { hasNavigation = Boolean(globalThis.navigation); } catch {}
+      const fallback = !hasNavigation;
       const driver = fallback ? (await import('${baseline ? './history.js' : '@mnjs/router/history'}')).historyDriver() : undefined;
       const router = new Router({ driver, routes: { '/': { name: 'home' }, '/items/:id': { name: 'item' } } });
       await router.start();
@@ -69,51 +71,21 @@ export async function verifyLazyHistory(consumer, { baseline = false, browser = 
         renderedLength: details.renderedLength, renderedExports: details.renderedExports, removedExports: details.removedExports,
       })),
     })) };
-  if (browser) {
-    const server = createServer((request, response) => {
-      const pathname = new URL(request.url, 'http://localhost').pathname;
-      if (pathname !== '/' && !/^\/assets\/[\w.-]+\.js$/.test(pathname)) { response.writeHead(404).end(); return; }
-      response.setHeader('content-type', pathname.endsWith('.js') ? 'text/javascript' : 'text/html');
-      response.end(readFileSync(resolve(directory, 'dist', pathname === '/' ? 'index.html' : pathname.slice(1))));
-    });
-    await new Promise(ready => server.listen(0, '127.0.0.1', ready));
-    let engine;
-    try {
-      engine = await chromium.launch({ ...(executablePath ? { executablePath } : {}) });
-      report.browser = { version: engine.version(), branches: [] };
-      const origin = `http://127.0.0.1:${server.address().port}`;
-      for (const fallback of [false, true]) {
-        const context = await engine.newContext();
-        try {
-          if (fallback) { await context.addInitScript(() => Object.defineProperty(globalThis, 'navigation', { configurable: true, value: undefined })); }
-          const page = await context.newPage();
-          const requests = [];
-          page.on('request', request => { if (request.url().endsWith('.js')) { requests.push(new URL(request.url()).pathname.slice(1)); } });
-          await page.goto(origin);
-          await page.waitForFunction(() => globalThis.routerConsumer || globalThis.routerConsumerError);
-          assert.equal(await page.evaluate(() => globalThis.routerConsumerError), undefined);
-          assert.equal(await page.evaluate(() => globalThis.routerConsumer.fallback), fallback);
-          await page.evaluate(async() => {
-            const { router } = globalThis.routerConsumer;
-            if (!await router.navigate('item', { id: 7 }, { state: { tab: 'details' } }).finished) {throw new Error('Navigation canceled');}
-            if (router.getCurrent().params.id !== '7' || router.getCurrent().state.tab !== 'details') {throw new Error('Wrong route/state');}
-            if (!await router.back() || router.getCurrent().name !== 'home') {throw new Error('Back failed');}
-            router.destroy();
-          });
-          assert.equal(history.some(file => requests.includes(file)), fallback || baseline);
-          assert.deepEqual([...new Set(requests)].sort(), [...(fallback ? new Set([...eager, ...lazy]) : eager)].sort());
-          report.browser.branches.push({ fallback, requests, initialDispatch: 'matched', navigationStateAndBack: 'passed' });
-        } finally { await context.close(); }
-      }
-    } finally { await engine?.close(); await new Promise(closed => server.close(closed)); }
-  }
+  if (browser) { report.browser = await verifyLazyHistoryBrowsers(directory, report, { engines, executablePath }); }
   writeFileSync(resolve(directory, 'report.json'), `${JSON.stringify(report, null, 2)}\n`);
+  if (browser) { verifyLazyHistoryBrowserReport(report.browser, engines); }
   return report;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  const report = await verifyLazyHistory(resolve(process.argv[2]), {
-    baseline: process.argv.includes('--baseline'), browser: process.argv.includes('--browser'),
+  const { values, positionals } = parseArgs({ allowPositionals: true, options: {
+    baseline: { type: 'boolean', default: false }, browser: { type: 'boolean', default: false },
+    engine: { type: 'string', multiple: true },
+  } });
+  assert.equal(positionals.length, 1, 'Pass one installed consumer directory');
+  assert.ok(!values.engine || values.browser, '--engine requires --browser');
+  const report = await verifyLazyHistory(resolve(positionals[0]), {
+    baseline: values.baseline, browser: values.browser, engines: values.engine,
     executablePath: process.env.MARIONETTE_ROUTER_CHROMIUM,
   });
   console.log(JSON.stringify(report, null, 2));

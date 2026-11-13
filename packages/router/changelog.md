@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 (unreleased)
+## 0.2.0
 
 - Add the public `@mnjs/router/history` entry, exporting the named
   `historyDriver` factory in ESM and CommonJS with matching declarations.
@@ -17,9 +17,7 @@
 This is an independently versioned Router minor release. Applications using
 `^0.1.1` must explicitly update their dependency range to adopt 0.2.0. The
 Marionette peer and Utils dependency remain `^5.0.1`; the Node floor remains
-24.15.0. Router 0.2.0 preparation does not publish Router or core 5.1.1.
+24.15.0.
 
-The standalone-entry browser evidence currently covers Chromium. Existing full
-root-entry browser evidence does not certify that separate built entry on Firefox
-or WebKit. See the [README](readme.md#download-history-only-when-needed) for the
-entry contract, application requirements and direct unbundled root limitation.
+See the [README](readme.md#download-history-only-when-needed) for the entry contract,
+application requirements, browser evidence and direct unbundled root limitation.

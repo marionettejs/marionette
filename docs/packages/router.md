@@ -27,11 +27,10 @@ exercise browser navigation, focus, scroll or direct-link server behavior.
 
 ## Conditional History downloads
 
-Version 0.2.0 updates driver packaging with the public `@mnjs/router/history`
-entry for conditional History downloads. Existing root named exports and runtime
-behavior remain supported. Applications using `^0.1.1` must explicitly update
-their dependency range to adopt 0.2.0; use the installed Router README for the
-entry's bundler, preload and service-worker requirements.
+When the installed Router exports `@mnjs/router/history`, applications can import
+that entry conditionally to defer History downloads. Existing root named exports
+remain supported. Consult the installed Router changelog before upgrading across
+minor versions, and its README for bundler, preload and service-worker requirements.
 
 ## Published example verification
 
