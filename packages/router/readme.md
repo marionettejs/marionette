@@ -4,14 +4,15 @@ Optional routing tools for Marionette v5: named URLs and native navigation,
 feature-owned registrations, and selectable child Applications. Use the tools
 individually. A Router does not infer UI ownership from URL nesting.
 
-**Browser validation: Chromium, Firefox and Playwright WebKit are CI targets.**
-Compatibility evidence requires a passing receipt for the exact archive and
-engine versions; adding a test target alone does not establish support.
+**Tested on Chromium, Firefox and Playwright WebKit.** The
+[installed-archive browser run](https://github.com/marionettejs/marionette/actions/runs/43383924465/job/131748225100)
+passed all 162 Router cases on each engine, including native Navigation API and
+explicit History-driver routing. See [browser validation](#browser-validation)
+for the archive and engine versions.
 Router requires **URLPattern**, `AbortSignal.any`, `Promise.withResolvers` and
 `URL.canParse`; the default driver additionally requires the **Navigation API**.
 An explicit `historyDriver()` uses the History API instead. Transpilation
-does not supply these APIs. There is no automatic driver selection. Capability
-presence alone does not establish browser compatibility. See the capability
+does not supply these APIs. There is no automatic driver selection. See the capability
 check below before importing an application that eagerly constructs a Router.
 The pinned WebKit engine has [known native differences](#known-native-webkit-differences).
 
@@ -26,10 +27,8 @@ a compatible Marionette peer (minimum 5.0.1):
 npm install @mnjs/router "marionette@^5.0.1"
 ```
 
-The declared peer range is `^5.0.1`. Compatibility receipts identify the exact
-core versions checked; the range does not certify untested future versions.
-The npm command assumes a published version; a candidate checkout or archive does
-not establish registry availability. Routing is optional for Marionette 5.
+The declared peer range is `^5.0.1`. Routing is optional for Marionette 5 and
+versioned independently of the coordinated core packages.
 [Advanced contracts](DESIGN.md) describe the full API. [Source and license](PROVENANCE.md)
 identify the maintained source and unchanged [MIT notice](license.txt).
 Report suspected vulnerabilities privately through the
@@ -64,15 +63,12 @@ including current entry identity, signal state, readiness and error isolation.
 Separate diagnostics retain the raw native receipts. The
 [reproducer and CI evidence](https://github.com/marionettejs/marionette/actions/runs/43291118434)
 show the original differences before the engine-specific expectations.
-**Upstream WebKit bug link pending:** no matching public report has been verified;
-no upstream issue has been filed for these observations.
 
 Applications needing different completion or fragment-routing behavior can
 explicitly choose [the History driver](#choose-a-history-api-driver-explicitly)
 before constructing the Router. It has its own documented limits and is not
-selected automatically. Playwright WebKit coverage does not certify every
-shipping Safari or iOS version. Source-checkout results also do not replace
-certification of an exact installed package archive.
+selected automatically. Playwright WebKit coverage does not establish behavior
+in every shipping Safari or iOS version.
 
 ## Build a routed feature with Applications and Views
 
@@ -200,20 +196,29 @@ Application/routing operations; `URL.canParse` for `match(string)`. Tests can in
 `memoryDriver({ url: 'https://example.test/' })` instead of the native driver;
 that removes the Navigation API dependency, not the remaining Router requirements.
 A route-less `RouteApplication` used only for selection does not need URLPattern or navigation. Transpilation
-supplies none of these Web APIs. Capability presence is not browser certification.
+supplies none of these Web APIs.
 The installed-consumer check executes this exact recipe with a deliberately
 eager application module, checking that missing capabilities prevent its import.
 
-The source-checkout and exact-installed-archive suites target Chromium, Firefox
-and Playwright WebKit with the actual Navigation API. Each archive receipt must
-record all three executable versions and every inventory case passing once, with
-no failures, retries or skips. Existing standalone evidence covers Chromium 154;
-consumer integration also has reported Chromium 151 evidence. Those earlier
-receipts do not certify Firefox or WebKit. Playwright WebKit results do not
-certify every shipping Safari or iOS version. There is no automatic fallback
-driver. These browser requirements are independent of the core library's
-transpilation targets. Node consumer evidence currently uses Node 24.19.0; the
-declared minimum is 24.15.0.
+## Browser validation
+
+The [passing installed-archive run](https://github.com/marionettejs/marionette/actions/runs/43383924465/job/131748225100)
+tested Chromium 158.0.8127.18, Firefox 159.0 and Playwright WebKit 27.2 on
+macOS arm64. All 162 inventory cases passed once on each engine, with no
+failures, retries or skips. The Linux-produced Router 0.1.1 archive came from
+[`ec981e0b`](https://github.com/marionettejs/marionette/commit/ec981e0ba43d14ea1a35695fe3b9b17ad271555d),
+with SHA-256 `e7c45fbecd159aab6bfef6ce10e2bf7b928cc7509523446cc11313e1fd344cdd`.
+Its runtime matches published Router 0.1.1. This README records the expanded
+browser coverage, updating the Chromium-only statement in the published 0.1.1
+README. The [known native WebKit differences](#known-native-webkit-differences)
+remain part of the tested behavior.
+
+The same revision also passed the source-checkout browser suite on Linux.
+The installed archive was browser-tested on macOS; Linux installed-archive
+browser coverage and actual bfcache restoration remain unverified.
+These browser requirements are independent of core's transpilation targets.
+The archive check used the published Marionette 5.0.1 minimum stack;
+Node consumer evidence uses Node 24.19.0, with a declared minimum of 24.15.0.
 
 ## Choose a History API driver explicitly
 
@@ -264,7 +269,7 @@ and execute driver-only and Router combinations. A referenced fallback can remai
 in a shared bundle. Named exports do not promise a separately downloaded chunk:
 conditional imports and network splitting belong to the application's bundler.
 The same three-engine matrix exercises the History path with a throwing
-Navigation API getter and an actual installed URLPattern polyfill. This is not full polyfill certification:
+Navigation API getter and an actual installed URLPattern polyfill.
 `urlpattern-polyfill@10.1.0` differs from native URLPattern for `__proto__`
 parameter names and backslash syntax; avoid those inputs on that path. See
 [the compatibility limits](DESIGN.md#history-api-driver). Passing receipts,

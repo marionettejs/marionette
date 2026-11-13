@@ -4,26 +4,31 @@ import test from 'node:test';
 
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
 
-test('routing guidance links the released companion without broadening browser support', () => {
+test('routing guidance links the released companion and recorded browser coverage', () => {
   const guide = read('docs/guides/routing.md');
   const companions = JSON.parse(read('test/docs/companion-versions.json'));
   for (const version of Object.values(companions)) { assert.match(version, /^\d+\.\d+\.\d+$/); }
-  assert(guide.includes(`@mnjs/router@${companions['@mnjs/router']}`));
-  assert(guide.includes(`@mnjs/html@${companions['@mnjs/html']}`));
+  const evidence = read('docs/packages/router.md').split('## Published example verification')[1];
+  assert(guide.includes('../packages/router.md#published-example-verification'));
+  for (const [name, version] of Object.entries(companions)) {
+    assert(evidence.includes(`${name}@${version}`));
+  }
   assert(guide.includes('node_modules/@mnjs/router/readme.md'));
   assert(read('docs/packages/router.md').includes(`router-v${companions['@mnjs/router']}/packages/router`));
   for (const capability of ['URLPattern', 'AbortSignal.any', 'Promise.withResolvers', 'URL.canParse', 'structuredClone']) {
     assert(guide.includes(capability), capability);
   }
-  assert.match(guide, /Firefox and WebKit are untested/);
+  assert.match(guide, /Chromium, Firefox and Playwright WebKit/);
+  assert(guide.includes('../packages/router.md#browser-coverage'));
   assert.match(guide, /mountRoutes\(router\).*registers routes but does not activate/);
   assert.match(guide, /Stop retains registrations; destroy\s+unmounts them/);
 });
 
 test('consumer Router docs describe versions rather than temporary release preparation', () => {
-  const router = JSON.parse(read('packages/router/package.json'));
   const page = read('docs/packages/router.md');
-  assert(page.includes(`Version ${router.version} updates`));
+  assert(page.includes('tag matching the installed release'));
+  assert(page.includes('read the installed'));
+  assert.doesNotMatch(page.split('## Read the installed contract first')[0], /\d+\.\d+\.\d+/);
   assert(page.includes('pre-v1 package'));
   for (const path of ['docs/packages/router.md', 'docs/packages/adapters.md']) {
     assert.doesNotMatch(read(path), /being prepared|preparation includes|work in progress/i);

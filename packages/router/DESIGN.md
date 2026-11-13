@@ -475,8 +475,11 @@ which entry has committed while a lookup is pending.
 An internally followed fragment target runs its destination handler and contributes
 to the redirect chain's readiness, including during initial dispatch. Ordinary
 navigation reported by the Driver as `hashChange` remains native and does not
-dispatch a route. Removing a fragment or navigating to an identical fragment URL
-does not set that flag in the native driver and can dispatch a route normally.
+dispatch a route. Navigating to an identical fragment URL does not set that flag
+in the tested native engines and can dispatch a route normally. Removing a
+fragment also leaves the flag false in Chromium and Firefox; the pinned WebKit
+engine reports it differently, as described in the
+[native WebKit notes](readme.md#known-native-webkit-differences).
 If a native `hashChange` navigation supersedes a routed navigation whose handler
 is still pending, that route's signal aborts and its completion becomes false.
 The Router does not transfer the pending handler to the hash entry or dispatch it
@@ -788,13 +791,13 @@ with an explicit alternative driver; no automatic fallback or internal loader is
 present. Consumer bundlers control conditional imports/network chunks. The source
 build requires core declarations first (`npm run build` on a clean checkout).
 
-Browser validation targets Chromium, Firefox and Playwright WebKit, with the
+Browser validation passes on Chromium, Firefox and Playwright WebKit, with the
 actual Navigation API for the default and an explicit History adapter/polyfill
-path on each engine. Passing exact-archive receipts establish tested coverage;
-capability presence and configured projects are not certification. Playwright
-WebKit does not certify every shipping Safari/iOS version. Actual bfcache
+path on each engine. The [browser validation record](readme.md#browser-validation)
+identifies the passing archive, engines and host. Playwright WebKit coverage
+does not establish behavior in every shipping Safari/iOS version. Actual bfcache
 restoration remains unverified. Node minimum
 is 24.15; source toolchain pins and core's separate consumer floor remain distinct.
 Installed archives test runtime, ESM/CJS declarations, dependencies, documentation,
-shipped examples and optimized consumers. Public API and behavior have separate
-unit/native evidence; pass counts alone are not a release decision.
+shipped examples and optimized consumers. Unit tests and native browser cases
+cover the public API and behavior.

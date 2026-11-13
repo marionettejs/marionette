@@ -1,6 +1,6 @@
 # API reference
 
-These references target **5.1.0**. Use the page for the class or contract you need. Class pages define supported APIs and link shared contracts; task guides show how to use them.
+These references describe the APIs of the package they ship with. Use the page for the class or contract you need. Class pages define supported APIs and link shared contracts; task guides show how to use them.
 
 ## Core classes
 

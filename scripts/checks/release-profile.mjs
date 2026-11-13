@@ -92,29 +92,35 @@ function validateWorkflow() {
   for (const [file, workflow] of workflowContents) {
     const explicitNodeVersions = [...workflow.matchAll(/^\s+node-version:\s+(\S+)\s*$/gm)];
     for (const [, version] of explicitNodeVersions) {
-      if (file !== profile.source.advisoryWorkflow || version !== profile.source.advisoryNodeMajor) {
+      if (file !== profile.source.consumerWorkflow || version !== profile.source.consumerNodeMajor) {
         fail(`${file} uses unapproved explicit Node version ${version}`);
       }
     }
   }
 
-  const advisoryWorkflow = workflowContents.get(profile.source.advisoryWorkflow);
-  const advisoryVersion = profile.source.advisoryNodeMajor;
-  const advisoryVersions = advisoryWorkflow ?
-    [...advisoryWorkflow.matchAll(/^\s+node-version:\s+(\S+)\s*$/gm)] :
-    [];
-  if (advisoryVersions.length !== 1 || advisoryVersions[0][1] !== advisoryVersion) {
-    fail(`${profile.source.advisoryWorkflow} does not test Node ${advisoryVersion}`);
+  const consumerWorkflow = workflowContents.get(profile.source.consumerWorkflow) || '';
+  const job = (workflow, id) => workflow.match(new RegExp(`^ {2}${id}:\\n[\\s\\S]*?(?=^ {2}[A-Za-z0-9_-]+:|(?![\\s\\S]))`, 'm'))?.[0] || '';
+  const consumerJob = job(consumerWorkflow, profile.source.consumerJob);
+  if (!consumerJob.includes(`node-version: ${profile.source.consumerNodeMajor}\n`) ||
+    /^ {4}continue-on-error:/m.test(consumerJob)) {
+    fail(`${profile.source.consumerJob} must test Node ${profile.source.consumerNodeMajor} as a required job`);
   }
-
-  const advisoryJobs = advisoryWorkflow?.split(/^jobs:\s*$/m)[1] || '';
-  const advisoryJobIds = [...advisoryJobs.matchAll(/^ {2}([a-z0-9-]+):\s*$/gm)]
-    .map(([, jobId]) => jobId);
-  if (advisoryJobIds.length !== 1 || advisoryJobIds[0] !== profile.source.advisoryJob) {
-    fail(`${profile.source.advisoryWorkflow} must contain only ${profile.source.advisoryJob}`);
+  if (!job(consumerWorkflow, 'test').match(/^ {4}needs:.*\bnode-lts\b/m)) {
+    fail('CI aggregate must require node-lts');
   }
-  if (!/^ {4}continue-on-error:\s+true\s*$/m.test(advisoryJobs)) {
-    fail(`${profile.source.advisoryJob} must remain nonblocking`);
+  for (const [file, versions] of [
+    ['docs-pages.yml', profile.source.consumerNodeVersions],
+    ['release.yml', profile.source.releaseConsumerNodeVersions],
+  ]) {
+    const consumer = job(workflowContents.get(file) || '', 'consumer-lts');
+    const matrix = `node: [${versions.map(version => `'${version}'`).join(', ')}]`;
+    if (!consumer.includes(matrix) || /^ {4}continue-on-error:/m.test(consumer)) {
+      fail(`${file} must require the consumer Node matrix ${matrix}`);
+    }
+  }
+  if (!job(workflowContents.get('release.yml') || '', 'promotion-dry-run')
+    .match(/^ {4}needs:.*\bconsumer-lts\b/m)) {
+    fail('Release promotion must require consumer-lts');
   }
 
   for (const host of profile.hosts) {

@@ -4,12 +4,12 @@ The small helpers behind Marionette, available for your own components.
 Marionette and `@mnjs/data` import these same implementations.
 
 ```bash
-npm install --save-exact @mnjs/utils@5.1.0
+npm install --save-exact @mnjs/utils@5.1.1
 ```
 
 Use matching versions of `marionette`, `@mnjs/utils`, and `@mnjs/radio` to
-preserve their shared runtime identity. Data 5.1.0 has a nonoptional Utils peer
-`^5.0.1`; Adapters 5.1.0 supports core `^5.0.1`. Neither requires an identical
+preserve their shared runtime identity. Data has a nonoptional Utils peer
+`^5.0.1`; Adapters supports core `^5.0.1`. Neither requires an identical
 package version. Share one Utils instance across core, Radio, and Data; do not
 mix separately installed copies in the same event graph.
 All five retain coordinated release numbering for now. The optional `@mnjs/html`,

@@ -9,7 +9,7 @@ peer accepts `^5.0.1`, using the same instance as core and Radio rather than a
 private copy; Data does not require an identical core version:
 
 ```sh
-npm install --ignore-scripts --save-exact @mnjs/data@5.1.0
+npm install --ignore-scripts --save-exact @mnjs/data@5.1.1
 ```
 
 Use a different source with its compatible provider when it better fits your application. Views using plain template data do not require this package.

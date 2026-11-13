@@ -38,11 +38,11 @@ MCP access, lint, types, and installed documentation lookup.
 
 ## Try v5
 
-Packaged applications are verified on Node 22.22.2+ (22.x) and 24.15.0+ (24.x); use the latest patch of either LTS line. Newer Node versions may install; Node 26 is checked separately as advisory. For framework development or Git installs, select the pinned [source toolchain](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository).
+Packaged applications support Node 22.22.2+ (22.x), 24.15.0+ (24.x) and 26.x, with required installed-package verification at each floor and latest patch. Use the latest patch of a supported LTS line. Optional companions have their own requirements; `@mnjs/router` requires Node 24.15.0 or newer. For framework development or Git installs, select the pinned [source toolchain](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository).
 Install matching core package versions in your browser application. The renderer is independently versioned; follow the matching [quick start](docs/quick-start.md):
 
 ```sh
-npm install --ignore-scripts --save-exact marionette@5.1.0 @mnjs/utils@5.1.0 @mnjs/radio@5.1.0 @mnjs/html@1.0.0
+npm install --ignore-scripts --save-exact marionette@5.1.1 @mnjs/utils@5.1.1 @mnjs/radio@5.1.1 @mnjs/html@1.0.0
 ```
 
 Given `<div id="app"></div>` in your page, this module shows a dismissible panel:

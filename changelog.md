@@ -9,6 +9,29 @@ For the current v4 → v5 changes and replacements, see the
 [migration guide](docs/guides/migration.md). Entries below describe each release
 at the time it shipped; older prerelease APIs may have been superseded.
 
+### v5.1.1
+
+> We had barely finished saying “5.1.0” when Vite gave us a reason to say “5.1.1.” The runtime stayed put; the example tooling did not.
+
+* Update Vite to 8.3.7 in the shipped Records example and locked tooling fixtures.
+  Setup instructions select the current Vite 8 release and explain committing the
+  resulting lockfile for reproducible installs. Vite is example/build tooling,
+  not a Marionette runtime dependency.
+* Refresh Router guidance for published `@mnjs/router` 0.1.1 and its passing
+  Chromium, Firefox and Playwright WebKit coverage. Link the tested source archive
+  and document native WebKit fragment/Back differences without changing routing
+  behavior. The runnable companion example now checks Router 0.1.1 with published
+  Marionette 5.1.0 and HTML 1.0.0.
+* Add Node 26 to required consumer LTS verification alongside Node 22 and 24.
+  Check installed documentation recipes at each line's floor and latest patch;
+  require Node 26 fixtures and recipes against the exact release candidate.
+* Move the five coordinated packages `marionette`, `@mnjs/utils`, `@mnjs/radio`,
+  `@mnjs/data` and `@mnjs/adapters` to **5.1.1**, with matching core/Radio/Utils
+  dependencies. Data's nonoptional Utils peer and Adapters' core peer remain
+  `^5.0.1`. HTML, Router and the test helpers keep their independent versions.
+
+Marionette runtime implementation and public APIs are unchanged from 5.1.0.
+
 ### v5.1.0
 
 > Apparently, “optional” and “worth a minor release” are not opposites. Marionette 5.1 gives HTML templates and feature-owned routing a proper place in the stack. Two more opinions. Neither compulsory.

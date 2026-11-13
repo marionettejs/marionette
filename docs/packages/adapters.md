@@ -1,6 +1,6 @@
 # @mnjs/adapters
 
-Optional integrations for existing data sources and DOM libraries. Import the subpath you use; the package has no root export. Imports do not configure Marionette or load other adapters. Adapters 5.1.0 supports Marionette `^5.0.1`, not only an identical version. Install a compatible core and only the peers needed by your integration; see [package installation](../quick-start.md#install-matching-packages).
+Optional integrations for existing data sources and DOM libraries. Import the subpath you use; the package has no root export. Imports do not configure Marionette or load other adapters. Adapters supports Marionette `^5.0.1`, not only an identical version. Install a compatible core and only the peers needed by your integration; see [package installation](../quick-start.md#install-matching-packages).
 
 | Subpath | Default export | Peer used by the application |
 | --- | --- | --- |
@@ -201,9 +201,8 @@ void actorApi;
 
 ## Use the Router Catalog with HTML
 
-The Router 0.1.0 Catalog example uses optional Lit integration; that is
-compatible, not a Router requirement. Router 0.1.1 and the
-[routing guide](../guides/routing.md) use `@mnjs/html` and `@mnjs/html/marionette`.
-When adapting the 0.1.0 example, replace `lit-html` with `@mnjs/html`
+The Router Catalog and [routing guide](../guides/routing.md) use `@mnjs/html`
+and `@mnjs/html/marionette`. Router works with other renderers too.
+When adapting an older Lit-based Catalog, replace `lit-html` with `@mnjs/html`
 and `@mnjs/adapters/dom/lit-html` with `@mnjs/html/marionette`. Keep the function
 templates and View event bindings. No Router runtime change is needed.
