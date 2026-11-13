@@ -21,6 +21,6 @@
     "@mnjs/html": "file:../../packages/html"
   },
   "devDependencies": {
-    "vite": "8.3.3"
+    "vite": "8.3.7"
   }
 }

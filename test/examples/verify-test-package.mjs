@@ -123,7 +123,7 @@ try {
     // Cypress 14 uses its own component-server tooling, independently of runtime peers.
     Object.assign(consumerManifest.devDependencies, {
       cypress: '14.0.0', '@cypress/mount-utils': '4.0.0',
-      '@cypress/vite-dev-server': '6.0.1', vite: '6.4.0'
+      '@cypress/vite-dev-server': '6.0.1', vite: '6.4.6'
     });
   }
   writeFileSync(join(consumer, 'package.json'), `${JSON.stringify(consumerManifest, null, 2)}\n`);

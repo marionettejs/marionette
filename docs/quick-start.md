@@ -25,7 +25,7 @@ cd marionette-example
 npm init -y
 npm pkg set type=module scripts.dev="vite" scripts.build="vite build"
 npm install --ignore-scripts --save-exact marionette@5.1.0 @mnjs/utils@5.1.0 @mnjs/radio@5.1.0 @mnjs/html@1.0.0
-npm install --ignore-scripts --save-dev --save-exact vite@8.3.0
+npm install --ignore-scripts --save-dev --save-exact vite@8.3.7
 ```
 
 This first UI uses `marionette`, `html` from `@mnjs/html`, and its `@mnjs/html/marionette` DOM adapter. Core also depends on `@mnjs/utils` and `@mnjs/radio`; the command pins those dependencies to the same release. `@mnjs/data` is optional and is added in the [data setup guide](integrations/setup.md).

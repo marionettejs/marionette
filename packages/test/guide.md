@@ -177,7 +177,7 @@ Cypress's custom Vite dev-server function without a UI-framework preset.
 For the setup below, install the custom dev server and Vite alongside Cypress:
 
 ```sh
-npm install --save-dev --save-exact cypress@16.1.1 @cypress/mount-utils@5.0.0 @cypress/vite-dev-server@8.0.0 vite@8.0.16
+npm install --save-dev --save-exact cypress@16.1.1 @cypress/mount-utils@5.0.0 @cypress/vite-dev-server@8.0.0 vite@8.3.7
 ```
 
 Use `cypress.config.mjs` so the configuration works in either a CommonJS or ESM
@@ -301,7 +301,7 @@ Install the runner and dev server, then install Chromium through Playwright's
 normal browser setup:
 
 ```sh
-npm install --save-dev --save-exact @playwright/test@1.63.0 vite@8.0.16
+npm install --save-dev --save-exact @playwright/test@1.63.0 vite@8.3.7
 npx playwright install chromium
 ```
 

@@ -127,7 +127,7 @@ export async function verifyProductionPackage({ artifactDirectory, reportPath, e
     report.renderer = renderer;
     const dependencies = Object.fromEntries(input.packages.map(pkg => [pkg.name, `file:${pkg.file}`]));
     await writeFile(join(workspace, 'package.json'), JSON.stringify({ private: true, type: 'module', dependencies: {
-      ...dependencies, '@mnjs/html': `file:${renderer.path}`, vite: '8.3.0',
+      ...dependencies, '@mnjs/html': `file:${renderer.path}`, vite: '8.3.7',
     } }, null, 2));
     const run = (command, args, cwd = workspace) => {
       const output = execFileSync(command, args, { cwd, encoding: 'utf8', timeout: 120_000,

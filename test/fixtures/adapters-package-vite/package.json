@@ -9,7 +9,7 @@
     "backbone": "1.6.1",
     "jquery": "4.0.0",
     "xstate": "5.33.4",
-    "vite": "^8.3.6"
+    "vite": "^8.3.8"
   },
   "allowScripts": {
     "fsevents@2.3.3": true
