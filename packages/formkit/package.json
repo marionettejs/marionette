@@ -1,0 +1,97 @@
+{
+  "name": "@mnjs/formkit",
+  "version": "0.1.0",
+  "description": "FormKit schemas and validation with Marionette View and Application ownership",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/types/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/esm/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/types/cjs/index.d.ts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.js"
+    },
+    "./components": {
+      "import": {
+        "types": "./dist/types/esm/components.d.ts",
+        "default": "./dist/components.js"
+      },
+      "require": {
+        "types": "./dist/types/cjs/components.d.ts",
+        "default": "./dist/components.cjs"
+      },
+      "default": "./dist/components.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/",
+    "readme.md",
+    "DESIGN.md",
+    "PROVENANCE.md",
+    "license.txt",
+    "LICENSE.formkit"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": "^22.22.2 || >=24.15.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "vitest run --config vitest.config.mjs",
+    "test:watch": "vitest --config vitest.config.mjs",
+    "check:types": "tsc -p test/types/tsconfig.json",
+    "check:package": "node scripts/check-package.mjs",
+    "check": "npm run lint && npm run build && npm test && npm run check:types && npm run check:package",
+    "prepack": "npm run build",
+    "lint": "node scripts/lint.mjs",
+    "coverage": "vitest run --config vitest.config.mjs --coverage"
+  },
+  "keywords": [
+    "marionette",
+    "formkit",
+    "forms",
+    "validation",
+    "schema",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marionettejs/marionette.git",
+    "directory": "packages/formkit"
+  },
+  "peerDependencies": {
+    "marionette": "^5.0.1"
+  },
+  "dependencies": {
+    "@formkit/core": "2.5.0",
+    "@formkit/i18n": "2.5.0",
+    "@formkit/inputs": "2.5.0",
+    "@formkit/observer": "2.5.0",
+    "@formkit/rules": "2.5.0",
+    "@formkit/themes": "2.5.0",
+    "@formkit/utils": "2.5.0",
+    "@formkit/validation": "2.5.0"
+  },
+  "devDependencies": {
+    "vitest": "5.1.0",
+    "typescript": "6.0.3",
+    "rollup": "4.68.0",
+    "jsdom": "31.0.0",
+    "eslint": "10.14.0",
+    "@vitest/eslint-plugin": "1.6.28",
+    "@vitest/coverage-v8": "5.1.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}
