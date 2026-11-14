@@ -44,7 +44,7 @@ function validateFields(specs) {
 }
 function createField(node,spec,view,initial) {
   const el = document.createElement('div');el.dataset.experimentField = String(node.name);
-  const children = new Map(),slots = {},slotControllers = new Map();let anchor,dead = false,renderer,currentSlots = spec.children ?? {};
+  const children = new Map(),slots = {},slotControllers = new Map();const slotState = {current: spec.children ?? {}};let anchor,dead = false,renderer;
   if (node.type === 'group') {slots.default = ({parent,before})=>{anchor = document.createComment('group fields');parent.insertBefore(anchor,before);return ()=>anchor.remove();};} else {
     for (const name of ['label','help']) {
       slots[name] = ({parent,before,context})=>{
@@ -57,7 +57,7 @@ function createField(node,spec,view,initial) {
           host = nextHost;active = nextRenderer;observer = nextObserver;
         };
         const controller = {update,refresh() {if (!closed) {active.refresh();}},destroy() {if (closed) {return;}closed = true;observer.kill();active.destroy();host.remove();slotControllers.delete(name);}};
-        update(currentSlots[name]);slotControllers.set(name,controller);return ()=>controller.destroy();
+        update(slotState.current[name]);slotControllers.set(name,controller);return ()=>controller.destroy();
       };
     }
   }
@@ -65,8 +65,8 @@ function createField(node,spec,view,initial) {
     if (node.type === 'group') {node.props.disabled = next.disabled;reconcile(view,node,children,next.children ?? [],anchor,initial ?? {});} else {
       if (next.children !== field.spec.children) {
         const nextSlots = next.children ?? {};
-        for (const [name,slot] of slotControllers) {if (name in nextSlots && nextSlots[name] !== currentSlots[name]) {slot.update(nextSlots[name]);}}
-        currentSlots = nextSlots;node.context.slots = Object.fromEntries(Object.keys(currentSlots).map(name=>[name,true]));renderer.refresh();
+        for (const [name,slot] of slotControllers) {if (name in nextSlots && nextSlots[name] !== slotState.current[name]) {slot.update(nextSlots[name]);}}
+        slotState.current = nextSlots;node.context.slots = Object.fromEntries(Object.keys(slotState.current).map(name=>[name,true]));renderer.refresh();
       }
       for (const key of ['label','help','disabled','validation','validationVisibility']) {node.props[key] = next[key] ?? (key === 'validation' ? 'required' : key === 'validationVisibility' ? 'live' : undefined);}
     }

@@ -841,7 +841,7 @@ function isInputFactory(factory) {
   return inputFactories.has(factory);
 }
 let active2;
-let guardDescriptors;
+let guardDescriptors = void 0;
 function descriptors(object) {
   const known = guardDescriptors?.get(object);
   if (known) {
@@ -1309,7 +1309,8 @@ let nativeBindings = (node) => {
       blur(event) {
         if (pendingNativeDateDelete) {
           pendingNativeDateDelete = false;
-          void node.input((event?.target).value);
+          const eventTarget = event?.target;
+          void node.input(eventTarget.value);
         }
         if (node.props.number !== void 0 && ['number', 'range', 'hidden'].includes(node.props.type) && typeof node._value === 'string' && node._value !== '') {
           const number = Number(node._value);
@@ -4316,7 +4317,7 @@ let FormView = class extends View4 {
         this.pending = void 0;
         this.refresh();
         this.schemaRenderer?.update();
-        const invalid = [...new Set([...this.ownedElements].flatMap((element) => [...element.querySelectorAll('[aria-invalid="true"]')]))].filter((control) => control.isConnected && !control.matches(':disabled, input[type="hidden"]') && !control.closest('[hidden], [inert]')).sort((left, right) => left.compareDocumentPosition(right) & 4 ? -1 : 1);
+        const invalid = [...new Set([...this.ownedElements].flatMap((element) => [...element.querySelectorAll('[aria-invalid="true"]')]))].filter((control) => control.isConnected && !control.matches(':disabled, input[type="hidden"]') && !control.closest('[hidden], [inert]')).sort((left, right) => Math.floor(left.compareDocumentPosition(right) / 4) % 2 ? -1 : 1);
         const attempted = /* @__PURE__ */ new Set();
         const focusedInvalid = invalid.some((control) => {
           let target = control;

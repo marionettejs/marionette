@@ -2,10 +2,10 @@
 // Copyright (c) 2021-2026 FormKit, Inc. MIT: LICENSE.formkit.
 // Removed React hook; added observer ownership cleanup and explicit cache refresh.
 import {createMessage,createClasses,generateClassList} from '@formkit/core';
-import {cloneAny,camel,token,undefine,shallowClone,eq,has,empty} from '@formkit/utils';
+import {cloneAny,camel,undefine,shallowClone,eq,has,empty} from '@formkit/utils';
 import {createObserver} from '@formkit/observer';
 const __getOwnPropNames = Object.getOwnPropertyNames;
-const __esm = (fn,res)=>function() {return fn && (res = (0,fn[__getOwnPropNames(fn)[0]])(fn = 0)),res;};
+const __esm = (fn,res)=>function() {if (fn) {const initializer = fn[__getOwnPropNames(fn)[0]];fn = 0;res = Reflect.apply(initializer,undefined,[0]);} return res;};
 function isObject2(value) {
   return typeof value === 'object' && value !== null;
 }
@@ -421,7 +421,7 @@ let initBindings = __esm({
           hasShownErrors = true;
         }
         const visibleMessages = {};
-        for (const key in availableMessages) {
+        for (const key of Object.keys(availableMessages)) {
           const message3 = availableMessages[key];
           if (message3.type !== 'validation' || context.state.validationVisible) {
             visibleMessages[key] = message3;
@@ -434,7 +434,7 @@ let initBindings = __esm({
         if (context.help) {
           describers.push(`help-${node.props.id}`);
         }
-        for (const key in context.messages) {
+        for (const key of Object.keys(context.messages)) {
           describers.push(`${node.props.id}-${key}`);
         }
         context.describedBy = describers.length ? describers.join(' ') : void 0;

@@ -28,7 +28,7 @@ export function createSchemaController({ node, schema, onFields }) {
       if (entry.disabled !== undefined && typeof entry.disabled !== 'boolean') {throw new TypeError('disabled must be literal boolean');}
       if (entry.validationVisibility !== undefined && entry.validationVisibility !== 'live') {throw new TypeError('Only live validation visibility supported');}
       const test = Object.hasOwn(entry,'if') ? condition(entry.if) : () => true;
-      const { $formkit, if: ignored, ...props } = entry;
+      const { $formkit, ...props } = entry;delete props.if;
       return () => test() ? [{...props,type: $formkit}] : [];
     }
     for (const key of Object.keys(entry)) {if (!branchKeys.has(key)) {throw new TypeError(`Unsupported branch key: ${key}`);}}

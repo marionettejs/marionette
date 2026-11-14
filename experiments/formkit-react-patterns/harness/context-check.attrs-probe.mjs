@@ -1,12 +1,12 @@
 import {JSDOM} from 'jsdom';
 import assert from 'node:assert/strict';
-import {fields,classes,values} from './fixtures.mjs';
+import {classes} from './fixtures.mjs';
 const dom = new JSDOM('<!doctype html><html><body><main id="host"></main></body></html>',{url: 'https://example.test',pretendToBeVisual: true});
 for (const key of ['window','document','HTMLElement','Element','Node','Document','ShadowRoot','MutationObserver','Event','CustomEvent','HTMLInputElement']) {globalThis[key] = dom.window[key];}
 Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
 globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);globalThis.SVGElement = dom.window.SVGElement;
 globalThis.requestAnimationFrame = dom.window.requestAnimationFrame.bind(dom.window);globalThis.cancelAnimationFrame = dom.window.cancelAnimationFrame.bind(dom.window);
-const arm = process.argv[2] ?? 'vue',count = Number(process.argv[3] ?? 20),host = document.querySelector('#host');
+const arm = process.argv[2] ?? 'vue',host = document.querySelector('#host');
 const {mountReference,mountCurrent} = await import('./reference.mjs');
 const specs = [{type: 'text',name: 'f0',label: 'Name',help: 'Enter a name',validation: 'required',validationVisibility: 'blur',attrs: {placeholder: 'Example'},classes}];
 const options = {fields: specs};const api = arm === 'current' ? await mountCurrent(host,1,options) : arm === 'experiment' ? await (await import('../core/index.mjs')).mount({host,fields: specs,values: {f0: ''},classes}) : await mountReference(arm,host,1,options);
