@@ -21,6 +21,18 @@ export const candidateChecks = Object.freeze([
   ['fixtures', 'test:fixtures'],
 ].map(([id, script]) => Object.freeze({ id, script })));
 
+// Each check belongs to exactly one independent lane. Order remains canonical in
+// the joined certificate, which uses the same strict verifier as a local run.
+export const candidateGroups = Object.freeze({
+  source: ['profile', 'browser-profile', 'diagnostics', 'api-contracts', 'public-tests', 'workflows',
+    'source-types', 'consumer-types', 'lint', 'source', 'coverage'],
+  tooling: ['tooling'],
+  documentation: ['documentation'],
+  distribution: ['distribution'],
+  browser: ['browser'],
+  fixtures: ['fixtures'],
+});
+
 export function containedArtifactPath(directory, file) {
   if (typeof file !== 'string' || !file || file === '.' || file === '..' || /[/\\:]/.test(file)) {
     throw new Error(`Release artifact must use a contained file name: ${file}`);
