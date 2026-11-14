@@ -18,7 +18,7 @@ async function mountSchema(schema,payload) {
     const render = ()=>flushSync(()=>root.render(h(FormKitProvider,{config},h(FormKit,{type: 'form',actions: false,onNode: n=>node = n},h(FormKit,{type: 'group',name: 'profile'},h(FormKitRoot,null,h(FormKitSchema,state)))))));
     render();destroy = ()=>flushSync(()=>root.unmount());update = async next=>{advance(next);render();await settle();};
   } else {
-    const {mount} = await import('./index.mjs');const api = mount({host,schema: {$formkit: 'group',name: 'profile',children: [{$cmp: 'FormKitRoot',children: {$cmp: 'FormKitSchema',props: {schema: '$schema',data: '$data',memoKey: '$memoKey'}}}]},data: state,plugins: [capture],formProps: {actions: false},config: {delay: 0}});
+    const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');const api = mount({host,schema: {$formkit: 'group',name: 'profile',children: [{$cmp: 'FormKitRoot',children: {$cmp: 'FormKitSchema',props: {schema: '$schema',data: '$data',memoKey: '$memoKey'}}}]},data: state,plugins: [capture],formProps: {actions: false},config: {delay: 0}});
     node = api.node;destroy = ()=>api.destroy();update = async next=>{advance(next);api.updateData(state);await settle();};
   }
   await settle();return {node,update,destroy,nodes,counts: ()=>({created,destroyed})};

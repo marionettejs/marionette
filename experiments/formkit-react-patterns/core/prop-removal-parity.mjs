@@ -13,7 +13,7 @@ if (mode === 'vue') {
 } else if (mode === 'react') {
   const {createElement: h} = await import('react'),{createRoot} = await import('react-dom/client'),{flushSync} = await import('react-dom'),{FormKit,FormKitProvider,defaultConfig} = await import('@formkit/react');const root = createRoot(host),config = defaultConfig({inputs: {widget}}),onNode = value=>{node = value;};replace = async next=>flushSync(()=>root.render(h(FormKitProvider,{config},h(FormKit,{...next,onNode}))));await replace(initial);destroy = ()=>flushSync(()=>root.unmount());
 } else {
-  const {mount} = await import('./index.mjs');const api = mount({host,fields: [initial],inputs: {widget}});node = api.node.at('widget');replace = async next=>api.setFields([next]);destroy = api.destroy;
+  const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');const api = mount({host,fields: [initial],inputs: {widget}});node = api.node.at('widget');replace = async next=>api.setFields([next]);destroy = api.destroy;
 }
 const sample = ()=>({caption: node.props.caption,renderedCaption: host.querySelector('[data-caption]').textContent,title: host.querySelector('input').getAttribute('title'),customClass: host.querySelector('input').classList.contains('custom'),disabled: host.querySelector('input').disabled,delay: node.config.delay,locale: node.config.locale});
 const report = {mode};

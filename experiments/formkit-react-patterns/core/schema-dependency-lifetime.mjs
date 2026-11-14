@@ -5,7 +5,7 @@ const {setupProjectionDom, settle, mountProjectionReference} = await import(new 
 const dom = setupProjectionDom(), host = document.querySelector('main');
 const arm = process.argv[2] ?? 'experiment';
 const {createNode, getNode} = await import('@formkit/core');
-const {defaultConfig} = await import(arm === 'vue' ? '@formkit/vue' : arm === 'react' ? '@formkit/react' : new URL('index.mjs', root));
+const {defaultConfig} = await import(arm === 'vue' ? '@formkit/vue' : arm === 'react' ? '@formkit/react' : new URL('../../../packages/formkit/src/runtime/index.mjs', root));
 const options = defaultConfig({config: {delay: 0}}), external = [], checks = [];
 let api, serial = 0;
 function source(value = 'Same', id = 'dependency-source-' + serial++) {
@@ -63,7 +63,7 @@ try {
   // React 2.5 requires an explicit schema-data refresh for external $get changes.
   // Vue and this adapter subscribe automatically; pending-event counts are adapter-specific.
   if (arm === 'experiment') {
-    const {mount} = await import(new URL('index.mjs', root));
+    const {mount} = await import(new URL('../../../packages/formkit/src/runtime/index.mjs', root));
     let raw, recorded = 0;
     const record = context => {recorded++; return context?.value ?? 'missing';};
     const data = target => ({target: target.props.id, record});

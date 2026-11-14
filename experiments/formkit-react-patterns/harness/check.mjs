@@ -8,7 +8,7 @@ globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);globa
 globalThis.requestAnimationFrame = dom.window.requestAnimationFrame.bind(dom.window);globalThis.cancelAnimationFrame = dom.window.cancelAnimationFrame.bind(dom.window);
 const arm = process.argv[2] ?? 'vue',count = Number(process.argv[3] ?? 20),host = document.querySelector('#host');
 const {mountReference,mountCurrent} = await import('./reference.mjs');
-const api = arm === 'current' ? await mountCurrent(host,count) : arm === 'experiment' ? await (await import('../core/index.mjs')).mount({host,count,fields: fields(count),classes,values: values(count)}) : await mountReference(arm,host,count);
+const api = arm === 'current' ? await mountCurrent(host,count) : arm === 'experiment' ? await (await import('../../../packages/formkit/src/runtime/index.mjs')).mount({host,count,fields: fields(count),classes,values: values(count)}) : await mountReference(arm,host,count);
 const delay = ()=>new Promise(r=>setTimeout(r,5));
 async function until(predicate,label) {for (let n = 0;n < 400;n++) {await delay();if (predicate()) {return;}} throw Error(`Did not settle: ${label}`)}
 await until(()=>api.node?.isSettled && host.querySelectorAll('input[type=text]').length === count,'mount');

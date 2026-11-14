@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom';import assert from 'node:assert/strict';
 const dom = new JSDOM('<body><main></main><aside></aside>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver']) {globalThis[key] = dom.window[key];}
 globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
-const {mount} = await import('./index.mjs');const {createSchemaController} = await import('./schema.mjs');const {createLayoutController} = await import('./schema-layout.mjs');
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');const {createSchemaController} = await import('../../../packages/formkit/src/runtime/schema.mjs');const {createLayoutController} = await import('../../../packages/formkit/src/runtime/schema-layout.mjs');
 const tick = ()=>new Promise(r=>setTimeout(r,15));
 const local = mount({host: document.querySelector('main'),fields: []});let fields,calls = 0;
 const schema = [{if: '$get(\'remote\')',then: {$formkit: 'text',name: 'result',label: '$get(\'remote\').value'},else: {$formkit: 'text',name: 'waiting'}}];

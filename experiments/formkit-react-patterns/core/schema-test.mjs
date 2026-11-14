@@ -2,8 +2,8 @@ import { JSDOM } from 'jsdom';
 import assert from 'node:assert/strict';
 const dom = new JSDOM('<!doctype html><body><div id="host"></div>',{url: 'http://localhost'});
 for (const name of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[name] = dom.window[name];}
-const { mount } = await import('./index.mjs');
-const { createSchemaController } = await import('./schema.mjs');
+const { mount } = await import('../../../packages/formkit/src/runtime/index.mjs');
+const { createSchemaController } = await import('../../../packages/formkit/src/runtime/schema.mjs');
 const tick = ()=>new Promise(r=>setTimeout(r,25));
 const instance = mount({instrument: true,host: document.querySelector('#host'),fields: [{name: 'f0',label: 'Toggle'}],values: {f0: ''}});
 let calls = 0;

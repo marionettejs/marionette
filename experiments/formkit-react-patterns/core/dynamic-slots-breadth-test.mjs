@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>');
 for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
-const {mount} = await import('./index.mjs');
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');
 const host = document.querySelector('main'),pause = ()=>new Promise(resolve=>setTimeout(resolve,40));
 let created = 0,destroyed = 0;
 const api = mount({host,fields: [{name: 'text',label: 'Original',help: 'Original help'},{name: 'repeat',type: 'repeatSlot',value: ['A','B']}],inputs: {

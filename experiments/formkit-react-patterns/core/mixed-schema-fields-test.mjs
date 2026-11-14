@@ -17,7 +17,7 @@ if (arm === 'vue') {
   const render = ()=>flushSync(()=>ui.render(React.createElement(FormKitProvider,{config},React.createElement(FormKit,formProps,...state.fields.map(spec=>React.createElement(FormKit,{...spec,key: spec.key ?? spec.name})),React.createElement(FormKitSchema,{key: 'schema',schema: state.schema,data: state.data})))));
   render();destroy = ()=>flushSync(()=>ui.unmount());update = async next=>{state = {...state,...next};render();await settle();};
 } else {
-  const {mount} = await import('./index.mjs');api = mount({host,fields: state.fields,schema: state.schema,data: state.data,values: initial,plugins: [capture],config: {delay: 0},formProps: {actions: false},onSubmit: formProps.onSubmit,onSubmitInvalid: formProps.onSubmitInvalid});node = api.node;destroy = ()=>api.destroy();
+  const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');api = mount({host,fields: state.fields,schema: state.schema,data: state.data,values: initial,plugins: [capture],config: {delay: 0},formProps: {actions: false},onSubmit: formProps.onSubmit,onSubmitInvalid: formProps.onSubmitInvalid});node = api.node;destroy = ()=>api.destroy();
   update = async next=>{state = {...state,...next};if ('fields' in next) {api.setFields(next.fields);} if ('schema' in next) {api.setSchema(next.schema);} if ('data' in next) {api.updateData(next.data);} await settle();};
 }
 await settle();

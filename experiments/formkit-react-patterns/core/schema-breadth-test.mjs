@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createNode } from '@formkit/core';
-import { createSchemaController } from './schema.mjs';
+import { createSchemaController } from '../../../packages/formkit/src/runtime/schema.mjs';
 const node = createNode({ type: 'group', value: { enabled: true }, props: { delay: 0 } });
 let fields;
 const schema = [

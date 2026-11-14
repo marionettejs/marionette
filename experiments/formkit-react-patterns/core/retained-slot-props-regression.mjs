@@ -16,7 +16,7 @@ const field = item => {const {children, ...props} = item; return {...props, ...(
 async function mountFields(fields, values = {}) {
   let form, update, destroy, submitted = [];
   if (arm === 'adapter') {
-    const {mount} = await import('./index.mjs');
+    const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');
     const api = mount({host, fields: fields.map(field), values, ...options, formProps: {actions: false}, onSubmit: value => submitted.push(JSON.parse(JSON.stringify(value)))});
     form = api.node; update = next => api.setFields(next.map(field)); destroy = () => api.destroy();
   } else if (arm === 'vue') {

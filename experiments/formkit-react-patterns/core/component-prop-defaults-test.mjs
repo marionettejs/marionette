@@ -15,7 +15,7 @@ async function mountCase(schema,payload,track) {
     const render = ()=>flushSync(()=>root.render(h(FormKitProvider,{config},h(FormKit,{type: 'form',actions: false,onNode: n=>node = n},h(FormKit,{type: 'group',name: 'profile'},h(FormKitRoot,null,h(FormKitSchema,state)))))));
     destroy = ()=>flushSync(()=>root.unmount());render();update = async next=>{advance(next);render();await settle();};
   } else {
-    const {mount} = await import('./index.mjs');const api = mount({host,schema: {$formkit: 'group',name: 'profile',children: [{$cmp: 'FormKitRoot',children: {$cmp: 'FormKitSchema',props: {schema: '$schema',data: '$data',memoKey: '$memoKey'}}}]},data: state,plugins: [capture],formProps: {actions: false},config: {delay: 0}});node = api.node;destroy = ()=>api.destroy();update = async next=>{advance(next);api.updateData(state);await settle();};
+    const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');const api = mount({host,schema: {$formkit: 'group',name: 'profile',children: [{$cmp: 'FormKitRoot',children: {$cmp: 'FormKitSchema',props: {schema: '$schema',data: '$data',memoKey: '$memoKey'}}}]},data: state,plugins: [capture],formProps: {actions: false},config: {delay: 0}});node = api.node;destroy = ()=>api.destroy();update = async next=>{advance(next);api.updateData(state);await settle();};
   }
   await settle();return {node,update,destroy};
 }
@@ -28,7 +28,7 @@ for (const [label,prop,override] of cases) {
     await app.update({memoKey: 'changed'});assert.ok(parent.children[0] === field);assert.ok(host.querySelector('input') === input);assert.equal(field.value,'User edit');
     await app.update({schema: declaration()});assert.ok(parent.children[0] === field);assert.ok(host.querySelector('input') === input);assert.equal(field.value,'User edit');
     if (arm === 'experiment') {
-      const {createSchemaController} = await import('./schema.mjs');let applied = 0;const onInvalidFields = ()=>applied++;
+      const {createSchemaController} = await import('../../../packages/formkit/src/runtime/schema.mjs');let applied = 0;const onInvalidFields = ()=>applied++;
       for (const bad of [[{$formkit: '$missing',name: 'strict'}],[{$formkit: 'text',name: null}],[{$formkit: 'text',name: ''}]]) {assert.throws(()=>createSchemaController({node: app.node,schema: bad,onFields: onInvalidFields}),/resolved type and name/);}
       assert.equal(applied,0,'component defaults must not relax explicit field projection validation');
     }

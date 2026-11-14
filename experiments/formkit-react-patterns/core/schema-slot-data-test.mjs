@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
-const {mount} = await import('./index.mjs'),{createNode} = await import('@formkit/core'),host = document.querySelector('main'),borrowed = createNode({name: 'borrowed',type: 'group'});const created = [],destroyed = [];
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs'),{createNode} = await import('@formkit/core'),host = document.querySelector('main'),borrowed = createNode({name: 'borrowed',type: 'group'});const created = [],destroyed = [];
 const declaration = [{$el: 'section',for: ['row','$rows'],attrs: {key: '$row.id','data-row': '$row.id'},children: '$slots.label'}];
 const slots = {label: {$el: 'em',children: ['$prefix',': ','$row.label','$suffix']}};
 const api = mount({host,schema: {$cmp: 'FormKitSchema',props: {'__raw__schema': declaration,'__raw__slots': slots,data: '$payload'}},data: {payload: {prefix: 'Old',suffix: '!',rows: [{id: 'a',label: 'First'},{id: 'b',label: 'Second'}],node: borrowed}},plugins: [n=>{created.push(n);n.on('destroyed',()=>destroyed.push(n));}],formProps: {actions: false}});

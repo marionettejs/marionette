@@ -9,7 +9,7 @@ const capture = node=>{created.push(node);node.on('destroyed',()=>destroyed.push
 let node,dispose,scope;const sleep = ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function until(test) {for (let i = 0;i < 80;i++) {if (test()) {return;} await sleep(10);}assert.ok(test(),'semantic wait');}
 if (arm === 'adapter') {
-  const {FormKitApplication} = await import('./index.mjs');
+  const {FormKitApplication} = await import('../../../packages/formkit/src/runtime/index.mjs');
   const app = new FormKitApplication({region: {el: host},config: {config: {rootConfig: shared},plugins: [capture]},form: {fields: [{name: 'x',label: 'Shared config'}],formProps: {actions: false}}});
   dispose = ()=>app.destroy();await app.start();node = app.getView().node;scope = app.getFormKitScope();
 } else if (arm === 'vue') {

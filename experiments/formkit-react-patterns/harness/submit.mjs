@@ -10,7 +10,7 @@ const arm = process.argv[2] ?? 'vue',count = Number(process.argv[3] ?? 20),host 
 const {mountReference,mountCurrent} = await import('./reference.mjs');
 let submitted = 0,invalid = 0,payload;
 const options = {onSubmit: value=>{submitted++;payload = value},onSubmitInvalid: ()=>invalid++};
-const api = arm === 'current' ? await mountCurrent(host,count,options) : arm === 'experiment' ? await (await import('../core/index.mjs')).mount({host,count,fields: fields(count),classes,values: values(count),...options}) : await mountReference(arm,host,count,options);
+const api = arm === 'current' ? await mountCurrent(host,count,options) : arm === 'experiment' ? await (await import('../../../packages/formkit/src/runtime/index.mjs')).mount({host,count,fields: fields(count),classes,values: values(count),...options}) : await mountReference(arm,host,count,options);
 const delay = ()=>new Promise(r=>setTimeout(r,5));
 async function until(predicate,label) {for (let n = 0;n < 400;n++) {await delay();if (predicate()) {return;}} throw Error(`Did not settle: ${label}`)}
 await until(()=>api.node?.isSettled && host.querySelectorAll('input[type=text]').length === count,'mount');

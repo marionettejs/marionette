@@ -3,7 +3,7 @@ const dom = new JSDOM('<body><main></main>',{url: 'http://localhost',pretendToBe
 for (const k of ['window','document','Node','Element','HTMLElement','HTMLButtonElement','HTMLInputElement','HTMLTextAreaElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle','localStorage']) {globalThis[k] = dom.window[k];}
 Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
 const observers = [];class ResizeObserver {constructor(fn) {this.fn = fn;observers.push(this);}observe(el) {this.target = el;}disconnect() {this.disconnected = true;}}globalThis.ResizeObserver = ResizeObserver;
-const {mount} = await import(process.env.ADDON_ADAPTER ?? './index.mjs');const {createAutoHeightTextareaPlugin,createFloatingLabelsPlugin,createAutoAnimatePlugin,createLocalStoragePlugin,createMaxLengthCountdownPlugin} = await import('@formkit/addons');
+const {mount} = await import(process.env.ADDON_ADAPTER ?? '../../../packages/formkit/src/runtime/index.mjs');const {createAutoHeightTextareaPlugin,createFloatingLabelsPlugin,createAutoAnimatePlugin,createLocalStoragePlugin,createMaxLengthCountdownPlugin} = await import('@formkit/addons');
 const tick = (ms = 50)=>new Promise(r=>setTimeout(r,ms));const host = document.querySelector('main'),checks = [];
 for (const kind of ['document','shadow','ownerDocument']) {
   let target = host,scope = document;

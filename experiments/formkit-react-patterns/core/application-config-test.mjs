@@ -1,6 +1,6 @@
 import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
 const dom = new JSDOM('<body></body>',{url: 'http://localhost'});for (const k of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLTextAreaElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[k] = dom.window[k];}
-const {FormKitApplication,ExperimentalFormView,mount} = await import('./index.mjs'),{Application,Region} = await import('marionette'),{createLibraryPlugin,inputs} = await import('@formkit/inputs'),{bindings} = await import('./upstream-bindings.mjs');
+const {FormKitApplication,ExperimentalFormView,mount} = await import('../../../packages/formkit/src/runtime/index.mjs'),{Application,Region} = await import('marionette'),{createLibraryPlugin,inputs} = await import('@formkit/inputs'),{bindings} = await import('../../../packages/formkit/src/runtime/upstream-bindings.mjs');
 const sleep = ms=>new Promise(r=>setTimeout(r,ms));async function until(fn) {for (let i = 0;i < 100;i++) {if (fn()) {return;} await sleep(10);}assert.ok(fn(),'semantic wait');}
 const targets = [];const host = ()=>{const el = document.createElement('main');document.body.append(el);targets.push(el);return el;};const cases = new Map(),apps = [];let sequence = 0;
 globalThis.__formKitProviderFixtures = {enter(url) {cases.get(url).entered++;},wait(url) {return cases.get(url).gate.promise;},complete(url) {cases.get(url).completed++;},options(url) {const c = cases.get(url);c.factories++;return c.options;}};

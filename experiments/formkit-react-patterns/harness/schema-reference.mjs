@@ -15,7 +15,7 @@ export async function mountSchemaReference(arm,host) {
   } else if (arm === 'current') {
     const {FormView} = await import('../current-303ddfbb/index.mjs');const {Region} = await import('marionette');const form = new FormView({values: initial,schema: conditionalSchema,schemaData: {values: initial},config: {delay: 0},formProps: {actions: false}});const region = new Region({el: host});region.show(form);node = form.node;receipt = followValues(node,value=>form.setSchemaData({values: value}));dispose = ()=>region.destroy();
   } else {
-    const {mount} = await import('../core/index.mjs');const {createSchemaController} = await import('../core/schema.mjs');const api = mount({host,fields: [],values: initial});node = api.node;const controller = createSchemaController({node,schema: conditionalSchema,onFields: fs=>api.setFields(fs)});dispose = ()=>{controller.destroy();api.destroy()};
+    const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');const {createSchemaController} = await import('../../../packages/formkit/src/runtime/schema.mjs');const api = mount({host,fields: [],values: initial});node = api.node;const controller = createSchemaController({node,schema: conditionalSchema,onFields: fs=>api.setFields(fs)});dispose = ()=>{controller.destroy();api.destroy()};
   }
   return {get node() {return node},destroy: ()=>{if (receipt) {receipt();}dispose()}};
 }

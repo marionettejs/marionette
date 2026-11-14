@@ -1,6 +1,6 @@
 import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
 const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver']) {globalThis[key] = dom.window[key];}globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
-const {mount} = await import('./index.mjs');const {createLayoutController} = await import('./schema-layout.mjs');const {createSchemaController} = await import('./schema.mjs');
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');const {createLayoutController} = await import('../../../packages/formkit/src/runtime/schema-layout.mjs');const {createSchemaController} = await import('../../../packages/formkit/src/runtime/schema.mjs');
 const api = mount({host: document.querySelector('main'),fields: []});
 const schema = [{$formkit: 'text',label: 'Anonymous'},{$el: 'section',for: ['row','$rows'],children: {$formkit: 'text',label: '$row'}}];
 const c = createLayoutController({form: api.form,schema,data: {rows: ['One','Two']}});assert.equal(api.node.children.length,3);assert.equal(new Set(api.node.children.map(n=>n.name)).size,3);assert.deepEqual([...document.querySelectorAll('label')].map(e=>e.textContent),['Anonymous','One','Two']);

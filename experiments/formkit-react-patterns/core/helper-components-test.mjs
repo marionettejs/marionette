@@ -7,7 +7,7 @@ let networkCalls = 0;
 globalThis.fetch = async() => { networkCalls++; throw new Error('Unexpected network request'); };
 const tick = () => new Promise(resolve => setTimeout(resolve, 20));
 const host = () => { const element = document.createElement('main'); document.body.append(element); return element; };
-const { mount } = await import(process.env.BASELINE ? '../../baseline/core/index.mjs' : './index.mjs');
+const { mount } = await import(process.env.BASELINE ? '../../baseline/core/index.mjs' : '../../../packages/formkit/src/runtime/index.mjs');
 const svg = '<svg viewBox="0 0 10 10"><path d="M0 0L10 10"/></svg>';
 const results = [];
 const record = name => { results.push(name); console.log('PASS', name); };
@@ -23,7 +23,7 @@ if (process.env.BASELINE) {
   process.exit(0);
 }
 
-const { FormKitMessages: formKitMessages, FormKitSummary: formKitSummary, FormKitIcon: formKitIcon } = await import('./helper-components.mjs');
+const { FormKitMessages: formKitMessages, FormKitSummary: formKitSummary, FormKitIcon: formKitIcon } = await import('../../../packages/formkit/src/runtime/helper-components.mjs');
 const { createMessage } = await import('@formkit/core');
 const { iconRegistry } = await import('@formkit/themes');
 

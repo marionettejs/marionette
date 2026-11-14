@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<main></main>');globalThis.document = dom.window.document;
-const {renderSections} = await import('./section-renderer.mjs');
+const {renderSections} = await import('../../../packages/formkit/src/runtime/section-renderer.mjs');
 const host = document.querySelector('main');
 const context = {items: ['one','two'], tag: 'p', color: 'red', active: true, count: 3, bag: {x: 'X'}, icon: '<svg><path d="M0 0" /></svg>'};
 const renderer = renderSections({host,context,schema: [

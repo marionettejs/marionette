@@ -5,8 +5,8 @@ const dom = new JSDOM('<body><main></main>',{url: 'http://localhost'});
 for (const k of ['window','document','Node','Element','HTMLElement','SVGElement','HTMLButtonElement','HTMLInputElement','HTMLTextAreaElement','HTMLFormElement','Event','KeyboardEvent','CustomEvent','MutationObserver','getComputedStyle','localStorage']) {globalThis[k] = dom.window[k];}
 Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
 const addons = await import('@formkit/addons');
-const {createSchemaController} = await import('./schema.mjs');
-const {mount} = await import(process.env.ADDON_ADAPTER ?? './index.mjs');
+const {createSchemaController} = await import('../../../packages/formkit/src/runtime/schema.mjs');
+const {mount} = await import(process.env.ADDON_ADAPTER ?? '../../../packages/formkit/src/runtime/index.mjs');
 const tick = (ms = 45)=>new Promise(r=>setTimeout(r,ms));
 const arm = process.argv[2] ?? 'adapter';
 let host = document.querySelector('main'),scope = document;

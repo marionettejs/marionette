@@ -16,7 +16,7 @@ try {
     const {createElement: h} = await import('react'),{createRoot} = await import('react-dom/client'),{flushSync} = await import('react-dom'),{FormKit,FormKitSchema,FormKitProvider,defaultConfig} = await import('@formkit/react');
     const root = createRoot(host);destroy = ()=>flushSync(()=>root.unmount());flushSync(()=>root.render(h(FormKitProvider,{config: defaultConfig({plugins: [capture],config: {delay: 0}})},h(FormKit,formProps,h(FormKitSchema,{schema,data})))));
   } else {
-    const {mount} = await import('./index.mjs');api = mount({host,schema,data,plugins: [capture],config: {delay: 0},formProps: {actions: false,...(test === 'id' ? {id: 'checkout'} : {})},onSubmit: formProps.onSubmit});node = api.node;destroy = ()=>api.destroy();
+    const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');api = mount({host,schema,data,plugins: [capture],config: {delay: 0},formProps: {actions: false,...(test === 'id' ? {id: 'checkout'} : {})},onSubmit: formProps.onSubmit});node = api.node;destroy = ()=>api.destroy();
   }
   await settle();const form = host.querySelector('form');
   if (test === 'method') {

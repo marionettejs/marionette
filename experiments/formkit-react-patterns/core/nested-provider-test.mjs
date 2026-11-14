@@ -1,6 +1,6 @@
 import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
 const dom = new JSDOM('<body></body>',{url: 'http://localhost'});for (const k of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLTextAreaElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[k] = dom.window[k];}
-const {ExperimentalFormView,FormKitApplication,defaultConfig,mount} = await import('./index.mjs');const {Region} = await import('marionette');const {getNode} = await import('@formkit/core');const {createLibraryPlugin} = await import('@formkit/inputs');const {bindings} = await import('./upstream-bindings.mjs');
+const {ExperimentalFormView,FormKitApplication,defaultConfig,mount} = await import('../../../packages/formkit/src/runtime/index.mjs');const {Region} = await import('marionette');const {getNode} = await import('@formkit/core');const {createLibraryPlugin} = await import('@formkit/inputs');const {bindings} = await import('../../../packages/formkit/src/runtime/upstream-bindings.mjs');
 const wait = ms=>new Promise(r=>setTimeout(r,ms));async function until(fn) {for (let i = 0;i < 100;i++) {if (fn()) {return;} await wait(10);}assert.ok(fn(),'semantic wait');}
 const hosts = [],regions = [],apps = [];function host() {const h = document.createElement('main');document.body.append(h);hosts.push(h);return h;}
 function form(options) {const h = host(),region = new Region({el: h}),view = new ExperimentalFormView({formProps: {actions: false},...options});regions.push(region);region.show(view);return view;}

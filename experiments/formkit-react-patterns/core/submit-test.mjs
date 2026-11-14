@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { inputs } from '@formkit/inputs';
 const dom = new JSDOM('<!doctype html><body><div id="host"></div>',{url: 'http://localhost'});
 for (const name of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver']) {globalThis[name] = dom.window[name];}
-const { mount } = await import('./index.mjs');
+const { mount } = await import('../../../packages/formkit/src/runtime/index.mjs');
 const tick = ()=>new Promise(r=>setTimeout(r,25));
 let invalid = 0,raw = 0,submitted = [];
 const instance = mount({instrument: true,host: document.querySelector('#host'),count: 1,values: {field0: ''},onSubmitInvalid: ()=>invalid++,onSubmitRaw: ()=>raw++,onSubmit: value=>{submitted.push(value);value.field0 = 'mutated callback copy';}});

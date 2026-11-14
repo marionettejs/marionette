@@ -19,7 +19,7 @@ if (arm === 'vue') {
   function App() {const [s,set] = R.useState(base);update = set;return R.createElement(FormKitProvider,{config},R.createElement(FormKit,{type: 'form',value: initial,actions: false,onNode: n=>node = n},R.createElement(FormKit,{type: 'group',name: 'profile'},R.createElement(FormKit,upstreamProps(s)),R.createElement(FormKit,{type: 'text',name: 'title'}))));}
   flushSync(()=>root.render(R.createElement(App)));destroy = ()=>flushSync(()=>root.unmount());
 } else {
-  const {mount} = await import('./index.mjs'); const fields = s=>[{type: 'group',name: 'profile',children: [s,{type: 'text',name: 'title'}]}];
+  const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs'); const fields = s=>[{type: 'group',name: 'profile',children: [s,{type: 'text',name: 'title'}]}];
   api = mount({host,fields: fields(base)});node = api.node;update = s=>api.setFields(fields(s));destroy = api.destroy;
 }
 async function until(predicate,label) {const end = Date.now() + 2000;while (Date.now() < end) {if (predicate()) {return;} await new Promise(resolve=>setTimeout(resolve,10));} throw new Error(`Timed out waiting for ${label}`);}

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {setupProjectionDom,settle} from './schema-projection-reference.mjs';
-const dom = setupProjectionDom(),{mount} = await import('./index.mjs'),host = document.querySelector('main');
+const dom = setupProjectionDom(),{mount} = await import('../../../packages/formkit/src/runtime/index.mjs'),host = document.querySelector('main');
 const declaration = name=>({$formkit: 'list',name,dynamic: true,value: ['A','B'],children: [{$formkit: 'text',for: ['item','index','$items'],key: '$item',index: '$index'}]});
 const api = mount({host,instrument: true,schema: [declaration('left'),declaration('right')],config: {delay: 0},formProps: {actions: false}});
 try {

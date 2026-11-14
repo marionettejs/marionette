@@ -4,7 +4,7 @@ import {fields,classes,values} from './fixtures.mjs';
 const dom = new JSDOM('<!doctype html><body><main id="host"></main>',{url: 'https://example.test',pretendToBeVisual: true});
 for (const key of ['window','document','HTMLElement','Element','Node','Document','ShadowRoot','MutationObserver','Event','CustomEvent','HTMLInputElement','HTMLFormElement']) {globalThis[key] = dom.window[key];}
 Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
-const {mount} = await import('../core/index.mjs');const count = Number(process.argv[2] ?? 200);const host = document.querySelector('#host');
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');const count = Number(process.argv[2] ?? 200);const host = document.querySelector('#host');
 const api = mount({host,count,fields: fields(count),classes,values: values(count)});
 const tick = ()=>new Promise(r=>setTimeout(r,5));async function settle(check) {for (let i = 0;i < 1000;i++) {await tick();if (api.node.isSettled && check()) {return;}} throw Error('semantic settlement timeout')}
 await settle(()=>host.querySelectorAll('input[type=text]').length === count && api.node.children.every(n=>n.store.rule_required));

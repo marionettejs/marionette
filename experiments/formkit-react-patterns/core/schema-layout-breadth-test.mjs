@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 const dom = new JSDOM('<body><main></main>');
 for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
 globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
-const {mount} = await import('./index.mjs');
-const {createLayoutController} = await import('./schema-layout.mjs');
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');
+const {createLayoutController} = await import('../../../packages/formkit/src/runtime/schema-layout.mjs');
 const api = mount({host: document.querySelector('main'),fields: []});
 let clicks = 0;
 const data = {title: 'First',visible: true,onClick: ()=>clicks++};

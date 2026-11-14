@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body></body>',{url: 'http://localhost'});
 for (const key of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
-const {mount} = await import('./index.mjs');
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');
 const {text} = await import('@formkit/inputs');
 const wait = ()=>new Promise(r=>setTimeout(r,35));
 const checks = [];

@@ -19,7 +19,7 @@ if (arm === 'vue') {
   function App() {const [s,set] = R.useState(base);update = set;return R.createElement(FormKitProvider,{config},R.createElement(FormKit,{type: 'form',actions: false,onNode: n=>node = n},R.createElement(FormKit,{type: 'group',name: 'g',...upstream({attrs: s.attrs,...('disabled' in s ? {disabled: s.disabled} : {})})},R.createElement(FormKit,{type: 'checkbox',name: 'box',...upstream(s.box)}))));}
   flushSync(()=>root.render(R.createElement(App)));destroy = ()=>flushSync(()=>root.unmount());
 } else {
-  const {mount} = await import('./index.mjs');
+  const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');
   const fields = s=>[{type: 'group',name: 'g',attrs: s.attrs,...('disabled' in s ? {disabled: s.disabled} : {}),children: [{type: 'checkbox',name: 'box',...s.box}]}];
   const api = mount({host,fields: fields(base)});node = api.node;update = s=>api.setFields(fields(s));destroy = api.destroy;
 }

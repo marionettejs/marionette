@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
-const {mount} = await import('./index.mjs'),{getNode} = await import('@formkit/core'),gate = Promise.withResolvers();let entered = 0,application;const created = [],destroyed = [];const wait = ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs'),{getNode} = await import('@formkit/core'),gate = Promise.withResolvers();let entered = 0,application;const created = [],destroyed = [];const wait = ms=>new Promise(resolve=>setTimeout(resolve,ms));
 globalThis.__formKitProviderFixtures = {enter() {entered++;},wait() {return gate.promise;},complete() {},options() {return {};}};
 const url = new URL('./fixtures/provider-function.mjs?failed-child-scope',import.meta.url).href;
 const api = mount({host: document.querySelector('main'),schema: {$cmp: 'FormKitLazyProvider',props: {configFile: url,onProvider: a=>application = a},children: [{$formkit: 'text',name: 'first'},{$cmp: 'Missing'}]},formProps: {actions: false},plugins: [n=>{created.push(n);n.on('destroyed',()=>destroyed.push(n));}]});

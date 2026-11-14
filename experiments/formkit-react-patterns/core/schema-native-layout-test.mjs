@@ -25,7 +25,7 @@ if (arm === 'vue') {
   function App() {const [state,set] = React.useState(data);setData = set;return React.createElement(FormKitProvider,{config: defaultConfig({config: {delay: 0}})},React.createElement(FormKit,{type: 'form',actions: false,value: initial,onNode: n=>node = n},React.createElement(FormKitSchema,{schema,data: state})));}
   flushSync(()=>root.render(React.createElement(App)));update = async next=>flushSync(()=>setData(next));destroy = ()=>flushSync(()=>root.unmount());
 } else {
-  const {mount} = await import('./index.mjs');api = mount({host,schema,data,values: initial,formProps: {actions: false},config: {delay: 0}});node = api.node;update = async next=>api.updateData(next);destroy = ()=>api.destroy();
+  const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');api = mount({host,schema,data,values: initial,formProps: {actions: false},config: {delay: 0}});node = api.node;update = async next=>api.updateData(next);destroy = ()=>api.destroy();
 }
 const until = async test=>{for (let i = 0;i < 100;i++) {if (test()) {return;} await new Promise(r=>setTimeout(r,5));}assert.ok(test(),'bounded semantic wait');};
 await until(()=>host.querySelector('li input') && node?.at('profile.tags')?.children.length === 2);

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
-const {mount} = await import('./index.mjs'),{getNode} = await import('@formkit/core');const host = document.querySelector('main'),pause = ()=>new Promise(resolve=>setTimeout(resolve,15));
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs'),{getNode} = await import('@formkit/core');const host = document.querySelector('main'),pause = ()=>new Promise(resolve=>setTimeout(resolve,15));
 let components = 0,disposed = 0;
 const panel = ({host: componentHost,renderChildren})=>{components++;const el = document.createElement('section');componentHost.append(el);renderChildren(el);return {destroy(remove = true) {disposed++;if (remove) {el.remove();}}};};
 for (let round = 0;round < 12;round++) {

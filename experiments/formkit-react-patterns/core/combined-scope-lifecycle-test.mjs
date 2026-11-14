@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
-const {mount} = await import('./index.mjs');const pause = ()=>new Promise(resolve=>setTimeout(resolve,35));
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');const pause = ()=>new Promise(resolve=>setTimeout(resolve,35));
 const schema = {$formkit: 'group',for: ['team','$teams'],name: '$team.name',key: '$team.name',children: {$el: 'fieldset',children: [{$el: 'legend',children: '$team.title'},{$formkit: 'text',name: 'same',children: {label: {$el: 'label',attrs: {for: '$id'},children: '$team.title'}}}]}};
 const host = document.querySelector('main'),api = mount({host,schema,data: {teams: [{name: 'a',title: 'First'},{name: 'b',title: 'Second'}]},values: {a: {same: 'A'},b: {same: 'B'}}});
 try {

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body></body>');for (const key of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
-const {mount,ExperimentalFormView} = await import('./index.mjs'),{Region} = await import('marionette'),{createNode,getNode} = await import('@formkit/core');
+const {mount,ExperimentalFormView} = await import('../../../packages/formkit/src/runtime/index.mjs'),{Region} = await import('marionette'),{createNode,getNode} = await import('@formkit/core');
 const hosts = [],regions = [],apis = [],views = [],borrowed = createNode({type: 'group',name: 'external'}),dead = [];const host = ()=>{const el = document.createElement('main');document.body.append(el);hosts.push(el);return el;};
 const badge = mark=>({host: componentHost,props})=>{const el = document.createElement('mark');el.dataset.owner = mark;el.textContent = props.text;componentHost.append(el);return {update: next=>el.textContent = next.text,destroy(remove = true) {dead.push(mark);if (remove) {el.remove();}}};};
 const declarations = [{$formkit: 'text',name: '$fieldName',label: '$label'},{$cmp: 'Badge',props: {text: '$label'}}];

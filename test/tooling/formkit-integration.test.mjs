@@ -37,7 +37,7 @@ test('generated FormKit artifacts are ignored while active runtime remains linte
   const eslint = new ESLint({ cwd: fileURLToPath(root) });
   assert.equal(await eslint.isPathIgnored(fileURLToPath(new URL('packages/formkit/coverage/example.js', root))), true);
   assert.equal(await eslint.isPathIgnored(fileURLToPath(new URL('packages/formkit/test/tmp/consumer.mjs', root))), true);
-  assert.equal(await eslint.isPathIgnored(fileURLToPath(new URL('experiments/formkit-react-patterns/core/index.mjs', root))), false);
+  assert.equal(await eslint.isPathIgnored(fileURLToPath(new URL('packages/formkit/src/runtime/index.mjs', root))), false);
   assert.equal(await eslint.isPathIgnored(fileURLToPath(new URL('packages/formkit/src/index.mjs', root))), false);
 });
 

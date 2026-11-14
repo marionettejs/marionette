@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict';import {createNode} from '@formkit/core';import {createSchemaController} from './schema.mjs';
+import assert from 'node:assert/strict';import {createNode} from '@formkit/core';import {createSchemaController} from '../../../packages/formkit/src/runtime/schema.mjs';
 const node = createNode({type: 'group'});let fields;
 const schema = {$formkit: 'text',bind: '$props',label: {if: '$enabled',then: '$title',else: 'Disabled'},attrs: {title: {if: '$enabled',then: 'On',else: 'Off'},'__raw__data-literal': '$keep'},inputClass: '$reset my-input',help: '$'};
 const data = {enabled: true,title: 'Explicit',props: {name: 'bound',label: 'Ignored',placeholder: 'Bound placeholder',custom: '$notAnExpression'}};

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>',{url: 'http://localhost'});for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
-const {mount} = await import('./index.mjs'),{getNode} = await import('@formkit/core');
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs'),{getNode} = await import('@formkit/core');
 const pause = ()=>new Promise(resolve=>setTimeout(resolve,15)),until = async predicate=>{for (let i = 0;i < 200;i++) {if (predicate()) {return;} await pause();}assert.ok(predicate(),'bounded async state wait');};
 const deferred = ()=>{let resolve;const promise = new Promise(done=>resolve = done);return {promise,resolve};};
 const validations = [],application = deferred(),options = deferred();let calls = 0,payload,loaderCalls = 0;

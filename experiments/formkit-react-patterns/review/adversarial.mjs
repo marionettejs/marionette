@@ -1,6 +1,6 @@
 import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><div id="a"></div><div id="b"></div>');for (const k of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver']) {globalThis[k] = dom.window[k];}
-const {mount,createStore} = await import('../core/index.mjs');const wait = ()=>new Promise(r=>setTimeout(r,30));
+const {mount,createStore} = await import('../../../packages/formkit/src/runtime/index.mjs');const wait = ()=>new Promise(r=>setTimeout(r,30));
 const s = createStore();let afterDestroy = 0;s.subscribe(()=>s.destroy());s.subscribe(()=>afterDestroy++);s.notify();await wait();
 const a = mount({host: document.querySelector('#a'),fields: [{name: 'x',label: 'A'}]});const b = mount({host: document.querySelector('#b'),fields: [{name: 'x',label: 'B'}]});await wait();
 const ids = [...document.querySelectorAll('[id]')].map(x=>x.id);const duplicateIds = ids.filter((id,i)=>ids.indexOf(id) !== i);

@@ -24,6 +24,8 @@ const eslint = new ESLint({
     }
   }]
 });
+const sourceRoot = fileURLToPath(new URL('../src/', import.meta.url));
+if (runtimeFiles.some(file => !file.startsWith(sourceRoot))) {throw new Error('FormKit runtime must be owned by packages/formkit/src');}
 const targets = [
   ...runtimeFiles,
   'packages/formkit/src/**/*.mjs', 'packages/formkit/scripts/**/*.mjs',

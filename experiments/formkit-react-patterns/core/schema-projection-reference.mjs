@@ -25,7 +25,7 @@ export async function mountProjectionReference(arm,host,schema,data = {}) {
     destroy = ()=>flushSync(()=>root.unmount());flushSync(()=>root.render(React.createElement(App)));
     update = async next=>{flushSync(()=>setData(next));await settle();};
   } else {
-    const {mount} = await import('./index.mjs');
+    const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');
     const api = mount({host,schema,data,plugins: [capture],config: {delay: 0},formProps: {actions: false},onSubmit: formProps.onSubmit,onSubmitInvalid: formProps.onSubmitInvalid});
     node = api.node;destroy = ()=>api.destroy();update = async next=>{api.updateData(next);await settle();};
   }

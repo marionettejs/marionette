@@ -15,7 +15,7 @@ const wait = ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function until(test) {for (let i = 0;i < 120;i++) {if (test()) {return;} await wait(5);}assert.ok(test(),'semantic wait');}
 try {
   if (arm === 'adapter') {
-    const {mount} = await import('./index.mjs');
+    const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');
     const api = mount({host,schema: {$cmp: 'FormKitSchema',props: {schema: '$declaration',memoKey: '$memo'}},data: {declaration: declaration('Go'),memo: 'one'},plugins: [capture],config: {delay: 0},formProps: {actions: false}});
     node = api.node;set = ()=>api.updateData({declaration: [...declaration('Continue'),{$cmp: 'FormKit',props: {type: 'text',name: 'added'}}],memo: 'two'});destroy = ()=>api.destroy();
   } else if (arm === 'vue') {

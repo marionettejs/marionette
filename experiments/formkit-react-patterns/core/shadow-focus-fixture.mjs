@@ -1,4 +1,4 @@
-import {mount} from './index.mjs';
+import {mount} from '../../../packages/formkit/src/runtime/index.mjs';
 import {getNode} from '@formkit/core';
 const check = (test,message)=>{if (!test) {throw new Error(message);}},settle = ()=>new Promise(resolve=>setTimeout(resolve,20));
 export async function runShadowFocus(host,mode) {

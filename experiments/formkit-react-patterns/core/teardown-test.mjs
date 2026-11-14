@@ -1,6 +1,6 @@
 import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
 const dom = new JSDOM('<body><div id="host"></div>');for (const k of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver']) {globalThis[k] = dom.window[k];}
-const {mount} = await import('./index.mjs');const {getNode} = await import('@formkit/core');const tick = ()=>new Promise(r=>setTimeout(r,10));const host = document.querySelector('#host');
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');const {getNode} = await import('@formkit/core');const tick = ()=>new Promise(r=>setTimeout(r,10));const host = document.querySelector('#host');
 const results = [];
 for (const count of [200,400]) {
   const api = mount({instrument: true,host,count});await tick();const nodes = [api.node,...api.node.children],ids = nodes.map(n=>n.props.id),order = [];let parentCommits = 0;

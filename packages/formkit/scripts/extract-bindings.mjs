@@ -3,7 +3,7 @@ import {readFileSync,writeFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
 import {ESLint} from 'eslint';
-const require = createRequire(import.meta.url);
+const require = createRequire(new URL('../../../experiments/formkit-react-patterns/package.json',import.meta.url));
 const pkg = JSON.parse(readFileSync(require.resolve('@formkit/react/package.json'),'utf8'));
 if (pkg.version !== '2.5.0') {throw Error('Extraction requires published React2.5.0');}
 const source = readFileSync(new URL('./dist/index.mjs','file://' + require.resolve('@formkit/react/package.json')),'utf8');
@@ -54,10 +54,10 @@ body = body.replace('var formKitReactiveStoreSymbol;', 'let formKitReactiveStore
 const unformatted = header + body + '\ninitializeBindings();\nexport {bindingsDefault as bindings, subscribeReactiveStore, getReactiveStore};\n';
 // Apply only the reviewed control-flow blocks and deterministic layout fixes.
 const options = {cwd: fileURLToPath(new URL('../../../',import.meta.url)),overrideConfigFile: fileURLToPath(new URL('../../../eslint.config.mjs',import.meta.url))};
-const filePath = fileURLToPath(new URL('./upstream-bindings.mjs',import.meta.url));
+const filePath = fileURLToPath(new URL('../src/runtime/upstream-bindings.mjs',import.meta.url));
 const blocks = new ESLint({...options,fix: message => message.ruleId === 'curly'});
 const [blocked] = await blocks.lintText(unformatted,{filePath});
 const layout = new ESLint({...options,fix: true,fixTypes: ['layout']});
 const [formatted] = await layout.lintText(blocked.output ?? unformatted,{filePath});
 const result = formatted.output ?? unformatted;
-if (process.argv[2]) {writeFileSync(process.argv[2],result);} else if (readFileSync(new URL('./upstream-bindings.mjs',import.meta.url),'utf8') !== result) {throw Error('Extracted source differs');} else {console.log('Exact source extraction matches');}
+if (process.argv[2]) {writeFileSync(process.argv[2],result);} else if (readFileSync(new URL('../src/runtime/upstream-bindings.mjs',import.meta.url),'utf8') !== result) {throw Error('Extracted source differs');} else {console.log('Exact source extraction matches');}

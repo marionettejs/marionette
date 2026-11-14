@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body></body>',{url: 'http://localhost'});for (const k of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','HTMLInputElement','HTMLTextAreaElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[k] = dom.window[k];}
-const {mount,ExperimentalFormView,defaultConfig} = await import('./index.mjs');const {Region} = await import('marionette');const {createNode,getNode} = await import('@formkit/core');
+const {mount,ExperimentalFormView,defaultConfig} = await import('../../../packages/formkit/src/runtime/index.mjs');const {Region} = await import('marionette');const {createNode,getNode} = await import('@formkit/core');
 const hosts = [],apis = [],regions = [];const host = (parent = document.body)=>{const h = document.createElement('main');parent.append(h);hosts.push(h);return h;};const wait = ms=>new Promise(r=>setTimeout(r,ms));async function until(fn) {for (let i = 0;i < 120;i++) {if (fn()) {return;} await wait(5);}assert.ok(fn(),'semantic wait');}
 const leaf = (name,extra = {})=>({$formkit: 'text',name,...extra});const schema = (value,data,extra = {})=>({$cmp: 'FormKitSchema',props: {'__raw__schema': value,...data === undefined ? {} : {'__raw__data': data},...extra}});const root = children=>({$cmp: 'FormKitRoot',children});const create = options=>{const api = mount({host: host(),formProps: {actions: false},...options});apis.push(api);return api;};const checks = [];
 try {

@@ -23,7 +23,7 @@ export async function mountSchemaReference(arm,host) {
   } else if (arm === 'current') {
     const {FormView} = await import('../current-303ddfbb/index.mjs');const {Region} = await import('marionette');const form = new FormView({values: initial,schema: conditionalSchema,schemaData: {values: initial},config: {delay: 0},formProps: {actions: false}});const region = new Region({el: host});region.show(form);node = form.node;receipt = followValues(node,value=>form.setSchemaData({values: value}));dispose = ()=>region.destroy();
   } else {
-    const {mount} = await import('../core/index.mjs');const api = mount({host,schema: conditionalSchema,values: initial,formProps: {actions: false}});node = api.node;dispose = ()=>api.destroy();
+    const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');const api = mount({host,schema: conditionalSchema,values: initial,formProps: {actions: false}});node = api.node;dispose = ()=>api.destroy();
   }
   return {get node() {return node},destroy: ()=>{if (receipt) {receipt();}dispose()}};
 }

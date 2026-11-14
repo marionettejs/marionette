@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<main></main>');globalThis.document = dom.window.document;
-const {renderSections} = await import('./section-renderer.mjs');
+const {renderSections} = await import('../../../packages/formkit/src/runtime/section-renderer.mjs');
 const host = document.querySelector('main');let starts = 0,moves = 0;
 const context = {handlers: {start: event=>{starts++;event.preventDefault();},move: ()=>{moves++;}}};
 // These exact schema event spellings are present in @formkit/pro 0.131.0 rating.

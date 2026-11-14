@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
-const {mount,ExperimentalFormView} = await import(process.env.FORMKIT_TEST_MODULE ?? './index.mjs');
+const {mount,ExperimentalFormView} = await import(process.env.FORMKIT_TEST_MODULE ?? '../../../packages/formkit/src/runtime/index.mjs');
 const {getNode} = await import('@formkit/core');const host = document.querySelector('main'),pause = ()=>new Promise(resolve=>setTimeout(resolve,40));
 const cases = {
   async group() {let submitted = 0;const children = [{name: 'name'}],api = mount({host,rules: {deny: ()=>false},fields: [{name: 'profile',type: 'group',children}],values: {profile: {name: 'Ada'}},onSubmit: ()=>submitted++});try {api.setFields([{name: 'profile',type: 'group',children,validation: 'deny'}]);await pause();assert.equal(api.node.at('profile').props.validation,'deny');await api.submit();assert.equal(submitted,0);api.setFields([{name: 'profile',type: 'group',children}]);await pause();await api.submit();assert.equal(submitted,1);} finally {api.destroy();}},

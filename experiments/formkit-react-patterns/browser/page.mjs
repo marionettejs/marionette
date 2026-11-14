@@ -1,5 +1,5 @@
 import {mountReference,mountCurrent} from '../harness/reference.mjs';
-import {mount as mountExperiment} from '../core/index.mjs';
+import {mount as mountExperiment} from '../../../packages/formkit/src/runtime/index.mjs';
 import {fields,classes,values} from '../harness/fixtures.mjs';
 const host = document.querySelector('#host'),output = document.querySelector('#result');let api;
 const arm = new URL(location.href).searchParams.get('arm') || 'experiment';const count = Number(new URL(location.href).searchParams.get('count') || 20);

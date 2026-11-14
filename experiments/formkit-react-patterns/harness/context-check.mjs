@@ -9,7 +9,7 @@ globalThis.requestAnimationFrame = dom.window.requestAnimationFrame.bind(dom.win
 const arm = process.argv[2] ?? 'vue',host = document.querySelector('#host');
 const {mountReference,mountCurrent} = await import('./reference.mjs');
 const specs = [{type: 'text',name: 'f0',label: 'Name',help: 'Enter a name',validation: 'required',validationVisibility: 'blur',classes}];
-const options = {fields: specs};const api = arm === 'current' ? await mountCurrent(host,1,options) : arm === 'experiment' ? await (await import('../core/index.mjs')).mount({host,fields: specs,values: {f0: ''},classes}) : await mountReference(arm,host,1,options);
+const options = {fields: specs};const api = arm === 'current' ? await mountCurrent(host,1,options) : arm === 'experiment' ? await (await import('../../../packages/formkit/src/runtime/index.mjs')).mount({host,fields: specs,values: {f0: ''},classes}) : await mountReference(arm,host,1,options);
 const delay = ()=>new Promise(r=>setTimeout(r,5));async function until(predicate,label) {for (let i = 0;i < 400;i++) {await delay();if (predicate()) {return;}} throw Error('Did not settle: ' + label)}
 await until(()=>api.node?.at('f0') && host.querySelector('input'),'mount');const node = api.node.at('f0'),input = host.querySelector('input');
 assert.ok(host.textContent.includes('Enter a name'));assert.ok(input.getAttribute('aria-describedby'));assert.equal([...host.querySelectorAll('li')].filter(e=>/required/i.test(e.textContent)).length,0);

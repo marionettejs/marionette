@@ -10,7 +10,7 @@ const arm = process.argv[2] ?? 'vue',count = Number(process.argv[3] ?? 20),host 
 const {mountReference,mountCurrent} = await import('./reference.mjs');
 const trackedClasses = {...classes,outer: n=>({'study-outer': true,'cross-active': n.name === 'f1' && n.at('$parent.f0')?.value === 'activate'})};
 const testFields = fields(count).map(f=>({...f,classes: trackedClasses}));
-const api = arm === 'current' ? await mountCurrent(host,count,{classes: trackedClasses,fields: testFields}) : arm === 'experiment' ? await (await import('../core/index.mjs')).mount({host,count,fields: testFields,classes: trackedClasses,values: values(count)}) : await mountReference(arm,host,count,{classes: trackedClasses,fields: testFields});
+const api = arm === 'current' ? await mountCurrent(host,count,{classes: trackedClasses,fields: testFields}) : arm === 'experiment' ? await (await import('../../../packages/formkit/src/runtime/index.mjs')).mount({host,count,fields: testFields,classes: trackedClasses,values: values(count)}) : await mountReference(arm,host,count,{classes: trackedClasses,fields: testFields});
 const delay = ()=>new Promise(r=>setTimeout(r,5));
 async function until(predicate,label) {for (let n = 0;n < 400;n++) {await delay();if (predicate()) {return;}} throw Error(`Did not settle: ${label}`)}
 await until(()=>api.node?.isSettled && host.querySelectorAll('input[type=text]').length === count,'mount');

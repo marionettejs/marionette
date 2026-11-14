@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>');globalThis.document = dom.window.document;
-const {renderSections} = await import('./section-renderer.mjs');
+const {renderSections} = await import('../../../packages/formkit/src/runtime/section-renderer.mjs');
 const host = document.querySelector('main'),context = {rows: [{id: 'a',text: 'A'},{id: 'b',text: 'B'},{id: 'c',text: 'C'}]};
 const renderer = renderSections({host,context,schema: {$el: 'label',for: ['row','idx','$rows'],attrs: {key: '$row.id','data-id': '$row.id'},children: [{$el: 'input',attrs: {value: '$row.text'}},{$el: 'b',children: '$idx'}]}});
 const original = [...host.querySelectorAll('label')];const focused = original[1].querySelector('input');focused.focus();focused.setSelectionRange(0,1);

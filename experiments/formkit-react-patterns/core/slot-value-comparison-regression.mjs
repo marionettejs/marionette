@@ -14,7 +14,7 @@ async function mountValue(initial, format, handler, initialKey = 'kept') {
   const declaration = (value, callback = handler, key = initialKey) => ({type: 'box', name: 'owner', children: [{type: 'payload', name: 'leaf', key, payload: value, format, handler: callback}]});
   let form, update, destroy;
   if (arm === 'adapter') {
-    const {mount} = await import('./index.mjs');
+    const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');
     const fields = spec => [{...spec, children: {default: spec.children.map(child => {const {type, ...props} = child; return {$formkit: type, ...props};})}}];
     const api = mount({host, fields: fields(declaration(initial)), ...configOptions, formProps: {actions: false}});
     form = api.node; update = spec => api.setFields(fields(spec)); destroy = () => api.destroy();

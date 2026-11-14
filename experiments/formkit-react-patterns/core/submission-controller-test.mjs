@@ -6,7 +6,7 @@ for (const key of ['window','document','Node','Element','HTMLElement','HTMLInput
 globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
 const {FormView,SubmissionError} = await import('../current-303ddfbb/index.mjs');
 const {createSubmissionController,SubmissionError: CompatError} = await import('./submission-controller.mjs');
-const {mount} = await import('./index.mjs');
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');
 const pause = ()=>new Promise(resolve=>setTimeout(resolve,10));
 async function until(test) {for (let i = 0;i < 100;i++) {if (test()) {return;} await pause();}assert.ok(test(),'bounded semantic wait');}
 function setup(arm,callback,valid = true) {

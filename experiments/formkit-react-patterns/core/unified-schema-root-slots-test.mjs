@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>');
 for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLTextAreaElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
-const {mount} = await import('./index.mjs');const {createLayoutController} = await import('./schema-layout.mjs');
+const {mount} = await import('../../../packages/formkit/src/runtime/index.mjs');const {createLayoutController} = await import('../../../packages/formkit/src/runtime/schema-layout.mjs');
 const host = document.querySelector('main'),pause = ()=>new Promise(resolve=>setTimeout(resolve,40));
 const nodes = [],destroyed = new Map();let panels = 0,disposed = 0;
 const capture = node=>{nodes.push(node);node.on('destroyed',()=>destroyed.set(node,(destroyed.get(node) ?? 0) + 1));};
