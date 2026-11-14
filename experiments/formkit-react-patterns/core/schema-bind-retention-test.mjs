@@ -52,7 +52,7 @@ for (const syntax of ['bind','object']) {
 }
 if (selected === 'all' || selected === 'contracts') {
   for (const explicit of [false,true]) {
-    const schema = [{$cmp: 'FormKit',bind: '$fieldProps',props: explicit ? {type: 'text',name: 'override',key: 'explicit',label: '$label',placeholder: 'Explicit',__raw__help: '$literal help'} : {label: '$label'}}];
+    const schema = [{$cmp: 'FormKit',bind: '$fieldProps',props: explicit ? {type: 'text',name: 'override',key: 'explicit',label: '$label',placeholder: 'Explicit','__raw__help': '$literal help'} : {label: '$label'}}];
     const app = await mountSchema(schema,{fieldProps: {type: 'textarea',name: 'bound',key: 'bound',placeholder: 'Bound',help: 'Bound help'},label: 'Type check'});
     try {const field = app.node.at('profile.' + (explicit ? 'override' : 'bound')),input = host.querySelector('input,textarea');assert.ok(field,(explicit ? 'explicit' : 'bound') + ' field; actual names ' + app.node.at('profile').children.map(n=>n.name));assert.equal(field.props.type,explicit ? 'text' : 'textarea');assert.equal(input.tagName,explicit ? 'INPUT' : 'TEXTAREA');assert.equal(input.placeholder,explicit ? 'Explicit' : 'Bound');if (explicit) {assert.equal(field.props.help,'$literal help');}} finally {await cleanup(app);}
   }

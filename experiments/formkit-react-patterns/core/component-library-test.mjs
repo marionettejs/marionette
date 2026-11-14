@@ -6,7 +6,7 @@ const { mount } = await import('./index.mjs');
 const host = () => { const element = document.createElement('main'); document.body.append(element); return element; };
 const record = name => console.log('PASS', name);
 const libraryTarget = host(); const disposed = [];
-const badge = label => ({ host }) => { const element = document.createElement('b'); element.textContent = label; host.append(element); return { destroy() { disposed.push(label); element.remove(); } }; };
+const badge = label => ({ host: componentHost }) => { const element = document.createElement('b'); element.textContent = label; componentHost.append(element); return { destroy() { disposed.push(label); element.remove(); } }; };
 const definition = { type: 'input', schema: { $cmp: 'Badge' }, library: { Badge: badge('definition') } };
 const libraryApi = mount({ host: libraryTarget, fields: [{ name: 'custom', type: 'local' }], inputs: { local: definition }, components: { Badge: badge('global') } });
 assert.equal(libraryTarget.querySelector('b').textContent, 'definition');
@@ -19,7 +19,7 @@ assert.deepEqual(disposed, ['definition', 'field', 'definition']);
 record('factory libraries merge global < definition.library < field.library and reconcile replacement/removal');
 
 const slotTarget = host(); let mounts = 0, destroys = 0;
-const slotBadge = label => ({ host }) => { mounts++; const element = document.createElement('i'); element.textContent = label; host.append(element); return { destroy() { destroys++; element.remove(); } }; };
+const slotBadge = label => ({ host: componentHost2 }) => { mounts++; const element = document.createElement('i'); element.textContent = label; componentHost2.append(element); return { destroy() { destroys++; element.remove(); } }; };
 const slotDefinition = { type: 'input', schema: { $el: 'div', children: '$slots.suffix' }, library: { Badge: slotBadge('definition slot') } };
 const slotField = library => ({ name: 'slot', type: 'slotted', library, children: { suffix: { $cmp: 'Badge' } } });
 const slotApi = mount({ host: slotTarget, fields: [slotField()], inputs: { slotted: slotDefinition } });

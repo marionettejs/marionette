@@ -3,7 +3,7 @@ const dom = new JSDOM('<body><main></main>');for (const key of ['window','docume
 const {mount} = await import('./index.mjs'),{createNode} = await import('@formkit/core'),host = document.querySelector('main'),borrowed = createNode({name: 'borrowed',type: 'group'});const created = [],destroyed = [];
 const declaration = [{$el: 'section',for: ['row','$rows'],attrs: {key: '$row.id','data-row': '$row.id'},children: '$slots.label'}];
 const slots = {label: {$el: 'em',children: ['$prefix',': ','$row.label','$suffix']}};
-const api = mount({host,schema: {$cmp: 'FormKitSchema',props: {__raw__schema: declaration,__raw__slots: slots,data: '$payload'}},data: {payload: {prefix: 'Old',suffix: '!',rows: [{id: 'a',label: 'First'},{id: 'b',label: 'Second'}],node: borrowed}},plugins: [n=>{created.push(n);n.on('destroyed',()=>destroyed.push(n));}],formProps: {actions: false}});
+const api = mount({host,schema: {$cmp: 'FormKitSchema',props: {'__raw__schema': declaration,'__raw__slots': slots,data: '$payload'}},data: {payload: {prefix: 'Old',suffix: '!',rows: [{id: 'a',label: 'First'},{id: 'b',label: 'Second'}],node: borrowed}},plugins: [n=>{created.push(n);n.on('destroyed',()=>destroyed.push(n));}],formProps: {actions: false}});
 try {
   const first = host.querySelector('[data-row=a] em'),second = host.querySelector('[data-row=b] em');assert.deepEqual([...host.querySelectorAll('em')].map(el=>el.textContent),['Old: First!','Old: Second!']);
   api.updateData({payload: {prefix: 'New',rows: [{id: 'b',label: 'Changed'},{id: 'a',label: 'Updated'}],node: borrowed}});

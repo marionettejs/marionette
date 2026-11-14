@@ -22,8 +22,8 @@ assert.equal(host.querySelectorAll('div').length,1);assert.equal(host.querySelec
 renderer.destroy();assert.equal(host.childNodes.length,0);
 console.log('renderer breadth: 3-part/object/numeric loops, dynamic tags, recursive attrs, icons, Boolean properties, text and teardown passed');
 let destroyed = 0;context.caption = 'first';
-const componentRenderer = renderSections({host,context,components: {Badge: ({host,props,renderChildren})=>{
-  const strong = document.createElement('strong');host.append(strong);strong.textContent = props.caption;renderChildren();
+const componentRenderer = renderSections({host,context,components: {Badge: ({host: componentHost,props,renderChildren})=>{
+  const strong = document.createElement('strong');componentHost.append(strong);strong.textContent = props.caption;renderChildren();
   return {update(next) {strong.textContent = next.caption;},destroy() {destroyed++;}};
 }},schema: {$cmp: 'Badge',props: {caption: '$caption'},children: 'child'}});
 assert.equal(host.querySelector('strong').textContent,'first');assert.ok(host.textContent.includes('child'));context.caption = 'second';componentRenderer.update();assert.equal(host.querySelector('strong').textContent,'second');componentRenderer.destroy();assert.equal(destroyed,1);assert.equal(host.childNodes.length,0);

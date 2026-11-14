@@ -4,7 +4,7 @@ import { createSchemaController } from './schema.mjs';
 const node = createNode({ type: 'group', value: { enabled: true }, props: { delay: 0 } });
 let fields;
 const schema = [
-  { $formkit: '$kind', name: 'custom', label: '$title', customProp: '$format($title)', __raw__validation: '$literal' },
+  { $formkit: '$kind', name: 'custom', label: '$title', customProp: '$format($title)', '__raw__validation': '$literal' },
   { $formkit: 'text', for: ['item', 'index', '$items'], name: '$item.name', label: '$item.label', attrs: { 'data-index': '$index' } },
   { if: '$values.enabled', then: { $formkit: 'group', name: 'details', children: [{ $formkit: 'text', name: 'detail' }] } },
   { if: '$missing', then: { $formkit: 'text', name: 'notShown' }, else: { $formkit: 'text', name: 'fallback' } }

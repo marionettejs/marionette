@@ -11,13 +11,13 @@ try {
   await until(()=>validations.some(item=>item.value === 'seed'));const email = api.node.at('email'),input = api.form.el.querySelector('input');
   assert.equal(loaderCalls,0,'official free select stores a loader; it does not invent network execution');assert.equal(typeof api.node.at('choice').props.optionsLoader,'function');
   // Establish the official rule observer's dependencies before testing supersession.
-  for (const item of validations.filter(item=>item.value === 'seed')) {item.resolve(true);} await until(()=>email.ledger.value('validating') === 0);
+  for (const item of validations.filter(currentItem=>currentItem.value === 'seed')) {item.resolve(true);} await until(()=>email.ledger.value('validating') === 0);
   email.input('stale',false);await until(()=>validations.some(item=>item.value === 'stale'));
   email.input('latest',false);await until(()=>validations.some(item=>item.value === 'latest'));
-  for (const item of validations.filter(item=>item.value === 'stale')) {item.resolve(false);} await pause();assert.ok(email.ledger.value('validating') > 0);assert.equal(calls,0);
+  for (const item of validations.filter(currentItem2=>currentItem2.value === 'stale')) {item.resolve(false);} await pause();assert.ok(email.ledger.value('validating') > 0);assert.equal(calls,0);
   const pending = api.submit();await until(()=>api.node.context.state.loading);
   const deliver = options.promise.then(values=>api.setFields([fields[0],{...fields[1],options: values}]));options.resolve(['Alpha','Beta']);await deliver;await until(()=>api.node.at('choice').value === 'Alpha');
-  for (const item of validations.filter(item=>item.value === 'latest')) {item.resolve(true);}
+  for (const item of validations.filter(currentItem3=>currentItem3.value === 'latest')) {item.resolve(true);}
   await until(()=>calls === 1);assert.equal(payload.email,'latest');assert.equal(payload.choice,'Alpha');assert.equal(input.disabled,true);assert.equal(api.node.at('email'),email);
   payload.email = 'mutated callback copy';assert.equal(email.value,'latest');
   // Native reset changes state/value; it does not cancel the application callback.

@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import {setupProjectionDom,settle,mountProjectionReference} from './schema-projection-reference.mjs';
 const dom = setupProjectionDom(),arm = process.argv[2] ?? 'experiment',surface = process.argv[3] ?? 'document';let host = document.querySelector('main');if (surface === 'shadow') {host = host.attachShadow({mode: 'open'}).appendChild(document.createElement('article'));}
 const cases = [
-  {name: 'raw-name',props: {__raw__name: 'overridden',label: '$caption'},expected: 'overridden'},
-  {name: 'raw-key',anonymous: true,props: {__raw__key: 'explicit-key',label: '$caption'}},
-  {name: 'raw-literal-name',props: {__raw__name: '$literal-name',label: '$caption'},expected: '$literal-name'},
-  {name: 'raw-name-last',props: {name: 'ordinary',__raw__name: 'raw-last',label: '$caption'},expected: 'raw-last'},
-  {name: 'ordinary-name-last',props: {__raw__name: 'raw-first',name: 'ordinary-last',label: '$caption'},expected: 'ordinary-last'},
-  {name: 'raw-key-last',anonymous: true,props: {key: '$identityKey',__raw__key: '$literal-key',label: '$caption'}},
-  {name: 'ordinary-key-last',anonymous: true,props: {__raw__key: '$literal-key',key: '$identityKey',label: '$caption'},replaces: true}
+  {name: 'raw-name',props: {'__raw__name': 'overridden',label: '$caption'},expected: 'overridden'},
+  {name: 'raw-key',anonymous: true,props: {'__raw__key': 'explicit-key',label: '$caption'}},
+  {name: 'raw-literal-name',props: {'__raw__name': '$literal-name',label: '$caption'},expected: '$literal-name'},
+  {name: 'raw-name-last',props: {name: 'ordinary','__raw__name': 'raw-last',label: '$caption'},expected: 'raw-last'},
+  {name: 'ordinary-name-last',props: {'__raw__name': 'raw-first',name: 'ordinary-last',label: '$caption'},expected: 'ordinary-last'},
+  {name: 'raw-key-last',anonymous: true,props: {key: '$identityKey','__raw__key': '$literal-key',label: '$caption'}},
+  {name: 'ordinary-key-last',anonymous: true,props: {'__raw__key': '$literal-key',key: '$identityKey',label: '$caption'},replaces: true}
 ];
 const observations = [];
 try {

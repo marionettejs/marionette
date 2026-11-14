@@ -23,7 +23,7 @@ if (process.env.BASELINE) {
   process.exit(0);
 }
 
-const { FormKitMessages, FormKitSummary, FormKitIcon } = await import('./helper-components.mjs');
+const { FormKitMessages: formKitMessages, FormKitSummary: formKitSummary, FormKitIcon: formKitIcon } = await import('./helper-components.mjs');
 const { createMessage } = await import('@formkit/core');
 const { iconRegistry } = await import('@formkit/themes');
 
@@ -89,7 +89,7 @@ record('summary subscribes to added descendants and drops removed descendants');
 
 // Messages uses Core context.messages, not raw store: hidden validation stays hidden.
 const messagesHost = host();
-const outlet = FormKitMessages({ host: messagesHost, props: { node: first } });
+const outlet = formKitMessages({ host: messagesHost, props: { node: first } });
 assert.equal(first.context.defaultMessagePlacement, false);
 assert.equal(messagesHost.querySelector('li').id, 'helper-first-rule_required');
 first.store.set(createMessage({ key: 'live', type: 'error', value: 'Live error' })); await tick();
@@ -98,7 +98,7 @@ first.store.set(createMessage({ key: 'live', type: 'error', value: 'Changed live
 assert.ok(messagesHost.textContent.includes('Changed live error'));
 first.store.remove('live'); await tick();
 assert.ok(!messagesHost.textContent.includes('live error'));
-const secondOutlet = FormKitMessages({ host: host(), props: { node: first } });
+const secondOutlet = formKitMessages({ host: host(), props: { node: first } });
 outlet.destroy(); assert.equal(first.context.defaultMessagePlacement, false);
 secondOutlet.destroy(); await tick();
 assert.equal(first.context.defaultMessagePlacement, true);
@@ -109,7 +109,7 @@ const other = mount({ host: otherTarget, fields: [{ name: 'other', id: 'helper-o
 await tick();
 const otherNode = other.node.at('other');
 const swapHost = host();
-const swap = FormKitMessages({ host: swapHost, props: { node: first } });
+const swap = formKitMessages({ host: swapHost, props: { node: first } });
 swap.update({ node: otherNode, defaultPosition: true, sectionsSchema: { messages: { attrs: { 'data-outlet': 'changed' } } } });
 await tick();
 assert.equal(first.context.defaultMessagePlacement, true);
@@ -128,7 +128,7 @@ record('messages rebinds node/defaultPosition/sections and clears immediately on
 // Observe teardown through later submissions and updates, without private spies.
 const directSummaryHost = host();
 let directShows = 0;
-const directSummary = FormKitSummary({ host: directSummaryHost, props: { node: api.node, forceShow: true, onShow: () => directShows++ } });
+const directSummary = formKitSummary({ host: directSummaryHost, props: { node: api.node, forceShow: true, onShow: () => directShows++ } });
 directSummary.destroy(); directSummary.destroy();
 api.node.emit('submit-raw');
 first.store.set(createMessage({ key: 'after-summary-destroy', type: 'error', value: 'Changed after summary destroy' })); await tick();
@@ -156,7 +156,7 @@ record('icon uses official registry and supports reactive props, keyboard clicks
 const pending = new Map();
 const loader = name => new Promise((resolve, reject) => pending.set(name, { resolve, reject }));
 const asyncHost = host();
-const asyncIcon = FormKitIcon({ host: asyncHost, props: { icon: 'helper-slow-one', iconLoader: loader } });
+const asyncIcon = formKitIcon({ host: asyncHost, props: { icon: 'helper-slow-one', iconLoader: loader } });
 await tick(); assert.ok(pending.has('helper-slow-one'));
 asyncIcon.update({ icon: 'helper-fast-two', iconLoader: loader }); await tick();
 pending.get('helper-fast-two').resolve('<svg><circle r="2"/></svg>'); await tick();
@@ -173,14 +173,14 @@ assert.equal(asyncHost.children.length, 0);
 record('icon drops stale async results, handles loader rejection and ignores post-destroy completion');
 
 const unsafeHost = host();
-const unsafe = FormKitIcon({ host: unsafeHost, props: { icon: '<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><script>alert(1)</script><foreignObject><div>bad</div></foreignObject><use href="https://evil.test/a"/><path style="fill:url(https://evil.test/a)" onclick="alert(1)" fill="url(https://evil.test/a)" d="M0 0"/></svg>', innerHTML: '<script>bad</script>' } });
+const unsafe = formKitIcon({ host: unsafeHost, props: { icon: '<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><script>alert(1)</script><foreignObject><div>bad</div></foreignObject><use href="https://evil.test/a"/><path style="fill:url(https://evil.test/a)" onclick="alert(1)" fill="url(https://evil.test/a)" d="M0 0"/></svg>', innerHTML: '<script>bad</script>' } });
 assert.ok(unsafeHost.querySelector('svg path'));
 assert.equal(unsafeHost.querySelector('script,foreignObject,[onload],[onclick],[style],[href],[fill]'), null);
 unsafe.update({ icon: '<img src=x onerror=alert(1)>' });
 assert.equal(unsafeHost.querySelector('img,svg'), null);
 unsafe.destroy();
 const keyHost = host(); let preventedClicks = 0;
-const keyboardIcon = FormKitIcon({ host: keyHost, props: { icon: svg, onClick: () => preventedClicks++, onKeyDown: event => event.preventDefault(), role: 'switch', tabIndex: 4 } });
+const keyboardIcon = formKitIcon({ host: keyHost, props: { icon: svg, onClick: () => preventedClicks++, onKeyDown: event => event.preventDefault(), role: 'switch', tabIndex: 4 } });
 keyHost.querySelector('span').dispatchEvent(new KeyboardEvent('keydown', { key: ' ', cancelable: true }));
 assert.equal(preventedClicks, 0); assert.equal(keyHost.querySelector('span').getAttribute('role'), 'switch');
 keyboardIcon.destroy();
@@ -190,7 +190,7 @@ record('icon sanitizes arbitrary markup and honors explicit keyboard/role/tabind
 // Parent loader takes precedence over a helper URL; explicit helper loader wins.
 const precedenceHost = host(); const loaderCalls = [];
 first.props.iconLoader = name => { loaderCalls.push(`parent:${name}`); return svg; };
-const precedenceIcon = FormKitIcon({ host: precedenceHost, parentNode: first, props: { icon: 'helper-parent-loader', iconLoaderUrl: () => { throw new Error('parent loader must win'); } } });
+const precedenceIcon = formKitIcon({ host: precedenceHost, parentNode: first, props: { icon: 'helper-parent-loader', iconLoaderUrl: () => { throw new Error('parent loader must win'); } } });
 await tick(); assert.deepEqual(loaderCalls, ['parent:helper-parent-loader']);
 precedenceIcon.update({ icon: 'helper-explicit-loader', iconLoader: name => { loaderCalls.push(`explicit:${name}`); return '<svg><circle r="3"/></svg>'; } });
 await tick(); assert.ok(precedenceHost.querySelector('circle'));
@@ -198,7 +198,7 @@ assert.equal(loaderCalls[1], 'explicit:helper-explicit-loader');
 precedenceIcon.destroy(); first.props.iconLoader = undefined;
 const defaultFetch = globalThis.fetch; let requestedUrl;
 globalThis.fetch = async url => { requestedUrl = url; return { text: async() => svg }; };
-const urlIcon = FormKitIcon({ host: precedenceHost, props: { icon: 'helper-url-loader', iconLoaderUrl: name => `https://icons.example.test/${name}.svg` } });
+const urlIcon = formKitIcon({ host: precedenceHost, props: { icon: 'helper-url-loader', iconLoaderUrl: name => `https://icons.example.test/${name}.svg` } });
 await tick(); assert.equal(requestedUrl, 'https://icons.example.test/helper-url-loader.svg'); assert.ok(precedenceHost.querySelector('svg'));
 urlIcon.destroy(); globalThis.fetch = defaultFetch;
 record('icon honors explicit/parent loader precedence and official iconLoaderUrl resolution');
@@ -206,7 +206,7 @@ record('icon honors explicit/parent loader precedence and official iconLoaderUrl
 const rebindApi = mount({ host: host(), fields: [{ name: 'new', id: 'summary-new' }] });
 rebindApi.node.at('new').store.set(createMessage({ key: 'server', type: 'error', value: 'Rebound summary error' })); await tick();
 const rebindHost = host();
-const reboundSummary = FormKitSummary({ host: rebindHost, props: { node: api.node, forceShow: true } });
+const reboundSummary = formKitSummary({ host: rebindHost, props: { node: api.node, forceShow: true } });
 reboundSummary.update({ node: rebindApi.node, forceShow: true, sectionsSchema: { summaryHeader: { $el: 'h3' } } });
 await tick(); assert.equal(rebindHost.querySelectorAll('a').length, 1); assert.ok(rebindHost.querySelector('h3'));
 assert.equal(rebindHost.querySelector('a').getAttribute('href'), '#summary-new');
@@ -216,12 +216,12 @@ rebindApi.destroy(); await tick(); assert.equal(rebindHost.children.length, 0); 
 record('summary rebinds node and sections without retaining old tree presentation');
 
 const pendingParentHost = host();
-const pendingParentIcon = FormKitIcon({ host: pendingParentHost, parentNode: first, props: { icon: 'helper-parent-destroy', iconLoader: loader } });
+const pendingParentIcon = formKitIcon({ host: pendingParentHost, parentNode: first, props: { icon: 'helper-parent-destroy', iconLoader: loader } });
 await tick(); assert.ok(pending.has('helper-parent-destroy'));
 api.destroy(); await tick(); assert.equal(target.children.length, 0);
 pending.get('helper-parent-destroy').resolve(svg); await tick();
 assert.equal(pendingParentHost.children.length, 0); pendingParentIcon.destroy();
 record('icon cancels pending rendering when its Core parent is destroyed');
 assert.equal(networkCalls, 0);
-assert.throws(() => FormKitSummary({ host: host(), props: {} }), /must have a FormKit parent/);
+assert.throws(() => formKitSummary({ host: host(), props: {} }), /must have a FormKit parent/);
 console.log(JSON.stringify({ mode: 'after', newlySupportedComponents: ['FormKitSummary', 'FormKitMessages', 'FormKitIcon'], assertions: results }));

@@ -7,7 +7,7 @@ const host = document.querySelector('main'),pause = ()=>new Promise(resolve=>set
 let created = 0,destroyed = 0;
 const api = mount({host,fields: [{name: 'text',label: 'Original',help: 'Original help'},{name: 'repeat',type: 'repeatSlot',value: ['A','B']}],inputs: {
   repeatSlot: {type: 'input',schema: {$el: 'section',children: {$el: 'span',for: ['row','$_value'],children: {if: '$slots.item',then: '$slots.item'}}}},
-},components: {Badge: ({host,props})=>{created++;const el = document.createElement('b');el.textContent = props.text;host.append(el);return {destroy() {destroyed++;}};}}});
+},components: {Badge: ({host: componentHost,props})=>{created++;const el = document.createElement('b');el.textContent = props.text;componentHost.append(el);return {destroy() {destroyed++;}};}}});
 const badge = text=>({$cmp: 'Badge',props: {text}});
 try {
   await pause();const textNode = api.node.at('text'),repeatNode = api.node.at('repeat'),input = host.querySelector('input');

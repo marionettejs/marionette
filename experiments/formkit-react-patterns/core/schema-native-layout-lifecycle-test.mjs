@@ -2,7 +2,7 @@ import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
 const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver']) {globalThis[key] = dom.window[key];}globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
 const {mount} = await import('./index.mjs');const {createLayoutController} = await import('./schema-layout.mjs');
 const host = document.querySelector('main'),tick = async()=>{for (let i = 0;i < 6;i++) {await new Promise(resolve=>setTimeout(resolve,0));}};
-let made = 0,destroyed = 0;const components = {Panel: ({props,host,renderChildren})=>{made++;const el = document.createElement('article');el.dataset.title = props.title;host.append(el);renderChildren(el);return {update(next) {el.dataset.title = next.title;},destroy() {destroyed++;}};}};
+let made = 0,destroyed = 0;const components = {Panel: ({props,host: componentHost,renderChildren})=>{made++;const el = document.createElement('article');el.dataset.title = props.title;componentHost.append(el);renderChildren(el);return {update(next) {el.dataset.title = next.title;},destroy() {destroyed++;}};}};
 const schema = {$formkit: 'group',for: ['team','ti','$teams'],name: '$team.id',key: '$team.id',children: [{$cmp: 'Panel',props: {title: '$team.title'},children: [
   {$el: 'h2',children: '$team.title'},{$formkit: 'text',name: 'same',label: '$team.title'},
   {$formkit: 'group',children: [{$el: 'section',children: [{$formkit: 'text',name: 'nested',label: '$team.title'}]}]},
