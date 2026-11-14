@@ -62,8 +62,8 @@ function subscribeReactiveStore(target, subscriber) {
     store.subscribers.delete(subscriber);
   };
 }
-var formKitReactiveStoreSymbol;
-var initReactiveStore = __esm({
+let formKitReactiveStoreSymbol;
+let initReactiveStore = __esm({
   'packages/react/src/reactiveStore.ts'() {
     formKitReactiveStoreSymbol = /* @__PURE__ */ Symbol.for(
       'FormKitReactiveStore'
@@ -147,8 +147,8 @@ function getReactListItems(node) {
     return listItemKeys.get(child.uid);
   });
 }
-var listItemKeys, nextListItemKey, reactBindings, bindingsDefault;
-var initBindings = __esm({
+let listItemKeys, nextListItemKey, reactBindings, bindingsDefault;
+let initBindings = __esm({
   'packages/react/src/bindings.ts'() {
     initReactiveStore();
     listItemKeys = /* @__PURE__ */ new Map();

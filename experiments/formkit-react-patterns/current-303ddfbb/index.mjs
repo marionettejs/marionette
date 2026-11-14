@@ -1,18 +1,18 @@
 // current-303ddfbb/src/effects.ts
-var owners = /* @__PURE__ */ new WeakMap();
-var parents = /* @__PURE__ */ new WeakMap();
-var families = /* @__PURE__ */ new WeakMap();
-var readers = /* @__PURE__ */ new WeakMap();
-var retired = /* @__PURE__ */ new WeakMap();
+let owners = /* @__PURE__ */ new WeakMap();
+let parents = /* @__PURE__ */ new WeakMap();
+let families = /* @__PURE__ */ new WeakMap();
+let readers = /* @__PURE__ */ new WeakMap();
+let retired = /* @__PURE__ */ new WeakMap();
 function effectRetirement(dependency, callback) {
   retired.set(dependency, callback);
 }
 function hasEffectReaders(dependency) {
   return !!readers.get(dependency)?.size;
 }
-var unknownMetadata = /* @__PURE__ */ new WeakSet();
-var unknownProps = /* @__PURE__ */ new WeakSet();
-var propTokens = /* @__PURE__ */ new WeakMap();
+let unknownMetadata = /* @__PURE__ */ new WeakSet();
+let unknownProps = /* @__PURE__ */ new WeakSet();
+let propTokens = /* @__PURE__ */ new WeakMap();
 function propsMetadata(node) {
   unknownProps.add(node);
   const token2 = propTokens.get(node);
@@ -34,7 +34,7 @@ function readPropsEffect(node) {
     opaqueEffect();
   }
 }
-var generatedSchemas = /* @__PURE__ */ new WeakSet();
+let generatedSchemas = /* @__PURE__ */ new WeakSet();
 function generatedSchema(schema) {
   if (schema && typeof schema === 'object') {
     generatedSchemas.add(schema);
@@ -54,7 +54,7 @@ function effectMetadata(node) {
 function resetEffectMetadata(node) {
   unknownMetadata.delete(node);
 }
-var projectionValues = /* @__PURE__ */ new WeakMap();
+let projectionValues = /* @__PURE__ */ new WeakMap();
 function effectProjection(value, producer, version, node) {
   const projection = { producer, version, valid: true };
   projectionValues.set(value, projection);
@@ -75,8 +75,8 @@ function invalidateProjection(target) {
     projection.valid = false;
   }
 }
-var active;
-var activeGraph;
+let active;
+let activeGraph;
 function effectNode(node, parent) {
   owners.set(node, node);
   parents.set(node, parent);
@@ -131,7 +131,7 @@ function notifyEffect(dependency) {
     }
   });
 }
-var OwnedEffect = class {
+let OwnedEffect = class {
   constructor(graph, callback) {
     this.graph = graph;
     this.callback = callback;
@@ -257,7 +257,7 @@ var OwnedEffect = class {
     this.graph.effects.delete(this);
   }
 };
-var BindingValue = class {
+let BindingValue = class {
   constructor(owner) {
     this.owner = owner;
     this.effect = owner.graph.create(() => {
@@ -310,7 +310,7 @@ var BindingValue = class {
     this.effect.stop();
   }
 };
-var EffectGraph = class {
+let EffectGraph = class {
   constructor(data, schedule) {
     this.schedule = schedule;
     const node = owners.get(data);
@@ -396,7 +396,7 @@ var EffectGraph = class {
     [...this.effects].forEach((effect) => effect.stop());
   }
 };
-var projections = /* @__PURE__ */ new WeakMap();
+let projections = /* @__PURE__ */ new WeakMap();
 function projectNative(component, projection) {
   projections.set(component, projection);
 }
@@ -408,7 +408,7 @@ function updateNative(component, props, data, children, force) {
   project(props, data, children, force);
   return true;
 }
-var targets = /* @__PURE__ */ new WeakSet();
+let targets = /* @__PURE__ */ new WeakSet();
 function isEffectTarget(value) {
   return !!value && typeof value === 'object' && targets.has(value);
 }
@@ -477,8 +477,8 @@ function effectTarget(target) {
 }
 
 // current-303ddfbb/src/ownership.ts
-var resources = /* @__PURE__ */ new WeakSet();
-var owners2 = /* @__PURE__ */ new WeakMap();
+let resources = /* @__PURE__ */ new WeakSet();
+let owners2 = /* @__PURE__ */ new WeakMap();
 function ownNodeResource(node) {
   resources.add(node);
   owners2.get(node)?.forEach((owner) => owner.manage(node));
@@ -489,7 +489,7 @@ function releaseNodeResource(node) {
     owner.release(node);
   }
 }
-var NodeOwnership = class {
+let NodeOwnership = class {
   constructor(nodes2) {
     this.nodes = nodes2;
   }
@@ -717,8 +717,8 @@ var NodeOwnership = class {
 };
 
 // current-303ddfbb/src/composition.ts
-var compositions = /* @__PURE__ */ new WeakMap();
-var inputSources = /* @__PURE__ */ new WeakMap();
+let compositions = /* @__PURE__ */ new WeakMap();
+let inputSources = /* @__PURE__ */ new WeakMap();
 function fieldPathKey(path) {
   return Array.isArray(path) ? path.join('.') : JSON.stringify(path);
 }
@@ -729,7 +729,7 @@ import { valueRemoved as valueRemoved2 } from '@formkit/core';
 
 // current-303ddfbb/src/core-reads.ts
 import { error } from '@formkit/core';
-var bridges = /* @__PURE__ */ new WeakMap();
+let bridges = /* @__PURE__ */ new WeakMap();
 function coreValueChanged(node, key) {
   const bridge = bridges.get(node);
   if (bridge?.alive) {
@@ -827,12 +827,12 @@ import { cloneAny, empty, eq, token, undefine } from '@formkit/utils';
 
 // current-303ddfbb/src/invalidation.ts
 import { kebab } from '@formkit/utils';
-var owners3 = /* @__PURE__ */ new WeakMap();
-var objects = /* @__PURE__ */ new WeakMap();
-var proxyTargets = /* @__PURE__ */ new WeakMap();
-var captures = /* @__PURE__ */ new WeakMap();
-var defaultSubmitAttrs = /* @__PURE__ */ new WeakMap();
-var inputFactories = /* @__PURE__ */ new WeakSet();
+let owners3 = /* @__PURE__ */ new WeakMap();
+let objects = /* @__PURE__ */ new WeakMap();
+let proxyTargets = /* @__PURE__ */ new WeakMap();
+let captures = /* @__PURE__ */ new WeakMap();
+let defaultSubmitAttrs = /* @__PURE__ */ new WeakMap();
+let inputFactories = /* @__PURE__ */ new WeakSet();
 function markInputFactory(factory) {
   inputFactories.add(factory);
   return factory;
@@ -840,8 +840,8 @@ function markInputFactory(factory) {
 function isInputFactory(factory) {
   return inputFactories.has(factory);
 }
-var active2;
-var guardDescriptors;
+let active2;
+let guardDescriptors;
 function descriptors(object) {
   const known = guardDescriptors?.get(object);
   if (known) {
@@ -851,8 +851,8 @@ function descriptors(object) {
   guardDescriptors?.set(object, result);
   return result;
 }
-var defaultRootClasses = (section) => ({ [`formkit-${kebab(section)}`]: true });
-var nativeInvalidation = () => {
+let defaultRootClasses = (section) => ({ [`formkit-${kebab(section)}`]: true });
+let nativeInvalidation = () => {
 };
 nativeInvalidation.library = (node) => {
   if (owners3.has(node)) {
@@ -1146,8 +1146,8 @@ function certifyDefaultSubmitAttrs(node, expected) {
 function releaseCapture(renderer) {
   captures.delete(renderer);
 }
-var automaticRequests = /* @__PURE__ */ new WeakMap();
-var automaticScopes = /* @__PURE__ */ new WeakSet();
+let automaticRequests = /* @__PURE__ */ new WeakMap();
+let automaticScopes = /* @__PURE__ */ new WeakSet();
 function automaticUpdate(renderer, data, mode = 'context') {
   automaticRequests.set(renderer, mode);
   try {
@@ -1171,7 +1171,7 @@ function automaticScope(scope, automatic) {
 function isAutomaticScope(scope) {
   return automaticScopes.has(scope);
 }
-var renderHints = /* @__PURE__ */ new WeakMap();
+let renderHints = /* @__PURE__ */ new WeakMap();
 function withRenderHint(node, needed, emit) {
   const previous = renderHints.get(node);
   renderHints.set(node, needed);
@@ -1185,7 +1185,7 @@ function withRenderHint(node, needed, emit) {
     }
   }
 }
-var initialComponents = /* @__PURE__ */ new WeakSet();
+let initialComponents = /* @__PURE__ */ new WeakSet();
 function markInitialComponent(component) {
   initialComponents.add(component);
 }
@@ -1263,7 +1263,7 @@ function sameClassSource(left, right) {
   }
   return a.basis === b.basis && a.contributions.every((entry, index) => entry.scalar === b.contributions[index].scalar);
 }
-var nativeBindings = (node) => {
+let nativeBindings = (node) => {
   let alive = true;
   let hasTicked = false;
   let shownValidation = false;
@@ -1591,14 +1591,14 @@ var nativeBindings = (node) => {
 // current-303ddfbb/src/schema.ts
 import { compile, deregister, getNode, stopWatch, sugar, watchRegistry } from '@formkit/core';
 import { isPojo } from '@formkit/utils';
-var scopeParents = /* @__PURE__ */ new WeakMap();
+let scopeParents = /* @__PURE__ */ new WeakMap();
 function scoped(parent, values) {
   const scope = Object.defineProperties(Object.create(parent), Object.fromEntries(Object.entries(values).map(([key, value]) => [key, { value, enumerable: true, configurable: true, writable: true }])));
   scopeParents.set(scope, parent);
   automaticScope(scope, isAutomaticScope(parent));
   return scope;
 }
-var bound = /* @__PURE__ */ new WeakMap();
+let bound = /* @__PURE__ */ new WeakMap();
 function tokenValue(scope, token2) {
   const parts = token2.split('.');
   const parent = scopeParents.get(scope);
@@ -1840,8 +1840,8 @@ function prepareListeners(record, entries) {
     listeners.clear();
   }
 }
-var collectionEffects = /* @__PURE__ */ new WeakMap();
-var collectionSources = /* @__PURE__ */ new WeakMap();
+let collectionEffects = /* @__PURE__ */ new WeakMap();
+let collectionSources = /* @__PURE__ */ new WeakMap();
 function cleanup(record, remove = true) {
   record.effect?.stop();
   if (record.children) {
@@ -2544,7 +2544,7 @@ function sameProjection(left, right) {
   const keys2 = Object.keys(a);
   return keys2.length === Object.keys(b).length && keys2.every((key) => Object.hasOwn(b, key) && sameProjection(a[key], b[key]));
 }
-var commonProps = /* @__PURE__ */ new Set([
+let commonProps = /* @__PURE__ */ new Set([
   ...runtimeProps,
   'help',
   'label',
@@ -2592,7 +2592,7 @@ function inheritScope(data, scope, application = false) {
   automaticScope(inherited, isAutomaticScope(scope));
   return inherited;
 }
-var nextId = 0;
+let nextId = 0;
 function inputFactory(parent, options, decorate) {
   const factory = ({ document, props, data, children }) => {
     props = inputProps(props);
@@ -2893,9 +2893,9 @@ function mountFormSchema(form, root, options) {
 // current-303ddfbb/src/row-ownership.ts
 import { View } from 'marionette';
 import { createNode as createNode2, valueRemoved } from '@formkit/core';
-var roots = /* @__PURE__ */ new WeakMap();
-var lists = /* @__PURE__ */ new WeakMap();
-var rowNodes = /* @__PURE__ */ new WeakMap();
+let roots = /* @__PURE__ */ new WeakMap();
+let lists = /* @__PURE__ */ new WeakMap();
+let rowNodes = /* @__PURE__ */ new WeakMap();
 function connectRows(root, bridge) {
   roots.set(root, { bridge, lists: /* @__PURE__ */ new Set() });
 }
@@ -3060,7 +3060,7 @@ function prepareRowReset(root, values) {
     }
   }
 }
-var RowView = class extends View {
+let RowView = class extends View {
   #rowOptions;
   #owner;
   #entry;
@@ -3257,7 +3257,7 @@ import { cloneAny as cloneAny3, eq as eq3, isPojo as isPojo3, undefine as undefi
 
 // current-303ddfbb/src/schema-view.ts
 import { View as View2 } from 'marionette';
-var SchemaView = class extends View2 {
+let SchemaView = class extends View2 {
   #schemaOptions;
   #renderer;
   #resource;
@@ -3365,8 +3365,8 @@ var SchemaView = class extends View2 {
 // current-303ddfbb/src/view-components.ts
 import { View as View3, CollectionView } from 'marionette';
 import { isNode as isNode3 } from '@formkit/core';
-var immutable = ['type', 'id', 'plugins', 'config', 'name', 'parent', 'preserve', 'ignore'];
-var nextRegion = 0;
+let immutable = ['type', 'id', 'plugins', 'config', 'name', 'parent', 'preserve', 'ignore'];
+let nextRegion = 0;
 function createViewComponents({ getForm, getOwner = getForm, getParent, registrations }) {
   const registry = Object.fromEntries(Object.entries(registrations).map(([name, spec]) => [name, (context) => {
     const { document, data, children } = context;
@@ -3531,7 +3531,7 @@ function fieldsSchema(definitions, path = []) {
     };
   });
 }
-var SubmissionError = class extends Error {
+let SubmissionError = class extends Error {
   fieldErrors;
   constructor(message, fieldErrors = {}) {
     super(message);
@@ -3744,7 +3744,7 @@ function validateNames(definitions) {
     }
   }
 }
-var FormView = class extends View4 {
+let FormView = class extends View4 {
   node;
   formOptions;
   receipts = [];
@@ -4398,7 +4398,7 @@ var FormView = class extends View4 {
     this.receipts = [];
   }
 };
-var FieldView = class extends View4 {
+let FieldView = class extends View4 {
   fieldOptions;
   mount;
   released = false;
