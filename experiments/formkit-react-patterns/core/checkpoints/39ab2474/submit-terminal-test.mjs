@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom';
 import assert from 'node:assert/strict';
 const dom = new JSDOM('<body><div id="host"></div>');
-for (const key of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver'])globalThis[key] = dom.window[key];
+for (const key of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver']) {globalThis[key] = dom.window[key];}
 const {mount} = await import('./index.mjs');const tick = ()=>new Promise(r=>setTimeout(r,25));const host = document.querySelector('#host');
 let instance,valid = 0;
 instance = mount({host,count: 1,values: {field0: 'yes'},onSubmitRaw: ()=>instance.destroy(),onSubmit: ()=>valid++});await tick();await instance.submit();assert.equal(valid,0);assert.equal(instance.form.isDestroyed(),true);

@@ -2,7 +2,7 @@ import {JSDOM} from 'jsdom';
 import assert from 'node:assert/strict';
 import {fields,classes,values} from './fixtures.mjs';
 const dom = new JSDOM('<!doctype html><html><body><main id="host"></main></body></html>',{url: 'https://example.test',pretendToBeVisual: true});
-for (const key of ['window','document','HTMLElement','Element','Node','Document','ShadowRoot','MutationObserver','Event','CustomEvent','HTMLInputElement']) globalThis[key] = dom.window[key];
+for (const key of ['window','document','HTMLElement','Element','Node','Document','ShadowRoot','MutationObserver','Event','CustomEvent','HTMLInputElement']) {globalThis[key] = dom.window[key];}
 Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
 globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);globalThis.SVGElement = dom.window.SVGElement;
 globalThis.requestAnimationFrame = dom.window.requestAnimationFrame.bind(dom.window);globalThis.cancelAnimationFrame = dom.window.cancelAnimationFrame.bind(dom.window);
@@ -10,7 +10,7 @@ const arm = process.argv[2] ?? 'vue',count = Number(process.argv[3] ?? 20),host 
 const {mountReference,mountCurrent} = await import('./reference.mjs');
 const api = arm === 'current' ? await mountCurrent(host,count) : arm === 'experiment' ? await (await import('../core/index.mjs')).mount({host,count,fields: fields(count),classes,values: values(count)}) : await mountReference(arm,host,count);
 const delay = ()=>new Promise(r=>setTimeout(r,5));
-async function until(predicate,label) {for (let n = 0;n < 400;n++) {await delay();if (predicate()) return;} throw Error(`Did not settle: ${label}`)}
+async function until(predicate,label) {for (let n = 0;n < 400;n++) {await delay();if (predicate()) {return;}} throw Error(`Did not settle: ${label}`)}
 await until(()=>api.node?.isSettled && host.querySelectorAll('input[type=text]').length === count,'mount');
 assert.equal(Object.keys(api.node.value).length,count);
 await until(()=>host.querySelectorAll('[id$="-rule_required"]').length === count || [...host.querySelectorAll('li')].filter(e=>/required/i.test(e.textContent)).length === count,'required validation messages');
@@ -18,7 +18,7 @@ assert.equal(host.querySelectorAll('input.study-input').length,count);
 for (const el of host.querySelectorAll('input')) {
   assert.ok(host.querySelector(`label[for="${el.id}"]`),'associated label');
   assert.ok(el.getAttribute('aria-describedby'),'associated validation');
-  for (const id of el.getAttribute('aria-describedby').split(' ')) assert.ok(document.getElementById(id),'description target exists');
+  for (const id of el.getAttribute('aria-describedby').split(' ')) {assert.ok(document.getElementById(id),'description target exists');}
 }
 const input = host.querySelectorAll('input[type=text]')[Math.floor(count / 2)];const key = `f${Math.floor(count / 2)}`;
 input.focus();

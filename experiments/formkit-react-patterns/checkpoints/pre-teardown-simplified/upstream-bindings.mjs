@@ -10,7 +10,7 @@ function isObject2(value) {
   return typeof value === 'object' && value !== null;
 }
 function getReactiveStore(target) {
-  if (!isObject2(target)) return void 0;
+  if (!isObject2(target)) {return void 0;}
   return target[formKitReactiveStoreSymbol];
 }
 function ensureReactiveStore(target) {
@@ -18,7 +18,7 @@ function ensureReactiveStore(target) {
     throw new Error('FormKit reactive stores can only be attached to objects.');
   }
   const existing = getReactiveStore(target);
-  if (existing) return existing;
+  if (existing) {return existing;}
   const store = {
     version: 0,
     dead: false,
@@ -35,26 +35,28 @@ function ensureReactiveStore(target) {
 }
 function notifyReactiveStore(target) {
   const store = getReactiveStore(target);
-  if (!store || store.dead) return;
+  if (!store || store.dead) {return;}
   store.version++;
-  if (store.pending) return;
+  if (store.pending) {return;}
   store.pending = true;
   queueMicrotask(() => {
     store.pending = false;
     const subscribers = Array.from(store.subscribers);
-    subscribers.forEach((subscriber) => { if (store.subscribers.has(subscriber)) subscriber(); });
+    subscribers.forEach((subscriber) => { if (store.subscribers.has(subscriber)) {subscriber();} });
   });
 }
 function clearReactiveStore(target) {
   const store = getReactiveStore(target);
-  if (!store) return;
+  if (!store) {return;}
   store.dead = true;
   store.subscribers.clear();
 }
 function subscribeReactiveStore(target, subscriber) {
   const store = getReactiveStore(target);
-  if (!store || store.dead) return () => {
-  };
+  if (!store || store.dead) {
+    return () => {
+    };
+  }
   store.subscribers.add(subscriber);
   return () => {
     store.subscribers.delete(subscriber);
@@ -69,8 +71,8 @@ var init_reactiveStore = __esm({
   }
 });
 function computeValidationVisible(context, validationVisibility, hasShownErrors) {
-  if (!context.state) return false;
-  if (context.state.submitted) return true;
+  if (!context.state) {return false;}
+  if (context.state.submitted) {return true;}
   if (!hasShownErrors && !context.state.settled) {
     return false;
   }
@@ -116,19 +118,19 @@ function isPlainObject2(value) {
 function shallowEqualObjects2(a, b) {
   const aKeys = Object.keys(a);
   const bKeys = Object.keys(b);
-  if (aKeys.length !== bKeys.length) return false;
+  if (aKeys.length !== bKeys.length) {return false;}
   for (const key of aKeys) {
-    if (!Object.prototype.hasOwnProperty.call(b, key)) return false;
-    if (!Object.is(a[key], b[key])) return false;
+    if (!Object.prototype.hasOwnProperty.call(b, key)) {return false;}
+    if (!Object.is(a[key], b[key])) {return false;}
   }
   return true;
 }
 function hasContextValueChanged(current, next) {
-  if (Object.is(current, next)) return false;
+  if (Object.is(current, next)) {return false;}
   if (Array.isArray(current) && Array.isArray(next)) {
-    if (current.length !== next.length) return true;
+    if (current.length !== next.length) {return true;}
     for (let i = 0; i < current.length; i++) {
-      if (!Object.is(current[i], next[i])) return true;
+      if (!Object.is(current[i], next[i])) {return true;}
     }
     return false;
   }
@@ -186,7 +188,7 @@ var init_bindings = __esm({
       const classObservers = new Set();
       const classes = new Proxy(cachedClasses, {
         get(target, property, receiver) {
-          if (!node || !contextAlive) return '';
+          if (!node || !contextAlive) {return '';}
           let className = Reflect.get(target, property, receiver);
           if (!className && typeof property === 'string') {
             if (!has(target, property)) {
@@ -242,7 +244,7 @@ var init_bindings = __esm({
       };
       let contextRef;
       const notifyContextMutation = () => {
-        if (contextRef) notifyReactiveStore(contextRef);
+        if (contextRef) {notifyReactiveStore(contextRef);}
       };
       const fns = createReactiveContextBag(
         {
@@ -257,7 +259,7 @@ var init_bindings = __esm({
       const handlers = createReactiveContextBag(
         {
           blur: (e) => {
-            if (!node) return;
+            if (!node) {return;}
             node.store.set(
               /* @__PURE__ */ createMessage({ key: 'blurred', visible: false, value: true })
             );
@@ -268,9 +270,9 @@ var init_bindings = __esm({
           },
           touch: () => {
             const doCompare = context.dirtyBehavior === 'compare';
-            if (node.store.dirty?.value && !doCompare) return;
+            if (node.store.dirty?.value && !doCompare) {return;}
             const dirty = !eq(node.props._init, node._value);
-            if (!dirty && !doCompare) return;
+            if (!dirty && !doCompare) {return;}
             node.store.set(
               /* @__PURE__ */ createMessage({ key: 'dirty', visible: false, value: dirty })
             );
@@ -350,8 +352,7 @@ var init_bindings = __esm({
         });
       }
       const markEmptyDirty = (payload) => {
-        if (node.type !== 'input') emptyDirty = true;
-        else context.state.empty = empty(payload);
+        if (node.type !== 'input') {emptyDirty = true;} else {context.state.empty = empty(payload);}
       };
       let valuePayload;
       let valueDirty = false;
@@ -380,7 +381,7 @@ var init_bindings = __esm({
           enumerable: true,
           configurable: true,
           get() {
-            if (_valueLinked) return context.value;
+            if (_valueLinked) {return context.value;}
             if (_valueDirty) {
               _valueCache = shallowClone(_valuePayload);
               _valueDirty = false;
@@ -466,7 +467,7 @@ var init_bindings = __esm({
         }
         (async() => {
           await node.settled;
-          if (node) node.props._init = cloneAny(node.value);
+          if (node) {node.props._init = cloneAny(node.value);}
         })();
         flush();
       });
@@ -483,14 +484,14 @@ var init_bindings = __esm({
         const propNames = Array.isArray(observe) ? observe : Object.keys(observe);
         propNames.forEach((prop) => {
           prop = camel(prop);
-          if (observedContextProps.has(prop)) return;
+          if (observedContextProps.has(prop)) {return;}
           observedContextProps.add(prop);
           if (!has(context, prop)) {
             context[prop] = node.props[prop];
           }
           node.on(`prop:${prop}`, ({ payload }) => {
             const key = prop;
-            if (!hasContextValueChanged(context[key], payload)) return;
+            if (!hasContextValueChanged(context[key], payload)) {return;}
             context[key] = payload;
             flush();
           });
@@ -518,7 +519,7 @@ var init_bindings = __esm({
       };
       observeProps(rootProps());
       function definedAs(definition3) {
-        if (definition3.props) observeProps(definition3.props);
+        if (definition3.props) {observeProps(definition3.props);}
       }
       node.props.definition && definedAs(node.props.definition);
       node.on('added-props', ({ payload }) => observeProps(payload));
@@ -540,7 +541,7 @@ var init_bindings = __esm({
         pendingDOMInputValue = void 0;
         markEmptyDirty(payload);
         queueMicrotask(() => {
-          if (node) node.emit('modelUpdated');
+          if (node) {node.emit('modelUpdated');}
         });
         flush();
       });
@@ -602,13 +603,13 @@ var init_bindings = __esm({
         context.state.errors = true;
         flush();
       });
-      context.refreshClasses = () => { if (!contextAlive) return; for (const observed of classObservers) observed.kill(); classObservers.clear(); for (const key of Object.keys(cachedClasses)) delete cachedClasses[key]; notifyReactiveStore(context); };
+      context.refreshClasses = () => { if (!contextAlive) {return;} for (const observed of classObservers) {observed.kill();} classObservers.clear(); for (const key of Object.keys(cachedClasses)) {delete cachedClasses[key];} notifyReactiveStore(context); };
       node.context = context;
       flush();
       node.emit('context', node, false);
       node.on('destroyed', () => {
         contextAlive = false;
-        for (const observed of classObservers) observed.kill();
+        for (const observed of classObservers) {observed.kill();}
         classObservers.clear();
         clearReactiveStore(context);
         node.context = void 0;

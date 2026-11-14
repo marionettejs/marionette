@@ -21,10 +21,10 @@ export function createStore() {
   const subscribers = new Set();
   return {
     getSnapshot: () => version,
-    subscribe(fn) { if (dead) return () => {}; subscribers.add(fn); return () => subscribers.delete(fn); },
+    subscribe(fn) { if (dead) {return () => {};} subscribers.add(fn); return () => subscribers.delete(fn); },
     notify() {
-      if (dead) return; version++; if (pending) return; pending = true;
-      queueMicrotask(() => { pending = false; for (const fn of [...subscribers]) { if (dead) break; if (subscribers.has(fn)) fn(); } });
+      if (dead) {return;} version++; if (pending) {return;} pending = true;
+      queueMicrotask(() => { pending = false; for (const fn of [...subscribers]) { if (dead) {break;} if (subscribers.has(fn)) {fn();} } });
     },
     destroy() { dead = true; subscribers.clear(); }
   };
@@ -52,20 +52,20 @@ function createField(node, spec, config, metrics) {
     return cache.get(name);
   }
   function paint() {
-    if (dead) return; metrics.paints++;
+    if (dead) {return;} metrics.paints++;
     el.className = section('outer'); label.className = section('label'); input.className = section('input'); messages.className = section('messages');
     label.textContent = node.props.label ?? String(node.name);
-    if (input.value !== String(node._value ?? '')) input.value = String(node._value ?? '');
+    if (input.value !== String(node._value ?? '')) {input.value = String(node._value ?? '');}
     input.disabled = !!node.props.disabled;
-    const visible = node.store.reduce((all, m) => { if (m.visible && (m.type === 'validation' || m.type === 'error')) all.push(m); return all; }, []);
+    const visible = node.store.reduce((all, m) => { if (m.visible && (m.type === 'validation' || m.type === 'error')) {all.push(m);} return all; }, []);
     messages.replaceChildren(...visible.map(m => { const li = document.createElement('li'); li.id = `${input.id}-${m.key}`; li.textContent = String(m.value); li.className = section('message'); return li; }));
     if (visible.length) { input.setAttribute('aria-describedby', visible.map(m => `${input.id}-${m.key}`).join(' ')); input.setAttribute('aria-invalid', 'true'); } else { input.removeAttribute('aria-describedby'); input.removeAttribute('aria-invalid'); }
   }
   const onInput = () => node.input(input.value);
   input.addEventListener('input', onInput);
-  for (const event of ['input', 'commit', 'message-added', 'message-updated', 'message-removed', 'prop:label', 'prop:disabled']) receipts.push(node.on(event, () => store.notify()));
+  for (const event of ['input', 'commit', 'message-added', 'message-updated', 'message-removed', 'prop:label', 'prop:disabled']) {receipts.push(node.on(event, () => store.notify()));}
   store.subscribe(paint); paint();
-  return { el, node, spec, refresh() { for (const observer of observers) observer.kill(); observers.length = 0; cache.clear(); paint(); }, destroy() { if (dead) return; dead = true; store.destroy(); input.removeEventListener('input', onInput); for (const receipt of receipts) node.off(receipt); for (const observer of observers) observer.kill(); node.destroy(); el.remove(); } };
+  return { el, node, spec, refresh() { for (const observer of observers) {observer.kill();} observers.length = 0; cache.clear(); paint(); }, destroy() { if (dead) {return;} dead = true; store.destroy(); input.removeEventListener('input', onInput); for (const receipt of receipts) {node.off(receipt);} for (const observer of observers) {observer.kill();} node.destroy(); el.remove(); } };
 }
 
 export class ExperimentalFormView extends View {
@@ -78,10 +78,10 @@ export class ExperimentalFormView extends View {
     this.fields = new Map(); this.initialValues = structuredClone(options.values ?? {});
     const terminalSubmission = Symbol('terminal submission');
     const wrapSubmitCallback = (callback, awaitResult = false) => (...args) => {
-      if (this._ending || this.isDestroyed()) throw terminalSubmission;
+      if (this._ending || this.isDestroyed()) {throw terminalSubmission;}
       const result = callback?.(...args);
       if (this._ending || this.isDestroyed()) {
-        if (awaitResult && result instanceof Promise) return result.then(() => { throw terminalSubmission; });
+        if (awaitResult && result instanceof Promise) {return result.then(() => { throw terminalSubmission; });}
         throw terminalSubmission;
       }
       return result;
@@ -96,23 +96,23 @@ export class ExperimentalFormView extends View {
       }, []));
     });
     this._formReceipts = ['message-added', 'message-updated', 'message-removed'].map(event => this.node.on(event, () => this._formStore.notify()));
-    this._onSubmit = event => { this.lastSubmission = this.node.context.handlers.submit(event).catch(error => { if (error !== terminalSubmission) throw error; }); };
+    this._onSubmit = event => { this.lastSubmission = this.node.context.handlers.submit(event).catch(error => { if (error !== terminalSubmission) {throw error;} }); };
     this.el.addEventListener('submit', this._onSubmit);
     this.specs = options.fields ?? Array.from({ length: options.count ?? 1 }, (_, i) => ({ name: `field${i}`, label: `Field ${i}`, validation: 'required' }));
-    this.on('before:destroy', () => { this._ending = true; this._formStore.destroy(); for (const receipt of this._formReceipts) this.node.off(receipt); this.el.removeEventListener('submit', this._onSubmit); for (const field of this.fields.values()) field.destroy(); this.fields.clear(); this.node.destroy(); });
+    this.on('before:destroy', () => { this._ending = true; this._formStore.destroy(); for (const receipt of this._formReceipts) {this.node.off(receipt);} this.el.removeEventListener('submit', this._onSubmit); for (const field of this.fields.values()) {field.destroy();} this.fields.clear(); this.node.destroy(); });
   }
   render() {
-    if (this.isDestroyed()) return this;
+    if (this.isDestroyed()) {return this;}
     this.triggerMethod('before:render', this);
-    if (this._ending || this.isDestroyed()) return this;
-    this.setFields(this.specs); for (const field of this.fields.values()) field.refresh();
+    if (this._ending || this.isDestroyed()) {return this;}
+    this.setFields(this.specs); for (const field of this.fields.values()) {field.refresh();}
     this._isRendered = true; this.triggerMethod('render', this); return this;
   }
   setFields(specs) {
-    if (this._ending || this.isDestroyed()) return;
+    if (this._ending || this.isDestroyed()) {return;}
     const names = new Set();
-    for (const spec of specs) { if (spec.type && spec.type !== 'text') throw new TypeError('Experiment supports text fields only'); if (!spec.name || names.has(spec.name)) throw new TypeError('Unique field names required'); names.add(spec.name); }
-    for (const [name, field] of this.fields) if (!names.has(name)) { field.destroy(); this.fields.delete(name); }
+    for (const spec of specs) { if (spec.type && spec.type !== 'text') {throw new TypeError('Experiment supports text fields only');} if (!spec.name || names.has(spec.name)) {throw new TypeError('Unique field names required');} names.add(spec.name); }
+    for (const [name, field] of this.fields) {if (!names.has(name)) { field.destroy(); this.fields.delete(name); }}
     for (const spec of specs) {
       let field = this.fields.get(spec.name);
       if (!field) {
@@ -124,9 +124,9 @@ export class ExperimentalFormView extends View {
     this.el.append(this.formMessages);
     this.specs = specs;
   }
-  resetForm() { if (!this._ending && !this.isDestroyed()) reset(this.node); }
+  resetForm() { if (!this._ending && !this.isDestroyed()) {reset(this.node);} }
   submit() {
-    if (this._ending || this.isDestroyed()) return Promise.resolve();
+    if (this._ending || this.isDestroyed()) {return Promise.resolve();}
     this.el.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); return this.lastSubmission;
   }
 }

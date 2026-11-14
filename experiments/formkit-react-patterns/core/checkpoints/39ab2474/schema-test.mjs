@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom';
 import assert from 'node:assert/strict';
 const dom = new JSDOM('<!doctype html><body><div id="host"></div>',{url: 'http://localhost'});
-for (const name of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver'])globalThis[name] = dom.window[name];
+for (const name of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver']) {globalThis[name] = dom.window[name];}
 const { mount } = await import('./index.mjs');
 const { createSchemaController } = await import('./schema.mjs');
 const tick = ()=>new Promise(r=>setTimeout(r,25));
@@ -13,6 +13,6 @@ await tick();assert.equal(instance.node.children.length,2);assert.ok(instance.no
 await instance.node.at('f0').input('show');await tick();assert.ok(instance.node.at('extra'));assert.equal(instance.node.at('fallback'),undefined);assert.equal(instance.form.fields.get('f0').el.querySelector('input'),stable);
 const removed = instance.form.fields.get('extra');await instance.node.at('extra').input('value');await tick();const before = calls;await instance.node.at('f0').input('hide');await tick();assert.ok(instance.node.at('fallback'));assert.equal(instance.node.value.extra,undefined);assert.equal(removed.el.isConnected,false);assert.ok(calls > before);
 controller.destroy();const stopped = calls;await instance.node.at('f0').input('show');await tick();assert.equal(calls,stopped);
-for (const bad of [[{$el: 'div'}],[{$formkit: 'select',name: 'x'}],[{$formkit: 'text',name: 'f0'},{if: '$values.missing',then: []}],[{$formkit: 'text',name: 'x',label: '$dynamic'}]])assert.throws(()=>createSchemaController({node: instance.node,schema: bad,onFields: ()=>{}}),TypeError);
+for (const bad of [[{$el: 'div'}],[{$formkit: 'select',name: 'x'}],[{$formkit: 'text',name: 'f0'},{if: '$values.missing',then: []}],[{$formkit: 'text',name: 'x',label: '$dynamic'}]]) {assert.throws(()=>createSchemaController({node: instance.node,schema: bad,onFields: ()=>{}}),TypeError);}
 const owned = createSchemaController({node: instance.node,schema: [{$formkit: 'text',name: 'f0'}],onFields: ()=>{}});
 instance.destroy();assert.equal(owned.destroyed,true);console.log(JSON.stringify({passed: true,checks: ['official compiled supplied values expression','then/else branch swap','retained control identity','removed child/value cleanup','controller stops callbacks after destroy','unsupported schema rejected','Core destruction owns observer cleanup']}));
