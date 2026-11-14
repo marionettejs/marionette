@@ -132,3 +132,16 @@ immutable published `8f0c03fc` tree, linked from the experiment's `HISTORY.md`.
 The referenced baseline comparator and every maintained fixture remain runnable.
 Exact-head release grouping/build-transfer/HTML preparation tooling remains in
 place: the preceding hosted failure proved those prerequisites are necessary.
+
+## Deterministic package regression gates
+
+`check:package` invokes compiler-count, dynamic-scope and dependency-lifetime guards
+after existing packed behavior and strict type consumers. Root `test:formkit`
+and the required Core CI job therefore execute them. The count guard bundles the
+public source entry with Rollup and intercepts only the actual layout compiler
+import/outlet updates in a temporary test bundle. It asserts one instrumentation
+match, zero repeated identity compiles and all200/800schema outlet updates, plus
+distinct direct-field controls. It does not collect elapsed times. Dynamic scope
+and lifetime guards execute the actual extracted tarball entry. Previous success
+reports are removed before attempts; guard failures propagate and cannot leave a
+new passing package report. No runtime test hook is shipped.

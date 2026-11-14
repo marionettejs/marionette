@@ -33,7 +33,9 @@ npm --prefix packages/formkit run coverage
 `test` runs actual public-package Vitest tests without a hidden build. The packed
 check extracts a newly created FormKit tarball into an isolated consumer, reuses
 installed dependencies without registry access, then verifies both module systems,
-public exports, mount/update/destruction and TypeScript consumers. It writes the
+public exports, mount/update/destruction and TypeScript consumers. Mandatory compiler
+counts and extracted-package scope/lifetime guards also run; the check fails if
+instrumentation misses the layout module or required outlet work disappears. It writes the
 report and candidate path to `test/tmp/package-result.json`.
 
 `lint` checks package files and the complete active runtime import graph with the
@@ -205,8 +207,9 @@ plugins; the raw pipeline must provide its own root form definition and context.
 Runtime code lives in `src/runtime` and the public entries import it locally.
 The byte-preserving relocation baseline is recorded in [PROVENANCE.md](PROVENANCE.md).
 Installed bundles contain that runtime and do not import repository paths.
-The separate schema identity correction must be integrated before replaying this
-relocation; this structure checkpoint does not claim that correction. Free inputs and
+The integrated treatment includes the independently reviewed layout compiler-reuse
+correction. Its matched relocation-only baseline and exact runtime hashes are
+recorded in [PROVENANCE.md](PROVENANCE.md). Free inputs and
 portable factories are included; no licensed Pro source or key is shipped.
 Consumers can supply separately installed licensed plugins under their own
 configuration. Full Vue/React parity, all Pro modes, browser accessibility,

@@ -1,3 +1,29 @@
+# Integrated compiler-reuse treatment
+
+This unpublished integrated treatment follows the byte-preserving relocation
+`9da5bce28dd11327041992e5eb016b6ed9d8da9e` and applies only independently
+approved `0496b8785210b177cfecd08b2839e34d71116722`'s production hunk.
+`src/runtime/schema-layout.mjs` changes from SHA256
+`bf5cff51d71d3ff78df545c17f8c8be21b187ce13ffcec75d2c84e4ac8670353` to
+`5fe29b6c63784896215ceb63038f4e56b34bd3e545b6bd4dc9f29f41c40e2ea7`.
+The other 15 relocated runtime modules and public declarations are unchanged.
+
+Actual packed verification now also runs mandatory deterministic 200/800
+compiler/outlet counts, dynamic-scope and dependency-lifetime guards. Instrumentation
+must match the actual layout module exactly once; schema outlet work must remain
+200/800 while repeat compilation is zero, with separate zero-outlet direct-field
+controls. Wrong/uninstrumented entries fail. Scope and lifetime guards target the
+actual extracted package entry, preserving all assertions. No elapsed-time threshold
+or browser speed ratio is asserted by these checks.
+
+Matched relocation-only baseline and corrected package artifacts, identical build
+toolchain/locks/entry semantics, runtime hashes and complete content differences
+are recorded in the integration handoff. The relocation and runtime correction
+have separate scoped provenance; the combined treatment still requires independent
+review before publication. Historical records below retain their original scope.
+
+---
+
 # Package-owned runtime relocation
 
 This structure checkpoint starts from published
