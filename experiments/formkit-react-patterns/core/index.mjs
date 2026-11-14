@@ -70,6 +70,8 @@ function createField(node,spec,view,initial,renderDefault,present) {
       let host,active,observer,closed = false,scopeSpec = field.spec;
       const update = (schema,nextSpec = field.spec)=>{
         scopeSpec = nextSpec;
+        // Equivalent reconstructed slots keep their component/Core owners.
+        if (active?.setSchema(schema)) {active.refresh();return;}
         const nextHost = document.createElement('span');nextHost.dataset.experimentSlot = name;
         const nextObserver = createObserver(view.node),data = Object.create(view._schemaData);let nextRenderer;
         Object.defineProperty(data,'values',{get: ()=>nextObserver.value});
@@ -134,7 +136,7 @@ function createField(node,spec,view,initial,renderDefault,present) {
       if (node.props.type === 'checkbox') {const values = nativeProps(next,node.props.definition).attrs;node.props.onValue = values.onValue === undefined ? true : values.onValue;node.props.offValue = values.offValue === undefined ? false : values.offValue;}
     }
     const normalizedProps = nativeProps(next,node.props.definition),normalized = normalizedProps.props;
-    for (const key of ['label','help','disabled','validation']) {node.props[key] = normalized[key] ?? undefined;}
+    for (const key of ['label','help','disabled','validation']) {node.props[key] = normalized[key] ?? normalizedProps.attrs[key] ?? undefined;}
     const visibility = normalized.validationVisibility !== undefined ? normalized.validationVisibility : normalizedProps.attrs.validationVisibility;
     if (!eq(visibility,declaredVisibility)) {
       if (visibility !== undefined) {node.props.validationVisibility = visibility;ownsVisibility = Object.hasOwn(node.props,'validationVisibility') && eq(node.props.validationVisibility,visibility);} else if (ownsVisibility && Object.hasOwn(node.props,'validationVisibility')) {
