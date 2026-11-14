@@ -14,8 +14,11 @@ export function createLayoutController({form,schema,data:externalData={},compone
   layoutData.get=registry.get;layoutData.slots=externalSlots;
   const slots={...externalSlots},outlets=new Map();let next=0;
   function expression(value){if(typeof value==='string'&&value.startsWith('$'))compile(value);else if(value&&typeof value==='object')Object.values(value).forEach(expression);}
+  function condition(value,scope){
+    return resolved(typeof value==='string'&&!value.startsWith('$')?'$: '+value:value,scope);
+  }
   function resolved(value,scope={}){
-    if(value&&typeof value==='object'&&Object.hasOwn(value,'if')&&Object.hasOwn(value,'then'))return resolved(resolved(value.if,scope)?value.then:value.else,scope);
+    if(value&&typeof value==='object'&&Object.hasOwn(value,'if')&&Object.hasOwn(value,'then'))return resolved(condition(value.if,scope)?value.then:value.else,scope);
     if(typeof value!=='string'||value.length<2||!value.startsWith('$'))return value;
     return compile(value).provide(tokens=>Object.fromEntries(tokens.map(token=>[token,()=>{const parts=token.split('.');let object=parts[0] in scope?scope:layoutData,owner;for(const part of parts){owner=object;object=object?.[part];}return typeof object==='function'?object.bind(owner):object;}])))();
   }

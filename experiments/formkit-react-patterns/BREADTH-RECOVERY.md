@@ -1,3 +1,11 @@
+# Independent-review conditional identity correction
+
+The review's conditional-name failure also reproduced on a87dd4a. Layout identity lookup now compiles conditional string expressions before selecting the same name/key branch as projection; only schema-layout changes at runtime. A new 28-scenario fixture passes in the adapter and actual Vue/React, including arithmetic/constant/dynamic conditions, literal and legal-bind props, nested anonymous keys, group ownership, replacement/retention and exact cleanup.
+
+Fresh combined checks pass 97/97 acceptance and 96/96 references with stable matching runtime hashes. Evidence and the prior request-changes provenance are in `evidence/conditional-identity-review-correction/`. This is a new independent-rereview candidate; earlier passing receipts did not cover or dismiss the gap. Frozen reconstruction/publication, integration and timing remain untouched.
+
+---
+
 # Legal-bind and explicit-key reconciliation corrections
 
 Compatible literal FormKit legal-bind declarations now share native projection, preserving named/explicitly keyed Core owners, DOM and uncontrolled edits through Schema/memo replacement. Bound type/name/key are resolved in lexical scope with explicit-prop precedence. Private anonymous fallback identities are separate from explicit keys; changing or removing an explicit key replaces a named owner as both installed peers do. Default-child/opaque-provider boundaries remain explicit.

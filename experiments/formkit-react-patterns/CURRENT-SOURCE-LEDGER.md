@@ -1,3 +1,11 @@
+# Independent-review conditional identity correction
+
+A new isolated candidate atop `a87dd4a01e0df4315770121c74e132e4764d3d82` addresses the request-changes finding on 80b7a885: layout conditional-name/key lookup now uses the same compiled string-condition semantics as field projection. Only schema-layout changes at runtime. The new actual adapter/Vue/React fixture covers 28 scenarios per arm, including supported conditional props, anonymous keys, replacement/retention and cleanup.
+
+Fresh combined cloud checks pass **97/97 acceptance and 96/96 reference cases**, with matching unchanged runtime hashes. Before failure on clean a87dd4a, peer results, independent-review provenance, exact commands and all 17 runtime hashes are in `evidence/conditional-identity-review-correction/`. This source is frozen for independent rereview; prior 95/87 and 96/93 results are historical and did not cover the conditional identity gap. The fbc97910 reconstruction/publication remains untouched. No new Pro/browser/performance or independent approval claim is made.
+
+---
+
 # Isolated schema regression revision
 
 Local sole-writer branch `codex/formkit-schema-regressions-20261114` is based exactly on reconstructed `fbc97910c4ad4b7b47d01c0db57a69c32dc4ba49`; that frozen checkout and its publication are unchanged. First checkpoint `80b7a88541eccd27eee6d4b03394ac6bbc86b5a5` fixes string-condition projection and unresolved dynamic-name outlets, with 95/95 free and 87/87 reference receipts in `evidence/schema-projection-regressions/`.

@@ -1,0 +1,36 @@
+{
+  "sourceDirectory": "/workspace/scratch/ea2cded971c5/schema-independent-review-80b7a885",
+  "artifactSHA256": {
+    "REVIEW.md": "179813358267691894a9531eddfec8eeacd96135c54fa8580f223404682405b6",
+    "review-summary.json": "13a9f0ebdcd9dddaf1fe8b0898504cc23deeddcf1f360591ed82531736987342"
+  },
+  "reviewSummary": {
+    "targetCommit": "80b7a88541eccd27eee6d4b03394ac6bbc86b5a5",
+    "parentCommit": "fbc97910c4ad4b7b47d01c0db57a69c32dc4ba49",
+    "reviewDecision": "request changes: conditional identity-property lookup disagrees with projected condition semantics",
+    "targetedProbeRuns": 24,
+    "targetedProbeClassificationsVerified": true,
+    "independentExistingChecks": 12,
+    "independentExistingPassed": 12,
+    "snapshotMatchesCommit": true,
+    "frozenPublicationClean": true,
+    "targetSourceSha256": {
+      "index.mjs": "c9a304f114324e5d2afd8b7fd38395f6bd6c9d578bc6bb0f784a674fc1630522",
+      "schema.mjs": "4bf30b4acc5c987d290382062233f4b159ccd4916ebaf8c275da8aeccb77d9aa",
+      "schema-layout.mjs": "238f38c41fa1835a0496b2fd1649a5e7f9784443eb7a2147198213e5d3d59a5c",
+      "section-renderer.mjs": "4bef0234a3c272480045ed04047ff31b2f3087395715d0735647add6ffbc5864"
+    },
+    "reproducerSha256": "791c4c0e9f6751b797fad3334fd0bab5646371f9c116eb4e135fb065ec6abe40",
+    "probeResultsSha256": "0e989c3acf9663d42ae36df830ba992f9a6c8e6c6d39c8ce41f38e8c2f3f4aad",
+    "regressionResultsSha256": "448c5e5b79058afc6d4d6d9d81805d8bf1d218e78e3ebc0c29e23d8dd07cb476",
+    "reviewSha256": "179813358267691894a9531eddfec8eeacd96135c54fa8580f223404682405b6",
+    "committedEvidenceAudit": {
+      "acceptancePassed": 95,
+      "acceptanceFailed": 0,
+      "referencePassed": 87,
+      "referenceFailed": 0,
+      "recordedRuntimeHashesMatchReviewedArchive": true,
+      "fullSuitesIndependentlyRerun": false
+    }
+  }
+}
