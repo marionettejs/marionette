@@ -71,6 +71,29 @@ describe('public forms and Marionette ownership', () => {
     form.destroy(); expect(destroyed).toBe(1);
   });
 
+  it('composes direct fields and schema under one form with independently updated sources', async() => {
+    const target = host();
+    const form = own(mount({ host: target, instrument: true,
+      fields: [{ name: 'direct', label: 'Direct' }],
+      schema: [{ $formkit: 'text', name: 'schemaField', label: 'Schema field' }],
+      values: { direct: 'Direct value', schemaField: 'Schema value' },
+      formProps: { actions: false, id: 'mixed-package-form' }
+    }));
+    const direct = form.node.at('direct');
+    const schemaField = form.node.at('schemaField');
+    expect(form.node.props.id).toBe('mixed-package-form');
+    expect(target.querySelectorAll('form')).toHaveLength(1);
+    expect(target.querySelectorAll('input')).toHaveLength(2);
+    expect(form.getValues()).toEqual({ direct: 'Direct value', schemaField: 'Schema value' });
+    form.setFields([{ name: 'direct', label: 'Updated direct' }, { name: 'added' }]);
+    await vi.waitFor(() => expect(target.querySelectorAll('input')).toHaveLength(3));
+    expect(form.node.at('schemaField')).toBe(schemaField);
+    form.setSchema([{ $formkit: 'text', name: 'schemaField', label: 'Updated schema' }]);
+    expect(form.node.at('direct')).toBe(direct);
+    form.destroy();
+    expect(form.metrics.coreNodesCreated).toBe(form.metrics.coreNodesDestroyed);
+  });
+
   it('prepares configuration before showing an Application-owned FormKit View', async() => {
     const target = host();
     const app = own(new FormKitApplication({ region: { el: target }, config: { config: { locale: 'en' } }, form: {

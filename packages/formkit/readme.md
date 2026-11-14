@@ -4,13 +4,13 @@ FormKit schemas, inputs and validation with Marionette View, Region and
 Application ownership. This is an unpublished package candidate. It imports
 neither React nor Vue; their component objects require explicit DOM factories.
 
-**This frozen candidate is not production-ready.** Independent review of
-`0078606d` confirms two runtime blockers: dynamic native-list children looping
-through list-provided `$items` do not create row inputs or validators, allowing
-an empty required row through native submission; raw `__raw__name`/`__raw__key`
-overrides combined with bound identity props can abort form mounting. The
-package facade tests and packed-consumer checks do not cover or clear these
-failures. Runtime fixes and combined revalidation remain required.
+**This integration candidate is not production-ready.** Independent review of
+historical `0078606d` confirmed dynamic-list validation and raw identity defects.
+Scoped schema review of the supplied `c353a4d6` corrections now clears those
+cases and mixed-source ownership. This branch also imports the exact owner's
+`cb9db280` formatting and extraction repair. Broader independent review remains
+pending; the nested peer-reset sequence and real-browser confirmation remain
+unestablished. Package and packed-consumer checks do not supply that approval.
 
 ## Build and verify the candidate
 
@@ -61,7 +61,9 @@ editor.destroy();
 
 The consumer supplies `saveProfile`. `mount` owns a Region and the returned form;
 call `destroy()` when that owner is no longer needed. The host remains available
-for later use. Use `fields` or `schema`, with `fields: []` for an empty form.
+for later use. Supply `fields`, `schema`, or both, with `fields: []` for an empty form. Both
+sources share the owned Core form; `setFields` updates direct declarations and
+`setSchema` updates schema content.
 The compatibility `count` fixture creates required text fields and should not be
 used for production declarations. Native actions follow the official form
 schema; `formProps: { actions: false }` suppresses them.
@@ -104,8 +106,8 @@ region.empty(); // destroys the View and its owned Core nodes
 
 `FormKitView` supports the normal `extend`, event and Region lifecycle contracts.
 The package tests cover retained ordinary named fields when their declarations
-are updated. That evidence does not establish the blocked dynamic-list or raw
-identity modes. The stable package name aliases the existing runtime constructor;
+are updated. That evidence does not establish approval of the proposed dynamic-list or raw
+identity corrections. The stable package name aliases the existing runtime constructor;
 `ExperimentalFormView` is not a public package export.
 
 ## Type values and extension points
@@ -131,7 +133,7 @@ additional plugin props as `unknown`. Config, plugins, schemas and nodes reuse
 FormKit's public types. Factory props and lifecycle, slots, form state, metrics,
 Application readiness and the mount result have explicit declarations. ESM
 `.mts` and CommonJS `.cts` consumer fixtures verify the published declarations,
-including wrong-value, missing-host and fields/schema conflict errors.
+including wrong-value and missing-host errors plus mixed fields/schema declarations.
 
 ## Schemas and component factories
 
@@ -205,5 +207,5 @@ Consumers can supply separately installed licensed plugins under their own
 configuration. Full Vue/React parity, all Pro modes, browser accessibility,
 geometry and performance are not certified by this package's tests. The scoped
 optional type/name defaults correction at `0078606d` was approved independently;
-that approval does not clear the dynamic-list validation bypass or raw identity
-mapping failures described above.
+that scoped approval does not approve the proposed dynamic-list or raw identity
+corrections now awaiting independent review.

@@ -12,8 +12,8 @@ mounted.setValues({ subscribed: true }, { source: 'programmatic', notify: false 
 mounted.setValues({ email: 42 });
 // @ts-expect-error host is required for the Region-owning mount API
 mount({ fields });
-// @ts-expect-error choose either fields or schema
-mount({ host: document.createElement('main'), fields, schema: { $el: 'div' } });
+const mixed = mount({ host: document.createElement('main'), fields, schema: { $formkit: 'text', name: 'schemaField' }, formProps: { id: 'typed-mixed-form' } });
+mixed.destroy();
 const components: ComponentLibrary = {
   Badge({ host, props }) { host.textContent = String(props.text); return { update(next) { host.textContent = String(next.text); } }; }
 };

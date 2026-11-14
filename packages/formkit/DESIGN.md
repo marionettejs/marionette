@@ -49,18 +49,23 @@ relaxed to make this source transition pass.
 
 ## Ownership and required shared edits
 
-This lane stages only `packages/formkit/**`. Runtime modules, root scripts,
-lockfile and CI workflows remain unchanged. A separate root integration patch
-adds the workspace and command entry points, preserving unrelated root scripts.
-The integrator must regenerate the root lockfile after workspace/dependency
-integration and route CI to the new package checks. Existing core tarballs are
+The original architecture lane stages only `packages/formkit/**`; its frozen
+artifact and supplemental documentation patch remain preserved. The separate
+root/CI integration branch now registers the workspace, normally regenerates
+its lockfile and adds packed-consumer verification to root verification and the
+required core CI lane. Existing master docs:prepare-html routing is preserved.
+The five-package same-version publication inventory is unchanged. Existing core
+tarballs are
 not FormKit evidence; `test/tmp/package-result.json` identifies the actual new
 FormKit candidate and integrity.
 
-The frozen base is 0078606d. Newer master and the reported d664 promotion head
-must be reconciled by the integration owner; those refs are unavailable in this
-isolated Git repository. In particular, do not replace or remove newer
-`docs:prepare-html` integration merely because this frozen package.json lacks it.
+The package architecture originated at 0078606d. This isolated integration branch
+replays its experiment-only history onto master 1d428966 and imports the supplied
+c353a4d6 runtime correction patch, followed by the exact cb9db280 mechanical
+formatting/extractor checkpoint. Scoped schema approval is recorded, while
+broader runtime review remains pending. The current master
+`docs:prepare-html` integration is retained; the original root patch is a historical
+proposal and must not replace the reconciled root scripts.
 Apply/reconcile specific shared hunks, then rerun the current root checks.
 The package-local build intentionally does not need changes to the shared
 `build/declarations.mjs` package whitelist.
@@ -80,24 +85,27 @@ plugin/onNode/runtime replacements. The adapter ownership regression passes;
 the default-visibility peer probe is not a blanket parity proof for removal.
 
 The independent defaults review approves the scoped optional type/name correction
-at 0078606d. Its combined-tree verdict remains hold: effective raw name/key
+at 0078606d. Its combined-tree verdict was hold: effective raw name/key
 mapping can disagree with outlet lookup when raw explicit props override a
 bound bag. A second independent review confirms that native dynamic-list child
 schemas looping over list-provided $items allocate no row inputs/validators and
 can accept an empty required row through native DOM submission. This is a
 specific missing scoped-list mode; it is not evidence that all native lists
-are absent. Both are runtime correctness blockers for this frozen package.
+are absent. Both are historical runtime correctness blockers. Scoped independent schema
+review now clears the c353a4d6 dynamic-list, raw
+identity and mixed-source cases. Broader review and combined revalidation remain
+required; importing its exact bytes does not supply those approvals.
 
 Before a release can be represented as ready:
 
-- Fix and revalidate native dynamic-list row scope, validator allocation and
-  native submission across the affected initial/update cases.
-- Fix raw explicit name/key projection-to-outlet identity mapping while retaining
-  literal raw values and declaration precedence.
+- Complete the broader independent runtime review and combined package checks;
+  scoped schema approval does not certify the nested peer-reset sequence or
+  real-browser behavior.
 - Resolve the active runtime's strict lint findings with its sole owner.
 - Integrate runtime fixes and any source relocation, aligning public types.
-- Reconcile the current branch/base and regenerate its workspace lockfile.
-- Add FormKit to intended release/artifact/CI inventories through their owners.
+- Verify the reconciled current-master branch and normally regenerated lockfile.
+- Keep optional-package CI verification separate from the five-package publication
+  inventory; justify FormKit version and coverage policy before publication wiring.
 - Run the combined package, root, installed and applicable browser checks.
 
 No publication, deployment, merge or automated Mac testing is part of this lane.

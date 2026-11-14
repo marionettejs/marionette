@@ -104,6 +104,7 @@ export interface FormKitConfigOptions {
   iconLoaderUrl?: IconLoaderUrl;
 }
 export interface FormProps {
+  id?: string;
   name?: string;
   attrs?: Record<string, unknown>;
   actions?: boolean;
@@ -114,10 +115,10 @@ export interface FormProps {
   sectionsSchema?: FormKitSectionsSchema;
   [prop: string]: unknown;
 }
-export type Declaration =
-  | { fields: readonly FieldSpec[]; schema?: never }
-  | { schema: Schema; fields?: never }
-  | { fields?: undefined; schema?: undefined };
+export interface Declaration {
+  fields?: readonly FieldSpec[];
+  schema?: Schema;
+}
 export interface FormOptions<Values extends object = FormValues> extends FormKitConfigOptions {
   values?: Partial<Values>;
   components?: ComponentLibrary;
