@@ -50,6 +50,7 @@
     "test:watch": "vitest --config vitest.config.mjs",
     "check:types": "tsc -p test/types/tsconfig.json",
     "check:package": "node scripts/check-package.mjs",
+    "test:regressions": "node scripts/check-runtime-regressions.mjs",
     "check": "npm run lint && npm run build && npm test && npm run check:types && npm run check:package",
     "prepack": "npm run build",
     "lint": "node scripts/lint.mjs",

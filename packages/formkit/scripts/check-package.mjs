@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, symlink, writeFile, rm } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, join, parse, resolve, sep } from 'node:path';
 import ts from 'typescript';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
+await rm(join(root, 'test/tmp/package-result.json'), { force: true });
 const require = createRequire(import.meta.url);
 const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
 for (const [name, target] of Object.entries(manifest.exports)) {
@@ -74,7 +75,12 @@ for (const file of ['esm.mts', 'cjs.cts', 'expanded-packed-contract.mts', 'expan
   await writeFile(join(consumer, file), await readFile(join(root, 'test/types', file)));
 }
 execFileSync(process.execPath, [join(await dependencyRoot('typescript'), 'bin/tsc'), '-p', 'tsconfig.json'], { cwd: consumer, stdio: 'inherit' });
+const packedEntry = pathToFileURL(join(installed, 'dist/index.js')).href;
+const runtimeGuards = execFileSync(process.execPath, [join(root, 'scripts/check-runtime-regressions.mjs')], {
+  cwd: root, encoding: 'utf8', env: { ...process.env, FORMKIT_SCOPE_ENTRY: packedEntry, FORMKIT_LIFETIME_ENTRY: packedEntry },
+});
 const report = {
+  runtimeRegressionGuards: JSON.parse(runtimeGuards.trim()),
   passed: true, package: manifest.name, version: manifest.version,
   tarball: join(temporary, packed.filename), integrity: packed.integrity,
   files: packed.files.map(({ path }) => path),

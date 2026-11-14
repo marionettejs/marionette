@@ -29,7 +29,7 @@ if (runtimeFiles.some(file => !file.startsWith(sourceRoot))) {throw new Error('F
 const targets = [
   ...runtimeFiles,
   'packages/formkit/src/**/*.mjs', 'packages/formkit/scripts/**/*.mjs',
-  'packages/formkit/test/**/*.spec.mjs', 'packages/formkit/test/fixtures/**/*.mjs',
+  'packages/formkit/test/**/*.spec.mjs', 'packages/formkit/test/fixtures/**/*.mjs', 'packages/formkit/test/regressions/**/*.mjs',
   'packages/formkit/rollup.config.mjs', 'packages/formkit/vitest.config.mjs'
 ];
 const results = await eslint.lintFiles(targets);
