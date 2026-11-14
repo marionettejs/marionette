@@ -247,7 +247,10 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
     const pairs = [],nextByOld = new WeakMap(),oldByNext = new WeakMap();
     const match = (before,after)=>{
       if (!before || !after || typeof before !== 'object' || typeof after !== 'object') {return Object.is(before,after);}
-      if (Array.isArray(before) !== Array.isArray(after) || Object.getPrototypeOf(before) !== Object.getPrototypeOf(after)) {return false;}
+      const array = Array.isArray(before),prototype = Object.getPrototypeOf(before);
+      if (array !== Array.isArray(after) || prototype !== Object.getPrototypeOf(after)) {return false;}
+      // Opaque values can carry state outside their own property descriptors.
+      if (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null) {return Object.is(before,after);}
       if (nextByOld.has(before)) {return nextByOld.get(before) === after;}
       if (oldByNext.has(after)) {return false;}
       nextByOld.set(before,after);oldByNext.set(after,before);
