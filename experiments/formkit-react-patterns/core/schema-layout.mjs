@@ -77,7 +77,8 @@ export function createLayoutController({form,schema,data:externalData={},compone
       props.$formkit=type;entry=Object.create(Object.getPrototypeOf(entry),props);
     }
     if('$formkit'in entry){
-      if(!Object.hasOwn(entry,'name')&&!Object.hasOwn(entry,'key'))entry={...entry,key:`$__ownedKey('declaration${next++}'${loopAliases.map(alias=>`, $${alias}`).join('')})`};
+      // A declared name can resolve to undefined; share an identity with projection.
+      if(!Object.hasOwn(entry,'key'))entry=Object.defineProperty(Object.create(Object.getPrototypeOf(entry),Object.getOwnPropertyDescriptors(entry)),'key',{value:`$__ownedKey('declaration${next++}'${loopAliases.map(alias=>`, $${alias}`).join('')})`,enumerable:true});
       let slot;do{slot=`__ownedField${next++}`;}while(Object.hasOwn(slots,slot));
       const nativeChildren=Object.hasOwn(entry,'children')&&(['group','list'].includes(entry.$formkit)||(typeof entry.$formkit==='string'&&entry.$formkit.startsWith('$')&&Array.isArray(entry.children)))?parse(entry.children):undefined;
       slots[slot]=({parent,before,locals={},fields=form.fields})=>{

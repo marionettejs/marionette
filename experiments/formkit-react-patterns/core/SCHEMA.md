@@ -40,6 +40,10 @@ A callback receives `{parent,before,context,locals,renderFields}`. Call `renderF
 
 Projection accepts registered input types, dynamic names/types/props, anonymous identities, native group/list children, conditional branches, bind precedence, recursively evaluated arrays/objects, raw `__raw__` props, array/object/numeric loops and reactive registry `$get`. Active sibling names/keys must remain unique. Conditional fields may be absent; removed fields release their owned Core values using upstream behavior. Native groups/lists have field-array children in explicit field projection; other schema-driven inputs use named slot dictionaries. Schema mounting and layout composition additionally accept mixed content under native groups/lists.
 
+String `if` conditions are compiled as expressions, including constants such as `'false'`, `'true'` and `'1 === 2'`; ordinary prop strings remain literals unless expression-prefixed. Conditional prop objects use the same condition semantics. A false branch allocates only its `else` fields, so inactive required inputs do not affect validation or submission.
+
+A declared dynamic `name` may resolve to `undefined`, producing an anonymous Core name. Layout outlets and field projection share a stable private identity for these declarations, retaining anonymous Core nodes and controls across data-only updates. An explicit key changing with a resolved name requests a remount, matching the installed peers. Existing named-field reconciliation still applies when names change.
+
 `createSchemaController` projects fields, not DOM wrappers. Use schema mounting or the layout controller for `$el`/`$cmp` composition. External data is plain and explicitly refreshed. Equality may traverse projections and observation can read aggregate root values; neither is constant-time work.
 
 ## Explicit layout composition

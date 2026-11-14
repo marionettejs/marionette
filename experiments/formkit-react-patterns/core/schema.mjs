@@ -18,6 +18,10 @@ export function createSchemaController({ node, schema, onFields, data = {}, data
     for (const part of parts) { owner = value; value = value?.[part]; }
     return typeof value === 'function' ? value.bind(owner) : value;
   }
+  // Unlike literal prop strings, every string condition is an expression.
+  function condition(input, locals) {
+    return value(typeof input === 'string' && !input.startsWith('$') ? '$: ' + input : input, locals);
+  }
   function value(input, locals, key = '') {
     if (typeof input === 'string' && input.length > 1 && input.startsWith('$')) {
       if ((input === '$reset' || input.startsWith('$reset ')) && /(?:class|Class)$/.test(key)) return input; // FormKit class reset directive, not an expression.
@@ -28,7 +32,7 @@ export function createSchemaController({ node, schema, onFields, data = {}, data
     }
     if (Array.isArray(input)) return input.map(item => value(item, locals));
     if (input && typeof input === 'object') {
-      if (Object.hasOwn(input,'if') && Object.hasOwn(input,'then')) return value(value(input.if,locals) ? input.then : input.else,locals,key);
+      if (Object.hasOwn(input,'if') && Object.hasOwn(input,'then')) return value(condition(input.if,locals) ? input.then : input.else,locals,key);
       return Object.fromEntries(Object.entries(input).map(([key,item]) => key.startsWith('__raw__') ? [key.slice(7),item] : [key,value(item,locals,key)]));
     }
     return input;
@@ -45,7 +49,7 @@ export function createSchemaController({ node, schema, onFields, data = {}, data
       if (!items || typeof items !== 'object') return [];
       return Object.keys(items).flatMap(key => project({ ...input, for: undefined }, { ...locals, [name]: items[key], ...(keyName !== null ? { [keyName]: Array.isArray(items) ? Number(key) : key } : {}) }, [...loopKeys,key], origin));
     }
-    if (Object.hasOwn(input, 'if') && !value(input.if, locals)) return project(input.else, locals,loopKeys);
+    if (Object.hasOwn(input, 'if') && !condition(input.if, locals)) return project(input.else, locals,loopKeys);
     if (Object.hasOwn(input, 'then') && !Object.hasOwn(input, '$formkit')) return project(input.then, locals,loopKeys);
     if (!Object.hasOwn(input, '$formkit')) throw new TypeError('Use createLayoutController for DOM layout nodes');
     const bound=input.bind?value(input.bind,locals):{};

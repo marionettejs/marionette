@@ -1,3 +1,11 @@
+# Schema condition and anonymous-name projection corrections
+
+String conditions now compile constants and token expressions consistently across field projection and DOM presentation, including conditional props. Inactive required branches do not allocate fields or block submission. Names resolving to undefined use shared private outlet identities and retain generated Core owners/controls through data-only updates; adding these keys preserves declaration descriptors. Two actual Vue/React/adapter fixtures cover constants, dynamic else toggles, required submission, anonymous groups/siblings, resolved/keyed name changes, identity and exact teardown.
+
+The isolated checkpoint passes 95/95 free acceptance and 87/87 reference checks with matching unchanged runtime hashes. Exact baseline failures, submission before/after, final receipts and hashes are in `evidence/schema-projection-regressions/`. These are cloud JSDOM/Core checks, not licensed Pro/browser/performance evidence. Separately queued legal-bind and explicit-key retention findings remain open at this checkpoint.
+
+---
+
 # Native factory DOM placement correction
 
 The corrected browser gate found an adapter-only16px repeater height difference: bookkeeping wrappers blocked the official direct-child CSS selector for its nested add button. The verified index-only proposal is integrated without CSS overrides, preserving the newer default-slot correction. Built-in factory output now appears directly under its declared schema parent while bookkeeping stays connected with display:contents; structural redraw repeats placement. Six focused checks pass, including a before-failing direct-child regression, redraw/removal, default markup slots, edited-input retention and owned scope cleanup.
