@@ -36,8 +36,8 @@ function moveMessages(context) {
   state.count++;
   context.defaultMessagePlacement = false;
   return () => {
-    if (--state.count) return;
-    if (context.defaultMessagePlacement === false) context.defaultMessagePlacement = state.previous;
+    if (--state.count) {return;}
+    if (context.defaultMessagePlacement === false) {context.defaultMessagePlacement = state.previous;}
     messagePlacements.delete(context);
   };
 }
@@ -70,7 +70,7 @@ function createMessageHelper(args, environment, isSummary) {
     jumpLink(event) {
       const anchor = event.currentTarget;
       const targetId = anchor?.getAttribute('href')?.slice(1);
-      if (!targetId) return;
+      if (!targetId) {return;}
       event.preventDefault();
       const target = findElement(host, targetId);
       target?.scrollIntoView?.({ behavior: 'smooth' });
@@ -78,16 +78,16 @@ function createMessageHelper(args, environment, isSummary) {
     }
   };
   function refresh() {
-    if (closed || !node?.context) return;
+    if (closed || !node?.context) {return;}
     if (isSummary) {
       const contexts = [];
-      node.walk(child => { if (child.context) contexts.push(child.context); });
+      node.walk(child => { if (child.context) {contexts.push(child.context);} });
       const wanted = new Set(contexts);
       for (const [context, unsubscribe] of contextSubscriptions) {
         if (!wanted.has(context)) { unsubscribe(); contextSubscriptions.delete(context); }
       }
       for (const context of contexts) {
-        if (!contextSubscriptions.has(context)) contextSubscriptions.set(context, subscribeReactiveStore(context, schedule));
+        if (!contextSubscriptions.has(context)) {contextSubscriptions.set(context, subscribeReactiveStore(context, schedule));}
       }
       summaries = contexts.flatMap(context => Object.values(context.messages || {})
         .filter(item => typeof item.value === 'string')
@@ -98,25 +98,25 @@ function createMessageHelper(args, environment, isSummary) {
       submitPending = false;
       if (summaries.length) {
         props.onShow?.(summaries.map(item => ({ ...item })));
-        if (closed || !host.isConnected) return;
+        if (closed || !host.isConnected) {return;}
         findElement(host, id)?.scrollIntoView?.({ behavior: 'smooth' });
         findElement(host, `${id}-${summaries[0].key}`)?.focus?.();
       }
     }
   }
   function schedule() {
-    if (queued || closed) return;
+    if (queued || closed) {return;}
     queued = true;
-    queueMicrotask(() => { queued = false; if (!closed) refresh(); });
+    queueMicrotask(() => { queued = false; if (!closed) {refresh();} });
   }
   function clear(remove = true) {
-    for (const dispose of disposers.splice(0).reverse()) dispose();
-    for (const unsubscribe of contextSubscriptions.values()) unsubscribe();
+    for (const dispose of disposers.splice(0).reverse()) {dispose();}
+    for (const unsubscribe of contextSubscriptions.values()) {unsubscribe();}
     contextSubscriptions.clear();
     renderer?.destroy(remove); renderer = undefined;
   }
   function update(next) {
-    if (closed) return;
+    if (closed) {return;}
     const previous = props;
     const nextNode = resolveNode(args, next, environment);
     const rebind = nextNode !== node || !renderer || next.sectionsSchema !== previous.sectionsSchema || next.library !== previous.library || next.defaultPosition !== previous.defaultPosition;
@@ -126,10 +126,10 @@ function createMessageHelper(args, environment, isSummary) {
       clear(); node = nextNode;
       if (changedNode) { shown = false; submitPending = false; }
       if (!node) {
-        if (isSummary) throw new Error('FormKitSummary must have a FormKit parent or use the node prop.');
+        if (isSummary) {throw new Error('FormKitSummary must have a FormKit parent or use the node prop.');}
         return;
       }
-      if (!node.context) return;
+      if (!node.context) {return;}
       const boundNode = node;
       const on = (event, callback) => { const receipt = boundNode.on(event, callback); disposers.push(() => boundNode.off(receipt)); };
       on('destroying', () => { clear(environment.removeDom?.() ?? true); node = undefined; summaries = []; submitPending = false; });
@@ -138,13 +138,13 @@ function createMessageHelper(args, environment, isSummary) {
         on('child.deep', schedule);
         on('childRemoved.deep', schedule);
         on('submit-raw', () => { shown = true; submitPending = true; schedule(); });
-      } else if (!undefine(props.defaultPosition)) disposers.push(moveMessages(node.context));
+      } else if (!undefine(props.defaultPosition)) {disposers.push(moveMessages(node.context));}
       renderer = renderSections({ host, schema: (isSummary ? summarySchema : messageSchema)(props.sectionsSchema || {}), context: node.context, data, components: factoryLibrary(environment, props) });
     }
     refresh();
   }
   try { update(args.props || {}); } catch (error) { clear(); closed = true; throw error; }
-  return { update, destroy(remove = true) { if (closed) return; closed = true; clear(remove); node = undefined; } };
+  return { update, destroy(remove = true) { if (closed) {return;} closed = true; clear(remove); node = undefined; } };
 }
 
 export function FormKitMessages(args, environment = {}) { return createMessageHelper(args, environment, false); }
@@ -155,25 +155,25 @@ export function FormKitSummary(args, environment = {}) { return createMessageHel
 const svgElements = new Set('svg g path circle ellipse rect line polyline polygon defs symbol use title desc clipPath mask linearGradient radialGradient stop pattern'.split(' '));
 const svgAttributes = new Set('xmlns viewBox width height x y x1 x2 y1 y2 cx cy r rx ry d points fill fill-rule fill-opacity stroke stroke-width stroke-linecap stroke-linejoin stroke-miterlimit stroke-dasharray stroke-dashoffset stroke-opacity opacity transform id class role aria-hidden aria-label focusable preserveAspectRatio clip-path clip-rule mask offset stop-color stop-opacity gradientUnits gradientTransform spreadMethod patternUnits patternContentUnits patternTransform'.split(' '));
 function safeSvg(host, markup) {
-  if (typeof markup !== 'string' || !markup.trimStart().startsWith('<svg')) return;
+  if (typeof markup !== 'string' || !markup.trimStart().startsWith('<svg')) {return;}
   const Parser = host.ownerDocument.defaultView.DOMParser;
   const parsed = new Parser().parseFromString(markup, 'image/svg+xml');
   const root = parsed.documentElement;
-  if (root.localName !== 'svg' || root.namespaceURI && root.namespaceURI !== 'http://www.w3.org/2000/svg' || parsed.querySelector('parsererror')) return;
+  if (root.localName !== 'svg' || root.namespaceURI && root.namespaceURI !== 'http://www.w3.org/2000/svg' || parsed.querySelector('parsererror')) {return;}
   function copy(source) {
-    if (!svgElements.has(source.localName) || source.namespaceURI && source.namespaceURI !== 'http://www.w3.org/2000/svg') return;
+    if (!svgElements.has(source.localName) || source.namespaceURI && source.namespaceURI !== 'http://www.w3.org/2000/svg') {return;}
     const element = host.ownerDocument.createElementNS('http://www.w3.org/2000/svg', source.localName);
     for (const attribute of source.attributes) {
       const name = attribute.name, value = attribute.value;
       const fragment = /^(?:#[-\w:.]+|url\(#[\w:.-]+\))$/;
       if (name === 'href' || name === 'xlink:href') {
-        if (/^#[-\w:.]+$/.test(value)) element.setAttribute('href', value);
+        if (/^#[-\w:.]+$/.test(value)) {element.setAttribute('href', value);}
       } else if (svgAttributes.has(name) && !/javascript:|data:|https?:|\/\/|expression\s*\(/i.test(value) && (!/url\s*\(/i.test(value) || fragment.test(value))) {
         element.setAttribute(name, value);
       }
     }
     for (const child of source.childNodes) {
-      if (child.nodeType === 1) { const clean = copy(child); if (clean) element.append(clean); } else if (child.nodeType === 3 && ['title', 'desc'].includes(source.localName)) element.append(host.ownerDocument.createTextNode(child.textContent));
+      if (child.nodeType === 1) { const clean = copy(child); if (clean) {element.append(clean);} } else if (child.nodeType === 3 && ['title', 'desc'].includes(source.localName)) {element.append(host.ownerDocument.createTextNode(child.textContent));}
     }
     return element;
   }
@@ -185,29 +185,29 @@ export function FormKitIcon(args, environment = {}) {
   let props = {}, node, span, generation = 0, closed = false, unsubscribe = () => {}, offDestroy = () => {}, listeners = [];
   let previousIcon, previousLoader, previousUrl, previousHandler;
   function clearSpan(remove = true) {
-    for (const [name, handler] of listeners.splice(0)) span?.removeEventListener(name, handler);
-    if (remove) span?.remove();
+    for (const [name, handler] of listeners.splice(0)) {span?.removeEventListener(name, handler);}
+    if (remove) {span?.remove();}
     span = undefined;
   }
   function display(markup, request) {
-    if (closed || request !== generation) return;
+    if (closed || request !== generation) {return;}
     const svg = safeSvg(host, markup);
     if (!props.icon || !svg) { clearSpan(); return; }
-    for (const [name, handler] of listeners.splice(0)) span?.removeEventListener(name, handler);
+    for (const [name, handler] of listeners.splice(0)) {span?.removeEventListener(name, handler);}
     span ||= host.ownerDocument.createElement('span');
-    for (const attribute of [...span.attributes]) span.removeAttribute(attribute.name);
+    for (const attribute of [...span.attributes]) {span.removeAttribute(attribute.name);}
     span.className = ['formkit-icon', props.className || props.class].filter(Boolean).join(' ');
     const clickable = typeof props.onClick === 'function';
     for (const [name, value] of Object.entries(props)) {
-      if (['icon', 'iconLoader', 'iconLoaderUrl', 'class', 'className', 'node', 'role', 'tabIndex', 'tabindex'].includes(name)) continue;
+      if (['icon', 'iconLoader', 'iconLoaderUrl', 'class', 'className', 'node', 'role', 'tabIndex', 'tabindex'].includes(name)) {continue;}
       if (/^on[A-Z]/.test(name) && typeof value === 'function' && !/^onKey[Dd]own$/.test(name)) {
         const event = name.slice(2).toLowerCase(); span.addEventListener(event, value); listeners.push([event, value]);
-      } else if ((name === 'id' || name === 'title' || name === 'dir' || name === 'lang' || /^(?:aria|data)-[\w-]+$/.test(name)) && value != null) span.setAttribute(name, String(value));
+      } else if ((name === 'id' || name === 'title' || name === 'dir' || name === 'lang' || /^(?:aria|data)-[\w-]+$/.test(name)) && value != null) {span.setAttribute(name, String(value));}
     }
     const role = props.role ?? (clickable ? 'button' : undefined);
     const tabIndex = props.tabIndex ?? props.tabindex ?? (clickable ? 0 : undefined);
-    if (role != null) span.setAttribute('role', String(role));
-    if (tabIndex != null) span.setAttribute('tabindex', String(tabIndex));
+    if (role != null) {span.setAttribute('role', String(role));}
+    if (tabIndex != null) {span.setAttribute('tabindex', String(tabIndex));}
     const keydown = event => {
       (props.onKeyDown || props.onKeydown)?.(event);
       if (!event.defaultPrevented && clickable && ['Enter', ' ', 'Spacebar'].includes(event.key)) {
@@ -215,32 +215,32 @@ export function FormKitIcon(args, environment = {}) {
       }
     };
     span.addEventListener('keydown', keydown); listeners.push(['keydown', keydown]);
-    span.replaceChildren(svg); if (span.parentNode !== host) host.append(span);
+    span.replaceChildren(svg); if (span.parentNode !== host) {host.append(span);}
   }
   let currentMarkup;
   function load(force = false, renderProps = false) {
-    if (closed) return;
+    if (closed) {return;}
     const parentLoader = node?.props?.iconLoader;
     const handler = node?.props?.iconHandler || environment.getPlugins?.()?.find(plugin => typeof plugin.iconHandler === 'function')?.iconHandler;
     const loader = typeof props.iconLoader === 'function' ? props.iconLoader : parentLoader;
     const url = !loader && typeof props.iconLoaderUrl === 'function' ? props.iconLoaderUrl : undefined;
-    if (!force && props.icon === previousIcon && loader === previousLoader && url === previousUrl && handler === previousHandler) { if (renderProps)display(currentMarkup, generation); return; }
+    if (!force && props.icon === previousIcon && loader === previousLoader && url === previousUrl && handler === previousHandler) { if (renderProps) {display(currentMarkup, generation);} return; }
     previousIcon = props.icon; previousLoader = loader; previousUrl = url; previousHandler = handler;
     const request = ++generation;
     currentMarkup = undefined; clearSpan();
-    if (typeof props.icon !== 'string' || (!props.icon.startsWith('<svg') && !/^[A-Za-z0-9_:-]+$/.test(props.icon))) return;
+    if (typeof props.icon !== 'string' || (!props.icon.startsWith('<svg') && !/^[A-Za-z0-9_:-]+$/.test(props.icon))) {return;}
     const resolve = loader || url ? createIconHandler(loader, url) : handler || createIconHandler();
     let result;
     try { result = resolve(props.icon); } catch { return; }
     if (result && typeof result.then === 'function') {
       Promise.resolve(result).then(markup => {
-        if (closed || request !== generation) return;
+        if (closed || request !== generation) {return;}
         currentMarkup = markup; display(markup, request);
-      }, () => { if (!closed && request === generation) clearSpan(); });
+      }, () => { if (!closed && request === generation) {clearSpan();} });
     } else { currentMarkup = result; display(result, request); }
   }
   function update(next) {
-    if (closed) return;
+    if (closed) {return;}
     const nextNode = resolveNode(args, next, environment);
     props = next;
     if (nextNode !== node) {
@@ -250,18 +250,15 @@ export function FormKitIcon(args, environment = {}) {
         const boundNode = node;
         const receipt = node.on('destroying', () => { generation++; clearSpan(environment.removeDom?.() ?? true); unsubscribe(); offDestroy(); node = undefined; });
         offDestroy = () => boundNode.off(receipt);
-      } else offDestroy = () => {};
+      } else {offDestroy = () => {};}
       load(true);
-    } else load(false,true);
+    } else {load(false,true);}
   }
   update(args.props || {});
-  return { update, destroy(remove = true) { if (closed) return; closed = true; generation++; unsubscribe(); offDestroy(); clearSpan(remove); } };
+  return { update, destroy(remove = true) { if (closed) {return;} closed = true; generation++; unsubscribe(); offDestroy(); clearSpan(remove); } };
 }
 
 export function createFormKitHelpers(environment = {}) {
-  return {
-    FormKitSummary: args => FormKitSummary(args, environment),
-    FormKitMessages: args => FormKitMessages(args, environment),
-    FormKitIcon: args => FormKitIcon(args, environment)
-  };
+  const factories = {FormKitSummary, FormKitMessages, FormKitIcon};
+  return Object.fromEntries(Object.entries(factories).map(([name, factory]) => [name, args => factory(args, environment)]));
 }

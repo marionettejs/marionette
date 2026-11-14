@@ -18,18 +18,18 @@ export function createFormKitProviders(view) {
     let inheritedOptions = configScope?.options,children,loadedScope,application;
     const scope = {get options() {return configScope?.options ?? loadedScope?.options;},get definitions() {return configScope?.options ? configScope.definitions : loadedScope?.definitions;}};
     const clear = ()=>{children?.();children = undefined;};
-    const show = next=>{loadedScope = next;if (!children)children = renderChildren(undefined,null,{[formKitScope]: scope},()=>attrs);};
+    const show = next=>{loadedScope = next;if (!children) {children = renderChildren(undefined,null,{[formKitScope]: scope},()=>attrs);}};
     const getApplication = ()=>{
-      if (application) return application;
+      if (application) {return application;}
       const Loader = Application.extend({
         async prepareStart(options = {}, {signal}) {
           const inherited = configScope?.options;
-          if (inherited) return {options: inherited,definitions: configScope.definitions};
+          if (inherited) {return {options: inherited,definitions: configScope.definitions};}
           const settings = {...settingsProps,...options};
           const module = settings.configFile ? await import(settings.configFile) : {};
           signal.throwIfAborted();
           let loaded = 'default' in module ? module.default : module;
-          if (typeof loaded === 'function')loaded = loaded();
+          if (typeof loaded === 'function') {loaded = loaded();}
           signal.throwIfAborted();
           return normalizeConfig(settings.defaultConfig === false ? loaded : defaultConfig(loaded));
         },
@@ -39,15 +39,14 @@ export function createFormKitProviders(view) {
       application = new Loader();settingsProps.onProvider?.(application);return application;
     };
     const report = error=>view.trigger('provider:error',error,application);
-    if (inheritedOptions)show({options: inheritedOptions,definitions: configScope.definitions});
-    else getApplication().start().catch(report);
+    if (inheritedOptions) {show({options: inheritedOptions,definitions: configScope.definitions});} else {getApplication().start().catch(report);}
     return {update(next) {
       attrs = omit(next,['configFile','defaultConfig','onProvider']);
       const inherited = configScope?.options,switched = !!inherited !== !!inheritedOptions;
       const reload = next.configFile !== settingsProps.configFile || next.defaultConfig !== settingsProps.defaultConfig || inherited !== inheritedOptions;
       settingsProps = next;inheritedOptions = inherited;
-      if (switched)clear();
-      if (inherited && !application) {if (reload)show({options: inherited,definitions: configScope.definitions});} else if (reload) {if (application)application.restart().catch(report);else getApplication().start().catch(report);}
+      if (switched) {clear();}
+      if (inherited && !application) {if (reload) {show({options: inherited,definitions: configScope.definitions});}} else if (reload) {if (application) {application.restart().catch(report);} else {getApplication().start().catch(report);}}
     },destroy() {application?.destroy();clear();}};
   };
   FormKitProvider[providerBoundary] = true;FormKitLazyProvider[providerBoundary] = true;

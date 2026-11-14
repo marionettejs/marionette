@@ -10,7 +10,11 @@ Scoped schema review of the supplied `c353a4d6` corrections now clears those
 cases and mixed-source ownership. This branch also imports the exact owner's
 `cb9db280` formatting and extraction repair. Broader independent review remains
 pending; the nested peer-reset sequence and real-browser confirmation remain
-unestablished. Package and packed-consumer checks do not supply that approval.
+unestablished. This isolated follow-on also imports the exact `b4e2a3b8`
+runtime lint-cleanup candidate. Scoped independent review approves that cleanup
+and strict extraction; broader review remains separate. Package and packed
+consumer checks do not establish full readiness, and root-wide active test/tooling
+lint remains a blocking gate.
 
 ## Build and verify the candidate
 

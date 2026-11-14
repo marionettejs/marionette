@@ -15,7 +15,7 @@ export function createFormKitApplication(FormView) {
       if (settings.provider) {
         const started = await settings.provider.start();
         signal.throwIfAborted();
-        if (!started) throw new Error('FormKit provider preparation was cancelled');
+        if (!started) {throw new Error('FormKit provider preparation was cancelled');}
         return settings.provider.getFormKitScope();
       }
       let loaded = settings.config;
@@ -24,7 +24,7 @@ export function createFormKitApplication(FormView) {
         loaded = 'default' in module ? module.default : module;
       }
       signal.throwIfAborted();
-      if (typeof loaded === 'function') loaded = loaded();
+      if (typeof loaded === 'function') {loaded = loaded();}
       signal.throwIfAborted();
       const raw = loaded ?? {}, defaults = settings.defaultConfig !== false;
       const rootConfig = raw.config?.rootConfig ?? createConfig({
@@ -36,7 +36,7 @@ export function createFormKitApplication(FormView) {
     onStart(_application, options, scope) {
       this._formKitScope = scope;
       const region = this.getRegion();
-      if (!region) return; // A nonvisual Application can provide config to owned children.
+      if (!region) {return;} // A nonvisual Application can provide config to owned children.
       const host = typeof region.el === 'string' ? region.getEl(region.el) : region.el;
       this.showView(this.createFormView({
         ...this.getFormOptions(options?.form ?? this.getOption('form')),
@@ -47,7 +47,7 @@ export function createFormKitApplication(FormView) {
     getFormKitScope() { return this.isRunning() ? this._formKitScope : undefined; },
     getFormOptions(form = {}) {
       const scope = this.getFormKitScope();
-      if (!scope) throw new Error('Start the FormKit Application before creating scoped forms');
+      if (!scope) {throw new Error('Start the FormKit Application before creating scoped forms');}
       return {
         ...scope.options, ...form, [formKitScope]: true,
         config: { rootConfig: scope.rootConfig, ...form.config },
