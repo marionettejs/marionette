@@ -63,7 +63,7 @@ function subscribeReactiveStore(target, subscriber) {
   };
 }
 var formKitReactiveStoreSymbol;
-var init_reactiveStore = __esm({
+var initReactiveStore = __esm({
   'packages/react/src/reactiveStore.ts'() {
     formKitReactiveStoreSymbol = /* @__PURE__ */ Symbol.for(
       'FormKitReactiveStore'
@@ -147,10 +147,10 @@ function getReactListItems(node) {
     return listItemKeys.get(child.uid);
   });
 }
-var listItemKeys, nextListItemKey, reactBindings, bindings_default;
-var init_bindings = __esm({
+var listItemKeys, nextListItemKey, reactBindings, bindingsDefault;
+var initBindings = __esm({
   'packages/react/src/bindings.ts'() {
-    init_reactiveStore();
+    initReactiveStore();
     listItemKeys = /* @__PURE__ */ new Map();
     nextListItemKey = 0;
     reactBindings = function reactBindings2(node) {
@@ -615,9 +615,9 @@ var init_bindings = __esm({
         node.context = void 0;
       });
     };
-    bindings_default = reactBindings;
+    bindingsDefault = reactBindings;
   }
 });
 
-init_bindings();
-export {bindings_default as bindings, subscribeReactiveStore, getReactiveStore};
+initBindings();
+export {bindingsDefault as bindings, subscribeReactiveStore, getReactiveStore};

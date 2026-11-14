@@ -14,7 +14,7 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
     let tokens = [],last = [],initialized = false;
     // Context bags mutate in place upstream; compare their enumerable entries,
     // not just bag identity. No cloning of aggregate form values occurs here.
-    const snapshot = value=>value && typeof value === 'object' ? Object.entries(value) : value;
+    const snapshot = snapshotValue=>snapshotValue && typeof snapshotValue === 'object' ? Object.entries(snapshotValue) : snapshotValue;
     const equal = (a,b)=>Array.isArray(a) && Array.isArray(b) ? a.length === b.length && a.every(([k,v],i)=>k === b[i][0] && Object.is(v,b[i][1])) : Object.is(a,b);
     const fn = compile(value).provide(required=>{tokens = required;return Object.fromEntries(required.map(token=>[token,()=>read(token,locals)]));});
     const effect = (force = false)=>{
