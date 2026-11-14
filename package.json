@@ -57,9 +57,16 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "npm run build:utils && npm run build:radio && npm run check:types && node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:types && npm run build:data && npm run build:adapters && npm run build:test && npm run build:router && npm run test:types && npm run docs:package",
+    "build": "npm run build:utils && npm run build:radio && npm run check:types && node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:types && npm run build:data && npm run build:adapters && npm run build:test && npm run build:router && npm run build:formkit && npm run test:types && npm run docs:package",
     "build:adapters": "npm --prefix packages/adapters run build",
     "build:data": "npm --prefix packages/data run build",
+    "build:formkit": "npm --prefix packages/formkit run build",
+    "test:formkit": "npm --prefix packages/formkit run check:package",
+    "test:formkit:unit": "npm --prefix packages/formkit test",
+    "test:formkit:types": "npm --prefix packages/formkit run check:types",
+    "lint:formkit": "npm --prefix packages/formkit run lint",
+    "coverage:formkit": "npm --prefix packages/formkit run coverage",
+    "check:formkit": "npm --prefix packages/formkit run check",
     "check:browser-profile": "node scripts/checks/browser-profile.mjs",
     "check:diagnostics": "node scripts/diagnostics/check-catalog.mjs",
     "check:docs-examples": "node test/docs/reference-examples.mjs",
@@ -199,7 +206,8 @@
   "workspaces": [
     "packages/utils",
     "packages/radio",
-    "packages/router"
+    "packages/router",
+    "packages/formkit"
   ],
   "dependencies": {
     "@mnjs/radio": "5.0.1",
