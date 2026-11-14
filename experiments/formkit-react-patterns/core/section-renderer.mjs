@@ -2,6 +2,7 @@
 // Expression/provider pattern follows FormKit React 2.5 (MIT: LICENSE.formkit).
 import { formKitScope, formKitDomRoot, formKitParent } from './provider-scope.mjs';
 import { compile } from '@formkit/core';
+import { createSchemaDependencies } from './schema-registry.mjs';
 import { subscribeReactiveStore } from './upstream-bindings.mjs';
 
 // Schema producers (including Pro) can expose non-enumerable getters.
@@ -37,6 +38,8 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
     if (condition && typeof value === 'string' && !value.startsWith('$')) {value = '$: ' + value;}
     if (typeof value !== 'string' || value.length < 2 || !value.startsWith('$')) {apply(value);return;}
     let tokens = [],last = [],initialized = false;
+    const dependencies = createSchemaDependencies();
+    owner.add(() => dependencies.destroy());
     // Context bags mutate in place upstream; compare their enumerable entries,
     // not just bag identity. No cloning of aggregate form values occurs here.
     const snapshot = currentValue=>currentValue && typeof currentValue === 'object' ? Object.entries(currentValue) : currentValue;
@@ -45,7 +48,7 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
     const effect = (force = false)=>{
       if (dead) {return;} const next = tokens.map(token=>{metric('tokenChecks');return snapshot(read(token,locals));});
       if (dead) {return;}
-      if (!always && !force && initialized && next.every((v,i)=>typeof v !== 'function' && equal(v,last[i]))) {return;}last = next;initialized = true;metric('expressionEvaluations');apply(fn());
+      if (!always && !force && initialized && next.every((v,i)=>typeof v !== 'function' && equal(v,last[i]))) {return;}last = next;initialized = true;metric('expressionEvaluations');apply(dependencies.run(fn));
     };
     effects.add(effect);owner.add(()=>effects.delete(effect));effect(true);
   }
@@ -86,6 +89,8 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
         compile(keySchema).provide(tokens=>Object.fromEntries(tokens.map(token=>[token,()=>read(token,keyLocals)]))) :
         ()=>keySchema;
       let keyLocals;
+      const keyDependencies = createSchemaDependencies();
+      owner.add(() => keyDependencies.destroy());
       const move = (row,cursor)=>{
         if (row.end.nextSibling === cursor) {return;}
         let node = row.start;while (node) {const next = node.nextSibling;parent.insertBefore(node,cursor);if (node === row.end) {break;}node = next;}
@@ -94,11 +99,13 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
       binding(source,locals,owner,values=>{
         if (Number.isFinite(values)) {values = Array.from({length: values},(_,i)=>i);}
         const entries = values && typeof values === 'object' ? Object.entries(values) : [],next = [];const keys = new Set();
-        for (const [key,value] of entries) {
-          const inner = Object.assign(Object.create(locals),{[name]: value});Object.defineProperty(inner,iterationScope,{value: true});if (keyName !== null) {inner[keyName] = Array.isArray(values) ? Number(key) : key;}
-          keyLocals = inner;const explicit = keyValue();const identity = explicit == null ? (Array.isArray(values) ? Number(key) : key) : String(explicit);
-          if (keys.has(identity)) {throw new TypeError(`Duplicate schema iteration key: ${identity}`);}keys.add(identity);next.push({identity,inner});
-        }
+        keyDependencies.run(() => {
+          for (const [key,value] of entries) {
+            const inner = Object.assign(Object.create(locals),{[name]: value});Object.defineProperty(inner,iterationScope,{value: true});if (keyName !== null) {inner[keyName] = Array.isArray(values) ? Number(key) : key;}
+            keyLocals = inner;const explicit = keyValue();const identity = explicit == null ? (Array.isArray(values) ? Number(key) : key) : String(explicit);
+            if (keys.has(identity)) {throw new TypeError(`Duplicate schema iteration key: ${identity}`);}keys.add(identity);next.push({identity,inner});
+          }
+        });
         for (const [key,row] of rows) {if (!keys.has(key)) {row.owner.destroy();rows.delete(key);metric('structuralChanges');}}
         const ordered = [];
         for (const {identity,inner} of next) {

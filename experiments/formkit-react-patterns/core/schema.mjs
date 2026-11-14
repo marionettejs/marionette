@@ -3,7 +3,7 @@
 import { compile } from '@formkit/core';
 import { eq } from '@formkit/utils';
 import { createObserver } from '@formkit/observer';
-import { createSchemaRegistry } from './schema-registry.mjs';
+import { createSchemaRegistry, createSchemaDependencies } from './schema-registry.mjs';
 // Shared only by field projection and layout; never a user-requested key.
 export const schemaFieldKey = Symbol('schema field fallback key');
 // Native container children are projected only after their Core context exists.
@@ -27,7 +27,7 @@ export function schemaIdentity(input, resolve) {
 
 export function createSchemaController({ node, schema, onFields, data = {}, dataOnly = false }) {
   if (!schema || typeof schema !== 'object') {throw new TypeError('Schema must be an array or schema object');}
-  const expressions = new Map(), anonymousKeys = new WeakMap();
+  const expressions = new Map(), anonymousKeys = new WeakMap(), dependencies = createSchemaDependencies();
   let activeNode, activeScope = {}, currentData = data, dead = false, pending = false, latest, previousFields;
   const registry = createSchemaRegistry(()=>{if (!dead) {observer.watch(evaluate,receive);apply(latest);}});
   function read(token) {
@@ -104,9 +104,9 @@ export function createSchemaController({ node, schema, onFields, data = {}, data
   }
   const observer = createObserver(node);
   const apply = fields => { if (dead) {return;} validateNames(fields); if (eq(previousFields, fields)) {return;} onFields(fields); previousFields = fields; };
-  const evaluate = observed => { activeNode = observed; const fields = project(schema); validateNames(fields); return fields; };
+  const evaluate = observed => dependencies.run(() => { activeNode = observed; const fields = project(schema); validateNames(fields); return fields; });
   const receive = fields => { latest = fields; if (pending || dead) {return;} pending = true; queueMicrotask(() => { pending = false; if (!dead) {apply(latest);} }); };
-  const destroy = () => { if (dead) {return;} dead = true; registry.destroy(); observer.kill(); node.off(destroyReceipt); };
+  const destroy = () => { if (dead) {return;} dead = true; dependencies.destroy(); registry.destroy(); observer.kill(); node.off(destroyReceipt); };
   const destroyReceipt = node.on('destroyed', destroy);
   try { observer.watch(evaluate, receive); apply(latest); } catch (error) { destroy(); throw error; }
   return {

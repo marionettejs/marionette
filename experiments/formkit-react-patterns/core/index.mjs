@@ -154,7 +154,7 @@ function createField(node,spec,view,initial,renderDefault,present) {
     const previous = field.spec;field.spec = next;
     if (next.__schemaScope !== previous.__schemaScope || next.__schemaData !== previous.__schemaData) {for (const slot of slotControllers) {slot.setScope(next);}}
     if (next !== previous && isModeled(next) && !eq(modelValue(next),modelValue(previous)) && !eq(node.value,modelValue(next))) {node.input(cloneAny(modelValue(next)),false);}
-  },disposeView(remove = true) {if (dead) {return;}dead = true;node.off(inputReceipt);node.off(schemaReceipt);node.off(visibilityReceipt);view.off('attach fields:attached',notifyMounted);renderer?.destroy(remove);for (const content of defaultScopes.values()) {content.dispose?.(remove);}defaultScopes.clear();for (const slot of slotControllers) {slot.destroy(remove);} for (const child of children.values()) {child.disposeView(remove);} if (remove) {el.remove();}},disposeNodes(parentFirst = false) {if (parentFirst) {node.destroy();} for (const child of children.values()) {child.disposeNodes(parentFirst);}children.clear();if (!parentFirst) {node.destroy();}},destroy() {if (dead) {return;}field.disposeView();field.disposeNodes();}};
+  },disposeView(remove = true) {if (dead) {return;}dead = true;node.off(inputReceipt);node.off(schemaReceipt);node.off(visibilityReceipt);view.off('attach fields:attached',notifyMounted);renderer?.destroy(remove);for (const content of defaultScopes.values()) {content.dispose?.(remove);}defaultScopes.clear();for (const slot of slotControllers) {slot.destroy(remove);} for (const child of children.values()) {child.disposeView(remove);} if (remove) {el.remove();}},disposeNodes(parentFirst = false) {if (parentFirst) {node.destroy();} for (const child of children.values()) {child.disposeNodes(parentFirst);}children.clear();view._anonymousKeys.delete(node);if (!parentFirst) {node.destroy();}},destroy() {if (dead) {return;}field.disposeView();field.disposeNodes();}};
   const inputReceipt = node.on('modelUpdated',()=>{field.spec.onInputRaw?.(node.context?.value,node);field.spec.onInput?.(node.context?.value,node);if (isModeled(field.spec)) {const value = shallowClone(node.value);field.spec.onUpdateModelValue?.(value);field.spec['onUpdate:modelValue']?.(value);field.spec.onChange?.(value,node);}});
   const schemaReceipt = node.on('schema',event=>{if (event.origin !== node || dead || schemaQueued) {return;}schemaQueued = true;queueMicrotask(()=>{schemaQueued = false;if (!dead) {redraw(field.spec);}});});
   view.on('attach fields:attached',notifyMounted);queueMicrotask(notifyMounted);
@@ -227,6 +227,16 @@ function reconcile(view,parent,map,specs,anchor,initial) {
       field = createField(node,spec,view,value);map.set(key,field);
     } else {field.update(spec);}
   }
+  const identities = view._anonymousKeys.get(parent);
+  if (identities) {
+    for (const cache of [identities.positions, identities.keys]) {
+      for (const [key, identity] of cache) {
+        if (!names.has(identity)) {
+          cache.delete(key);
+        }
+      }
+    }
+  }
   // Layout outlets own fields already projected into another container.
   // Reconcile only this outlet's children and newly created detached fields.
   const elements = entries.map(([key])=>map.get(key).el).filter(element=>!element.parentNode || element.parentNode === anchor.parentNode);
@@ -250,7 +260,7 @@ function createSchemaOwner(view,{host,props,context,parentNode,configScope,domRo
   });
   let current,unsubscribe = ()=>{},removeDom = true,dead = false,mounted = false,pending = false;
   const attached = ()=>{if (dead || !host.isConnected) {return;}scope.trigger('attach');if (!mounted) {mounted = true;current?.onMounted?.();}};view.on('attach',attached);
-  scope.on('before:destroy',()=>{dead = true;scope._ending = true;view.off('attach',attached);unsubscribe();scope._layoutController?.destroy();for (const field of scope.fields.values()) {field.disposeView(removeDom);} for (const field of scope.fields.values()) {field.disposeNodes();}scope.fields.clear();if (removeDom) {anchor.remove();}});
+  scope.on('before:destroy',()=>{dead = true;scope._ending = true;view.off('attach',attached);unsubscribe();scope._layoutController?.destroy();for (const field of scope.fields.values()) {field.disposeView(removeDom);} for (const field of scope.fields.values()) {field.disposeNodes();}scope.fields.clear();scope._anonymousKeys = new WeakMap();if (removeDom) {anchor.remove();}});
   const refresh = ()=>{if (!dead) {scope._layoutController?.updateData(current?.data ?? {});}};
   const changed = ()=>{if (dead || pending) {return;}pending = true;queueMicrotask(()=>{pending = false;refresh();});};
   const update = next=>{
@@ -315,7 +325,7 @@ export class ExperimentalFormView extends View {
     this.node.context.handlers.submit = this._onSubmit;
     this.specs = options.fields ?? (options.schema !== undefined ? [] : Array.from({ length: options.count ?? 1 }, (_, i) => ({ name: `field${i}`, label: `Field ${i}`, validation: 'required' })));
     this._directSpecs = this.specs;this._schemaSpecs = [];
-    this.on('before:destroy', () => { this._ending = true; this.node.off(schemaReceipt); this._facade.destroy(); this.node.destroy(); this._layoutController?.destroy(); this._rootRenderer?.destroy(false); for (const field of this.fields.values()) {field.disposeView(false);} for (const field of this.fields.values()) {field.disposeNodes(true);} this.fields.clear(); this.el.replaceChildren(); });
+    this.on('before:destroy', () => { this._ending = true; this.node.off(schemaReceipt); this._facade.destroy(); this.node.destroy(); this._layoutController?.destroy(); this._rootRenderer?.destroy(false); for (const field of this.fields.values()) {field.disposeView(false);} for (const field of this.fields.values()) {field.disposeNodes(true);} this.fields.clear(); this._anonymousKeys = new WeakMap(); this.el.replaceChildren(); });
     try {this._renderRoot();} catch (error) {this.destroy();throw error;}
   }
   render() {

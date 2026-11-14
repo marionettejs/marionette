@@ -6,7 +6,7 @@ import { createObserver } from '@formkit/observer';
 import { createSchemaController, schemaFieldKey, schemaChildScope, projectedFormKit, schemaIdentity } from './schema.mjs';
 import { subscribeReactiveStore } from './upstream-bindings.mjs';
 import { renderSections } from './section-renderer.mjs';
-import { createSchemaRegistry } from './schema-registry.mjs';
+import { createSchemaRegistry, createSchemaDependencies } from './schema-registry.mjs';
 export function createLayoutController({form,schema,data: externalData = {},components = {},slots: externalSlots = {}}) {
   const layoutData = form._schemaDataOnly ? {...externalData} : {...externalData,get values() {return form.node.value;}};
   const reserved = new Set(['get','slots','__ownedKey','__boundType',...(form._schemaDataOnly ? [] : ['values'])]);
@@ -101,13 +101,14 @@ export function createLayoutController({form,schema,data: externalData = {},comp
       slots[slot] = ({parent,before,locals = {},fields = form.fields,ownerNode = form.node})=>{
         const anchor = document.createComment('owned field'),outlet = Symbol(slot);parent.insertBefore(anchor,before);
         let current,presentation;
+        const dependencies = createSchemaDependencies();
         const update = ({locals: scope = locals} = {})=>{
-          const {name,key: explicitKey} = schemaIdentity(entry,item=>resolved(item,scope));const identity = explicitKey === undefined ? resolved(entry[schemaFieldKey],scope) : explicitKey;const field = ownedField(fields,ownerNode,name,identity);if (!field) {throw new Error(`Missing owned layout field: ${name}`);}
+          const {name,identity} = dependencies.run(() => {const {name: resolvedName,key: explicitKey} = schemaIdentity(entry,item=>resolved(item,scope));return {name: resolvedName,identity: explicitKey === undefined ? resolved(entry[schemaFieldKey],scope) : explicitKey};});const field = ownedField(fields,ownerNode,name,identity);if (!field) {throw new Error(`Missing owned layout field: ${name}`);}
           if (field.el.nextSibling !== anchor) {anchor.parentNode.insertBefore(field.el,anchor);}
           if (current !== field) {presentation?.destroy();current = field;presentation = nativeChildren && ['group','list'].includes(field.node.props.type) ? childPresentation(field,nativeChildren,scope) : undefined;}
           presentation?.update(scope);outlets.set(outlet,{fields,ownerNode,name: name === undefined ? undefined : String(name),identity,anchor});
         };
-        update();return {update,destroy(remove = true) {presentation?.destroy(remove);outlets.delete(outlet);if (remove) {anchor.remove();}}};
+        update();return {update,destroy(remove = true) {dependencies.destroy();presentation?.destroy(remove);outlets.delete(outlet);if (remove) {anchor.remove();}}};
       };
       return {fields: [nativeChildren ? {...entry,children: [],[schemaChildScope]: true} : entry],dom: entry.if ? {if: entry.if,then: `$slots.${slot}`} : `$slots.${slot}`};
     }
