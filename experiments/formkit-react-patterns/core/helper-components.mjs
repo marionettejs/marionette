@@ -9,7 +9,7 @@ import { subscribeReactiveStore } from './upstream-bindings.mjs';
 const messages = createSection('messages', () => ({ $el: 'ul', if: '$fns.length($messages)' }));
 const message = createSection('message', () => ({
   $el: 'li', for: ['message', '$messages'],
-  attrs: { key: '$message.key', id: "$id + '-' + $message.key", 'data-message-type': '$message.type' }
+  attrs: { key: '$message.key', id: '$id + \'-\' + $message.key', 'data-message-type': '$message.type' }
 }));
 const messageSchema = messages(message('$message.value'));
 const summary = createSection('summary', () => ({ $el: 'div', attrs: { 'aria-live': 'polite' } }));
@@ -21,7 +21,7 @@ const summaryMessage = createSection('message', () => ({
 }));
 const summaryHeader = createSection('summaryHeader', () => ({ $el: 'h2', attrs: { id: '$id' } }));
 const messageLink = createSection('messageLink', () => ({
-  $el: 'a', attrs: { id: "$id + '-' + $summary.key", href: '$: "#" + $summary.id', onClick: '$jumpLink' }
+  $el: 'a', attrs: { id: '$id + \'-\' + $summary.key', href: '$: "#" + $summary.id', onClick: '$jumpLink' }
 }));
 const summarySchema = summary(summaryInner(summaryHeader('$summaryHeader'), summaryMessages(summaryMessage(messageLink('$summary.message')))));
 
@@ -132,7 +132,7 @@ function createMessageHelper(args, environment, isSummary) {
       if (!node.context) return;
       const boundNode = node;
       const on = (event, callback) => { const receipt = boundNode.on(event, callback); disposers.push(() => boundNode.off(receipt)); };
-      on('destroying', () => { clear(environment.removeDom?.()??true); node = undefined; summaries = []; submitPending = false; });
+      on('destroying', () => { clear(environment.removeDom?.() ?? true); node = undefined; summaries = []; submitPending = false; });
       if (isSummary) {
         localize('summaryHeader', 'There were errors in your form.')(node);
         on('child.deep', schedule);
@@ -143,8 +143,7 @@ function createMessageHelper(args, environment, isSummary) {
     }
     refresh();
   }
-  try { update(args.props || {}); }
-  catch (error) { clear(); closed = true; throw error; }
+  try { update(args.props || {}); } catch (error) { clear(); closed = true; throw error; }
   return { update, destroy(remove = true) { if (closed) return; closed = true; clear(remove); node = undefined; } };
 }
 
@@ -174,8 +173,7 @@ function safeSvg(host, markup) {
       }
     }
     for (const child of source.childNodes) {
-      if (child.nodeType === 1) { const clean = copy(child); if (clean) element.append(clean); }
-      else if (child.nodeType === 3 && ['title', 'desc'].includes(source.localName)) element.append(host.ownerDocument.createTextNode(child.textContent));
+      if (child.nodeType === 1) { const clean = copy(child); if (clean) element.append(clean); } else if (child.nodeType === 3 && ['title', 'desc'].includes(source.localName)) element.append(host.ownerDocument.createTextNode(child.textContent));
     }
     return element;
   }
@@ -226,15 +224,14 @@ export function FormKitIcon(args, environment = {}) {
     const handler = node?.props?.iconHandler || environment.getPlugins?.()?.find(plugin => typeof plugin.iconHandler === 'function')?.iconHandler;
     const loader = typeof props.iconLoader === 'function' ? props.iconLoader : parentLoader;
     const url = !loader && typeof props.iconLoaderUrl === 'function' ? props.iconLoaderUrl : undefined;
-    if (!force && props.icon === previousIcon && loader === previousLoader && url === previousUrl && handler === previousHandler) { if(renderProps)display(currentMarkup, generation); return; }
+    if (!force && props.icon === previousIcon && loader === previousLoader && url === previousUrl && handler === previousHandler) { if (renderProps)display(currentMarkup, generation); return; }
     previousIcon = props.icon; previousLoader = loader; previousUrl = url; previousHandler = handler;
     const request = ++generation;
     currentMarkup = undefined; clearSpan();
     if (typeof props.icon !== 'string' || (!props.icon.startsWith('<svg') && !/^[A-Za-z0-9_:-]+$/.test(props.icon))) return;
     const resolve = loader || url ? createIconHandler(loader, url) : handler || createIconHandler();
     let result;
-    try { result = resolve(props.icon); }
-    catch { return; }
+    try { result = resolve(props.icon); } catch { return; }
     if (result && typeof result.then === 'function') {
       Promise.resolve(result).then(markup => {
         if (closed || request !== generation) return;
@@ -251,7 +248,7 @@ export function FormKitIcon(args, environment = {}) {
       unsubscribe = subscribeReactiveStore(node?.context, () => load());
       if (node) {
         const boundNode = node;
-        const receipt = node.on('destroying', () => { generation++; clearSpan(environment.removeDom?.()??true); unsubscribe(); offDestroy(); node = undefined; });
+        const receipt = node.on('destroying', () => { generation++; clearSpan(environment.removeDom?.() ?? true); unsubscribe(); offDestroy(); node = undefined; });
         offDestroy = () => boundNode.off(receipt);
       } else offDestroy = () => {};
       load(true);

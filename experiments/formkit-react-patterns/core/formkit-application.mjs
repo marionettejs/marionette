@@ -29,7 +29,7 @@ export function createFormKitApplication(FormView) {
       const raw = loaded ?? {}, defaults = settings.defaultConfig !== false;
       const rootConfig = raw.config?.rootConfig ?? createConfig({
         ...(defaults ? { locale: 'en', rootClasses: section => ({ [`formkit-${kebab(section)}`]: true }) } : {}),
-        ...(defaults&&raw.locale ? { locale: raw.locale } : {}), ...raw.config
+        ...(defaults && raw.locale ? { locale: raw.locale } : {}), ...raw.config
       });
       return { options: raw, defaultConfig: defaults, rootConfig };
     },
@@ -49,7 +49,7 @@ export function createFormKitApplication(FormView) {
       const scope = this.getFormKitScope();
       if (!scope) throw new Error('Start the FormKit Application before creating scoped forms');
       return {
-        ...scope.options, ...form, [formKitScope]:true,
+        ...scope.options, ...form, [formKitScope]: true,
         config: { rootConfig: scope.rootConfig, ...form.config },
         plugins: [...(scope.options.plugins ?? []), ...(form.plugins ?? [])],
         defaultConfig: scope.defaultConfig
