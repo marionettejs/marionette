@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>',{url: 'http://localhost'});
-for (const key of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+for (const key of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
 Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
 const arm = process.argv[2] ?? 'adapter',host = document.querySelector('main'),created = [],destroyed = [];
 const capture = node=>{created.push(node);node.on('destroyed',()=>destroyed.push(node));};
@@ -12,7 +12,7 @@ const declaration = caption=>[
 ];
 let node,set,destroy;
 const wait = ms=>new Promise(resolve=>setTimeout(resolve,ms));
-async function until(test) {for (let i = 0;i < 120;i++) {if (test()) return;await wait(5);}assert.ok(test(),'semantic wait');}
+async function until(test) {for (let i = 0;i < 120;i++) {if (test()) {return;} await wait(5);}assert.ok(test(),'semantic wait');}
 try {
   if (arm === 'adapter') {
     const {mount} = await import('./index.mjs');
@@ -36,7 +36,7 @@ try {
   set();await until(()=>node.at('added') && host.querySelector('button strong')?.textContent === 'Continue');
   assert.equal(node.at('kept'),kept,'ordinary literal input keeps Core owner');assert.equal(kept.value,'Edited');
   assert.equal(host.querySelector('input[name=kept]'),input,'ordinary literal input keeps DOM');assert.equal(input.value,'Edited');
-  if (arm === 'adapter')assert.equal(host.querySelector('em').textContent,'Named help');
+  if (arm === 'adapter') {assert.equal(host.querySelector('em').textContent,'Named help');}
   destroy();await until(()=>created.length === destroyed.length);assert.equal(new Set(destroyed).size,created.length);assert.equal(host.childElementCount,0);
   console.log(JSON.stringify({passed: true,arm,checks: ['button array default-slot markup mounts and updates','ordinary sibling input retains Core/edited value/DOM across Schema+memo replacement','named schema slots preserved on adapter','exact owned teardown'],scope: 'Portable literal FormKit children;framework function-slot syntax is not claimed equivalent'}));
 } finally {destroy?.();dom.window.close();}

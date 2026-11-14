@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom';
 import assert from 'node:assert/strict';
 const dom = new JSDOM('<!doctype html><body><div id="host"></div>', { url: 'http://localhost' });
-for (const name of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver','getComputedStyle']) globalThis[name] = dom.window[name];
+for (const name of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[name] = dom.window[name];}
 const { mount } = await import('./index.mjs');
 const tick = () => new Promise(r => setTimeout(r, 25));
 

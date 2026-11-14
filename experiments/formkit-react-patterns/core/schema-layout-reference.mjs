@@ -1,4 +1,4 @@
-function followValues(node,update) {let dead = false,pending = false,last = JSON.stringify(node.value);const r = node.on('commit',()=>{if (pending || dead) return;pending = true;queueMicrotask(()=>{pending = false;if (dead) return;const next = JSON.stringify(node.value);if (next !== last) {last = next;update(node.value)}})});return ()=>{dead = true;node.off(r)}}
+function followValues(node,update) {let dead = false,pending = false,last = JSON.stringify(node.value);const r = node.on('commit',()=>{if (pending || dead) {return;}pending = true;queueMicrotask(()=>{pending = false;if (dead) {return;} const next = JSON.stringify(node.value);if (next !== last) {last = next;update(node.value)}})});return ()=>{dead = true;node.off(r)}}
 export const conditionalSchema = [{$el: 'fieldset',attrs: {class: 'details'},children: [
   {$el: 'legend',children: 'Contact details'},
   {$el: 'p',attrs: {class: 'intro'},children: '$values.mode'},
@@ -25,5 +25,5 @@ export async function mountSchemaReference(arm,host) {
   } else {
     const {mount} = await import('../core/index.mjs');const api = mount({host,schema: conditionalSchema,values: initial,formProps: {actions: false}});node = api.node;dispose = ()=>api.destroy();
   }
-  return {get node() {return node},destroy: ()=>{if (receipt)receipt();dispose()}};
+  return {get node() {return node},destroy: ()=>{if (receipt) {receipt();}dispose()}};
 }

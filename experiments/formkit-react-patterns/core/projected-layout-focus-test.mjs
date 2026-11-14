@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>');
-for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
 const {mount} = await import('./index.mjs'),host = document.querySelector('main');
 const schema = {$formkit: 'group',name: 'profile',children: {$el: 'fieldset',children: [{$el: 'legend',children: '$title'},{$formkit: 'text',name: 'name',label: 'Profile name'},{$formkit: 'list',name: 'tags',children: {$el: 'ol',children: {$el: 'li',for: ['item','$rows'],attrs: {key: '$item.id','data-row': '$item.id'},children: {$formkit: 'text',key: '$item.id',label: '$item.title'}}}},{if: '$extra',then: {$formkit: 'text',name: 'extra',label: 'Extra'}}]}};
 const rows = [{id: 'a',title: 'Alpha'},{id: 'b',title: 'Beta'}],modes = process.argv[2] ? [process.argv[2]] : ['conditional','reorder'];

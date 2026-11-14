@@ -1,5 +1,5 @@
 import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
-const dom = new JSDOM('<body><main></main>');for (const k of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[k] = dom.window[k];
+const dom = new JSDOM('<body><main></main>');for (const k of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[k] = dom.window[k];}
 const {mount} = await import('./index.mjs');const host = document.querySelector('main'),tick = ()=>new Promise(r=>setTimeout(r,40));
 for (const field of [
   {name: 'x',type: 'radio',options: ['One','Two']},

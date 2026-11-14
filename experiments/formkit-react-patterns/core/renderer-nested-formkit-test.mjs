@@ -1,5 +1,5 @@
 import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
-const dom = new JSDOM('<body><main></main>');for (const k of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[k] = dom.window[k];
+const dom = new JSDOM('<body><main></main>');for (const k of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[k] = dom.window[k];}
 const {mount} = await import('./index.mjs');
 const child = {$formkit: 'text',name: 'inside'};Object.defineProperty(child,'label',{get: ()=> 'Nested label'});
 const api = mount({host: document.querySelector('main'),fields: [{name: 'outer',type: 'nested'}],inputs: {nested: {type: 'group',schema: ()=>({$el: 'section',children: [child]})}}});

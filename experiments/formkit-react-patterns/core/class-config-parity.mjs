@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body></body>');
-for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
 const {createNode,createClasses} = await import('@formkit/core');
 const mode = process.argv[2] ?? 'core';
 const options = mode === 'core' ? {} : (await import('@formkit/' + mode)).defaultConfig();
@@ -21,6 +21,6 @@ try {
   const late = createNode({...options,parent: root,props: {type: 'text'},config: {}});
   try {report.late = read(late);assert.match(report.late,/replaced/);} finally {late.destroy();}
   inherited.config.classes = {input: ()=>({fieldReplacement: true})};await pause();
-  report.fieldReplacement = read(inherited);if (mode === 'react') {assert.match(report.fieldReplacement,/initial/);report.fieldReplacementDivergence = 'React 2.5 retains cached classes';} else assert.match(report.fieldReplacement,/fieldReplacement/);
+  report.fieldReplacement = read(inherited);if (mode === 'react') {assert.match(report.fieldReplacement,/initial/);report.fieldReplacementDivergence = 'React 2.5 retains cached classes';} else {assert.match(report.fieldReplacement,/fieldReplacement/);}
   report.status = 'passed';console.log(JSON.stringify(report));
 } finally {root.destroy();inherited.destroy();overridden.destroy();dom.window.close();}

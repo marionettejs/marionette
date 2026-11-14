@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
-const dom = new JSDOM('<body><main></main>',{url: 'http://localhost'});for (const key of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+const dom = new JSDOM('<body><main></main>',{url: 'http://localhost'});for (const key of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
 const {mount} = await import('./index.mjs'),host = document.querySelector('main');
-const wait = ms=>new Promise(resolve=>setTimeout(resolve,ms));async function until(test) {for (let i = 0;i < 120;i++) {if (test()) return;await wait(5);}assert.ok(test(),'semantic wait');}
+const wait = ms=>new Promise(resolve=>setTimeout(resolve,ms));async function until(test) {for (let i = 0;i < 120;i++) {if (test()) {return;} await wait(5);}assert.ok(test(),'semantic wait');}
 const api = mount({host,schema: {$cmp: 'FormKitRoot',children: {$el: 'section',attrs: {id: 'placement'},children: [{$cmp: 'FormKit',if: '$show',props: {type: 'text',name: 'inside',sectionsSchema: '$sections'}},{$el: 'button',attrs: {type: 'button',id: 'after'},children: 'After'}]}},data: {show: true,sections: {}},config: {delay: 0},formProps: {actions: false},instrument: true});
 try {
   await until(()=>api.node.at('inside'));const scope = host.querySelector('#placement'),node = api.node.at('inside'),outer = scope.querySelector('.formkit-outer');

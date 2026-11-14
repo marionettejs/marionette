@@ -1,7 +1,7 @@
 import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
-const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
 const {mount} = await import('./index.mjs'),{createLayoutController} = await import('./schema-layout.mjs');const host = document.querySelector('main'),api = mount({instrument: true,host,fields: []});
-for (const schema of [[{$el: 'p',children: '$values.x + ('}],[{$cmp: 'Other'}],[{$el: 42}],[{$el: 'div',attrs: {innerHTML: 'bad'}}],[{$unknown: true}]])assert.throws(()=>createLayoutController({form: api.form,schema}));
+for (const schema of [[{$el: 'p',children: '$values.x + ('}],[{$cmp: 'Other'}],[{$el: 42}],[{$el: 'div',attrs: {innerHTML: 'bad'}}],[{$unknown: true}]]) {assert.throws(()=>createLayoutController({form: api.form,schema}));}
 assert.equal(api.node.children.length,0);
 const layout = createLayoutController({form: api.form,schema: [{$el: 'fieldset',children: [{$el: 'legend',children: 'Group'},{$formkit: 'text',name: 'x',label: 'X'}]}]});assert.throws(()=>createLayoutController({form: api.form,schema: []}),/one layout/);
 const input = host.querySelector('input');input.focus();await api.node.at('x').input('value');await new Promise(r=>setTimeout(r,30));assert.equal(document.activeElement,input);

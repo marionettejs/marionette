@@ -1,4 +1,4 @@
-function followValues(node,update) {let dead = false,pending = false,last = JSON.stringify(node.value);const r = node.on('commit',()=>{if (pending || dead) return;pending = true;queueMicrotask(()=>{pending = false;if (dead) return;const next = JSON.stringify(node.value);if (next !== last) {last = next;update(node.value)}})});return ()=>{dead = true;node.off(r)}}
+function followValues(node,update) {let dead = false,pending = false,last = JSON.stringify(node.value);const r = node.on('commit',()=>{if (pending || dead) {return;}pending = true;queueMicrotask(()=>{pending = false;if (dead) {return;} const next = JSON.stringify(node.value);if (next !== last) {last = next;update(node.value)}})});return ()=>{dead = true;node.off(r)}}
 export const conditionalSchema = [{$formkit: 'group',name: 'profile',children: [
   {$formkit: 'text',name: 'mode',label: 'Mode'},
   {$formkit: 'textarea',name: 'notes',label: '$values.profile.mode',disabled: '$values.profile.mode === \'lock\''},
@@ -23,5 +23,5 @@ export async function mountSchemaReference(arm,host) {
   } else {
     const {mount} = await import('../core/index.mjs');const {createSchemaController} = await import('../core/schema.mjs');const api = mount({host,fields: [],values: initial});node = api.node;const controller = createSchemaController({node,schema: conditionalSchema,onFields: fs=>api.setFields(fs)});dispose = ()=>{controller.destroy();api.destroy()};
   }
-  return {get node() {return node},destroy: ()=>{if (receipt)receipt();dispose()}};
+  return {get node() {return node},destroy: ()=>{if (receipt) {receipt();}dispose()}};
 }

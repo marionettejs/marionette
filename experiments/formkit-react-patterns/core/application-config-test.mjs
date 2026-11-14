@@ -1,7 +1,7 @@
 import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
-const dom = new JSDOM('<body></body>',{url: 'http://localhost'});for (const k of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLTextAreaElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[k] = dom.window[k];
+const dom = new JSDOM('<body></body>',{url: 'http://localhost'});for (const k of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLTextAreaElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[k] = dom.window[k];}
 const {FormKitApplication,ExperimentalFormView,mount} = await import('./index.mjs'),{Application,Region} = await import('marionette'),{createLibraryPlugin,inputs} = await import('@formkit/inputs'),{bindings} = await import('./upstream-bindings.mjs');
-const sleep = ms=>new Promise(r=>setTimeout(r,ms));async function until(fn) {for (let i = 0;i < 100;i++) {if (fn()) return;await sleep(10);}assert.ok(fn(),'semantic wait');}
+const sleep = ms=>new Promise(r=>setTimeout(r,ms));async function until(fn) {for (let i = 0;i < 100;i++) {if (fn()) {return;} await sleep(10);}assert.ok(fn(),'semantic wait');}
 const targets = [];const host = ()=>{const el = document.createElement('main');document.body.append(el);targets.push(el);return el;};const cases = new Map(),apps = [];let sequence = 0;
 const fixtures = globalThis.__formKitProviderFixtures = {enter(url) {cases.get(url).entered++;},wait(url) {return cases.get(url).gate.promise;},complete(url) {cases.get(url).completed++;},options(url) {const c = cases.get(url);c.factories++;return c.options;}};
 const definition = {type: 'input',schema: {$el: 'input',attrs: {value: '$_value',onInput: '$handlers.DOMInput',class: '$classes.input','data-config': 'loaded'}}};
@@ -28,4 +28,4 @@ try {
   {let calls = 0;const region = new Region({el: host()}),Custom = FormKitApplication.extend({createFormView(options) {calls++;return new ExperimentalFormView(options);}}),a = new Custom({region,config: {inputs: {scopedText: definition}},form});apps.push(a);assert.equal(await a.start(),true);const view = a.getView();assert.equal(calls,1);a.destroy();assert.equal(view.isDestroyed(),true);assert.equal(region.currentView,undefined);assert.equal(region.isDestroyed(),false);region.destroy();}
   checks.push('public View factory override and borrowed Region ownership remain ordinary Marionette contracts');
   console.log(JSON.stringify({passed: true,checks,applications: apps.length,source: 'Application.prepareStart/start/restart/stop/destroy; existing FormView/Region ownership',scope: 'Application config scope, not a Vue/React context object or schema component imitation'}));
-} finally {for (const a of apps)a.destroy();for (const el of targets)el.remove();delete globalThis.__formKitProviderFixtures;dom.window.close();}
+} finally {for (const a of apps) {a.destroy();} for (const el of targets) {el.remove();} delete globalThis.__formKitProviderFixtures;dom.window.close();}

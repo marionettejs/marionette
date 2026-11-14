@@ -1,7 +1,7 @@
 import {JSDOM} from 'jsdom';
 import assert from 'node:assert/strict';
 const dom = new JSDOM('<body><main></main>');
-for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','SVGElement'])globalThis[key] = dom.window[key];
+for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','SVGElement']) {globalThis[key] = dom.window[key];}
 Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
 globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
 const arm = process.argv[2] ?? 'experiment',host = document.querySelector('main');
@@ -23,7 +23,7 @@ if (arm === 'vue') {
   const fields = s=>[{type: 'group',name: 'g',attrs: s.attrs,...('disabled' in s ? {disabled: s.disabled} : {}),children: [{type: 'checkbox',name: 'box',...s.box}]}];
   const api = mount({host,fields: fields(base)});node = api.node;update = s=>api.setFields(fields(s));destroy = api.destroy;
 }
-async function until(fn) {const end = Date.now() + 2000;while (Date.now() < end) {if (fn()) return;await new Promise(r=>setTimeout(r,10));} throw Error('Unsettled alias fixture');}
+async function until(fn) {const end = Date.now() + 2000;while (Date.now() < end) {if (fn()) {return;} await new Promise(r=>setTimeout(r,10));} throw Error('Unsettled alias fixture');}
 await until(()=>node?.at('g.box') && host.querySelector('input'));
 const input = host.querySelector('input'),box = node.at('g.box');
 assert.equal(box.props.onValue,'yes');assert.equal(box.props.offValue,'no');assert.equal(node.at('g').props.disabled,true);assert.equal(input.disabled,true);

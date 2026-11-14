@@ -1,7 +1,7 @@
 import {JSDOM} from 'jsdom';
 import assert from 'node:assert/strict';
 const dom = new JSDOM('<body><main></main>',{url: 'http://localhost'});
-for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','HTMLTextAreaElement','HTMLSelectElement','Event','CustomEvent','MutationObserver','SVGElement'])globalThis[key] = dom.window[key];
+for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','HTMLTextAreaElement','HTMLSelectElement','Event','CustomEvent','MutationObserver','SVGElement']) {globalThis[key] = dom.window[key];}
 globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
 Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator});
 const arm = process.argv[2] ?? 'experiment',host = document.querySelector('main');
@@ -27,7 +27,7 @@ if (arm === 'vue') {
 } else {
   const {mount} = await import('./index.mjs');api = mount({host,schema,data,values: initial,formProps: {actions: false},config: {delay: 0}});node = api.node;update = async next=>api.updateData(next);destroy = ()=>api.destroy();
 }
-const until = async test=>{for (let i = 0;i < 100;i++) {if (test()) return;await new Promise(r=>setTimeout(r,5));}assert.ok(test(),'bounded semantic wait');};
+const until = async test=>{for (let i = 0;i < 100;i++) {if (test()) {return;} await new Promise(r=>setTimeout(r,5));}assert.ok(test(),'bounded semantic wait');};
 await until(()=>host.querySelector('li input') && node?.at('profile.tags')?.children.length === 2);
 const profile = node.at('profile'),name = node.at('profile.name'),list = node.at('profile.tags');
 assert.equal(host.querySelector('legend').textContent,'Profile');assert.deepEqual(node.children,[profile]);assert.deepEqual(profile.children.map(n=>n.name),['name','tags']);

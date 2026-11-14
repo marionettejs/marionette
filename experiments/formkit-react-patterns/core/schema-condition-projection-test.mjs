@@ -9,7 +9,7 @@ for (const [condition,active] of cases) {
     const group = app.node.at('g');assert.deepEqual(group.children.map(n=>n.name),[active ? 'required' : 'fallback'],condition + ' Core branch');
     assert.equal(!!host.querySelector('section input'),active);assert.equal(!!host.querySelector('aside input'),!active);
     assert.equal(host.querySelectorAll('input').length,1);assert.equal(app.node.context.state.valid,!active);
-    if (active)assert.equal(host.querySelector('input').disabled,false,'conditional prop uses the compiled false branch');
+    if (active) {assert.equal(host.querySelector('input').disabled,false,'conditional prop uses the compiled false branch');}
     await app.submit();assert.equal(app.counts().submitted,active ? 0 : 1);assert.equal(app.counts().invalid,active ? 1 : 0);
   } finally {app.destroy();await settle();assert.equal(app.counts().created,app.counts().destroyed);assert.equal(host.childNodes.length,0);}
 }

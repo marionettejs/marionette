@@ -1,7 +1,7 @@
 // Observe actual bound-component removal semantics; differences remain explicit.
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>',{url: 'http://localhost'});
-for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','SVGElement','getComputedStyle'])globalThis[key] = dom.window[key];
+for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','SVGElement','getComputedStyle']) {globalThis[key] = dom.window[key];}
 Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
 const mode = process.argv[2] ?? 'experiment',host = document.querySelector('main'),pause = ()=>new Promise(resolve=>setTimeout(resolve,40));
 const widget = {type: 'input',props: {caption: {default: 'Default',setter: value=>value == null ? value : String(value).toUpperCase()}},schema: {$el: 'div',children: [{$el: 'span',attrs: {'data-caption': true},children: '$caption'},{$el: 'input',attrs: {value: '$_value',onInput: '$handlers.DOMInput',disabled: '$disabled',title: '$attrs.title',class: '$classes.input'}}]}};

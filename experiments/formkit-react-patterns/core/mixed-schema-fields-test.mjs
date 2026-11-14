@@ -18,7 +18,7 @@ if (arm === 'vue') {
   render();destroy = ()=>flushSync(()=>ui.unmount());update = async next=>{state = {...state,...next};render();await settle();};
 } else {
   const {mount} = await import('./index.mjs');api = mount({host,fields: state.fields,schema: state.schema,data: state.data,values: initial,plugins: [capture],config: {delay: 0},formProps: {actions: false},onSubmit: formProps.onSubmit,onSubmitInvalid: formProps.onSubmitInvalid});node = api.node;destroy = ()=>api.destroy();
-  update = async next=>{state = {...state,...next};if ('fields' in next)api.setFields(next.fields);if ('schema' in next)api.setSchema(next.schema);if ('data' in next)api.updateData(next.data);await settle();};
+  update = async next=>{state = {...state,...next};if ('fields' in next) {api.setFields(next.fields);} if ('schema' in next) {api.setSchema(next.schema);} if ('data' in next) {api.updateData(next.data);} await settle();};
 }
 await settle();
 const input = name=>host.querySelector(`[name="${name}"]`),errors = n=>n.store.reduce((a,m)=>m.type === 'error' ? [...a,m.value] : a,[]),submit = async()=>{host.querySelector('form').dispatchEvent(new Event('submit',{bubbles: true,cancelable: true}));await settle();};
@@ -40,6 +40,6 @@ try {
   await update({fields: directFields});assert.equal(document.activeElement,schemaOnlyInput);assert.deepEqual([...host.querySelectorAll('input')].map(el=>el.name),['direct','generated']);assert.ok(node.at('direct'));assert.equal(node.at('direct').parent,node);assert.ok(node.at('generated') === schemaOnly);node.input({direct: 'Final direct',generated: 'Final schema'},false);await settle();await submit();assert.deepEqual(submitted.at(-1),{direct: 'Final direct',generated: 'Final schema'});
   if (api) {assert.throws(()=>api.setFields([{name: 'generated'}]),/Unique sibling names/);assert.equal(node.children.length,2);const keptDirect = node.at('direct');api.setSlots({default: {$el: 'article',children: ['$slots.fields']}});assert.equal(host.querySelectorAll('article input').length,2);assert.ok(node.at('direct') === keptDirect);assert.ok(node.at('generated') === schemaOnly);api.setSlots({});}
 } finally {
-  const ids = nodes.map(n=>n.props.id);destroy();await settle();assert.equal(created,destroyed);assert.equal(host.childNodes.length,0);for (const id of ids)assert.equal(getNode(id),undefined);dom.window.close();
+  const ids = nodes.map(n=>n.props.id);destroy();await settle();assert.equal(created,destroyed);assert.equal(host.childNodes.length,0);for (const id of ids) {assert.equal(getNode(id),undefined);}dom.window.close();
 }
 console.log(JSON.stringify({arm,passed: true,created,destroyed,checks: ['direct FormKit and Schema siblings share one Core form','flat shared values and validation/errors','submit and reset both sources','independent schema/direct add/remove/replacement','retained sibling Core/DOM/edit identity','schema removal preserves direct fields and vice versa','root redraw and unique sibling names','exact node/registry/DOM teardown']}));

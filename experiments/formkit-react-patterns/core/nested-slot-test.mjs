@@ -1,4 +1,4 @@
-import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';const dom = new JSDOM('<body><div id="host"></div>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';const dom = new JSDOM('<body><div id="host"></div>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
 const {mount} = await import('./index.mjs');const tick = ()=>new Promise(r=>setTimeout(r,25));const host = document.querySelector('#host');
 const label = {$el: 'label',attrs: {for: '$id','data-cross-label': 'true'},children: '$label + \': \' + $values.contact.first'};
 const fields = [{type: 'group',name: 'contact',children: [{name: 'first',label: 'First'},{name: 'last',label: 'Last',children: {label}}]},{name: 'outside',label: 'Outside'}];

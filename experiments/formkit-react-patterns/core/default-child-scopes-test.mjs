@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
-const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
 const {mount} = await import('./index.mjs'),{createNode,getNode} = await import('@formkit/core');const pause = ()=>new Promise(resolve=>setTimeout(resolve,35));
-const rowsDefinition = {type: 'list',features: [node=>{let rows = [];node.on('created',()=>{rows = [0,1].map(index=>createNode({parent: node,index,props: {type: 'group',id: 'owned-row-' + index}}));node.context.rows = rows;});node.on('destroyed',()=>{for (const row of rows)row.destroy();});}],schema: {$el: 'section',children: {$el: 'article',for: ['node','$rows'],attrs: {key: '$node.props.id'},children: '$slots.default'}}};
+const rowsDefinition = {type: 'list',features: [node=>{let rows = [];node.on('created',()=>{rows = [0,1].map(index=>createNode({parent: node,index,props: {type: 'group',id: 'owned-row-' + index}}));node.context.rows = rows;});node.on('destroyed',()=>{for (const row of rows) {row.destroy();}});}],schema: {$el: 'section',children: {$el: 'article',for: ['node','$rows'],attrs: {key: '$node.props.id'},children: '$slots.default'}}};
 const composite = {type: 'group',schema: {$formkit: 'rows',name: 'inner',value: [{label: 'first'},{label: 'second'}],children: {$formkit: 'text',name: 'label'}}};
 const api = mount({host: document.querySelector('main'),inputs: {rows: rowsDefinition,composite},fields: [{name: 'outer',type: 'composite'}]});
 try {

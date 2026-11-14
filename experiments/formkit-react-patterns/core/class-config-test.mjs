@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>');
-for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
 const {mount} = await import('./index.mjs');const pause = ()=>new Promise(resolve=>setTimeout(resolve,40));
 const fields = [{name: 'inherited'},{name: 'override',config: {classes: {input: ()=>({local: true})}}},{name: 'group',type: 'group',children: [{name: 'nested'}]}];
 const api = mount({host: document.querySelector('main'),fields,classes: {input: ()=>({initial: true})}});

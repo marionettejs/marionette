@@ -1,10 +1,10 @@
 import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
-const dom = new JSDOM('<body><div id="host"></div>');for (const k of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver'])globalThis[k] = dom.window[k];
+const dom = new JSDOM('<body><div id="host"></div>');for (const k of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver']) {globalThis[k] = dom.window[k];}
 const {mount} = await import('./index.mjs');const {getNode} = await import('@formkit/core');const tick = ()=>new Promise(r=>setTimeout(r,10));const host = document.querySelector('#host');
 const results = [];
 for (const count of [200,400]) {
   const api = mount({instrument: true,host,count});await tick();const nodes = [api.node,...api.node.children],ids = nodes.map(n=>n.props.id),order = [];let parentCommits = 0;
-  api.node.on('commit',()=>parentCommits++);for (const n of nodes)n.on('destroyed',()=>order.push(n.name));
+  api.node.on('commit',()=>parentCommits++);for (const n of nodes) {n.on('destroyed',()=>order.push(n.name));}
   const observer = new MutationObserver(()=>{});observer.observe(api.form.el,{subtree: true,childList: true});
   let ledgerSettled = false;api.node.ledger.settled('blocking').then(()=>{ledgerSettled = true;});const before = {...api.metrics};api.destroy();const records = observer.takeRecords();observer.disconnect();await tick();
   assert.equal(order.length,count + 1);assert.equal(order[0],'form');assert.equal(parentCommits,0);assert.equal(api.node.children.length,0);assert.equal(api.form.el.childNodes.length,0);assert.equal(host.childNodes.length,0);ids.forEach(id=>assert.equal(getNode(id),undefined));

@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom';
 import assert from 'node:assert/strict';
 const dom = new JSDOM('<body></body>');
-for (const key of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'HTMLInputElement', 'HTMLFormElement', 'Event', 'CustomEvent', 'MutationObserver', 'getComputedStyle']) globalThis[key] = dom.window[key];
+for (const key of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'HTMLInputElement', 'HTMLFormElement', 'Event', 'CustomEvent', 'MutationObserver', 'getComputedStyle']) {globalThis[key] = dom.window[key];}
 const { mount } = await import('./index.mjs');
 const host = () => { const element = document.createElement('main'); document.body.append(element); return element; };
 const record = name => console.log('PASS', name);

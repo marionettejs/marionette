@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>');
-for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLTextAreaElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLTextAreaElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
 const {mount} = await import('./index.mjs');const {createLayoutController} = await import('./schema-layout.mjs');
 const host = document.querySelector('main'),pause = ()=>new Promise(resolve=>setTimeout(resolve,40));
 const nodes = [],destroyed = new Map();let panels = 0,disposed = 0;
@@ -22,7 +22,7 @@ try {
 assert.equal(destroyed.size,nodes.length);assert.ok([...destroyed.values()].every(count=>count === 1));assert.equal(host.childNodes.length,0);
 // A default callback can place declared controls, including after a root redraw.
 let slotDisposed = 0;
-const callback = mount({host,fields: [{name: 'owned'}],slots: {default: ({parent,before,renderFields})=>{const el = document.createElement('section');parent.insertBefore(el,before);const cleanup = renderFields(el,null);return remove=>{cleanup(remove);slotDisposed++;if (remove)el.remove();};}}});
+const callback = mount({host,fields: [{name: 'owned'}],slots: {default: ({parent,before,renderFields})=>{const el = document.createElement('section');parent.insertBefore(el,before);const cleanup = renderFields(el,null);return remove=>{cleanup(remove);slotDisposed++;if (remove) {el.remove();}};}}});
 assert.ok(host.querySelector('section input'));const original = host.querySelector('input');callback.setSlots({});assert.equal(host.querySelector('input'),original);assert.equal(slotDisposed,1);callback.destroy();
 // Hidden root content retains a valid parking outlet while data changes.
 const hidden = mount({host,schema: {$formkit: 'text',name: 'parked',label: '$title'},data: {title: 'Before'},slots: {default: {$el: 'div',children: 'No outlet'}}});
@@ -31,7 +31,7 @@ assert.equal(host.querySelector('input'),null);assert.equal(hidden.node.at('park
 const conditional = mount({host,schema: {$formkit: 'text',name: 'conditional',label: '$title'},data: {title: 'Visible',show: true},slots: {default: {if: '$show',then: {$el: 'section',children: '$slots.fields'},else: 'Parked'}}});
 const retained = host.querySelector('input');conditional.updateData({title: 'Hidden',show: false});await pause();assert.equal(host.querySelector('input'),null);conditional.updateData({title: 'Visible again',show: true});await pause();assert.equal(host.querySelector('input'),retained);assert.equal(host.querySelector('label').textContent,'Visible again');conditional.destroy();
 // Callback outlets clean up even if a factory leaves their disposer to the owner.
-const managed = mount({host,fields: [{name: 'managed'}],slots: {default: ({parent,before,renderFields})=>{const wrap = document.createElement('section');parent.insertBefore(wrap,before);renderFields(wrap,null);return remove=>{if (remove)wrap.remove();};}}});managed.setSlots({});assert.ok(host.querySelector('input[name=managed]'));managed.destroy();
+const managed = mount({host,fields: [{name: 'managed'}],slots: {default: ({parent,before,renderFields})=>{const wrap = document.createElement('section');parent.insertBefore(wrap,before);renderFields(wrap,null);return remove=>{if (remove) {wrap.remove();}};}}});managed.setSlots({});assert.ok(host.querySelector('input[name=managed]'));managed.destroy();
 // Section slots receive current message-loop locals as well as live external data.
 const message = mount({host,fields: [{name: 'required',validation: 'required'}],formProps: {actions: false,incompleteMessage: 'Root incomplete'},data: {prefix: 'Notice: '},slots: {message: {$el: 'li',for: ['message','$messages'],attrs: {'data-custom-message': true},children: '$prefix + $message.value'}}});await pause();await message.submit();await pause();assert.equal(host.querySelector('[data-custom-message]').textContent,'Notice: Root incomplete');message.updateData({prefix: 'Updated: '});await pause();assert.equal(host.querySelector('[data-custom-message]').textContent,'Updated: Root incomplete');message.destroy();
 const scoped = mount({host,fields: [],data: {rows: ['one','two']},slots: {default: {$el: 'section',children: {$el: 'span',for: ['item','$rows'],children: '$slots.row'}},row: {$el: 'i',children: '$item'}}});assert.deepEqual([...host.querySelectorAll('i')].map(el=>el.textContent),['one','two']);scoped.updateData({rows: ['three','four']});await pause();assert.deepEqual([...host.querySelectorAll('i')].map(el=>el.textContent),['three','four']);scoped.destroy();

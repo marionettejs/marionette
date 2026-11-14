@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
-const dom = new JSDOM('<body><main></main>',{url: 'http://localhost'});for (const key of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
+const dom = new JSDOM('<body><main></main>',{url: 'http://localhost'});for (const key of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
 const arm = process.argv[2] ?? 'adapter',host = document.querySelector('main'),gate = Promise.withResolvers(),wait = ms=>new Promise(resolve=>setTimeout(resolve,ms));let entered = 0,completed = 0,factories = 0,node,update,dispose;
 const definition = marker=>({type: 'input',schema: {$el: 'input',attrs: {'data-source': marker,value: '$_value',onInput: '$handlers.DOMInput'}}});
 globalThis.__formKitProviderFixtures = {enter() {entered++;},wait() {return gate.promise;},complete() {completed++;},options() {factories++;return {inputs: {transition: definition('module')}};}};
 const url = new URL(`./fixtures/provider-function.mjs?inheritance-transition=${arm}`,import.meta.url).href;
-async function until(test) {for (let i = 0;i < 100;i++) {if (test()) return;await wait(10);}assert.ok(test(),'semantic wait');}
+async function until(test) {for (let i = 0;i < 100;i++) {if (test()) {return;} await wait(10);}assert.ok(test(),'semantic wait');}
 if (arm === 'adapter') {
   const {mount,defaultConfig} = await import('./index.mjs');const inherited = defaultConfig({inputs: {transition: definition('inherited')}});const api = mount({host,schema: {$cmp: 'FormKitProvider',props: {config: '$provided'},children: {$cmp: 'FormKitLazyProvider',props: {configFile: url},children: {$formkit: 'transition',name: 'inside'}}},data: {provided: null},formProps: {actions: false}});node = api.node;update = ()=>api.updateData({provided: inherited});dispose = ()=>api.destroy();
 } else if (arm === 'react') {

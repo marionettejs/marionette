@@ -2,7 +2,7 @@
 import {JSDOM} from 'jsdom';
 export function setupProjectionDom() {
   const dom = new JSDOM('<body><main></main>',{url: 'http://localhost'});
-  for (const key of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+  for (const key of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
   Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
   return dom;
 }

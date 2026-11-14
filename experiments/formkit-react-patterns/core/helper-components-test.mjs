@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom';
 import assert from 'node:assert/strict';
 const dom = new JSDOM('<body></body>', { url: 'https://example.test/' });
-for (const key of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'HTMLInputElement', 'HTMLFormElement', 'Event', 'CustomEvent', 'MutationObserver', 'KeyboardEvent', 'MouseEvent', 'getComputedStyle']) globalThis[key] = dom.window[key];
+for (const key of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'HTMLInputElement', 'HTMLFormElement', 'Event', 'CustomEvent', 'MutationObserver', 'KeyboardEvent', 'MouseEvent', 'getComputedStyle']) {globalThis[key] = dom.window[key];}
 // No network is required or permitted by this focused suite.
 let networkCalls = 0;
 globalThis.fetch = async() => { networkCalls++; throw new Error('Unexpected network request'); };
@@ -32,7 +32,7 @@ for (const name of ['FormKitMessages', 'FormKitIcon']) {
   const target = host();
   const api = mount({ host: target, schema: { $cmp: name, props: { icon: svg } } });
   await tick();
-  if (name === 'FormKitIcon') assert.ok(target.querySelector('.formkit-icon svg'));
+  if (name === 'FormKitIcon') {assert.ok(target.querySelector('.formkit-icon svg'));}
   api.destroy(); assert.equal(target.children.length, 0);
   record(`public mount registers ${name} with teardown`);
 }

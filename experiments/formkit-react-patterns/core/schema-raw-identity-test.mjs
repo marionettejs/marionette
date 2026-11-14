@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {setupProjectionDom,settle,mountProjectionReference} from './schema-projection-reference.mjs';
-const dom = setupProjectionDom(),arm = process.argv[2] ?? 'experiment',surface = process.argv[3] ?? 'document';let host = document.querySelector('main');if (surface === 'shadow')host = host.attachShadow({mode: 'open'}).appendChild(document.createElement('article'));
+const dom = setupProjectionDom(),arm = process.argv[2] ?? 'experiment',surface = process.argv[3] ?? 'document';let host = document.querySelector('main');if (surface === 'shadow') {host = host.attachShadow({mode: 'open'}).appendChild(document.createElement('article'));}
 const cases = [
   {name: 'raw-name',props: {__raw__name: 'overridden',label: '$caption'},expected: 'overridden'},
   {name: 'raw-key',anonymous: true,props: {__raw__key: 'explicit-key',label: '$caption'}},
@@ -16,10 +16,10 @@ try {
     const declaration = {$cmp: 'FormKit',bind: '$fieldProps',props: test.props},data = {fieldProps: {type: 'text',...(test.anonymous ? {} : {name: 'kept'}),id: 'raw-' + test.name,key: 'bound'},identityKey: 'first',caption: 'Before'};
     const api = await mountProjectionReference(arm,host,[declaration],data);
     try {
-      const field = api.node.children[0],input = host.querySelector('input');assert.equal(api.node.children.length,1);assert.ok(input);if (test.expected)assert.equal(field.name,test.expected);assert.equal(field.parent,api.node);await field.input('Edited');await settle();
+      const field = api.node.children[0],input = host.querySelector('input');assert.equal(api.node.children.length,1);assert.ok(input);if (test.expected) {assert.equal(field.name,test.expected);}assert.equal(field.parent,api.node);await field.input('Edited');await settle();
       await api.update({...data,fieldProps: {...data.fieldProps,...(test.anonymous ? {key: 'changed-bound'} : {name: 'changed-bound-name'})},identityKey: 'second',caption: 'After'});const after = api.node.children[0],afterInput = host.querySelector('input');
       if (test.replaces) {assert.notEqual(after,field);assert.notEqual(afterInput,input);assert.equal(field.context == null,true);assert.equal(afterInput.value,'');} else {assert.equal(after,field);assert.equal(afterInput,input);assert.equal(afterInput.value,'Edited');}
-      assert.equal(after.props.label,'After');if (test.expected)assert.equal(after.name,test.expected);observations.push(test.name);
+      assert.equal(after.props.label,'After');if (test.expected) {assert.equal(after.name,test.expected);}observations.push(test.name);
     } finally {api.destroy();await settle();assert.equal(api.counts().created,api.counts().destroyed);assert.equal(host.childElementCount,0);}
   }
 } finally {dom.window.close();}

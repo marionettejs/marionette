@@ -2,7 +2,7 @@ import {JSDOM} from 'jsdom';
 import assert from 'node:assert/strict';
 
 const dom = new JSDOM('<body><main></main>',{url: 'http://localhost'});
-for (const k of ['window','document','Node','Element','HTMLElement','SVGElement','HTMLButtonElement','HTMLInputElement','HTMLTextAreaElement','HTMLFormElement','Event','KeyboardEvent','CustomEvent','MutationObserver','getComputedStyle','localStorage'])globalThis[k] = dom.window[k];
+for (const k of ['window','document','Node','Element','HTMLElement','SVGElement','HTMLButtonElement','HTMLInputElement','HTMLTextAreaElement','HTMLFormElement','Event','KeyboardEvent','CustomEvent','MutationObserver','getComputedStyle','localStorage']) {globalThis[k] = dom.window[k];}
 Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
 const addons = await import('@formkit/addons');
 const {createSchemaController} = await import('./schema.mjs');
@@ -30,7 +30,7 @@ await tick();
 const wizard = root.at('wizard'),first = root.at('wizard.one.first');
 assert.equal(wizard.type,'group');assert.equal(root.at('wizard.one').type,'group');
 const report = stage=>({stage,active: wizard.props.activeStep,tabs: [...host.querySelectorAll('[role=tab]')].map(el=>({text: el.textContent,selected: el.getAttribute('aria-selected')})),panels: [...host.querySelectorAll('[role=tabpanel]')].map(el=>({hidden: el.hidden,text: el.textContent})),values: structuredClone(root.value)});
-if (process.env.ADDON_DEBUG)console.log(JSON.stringify({schema: wizard.props.definition.schema({}),steps: wizard.props.steps.map(s=>({show: s.showStepErrors,total: s.totalErrorCount,valid: s.isValid,blocking: s.blockingCount,error: s.errorCount}))}));
+if (process.env.ADDON_DEBUG) {console.log(JSON.stringify({schema: wizard.props.definition.schema({}),steps: wizard.props.steps.map(s=>({show: s.showStepErrors,total: s.totalErrorCount,valid: s.isValid,blocking: s.blockingCount,error: s.errorCount}))}));}
 assert.equal(wizard.props.__root,scope);
 const evidence = [report('initial')];
 assert.equal(host.querySelectorAll('[role=tab]').length,2);assert.equal(host.querySelectorAll('[role=tab]')[1].getAttribute('aria-selected'),'false');assert.equal(host.querySelectorAll('[role=tab]')[0].textContent,'First');assert.equal(host.querySelectorAll('[role=tabpanel]').length,2);assert.equal(wizard.props.activeStep,'one');

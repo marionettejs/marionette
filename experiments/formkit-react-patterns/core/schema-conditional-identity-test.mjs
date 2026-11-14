@@ -4,7 +4,7 @@ const dom = setupProjectionDom(),arm = process.argv[2] ?? 'experiment',host = do
 const {getNode} = await import('@formkit/core');
 const conditional = (condition,yes,no)=>({if: condition,then: yes,else: no});
 const declaration = (syntax,props)=>syntax === 'sugar' ? {$formkit: 'text',...props} : {$cmp: 'FormKit',...(syntax === 'bind' ? {bind: '$bag'} : {}),props: {type: 'text',...props}};
-async function cleanup(app) {const ids = app.nodes.map(n=>n.props.id);app.destroy();await settle();assert.equal(app.counts().created,app.counts().destroyed);assert.equal(host.childNodes.length,0);for (const id of ids)assert.equal(getNode(id),undefined);}
+async function cleanup(app) {const ids = app.nodes.map(n=>n.props.id);app.destroy();await settle();assert.equal(app.counts().created,app.counts().destroyed);assert.equal(host.childNodes.length,0);for (const id of ids) {assert.equal(getNode(id),undefined);}}
 let mounts = 0;
 for (const syntax of ['sugar','literal','bind']) {
   for (const [condition,flag] of [['false',false],['1 === 2',false],['true',true],['2 > 1',true],['$: false',false],['$chooseThen',false],['$chooseThen',true]]) {

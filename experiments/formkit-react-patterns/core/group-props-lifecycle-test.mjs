@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
-const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
 const {mount} = await import('./index.mjs');const pause = ()=>new Promise(resolve=>setTimeout(resolve,40));
 const host = document.querySelector('main'),children = [{name: 'name'}];
 const api = mount({host,fields: [{name: 'profile',type: 'group',validation: 'named',label: 'Before',children}],rules: {named: node=>!!node.value.name},values: {profile: {name: ''}}});

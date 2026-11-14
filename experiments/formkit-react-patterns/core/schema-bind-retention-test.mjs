@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {setupProjectionDom,settle} from './schema-projection-reference.mjs';
 const dom = setupProjectionDom(),arm = process.argv[2] ?? 'experiment',surface = process.argv[3] ?? 'document',selected = process.argv[4] ?? 'all';
-let host = document.querySelector('main');if (surface === 'shadow')host = host.attachShadow({mode: 'open'}).appendChild(document.createElement('article'));
+let host = document.querySelector('main');if (surface === 'shadow') {host = host.attachShadow({mode: 'open'}).appendChild(document.createElement('article'));}
 const actualRoot = host.getRootNode();let sequence = 0;
 async function mountSchema(schema,payload) {
   let node,update,destroy,created = 0,destroyed = 0;const nodes = [],capture = n=>{created++;nodes.push(n);n.on('destroyed',()=>destroyed++);};
@@ -23,36 +23,38 @@ async function mountSchema(schema,payload) {
   }
   await settle();return {node,update,destroy,nodes,counts: ()=>({created,destroyed})};
 }
-async function cleanup(app) {const ids = app.nodes.map(n=>n.props.id);app.destroy();await settle();assert.equal(app.counts().created,app.counts().destroyed);assert.equal(host.childNodes.length,0);const {getNode} = await import('@formkit/core');for (const id of ids)assert.equal(getNode(id),undefined);}
+async function cleanup(app) {const ids = app.nodes.map(n=>n.props.id);app.destroy();await settle();assert.equal(app.counts().created,app.counts().destroyed);assert.equal(host.childNodes.length,0);const {getNode} = await import('@formkit/core');for (const id of ids) {assert.equal(getNode(id),undefined);}}
 const observations = [];
-for (const syntax of ['bind','object']) for (const operation of ['data','schema','memo','schema-memo','key','key-remove']) {
-  if (selected === 'bind' && (syntax !== 'bind' || operation.startsWith('key'))) continue;
-  if (selected === 'key' && (syntax !== 'object' || !operation.startsWith('key'))) continue;
-  if (selected === 'contracts') continue;
-  const id = 'retained-' + sequence++,payload = {fieldProps: {type: 'text',name: 'kept',id,key: 'stable',placeholder: 'Bound'},identityKey: 'stable',label: 'Before'};
-  const declaration = ()=>[syntax === 'bind' ? {$cmp: 'FormKit',bind: '$fieldProps',props: {label: '$label'}} : {$cmp: 'FormKit',props: {type: 'text',name: 'kept',id,key: '$identityKey',label: '$label'}}];
-  const schema = declaration(),app = await mountSchema(schema,payload);
-  try {
-    const parent = app.node.at('profile'),before = app.node.at('profile.kept'),input = host.querySelector('input');assert.ok(before);assert.equal(before.parent,parent);assert.equal(before.props.__root,actualRoot);if (syntax === 'bind')assert.equal(input.placeholder,'Bound');
-    input.value = 'User edit';input.dispatchEvent(new Event('input',{bubbles: true}));await settle();assert.equal(before.value,'User edit');
-    const next = {};if (operation === 'data')next.data = {...payload,label: 'After'};
-    if (operation === 'schema' || operation === 'schema-memo')next.schema = declaration();
-    if (operation === 'memo' || operation === 'schema-memo')next.memoKey = 'two';
-    if (operation === 'schema-memo')next.schema.push({$cmp: 'FormKit',props: {type: 'text',name: 'added',key: 'added'}});
-    if (operation === 'key')next.data = {...payload,fieldProps: {...payload.fieldProps,key: 'changed'},identityKey: 'changed'};
-    if (operation === 'key-remove') {const {key,...fieldProps} = payload.fieldProps;next.data = {...payload,fieldProps,identityKey: undefined};}
-    await app.update(next);
-    const after = app.node.at('profile.kept'),afterInput = host.querySelector('input');assert.equal(app.node.at('profile'),parent);assert.equal(after.parent,parent);assert.equal(after.props.__root,actualRoot);
-    if (operation.startsWith('key')) {assert.ok(after !== before,syntax + ' changed key replaces Core');assert.notEqual(afterInput,input);assert.equal(before.context == null,true);assert.equal(after.value,undefined);assert.equal(afterInput.value,'');} else {assert.ok(after === before,syntax + ' ' + operation + ' retains Core');assert.equal(afterInput,input);assert.equal(after.value,'User edit');assert.equal(afterInput.value,'User edit');}
-    assert.equal(parent.children.length,operation === 'schema-memo' ? 2 : 1);if (operation === 'schema-memo')assert.ok(app.node.at('profile.added'));
-    observations.push({syntax,operation,sameCore: after === before,sameDom: afterInput === input,value: after.value ?? null});
-  } finally {await cleanup(app);}
+for (const syntax of ['bind','object']) {
+  for (const operation of ['data','schema','memo','schema-memo','key','key-remove']) {
+    if (selected === 'bind' && (syntax !== 'bind' || operation.startsWith('key'))) {continue;}
+    if (selected === 'key' && (syntax !== 'object' || !operation.startsWith('key'))) {continue;}
+    if (selected === 'contracts') {continue;}
+    const id = 'retained-' + sequence++,payload = {fieldProps: {type: 'text',name: 'kept',id,key: 'stable',placeholder: 'Bound'},identityKey: 'stable',label: 'Before'};
+    const declaration = ()=>[syntax === 'bind' ? {$cmp: 'FormKit',bind: '$fieldProps',props: {label: '$label'}} : {$cmp: 'FormKit',props: {type: 'text',name: 'kept',id,key: '$identityKey',label: '$label'}}];
+    const schema = declaration(),app = await mountSchema(schema,payload);
+    try {
+      const parent = app.node.at('profile'),before = app.node.at('profile.kept'),input = host.querySelector('input');assert.ok(before);assert.equal(before.parent,parent);assert.equal(before.props.__root,actualRoot);if (syntax === 'bind') {assert.equal(input.placeholder,'Bound');}
+      input.value = 'User edit';input.dispatchEvent(new Event('input',{bubbles: true}));await settle();assert.equal(before.value,'User edit');
+      const next = {};if (operation === 'data') {next.data = {...payload,label: 'After'};}
+      if (operation === 'schema' || operation === 'schema-memo') {next.schema = declaration();}
+      if (operation === 'memo' || operation === 'schema-memo') {next.memoKey = 'two';}
+      if (operation === 'schema-memo') {next.schema.push({$cmp: 'FormKit',props: {type: 'text',name: 'added',key: 'added'}});}
+      if (operation === 'key') {next.data = {...payload,fieldProps: {...payload.fieldProps,key: 'changed'},identityKey: 'changed'};}
+      if (operation === 'key-remove') {const {key,...fieldProps} = payload.fieldProps;next.data = {...payload,fieldProps,identityKey: undefined};}
+      await app.update(next);
+      const after = app.node.at('profile.kept'),afterInput = host.querySelector('input');assert.equal(app.node.at('profile'),parent);assert.equal(after.parent,parent);assert.equal(after.props.__root,actualRoot);
+      if (operation.startsWith('key')) {assert.ok(after !== before,syntax + ' changed key replaces Core');assert.notEqual(afterInput,input);assert.equal(before.context == null,true);assert.equal(after.value,undefined);assert.equal(afterInput.value,'');} else {assert.ok(after === before,syntax + ' ' + operation + ' retains Core');assert.equal(afterInput,input);assert.equal(after.value,'User edit');assert.equal(afterInput.value,'User edit');}
+      assert.equal(parent.children.length,operation === 'schema-memo' ? 2 : 1);if (operation === 'schema-memo') {assert.ok(app.node.at('profile.added'));}
+      observations.push({syntax,operation,sameCore: after === before,sameDom: afterInput === input,value: after.value ?? null});
+    } finally {await cleanup(app);}
+  }
 }
 if (selected === 'all' || selected === 'contracts') {
   for (const explicit of [false,true]) {
     const schema = [{$cmp: 'FormKit',bind: '$fieldProps',props: explicit ? {type: 'text',name: 'override',key: 'explicit',label: '$label',placeholder: 'Explicit',__raw__help: '$literal help'} : {label: '$label'}}];
     const app = await mountSchema(schema,{fieldProps: {type: 'textarea',name: 'bound',key: 'bound',placeholder: 'Bound',help: 'Bound help'},label: 'Type check'});
-    try {const field = app.node.at('profile.' + (explicit ? 'override' : 'bound')),input = host.querySelector('input,textarea');assert.ok(field,(explicit ? 'explicit' : 'bound') + ' field; actual names ' + app.node.at('profile').children.map(n=>n.name));assert.equal(field.props.type,explicit ? 'text' : 'textarea');assert.equal(input.tagName,explicit ? 'INPUT' : 'TEXTAREA');assert.equal(input.placeholder,explicit ? 'Explicit' : 'Bound');if (explicit)assert.equal(field.props.help,'$literal help');} finally {await cleanup(app);}
+    try {const field = app.node.at('profile.' + (explicit ? 'override' : 'bound')),input = host.querySelector('input,textarea');assert.ok(field,(explicit ? 'explicit' : 'bound') + ' field; actual names ' + app.node.at('profile').children.map(n=>n.name));assert.equal(field.props.type,explicit ? 'text' : 'textarea');assert.equal(input.tagName,explicit ? 'INPUT' : 'TEXTAREA');assert.equal(input.placeholder,explicit ? 'Explicit' : 'Bound');if (explicit) {assert.equal(field.props.help,'$literal help');}} finally {await cleanup(app);}
   }
   const defaultType = await mountSchema([{$cmp: 'FormKit',bind: '$: $fieldProps',props: {label: '$label'}}],{fieldProps: {name: 'defaulted',key: 'defaulted'},label: 'Default type'});
   try {assert.equal(defaultType.node.at('profile.defaulted').props.type,'text');assert.equal(host.querySelector('input').type,'text');} finally {await cleanup(defaultType);}

@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 const dom = new JSDOM('<body><main></main>',{url: 'http://localhost'});
-for (const key of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+for (const key of ['window','document','Document','ShadowRoot','Node','Element','HTMLElement','SVGElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
 Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
 const {createConfig} = await import('@formkit/core');
 const arm = process.argv[2] ?? 'adapter',host = document.querySelector('main'),shared = createConfig({locale: 'fr',rootClasses: section=>({['shared-' + section]: true})}),created = [],destroyed = [];
 const capture = node=>{created.push(node);node.on('destroyed',()=>destroyed.push(node));};
 let node,dispose,scope;const sleep = ms=>new Promise(resolve=>setTimeout(resolve,ms));
-async function until(test) {for (let i = 0;i < 80;i++) {if (test()) return;await sleep(10);}assert.ok(test(),'semantic wait');}
+async function until(test) {for (let i = 0;i < 80;i++) {if (test()) {return;} await sleep(10);}assert.ok(test(),'semantic wait');}
 if (arm === 'adapter') {
   const {FormKitApplication} = await import('./index.mjs');
   const app = new FormKitApplication({region: {el: host},config: {config: {rootConfig: shared},plugins: [capture]},form: {fields: [{name: 'x',label: 'Shared config'}],formProps: {actions: false}}});
@@ -28,7 +28,7 @@ try {
     assert.equal(initial.rootIdentity,false);assert.equal(initial.wrappedRoot,true);assert.equal(initial.locale,'en');assert.equal(initial.childLocale,'en');assert.ok(input.classList.contains('formkit-input'));
     shared.locale = 'de';await sleep(30);assert.equal(node.config.locale,'en');assert.equal(child.config.locale,'en');
   } else {
-    if (scope)assert.equal(scope.rootConfig,shared,'Application must preserve an already supplied Core rootConfig');
+    if (scope) {assert.equal(scope.rootConfig,shared,'Application must preserve an already supplied Core rootConfig');}
     assert.equal(node.config.rootConfig,shared);assert.equal(child.config.rootConfig,shared);assert.equal(initial.locale,'fr');assert.equal(initial.childLocale,'fr');assert.ok(input.classList.contains('shared-input'));
     shared.locale = 'de';await until(()=>node.config.locale === 'de' && child.config.locale === 'de');
   }
