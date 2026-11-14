@@ -22,8 +22,10 @@ export function createStore() {
   return {
     getSnapshot: () => version,
     subscribe(fn) { if (dead) return () => {}; subscribers.add(fn); return () => subscribers.delete(fn); },
-    notify() { if (dead) return; version++; if (pending) return; pending = true;
-      queueMicrotask(() => { pending = false; for (const fn of [...subscribers]) { if (dead) break; if (subscribers.has(fn)) fn(); } }); },
+    notify() {
+      if (dead) return; version++; if (pending) return; pending = true;
+      queueMicrotask(() => { pending = false; for (const fn of [...subscribers]) { if (dead) break; if (subscribers.has(fn)) fn(); } });
+    },
     destroy() { dead = true; subscribers.clear(); }
   };
 }
@@ -57,8 +59,7 @@ function createField(node, spec, config, metrics) {
     input.disabled = !!node.props.disabled;
     const visible = node.store.reduce((all, m) => { if (m.visible && (m.type === 'validation' || m.type === 'error')) all.push(m); return all; }, []);
     messages.replaceChildren(...visible.map(m => { const li = document.createElement('li'); li.id = `${input.id}-${m.key}`; li.textContent = String(m.value); li.className = section('message'); return li; }));
-    if (visible.length) { input.setAttribute('aria-describedby', visible.map(m => `${input.id}-${m.key}`).join(' ')); input.setAttribute('aria-invalid', 'true'); }
-    else { input.removeAttribute('aria-describedby'); input.removeAttribute('aria-invalid'); }
+    if (visible.length) { input.setAttribute('aria-describedby', visible.map(m => `${input.id}-${m.key}`).join(' ')); input.setAttribute('aria-invalid', 'true'); } else { input.removeAttribute('aria-describedby'); input.removeAttribute('aria-invalid'); }
   }
   const onInput = () => node.input(input.value);
   input.addEventListener('input', onInput);
@@ -124,7 +125,8 @@ export class ExperimentalFormView extends View {
     this.specs = specs;
   }
   resetForm() { if (!this._ending && !this.isDestroyed()) reset(this.node); }
-  submit() { if (this._ending || this.isDestroyed()) return Promise.resolve();
+  submit() {
+    if (this._ending || this.isDestroyed()) return Promise.resolve();
     this.el.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); return this.lastSubmission;
   }
 }

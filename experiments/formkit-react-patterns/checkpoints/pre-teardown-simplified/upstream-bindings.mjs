@@ -4,10 +4,10 @@
 import {createMessage,createClasses,generateClassList} from '@formkit/core';
 import {cloneAny,camel,token,undefine,shallowClone,eq,has,empty} from '@formkit/utils';
 import {createObserver} from '@formkit/observer';
-const __getOwnPropNames=Object.getOwnPropertyNames;
-const __esm=(fn,res)=>function(){return fn&&(res=(0,fn[__getOwnPropNames(fn)[0]])(fn=0)),res;};
+const __getOwnPropNames = Object.getOwnPropertyNames;
+const __esm = (fn,res)=>function() {return fn && (res = (0,fn[__getOwnPropNames(fn)[0]])(fn = 0)),res;};
 function isObject2(value) {
-  return typeof value === "object" && value !== null;
+  return typeof value === 'object' && value !== null;
 }
 function getReactiveStore(target) {
   if (!isObject2(target)) return void 0;
@@ -15,7 +15,7 @@ function getReactiveStore(target) {
 }
 function ensureReactiveStore(target) {
   if (!isObject2(target)) {
-    throw new Error("FormKit reactive stores can only be attached to objects.");
+    throw new Error('FormKit reactive stores can only be attached to objects.');
   }
   const existing = getReactiveStore(target);
   if (existing) return existing;
@@ -62,9 +62,9 @@ function subscribeReactiveStore(target, subscriber) {
 }
 var formKitReactiveStoreSymbol;
 var init_reactiveStore = __esm({
-  "packages/react/src/reactiveStore.ts"() {
+  'packages/react/src/reactiveStore.ts'() {
     formKitReactiveStoreSymbol = /* @__PURE__ */ Symbol.for(
-      "FormKitReactiveStore"
+      'FormKitReactiveStore'
     );
   }
 });
@@ -76,11 +76,11 @@ function computeValidationVisible(context, validationVisibility, hasShownErrors)
   }
   return visibilityModes(validationVisibility).some((mode) => {
     switch (mode) {
-      case "live":
+      case 'live':
         return true;
-      case "blur":
+      case 'blur':
         return context.state.blurred;
-      case "dirty":
+      case 'dirty':
         return context.state.dirty;
       default:
         return false;
@@ -88,7 +88,7 @@ function computeValidationVisible(context, validationVisibility, hasShownErrors)
   });
 }
 function visibilityModes(value) {
-  return String(value ?? "").split(/[\s,|]+/).filter(Boolean);
+  return String(value ?? '').split(/[\s,|]+/).filter(Boolean);
 }
 function createReactiveContextBag(value, onMutate) {
   return new Proxy(value, {
@@ -111,7 +111,7 @@ function createReactiveContextBag(value, onMutate) {
   });
 }
 function isPlainObject2(value) {
-  return typeof value === "object" && value !== null && Object.getPrototypeOf(value) === Object.prototype;
+  return typeof value === 'object' && value !== null && Object.getPrototypeOf(value) === Object.prototype;
 }
 function shallowEqualObjects2(a, b) {
   const aKeys = Object.keys(a);
@@ -147,13 +147,13 @@ function getReactListItems(node) {
 }
 var listItemKeys, nextListItemKey, reactBindings, bindings_default;
 var init_bindings = __esm({
-  "packages/react/src/bindings.ts"() {
+  'packages/react/src/bindings.ts'() {
     init_reactiveStore();
     listItemKeys = /* @__PURE__ */ new Map();
     nextListItemKey = 0;
     reactBindings = function reactBindings2(node) {
-      node.ledger.count("blocking", (m) => m.blocking);
-      node.ledger.count("errors", (m) => m.type === "error");
+      node.ledger.count('blocking', (m) => m.blocking);
+      node.ledger.count('errors', (m) => m.type === 'error');
       let hasTicked = false;
       queueMicrotask(() => {
         hasTicked = true;
@@ -167,16 +167,16 @@ var init_bindings = __esm({
         },
         {}
       );
-      let validationVisibility = node.props.validationVisibility || (node.props.type === "checkbox" ? "dirty" : "blur");
-      let hasShownErrors = visibilityModes(validationVisibility).includes("live");
+      let validationVisibility = node.props.validationVisibility || (node.props.type === 'checkbox' ? 'dirty' : 'blur');
+      let hasShownErrors = visibilityModes(validationVisibility).includes('live');
       let isRequired = false;
       const checkForRequired = (parsedRules) => {
-        isRequired = (parsedRules ?? []).some((rule) => rule.name === "required");
+        isRequired = (parsedRules ?? []).some((rule) => rule.name === 'required');
       };
       checkForRequired(node.props.parsedRules);
       let hasValidation = Array.isArray(node.props.parsedRules) && node.props.parsedRules.length > 0;
       const ui = node.store.reduce((messages3, msg) => {
-        if (msg.type === "ui" && msg.visible) {
+        if (msg.type === 'ui' && msg.visible) {
           messages3[msg.key] = msg;
         }
         return messages3;
@@ -186,15 +186,15 @@ var init_bindings = __esm({
       const classObservers = new Set();
       const classes = new Proxy(cachedClasses, {
         get(target, property, receiver) {
-          if (!node || !contextAlive) return "";
+          if (!node || !contextAlive) return '';
           let className = Reflect.get(target, property, receiver);
-          if (!className && typeof property === "string") {
+          if (!className && typeof property === 'string') {
             if (!has(target, property)) {
               const observedNode = createObserver(node);
               classObservers.add(observedNode);
               let initialized = false;
               observedNode.watch((observed) => {
-                const rootClasses = typeof observed.config.rootClasses === "function" ? observed.config.rootClasses(property, observed) : {};
+                const rootClasses = typeof observed.config.rootClasses === 'function' ? observed.config.rootClasses(property, observed) : {};
                 const globalConfigClasses = observed.config.classes ? createClasses(
                   property,
                   observed,
@@ -217,7 +217,7 @@ var init_bindings = __esm({
                   globalConfigClasses,
                   classesPropClasses,
                   sectionPropClasses
-                ) ?? "";
+                ) ?? '';
                 className = generatedClassName;
                 target[property] = generatedClassName;
                 if (initialized) {
@@ -228,14 +228,14 @@ var init_bindings = __esm({
               });
             }
           }
-          return className ?? "";
+          return className ?? '';
         }
       });
       let committedValue = node.value;
       let inputValue = node.value;
       let pendingDOMInputValue;
       const domInputValue = (payload) => {
-        if (typeof pendingDOMInputValue === "string" && typeof node.props.number !== "undefined" && node.props.number !== "integer" && typeof payload === "number" && Number.isFinite(payload) && pendingDOMInputValue.includes(".") && pendingDOMInputValue !== String(payload)) {
+        if (typeof pendingDOMInputValue === 'string' && typeof node.props.number !== 'undefined' && node.props.number !== 'integer' && typeof payload === 'number' && Number.isFinite(payload) && pendingDOMInputValue.includes('.') && pendingDOMInputValue !== String(payload)) {
           return pendingDOMInputValue;
         }
         return payload;
@@ -259,26 +259,26 @@ var init_bindings = __esm({
           blur: (e) => {
             if (!node) return;
             node.store.set(
-              /* @__PURE__ */ createMessage({ key: "blurred", visible: false, value: true })
+              /* @__PURE__ */ createMessage({ key: 'blurred', visible: false, value: true })
             );
             const onBlur = node.props.attrs?.onBlur;
-            if (typeof onBlur === "function") {
+            if (typeof onBlur === 'function') {
               onBlur(e);
             }
           },
           touch: () => {
-            const doCompare = context.dirtyBehavior === "compare";
+            const doCompare = context.dirtyBehavior === 'compare';
             if (node.store.dirty?.value && !doCompare) return;
             const dirty = !eq(node.props._init, node._value);
             if (!dirty && !doCompare) return;
             node.store.set(
-              /* @__PURE__ */ createMessage({ key: "dirty", visible: false, value: dirty })
+              /* @__PURE__ */ createMessage({ key: 'dirty', visible: false, value: dirty })
             );
           },
           DOMInput: (e) => {
             pendingDOMInputValue = e.target.value;
             node.input(pendingDOMInputValue);
-            node.emit("dom-input-event", e);
+            node.emit('dom-input-event', e);
           }
         },
         notifyContextMutation
@@ -308,9 +308,9 @@ var init_bindings = __esm({
           empty: empty(committedValue),
           submitted: false,
           settled: node.isSettled,
-          valid: !node.ledger.value("blocking"),
+          valid: !node.ledger.value('blocking'),
           invalid: false,
-          errors: !!node.ledger.value("errors"),
+          errors: !!node.ledger.value('errors'),
           rules: hasValidation,
           validationVisible: false,
           required: isRequired,
@@ -326,14 +326,14 @@ var init_bindings = __esm({
         // notifies the reactive store, so it can't cause re-renders.
         refs: sectionRefs
       };
-      Object.defineProperty(context, "__fkSectionRefs", {
+      Object.defineProperty(context, '__fkSectionRefs', {
         value: sectionRefs,
         enumerable: false
       });
       let emptyDirty = false;
       let emptyCache = context.state.empty;
-      if (node.type !== "input") {
-        Object.defineProperty(context.state, "empty", {
+      if (node.type !== 'input') {
+        Object.defineProperty(context.state, 'empty', {
           enumerable: true,
           configurable: true,
           get() {
@@ -350,7 +350,7 @@ var init_bindings = __esm({
         });
       }
       const markEmptyDirty = (payload) => {
-        if (node.type !== "input") emptyDirty = true;
+        if (node.type !== 'input') emptyDirty = true;
         else context.state.empty = empty(payload);
       };
       let valuePayload;
@@ -360,8 +360,8 @@ var init_bindings = __esm({
       let _valueDirty = false;
       let _valueCache = context._value;
       let _valueLinked = false;
-      if (node.type !== "input") {
-        Object.defineProperty(context, "value", {
+      if (node.type !== 'input') {
+        Object.defineProperty(context, 'value', {
           enumerable: true,
           configurable: true,
           get() {
@@ -376,7 +376,7 @@ var init_bindings = __esm({
             valueDirty = false;
           }
         });
-        Object.defineProperty(context, "_value", {
+        Object.defineProperty(context, '_value', {
           enumerable: true,
           configurable: true,
           get() {
@@ -422,7 +422,7 @@ var init_bindings = __esm({
         const visibleMessages = {};
         for (const key in availableMessages) {
           const message3 = availableMessages[key];
-          if (message3.type !== "validation" || context.state.validationVisible) {
+          if (message3.type !== 'validation' || context.state.validationVisible) {
             visibleMessages[key] = message3;
           }
         }
@@ -436,45 +436,45 @@ var init_bindings = __esm({
         for (const key in context.messages) {
           describers.push(`${node.props.id}-${key}`);
         }
-        context.describedBy = describers.length ? describers.join(" ") : void 0;
+        context.describedBy = describers.length ? describers.join(' ') : void 0;
       }
       function flush() {
         recalculateContextState();
         notifyReactiveStore(context);
       }
-      node.on("prop:validationVisibility", ({ payload }) => {
+      node.on('prop:validationVisibility', ({ payload }) => {
         validationVisibility = payload;
         flush();
       });
-      node.on("prop:parsedRules", ({ payload }) => {
+      node.on('prop:parsedRules', ({ payload }) => {
         checkForRequired(payload);
         hasValidation = Array.isArray(payload) && payload.length > 0;
         flush();
       });
-      node.on("prop:rootClasses", () => {
+      node.on('prop:rootClasses', () => {
         for (const key of Object.keys(cachedClasses)) {
           delete cachedClasses[key];
         }
         flush();
       });
-      node.on("created", () => {
+      node.on('created', () => {
         if (!eq(context.value, node.value)) {
           inputValue = node.value;
           committedValue = node.value;
           context._value = inputValue;
           context.value = committedValue;
         }
-        (async () => {
+        (async() => {
           await node.settled;
           if (node) node.props._init = cloneAny(node.value);
         })();
         flush();
       });
-      node.on("mounted", () => {
+      node.on('mounted', () => {
         context.didMount = true;
         flush();
       });
-      node.on("settled", ({ payload: isSettled }) => {
+      node.on('settled', ({ payload: isSettled }) => {
         context.state.settled = isSettled;
         flush();
       });
@@ -498,17 +498,17 @@ var init_bindings = __esm({
       }
       const rootProps = () => {
         const props = [
-          "__root",
-          "help",
-          "label",
-          "disabled",
-          "options",
-          "type",
-          "attrs",
-          "preserve",
-          "preserveErrors",
-          "id",
-          "dirtyBehavior"
+          '__root',
+          'help',
+          'label',
+          'disabled',
+          'options',
+          'type',
+          'attrs',
+          'preserve',
+          'preserveErrors',
+          'id',
+          'dirtyBehavior'
         ];
         const iconPattern = /^[a-zA-Z-]+(?:-icon|Icon)$/;
         const matchingProps = Object.keys(node.props).filter((prop) => {
@@ -521,17 +521,17 @@ var init_bindings = __esm({
         if (definition3.props) observeProps(definition3.props);
       }
       node.props.definition && definedAs(node.props.definition);
-      node.on("added-props", ({ payload }) => observeProps(payload));
-      node.on("input", ({ payload }) => {
-        if (node.type !== "input") {
+      node.on('added-props', ({ payload }) => observeProps(payload));
+      node.on('input', ({ payload }) => {
+        if (node.type !== 'input') {
           markAggregateInput(payload);
         } else {
           context._value = domInputValue(payload);
         }
         flush();
       });
-      node.on("commitRaw", ({ payload }) => {
-        if (node.type !== "input") {
+      node.on('commitRaw', ({ payload }) => {
+        if (node.type !== 'input') {
           markAggregateCommitted(payload);
         } else {
           context.value = payload;
@@ -540,73 +540,73 @@ var init_bindings = __esm({
         pendingDOMInputValue = void 0;
         markEmptyDirty(payload);
         queueMicrotask(() => {
-          if (node) node.emit("modelUpdated");
+          if (node) node.emit('modelUpdated');
         });
         flush();
       });
-      node.on("commit", ({ payload }) => {
-        if ((!context.state.dirty || context.dirtyBehavior === "compare") && node.isCreated && hasTicked) {
+      node.on('commit', ({ payload }) => {
+        if ((!context.state.dirty || context.dirtyBehavior === 'compare') && node.isCreated && hasTicked) {
           if (!node.store.validating?.value) {
             context.handlers.touch();
           } else {
-            const receipt = node.on("message-removed", ({ payload: message3 }) => {
-              if (message3.key === "validating") {
+            const receipt = node.on('message-removed', ({ payload: message3 }) => {
+              if (message3.key === 'validating') {
                 context.handlers.touch();
                 node.off(receipt);
               }
             });
           }
         }
-        if (node.type === "input" && context.state.complete && context.state.errors && !undefine(node.props.preserveErrors)) {
+        if (node.type === 'input' && context.state.complete && context.state.errors && !undefine(node.props.preserveErrors)) {
           node.store.filter(
-            (message3) => !(message3.type === "error" && message3.meta?.autoClear === true)
+            (message3) => !(message3.type === 'error' && message3.meta?.autoClear === true)
           );
         }
-        if (node.type === "list" && node.sync) {
+        if (node.type === 'list' && node.sync) {
           context.items = getReactListItems(node);
         }
         markEmptyDirty(payload);
         flush();
       });
       const updateState = (message3) => {
-        if (message3.type === "ui" && message3.visible && !message3.meta.showAsMessage) {
+        if (message3.type === 'ui' && message3.visible && !message3.meta.showAsMessage) {
           ui[message3.key] = message3;
         } else if (message3.visible) {
           availableMessages[message3.key] = message3;
-        } else if (message3.type === "state") {
+        } else if (message3.type === 'state') {
           context.state[message3.key] = !!message3.value;
         }
         flush();
       };
-      node.on("message-added", (e) => updateState(e.payload));
-      node.on("message-updated", (e) => updateState(e.payload));
-      node.on("message-removed", ({ payload: message3 }) => {
+      node.on('message-added', (e) => updateState(e.payload));
+      node.on('message-updated', (e) => updateState(e.payload));
+      node.on('message-removed', ({ payload: message3 }) => {
         delete ui[message3.key];
         delete availableMessages[message3.key];
         delete context.state[message3.key];
         flush();
       });
-      node.on("settled:blocking", () => {
+      node.on('settled:blocking', () => {
         context.state.valid = true;
         flush();
       });
-      node.on("unsettled:blocking", () => {
+      node.on('unsettled:blocking', () => {
         context.state.valid = false;
         flush();
       });
-      node.on("settled:errors", () => {
+      node.on('settled:errors', () => {
         context.state.errors = false;
         flush();
       });
-      node.on("unsettled:errors", () => {
+      node.on('unsettled:errors', () => {
         context.state.errors = true;
         flush();
       });
-      context.refreshClasses = () => { if (!contextAlive) return; for(const observed of classObservers) observed.kill(); classObservers.clear(); for(const key of Object.keys(cachedClasses)) delete cachedClasses[key]; notifyReactiveStore(context); };
+      context.refreshClasses = () => { if (!contextAlive) return; for (const observed of classObservers) observed.kill(); classObservers.clear(); for (const key of Object.keys(cachedClasses)) delete cachedClasses[key]; notifyReactiveStore(context); };
       node.context = context;
       flush();
-      node.emit("context", node, false);
-      node.on("destroyed", () => {
+      node.emit('context', node, false);
+      node.on('destroyed', () => {
         contextAlive = false;
         for (const observed of classObservers) observed.kill();
         classObservers.clear();

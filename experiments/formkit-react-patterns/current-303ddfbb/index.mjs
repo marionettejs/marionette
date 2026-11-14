@@ -36,13 +36,13 @@ function readPropsEffect(node) {
 }
 var generatedSchemas = /* @__PURE__ */ new WeakSet();
 function generatedSchema(schema) {
-  if (schema && typeof schema === "object") {
+  if (schema && typeof schema === 'object') {
     generatedSchemas.add(schema);
   }
   return schema;
 }
 function isGeneratedSchema(schema) {
-  return !!schema && typeof schema === "object" && generatedSchemas.has(schema);
+  return !!schema && typeof schema === 'object' && generatedSchemas.has(schema);
 }
 function effectMetadata(node) {
   unknownMetadata.add(node);
@@ -88,13 +88,13 @@ function readEffect(object, key, indexedName = false) {
   if (!active) {
     return;
   }
-  const node = object && typeof object === "object" ? owners.get(object) : void 0;
+  const node = object && typeof object === 'object' ? owners.get(object) : void 0;
   if (node) {
     active.read(node);
     if (unknownMetadata.has(node)) {
       active.opaque();
     }
-    if (object === node && key === "name" && indexedName && parents.get(node)) {
+    if (object === node && key === 'name' && indexedName && parents.get(node)) {
       active.read(parents.get(node));
     }
   } else {
@@ -280,10 +280,10 @@ var BindingValue = class {
     this.effect.context = scope;
     this.effect.callback = () => {
       const value = compute();
-      const projection = value && typeof value === "object" ? projectionValues.get(value) : void 0;
+      const projection = value && typeof value === 'object' ? projectionValues.get(value) : void 0;
       const owned = projection && projection === this.effect.projection && !this.effect.unowned;
       const unchangedProjection = owned && projection.valid && this.projection?.valid && projection.producer === this.projection.producer && projection.version === this.projection.version;
-      const changed = equal ? !equal(this.value, value) : !unchangedProjection && (!Object.is(value, this.value) || value !== null && typeof value === "object");
+      const changed = equal ? !equal(this.value, value) : !unchangedProjection && (!Object.is(value, this.value) || value !== null && typeof value === 'object');
       this.projection = owned ? projection : void 0;
       this.value = value;
       if (changed) {
@@ -410,7 +410,7 @@ function updateNative(component, props, data, children, force) {
 }
 var targets = /* @__PURE__ */ new WeakSet();
 function isEffectTarget(value) {
-  return !!value && typeof value === "object" && targets.has(value);
+  return !!value && typeof value === 'object' && targets.has(value);
 }
 function effectTarget(target) {
   let opaque = false;
@@ -518,7 +518,7 @@ var NodeOwnership = class {
     if (this.#disposed || !this.nodes.has(node)) {
       return;
     }
-    if (node.type !== "input") {
+    if (node.type !== 'input') {
       this.#boundary(node);
     }
     this.#pending.add(node);
@@ -590,16 +590,16 @@ var NodeOwnership = class {
       node.hook.input.remove(boundary.input);
       return boundary;
     }
-    for (const event of ["child", "childRemoved", "commitRaw", "settled"]) {
+    for (const event of ['child', 'childRemoved', 'commitRaw', 'settled']) {
       const receipt = node.on(event, ({ payload }) => {
         if (this.#disposed || this.#boundaries.get(node) !== boundary) {
           return;
         }
-        if (event === "commitRaw") {
+        if (event === 'commitRaw') {
           if (boundary.phase) {
             this.#dirty.add(boundary);
           }
-        } else if (event === "settled") {
+        } else if (event === 'settled') {
           boundary.settled = payload === true;
           const phase = boundary.phase;
           if (phase) {
@@ -611,7 +611,7 @@ var NodeOwnership = class {
         } else if (this.nodes.has(payload)) {
           this.#pending.add(payload);
         }
-      }, event === "commitRaw" ? "unshift" : "push");
+      }, event === 'commitRaw' ? 'unshift' : 'push');
       if (this.#disposed || this.#boundaries.get(node) !== boundary) {
         node.off(receipt);
         break;
@@ -720,15 +720,15 @@ var NodeOwnership = class {
 var compositions = /* @__PURE__ */ new WeakMap();
 var inputSources = /* @__PURE__ */ new WeakMap();
 function fieldPathKey(path) {
-  return Array.isArray(path) ? path.join(".") : JSON.stringify(path);
+  return Array.isArray(path) ? path.join('.') : JSON.stringify(path);
 }
 
 // current-303ddfbb/src/composition-input.ts
-import { cloneAny as cloneAny2, undefine as undefine2 } from "@formkit/utils";
-import { valueRemoved as valueRemoved2 } from "@formkit/core";
+import { cloneAny as cloneAny2, undefine as undefine2 } from '@formkit/utils';
+import { valueRemoved as valueRemoved2 } from '@formkit/core';
 
 // current-303ddfbb/src/core-reads.ts
-import { error } from "@formkit/core";
+import { error } from '@formkit/core';
 var bridges = /* @__PURE__ */ new WeakMap();
 function coreValueChanged(node, key) {
   const bridge = bridges.get(node);
@@ -751,7 +751,7 @@ function install(node) {
   const extend = node.extend;
   const traps = /* @__PURE__ */ new WeakMap();
   function managed(key, trap) {
-    if (!trap || !["object", "function"].includes(typeof trap)) {
+    if (!trap || !['object', 'function'].includes(typeof trap)) {
       return trap;
     }
     let known = traps.get(trap);
@@ -764,11 +764,11 @@ function install(node) {
     }
     const functions = /* @__PURE__ */ new WeakMap();
     function handler(part) {
-      if (part === "get" && bridge.alive) {
+      if (part === 'get' && bridge.alive) {
         bindingEffect()?.read(bridge[key]);
       }
       const callback = Reflect.get(trap, part, trap);
-      if (typeof callback !== "function") {
+      if (typeof callback !== 'function') {
         return callback;
       }
       if (!functions.has(callback)) {
@@ -777,22 +777,22 @@ function install(node) {
       return functions.get(callback);
     }
     const wrapped = Object.defineProperties({}, {
-      get: { get: () => handler("get") },
-      set: { get: () => handler("set") }
+      get: { get: () => handler('get') },
+      set: { get: () => handler('set') }
     });
     known.set(key, wrapped);
     return wrapped;
   }
-  for (const key of ["value", "_value"]) {
+  for (const key of ['value', '_value']) {
     extend(key, managed(key, { get: false, set: false }));
   }
-  extend("extend", {
+  extend('extend', {
     // Core's method getter supplies a fresh callable. Preserve that shape and
     // delegate future custom extend methods unchanged: a saved public method
     // still reaches this constructor-owned boundary with the original args.
     get: () => new Proxy(extend, {
       apply(target, receiver, args) {
-        if (args[0] === "value" || args[0] === "_value") {
+        if (args[0] === 'value' || args[0] === '_value') {
           args[1] = managed(args[0], args[1]);
         }
         return Reflect.apply(target, receiver, args);
@@ -816,17 +816,17 @@ function coreReadBridge() {
 }
 
 // current-303ddfbb/src/runtime.ts
-import { createNode, deregister as deregister2, isComponent, isConditional, isDOM, isNode as isNode2, register, sugar as sugar2 } from "@formkit/core";
-import { createLibraryPlugin, extendSchema, inputs, runtimeProps } from "@formkit/inputs";
-import { createThemePlugin } from "@formkit/themes";
-import { eq as eq2, isPojo as isPojo2 } from "@formkit/utils";
+import { createNode, deregister as deregister2, isComponent, isConditional, isDOM, isNode as isNode2, register, sugar as sugar2 } from '@formkit/core';
+import { createLibraryPlugin, extendSchema, inputs, runtimeProps } from '@formkit/inputs';
+import { createThemePlugin } from '@formkit/themes';
+import { eq as eq2, isPojo as isPojo2 } from '@formkit/utils';
 
 // current-303ddfbb/src/bindings.ts
-import { createClasses, createMessage, generateClassList, isNode } from "@formkit/core";
-import { cloneAny, empty, eq, token, undefine } from "@formkit/utils";
+import { createClasses, createMessage, generateClassList, isNode } from '@formkit/core';
+import { cloneAny, empty, eq, token, undefine } from '@formkit/utils';
 
 // current-303ddfbb/src/invalidation.ts
-import { kebab } from "@formkit/utils";
+import { kebab } from '@formkit/utils';
 var owners3 = /* @__PURE__ */ new WeakMap();
 var objects = /* @__PURE__ */ new WeakMap();
 var proxyTargets = /* @__PURE__ */ new WeakMap();
@@ -902,15 +902,15 @@ nativeInvalidation.library = (node) => {
   }
   let attrsAssignments = 0, attrsOriginal, attrsPassed = true;
   original.prop((payload, next) => {
-    if (payload.prop === "__propDefs") {
+    if (payload.prop === '__propDefs') {
       propsMetadata(node);
     }
-    if (payload.prop !== "attrs") {
+    if (payload.prop !== 'attrs') {
       return next(payload);
     }
     attrsAssignments++;
     const value = payload.value, result = next(payload);
-    attrsPassed = attrsPassed && result.prop === "attrs" && result.value === value;
+    attrsPassed = attrsPassed && result.prop === 'attrs' && result.value === value;
     attrsOriginal = value;
     return result;
   });
@@ -931,7 +931,7 @@ nativeInvalidation.library = (node) => {
         return Reflect.apply(target, receiver, args);
       },
       get(target, key, receiver) {
-        return key === "unshift" ? unshift : Reflect.get(target, key, receiver);
+        return key === 'unshift' ? unshift : Reflect.get(target, key, receiver);
       },
       defineProperty(target, key, descriptor) {
         owner.opaque = true;
@@ -944,22 +944,22 @@ nativeInvalidation.library = (node) => {
   const classes = watch(initialClasses), props = watch(initialProps, true);
   owner.hook = new Proxy(original, {
     get(target, key, receiver) {
-      return key === "classes" ? classes : key === "prop" ? props : Reflect.get(target, key, receiver);
+      return key === 'classes' ? classes : key === 'prop' ? props : Reflect.get(target, key, receiver);
     }
   });
   node.hook = owner.hook;
   owners3.set(node, owner);
   effectNode(node, owner.configParent);
-  const createdAttrs = node.on("added-props", () => {
-    const attrs = Object.getOwnPropertyDescriptor(node.props, "attrs");
-    if (!owner.opaque && attrsAssignments === 1 && attrsPassed && attrs && "value" in attrs && attrs.value === attrsOriginal) {
-      contextObject(node, attrs.value, "attrs");
+  const createdAttrs = node.on('added-props', () => {
+    const attrs = Object.getOwnPropertyDescriptor(node.props, 'attrs');
+    if (!owner.opaque && attrsAssignments === 1 && attrsPassed && attrs && 'value' in attrs && attrs.value === attrsOriginal) {
+      contextObject(node, attrs.value, 'attrs');
     }
     attrsAssignments = 0;
     attrsOriginal = void 0;
     attrsPassed = true;
   });
-  node.on("destroying", () => {
+  node.on('destroying', () => {
     node.off(createdAttrs);
   });
 };
@@ -972,7 +972,7 @@ function contextChanged(node) {
 }
 function contextObject(node, value, role) {
   const owner = owners3.get(node);
-  if (owner && value && typeof value === "object") {
+  if (owner && value && typeof value === 'object') {
     const entry = { owner, role };
     objects.set(value, entry);
     effectObject(value, node);
@@ -1001,8 +1001,8 @@ function certifyContext(node, context) {
   resetEffectMetadata(node);
   owner.context = context;
   owner.nativeGetters = Object.getOwnPropertyDescriptors(context);
-  contextObject(node, context, "context");
-  for (const [key, role] of [["state", "state"], ["handlers", "handlers"], ["fns", "functions"]]) {
+  contextObject(node, context, 'context');
+  for (const [key, role] of [['state', 'state'], ['handlers', 'handlers'], ['fns', 'functions']]) {
     contextObject(node, context[key], role);
   }
   for (const object of [context, context.state]) {
@@ -1016,7 +1016,7 @@ function certifyContext(node, context) {
 }
 function nativeClassHook(node) {
   const owner = owners3.get(node);
-  if (!owner || owner.opaque || !owner.core || owner.core.traps !== owner.traps || owner.traps?.get("hook")?.get !== owner.nativeTraps?.get("hook")) {
+  if (!owner || owner.opaque || !owner.core || owner.core.traps !== owner.traps || owner.traps?.get('hook')?.get !== owner.nativeTraps?.get('hook')) {
     return false;
   }
   return node.hook === owner.hook;
@@ -1028,49 +1028,49 @@ function opaqueRender() {
   }
 }
 function iterationScope(scope, collection) {
-  if (collection && typeof collection === "object") {
+  if (collection && typeof collection === 'object') {
     const entry = objects.get(collection);
-    if (entry?.role === "messages") {
-      objects.set(scope, { owner: entry.owner, role: "iteration" });
+    if (entry?.role === 'messages') {
+      objects.set(scope, { owner: entry.owner, role: 'iteration' });
       effectObject(scope, entry.owner.node);
     }
   }
 }
 function scalar(value) {
-  return value === null || !["object", "function"].includes(typeof value);
+  return value === null || !['object', 'function'].includes(typeof value);
 }
 function snapshot(object, allowFunctions = true) {
   const before = Object.getOwnPropertyDescriptors(object), keys2 = Object.keys(before);
-  if (keys2.some((key) => !("value" in before[key]) || !scalar(before[key].value) && (!allowFunctions || typeof before[key].value !== "function"))) {
+  if (keys2.some((key) => !('value' in before[key]) || !scalar(before[key].value) && (!allowFunctions || typeof before[key].value !== 'function'))) {
     return;
   }
   return () => {
     const after = descriptors(object);
-    return keys2.length === Object.keys(after).length && keys2.every((key) => after[key] && "value" in after[key] && Object.is(before[key].value, after[key].value));
+    return keys2.length === Object.keys(after).length && keys2.every((key) => after[key] && 'value' in after[key] && Object.is(before[key].value, after[key].value));
   };
 }
 function contextRead(receiver, key, value) {
-  const source = receiver && typeof receiver === "object" ? owners3.get(receiver) : void 0;
+  const source = receiver && typeof receiver === 'object' ? owners3.get(receiver) : void 0;
   const native = source?.core && source.core.traps === source.traps && source.traps?.get(key)?.get === source.nativeTraps?.get(key);
   if (source && !native) {
     opaqueEffect();
   }
-  readEffect(receiver, key, !!native && typeof value === "number");
-  const readOwner = receiver && typeof receiver === "object" ? objects.get(receiver) : void 0;
-  if (readOwner?.role === "context" && key === "attrs" && value && typeof value === "object" && !isEffectTarget(proxyTargets.get(value) ?? value)) {
+  readEffect(receiver, key, !!native && typeof value === 'number');
+  const readOwner = receiver && typeof receiver === 'object' ? objects.get(receiver) : void 0;
+  if (readOwner?.role === 'context' && key === 'attrs' && value && typeof value === 'object' && !isEffectTarget(proxyTargets.get(value) ?? value)) {
     opaqueEffect();
   }
-  if (readOwner?.role === "message") {
+  if (readOwner?.role === 'message') {
     opaqueEffect();
   }
-  if (readOwner?.role === "functions" && key === "length" && value !== readOwner.owner.length) {
+  if (readOwner?.role === 'functions' && key === 'length' && value !== readOwner.owner.length) {
     opaqueEffect();
   }
   if (!active2 || active2.opaque) {
     return;
   }
   const { owner } = active2;
-  if (receiver === owner.node && key === "name") {
+  if (receiver === owner.node && key === 'name') {
     active2.checks.push(() => Object.is(owner.node.name, value));
     return;
   }
@@ -1080,7 +1080,7 @@ function contextRead(receiver, key, value) {
     return;
   }
   const descriptor = Object.getOwnPropertyDescriptor(receiver, key);
-  if (!descriptor && entry.role !== "classes" && (![Object.prototype, null].includes(Object.getPrototypeOf(receiver)) || Object.hasOwn(Object.prototype, key))) {
+  if (!descriptor && entry.role !== 'classes' && (![Object.prototype, null].includes(Object.getPrototypeOf(receiver)) || Object.hasOwn(Object.prototype, key))) {
     active2.opaque = true;
     return;
   }
@@ -1088,16 +1088,16 @@ function contextRead(receiver, key, value) {
     active2.opaque = true;
     return;
   }
-  if (entry.role === "functions" && key === "length" && value !== owner.length) {
+  if (entry.role === 'functions' && key === 'length' && value !== owner.length) {
     active2.opaque = true;
   }
-  if (value && typeof value === "object") {
+  if (value && typeof value === 'object') {
     const child = objects.get(value);
     if (value !== owner.node && (!child || child.owner !== owner)) {
       active2.opaque = true;
       return;
     }
-    if (child?.role === "attrs" || child?.role === "slots") {
+    if (child?.role === 'attrs' || child?.role === 'slots') {
       const check = snapshot(value);
       if (check) {
         active2.checks.push(check);
@@ -1108,7 +1108,7 @@ function contextRead(receiver, key, value) {
   }
 }
 function expressionCalls(expression) {
-  if ([...expression.matchAll(/\$([A-Za-z0-9_.]+)\s*\(/g)].some(([, path]) => path !== "fns.length")) {
+  if ([...expression.matchAll(/\$([A-Za-z0-9_.]+)\s*\(/g)].some(([, path]) => path !== 'fns.length')) {
     opaqueEffect();
   }
   if (!active2 || active2.opaque) {
@@ -1116,14 +1116,14 @@ function expressionCalls(expression) {
   }
   const calls = expression.matchAll(/\$([A-Za-z0-9_.]+)\s*\(/g);
   for (const [, path] of calls) {
-    if (path !== "fns.length") {
+    if (path !== 'fns.length') {
       active2.opaque = true;
     }
   }
 }
 function captureRender(renderer, data, render) {
   const entry = objects.get(data), previous = active2;
-  const capture = entry?.role === "context" ? {
+  const capture = entry?.role === 'context' ? {
     owner: entry.owner,
     epoch: entry.owner.epoch,
     opaque: false,
@@ -1148,7 +1148,7 @@ function releaseCapture(renderer) {
 }
 var automaticRequests = /* @__PURE__ */ new WeakMap();
 var automaticScopes = /* @__PURE__ */ new WeakSet();
-function automaticUpdate(renderer, data, mode = "context") {
+function automaticUpdate(renderer, data, mode = 'context') {
   automaticRequests.set(renderer, mode);
   try {
     renderer.update(data);
@@ -1199,7 +1199,7 @@ function takeInitialComponent(component) {
 function reactive(value, changed, metadataChanged) {
   const proxies = /* @__PURE__ */ new WeakMap();
   function wrap(item) {
-    if (!item || typeof item !== "object" || isNode(item) || Object.isFrozen(item) || !Array.isArray(item) && ![Object.prototype, null].includes(Object.getPrototypeOf(item))) {
+    if (!item || typeof item !== 'object' || isNode(item) || Object.isFrozen(item) || !Array.isArray(item) && ![Object.prototype, null].includes(Object.getPrototypeOf(item))) {
       return item;
     }
     if (proxies.has(item)) {
@@ -1269,17 +1269,17 @@ var nativeBindings = (node) => {
   let shownValidation = false;
   let pendingNativeDateDelete = false;
   let pendingDOMInputValue;
-  const domInputValue = (payload) => typeof pendingDOMInputValue === "string" && node.props.number !== void 0 && node.props.number !== "integer" && typeof payload === "number" && Number.isFinite(payload) && pendingDOMInputValue.includes(".") && Number(pendingDOMInputValue) === payload && pendingDOMInputValue !== String(payload) ? pendingDOMInputValue : payload;
+  const domInputValue = (payload) => typeof pendingDOMInputValue === 'string' && node.props.number !== void 0 && node.props.number !== 'integer' && typeof payload === 'number' && Number.isFinite(payload) && pendingDOMInputValue.includes('.') && Number(pendingDOMInputValue) === payload && pendingDOMInputValue !== String(payload) ? pendingDOMInputValue : payload;
   const receipts = [];
   const messages = {};
   let inputErrorsReady = false;
   const ui = {};
-  node.ledger.count("blocking", (message) => message.blocking);
-  node.ledger.count("errors", (message) => message.type === "error");
+  node.ledger.count('blocking', (message) => message.blocking);
+  node.ledger.count('errors', (message) => message.type === 'error');
   const changed = (needed = true) => {
     contextChanged(node);
     if (alive && node.context !== null) {
-      withRenderHint(node, needed, () => node.emit("context-update", node));
+      withRenderHint(node, needed, () => node.emit('context-update', node));
     }
   };
   const listen = (event, callback, pos) => {
@@ -1311,34 +1311,34 @@ var nativeBindings = (node) => {
           pendingNativeDateDelete = false;
           void node.input((event?.target).value);
         }
-        if (node.props.number !== void 0 && ["number", "range", "hidden"].includes(node.props.type) && typeof node._value === "string" && node._value !== "") {
+        if (node.props.number !== void 0 && ['number', 'range', 'hidden'].includes(node.props.type) && typeof node._value === 'string' && node._value !== '') {
           const number = Number(node._value);
           void node.input(Number.isFinite(number) ? number : void 0);
         }
-        node.store.set(createMessage({ key: "blurred", visible: false, value: true }));
+        node.store.set(createMessage({ key: 'blurred', visible: false, value: true }));
         node.props.attrs?.onBlur?.(event);
       },
       touch() {
-        if (context.state.dirty && node.props.dirtyBehavior !== "compare") {
+        if (context.state.dirty && node.props.dirtyBehavior !== 'compare') {
           return;
         }
         const dirty = !eq(node.props._init, node._value);
-        if (dirty || node.props.dirtyBehavior === "compare") {
-          node.store.set(createMessage({ key: "dirty", visible: false, value: dirty }));
+        if (dirty || node.props.dirtyBehavior === 'compare') {
+          node.store.set(createMessage({ key: 'dirty', visible: false, value: dirty }));
         }
       },
       DOMInput(event) {
         const target = event.target;
-        pendingNativeDateDelete = "inputType" in event && String(event.inputType).startsWith("delete") && ["date", "datetime-local", "month", "time", "week"].includes(target.type) && target.value === "" && target.ownerDocument.activeElement === target && !empty(node._value);
+        pendingNativeDateDelete = 'inputType' in event && String(event.inputType).startsWith('delete') && ['date', 'datetime-local', 'month', 'time', 'week'].includes(target.type) && target.value === '' && target.ownerDocument.activeElement === target && !empty(node._value);
         if (!pendingNativeDateDelete) {
           pendingDOMInputValue = target.value;
           void node.input(pendingDOMInputValue);
         }
-        node.emit("dom-input-event", event);
+        node.emit('dom-input-event', event);
       }
     }
   };
-  if (!Object.hasOwn(initialContext, "disabled")) {
+  if (!Object.hasOwn(initialContext, 'disabled')) {
     initialContext.disabled = node.props.disabled;
   }
   const context = reactive(initialContext, changed, () => {
@@ -1352,24 +1352,24 @@ var nativeBindings = (node) => {
     if (!shownValidation && !context.state.settled) {
       return false;
     }
-    const visibility = node.props.validationVisibility ?? (node.props.type === "checkbox" ? "dirty" : "blur");
+    const visibility = node.props.validationVisibility ?? (node.props.type === 'checkbox' ? 'dirty' : 'blur');
     switch (visibility) {
-      case "live":
+      case 'live':
         return true;
-      case "blur":
+      case 'blur':
         return context.state.blurred;
-      case "dirty":
+      case 'dirty':
         return context.state.dirty;
-      case "submit":
+      case 'submit':
         return false;
       default:
-        return String(visibility).split(/[\s,|]+/).some((mode) => mode === "live" || mode === "blur" && context.state.blurred || mode === "dirty" && context.state.dirty);
+        return String(visibility).split(/[\s,|]+/).some((mode) => mode === 'live' || mode === 'blur' && context.state.blurred || mode === 'dirty' && context.state.dirty);
     }
   };
   Object.defineProperties(context.state, {
-    valid: { enumerable: true, get: () => !node.ledger.value("blocking") },
-    errors: { enumerable: true, get: () => !!node.ledger.value("errors") },
-    required: { enumerable: true, get: () => !!node.props.parsedRules?.some((rule) => rule.name === "required") },
+    valid: { enumerable: true, get: () => !node.ledger.value('blocking') },
+    errors: { enumerable: true, get: () => !!node.ledger.value('errors') },
+    required: { enumerable: true, get: () => !!node.props.parsedRules?.some((rule) => rule.name === 'required') },
     rules: { enumerable: true, get: () => !!node.props.parsedRules?.length },
     empty: { enumerable: true, get: () => empty(context.value) },
     passing: { enumerable: true, get: () => !context.state.failing },
@@ -1382,21 +1382,21 @@ var nativeBindings = (node) => {
   let visibleEntries = [];
   function visibleMessages() {
     opaqueRender();
-    const entries = Object.entries(messages).filter(([, message]) => message.type !== "validation" || validationVisible());
+    const entries = Object.entries(messages).filter(([, message]) => message.type !== 'validation' || validationVisible());
     if (entries.length !== visibleEntries.length || entries.some(([key, message], index) => key !== visibleEntries[index][0] || message !== visibleEntries[index][1])) {
       messageVersion++;
     }
     visibleEntries = entries;
-    return contextObject(node, effectProjection(Object.fromEntries(entries), messageProducer, messageVersion, node), "messages");
+    return contextObject(node, effectProjection(Object.fromEntries(entries), messageProducer, messageVersion, node), 'messages');
   }
   function classContribution(section, value) {
-    if (typeof value === "function") {
+    if (typeof value === 'function') {
       return classContribution(section, Reflect.apply(value, void 0, [node, section]));
     }
-    const constant = !value || typeof value === "string";
+    const constant = !value || typeof value === 'string';
     return {
       classes: constant ? void 0 : createClasses(section, node, value),
-      scalar: typeof value === "string" ? value : "",
+      scalar: typeof value === 'string' ? value : '',
       constant
     };
   }
@@ -1404,12 +1404,12 @@ var nativeBindings = (node) => {
     opaqueRender();
     readEffect(node);
     const root = node.config.rootClasses;
-    let basis = "empty";
-    const rootClasses = typeof root === "function" ? (() => {
+    let basis = 'empty';
+    const rootClasses = typeof root === 'function' ? (() => {
       const configuration = node.config;
       const callback = configuration.rootClasses;
-      basis = callback === defaultRootClasses ? "default" : void 0;
-      return basis === "default" ? void 0 : Reflect.apply(callback, configuration, [section, node]);
+      basis = callback === defaultRootClasses ? 'default' : void 0;
+      return basis === 'default' ? void 0 : Reflect.apply(callback, configuration, [section, node]);
     })() : void 0;
     const classes = node.config.classes;
     const contributions = [
@@ -1429,8 +1429,8 @@ var nativeBindings = (node) => {
     return value;
   }
   function generateSection(section, value) {
-    const root = value.basis === "default" ? defaultRootClasses(section) : value.root ?? {};
-    return generateClassList(node, section, root, ...value.contributions.map((entry) => entry.constant ? createClasses(section, node, entry.scalar) : entry.classes)) ?? "";
+    const root = value.basis === 'default' ? defaultRootClasses(section) : value.root ?? {};
+    return generateClassList(node, section, root, ...value.contributions.map((entry) => entry.constant ? createClasses(section, node, entry.scalar) : entry.classes)) ?? '';
   }
   function sectionClasses(section) {
     const effect = bindingEffect();
@@ -1442,26 +1442,26 @@ var nativeBindings = (node) => {
     items: { enumerable: true, configurable: true, get: () => node.children.map((child) => child.uid) },
     messages: { enumerable: true, configurable: true, get: visibleMessages },
     describedBy: { enumerable: true, configurable: true, get: () => [
-      context.help ? `help-${context.id}` : "",
+      context.help ? `help-${context.id}` : '',
       ...Object.keys(context.messages).map((key) => `${context.id}-${key}`)
-    ].filter(Boolean).join(" ") || void 0 },
+    ].filter(Boolean).join(' ') || void 0 },
     classes: { enumerable: true, configurable: true, get: () => contextObject(node, new Proxy({}, {
       get(target, section) {
-        if (typeof section !== "string" || section in Object.prototype) {
+        if (typeof section !== 'string' || section in Object.prototype) {
           return Reflect.get(target, section);
         }
         return sectionClasses(section);
       }
-    }), "classes") }
+    }), 'classes') }
   });
   certifyContext(node, context);
   function applyErrors(errors) {
     node.store.apply((Array.isArray(errors) ? errors : []).map((value) => createMessage({
       key: `prop-error-${token()}`,
-      type: "error",
+      type: 'error',
       value: String(value),
-      meta: { source: "prop" }
-    })), (message) => message.type === "error" && message.meta.source === "prop");
+      meta: { source: 'prop' }
+    })), (message) => message.type === 'error' && message.meta.source === 'prop');
   }
   const inputErrorSource = `input-prop-${token()}`;
   let inputErrorAddresses = [];
@@ -1470,22 +1470,22 @@ var nativeBindings = (node) => {
     const supplied = errors ?? {};
     const messagesByAddress = Object.fromEntries([...inputErrorAddresses.map((address) => [address, []]), ...Object.entries(supplied).map(([address, entries]) => [
       address,
-      (typeof entries === "string" ? [entries] : entries).map((value) => createMessage({ key: `prop-error-${token()}`, type: "error", value: String(value), meta: { source: inputErrorSource } }))
+      (typeof entries === 'string' ? [entries] : entries).map((value) => createMessage({ key: `prop-error-${token()}`, type: 'error', value: String(value), meta: { source: inputErrorSource } }))
     ])]);
     inputErrorAddresses = Object.keys(supplied);
     node.store.apply(messagesByAddress, (message) => message.meta.source === inputErrorSource);
   }
   function messageChanged(message) {
     if (Object.isFrozen(message)) {
-      contextObject(node, message, "message");
+      contextObject(node, message, 'message');
     }
     delete ui[message.key];
     delete messages[message.key];
-    if (message.type === "ui" && message.visible && !message.meta.showAsMessage) {
+    if (message.type === 'ui' && message.visible && !message.meta.showAsMessage) {
       ui[message.key] = message;
     } else if (message.visible) {
       messages[message.key] = message;
-    } else if (message.type === "state") {
+    } else if (message.type === 'state') {
       context.state[message.key] = !!message.value;
     }
     if (validationVisible()) {
@@ -1493,26 +1493,26 @@ var nativeBindings = (node) => {
     }
     changed();
   }
-  listen("prop", ({ payload: { prop, value } }) => {
+  listen('prop', ({ payload: { prop, value } }) => {
     const descriptor = Object.getOwnPropertyDescriptor(context, prop);
     if (!descriptor?.get) {
       context[prop] = value;
     }
-    if (prop === "__propDefs") {
+    if (prop === '__propDefs') {
       propsMetadata(node);
     }
-    if (prop === "errors") {
+    if (prop === 'errors') {
       applyErrors(value);
     }
-    if (prop === "inputErrors" && inputErrorsReady) {
+    if (prop === 'inputErrors' && inputErrorsReady) {
       applyInputErrors(value);
     }
     changed();
   });
-  for (const event of ["config:classes", "config:rootClasses", "child", "childRemoved"]) {
+  for (const event of ['config:classes', 'config:rootClasses', 'child', 'childRemoved']) {
     listen(event, () => changed());
   }
-  for (const name of ["blocking", "errors"]) {
+  for (const name of ['blocking', 'errors']) {
     let nonzero = !!node.ledger.value(name);
     listen(`count:${name}`, ({ payload }) => {
       const next = !!payload, needed = next !== nonzero;
@@ -1520,36 +1520,36 @@ var nativeBindings = (node) => {
       changed(needed);
     });
   }
-  listen("input", ({ payload }) => {
+  listen('input', ({ payload }) => {
     context._value = domInputValue(payload);
-    coreValueChanged(node, "_value");
+    coreValueChanged(node, '_value');
   });
-  listen("commitRaw", ({ payload }) => {
+  listen('commitRaw', ({ payload }) => {
     context.value = payload;
     context._value = domInputValue(payload);
     pendingDOMInputValue = void 0;
-    node.emit("modelUpdated");
+    node.emit('modelUpdated');
     changed();
-    coreValueChanged(node, "_value");
+    coreValueChanged(node, '_value');
   });
-  listen("commit", () => {
+  listen('commit', () => {
     if (hasTicked && !node.store.validating?.value) {
       context.handlers.touch();
     }
-    if (node.type === "input" && context.state.errors && !undefine(node.props.preserveErrors)) {
-      node.store.filter((message) => !(message.type === "error" && message.meta.autoClear === true));
+    if (node.type === 'input' && context.state.errors && !undefine(node.props.preserveErrors)) {
+      node.store.filter((message) => !(message.type === 'error' && message.meta.autoClear === true));
     }
     changed();
-    coreValueChanged(node, "value");
+    coreValueChanged(node, 'value');
   });
-  listen("settled", ({ payload }) => {
+  listen('settled', ({ payload }) => {
     context.state.settled = payload;
     changed();
   });
-  listen("mounted", () => {
+  listen('mounted', () => {
     context.didMount = true;
   });
-  listen("created", () => {
+  listen('created', () => {
     applyErrors(node.props.errors);
     inputErrorsReady = true;
     applyInputErrors(node.props.inputErrors);
@@ -1560,15 +1560,15 @@ var nativeBindings = (node) => {
       }
     });
   });
-  listen("message-added", ({ payload }) => messageChanged(payload));
-  listen("message-updated", ({ payload }) => messageChanged(payload));
-  listen("message-removed", ({ payload }) => {
+  listen('message-added', ({ payload }) => messageChanged(payload));
+  listen('message-updated', ({ payload }) => messageChanged(payload));
+  listen('message-removed', ({ payload }) => {
     delete ui[payload.key];
     delete messages[payload.key];
-    if (payload.type === "state") {
+    if (payload.type === 'state') {
       delete context.state[payload.key];
     }
-    if (payload.key === "validating" && hasTicked) {
+    if (payload.key === 'validating' && hasTicked) {
       context.handlers.touch();
     }
     changed();
@@ -1579,18 +1579,18 @@ var nativeBindings = (node) => {
     receipts.forEach((receipt) => node.off(receipt));
     node.context = void 0;
   };
-  listen("destroying", dispose);
-  listen("destroyed", dispose);
+  listen('destroying', dispose);
+  listen('destroyed', dispose);
   queueMicrotask(() => {
     hasTicked = alive;
   });
   node.context = context;
-  node.emit("context", node, false);
+  node.emit('context', node, false);
 };
 
 // current-303ddfbb/src/schema.ts
-import { compile, deregister, getNode, stopWatch, sugar, watchRegistry } from "@formkit/core";
-import { isPojo } from "@formkit/utils";
+import { compile, deregister, getNode, stopWatch, sugar, watchRegistry } from '@formkit/core';
+import { isPojo } from '@formkit/utils';
 var scopeParents = /* @__PURE__ */ new WeakMap();
 function scoped(parent, values) {
   const scope = Object.defineProperties(Object.create(parent), Object.fromEntries(Object.entries(values).map(([key, value]) => [key, { value, enumerable: true, configurable: true, writable: true }])));
@@ -1600,7 +1600,7 @@ function scoped(parent, values) {
 }
 var bound = /* @__PURE__ */ new WeakMap();
 function tokenValue(scope, token2) {
-  const parts = token2.split(".");
+  const parts = token2.split('.');
   const parent = scopeParents.get(scope);
   if (parent && !Object.hasOwn(scope, parts[0])) {
     return tokenValue(parent, token2);
@@ -1618,10 +1618,10 @@ function tokenValue(scope, token2) {
   if (value === void 0 && parent) {
     return tokenValue(parent, token2);
   }
-  if (typeof value !== "function") {
+  if (typeof value !== 'function') {
     return value;
   }
-  if (typeof receiver !== "object") {
+  if (typeof receiver !== 'object') {
     return value.bind(receiver);
   }
   if (!bound.has(receiver)) {
@@ -1642,8 +1642,8 @@ function compileExpression(expression) {
   });
   return entry;
 }
-function evaluate(value, scope, programs, resolve, path = "") {
-  if (typeof value === "string" && value.startsWith("$") && !/^\$(?:reset(?:\s|$)|remove:)/.test(value)) {
+function evaluate(value, scope, programs, resolve, path = '') {
+  if (typeof value === 'string' && value.startsWith('$') && !/^\$(?:reset(?:\s|$)|remove:)/.test(value)) {
     if (resolve) {
       return resolve(path, value, scope, () => evaluate(value, scope, programs));
     }
@@ -1651,7 +1651,7 @@ function evaluate(value, scope, programs, resolve, path = "") {
     if (/^\$[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*$/.test(value)) {
       return tokenValue(scope, value.slice(1));
     }
-    if (!value.includes("(")) {
+    if (!value.includes('(')) {
       let entry = programs.get(value);
       if (!entry) {
         entry = compileExpression(value);
@@ -1671,10 +1671,10 @@ function evaluate(value, scope, programs, resolve, path = "") {
   }
   if (isPojo(value)) {
     const object = value;
-    if ("if" in object && "then" in object) {
+    if ('if' in object && 'then' in object) {
       return evaluate(evaluate(object.if, scope, programs, resolve, `${path}.if`) ? object.then : object.else, scope, programs, resolve, `${path}.branch`);
     }
-    return Object.fromEntries(Object.entries(object).map(([key, item]) => key.startsWith("__raw__") ? [key.slice(7), item] : [key, evaluate(item, scope, programs, resolve, `${path}[${JSON.stringify(key)}]`)]));
+    return Object.fromEntries(Object.entries(object).map(([key, item]) => key.startsWith('__raw__') ? [key.slice(7), item] : [key, evaluate(item, scope, programs, resolve, `${path}[${JSON.stringify(key)}]`)]));
   }
   return value;
 }
@@ -1701,36 +1701,36 @@ function expand(schema, scope, prefix, identity, evaluateExpression, current, ge
       break;
     }
     const key = `${prefix}${index}`;
-    if (typeof entry === "string") {
-      if (entry.startsWith("$slots.")) {
+    if (typeof entry === 'string') {
+      if (entry.startsWith('$slots.')) {
         const slot = evaluateExpression(entry, scope);
         if (!current()) {
           break;
         }
-        if (typeof slot === "function") {
+        if (typeof slot === 'function') {
           opaqueRender();
           const content = slot(scope);
           if (!current()) {
             break;
           }
-          if (content && typeof content === "object" && "schema" in content) {
+          if (content && typeof content === 'object' && 'schema' in content) {
             result.push(...expand(content.schema, content.data, `${key}.slot.`, identity, evaluateExpression, current, isGeneratedSchema(content.schema)));
           } else {
             result.push(...expand(content, scope, `${key}.slot.`, identity, evaluateExpression, current, isGeneratedSchema(content)));
           }
         } else if (slot !== void 0 || !/^\$slots\.[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*$/.test(entry)) {
-          result.push({ generated, key, schema: { $el: "text" }, scope, text: slot });
+          result.push({ generated, key, schema: { $el: 'text' }, scope, text: slot });
         }
       } else {
         result.push({ generated, key, schema: entry, scope });
       }
       continue;
     }
-    if ("nodeType" in entry) {
+    if ('nodeType' in entry) {
       result.push({ generated, key, schema: entry, scope });
       continue;
     }
-    if ("then" in entry && !("for" in entry && entry.for)) {
+    if ('then' in entry && !('for' in entry && entry.for)) {
       const visible = evaluateExpression(entry.if, scope);
       if (!current()) {
         break;
@@ -1741,7 +1741,7 @@ function expand(schema, scope, prefix, identity, evaluateExpression, current, ge
     if (!current()) {
       break;
     }
-    if ("for" in entry && entry.for) {
+    if ('for' in entry && entry.for) {
       if (!current()) {
         break;
       }
@@ -1753,7 +1753,7 @@ function expand(schema, scope, prefix, identity, evaluateExpression, current, ge
       if (!current()) {
         break;
       }
-      const pairs = typeof collection === "number" ? Array.from({ length: collection }, (_, itemIndex) => [itemIndex, itemIndex]) : Array.isArray(collection) ? collection.map((item, itemIndex) => [itemIndex, item]) : Object.entries(collection ?? {});
+      const pairs = typeof collection === 'number' ? Array.from({ length: collection }, (_, itemIndex) => [itemIndex, itemIndex]) : Array.isArray(collection) ? collection.map((item, itemIndex) => [itemIndex, item]) : Object.entries(collection ?? {});
       pairs.forEach(([itemKey, item]) => {
         if (!current()) {
           return;
@@ -1766,7 +1766,7 @@ function expand(schema, scope, prefix, identity, evaluateExpression, current, ge
         const descriptors2 = Object.getOwnPropertyDescriptors(entry);
         delete descriptors2.for;
         const copy = Object.defineProperties({}, descriptors2);
-        const iteration = `${key}:${identity(evaluateExpression(("key" in copy ? copy.key : void 0) ?? itemKey, itemScope))}.`;
+        const iteration = `${key}:${identity(evaluateExpression(('key' in copy ? copy.key : void 0) ?? itemKey, itemScope))}.`;
         if (current()) {
           result.push(...expand(copy, itemScope, iteration, identity, evaluateExpression, current, generated));
         }
@@ -1781,11 +1781,11 @@ function expand(schema, scope, prefix, identity, evaluateExpression, current, ge
       if (!current()) {
         break;
       }
-      if ("$el" in entry && entry.$el === null) {
+      if ('$el' in entry && entry.$el === null) {
         result.push(...expand(entry.children ?? [], scope, `${key}.`, identity, evaluateExpression, current, generated));
         continue;
       }
-      const explicitKey = evaluateExpression("key" in entry ? entry.key : void 0, scope);
+      const explicitKey = evaluateExpression('key' in entry ? entry.key : void 0, scope);
       if (!current()) {
         break;
       }
@@ -1809,7 +1809,7 @@ function nodes(record) {
   return result;
 }
 function isPassiveSchemaEvent(attribute) {
-  return attribute.length > 9 && attribute.endsWith("Passive");
+  return attribute.length > 9 && attribute.endsWith('Passive');
 }
 function schemaEventName(attribute) {
   return attribute.slice(2, isPassiveSchemaEvent(attribute) ? -7 : void 0).toLowerCase();
@@ -1873,20 +1873,20 @@ function elementHost(container) {
 }
 function className(value) {
   if (Array.isArray(value)) {
-    return value.map(className).filter(Boolean).join(" ");
+    return value.map(className).filter(Boolean).join(' ');
   }
   if (isPojo(value)) {
-    return Object.keys(value).filter((key) => value[key]).join(" ");
+    return Object.keys(value).filter((key) => value[key]).join(' ');
   }
-  return value == null ? "" : String(value);
+  return value == null ? '' : String(value);
 }
 function ownElementListeners(target) {
   const window = target.ownerDocument.defaultView;
   const controller = new window.AbortController();
-  const previous = Object.getOwnPropertyDescriptor(target, "addEventListener");
+  const previous = Object.getOwnPropertyDescriptor(target, 'addEventListener');
   const add = target.addEventListener.bind(target);
   target.addEventListener = (event, listener, settings) => {
-    const configured = typeof settings === "boolean" ? { __proto__: null, capture: settings } : settings;
+    const configured = typeof settings === 'boolean' ? { __proto__: null, capture: settings } : settings;
     const capture = configured?.capture;
     const once = configured?.once;
     const passive = configured?.passive;
@@ -1897,9 +1897,9 @@ function ownElementListeners(target) {
   return () => {
     controller.abort();
     if (previous) {
-      Object.defineProperty(target, "addEventListener", previous);
+      Object.defineProperty(target, 'addEventListener', previous);
     } else {
-      Reflect.deleteProperty(target, "addEventListener");
+      Reflect.deleteProperty(target, 'addEventListener');
     }
   };
 }
@@ -1922,7 +1922,7 @@ function createRenderer(host, options, existingRoot) {
   const retiredLookups = /* @__PURE__ */ new Set();
   const symbols = /* @__PURE__ */ new Map();
   function identity(value) {
-    if (typeof value !== "symbol") {
+    if (typeof value !== 'symbol') {
       return String(value);
     }
     if (!symbols.has(value)) {
@@ -1949,7 +1949,7 @@ function createRenderer(host, options, existingRoot) {
       queued = false;
       discoverRequested = false;
       if (!disposed) {
-        automaticUpdate(renderer, data, requested ? "context" : "signals");
+        automaticUpdate(renderer, data, requested ? 'context' : 'signals');
       }
     });
   }
@@ -1963,7 +1963,7 @@ function createRenderer(host, options, existingRoot) {
     borrowed.delete(binding.id);
     retiredLookups.delete(binding);
     const registry = binding.registry, node = binding.node, receipts = binding.receipts;
-    binding.registry = "";
+    binding.registry = '';
     binding.node = void 0;
     binding.receipts = [];
     binding.renewal = void 0;
@@ -1985,7 +1985,7 @@ function createRenderer(host, options, existingRoot) {
     const effect = bindingEffect();
     const external = !effect || effect.graph !== graph;
     if (!borrowed.has(id)) {
-      const binding2 = { id, registry: "", node: void 0, receipts: [], external };
+      const binding2 = { id, registry: '', node: void 0, receipts: [], external };
       effectRetirement(binding2, () => retiredLookups.add(binding2));
       const notify = () => {
         notifyEffect(binding2);
@@ -2010,7 +2010,7 @@ function createRenderer(host, options, existingRoot) {
         const node = getNode(id);
         binding2.node = node;
         if (node) {
-          for (const event of ["commit", "prop", "context-update", "message-added", "message-updated", "message-removed"]) {
+          for (const event of ['commit', 'prop', 'context-update', 'message-added', 'message-updated', 'message-removed']) {
             const receipt = node.on(event, notify);
             if (!ownsRenewal()) {
               node.off(receipt);
@@ -2039,7 +2039,7 @@ function createRenderer(host, options, existingRoot) {
     return getNode(id)?.context;
   }
   function releaseOwnedRegistryId(id) {
-    if (typeof id !== "string") {
+    if (typeof id !== 'string') {
       return;
     }
     const owner = getNode(id);
@@ -2072,17 +2072,17 @@ function createRenderer(host, options, existingRoot) {
     }
   }
   function setValue(element, value, pass) {
-    if (element.type === "file") {
+    if (element.type === 'file') {
       return;
     }
-    const text = value == null ? "" : String(value);
+    const text = value == null ? '' : String(value);
     if (interrupted(pass)) {
       return;
     }
     if (element.value === text) {
       return;
     }
-    if (element.ownerDocument.activeElement === element && "selectionStart" in element && element.selectionStart != null) {
+    if (element.ownerDocument.activeElement === element && 'selectionStart' in element && element.selectionStart != null) {
       const start = element.selectionStart, end = element.selectionEnd, direction = element.selectionDirection;
       element.value = text;
       element.setSelectionRange(start, end, direction);
@@ -2111,7 +2111,7 @@ function createRenderer(host, options, existingRoot) {
       opaqueEffect();
     }
     const retained = /* @__PURE__ */ new Set();
-    const evaluated = expand(schema, scope, "", identity, evaluateValue, current, generated);
+    const evaluated = expand(schema, scope, '', identity, evaluateValue, current, generated);
     let offset = 0, reordered = false;
     for (const item of evaluated) {
       if (interrupted(pass)) {
@@ -2121,9 +2121,9 @@ function createRenderer(host, options, existingRoot) {
         throw new Error(`Duplicate schema key: ${item.key}`);
       }
       retained.add(item.key);
-      const supplied = typeof item.schema === "object" && "nodeType" in item.schema;
+      const supplied = typeof item.schema === 'object' && 'nodeType' in item.schema;
       const normalized = supplied ? item.schema : sugar(item.schema);
-      const kind = supplied ? "supplied" : "$cmp" in normalized ? `component:${normalized.$cmp}` : normalized.$el;
+      const kind = supplied ? 'supplied' : '$cmp' in normalized ? `component:${normalized.$cmp}` : normalized.$el;
       let record = previous.get(item.key);
       if (record && (record.kind !== kind || supplied && record.node !== normalized)) {
         previous.delete(item.key);
@@ -2140,7 +2140,7 @@ function createRenderer(host, options, existingRoot) {
         if (!item.generated) {
           opaqueEffect();
         }
-        const props = !supplied && "$cmp" in normalized ? {
+        const props = !supplied && '$cmp' in normalized ? {
           ...evaluateValue(normalized.bind ?? {}, item.scope),
           ...evaluateValue(normalized.props ?? {}, item.scope)
         } : {};
@@ -2150,7 +2150,7 @@ function createRenderer(host, options, existingRoot) {
         if (!record) {
           if (supplied) {
             record = { node: normalized, kind, effect };
-          } else if ("$cmp" in normalized) {
+          } else if ('$cmp' in normalized) {
             const factory = components[normalized.$cmp];
             if (!factory) {
               throw new Error(`No native schema component registered for ${normalized.$cmp}.`);
@@ -2161,12 +2161,12 @@ function createRenderer(host, options, existingRoot) {
             }
             const component = untrackedEffect(() => factory({ document, props, data: item.scope, children: normalized.children }));
             markInitialComponent(component);
-            const start = document.createComment("component"), end = document.createComment("/component");
+            const start = document.createComment('component'), end = document.createComment('/component');
             const pending = document.createDocumentFragment();
             pending.append(start, component.element, end);
             record = { node: start, end, pending, kind, component, input, effect };
           } else {
-            const element = parent === host && normalized.$el === existingRoot?.tagName.toLowerCase() ? existingRoot : normalized.$el === "text" ? document.createTextNode("") : document.createElement(normalized.$el);
+            const element = parent === host && normalized.$el === existingRoot?.tagName.toLowerCase() ? existingRoot : normalized.$el === 'text' ? document.createTextNode('') : document.createElement(normalized.$el);
             record = { kind, effect, node: element, keep: element === existingRoot, children: /* @__PURE__ */ new Map(), listeners: /* @__PURE__ */ new Map(), attributes: /* @__PURE__ */ new Set() };
             if (element.nodeType === 1) {
               record.releaseEvents = ownElementListeners(element);
@@ -2179,16 +2179,16 @@ function createRenderer(host, options, existingRoot) {
           previous.set(item.key, record);
           ownershipChanged(recordPass);
         }
-        if (!supplied && "$cmp" in normalized) {
+        if (!supplied && '$cmp' in normalized) {
           opaqueRender();
           untrackedEffect(() => {
             if (!record.input || !updateNative(record.component, props, item.scope, normalized.children, force)) {
               record.component.update(props, item.scope, normalized.children);
             }
           });
-        } else if (!supplied && normalized.$el === "text") {
-          const value = Object.hasOwn(item, "text") ? item.text : evaluateValue(normalized.children ?? "", item.scope);
-          if (value && ["object", "function"].includes(typeof value)) {
+        } else if (!supplied && normalized.$el === 'text') {
+          const value = Object.hasOwn(item, 'text') ? item.text : evaluateValue(normalized.children ?? '', item.scope);
+          if (value && ['object', 'function'].includes(typeof value)) {
             opaqueEffect();
           }
           const text = String(value);
@@ -2210,13 +2210,13 @@ function createRenderer(host, options, existingRoot) {
               if (interrupted(recordPass)) {
                 return;
               }
-              if (attribute === "value") {
-                setValue(element, "", recordPass);
+              if (attribute === 'value') {
+                setValue(element, '', recordPass);
               }
-              if (["checked", "selected", "disabled", "multiple"].includes(attribute)) {
+              if (['checked', 'selected', 'disabled', 'multiple'].includes(attribute)) {
                 element[attribute] = false;
               }
-              if (attribute === "innerHTML") {
+              if (attribute === 'innerHTML') {
                 element.replaceChildren();
                 record.html = void 0;
               }
@@ -2231,8 +2231,8 @@ function createRenderer(host, options, existingRoot) {
             }
             if (/^on[A-Z]/.test(attribute)) {
               if (value != null) {
-                if (typeof value !== "function") {
-                  throw new Error("Schema event attributes require function bindings.");
+                if (typeof value !== 'function') {
+                  throw new Error('Schema event attributes require function bindings.');
                 }
                 const event = schemaEventName(attribute);
                 const handler = value;
@@ -2248,20 +2248,20 @@ function createRenderer(host, options, existingRoot) {
               }
               continue;
             }
-            if (/^on/i.test(attribute) || attribute === "innerHTML" && !options.allowHTML) {
-              throw new Error("Schema event attributes require function bindings; innerHTML requires trusted HTML opt-in.");
+            if (/^on/i.test(attribute) || attribute === 'innerHTML' && !options.allowHTML) {
+              throw new Error('Schema event attributes require function bindings; innerHTML requires trusted HTML opt-in.');
             }
             attributes2.add(attribute);
-            if (value && ["object", "function"].includes(typeof value)) {
+            if (value && ['object', 'function'].includes(typeof value)) {
               opaqueEffect();
             }
-            if (attribute === "value") {
-              if (element.tagName !== "SELECT") {
+            if (attribute === 'value') {
+              if (element.tagName !== 'SELECT') {
                 setValue(element, value, recordPass);
               }
               continue;
             }
-            if (attribute === "innerHTML") {
+            if (attribute === 'innerHTML') {
               if (record.children.size) {
                 const children = record.children;
                 record.children = /* @__PURE__ */ new Map();
@@ -2272,7 +2272,7 @@ function createRenderer(host, options, existingRoot) {
               if (interrupted(recordPass)) {
                 return;
               }
-              const html = String(value ?? "");
+              const html = String(value ?? '');
               if (interrupted(recordPass)) {
                 return;
               }
@@ -2282,12 +2282,12 @@ function createRenderer(host, options, existingRoot) {
               }
               continue;
             }
-            const serialized = attribute === "class" ? className(value) : value;
+            const serialized = attribute === 'class' ? className(value) : value;
             if (interrupted(recordPass)) {
               return;
             }
-            if (attribute === "style" && value && typeof value === "object") {
-              element.removeAttribute("style");
+            if (attribute === 'style' && value && typeof value === 'object') {
+              element.removeAttribute('style');
               if (interrupted(recordPass)) {
                 return;
               }
@@ -2296,8 +2296,8 @@ function createRenderer(host, options, existingRoot) {
                   return;
                 }
                 const style = element.style;
-                const custom = key.startsWith("--");
-                const text = setting === null && !custom ? "" : String(setting);
+                const custom = key.startsWith('--');
+                const text = setting === null && !custom ? '' : String(setting);
                 if (interrupted(recordPass)) {
                   return;
                 }
@@ -2310,7 +2310,7 @@ function createRenderer(host, options, existingRoot) {
             } else if (serialized == null || serialized === false && !/^(aria-|data-)/.test(attribute)) {
               element.removeAttribute(attribute);
             } else {
-              const text = serialized === true && !/^(aria-|data-)/.test(attribute) ? "" : String(serialized);
+              const text = serialized === true && !/^(aria-|data-)/.test(attribute) ? '' : String(serialized);
               if (interrupted(recordPass)) {
                 return;
               }
@@ -2319,7 +2319,7 @@ function createRenderer(host, options, existingRoot) {
             if (interrupted(recordPass)) {
               return;
             }
-            if (["checked", "selected", "disabled", "multiple"].includes(attribute)) {
+            if (['checked', 'selected', 'disabled', 'multiple'].includes(attribute)) {
               element[attribute] = !!value;
             }
           }
@@ -2327,13 +2327,13 @@ function createRenderer(host, options, existingRoot) {
             return;
           }
           record.attributes = attributes2;
-          if (!("innerHTML" in attrs)) {
+          if (!('innerHTML' in attrs)) {
             reconcile(elementHost(element), record.children, normalized.children ?? [], item.scope, recordPass, item.generated);
           }
           if (interrupted(recordPass)) {
             return;
           }
-          if (element.tagName === "SELECT" && "value" in attrs) {
+          if (element.tagName === 'SELECT' && 'value' in attrs) {
             setValue(element, attrs.value, recordPass);
           }
         }
@@ -2413,8 +2413,8 @@ function createRenderer(host, options, existingRoot) {
       forceEffects = !automatic;
       try {
         if (automatic) {
-          if (automatic !== "signals") {
-            graph.discover(automatic === "family");
+          if (automatic !== 'signals') {
+            graph.discover(automatic === 'family');
           }
           graph.flush(current);
         } else {
@@ -2534,7 +2534,7 @@ function sameValues(left, right) {
   return false;
 }
 function sameProjection(left, right) {
-  if (left === null || right === null || typeof left !== "object" || typeof right !== "object") {
+  if (left === null || right === null || typeof left !== 'object' || typeof right !== 'object') {
     return Object.is(left, right);
   }
   if (!(Array.isArray(left) && Array.isArray(right)) && !(isPojo2(left) && isPojo2(right))) {
@@ -2546,18 +2546,18 @@ function sameProjection(left, right) {
 }
 var commonProps = /* @__PURE__ */ new Set([
   ...runtimeProps,
-  "help",
-  "label",
-  "disabled",
-  "validationVisibility",
-  "attrs",
-  "ignore",
-  "dirtyBehavior",
-  "preserve",
-  "preserveErrors",
-  "value",
-  "slots",
-  "itemKey"
+  'help',
+  'label',
+  'disabled',
+  'validationVisibility',
+  'attrs',
+  'ignore',
+  'dirtyBehavior',
+  'preserve',
+  'preserveErrors',
+  'value',
+  'slots',
+  'itemKey'
 ]);
 function inputProps(props) {
   return { ...props, ...Object.fromEntries(Object.entries(props.classes ?? {}).map(([section, value]) => [`_${section}Class`, value])) };
@@ -2571,7 +2571,7 @@ function slotSchemas(children) {
   if (children === void 0) {
     return {};
   }
-  if (children && typeof children === "object" && !Array.isArray(children) && !isDOM(children) && !isComponent(children) && !isConditional(children) && !("$formkit" in children)) {
+  if (children && typeof children === 'object' && !Array.isArray(children) && !isDOM(children) && !isComponent(children) && !isConditional(children) && !('$formkit' in children)) {
     return children;
   }
   return { default: children };
@@ -2588,7 +2588,7 @@ function inheritScope(data, scope, application = false) {
   for (let object = scope; object; object = Object.getPrototypeOf(object)) {
     Object.keys(object).forEach((key) => keys2.add(key));
   }
-  const inherited = scoped(data, Object.fromEntries([...keys2].filter((key) => key !== "slots" && (!application || key === "node" || !(key in data))).map((key) => [key, scope[key]])));
+  const inherited = scoped(data, Object.fromEntries([...keys2].filter((key) => key !== 'slots' && (!application || key === 'node' || !(key in data))).map((key) => [key, scope[key]])));
   automaticScope(inherited, isAutomaticScope(scope));
   return inherited;
 }
@@ -2596,7 +2596,7 @@ var nextId = 0;
 function inputFactory(parent, options, decorate) {
   const factory = ({ document, props, data, children }) => {
     props = inputProps(props);
-    const start = document.createComment("input"), end = document.createComment("/input");
+    const start = document.createComment('input'), end = document.createComment('/input');
     const element = document.createDocumentFragment();
     element.append(start, end);
     let disposed = false, queued = false, alive = true;
@@ -2626,12 +2626,12 @@ function inputFactory(parent, options, decorate) {
         throw new Error(`Unknown FormKit input: ${String(node.props.type)}.`);
       }
       if (definition.component) {
-        const definitionFactory = typeof definition.component === "string" ? options.components?.[definition.component] : definition.component;
-        if (typeof definitionFactory !== "function") {
-          throw new Error("Input components must be native SchemaComponent factories.");
+        const definitionFactory = typeof definition.component === 'string' ? options.components?.[definition.component] : definition.component;
+        if (typeof definitionFactory !== 'function') {
+          throw new Error('Input components must be native SchemaComponent factories.');
         }
         return {
-          schema: { $cmp: "Definition", props: { context: "$node.context" } },
+          schema: { $cmp: 'Definition', props: { context: '$node.context' } },
           components: { Definition: definitionFactory }
         };
       }
@@ -2640,11 +2640,11 @@ function inputFactory(parent, options, decorate) {
       }
       const extensions = { ...options.sectionsSchema, ...node.props.sectionsSchema };
       extensions.input = extendSchema(
-        { attrs: { "aria-invalid": "$state.invalid || $state.errors || undefined" } },
+        { attrs: { 'aria-invalid': '$state.invalid || $state.errors || undefined' } },
         extendSchema(options.sectionsSchema?.input ?? {}, node.props.sectionsSchema?.input ?? {})
       );
-      extensions.messages = extendSchema({ attrs: { "aria-live": "polite" } }, extensions.messages ?? {});
-      const schema = typeof definition.schema === "function" ? definition.schema(extensions) : definition.schema;
+      extensions.messages = extendSchema({ attrs: { 'aria-live': 'polite' } }, extensions.messages ?? {});
+      const schema = typeof definition.schema === 'function' ? definition.schema(extensions) : definition.schema;
       if (options.sectionsSchema === void 0 && node.props.sectionsSchema === void 0 && Object.values(inputs).some((input) => input.schema === definition.schema)) {
         generatedSchema(schema);
       }
@@ -2672,12 +2672,12 @@ function inputFactory(parent, options, decorate) {
       effectNode(node, parent);
       const attrs = attributes(next, node);
       projectedAttrs = { ...attrs };
-      node.props.attrs = contextObject(node, effectTarget(attrs), "attrs");
-      node.context.slots = contextObject(node, slots, "slots");
+      node.props.attrs = contextObject(node, effectTarget(attrs), 'attrs');
+      node.context.slots = contextObject(node, slots, 'slots');
       const generated = generate();
       renderer = createRangeRenderer(start, end, { ...generated, data: node.context, allowHTML: true });
-      receipts = ["context-update", "schema"].map((event) => node.on(event, () => {
-        if (event === "schema") {
+      receipts = ['context-update', 'schema'].map((event) => node.on(event, () => {
+        if (event === 'schema') {
           const regenerated = generate();
           Object.keys(generated.components).forEach((key) => {
             delete generated.components[key];
@@ -2687,22 +2687,22 @@ function inputFactory(parent, options, decorate) {
         }
         schedule();
       }));
-      receipts.push(node.on("destroying", () => {
+      receipts.push(node.on('destroying', () => {
         alive = false;
       }));
-      receipts.push(node.on("destroyed", () => {
+      receipts.push(node.on('destroyed', () => {
         alive = false;
       }));
       const mounted = node;
       queueMicrotask(() => {
         if (!disposed && alive && node === mounted && mounted.context) {
-          mounted.emit("mounted");
+          mounted.emit('mounted');
         }
       });
     }
     function release() {
       receipts.forEach((receipt) => node.off(receipt));
-      if (node.parent?.type === "list" && node.parent.sync && !node.parent.children.includes(node)) {
+      if (node.parent?.type === 'list' && node.parent.sync && !node.parent.children.includes(node)) {
         node.parent = null;
       }
       renderer.destroy();
@@ -2728,14 +2728,14 @@ function inputFactory(parent, options, decorate) {
         currentData = nextData;
         const inherited = next.parent ?? parent;
         const index = next.index === void 0 ? node.index : Number(next.index);
-        const syncedList = inherited.type === "list" && inherited.sync && !node.props.ignore;
+        const syncedList = inherited.type === 'list' && inherited.sync && !node.props.ignore;
         const terminal = node.context === null;
         if (disposed) {
           return;
         }
         if (terminal || syncedList && inherited.children[index] !== node) {
           const snapshot2 = copyProps(inherited.value);
-          const value = next.value === void 0 && inherited.type === "list" && !node.props.ignore ? snapshot2[index] : next.value;
+          const value = next.value === void 0 && inherited.type === 'list' && !node.props.ignore ? snapshot2[index] : next.value;
           if (syncedList) {
             const existing = inherited.children[index];
             if (isNode2(existing)) {
@@ -2758,7 +2758,7 @@ function inputFactory(parent, options, decorate) {
         }
         if (!eq2(currentChildren, nextChildren) || !eq2(currentProps.slots, next.slots)) {
           currentChildren = nextChildren;
-          node.context.slots = contextObject(node, scopedSlots(currentChildren, next.slots ?? {}, () => currentData), "slots");
+          node.context.slots = contextObject(node, scopedSlots(currentChildren, next.slots ?? {}, () => currentData), 'slots');
           node.props.__slots = node.context.slots;
         }
         if (next.type !== currentProps.type || next.name !== currentProps.name || next.parent !== currentProps.parent) {
@@ -2771,16 +2771,16 @@ function inputFactory(parent, options, decorate) {
           return;
         }
         for (const key of /* @__PURE__ */ new Set([...Object.keys(currentProps), ...Object.keys(next)])) {
-          if (key === "value" ? sameValues(currentProps[key], next[key]) : eq2(currentProps[key], next[key])) {
+          if (key === 'value' ? sameValues(currentProps[key], next[key]) : eq2(currentProps[key], next[key])) {
             continue;
           }
-          if (key === "value") {
+          if (key === 'value') {
             void node.input(next[key], false);
-          } else if (key === "config") {
+          } else if (key === 'config') {
             Object.assign(node.config, copyProps(next.config));
-          } else if (key === "index") {
+          } else if (key === 'index') {
             node.index = Number(next.index);
-          } else if (key === "id") {
+          } else if (key === 'id') {
             deregister2(node);
             node.props.id = next.id;
             register(node);
@@ -2791,7 +2791,7 @@ function inputFactory(parent, options, decorate) {
         const attrs = attributes(next, node);
         projectedAttrs = { ...attrs };
         if (!eq2(node.props.attrs, attrs)) {
-          node.props.attrs = contextObject(node, effectTarget(attrs), "attrs");
+          node.props.attrs = contextObject(node, effectTarget(attrs), 'attrs');
         }
         currentProps = next;
         takeInitialComponent(mount);
@@ -2817,7 +2817,7 @@ function inputFactory(parent, options, decorate) {
       const projectedChildren = nextChildren;
       const inherited = next.parent ?? parent;
       const index = next.index === void 0 ? node.index : Number(next.index);
-      const attached = node.context !== null && (!(inherited.type === "list" && inherited.sync && !node.props.ignore) || inherited.children[index] === node);
+      const attached = node.context !== null && (!(inherited.type === 'list' && inherited.sync && !node.props.ignore) || inherited.children[index] === node);
       if (disposed) {
         return;
       }
@@ -2838,15 +2838,15 @@ function mountFormSchema(form, root, options) {
     ...options.slots,
     default: (scope) => ({
       schema: options.schema,
-      data: inheritScope("slots" in data ? data : scoped(data, { slots: options.slots ?? {} }), scope, true)
+      data: inheritScope('slots' in data ? data : scoped(data, { slots: options.slots ?? {} }), scope, true)
     }),
-    ...!options.slots?.actions ? { actions: () => ({ $el: "div", if: "$actions", attrs: { class: "$classes.actions" }, children: [
-      { $cmp: "FormKit", bind: "$submitAttrs", props: { type: "submit", label: "$submitLabel" } },
-      { $el: "button", attrs: { type: "reset", disabled: "$disabled" }, children: "$resetLabel" }
+    ...!options.slots?.actions ? { actions: () => ({ $el: 'div', if: '$actions', attrs: { class: '$classes.actions' }, children: [
+      { $cmp: 'FormKit', bind: '$submitAttrs', props: { type: 'submit', label: '$submitLabel' } },
+      { $el: 'button', attrs: { type: 'reset', disabled: '$disabled' }, children: '$resetLabel' }
     ] }) } : {}
-  }, "slots");
+  }, 'slots');
   const definition = root.props.definition;
-  const schema = typeof definition.schema === "function" ? definition.schema(options.sectionsSchema ?? {}) : definition.schema;
+  const schema = typeof definition.schema === 'function' ? definition.schema(options.sectionsSchema ?? {}) : definition.schema;
   if (definition.schema === inputs.form.schema && options.sectionsSchema === void 0) {
     generatedSchema(schema);
   }
@@ -2858,7 +2858,7 @@ function mountFormSchema(form, root, options) {
     components: { ...options.components, FormKit: factory }
   });
   let queued = false, disposed = false;
-  const receipt = root.on("context-update.deep", ({ origin }) => {
+  const receipt = root.on('context-update.deep', ({ origin }) => {
     changedEffect(origin);
     if (queued || disposed) {
       return;
@@ -2867,7 +2867,7 @@ function mountFormSchema(form, root, options) {
     queueMicrotask(() => {
       queued = false;
       if (!disposed) {
-        automaticUpdate(renderer, root.context, "family");
+        automaticUpdate(renderer, root.context, 'family');
       }
     });
   });
@@ -2891,8 +2891,8 @@ function mountFormSchema(form, root, options) {
 }
 
 // current-303ddfbb/src/row-ownership.ts
-import { View } from "marionette";
-import { createNode as createNode2, valueRemoved } from "@formkit/core";
+import { View } from 'marionette';
+import { createNode as createNode2, valueRemoved } from '@formkit/core';
 var roots = /* @__PURE__ */ new WeakMap();
 var lists = /* @__PURE__ */ new WeakMap();
 var rowNodes = /* @__PURE__ */ new WeakMap();
@@ -2945,13 +2945,13 @@ function rowOwnerLocation(owner, key) {
 }
 function keys(value, property) {
   if (!Array.isArray(value)) {
-    throw new Error("Owned rows require an array.");
+    throw new Error('Owned rows require an array.');
   }
   const found = /* @__PURE__ */ new Set();
   for (const row of value) {
     const key = row?.[property];
-    if (!row || typeof row !== "object" || Array.isArray(row) || typeof key !== "string" || !key || found.has(key)) {
-      throw new Error("Owned row keys must be unique non-empty strings on objects.");
+    if (!row || typeof row !== 'object' || Array.isArray(row) || typeof key !== 'string' || !key || found.has(key)) {
+      throw new Error('Owned row keys must be unique non-empty strings on objects.');
     }
     found.add(key);
   }
@@ -2989,8 +2989,8 @@ function clearRow(owner, entry) {
 }
 function listOwner(node, root) {
   const rootOwner = roots.get(root);
-  if (!rootOwner || node.root !== root || node.type !== "list" || node.context === null) {
-    throw new Error("A RowView requires a live list owned by its form.");
+  if (!rootOwner || node.root !== root || node.type !== 'list' || node.context === null) {
+    throw new Error('A RowView requires a live list owned by its form.');
   }
   const existing = lists.get(node);
   if (existing) {
@@ -2998,13 +2998,13 @@ function listOwner(node, root) {
   }
   for (let current = node; current.parent && current.parent !== root; current = current.parent) {
     const parent = current.parent;
-    if (parent.type === "list" && rowNodes.get(current)?.owner.node !== parent) {
-      throw new Error("Nested owned lists require owned RowView ancestors.");
+    if (parent.type === 'list' && rowNodes.get(current)?.owner.node !== parent) {
+      throw new Error('Nested owned lists require owned RowView ancestors.');
     }
   }
   const keyProperty = node.props.itemKey;
-  if (typeof keyProperty !== "string" || !keyProperty) {
-    throw new Error("Owned lists require a string itemKey.");
+  if (typeof keyProperty !== 'string' || !keyProperty) {
+    throw new Error('Owned lists require a string itemKey.');
   }
   keys(node.value, keyProperty);
   const owner = {
@@ -3027,7 +3027,7 @@ function listOwner(node, root) {
     return next(value);
   };
   node.hook.input.unshift(projection);
-  const receipt = node.on("destroying", () => {
+  const receipt = node.on('destroying', () => {
     owner.ending = true;
     node.hook.input.remove(projection);
     node.off(receipt);
@@ -3067,20 +3067,20 @@ var RowView = class extends View {
   constructor(options) {
     super(options);
     this.#rowOptions = options;
-    this.on("destroy", () => {
+    this.on('destroy', () => {
       const entry = this.#entry;
       if (!entry) {
         return;
       }
       entry.view = void 0;
-      if (options.removal === "clear" && !entry.ending && !this.#owner.ending) {
+      if (options.removal === 'clear' && !entry.ending && !this.#owner.ending) {
         clearRow(this.#owner, entry);
       }
     });
   }
   get node() {
     if (!this.#entry) {
-      throw new Error("Render the RowView before accessing its node.");
+      throw new Error('Render the RowView before accessing its node.');
     }
     return this.#entry.node;
   }
@@ -3093,27 +3093,27 @@ var RowView = class extends View {
       const owner = this.#owner = listOwner(parent, form.node);
       const index = keys(parent.value, owner.keyProperty).indexOf(rowKey);
       if (index < 0) {
-        throw new Error("Row key must already exist.");
+        throw new Error('Row key must already exist.');
       }
       let entry = owner.rows.get(rowKey);
       if (entry?.view && !entry.view.isDestroyed()) {
-        throw new Error("Row already mounted.");
+        throw new Error('Row already mounted.');
       }
       owner.bridge.mutate(() => {
         if (!entry) {
           const node = createNode2({
-            type: "group",
+            type: 'group',
             parent,
             index,
             value: parent.value[index],
             plugins: [coreReadBridge()],
-            props: { type: "group", id: `${this.cid}-group`, preserve: true }
+            props: { type: 'group', id: `${this.cid}-group`, preserve: true }
           });
           entry = { key: rowKey, node, view: this, ending: false };
           ownNodeResource(node);
           owner.rows.set(rowKey, entry);
           rowNodes.set(node, { owner, entry });
-          node.on("destroying", () => {
+          node.on('destroying', () => {
             entry.ending = true;
             entry.view?.destroy();
             owner.rows.delete(rowKey);
@@ -3132,16 +3132,16 @@ var RowView = class extends View {
 function ownedInputFactory(parent, options, composition, onRelease) {
   const wrap = (inherited, base, releaseOwner) => markInputFactory((context) => {
     const { props } = context;
-    if (props.type === "form") {
-      throw new Error("Composed inputs cannot create a nested form.");
+    if (props.type === 'form') {
+      throw new Error('Composed inputs cannot create a nested form.');
     }
     const owner = props.parent ?? inherited;
     if (owner.context === null || owner.root !== parent.root) {
-      throw new Error("Schema inputs require a live parent belonging to the same form.");
+      throw new Error('Schema inputs require a live parent belonging to the same form.');
     }
     const name = props.name;
-    if (owner.type === "group" && name !== void 0 && (!name || name.includes(".") || owner.children.some((child) => child.name === name))) {
-      throw new Error("Field names must be non-empty, unique within their group, and contain no dots.");
+    if (owner.type === 'group' && name !== void 0 && (!name || name.includes('.') || owner.children.some((child) => child.name === name))) {
+      throw new Error('Field names must be non-empty, unique within their group, and contain no dots.');
     }
     let mounted;
     let disposed = false;
@@ -3224,7 +3224,7 @@ function ownedInputFactory(parent, options, composition, onRelease) {
         }
         composition.fields.delete(resource);
         mounted.destroy();
-        if (clear && owner.context !== null && owner.type === "group" && Object.hasOwn(owner.value, String(node.name))) {
+        if (clear && owner.context !== null && owner.type === 'group' && Object.hasOwn(owner.value, String(node.name))) {
           owner.disturb();
           owner.calm({
             name: node.name,
@@ -3247,16 +3247,16 @@ function ownedInputFactory(parent, options, composition, onRelease) {
 }
 
 // current-303ddfbb/src/index.ts
-import { View as View4 } from "marionette";
-import { createMessage as createMessage2, createNode as createNode3, isNode as isNode4, reset as resetNode, valueRemoved as valueRemoved3 } from "@formkit/core";
-import { createValidationPlugin } from "@formkit/validation";
-import * as rules from "@formkit/rules";
-import { createI18nPlugin, en } from "@formkit/i18n";
-import { isKilled } from "@formkit/observer";
-import { cloneAny as cloneAny3, eq as eq3, isPojo as isPojo3, undefine as undefine3 } from "@formkit/utils";
+import { View as View4 } from 'marionette';
+import { createMessage as createMessage2, createNode as createNode3, isNode as isNode4, reset as resetNode, valueRemoved as valueRemoved3 } from '@formkit/core';
+import { createValidationPlugin } from '@formkit/validation';
+import * as rules from '@formkit/rules';
+import { createI18nPlugin, en } from '@formkit/i18n';
+import { isKilled } from '@formkit/observer';
+import { cloneAny as cloneAny3, eq as eq3, isPojo as isPojo3, undefine as undefine3 } from '@formkit/utils';
 
 // current-303ddfbb/src/schema-view.ts
-import { View as View2 } from "marionette";
+import { View as View2 } from 'marionette';
 var SchemaView = class extends View2 {
   #schemaOptions;
   #renderer;
@@ -3267,10 +3267,10 @@ var SchemaView = class extends View2 {
   constructor(options) {
     super({
       ...options,
-      template: () => ""
+      template: () => ''
     });
     this.#schemaOptions = options;
-    this.on("before:destroy", () => this.#dispose());
+    this.on('before:destroy', () => this.#dispose());
   }
   get node() {
     return this.#schemaOptions.parent ?? this.#schemaOptions.form.node;
@@ -3281,10 +3281,10 @@ var SchemaView = class extends View2 {
     }
     const { form } = this.#schemaOptions;
     if (!compositions.has(form.node)) {
-      throw new Error("The SchemaView owner has been destroyed.");
+      throw new Error('The SchemaView owner has been destroyed.');
     }
-    if (this.node.context === null || this.node.root !== form.node || this.node.type !== "group") {
-      throw new Error("Schema parent must be a live group owned by its form.");
+    if (this.node.context === null || this.node.root !== form.node || this.node.type !== 'group') {
+      throw new Error('Schema parent must be a live group owned by its form.');
     }
     if (!this.isRendered()) {
       super.render();
@@ -3303,7 +3303,7 @@ var SchemaView = class extends View2 {
       update: () => this.#renderer.update(this.#data())
     };
     composition.fields.add(this.#resource);
-    this.#parentReceipt = parent.on("destroying", () => this.destroy());
+    this.#parentReceipt = parent.on('destroying', () => this.destroy());
     try {
       composition.mutate(() => {
         this.#renderer = createSchemaRenderer(this.el, {
@@ -3363,9 +3363,9 @@ var SchemaView = class extends View2 {
 };
 
 // current-303ddfbb/src/view-components.ts
-import { View as View3, CollectionView } from "marionette";
-import { isNode as isNode3 } from "@formkit/core";
-var immutable = ["type", "id", "plugins", "config", "name", "parent", "preserve", "ignore"];
+import { View as View3, CollectionView } from 'marionette';
+import { isNode as isNode3 } from '@formkit/core';
+var immutable = ['type', 'id', 'plugins', 'config', 'name', 'parent', 'preserve', 'ignore'];
 var nextRegion = 0;
 function createViewComponents({ getForm, getOwner = getForm, getParent, registrations }) {
   const registry = Object.fromEntries(Object.entries(registrations).map(([name, spec]) => [name, (context) => {
@@ -3373,25 +3373,25 @@ function createViewComponents({ getForm, getOwner = getForm, getParent, registra
     const props = context.props;
     const form = getForm(), owner = getOwner();
     if (!form || form.isDestroyed() || !owner || owner.isDestroyed()) {
-      throw new Error("A live form and ordinary Region owner are required.");
+      throw new Error('A live form and ordinary Region owner are required.');
     }
     const resolveParent = (nextProps, nextData) => getParent ? getParent(nextProps, nextData) : isNode3(nextData.node) ? nextData.node : form.node;
     const parent = resolveParent(props, data);
-    const wrapper = document.createElement("div");
-    wrapper.setAttribute("data-schema-view", name);
+    const wrapper = document.createElement('div');
+    wrapper.setAttribute('data-schema-view', name);
     const regionName = `schemaViewBridge${++nextRegion}`;
     const region = owner.addRegion(regionName, {
       el: wrapper
     });
     let view, disposed = false, previous = copyProps(props);
-    const isField = spec.kind === "field";
-    if (isField && props.input?.type === "form") {
+    const isField = spec.kind === 'field';
+    if (isField && props.input?.type === 'form') {
       owner.removeRegion(regionName);
-      throw new Error("Nested form inputs are excluded from this bridge.");
+      throw new Error('Nested form inputs are excluded from this bridge.');
     }
     const identity = (fieldProps) => ({
       name: fieldProps.name,
-      removal: fieldProps.removal ?? "preserve",
+      removal: fieldProps.removal ?? 'preserve',
       input: Object.fromEntries(immutable.filter((key) => Object.hasOwn(fieldProps.input ?? {}, key)).map((key) => [key, fieldProps.input[key]]))
     });
     const originalIdentity = identity(props);
@@ -3400,8 +3400,8 @@ function createViewComponents({ getForm, getOwner = getForm, getParent, registra
         return;
       }
       disposed = true;
-      owner.off("before:destroy", destroy);
-      view?.off("destroy", destroy);
+      owner.off('before:destroy', destroy);
+      view?.off('destroy', destroy);
       if (!region.isDestroyed()) {
         owner.removeRegion(regionName);
       }
@@ -3416,7 +3416,7 @@ function createViewComponents({ getForm, getOwner = getForm, getParent, registra
         }
         if (!owner.el.contains(wrapper)) {
           destroy();
-          throw new Error("The schema wrapper must be inserted inside its Region owner before placement.");
+          throw new Error('The schema wrapper must be inserted inside its Region owner before placement.');
         }
         region.show(view);
       });
@@ -3424,7 +3424,7 @@ function createViewComponents({ getForm, getOwner = getForm, getParent, registra
         form,
         parent,
         name: props.name,
-        removal: props.removal ?? "preserve",
+        removal: props.removal ?? 'preserve',
         input: props.input
       }) : spec.create({
         form,
@@ -3434,17 +3434,17 @@ function createViewComponents({ getForm, getOwner = getForm, getParent, registra
         children
       });
       if (!(view instanceof View3 || view instanceof CollectionView) || view instanceof FormView) {
-        throw new Error("The registry must return an ordinary Marionette View, CollectionView or FieldView, never FormView.");
+        throw new Error('The registry must return an ordinary Marionette View, CollectionView or FieldView, never FormView.');
       }
       if (!isField && view instanceof FieldView) {
-        throw new Error("FieldView requires an explicit field registration.");
+        throw new Error('FieldView requires an explicit field registration.');
       }
       if (isField && !(view instanceof FieldView)) {
-        throw new Error("Field registration must return an actual FieldView.");
+        throw new Error('Field registration must return an actual FieldView.');
       }
       view.render();
-      view.on("destroy", destroy);
-      owner.on("before:destroy", destroy);
+      view.on('destroy', destroy);
+      owner.on('before:destroy', destroy);
     } catch (error2) {
       destroy();
       throw error2;
@@ -3457,13 +3457,13 @@ function createViewComponents({ getForm, getOwner = getForm, getParent, registra
           return;
         }
         if (isField && (!sameValues(identity(next), originalIdentity) || resolveParent(next, nextData) !== parent)) {
-          throw new Error("Change the schema key to replace FieldView identity; dispose first when reusing its group/name.");
+          throw new Error('Change the schema key to replace FieldView identity; dispose first when reusing its group/name.');
         }
         const old = previous;
         previous = copyProps(next);
         if (isField) {
-          const allowed = Object.fromEntries(Object.entries(next.input ?? {}).filter(([key]) => !immutable.includes(key) && key !== "value"));
-          const oldAllowed = Object.fromEntries(Object.entries(old.input ?? {}).filter(([key]) => !immutable.includes(key) && key !== "value"));
+          const allowed = Object.fromEntries(Object.entries(next.input ?? {}).filter(([key]) => !immutable.includes(key) && key !== 'value'));
+          const oldAllowed = Object.fromEntries(Object.entries(old.input ?? {}).filter(([key]) => !immutable.includes(key) && key !== 'value'));
           if (!sameValues(allowed, oldAllowed)) {
             const cleared = Object.fromEntries(Object.keys(oldAllowed).filter((key) => !Object.hasOwn(allowed, key)).map((key) => [key, void 0]));
             view.setInput({
@@ -3471,7 +3471,7 @@ function createViewComponents({ getForm, getOwner = getForm, getParent, registra
               ...allowed
             });
           }
-          if (Object.hasOwn(next.input ?? {}, "value") && !sameValues(next.input.value, old.input?.value)) {
+          if (Object.hasOwn(next.input ?? {}, 'value') && !sameValues(next.input.value, old.input?.value)) {
             view.setValue(next.input.value);
           }
         } else {
@@ -3489,7 +3489,7 @@ function createViewComponents({ getForm, getOwner = getForm, getParent, registra
 function hasPath(values, path) {
   let value = values;
   for (const key of path) {
-    if (!value || typeof value !== "object" || !Object.hasOwn(value, key)) {
+    if (!value || typeof value !== 'object' || !Object.hasOwn(value, key)) {
       return false;
     }
     value = value[key];
@@ -3515,19 +3515,19 @@ function deletePath(values, path) {
 function fieldsSchema(definitions, path = []) {
   return definitions.map((definition) => {
     const address = [...path, definition.name];
-    if (definition.type === "group") {
-      return { $formkit: "group", name: definition.name, label: definition.label, children: [{ $el: "fieldset", children: [
-        { $el: "legend", children: "$label" },
+    if (definition.type === 'group') {
+      return { $formkit: 'group', name: definition.name, label: definition.label, children: [{ $el: 'fieldset', children: [
+        { $el: 'legend', children: '$label' },
         ...fieldsSchema(definition.children, address)
       ] }] };
     }
     return {
       $formkit: definition.type,
       ...definition,
-      ...definition.type === "number" || definition.type === "range" ? { number: true } : {},
+      ...definition.type === 'number' || definition.type === 'range' ? { number: true } : {},
       disabled: definition.attrs?.disabled,
       ...definition.options ? { options: definition.options.map((option) => ({ ...option, attrs: { disabled: option.disabled } })) } : {},
-      sectionsSchema: { input: { attrs: { name: address.join(".") } } }
+      sectionsSchema: { input: { attrs: { name: address.join('.') } } }
     };
   });
 }
@@ -3535,7 +3535,7 @@ var SubmissionError = class extends Error {
   fieldErrors;
   constructor(message, fieldErrors = {}) {
     super(message);
-    this.name = "SubmissionError";
+    this.name = 'SubmissionError';
     this.fieldErrors = fieldErrors;
   }
 };
@@ -3543,27 +3543,27 @@ function fieldDefault(definition, document) {
   if (definition.value !== void 0) {
     return definition.value;
   }
-  if (definition.type === "checkbox") {
+  if (definition.type === 'checkbox') {
     return false;
   }
-  if (definition.type === "number") {
+  if (definition.type === 'number') {
     return void 0;
   }
-  if (definition.type === "range" || definition.type === "color") {
-    const input = document.createElement("input");
+  if (definition.type === 'range' || definition.type === 'color') {
+    const input = document.createElement('input');
     input.type = definition.type;
     for (const [key, value] of Object.entries(definition.attrs ?? {})) {
       if (value !== false) {
-        input.setAttribute(key, value === true ? "" : String(value));
+        input.setAttribute(key, value === true ? '' : String(value));
       }
     }
-    input.value = "";
-    return definition.type === "range" ? input.valueAsNumber : input.value;
+    input.value = '';
+    return definition.type === 'range' ? input.valueAsNumber : input.value;
   }
-  return "";
+  return '';
 }
 function defaults(definitions, document) {
-  return Object.fromEntries(definitions.map((definition) => [definition.name, definition.type === "group" ? defaults(definition.children, document) : fieldDefault(definition, document)]));
+  return Object.fromEntries(definitions.map((definition) => [definition.name, definition.type === 'group' ? defaults(definition.children, document) : fieldDefault(definition, document)]));
 }
 function mergeValues(base, supplied) {
   return Object.fromEntries(Object.entries({ ...base, ...supplied }).map(([name, value]) => [
@@ -3575,7 +3575,7 @@ function guardedValidation(baseRules, evaluating) {
   return (node) => {
     let alive = true;
     const wrapped = /* @__PURE__ */ new WeakMap();
-    const receipt = node.on("destroying", () => {
+    const receipt = node.on('destroying', () => {
       alive = false;
       node.off(receipt);
     });
@@ -3609,7 +3609,7 @@ function guardedValidation(baseRules, evaluating) {
               if (changed()) {
                 return run();
               }
-              node.emit("validation-error", error2);
+              node.emit('validation-error', error2);
             }
             return false;
           });
@@ -3617,21 +3617,21 @@ function guardedValidation(baseRules, evaluating) {
         return run();
       };
       Object.assign(invoke, rule);
-      Object.defineProperty(invoke, "name", { value: rule.name });
+      Object.defineProperty(invoke, 'name', { value: rule.name });
       wrapped.set(rule, invoke);
       wrapped.set(invoke, invoke);
       return invoke;
     }
     const map = (validationRules) => Object.fromEntries(Object.entries(validationRules).map(([key, rule]) => [key, guard(rule)]));
-    const specification = (value) => Array.isArray(value) ? value.map((entry) => Array.isArray(entry) && typeof entry[0] === "function" ? [guard(entry[0]), ...entry.slice(1)] : entry) : value;
-    node.hook.prop((payload, next) => next(payload.prop === "validationRules" && payload.value ? { ...payload, value: map(payload.value) } : payload.prop === "validation" ? { ...payload, value: specification(payload.value) } : payload));
+    const specification = (value) => Array.isArray(value) ? value.map((entry) => Array.isArray(entry) && typeof entry[0] === 'function' ? [guard(entry[0]), ...entry.slice(1)] : entry) : value;
+    node.hook.prop((payload, next) => next(payload.prop === 'validationRules' && payload.value ? { ...payload, value: map(payload.value) } : payload.prop === 'validation' ? { ...payload, value: specification(payload.value) } : payload));
     if (node.props.validationRules) {
       node.props.validationRules = map(node.props.validationRules);
     }
     node.props.validation = specification(node.props.validation);
     createValidationPlugin(map(baseRules))(node);
     let previous = node.props.validationRules;
-    const rulesReceipt = node.on("prop:validationRules", ({ payload }) => {
+    const rulesReceipt = node.on('prop:validationRules', ({ payload }) => {
       const changed = previous && payload && Object.keys(previous).length === Object.keys(payload).length && Object.keys(payload).some((key) => previous[key] !== payload[key]);
       previous = payload;
       if (changed) {
@@ -3642,22 +3642,22 @@ function guardedValidation(baseRules, evaluating) {
         node.props.validation = validation;
       }
     });
-    const validationReceipt = node.on("prop:validation", () => {
+    const validationReceipt = node.on('prop:validation', () => {
       if (!node.props.parsedRules.length) {
-        node.store.remove("validating");
+        node.store.remove('validating');
       }
     });
-    node.on("destroying", () => {
+    node.on('destroying', () => {
       node.off(rulesReceipt);
       node.off(validationReceipt);
     });
   };
 }
 function listValues(node, value, supersede = false) {
-  if (node.type === "list" && Array.isArray(value)) {
+  if (node.type === 'list' && Array.isArray(value)) {
     const used = /* @__PURE__ */ new Set();
     const key = node.props.itemKey;
-    const identity = (item) => typeof key === "function" ? key(item) : typeof key === "string" && item && typeof item === "object" ? item[key] : void 0;
+    const identity = (item) => typeof key === 'function' ? key(item) : typeof key === 'string' && item && typeof item === 'object' ? item[key] : void 0;
     return value.map((item) => {
       const id = identity(item);
       const child = node.children.filter(isNode4).find((candidate) => !used.has(candidate) && (id === void 0 ? eq3(candidate.value, item) : Object.is(id, identity(candidate.value))));
@@ -3675,7 +3675,7 @@ function listValues(node, value, supersede = false) {
       return child.value;
     });
   }
-  if (node.type === "group" && isPojo3(value)) {
+  if (node.type === 'group' && isPojo3(value)) {
     const result = { ...value };
     node.children.forEach((child) => {
       if (isNode4(child) && Object.hasOwn(result, child.name)) {
@@ -3687,10 +3687,10 @@ function listValues(node, value, supersede = false) {
   return value;
 }
 function orderResetLists(node, value) {
-  if (node.type === "list" && Array.isArray(value)) {
+  if (node.type === 'list' && Array.isArray(value)) {
     const children = node.children.filter(isNode4), used = /* @__PURE__ */ new Set();
     const key = node.props.itemKey;
-    const identity = (item) => typeof key === "function" ? key(item) : typeof key === "string" && item && typeof item === "object" ? item[key] : void 0;
+    const identity = (item) => typeof key === 'function' ? key(item) : typeof key === 'string' && item && typeof item === 'object' ? item[key] : void 0;
     const matches = value.map((item) => {
       const id = identity(item);
       const child = id === void 0 ? void 0 : children.find((candidate) => !used.has(candidate) && Object.is(id, identity(candidate.value)));
@@ -3713,7 +3713,7 @@ function orderResetLists(node, value) {
         orderResetLists(child, item);
       }
     });
-  } else if (node.type === "group" && isPojo3(value)) {
+  } else if (node.type === 'group' && isPojo3(value)) {
     node.children.forEach((child) => {
       if (isNode4(child) && Object.hasOwn(value, child.name)) {
         orderResetLists(child, value[String(child.name)]);
@@ -3722,7 +3722,7 @@ function orderResetLists(node, value) {
   }
 }
 function settleWrittenValues(node, supplied) {
-  if (node.type === "group" && isPojo3(supplied)) {
+  if (node.type === 'group' && isPojo3(supplied)) {
     node.children.forEach((child) => {
       if (isNode4(child) && Object.hasOwn(supplied, child.name)) {
         settleWrittenValues(child, supplied[String(child.name)]);
@@ -3735,11 +3735,11 @@ function settleWrittenValues(node, supplied) {
 function validateNames(definitions) {
   const names = /* @__PURE__ */ new Set();
   for (const definition of definitions) {
-    if (!definition.name || definition.name.includes(".") || names.has(definition.name)) {
-      throw new Error("Field names must be non-empty, unique within their group, and contain no dots.");
+    if (!definition.name || definition.name.includes('.') || names.has(definition.name)) {
+      throw new Error('Field names must be non-empty, unique within their group, and contain no dots.');
     }
     names.add(definition.name);
-    if (definition.type === "group") {
+    if (definition.type === 'group') {
       validateNames(definition.children);
     }
   }
@@ -3755,7 +3755,7 @@ var FormView = class extends View4 {
   pending;
   disposed = false;
   formCleanup;
-  changeSource = "programmatic";
+  changeSource = 'programmatic';
   nativeInput;
   notifyChanges = true;
   notifyFields = true;
@@ -3792,25 +3792,25 @@ var FormView = class extends View4 {
   }
   constructor(options) {
     if ([options.fields, options.schema, options.template].filter((value) => value !== void 0).length !== 1) {
-      throw new Error("Provide exactly one of fields, schema, or template.");
+      throw new Error('Provide exactly one of fields, schema, or template.');
     }
     validateNames(options.fields ?? []);
     options.el?.replaceChildren();
-    super({ ...options, tagName: "form", template: options.template ?? (() => "") });
+    super({ ...options, tagName: 'form', template: options.template ?? (() => '') });
     this.formOptions = options;
     this.initial = mergeValues(defaults(options.fields ?? [], this.el.ownerDocument), options.values ?? {});
     const suppliedFormProps = { ...options.formProps };
-    const defaultSubmitAttrs2 = !options.config && !options.inputs && !options.plugins?.length && !options.validationRules && Object.keys(suppliedFormProps).every((key) => ["actions", "id", "disabled", "attrs"].includes(key)) ? { disabled: suppliedFormProps.disabled } : void 0;
+    const defaultSubmitAttrs2 = !options.config && !options.inputs && !options.plugins?.length && !options.validationRules && Object.keys(suppliedFormProps).every((key) => ['actions', 'id', 'disabled', 'attrs'].includes(key)) ? { disabled: suppliedFormProps.disabled } : void 0;
     this.node = createNode3({
-      type: "group",
+      type: 'group',
       props: {
         ...suppliedFormProps,
         ...defaultSubmitAttrs2 ? { submitAttrs: defaultSubmitAttrs2 } : {},
         id: String(options.formProps?.id ?? (this.el.id || `${this.cid}-form`)),
-        type: "form",
+        type: 'form',
         attrs: effectTarget({ ...options.formProps?.attrs }),
-        submitLabel: options.submitLabel ?? "Submit",
-        resetLabel: options.resetLabel ?? "Reset"
+        submitLabel: options.submitLabel ?? 'Submit',
+        resetLabel: options.resetLabel ?? 'Reset'
       },
       value: cloneAny3(this.initial),
       config: { delay: 0, rootClasses: defaultRootClasses, ...options.config },
@@ -3829,7 +3829,7 @@ var FormView = class extends View4 {
             }
             const proposed = next(value);
             if (native && !sameValues(node._value, proposed)) {
-              this.changeSource = "user";
+              this.changeSource = 'user';
               this.clearSubmissionErrors();
             }
             if (!sameValues(node._value, proposed)) {
@@ -3843,13 +3843,13 @@ var FormView = class extends View4 {
             }
             return proposed;
           });
-          const constraints = node.on("prop", ({ payload: { prop } }) => {
-            if (participates && (prop === "validation" || prop === "validationRules")) {
+          const constraints = node.on('prop', ({ payload: { prop } }) => {
+            if (participates && (prop === 'validation' || prop === 'validationRules')) {
               this.#submissionChanged();
             }
           });
-          const receipts = ["destroying", "destroyed"].map((event) => node.on(event, () => {
-            if (participates && event === "destroying") {
+          const receipts = ['destroying', 'destroyed'].map((event) => node.on(event, () => {
+            if (participates && event === 'destroying') {
               this.#submissionChanged();
             }
             this.#ownership.delete(node);
@@ -3867,7 +3867,7 @@ var FormView = class extends View4 {
       certifyDefaultSubmitAttrs(this.node, defaultSubmitAttrs2);
     }
     this.node.hook.prop((payload, next) => {
-      if (payload.prop === "disabled" && this.disabledBySubmission) {
+      if (payload.prop === 'disabled' && this.disabledBySubmission) {
         this.previousDisabled = payload.value;
       }
       return next(payload);
@@ -3881,7 +3881,7 @@ var FormView = class extends View4 {
         const native = (event) => {
           this.nativeInput = new WeakRef(event);
         };
-        const events = ["input", "change", "blur"];
+        const events = ['input', 'change', 'blur'];
         events.forEach((name) => element.addEventListener(name, native, true));
         return () => {
           this.ownedElements.delete(element);
@@ -3901,7 +3901,7 @@ var FormView = class extends View4 {
           this.lastValues = previous;
           this.notifyChanges = notify;
           this.notifyFields = notifyFields;
-          this.changeSource = source === "user" && !committed && !this.hasPendingUserInput() ? "programmatic" : source;
+          this.changeSource = source === 'user' && !committed && !this.hasPendingUserInput() ? 'programmatic' : source;
         }
         if (!this.mutationDepth) {
           queueMicrotask(() => {
@@ -3964,18 +3964,18 @@ var FormView = class extends View4 {
         });
       }
     });
-    this.receipts = ["commit", "message-added.deep", "message-updated.deep", "message-removed.deep"].map((event) => this.node.on(event, ({ payload }) => {
-      if ((event === "message-added.deep" || event === "message-updated.deep") && payload.key === "validating" && payload.value) {
+    this.receipts = ['commit', 'message-added.deep', 'message-updated.deep', 'message-removed.deep'].map((event) => this.node.on(event, ({ payload }) => {
+      if ((event === 'message-added.deep' || event === 'message-updated.deep') && payload.key === 'validating' && payload.value) {
         this.#submissionChanged();
       }
       this.refresh();
     }));
-    this.receipts.push(this.node.on("settled", ({ payload }) => {
-      if (payload && this.notifyChanges && this.changeSource === "user") {
-        this.changeSource = "programmatic";
+    this.receipts.push(this.node.on('settled', ({ payload }) => {
+      if (payload && this.notifyChanges && this.changeSource === 'user') {
+        this.changeSource = 'programmatic';
       }
     }));
-    this.on("before:destroy", () => this.#dispose());
+    this.on('before:destroy', () => this.#dispose());
   }
   render() {
     if (this.isDestroyed()) {
@@ -4006,12 +4006,12 @@ var FormView = class extends View4 {
       event.preventDefault();
       this.resetForm();
     };
-    form.addEventListener("submit", submit);
-    form.addEventListener("reset", reset);
+    form.addEventListener('submit', submit);
+    form.addEventListener('reset', reset);
     this.formCleanup = () => {
       releaseNative();
-      form.removeEventListener("submit", submit);
-      form.removeEventListener("reset", reset);
+      form.removeEventListener('submit', submit);
+      form.removeEventListener('reset', reset);
       this.nativeInput = void 0;
     };
     if (this.formOptions.template !== void 0) {
@@ -4024,7 +4024,7 @@ var FormView = class extends View4 {
     }
     queueMicrotask(() => {
       if (!this.disposed) {
-        this.node.emit("mounted");
+        this.node.emit('mounted');
       }
     });
   }
@@ -4050,7 +4050,7 @@ var FormView = class extends View4 {
     const previous = this.lastValues, notify = this.notifyChanges, fields = this.notifyFields, source = this.changeSource;
     this.notifyChanges = false;
     this.notifyFields = options.notify ?? true;
-    this.changeSource = options.source ?? "programmatic";
+    this.changeSource = options.source ?? 'programmatic';
     try {
       this.mutationDepth++;
       try {
@@ -4061,24 +4061,24 @@ var FormView = class extends View4 {
       }
       this.lastValues = previous;
       this.notifyChanges = options.notify ?? true;
-      this.changeSource = options.source ?? "programmatic";
+      this.changeSource = options.source ?? 'programmatic';
       this.refresh();
     } finally {
       this.notifyChanges = notify;
       this.notifyFields = fields;
-      this.changeSource = source === "user" && !this.hasPendingUserInput() ? "programmatic" : source;
+      this.changeSource = source === 'user' && !this.hasPendingUserInput() ? 'programmatic' : source;
     }
   }
   hasPendingUserInput() {
-    return [...this.ownedNodes].some((node) => node.type === "input" && inputSources.get(node) === "user" && !sameValues(node.value, node._value));
+    return [...this.ownedNodes].some((node) => node.type === 'input' && inputSources.get(node) === 'user' && !sameValues(node.value, node._value));
   }
   getFormState() {
     return {
       submitted: this.submitted,
       submitting: !!this.pending,
-      valid: this.node.ledger.value("blocking") === 0,
+      valid: this.node.ledger.value('blocking') === 0,
       errors: this.node.store.reduce((errors, message) => {
-        if (message.type === "error") {
+        if (message.type === 'error') {
           errors.push(String(message.value));
         }
         return errors;
@@ -4110,7 +4110,7 @@ var FormView = class extends View4 {
   }
   clearSubmissionErrors() {
     if (!undefine3(this.node.props.preserveErrors)) {
-      this.node.store.filter((message) => message.meta.autoClear !== true, "error");
+      this.node.store.filter((message) => message.meta.autoClear !== true, 'error');
     }
   }
   refresh() {
@@ -4122,7 +4122,7 @@ var FormView = class extends View4 {
       return;
     }
     {
-      const autoDisable = this.pending && this.node.props.submitBehavior !== "live";
+      const autoDisable = this.pending && this.node.props.submitBehavior !== 'live';
       if (autoDisable && !this.disabledBySubmission) {
         this.previousDisabled = this.node.props.disabled;
         this.node.props.disabled = true;
@@ -4131,12 +4131,12 @@ var FormView = class extends View4 {
         this.disabledBySubmission = false;
         this.node.props.disabled = this.previousDisabled;
       }
-      this.el.setAttribute("aria-busy", String(!!this.pending));
+      this.el.setAttribute('aria-busy', String(!!this.pending));
       if (!!this.node.store.loading !== !!this.pending) {
         if (this.pending) {
-          this.node.store.set(createMessage2({ key: "loading", visible: false, value: true }));
+          this.node.store.set(createMessage2({ key: 'loading', visible: false, value: true }));
         } else {
-          this.node.store.remove("loading");
+          this.node.store.remove('loading');
         }
       }
     }
@@ -4161,11 +4161,11 @@ var FormView = class extends View4 {
       this.lastValues = cloneAny3(values);
       if (this.notifyChanges) {
         const source = this.changeSource;
-        this.changeSource = "programmatic";
-        this.triggerMethod("form:change", values, state, { source });
+        this.changeSource = 'programmatic';
+        this.triggerMethod('form:change', values, state, { source });
       }
     }
-    this.triggerMethod("form:state", state);
+    this.triggerMethod('form:state', state);
   }
   waitForValue(node, signal) {
     if (node.isSettled) {
@@ -4175,12 +4175,12 @@ var FormView = class extends View4 {
     let release;
     const removed = new Promise((resolve) => {
       release = () => resolve();
-      receipt = node.on("destroying", release);
-      signal.addEventListener("abort", release, { once: true });
+      receipt = node.on('destroying', release);
+      signal.addEventListener('abort', release, { once: true });
     });
     return Promise.race([node.settled, removed]).finally(() => {
       node.off(receipt);
-      signal.removeEventListener("abort", release);
+      signal.removeEventListener('abort', release);
     });
   }
   // Subclasses that own asynchronous field placement settle it at the same
@@ -4192,7 +4192,7 @@ var FormView = class extends View4 {
   compositionUpdateOptions(origin = this.node) {
     return {
       notify: this.notifyFields,
-      source: this.changeSource === "programmatic" ? inputSources.get(origin) ?? this.changeSource : this.changeSource
+      source: this.changeSource === 'programmatic' ? inputSources.get(origin) ?? this.changeSource : this.changeSource
     };
   }
   updateComposition(operation, options) {
@@ -4202,13 +4202,13 @@ var FormView = class extends View4 {
   // Commit an actual child-value removal without hydrating an entire root copy.
   clearAbsentField(path) {
     if (this.node.at([...path])) {
-      throw new Error("Cannot clear an absent field while its node is mounted.");
+      throw new Error('Cannot clear an absent field while its node is mounted.');
     }
     const parent = path.length === 1 ? this.node : this.node.at(path.slice(0, -1));
-    if (!parent || parent.type !== "group") {
-      throw new Error("Absent field removal requires a live group parent.");
+    if (!parent || parent.type !== 'group') {
+      throw new Error('Absent field removal requires a live group parent.');
     }
-    compositions.get(this.node).excluded.set(path.join("."), path);
+    compositions.get(this.node).excluded.set(path.join('.'), path);
     if (Object.hasOwn(parent.value, path.at(-1))) {
       parent.disturb();
       parent.calm({ name: path.at(-1), value: valueRemoved3 });
@@ -4216,10 +4216,10 @@ var FormView = class extends View4 {
   }
   async submit(event) {
     if (this.disposed) {
-      return "cancelled";
+      return 'cancelled';
     }
     if (this.pending) {
-      return "busy";
+      return 'busy';
     }
     this.render();
     const focused = this.el.ownerDocument.activeElement;
@@ -4228,34 +4228,34 @@ var FormView = class extends View4 {
     this.pending = pending;
     this.submitted = true;
     {
-      const submitted = (node) => node.store.set(createMessage2({ key: "submitted", visible: false, value: true }));
+      const submitted = (node) => node.store.set(createMessage2({ key: 'submitted', visible: false, value: true }));
       submitted(this.node);
       this.node.walk(submitted);
     }
     this.node.clearErrors();
     this.refresh();
     const cancelled = new Promise((resolve) => {
-      pending.signal.addEventListener("abort", () => resolve("cancelled"), { once: true });
+      pending.signal.addEventListener('abort', () => resolve('cancelled'), { once: true });
     });
-    const complete = async () => {
+    const complete = async() => {
       let raw = false;
       do {
         const revision = this.#submissionRevision;
         await Promise.all([...this.ownedNodes].filter((node) => node.root === this.node).map((node) => this.waitForValue(node, pending.signal)));
         if (pending.signal.aborted) {
-          return "cancelled";
+          return 'cancelled';
         }
-        await this.node.ledger.settled("validating");
+        await this.node.ledger.settled('validating');
         if (pending.signal.aborted) {
-          return "cancelled";
+          return 'cancelled';
         }
         await this.settleSubmission();
         if (pending.signal.aborted) {
-          return "cancelled";
+          return 'cancelled';
         }
         if (!raw) {
           raw = true;
-          this.node.emit("submit-raw");
+          this.node.emit('submit-raw');
           this.node.props.onSubmitRaw?.(event, this.node);
         }
         if (revision !== this.#submissionRevision) {
@@ -4266,44 +4266,44 @@ var FormView = class extends View4 {
         }
       } while (!pending.signal.aborted);
       if (pending.signal.aborted) {
-        return "cancelled";
+        return 'cancelled';
       }
       if (!this.getFormState().valid) {
         this.node.props.onSubmitInvalid?.(this.node);
         if (this.node.props.incompleteMessage !== false) {
           this.node.store.set(createMessage2({
-            key: "incomplete",
-            type: "ui",
+            key: 'incomplete',
+            type: 'ui',
             blocking: false,
-            value: this.node.props.incompleteMessage ?? "Form incomplete.",
+            value: this.node.props.incompleteMessage ?? 'Form incomplete.',
             meta: { localize: this.node.props.incompleteMessage === void 0, i18nArgs: [{ node: this.node }], showAsMessage: true }
           }));
         }
-        this.triggerMethod("submit:invalid", this.getValues());
-        return "invalid";
+        this.triggerMethod('submit:invalid', this.getValues());
+        return 'invalid';
       }
       try {
         this.#submissionCallback = pending;
         const values = this.node.hook.submit.dispatch(this.getValues());
         if (pending.signal.aborted) {
-          return "cancelled";
+          return 'cancelled';
         }
         const result = await (this.formOptions.submit ? this.formOptions.submit(values, { node: this.node, signal: pending.signal }) : this.node.props.onSubmit?.(values, this.node));
         if (pending.signal.aborted) {
-          return "cancelled";
+          return 'cancelled';
         }
-        this.triggerMethod("submit:success", values, result);
-        return "success";
+        this.triggerMethod('submit:success', values, result);
+        return 'success';
       } catch (error2) {
         if (pending.signal.aborted) {
-          return "cancelled";
+          return 'cancelled';
         }
         this.setErrors(
-          [error2 instanceof Error ? error2.message : "Unable to submit."],
+          [error2 instanceof Error ? error2.message : 'Unable to submit.'],
           error2 instanceof SubmissionError ? error2.fieldErrors : {}
         );
-        this.triggerMethod("submit:error", error2);
-        return "error";
+        this.triggerMethod('submit:error', error2);
+        return 'error';
       }
     };
     try {
@@ -4316,18 +4316,18 @@ var FormView = class extends View4 {
         this.pending = void 0;
         this.refresh();
         this.schemaRenderer?.update();
-        const invalid = [...new Set([...this.ownedElements].flatMap((element) => [...element.querySelectorAll('[aria-invalid="true"]')]))].filter((control) => control.isConnected && !control.matches(':disabled, input[type="hidden"]') && !control.closest("[hidden], [inert]")).sort((left, right) => left.compareDocumentPosition(right) & 4 ? -1 : 1);
+        const invalid = [...new Set([...this.ownedElements].flatMap((element) => [...element.querySelectorAll('[aria-invalid="true"]')]))].filter((control) => control.isConnected && !control.matches(':disabled, input[type="hidden"]') && !control.closest('[hidden], [inert]')).sort((left, right) => left.compareDocumentPosition(right) & 4 ? -1 : 1);
         const attempted = /* @__PURE__ */ new Set();
         const focusedInvalid = invalid.some((control) => {
           let target = control;
           if (control.matches('input[type="radio"][tabindex]') && control.tabIndex < 0) {
             let scope = control.parentElement;
-            while (scope && !this.ownedElements.has(scope) && scope.tagName !== "FORM" && !scope.hasAttribute("tabindex")) {
+            while (scope && !this.ownedElements.has(scope) && scope.tagName !== 'FORM' && !scope.hasAttribute('tabindex')) {
               scope = scope.parentElement;
             }
-            if (scope && !this.ownedElements.has(scope) && scope.tagName !== "FORM") {
+            if (scope && !this.ownedElements.has(scope) && scope.tagName !== 'FORM') {
               const name = control.name;
-              const members = [...scope.querySelectorAll("input, select, textarea, button")];
+              const members = [...scope.querySelectorAll('input, select, textarea, button')];
               if (name && members.every((member) => member.matches('input[type="radio"]') && member.name === name)) {
                 if (scope.tabIndex < 0) {
                   return false;
@@ -4336,7 +4336,7 @@ var FormView = class extends View4 {
               }
             }
           }
-          if (attempted.has(target) || !target.isConnected || target.matches(":disabled") || target.closest("[hidden], [inert]")) {
+          if (attempted.has(target) || !target.isConnected || target.matches(':disabled') || target.closest('[hidden], [inert]')) {
             return false;
           }
           attempted.add(target);
@@ -4356,7 +4356,7 @@ var FormView = class extends View4 {
     this.pending?.abort();
     this.pending = void 0;
     this.submitted = false;
-    this.changeSource = "reset";
+    this.changeSource = 'reset';
     this.mutationDepth++;
     try {
       const values = this.excludeAbsent(cloneAny3(this.initial));
@@ -4368,9 +4368,9 @@ var FormView = class extends View4 {
     }
     this.node.clearErrors();
     this.refresh();
-    this.changeSource = "programmatic";
+    this.changeSource = 'programmatic';
     this.schemaRenderer?.update();
-    this.triggerMethod("form:reset", this.getValues());
+    this.triggerMethod('form:reset', this.getValues());
     return this;
   }
   #dispose() {
@@ -4406,13 +4406,13 @@ var FieldView = class extends View4 {
   previous;
   releaseNative;
   constructor(options) {
-    super({ ...options, template: () => "" });
+    super({ ...options, template: () => '' });
     this.fieldOptions = options;
-    this.on("before:destroy", () => this.#release());
+    this.on('before:destroy', () => this.#release());
   }
   get node() {
     if (!this.mount) {
-      throw new Error("Render the FieldView before accessing its node.");
+      throw new Error('Render the FieldView before accessing its node.');
     }
     return this.mount.node;
   }
@@ -4421,7 +4421,7 @@ var FieldView = class extends View4 {
       return this;
     }
     if (!compositions.has(this.fieldOptions.form.node)) {
-      throw new Error("The FieldView owner has been destroyed.");
+      throw new Error('The FieldView owner has been destroyed.');
     }
     if (!this.isRendered()) {
       super.render();
@@ -4431,8 +4431,8 @@ var FieldView = class extends View4 {
   attachElContent() {
     const { form, input, removal, name } = this.fieldOptions;
     const parent = this.fieldOptions.parent ?? form.node;
-    if (parent.context === null || parent.root !== form.node || parent.type !== "group") {
-      throw new Error("Field parent must be a live group owned by its form.");
+    if (parent.context === null || parent.root !== form.node || parent.type !== 'group') {
+      throw new Error('Field parent must be a live group owned by its form.');
     }
     const composition = compositions.get(form.node);
     composition.mutate(() => {
@@ -4441,7 +4441,7 @@ var FieldView = class extends View4 {
         props: {
           ...input,
           name,
-          preserve: removal === "preserve",
+          preserve: removal === 'preserve',
           value: input.value,
           id: input.id ?? `${this.cid}-input`
         },
@@ -4450,8 +4450,8 @@ var FieldView = class extends View4 {
       this.releaseNative = composition.captureNativeEvents(this.el);
       this.el.replaceChildren(this.mount.element);
       this.previous = cloneAny3(this.node.value);
-      this.receipt = this.node.on("commit", () => {
-        const value = cloneAny3(this.node.value), source = inputSources.get(this.node) ?? "programmatic";
+      this.receipt = this.node.on('commit', () => {
+        const value = cloneAny3(this.node.value), source = inputSources.get(this.node) ?? 'programmatic';
         const notify = composition.notify();
         inputSources.delete(this.node);
         if (sameValues(value, this.previous)) {
@@ -4461,7 +4461,7 @@ var FieldView = class extends View4 {
         if (notify) {
           queueMicrotask(() => {
             if (!this.released) {
-              this.triggerMethod("field:change", value, { source });
+              this.triggerMethod('field:change', value, { source });
             }
           });
         }
@@ -4472,7 +4472,7 @@ var FieldView = class extends View4 {
     if (this.released) {
       return this;
     }
-    if (this.node.type !== "input" || !this.node.isSettled || !sameValues(this.node.value, value)) {
+    if (this.node.type !== 'input' || !this.node.isSettled || !sameValues(this.node.value, value)) {
       compositions.get(this.fieldOptions.form.node).write(this.node, value, options);
     }
     return this;
@@ -4484,12 +4484,12 @@ var FieldView = class extends View4 {
     if (this.released) {
       return this;
     }
-    if (["type", "id", "value", "name", "parent", "preserve", "plugins", "config", "ignore"].some((key) => Object.hasOwn(props, key))) {
-      throw new Error("Replace the FieldView to change ownership or input identity; use setValue for values.");
+    if (['type', 'id', 'value', 'name', 'parent', 'preserve', 'plugins', 'config', 'ignore'].some((key) => Object.hasOwn(props, key))) {
+      throw new Error('Replace the FieldView to change ownership or input identity; use setValue for values.');
     }
     this.fieldOptions.input = { ...this.fieldOptions.input, ...props };
     const { input, name, removal } = this.fieldOptions;
-    this.mount?.update({ ...input, name, preserve: removal === "preserve", id: input.id ?? `${this.cid}-input` }, {}, void 0);
+    this.mount?.update({ ...input, name, preserve: removal === 'preserve', id: input.id ?? `${this.cid}-input` }, {}, void 0);
     return this;
   }
   #release() {
