@@ -68,7 +68,9 @@ await writeFile(join(consumer, 'package.json'), '{"name":"formkit-packed-consume
 const fixture = await readFile(join(root, 'test/fixtures/packed-consumer.mjs'), 'utf8');
 await writeFile(join(consumer, 'consumer.mjs'), fixture);
 const behavior = execFileSync(process.execPath, ['consumer.mjs'], { cwd: consumer, encoding: 'utf8' });
-for (const file of ['esm.mts', 'cjs.cts', 'tsconfig.json']) {
+await writeFile(join(consumer, 'expanded-packed-contract.mjs'), await readFile(join(root, 'test/fixtures/expanded-packed-contract.mjs')));
+const expandedBehavior = execFileSync(process.execPath, ['expanded-packed-contract.mjs'], { cwd: consumer, encoding: 'utf8' });
+for (const file of ['esm.mts', 'cjs.cts', 'expanded-packed-contract.mts', 'expanded-packed-contract.cts', 'tsconfig.json']) {
   await writeFile(join(consumer, file), await readFile(join(root, 'test/types', file)));
 }
 execFileSync(process.execPath, [join(await dependencyRoot('typescript'), 'bin/tsc'), '-p', 'tsconfig.json'], { cwd: consumer, stdio: 'inherit' });
@@ -76,7 +78,8 @@ const report = {
   passed: true, package: manifest.name, version: manifest.version,
   tarball: join(temporary, packed.filename), integrity: packed.integrity,
   files: packed.files.map(({ path }) => path),
-  behavior: JSON.parse(behavior.trim()), artifactImportGraph: 'contained relative imports and declared external dependencies', typeConsumers: ['NodeNext ESM .mts', 'NodeNext CommonJS .cts'],
+  behavior: JSON.parse(behavior.trim()), expandedBehavior: JSON.parse(expandedBehavior.trim()), artifactImportGraph: 'contained relative imports and declared external dependencies', typeConsumers: ['NodeNext ESM .mts', 'NodeNext CommonJS .cts'],
+  expandedTypeConsumers: ['NodeNext ESM positive/negative/any guards .mts', 'NodeNext CommonJS positive/negative/any guards .cts'],
   notes: ['Tarball installed by extraction into an isolated consumer; external dependencies reused read-only.', 'No registry publication or installation was performed.']
 };
 await writeFile(join(root, 'test/tmp/package-result.json'), `${JSON.stringify(report, null, 2)}\n`);
