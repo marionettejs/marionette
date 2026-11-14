@@ -1,0 +1,78 @@
+{
+  "parentCommit": "11aa0e06c81601287af3a0c68b1e40cc01e9b7f1",
+  "branch": "codex/formkit-component-defaults-20261114",
+  "runtimeFiles": {
+    "core/index.mjs": {
+      "before": "489ff23cbf965ff1fb5b07311a5e6210b95684d3522804615b67af943fca9c00",
+      "after": "489ff23cbf965ff1fb5b07311a5e6210b95684d3522804615b67af943fca9c00"
+    },
+    "core/structural-components.mjs": {
+      "before": "a5ac28e15400d8a3792be5827f3287973b2940a0c9176de6a4a5dba25e1e5245",
+      "after": "a5ac28e15400d8a3792be5827f3287973b2940a0c9176de6a4a5dba25e1e5245"
+    },
+    "core/provider-scope.mjs": {
+      "before": "2c7c42c975f80a008f2166a655d136b491f7b44f13dbfa6eacc56b880242afd0",
+      "after": "2c7c42c975f80a008f2166a655d136b491f7b44f13dbfa6eacc56b880242afd0"
+    },
+    "core/upstream-bindings.mjs": {
+      "before": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+      "after": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344"
+    },
+    "core/provider-components.mjs": {
+      "before": "bfa70038bcbe312beae42ff6728e5d272bc67ae9e984633f63d1d3ed90dbd190",
+      "after": "bfa70038bcbe312beae42ff6728e5d272bc67ae9e984633f63d1d3ed90dbd190"
+    },
+    "core/config-scope.mjs": {
+      "before": "0f4a9406a05af6aaf1caa644b1e8c3994b2a01880ae06d4d59abe5bdd9d56f1d",
+      "after": "0f4a9406a05af6aaf1caa644b1e8c3994b2a01880ae06d4d59abe5bdd9d56f1d"
+    },
+    "core/formkit-application.mjs": {
+      "before": "6535edfb2564b057699f35b1e4f9c1b9f99d9b213f0e188f23ffb4aeb6d02238",
+      "after": "6535edfb2564b057699f35b1e4f9c1b9f99d9b213f0e188f23ffb4aeb6d02238"
+    },
+    "core/native-types.mjs": {
+      "before": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a",
+      "after": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a"
+    },
+    "core/helper-components.mjs": {
+      "before": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc",
+      "after": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc"
+    },
+    "core/section-renderer.mjs": {
+      "before": "4bef0234a3c272480045ed04047ff31b2f3087395715d0735647add6ffbc5864",
+      "after": "4bef0234a3c272480045ed04047ff31b2f3087395715d0735647add6ffbc5864"
+    },
+    "core/component-library.mjs": {
+      "before": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f",
+      "after": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f"
+    },
+    "core/value-facade.mjs": {
+      "before": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba",
+      "after": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba"
+    },
+    "core/root-slots.mjs": {
+      "before": "fdae5a1b69311e961a5d87d5e4e1f64aa9953e0a7d7042cbdd52ba7144f85ca4",
+      "after": "fdae5a1b69311e961a5d87d5e4e1f64aa9953e0a7d7042cbdd52ba7144f85ca4"
+    },
+    "core/schema-layout.mjs": {
+      "before": "7e14c1a1b63dd237643bb5714d709b19dd52235c7088c0b81154e9db495d9aaf",
+      "after": "7dd2e36c73d5da043d1bb7f1fa234ef06e04fa3d45ecffd5d42b4d6b70415718"
+    },
+    "core/schema.mjs": {
+      "before": "07a73927248ee633adb3265cf036e57b78b66fec16eebde546d91c9ed2a28bca",
+      "after": "db81cf28bca4325ef56edf8ae74cbb5ac8cfb45ee091ca57bcc40d2659035f3a"
+    },
+    "core/schema-registry.mjs": {
+      "before": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+      "after": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a"
+    },
+    "core/submission-controller.mjs": {
+      "before": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968",
+      "after": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968"
+    }
+  },
+  "reportSHA256": {
+    "free-acceptance.json": "e9d03bc97108c0fcc6948e7ba3a741ccfbe66dd2e8b73e758afab2e24e81e4f6",
+    "free-reference.json": "a6bf8207d8197f4bdae603733eef7de63e1ef0621dffc2c06bd248fff15362e3"
+  }
+}

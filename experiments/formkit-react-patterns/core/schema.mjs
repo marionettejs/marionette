@@ -6,6 +6,9 @@ import { createObserver } from '@formkit/observer';
 import { createSchemaRegistry } from './schema-registry.mjs';
 // Shared only by field projection and layout; never a user-requested key.
 export const schemaFieldKey = Symbol('schema field fallback key');
+// Literal FormKit components apply these defaults after explicit prop precedence.
+export const projectedFormKit = Symbol('projected FormKit component');
+export const componentName = name => name || undefined;
 
 export function createSchemaController({ node, schema, onFields, data = {}, dataOnly = false }) {
   if (!schema || typeof schema !== 'object') throw new TypeError('Schema must be an array or schema object');
@@ -56,7 +59,8 @@ export function createSchemaController({ node, schema, onFields, data = {}, data
     if (!Object.hasOwn(input, '$formkit')) throw new TypeError('Use createLayoutController for DOM layout nodes');
     const bound=input.bind?value(input.bind,locals):{};
     if(bound!=null && (typeof bound!=='object'||Array.isArray(bound)))throw new TypeError('Field schema bind must resolve to a props object');
-    const type = value(input.$formkit, locals), name = Object.hasOwn(input,'name')?value(input.name, locals):bound?.name;
+    let type = value(input.$formkit, locals), name = Object.hasOwn(input,'name')?value(input.name, locals):bound?.name;
+    if(input[projectedFormKit]){type??='text';name=componentName(name);}
     if (typeof type !== 'string' || !type || (name!==undefined&&(!['string', 'number'].includes(typeof name) || String(name) === ''))) throw new TypeError('Field schema requires a resolved type and name');
     const field = { ...(bound??{}), type };
     if(name!==undefined)field.name=String(name);else delete field.name;

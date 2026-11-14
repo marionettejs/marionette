@@ -2,7 +2,7 @@ import { providerBoundary, nativeFormKitFactory } from './provider-scope.mjs';
 // Bounded DOM-layout composition over the existing sole FormKit node owner.
 import { compile } from '@formkit/core';
 import { createObserver } from '@formkit/observer';
-import { createSchemaController, schemaFieldKey } from './schema.mjs';
+import { createSchemaController, schemaFieldKey, projectedFormKit, componentName } from './schema.mjs';
 import { renderSections } from './section-renderer.mjs';
 import { createSchemaRegistry } from './schema-registry.mjs';
 export function createLayoutController({form,schema,data:externalData={},components={},slots:externalSlots={}}){
@@ -78,6 +78,7 @@ export function createLayoutController({form,schema,data:externalData={},compone
       for(const key of Object.keys(props))props[key]={...props[key],enumerable:true};
       const type=props.type??{value:entry.bind?`$__boundType(${entry.bind.replace(/^\$:/,'')})`:'text',enumerable:true,configurable:true};delete props.type;
       for(const key of ['if','for','children','bind'])if(source[key])props[key]=source[key];
+      props[projectedFormKit]={value:true,enumerable:true};
       props.$formkit=type;entry=Object.create(Object.getPrototypeOf(entry),props);
     }
     if('$formkit'in entry){
@@ -90,7 +91,8 @@ export function createLayoutController({form,schema,data:externalData={},compone
         let current,presentation;
         const update=({locals:scope=locals}={})=>{
           const bound=entry.bind?resolved(entry.bind,scope):{};
-          const name=Object.hasOwn(entry,'name')?resolved(entry.name,scope):bound?.name;
+          const declaredName=Object.hasOwn(entry,'name')?resolved(entry.name,scope):bound?.name;
+          const name=entry[projectedFormKit]?componentName(declaredName):declaredName;
           const identity=Object.hasOwn(entry,'key')?resolved(entry.key,scope):bound?.key!==undefined?bound.key:resolved(entry[schemaFieldKey],scope);const field=name!==undefined?fields.get(String(name)):[...fields.values()].find(field=>field.spec.key===identity);if(!field)throw new Error(`Missing owned layout field: ${name}`);
           if(field.el.nextSibling!==anchor)anchor.parentNode.insertBefore(field.el,anchor);
           if(current!==field){presentation?.destroy();current=field;presentation=nativeChildren&&['group','list'].includes(field.node.props.type)?childPresentation(field,nativeChildren.dom,scope):undefined;}

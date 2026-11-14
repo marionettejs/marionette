@@ -1,0 +1,69 @@
+{
+  "fixtureSHA256": "8591cac0b30e516e03336fe2687faa5b3ead71d689eed628ab3d4e35703242ca",
+  "sourceReport": "free-reference.json",
+  "cases": [
+    {
+      "file": "core/component-prop-defaults-test.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"surface\":\"document\",\"observations\":[{\"case\":\"type-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"type-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-empty\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4}],\"passed\":true,\"checks\":[\"explicit nullish type suppresses bound textarea then defaults to text\",\"explicit null/empty/undefined name suppresses bound name then generates Core name\",\"shared normalized anonymous outlet lookup\",\"data/schema/memo retention and explicit-key replacement\",\"native field projection validation stays strict\",\"shared parent/actual DOM root\",\"exact node/registry/DOM teardown\"]}\n"
+    },
+    {
+      "file": "core/component-prop-defaults-test.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"surface\":\"document\",\"observations\":[{\"case\":\"type-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"type-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-empty\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4}],\"passed\":true,\"checks\":[\"explicit nullish type suppresses bound textarea then defaults to text\",\"explicit null/empty/undefined name suppresses bound name then generates Core name\",\"shared normalized anonymous outlet lookup\",\"data/schema/memo retention and explicit-key replacement\",\"native field projection validation stays strict\",\"shared parent/actual DOM root\",\"exact node/registry/DOM teardown\"]}\n"
+    },
+    {
+      "file": "core/component-prop-defaults-test.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"surface\":\"document\",\"observations\":[{\"case\":\"type-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"type-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-empty\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4}],\"passed\":true,\"checks\":[\"explicit nullish type suppresses bound textarea then defaults to text\",\"explicit null/empty/undefined name suppresses bound name then generates Core name\",\"shared normalized anonymous outlet lookup\",\"data/schema/memo retention and explicit-key replacement\",\"native field projection validation stays strict\",\"shared parent/actual DOM root\",\"exact node/registry/DOM teardown\"]}\n"
+    },
+    {
+      "file": "core/component-prop-defaults-test.mjs",
+      "args": [
+        "vue",
+        "shadow"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"surface\":\"shadow\",\"observations\":[{\"case\":\"type-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"type-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-empty\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4}],\"passed\":true,\"checks\":[\"explicit nullish type suppresses bound textarea then defaults to text\",\"explicit null/empty/undefined name suppresses bound name then generates Core name\",\"shared normalized anonymous outlet lookup\",\"data/schema/memo retention and explicit-key replacement\",\"native field projection validation stays strict\",\"shared parent/actual DOM root\",\"exact node/registry/DOM teardown\"]}\n"
+    },
+    {
+      "file": "core/component-prop-defaults-test.mjs",
+      "args": [
+        "react",
+        "shadow"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"surface\":\"shadow\",\"observations\":[{\"case\":\"type-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"type-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-empty\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4}],\"passed\":true,\"checks\":[\"explicit nullish type suppresses bound textarea then defaults to text\",\"explicit null/empty/undefined name suppresses bound name then generates Core name\",\"shared normalized anonymous outlet lookup\",\"data/schema/memo retention and explicit-key replacement\",\"native field projection validation stays strict\",\"shared parent/actual DOM root\",\"exact node/registry/DOM teardown\"]}\n"
+    },
+    {
+      "file": "core/component-prop-defaults-test.mjs",
+      "args": [
+        "experiment",
+        "shadow"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"surface\":\"shadow\",\"observations\":[{\"case\":\"type-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"type-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-empty\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4}],\"passed\":true,\"checks\":[\"explicit nullish type suppresses bound textarea then defaults to text\",\"explicit null/empty/undefined name suppresses bound name then generates Core name\",\"shared normalized anonymous outlet lookup\",\"data/schema/memo retention and explicit-key replacement\",\"native field projection validation stays strict\",\"shared parent/actual DOM root\",\"exact node/registry/DOM teardown\"]}\n"
+    }
+  ]
+}

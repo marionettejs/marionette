@@ -1,3 +1,11 @@
+# Literal component default-normalization candidate
+
+A separate isolated branch atop frozen `11aa0e06c81601287af3a0c68b1e40cc01e9b7f1` addresses the combined retention review's eight component-default failures. Projected literal FormKit components apply the actual type/name defaults after explicit override precedence; the layout uses the same normalized name. Strict standalone field-schema validation remains unchanged. Only schema/schema-layout change at runtime.
+
+Fresh cloud verification passes **98/98 acceptance and 102/102 references**, including actual Document/ShadowRoot peers, data/Schema/memo retention, explicit-key replacement and exact cleanup. Before failures, source-specific independent review provenance, commands and all 17 runtime hashes are in `evidence/component-default-normalization/`. Independent rereview remains pending. Frozen 11aa and fbc sources/benchmark fixtures are untouched; composition/CI investigation is separately checkpointed at 81eb72c3, with no runtime feature or CI fix included here.
+
+---
+
 # Independent-review conditional identity correction
 
 A new isolated candidate atop `a87dd4a01e0df4315770121c74e132e4764d3d82` addresses the request-changes finding on 80b7a885: layout conditional-name/key lookup now uses the same compiled string-condition semantics as field projection. Only schema-layout changes at runtime. The new actual adapter/Vue/React fixture covers 28 scenarios per arm, including supported conditional props, anonymous keys, replacement/retention and cleanup.

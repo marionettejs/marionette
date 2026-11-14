@@ -1,0 +1,119 @@
+{
+  "artifacts": {
+    "/workspace/scratch/ea2cded971c5/schema-independent-review-a87dd4a/REVIEW.md": "8e9d69c5927f9ba2f0fee1c90cfcb7a1e5fac1d52d75dbeb0c10f9e7a9c8e67e",
+    "/workspace/scratch/ea2cded971c5/schema-independent-review-a87dd4a/review-summary.json": "276b120953aa9821817feb7b2f780e2a52ad9a2627c3b051d30a3d7388c8a8bf",
+    "/workspace/scratch/ea2cded971c5/schema-independent-review-11aa0e06/REREVIEW.md": "e7aa5c5ae9b5308011d556630e66edebed9621f13755e39c0c853fac32704bef",
+    "/workspace/scratch/ea2cded971c5/schema-independent-review-11aa0e06/rereview-summary.json": "f657b5acdfc31b98de322e4dc90dc50aad4e8a903bac6be9e99d22831b22619b"
+  },
+  "retentionReview": {
+    "targetCommit": "a87dd4a01e0df4315770121c74e132e4764d3d82",
+    "parentCommit": "80b7a88541eccd27eee6d4b03394ac6bbc86b5a5",
+    "decision": "request changes on retention/key delta: preserve effective optional input type/name defaults",
+    "intendedRetentionKeyChecks": {
+      "independentMatrix": 60,
+      "writerAdapterAndActualPeerFixtures": 6,
+      "allPassed": true
+    },
+    "adjacentRegressions": {
+      "checks": 10,
+      "passed": 10
+    },
+    "optionalPropComparisons": {
+      "observations": 40,
+      "expectedClassificationsVerified": true,
+      "targetMountRegressions": 8,
+      "values": [
+        "type undefined",
+        "type null",
+        "name null",
+        "name empty string"
+      ],
+      "surfaces": [
+        "Document",
+        "ShadowRoot"
+      ],
+      "nameUndefinedControlPasses": true,
+      "exactCleanupAllCases": true
+    },
+    "priorConditionalNameBlocker": "separate; already forwarded, not resolved or approved by this review",
+    "snapshotUnchangedAndMatchesCommit": true,
+    "frozenPublicationClean": true,
+    "committedEvidenceAudit": [
+      {
+        "file": "free-acceptance.json",
+        "passed": 96,
+        "failed": 0,
+        "runtimeHashesMatchArchive": true,
+        "fullSuiteIndependentlyRerun": false
+      },
+      {
+        "file": "free-reference.json",
+        "passed": 93,
+        "failed": 0,
+        "runtimeHashesMatchArchive": true,
+        "fullSuiteIndependentlyRerun": false
+      }
+    ],
+    "runtimeSha256": {
+      "index.mjs": "489ff23cbf965ff1fb5b07311a5e6210b95684d3522804615b67af943fca9c00",
+      "structural-components.mjs": "a5ac28e15400d8a3792be5827f3287973b2940a0c9176de6a4a5dba25e1e5245",
+      "provider-scope.mjs": "2c7c42c975f80a008f2166a655d136b491f7b44f13dbfa6eacc56b880242afd0",
+      "upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+      "provider-components.mjs": "bfa70038bcbe312beae42ff6728e5d272bc67ae9e984633f63d1d3ed90dbd190",
+      "config-scope.mjs": "0f4a9406a05af6aaf1caa644b1e8c3994b2a01880ae06d4d59abe5bdd9d56f1d",
+      "formkit-application.mjs": "6535edfb2564b057699f35b1e4f9c1b9f99d9b213f0e188f23ffb4aeb6d02238",
+      "native-types.mjs": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a",
+      "helper-components.mjs": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc",
+      "section-renderer.mjs": "4bef0234a3c272480045ed04047ff31b2f3087395715d0735647add6ffbc5864",
+      "component-library.mjs": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f",
+      "value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba",
+      "root-slots.mjs": "fdae5a1b69311e961a5d87d5e4e1f64aa9953e0a7d7042cbdd52ba7144f85ca4",
+      "schema-layout.mjs": "3d75202049402e5f95849f370dd693906b1b960079ab1994d6b8c562747f625d",
+      "schema.mjs": "07a73927248ee633adb3265cf036e57b78b66fec16eebde546d91c9ed2a28bca",
+      "schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+      "submission-controller.mjs": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968"
+    },
+    "artifactSha256": {
+      "probe.mjs": "49be7919b013a8a6e34f590b1a1fcaf14ccab1d169ebcca3d3f38b67fc8c5482",
+      "probe-before.mjs": "c6d7c6341d6e04d6cb9799b69c819885bafbfcd277a5c1cf6037b4670bf73b58",
+      "optional-props-target.mjs": "73b843f6eb793d3fa4ecde22624675a6d85a3788dbcc7885522af1f39bd13657",
+      "optional-props-before.mjs": "6810e54442789ea89b39de352926aa36caccbf9c78b1e6ca608a32954a8ff61f",
+      "review-results.json": "3bbcd0b5d2e36f1167bd9b89904b9cd28f7bb60a9940af2e9459aa06f2bd833d",
+      "optional-props-results.json": "8ddcdef31746eed628177a8bbef2f85698e20327d1dcdc4fcde952b6e5eaa6dd",
+      "focused-regressions.json": "9385a9209dc1af89a202a01528f52bd5c32b7889d11be82720d2c99721d930e6"
+    },
+    "reviewSha256": "8e9d69c5927f9ba2f0fee1c90cfcb7a1e5fac1d52d75dbeb0c10f9e7a9c8e67e"
+  },
+  "conditionalScopedApproval": {
+    "targetCommit": "11aa0e06c81601287af3a0c68b1e40cc01e9b7f1",
+    "parentCommit": "a87dd4a01e0df4315770121c74e132e4764d3d82",
+    "conditionalCorrectionVerdict": "approve scoped correction: prior conditional identity blocker resolved",
+    "combinedIntegrationVerdict": "hold: independent retention/defaulting blockers still reproduce",
+    "independentOriginalProbes": 24,
+    "independentFixtureRuns": 15,
+    "actualConditionalIdentityMounts": 84,
+    "allIntendedChecksPassed": true,
+    "carriedOptionalDefaultFailures": 8,
+    "reportedFullSuiteAudit": {
+      "acceptancePassed": 97,
+      "referencePassed": 96,
+      "recordedSourceHashesMatchArchive": true,
+      "fullSuitesIndependentlyRerun": false
+    },
+    "sourceMatchesFrozenCommit": true,
+    "frozenPublicationClean": true,
+    "runtimeSha256": {
+      "index.mjs": "489ff23cbf965ff1fb5b07311a5e6210b95684d3522804615b67af943fca9c00",
+      "schema.mjs": "07a73927248ee633adb3265cf036e57b78b66fec16eebde546d91c9ed2a28bca",
+      "schema-layout.mjs": "7e14c1a1b63dd237643bb5714d709b19dd52235c7088c0b81154e9db495d9aaf",
+      "section-renderer.mjs": "4bef0234a3c272480045ed04047ff31b2f3087395715d0735647add6ffbc5864"
+    },
+    "artifactSha256": {
+      "conditional-name-probe.mjs": "5033e37639da1bb981533d29f8ad075d8c63984fde722481c138fd2642da89e1",
+      "rereview-results.json": "6a99a5d62ae883874ad3fb73ca16b064e81f3164cbde87e87721012cd06d3065",
+      "carried-defaults-probe.mjs": "4c4dd7ff16f11848bebd6ae77cb3859a4df545c85d8fbd53cd23ce7173aedf9e",
+      "carried-defaults-results.json": "d95821f59473f7322d87d4be2a4a97660bef0a7413a7372583908a706ae72bfb"
+    },
+    "reviewSha256": "e7aa5c5ae9b5308011d556630e66edebed9621f13755e39c0c853fac32704bef"
+  }
+}

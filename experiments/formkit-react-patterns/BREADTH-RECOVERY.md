@@ -1,3 +1,11 @@
+# Literal FormKit component defaults review correction
+
+The combined retention review's eight type/name default failures are reproduced and corrected in a separate candidate atop frozen 11aa0e06. Explicit nullish type suppresses the bound type and defaults to text; explicit null/empty name suppresses the bound name and receives a Core-generated name. Projection and lookup share normalized names; direct field-schema validation remains strict.
+
+Fresh combined checks pass 98/98 acceptance and 102/102 references, including actual peer defaults, adjacent retention/key/identity and lifecycle cleanup. Exact before failures, final receipts, source hashes and review provenance are in `evidence/component-default-normalization/`. This candidate awaits independent rereview. Mixed-fields/CI work remains a separate investigation checkpoint; no benchmark, publication or frozen source changed.
+
+---
+
 # Independent-review conditional identity correction
 
 The review's conditional-name failure also reproduced on a87dd4a. Layout identity lookup now compiles conditional string expressions before selecting the same name/key branch as projection; only schema-layout changes at runtime. A new 28-scenario fixture passes in the adapter and actual Vue/React, including arithmetic/constant/dynamic conditions, literal and legal-bind props, nested anonymous keys, group ownership, replacement/retention and exact cleanup.
