@@ -41,7 +41,7 @@ for (const syntax of ['bind','object']) {
       if (operation === 'memo' || operation === 'schema-memo') {next.memoKey = 'two';}
       if (operation === 'schema-memo') {next.schema.push({$cmp: 'FormKit',props: {type: 'text',name: 'added',key: 'added'}});}
       if (operation === 'key') {next.data = {...payload,fieldProps: {...payload.fieldProps,key: 'changed'},identityKey: 'changed'};}
-      if (operation === 'key-remove') {const {key,...fieldProps} = payload.fieldProps;next.data = {...payload,fieldProps,identityKey: undefined};}
+      if (operation === 'key-remove') {const fieldProps = {...payload.fieldProps};delete fieldProps.key;next.data = {...payload,fieldProps,identityKey: undefined};}
       await app.update(next);
       const after = app.node.at('profile.kept'),afterInput = host.querySelector('input');assert.equal(app.node.at('profile'),parent);assert.equal(after.parent,parent);assert.equal(after.props.__root,actualRoot);
       if (operation.startsWith('key')) {assert.ok(after !== before,syntax + ' changed key replaces Core');assert.notEqual(afterInput,input);assert.equal(before.context == null,true);assert.equal(after.value,undefined);assert.equal(afterInput.value,'');} else {assert.ok(after === before,syntax + ' ' + operation + ' retains Core');assert.equal(afterInput,input);assert.equal(after.value,'User edit');assert.equal(afterInput.value,'User edit');}

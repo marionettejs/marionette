@@ -28,8 +28,8 @@ for (const [label,prop,override] of cases) {
     await app.update({memoKey: 'changed'});assert.ok(parent.children[0] === field);assert.ok(host.querySelector('input') === input);assert.equal(field.value,'User edit');
     await app.update({schema: declaration()});assert.ok(parent.children[0] === field);assert.ok(host.querySelector('input') === input);assert.equal(field.value,'User edit');
     if (arm === 'experiment') {
-      const {createSchemaController} = await import('./schema.mjs');let applied = 0;
-      for (const bad of [[{$formkit: '$missing',name: 'strict'}],[{$formkit: 'text',name: null}],[{$formkit: 'text',name: ''}]]) {assert.throws(()=>createSchemaController({node: app.node,schema: bad,onFields: ()=>applied++}),/resolved type and name/);}
+      const {createSchemaController} = await import('./schema.mjs');let applied = 0;const onInvalidFields = ()=>applied++;
+      for (const bad of [[{$formkit: '$missing',name: 'strict'}],[{$formkit: 'text',name: null}],[{$formkit: 'text',name: ''}]]) {assert.throws(()=>createSchemaController({node: app.node,schema: bad,onFields: onInvalidFields}),/resolved type and name/);}
       assert.equal(applied,0,'component defaults must not relax explicit field projection validation');
     }
     await app.update({data: {...payload,fieldProps: {...payload.fieldProps,key: 'replacement'},label: 'Replaced'}});const replacement = parent.children[0];assert.ok(replacement !== field);assert.ok(host.querySelector('input') !== input);assert.equal(field.context == null,true);assert.equal(replacement.value,undefined);assert.equal(replacement.props.type,'text');assert.equal(replacement.parent,parent);passed = true;

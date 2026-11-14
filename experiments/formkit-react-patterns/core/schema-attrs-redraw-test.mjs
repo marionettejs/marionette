@@ -4,11 +4,12 @@ const observed = [];globalThis.ResizeObserver = class {constructor(fn) {this.fn 
 const {mount} = await import('./index.mjs'),{createAutoHeightTextareaPlugin} = await import('@formkit/addons');const pause = ()=>new Promise(r=>setTimeout(r,60)),host = document.querySelector('main');let mounts = 0,destroys = 0;
 const plugin = node=>{if (node.props.type === 'textarea') {node.on('mounted',()=>mounts++);node.on('destroyed',()=>destroys++);}};
 let firstEvents = 0,secondEvents = 0;
+function createChangeHandler(first) {return ()=>first ? firstEvents++ : secondEvents++;}
 const spec = {name: 'details',type: 'textarea',value: 'initial',autoHeight: true,minAutoHeight: 24,style: {boxSizing: 'border-box',padding: '0px'}};
 const api = mount({host,fields: [spec],plugins: [createAutoHeightTextareaPlugin(),plugin],formProps: {actions: false}});await pause();await pause();const textarea = host.querySelector('textarea:not([aria-hidden])'),clone = host.querySelector('textarea[aria-hidden]'),node = api.node.at('details');
 textarea.focus();textarea.setSelectionRange(2,4);let maxLiveClones = 1;
 for (let i = 0;i < 12;i++) {
-  const sectionsSchema = {input: {attrs: {'data-round': String(i),...(i < 8 ? {onChange: i < 4 ? ()=>firstEvents++ : ()=>secondEvents++} : {}),...(i < 10 ? {style: {backgroundColor: i % 2 ? 'red' : 'blue'}} : {})}}};
+  const sectionsSchema = {input: {attrs: {'data-round': String(i),...(i < 8 ? {onChange: createChangeHandler(i < 4)} : {}),...(i < 10 ? {style: {backgroundColor: i % 2 ? 'red' : 'blue'}} : {})}}};
   api.setFields([{...spec,sectionsSchema}]);await pause();assert.equal(host.querySelector('textarea:not([aria-hidden])'),textarea);assert.equal(host.querySelector('textarea[aria-hidden]'),clone);assert.equal(api.node.at('details'),node);assert.equal(document.activeElement,textarea);assert.equal(textarea.selectionStart,2);assert.equal(textarea.selectionEnd,4);assert.equal(textarea.dataset.round,String(i));assert.equal(textarea.style.minHeight,'24px');assert.ok(textarea.classList.contains('formkit-auto-height-textarea'));
   if (i >= 10) {assert.equal(textarea.style.backgroundColor,'');}textarea.dispatchEvent(new Event('change'));if (i < 4) {assert.equal(firstEvents,i + 1);} else {assert.equal(firstEvents,4);} if (i >= 4 && i < 8) {assert.equal(secondEvents,i - 3);} else if (i >= 8) {assert.equal(secondEvents,4);}
   maxLiveClones = Math.max(maxLiveClones,host.querySelectorAll('textarea[aria-hidden]').length);

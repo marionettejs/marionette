@@ -2,7 +2,7 @@ import { JSDOM } from 'jsdom';
 import assert from 'node:assert/strict';
 const dom = new JSDOM('<!doctype html><body><div id="one"></div><div id="two"></div>', { url: 'http://localhost' });
 for (const name of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver']) {globalThis[name] = dom.window[name];}
-const { mount, ExperimentalFormView } = await import('./index.mjs');
+const { mount } = await import('./index.mjs');
 const tick = () => new Promise(resolve => setTimeout(resolve,25));
 const one = mount({instrument: true,host: document.querySelector('#one'),count: 2,config: {validationVisibility: 'live'}}),two = mount({instrument: true,host: document.querySelector('#two'),count: 2,config: {validationVisibility: 'live'}});
 await tick();

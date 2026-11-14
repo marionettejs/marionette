@@ -6,7 +6,7 @@ export async function runShadowFocus(host,mode) {
   const capture = n=>{created++;n.on('destroyed',()=>destroyed++);},spec = name=>({type: 'text',name,label: name});
   const schema = {$el: 'section',for: ['row','$rows'],attrs: {key: '$row','data-row': '$row'},children: [{$formkit: 'text',name: '$row',key: '$row'}]};
   const api = mount({host: outlet,...(mode === 'direct' ? {fields: ['a','b','c'].map(spec)} : {schema,data: {rows: ['a','b','c']}}),plugins: [capture],config: {delay: 0},formProps: {actions: false}});
-  let passed = false;
+  let passed;
   try {
     await settle();const node = api.node.at('b'),input = shadow.querySelector('input[name=b]');await node.input('Edited b');await settle();input.focus();check(shadow.activeElement === input,'precondition: inner input focuses');
     if (mode === 'direct') {api.setFields(['c','b','a'].map(spec));} else {api.updateData({rows: ['c','b','a']});} await settle();

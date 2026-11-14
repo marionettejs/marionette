@@ -4,7 +4,7 @@ const dom = new JSDOM('<body><main></main>', {url: 'http://localhost'});
 for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLTextAreaElement','HTMLFormElement','Event','CustomEvent','MutationObserver','SVGElement']) {globalThis[key] = dom.window[key];}
 Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
 globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
-const arm = process.argv[2] ?? 'experiment', host = document.querySelector('main'), tick = ()=>new Promise(r=>setTimeout(r,30));
+const arm = process.argv[2] ?? 'experiment', host = document.querySelector('main');
 const initial = {}, base = {type: 'textarea',name: 'notes',disabled: false,label: 'Notes',help: 'Multiple lines',validation: 'required',validationVisibility: 'live',attrs: {rows: 3,cols: 24,maxlength: 100}};
 const upstreamProps = ({attrs,...spec})=>({...spec,...attrs});
 if (process.argv.includes('--probe-absent-disabled')) {delete base.disabled;}
