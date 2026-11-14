@@ -1,3 +1,27 @@
+# Package-owned runtime relocation
+
+This structure checkpoint starts from published
+`8f0c03fc79420981b5400d50f39b3a66ab5f0013`. Its 16 active runtime modules move
+from the experiment core to `packages/formkit/src/runtime` without byte changes.
+The public entries now use local imports. Build output JavaScript and declarations
+remain byte-identical; source maps change their source paths. Per-file hashes and
+the old/new path map are retained in the relocation handoff.
+
+The ongoing schema identity correction is separate and must be applied before
+replaying the relocation against its approved current hashes. This checkpoint
+does not establish that correction or complete runtime/declaration type agreement.
+The declaration files remain hand-maintained; existing strict consumer tests are
+scoped evidence. Runtime formatting is unchanged, including long lines.
+
+Historical source/toolchain/approval receipts below keep their original meaning.
+Current-source browser/Pro and complete memory/GC certification are not claimed.
+Generated historical receipts and inactive checkpoints remain permanently
+accessible in the published `8f0c03fc` Git tree, rather than being bulk development
+files in the active PR tree. The relocation handoff also contains their archive
+and per-file hashes. No release/publication inventory is expanded.
+
+---
+
 # Current reviewed integration
 
 The behavior reference is frozen `5fa30f06624c4c3a3e35ff5361ecf91a42df91e9`,

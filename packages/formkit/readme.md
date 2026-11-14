@@ -37,9 +37,9 @@ public exports, mount/update/destruction and TypeScript consumers. It writes the
 report and candidate path to `test/tmp/package-result.json`.
 
 `lint` checks package files and the complete active runtime import graph with the
-repository's rules. It fails for production-runtime diagnostics; it does not
-exclude them because the source is still under `experiments/`. `coverage` uses the
-same build graph, including runtime files outside this package. These focused tests
+repository's rules. The complete production graph is owned by `src/runtime`; lint rejects any
+production import escaping the package source directory. `coverage` uses the
+same package-owned build graph. These focused tests
 are not comprehensive behavior or browser certification. See [DESIGN.md](DESIGN.md)
 for source ownership and the remaining integration work.
 
@@ -202,13 +202,19 @@ plugins; the raw pipeline must provide its own root form definition and context.
 
 ## Scope
 
-Runtime code currently comes from the sole-owned experiment at the verified
-revision in [PROVENANCE.md](PROVENANCE.md), while package/build/types/tests live
-here. Installed bundles contain that runtime and do not import repository paths.
-Runtime relocation and fixes belong to the runtime owner. Free inputs and
+Runtime code lives in `src/runtime` and the public entries import it locally.
+The byte-preserving relocation baseline is recorded in [PROVENANCE.md](PROVENANCE.md).
+Installed bundles contain that runtime and do not import repository paths.
+The separate schema identity correction must be integrated before replaying this
+relocation; this structure checkpoint does not claim that correction. Free inputs and
 portable factories are included; no licensed Pro source or key is shipped.
 Consumers can supply separately installed licensed plugins under their own
 configuration. Full Vue/React parity, all Pro modes, browser accessibility,
 geometry and performance are not certified by this package's tests. The current scoped approval includes the dynamic-list, raw identity and mixed
 ownership corrections. The default-visibility agreement above remains distinct
 from exhaustive parity for explicit override-removal sequences.
+
+The declarations remain hand-maintained. Strict ESM/CJS consumer and anti-any
+checks sample public contracts; they do not prove every runtime signature matches
+the declaration surface. Full implementation-derived declaration verification
+and the remaining runtime formatting are separate work.

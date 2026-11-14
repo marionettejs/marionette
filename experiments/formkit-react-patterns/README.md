@@ -1,3 +1,17 @@
+# Development fixtures for the package-owned runtime
+
+Production source lives in `packages/formkit/src/runtime`; public package exports
+are defined by `packages/formkit/src`. Current acceptance/reference and baseline
+comparison fixtures remain here. The active runner hashes the relocated graph.
+
+See [HISTORY.md](HISTORY.md) for permanent published links to generated historical
+receipts and inactive checkpoints removed from the active review tree. Historical
+relative receipt paths in the reports below resolve at that immutable source.
+The referenced baseline comparator remains available. Old creation-time counts
+and performance claims do not certify the relocated/current runtime.
+
+---
+
 # Current integration evidence
 
 The approved scoped behavior reference is `5fa30f06`; see the current-source

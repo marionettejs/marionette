@@ -16,18 +16,25 @@ its files. Source maps retain the free-source provenance; package licenses inclu
 the upstream FormKit notice. React, Vue, experiment tests, archives, keys and
 licensed Pro vendor packages are absent from the packed file whitelist.
 
-The build currently consumes runtime from
-`experiments/formkit-react-patterns/core`. This is an explicit source-layout
-transition, not an installed-package dependency: Rollup bundles that graph into
-package outputs and keeps only FormKit and Marionette external. When the runtime
-owner relocates the source, update the two public entry re-exports. Do not keep a
-second copied runtime implementation or overwrite the runtime owner's edits.
+Production modules now live in `packages/formkit/src/runtime`. The 16 active
+modules move without byte changes; relative imports within that directory remain
+unchanged. Public entries refer locally to `./runtime`. The production graph is
+18 source files, all inside this package; package lint fails if it escapes that
+source boundary. Experiment harnesses remain development fixtures and explicitly
+import the package source. No forwarding modules or second implementation remain
+at the old production paths.
+
+The bindings extractor lives in `scripts/extract-bindings.mjs`; it verifies the
+package-owned adapted output against the separately pinned React reference
+installation. React remains development-only reference material and is absent
+from runtime imports and the packed whitelist.
 
 `types/*.d.ts` defines the package facade independently of the current JavaScript
 runtime's untyped internals. Core node/config/plugin/schema types remain the
 upstream public definitions. `check:types` validates actual exported ESM and CJS
-types, without skipLibCheck or wildcard any declarations. Public declaration
-changes belong here; the runtime owner must report any changed return, option or
+types, without skipLibCheck or wildcard any declarations. These are hand-maintained declarations; successful consumer fixtures do not
+prove complete agreement with every implementation signature. Full source-derived
+declaration verification remains open. Public declaration changes belong here; the runtime owner must report any changed return, option or
 lifecycle contracts for alignment.
 
 Vitest tests import `@mnjs/formkit` and its exported components entry. Package-local
@@ -42,8 +49,8 @@ behavior check, not a fresh registry-install claim.
 
 Lint and coverage discover production files from Rollup's actual import graph.
 Lint uses the repository configuration and rejects all warnings. It does not
-ignore active production source under experiments. Coverage includes that same
-external-to-package graph, with an explicit V8 report; the small facade suite
+ignore active production source. Coverage includes that same package-owned
+graph, with an explicit V8 report; the small facade suite
 is not a comprehensive runtime coverage claim. No thresholds are silently
 relaxed to make this source transition pass.
 
@@ -108,3 +115,20 @@ Before a release can be represented as ready:
   root and installed-consumer checks.
 
 No publication, deployment, merge or automated Mac testing is part of this lane.
+
+## Relocation integration order
+
+Apply the sole runtime writer's independently reviewed schema identity fix first.
+Then run the mechanical relocation recipe on that clean approved checkpoint,
+recording hashes of its current 16 modules. Do not overwrite them with baseline
+`8f0c03fc` bytes. Replay only the structure/docs/history support changes and rerun
+extraction, public package/packed/type checks and maintained peer fixtures.
+Independent review is required before publication. No runtime semantic change is
+part of this checkpoint. Production lines up to 769 characters remain unchanged;
+formatting belongs in a separate proof-backed checkpoint.
+
+Historical generated receipts and inactive checkpoints remain accessible at the
+immutable published `8f0c03fc` tree, linked from the experiment's `HISTORY.md`.
+The referenced baseline comparator and every maintained fixture remain runnable.
+Exact-head release grouping/build-transfer/HTML preparation tooling remains in
+place: the preceding hosted failure proved those prerequisites are necessary.
