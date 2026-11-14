@@ -1,10 +1,10 @@
 import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
-const dom=new JSDOM('<body><main></main>');for(const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key]=dom.window[key];
-const {mount}=await import('./index.mjs'),{createLayoutController}=await import('./schema-layout.mjs');const host=document.querySelector('main'),api=mount({instrument:true,host,fields:[]});
-for(const schema of [[{$el:'p',children:'$values.x + ('}],[{$cmp:'Other'}],[{$el:42}],[{$el:'div',attrs:{innerHTML:'bad'}}],[{$unknown:true}]])assert.throws(()=>createLayoutController({form:api.form,schema}));
+const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+const {mount} = await import('./index.mjs'),{createLayoutController} = await import('./schema-layout.mjs');const host = document.querySelector('main'),api = mount({instrument: true,host,fields: []});
+for (const schema of [[{$el: 'p',children: '$values.x + ('}],[{$cmp: 'Other'}],[{$el: 42}],[{$el: 'div',attrs: {innerHTML: 'bad'}}],[{$unknown: true}]])assert.throws(()=>createLayoutController({form: api.form,schema}));
 assert.equal(api.node.children.length,0);
-const layout=createLayoutController({form:api.form,schema:[{$el:'fieldset',children:[{$el:'legend',children:'Group'},{$formkit:'text',name:'x',label:'X'}]}]});assert.throws(()=>createLayoutController({form:api.form,schema:[]}),/one layout/);
-const input=host.querySelector('input');input.focus();await api.node.at('x').input('value');await new Promise(r=>setTimeout(r,30));assert.equal(document.activeElement,input);
+const layout = createLayoutController({form: api.form,schema: [{$el: 'fieldset',children: [{$el: 'legend',children: 'Group'},{$formkit: 'text',name: 'x',label: 'X'}]}]});assert.throws(()=>createLayoutController({form: api.form,schema: []}),/one layout/);
+const input = host.querySelector('input');input.focus();await api.node.at('x').input('value');await new Promise(r=>setTimeout(r,30));assert.equal(document.activeElement,input);
 layout.destroy();assert.equal(layout.destroyed,true);assert.equal(host.querySelector('fieldset'),null);assert.equal(host.querySelector('input'),input);assert.equal(api.node.at('x').value,'value');
-const loop=createLayoutController({form:api.form,data:{items:['a','b']},schema:{$el:'article',children:{$el:'span',for:['item','$items'],children:'$item'}}});assert.equal(host.querySelector('article').textContent,'ab');loop.destroy();
+const loop = createLayoutController({form: api.form,data: {items: ['a','b']},schema: {$el: 'article',children: {$el: 'span',for: ['item','$items'],children: '$item'}}});assert.equal(host.querySelector('article').textContent,'ab');loop.destroy();
 api.destroy();assert.equal(api.metrics.coreNodesCreated,api.metrics.coreNodesDestroyed);dom.window.close();console.log('layout invalid syntax, ownership, focus, controller disposal, expanded tags/loops and final cleanup passed');

@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
-const dom=new JSDOM('<body><main></main>');for(const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key]=dom.window[key];
-const {mount}=await import('./index.mjs');const pause=()=>new Promise(resolve=>setTimeout(resolve,35));
-const schema={$formkit:'group',for:['team','$teams'],name:'$team.name',key:'$team.name',children:{$el:'fieldset',children:[{$el:'legend',children:'$team.title'},{$formkit:'text',name:'same',children:{label:{$el:'label',attrs:{for:'$id'},children:'$team.title'}}}]}};
-const host=document.querySelector('main'),api=mount({host,schema,data:{teams:[{name:'a',title:'First'},{name:'b',title:'Second'}]},values:{a:{same:'A'},b:{same:'B'}}});
-try{
- await pause();const a=api.node.at('a.same'),b=api.node.at('b.same'),first=host.querySelector('input'),second=host.querySelectorAll('input')[1];assert.deepEqual([...host.querySelectorAll('label')].map(el=>el.textContent),['First','Second']);
- api.updateData({teams:[{name:'b',title:'Second updated'},{name:'a',title:'First updated'}]});await pause();assert.deepEqual([...host.querySelectorAll('legend')].map(el=>el.textContent),['Second updated','First updated']);assert.deepEqual([...host.querySelectorAll('label')].map(el=>el.textContent),['Second updated','First updated']);assert.equal(api.node.at('a.same'),a);assert.equal(api.node.at('b.same'),b);assert.equal(host.querySelectorAll('input')[0],second);assert.equal(host.querySelectorAll('input')[1],first);for(const label of host.querySelectorAll('label'))assert.equal(label.control.id,label.htmlFor);
- api.node.at('a').emit('schema');await pause();assert.equal(host.querySelectorAll('input')[1],first);assert.equal(first.value,'A');assert.equal(host.querySelectorAll('input').length,2);
- api.setSlots({default:{$el:'main',children:'$slots.fields'}});await pause();assert.deepEqual([...host.querySelectorAll('label')].map(el=>el.textContent),['Second updated','First updated']);assert.equal(api.node.at('a.same').value,'A');
-}finally{api.destroy();dom.window.close();}
+const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[key] = dom.window[key];
+const {mount} = await import('./index.mjs');const pause = ()=>new Promise(resolve=>setTimeout(resolve,35));
+const schema = {$formkit: 'group',for: ['team','$teams'],name: '$team.name',key: '$team.name',children: {$el: 'fieldset',children: [{$el: 'legend',children: '$team.title'},{$formkit: 'text',name: 'same',children: {label: {$el: 'label',attrs: {for: '$id'},children: '$team.title'}}}]}};
+const host = document.querySelector('main'),api = mount({host,schema,data: {teams: [{name: 'a',title: 'First'},{name: 'b',title: 'Second'}]},values: {a: {same: 'A'},b: {same: 'B'}}});
+try {
+  await pause();const a = api.node.at('a.same'),b = api.node.at('b.same'),first = host.querySelector('input'),second = host.querySelectorAll('input')[1];assert.deepEqual([...host.querySelectorAll('label')].map(el=>el.textContent),['First','Second']);
+  api.updateData({teams: [{name: 'b',title: 'Second updated'},{name: 'a',title: 'First updated'}]});await pause();assert.deepEqual([...host.querySelectorAll('legend')].map(el=>el.textContent),['Second updated','First updated']);assert.deepEqual([...host.querySelectorAll('label')].map(el=>el.textContent),['Second updated','First updated']);assert.equal(api.node.at('a.same'),a);assert.equal(api.node.at('b.same'),b);assert.equal(host.querySelectorAll('input')[0],second);assert.equal(host.querySelectorAll('input')[1],first);for (const label of host.querySelectorAll('label'))assert.equal(label.control.id,label.htmlFor);
+  api.node.at('a').emit('schema');await pause();assert.equal(host.querySelectorAll('input')[1],first);assert.equal(first.value,'A');assert.equal(host.querySelectorAll('input').length,2);
+  api.setSlots({default: {$el: 'main',children: '$slots.fields'}});await pause();assert.deepEqual([...host.querySelectorAll('label')].map(el=>el.textContent),['Second updated','First updated']);assert.equal(api.node.at('a.same').value,'A');
+} finally {api.destroy();dom.window.close();}
 console.log('combined nested layout/outer lexical field slots: independent repeated names, changed/reordered locals, field IDs, retained Core/DOM/value and native/root redraw passed');

@@ -4,7 +4,7 @@ const dom = new JSDOM('<body></body>', { url: 'https://example.test/' });
 for (const key of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'HTMLInputElement', 'HTMLFormElement', 'Event', 'CustomEvent', 'MutationObserver', 'KeyboardEvent', 'MouseEvent', 'getComputedStyle']) globalThis[key] = dom.window[key];
 // No network is required or permitted by this focused suite.
 let networkCalls = 0;
-globalThis.fetch = async () => { networkCalls++; throw new Error('Unexpected network request'); };
+globalThis.fetch = async() => { networkCalls++; throw new Error('Unexpected network request'); };
 const tick = () => new Promise(resolve => setTimeout(resolve, 20));
 const host = () => { const element = document.createElement('main'); document.body.append(element); return element; };
 const { mount } = await import(process.env.BASELINE ? '../../baseline/core/index.mjs' : './index.mjs');
@@ -197,7 +197,7 @@ await tick(); assert.ok(precedenceHost.querySelector('circle'));
 assert.equal(loaderCalls[1], 'explicit:helper-explicit-loader');
 precedenceIcon.destroy(); first.props.iconLoader = undefined;
 const defaultFetch = globalThis.fetch; let requestedUrl;
-globalThis.fetch = async url => { requestedUrl = url; return { text: async () => svg }; };
+globalThis.fetch = async url => { requestedUrl = url; return { text: async() => svg }; };
 const urlIcon = FormKitIcon({ host: precedenceHost, props: { icon: 'helper-url-loader', iconLoaderUrl: name => `https://icons.example.test/${name}.svg` } });
 await tick(); assert.equal(requestedUrl, 'https://icons.example.test/helper-url-loader.svg'); assert.ok(precedenceHost.querySelector('svg'));
 urlIcon.destroy(); globalThis.fetch = defaultFetch;

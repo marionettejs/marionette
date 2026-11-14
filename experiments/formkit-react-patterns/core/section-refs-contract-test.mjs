@@ -1,6 +1,6 @@
-import assert from 'node:assert/strict';import{JSDOM}from'jsdom';
-const dom=new JSDOM('<main></main>');globalThis.document=dom.window.document;
-const{renderSections}=await import('./section-renderer.mjs');const refs={},context={__fkSectionRefs:refs,items:['a','b'],visible:true};let explicit=[];
-const renderer=renderSections({host:document.querySelector('main'),context,schema:[{$el:'input',meta:{section:'input'}},{$el:'span',for:['item','$items'],meta:{section:'item'},children:'$item'},{$el:'div',if:'$visible',meta:{section:'panel'}},{$el:'button',meta:{section:'button'},attrs:{ref:el=>explicit.push(el)}}]});
+import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
+const dom = new JSDOM('<main></main>');globalThis.document = dom.window.document;
+const {renderSections} = await import('./section-renderer.mjs');const refs = {},context = {__fkSectionRefs: refs,items: ['a','b'],visible: true};let explicit = [];
+const renderer = renderSections({host: document.querySelector('main'),context,schema: [{$el: 'input',meta: {section: 'input'}},{$el: 'span',for: ['item','$items'],meta: {section: 'item'},children: '$item'},{$el: 'div',if: '$visible',meta: {section: 'panel'}},{$el: 'button',meta: {section: 'button'},attrs: {ref: el=>explicit.push(el)}}]});
 assert.equal(refs.input,document.querySelector('input'));assert.equal(refs.panel,document.querySelector('div'));assert.equal(refs.item,undefined,'Iteration sections do not overwrite singular refs');assert.equal(refs.button,undefined,'Explicit ref takes precedence');assert.equal(explicit[0],document.querySelector('button'));
-context.visible=false;renderer.update();assert.equal(refs.panel,null);renderer.destroy();assert.equal(refs.input,null);assert.equal(explicit.at(-1),null);dom.window.close();console.log('PASS: section refs, loop exclusion, explicit callback refs and terminal cleanup.');
+context.visible = false;renderer.update();assert.equal(refs.panel,null);renderer.destroy();assert.equal(refs.input,null);assert.equal(explicit.at(-1),null);dom.window.close();console.log('PASS: section refs, loop exclusion, explicit callback refs and terminal cleanup.');

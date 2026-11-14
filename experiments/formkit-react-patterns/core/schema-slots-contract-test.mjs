@@ -1,10 +1,10 @@
 import { JSDOM } from 'jsdom';import assert from 'node:assert/strict';
-const dom=new JSDOM('<body><main></main>');for(const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver'])globalThis[key]=dom.window[key];
-globalThis.getComputedStyle=dom.window.getComputedStyle.bind(dom.window);
-const{mount}=await import('./index.mjs');const{createLayoutController}=await import('./schema-layout.mjs');
-const api=mount({host:document.querySelector('main'),fields:[]});let destroyed=0,received;
-const slots={default:({parent,before,locals})=>{received=locals.person;const el=document.createElement('strong');el.textContent=locals.person;parent.insertBefore(el,before);return()=>{destroyed++;el.remove();};}};
-const components={Panel:({host,renderChildren})=>{renderChildren(host,null,{person:'Scoped Ada'});return{};}};
-const controller=createLayoutController({form:api.form,components,slots,schema:{$cmp:'Panel',children:{if:'$slots.default',then:'$slots.default',else:'Fallback'}}});
+const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver'])globalThis[key] = dom.window[key];
+globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
+const {mount} = await import('./index.mjs');const {createLayoutController} = await import('./schema-layout.mjs');
+const api = mount({host: document.querySelector('main'),fields: []});let destroyed = 0,received;
+const slots = {default: ({parent,before,locals})=>{received = locals.person;const el = document.createElement('strong');el.textContent = locals.person;parent.insertBefore(el,before);return ()=>{destroyed++;el.remove();};}};
+const components = {Panel: ({host,renderChildren})=>{renderChildren(host,null,{person: 'Scoped Ada'});return {};}};
+const controller = createLayoutController({form: api.form,components,slots,schema: {$cmp: 'Panel',children: {if: '$slots.default',then: '$slots.default',else: 'Fallback'}}});
 assert.equal(received,'Scoped Ada');assert.equal(document.querySelector('strong').textContent,'Scoped Ada');controller.destroy();api.destroy();assert.equal(destroyed,1);
-const fallback=mount({host:document.querySelector('main'),fields:[]});const c=createLayoutController({form:fallback.form,schema:{$el:'p',children:{if:'$slots.default',then:'$slots.default',else:'Fallback'}}});assert.equal(document.querySelector('p').textContent,'Fallback');c.destroy();fallback.destroy();console.log('provided $slots.default presence, scoped component child invocation and cleanup passed');
+const fallback = mount({host: document.querySelector('main'),fields: []});const c = createLayoutController({form: fallback.form,schema: {$el: 'p',children: {if: '$slots.default',then: '$slots.default',else: 'Fallback'}}});assert.equal(document.querySelector('p').textContent,'Fallback');c.destroy();fallback.destroy();console.log('provided $slots.default presence, scoped component child invocation and cleanup passed');
