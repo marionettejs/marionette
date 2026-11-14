@@ -1,3 +1,17 @@
+# Current scoped integration status
+
+Frozen `5fa30f06` is independently approved for scoped PR integration, including
+`22ed1209` dependency pruning, controller cleanup, package/types/packed consumers
+and maintained verification cleanup. Node 24.19.0/npm 11.17.0 root lint is 0/0;
+default verification, 106 acceptance and 138 reference cases pass. Historical
+entries below retain their creation-time source, counts and pending-review labels.
+They do not replace the current review or extend historical browser receipts.
+Current exact-source Pro tests: zero; current browser certification remains
+unestablished. Core inert receipt history is 73 versus 41 baseline; no total
+memory/GC elimination claim is made. Package provenance records the source chain.
+
+---
+
 # Literal component default-normalization candidate
 
 A separate isolated branch atop frozen `11aa0e06c81601287af3a0c68b1e40cc01e9b7f1` addresses the combined retention review's eight component-default failures. Projected literal FormKit components apply the actual type/name defaults after explicit override precedence; the layout uses the same normalized name. Strict standalone field-schema validation remains unchanged. Only schema/schema-layout change at runtime.

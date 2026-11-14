@@ -59,18 +59,17 @@ tarballs are
 not FormKit evidence; `test/tmp/package-result.json` identifies the actual new
 FormKit candidate and integrity.
 
-The package architecture originated at 0078606d. This isolated integration branch
-replays its experiment-only history onto master 1d428966 and imports the supplied
-c353a4d6 runtime correction patch, followed by the exact cb9db280 mechanical
-formatting/extractor checkpoint. Scoped schema approval is recorded, while
-broader runtime review remains pending. The current master
-`docs:prepare-html` integration is retained; the original root patch is a historical
-proposal and must not replace the reconciled root scripts.
-Apply/reconcile specific shared hunks, then rerun the current root checks.
-The package-local build intentionally does not need changes to the shared
-`build/declarations.mjs` package whitelist.
+The architecture originated at `0078606d`. The approved combined behavior
+reference is `5fa30f06624c4c3a3e35ff5361ecf91a42df91e9`, incorporating
+`c353a4d6` correctness, `cb9db280` formatting/extraction, `b4e2a3b8` lint,
+`ab9703f0` controller cleanup and `22ed1209` dependency pruning. The existing
+feature history is retained as ordinary descendants. Only FormKit paths and
+necessary root wiring are ported; current-master HTML preparation and optional
+package compatibility checks are preserved by the synthetic PR integration.
+No merge commit or unrelated master files are part of the feature patch.
+The package-local build does not change the shared declaration whitelist.
 
-## Evidence boundaries and confirmed runtime blockers
+## Evidence boundaries
 
 The default-visibility peer probe matches current frozen behavior: ordinary
 text inputs show no required message initially and show one after actual
@@ -91,21 +90,21 @@ bound bag. A second independent review confirms that native dynamic-list child
 schemas looping over list-provided $items allocate no row inputs/validators and
 can accept an empty required row through native DOM submission. This is a
 specific missing scoped-list mode; it is not evidence that all native lists
-are absent. Both are historical runtime correctness blockers. Scoped independent schema
-review now clears the c353a4d6 dynamic-list, raw
-identity and mixed-source cases. Broader review and combined revalidation remain
-required; importing its exact bytes does not supply those approvals.
+are absent. Both were historical correctness blockers. Scoped schema reviews and the
+comprehensive independent `5fa30f06` review approve their corrections and the
+combined package integration. Root lint is now zero errors and warnings;
+106 acceptance and 138 reference cases pass. These checks do not certify every
+nested peer-reset sequence or real-browser behavior.
 
 Before a release can be represented as ready:
 
-- Complete the broader independent runtime review and combined package checks;
-  scoped schema approval does not certify the nested peer-reset sequence or
-  real-browser behavior.
-- Resolve the active runtime's strict lint findings with its sole owner.
-- Integrate runtime fixes and any source relocation, aligning public types.
-- Verify the reconciled current-master branch and normally regenerated lockfile.
-- Keep optional-package CI verification separate from the five-package publication
-  inventory; justify FormKit version and coverage policy before publication wiring.
-- Run the combined package, root, installed and applicable browser checks.
+- Establish applicable real-browser behavior and separately licensed Pro coverage;
+  this candidate has zero exact-source Pro tests.
+- Keep the Core receipt-history limitation explicit: 73 inert slots versus 41
+  baseline, independently of bounded active subscriptions and adapter metadata.
+- Keep optional-package verification separate from the unchanged five-package
+  publication inventory; justify version and coverage policy before release wiring.
+- Revalidate any later runtime/source-layout changes with public types, package,
+  root and installed-consumer checks.
 
 No publication, deployment, merge or automated Mac testing is part of this lane.

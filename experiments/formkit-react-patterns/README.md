@@ -1,3 +1,14 @@
+# Current integration evidence
+
+The approved scoped behavior reference is `5fa30f06`; see the current-source
+ledger and package provenance. The executable `current-303ddfbb` comparator is a
+derived style-cleaned source. Its original 13 TypeScript provenance inputs remain
+unchanged, and original comparison receipts keep their original hashes. Current
+root lint is 0/0; browser and Pro certification and complete memory/GC elimination
+are not established by the Node/JSDOM integration checks.
+
+---
+
 # Isolated FormKit React-pattern experiment
 
 Review branch only. No production package replacement, PR, merge or release is implied. Existing FormKit work continues separately.

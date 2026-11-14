@@ -4,17 +4,17 @@ FormKit schemas, inputs and validation with Marionette View, Region and
 Application ownership. This is an unpublished package candidate. It imports
 neither React nor Vue; their component objects require explicit DOM factories.
 
-**This integration candidate is not production-ready.** Independent review of
-historical `0078606d` confirmed dynamic-list validation and raw identity defects.
-Scoped schema review of the supplied `c353a4d6` corrections now clears those
-cases and mixed-source ownership. This branch also imports the exact owner's
-`cb9db280` formatting and extraction repair. Broader independent review remains
-pending; the nested peer-reset sequence and real-browser confirmation remain
-unestablished. This isolated follow-on also imports the exact `b4e2a3b8`
-runtime lint-cleanup candidate. Scoped independent review approves that cleanup
-and strict extraction; broader review remains separate. Package and packed
-consumer checks do not establish full readiness, and root-wide active test/tooling
-lint remains a blocking gate.
+The frozen `5fa30f06` candidate has independent approval for scoped PR
+integration. Its root lint, default verification, 106 acceptance cases, 138
+Vue/React/adapter references, package coverage, packed ESM/CJS consumers and
+strict type consumers pass under Node 24.19.0/npm 11.17.0. The dynamic-list,
+raw identity, mixed ownership and dependency-pruning corrections are included.
+This is an unpublished candidate, not browser, Pro, performance or release
+certification. Exact-source Pro tests executed: zero. Current browser assets
+remain unavailable; prior browser receipts retain their historical source.
+Active watcher pruning does not remove all inert Core event history: the
+independent probe records 73 slots versus 41 at baseline. No complete memory
+or garbage-collection guarantee is claimed. See [PROVENANCE.md](PROVENANCE.md).
 
 ## Build and verify the candidate
 
@@ -209,7 +209,6 @@ Runtime relocation and fixes belong to the runtime owner. Free inputs and
 portable factories are included; no licensed Pro source or key is shipped.
 Consumers can supply separately installed licensed plugins under their own
 configuration. Full Vue/React parity, all Pro modes, browser accessibility,
-geometry and performance are not certified by this package's tests. The scoped
-optional type/name defaults correction at `0078606d` was approved independently;
-that scoped approval does not approve the proposed dynamic-list or raw identity
-corrections now awaiting independent review.
+geometry and performance are not certified by this package's tests. The current scoped approval includes the dynamic-list, raw identity and mixed
+ownership corrections. The default-visibility agreement above remains distinct
+from exhaustive parity for explicit override-removal sequences.

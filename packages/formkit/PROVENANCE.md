@@ -1,3 +1,41 @@
+# Current reviewed integration
+
+The behavior reference is frozen `5fa30f06624c4c3a3e35ff5361ecf91a42df91e9`,
+independently approved for scoped PR integration. It includes the exact approved
+`ab9703f092f0da0e00f9454fc96a28ffa60cf9a2` controller and
+`22ed120940289828fb56a1d63bf9c361c5149438` pruning checkpoint, plus the reviewed
+primary/secondary verification cleanup and expanded packed/type consumers.
+The feature retains its 14 published commits; only FormKit changes and minimal
+root wiring are ported as ordinary descendants, with current master tested in a
+synthetic combined tree. No master merge or unrelated master source port occurs.
+
+Independent validation used Node 24.19.0/npm 11.17.0: root lint 0/0, default
+verification (3226 passes and one expected failure), 106 acceptance and 138
+reference cases, six package coverage tests, actual packed ESM/CJS behavior and
+four strict extracted type consumers. These results belong to the exact frozen
+reference; subsequent integration checks have their own recorded tree/logs.
+Browser --full remains unestablished: the official pinned download returned
+195 bytes of SiteUnavailable HTML. No download workaround or Mac run occurred.
+Exact-source Pro tests executed: zero. Core inert event history remains 73 slots
+versus 41 baseline; bounded active watchers/metadata is not total memory/GC proof.
+
+The tables and reports below are historical snapshots, preserved with their
+original source/toolchain labels. They must not be read as current runtime hashes
+or current pending-review/lint status. Current pruning/controller inventory:
+
+| Source | SHA256 at approved 5fa30f06 |
+| --- | --- |
+| `experiments/formkit-react-patterns/core/index.mjs` | `c7f4b6c7af8c179484b4f54557e3f9d5fe86e350e056e66a9ab907a61da5e81d` |
+| `experiments/formkit-react-patterns/core/schema-layout.mjs` | `bf5cff51d71d3ff78df545c17f8c8be21b187ce13ffcec75d2c84e4ac8670353` |
+| `experiments/formkit-react-patterns/core/schema-registry.mjs` | `029922393566d47763082cad6241935e1a947b43eb9c1bfbd453f5dd4b9dbaf0` |
+| `experiments/formkit-react-patterns/core/schema.mjs` | `80a07f568db4c4fb611e94eb05f99cc7ee41316672f524cc01f539f0252620a4` |
+| `experiments/formkit-react-patterns/core/section-renderer.mjs` | `706a5aa3495b05c24b69130e33418df6501f49423dcc792b00829289505be064` |
+| `experiments/formkit-react-patterns/core/submission-controller.mjs` | `bc1589e167ced51d9f52bc6738ba562c1188de872dc44e3573e5880e572c31c5` |
+
+---
+
+## Historical package integration record
+
 # Provenance
 
 Original package architecture baseline:
