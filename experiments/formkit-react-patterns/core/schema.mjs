@@ -6,9 +6,24 @@ import { createObserver } from '@formkit/observer';
 import { createSchemaRegistry } from './schema-registry.mjs';
 // Shared only by field projection and layout; never a user-requested key.
 export const schemaFieldKey = Symbol('schema field fallback key');
-// Literal FormKit components apply these defaults after explicit prop precedence.
+// Native container children are projected only after their Core context exists.
+export const schemaChildScope = Symbol('native schema child scope');
+// Approved component defaults from frozen 0078606d, after prop precedence.
 export const projectedFormKit = Symbol('projected FormKit component');
 export const componentName = name => name || undefined;
+
+export function schemaIdentity(input, resolve) {
+  const bound=input.bind?resolve(input.bind):{};
+  if(bound!=null&&(typeof bound!=='object'||Array.isArray(bound)))throw new TypeError('Field schema bind must resolve to a props object');
+  const identity={bound,name:bound?.name,key:bound?.key};
+  // Match explicit prop declaration order, without compiling raw literal values.
+  for(const attr of Object.getOwnPropertyNames(input)){
+    const raw=attr.startsWith('__raw__'),key=raw?attr.slice(7):attr;
+    if(key==='name'||key==='key')identity[key]=raw?input[attr]:resolve(input[attr]);
+  }
+  if(input[projectedFormKit])identity.name=componentName(identity.name);
+  return identity;
+}
 
 export function createSchemaController({ node, schema, onFields, data = {}, dataOnly = false }) {
   if (!schema || typeof schema !== 'object') throw new TypeError('Schema must be an array or schema object');
@@ -57,20 +72,19 @@ export function createSchemaController({ node, schema, onFields, data = {}, data
     if (Object.hasOwn(input, 'if') && !condition(input.if, locals)) return project(input.else, locals,loopKeys);
     if (Object.hasOwn(input, 'then') && !Object.hasOwn(input, '$formkit')) return project(input.then, locals,loopKeys);
     if (!Object.hasOwn(input, '$formkit')) throw new TypeError('Use createLayoutController for DOM layout nodes');
-    const bound=input.bind?value(input.bind,locals):{};
-    if(bound!=null && (typeof bound!=='object'||Array.isArray(bound)))throw new TypeError('Field schema bind must resolve to a props object');
-    let type = value(input.$formkit, locals), name = Object.hasOwn(input,'name')?value(input.name, locals):bound?.name;
-    if(input[projectedFormKit]){type??='text';name=componentName(name);}
+    const {bound,name,key:declaredKey}=schemaIdentity(input,item=>value(item,locals));
+    let type=value(input.$formkit,locals);
+    if(input[projectedFormKit])type??='text';
     if (typeof type !== 'string' || !type || (name!==undefined&&(!['string', 'number'].includes(typeof name) || String(name) === ''))) throw new TypeError('Field schema requires a resolved type and name');
     const field = { ...(bound??{}), type };
     if(name!==undefined)field.name=String(name);else delete field.name;
-    if(Object.hasOwn(input,'key'))field.key=value(input.key,locals);
-    else if(name===undefined&&field.key===undefined){
+    field.key=declaredKey;
+    if(name===undefined&&field.key===undefined){
       if(Object.hasOwn(input,schemaFieldKey))field.key=value(input[schemaFieldKey],locals);
       else{let keys=anonymousKeys.get(origin);if(!keys){keys=new Map();anonymousKeys.set(origin,keys);}const path=JSON.stringify(loopKeys);if(!keys.has(path))keys.set(path,Symbol('schema field'));field.key=keys.get(path);}
     }
     for (const [key, item] of Object.entries(input)) {
-      if (['$formkit', 'name', 'if', 'else', 'for', 'children', 'key', 'bind'].includes(key)) continue;
+      if (['$formkit', 'name', 'if', 'else', 'for', 'children', 'key', '__raw__name', '__raw__key', 'bind'].includes(key)) continue;
       // Raw props skip expression interpretation, as in FormKit Schema.
       field[key.startsWith('__raw__') ? key.slice(7) : key] = key.startsWith('__raw__') ? item : value(item, locals,key);
     }
@@ -78,6 +92,7 @@ export function createSchemaController({ node, schema, onFields, data = {}, data
       field.children = Array.isArray(input.children) || ['group', 'list'].includes(type) ? project(input.children, locals,loopKeys) : input.children;
       if(!['group','list'].includes(type)){field.__schemaScope=locals;field.__schemaData=currentData;}
     }
+    if(input[schemaChildScope])field[schemaChildScope]=true;
     return [field];
   }
   function validateNames(fields) {

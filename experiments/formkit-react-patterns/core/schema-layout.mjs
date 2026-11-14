@@ -2,7 +2,8 @@ import { providerBoundary, nativeFormKitFactory } from './provider-scope.mjs';
 // Bounded DOM-layout composition over the existing sole FormKit node owner.
 import { compile } from '@formkit/core';
 import { createObserver } from '@formkit/observer';
-import { createSchemaController, schemaFieldKey, projectedFormKit, componentName } from './schema.mjs';
+import { createSchemaController, schemaFieldKey, schemaChildScope, projectedFormKit, schemaIdentity } from './schema.mjs';
+import { subscribeReactiveStore } from './upstream-bindings.mjs';
 import { renderSections } from './section-renderer.mjs';
 import { createSchemaRegistry } from './schema-registry.mjs';
 export function createLayoutController({form,schema,data:externalData={},components={},slots:externalSlots={}}){
@@ -13,6 +14,7 @@ export function createLayoutController({form,schema,data:externalData={},compone
   layoutData.__boundType=props=>props?.type??'text';
   layoutData.get=registry.get;layoutData.slots=externalSlots;
   const slots={...externalSlots},outlets=new Map();let next=0;
+  const ownedField=(fields,ownerNode,name,key)=>fields.get(name!==undefined?String(name):form._anonymousKeys.get(ownerNode)?.keys.get(key));
   function expression(value){if(typeof value==='string'&&value.startsWith('$'))compile(value);else if(value&&typeof value==='object')Object.values(value).forEach(expression);}
   function condition(value,scope){
     return resolved(typeof value==='string'&&!value.startsWith('$')?'$: '+value:value,scope);
@@ -26,22 +28,30 @@ export function createLayoutController({form,schema,data:externalData={},compone
   // group's existing field map and return to its default outlet on teardown.
   function childPresentation(field, schema, locals) {
     const host=document.createElement('div');host.dataset.formkitLayout='';if(form._schemaDataOnly)host.style.display='contents';
-    let lexical=locals,closed=false;
+    let lexical=locals,closed=false,pending=false;
     const data=Object.create(layoutData);
-    for(const key in lexical)Object.defineProperty(data,key,{get:()=>lexical[key],configurable:true});
+    for(const key in lexical)Object.defineProperty(data,key,{get:()=>lexical[key],enumerable:true,configurable:true});
+    // Native default-slot data is the innermost scope, before outer aliases/data.
+    // Keep it non-enumerable so a descendant's named slots use their own context.
+    for(const key of Object.keys(field.node.context))Object.defineProperty(data,key,{get:()=>field.node.context?.[key],configurable:true});
     const scopedSlots=Object.fromEntries(Object.entries(slots).map(([name,slot])=>[name,args=>{
-      const scoped=()=>({...args,fields:field.children,locals:Object.assign(Object.create(lexical),args.locals)});
+      const scoped=()=>({...args,fields:field.children,ownerNode:field.node,locals:Object.assign(Object.create(data),args.locals)});
       const instance=slot(scoped());
       return instance&&typeof instance==='object'?{...instance,update:()=>instance.update?.(scoped())}:instance;
     }]));
     const place=()=>{const anchor=field.childAnchor;if(anchor?.parentNode&&host.parentNode!==anchor.parentNode)anchor.parentNode.insertBefore(host,anchor);};
     place();
-    let nested;
-    try{nested=renderSections({host,schema,context:form._schemaDataOnly?{}:{node:field.node},data,slots:scopedSlots,components,configScope:form._configScopes.get(field.node),domRoot:field.node.props.__root,parentNode:form._schemaParent?field.node:undefined,metrics:form.metrics});}
-    catch(error){host.remove();throw error;}
+    let nested,projection;
+    const unsubscribe=subscribeReactiveStore(field.node.context,()=>{
+      if(pending||closed)return;pending=true;queueMicrotask(()=>{pending=false;if(!closed&&!dead){projection?.refresh();nested?.update();form._placeSchemaFields?.();}});
+    });
+    try{
+      projection=createSchemaController({node:field.node,schema:schema.fields,data,dataOnly:true,onFields:fields=>field.setChildren(fields)});
+      nested=renderSections({host,schema:schema.dom,context:{node:field.node},data,slots:scopedSlots,components,configScope:form._configScopes.get(field.node),domRoot:field.node.props.__root,parentNode:form._schemaParent?field.node:undefined,metrics:form.metrics});}
+    catch(error){unsubscribe();projection?.destroy();host.remove();throw error;}
     // Native section-schema redraws replace the child anchor, retaining owners.
     const receipt=field.node.on('schema',event=>{if(event.origin===field.node)queueMicrotask(()=>{if(!closed&&!dead){place();nested.refresh();form._placeSchemaFields?.();}});});
-    return {update(next){lexical=next;place();nested.update();},destroy(remove=true){if(closed)return;closed=true;field.node.off(receipt);
+    return {update(next){lexical=next;place();projection.updateData(data);nested.update();},destroy(remove=true){if(closed)return;closed=true;unsubscribe();projection.destroy();field.node.off(receipt);
       const anchor=field.childAnchor;if(remove&&anchor?.parentNode)for(const child of field.children.values())anchor.parentNode.insertBefore(child.el,anchor);
       nested.destroy(remove);if(remove)host.remove();
     }};
@@ -83,24 +93,21 @@ export function createLayoutController({form,schema,data:externalData={},compone
     }
     if('$formkit'in entry){
       // A declared name can resolve to undefined; share an identity with projection.
-      if(!Object.hasOwn(entry,'key'))entry=Object.defineProperty(Object.create(Object.getPrototypeOf(entry),Object.getOwnPropertyDescriptors(entry)),schemaFieldKey,{value:`$__ownedKey('declaration${next++}'${loopAliases.map(alias=>`, $${alias}`).join('')})`,enumerable:true});
+      if(!Object.hasOwn(entry,schemaFieldKey))entry=Object.defineProperty(Object.create(Object.getPrototypeOf(entry),Object.getOwnPropertyDescriptors(entry)),schemaFieldKey,{value:`$__ownedKey('declaration${next++}'${loopAliases.map(alias=>`, $${alias}`).join('')})`,enumerable:true});
       let slot;do{slot=`__ownedField${next++}`;}while(Object.hasOwn(slots,slot));
       const nativeChildren=Object.hasOwn(entry,'children')&&(['group','list'].includes(entry.$formkit)||(typeof entry.$formkit==='string'&&entry.$formkit.startsWith('$')&&Array.isArray(entry.children)))?parse(entry.children):undefined;
-      slots[slot]=({parent,before,locals={},fields=form.fields})=>{
+      slots[slot]=({parent,before,locals={},fields=form.fields,ownerNode=form.node})=>{
         const anchor=document.createComment('owned field'),outlet=Symbol(slot);parent.insertBefore(anchor,before);
         let current,presentation;
         const update=({locals:scope=locals}={})=>{
-          const bound=entry.bind?resolved(entry.bind,scope):{};
-          const declaredName=Object.hasOwn(entry,'name')?resolved(entry.name,scope):bound?.name;
-          const name=entry[projectedFormKit]?componentName(declaredName):declaredName;
-          const identity=Object.hasOwn(entry,'key')?resolved(entry.key,scope):bound?.key!==undefined?bound.key:resolved(entry[schemaFieldKey],scope);const field=name!==undefined?fields.get(String(name)):[...fields.values()].find(field=>field.spec.key===identity);if(!field)throw new Error(`Missing owned layout field: ${name}`);
+          const {name,key:explicitKey}=schemaIdentity(entry,item=>resolved(item,scope));const identity=explicitKey===undefined?resolved(entry[schemaFieldKey],scope):explicitKey;const field=ownedField(fields,ownerNode,name,identity);if(!field)throw new Error(`Missing owned layout field: ${name}`);
           if(field.el.nextSibling!==anchor)anchor.parentNode.insertBefore(field.el,anchor);
-          if(current!==field){presentation?.destroy();current=field;presentation=nativeChildren&&['group','list'].includes(field.node.props.type)?childPresentation(field,nativeChildren.dom,scope):undefined;}
-          presentation?.update(scope);outlets.set(outlet,{fields,name:name===undefined?undefined:String(name),identity,anchor});
+          if(current!==field){presentation?.destroy();current=field;presentation=nativeChildren&&['group','list'].includes(field.node.props.type)?childPresentation(field,nativeChildren,scope):undefined;}
+          presentation?.update(scope);outlets.set(outlet,{fields,ownerNode,name:name===undefined?undefined:String(name),identity,anchor});
         };
         update();return{update,destroy(remove=true){presentation?.destroy(remove);outlets.delete(outlet);if(remove)anchor.remove();}};
       };
-      return{fields:[nativeChildren?{...entry,children:nativeChildren.fields}:entry],dom:entry.if?{if:entry.if,then:`$slots.${slot}`} : `$slots.${slot}`};
+      return{fields:[nativeChildren?{...entry,children:[],[schemaChildScope]:true}:entry],dom:entry.if?{if:entry.if,then:`$slots.${slot}`} : `$slots.${slot}`};
     }
     // FormKit creates a Core owner and renders its own child scope. Projecting
     // its descendants here would allocate them before that parent exists.
@@ -127,8 +134,8 @@ export function createLayoutController({form,schema,data:externalData={},compone
     renderer?.destroy(!form._ending);if(!form._ending)host.remove();
   };
   try{
-    form._placeSchemaFields=()=>{for(const {fields,name,identity,anchor}of outlets.values()){const field=name!==undefined?fields.get(name):[...fields.values()].find(field=>field.spec.key===identity);if(field&&field.el.nextSibling!==anchor)anchor.parentNode.insertBefore(field.el,anchor);}};
-    controller=createSchemaController({node:form.node,schema:parsed.fields,data:layoutData,dataOnly:form._schemaDataOnly,onFields:fields=>form.setFields(fields)});
+    form._placeSchemaFields=()=>{for(const {fields,ownerNode,name,identity,anchor}of outlets.values()){const field=ownedField(fields,ownerNode,name,identity);if(field&&field.el.nextSibling!==anchor)anchor.parentNode.insertBefore(field.el,anchor);}};
+    controller=createSchemaController({node:form.node,schema:parsed.fields,data:layoutData,dataOnly:form._schemaDataOnly,onFields:fields=>form._setSchemaFields?form._setSchemaFields(fields):form.setFields(fields)});
     form._fieldAnchor.parentNode.insertBefore(host,form._fieldAnchor);
     observer=createObserver(form.node);
     renderer=renderSections({host,schema:parsed.dom,context:form._schemaDataOnly?{}:{node:form.node},data:layoutData,slots,components,configScope:form._providerScope,domRoot:form._domRoot,parentNode:form._schemaParent,metrics:form.metrics});
@@ -137,6 +144,6 @@ export function createLayoutController({form,schema,data:externalData={},compone
     });
     form.on('before:destroy',destroy);
   }catch(error){destroy();throw error;}
-  const api={destroy,detach(){host.remove();},place(){if(dead)return;const anchor=form._fieldAnchor;if(host.nextSibling!==anchor)anchor.parentNode.insertBefore(host,anchor);form._placeSchemaFields();},updateData(next={}){if(dead)return;for(const key of Object.keys(layoutData))if(!reserved.has(key))delete layoutData[key];for(const[key,value]of Object.entries(next))if(!reserved.has(key))layoutData[key]=value;controller.updateData(layoutData);renderer.update();form._placeSchemaFields();},get destroyed(){return dead;}};
+  const api={destroy,get fieldAnchor(){return host.parentNode?host:form._fieldAnchor;},detach(){host.remove();},place(){if(dead)return;const anchor=form._fieldAnchor;if(host.nextSibling!==anchor)anchor.parentNode.insertBefore(host,anchor);form._placeSchemaFields();},updateData(next={}){if(dead)return;for(const key of Object.keys(layoutData))if(!reserved.has(key))delete layoutData[key];for(const[key,value]of Object.entries(next))if(!reserved.has(key))layoutData[key]=value;controller.updateData(layoutData);renderer.update();form._placeSchemaFields();},get destroyed(){return dead;}};
   form._layoutController=api;return api;
 }

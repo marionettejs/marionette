@@ -20,6 +20,7 @@ import { bindings } from './upstream-bindings.mjs';
 import { renderSections } from './section-renderer.mjs';
 import { createRootSlots, renderSchemaSlot } from './root-slots.mjs';
 import { createLayoutController } from './schema-layout.mjs';
+import { schemaChildScope } from './schema.mjs';
 import { createValidationPlugin } from '@formkit/validation';
 import * as rules from '@formkit/rules';
 import { createI18nPlugin, en } from '@formkit/i18n';
@@ -97,12 +98,12 @@ function createField(node,spec,view,initial,renderDefault,present) {
     redrawing=true;try{renderer?.destroy();}finally{redrawing=false;}anchor=undefined;
     renderer=renderSections({host:el,schema:nextSchema,context:node.context,metrics:view.metrics,configScope:view._configScopes.get(node),domRoot:node.props.__root,parentNode:view._schemaParent?node:undefined,components:resolveComponentLibrary(node,view.components,next.library),slots});
     for(const [parent,content]of defaultScopes)if(!content.active){defaultScopes.delete(parent);content.dispose?.();content.host.remove();}
-    if(anchor)reconcile(view,node,children,next.children??[],anchor,initial??{});
+    if(anchor&&!next[schemaChildScope])reconcile(view,node,children,next.children??[],anchor,initial??{});
     present?.(el);
   };
   let mounted=false,schemaQueued=false;
   const notifyMounted=()=>{if(!dead&&!mounted&&el.isConnected){mounted=true;view.off('attach fields:attached',notifyMounted);node.emit('mounted');}};
-  const field={el,node,spec,children,get childAnchor(){return anchor;},refresh(){if(dead)return;node.context.refreshClasses();renderer.refresh();for(const slot of slotControllers)slot.refresh();for(const child of children.values())child.refresh();},update(next){
+  const field={el,node,spec,children,get childAnchor(){return anchor;},setChildren(specs){validateFields(specs,view.definitions);reconcile(view,node,children,specs,anchor,node.value??{});},refresh(){if(dead)return;node.context.refreshClasses();renderer.refresh();for(const slot of slotControllers)slot.refresh();for(const child of children.values())child.refresh();},update(next){
     currentLibrary=next.library;
     if(next.config!==field.spec.config)for(const [key,value]of Object.entries(next.config??{}))node.config[key]=value;
       if(next!==field.spec){
@@ -113,7 +114,7 @@ function createField(node,spec,view,initial,renderDefault,present) {
         for(const [key,value]of Object.entries(props))if(key!=='name'&&key!=='type'&&key!=='definition'&&key!=='validationVisibility')node.props[key]=value;
         for(const key of Object.keys(field.spec.classes??{}))if(!(key in (next.classes??{})))node.props[`_${key}Class`]=undefined;
       }
-    if((node.type!=='input'&&Array.isArray(next.children??[]))){if(anchor)reconcile(view,node,children,next.children??[],anchor,initial??{});}
+    if((node.type!=='input'&&Array.isArray(next.children??[]))){if(anchor&&!next[schemaChildScope])reconcile(view,node,children,next.children??[],anchor,initial??{});}
     else {
       if(next.children!==field.spec.children){
       const nextSlots=next.children??{};
@@ -158,7 +159,7 @@ function createField(node,spec,view,initial,renderDefault,present) {
 const generalProps=new Set([...runtimeProps,'label','help','disabled','validationVisibility','slots','definition','defaultValue','onUpdateModelValue','onChange','sync','dynamic','ignore','preserve']);
 const isNodeProp=key=>generalProps.has(camel(key))||/^preserve(-e|E)rrors/.test(key)||/^[a-z]+(?:-visibility|Visibility|-behavior|Behavior)$/.test(key)||/^[a-zA-Z_-]+(?:-class|Class)$/.test(key)||/^[a-zA-Z-]+(?:-icon|Icon)$/.test(key);
 function nativeProps(spec, suppliedDefinition) {
-  const {children,attrs={},value,__schemaScope,__schemaData,library,...direct}=spec;
+  const {children,attrs={},value,__schemaScope,__schemaData,library,[schemaChildScope]:childScope,...direct}=spec;
   const props={...direct},domAttrs={};
   for(const [section,value]of Object.entries(spec.classes??{}))props[`_${section}Class`]=value;
   const definition=suppliedDefinition??spec.definition??inputs[camel(spec.type??'text')]??{};
@@ -216,7 +217,7 @@ function reconcile(view,parent,map,specs,anchor,initial) {
     // Layout outlets own fields already projected into another container.
     // Reconcile only this outlet's children and newly created detached fields.
     const elements=entries.map(([key])=>map.get(key).el).filter(element=>!element.parentNode||element.parentNode===anchor.parentNode);
-    const active=anchor.ownerDocument.activeElement;
+    const active=anchor.getRootNode().activeElement??anchor.ownerDocument.activeElement;
     const pivot=elements.findIndex(element=>element.contains(active));
     const place=(first,last,cursor)=>{for(let i=last;i>=first;i--){const element=elements[i];if(element.nextSibling!==cursor)anchor.parentNode.insertBefore(element,cursor);cursor=element;}};
     // Moving a focused ancestor with insertBefore blurs it in real browsers.
@@ -260,7 +261,6 @@ export class ExperimentalFormView extends View {
   get tagName() { return 'form'; }
   get template() { return false; }
   initialize(options = {}) {
-    if(options.schema!==undefined&&options.fields!==undefined)throw new TypeError('Use schema or fields as the declaration source');
     this._schema=options.schema;this._schemaSlots=options.schemaSlots??{};this._rootSlots=options.slots??{};
     const view=this;this._schemaData={...options.data,get values(){return view.node.value;}};
     this.metrics = { enabled:options.instrument===true, contextNotifications:0,tokenChecks:0,expressionEvaluations:0,domWrites:0,structuralChanges:0,coreNodesCreated:0,coreNodesDestroyed:0,coreInputEvents:0,coreCommitEvents:0,coreMessageEvents:0,classRootEvaluations:0 };
@@ -290,7 +290,7 @@ export class ExperimentalFormView extends View {
     this.plugins=[...(this.metrics.enabled?[countCore]:[]), ...(options.defaultConfig===false?[]:[createLibraryPlugin(this.definitions), createThemePlugin(options.theme,options.icons,options.iconLoaderUrl,options.iconLoader), bindings, createValidationPlugin({...rules,...options.rules}), createI18nPlugin(extend({ en,...options.locales },options.messages??{}))]), ...(options.plugins??[])];
     this._providerScope=options[formKitScope]?{options:{plugins:this.plugins,config:{rootConfig:options.config.rootConfig}},definitions:this.definitions}:undefined;
     this.node = createNode({ name: options.formProps?.name??'form', value: this.initialValues, config: this.config,
-      props: { ...options.formProps, __root:this._domRoot, type: 'form', attrs: options.formProps?.attrs ?? {}, id: `experiment-form-${this.cid}`, __slots: {default:true,fields:true,...Object.fromEntries(Object.keys(this._rootSlots).map(name=>[name,true]))}, onSubmit: options.onSubmit ?? (()=>{}), onSubmitInvalid: options.onSubmitInvalid, onSubmitRaw: options.onSubmitRaw },
+      props: { ...options.formProps, __root:this._domRoot, type: 'form', attrs: options.formProps?.attrs ?? {}, id: options.formProps?.id??`experiment-form-${this.cid}`, __slots: {default:true,fields:true,...Object.fromEntries(Object.keys(this._rootSlots).map(name=>[name,true]))}, onSubmit: options.onSubmit ?? (()=>{}), onSubmitInvalid: options.onSubmitInvalid, onSubmitRaw: options.onSubmitRaw },
       plugins:this.plugins });
     if(this._providerScope)this._configScopes.set(this.node,this._providerScope);
     this.config=this.node.config;
@@ -302,6 +302,7 @@ export class ExperimentalFormView extends View {
     this._onSubmit = event => { return this.lastSubmission = submitHandler(event); };
     this.node.context.handlers.submit=this._onSubmit;
     this.specs = options.fields ?? (options.schema!==undefined?[]:Array.from({ length: options.count ?? 1 }, (_, i) => ({ name: `field${i}`, label: `Field ${i}`, validation: 'required' })));
+    this._directSpecs=this.specs;this._schemaSpecs=[];
     this.on('before:destroy', () => { this._ending = true; this.node.off(schemaReceipt); this._facade.destroy(); this.node.destroy(); this._layoutController?.destroy(); this._rootRenderer?.destroy(false); for (const field of this.fields.values()) field.disposeView(false); for (const field of this.fields.values()) field.disposeNodes(true); this.fields.clear(); this.el.replaceChildren(); });
     try{this._renderRoot();}catch(error){this.destroy();throw error;}
   }
@@ -320,7 +321,7 @@ export class ExperimentalFormView extends View {
   }
   _renderRoot() {
     this._fieldAnchor=document.createComment('fields');document.createDocumentFragment().append(this._fieldAnchor);
-    this._rootRenderer=renderSections({host:this.el,schema:schemaFor(this.node,this._sectionsSchema),context:this.node.context,data:this._schemaData,metrics:this.metrics,configScope:this._providerScope,domRoot:this._domRoot,components:resolveComponentLibrary(this.node,this.components,this.node.props.library),reuseRoot:true,slots:createRootSlots(this,this._rootSlots)});
+    this._rootRenderer=renderSections({host:this.el,schema:schemaFor(this.node,this._sectionsSchema),context:this.node.context,metrics:this.metrics,configScope:this._providerScope,domRoot:this._domRoot,components:resolveComponentLibrary(this.node,this.components,this.node.props.library),reuseRoot:true,slots:createRootSlots(this,this._rootSlots)});
   }
   setSectionsSchema(sectionsSchema) {
     if(this._ending||this.isDestroyed())return this;
@@ -339,6 +340,7 @@ export class ExperimentalFormView extends View {
     if(this._ending||this.isDestroyed())return this;
     this._layoutController?.destroy();this._schema=schema;
     if(schema!==undefined)createLayoutController({form:this,schema,data:this._schemaData,components:this.components,slots:this._schemaSlots});
+    else this._setSchemaFields([]);
     return this;
   }
   updateData(next={}) {
@@ -351,10 +353,16 @@ export class ExperimentalFormView extends View {
   getFormState() { return this._facade.getFormState(); }
   setValues(values,options) { return this._facade.setValues(values,options); }
   setErrors(errors,fieldErrors) { return this._facade.setErrors(errors,fieldErrors); }
-  setFields(specs) { return this._facade.batch('setFields',()=>this._setFields(specs)); }
+  setFields(specs) { return this._facade.batch('setFields',()=>{
+    validateFields(specs,this.definitions);this._setFields([...specs,...this._schemaSpecs]);this._directSpecs=specs;
+  }); }
+  _setSchemaFields(specs) { return this._facade.batch('setFields',()=>{
+    this._setFields([...this._directSpecs,...specs]);this._schemaSpecs=specs;
+  }); }
   _setFields(specs) {
     if (this._ending || this.isDestroyed()) return;
     validateFields(specs,this.definitions);
+    const anchor=this._layoutController?.fieldAnchor??this._fieldAnchor;
     if(!this._isRendered&&this.fields.size===0){
 
       this._initialNodes=new Map();
@@ -365,13 +373,13 @@ export class ExperimentalFormView extends View {
       try {
         prepare(this.node,specs,this.initialValues);
         this.node.context.refreshClasses();this._rootRenderer.refresh();
-        reconcile(this,this.node,this.fields,specs,this._fieldAnchor,this.initialValues);
+        reconcile(this,this.node,this.fields,specs,anchor,this.initialValues);
       } finally {
         // Only unclaimed construction resources; no rollback of rendered fields.
         for(const nodes of this._initialNodes.values())for(const node of nodes.values())node.destroy();
         this._initialNodes=undefined;
       }
-    }else reconcile(this,this.node,this.fields,specs,this._fieldAnchor,this.initialValues);
+    }else reconcile(this,this.node,this.fields,specs,anchor,this.initialValues);
     this.specs = specs;
   }
   get formMessages() { return this.el.querySelector(':scope > .formkit-messages'); }

@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {setupProjectionDom,settle,mountProjectionReference} from './schema-projection-reference.mjs';
+const dom=setupProjectionDom(),arm=process.argv[2]??'experiment',host=document.querySelector('main'),{getNode}=await import('@formkit/core');
+const fields=[{$formkit:'text',name:'same',label:'Named'},{$formkit:'text',key:'same',label:'Anonymous keyed'},{$formkit:'text',key:'$missing',label:'Undefined key A'},{$formkit:'text',key:'$missing',label:'Undefined key B'},{$el:'div',for:['row','$rows'],attrs:{key:'$row.key','data-key':'$row.key'},children:[{$formkit:'text',key:'$row.key',label:'$row.caption'}]}];
+const schema=['left','right'].map(name=>({$formkit:'group',name,children:[{$el:'fieldset',attrs:{'data-side':name},children:structuredClone(fields)}]})),rows=Array.from({length:24},(_,i)=>({key:'row'+i,caption:'Row '+i}));
+let api;
+try{
+ api=await mountProjectionReference(arm,host,schema,{rows});
+ for(const side of ['left','right']){const group=api.node.at(side),inputs=[...host.querySelectorAll(`[data-side=${side}] input`)];assert.equal(inputs.length,28);assert.equal(group.children.length,28);assert.equal(new Set(inputs).size,28);assert.equal(new Set(group.children.map(n=>n.name)).size,28);}
+ const controls=[...host.querySelectorAll('input')],nodes=controls.map(input=>api.nodes.find(n=>n.context?.id===input.id));await nodes[2].input('Unkeyed edit');const rowInput=host.querySelector('[data-side=left] [data-key=row3] input'),rowNode=api.nodes.find(n=>n.context?.id===rowInput.id);await rowNode.input('Row edit');await settle();
+ await api.update({rows:[...rows].reverse()});assert.equal(host.querySelector('[data-side=left] [data-key=row3] input'),rowInput);assert.equal(rowNode.parent,api.node.at('left'));assert.equal(rowInput.value,'Row edit');assert.equal(controls[2].value,'Unkeyed edit');assert.equal(nodes[2].parent,api.node.at('left'));assert.equal(host.querySelectorAll('input').length,56);
+ await api.update({rows:rows.slice(3,8)});assert.equal(host.querySelectorAll('input').length,18);assert.equal(host.querySelector('[data-side=left] [data-key=row3] input'),rowInput);assert.equal(rowInput.value,'Row edit');assert.equal(nodes[4].context==null,true);assert.equal(controls[2].value,'Unkeyed edit');
+ const ids=api.nodes.map(n=>n.props.id);api.destroy();await settle();assert.equal(api.counts().created,api.counts().destroyed);assert.equal(host.childElementCount,0);for(const id of ids)assert.equal(getNode(id),undefined);
+ console.log(JSON.stringify({arm,passed:true,...api.counts(),checks:['parent-local anonymous outlets','named and anonymous key domains do not collide','multiple unresolved explicit keys','keyed loop reorder/removal retains edits/Core/DOM','exact cleanup'],complexityScope:'No timing claim; runtime lookup reuses the existing parent identity map rather than scanning siblings'}));
+}finally{api?.destroy();dom.window.close();}

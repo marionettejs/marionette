@@ -19,11 +19,20 @@ function projectSchema(entry,omit=[],overrides={}) {
 export function renderSections({host,schema,context,metrics,slots={},reuseRoot=false,data={},components={},configScope,domRoot,parentNode}) {
   let dead=false,rootUsed=false,removeDom=true;const effects=new Set(),elements=new Set(),schemaCells=new WeakMap();
   const cellFor=entry=>{const source=entry[sectionSource]??entry;let cell=schemaCells.get(source);if(!cell){cell={current:source};schemaCells.set(source,cell);}return cell;};
-  const iterationScope=Symbol('iteration scope');
+  const iterationScope=Symbol('iteration scope'),methodBindings=new WeakMap();
   const metric=key=>{if(metrics?.enabled)metrics[key]=(metrics[key]??0)+1;};
   function scope(){const disposers=[];return {add:fn=>disposers.push(fn),destroy(){for(const fn of disposers.splice(0).reverse())fn();}};}
   const root=scope();
-  function read(path,locals){let object=locals,parts=path.split('.');if(!(parts[0] in locals))object=parts[0] in data?data:context;for(const part of parts){if(object==null)return undefined;object=object[part];}return object;}
+  function read(path,locals){
+    let object=locals,owner;const parts=path.split('.');
+    if(!(parts[0] in locals))object=parts[0] in data?data:context;
+    for(const part of parts){if(object==null)return undefined;owner=object;object=object[part];}
+    if(typeof object!=='function')return object;
+    // Keep method receivers and stable callback identity across refreshes.
+    let receivers=methodBindings.get(object);if(!receivers){receivers=new Map();methodBindings.set(object,receivers);}
+    if(!receivers.has(owner))receivers.set(owner,object.bind(owner));
+    return receivers.get(owner);
+  }
   function binding(value,locals,owner,apply,always=false,condition=false){
     if(condition&&typeof value==='string'&&!value.startsWith('$'))value='$: '+value;
     if(typeof value!=='string'||value.length<2||!value.startsWith('$')){apply(value);return;}
@@ -99,7 +108,7 @@ export function renderSections({host,schema,context,metrics,slots={},reuseRoot=f
         }
         // Moving a focused ancestor via insertBefore blurs it in browsers.
         // Keep that row attached and reorder only the surrounding ranges.
-        const active=parent.ownerDocument.activeElement;
+        const active=parent.getRootNode().activeElement??parent.ownerDocument.activeElement;
         const pivot=ordered.findIndex(row=>{for(let n=row.start.nextSibling;n&&n!==row.end;n=n.nextSibling)if(n===active||n.contains?.(active))return true;return false;});
         const place=(first,last,cursor)=>{for(let i=last;i>=first;i--){move(ordered[i],cursor);cursor=ordered[i].start;}};
         if(pivot<0)place(0,ordered.length-1,bounds.end);
@@ -111,7 +120,7 @@ export function renderSections({host,schema,context,metrics,slots={},reuseRoot=f
       const component=typeof entry.$cmp==='string'?components[entry.$cmp]:entry.$cmp;
       if(typeof component!=='function')throw new TypeError(`Unknown component factory: ${String(entry.$cmp)}`);
       const container=document.createElement('span');container.style.display='contents';parent.insertBefore(container,before);
-      let instance,mounted=false;const childScopes=new Set();
+      let instance,mounted=false,componentKey;const childScopes=new Set();
       const renderChildren=(target=container,beforeChild=null,slotData={},inheritedProps)=>{
         const child=scope();let closed=false;
         const destroy=(remove=removeDom)=>{if(closed)return;closed=true;childScopes.delete(destroy);const previous=removeDom;removeDom=remove;try{child.destroy();}finally{removeDom=previous;}};
@@ -126,9 +135,9 @@ export function renderSections({host,schema,context,metrics,slots={},reuseRoot=f
       // explicitly. React/Vue component objects are not interchangeable here.
       let explicit={},bound={},ready=false;
       const applyProps=()=>{if(!ready)return;const props={...(childProps?.()??{}),...(bound??{}),...(explicit??{})};
-        if(mounted&&typeof instance?.update==='function'){instance.update(props);return;}
+        if(mounted&&Object.is(componentKey,props.key)&&typeof instance?.update==='function'){instance.update(props);return;}
         if(mounted)dispose();
-        instance=component({props,context,locals,schemaData:data,parentNode:locals[formKitParent]??parentNode??read('node',locals),domRoot:locals[formKitDomRoot]??domRoot,configScope:locals[formKitScope]??configScope,hasChildren:entry.children!==undefined,schemaChildren:entry.children,host:container,renderChildren});mounted=true;
+        instance=component({props,context,locals,schemaData:data,parentNode:locals[formKitParent]??parentNode??read('node',locals),domRoot:locals[formKitDomRoot]??domRoot,configScope:locals[formKitScope]??configScope,hasChildren:entry.children!==undefined,schemaChildren:entry.children,host:container,renderChildren});componentKey=props.key;mounted=true;
       };
       if(entry.bind)binding(entry.bind,locals,owner,next=>{bound=next;applyProps();});
       valueBinding(entry.props??{},locals,owner,next=>{explicit=next;applyProps();});

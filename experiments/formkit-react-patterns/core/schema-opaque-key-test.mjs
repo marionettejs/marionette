@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {setupProjectionDom,settle,mountProjectionReference} from './schema-projection-reference.mjs';
+const dom=setupProjectionDom(),arm=process.argv[2]??'experiment',host=document.querySelector('main'),{getNode}=await import('@formkit/core');
+const schema=[{$cmp:'FormKit',props:{type:'text',name:'opaque',value:'Initial',key:'$identity',label:'$caption'},children:[]},{$formkit:'text',name:'kept'}];let api;
+try{
+ api=await mountProjectionReference(arm,host,schema,{identity:'a',caption:'Before'});const first=api.node.at('opaque'),input=host.querySelector('input[name=opaque]'),kept=api.node.at('kept'),keptInput=host.querySelector('input[name=kept]');await first.input('Edited');await settle();
+ await api.update({identity:'a',caption:'After'});assert.equal(api.node.at('opaque'),first);assert.equal(host.querySelector('input[name=opaque]'),input);assert.equal(input.value,'Edited');
+ await api.update({identity:'b',caption:'Changed key'});const second=api.node.at('opaque'),secondInput=host.querySelector('input[name=opaque]');assert.notEqual(second,first,'opaque default-child field changes its Core owner on key change');assert.notEqual(secondInput,input);assert.equal(first.context==null,true);assert.equal(second.value,'Initial');assert.equal(secondInput.value,'Initial');assert.equal(api.node.children.length,2);assert.equal(api.node.at('kept'),kept);assert.equal(host.querySelector('input[name=kept]'),keptInput);
+ await second.input('Second edit');await settle();await api.update({caption:'Removed key'});const third=api.node.at('opaque');assert.notEqual(third,second);assert.equal(second.context==null,true);assert.equal(third.value,'Initial');assert.equal(api.node.at('kept'),kept);
+ const ids=api.nodes.map(n=>n.props.id);api.destroy();await settle();assert.equal(api.counts().created,api.counts().destroyed);for(const id of ids)assert.equal(getNode(id),undefined);assert.equal(host.childElementCount,0);console.log(JSON.stringify({arm,passed:true,...api.counts(),checks:['opaque default-child field retains on same key','changed/removed key replaces Core and DOM and resets default','ordinary sibling stays retained','exact cleanup']}));
+}finally{api?.destroy();dom.window.close();}

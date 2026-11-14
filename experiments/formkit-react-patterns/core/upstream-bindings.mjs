@@ -138,18 +138,21 @@ function hasContextValueChanged(current, next) {
   return true;
 }
 function getReactListItems(node) {
-  return node.children.map((child) => {
-    if (!listItemKeys.has(child.uid)) {
-      listItemKeys.set(child.uid, `fk-item-${nextListItemKey++}`);
-    }
-    return listItemKeys.get(child.uid);
+  const previous = listItemKeys.get(node), current = new Map();
+  const items = node.children.map((child) => {
+    const key = previous?.get(child.uid) ?? `fk-item-${nextListItemKey++}`;
+    current.set(child.uid, key);
+    return key;
   });
+  // Retain keys only for this parent's current children, preserving Core UIDs.
+  listItemKeys.set(node, current);
+  return items;
 }
 var listItemKeys, nextListItemKey, reactBindings, bindings_default;
 var init_bindings = __esm({
   "packages/react/src/bindings.ts"() {
     init_reactiveStore();
-    listItemKeys = /* @__PURE__ */ new Map();
+    listItemKeys = /* @__PURE__ */ new WeakMap();
     nextListItemKey = 0;
     reactBindings = function reactBindings2(node) {
       node.ledger.count("blocking", (m) => m.blocking);
@@ -608,6 +611,7 @@ var init_bindings = __esm({
       flush();
       node.emit("context", node, false);
       node.on("destroyed", () => {
+        listItemKeys.delete(node);
         contextAlive = false;
         for (const observed of classObservers) observed.kill();
         classObservers.clear();
