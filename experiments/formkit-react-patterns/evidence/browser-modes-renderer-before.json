@@ -1,0 +1,17 @@
+{
+  "rendererSha256": "50ff2f11b19cf2e3131aa8f86b301543f16874f97c71eb17a04f9e130d9630e1",
+  "tests": [
+    {
+      "file": "core/data-boolean-contract-test.mjs",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nnull !== 'false'\n\n    at file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/data-boolean-contract-test.mjs:4:12 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: null,\n  expected: 'false',\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+    },
+    {
+      "file": "core/owned-subtree-disposal-test.mjs",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ null\n- HTMLElement {}\n\n    at file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/owned-subtree-disposal-test.mjs:1:1179 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: null,\n  expected: HTMLElement {},\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+    }
+  ]
+}

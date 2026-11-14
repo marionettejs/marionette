@@ -1,0 +1,337 @@
+{
+  "inputSha256": "279a547c3d60c01ae2fae97314fd31229ac90c5562f163f4cb8258a5bbac784a",
+  "newComponents": [
+    "FormKitSummary",
+    "FormKitMessages",
+    "FormKitIcon"
+  ],
+  "newComponentCount": 3,
+  "integration": "New files verified byte-for-byte; index registration/library hunks reconciled into canonical source; library metadata excluded from DOM attrs",
+  "sourceFiles": [
+    {
+      "path": "core/helper-components.mjs",
+      "sha256": "189880d2817ef8e8ab9fc7ae5907325a0bbd622dbd551db6a5c1ce5ac67c5cf4"
+    },
+    {
+      "path": "core/helper-components-test.mjs",
+      "sha256": "b1ed3d62e0e8e260e7a48fcf2a66a5b03a211ca75ba8296a3dc2c3d51e17cfe9"
+    },
+    {
+      "path": "core/HELPER-COMPONENTS.md",
+      "sha256": "bb2fb5b6840a6d3204ad75d3314c8514b338d915e84e329904794aef468ddcef"
+    },
+    {
+      "path": "core/component-library.mjs",
+      "sha256": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f"
+    },
+    {
+      "path": "core/component-library-test.mjs",
+      "sha256": "56bded453759f77d8c67dde43056713d8aac6bbb32ec32e596ee9cdfa6b583a4"
+    },
+    {
+      "path": "core/LIBRARY-RESOLUTION.md",
+      "sha256": "ac2a8edfef78f8feb1c8bc0014429f7dba60146fa3aee9ab85451cd1e659feb8"
+    }
+  ],
+  "isolatedVerification": {
+    "finalCommandCount": 9,
+    "allPassed": true,
+    "testRuns": [
+      {
+        "cmd": "BASELINE=1 node experiment/core/helper-components-test.mjs",
+        "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane",
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "9348b0",
+          "wall_time_seconds": 1.941218905,
+          "exit_code": 0,
+          "original_token_count": 112,
+          "output": "PASS baseline public mount rejects missing FormKitSummary\nPASS baseline public mount rejects missing FormKitMessages\nPASS baseline public mount rejects missing FormKitIcon\nPASS baseline ignores definition.library\n{\"mode\":\"before\",\"assertions\":[\"baseline public mount rejects missing FormKitSummary\",\"baseline public mount rejects missing FormKitMessages\",\"baseline public mount rejects missing FormKitIcon\",\"baseline ignores definition.library\"]}\n"
+        }
+      },
+      {
+        "cmd": "node core/helper-components-test.mjs",
+        "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/experiment",
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "8514fd",
+          "wall_time_seconds": 3.216623404,
+          "exit_code": 0,
+          "original_token_count": 607,
+          "output": "PASS public mount registers FormKitMessages with teardown\nPASS public mount registers FormKitIcon with teardown\nPASS summary forceShow respects actual validation visibility and renders error text safely\nPASS summary follows validation updates, submit visibility, onShow and link focus navigation\nPASS summary subscribes to added descendants and drops removed descendants\nPASS messages follows add/update/remove, stable message IDs, shared placement ownership and cleanup\nPASS messages rebinds node/defaultPosition/sections and clears immediately on node destruction\nPASS destroyed summary ignores later submissions, descendant updates and queued show work\nPASS icon uses official registry and supports reactive props, keyboard clicks and listener cleanup\nPASS icon drops stale async results, handles loader rejection and ignores post-destroy completion\nPASS icon sanitizes arbitrary markup and honors explicit keyboard/role/tabindex handlers\nPASS icon honors explicit/parent loader precedence and official iconLoaderUrl resolution\nPASS summary rebinds node and sections without retaining old tree presentation\nPASS icon cancels pending rendering when its Core parent is destroyed\n{\"mode\":\"after\",\"newlySupportedComponents\":[\"FormKitSummary\",\"FormKitMessages\",\"FormKitIcon\"],\"assertions\":[\"public mount registers FormKitMessages with teardown\",\"public mount registers FormKitIcon with teardown\",\"summary forceShow respects actual validation visibility and renders error text safely\",\"summary follows validation updates, submit visibility, onShow and link focus navigation\",\"summary subscribes to added descendants and drops removed descendants\",\"messages follows add/update/remove, stable message IDs, shared placement ownership and cleanup\",\"messages rebinds node/defaultPosition/sections and clears immediately on node destruction\",\"destroyed summary ignores later submissions, descendant updates and queued show work\",\"icon uses official registry and supports reactive props, keyboard clicks and listener cleanup\",\"icon drops stale async results, handles loader rejection and ignores post-destroy completion\",\"icon sanitizes arbitrary markup and honors explicit keyboard/role/tabindex handlers\",\"icon honors explicit/parent loader precedence and official iconLoaderUrl resolution\",\"summary rebinds node and sections without retaining old tree presentation\",\"icon cancels pending rendering when its Core parent is destroyed\"]}\n"
+        }
+      },
+      {
+        "cmd": "node core/component-library-test.mjs",
+        "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/experiment",
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "a7dcb6",
+          "wall_time_seconds": 4.859090307,
+          "exit_code": 0,
+          "original_token_count": 49,
+          "output": "PASS factory libraries merge global < definition.library < field.library and reconcile replacement/removal\nPASS input slot schemas and root form sections resolve their own local factory libraries\n"
+        }
+      },
+      {
+        "cmd": "node core/test.mjs",
+        "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/experiment",
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "27f4ad",
+          "wall_time_seconds": 2.269159627,
+          "exit_code": 0,
+          "original_token_count": 182,
+          "output": "{\"passed\":true,\"checks\":[\"store batching\",\"store destruction cancels notification\",\"required validation\",\"form tag\",\"DOM/Core input\",\"focus and identity\",\"observed classes\",\"messages\",\"dynamic removal/addition\",\"reset\",\"silent closure stays stale on unrelated changes\",\"explicit render refreshes silent closure and preserves input\",\"teardown\"],\"metrics\":{\"enabled\":true,\"contextNotifications\":34,\"tokenChecks\":2156,\"expressionEvaluations\":622,\"domWrites\":106,\"structuralChanges\":91,\"coreNodesCreated\":6,\"coreNodesDestroyed\":6,\"coreInputEvents\":11,\"coreCommitEvents\":22,\"coreMessageEvents\":57,\"classRootEvaluations\":59,\"valueSnapshots\":0,\"resetComparisonSnapshots\":1,\"valueChangeEvents\":0,\"stateEvents\":26,\"facadeListeners\":0}}\n"
+        }
+      },
+      {
+        "cmd": "node core/renderer-component-input-test.mjs",
+        "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/experiment",
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "b92ff8",
+          "wall_time_seconds": 1.086495955,
+          "exit_code": 0,
+          "original_token_count": 18,
+          "output": "custom schema component factory integrates with node input and teardown\n"
+        }
+      },
+      {
+        "cmd": "node core/renderer-breadth-test.mjs",
+        "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/experiment",
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "877deb",
+          "wall_time_seconds": 1.267950984,
+          "exit_code": 0,
+          "original_token_count": 57,
+          "output": "renderer breadth: 3-part/object/numeric loops, dynamic tags, recursive attrs, icons, Boolean properties, text and teardown passed\ncomponent registry lifecycle, reactive props, child slot, and unknown-component failure passed\n"
+        }
+      },
+      {
+        "cmd": "node core/unified-schema-root-slots-test.mjs",
+        "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/experiment",
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "fcf6a4",
+          "wall_time_seconds": 2.742285644,
+          "exit_code": 0,
+          "original_token_count": 54,
+          "output": "unified schema/root slots: data, nested factories, content slots, retained DOM/Core/value, schema replacement, root redraw, callbacks, parked fields, explicit-controller compatibility and exact-once teardown passed\n"
+        }
+      },
+      {
+        "cmd": "node core/dynamic-slots-breadth-test.mjs",
+        "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/experiment",
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "5dd798",
+          "wall_time_seconds": 2.705969135,
+          "exit_code": 0,
+          "original_token_count": 33,
+          "output": "dynamic named slots: add, replace every repeated instance, remove, re-add, retained DOM/Core/value and component teardown passed\n"
+        }
+      },
+      {
+        "cmd": "node core/input-breadth-components.mjs",
+        "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/experiment",
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "e55b70",
+          "wall_time_seconds": 1.5273441380000001,
+          "exit_code": 0,
+          "original_token_count": 19,
+          "output": "PASS custom component factory mount/update/destruction through public mount\n"
+        }
+      }
+    ],
+    "patchApplication": {
+      "allSucceeded": true,
+      "combinedFilesIdentical": true,
+      "runs": [
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/application-check",
+          "command": [
+            "git",
+            "apply",
+            "--check",
+            "/workspace/scratch/ea2cded971c5/formkit-helper-lane/patches/01-new-helper-files.patch"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/application-check",
+          "command": [
+            "git",
+            "apply",
+            "/workspace/scratch/ea2cded971c5/formkit-helper-lane/patches/01-new-helper-files.patch"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/application-check",
+          "command": [
+            "git",
+            "apply",
+            "--check",
+            "/workspace/scratch/ea2cded971c5/formkit-helper-lane/patches/02-helper-registration.patch"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/application-check",
+          "command": [
+            "git",
+            "apply",
+            "/workspace/scratch/ea2cded971c5/formkit-helper-lane/patches/02-helper-registration.patch"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/application-check",
+          "command": [
+            "node",
+            "core/helper-components-test.mjs"
+          ],
+          "exitCode": 0,
+          "stdout": "PASS public mount registers FormKitMessages with teardown\nPASS public mount registers FormKitIcon with teardown\nPASS summary forceShow respects actual validation visibility and renders error text safely\nPASS summary follows validation updates, submit visibility, onShow and link focus navigation\nPASS summary subscribes to added descendants and drops removed descendants\nPASS messages follows add/update/remove, stable message IDs, shared placement ownership and cleanup\nPASS messages rebinds node/defaultPosition/sections and clears immediately on node destruction\nPASS destroyed summary ignores later submissions, descendant updates and queued show work\nPASS icon uses official registry and supports reactive props, keyboard clicks and listener cleanup\nPASS icon drops stale async results, handles loader rejection and ignores post-destroy completion\nPASS icon sanitizes arbitrary markup and honors explicit keyboard/role/tabindex handlers\nPASS icon honors explicit/parent loader precedence and official iconLoaderUrl resolution\nPASS summary rebinds node and sections without retaining old tree presentation\nPASS icon cancels pending rendering when its Core parent is destroyed\n{\"mode\":\"after\",\"newlySupportedComponents\":[\"FormKitSummary\",\"FormKitMessages\",\"FormKitIcon\"],\"assertions\":[\"public mount registers FormKitMessages with teardown\",\"public mount registers FormKitIcon with teardown\",\"summary forceShow respects actual validation visibility and renders error text safely\",\"summary follows validation updates, submit visibility, onShow and link focus navigation\",\"summary subscribes to added descendants and drops removed descendants\",\"messages follows add/update/remove, stable message IDs, shared placement ownership and cleanup\",\"messages rebinds node/defaultPosition/sections and clears immediately on node destruction\",\"destroyed summary ignores later submissions, descendant updates and queued show work\",\"icon uses official registry and supports reactive props, keyboard clicks and listener cleanup\",\"icon drops stale async results, handles loader rejection and ignores post-destroy completion\",\"icon sanitizes arbitrary markup and honors explicit keyboard/role/tabindex handlers\",\"icon honors explicit/parent loader precedence and official iconLoaderUrl resolution\",\"summary rebinds node and sections without retaining old tree presentation\",\"icon cancels pending rendering when its Core parent is destroyed\"]}\n",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/application-check",
+          "command": [
+            "git",
+            "apply",
+            "--check",
+            "/workspace/scratch/ea2cded971c5/formkit-helper-lane/patches/03-new-library-files.patch"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/application-check",
+          "command": [
+            "git",
+            "apply",
+            "/workspace/scratch/ea2cded971c5/formkit-helper-lane/patches/03-new-library-files.patch"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/application-check",
+          "command": [
+            "git",
+            "apply",
+            "--check",
+            "/workspace/scratch/ea2cded971c5/formkit-helper-lane/patches/04-library-resolution.patch"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/application-check",
+          "command": [
+            "git",
+            "apply",
+            "/workspace/scratch/ea2cded971c5/formkit-helper-lane/patches/04-library-resolution.patch"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/application-check",
+          "command": [
+            "node",
+            "core/component-library-test.mjs"
+          ],
+          "exitCode": 0,
+          "stdout": "PASS factory libraries merge global < definition.library < field.library and reconcile replacement/removal\nPASS input slot schemas and root form sections resolve their own local factory libraries\n",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/library-only-check",
+          "command": [
+            "git",
+            "apply",
+            "--check",
+            "/workspace/scratch/ea2cded971c5/formkit-helper-lane/patches/03-new-library-files.patch"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/library-only-check",
+          "command": [
+            "git",
+            "apply",
+            "/workspace/scratch/ea2cded971c5/formkit-helper-lane/patches/03-new-library-files.patch"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/library-only-check",
+          "command": [
+            "git",
+            "apply",
+            "--check",
+            "/workspace/scratch/ea2cded971c5/formkit-helper-lane/patches/05-library-resolution-without-helpers.patch"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/library-only-check",
+          "command": [
+            "git",
+            "apply",
+            "/workspace/scratch/ea2cded971c5/formkit-helper-lane/patches/05-library-resolution-without-helpers.patch"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "cwd": "/workspace/scratch/ea2cded971c5/formkit-helper-lane/library-only-check",
+          "command": [
+            "node",
+            "core/component-library-test.mjs"
+          ],
+          "exitCode": 0,
+          "stdout": "PASS factory libraries merge global < definition.library < field.library and reconcile replacement/removal\nPASS input slot schemas and root form sections resolve their own local factory libraries\n",
+          "stderr": ""
+        }
+      ]
+    }
+  },
+  "intentionalPortableDifferences": [
+    "Summary link DOM IDs are uniquely prefixed to avoid colliding with field message IDs.",
+    "Messages supplies field IDs and restores shared default-message placement ownership on disposal.",
+    "Icon SVG is conservatively parsed/filtered rather than accepting upstream arbitrary trusted raw HTML.",
+    "Framework component objects, Vue injection/refs/emits and native framework slots need explicit adapters."
+  ],
+  "limits": [
+    "Focused JSDOM evidence only; no complete Vue/React per-prop parity claim.",
+    "No new Pro family or input kind claimed.",
+    "No real-browser scrolling, accessibility certification or geometry evidence.",
+    "Shared upstream icon requests are not aborted; owned rendering is canceled.",
+    "General stale node.props.library removal is outside this resolver patch; latest field spec controls rendering."
+  ]
+}

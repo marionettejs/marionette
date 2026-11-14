@@ -1,0 +1,376 @@
+{
+  "scope": "Matching installed Vue/React/adapter free fixtures and explicitly recorded binding differences; not a parity percentage",
+  "apparatus": {
+    "node": "v24.22.1",
+    "platform": "linux",
+    "arch": "x64",
+    "domBootstrap": "Delegates getComputedStyle to the window created by each test, for older fixtures predating the official theme plugin. No layout/resize/canvas shims supplied by this runner."
+  },
+  "runtimeSha256": {
+    "core/index.mjs": "f8df618832b1f2cbd952b608d34392716339eddc0228db609bf4c258bec5b460",
+    "core/native-types.mjs": "62099c0812d6f637ff3a2af5ef951240588b5472b41cfd6c0f0122e09816c40f",
+    "core/value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba",
+    "core/upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+    "core/section-renderer.mjs": "b735181a1049ecccbbd020bdbe4e3453678c4d3eea924c3782adf92642458a16",
+    "core/root-slots.mjs": "2074e8571b2c81cf20e39e887dd11c961efc75dfbfa36c00826b44f6d313ccc4",
+    "core/schema-layout.mjs": "c8a9b2163898dd556a17cad68e79989c4869cc5bed31cef0c1a8a1c952ef8d9a",
+    "core/schema.mjs": "3288f5a5846d329c598270b9d98ab8c1b4bf8a65b7919087bb6a69a50f571478",
+    "core/schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+    "core/submission-controller.mjs": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968"
+  },
+  "tests": [
+    {
+      "file": "core/native-breadth-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"defaults\":[{\"type\":\"email\",\"dom\":\"\"},{\"type\":\"password\",\"dom\":\"\"},{\"type\":\"search\",\"dom\":\"\"},{\"type\":\"tel\",\"dom\":\"\"},{\"type\":\"url\",\"dom\":\"\"},{\"type\":\"number\",\"dom\":\"\"},{\"type\":\"date\",\"dom\":\"\"},{\"type\":\"time\",\"dom\":\"\"},{\"type\":\"datetime-local\",\"dom\":\"\"},{\"type\":\"month\",\"dom\":\"\"},{\"type\":\"week\",\"dom\":\"\"},{\"type\":\"color\",\"dom\":\"#000000\"},{\"type\":\"range\",\"dom\":\"50\"},{\"type\":\"hidden\",\"dom\":\"\"}],\"limits\":\"JSDOM sanitization only; native browser gate pending. Number conversion opt-in, not automatic by type.\"}\n"
+    },
+    {
+      "file": "core/native-breadth-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"defaults\":[{\"type\":\"email\",\"dom\":\"\"},{\"type\":\"password\",\"dom\":\"\"},{\"type\":\"search\",\"dom\":\"\"},{\"type\":\"tel\",\"dom\":\"\"},{\"type\":\"url\",\"dom\":\"\"},{\"type\":\"number\",\"dom\":\"\"},{\"type\":\"date\",\"dom\":\"\"},{\"type\":\"time\",\"dom\":\"\"},{\"type\":\"datetime-local\",\"dom\":\"\"},{\"type\":\"month\",\"dom\":\"\"},{\"type\":\"week\",\"dom\":\"\"},{\"type\":\"color\",\"dom\":\"#000000\"},{\"type\":\"range\",\"dom\":\"50\"},{\"type\":\"hidden\",\"dom\":\"\"}],\"limits\":\"JSDOM sanitization only; native browser gate pending. Number conversion opt-in, not automatic by type.\"}\n"
+    },
+    {
+      "file": "core/native-breadth-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"defaults\":[{\"type\":\"email\",\"dom\":\"\"},{\"type\":\"password\",\"dom\":\"\"},{\"type\":\"search\",\"dom\":\"\"},{\"type\":\"tel\",\"dom\":\"\"},{\"type\":\"url\",\"dom\":\"\"},{\"type\":\"number\",\"dom\":\"\"},{\"type\":\"date\",\"dom\":\"\"},{\"type\":\"time\",\"dom\":\"\"},{\"type\":\"datetime-local\",\"dom\":\"\"},{\"type\":\"month\",\"dom\":\"\"},{\"type\":\"week\",\"dom\":\"\"},{\"type\":\"color\",\"dom\":\"#000000\"},{\"type\":\"range\",\"dom\":\"50\"},{\"type\":\"hidden\",\"dom\":\"\"}],\"limits\":\"JSDOM sanitization only; native browser gate pending. Number conversion opt-in, not automatic by type.\"}\n"
+    },
+    {
+      "file": "core/select-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"placeholder default\",\"external typed value\",\"native input numeric value\",\"options reorder preserves selected value/node/element\",\"reset\"],\"limits\":[\"JSDOM not real keyboard/browser\"]}\n"
+    },
+    {
+      "file": "core/select-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"placeholder default\",\"external typed value\",\"native input numeric value\",\"options reorder preserves selected value/node/element\",\"reset\"],\"limits\":[\"JSDOM not real keyboard/browser\"]}\n"
+    },
+    {
+      "file": "core/select-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"placeholder default\",\"external typed value\",\"native input numeric value\",\"options reorder preserves selected value/node/element\",\"reset\"],\"limits\":[\"JSDOM not real keyboard/browser\"]}\n"
+    },
+    {
+      "file": "core/textarea-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"nested group/text composition\",\"absent default and required validation\",\"multiline native input\",\"external value\",\"label/help/error ID references\",\"live rows/cols/maxlength/disabled\",\"node/control identity\",\"reset\",\"cleanup\"],\"limits\":[\"JSDOM, not native browser keyboard\"]}\n"
+    },
+    {
+      "file": "core/textarea-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"nested group/text composition\",\"absent default and required validation\",\"multiline native input\",\"external value\",\"label/help/error ID references\",\"live rows/cols/maxlength/disabled\",\"node/control identity\",\"reset\",\"cleanup\"],\"limits\":[\"JSDOM, not native browser keyboard\"]}\n"
+    },
+    {
+      "file": "core/textarea-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"nested group/text composition\",\"absent default and required validation\",\"multiline native input\",\"external value\",\"label/help/error ID references\",\"live rows/cols/maxlength/disabled\",\"node/control identity\",\"reset\",\"cleanup\"],\"limits\":[\"JSDOM, not native browser keyboard\"]}\n"
+    },
+    {
+      "file": "core/option-value-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"placeholder default\",\"external typed value\",\"native input numeric value\",\"options reorder preserves selected value/node/element\",\"reset\"],\"limits\":[\"JSDOM not real keyboard/browser\"]}\n"
+    },
+    {
+      "file": "core/option-value-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"placeholder default\",\"external typed value\",\"native input numeric value\",\"options reorder preserves selected value/node/element\",\"reset\"],\"limits\":[\"JSDOM not real keyboard/browser\"]}\n"
+    },
+    {
+      "file": "core/option-value-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"placeholder default\",\"external typed value\",\"native input numeric value\",\"options reorder preserves selected value/node/element\",\"reset\"],\"limits\":[\"JSDOM not real keyboard/browser\"]}\n"
+    },
+    {
+      "file": "core/default-props-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"nested group/text composition\",\"absent default and required validation\",\"multiline native input\",\"external value\",\"label/help/error ID references\",\"live rows/cols/maxlength/disabled\",\"node/control identity\",\"reset\",\"cleanup\"],\"limits\":[\"JSDOM, not native browser keyboard\"]}\n"
+    },
+    {
+      "file": "core/default-props-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"nested group/text composition\",\"absent default and required validation\",\"multiline native input\",\"external value\",\"label/help/error ID references\",\"live rows/cols/maxlength/disabled\",\"node/control identity\",\"reset\",\"cleanup\"],\"limits\":[\"JSDOM, not native browser keyboard\"]}\n"
+    },
+    {
+      "file": "core/default-props-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"nested group/text composition\",\"absent default and required validation\",\"multiline native input\",\"external value\",\"label/help/error ID references\",\"live rows/cols/maxlength/disabled\",\"node/control identity\",\"reset\",\"cleanup\"],\"limits\":[\"JSDOM, not native browser keyboard\"]}\n"
+    },
+    {
+      "file": "core/prop-alias-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"definition aliases\",\"group disabled inheritance\",\"explicit prop precedence\",\"notified alias changes\",\"retained input\",\"caller ownership\"],\"note\":\"Vue/React bindings receive canonical props; alternate public attrs aliases follow Core addProps canonicalization\"}\n"
+    },
+    {
+      "file": "core/prop-alias-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"definition aliases\",\"group disabled inheritance\",\"explicit prop precedence\",\"notified alias changes\",\"retained input\",\"caller ownership\"],\"note\":\"Vue/React bindings receive canonical props; alternate public attrs aliases follow Core addProps canonicalization\"}\n"
+    },
+    {
+      "file": "core/prop-alias-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "failed",
+      "exitCode": 1,
+      "signal": null,
+      "output": "file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/prop-alias-parity.mjs:26\nasync function until(fn){const end=Date.now()+2000;while(Date.now()<end){if(fn())return;await new Promise(r=>setTimeout(r,10));}throw Error('Unsettled alias fixture');}\n                                                                                                                                      ^\n\nError: Unsettled alias fixture\n    at until (file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/prop-alias-parity.mjs:26:135)\n    at async file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/prop-alias-parity.mjs:31:14\n\nNode.js v24.22.1\n"
+    },
+    {
+      "file": "core/schema-nested-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"real nested schema controls\",\"expression label/disabled\",\"conditional child ownership\",\"retained node/DOM/edit\",\"typed select\",\"reset\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-nested-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"real nested schema controls\",\"expression label/disabled\",\"conditional child ownership\",\"retained node/DOM/edit\",\"typed select\",\"reset\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-nested-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"real nested schema controls\",\"expression label/disabled\",\"conditional child ownership\",\"retained node/DOM/edit\",\"typed select\",\"reset\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-layout-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "vue genuine layout/native child/conditional/identity cleanup passed\n"
+    },
+    {
+      "file": "core/schema-layout-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "react genuine layout/native child/conditional/identity cleanup passed\n"
+    },
+    {
+      "file": "core/schema-layout-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "experiment genuine layout/native child/conditional/identity cleanup passed\n"
+    },
+    {
+      "file": "core/schema-native-layout-test.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"mixed native group/list DOM and text\",\"no phantom Core nodes\",\"native value topology\",\"aggregate validation\",\"data update\",\"anonymous keyed node/DOM identity\",\"keyed DOM reorder\",\"conditional and row removal\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-native-layout-test.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"mixed native group/list DOM and text\",\"no phantom Core nodes\",\"native value topology\",\"aggregate validation\",\"data update\",\"anonymous keyed node/DOM identity\",\"keyed DOM reorder\",\"conditional and row removal\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-native-layout-test.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"mixed native group/list DOM and text\",\"no phantom Core nodes\",\"native value topology\",\"aggregate validation\",\"data update\",\"anonymous keyed node/DOM identity\",\"keyed DOM reorder\",\"conditional and row removal\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/prop-removal-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"mode\":\"vue\",\"initial\":{\"caption\":\"ONE\",\"renderedCaption\":\"ONE\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"updated\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"omitted\":{\"renderedCaption\":\"undefined\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"en\"},\"explicitUndefined\":{\"renderedCaption\":\"undefined\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"fr\"},\"status\":\"passed\"}\n"
+    },
+    {
+      "file": "core/prop-removal-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"mode\":\"react\",\"initial\":{\"caption\":\"ONE\",\"renderedCaption\":\"ONE\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"updated\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"omitted\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":null,\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"en\"},\"explicitUndefined\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":null,\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"fr\"},\"status\":\"passed\"}\n"
+    },
+    {
+      "file": "core/prop-removal-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"mode\":\"experiment\",\"initial\":{\"caption\":\"ONE\",\"renderedCaption\":\"ONE\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"updated\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"omitted\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":null,\"customClass\":false,\"disabled\":false,\"delay\":0,\"locale\":\"en\"},\"explicitUndefined\":{\"renderedCaption\":\"\",\"title\":null,\"customClass\":false,\"disabled\":false,\"delay\":0,\"locale\":\"fr\"},\"status\":\"passed\"}\n"
+    },
+    {
+      "file": "core/checkbox-prop-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"results\":[{\"value\":\"YES\",\"checked\":true,\"on\":\"YES\",\"off\":\"NO\"},{\"value\":\"YES\",\"checked\":false,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"Y\",\"checked\":true,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"Y\",\"checked\":false,\"on\":\"[undefined]\",\"off\":\"[undefined]\"},{\"value\":\"[undefined]\",\"checked\":true,\"on\":\"[undefined]\",\"off\":\"[undefined]\"}]}\n"
+    },
+    {
+      "file": "core/checkbox-prop-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"results\":[{\"value\":\"YES\",\"checked\":true,\"on\":\"YES\",\"off\":\"NO\"},{\"value\":\"YES\",\"checked\":false,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"Y\",\"checked\":true,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"Y\",\"checked\":true,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"N\",\"checked\":false,\"on\":\"Y\",\"off\":\"N\"}]}\n"
+    },
+    {
+      "file": "core/class-config-parity.mjs",
+      "args": [
+        "core"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"mode\":\"core\",\"initial\":\"initial\",\"local\":\"local\",\"replaced\":\"replaced\",\"localAfterParentReplacement\":\"local\",\"late\":\"replaced\",\"fieldReplacement\":\"fieldReplacement\",\"status\":\"passed\"}\n"
+    },
+    {
+      "file": "core/class-config-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"mode\":\"vue\",\"initial\":\"formkit-input initial\",\"local\":\"formkit-input local\",\"replaced\":\"formkit-input replaced\",\"localAfterParentReplacement\":\"formkit-input local\",\"late\":\"formkit-input replaced\",\"fieldReplacement\":\"formkit-input fieldReplacement\",\"status\":\"passed\"}\n"
+    },
+    {
+      "file": "core/class-config-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"mode\":\"react\",\"initial\":\"formkit-input initial\",\"local\":\"formkit-input local\",\"replaced\":\"formkit-input initial\",\"localAfterParentReplacement\":\"formkit-input local\",\"parentReplacementDivergence\":\"React 2.5 retains cached classes\",\"late\":\"formkit-input replaced\",\"fieldReplacement\":\"formkit-input initial\",\"fieldReplacementDivergence\":\"React 2.5 retains cached classes\",\"status\":\"passed\"}\n"
+    }
+  ],
+  "passed": 34,
+  "failed": 1,
+  "runtimeUnchanged": true
+}

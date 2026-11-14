@@ -1,1 +1,1 @@
-{"private":true,"type":"module","dependencies":{"@formkit/react":"2.5.0","@formkit/themes":"2.5.0","@formkit/vue":"2.5.0","esbuild":"0.25.12","jsdom":"27.0.1","marionette":"5.0.0","react":"19.2.0","react-dom":"19.2.0","vue":"3.5.44"}}
+{"private":true,"type":"module","dependencies":{"@formkit/addons":"2.5.0","@formkit/barcode":"1.1.0","@formkit/react":"2.5.0","@formkit/themes":"2.5.0","@formkit/vue":"2.5.0","@formkit/zod":"2.5.0","esbuild":"0.25.12","jsdom":"27.0.1","marionette":"5.1.1","react":"19.2.0","react-dom":"19.2.0","vue":"3.5.44","zod":"3.25.76"}}

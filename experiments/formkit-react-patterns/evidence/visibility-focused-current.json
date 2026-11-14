@@ -1,0 +1,52 @@
+[
+  {
+    "name": "adapter-frozen",
+    "exitCode": 0,
+    "output": "{\"arm\":\"adapter\",\"checks\":12,\"errors\":[]}\n"
+  },
+  {
+    "name": "adapter-proposal",
+    "exitCode": 0,
+    "output": "{\"arm\":\"adapter\",\"checks\":12,\"errors\":[]}\n"
+  },
+  {
+    "name": "react",
+    "exitCode": 0,
+    "output": "{\"arm\":\"react\",\"checks\":12,\"errors\":[]}\n"
+  },
+  {
+    "name": "vue",
+    "exitCode": 0,
+    "output": "{\"arm\":\"vue\",\"checks\":12,\"errors\":[]}\n"
+  },
+  {
+    "name": "Core",
+    "exitCode": 0,
+    "output": "{\"version\":\"2.5.0\",\"scope\":\"Pure public Core getter/config/prop event behavior, no framework renderer\",\"states\":[{\"stage\":\"inherited-group\",\"effective\":\"dirty\",\"own\":false,\"config\":\"dirty\",\"events\":[]},{\"stage\":\"explicit\",\"effective\":\"live\",\"own\":true,\"config\":\"dirty\",\"events\":[{\"type\":\"string\",\"value\":\"live\"}]},{\"stage\":\"assigned-undefined\",\"own\":true,\"config\":\"dirty\",\"events\":[{\"type\":\"string\",\"value\":\"live\"},{\"type\":\"undefined\"}]},{\"stage\":\"deleted-no-notification\",\"effective\":\"dirty\",\"own\":false,\"config\":\"dirty\",\"events\":[{\"type\":\"string\",\"value\":\"live\"},{\"type\":\"undefined\"}]},{\"stage\":\"inherited-config-change\",\"effective\":\"blur\",\"own\":false,\"config\":\"blur\",\"events\":[{\"type\":\"string\",\"value\":\"live\"},{\"type\":\"undefined\"},{\"type\":\"string\",\"value\":\"blur\"}]}]}\n"
+  },
+  {
+    "name": "17 assertions",
+    "exitCode": 0,
+    "output": "{\"passed\":true,\"checks\":[\"default-text matches both official adapters\",\"default-checkbox matches both official adapters\",\"root-blur-dirty matches both official adapters\",\"group-dirty-over-root-blur matches both official adapters\",\"list-blur-over-root-live matches both official adapters\",\"explicit-live matches both official adapters\",\"explicit-blur-shields-root-live matches both official adapters\",\"dynamic-inherited-config matches both official adapters\",\"unknown-config-mode matches both official adapters\",\"array-config-modes matches both official adapters\",\"remove-prop-override restores inheritance and follows later parent change\",\"remove-prop-override-to-type-default restores inheritance and follows later parent change\",\"frozen bug reproduced\",\"group omitted prop restores parent config and future inherited behavior\",\"list explicit undefined restores parent config and future inherited behavior\",\"text override removal restores type-default visibility behavior\",\"checkbox override removal restores type-default visibility behavior\"],\"scope\":\"Focused JSDOM/Core and actual pinned Vue/React comparison; no browser/performance or generic config-object-removal claim\"}\n"
+  },
+  {
+    "name": "13 ownership assertions",
+    "exitCode": 0,
+    "output": "{\"passed\":true,\"count\":13,\"checks\":[{\"name\":\"onNode submit survives initial render, blur and unrelated update\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"plugin submit survives creation, blur and unrelated update\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"direct undefined construction omits own visibility and preserves plugin\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"attrs undefined construction omits own visibility and preserves plugin\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"later plugin replacement survives explicit declaration removal\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"unchanged declarative mode does not reclaim runtime replacement\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"changed declaration reclaims mode then removal restores inheritance\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":false,\"messages\":0}},{\"name\":\"attrs declaration removal restores inheritance and later config\",\"passed\":true,\"state\":{\"mode\":\"dirty\",\"own\":false,\"messages\":0}},{\"name\":\"onNode replacement wins over initial explicit declaration\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"definition props with undefined construction preserve feature mode\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"plugin replacement during explicit update retains runtime ownership\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"runtime round-trip to prior declared value retains runtime ownership\",\"passed\":true,\"state\":{\"mode\":\"live\",\"own\":true,\"messages\":1}},{\"name\":\"in-place declaration mutation tracks prior declared value\",\"passed\":true,\"state\":{\"mode\":\"blur dirty\",\"own\":false,\"messages\":0}}]}\n"
+  },
+  {
+    "name": "adapter ownership peer",
+    "exitCode": 0,
+    "output": "{\"arm\":\"adapter\",\"passed\":true,\"states\":[{\"stage\":\"initial\",\"mode\":\"submit\",\"own\":true,\"messages\":0},{\"stage\":\"blur\",\"mode\":\"submit\",\"own\":true,\"messages\":0},{\"stage\":\"unrelated-update\",\"mode\":\"submit\",\"own\":true,\"messages\":0}]}\n"
+  },
+  {
+    "name": "react ownership peer",
+    "exitCode": 0,
+    "output": "{\"arm\":\"react\",\"passed\":true,\"states\":[{\"stage\":\"initial\",\"mode\":\"submit\",\"own\":true,\"messages\":0},{\"stage\":\"blur\",\"mode\":\"submit\",\"own\":true,\"messages\":0},{\"stage\":\"unrelated-update\",\"mode\":\"submit\",\"own\":true,\"messages\":0}]}\n"
+  },
+  {
+    "name": "vue ownership peer",
+    "exitCode": 0,
+    "output": "{\"arm\":\"vue\",\"passed\":true,\"states\":[{\"stage\":\"initial\",\"mode\":\"submit\",\"own\":true,\"messages\":0},{\"stage\":\"blur\",\"mode\":\"submit\",\"own\":true,\"messages\":0},{\"stage\":\"unrelated-update\",\"mode\":\"submit\",\"own\":true,\"messages\":0}]}\n"
+  }
+]

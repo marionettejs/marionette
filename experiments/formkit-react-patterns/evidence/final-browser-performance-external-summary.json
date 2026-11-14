@@ -1,0 +1,80 @@
+{
+  "artifactReference": {
+    "library_file_id": "libfile_fde3_f-711feab944508191bd365dec05e3db42_3633c514934c8191a03706259b76dd26",
+    "file_id": "file_000000002f8081f5ab12ceb65b53a13e",
+    "sha256": "b5726a4157ee11d5b42245ea9813401100e6e38b95d02704412bb5439e549312"
+  },
+  "baseline": {
+    "head": "599070857540addee34f5d83319923407667aea8",
+    "implementation": "907118295aa278cf4b81aec891bd5be00be2a5a3",
+    "sourceSha256": "b16ab68ac1073427732a7f1343640c4612f35b3e8c02624a7f4c30fedc4cc166",
+    "sourceBytes": 3064344,
+    "originalVerifiedMembers": 227,
+    "originalAllHashesVerifiedAgain": true,
+    "runtimeNote": "Only isolated test dependencies changed package/lock files. All baseline core source members used by the comparison verify against supplied source hashes. Benchmark build resolves shared packages through its own pinned tree."
+  },
+  "factoryQA": {
+    "exactSource": {
+      "passed": 17,
+      "failed": [
+        "schema-memo-update",
+        "schema-svg-namespace"
+      ],
+      "created": 66,
+      "destroyed": 66
+    },
+    "isolatedProposal": {
+      "passed": 19,
+      "failed": [],
+      "created": 60,
+      "destroyed": 60,
+      "cameraCalls": 0
+    },
+    "officialPeers": "Both Vue and React retain Core node, edited value Kept and DOM for the literal Schema replacement; both produce real SVGSVGElement and SVGPathElement on the valid array-child schema."
+  },
+  "patches": [
+    {
+      "files": [
+        "core/index.mjs",
+        "core/provider-scope.mjs",
+        "core/schema-layout.mjs"
+      ],
+      "behavior": "Mark the built-in FormKit factory and project ordinary literal FormKit props into the native schema owner map. Retain fields and edited values on Schema/memo replacement. Preserve own/non-enumerable prop getters and expression/loop scopes. Custom factories remain opaque.",
+      "limits": "Expression-bound whole prop bags, bind declarations, overridden factories and opaque provider-containing sibling scopes retain their existing factory lifecycle; arbitrary replacement of opaque private component state is not claimed."
+    },
+    {
+      "files": [
+        "core/section-renderer.mjs"
+      ],
+      "behavior": "Create SVG elements with the SVG namespace, inherit that namespace below SVG parents, and resume HTML below foreignObject. Basic nested SVG/path browser case verified; no blanket XML/MathML support claim."
+    }
+  ],
+  "reportedComparisonCounts": {
+    "correctnessGates": 6,
+    "measuredSequences": 72,
+    "warmups": 216,
+    "source": "5990708 only"
+  },
+  "inputTimingValidity": "INVALIDATED by independent missing capture:true audit;corrected harness/evidence is owned by licensed browser task. No input timing or post-fix timing claim accepted here.",
+  "retentionFindings": {
+    "fiftyCycleStudy": "All arms reached zero live owned Core nodes/controls on each destroy. Mixed Pro numeric heap, DOM and listener counters nevertheless grow; no leak-free claim. Native control follow-up shows zero DOM growth.",
+    "transferlist": "Five isolated transferlist mounts add five document mousemove callbacks in every binding; native text adds none. Same generated callback source-maps to official @formkit/pro/index.mjs line48 column27983. Function behavior uses transferlist hover coordinates and registers a document listener; no licensed source is reproduced. Removing transferlist eliminates this callback growth but not all mixed-form DOM retention.",
+    "colorpicker": "Three isolated colorpicker mounts retain detached DOM in all three bindings after explicit GC and a two-second wait: adapter +201 nodes, Vue +81, React +33. Core creation/destruction balances. This is a separate retention finding; no definitive retaining path without additional analysis. Do not revert subtree-ancestry cleanup blindly: earlier actual Pro canvas teardown failures motivated it.",
+    "other": "Individual adapter-only family isolation shows zero retained DOM growth for the other twelve families in this three-cycle fixture, except transferlist +6. Repeater/taglist listener counters also increase without DOM growth; not fully attributed. Small fixed securitypolicyviolation instrumentation listener can appear after Pro initialization.",
+    "debuggerCaveat": "First broad retention follow-up did not explicitly release individual listener remote handles. Do not use its delayed-GC result alone. Dedicated transferlist, colorpicker, ablation and individual-family probes explicitly release those handles; original fifty-cycle study has no global-listener debugger handles.",
+    "recommendedAction": "Keep Pro transferlist retention as an upstream package issue pending a supported disposer/fix. No global event monkeypatch, licensed-source modification or upstream post was made. Colorpicker retaining path remains open."
+  },
+  "profiling": {
+    "scope": "Separate CPU profiles of twelve mixed-form updates/resets, three warmups; not latency samples or full lifecycle CPU.",
+    "observed": "Adapter section-renderer sampled self CPU ~91.9ms, including read(path) ~27.7ms and dependency checks/attributes. This identifies a potential optimization area, not evidence that guards can safely be removed.",
+    "proposal": "Preserve dependency/bag mutation checks. A separately controlled path-resolution optimization could be evaluated later; no speculative cache, guard removal or benchmark-only fast path added.",
+    "additionalConcreteInefficiency": "Changing both Schema library and memo in one update causes two presentation rebuilds in the current public fixture (destroy callback count2). Native owners retain identity. Transactional component-prop updates are worth a focused correctness/efficiency follow-up; no unmeasured runtime rewrite included.",
+    "mapping": "Source maps omit sourcesContent. Supplied analysis maps sampled self locations, keeps idle/program/GC separate. FormKit package category includes the binding packages; it is not entirely common Core work."
+  },
+  "knownLimits": [
+    "Pro incremental native mask typing and colorpicker ARIA attribute issue were reproduced in official React in prior task runs; no blanket mask editing/a11y parity claim.",
+    "No real camera access, permission grant, Mac work, production writes, merge, publishing, key copying or security changes.",
+    "Parent is integrating newer lazy exception/reverse-inheritance fixes. Those future changes are excluded from this exact-snapshot study and should be validated separately."
+  ],
+  "currentSourceBoundary": "The supplied4-file patch was reconciled with additional provider/slot fixes;its isolated19/19 QA and baseline performance do not attest current combined source."
+}

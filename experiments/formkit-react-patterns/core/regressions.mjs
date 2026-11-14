@@ -4,7 +4,7 @@ const dom = new JSDOM('<!doctype html><body><div id="one"></div><div id="two"></
 for (const name of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver']) globalThis[name] = dom.window[name];
 const { mount, ExperimentalFormView } = await import('./index.mjs');
 const tick = () => new Promise(resolve => setTimeout(resolve,25));
-const one=mount({instrument:true,host:document.querySelector('#one'),count:2}),two=mount({instrument:true,host:document.querySelector('#two'),count:2});
+const one=mount({instrument:true,host:document.querySelector('#one'),count:2,config:{validationVisibility:'live'}}),two=mount({instrument:true,host:document.querySelector('#two'),count:2,config:{validationVisibility:'live'}});
 await tick();
 const ids=[...document.querySelectorAll('[id]')].map(el=>el.id); assert.equal(new Set(ids).size,ids.length);
 for (const input of document.querySelectorAll('input')) {

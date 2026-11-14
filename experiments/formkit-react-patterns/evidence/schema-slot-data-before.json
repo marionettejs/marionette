@@ -1,0 +1,8 @@
+{
+  "sourceCommit": "599070857540addee34f5d83319923407667aea8",
+  "snapshotSha256": "b16ab68ac1073427732a7f1343640c4612f35b3e8c02624a7f4c30fedc4cc166",
+  "sameRegressionSourceSha256": "6b87e321a40004b446e5190d2f51754daeb7b78d31dccafcce3978e453ff0847",
+  "exitCode": 1,
+  "stdout": "",
+  "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Schema slots must read replacement data and remove omitted keys\n+ actual - expected\n\n  [\n+   'Old: Changed!',\n+   'Old: Updated!'\n-   'New: Changed',\n-   'New: Updated'\n  ]\n\n    at file:///workspace/scratch/ea2cded971c5/formkit-free-verification/schema-slot-baseline/core/schema-slot-data-test.mjs:10:126 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: [ 'Old: Changed!', 'Old: Updated!' ],\n  expected: [ 'New: Changed', 'New: Updated' ],\n  operator: 'deepStrictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+}

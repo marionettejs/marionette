@@ -1,0 +1,66 @@
+{
+  "tests": [
+    {
+      "file": "core/provider-inheritance-transition-test.mjs",
+      "args": [
+        "adapter"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"afterInherited\":{\"hasChild\":true,\"moduleCompleted\":0,\"factories\":0},\"afterModule\":{\"hasChild\":true,\"source\":\"inherited\",\"factories\":0},\"referenceDifference\":\"React replacement provider supplies inherited options before pending module finishes\",\"scope\":\"Controlled import;no browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/provider-inheritance-transition-test.mjs",
+      "args": [
+        "react"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"react\",\"afterInherited\":{\"hasChild\":true,\"moduleCompleted\":0,\"factories\":0},\"afterModule\":{\"hasChild\":true,\"source\":\"inherited\",\"factories\":1},\"referenceDifference\":\"React replacement provider supplies inherited options before pending module finishes\",\"scope\":\"Controlled import;no browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/provider-inheritance-transition-test.mjs",
+      "args": [
+        "vue"
+      ],
+      "exitCode": 0,
+      "stdout": "<Suspense> is an experimental feature and its API will likely change.\n{\"passed\":true,\"arm\":\"vue\",\"afterInherited\":{\"hasChild\":false,\"moduleCompleted\":0,\"factories\":0},\"afterModule\":{\"hasChild\":true,\"source\":\"module\",\"factories\":1},\"referenceDifference\":\"Vue captures provider config during setup;replacement stays on loader\",\"scope\":\"Controlled import;no browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/nested-provider-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"actual Vue/React nested precedence: outer common definition/locale/classes, inner delay/unique definition/plugin; inherited Lazy bypass; one Core form, initial values, validation and exact cleanup\",\"opaque provider inside projected native group preserves one parent/value/validation owner and schema-removal cleanup\",\"true same-form Lazy function/object/namespace loading holds only descendants, retains siblings and hydrates delayed initial values\",\"schema removal and form destruction cancel pending Application before late factory/Core work\",\"async rejection is observable on owning View; public Application restart retries without replacing the form\",\"defaultConfig:false passes raw scoped plugins while keeping actual inherited parent validation\",\"replacement options apply to newly mounted descendants and retain existing Core identity/value\",\"opaque provider aliases inside keyed loops retain lexical data, Core identity and exact cleanup\",\"active Application reload retains existing descendants and value, scopes future children, and tears down every Core node once\",\"public mount preserves explicitly prepared Application provider scope and inherited Lazy bypass\",\"direct-child props forward and update; child props/bind win, DOM descendants do not inherit, overridden refs never receive duplicate mounting\",\"changing configFile automatically reloads options through Application while retaining existing nodes and values\",\"synchronous provider siblings in a native list allocate in source order and preserve all initial list values\",\"opaque sibling scopes preserve named input slot rendering\",\"opaque provider input named slots retain and update loop-local lexical data\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/application-config-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"default export function/object and namespace config; no Core/UI before readiness; real input and owned cleanup\",\"stop/destroy cancel import preparation and prevent late factory/Core/UI work\",\"newer restart supersedes pending config and prevents stale activation\",\"initial rejection propagates without UI; retry works; active rejection retains prior View\",\"owned child Applications borrow provider scope, bypass import/defaults, share reactive root config and stop/destroy with owner\",\"cancelled consumer cannot mount after shared provider resolves and does not cancel borrowed provider\",\"defaultConfig:false uses explicit library/bindings/plugins; no default validation/native library injected\",\"synchronous mount also accepts a fully supplied pipeline\",\"public View factory override and borrowed Region ownership remain ordinary Marionette contracts\"],\"applications\":14,\"source\":\"Application.prepareStart/start/restart/stop/destroy; existing FormView/Region ownership\",\"scope\":\"Application config scope, not a Vue/React context object or schema component imitation\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/application-root-config-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"observedInitial\":{\"rootIdentity\":true,\"wrappedRoot\":false,\"locale\":\"fr\",\"childLocale\":\"fr\",\"inputClass\":\"shared-input\"},\"referenceDifference\":\"Preserves supplied Core rootConfig as React2.5 does\",\"checks\":[\"preserve supplied Core rootConfig identity\",\"initial shared locale/classes\",\"notified shared locale update with retained Core/DOM\",\"each created node destroyed once\"],\"scope\":\"Installed provider normalization counterpart; no nested-provider or browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/projected-layout-focus-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"modes\":[\"conditional\",\"reorder\"],\"checks\":[\"mixed keyed list reorder\",\"conditional insertion/removal\",\"retained Core/input/value/focus/selection without focus events\",\"nested value topology\",\"normal teardown\"],\"limits\":\"JSDOM focused regression; licensed combined browser acceptance remains separate\"}\n",
+      "stderr": ""
+    }
+  ],
+  "passed": 7,
+  "failed": 0,
+  "runtimeSha256": {
+    "core/index.mjs": "145585191fd0d458fa7f7e109fa3ddf8025a0dd06a13cd4f5b4e47ce7503ddb5",
+    "core/provider-components.mjs": "0e9e37b57887cb85a1f9c7af7f7ef0b2359f6cc1c0d3644bcc0b9749020b2c98",
+    "core/formkit-application.mjs": "6535edfb2564b057699f35b1e4f9c1b9f99d9b213f0e188f23ffb4aeb6d02238"
+  }
+}

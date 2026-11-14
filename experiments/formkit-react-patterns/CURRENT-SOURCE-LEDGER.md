@@ -1,0 +1,29 @@
+# Current component source ledger
+
+This is a fresh review branch based on verified remote `a993e4fbe8ff5d170822819f5793c5005b8daf18`, with 250 verified members from the 252-member `aef737b` component snapshot and the accepted visibility version 1 patch. Two historical scratch diagnostics were excluded. Existing remote historical files remain. This does not recover or recreate the missing original 17-commit checkout or its 91 untracked files.
+
+The complete local runtime import closure has 17 modules. The pinned package manifest matches its lockfile and retains the FormKit MIT attribution. Current index SHA256 is `c9a304f114324e5d2afd8b7fd38395f6bd6c9d578bc6bb0f784a674fc1630522`; the other 16 modules match the source snapshot. Artifact hashes and exact inputs are in `evidence/component-artifact-provenance.json`.
+
+| Catalog | Accounted support | Scope boundary |
+| --- | --- | --- |
+| Native, 26 including form | text, email, password, search, tel, url, number, date, time, datetime-local, month, week, color, range, hidden, textarea, checkbox, select, group, list, radio, file, button, submit, meta, form | Browser/device semantics and every prop combination are not certified. |
+| Pro, 14 | autocomplete, colorpicker, currency, datepicker, dropdown, mask, rating, repeater, slider, taglist, toggle, togglebuttons, transferlist, unit | Prior focused/deeper/browser evidence is frozen-source evidence. No licensed Pro package, vendor source or key is included. |
+| Portable factories, 8 | FormKit, FormKitSchema, FormKitRoot, FormKitProvider, FormKitLazyProvider, FormKitSummary, FormKitMessages, FormKitIcon | Framework component objects, hooks/context/injection, function/object slot conventions and SSR are not interchangeable. Explicit portable factories are required. SSR parity is unverified. |
+| Official addon families, 6 | MultiStep (multi-step/step), AutoHeightTextarea, FloatingLabels, AutoAnimate, LocalStorage, MaxLengthCountdown | Attribute-only autoheight redraw retains hookup; structural outer-tag replacement loses hookup in the observed upstream bindings too. Layout/animation/device behavior is not established by JSDOM. |
+| Helpers/extensions | describeForm, fillForm, barcode1.1.0, createZodPlugin2.5.0 | Barcode uses controlled streams; real camera permissions, devices and image decoding are unverified. Late stream teardown fails in all three observed bindings. |
+
+Mixed DOM/native group/list composition, scoped slots, local libraries, unified schema mounting, asynchronous provider scopes, retained input ownership, SVG DOM and lifecycle cleanup are implemented. Vue RuntimeComponent is an alias; Inertia is Vue-specific; KitchenSink is a demo/React placeholder. Component accounting is not exhaustive per-prop, per-mode, accessibility or framework parity.
+
+## Current revision verification
+
+Seventeen focused inherited-visibility assertions and 13 ownership assertions pass with actual pinned Core/Vue/React probes. Runtime plugin/onNode visibility survives unrelated declarations; explicit declaration changes can reclaim it; removing a still-owned override restores Core inheritance. This removal contract deliberately differs from observed React2.5 retaining live and Vue2.5 owning undefined. A browser-targeted bundle against pinned Marionette5.1.1 succeeds. Fresh full suites pass93/93 free acceptance and81/81 installed reference checks, with stable runtime hashes. Receipts are `evidence/fresh-branch-free-acceptance.json` and `evidence/fresh-branch-reference-comparisons.json`. Three immediate-message fixtures now explicitly request live validation; their initial failures are preserved separately.
+
+## Historical browser/performance evidence
+
+Frozen `aef737b` passed 92/92 free, 81/81 reference, 20/20 Chromium factory cases and 6/6 corrected geometry/DOM/topology/message gates. Its corrected two-form study used pinned FormKit2.5, Marionette5.1.1 and official unmodified Pro0.131.0:72 measured sequences,216 warmups,zero failures. Independent audit verified hashes and reproduced63 distributions and57 bootstrap rows. These results do not attest the new visibility revision.
+
+Mount readiness means declared control DOM and normalized initial values plus two animation frames; pending async options are separate, not fully interactive async readiness. Four external requests were accounted for (three failed,one pending), not isolated. All samples remain, including React mixed block4 whose mount overlaps a failed request; the sensitivity check does not replace primary results. No general performance winner is claimed. Earlier input timing comparisons were withdrawn.
+
+Incremental mask typing and colorpicker aria-valuetext limitations reproduce in official React. Shared Pro colorpicker/transferlist observer/listener retention paths have diagnostic source-scoped upstream proposals; they are not adapter shims or shipped package fixes. Core destruction counts are not garbage-collection proof. The callback-skip optimization was withdrawn because stable render-function props may reflect changing external state; the original function guard is retained.
+
+The snapshot-era `COMPONENT-INVENTORY.md` and `BREADTH-RECOVERY.md` preserve historical checkpoints. This ledger and new exact receipts take precedence for the fresh branch.

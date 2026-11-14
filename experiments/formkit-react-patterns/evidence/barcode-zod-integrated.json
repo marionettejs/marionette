@@ -1,0 +1,69 @@
+{
+  "runtimeChanges": 0,
+  "newImplementationCount": 0,
+  "newlyVerified": [
+    "barcode@1.1.0",
+    "createZodPlugin@2.5.0"
+  ],
+  "runtimeSha256": {
+    "core/index.mjs": "96697236324acc47721c2fe32c483faae0bc7cd503a6ccd9b5a9132b80746982",
+    "core/native-types.mjs": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a",
+    "core/helper-components.mjs": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc",
+    "core/section-renderer.mjs": "4b2ea7f1542eacad033de873993be1e52a0bb965838451f23903dff033adf917",
+    "core/upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+    "core/component-library.mjs": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f",
+    "core/value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba",
+    "core/root-slots.mjs": "2074e8571b2c81cf20e39e887dd11c961efc75dfbfa36c00826b44f6d313ccc4",
+    "core/schema-layout.mjs": "d7363f7bfe216de72a31d869b3d59aa8a20d295a966bb7f4a4e928f46f06ba5a",
+    "core/schema.mjs": "2ceee34b447250550bfed79674aef52a1c6f3b01b6880f866382638cecc50dda",
+    "core/schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+    "core/submission-controller.mjs": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968"
+  },
+  "packageLockSha256": "efb1b6f2983d1b010a28ca3aae4c663547b1627c85200b1af1d5f3f434adb74b",
+  "cases": [
+    {
+      "file": "core/barcode-compat-test.mjs",
+      "arm": "adapter",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"official input definition through ordinary inputs registration\",\"text input/Core nested value\",\"actual scanner icon event\",\"controlled getUserMedia -> official stream attachment\",\"allowed/rejected barcode formats\",\"official reset stops tracks on decode and cancel\",\"format/label update retains owner and input\",\"controlled source rejection displays official error\",\"destroy while scanning removes dialog/stops stream\"],\"mockSourceRequests\":4,\"streams\":3,\"trackStops\":[1,1,1],\"dialogShows\":3,\"dialogCloses\":4,\"detachedDialogOpen\":false,\"limitations\":\"JSDOM + controlled media/video/dialog and public decoder-result boundary; no real device, image decoding, permission or browser claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/barcode-compat-test.mjs",
+      "arm": "vue",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"vue\",\"checks\":[\"official input definition through ordinary inputs registration\",\"text input/Core nested value\",\"actual scanner icon event\",\"controlled getUserMedia -> official stream attachment\",\"allowed/rejected barcode formats\",\"official reset stops tracks on decode and cancel\",\"format/label update retains owner and input\",\"controlled source rejection displays official error\",\"destroy while scanning removes dialog/stops stream\"],\"mockSourceRequests\":4,\"streams\":3,\"trackStops\":[1,1,1],\"dialogShows\":3,\"dialogCloses\":4,\"detachedDialogOpen\":false,\"limitations\":\"JSDOM + controlled media/video/dialog and public decoder-result boundary; no real device, image decoding, permission or browser claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/barcode-compat-test.mjs",
+      "arm": "react",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"react\",\"checks\":[\"official input definition through ordinary inputs registration\",\"text input/Core nested value\",\"actual scanner icon event\",\"controlled getUserMedia -> official stream attachment\",\"allowed/rejected barcode formats\",\"official reset stops tracks on decode and cancel\",\"format/label update retains owner and input\",\"controlled source rejection displays official error\",\"destroy while scanning removes dialog/stops stream\"],\"mockSourceRequests\":4,\"streams\":3,\"trackStops\":[1,1,1],\"dialogShows\":3,\"dialogCloses\":3,\"detachedDialogOpen\":true,\"limitations\":\"JSDOM + controlled media/video/dialog and public decoder-result boundary; no real device, image decoding, permission or browser claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/zod-compat-test.mjs",
+      "arm": "adapter",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"real createZodPlugin through ordinary plugins/onSubmit\",\"nested field error mapping\",\"native validation precedence\",\"live Zod messages and blocking ledger\",\"invalid submit blocked\",\"valid input clears Zod errors without replacing owner/input\",\"safeParseAsync transformed submission payload\",\"setZodErrors extension installed\",\"exact-once descendant destruction\"],\"submitted\":{\"profile\":{\"name\":\"Ada\"},\"email\":\"ada@example.test\",\"age\":21},\"limitations\":\"No browser/device claim; plugin timeout/server-error modes are separate coverage\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/zod-compat-test.mjs",
+      "arm": "vue",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"vue\",\"checks\":[\"real createZodPlugin through ordinary plugins/onSubmit\",\"nested field error mapping\",\"native validation precedence\",\"live Zod messages and blocking ledger\",\"invalid submit blocked\",\"valid input clears Zod errors without replacing owner/input\",\"safeParseAsync transformed submission payload\",\"setZodErrors extension installed\",\"exact-once descendant destruction\"],\"submitted\":{\"profile\":{\"name\":\"Ada\"},\"email\":\"ada@example.test\",\"age\":21},\"limitations\":\"No browser/device claim; plugin timeout/server-error modes are separate coverage\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/zod-compat-test.mjs",
+      "arm": "react",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"react\",\"checks\":[\"real createZodPlugin through ordinary plugins/onSubmit\",\"nested field error mapping\",\"native validation precedence\",\"live Zod messages and blocking ledger\",\"invalid submit blocked\",\"valid input clears Zod errors without replacing owner/input\",\"safeParseAsync transformed submission payload\",\"setZodErrors extension installed\",\"exact-once descendant destruction\"],\"submitted\":{\"profile\":{\"name\":\"Ada\"},\"email\":\"ada@example.test\",\"age\":21},\"limitations\":\"No browser/device claim; plugin timeout/server-error modes are separate coverage\"}\n",
+      "stderr": ""
+    }
+  ],
+  "passed": 6,
+  "failed": 0
+}

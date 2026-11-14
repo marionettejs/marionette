@@ -1,0 +1,52 @@
+{
+  "implementationCommit": "de763598764742f8e09ff295223593a3e9fc7ae2",
+  "baseCommit": "7605fa19dabfcc5f32b95ab9f933e4142b605e33",
+  "newFamilies": 0,
+  "confirmedFix": "If inherited Provider options appear while child config import is pending,the existing Loader Application restarts against inherited scope and cancels obsolete activation;no late config factory or Core children",
+  "focusedPassed": 7,
+  "focusedFailed": 0,
+  "referenceDifference": "React supplies inherited options immediately;Vue captures provider config at setup. Adapter uses its documented React replacement-options semantics plus Application cancellation.",
+  "runtimeSha256": {
+    "core/index.mjs": "145585191fd0d458fa7f7e109fa3ddf8025a0dd06a13cd4f5b4e47ce7503ddb5",
+    "core/provider-components.mjs": "0e9e37b57887cb85a1f9c7af7f7ef0b2359f6cc1c0d3644bcc0b9749020b2c98",
+    "core/config-scope.mjs": "0f4a9406a05af6aaf1caa644b1e8c3994b2a01880ae06d4d59abe5bdd9d56f1d",
+    "core/upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+    "core/provider-scope.mjs": "3f8df8502448e6c8dd4715352d090edf900ad421fbbdfb25ea5b72a177ba5181",
+    "core/formkit-application.mjs": "6535edfb2564b057699f35b1e4f9c1b9f99d9b213f0e188f23ffb4aeb6d02238",
+    "core/native-types.mjs": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a",
+    "core/helper-components.mjs": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc",
+    "core/section-renderer.mjs": "50ff2f11b19cf2e3131aa8f86b301543f16874f97c71eb17a04f9e130d9630e1",
+    "core/component-library.mjs": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f",
+    "core/value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba",
+    "core/root-slots.mjs": "451082a99235dba755968949f3a4dcd71ca18c8edd94467c8aff64d617145f18",
+    "core/schema-layout.mjs": "4f5d5bb5f059d856a0f7ac65c6fa3e0ab2dc0d3e9574265d410925b3484d6ded",
+    "core/schema.mjs": "2ceee34b447250550bfed79674aef52a1c6f3b01b6880f866382638cecc50dda",
+    "core/schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+    "core/submission-controller.mjs": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968"
+  },
+  "changedRuntime": [
+    "core/provider-components.mjs"
+  ],
+  "baseRuntimeSha256": {
+    "core/provider-components.mjs": "03bf9e7e84e2f3f7371ed1c9a11b53981dd0557d5c184c317057f98121b7a9ec"
+  },
+  "changedFilesSha256": {
+    "BREADTH-RECOVERY.md": "7ecb0b298ca5731d50e35f3564c00efea911db72a66a878509ef573b50b4bf08",
+    "core/NESTED-PROVIDERS.md": "045b38498ecd5b6e60b5771b4f302633cb58db705767c520d97ced984fc404fb",
+    "core/provider-components.mjs": "0e9e37b57887cb85a1f9c7af7f7ef0b2359f6cc1c0d3644bcc0b9749020b2c98",
+    "core/provider-inheritance-transition-test.mjs": "551aa6970dee5935b0fd298c8add06275d0ab7e44f269ab7469f8073b8bdd03d",
+    "core/verify-free.mjs": "928805ca25fb865645a1a0ba49f0110fb4c745b74c4f5c04142a34bf8d7b8b4e"
+  },
+  "fullSuiteStatus": "Prior79/79 and63/63 apply prior provider snapshot;current7 focused checks cover this surgical fix. Final factory integration should run expanded80/65 inventory.",
+  "remainingComponents": [
+    "FormKitSchema",
+    "FormKitRoot"
+  ],
+  "componentInventory": "Exactly8 reusable portable FormKit component names;KitchenSink demo,Vue RuntimeComponent alias,framework hooks/SSR utilities not additional components",
+  "performance": "HELD;zero samples",
+  "baseSnapshot": {
+    "library_file_id": "libfile_fde3_f-5e2de45e85708191b4d19401c45798b0_3633c514934c8191a03706259b76dd26",
+    "file_id": "file_00000000e2348212903c64c0723666af",
+    "sha256": "26a04469ad9be99ee0b1bff2377d159cdc5232fe30202ec496bd951ec91f0c3a"
+  }
+}

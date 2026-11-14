@@ -1,0 +1,12 @@
+[
+  {
+    "mode": "stable",
+    "exitCode": 1,
+    "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: unrelated Core context updates retain the unchanged icon subtree\n\nSVGSVGElement {}\n\n    at file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/helper-lifecycle-contract-test.mjs:7:97 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: SVGSVGElement {},\n  expected: SVGSVGElement {},\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+  },
+  {
+    "mode": "terminal",
+    "exitCode": 1,
+    "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: owned helpers defer terminal DOM removal to the root clear\n\n9 !== 1\n\n    at file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/helper-lifecycle-contract-test.mjs:8:190 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: 9,\n  expected: 1,\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+  }
+]

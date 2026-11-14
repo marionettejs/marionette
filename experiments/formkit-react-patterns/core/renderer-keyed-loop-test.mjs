@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
+const dom=new JSDOM('<body><main></main>');globalThis.document=dom.window.document;
+const {renderSections}=await import('./section-renderer.mjs');
+const host=document.querySelector('main'),context={rows:[{id:'a',text:'A'},{id:'b',text:'B'},{id:'c',text:'C'}]};
+const renderer=renderSections({host,context,schema:{$el:'label',for:['row','idx','$rows'],attrs:{key:'$row.id','data-id':'$row.id'},children:[{$el:'input',attrs:{value:'$row.text'}},{$el:'b',children:'$idx'}]}});
+const original=[...host.querySelectorAll('label')];const focused=original[1].querySelector('input');focused.focus();focused.setSelectionRange(0,1);
+context.rows=[{id:'c',text:'C2'},{id:'a',text:'A2'},{id:'b',text:'B'}];renderer.update();
+assert.deepEqual([...host.querySelectorAll('label')], [original[2],original[0],original[1]]);assert.equal(document.activeElement,focused);assert.equal(focused.selectionEnd,1);assert.equal(original[2].querySelector('input').value,'C2');assert.deepEqual([...host.querySelectorAll('b')].map(el=>el.textContent),['0','1','2']);
+context.rows=[context.rows[2],{id:'d',text:'D'}];renderer.update();assert.equal(host.querySelector('label'),original[1]);assert.equal(original[0].isConnected,false);assert.equal(document.activeElement,focused);assert.equal(host.querySelectorAll('label').length,2);
+context.rows=[{id:'b'},{id:'b'}];assert.throws(()=>renderer.update(),/Duplicate schema iteration key/);renderer.destroy();assert.equal(host.childNodes.length,0);
+let updates=0,destroys=0;context.rows=[{id:'x',text:'first'}];
+const slotsRenderer=renderSections({host,context,schema:{$el:null,for:['row','$rows'],attrs:{key:'$row.id'},children:'$slots.item'},slots:{item:({parent,before,locals})=>{const el=document.createElement('p');el.textContent=locals.row.text;parent.insertBefore(el,before);return{update({locals}){updates++;el.textContent=locals.row.text;},destroy(){destroys++;el.remove();}};}}});
+const item=host.querySelector('p');context.rows=[{id:'x',text:'second'}];slotsRenderer.update();assert.equal(host.querySelector('p'),item);assert.equal(item.textContent,'second');assert.equal(destroys,0);slotsRenderer.destroy();assert.equal(destroys,1);assert.ok(updates);console.log('keyed loops preserve DOM, focus and selection; update locals; delete rows; reject duplicate keys; update retained slot ownership');

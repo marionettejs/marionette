@@ -1,0 +1,95 @@
+{
+  "reviewImplementationCommit": "194f521b264e5b58d010299b4a2fa16163c467d0",
+  "browserImplementationCommit": "85c331e6ff5556e000dbcc51374c8927bcbb679c",
+  "baseCommit": "599070857540addee34f5d83319923407667aea8",
+  "base9071182And5990708RuntimeEquivalent": true,
+  "runtimeSha256": {
+    "core/index.mjs": "737c35a788a65d7030123434ec184a927cb465a38a002a27174ec992dbcb9ea0",
+    "core/structural-components.mjs": "a5ac28e15400d8a3792be5827f3287973b2940a0c9176de6a4a5dba25e1e5245",
+    "core/provider-scope.mjs": "2c7c42c975f80a008f2166a655d136b491f7b44f13dbfa6eacc56b880242afd0",
+    "core/upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+    "core/provider-components.mjs": "bfa70038bcbe312beae42ff6728e5d272bc67ae9e984633f63d1d3ed90dbd190",
+    "core/config-scope.mjs": "0f4a9406a05af6aaf1caa644b1e8c3994b2a01880ae06d4d59abe5bdd9d56f1d",
+    "core/formkit-application.mjs": "6535edfb2564b057699f35b1e4f9c1b9f99d9b213f0e188f23ffb4aeb6d02238",
+    "core/native-types.mjs": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a",
+    "core/helper-components.mjs": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc",
+    "core/section-renderer.mjs": "4bef0234a3c272480045ed04047ff31b2f3087395715d0735647add6ffbc5864",
+    "core/component-library.mjs": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f",
+    "core/value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba",
+    "core/root-slots.mjs": "fdae5a1b69311e961a5d87d5e4e1f64aa9953e0a7d7042cbdd52ba7144f85ca4",
+    "core/schema-layout.mjs": "abc8d70b68e1f782dcc8d34609c069deac5f5f701ed38965d107f2d3a02f2fb8",
+    "core/schema.mjs": "305cc037f3cce98727ba1c20218bee32d1f56ba76ae385c32bd745b77ba96fda",
+    "core/schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+    "core/submission-controller.mjs": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968"
+  },
+  "changedRuntime": [
+    "core/index.mjs",
+    "core/provider-scope.mjs",
+    "core/provider-components.mjs",
+    "core/section-renderer.mjs",
+    "core/root-slots.mjs",
+    "core/schema-layout.mjs"
+  ],
+  "changedFilesSha256": {
+    "BREADTH-RECOVERY.md": "1135bcb1d335859f900fd74de4436d77a695bd9f3aa18588a24a5f7ab0be17c3",
+    "core/NESTED-PROVIDERS.md": "c1867c78904e1d9dd4217194a20e69d9bcbb06f7865d7080c39a40c70b1ce3a7",
+    "core/RENDERER-COMPONENTS.md": "d0488d59719659814380c7f0b585ddd4998f26cdb067ae0358d6c06de599e8cb",
+    "core/SCHEMA-ROOT-COMPONENTS.md": "f7ee56272b61530b025b10af02bf72b5dabb06a1d67392f754423a163a36249f",
+    "core/index.mjs": "737c35a788a65d7030123434ec184a927cb465a38a002a27174ec992dbcb9ea0",
+    "core/lazy-inheritance-removal-test.mjs": "3fa18a12700d23fb8949f717925d00b5d2a0cf3db53c99b53be6ff01cbccd443",
+    "core/lazy-scope-exception-test.mjs": "14577cc340cd11afdb3d7a817eec3d9b603c0fd76efdf08123db735f2ea37ae4",
+    "core/literal-formkit-projection-test.mjs": "9a5f2ac62303a5ffa812d6b80fef4e138dc3ff47f5dcf7209ad90fab7d0e1ca4",
+    "core/literal-formkit-retention-test.mjs": "b10432e8efc435cd94209c1c02e85b71e62296079de76044cabc45e808407eb0",
+    "core/provider-components.mjs": "bfa70038bcbe312beae42ff6728e5d272bc67ae9e984633f63d1d3ed90dbd190",
+    "core/provider-scope.mjs": "2c7c42c975f80a008f2166a655d136b491f7b44f13dbfa6eacc56b880242afd0",
+    "core/root-slots.mjs": "fdae5a1b69311e961a5d87d5e4e1f64aa9953e0a7d7042cbdd52ba7144f85ca4",
+    "core/schema-layout.mjs": "abc8d70b68e1f782dcc8d34609c069deac5f5f701ed38965d107f2d3a02f2fb8",
+    "core/schema-owner-lifecycle-test.mjs": "baa2d3d484d1e7a8e98f6d416d8d5e089ac345797e450e6e2aa5abd33914c99e",
+    "core/schema-slot-data-reference.mjs": "cfc6ebaffa596baa129e12f07347a6b5988e69bfb520e3005e1666ee152239b7",
+    "core/schema-slot-data-test.mjs": "6b87e321a40004b446e5190d2f51754daeb7b78d31dccafcce3978e453ff0847",
+    "core/section-renderer.mjs": "4bef0234a3c272480045ed04047ff31b2f3087395715d0735647add6ffbc5864",
+    "core/svg-namespace-contract-test.mjs": "7d22c6d5a0dd5c484c3468512cc9987376f54ae8c62c50a715b8d302c5dd66e3",
+    "core/verify-free.mjs": "806de6e8644af2d263b192e636ea9f108a037f21f6c7fa07a0183224798f5647"
+  },
+  "confirmedFixes": [
+    "Schema-valued slots follow replacement data without replacing retained DOM",
+    "failed renderChildren construction disposes its local Core/DOM scope before propagating error",
+    "LazyProvider loses inherited scope,starts own config loading,and supports transitions back with the same Application",
+    "ordinary literal FormKit retains edited Core/value/DOM on Schema/memo replacement",
+    "SVG descendants use proper namespaces with HTML foreignObject boundaries"
+  ],
+  "verification": {
+    "reviewCheckpoint": {
+      "passed": 15,
+      "failed": 0,
+      "receipt": "evidence/final-review-focused.json"
+    },
+    "currentBrowserReconciliation": {
+      "passed": 7,
+      "failed": 0,
+      "receipt": "evidence/final-browser-compatibility-focused.json"
+    },
+    "beforeEvidence": [
+      "evidence/schema-slot-data-before.json",
+      "evidence/provider-final-review-before.json",
+      "evidence/final-browser-compatibility-before.json"
+    ],
+    "fullSuite": "83/69/19 belongs to5990708. No additional broad suite was run after the health-check instruction;new current full acceptance/reference inventories are not claimed passed."
+  },
+  "componentAccountingComplete": true,
+  "newComponentFamilies": 0,
+  "newInputFamilies": 0,
+  "preservation": "91 historical untracked paths remain preserved;no reset,reclone,overwrite,push,merge,publication,Mac or credential/security changes",
+  "performance": {
+    "sourceMeasured": "5990708",
+    "postFixSamples": 0,
+    "inputTiming": "invalidated pending independent capture:true correction",
+    "owner": "existing licensed browser/performance task;no duplicate harness work"
+  },
+  "remaining": [
+    "Reverify combined source in licensed browser including corrected input timing gates",
+    "Peer-observed transferlist listener and colorpicker detached-DOM retention investigations remain open",
+    "Whole-prop bindings/custom opaque factories retain documented lifecycle boundaries"
+  ],
+  "handoff": "Exact new source supersedes5990708 for correctness;keep any baseline measurements labeled with their original source. Do not claim post-fix timings."
+}

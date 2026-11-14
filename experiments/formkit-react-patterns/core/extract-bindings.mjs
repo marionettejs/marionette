@@ -20,6 +20,7 @@ body=body.replace('const cachedClasses = {};','let contextAlive = true;\n      c
 .replace('const observedNode = createObserver(node);','const observedNode = createObserver(node);\n              classObservers.add(observedNode);')
 .replace('clearReactiveStore(context);','contextAlive = false;\n        for (const observed of classObservers) observed.kill();\n        classObservers.clear();\n        clearReactiveStore(context);')
 .replace('node.context = context;',`context.refreshClasses = () => { if (!contextAlive) return; for(const observed of classObservers) observed.kill(); classObservers.clear(); for(const key of Object.keys(cachedClasses)) delete cachedClasses[key]; notifyReactiveStore(context); };
+      for(const event of ["config:classes","config:rootClasses","prop:rootClasses"])node.on(event,context.refreshClasses);
       node.context = context;`)
 .replace('subscribers.forEach((subscriber) => subscriber());','subscribers.forEach((subscriber) => { if (store.subscribers.has(subscriber)) subscriber(); });')
 .replace('version: 0,\n    pending:', 'version: 0,\n    dead: false,\n    pending:')

@@ -2,33 +2,45 @@
 
 This is an unpublished experimental adapter, not a replacement for the current `@mnjs/formkit` work. Prior small hand-built renderer checkpoints remain in `checkpoints/`.
 
+Read [the current breadth checkpoint](../BREADTH-RECOVERY.md) first. It supersedes the narrower historical slices below. Current input definitions include all 25 named kinds in `native-types.mjs` plus the root form, custom definitions/plugins, section overrides, theme/icons and explicit DOM/Marionette component factories. Native group/list `children` are field arrays; other inputs use named schema slots, including add/remove/replace on retained fields.
+
 ## Current architecture
 
 - `upstream-bindings.mjs` extracts the complete published React2.5.0 reactive store and bindings context, with the React hook removed. This includes upstream handlers, state, messages, validity/visibility, props, class observer caching and lazy aggregate snapshots. There is no React runtime import. `node core/extract-bindings.mjs` verifies byte-for-byte reproduction from the locked published module plus explicit adaptations.
-- Adaptations are observer ownership cleanup, explicit class-cache refresh, terminal context guards, and membership-checked store dispatch. MIT copyright/license retained in `LICENSE.formkit`.
-- `section-renderer.mjs` renders the actual official text, textarea, single-checkbox, single-select, group and form definitions' generated section schemas. It does not substitute a hard-coded input. Wrapper, inner, label, input, help and message-loop structure comes from that schema. Each expression uses official `compile/provide`, tracks its token values and patches its own DOM binding. Context bag entries are compared shallowly for in-place changes when notified.
+- Adaptations are observer ownership cleanup, explicit class-cache refresh, notified class-config invalidation, terminal context guards, and membership-checked store dispatch. MIT copyright/license retained in `LICENSE.formkit`.
+- `section-renderer.mjs` renders the actual generated section schemas of official native/group/list/form definitions and registered schema inputs. It does not substitute a hard-coded input. Wrapper, inner, label, input, help and message-loop structure comes from that schema. Each expression uses official `compile/provide`, tracks its token values and patches its own DOM binding. Context bag entries are compared shallowly for in-place changes when notified.
 - Context notifications still scan that field's registered bindings. This is not property-level subscription dispatch or constant total work. Counters distinguish context notifications, token checks, expression evaluations, DOM writes and structural changes. They exclude uninstrumented Core, snapshot and observer work.
-- `index.mjs` provides real Marionette View/Region ownership and official FormKit library form and supported input features. The official form definition schema now renders root attributes/classes, default-slot placement, loading state and incomplete/error messages on the existing Marionette form element. The root default slot is an owned field outlet. Actions remain false; nested groups use their official default-slot schema, not a general component renderer. Each field definition has an extra adapter-owned field host around its actual section tree.
+- `index.mjs` provides real Marionette View/Region ownership and official FormKit library form and supported input features. The official form definition schema now renders root attributes/classes, default-slot placement, loading state and incomplete/error messages on the existing Marionette form element. The root default slot is an owned field outlet. Official actions are enabled by default, with `formProps.actions:false` to opt out. Nested groups use the official default-slot schema; explicit component factories render nested `$formkit` inputs with scoped Core ownership. Each field definition has an extra adapter-owned field host around its actual section tree.
 
 ## Interface and contract
 
-`mount({host,count,fields,values,classes,config,formProps,onSubmit,onSubmitInvalid,onSubmitRaw})` returns `{form,node,metrics,setFields,reset,submit,destroy}`. Input fields use `{name,label,validation,validationVisibility,disabled,help,attrs,type}` with text, textarea, single checkbox and bounded single select; groups use `{type:'group',name,children}`; section-class props accepted at initial mount through the Core props. Defaults for explicit declarations: upstream optional validation and absent values, live visibility, no actions. The count convenience fixture explicitly requests required text fields. `submit()` dispatches real DOM submission to the official form handler. The default submission callback is a no-op, preventing accidental native navigation.
+`mount({host,count,fields,schema,data,slots,schemaSlots,values,classes,config,formProps,...})` returns `{form,node,metrics,setFields,setSchema,updateData,setSlots,setSectionsSchema,getValues,setValues,getFormState,setErrors,clearErrors,reset,submit,destroy}`. Choose `fields` or `schema` as the declaration source. [SCHEMA.md](SCHEMA.md) describes unified content mounting and root slots. Input fields use `{name,label,validation,validationVisibility,disabled,help,attrs,type}` covering the 26 native kinds including form and registered custom/plugin inputs (see ../COMPONENT-INVENTORY.md); groups use `{type:'group',name,children}`; section-class props accepted at initial mount through the Core props. Defaults for explicit declarations: upstream optional validation and absent values, live visibility and official form actions. The count convenience fixture explicitly requests required text fields. `submit()` dispatches real DOM submission to the official form handler. The default submission callback is a no-op, preventing accidental native navigation.
 
 Automatic updates follow notified upstream context/Core changes. Silent closure mutation does not itself notify. `form.render()` explicitly refreshes class caches and section bindings while preserving stable controls. Submission uses the official callback behavior; user callback errors/rejections remain observable. No early-submit cancellation protocol is added. Destruction removes subscriptions, DOM listeners and owned Core nodes.
 
-`schema.mjs` is a separate narrow schema controller, not a general FormKitSchema replacement. See `SCHEMA.md` for its explicit subset.
+`schema.mjs` remains the explicit field-projection controller; unified schema mounting delegates DOM composition to the existing `schema-layout.mjs` owner. See `SCHEMA.md` for the current contract and remaining boundaries.
 
 ## Limits
 
-No full arbitrary schema/component renderer, general slots, icons/raw HTML, lists, Pro controls, arbitrary input types or complete API compatibility is claimed. Nested groups and limited label/help slots are supported as described below. Raw icon HTML and unsupported section nodes throw. Official text sections are consumed, but not every upstream section override or binding shape is implemented. Dynamic replacement of arbitrary props and class definitions is not fully covered. Root form action components and custom root section slots remain unsupported. The ordinary official form/default/message sections are implemented. Upstream full context is retained, but this does not establish complete semantics across all inputs.
+Full Vue/React parity is not established. Framework component objects require explicit factories. Unified schema mounting, root slots, trusted official icon HTML, native lists, named input slots and plugin definitions are implemented. The licensed external task now has focused interactions for all 14 Pro families and supplied the integrated passive-touch event fix; this newer canonical runtime still needs its final licensed rerun. Mixed native group/list DOM composition, portable Summary/Messages/Icon factories, local libraries and multi-step/step/auto-height add-on compatibility are now integrated. Dynamic replacement/removal of every upstream prop/config shape and complete async/browser/accessibility/performance coverage remain unestablished. Barcode and createZodPlugin now pass matching adapter/Vue/React fixtures through the existing input/plugin APIs, with zero runtime additions. FormKitApplication now supplies asynchronous module readiness and inherited reactive configuration through Application ownership. Same-form FormKitProvider/FormKitLazyProvider factories now support lexical option scopes and async readiness; see NESTED-PROVIDERS.md and APPLICATION-CONFIG.md. Literal FormKitSchema/FormKitRoot factories now provide scoped schema ownership and actual DOM-root discovery; see [SCHEMA-ROOT-COMPONENTS.md](SCHEMA-ROOT-COMPONENTS.md). See `../COMPONENT-INVENTORY.md`.
 
 The upstream context's lazy aggregate value snapshots remain unchanged; renderer counters are not proof that all snapshot or Core work scales linearly. Existing copies for submit payloads also remain official behavior. The obsolete standalone `createStore` helper has been removed; lifetime tests target the actual extracted context store.
+
+## Class configuration
+
+`form.config` is the owned Core configuration proxy. Child nodes inherit through Core rather than receiving copies of every form option; explicit field config overrides remain local. Notified `classes`/`rootClasses` replacements invalidate only affected node class caches. An explicit `form.render()` also refreshes silent class closures while retaining controls. The extraction recipe includes these adaptations and still reproduces `upstream-bindings.mjs` exactly.
+
+The public Core/Vue/React probe records a real difference: Core and Vue follow parent/field class-config replacement, while installed React 2.5 retains previously cached classes in that fixture. The adapter follows Core inheritance and notified Vue behavior and keeps its explicit-render convenience; this is not claimed as identical behavior across bindings. See `class-config-parity.mjs`, `class-config-test.mjs` and `evidence/class-config-followon.json`.
 
 ## Verification
 
 Run `node core/{test,regressions,submit-test,submit-completion-test,schema-test,sections-test}.mjs` individually. Section tests cover actual official nested markup, upstream blur visibility, help/error ID references, mutable bags on notified refresh, valid/complete state, retained input, and destruction of real context-store subscribers/class accessors. Shared harnesses compare the same fixtures across adapters.
 
 JSDOM checks and renderer counters are not browser timing, layout, genuine-keyboard or complete accessibility evidence. No performance superiority or browser readiness is claimed without the separate real-browser protocol passing.
+
+## Historical milestone details
+
+The following sections describe incremental slices and their evidence at the time. The current breadth checkpoint takes precedence over old exclusions.
 
 ## Root-form milestone counters
 
@@ -103,3 +115,21 @@ Production input delay now inherits the upstream 20 ms default. Explicit caller 
 Supported initial definition props use official addProps promotion/normalization. Ordinary native attrs are copied, updated and removed consistently for retained text, textarea, checkbox and select controls; runtime metadata is routed to node props rather than DOM attrs. Explicit supported declaration props take precedence over conflicting attrs. Deep mutation of the same caller attrs object is not an update contract. Live select placeholder changes remain unsupported.
 
 Value/state facade methods now live on the View prototype and delegate to its owned service. setFields/resetForm explicitly use that service's batching boundary instead of replacing instance methods. Source labels, lazy snapshots, return values and existing compatibility behavior remain; pinned listener detection is still a documented limitation.
+
+### Native text-family breadth
+Official FormKit 2.5 definitions now render email, password, search, tel, url,
+number, date, time, datetime-local, month, week, color, range and hidden, alongside
+the existing text/textarea/single checkbox/single select/group slice. The official
+library camelizes datetime-local to its datetimeLocal definition. No custom
+coercion is introduced: number/range remain string-valued unless the upstream
+number prop opts into conversion (including number: 'integer'). An absent Core
+value remains undefined even where the browser displays range 50 or color black.
+
+Caller ids, native attributes and standard runtime props enter the official
+definition/context path. The bounded $formkit projection accepts these types,
+value/attrs/classes/id/number/delay and the listed standard native attributes.
+This does not add general components, loops, Pro inputs or the separately frozen
+DOM-layout prototype. Native-breadth comparisons cover Vue/React/alternate under
+JSDOM; browser-specific sanitization, keyboard/date pickers and visual behavior
+still require the separate real-browser gate. Default delay is 20, not the
+explicit zero-delay setting used in older pinned timing studies.

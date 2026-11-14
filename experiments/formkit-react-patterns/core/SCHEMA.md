@@ -1,13 +1,57 @@
-# Bounded FormKit schema controller
+# Schema mounting, layout and root slots
 
-`createSchemaController({node,schema,onFields})` compiles genuine FormKit-schema input/group objects to the adapter's field declarations. `node` is the Core form; `onFields` normally calls `instance.setFields`. Initial projection is synchronous; subsequent notified changes coalesce in a microtask. `destroy()` ends observation; Core form destruction also disposes the controller.
+`mount({host,schema,data,values,components,slots,schemaSlots,...})` mounts a content schema inside the existing owned Core form. Choose `schema` or explicit `fields` as the declaration source; supplying both rejects. A schema mount creates no count-fixture fields. Configure the owned root form through `formProps`; the schema describes its contents rather than a second form.
 
-Supported input types: text, textarea, single checkbox and bounded single select. Groups use `{$formkit:'group',name,children:[...]}` with nested schema children. Supported properties are name (literal), label, help, validation, disabled, validationVisibility, options, placeholder, onValue and offValue. Native input restrictions still apply: no checkbox options, multiple/async/optgroup select or live placeholder changes. Input children/slots are not accepted. Type and names cannot be expressions.
+```js
+const api = mount({
+  host,
+  values: {name: 'Ada'},
+  data: {title: 'Contact'},
+  schema: {$el: 'fieldset', children: [
+    {$el: 'legend', children: '$title'},
+    {$formkit: 'text', name: 'name', label: 'Name'},
+    {$el: 'p', children: '$values.name'}
+  ]},
+  slots: {
+    default: {$el: 'article', children: ['$slots.fields']},
+    actions: {$el: 'aside', children: 'Custom actions'}
+  }
+});
+api.updateData({title: 'Updated contact'});
+api.setSchema({$el: 'section', children: {$formkit: 'text', name: 'name'}});
+api.setSlots({}); // Restore the ordinary root sections/default field outlet.
+```
 
-Properties and `if` conditions use actual Core `compile/provide` expressions. `$values` is supplied root-value data, not a special upstream token. Nested paths such as `$values.profile.mode` may refer only to unconditionally present fields. The same data is supplied to actual Vue/React FormKitSchema in comparative fixtures. Objects/arrays in supported properties are evaluated recursively; unchanged projections retain references using upstream equality rather than JSON serialization. Node/control identity is preserved by the existing declaration reconciler for presentation updates.
+`updateData(next)` replaces external schema data. Supplied `$values` always reads the owned Core form value and updates after notified commits; it is an adapter data convention, not an upstream reserved token. Field projection runs synchronously for explicit data changes; context-driven DOM work can settle in microtasks. Silent external mutation is not observed. Field-slot bodies share external data and their live loop locals. Ordinary reactive updates retain matching Core owners and controls; schema replacement reconciles named fields while replacing layout containers. Root/schema redraws do not promise to preserve browser focus while controls are detached.
 
-Conditional objects support `{if,then,else?}` with object/array branches. Names must be unique within their group, including mutually exclusive branches. General `$el` layout, `$cmp`, loops, registry `$get`, custom slots, dynamic names/types and dependencies on conditionally removed fields remain explicitly unsupported. This is still a projection onto the bounded native renderer, not a full FormKitSchema implementation.
+## Root presentation slots
 
-Observer tracking currently reads the root value: this is not fine-grained per-path scheduling. Equality can traverse projections, and the input's actual costs remain unproven by JSDOM tests. No transactional rollback or destructive-callback recovery contract is added.
+`slots` supplies named root form sections such as `default`, `actions`, `messages` or `message`. Values are schema bodies or callbacks. They receive the root context; the official definition decides where each section is invoked. A `message` slot replaces the whole message section, including its normal loop, so a supplied body must provide its own `for:['message','$messages']` when needed. Custom slot names can also be called from supplied slot schemas. Slot bodies inherit current loop locals and external data.
 
-Tests: `schema-test.mjs`, `schema-nested-errors.mjs`, and `schema-nested-parity.mjs vue|react|experiment`. The latter uses genuine matching nested schemas with all supported controls, dynamic label/disabled, conditional removal, typed selection, retained edited values, reset and cleanup, with bounded semantic waits. Browser performance and keyboard gates remain separate. MIT attribution: LICENSE.formkit.
+The reserved `$slots.fields` schema outlet places the already-owned fields/layout. A default override can wrap this outlet, or omit it to keep declared controls parked outside the visible form. Parked fields remain owned and accept schema data updates; revealing them delivers their mounted lifecycle when attached. One active field outlet is supported.
+
+A callback receives `{parent,before,context,locals,renderFields}`. Call `renderFields(parent,before)` once to place content; the owner manages that outlet's cleanup. Return a cleanup function or `{update(args),destroy(remove)}` for your own presentation/listeners. As with other renderer slots, `remove:false` means the outer owner will clear its DOM. `setSlots(next)` replaces root presentation while retaining matching field DOM, Core nodes and values.
+
+`schemaSlots` is separate: it supplies callback slots to the content layout schema. This preserves the existing explicit layout controller's scoped callback contract. Field declaration `children:{label: schema,...}` remains an adapter named-input-slot shorthand; it is not upstream FormKitSchema component-slot syntax. React/Vue component objects require explicit framework-neutral factories; see `RENDERER-COMPONENTS.md`.
+
+## Explicit field projection
+
+`createSchemaController({node,schema,onFields,data})` in `schema.mjs` remains available independently. It compiles actual FormKit expressions into field declarations; `onFields` normally calls `form.setFields`. Initial projection and `updateData` are synchronous; notified Core changes coalesce in a microtask. `destroy()` ends registry/observer work; Core form destruction also disposes it.
+
+Projection accepts registered input types, dynamic names/types/props, anonymous identities, native group/list children, conditional branches, bind precedence, recursively evaluated arrays/objects, raw `__raw__` props, array/object/numeric loops and reactive registry `$get`. Active sibling names/keys must remain unique. Conditional fields may be absent; removed fields release their owned Core values using upstream behavior. Native groups/lists have field-array children in explicit field projection; other schema-driven inputs use named slot dictionaries. Schema mounting and layout composition additionally accept mixed content under native groups/lists.
+
+`createSchemaController` projects fields, not DOM wrappers. Use schema mounting or the layout controller for `$el`/`$cmp` composition. External data is plain and explicitly refreshed. Equality may traverse projections and observation can read aggregate root values; neither is constant-time work.
+
+## Explicit layout composition
+
+`createLayoutController({form,schema,data,components,slots})` in `schema-layout.mjs` remains supported. It composes arbitrary literal/dynamic DOM tags, text, attributes/events, bind, conditions, loops, registry `$get`, explicit component factories and owned field outlets. It shares the existing form's sole field owner. Native group/list child arrays can mix DOM wrappers, text, explicit component factories, conditions, loops and nested fields. The layout controller projects only the fields into each native owner and renders presentation at that owner's existing default child outlet; wrappers create no Core nodes. Child names are unique within their native parent, and anonymous child identities are local to that parent. External data, `$values` and inherited loop locals update through the same projection/presentation cycle as root content. Native default-slot context tokens are not added to the field projection data contract by this change. Named input-slot dictionaries on other input types retain their existing behavior. Layout `innerHTML` attributes remain rejected; trusted raw icon HTML in official input/section schemas is a separate path.
+
+Only one layout controller may own a form at once, including an automatically created schema mount. Root section/slot redraws retain that controller and its component instances. Destroying only the controller restores still-owned fields to the ordinary outlet; terminal form destruction releases the root Core owner first, then presentation/descendants, with one outer DOM clear. Replacing a schema uses ordinary reconciliation, without transactional rollback or recovery for arbitrary failing callbacks.
+
+Focused checks: `unified-schema-root-slots-test.mjs`, `schema-test.mjs`, `schema-layout-test.mjs`, the breadth/registry/slot fixtures, `schema-layout-parity.mjs vue|react|experiment`, `schema-native-layout-test.mjs vue|react|experiment` and `schema-native-layout-lifecycle-test.mjs`. The experiment arm now exercises unified mounting against the same genuine schema used by the installed Vue/React bindings. These are JSDOM checks; browser, accessibility and performance work remains separate. MIT attribution: `LICENSE.formkit`.
+
+## Explicit FormKit components and current ownership
+
+`$cmp:'FormKit'` owns its child schema through the built-in factory, rather than having descendants projected before their Core parent exists. This composes with native mixed groups/lists in both directions. Other portable factories retain their explicit DOM/schema boundary. Projected named input slots retain outer loop locals separately from field context; `$id` still resolves to the input context. Default-child invocations have independent retained scopes keyed by their actual Core parent and release removed rows.
+
+Official add-on containers use the resolved Core group/list type with field-array children. Document/ShadowRoot is supplied as `__root`, and an explicit `formProps.name` names the root Core form. Attribute/bind-only section changes can use `renderSections.setSchema` to retain mount-owned plugin DOM; structural or local-library changes use full redraw. Ref callbacks are replaced/cleared with their owner. The official `fillForm` helper can await the returned native submission Promise; no cancellation is added to native reset/submit.

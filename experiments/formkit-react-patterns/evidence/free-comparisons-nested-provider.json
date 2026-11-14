@@ -1,0 +1,682 @@
+{
+  "scope": "Matching installed Vue/React/adapter free fixtures and explicitly recorded binding differences; not a parity percentage",
+  "apparatus": {
+    "node": "v24.22.1",
+    "platform": "linux",
+    "arch": "x64",
+    "dependencies": {
+      "@formkit/addons": "2.5.0",
+      "@formkit/barcode": "1.1.0",
+      "@formkit/react": "2.5.0",
+      "@formkit/themes": "2.5.0",
+      "@formkit/vue": "2.5.0",
+      "@formkit/zod": "2.5.0",
+      "esbuild": "0.25.12",
+      "jsdom": "27.0.1",
+      "marionette": "5.1.1",
+      "react": "19.2.0",
+      "react-dom": "19.2.0",
+      "vue": "3.5.44",
+      "zod": "3.25.76"
+    },
+    "packageLockSha256": "efb1b6f2983d1b010a28ca3aae4c663547b1627c85200b1af1d5f3f434adb74b",
+    "domBootstrap": "Delegates getComputedStyle to the window created by each test, for older fixtures predating the official theme plugin. No layout/resize/canvas shims supplied by this runner."
+  },
+  "runtimeSha256": {
+    "core/index.mjs": "145585191fd0d458fa7f7e109fa3ddf8025a0dd06a13cd4f5b4e47ce7503ddb5",
+    "core/provider-components.mjs": "03bf9e7e84e2f3f7371ed1c9a11b53981dd0557d5c184c317057f98121b7a9ec",
+    "core/config-scope.mjs": "0f4a9406a05af6aaf1caa644b1e8c3994b2a01880ae06d4d59abe5bdd9d56f1d",
+    "core/upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+    "core/provider-scope.mjs": "3f8df8502448e6c8dd4715352d090edf900ad421fbbdfb25ea5b72a177ba5181",
+    "core/formkit-application.mjs": "6535edfb2564b057699f35b1e4f9c1b9f99d9b213f0e188f23ffb4aeb6d02238",
+    "core/native-types.mjs": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a",
+    "core/helper-components.mjs": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc",
+    "core/section-renderer.mjs": "50ff2f11b19cf2e3131aa8f86b301543f16874f97c71eb17a04f9e130d9630e1",
+    "core/component-library.mjs": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f",
+    "core/value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba",
+    "core/root-slots.mjs": "451082a99235dba755968949f3a4dcd71ca18c8edd94467c8aff64d617145f18",
+    "core/schema-layout.mjs": "4f5d5bb5f059d856a0f7ac65c6fa3e0ab2dc0d3e9574265d410925b3484d6ded",
+    "core/schema.mjs": "2ceee34b447250550bfed79674aef52a1c6f3b01b6880f866382638cecc50dda",
+    "core/schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+    "core/submission-controller.mjs": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968"
+  },
+  "tests": [
+    {
+      "file": "core/native-breadth-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"defaults\":[{\"type\":\"email\",\"dom\":\"\"},{\"type\":\"password\",\"dom\":\"\"},{\"type\":\"search\",\"dom\":\"\"},{\"type\":\"tel\",\"dom\":\"\"},{\"type\":\"url\",\"dom\":\"\"},{\"type\":\"number\",\"dom\":\"\"},{\"type\":\"date\",\"dom\":\"\"},{\"type\":\"time\",\"dom\":\"\"},{\"type\":\"datetime-local\",\"dom\":\"\"},{\"type\":\"month\",\"dom\":\"\"},{\"type\":\"week\",\"dom\":\"\"},{\"type\":\"color\",\"dom\":\"#000000\"},{\"type\":\"range\",\"dom\":\"50\"},{\"type\":\"hidden\",\"dom\":\"\"}],\"limits\":\"JSDOM sanitization only; native browser gate pending. Number conversion opt-in, not automatic by type.\"}\n"
+    },
+    {
+      "file": "core/native-breadth-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"defaults\":[{\"type\":\"email\",\"dom\":\"\"},{\"type\":\"password\",\"dom\":\"\"},{\"type\":\"search\",\"dom\":\"\"},{\"type\":\"tel\",\"dom\":\"\"},{\"type\":\"url\",\"dom\":\"\"},{\"type\":\"number\",\"dom\":\"\"},{\"type\":\"date\",\"dom\":\"\"},{\"type\":\"time\",\"dom\":\"\"},{\"type\":\"datetime-local\",\"dom\":\"\"},{\"type\":\"month\",\"dom\":\"\"},{\"type\":\"week\",\"dom\":\"\"},{\"type\":\"color\",\"dom\":\"#000000\"},{\"type\":\"range\",\"dom\":\"50\"},{\"type\":\"hidden\",\"dom\":\"\"}],\"limits\":\"JSDOM sanitization only; native browser gate pending. Number conversion opt-in, not automatic by type.\"}\n"
+    },
+    {
+      "file": "core/native-breadth-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"defaults\":[{\"type\":\"email\",\"dom\":\"\"},{\"type\":\"password\",\"dom\":\"\"},{\"type\":\"search\",\"dom\":\"\"},{\"type\":\"tel\",\"dom\":\"\"},{\"type\":\"url\",\"dom\":\"\"},{\"type\":\"number\",\"dom\":\"\"},{\"type\":\"date\",\"dom\":\"\"},{\"type\":\"time\",\"dom\":\"\"},{\"type\":\"datetime-local\",\"dom\":\"\"},{\"type\":\"month\",\"dom\":\"\"},{\"type\":\"week\",\"dom\":\"\"},{\"type\":\"color\",\"dom\":\"#000000\"},{\"type\":\"range\",\"dom\":\"50\"},{\"type\":\"hidden\",\"dom\":\"\"}],\"limits\":\"JSDOM sanitization only; native browser gate pending. Number conversion opt-in, not automatic by type.\"}\n"
+    },
+    {
+      "file": "core/select-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"placeholder default\",\"external typed value\",\"native input numeric value\",\"options reorder preserves selected value/node/element\",\"reset\"],\"limits\":[\"JSDOM not real keyboard/browser\"]}\n"
+    },
+    {
+      "file": "core/select-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"placeholder default\",\"external typed value\",\"native input numeric value\",\"options reorder preserves selected value/node/element\",\"reset\"],\"limits\":[\"JSDOM not real keyboard/browser\"]}\n"
+    },
+    {
+      "file": "core/select-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"placeholder default\",\"external typed value\",\"native input numeric value\",\"options reorder preserves selected value/node/element\",\"reset\"],\"limits\":[\"JSDOM not real keyboard/browser\"]}\n"
+    },
+    {
+      "file": "core/textarea-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"nested group/text composition\",\"absent default and required validation\",\"multiline native input\",\"external value\",\"label/help/error ID references\",\"live rows/cols/maxlength/disabled\",\"node/control identity\",\"reset\",\"cleanup\"],\"limits\":[\"JSDOM, not native browser keyboard\"]}\n"
+    },
+    {
+      "file": "core/textarea-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"nested group/text composition\",\"absent default and required validation\",\"multiline native input\",\"external value\",\"label/help/error ID references\",\"live rows/cols/maxlength/disabled\",\"node/control identity\",\"reset\",\"cleanup\"],\"limits\":[\"JSDOM, not native browser keyboard\"]}\n"
+    },
+    {
+      "file": "core/textarea-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"nested group/text composition\",\"absent default and required validation\",\"multiline native input\",\"external value\",\"label/help/error ID references\",\"live rows/cols/maxlength/disabled\",\"node/control identity\",\"reset\",\"cleanup\"],\"limits\":[\"JSDOM, not native browser keyboard\"]}\n"
+    },
+    {
+      "file": "core/option-value-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"placeholder default\",\"external typed value\",\"native input numeric value\",\"options reorder preserves selected value/node/element\",\"reset\"],\"limits\":[\"JSDOM not real keyboard/browser\"]}\n"
+    },
+    {
+      "file": "core/option-value-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"placeholder default\",\"external typed value\",\"native input numeric value\",\"options reorder preserves selected value/node/element\",\"reset\"],\"limits\":[\"JSDOM not real keyboard/browser\"]}\n"
+    },
+    {
+      "file": "core/option-value-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"placeholder default\",\"external typed value\",\"native input numeric value\",\"options reorder preserves selected value/node/element\",\"reset\"],\"limits\":[\"JSDOM not real keyboard/browser\"]}\n"
+    },
+    {
+      "file": "core/default-props-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"nested group/text composition\",\"absent default and required validation\",\"multiline native input\",\"external value\",\"label/help/error ID references\",\"live rows/cols/maxlength/disabled\",\"node/control identity\",\"reset\",\"cleanup\"],\"limits\":[\"JSDOM, not native browser keyboard\"]}\n"
+    },
+    {
+      "file": "core/default-props-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"nested group/text composition\",\"absent default and required validation\",\"multiline native input\",\"external value\",\"label/help/error ID references\",\"live rows/cols/maxlength/disabled\",\"node/control identity\",\"reset\",\"cleanup\"],\"limits\":[\"JSDOM, not native browser keyboard\"]}\n"
+    },
+    {
+      "file": "core/default-props-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"nested group/text composition\",\"absent default and required validation\",\"multiline native input\",\"external value\",\"label/help/error ID references\",\"live rows/cols/maxlength/disabled\",\"node/control identity\",\"reset\",\"cleanup\"],\"limits\":[\"JSDOM, not native browser keyboard\"]}\n"
+    },
+    {
+      "file": "core/prop-alias-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"definition aliases\",\"group disabled inheritance\",\"explicit prop precedence\",\"notified alias changes\",\"retained input\",\"caller ownership\"],\"note\":\"Vue/React bindings receive canonical props; alternate public attrs aliases follow Core addProps canonicalization\"}\n"
+    },
+    {
+      "file": "core/prop-alias-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"definition aliases\",\"group disabled inheritance\",\"explicit prop precedence\",\"notified alias changes\",\"retained input\",\"caller ownership\"],\"note\":\"Vue/React bindings receive canonical props; alternate public attrs aliases follow Core addProps canonicalization\"}\n"
+    },
+    {
+      "file": "core/prop-alias-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"definition aliases\",\"group disabled inheritance\",\"explicit prop precedence\",\"notified alias changes\",\"retained input\",\"caller ownership\"],\"note\":\"Vue/React bindings receive canonical props; alternate public attrs aliases follow Core addProps canonicalization\"}\n"
+    },
+    {
+      "file": "core/schema-nested-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"real nested schema controls\",\"expression label/disabled\",\"conditional child ownership\",\"retained node/DOM/edit\",\"typed select\",\"reset\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-nested-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"real nested schema controls\",\"expression label/disabled\",\"conditional child ownership\",\"retained node/DOM/edit\",\"typed select\",\"reset\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-nested-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"real nested schema controls\",\"expression label/disabled\",\"conditional child ownership\",\"retained node/DOM/edit\",\"typed select\",\"reset\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-layout-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "vue genuine layout/native child/conditional/identity cleanup passed\n"
+    },
+    {
+      "file": "core/schema-layout-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "react genuine layout/native child/conditional/identity cleanup passed\n"
+    },
+    {
+      "file": "core/schema-layout-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "experiment genuine layout/native child/conditional/identity cleanup passed\n"
+    },
+    {
+      "file": "core/schema-native-layout-test.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"mixed native group/list DOM and text\",\"no phantom Core nodes\",\"native value topology\",\"aggregate validation\",\"data update\",\"anonymous keyed node/DOM identity\",\"keyed DOM reorder\",\"conditional and row removal\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-native-layout-test.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"mixed native group/list DOM and text\",\"no phantom Core nodes\",\"native value topology\",\"aggregate validation\",\"data update\",\"anonymous keyed node/DOM identity\",\"keyed DOM reorder\",\"conditional and row removal\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-native-layout-test.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"mixed native group/list DOM and text\",\"no phantom Core nodes\",\"native value topology\",\"aggregate validation\",\"data update\",\"anonymous keyed node/DOM identity\",\"keyed DOM reorder\",\"conditional and row removal\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/prop-removal-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"mode\":\"vue\",\"initial\":{\"caption\":\"ONE\",\"renderedCaption\":\"ONE\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"updated\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"omitted\":{\"renderedCaption\":\"undefined\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"en\"},\"explicitUndefined\":{\"renderedCaption\":\"undefined\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"fr\"},\"status\":\"passed\"}\n"
+    },
+    {
+      "file": "core/prop-removal-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"mode\":\"react\",\"initial\":{\"caption\":\"ONE\",\"renderedCaption\":\"ONE\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"updated\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"omitted\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":null,\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"en\"},\"explicitUndefined\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":null,\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"fr\"},\"status\":\"passed\"}\n"
+    },
+    {
+      "file": "core/prop-removal-parity.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"mode\":\"experiment\",\"initial\":{\"caption\":\"ONE\",\"renderedCaption\":\"ONE\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"updated\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"omitted\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":null,\"customClass\":false,\"disabled\":false,\"delay\":0,\"locale\":\"en\"},\"explicitUndefined\":{\"renderedCaption\":\"\",\"title\":null,\"customClass\":false,\"disabled\":false,\"delay\":0,\"locale\":\"fr\"},\"status\":\"passed\"}\n"
+    },
+    {
+      "file": "core/checkbox-prop-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"results\":[{\"value\":\"YES\",\"checked\":true,\"on\":\"YES\",\"off\":\"NO\"},{\"value\":\"YES\",\"checked\":false,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"Y\",\"checked\":true,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"Y\",\"checked\":false,\"on\":\"[undefined]\",\"off\":\"[undefined]\"},{\"value\":\"[undefined]\",\"checked\":true,\"on\":\"[undefined]\",\"off\":\"[undefined]\"}]}\n"
+    },
+    {
+      "file": "core/checkbox-prop-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "failed",
+      "exitCode": 1,
+      "signal": null,
+      "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\ntrue !== false\n\n    at file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/checkbox-prop-parity.mjs:5:352 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: true,\n  expected: false,\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+    },
+    {
+      "file": "core/class-config-parity.mjs",
+      "args": [
+        "core"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"mode\":\"core\",\"initial\":\"initial\",\"local\":\"local\",\"replaced\":\"replaced\",\"localAfterParentReplacement\":\"local\",\"late\":\"replaced\",\"fieldReplacement\":\"fieldReplacement\",\"status\":\"passed\"}\n"
+    },
+    {
+      "file": "core/class-config-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"mode\":\"vue\",\"initial\":\"formkit-input initial\",\"local\":\"formkit-input local\",\"replaced\":\"formkit-input replaced\",\"localAfterParentReplacement\":\"formkit-input local\",\"late\":\"formkit-input replaced\",\"fieldReplacement\":\"formkit-input fieldReplacement\",\"status\":\"passed\"}\n"
+    },
+    {
+      "file": "core/class-config-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"mode\":\"react\",\"initial\":\"formkit-input initial\",\"local\":\"formkit-input local\",\"replaced\":\"formkit-input initial\",\"localAfterParentReplacement\":\"formkit-input local\",\"parentReplacementDivergence\":\"React 2.5 retains cached classes\",\"late\":\"formkit-input replaced\",\"fieldReplacement\":\"formkit-input initial\",\"fieldReplacementDivergence\":\"React 2.5 retains cached classes\",\"status\":\"passed\"}\n"
+    },
+    {
+      "file": "core/addon-compat-test.mjs",
+      "args": [
+        "adapter"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"real Core group ownership\",\"two rendered tabs/panels\",\"validation blocks forward\",\"input commits nested value\",\"next/previous/goTo and Tab key hookup\",\"tab focus and selection\",\"retained node and label update\",\"active step removal fallback\",\"dynamic multistep creation\",\"every descendant destroyed once\"],\"evidence\":[{\"stage\":\"initial\",\"active\":\"one\",\"tabs\":[{\"text\":\"First\",\"selected\":\"true\"},{\"text\":\"Second\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameNext\"},{\"hidden\":true,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{},\"two\":{}}}},{\"stage\":\"invalid-blocked\",\"active\":\"one\",\"tabs\":[{\"text\":\"First\",\"selected\":\"true\"},{\"text\":\"Second\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameName is required.Next\"},{\"hidden\":true,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{},\"two\":{}}}},{\"stage\":\"valid-next\",\"active\":\"two\",\"tabs\":[{\"text\":\"First\",\"selected\":\"false\"},{\"text\":\"Second\",\"selected\":\"true\"}],\"panels\":[{\"hidden\":true,\"text\":\"NameNext\"},{\"hidden\":false,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{\"first\":\"Paul\"},\"two\":{}}}},{\"stage\":\"replace-step\",\"active\":\"one\",\"tabs\":[{\"text\":\"Updated first\",\"selected\":\"true\"},{\"text\":\"Third\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameNext\"},{\"hidden\":true,\"text\":\"Previous\"}],\"values\":{\"wizard\":{\"one\":{\"first\":\"Paul\"},\"three\":{}}}}],\"destroyed\":8}\n"
+    },
+    {
+      "file": "core/addon-compat-test.mjs",
+      "args": [
+        "projection"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"projection\",\"checks\":[\"real Core group ownership\",\"two rendered tabs/panels\",\"validation blocks forward\",\"input commits nested value\",\"next/previous/goTo and Tab key hookup\",\"tab focus and selection\",\"retained node and label update\",\"active step removal fallback\",\"dynamic multistep creation\",\"every descendant destroyed once\"],\"evidence\":[{\"stage\":\"initial\",\"active\":\"one\",\"tabs\":[{\"text\":\"First\",\"selected\":\"true\"},{\"text\":\"Second\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameNext\"},{\"hidden\":true,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{},\"two\":{}}}},{\"stage\":\"invalid-blocked\",\"active\":\"one\",\"tabs\":[{\"text\":\"First\",\"selected\":\"true\"},{\"text\":\"Second\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameName is required.Next\"},{\"hidden\":true,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{},\"two\":{}}}},{\"stage\":\"valid-next\",\"active\":\"two\",\"tabs\":[{\"text\":\"First\",\"selected\":\"false\"},{\"text\":\"Second\",\"selected\":\"true\"}],\"panels\":[{\"hidden\":true,\"text\":\"NameNext\"},{\"hidden\":false,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{\"first\":\"Paul\"},\"two\":{}}}},{\"stage\":\"replace-step\",\"active\":\"one\",\"tabs\":[{\"text\":\"Updated first\",\"selected\":\"true\"},{\"text\":\"Third\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameNext\"},{\"hidden\":true,\"text\":\"Previous\"}],\"values\":{\"wizard\":{\"one\":{\"first\":\"Paul\"},\"three\":{}}}}],\"destroyed\":8}\n"
+    },
+    {
+      "file": "core/addon-compat-test.mjs",
+      "args": [
+        "shadow"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"shadow\",\"checks\":[\"real Core group ownership\",\"two rendered tabs/panels\",\"validation blocks forward\",\"input commits nested value\",\"next/previous/goTo and Tab key hookup\",\"tab focus and selection\",\"retained node and label update\",\"active step removal fallback\",\"dynamic multistep creation\",\"every descendant destroyed once\"],\"evidence\":[{\"stage\":\"initial\",\"active\":\"one\",\"tabs\":[{\"text\":\"First\",\"selected\":\"true\"},{\"text\":\"Second\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameNext\"},{\"hidden\":true,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{},\"two\":{}}}},{\"stage\":\"invalid-blocked\",\"active\":\"one\",\"tabs\":[{\"text\":\"First\",\"selected\":\"true\"},{\"text\":\"Second\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameName is required.Next\"},{\"hidden\":true,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{},\"two\":{}}}},{\"stage\":\"valid-next\",\"active\":\"two\",\"tabs\":[{\"text\":\"First\",\"selected\":\"false\"},{\"text\":\"Second\",\"selected\":\"true\"}],\"panels\":[{\"hidden\":true,\"text\":\"NameNext\"},{\"hidden\":false,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{\"first\":\"Paul\"},\"two\":{}}}},{\"stage\":\"replace-step\",\"active\":\"one\",\"tabs\":[{\"text\":\"Updated first\",\"selected\":\"true\"},{\"text\":\"Third\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameNext\"},{\"hidden\":true,\"text\":\"Previous\"}],\"values\":{\"wizard\":{\"one\":{\"first\":\"Paul\"},\"three\":{}}}}],\"destroyed\":8}\n"
+    },
+    {
+      "file": "core/addon-compat-test.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"react\",\"checks\":[\"real Core group ownership\",\"two rendered tabs/panels\",\"validation blocks forward\",\"input commits nested value\",\"next/previous/goTo and Tab key hookup\",\"tab focus and selection\",\"retained node and label update\",\"active step removal fallback\",\"dynamic multistep creation\",\"every descendant destroyed once\"],\"evidence\":[{\"stage\":\"initial\",\"active\":\"one\",\"tabs\":[{\"text\":\"First\",\"selected\":\"true\"},{\"text\":\"Second\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameNext\"},{\"hidden\":true,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{},\"two\":{}}}},{\"stage\":\"invalid-blocked\",\"active\":\"one\",\"tabs\":[{\"text\":\"First\",\"selected\":\"true\"},{\"text\":\"Second\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameName is required.Next\"},{\"hidden\":true,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{},\"two\":{}}}},{\"stage\":\"valid-next\",\"active\":\"two\",\"tabs\":[{\"text\":\"First\",\"selected\":\"false\"},{\"text\":\"Second\",\"selected\":\"true\"}],\"panels\":[{\"hidden\":true,\"text\":\"NameNext\"},{\"hidden\":false,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{\"first\":\"Paul\"},\"two\":{}}}},{\"stage\":\"replace-step\",\"active\":\"one\",\"tabs\":[{\"text\":\"Updated first\",\"selected\":\"true\"},{\"text\":\"Third\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameNext\"},{\"hidden\":true,\"text\":\"Previous\"}],\"values\":{\"wizard\":{\"one\":{\"first\":\"Paul\"},\"three\":{}}}}],\"destroyed\":8}\n"
+    },
+    {
+      "file": "core/addon-compat-test.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"vue\",\"checks\":[\"real Core group ownership\",\"two rendered tabs/panels\",\"validation blocks forward\",\"input commits nested value\",\"next/previous/goTo and Tab key hookup\",\"tab focus and selection\",\"retained node and label update\",\"active step removal fallback\",\"dynamic multistep creation\",\"every descendant destroyed once\"],\"evidence\":[{\"stage\":\"initial\",\"active\":\"one\",\"tabs\":[{\"text\":\"First\",\"selected\":\"true\"},{\"text\":\"Second\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameNext\"},{\"hidden\":true,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{},\"two\":{}}}},{\"stage\":\"invalid-blocked\",\"active\":\"one\",\"tabs\":[{\"text\":\"First1\",\"selected\":\"true\"},{\"text\":\"Second\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameName is required.Next\"},{\"hidden\":true,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{},\"two\":{}}}},{\"stage\":\"valid-next\",\"active\":\"two\",\"tabs\":[{\"text\":\"First\",\"selected\":\"false\"},{\"text\":\"Second\",\"selected\":\"true\"}],\"panels\":[{\"hidden\":true,\"text\":\"NameNext\"},{\"hidden\":false,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{\"first\":\"Paul\"},\"two\":{}}}},{\"stage\":\"replace-step\",\"active\":\"one\",\"tabs\":[{\"text\":\"Updated first\",\"selected\":\"true\"},{\"text\":\"Third\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameNext\"},{\"hidden\":true,\"text\":\"Previous\"}],\"values\":{\"wizard\":{\"one\":{\"first\":\"Paul\"},\"three\":{}}}}],\"destroyed\":8}\n"
+    },
+    {
+      "file": "core/addon-autoheight-parity.mjs",
+      "args": [
+        "adapter"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"official autoHeight plugin clone\",\"owner document propagated\",\"min-height applied\",\"programmatic value copied\",\"clone removed on destroy\"],\"limitations\":\"JSDOM zero geometry; no layout claim\"}\n"
+    },
+    {
+      "file": "core/addon-autoheight-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"react\",\"checks\":[\"official autoHeight plugin clone\",\"owner document propagated\",\"min-height applied\",\"programmatic value copied\",\"clone removed on destroy\"],\"limitations\":\"JSDOM zero geometry; no layout claim\"}\n"
+    },
+    {
+      "file": "core/addon-autoheight-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"vue\",\"checks\":[\"official autoHeight plugin clone\",\"owner document propagated\",\"min-height applied\",\"programmatic value copied\",\"clone removed on destroy\"],\"limitations\":\"JSDOM zero geometry; no layout claim\"}\n"
+    },
+    {
+      "file": "core/autoheight-redraw-parity.mjs",
+      "args": [
+        "adapter"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"evidence\":[{\"stage\":\"initial\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"liveCloneValue\":\"initial\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"attrs 1\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"dataRound\":\"1\",\"liveCloneValue\":\"updated 1\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"attrs 2\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"dataRound\":\"2\",\"liveCloneValue\":\"updated 2\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"attrs 3\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"dataRound\":\"3\",\"liveCloneValue\":\"updated 3\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"outer tag replacement\",\"inputRetained\":false,\"cloneRetained\":false,\"clones\":0,\"originalCloneConnected\":false,\"nodeRetained\":true,\"minHeight\":\"\",\"dataRound\":\"structural\",\"mounts\":1,\"observers\":1,\"liveObservers\":1}],\"cleanup\":{\"mounts\":1,\"destroys\":1,\"hostEmpty\":true,\"observers\":1,\"disconnectCounts\":[1],\"originalCloneConnected\":false}}\n"
+    },
+    {
+      "file": "core/autoheight-redraw-parity.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"react\",\"evidence\":[{\"stage\":\"initial\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"liveCloneValue\":\"initial\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"attrs 1\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"dataRound\":\"1\",\"liveCloneValue\":\"updated 1\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"attrs 2\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"dataRound\":\"2\",\"liveCloneValue\":\"updated 2\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"attrs 3\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"dataRound\":\"3\",\"liveCloneValue\":\"updated 3\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"outer tag replacement\",\"inputRetained\":false,\"cloneRetained\":false,\"clones\":0,\"originalCloneConnected\":false,\"nodeRetained\":true,\"minHeight\":\"\",\"dataRound\":\"structural\",\"mounts\":1,\"observers\":1,\"liveObservers\":1}],\"cleanup\":{\"mounts\":1,\"destroys\":1,\"hostEmpty\":true,\"observers\":1,\"disconnectCounts\":[1],\"originalCloneConnected\":false}}\n"
+    },
+    {
+      "file": "core/autoheight-redraw-parity.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"vue\",\"evidence\":[{\"stage\":\"initial\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"liveCloneValue\":\"initial\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"attrs 1\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"liveCloneValue\":\"updated 1\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"attrs 2\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"liveCloneValue\":\"updated 2\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"attrs 3\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"liveCloneValue\":\"updated 3\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"outer tag replacement\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"liveCloneValue\":\"structural\",\"mounts\":1,\"observers\":1,\"liveObservers\":1}],\"cleanup\":{\"mounts\":1,\"destroys\":1,\"hostEmpty\":true,\"observers\":1,\"disconnectCounts\":[1],\"originalCloneConnected\":false}}\n"
+    },
+    {
+      "file": "core/autoheight-redraw-parity.mjs",
+      "args": [
+        "vue-event"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"vue-event\",\"evidence\":[{\"stage\":\"initial\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"liveCloneValue\":\"initial\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"attrs 1\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"dataRound\":\"1\",\"liveCloneValue\":\"updated 1\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"attrs 2\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"dataRound\":\"2\",\"liveCloneValue\":\"updated 2\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"attrs 3\",\"inputRetained\":true,\"cloneRetained\":true,\"clones\":1,\"originalCloneConnected\":true,\"nodeRetained\":true,\"minHeight\":\"24px\",\"dataRound\":\"3\",\"liveCloneValue\":\"updated 3\",\"mounts\":1,\"observers\":1,\"liveObservers\":1},{\"stage\":\"outer tag replacement\",\"inputRetained\":false,\"cloneRetained\":false,\"clones\":0,\"originalCloneConnected\":false,\"nodeRetained\":true,\"minHeight\":\"\",\"dataRound\":\"structural\",\"mounts\":1,\"observers\":1,\"liveObservers\":1}],\"cleanup\":{\"mounts\":1,\"destroys\":1,\"hostEmpty\":true,\"observers\":1,\"disconnectCounts\":[1],\"originalCloneConnected\":false}}\n"
+    },
+    {
+      "file": "core/barcode-compat-test.mjs",
+      "args": [
+        "adapter"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"official input definition through ordinary inputs registration\",\"text input/Core nested value\",\"actual scanner icon event\",\"controlled getUserMedia -> official stream attachment\",\"allowed/rejected barcode formats\",\"official reset stops tracks on decode and cancel\",\"format/label update retains owner and input\",\"controlled source rejection displays official error\",\"destroy while scanning removes dialog/stops stream\"],\"mockSourceRequests\":4,\"streams\":3,\"trackStops\":[1,1,1],\"dialogShows\":3,\"dialogCloses\":4,\"detachedDialogOpen\":false,\"limitations\":\"JSDOM + controlled media/video/dialog and public decoder-result boundary; no real device, image decoding, permission or browser claim\"}\n"
+    },
+    {
+      "file": "core/barcode-compat-test.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"vue\",\"checks\":[\"official input definition through ordinary inputs registration\",\"text input/Core nested value\",\"actual scanner icon event\",\"controlled getUserMedia -> official stream attachment\",\"allowed/rejected barcode formats\",\"official reset stops tracks on decode and cancel\",\"format/label update retains owner and input\",\"controlled source rejection displays official error\",\"destroy while scanning removes dialog/stops stream\"],\"mockSourceRequests\":4,\"streams\":3,\"trackStops\":[1,1,1],\"dialogShows\":3,\"dialogCloses\":4,\"detachedDialogOpen\":false,\"limitations\":\"JSDOM + controlled media/video/dialog and public decoder-result boundary; no real device, image decoding, permission or browser claim\"}\n"
+    },
+    {
+      "file": "core/barcode-compat-test.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"react\",\"checks\":[\"official input definition through ordinary inputs registration\",\"text input/Core nested value\",\"actual scanner icon event\",\"controlled getUserMedia -> official stream attachment\",\"allowed/rejected barcode formats\",\"official reset stops tracks on decode and cancel\",\"format/label update retains owner and input\",\"controlled source rejection displays official error\",\"destroy while scanning removes dialog/stops stream\"],\"mockSourceRequests\":4,\"streams\":3,\"trackStops\":[1,1,1],\"dialogShows\":3,\"dialogCloses\":3,\"detachedDialogOpen\":true,\"limitations\":\"JSDOM + controlled media/video/dialog and public decoder-result boundary; no real device, image decoding, permission or browser claim\"}\n"
+    },
+    {
+      "file": "core/zod-compat-test.mjs",
+      "args": [
+        "adapter"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"real createZodPlugin through ordinary plugins/onSubmit\",\"nested field error mapping\",\"native validation precedence\",\"live Zod messages and blocking ledger\",\"invalid submit blocked\",\"valid input clears Zod errors without replacing owner/input\",\"safeParseAsync transformed submission payload\",\"setZodErrors extension installed\",\"exact-once descendant destruction\"],\"submitted\":{\"profile\":{\"name\":\"Ada\"},\"email\":\"ada@example.test\",\"age\":21},\"limitations\":\"No browser/device claim; plugin timeout/server-error modes are separate coverage\"}\n"
+    },
+    {
+      "file": "core/zod-compat-test.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"vue\",\"checks\":[\"real createZodPlugin through ordinary plugins/onSubmit\",\"nested field error mapping\",\"native validation precedence\",\"live Zod messages and blocking ledger\",\"invalid submit blocked\",\"valid input clears Zod errors without replacing owner/input\",\"safeParseAsync transformed submission payload\",\"setZodErrors extension installed\",\"exact-once descendant destruction\"],\"submitted\":{\"profile\":{\"name\":\"Ada\"},\"email\":\"ada@example.test\",\"age\":21},\"limitations\":\"No browser/device claim; plugin timeout/server-error modes are separate coverage\"}\n"
+    },
+    {
+      "file": "core/zod-compat-test.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"react\",\"checks\":[\"real createZodPlugin through ordinary plugins/onSubmit\",\"nested field error mapping\",\"native validation precedence\",\"live Zod messages and blocking ledger\",\"invalid submit blocked\",\"valid input clears Zod errors without replacing owner/input\",\"safeParseAsync transformed submission payload\",\"setZodErrors extension installed\",\"exact-once descendant destruction\"],\"submitted\":{\"profile\":{\"name\":\"Ada\"},\"email\":\"ada@example.test\",\"age\":21},\"limitations\":\"No browser/device claim; plugin timeout/server-error modes are separate coverage\"}\n"
+    },
+    {
+      "file": "core/lazy-provider-upstream.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "<Suspense> is an experimental feature and its API will likely change.\n{\"passed\":true,\"arm\":\"vue\",\"evidence\":[{\"case\":\"pending -> default-config load\",\"factoryCalls\":1,\"created\":1,\"destroyed\":1},{\"case\":\"inherited provider bypasses configFile/defaultConfig\",\"moduleLoads\":0,\"factoryCalls\":0},{\"case\":\"unmount while import pending\",\"factoryCallsAfterUnmount\":1,\"childNodesCreated\":0},{\"case\":\"defaultConfig:false\",\"rawPipeline\":true,\"defaultValidationInjected\":false},{\"case\":\"module rejection\",\"error\":\"Controlled config rejection\",\"childNodesCreated\":0}],\"scope\":\"Actual official FormKitLazyProvider; controlled file modules only; no new wrapper semantics substituted\"}\n[Vue warn]: Component is missing template or render function:  {\n  name: 'FormKitConfigLoader2',\n  props: [ 'defaultConfig', 'configFile' ],\n  inheritAttrs: false,\n  setup: [AsyncFunction: FormKitConfigLoader2]\n} \n  at <FormKitConfigLoader2 configFile=\"file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/fixtures/provider-reject.mjs?vue=6\" defaultConfig=undefined > \n  at <FormKitLazyProvider2 configFile=\"file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/fixtures/provider-reject.mjs?vue=6\" > \n  at <App>\n"
+    },
+    {
+      "file": "core/lazy-provider-upstream.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"react\",\"evidence\":[{\"case\":\"pending -> default-config load\",\"factoryCalls\":1,\"created\":1,\"destroyed\":1},{\"case\":\"inherited provider bypasses configFile/defaultConfig\",\"moduleLoads\":0,\"factoryCalls\":0},{\"case\":\"unmount while import pending\",\"factoryCallsAfterUnmount\":1,\"childNodesCreated\":0},{\"case\":\"defaultConfig:false\",\"rawPipeline\":true,\"defaultValidationInjected\":false},{\"case\":\"module rejection\",\"error\":\"Controlled config rejection\",\"childNodesCreated\":0}],\"scope\":\"Actual official FormKitLazyProvider; controlled file modules only; no new wrapper semantics substituted\"}\n"
+    },
+    {
+      "file": "core/application-root-config-test.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"vue\",\"observedInitial\":{\"rootIdentity\":false,\"wrappedRoot\":true,\"locale\":\"en\",\"childLocale\":\"en\",\"inputClass\":\"formkit-input\"},\"referenceDifference\":\"Vue2.5 wraps a pre-normalized rootConfig and loses its inherited locale/classes in this fixture\",\"checks\":[\"preserve supplied Core rootConfig identity\",\"initial shared locale/classes\",\"notified shared locale update with retained Core/DOM\",\"each created node destroyed once\"],\"scope\":\"Installed provider normalization counterpart; no nested-provider or browser/performance claim\"}\n"
+    },
+    {
+      "file": "core/application-root-config-test.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"react\",\"observedInitial\":{\"rootIdentity\":true,\"wrappedRoot\":false,\"locale\":\"fr\",\"childLocale\":\"fr\",\"inputClass\":\"shared-input\"},\"referenceDifference\":\"Preserves supplied Core rootConfig as React2.5 does\",\"checks\":[\"preserve supplied Core rootConfig identity\",\"initial shared locale/classes\",\"notified shared locale update with retained Core/DOM\",\"each created node destroyed once\"],\"scope\":\"Installed provider normalization counterpart; no nested-provider or browser/performance claim\"}\n"
+    },
+    {
+      "file": "core/nested-provider-upstream.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"formCount\":1,\"children\":[\"before\",\"shared\",\"innerOnly\",\"lazy\",\"after\"],\"nodes\":{\"before\":{\"parentSame\":true,\"locale\":\"en\",\"delay\":20,\"rootClasses\":\"outer-input\",\"blocking\":0},\"shared\":{\"parentSame\":true,\"locale\":\"en\",\"delay\":42,\"rootClasses\":\"outer-input\",\"blocking\":0},\"innerOnly\":{\"parentSame\":true,\"locale\":\"en\",\"delay\":42,\"rootClasses\":\"outer-input\",\"blocking\":1},\"lazy\":{\"parentSame\":true,\"locale\":\"en\",\"delay\":42,\"rootClasses\":\"outer-input\",\"blocking\":0},\"after\":{\"parentSame\":true,\"locale\":\"en\",\"delay\":20,\"rootClasses\":\"outer-input\",\"blocking\":0}},\"definitions\":[\"outer\",\"outer\",\"innerOnly\",\"innerOnly\",\"outer\"],\"counts\":{\"outer\":[\"form_1\",\"before\",\"shared\",\"innerOnly\",\"lazy\",\"after\"],\"inner\":[\"shared\",\"innerOnly\",\"lazy\"]}}\n"
+    },
+    {
+      "file": "core/nested-provider-upstream.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"formCount\":1,\"children\":[\"before\",\"shared\",\"innerOnly\",\"lazy\",\"after\"],\"nodes\":{\"before\":{\"parentSame\":true,\"locale\":\"en\",\"delay\":20,\"rootClasses\":\"outer-input\",\"blocking\":0},\"shared\":{\"parentSame\":true,\"locale\":\"en\",\"delay\":42,\"rootClasses\":\"outer-input\",\"blocking\":0},\"innerOnly\":{\"parentSame\":true,\"locale\":\"en\",\"delay\":42,\"rootClasses\":\"outer-input\",\"blocking\":1},\"lazy\":{\"parentSame\":true,\"locale\":\"en\",\"delay\":42,\"rootClasses\":\"outer-input\",\"blocking\":0},\"after\":{\"parentSame\":true,\"locale\":\"en\",\"delay\":20,\"rootClasses\":\"outer-input\",\"blocking\":0}},\"definitions\":[\"outer\",\"outer\",\"innerOnly\",\"innerOnly\",\"outer\"],\"counts\":{\"outer\":[\"form_1\",\"before\",\"shared\",\"innerOnly\",\"lazy\",\"after\"],\"inner\":[\"shared\",\"innerOnly\",\"lazy\"]}}\n"
+    },
+    {
+      "file": "core/nested-lazy-upstream.mjs",
+      "args": [
+        "vue",
+        "load"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "<Suspense> is an experimental feature and its API will likely change.\n{\"arm\":\"vue\",\"mode\":\"load\",\"before\":{\"children\":[\"before\",\"after\"],\"forms\":1,\"late\":false},\"after\":{\"children\":[\"before\",\"after\",\"late\"],\"factories\":1,\"created\":1,\"late\":true,\"parentSame\":true,\"value\":\"initial\",\"forms\":1},\"destroyed\":1}\n"
+    },
+    {
+      "file": "core/nested-lazy-upstream.mjs",
+      "args": [
+        "vue",
+        "cancel"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "<Suspense> is an experimental feature and its API will likely change.\n{\"arm\":\"vue\",\"mode\":\"cancel\",\"before\":{\"children\":[\"before\",\"after\"],\"forms\":1,\"late\":false},\"after\":{\"children\":[],\"factories\":1,\"created\":0,\"late\":false,\"forms\":0},\"destroyed\":0}\n"
+    },
+    {
+      "file": "core/nested-lazy-upstream.mjs",
+      "args": [
+        "react",
+        "load"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"mode\":\"load\",\"before\":{\"children\":[\"before\",\"after\"],\"forms\":1,\"late\":false},\"after\":{\"children\":[\"before\",\"after\",\"late\"],\"factories\":1,\"created\":1,\"late\":true,\"parentSame\":true,\"value\":\"initial\",\"forms\":1},\"destroyed\":1}\n"
+    },
+    {
+      "file": "core/nested-lazy-upstream.mjs",
+      "args": [
+        "react",
+        "cancel"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"mode\":\"cancel\",\"before\":{\"children\":[\"before\",\"after\"],\"forms\":1,\"late\":false},\"after\":{\"children\":[],\"factories\":1,\"created\":0,\"late\":false,\"forms\":0},\"destroyed\":0}\n"
+    }
+  ],
+  "passed": 62,
+  "failed": 1,
+  "runtimeUnchanged": true
+}

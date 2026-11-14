@@ -1,4 +1,4 @@
-# Explicit application submission controller: scoped experimental compatibility
+# Explicit application submission controller: review candidate
 
 Import `createSubmissionController` and `SubmissionError` from `submission-controller.mjs`. Select it deliberately:
 

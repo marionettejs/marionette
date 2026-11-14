@@ -1,0 +1,136 @@
+{
+  "tests": [
+    {
+      "file": "core/schema-slot-data-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"Schema-valued slots use replacement data\",\"omitted data keys disappear\",\"loop locals update and keyed DOM stays retained\",\"repeated refresh stays live\",\"borrowed data.node survives cleanup\",\"owned nodes destroyed once\"],\"scope\":\"Adapter schema-valued slot contract;no upstream schema-valued slot API equivalence or browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-owner-lifecycle-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"independent Schema owners share one Core group without duplicate IDs\",\"one local library replacement preserves sibling owner/Core/DOM\",\"removing one Schema leaves parent/sibling and borrowed node intact\",\"every owned Core/presentation resource destroyed once\",\"same-root Region detach/reattach preserves Core/DOM/value and single mounted callback\",\"explicit remount into ShadowRoot selects its actual DOM root\"],\"scope\":\"Public ownership/composition/Region contracts;active Root cross-root auto-retargeting remains outside documented contract;no browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-root-components-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"literal Schema owns only its fields; Core sibling order/initial values, isolated explicit data including node/values, updates and exact teardown\",\"replacement Schema and data retain native Core/DOM owners and values, and reconcile added fields\",\"Schema in native group/provider inherits options, plugins and parent validation ownership\",\"Schema-local library overrides portable factories and the FormKit sugar factory without allocating hidden Core fields\",\"Schema mounted callback and default caller slot render without duplicate owners\",\"Root waits for attachment, discovers Document, adds no Core/form owner and tears down children once\",\"Root and Schema compose inside actual ShadowRoot with local DOM-root inheritance\",\"Schema data.node is data, does not steal parent injection and is never destroyed by the Schema owner\",\"Root discovers its actual nested shadow boundary rather than global document or enclosing form hint; providers and Schema preserve it\",\"Schema mounted callback waits for real attachment and runs once\",\"Schema-valued named slots reuse existing presentation-slot renderer and local data\",\"removing Schema/Root during Lazy preparation destroys its Application and blocks late factory/Core work\",\"pending unattached Root teardown never creates descendants\",\"reactive FormKit context supplied as Schema data refreshes and unsubscribes without destroying its borrowed node\",\"library and memoKey updates rebuild presentation factories while retaining native fields and transparent schema layout\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/lazy-scope-exception-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"failed renderChildren construction disposes allocated Core/DOM\",\"public stop leaves no failed child scope\",\"retry does not accumulate or duplicate fields\",\"all created nodes deregistered/destroyed once\"],\"scope\":\"Portable factory construction cleanup,not arbitrary callback rollback or attempt-all teardown\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/lazy-inheritance-removal-test.mjs",
+      "args": [
+        "adapter",
+        "basic"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"mode\":\"basic\",\"observed\":{\"entered\":1,\"completed\":1,\"factories\":1,\"source\":\"module\",\"keptOutside\":true,\"childNames\":[\"outside\",\"inside\"]},\"scope\":\"React replacement semantics:lost inherited options starts own loader before creating descendants\",\"cameraCalls\":0,\"performanceSamples\":0}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/lazy-inheritance-removal-test.mjs",
+      "args": [
+        "adapter",
+        "conditional"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"mode\":\"conditional\",\"observed\":{\"entered\":1,\"completed\":1,\"factories\":1,\"source\":\"module\",\"keptOutside\":true,\"childNames\":[\"outside\",\"inside\",\"future\"]},\"scope\":\"React replacement semantics:lost inherited options starts own loader before creating descendants\",\"cameraCalls\":0,\"performanceSamples\":0}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/lazy-inheritance-removal-test.mjs",
+      "args": [
+        "adapter",
+        "cycle"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"mode\":\"cycle\",\"observed\":{\"entered\":1,\"completed\":1,\"factories\":2,\"source\":\"module\",\"keptOutside\":true,\"childNames\":[\"outside\",\"inside\"]},\"scope\":\"React replacement semantics:lost inherited options starts own loader before creating descendants\",\"cameraCalls\":0,\"performanceSamples\":0}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/lazy-inheritance-removal-test.mjs",
+      "args": [
+        "react",
+        "conditional"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"react\",\"mode\":\"conditional\",\"observed\":{\"entered\":1,\"completed\":1,\"factories\":1,\"source\":\"module\",\"keptOutside\":true,\"childNames\":[\"outside\",\"inside\",\"future\"]},\"scope\":\"React replacement semantics:lost inherited options starts own loader before creating descendants\",\"cameraCalls\":0,\"performanceSamples\":0}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/lazy-inheritance-removal-test.mjs",
+      "args": [
+        "vue",
+        "conditional"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"vue\",\"mode\":\"conditional\",\"observed\":{\"entered\":0,\"completed\":0,\"factories\":0,\"source\":\"inherited\",\"keptOutside\":true,\"childNames\":[\"outside\",\"inside\",\"future\"]},\"scope\":\"Vue captures provider options during setup;removal prop does not switch scope\",\"cameraCalls\":0,\"performanceSamples\":0}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/provider-inheritance-transition-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"afterInherited\":{\"hasChild\":true,\"moduleCompleted\":0,\"factories\":0},\"afterModule\":{\"hasChild\":true,\"source\":\"inherited\",\"factories\":0},\"referenceDifference\":\"React replacement provider supplies inherited options before pending module finishes\",\"scope\":\"Controlled import;no browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/nested-provider-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"actual Vue/React nested precedence: outer common definition/locale/classes, inner delay/unique definition/plugin; inherited Lazy bypass; one Core form, initial values, validation and exact cleanup\",\"opaque provider inside projected native group preserves one parent/value/validation owner and schema-removal cleanup\",\"true same-form Lazy function/object/namespace loading holds only descendants, retains siblings and hydrates delayed initial values\",\"schema removal and form destruction cancel pending Application before late factory/Core work\",\"async rejection is observable on owning View; public Application restart retries without replacing the form\",\"defaultConfig:false passes raw scoped plugins while keeping actual inherited parent validation\",\"replacement options apply to newly mounted descendants and retain existing Core identity/value\",\"opaque provider aliases inside keyed loops retain lexical data, Core identity and exact cleanup\",\"active Application reload retains existing descendants and value, scopes future children, and tears down every Core node once\",\"public mount preserves explicitly prepared Application provider scope and inherited Lazy bypass\",\"direct-child props forward and update; child props/bind win, DOM descendants do not inherit, overridden refs never receive duplicate mounting\",\"changing configFile automatically reloads options through Application while retaining existing nodes and values\",\"synchronous provider siblings in a native list allocate in source order and preserve all initial list values\",\"opaque sibling scopes preserve named input slot rendering\",\"opaque provider input named slots retain and update loop-local lexical data\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-slot-data-reference.mjs",
+      "args": [
+        "vue"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"vue\",\"checks\":[\"actual function slot receives replacement Schema data\",\"removed data keys disappear\",\"reordered loop locals and later data updates stay live\",\"normal cleanup\"],\"scope\":\"Actual pinned function-slot counterpart to the portable schema-valued slot extension;no framework-object portability claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-slot-data-reference.mjs",
+      "args": [
+        "react"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"react\",\"checks\":[\"actual function slot receives replacement Schema data\",\"removed data keys disappear\",\"reordered loop locals and later data updates stay live\",\"normal cleanup\"],\"scope\":\"Actual pinned function-slot counterpart to the portable schema-valued slot extension;no framework-object portability claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/unified-schema-root-slots-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "unified schema/root slots: data, nested factories, content slots, retained DOM/Core/value, schema replacement, root redraw, callbacks, parked fields, explicit-controller compatibility and exact-once teardown passed\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/teardown-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"results\":[{\"count\":200,\"parentCommitEventsObserved\":0,\"coreDestroyed\":202,\"domChildListRecords\":1,\"rootRemovedChildren\":212},{\"count\":400,\"parentCommitEventsObserved\":0,\"coreDestroyed\":402,\"domChildListRecords\":1,\"rootRemovedChildren\":412}],\"checks\":[\"parent-first terminal destruction avoids live-parent commits; destroyed ledger settlement not required\",\"all nodes deregistered/destroyed\",\"one bulk root DOM clear\",\"no later metrics activity\",\"live field removal still commits\"],\"limits\":[\"observed parent events, not instrumentation of every internal Core operation\",\"JSDOM counters, not browser timings\"]}\n",
+      "stderr": ""
+    }
+  ],
+  "passed": 15,
+  "failed": 0,
+  "runtimeSha256": {
+    "core/root-slots.mjs": "fdae5a1b69311e961a5d87d5e4e1f64aa9953e0a7d7042cbdd52ba7144f85ca4",
+    "core/provider-components.mjs": "bfa70038bcbe312beae42ff6728e5d272bc67ae9e984633f63d1d3ed90dbd190",
+    "core/section-renderer.mjs": "6940a21f4ab634694efb6d4b198d0f9fd9b62bc62111d7cca97149bd4ba61e3c"
+  },
+  "scope": "Independent final review of Schema/Root/data/provider lifetimes;actual pinned references;no benchmark duplication or post-fix timing claim"
+}

@@ -1,0 +1,9 @@
+{
+  "scope": "New review branch changes only; dependency/build/input workspaces excluded from Git. Pattern and embedded-artifact checks emit no secrets.",
+  "base": "a993e4fbe8ff5d170822819f5793c5005b8daf18",
+  "scannedChangedOrNewPaths": 213,
+  "credentialCandidates": [],
+  "licensedVendorOrPrivateArtifactPaths": [],
+  "embeddedProArtifactCandidates": [],
+  "limitations": "Bounded content/path checks, not a universal credential detector. Pro references in adapter evidence are not vendor payloads."
+}

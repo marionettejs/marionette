@@ -1,0 +1,14 @@
+[
+  {
+    "mode": "conditional",
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n[DOMException [NotFoundError]: The child can not be found in the parent.]\n\nNode.js v24.22.1\n"
+  },
+  {
+    "mode": "reorder",
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n[DOMException [NotFoundError]: The child can not be found in the parent.]\n\nNode.js v24.22.1\n"
+  }
+]

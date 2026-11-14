@@ -1,0 +1,53 @@
+{
+  "react": {
+    "components": [
+      "FormKit",
+      "FormKitIcon",
+      "FormKitKitchenSink",
+      "FormKitLazyProvider",
+      "FormKitMessages",
+      "FormKitProvider",
+      "FormKitRoot",
+      "FormKitSchema",
+      "FormKitSummary"
+    ],
+    "sourceSha256": "6d2a1950a197355e2fe20536ee3809899160df05f13b3d03f11dd93868dc82c8"
+  },
+  "vue": {
+    "components": [
+      "FormKit",
+      "FormKitIcon",
+      "FormKitKitchenSink",
+      "FormKitLazyProvider",
+      "FormKitMessages",
+      "FormKitProvider",
+      "FormKitRoot",
+      "FormKitRuntimeComponent",
+      "FormKitSchema",
+      "FormKitSummary"
+    ],
+    "sourceSha256": "3a5ad66eb0f94433fd98299378ed29f751320a532017f1f274bafb9e44f54e8e"
+  },
+  "portableComponents": [
+    "FormKit",
+    "FormKitIcon",
+    "FormKitLazyProvider",
+    "FormKitMessages",
+    "FormKitProvider",
+    "FormKitRoot",
+    "FormKitSchema",
+    "FormKitSummary"
+  ],
+  "classified": {
+    "FormKitKitchenSink": "Vue demonstration / React placeholder",
+    "FormKitRuntimeComponent": "Vue alias of FormKit;identity verified in prior public audit",
+    "Inertia": "Separate Vue/Inertia integration",
+    "HooksContextSSRUtilities": "Binding integration APIs,not additional portable component names"
+  },
+  "remainingLiteralFactories": [
+    "FormKitSchema",
+    "FormKitRoot"
+  ],
+  "newFamiliesFound": 0,
+  "performance": "Held pending final factory lane and combined browser gate"
+}

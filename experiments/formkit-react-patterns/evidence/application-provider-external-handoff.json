@@ -1,0 +1,69 @@
+{
+  "status": "implemented in isolated lane; canonical untouched; no publication",
+  "newPublicRuntime": "FormKitApplication exported from core/index.mjs; actual Marionette Application subclass",
+  "patches": {
+    "application-provider-runtime.patch": "b74ad673e19874f6856111e10b33c22d241b6d37e6ad21f2186c5aa535ae47c5",
+    "application-provider-tests.patch": "b972e5fa76fe0005c1044b15e5e4c2a5c92009f5a6bfab510394a2e1f57f81df",
+    "application-provider-docs.patch": "14ab469033c4a9d16091492b70cf1c19e3ea8126c0e137bb2e25b4c037a0c304"
+  },
+  "newBehavior": [
+    "Application-owned dynamic config import and synchronous factory normalization before Core/View construction",
+    "Default-export object/function and namespace config support",
+    "Explicit provider prerequisite and inherited-scope bypass of configFile/defaultConfig",
+    "Shared reactive Core rootConfig across owned or borrowed consumer Applications",
+    "Application pending/rejection/retry, supersession and stop/destroy cancellation semantics",
+    "defaultConfig:false with only the supplied library/binding/theme/validation/i18n pipeline",
+    "Normal overridable createFormView factory and borrowed/owned Region lifetimes"
+  ],
+  "acceptance": {
+    "passed": 74,
+    "failed": 0,
+    "runtimeUnchanged": true,
+    "receipt": "free-regressions-result.json",
+    "dedicatedReceipt": "application-config-result.json",
+    "applicationsExercised": 14
+  },
+  "officialComparisons": {
+    "react": "lazy-provider-upstream-react.json",
+    "vue": "lazy-provider-upstream-vue.json",
+    "sameCases": [
+      "pending config suppresses child/Core rendering",
+      "factory normalization",
+      "inherited provider skips own config module",
+      "raw defaultConfig:false pipeline",
+      "configuration rejection"
+    ],
+    "intentionalHostDifference": "Real React/Vue invoke config factory after an in-flight import resolves following unmount, without creating children. Application cancellation suppresses that post-import callback too. Import/module evaluation itself is not aborted."
+  },
+  "architecturalChoice": {
+    "implementedBoundary": "One configuration scope per FormView/Application, with explicit provider and child-Application ownership. This is a host counterpart to provider roles, not a Vue/React component object.",
+    "notImplemented": "No literal $cmp:FormKitLazyProvider or $cmp:FormKitProvider nested in an already-owned single form. This is explicitly still outside literal schema-component API parity.",
+    "whyCurrentABIRequiresBroaderChange": [
+      "schema-layout.mjs projects/allocates $formkit descendants before ordinary $cmp factories",
+      "FormKit component factory closes over the owning View definitions/plugins",
+      "renderChildren currently passes lexical/node scope, not a FormKit option-provider boundary"
+    ],
+    "smallestCoordinatorOptions": [
+      "Adopt this actual Application-level mapping and use registered child Applications for separately scoped FormViews. No renderer/projector ABI change required.",
+      "If same-form nested provider components are required, add an opaque provider projection boundary, carry option scopes through renderChildren/factory args, and teach Core creation/cleanup to use the inherited scoped definitions/plugins/config. Coordinate that separate shared-ABI change with the sole writer."
+    ],
+    "restartContract": "Retains current View during loading/failure; successful restart replaces its form View. Registered children retain their scopes until explicitly restarted, following Marionette Application semantics."
+  },
+  "supportAccounting": {
+    "newApplicationConfigCapability": 1,
+    "newControlTypes": 0,
+    "newLiteralSchemaComponentFactories": 0,
+    "officialRolesMapped": [
+      "FormKitProvider config scope",
+      "FormKitLazyProvider async readiness/inherited bypass"
+    ],
+    "fullVueReactComponentParityClaimed": false
+  },
+  "docs": "core/APPLICATION-CONFIG.md",
+  "limits": [
+    "JSDOM/Node acceptance and actual installed official provider comparisons; no browser/device or performance claims",
+    "ES module evaluation cannot be cancelled; obsolete activation and post-import factory work are suppressed",
+    "Synchronous View creation/notification failures preserve ordinary Marionette no-rollback semantics"
+  ],
+  "fillForm": "Canonical writer fix retained in baseline and not edited by this patch."
+}

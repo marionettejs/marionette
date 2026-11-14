@@ -2,9 +2,11 @@
 
 Review branch only. No production package replacement, PR, merge or release is implied. Existing FormKit work continues separately.
 
+The current component ledger is [CURRENT-SOURCE-LEDGER.md](CURRENT-SOURCE-LEDGER.md); [COMPONENT-INVENTORY.md](COMPONENT-INVENTORY.md) is the retained historical snapshot inventory, with verification checkpoints in [BREADTH-RECOVERY.md](BREADTH-RECOVERY.md). Application and same-form provider contracts are in core/APPLICATION-CONFIG.md and core/NESTED-PROVIDERS.md. Earlier milestone descriptions below are historical: native/group/list, plugin schemas, component factories, slots and Pro integration have since expanded. Pro evidence is explicitly tied to tested runtime hashes.
+
 Start with core/README.md and core/SCHEMA.md, then RUN.md. Inspect core/index.mjs and core/schema.mjs, shared harness/, and independent SCHEMA-REVIEW.md plus FORM-REVIEW.md. Earlier review reports preserve adverse findings and their scoped fixes.
 
-The experiment uses Marionette Views/Regions with FormKit observer caches, microtask subscriptions, official form, group and supported native-input definitions, scoped value/state conveniences and restricted conditional-schema projection. It is **not** a complete React binding port, full FormKit renderer or performance winner.
+The experiment uses Marionette Views/Regions with FormKit observer caches, microtask subscriptions, official form/native/group/list definitions, scoped value/state conveniences, unified content schemas and root slots. It is **not** a complete React binding port, full FormKit renderer or performance winner.
 
 Shared JSDOM checks cover Vue, React, source-built compatible adapter303ddfbb and experiment, including200/400 fields. Separate browser studies are coordinated independently; this source checkpoint does not establish a benchmark ranking or full parity.
 

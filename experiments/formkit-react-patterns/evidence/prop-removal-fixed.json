@@ -1,0 +1,22 @@
+[
+  {
+    "command": "node core/prop-removal-parity.mjs vue",
+    "exitCode": 0,
+    "output": "{\"mode\":\"vue\",\"initial\":{\"caption\":\"ONE\",\"renderedCaption\":\"ONE\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"updated\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"omitted\":{\"renderedCaption\":\"undefined\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"en\"},\"explicitUndefined\":{\"renderedCaption\":\"undefined\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"fr\"},\"status\":\"passed\"}\n"
+  },
+  {
+    "command": "node core/prop-removal-parity.mjs react",
+    "exitCode": 0,
+    "output": "{\"mode\":\"react\",\"initial\":{\"caption\":\"ONE\",\"renderedCaption\":\"ONE\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"updated\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"omitted\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":null,\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"en\"},\"explicitUndefined\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":null,\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"fr\"},\"status\":\"passed\"}\n"
+  },
+  {
+    "command": "node core/prop-removal-parity.mjs experiment",
+    "exitCode": 0,
+    "output": "{\"mode\":\"experiment\",\"initial\":{\"caption\":\"ONE\",\"renderedCaption\":\"ONE\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"updated\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"omitted\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":null,\"customClass\":false,\"disabled\":false,\"delay\":0,\"locale\":\"en\"},\"explicitUndefined\":{\"renderedCaption\":\"\",\"title\":null,\"customClass\":false,\"disabled\":false,\"delay\":0,\"locale\":\"fr\"},\"status\":\"passed\"}\n"
+  },
+  {
+    "command": "node core/group-props-lifecycle-test.mjs",
+    "exitCode": 0,
+    "output": "native group prop/validation/class/attr updates and removal, retained child ownership, omitted options retention and explicit empty options passed\n"
+  }
+]

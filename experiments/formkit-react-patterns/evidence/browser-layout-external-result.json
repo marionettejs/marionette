@@ -1,0 +1,2772 @@
+{
+  "purpose": "Combined real-browser acceptance and production correctness; comparison performance deliberately held pending final component inventory",
+  "createdUtc": "2026-11-13T21:26:42.845153+00:00",
+  "outcome": {
+    "browserScenariosPassed": 19,
+    "productionCorrectnessCombinationsPassedPerSource": 6,
+    "sourcesChecked": [
+      "exact combined canonical snapshot",
+      "isolated two-file patch proposal"
+    ],
+    "comparativePerformanceSamples": 0,
+    "performanceAuthorized": false,
+    "baselineAdapterDefect": "Mixed native group/list keyed row reorder with focused input throws NotFoundError in Core default-outlet placement; focused layout host also moved when a new conditional field is created.",
+    "patchOutcome": "Both issues fixed in isolated source; all19 browser cases, all6 shared production correctness combinations and4 focused regression scripts pass."
+  },
+  "source": {
+    "library_file_id": "libfile_fde3_f-d1f9ae2f3cd08191a366f142600fb70c_3633c514934c8191a03706259b76dd26",
+    "file_id": "file_00000000da3081f5a29575cf0c224eda",
+    "sha256": "400b22533082d09cade1575377818319b16462fed65ab1c1a9e20c165912eed7",
+    "verifiedMembers": 168,
+    "canonicalRuntimeSha256": {
+      "core/index.mjs": "189038511b0f6a396d68a8974826672dc25231653326f30000757b3278efefc6",
+      "core/schema-layout.mjs": "d7363f7bfe216de72a31d869b3d59aa8a20d295a966bb7f4a4e928f46f06ba5a",
+      "core/section-renderer.mjs": "4b2ea7f1542eacad033de873993be1e52a0bb965838451f23903dff033adf917",
+      "core/schema.mjs": "2ceee34b447250550bfed79674aef52a1c6f3b01b6880f866382638cecc50dda",
+      "core/helper-components.mjs": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc"
+    },
+    "isolatedPatchedManifestSha256": "029beeabf3173311fabc86bbe007b2a4567789e339558b618bfed963ba1c12db"
+  },
+  "patch": {
+    "library_file_id": "libfile_fde3_f-5b9a8a1ce5c0819192ca112815ef677f_3633c514934c8191a03706259b76dd26",
+    "file_id": "file_000000009d4c81f8845733d0ce70dc5f",
+    "version": 2,
+    "filename": "adapter-projected-field-reconcile-patch.json",
+    "sha256": "badd04aa558be3f2fde9ea088ec99d71794f4352daff9cc4ccd812a4df8d382f",
+    "baseSha256": {
+      "core/index.mjs": "189038511b0f6a396d68a8974826672dc25231653326f30000757b3278efefc6",
+      "core/schema-layout.mjs": "d7363f7bfe216de72a31d869b3d59aa8a20d295a966bb7f4a4e928f46f06ba5a"
+    },
+    "runtimeSha256": {
+      "core/index.mjs": "b36e48f93b1a44ffecda48f5cff30373a78c788ac10eda484728fffd1ca10d80",
+      "core/schema-layout.mjs": "c4b61e5765e9e9c713ad103f1994ef2cd65fecd826abb4470c2e6ebee60409ea"
+    },
+    "unifiedDiff": "--- a/core/index.mjs\n+++ b/core/index.mjs\n@@ -184,7 +184,9 @@\n       field=createField(node,spec,view,value);map.set(key,field);\n     }else field.update(spec);\n   }\n-    const elements=entries.map(([key])=>map.get(key).el);\n+    // Layout outlets own fields already projected into another container.\n+    // Reconcile only this outlet's children and newly created detached fields.\n+    const elements=entries.map(([key])=>map.get(key).el).filter(element=>!element.parentNode||element.parentNode===anchor.parentNode);\n     const active=anchor.ownerDocument.activeElement;\n     const pivot=elements.findIndex(element=>element.contains(active));\n     const place=(first,last,cursor)=>{for(let i=last;i>=first;i--){const element=elements[i];if(element.nextSibling!==cursor)anchor.parentNode.insertBefore(element,cursor);cursor=element;}};\n--- a/core/schema-layout.mjs\n+++ b/core/schema-layout.mjs\n@@ -28,7 +28,7 @@\n       const instance=slot(scoped());\n       return instance&&typeof instance==='object'?{...instance,update:()=>instance.update?.(scoped())}:instance;\n     }]));\n-    const place=()=>{const anchor=field.childAnchor;if(anchor?.parentNode&&host.nextSibling!==anchor)anchor.parentNode.insertBefore(host,anchor);};\n+    const place=()=>{const anchor=field.childAnchor;if(anchor?.parentNode&&host.parentNode!==anchor.parentNode)anchor.parentNode.insertBefore(host,anchor);};\n     place();\n     let nested;\n     try{nested=renderSections({host,schema,context:{node:field.node},data,slots:scopedSlots,components,metrics:form.metrics});}\n",
+    "regressions": "{\"passed\":true,\"checks\":[\"96 focused permutation reorders preserve order/input/Core/value/selection with no focus events\",\"focused ancestor group and nested child reorder preserve state\",\"focused removal does not refocus deleted control\",\"normal destruction\"],\"limits\":[\"JSDOM regression; real-browser validation required\"]}\n{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"mixed native group/list DOM and text\",\"no phantom Core nodes\",\"native value topology\",\"aggregate validation\",\"data update\",\"anonymous keyed node/DOM identity\",\"keyed DOM reorder\",\"conditional and row removal\",\"cleanup\"]}\nlayout invalid syntax, ownership, focus, controller disposal, expanded tags/loops and final cleanup passed\ncombined nested layout/outer lexical field slots: independent repeated names, changed/reordered locals, field IDs, retained Core/DOM/value and native/root redraw passed\n"
+  },
+  "versions": {
+    "name": "formkit-shared-comparison-prep",
+    "private": true,
+    "type": "module",
+    "scripts": {
+      "prepare:build": "node scripts/build.mjs --prepare",
+      "build": "node scripts/build.mjs",
+      "run": "node scripts/run.mjs",
+      "summarize": "node scripts/summarize.mjs"
+    },
+    "dependencies": {
+      "@formkit/addons": "2.5.0",
+      "@formkit/core": "2.5.0",
+      "@formkit/icons": "2.5.0",
+      "@formkit/inputs": "2.5.0",
+      "@formkit/pro": "0.131.0",
+      "@formkit/react": "2.5.0",
+      "@formkit/themes": "2.5.0",
+      "@formkit/utils": "2.5.0",
+      "@formkit/vue": "2.5.0",
+      "marionette": "5.1.1",
+      "react": "19.2.0",
+      "react-dom": "19.2.0",
+      "vue": "3.5.44"
+    },
+    "devDependencies": {
+      "esbuild": "0.25.12",
+      "playwright": "1.65.0"
+    }
+  },
+  "browserAcceptance": {
+    "launch": {
+      "executablePath": "/usr/bin/chromium",
+      "headless": true,
+      "chromiumSandbox": true,
+      "args": [
+        "--enable-automation"
+      ]
+    },
+    "tests": {
+      "all14-dom": {
+        "status": "passed",
+        "details": {
+          "families": 14
+        }
+      },
+      "native-keyboard-validation": {
+        "status": "passed",
+        "details": {
+          "name": "Browser name",
+          "check": true,
+          "select": "b"
+        }
+      },
+      "pro-keyboard-popover-focus": {
+        "status": "passed",
+        "details": {
+          "rating": 3,
+          "code": "",
+          "choice": "b",
+          "enabled": false,
+          "focusRetained": true
+        }
+      },
+      "date-browser-popover-boundaries": {
+        "status": "passed",
+        "details": {
+          "date": "2024-03-01"
+        }
+      },
+      "nested-browser-edit-add": {
+        "status": "passed",
+        "details": {
+          "teams": [
+            {
+              "title": "A",
+              "members": [
+                {
+                  "name": "Two"
+                },
+                {
+                  "name": "Three"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "color-browser-canvas": {
+        "status": "passed",
+        "details": {
+          "value": "#00FF00",
+          "bounds": {
+            "x": 190,
+            "y": 110.828125,
+            "width": 128.390625,
+            "height": 42
+          },
+          "canvasPixels": [
+            0,
+            255,
+            0,
+            255
+          ]
+        }
+      },
+      "axe-all14": {
+        "status": "passed",
+        "details": {
+          "violationRules": [
+            "aria-allowed-attr",
+            "label"
+          ]
+        }
+      },
+      "25-mount-unmount-cycles": {
+        "status": "passed",
+        "details": {
+          "cycles": 25,
+          "remainingInputs": 0
+        }
+      },
+      "combined-helper-summary-messages-icon": {
+        "status": "passed",
+        "details": {
+          "messagePlacement": true,
+          "focusNavigation": true,
+          "iconKeyboard": true,
+          "cleanup": {
+            "created": 222,
+            "destroyed": 222,
+            "active": 0,
+            "orphanAutoheight": 0
+          }
+        }
+      },
+      "combined-mixed-groups-lists-data": {
+        "status": "passed",
+        "details": {
+          "profile": {
+            "name": "Initial",
+            "tags": [
+              "Edited A"
+            ]
+          }
+        }
+      },
+      "combined-multistep-browser-navigation": {
+        "status": "passed",
+        "details": {
+          "wizard": {
+            "one": {
+              "first": "Ada"
+            },
+            "two": {
+              "second": "Details"
+            }
+          }
+        }
+      },
+      "combined-autoheight-real-resize": {
+        "status": "passed",
+        "details": {
+          "before": {
+            "x": 190,
+            "y": 110.828125,
+            "width": 400,
+            "height": 42
+          },
+          "after": {
+            "x": 190,
+            "y": 110.828125,
+            "width": 400,
+            "height": 130
+          },
+          "observerCleanup": true
+        }
+      },
+      "combined-floating-label-and-countdown": {
+        "status": "passed",
+        "details": {
+          "counted": "abcdefghij"
+        }
+      },
+      "combined-localstorage-remount-submit": {
+        "status": "passed",
+        "details": {
+          "restored": true,
+          "clearedOnSubmit": true
+        }
+      },
+      "combined-async-icon-race-destruction": {
+        "status": "passed",
+        "details": {
+          "lateOldIgnored": true,
+          "destroyedOwnerIgnoresResolution": true
+        }
+      },
+      "pro-real-autocomplete-taglist-formatted-transfer": {
+        "status": "passed",
+        "details": {
+          "selected": {
+            "autocomplete": "a",
+            "currency": "42",
+            "datepicker": "2024-02-28",
+            "mask": "",
+            "rating": 2,
+            "repeater": [
+              {
+                "label": "first"
+              }
+            ],
+            "slider": 65,
+            "taglist": [
+              "a"
+            ],
+            "toggle": true,
+            "togglebuttons": "b",
+            "unit": "42"
+          },
+          "transferForwardBack": true
+        }
+      },
+      "pro-real-async-pagination-replacement-removal": {
+        "status": "passed",
+        "details": {
+          "pages": [
+            1,
+            2
+          ],
+          "retainedSelector": true,
+          "lateResolutionIgnored": true
+        }
+      },
+      "pro-real-async-search-race": {
+        "status": "passed",
+        "details": {
+          "latestSearchWins": true,
+          "value": "new"
+        }
+      },
+      "touch-rating-real-geometry": {
+        "status": "passed",
+        "details": {
+          "bounds": {
+            "x": 96,
+            "y": 153.828125,
+            "width": 24,
+            "height": 24
+          },
+          "value": 4
+        }
+      }
+    },
+    "pageErrors": [],
+    "requestFailures": [
+      {
+        "origin": "https://pc805io.cc",
+        "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+      },
+      {
+        "origin": "https://pc805io.cc",
+        "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+      },
+      {
+        "origin": "https://pc805io.cc",
+        "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+      },
+      {
+        "origin": "https://klnoiag.com",
+        "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+      },
+      {
+        "origin": "https://klnoiag.com",
+        "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+      }
+    ],
+    "configuration": {
+      "styles": "Local official @formkit/themes/genesis and @formkit/pro/genesis; local genesisIcons.",
+      "rootClasses": "Candidate default rootClasses now normalizes section names through kebab(); no fixture class override is used."
+    },
+    "version": "154.0.8037.57",
+    "commandLine": [
+      "/usr/lib/chromium/chromium",
+      "--show-component-extension-options",
+      "--enable-gpu-rasterization",
+      "--no-default-browser-check",
+      "--disable-pings",
+      "--media-router=0",
+      "--enable-remote-extensions",
+      "--load-extension",
+      "--disable-field-trial-config",
+      "--disable-background-networking",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-back-forward-cache",
+      "--disable-breakpad",
+      "--disable-component-extensions-with-background-pages",
+      "--disable-component-update",
+      "--no-default-browser-check",
+      "--disable-default-apps",
+      "--disable-dev-shm-usage",
+      "--disable-edgeupdater",
+      "--disable-extensions",
+      "--disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,HttpsUpgrades,HttpsFirstBalancedModeAutoEnable,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,AvoidCorsURLLoaderRestartOnRedirect,TcpPortRandomizationWin,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,PreconnectToSearch,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion",
+      "--enable-features=CDPScreenshotNewSurface,SkipListAccountsWithoutGaiaCookies",
+      "--allow-pre-commit-input",
+      "--disable-hang-monitor",
+      "--disable-ipc-flooding-protection",
+      "--disable-popup-blocking",
+      "--disable-prompt-on-repost",
+      "--disable-renderer-backgrounding",
+      "--disable-updater-scheduler",
+      "--force-color-profile=srgb",
+      "--metrics-recording-only",
+      "--no-first-run",
+      "--password-store=basic",
+      "--use-mock-keychain",
+      "--no-service-autorun",
+      "--disable-search-engine-choice-screen",
+      "--unsafely-disable-devtools-self-xss-warnings",
+      "--enable-unsafe-swiftshader",
+      "--edge-skip-compat-layer-relaunch",
+      "--disable-stack-profiler",
+      "--disable-infobars",
+      "--disable-sync",
+      "--do-not-de-elevate",
+      "--headless",
+      "--hide-scrollbars",
+      "--mute-audio",
+      "--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4",
+      "--enable-automation",
+      "--user-data-dir=/tmp/playwright_chromiumdev_profile-vUyBHf",
+      "--remote-debugging-pipe",
+      "--no-startup-window",
+      "--noerrdialogs",
+      "--ozone-platform=headless",
+      "--ozone-override-screen-size=800,600",
+      "--use-angle=swiftshader-webgl",
+      "--flag-switches-begin",
+      "--flag-switches-end",
+      "--enable-unsafe-swiftshader"
+    ],
+    "accessibility": {
+      "passes": 29,
+      "incomplete": 4,
+      "violations": [
+        {
+          "id": "aria-allowed-attr",
+          "impact": "critical",
+          "description": "Ensure an element's role supports its ARIA attributes",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/aria-allowed-attr?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                "#experiment-mnv14-3"
+              ],
+              "failureSummary": "Fix all of the following:\n  ARIA attribute is not allowed: aria-valuetext=\"Current color: undefined\""
+            }
+          ]
+        },
+        {
+          "id": "label",
+          "impact": "critical",
+          "description": "Ensure every form element has a label",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                "#experiment-mnv14-19"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element has no placeholder attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "productionCorrectness": {
+    "canonical": {
+      "manifestSha256": "dfe0405d17b3fff225858147149dc61bd33578e5fc3a36add427d2988ad6ed8e",
+      "protocolSha256": "75b550651259f50db7c00ffd50c30e826c6e425ba0e4a421e7709de25e538189",
+      "apparatus": {
+        "host": "d0da62ff9727",
+        "browserBinarySha256": "4dc9f9f9b20e9bd95bf201f43d2d643f48938f36a70ddcb6fce3dd611a178180",
+        "browserWrapperSha256": "2c8d32d29dc6781c35ae196ea83299d507ac88fc339301abe74672feda299779",
+        "browserVersion": "154.0.8037.57"
+      },
+      "arms": {
+        "experiment": {
+          "native32": {
+            "metrics": {
+              "created": 35,
+              "destroyed": 35,
+              "active": 0,
+              "remainingControls": 0
+            },
+            "initial": {
+              "values": {
+                "age": 35,
+                "billing": {
+                  "city": "Example City",
+                  "postal": "54321",
+                  "street": "200 Test Street"
+                },
+                "country": "a",
+                "email": "person@example.test",
+                "fullName": "Initial Person",
+                "newsletter": "no",
+                "notes": "Initial note",
+                "priority": "b",
+                "reference0": "Reference value 0",
+                "reference1": "Reference value 1",
+                "reference10": "Reference value 10",
+                "reference11": "Reference value 11",
+                "reference12": "Reference value 12",
+                "reference13": "Reference value 13",
+                "reference14": "Reference value 14",
+                "reference15": "Reference value 15",
+                "reference16": "Reference value 16",
+                "reference17": "Reference value 17",
+                "reference18": "Reference value 18",
+                "reference2": "Reference value 2",
+                "reference3": "Reference value 3",
+                "reference4": "Reference value 4",
+                "reference5": "Reference value 5",
+                "reference6": "Reference value 6",
+                "reference7": "Reference value 7",
+                "reference8": "Reference value 8",
+                "reference9": "Reference value 9",
+                "shipping": {
+                  "city": "Example City",
+                  "postal": "12345",
+                  "street": "100 Test Street"
+                }
+              },
+              "valid": true,
+              "geometry": {
+                "study-native32-fullName": {
+                  "width": 400,
+                  "height": 42
+                },
+                "study-native32-age": {
+                  "width": 400,
+                  "height": 42
+                }
+              },
+              "controlCounts": {
+                "inputs": 32,
+                "selects": 1,
+                "textareas": 1
+              },
+              "created": 35,
+              "destroyed": 0,
+              "active": 35,
+              "loaderCalls": []
+            },
+            "submitted": {
+              "age": 35,
+              "billing": {
+                "city": "Example City",
+                "postal": "54321",
+                "street": "200 Test Street"
+              },
+              "country": "a",
+              "email": "person@example.test",
+              "fullName": "Initial Person",
+              "newsletter": "no",
+              "notes": "Initial note",
+              "priority": "b",
+              "reference0": "Reference value 0",
+              "reference1": "Reference value 1",
+              "reference10": "Reference value 10",
+              "reference11": "Reference value 11",
+              "reference12": "Reference value 12",
+              "reference13": "Reference value 13",
+              "reference14": "Reference value 14",
+              "reference15": "Reference value 15",
+              "reference16": "Reference value 16",
+              "reference17": "Reference value 17",
+              "reference18": "Reference value 18",
+              "reference2": "Reference value 2",
+              "reference3": "Reference value 3",
+              "reference4": "Reference value 4",
+              "reference5": "Reference value 5",
+              "reference6": "Reference value 6",
+              "reference7": "Reference value 7",
+              "reference8": "Reference value 8",
+              "reference9": "Reference value 9",
+              "shipping": {
+                "city": "Example City",
+                "postal": "12345",
+                "street": "100 Test Street"
+              }
+            },
+            "invalid": 1,
+            "asyncCalls": []
+          },
+          "mixed-pro": {
+            "metrics": {
+              "created": 57,
+              "destroyed": 57,
+              "active": 0,
+              "remainingControls": 0
+            },
+            "initial": {
+              "values": {
+                "age": 35,
+                "billing": {
+                  "city": "Example City",
+                  "postal": "54321",
+                  "street": "200 Test Street"
+                },
+                "country": "a",
+                "email": "person@example.test",
+                "fullName": "Initial Person",
+                "newsletter": "no",
+                "notes": "Initial note",
+                "priority": "b",
+                "proAutocomplete": "a",
+                "proButtons": "a",
+                "proColor": "#6699CC",
+                "proCurrency": "$10.00",
+                "proDate": "2024-02-29",
+                "proDropdown": "a",
+                "proMask": "123-456",
+                "proRating": 3,
+                "proRows": [
+                  {
+                    "rowAmount": 1,
+                    "rowLabel": "Row A"
+                  },
+                  {
+                    "rowAmount": 2,
+                    "rowLabel": "Row B"
+                  }
+                ],
+                "proSlider": 25,
+                "proTags": [
+                  "b"
+                ],
+                "proToggle": false,
+                "proTransfer": [
+                  "a"
+                ],
+                "proUnit": "10 m",
+                "reference0": "Reference value 0",
+                "reference1": "Reference value 1",
+                "reference10": "Reference value 10",
+                "reference11": "Reference value 11",
+                "reference12": "Reference value 12",
+                "reference13": "Reference value 13",
+                "reference14": "Reference value 14",
+                "reference15": "Reference value 15",
+                "reference16": "Reference value 16",
+                "reference17": "Reference value 17",
+                "reference18": "Reference value 18",
+                "reference2": "Reference value 2",
+                "reference3": "Reference value 3",
+                "reference4": "Reference value 4",
+                "reference5": "Reference value 5",
+                "reference6": "Reference value 6",
+                "reference7": "Reference value 7",
+                "reference8": "Reference value 8",
+                "reference9": "Reference value 9",
+                "shipping": {
+                  "city": "Example City",
+                  "postal": "12345",
+                  "street": "100 Test Street"
+                }
+              },
+              "valid": true,
+              "geometry": {
+                "study-mixed-pro-fullName": {
+                  "width": 400,
+                  "height": 42
+                },
+                "study-mixed-pro-age": {
+                  "width": 400,
+                  "height": 42
+                }
+              },
+              "controlCounts": {
+                "inputs": 49,
+                "selects": 1,
+                "textareas": 1
+              },
+              "created": 57,
+              "destroyed": 0,
+              "active": 57,
+              "loaderCalls": [
+                {
+                  "name": "proDropdown",
+                  "page": 1,
+                  "search": ""
+                }
+              ]
+            },
+            "submitted": {
+              "age": 35,
+              "billing": {
+                "city": "Example City",
+                "postal": "54321",
+                "street": "200 Test Street"
+              },
+              "country": "a",
+              "email": "person@example.test",
+              "fullName": "Initial Person",
+              "newsletter": "no",
+              "notes": "Initial note",
+              "priority": "b",
+              "proAutocomplete": "a",
+              "proButtons": "a",
+              "proColor": "#6699CC",
+              "proCurrency": "$10.00",
+              "proDate": "2024-02-29",
+              "proDropdown": "a",
+              "proMask": "123-456",
+              "proRating": 3,
+              "proRows": [
+                {
+                  "rowAmount": 1,
+                  "rowLabel": "Row A"
+                },
+                {
+                  "rowAmount": 2,
+                  "rowLabel": "Row B"
+                }
+              ],
+              "proSlider": 25,
+              "proTags": [
+                "b"
+              ],
+              "proToggle": false,
+              "proTransfer": [
+                "a"
+              ],
+              "proUnit": "10 m",
+              "reference0": "Reference value 0",
+              "reference1": "Reference value 1",
+              "reference10": "Reference value 10",
+              "reference11": "Reference value 11",
+              "reference12": "Reference value 12",
+              "reference13": "Reference value 13",
+              "reference14": "Reference value 14",
+              "reference15": "Reference value 15",
+              "reference16": "Reference value 16",
+              "reference17": "Reference value 17",
+              "reference18": "Reference value 18",
+              "reference2": "Reference value 2",
+              "reference3": "Reference value 3",
+              "reference4": "Reference value 4",
+              "reference5": "Reference value 5",
+              "reference6": "Reference value 6",
+              "reference7": "Reference value 7",
+              "reference8": "Reference value 8",
+              "reference9": "Reference value 9",
+              "shipping": {
+                "city": "Example City",
+                "postal": "12345",
+                "street": "100 Test Street"
+              }
+            },
+            "invalid": 1,
+            "asyncCalls": [
+              {
+                "name": "proDropdown",
+                "page": 1,
+                "search": ""
+              }
+            ]
+          }
+        },
+        "vue": {
+          "native32": {
+            "metrics": {
+              "created": 35,
+              "destroyed": 35,
+              "active": 0,
+              "remainingControls": 0
+            },
+            "initial": {
+              "values": {
+                "age": 35,
+                "billing": {
+                  "city": "Example City",
+                  "postal": "54321",
+                  "street": "200 Test Street"
+                },
+                "country": "a",
+                "email": "person@example.test",
+                "fullName": "Initial Person",
+                "newsletter": "no",
+                "notes": "Initial note",
+                "priority": "b",
+                "reference0": "Reference value 0",
+                "reference1": "Reference value 1",
+                "reference10": "Reference value 10",
+                "reference11": "Reference value 11",
+                "reference12": "Reference value 12",
+                "reference13": "Reference value 13",
+                "reference14": "Reference value 14",
+                "reference15": "Reference value 15",
+                "reference16": "Reference value 16",
+                "reference17": "Reference value 17",
+                "reference18": "Reference value 18",
+                "reference2": "Reference value 2",
+                "reference3": "Reference value 3",
+                "reference4": "Reference value 4",
+                "reference5": "Reference value 5",
+                "reference6": "Reference value 6",
+                "reference7": "Reference value 7",
+                "reference8": "Reference value 8",
+                "reference9": "Reference value 9",
+                "shipping": {
+                  "city": "Example City",
+                  "postal": "12345",
+                  "street": "100 Test Street"
+                }
+              },
+              "valid": true,
+              "geometry": {
+                "study-native32-fullName": {
+                  "width": 400,
+                  "height": 42
+                },
+                "study-native32-age": {
+                  "width": 400,
+                  "height": 42
+                }
+              },
+              "controlCounts": {
+                "inputs": 32,
+                "selects": 1,
+                "textareas": 1
+              },
+              "created": 35,
+              "destroyed": 0,
+              "active": 35,
+              "loaderCalls": []
+            },
+            "submitted": {
+              "age": 35,
+              "billing": {
+                "city": "Example City",
+                "postal": "54321",
+                "street": "200 Test Street"
+              },
+              "country": "a",
+              "email": "person@example.test",
+              "fullName": "Initial Person",
+              "newsletter": "no",
+              "notes": "Initial note",
+              "priority": "b",
+              "reference0": "Reference value 0",
+              "reference1": "Reference value 1",
+              "reference10": "Reference value 10",
+              "reference11": "Reference value 11",
+              "reference12": "Reference value 12",
+              "reference13": "Reference value 13",
+              "reference14": "Reference value 14",
+              "reference15": "Reference value 15",
+              "reference16": "Reference value 16",
+              "reference17": "Reference value 17",
+              "reference18": "Reference value 18",
+              "reference2": "Reference value 2",
+              "reference3": "Reference value 3",
+              "reference4": "Reference value 4",
+              "reference5": "Reference value 5",
+              "reference6": "Reference value 6",
+              "reference7": "Reference value 7",
+              "reference8": "Reference value 8",
+              "reference9": "Reference value 9",
+              "shipping": {
+                "city": "Example City",
+                "postal": "12345",
+                "street": "100 Test Street"
+              }
+            },
+            "invalid": 1,
+            "asyncCalls": []
+          },
+          "mixed-pro": {
+            "metrics": {
+              "created": 57,
+              "destroyed": 57,
+              "active": 0,
+              "remainingControls": 0
+            },
+            "initial": {
+              "values": {
+                "age": 35,
+                "billing": {
+                  "city": "Example City",
+                  "postal": "54321",
+                  "street": "200 Test Street"
+                },
+                "country": "a",
+                "email": "person@example.test",
+                "fullName": "Initial Person",
+                "newsletter": "no",
+                "notes": "Initial note",
+                "priority": "b",
+                "proAutocomplete": "a",
+                "proButtons": "a",
+                "proColor": "#6699CC",
+                "proCurrency": "$10.00",
+                "proDate": "2024-02-29",
+                "proDropdown": "a",
+                "proMask": "123-456",
+                "proRating": 3,
+                "proRows": [
+                  {
+                    "rowAmount": 1,
+                    "rowLabel": "Row A"
+                  },
+                  {
+                    "rowAmount": 2,
+                    "rowLabel": "Row B"
+                  }
+                ],
+                "proSlider": 25,
+                "proTags": [
+                  "b"
+                ],
+                "proToggle": false,
+                "proTransfer": [
+                  "a"
+                ],
+                "proUnit": "10 m",
+                "reference0": "Reference value 0",
+                "reference1": "Reference value 1",
+                "reference10": "Reference value 10",
+                "reference11": "Reference value 11",
+                "reference12": "Reference value 12",
+                "reference13": "Reference value 13",
+                "reference14": "Reference value 14",
+                "reference15": "Reference value 15",
+                "reference16": "Reference value 16",
+                "reference17": "Reference value 17",
+                "reference18": "Reference value 18",
+                "reference2": "Reference value 2",
+                "reference3": "Reference value 3",
+                "reference4": "Reference value 4",
+                "reference5": "Reference value 5",
+                "reference6": "Reference value 6",
+                "reference7": "Reference value 7",
+                "reference8": "Reference value 8",
+                "reference9": "Reference value 9",
+                "shipping": {
+                  "city": "Example City",
+                  "postal": "12345",
+                  "street": "100 Test Street"
+                }
+              },
+              "valid": true,
+              "geometry": {
+                "study-mixed-pro-fullName": {
+                  "width": 400,
+                  "height": 42
+                },
+                "study-mixed-pro-age": {
+                  "width": 400,
+                  "height": 42
+                }
+              },
+              "controlCounts": {
+                "inputs": 49,
+                "selects": 1,
+                "textareas": 1
+              },
+              "created": 57,
+              "destroyed": 0,
+              "active": 57,
+              "loaderCalls": [
+                {
+                  "name": "proDropdown",
+                  "page": 1,
+                  "search": ""
+                }
+              ]
+            },
+            "submitted": {
+              "age": 35,
+              "billing": {
+                "city": "Example City",
+                "postal": "54321",
+                "street": "200 Test Street"
+              },
+              "country": "a",
+              "email": "person@example.test",
+              "fullName": "Initial Person",
+              "newsletter": "no",
+              "notes": "Initial note",
+              "priority": "b",
+              "proAutocomplete": "a",
+              "proButtons": "a",
+              "proColor": "#6699CC",
+              "proCurrency": "$10.00",
+              "proDate": "2024-02-29",
+              "proDropdown": "a",
+              "proMask": "123-456",
+              "proRating": 3,
+              "proRows": [
+                {
+                  "rowAmount": 1,
+                  "rowLabel": "Row A"
+                },
+                {
+                  "rowAmount": 2,
+                  "rowLabel": "Row B"
+                }
+              ],
+              "proSlider": 25,
+              "proTags": [
+                "b"
+              ],
+              "proToggle": false,
+              "proTransfer": [
+                "a"
+              ],
+              "proUnit": "10 m",
+              "reference0": "Reference value 0",
+              "reference1": "Reference value 1",
+              "reference10": "Reference value 10",
+              "reference11": "Reference value 11",
+              "reference12": "Reference value 12",
+              "reference13": "Reference value 13",
+              "reference14": "Reference value 14",
+              "reference15": "Reference value 15",
+              "reference16": "Reference value 16",
+              "reference17": "Reference value 17",
+              "reference18": "Reference value 18",
+              "reference2": "Reference value 2",
+              "reference3": "Reference value 3",
+              "reference4": "Reference value 4",
+              "reference5": "Reference value 5",
+              "reference6": "Reference value 6",
+              "reference7": "Reference value 7",
+              "reference8": "Reference value 8",
+              "reference9": "Reference value 9",
+              "shipping": {
+                "city": "Example City",
+                "postal": "12345",
+                "street": "100 Test Street"
+              }
+            },
+            "invalid": 1,
+            "asyncCalls": [
+              {
+                "name": "proDropdown",
+                "page": 1,
+                "search": ""
+              }
+            ]
+          }
+        },
+        "react": {
+          "native32": {
+            "metrics": {
+              "created": 35,
+              "destroyed": 35,
+              "active": 0,
+              "remainingControls": 0
+            },
+            "initial": {
+              "values": {
+                "age": 35,
+                "billing": {
+                  "city": "Example City",
+                  "postal": "54321",
+                  "street": "200 Test Street"
+                },
+                "country": "a",
+                "email": "person@example.test",
+                "fullName": "Initial Person",
+                "newsletter": "no",
+                "notes": "Initial note",
+                "priority": "b",
+                "reference0": "Reference value 0",
+                "reference1": "Reference value 1",
+                "reference10": "Reference value 10",
+                "reference11": "Reference value 11",
+                "reference12": "Reference value 12",
+                "reference13": "Reference value 13",
+                "reference14": "Reference value 14",
+                "reference15": "Reference value 15",
+                "reference16": "Reference value 16",
+                "reference17": "Reference value 17",
+                "reference18": "Reference value 18",
+                "reference2": "Reference value 2",
+                "reference3": "Reference value 3",
+                "reference4": "Reference value 4",
+                "reference5": "Reference value 5",
+                "reference6": "Reference value 6",
+                "reference7": "Reference value 7",
+                "reference8": "Reference value 8",
+                "reference9": "Reference value 9",
+                "shipping": {
+                  "city": "Example City",
+                  "postal": "12345",
+                  "street": "100 Test Street"
+                }
+              },
+              "valid": true,
+              "geometry": {
+                "study-native32-fullName": {
+                  "width": 400,
+                  "height": 42
+                },
+                "study-native32-age": {
+                  "width": 400,
+                  "height": 42
+                }
+              },
+              "controlCounts": {
+                "inputs": 32,
+                "selects": 1,
+                "textareas": 1
+              },
+              "created": 35,
+              "destroyed": 0,
+              "active": 35,
+              "loaderCalls": []
+            },
+            "submitted": {
+              "age": 35,
+              "billing": {
+                "city": "Example City",
+                "postal": "54321",
+                "street": "200 Test Street"
+              },
+              "country": "a",
+              "email": "person@example.test",
+              "fullName": "Initial Person",
+              "newsletter": "no",
+              "notes": "Initial note",
+              "priority": "b",
+              "reference0": "Reference value 0",
+              "reference1": "Reference value 1",
+              "reference10": "Reference value 10",
+              "reference11": "Reference value 11",
+              "reference12": "Reference value 12",
+              "reference13": "Reference value 13",
+              "reference14": "Reference value 14",
+              "reference15": "Reference value 15",
+              "reference16": "Reference value 16",
+              "reference17": "Reference value 17",
+              "reference18": "Reference value 18",
+              "reference2": "Reference value 2",
+              "reference3": "Reference value 3",
+              "reference4": "Reference value 4",
+              "reference5": "Reference value 5",
+              "reference6": "Reference value 6",
+              "reference7": "Reference value 7",
+              "reference8": "Reference value 8",
+              "reference9": "Reference value 9",
+              "shipping": {
+                "city": "Example City",
+                "postal": "12345",
+                "street": "100 Test Street"
+              }
+            },
+            "invalid": 1,
+            "asyncCalls": []
+          },
+          "mixed-pro": {
+            "metrics": {
+              "created": 57,
+              "destroyed": 57,
+              "active": 0,
+              "remainingControls": 0
+            },
+            "initial": {
+              "values": {
+                "age": 35,
+                "billing": {
+                  "city": "Example City",
+                  "postal": "54321",
+                  "street": "200 Test Street"
+                },
+                "country": "a",
+                "email": "person@example.test",
+                "fullName": "Initial Person",
+                "newsletter": "no",
+                "notes": "Initial note",
+                "priority": "b",
+                "proAutocomplete": "a",
+                "proButtons": "a",
+                "proColor": "#6699CC",
+                "proCurrency": "$10.00",
+                "proDate": "2024-02-29",
+                "proDropdown": "a",
+                "proMask": "123-456",
+                "proRating": 3,
+                "proRows": [
+                  {
+                    "rowAmount": 1,
+                    "rowLabel": "Row A"
+                  },
+                  {
+                    "rowAmount": 2,
+                    "rowLabel": "Row B"
+                  }
+                ],
+                "proSlider": 25,
+                "proTags": [
+                  "b"
+                ],
+                "proToggle": false,
+                "proTransfer": [
+                  "a"
+                ],
+                "proUnit": "10 m",
+                "reference0": "Reference value 0",
+                "reference1": "Reference value 1",
+                "reference10": "Reference value 10",
+                "reference11": "Reference value 11",
+                "reference12": "Reference value 12",
+                "reference13": "Reference value 13",
+                "reference14": "Reference value 14",
+                "reference15": "Reference value 15",
+                "reference16": "Reference value 16",
+                "reference17": "Reference value 17",
+                "reference18": "Reference value 18",
+                "reference2": "Reference value 2",
+                "reference3": "Reference value 3",
+                "reference4": "Reference value 4",
+                "reference5": "Reference value 5",
+                "reference6": "Reference value 6",
+                "reference7": "Reference value 7",
+                "reference8": "Reference value 8",
+                "reference9": "Reference value 9",
+                "shipping": {
+                  "city": "Example City",
+                  "postal": "12345",
+                  "street": "100 Test Street"
+                }
+              },
+              "valid": true,
+              "geometry": {
+                "study-mixed-pro-fullName": {
+                  "width": 400,
+                  "height": 42
+                },
+                "study-mixed-pro-age": {
+                  "width": 400,
+                  "height": 42
+                }
+              },
+              "controlCounts": {
+                "inputs": 49,
+                "selects": 1,
+                "textareas": 1
+              },
+              "created": 57,
+              "destroyed": 0,
+              "active": 57,
+              "loaderCalls": [
+                {
+                  "name": "proDropdown",
+                  "page": 1,
+                  "search": ""
+                }
+              ]
+            },
+            "submitted": {
+              "age": 35,
+              "billing": {
+                "city": "Example City",
+                "postal": "54321",
+                "street": "200 Test Street"
+              },
+              "country": "a",
+              "email": "person@example.test",
+              "fullName": "Initial Person",
+              "newsletter": "no",
+              "notes": "Initial note",
+              "priority": "b",
+              "proAutocomplete": "a",
+              "proButtons": "a",
+              "proColor": "#6699CC",
+              "proCurrency": "$10.00",
+              "proDate": "2024-02-29",
+              "proDropdown": "a",
+              "proMask": "123-456",
+              "proRating": 3,
+              "proRows": [
+                {
+                  "rowAmount": 1,
+                  "rowLabel": "Row A"
+                },
+                {
+                  "rowAmount": 2,
+                  "rowLabel": "Row B"
+                }
+              ],
+              "proSlider": 25,
+              "proTags": [
+                "b"
+              ],
+              "proToggle": false,
+              "proTransfer": [
+                "a"
+              ],
+              "proUnit": "10 m",
+              "reference0": "Reference value 0",
+              "reference1": "Reference value 1",
+              "reference10": "Reference value 10",
+              "reference11": "Reference value 11",
+              "reference12": "Reference value 12",
+              "reference13": "Reference value 13",
+              "reference14": "Reference value 14",
+              "reference15": "Reference value 15",
+              "reference16": "Reference value 16",
+              "reference17": "Reference value 17",
+              "reference18": "Reference value 18",
+              "reference2": "Reference value 2",
+              "reference3": "Reference value 3",
+              "reference4": "Reference value 4",
+              "reference5": "Reference value 5",
+              "reference6": "Reference value 6",
+              "reference7": "Reference value 7",
+              "reference8": "Reference value 8",
+              "reference9": "Reference value 9",
+              "shipping": {
+                "city": "Example City",
+                "postal": "12345",
+                "street": "100 Test Street"
+              }
+            },
+            "invalid": 1,
+            "asyncCalls": [
+              {
+                "name": "proDropdown",
+                "page": 1,
+                "search": ""
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    },
+    "isolatedPatched": {
+      "manifestSha256": "995893952967938e39abe088eaf590d470e9812ddaac0ce625ff3031c9fb7bbd",
+      "protocolSha256": "75b550651259f50db7c00ffd50c30e826c6e425ba0e4a421e7709de25e538189",
+      "apparatus": {
+        "host": "d0da62ff9727",
+        "browserBinarySha256": "4dc9f9f9b20e9bd95bf201f43d2d643f48938f36a70ddcb6fce3dd611a178180",
+        "browserWrapperSha256": "2c8d32d29dc6781c35ae196ea83299d507ac88fc339301abe74672feda299779",
+        "browserVersion": "154.0.8037.57"
+      },
+      "arms": {
+        "experiment": {
+          "native32": {
+            "metrics": {
+              "created": 35,
+              "destroyed": 35,
+              "active": 0,
+              "remainingControls": 0
+            },
+            "initial": {
+              "values": {
+                "age": 35,
+                "billing": {
+                  "city": "Example City",
+                  "postal": "54321",
+                  "street": "200 Test Street"
+                },
+                "country": "a",
+                "email": "person@example.test",
+                "fullName": "Initial Person",
+                "newsletter": "no",
+                "notes": "Initial note",
+                "priority": "b",
+                "reference0": "Reference value 0",
+                "reference1": "Reference value 1",
+                "reference10": "Reference value 10",
+                "reference11": "Reference value 11",
+                "reference12": "Reference value 12",
+                "reference13": "Reference value 13",
+                "reference14": "Reference value 14",
+                "reference15": "Reference value 15",
+                "reference16": "Reference value 16",
+                "reference17": "Reference value 17",
+                "reference18": "Reference value 18",
+                "reference2": "Reference value 2",
+                "reference3": "Reference value 3",
+                "reference4": "Reference value 4",
+                "reference5": "Reference value 5",
+                "reference6": "Reference value 6",
+                "reference7": "Reference value 7",
+                "reference8": "Reference value 8",
+                "reference9": "Reference value 9",
+                "shipping": {
+                  "city": "Example City",
+                  "postal": "12345",
+                  "street": "100 Test Street"
+                }
+              },
+              "valid": true,
+              "geometry": {
+                "study-native32-fullName": {
+                  "width": 400,
+                  "height": 42
+                },
+                "study-native32-age": {
+                  "width": 400,
+                  "height": 42
+                }
+              },
+              "controlCounts": {
+                "inputs": 32,
+                "selects": 1,
+                "textareas": 1
+              },
+              "created": 35,
+              "destroyed": 0,
+              "active": 35,
+              "loaderCalls": []
+            },
+            "submitted": {
+              "age": 35,
+              "billing": {
+                "city": "Example City",
+                "postal": "54321",
+                "street": "200 Test Street"
+              },
+              "country": "a",
+              "email": "person@example.test",
+              "fullName": "Initial Person",
+              "newsletter": "no",
+              "notes": "Initial note",
+              "priority": "b",
+              "reference0": "Reference value 0",
+              "reference1": "Reference value 1",
+              "reference10": "Reference value 10",
+              "reference11": "Reference value 11",
+              "reference12": "Reference value 12",
+              "reference13": "Reference value 13",
+              "reference14": "Reference value 14",
+              "reference15": "Reference value 15",
+              "reference16": "Reference value 16",
+              "reference17": "Reference value 17",
+              "reference18": "Reference value 18",
+              "reference2": "Reference value 2",
+              "reference3": "Reference value 3",
+              "reference4": "Reference value 4",
+              "reference5": "Reference value 5",
+              "reference6": "Reference value 6",
+              "reference7": "Reference value 7",
+              "reference8": "Reference value 8",
+              "reference9": "Reference value 9",
+              "shipping": {
+                "city": "Example City",
+                "postal": "12345",
+                "street": "100 Test Street"
+              }
+            },
+            "invalid": 1,
+            "asyncCalls": []
+          },
+          "mixed-pro": {
+            "metrics": {
+              "created": 57,
+              "destroyed": 57,
+              "active": 0,
+              "remainingControls": 0
+            },
+            "initial": {
+              "values": {
+                "age": 35,
+                "billing": {
+                  "city": "Example City",
+                  "postal": "54321",
+                  "street": "200 Test Street"
+                },
+                "country": "a",
+                "email": "person@example.test",
+                "fullName": "Initial Person",
+                "newsletter": "no",
+                "notes": "Initial note",
+                "priority": "b",
+                "proAutocomplete": "a",
+                "proButtons": "a",
+                "proColor": "#6699CC",
+                "proCurrency": "$10.00",
+                "proDate": "2024-02-29",
+                "proDropdown": "a",
+                "proMask": "123-456",
+                "proRating": 3,
+                "proRows": [
+                  {
+                    "rowAmount": 1,
+                    "rowLabel": "Row A"
+                  },
+                  {
+                    "rowAmount": 2,
+                    "rowLabel": "Row B"
+                  }
+                ],
+                "proSlider": 25,
+                "proTags": [
+                  "b"
+                ],
+                "proToggle": false,
+                "proTransfer": [
+                  "a"
+                ],
+                "proUnit": "10 m",
+                "reference0": "Reference value 0",
+                "reference1": "Reference value 1",
+                "reference10": "Reference value 10",
+                "reference11": "Reference value 11",
+                "reference12": "Reference value 12",
+                "reference13": "Reference value 13",
+                "reference14": "Reference value 14",
+                "reference15": "Reference value 15",
+                "reference16": "Reference value 16",
+                "reference17": "Reference value 17",
+                "reference18": "Reference value 18",
+                "reference2": "Reference value 2",
+                "reference3": "Reference value 3",
+                "reference4": "Reference value 4",
+                "reference5": "Reference value 5",
+                "reference6": "Reference value 6",
+                "reference7": "Reference value 7",
+                "reference8": "Reference value 8",
+                "reference9": "Reference value 9",
+                "shipping": {
+                  "city": "Example City",
+                  "postal": "12345",
+                  "street": "100 Test Street"
+                }
+              },
+              "valid": true,
+              "geometry": {
+                "study-mixed-pro-fullName": {
+                  "width": 400,
+                  "height": 42
+                },
+                "study-mixed-pro-age": {
+                  "width": 400,
+                  "height": 42
+                }
+              },
+              "controlCounts": {
+                "inputs": 49,
+                "selects": 1,
+                "textareas": 1
+              },
+              "created": 57,
+              "destroyed": 0,
+              "active": 57,
+              "loaderCalls": [
+                {
+                  "name": "proDropdown",
+                  "page": 1,
+                  "search": ""
+                }
+              ]
+            },
+            "submitted": {
+              "age": 35,
+              "billing": {
+                "city": "Example City",
+                "postal": "54321",
+                "street": "200 Test Street"
+              },
+              "country": "a",
+              "email": "person@example.test",
+              "fullName": "Initial Person",
+              "newsletter": "no",
+              "notes": "Initial note",
+              "priority": "b",
+              "proAutocomplete": "a",
+              "proButtons": "a",
+              "proColor": "#6699CC",
+              "proCurrency": "$10.00",
+              "proDate": "2024-02-29",
+              "proDropdown": "a",
+              "proMask": "123-456",
+              "proRating": 3,
+              "proRows": [
+                {
+                  "rowAmount": 1,
+                  "rowLabel": "Row A"
+                },
+                {
+                  "rowAmount": 2,
+                  "rowLabel": "Row B"
+                }
+              ],
+              "proSlider": 25,
+              "proTags": [
+                "b"
+              ],
+              "proToggle": false,
+              "proTransfer": [
+                "a"
+              ],
+              "proUnit": "10 m",
+              "reference0": "Reference value 0",
+              "reference1": "Reference value 1",
+              "reference10": "Reference value 10",
+              "reference11": "Reference value 11",
+              "reference12": "Reference value 12",
+              "reference13": "Reference value 13",
+              "reference14": "Reference value 14",
+              "reference15": "Reference value 15",
+              "reference16": "Reference value 16",
+              "reference17": "Reference value 17",
+              "reference18": "Reference value 18",
+              "reference2": "Reference value 2",
+              "reference3": "Reference value 3",
+              "reference4": "Reference value 4",
+              "reference5": "Reference value 5",
+              "reference6": "Reference value 6",
+              "reference7": "Reference value 7",
+              "reference8": "Reference value 8",
+              "reference9": "Reference value 9",
+              "shipping": {
+                "city": "Example City",
+                "postal": "12345",
+                "street": "100 Test Street"
+              }
+            },
+            "invalid": 1,
+            "asyncCalls": [
+              {
+                "name": "proDropdown",
+                "page": 1,
+                "search": ""
+              }
+            ]
+          }
+        },
+        "vue": {
+          "native32": {
+            "metrics": {
+              "created": 35,
+              "destroyed": 35,
+              "active": 0,
+              "remainingControls": 0
+            },
+            "initial": {
+              "values": {
+                "age": 35,
+                "billing": {
+                  "city": "Example City",
+                  "postal": "54321",
+                  "street": "200 Test Street"
+                },
+                "country": "a",
+                "email": "person@example.test",
+                "fullName": "Initial Person",
+                "newsletter": "no",
+                "notes": "Initial note",
+                "priority": "b",
+                "reference0": "Reference value 0",
+                "reference1": "Reference value 1",
+                "reference10": "Reference value 10",
+                "reference11": "Reference value 11",
+                "reference12": "Reference value 12",
+                "reference13": "Reference value 13",
+                "reference14": "Reference value 14",
+                "reference15": "Reference value 15",
+                "reference16": "Reference value 16",
+                "reference17": "Reference value 17",
+                "reference18": "Reference value 18",
+                "reference2": "Reference value 2",
+                "reference3": "Reference value 3",
+                "reference4": "Reference value 4",
+                "reference5": "Reference value 5",
+                "reference6": "Reference value 6",
+                "reference7": "Reference value 7",
+                "reference8": "Reference value 8",
+                "reference9": "Reference value 9",
+                "shipping": {
+                  "city": "Example City",
+                  "postal": "12345",
+                  "street": "100 Test Street"
+                }
+              },
+              "valid": true,
+              "geometry": {
+                "study-native32-fullName": {
+                  "width": 400,
+                  "height": 42
+                },
+                "study-native32-age": {
+                  "width": 400,
+                  "height": 42
+                }
+              },
+              "controlCounts": {
+                "inputs": 32,
+                "selects": 1,
+                "textareas": 1
+              },
+              "created": 35,
+              "destroyed": 0,
+              "active": 35,
+              "loaderCalls": []
+            },
+            "submitted": {
+              "age": 35,
+              "billing": {
+                "city": "Example City",
+                "postal": "54321",
+                "street": "200 Test Street"
+              },
+              "country": "a",
+              "email": "person@example.test",
+              "fullName": "Initial Person",
+              "newsletter": "no",
+              "notes": "Initial note",
+              "priority": "b",
+              "reference0": "Reference value 0",
+              "reference1": "Reference value 1",
+              "reference10": "Reference value 10",
+              "reference11": "Reference value 11",
+              "reference12": "Reference value 12",
+              "reference13": "Reference value 13",
+              "reference14": "Reference value 14",
+              "reference15": "Reference value 15",
+              "reference16": "Reference value 16",
+              "reference17": "Reference value 17",
+              "reference18": "Reference value 18",
+              "reference2": "Reference value 2",
+              "reference3": "Reference value 3",
+              "reference4": "Reference value 4",
+              "reference5": "Reference value 5",
+              "reference6": "Reference value 6",
+              "reference7": "Reference value 7",
+              "reference8": "Reference value 8",
+              "reference9": "Reference value 9",
+              "shipping": {
+                "city": "Example City",
+                "postal": "12345",
+                "street": "100 Test Street"
+              }
+            },
+            "invalid": 1,
+            "asyncCalls": []
+          },
+          "mixed-pro": {
+            "metrics": {
+              "created": 57,
+              "destroyed": 57,
+              "active": 0,
+              "remainingControls": 0
+            },
+            "initial": {
+              "values": {
+                "age": 35,
+                "billing": {
+                  "city": "Example City",
+                  "postal": "54321",
+                  "street": "200 Test Street"
+                },
+                "country": "a",
+                "email": "person@example.test",
+                "fullName": "Initial Person",
+                "newsletter": "no",
+                "notes": "Initial note",
+                "priority": "b",
+                "proAutocomplete": "a",
+                "proButtons": "a",
+                "proColor": "#6699CC",
+                "proCurrency": "$10.00",
+                "proDate": "2024-02-29",
+                "proDropdown": "a",
+                "proMask": "123-456",
+                "proRating": 3,
+                "proRows": [
+                  {
+                    "rowAmount": 1,
+                    "rowLabel": "Row A"
+                  },
+                  {
+                    "rowAmount": 2,
+                    "rowLabel": "Row B"
+                  }
+                ],
+                "proSlider": 25,
+                "proTags": [
+                  "b"
+                ],
+                "proToggle": false,
+                "proTransfer": [
+                  "a"
+                ],
+                "proUnit": "10 m",
+                "reference0": "Reference value 0",
+                "reference1": "Reference value 1",
+                "reference10": "Reference value 10",
+                "reference11": "Reference value 11",
+                "reference12": "Reference value 12",
+                "reference13": "Reference value 13",
+                "reference14": "Reference value 14",
+                "reference15": "Reference value 15",
+                "reference16": "Reference value 16",
+                "reference17": "Reference value 17",
+                "reference18": "Reference value 18",
+                "reference2": "Reference value 2",
+                "reference3": "Reference value 3",
+                "reference4": "Reference value 4",
+                "reference5": "Reference value 5",
+                "reference6": "Reference value 6",
+                "reference7": "Reference value 7",
+                "reference8": "Reference value 8",
+                "reference9": "Reference value 9",
+                "shipping": {
+                  "city": "Example City",
+                  "postal": "12345",
+                  "street": "100 Test Street"
+                }
+              },
+              "valid": true,
+              "geometry": {
+                "study-mixed-pro-fullName": {
+                  "width": 400,
+                  "height": 42
+                },
+                "study-mixed-pro-age": {
+                  "width": 400,
+                  "height": 42
+                }
+              },
+              "controlCounts": {
+                "inputs": 49,
+                "selects": 1,
+                "textareas": 1
+              },
+              "created": 57,
+              "destroyed": 0,
+              "active": 57,
+              "loaderCalls": [
+                {
+                  "name": "proDropdown",
+                  "page": 1,
+                  "search": ""
+                }
+              ]
+            },
+            "submitted": {
+              "age": 35,
+              "billing": {
+                "city": "Example City",
+                "postal": "54321",
+                "street": "200 Test Street"
+              },
+              "country": "a",
+              "email": "person@example.test",
+              "fullName": "Initial Person",
+              "newsletter": "no",
+              "notes": "Initial note",
+              "priority": "b",
+              "proAutocomplete": "a",
+              "proButtons": "a",
+              "proColor": "#6699CC",
+              "proCurrency": "$10.00",
+              "proDate": "2024-02-29",
+              "proDropdown": "a",
+              "proMask": "123-456",
+              "proRating": 3,
+              "proRows": [
+                {
+                  "rowAmount": 1,
+                  "rowLabel": "Row A"
+                },
+                {
+                  "rowAmount": 2,
+                  "rowLabel": "Row B"
+                }
+              ],
+              "proSlider": 25,
+              "proTags": [
+                "b"
+              ],
+              "proToggle": false,
+              "proTransfer": [
+                "a"
+              ],
+              "proUnit": "10 m",
+              "reference0": "Reference value 0",
+              "reference1": "Reference value 1",
+              "reference10": "Reference value 10",
+              "reference11": "Reference value 11",
+              "reference12": "Reference value 12",
+              "reference13": "Reference value 13",
+              "reference14": "Reference value 14",
+              "reference15": "Reference value 15",
+              "reference16": "Reference value 16",
+              "reference17": "Reference value 17",
+              "reference18": "Reference value 18",
+              "reference2": "Reference value 2",
+              "reference3": "Reference value 3",
+              "reference4": "Reference value 4",
+              "reference5": "Reference value 5",
+              "reference6": "Reference value 6",
+              "reference7": "Reference value 7",
+              "reference8": "Reference value 8",
+              "reference9": "Reference value 9",
+              "shipping": {
+                "city": "Example City",
+                "postal": "12345",
+                "street": "100 Test Street"
+              }
+            },
+            "invalid": 1,
+            "asyncCalls": [
+              {
+                "name": "proDropdown",
+                "page": 1,
+                "search": ""
+              }
+            ]
+          }
+        },
+        "react": {
+          "native32": {
+            "metrics": {
+              "created": 35,
+              "destroyed": 35,
+              "active": 0,
+              "remainingControls": 0
+            },
+            "initial": {
+              "values": {
+                "age": 35,
+                "billing": {
+                  "city": "Example City",
+                  "postal": "54321",
+                  "street": "200 Test Street"
+                },
+                "country": "a",
+                "email": "person@example.test",
+                "fullName": "Initial Person",
+                "newsletter": "no",
+                "notes": "Initial note",
+                "priority": "b",
+                "reference0": "Reference value 0",
+                "reference1": "Reference value 1",
+                "reference10": "Reference value 10",
+                "reference11": "Reference value 11",
+                "reference12": "Reference value 12",
+                "reference13": "Reference value 13",
+                "reference14": "Reference value 14",
+                "reference15": "Reference value 15",
+                "reference16": "Reference value 16",
+                "reference17": "Reference value 17",
+                "reference18": "Reference value 18",
+                "reference2": "Reference value 2",
+                "reference3": "Reference value 3",
+                "reference4": "Reference value 4",
+                "reference5": "Reference value 5",
+                "reference6": "Reference value 6",
+                "reference7": "Reference value 7",
+                "reference8": "Reference value 8",
+                "reference9": "Reference value 9",
+                "shipping": {
+                  "city": "Example City",
+                  "postal": "12345",
+                  "street": "100 Test Street"
+                }
+              },
+              "valid": true,
+              "geometry": {
+                "study-native32-fullName": {
+                  "width": 400,
+                  "height": 42
+                },
+                "study-native32-age": {
+                  "width": 400,
+                  "height": 42
+                }
+              },
+              "controlCounts": {
+                "inputs": 32,
+                "selects": 1,
+                "textareas": 1
+              },
+              "created": 35,
+              "destroyed": 0,
+              "active": 35,
+              "loaderCalls": []
+            },
+            "submitted": {
+              "age": 35,
+              "billing": {
+                "city": "Example City",
+                "postal": "54321",
+                "street": "200 Test Street"
+              },
+              "country": "a",
+              "email": "person@example.test",
+              "fullName": "Initial Person",
+              "newsletter": "no",
+              "notes": "Initial note",
+              "priority": "b",
+              "reference0": "Reference value 0",
+              "reference1": "Reference value 1",
+              "reference10": "Reference value 10",
+              "reference11": "Reference value 11",
+              "reference12": "Reference value 12",
+              "reference13": "Reference value 13",
+              "reference14": "Reference value 14",
+              "reference15": "Reference value 15",
+              "reference16": "Reference value 16",
+              "reference17": "Reference value 17",
+              "reference18": "Reference value 18",
+              "reference2": "Reference value 2",
+              "reference3": "Reference value 3",
+              "reference4": "Reference value 4",
+              "reference5": "Reference value 5",
+              "reference6": "Reference value 6",
+              "reference7": "Reference value 7",
+              "reference8": "Reference value 8",
+              "reference9": "Reference value 9",
+              "shipping": {
+                "city": "Example City",
+                "postal": "12345",
+                "street": "100 Test Street"
+              }
+            },
+            "invalid": 1,
+            "asyncCalls": []
+          },
+          "mixed-pro": {
+            "metrics": {
+              "created": 57,
+              "destroyed": 57,
+              "active": 0,
+              "remainingControls": 0
+            },
+            "initial": {
+              "values": {
+                "age": 35,
+                "billing": {
+                  "city": "Example City",
+                  "postal": "54321",
+                  "street": "200 Test Street"
+                },
+                "country": "a",
+                "email": "person@example.test",
+                "fullName": "Initial Person",
+                "newsletter": "no",
+                "notes": "Initial note",
+                "priority": "b",
+                "proAutocomplete": "a",
+                "proButtons": "a",
+                "proColor": "#6699CC",
+                "proCurrency": "$10.00",
+                "proDate": "2024-02-29",
+                "proDropdown": "a",
+                "proMask": "123-456",
+                "proRating": 3,
+                "proRows": [
+                  {
+                    "rowAmount": 1,
+                    "rowLabel": "Row A"
+                  },
+                  {
+                    "rowAmount": 2,
+                    "rowLabel": "Row B"
+                  }
+                ],
+                "proSlider": 25,
+                "proTags": [
+                  "b"
+                ],
+                "proToggle": false,
+                "proTransfer": [
+                  "a"
+                ],
+                "proUnit": "10 m",
+                "reference0": "Reference value 0",
+                "reference1": "Reference value 1",
+                "reference10": "Reference value 10",
+                "reference11": "Reference value 11",
+                "reference12": "Reference value 12",
+                "reference13": "Reference value 13",
+                "reference14": "Reference value 14",
+                "reference15": "Reference value 15",
+                "reference16": "Reference value 16",
+                "reference17": "Reference value 17",
+                "reference18": "Reference value 18",
+                "reference2": "Reference value 2",
+                "reference3": "Reference value 3",
+                "reference4": "Reference value 4",
+                "reference5": "Reference value 5",
+                "reference6": "Reference value 6",
+                "reference7": "Reference value 7",
+                "reference8": "Reference value 8",
+                "reference9": "Reference value 9",
+                "shipping": {
+                  "city": "Example City",
+                  "postal": "12345",
+                  "street": "100 Test Street"
+                }
+              },
+              "valid": true,
+              "geometry": {
+                "study-mixed-pro-fullName": {
+                  "width": 400,
+                  "height": 42
+                },
+                "study-mixed-pro-age": {
+                  "width": 400,
+                  "height": 42
+                }
+              },
+              "controlCounts": {
+                "inputs": 49,
+                "selects": 1,
+                "textareas": 1
+              },
+              "created": 57,
+              "destroyed": 0,
+              "active": 57,
+              "loaderCalls": [
+                {
+                  "name": "proDropdown",
+                  "page": 1,
+                  "search": ""
+                }
+              ]
+            },
+            "submitted": {
+              "age": 35,
+              "billing": {
+                "city": "Example City",
+                "postal": "54321",
+                "street": "200 Test Street"
+              },
+              "country": "a",
+              "email": "person@example.test",
+              "fullName": "Initial Person",
+              "newsletter": "no",
+              "notes": "Initial note",
+              "priority": "b",
+              "proAutocomplete": "a",
+              "proButtons": "a",
+              "proColor": "#6699CC",
+              "proCurrency": "$10.00",
+              "proDate": "2024-02-29",
+              "proDropdown": "a",
+              "proMask": "123-456",
+              "proRating": 3,
+              "proRows": [
+                {
+                  "rowAmount": 1,
+                  "rowLabel": "Row A"
+                },
+                {
+                  "rowAmount": 2,
+                  "rowLabel": "Row B"
+                }
+              ],
+              "proSlider": 25,
+              "proTags": [
+                "b"
+              ],
+              "proToggle": false,
+              "proTransfer": [
+                "a"
+              ],
+              "proUnit": "10 m",
+              "reference0": "Reference value 0",
+              "reference1": "Reference value 1",
+              "reference10": "Reference value 10",
+              "reference11": "Reference value 11",
+              "reference12": "Reference value 12",
+              "reference13": "Reference value 13",
+              "reference14": "Reference value 14",
+              "reference15": "Reference value 15",
+              "reference16": "Reference value 16",
+              "reference17": "Reference value 17",
+              "reference18": "Reference value 18",
+              "reference2": "Reference value 2",
+              "reference3": "Reference value 3",
+              "reference4": "Reference value 4",
+              "reference5": "Reference value 5",
+              "reference6": "Reference value 6",
+              "reference7": "Reference value 7",
+              "reference8": "Reference value 8",
+              "reference9": "Reference value 9",
+              "shipping": {
+                "city": "Example City",
+                "postal": "12345",
+                "street": "100 Test Street"
+              }
+            },
+            "invalid": 1,
+            "asyncCalls": [
+              {
+                "name": "proDropdown",
+                "page": 1,
+                "search": ""
+              }
+            ]
+          }
+        }
+      },
+      "passed": true
+    },
+    "canonicalStudy": {
+      "studyId": "formkit-shared-forms-2026-11-13-prepared",
+      "manifestSha256": "dfe0405d17b3fff225858147149dc61bd33578e5fc3a36add427d2988ad6ed8e",
+      "protocolSha256": "75b550651259f50db7c00ffd50c30e826c6e425ba0e4a421e7709de25e538189",
+      "phase": "correctness",
+      "startUtc": "2026-11-13T21:20:25.009Z",
+      "apparatus": {
+        "node": "v24.19.0",
+        "npm": "11.9.0",
+        "platform": "linux",
+        "release": "6.18.57",
+        "arch": "x64",
+        "host": "d0da62ff9727",
+        "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+        "logicalCpus": 5,
+        "memoryBytes": 18882662400,
+        "browserWrapperSha256": "2c8d32d29dc6781c35ae196ea83299d507ac88fc339301abe74672feda299779",
+        "browserBinarySha256": "4dc9f9f9b20e9bd95bf201f43d2d643f48938f36a70ddcb6fce3dd611a178180",
+        "xdg": {
+          "config": "/workspace/formkit-combined-acceptance/comparison-correctness/xdg-config",
+          "cache": "/workspace/formkit-combined-acceptance/comparison-correctness/xdg-cache",
+          "temporary": "/tmp/fkcmp-lZ4zsZ"
+        },
+        "browserVersion": "154.0.8037.57",
+        "effectiveArgv": [
+          "/usr/lib/chromium/chromium",
+          "--show-component-extension-options",
+          "--enable-gpu-rasterization",
+          "--no-default-browser-check",
+          "--disable-pings",
+          "--media-router=0",
+          "--enable-remote-extensions",
+          "--load-extension",
+          "--disable-field-trial-config",
+          "--disable-background-networking",
+          "--disable-background-timer-throttling",
+          "--disable-backgrounding-occluded-windows",
+          "--disable-back-forward-cache",
+          "--disable-breakpad",
+          "--disable-component-extensions-with-background-pages",
+          "--disable-component-update",
+          "--no-default-browser-check",
+          "--disable-default-apps",
+          "--disable-dev-shm-usage",
+          "--disable-edgeupdater",
+          "--disable-extensions",
+          "--disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,HttpsUpgrades,HttpsFirstBalancedModeAutoEnable,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,AvoidCorsURLLoaderRestartOnRedirect,TcpPortRandomizationWin,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,PreconnectToSearch,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion",
+          "--enable-features=CDPScreenshotNewSurface,SkipListAccountsWithoutGaiaCookies",
+          "--allow-pre-commit-input",
+          "--disable-hang-monitor",
+          "--disable-ipc-flooding-protection",
+          "--disable-popup-blocking",
+          "--disable-prompt-on-repost",
+          "--disable-renderer-backgrounding",
+          "--disable-updater-scheduler",
+          "--force-color-profile=srgb",
+          "--metrics-recording-only",
+          "--no-first-run",
+          "--password-store=basic",
+          "--use-mock-keychain",
+          "--no-service-autorun",
+          "--disable-search-engine-choice-screen",
+          "--unsafely-disable-devtools-self-xss-warnings",
+          "--enable-unsafe-swiftshader",
+          "--edge-skip-compat-layer-relaunch",
+          "--disable-stack-profiler",
+          "--disable-infobars",
+          "--disable-sync",
+          "--do-not-de-elevate",
+          "--headless",
+          "--hide-scrollbars",
+          "--mute-audio",
+          "--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4",
+          "--enable-automation",
+          "--user-data-dir=/tmp/playwright_chromiumdev_profile-Ood32Z",
+          "--remote-debugging-pipe",
+          "--no-startup-window",
+          "--noerrdialogs",
+          "--ozone-platform=headless",
+          "--ozone-override-screen-size=800,600",
+          "--use-angle=swiftshader-webgl",
+          "--flag-switches-begin",
+          "--flag-switches-end",
+          "--enable-unsafe-swiftshader"
+        ]
+      },
+      "rows": [],
+      "errors": [],
+      "events": [
+        {
+          "arm": "experiment",
+          "type": "requestfailed",
+          "origin": "https://pc805io.cc",
+          "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+        },
+        {
+          "arm": "vue",
+          "type": "requestfailed",
+          "origin": "https://pc805io.cc",
+          "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+        },
+        {
+          "arm": "react",
+          "type": "requestfailed",
+          "origin": "https://pc805io.cc",
+          "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+        }
+      ],
+      "localOrigin": "http://127.0.0.1:34289",
+      "correctness": "passed",
+      "status": "completed",
+      "endUtc": "2026-11-13T21:20:40.415Z"
+    },
+    "isolatedPatchedStudy": {
+      "studyId": "formkit-shared-forms-2026-11-13-prepared",
+      "manifestSha256": "995893952967938e39abe088eaf590d470e9812ddaac0ce625ff3031c9fb7bbd",
+      "protocolSha256": "75b550651259f50db7c00ffd50c30e826c6e425ba0e4a421e7709de25e538189",
+      "phase": "correctness",
+      "startUtc": "2026-11-13T21:23:48.496Z",
+      "apparatus": {
+        "node": "v24.19.0",
+        "npm": "11.9.0",
+        "platform": "linux",
+        "release": "6.18.57",
+        "arch": "x64",
+        "host": "d0da62ff9727",
+        "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+        "logicalCpus": 5,
+        "memoryBytes": 18882662400,
+        "browserWrapperSha256": "2c8d32d29dc6781c35ae196ea83299d507ac88fc339301abe74672feda299779",
+        "browserBinarySha256": "4dc9f9f9b20e9bd95bf201f43d2d643f48938f36a70ddcb6fce3dd611a178180",
+        "xdg": {
+          "config": "/workspace/formkit-combined-acceptance/comparison-patched-correctness/xdg-config",
+          "cache": "/workspace/formkit-combined-acceptance/comparison-patched-correctness/xdg-cache",
+          "temporary": "/tmp/fkcmp-zGSQ01"
+        },
+        "browserVersion": "154.0.8037.57",
+        "effectiveArgv": [
+          "/usr/lib/chromium/chromium",
+          "--show-component-extension-options",
+          "--enable-gpu-rasterization",
+          "--no-default-browser-check",
+          "--disable-pings",
+          "--media-router=0",
+          "--enable-remote-extensions",
+          "--load-extension",
+          "--disable-field-trial-config",
+          "--disable-background-networking",
+          "--disable-background-timer-throttling",
+          "--disable-backgrounding-occluded-windows",
+          "--disable-back-forward-cache",
+          "--disable-breakpad",
+          "--disable-component-extensions-with-background-pages",
+          "--disable-component-update",
+          "--no-default-browser-check",
+          "--disable-default-apps",
+          "--disable-dev-shm-usage",
+          "--disable-edgeupdater",
+          "--disable-extensions",
+          "--disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,HttpsUpgrades,HttpsFirstBalancedModeAutoEnable,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,AvoidCorsURLLoaderRestartOnRedirect,TcpPortRandomizationWin,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,PreconnectToSearch,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion",
+          "--enable-features=CDPScreenshotNewSurface,SkipListAccountsWithoutGaiaCookies",
+          "--allow-pre-commit-input",
+          "--disable-hang-monitor",
+          "--disable-ipc-flooding-protection",
+          "--disable-popup-blocking",
+          "--disable-prompt-on-repost",
+          "--disable-renderer-backgrounding",
+          "--disable-updater-scheduler",
+          "--force-color-profile=srgb",
+          "--metrics-recording-only",
+          "--no-first-run",
+          "--password-store=basic",
+          "--use-mock-keychain",
+          "--no-service-autorun",
+          "--disable-search-engine-choice-screen",
+          "--unsafely-disable-devtools-self-xss-warnings",
+          "--enable-unsafe-swiftshader",
+          "--edge-skip-compat-layer-relaunch",
+          "--disable-stack-profiler",
+          "--disable-infobars",
+          "--disable-sync",
+          "--do-not-de-elevate",
+          "--headless",
+          "--hide-scrollbars",
+          "--mute-audio",
+          "--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4",
+          "--enable-automation",
+          "--user-data-dir=/tmp/playwright_chromiumdev_profile-4h97Tv",
+          "--remote-debugging-pipe",
+          "--no-startup-window",
+          "--noerrdialogs",
+          "--ozone-platform=headless",
+          "--ozone-override-screen-size=800,600",
+          "--use-angle=swiftshader-webgl",
+          "--flag-switches-begin",
+          "--flag-switches-end",
+          "--enable-unsafe-swiftshader"
+        ]
+      },
+      "rows": [],
+      "errors": [],
+      "events": [
+        {
+          "arm": "experiment",
+          "type": "requestfailed",
+          "origin": "https://pc805io.cc",
+          "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+        },
+        {
+          "arm": "vue",
+          "type": "requestfailed",
+          "origin": "https://pc805io.cc",
+          "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+        },
+        {
+          "arm": "react",
+          "type": "requestfailed",
+          "origin": "https://pc805io.cc",
+          "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+        }
+      ],
+      "localOrigin": "http://127.0.0.1:35523",
+      "correctness": "passed",
+      "status": "completed",
+      "endUtc": "2026-11-13T21:24:08.809Z"
+    },
+    "fixtureCorrection": "valueFormat:string currency/unit initially normalize to $10.00 and 10 m. Common initial fixtures now start with these formatted values across all three arms. This was a fixture expectation correction, not an adapter implementation change.",
+    "apparatusCorrection": "Used existing writable short /tmp directory for Chromium singleton socket, with directories created before launch; no sandbox flags disabled."
+  },
+  "jsdomAcceptance": {
+    "pro-breadth-smoke.json": {
+      "environmentNotes": [
+        "JSDOM 27.0.1; DOM constructors, customElements, AbortSignal and getComputedStyle installed before imports.",
+        "ResizeObserver is a no-op test shim; layout, resize callbacks, canvas and real browser interaction are not certified.",
+        "Official Pro plugin uses configured FORMKIT; no key is logged and remote license validation is not asserted."
+      ],
+      "controls": {
+        "autocomplete": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 1
+        },
+        "colorpicker": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 0,
+          "buttonCount": 1
+        },
+        "currency": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 1
+        },
+        "datepicker": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 1
+        },
+        "dropdown": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 0,
+          "buttonCount": 2
+        },
+        "mask": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 1,
+          "value": ""
+        },
+        "rating": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 5,
+          "buttonCount": 1
+        },
+        "repeater": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 5,
+          "value": [
+            {
+              "label": "first"
+            }
+          ]
+        },
+        "slider": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 1,
+          "value": 10
+        },
+        "taglist": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 2
+        },
+        "toggle": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 1
+        },
+        "togglebuttons": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 0,
+          "buttonCount": 3
+        },
+        "transferlist": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 0,
+          "buttonCount": 3
+        },
+        "unit": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 1
+        }
+      },
+      "interactions": {
+        "toggle": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 1,
+          "value": false
+        },
+        "togglebuttons": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 0,
+          "buttonCount": 3,
+          "value": "a"
+        },
+        "slider": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 1,
+          "value": 25
+        },
+        "repeater": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 5,
+          "value": [
+            {
+              "label": "second"
+            }
+          ]
+        },
+        "dropdown": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 0,
+          "buttonCount": 2,
+          "value": "a"
+        },
+        "autocomplete": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 1,
+          "value": "a"
+        },
+        "taglist": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 3,
+          "value": [
+            "a"
+          ]
+        },
+        "currency": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 1,
+          "value": "42"
+        },
+        "unit": {
+          "rendered": true,
+          "mounted": true,
+          "inputCount": 1,
+          "buttonCount": 1,
+          "value": "42"
+        }
+      },
+      "status": "passed"
+    },
+    "pro-deep-smoke.json": {
+      "async-pagination-and-option-replacement": {
+        "status": "passed",
+        "details": {
+          "calls": [
+            1,
+            2
+          ],
+          "value": "b",
+          "retained": true
+        }
+      },
+      "async-search-order": {
+        "status": "passed",
+        "details": {
+          "order": [
+            "old",
+            "old",
+            "new"
+          ],
+          "latestVisible": true
+        }
+      },
+      "pending-options-removal": {
+        "status": "passed",
+        "details": {
+          "lateResolutionIgnored": true
+        }
+      },
+      "nested-repeaters": {
+        "status": "passed",
+        "details": {
+          "value": {
+            "teams": [
+              {
+                "title": "A",
+                "members": [
+                  {
+                    "name": "One"
+                  },
+                  {
+                    "name": "Two"
+                  }
+                ]
+              },
+              {
+                "members": []
+              }
+            ]
+          },
+          "nestedParentage": true
+        }
+      },
+      "localized-leap-day-and-inclusive-bounds": {
+        "status": "passed",
+        "details": {
+          "value": "2024-03-01",
+          "formatted": "01.03.2024",
+          "localizedLabel": "29. Februar 2024"
+        }
+      },
+      "mixed-pro-submit-reset": {
+        "status": "passed",
+        "details": {
+          "submitted": {
+            "enabled": true,
+            "code": "987654",
+            "date": "2024-01-31"
+          },
+          "reset": {
+            "enabled": false,
+            "code": "123456",
+            "date": "2024-01-31"
+          }
+        }
+      },
+      "unified-schema-data-removal": {
+        "status": "passed",
+        "details": {
+          "retainedChoice": true,
+          "removedValue": null
+        }
+      },
+      "grouped-multiselect-checkbox-options": {
+        "status": "passed",
+        "details": {
+          "value": [
+            "a",
+            "b"
+          ],
+          "grouped": true,
+          "checkboxes": true
+        }
+      },
+      "async-option-value-rehydration": {
+        "status": "passed",
+        "details": {
+          "value": 42,
+          "labelHydrated": true
+        }
+      }
+    },
+    "pro-remaining-five-smoke.json": {
+      "environment": {
+        "node": "v24.19.0",
+        "jsdom": "27.0.1",
+        "canvas": "3.2.3",
+        "notes": [
+          "Canvas uses the real node-canvas 3.2.3 dependency supported by JSDOM.",
+          "ResizeObserver remains a no-op shim; layout, resizing and pointer geometry are not certified.",
+          "Configured FORMKIT is used without logging or copying its value; remote licensing is not asserted."
+        ]
+      },
+      "controls": {
+        "colorpicker": {
+          "status": "passed",
+          "before": "#FF0000",
+          "after": "#00FF00",
+          "details": "Opened canvas-backed panel, edited hex to green, observed Core/accessible preview update."
+        },
+        "datepicker": {
+          "status": "passed",
+          "before": "2026-11-13",
+          "after": "2026-12-25",
+          "details": "Navigated November to December; selected day 25; verified formatted Core/input value and selected calendar cell."
+        },
+        "mask": {
+          "status": "passed",
+          "before": "123-456",
+          "after": "987-654",
+          "details": "Real beforeinput replacement intercepted and formatted; displayed and Core values agree."
+        },
+        "rating": {
+          "status": "passed",
+          "before": 2,
+          "after": 3,
+          "details": "Focused third radio and selected it with Space; verified numeric value and native checked state. Touch coordinate behavior remains untested."
+        },
+        "transferlist": {
+          "status": "passed",
+          "before": [],
+          "after": [],
+          "details": "Selected Alpha to transfer forward and selected it in the target to transfer back; Core values [] -> [a] -> []."
+        }
+      },
+      "status": "passed"
+    }
+  },
+  "capabilityAccounting": {
+    "actualProPackage": "@formkit/pro@0.131.0 unchanged official installed package",
+    "registeredAndMountedFamilies": [
+      "autocomplete",
+      "colorpicker",
+      "currency",
+      "datepicker",
+      "dropdown",
+      "mask",
+      "rating",
+      "repeater",
+      "slider",
+      "taglist",
+      "toggle",
+      "togglebuttons",
+      "transferlist",
+      "unit"
+    ],
+    "interactionEvidence": "All14 families have substantive JSDOM interactions. Current real-browser interactions cover13 families including real pointer/calendar/canvas, keyboard rating/toggle, numeric slider, trusted formatted text inputs, select/search/pagination and transfer forward/back. Mask whole-value beforeinput replacement has DOM coverage; prior actual incremental keyboard typing fails in adapter and official React.",
+    "combinedAdditionalCapabilities": [
+      "FormKitSummary/messages/icon keyboard/focus navigation",
+      "native mixed group/list layout and keyed anonymous fields",
+      "multi-step validation/navigation",
+      "autoheight real130px cap and hidden clone teardown",
+      "floating labels",
+      "maxlength countdown",
+      "localStorage save/remount/submit cleanup",
+      "async icon stale resolution/destruction"
+    ],
+    "noCertificationClaim": [
+      "barcode",
+      "Zod",
+      "lazy/async provider equivalence",
+      "all component modes across all browsers",
+      "comprehensive accessibility compliance",
+      "absence of heap leaks",
+      "comparative speed/memory/CPU efficiency"
+    ]
+  },
+  "remainingGaps": [
+    {
+      "kind": "upstream reproduced",
+      "component": "mask",
+      "detail": "Incremental keyboard typing on Chromium154 previously reproduced in adapter and official React across masked/unmasked and allowIncomplete modes; whole-value beforeinput replacement works. No unauthorized upstream post."
+    },
+    {
+      "kind": "upstream reproduced",
+      "component": "colorpicker",
+      "detail": "Axe aria-allowed-attr critical: button has aria-valuetext Current color: undefined. Also reproduced in official React previously. Retained in current all14 scan, not silently stripped."
+    },
+    {
+      "kind": "coverage",
+      "detail": "Current browser engine Chromium154 only. Focused DOM/Core ownership cleanup is not a heap-leak proof. Geometry, canvas and touch tested in real browser; no broader cross-browser claim."
+    },
+    {
+      "kind": "sequencing",
+      "detail": "Async-provider equivalent and final component inventory are parent-owned pending work. Performance, memory comparison and CPU profiles explicitly disabled until inventory complete and authorized."
+    }
+  ],
+  "securityAndScope": "Key used from already configured FORMKIT environment into browser memory only; key not copied to source, Library, URLs or build. Remote telemetry failures recorded by origin only. No purchases/accounts/security changes, Mac use, branch changes, upstream posts, push, merge or publication. Chromium enabled its sandbox; effective command line has no --no-sandbox or --disable-setuid-sandbox. No kernel sandbox attestation claimed.",
+  "artifactReference": {
+    "library_file_id": "libfile_fde3_f-2a9be82584248191bb2ce3ec641c97e5_3633c514934c8191a03706259b76dd26",
+    "file_id": "file_00000000735c81fba028c849eb1c4864",
+    "sha256": "c80b780f38b2e8d768a3476c0b00ae01f523a7900dfc62db9cc31f0c2c5a5a86"
+  },
+  "canonicalIntegrationLimit": "External19-scenario browser result is for isolated candidate; combined Application/provider plus layout source requires existing licensed task rerun. Performance samples:0."
+}

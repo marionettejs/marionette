@@ -1,0 +1,150 @@
+{
+  "implementationCommit": "907118295aa278cf4b81aec891bd5be00be2a5a3",
+  "branch": "codex/formkit-react-pattern-experiment",
+  "runtimeSha256": {
+    "core/index.mjs": "99955188d468adc4835c62b11d769d8a0527d1855d3fdce93711ba3aa11badce",
+    "core/structural-components.mjs": "a5ac28e15400d8a3792be5827f3287973b2940a0c9176de6a4a5dba25e1e5245",
+    "core/provider-scope.mjs": "8c727f9437819f53ec34b940eabb43fc51d129c734c2a9724fa93cbda1d9a327",
+    "core/upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+    "core/provider-components.mjs": "0e9e37b57887cb85a1f9c7af7f7ef0b2359f6cc1c0d3644bcc0b9749020b2c98",
+    "core/config-scope.mjs": "0f4a9406a05af6aaf1caa644b1e8c3994b2a01880ae06d4d59abe5bdd9d56f1d",
+    "core/formkit-application.mjs": "6535edfb2564b057699f35b1e4f9c1b9f99d9b213f0e188f23ffb4aeb6d02238",
+    "core/native-types.mjs": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a",
+    "core/helper-components.mjs": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc",
+    "core/section-renderer.mjs": "5f84ba728a67d348504ab60d72765387e57daf029f32f874f01773006caf4036",
+    "core/component-library.mjs": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f",
+    "core/value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba",
+    "core/root-slots.mjs": "8a7b2485681e40486eede15e1229c4df7cce7c86c66970cde8a633a0999a4879",
+    "core/schema-layout.mjs": "b532118f4c1b69296e125808f6511752c651b9aed94a8c8dcea19f7406f0bef8",
+    "core/schema.mjs": "305cc037f3cce98727ba1c20218bee32d1f56ba76ae385c32bd745b77ba96fda",
+    "core/schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+    "core/submission-controller.mjs": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968"
+  },
+  "changedFilesSha256": {
+    "BREADTH-RECOVERY.md": "1bd617e038c50829f6e880b3c210f33b3d6cff13e53c94b710e6d5af952de47a",
+    "COMPONENT-INVENTORY.md": "58d3055c424b5845562b2b5314a261713e16bf4449a2e653176a739943b8118f",
+    "core/README.md": "86cbdadd6f0716222d38b583f829fad37de93e7fce3e8d5ff6f7d4437174db9e",
+    "core/RENDERER-COMPONENTS.md": "9ef8048c2e4f4ee1a550572ae1375cd204ed5c89675d6b7e556a7736f7b44c47",
+    "core/SCHEMA-ROOT-COMPONENTS.md": "3b6ebbc089d9791c94b157f3bf85e14072fb2e8cfa866d7de49d79f43cccdc45",
+    "core/data-boolean-contract-test.mjs": "18ca5833880664f1ec7566ff44fb540ae23d87e348cc50c3cbdf8b188bb96932",
+    "core/index.mjs": "99955188d468adc4835c62b11d769d8a0527d1855d3fdce93711ba3aa11badce",
+    "core/owned-subtree-disposal-test.mjs": "85371f9f47473a5efe88003f46b2e369647284b9b777aaa73c5538d5e0d74336",
+    "core/provider-scope.mjs": "8c727f9437819f53ec34b940eabb43fc51d129c734c2a9724fa93cbda1d9a327",
+    "core/root-slots.mjs": "8a7b2485681e40486eede15e1229c4df7cce7c86c66970cde8a633a0999a4879",
+    "core/schema-layout.mjs": "b532118f4c1b69296e125808f6511752c651b9aed94a8c8dcea19f7406f0bef8",
+    "core/schema-root-components-test.mjs": "ffc32f7d3e9ab12053e62e1a0122daac0f1f99865376d75f17241a81bccad93a",
+    "core/schema-root-upstream.mjs": "fad27b9ce5da4fef29090c85b2339104ffd5d97b9a495340d7926762bf26334a",
+    "core/schema.mjs": "305cc037f3cce98727ba1c20218bee32d1f56ba76ae385c32bd745b77ba96fda",
+    "core/section-renderer.mjs": "5f84ba728a67d348504ab60d72765387e57daf029f32f874f01773006caf4036",
+    "core/structural-components.mjs": "a5ac28e15400d8a3792be5827f3287973b2940a0c9176de6a4a5dba25e1e5245",
+    "core/verify-free.mjs": "b05a7ca9ae15d7e9d6468c8a1a41f24c512f1d02f3a5d1d6cffba208bd0493ad"
+  },
+  "componentAccountingComplete": true,
+  "portableLiteralNames": [
+    "FormKit",
+    "FormKitSchema",
+    "FormKitRoot",
+    "FormKitSummary",
+    "FormKitMessages",
+    "FormKitIcon",
+    "FormKitProvider",
+    "FormKitLazyProvider"
+  ],
+  "missingPortableFactories": [],
+  "catalog": {
+    "nativeKindsIncludingForm": 26,
+    "ProFamilies": 14,
+    "portableComponents": 8,
+    "officialAddonPluginFamilies": 6,
+    "addonFormHelpers": [
+      "describeForm",
+      "fillForm"
+    ],
+    "extensionCoverage": [
+      "barcode1.1.0",
+      "createZodPlugin2.5.0"
+    ],
+    "classifiedRatherThanMissing": [
+      "Vue RuntimeComponent alias",
+      "KitchenSink demo/React placeholder",
+      "Vue/Inertia-specific integration",
+      "Framework hooks/context/SSR integration APIs"
+    ]
+  },
+  "newSupportThisIntegration": {
+    "literalFactories": [
+      "FormKitSchema",
+      "FormKitRoot"
+    ],
+    "inputFamilies": 0
+  },
+  "rendererFixes": [
+    "boolean data-* false/true preservation",
+    "owned DOM subtree disposal preserves detached ancestry while releasing resources"
+  ],
+  "preservedIndependentFixes": [
+    "supplied Application rootConfig identity",
+    "pending loader adopts newly inherited options"
+  ],
+  "verification": {
+    "focused": {
+      "passed": 19,
+      "failed": 0,
+      "receipt": "evidence/final-components-focused.json"
+    },
+    "acceptance": {
+      "passed": 83,
+      "failed": 0,
+      "receipt": "evidence/free-comprehensive-final-components.json"
+    },
+    "references": {
+      "passed": 69,
+      "failed": 0,
+      "receipt": "evidence/free-comparisons-final-components.json"
+    },
+    "registryAudit": "evidence/final-component-registration-audit.json",
+    "runtimeUnchanged": true
+  },
+  "performance": {
+    "componentPrerequisiteSatisfied": true,
+    "finalCombinedBrowserQARemainsRequired": true,
+    "comparativeSamples": 0,
+    "instruction": "Existing licensed task:accept exact combined source in browser first,then run planned like-for-like comparative measurements with raw apparatus/samples/hashes;no cross-machine ranking"
+  },
+  "browserEvidenceBoundary": "84 mode assertions,12 deeper probes and9 provider checks apply their stated isolated snapshots. This exact17-module combined source requires same licensed task QA.",
+  "knownBoundaries": [
+    "Borrowed data.node follows React;Vue observed destroying behavior differs",
+    "Module evaluation cannot be cancelled;obsolete activation/factory work is suppressed",
+    "Upstream-reproduced mask typing,colorpicker aria-valuetext,rating ArrowRight,Zod3 async live refinement and late barcode stream limits remain documented",
+    "Specific modes do not certify every prop combination,complete accessibility,real camera/device or memory/performance behavior"
+  ],
+  "patchInputs": {
+    "schemaRootRuntimeSha256": "e8164fef50afd4cceffa0d0668af8900a135a6d439f10a8c25b5c3b69b526318",
+    "browserModesArtifactSha256": "a84d2739391e7a98370aee13430c742e1d7efa84f06050a036e9aac4d677bd9e"
+  },
+  "preservation": {
+    "startingPaths": 192,
+    "unchanged": 176,
+    "intentionalChanges": [
+      "experiments/formkit-react-patterns/BREADTH-RECOVERY.md",
+      "experiments/formkit-react-patterns/README.md",
+      "experiments/formkit-react-patterns/core/README.md",
+      "experiments/formkit-react-patterns/core/RENDERER-COMPONENTS.md",
+      "experiments/formkit-react-patterns/core/SCHEMA.md",
+      "experiments/formkit-react-patterns/core/checkbox-prop-parity.mjs",
+      "experiments/formkit-react-patterns/core/index.mjs",
+      "experiments/formkit-react-patterns/core/native-types.mjs",
+      "experiments/formkit-react-patterns/core/precedence-test.mjs",
+      "experiments/formkit-react-patterns/core/root-slots.mjs",
+      "experiments/formkit-react-patterns/core/schema-layout.mjs",
+      "experiments/formkit-react-patterns/core/schema-nested-errors.mjs",
+      "experiments/formkit-react-patterns/core/schema.mjs",
+      "experiments/formkit-react-patterns/core/section-renderer.mjs",
+      "experiments/formkit-react-patterns/package-lock.json",
+      "experiments/formkit-react-patterns/package.json"
+    ],
+    "unexpectedChanges": [],
+    "historicalUntrackedPathsPreserved": 91
+  },
+  "publication": "Local commits only;no push,merge,release,deployment,Mac or credential/security changes"
+}

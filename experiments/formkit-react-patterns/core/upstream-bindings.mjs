@@ -603,6 +603,7 @@ var init_bindings = __esm({
         flush();
       });
       context.refreshClasses = () => { if (!contextAlive) return; for(const observed of classObservers) observed.kill(); classObservers.clear(); for(const key of Object.keys(cachedClasses)) delete cachedClasses[key]; notifyReactiveStore(context); };
+      for(const event of ["config:classes","config:rootClasses","prop:rootClasses"])node.on(event,context.refreshClasses);
       node.context = context;
       flush();
       node.emit("context", node, false);

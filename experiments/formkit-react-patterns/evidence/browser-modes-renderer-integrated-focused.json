@@ -1,0 +1,120 @@
+{
+  "tests": [
+    {
+      "file": "core/data-boolean-contract-test.mjs",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"boolean data/ARIA attrs preserve false and true\",\"native boolean disabled retains presence semantics\",\"null removes data/ARIA attrs\",\"updates retain element identity\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/owned-subtree-disposal-test.mjs",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"conditional DOM owner removal retains detached descendant ancestry\",\"detached listeners and component resources disposed once\",\"nested Core child removed from aggregate parent\",\"new conditional branch and root redraw render once\",\"final ownership cleanup exact once\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/nested-provider-test.mjs",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"actual Vue/React nested precedence: outer common definition/locale/classes, inner delay/unique definition/plugin; inherited Lazy bypass; one Core form, initial values, validation and exact cleanup\",\"opaque provider inside projected native group preserves one parent/value/validation owner and schema-removal cleanup\",\"true same-form Lazy function/object/namespace loading holds only descendants, retains siblings and hydrates delayed initial values\",\"schema removal and form destruction cancel pending Application before late factory/Core work\",\"async rejection is observable on owning View; public Application restart retries without replacing the form\",\"defaultConfig:false passes raw scoped plugins while keeping actual inherited parent validation\",\"replacement options apply to newly mounted descendants and retain existing Core identity/value\",\"opaque provider aliases inside keyed loops retain lexical data, Core identity and exact cleanup\",\"active Application reload retains existing descendants and value, scopes future children, and tears down every Core node once\",\"public mount preserves explicitly prepared Application provider scope and inherited Lazy bypass\",\"direct-child props forward and update; child props/bind win, DOM descendants do not inherit, overridden refs never receive duplicate mounting\",\"changing configFile automatically reloads options through Application while retaining existing nodes and values\",\"synchronous provider siblings in a native list allocate in source order and preserve all initial list values\",\"opaque sibling scopes preserve named input slot rendering\",\"opaque provider input named slots retain and update loop-local lexical data\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/provider-inheritance-transition-test.mjs",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"afterInherited\":{\"hasChild\":true,\"moduleCompleted\":0,\"factories\":0},\"afterModule\":{\"hasChild\":true,\"source\":\"inherited\",\"factories\":0},\"referenceDifference\":\"React replacement provider supplies inherited options before pending module finishes\",\"scope\":\"Controlled import;no browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/application-root-config-test.mjs",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"observedInitial\":{\"rootIdentity\":true,\"wrappedRoot\":false,\"locale\":\"fr\",\"childLocale\":\"fr\",\"inputClass\":\"shared-input\"},\"referenceDifference\":\"Preserves supplied Core rootConfig as React2.5 does\",\"checks\":[\"preserve supplied Core rootConfig identity\",\"initial shared locale/classes\",\"notified shared locale update with retained Core/DOM\",\"each created node destroyed once\"],\"scope\":\"Installed provider normalization counterpart; no nested-provider or browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/projected-layout-focus-test.mjs",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"modes\":[\"conditional\",\"reorder\"],\"checks\":[\"mixed keyed list reorder\",\"conditional insertion/removal\",\"retained Core/input/value/focus/selection without focus events\",\"nested value topology\",\"normal teardown\"],\"limits\":\"JSDOM focused regression; licensed combined browser acceptance remains separate\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/helper-lifecycle-contract-test.mjs",
+      "exitCode": 0,
+      "stdout": "helper lifecycle: unchanged icon DOM retained or terminal helper removal owned by root passed\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/section-refs-contract-test.mjs",
+      "exitCode": 0,
+      "stdout": "PASS: section refs, loop exclusion, explicit callback refs and terminal cleanup.\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/passive-event-contract-test.mjs",
+      "exitCode": 0,
+      "stdout": "PASS: Pro passive touch event names, native passive behavior, replacement and teardown.\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-attrs-redraw-test.mjs",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"12 attribute redraws and 3 Core schema events retain input/Core/clone/focus/selection\",\"one mounted delivery\",\"one ResizeObserver created and disconnected once\",\"one clone maximum\",\"event listener replacement/removal without duplicates\",\"plugin class and min-height retained with object and unchanged string styles\",\"DOM/Core input still updates clone\",\"hidden/loop/dynamic-tag branches use latest attrs\",\"structural and shared-schema identity changes request existing redraw fallback\",\"exact-once cleanup\"],\"firstEvents\":4,\"secondEvents\":4,\"mounts\":1,\"destroys\":1,\"observers\":1}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/default-child-scopes-test.mjs",
+      "exitCode": 0,
+      "stdout": "multiple scoped default-child invocations: correct row Core parent, retained redraw scopes, row removal disposes removed children, edited DOM/Core/value preserved\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/exception-lifecycle-test.mjs",
+      "exitCode": 0,
+      "stdout": "exceptions: original component/update and submission failures propagate, normal explicit cleanup releases resources, invalid root construction cleans owned nodes; no rollback/recovery guarantee added\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/mount-scope-cleanup-test.mjs",
+      "exitCode": 0,
+      "stdout": "PASS scopedFactories\nPASS failedShow\nPASS terminalLayout\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/root-schema-test.mjs",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"single reused official form element\",\"official form class/attrs precedence\",\"official incomplete message schema/id/type\",\"default slot preserves child identity\",\"official loading state and async submit\",\"official reset messages\",\"root and child ownership teardown\"],\"metrics\":{\"enabled\":true,\"contextNotifications\":23,\"tokenChecks\":1142,\"expressionEvaluations\":225,\"domWrites\":68,\"structuralChanges\":46,\"coreNodesCreated\":3,\"coreNodesDestroyed\":3,\"coreInputEvents\":6,\"coreCommitEvents\":9,\"coreMessageEvents\":48,\"classRootEvaluations\":16,\"valueSnapshots\":0,\"resetComparisonSnapshots\":1,\"valueChangeEvents\":0,\"stateEvents\":27,\"facadeListeners\":0}}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/repeated-lifecycle-test.mjs",
+      "exitCode": 0,
+      "stdout": "12 repeated mixed-schema mount/unmount cycles: pending validation/input, component and Core disposal, registry removal and inert terminal API passed\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-native-layout-lifecycle-test.mjs",
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"factory children/props/update/disposal\",\"independent repeated sibling names\",\"inherited outer-loop scope\",\"anonymous native group ownership\",\"Core-driven conditional projection\",\"native section redraw\",\"root slot redraw\",\"schema replacement retention\",\"layout-only teardown restores children\",\"all-created-node teardown\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/renderer-breadth-test.mjs",
+      "exitCode": 0,
+      "stdout": "renderer breadth: 3-part/object/numeric loops, dynamic tags, recursive attrs, icons, Boolean properties, text and teardown passed\ncomponent registry lifecycle, reactive props, child slot, and unknown-component failure passed\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/dom-attrs-breadth-test.mjs",
+      "exitCode": 0,
+      "stdout": "PASS direct DOM listeners/data/aria attrs and retained FormKit pseudo props\n",
+      "stderr": ""
+    }
+  ],
+  "passed": 18,
+  "failed": 0,
+  "runtimeSha256": {
+    "core/section-renderer.mjs": "231db0cf2a87a667599e8259bee25d01cc166e370a9e0fb28d511c82a8a9fe0d",
+    "core/provider-components.mjs": "0e9e37b57887cb85a1f9c7af7f7ef0b2359f6cc1c0d3644bcc0b9749020b2c98",
+    "core/index.mjs": "145585191fd0d458fa7f7e109fa3ddf8025a0dd06a13cd4f5b4e47ce7503ddb5"
+  },
+  "scope": "Focused free renderer/ownership/provider regression;no Pro key/browser/camera/performance claims"
+}

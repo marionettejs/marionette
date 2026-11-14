@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "checks": [
+    "default-text matches both official adapters",
+    "default-checkbox matches both official adapters",
+    "root-blur-dirty matches both official adapters",
+    "group-dirty-over-root-blur matches both official adapters",
+    "list-blur-over-root-live matches both official adapters",
+    "explicit-live matches both official adapters",
+    "explicit-blur-shields-root-live matches both official adapters",
+    "dynamic-inherited-config matches both official adapters",
+    "unknown-config-mode matches both official adapters",
+    "array-config-modes matches both official adapters",
+    "remove-prop-override restores inheritance and follows later parent change",
+    "remove-prop-override-to-type-default restores inheritance and follows later parent change",
+    "frozen bug reproduced",
+    "group omitted prop restores parent config and future inherited behavior",
+    "list explicit undefined restores parent config and future inherited behavior",
+    "text override removal restores type-default visibility behavior",
+    "checkbox override removal restores type-default visibility behavior"
+  ],
+  "scope": "Focused JSDOM/Core and actual pinned Vue/React comparison; no browser/performance or generic config-object-removal claim"
+}

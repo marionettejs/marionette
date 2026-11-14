@@ -1,0 +1,20 @@
+[
+  {
+    "arm": "adapter",
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: semantic wait\n    at until (file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/provider-inheritance-transition-test.mjs:7:91)\n    at async file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/provider-inheritance-transition-test.mjs:17:68 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: undefined,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+  },
+  {
+    "arm": "react",
+    "exitCode": 0,
+    "stdout": "{\"passed\":true,\"arm\":\"react\",\"afterInherited\":{\"hasChild\":true,\"moduleCompleted\":0,\"factories\":0},\"afterModule\":{\"hasChild\":true,\"source\":\"inherited\",\"factories\":1},\"referenceDifference\":\"React replacement provider supplies inherited options before pending module finishes\",\"scope\":\"Controlled import;no browser/performance claim\"}\n",
+    "stderr": ""
+  },
+  {
+    "arm": "vue",
+    "exitCode": 0,
+    "stdout": "<Suspense> is an experimental feature and its API will likely change.\n{\"passed\":true,\"arm\":\"vue\",\"afterInherited\":{\"hasChild\":false,\"moduleCompleted\":0,\"factories\":0},\"afterModule\":{\"hasChild\":true,\"source\":\"module\",\"factories\":1},\"referenceDifference\":\"Vue captures provider config during setup;replacement stays on loader\",\"scope\":\"Controlled import;no browser/performance claim\"}\n",
+    "stderr": ""
+  }
+]
