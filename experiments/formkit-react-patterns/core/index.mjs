@@ -201,7 +201,7 @@ function fieldEntries(view,parent,specs){
 }
 function reconcile(view,parent,map,specs,anchor,initial) {
   const entries=fieldEntries(view,parent,specs);
-  for(const [key,spec] of entries){const existing=map.get(key);if(existing&&existing.node.props.type!==(spec.type??'text')){existing.destroy();map.delete(key);}}
+  for(const [key,spec] of entries){const existing=map.get(key);if(existing&&(existing.node.props.type!==(spec.type??'text')||!Object.is(existing.spec.key,spec.key))){existing.destroy();map.delete(key);}}
   const names=new Set(entries.map(([key])=>key));
   for(const[name,field]of map)if(!names.has(name)){field.destroy();map.delete(name);}
   for(const [key,spec] of entries){

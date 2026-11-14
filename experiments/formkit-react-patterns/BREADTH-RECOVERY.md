@@ -1,3 +1,11 @@
+# Legal-bind and explicit-key reconciliation corrections
+
+Compatible literal FormKit legal-bind declarations now share native projection, preserving named/explicitly keyed Core owners, DOM and uncontrolled edits through Schema/memo replacement. Bound type/name/key are resolved in lexical scope with explicit-prop precedence. Private anonymous fallback identities are separate from explicit keys; changing or removing an explicit key replaces a named owner as both installed peers do. Default-child/opaque-provider boundaries remain explicit.
+
+The combined isolated revision passes 96/96 free acceptance and 93/93 reference cases, including six adapter/Vue/React Document/ShadowRoot fixtures and relevant lifecycle/teardown checks. Exact baseline failures, the prior independent review's provenance, final receipts and hashes are in `evidence/schema-retention-regressions/`. Frozen reconstruction/publication and existing timing evidence are untouched. No additional component family or performance claim is added.
+
+---
+
 # Schema condition and anonymous-name projection corrections
 
 String conditions now compile constants and token expressions consistently across field projection and DOM presentation, including conditional props. Inactive required branches do not allocate fields or block submission. Names resolving to undefined use shared private outlet identities and retain generated Core owners/controls through data-only updates; adding these keys preserves declaration descriptors. Two actual Vue/React/adapter fixtures cover constants, dynamic else toggles, required submission, anonymous groups/siblings, resolved/keyed name changes, identity and exact teardown.

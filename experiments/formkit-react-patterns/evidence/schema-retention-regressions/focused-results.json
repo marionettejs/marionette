@@ -1,0 +1,69 @@
+{
+  "fixtureSHA256": "6a7683236daa2dc61dbe55f5815a4629cf2e13d0abc85e2b365a6fd0c78a244c",
+  "sourceReport": "free-reference.json",
+  "cases": [
+    {
+      "file": "core/schema-bind-retention-test.mjs",
+      "args": [
+        "vue"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"surface\":\"document\",\"selected\":\"all\",\"passed\":true,\"observations\":[{\"syntax\":\"bind\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"bind\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-bind-retention-test.mjs",
+      "args": [
+        "react"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"surface\":\"document\",\"selected\":\"all\",\"passed\":true,\"observations\":[{\"syntax\":\"bind\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"bind\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-bind-retention-test.mjs",
+      "args": [
+        "experiment"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"surface\":\"document\",\"selected\":\"all\",\"passed\":true,\"observations\":[{\"syntax\":\"bind\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"bind\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-bind-retention-test.mjs",
+      "args": [
+        "vue",
+        "shadow"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"vue\",\"surface\":\"shadow\",\"selected\":\"all\",\"passed\":true,\"observations\":[{\"syntax\":\"bind\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"bind\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-bind-retention-test.mjs",
+      "args": [
+        "react",
+        "shadow"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"react\",\"surface\":\"shadow\",\"selected\":\"all\",\"passed\":true,\"observations\":[{\"syntax\":\"bind\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"bind\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-bind-retention-test.mjs",
+      "args": [
+        "experiment",
+        "shadow"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"surface\":\"shadow\",\"selected\":\"all\",\"passed\":true,\"observations\":[{\"syntax\":\"bind\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"bind\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"object\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    }
+  ]
+}

@@ -34,7 +34,7 @@ contents` to preserve fragment-like layout.
 - `schema`, `data`, `library`, `memoKey`, and `slots` update the local instance.
   Data updates reconcile fields and refresh presentation. Schema-valued slots follow replacement data objects, including removed keys, without replacing retained keyed slot DOM. Replacing schema,
   library, slots or memoKey invalidates its presentation controller; native field
-  owners of the same name/type retain identity, DOM and edited values.
+  owners of the same name/type and explicit key retain identity, DOM and edited values. Changing an explicit key replaces the owner and uncontrolled value.
 - The local `library` overrides portable factories, including the FormKit sugar
   factory. An overridden FormKit factory receives declarations directly without
   hidden native Core allocation. Native input definitions/plugins/config continue
@@ -89,4 +89,4 @@ Root teardown, and cancellation of nested LazyProvider work. Exact Core creation
 and destruction counts verify no duplicate owners. The evidence is JSDOM/Core
 execution; browser layout, focus, accessibility and performance remain untested.
 
-Ordinary literal $cmp:FormKit declarations with object props use the same native owner map as $formkit sugar, preserving Core/edited value/DOM on Schema or memo replacement. Own/non-enumerable prop getters and expression/loop scope are preserved. Non-container default children (including arrays of DOM markup) remain on the factory path; they are not field arrays. Named schema slots and native group/list children retain their existing projection. Overridden factories, whole expression-bound prop bags, bind declarations and opaque provider-containing scopes retain their documented factory lifecycle.
+Compatible literal `$cmp:FormKit` declarations with object props and legal string `bind` use the same native owner map as `$formkit` sugar, preserving Core/edited value/DOM on Schema or memo replacement. Bound type/name/key are evaluated in the current lexical scope; explicit props override the bound bag. Omitted type defaults to text. Explicit key changes replace named owners; private anonymous fallback keys do not request replacement. Own/non-enumerable prop getters and expression/loop scope are preserved. Non-container default children (including arrays of DOM markup) remain on the factory path; they are not field arrays. Named schema slots and native group/list children retain their existing projection. Overridden factories, whole expression-bound prop bags, non-container default-child bodies and opaque provider-containing scopes retain their documented factory lifecycle. A container whose type comes only from bind and has a default-child body also remains opaque; declaring its group/list type explicitly selects native child projection. No compatibility claim is added for `props: '$fieldProps'`. Focused peer coverage is `schema-bind-retention-test.mjs experiment|vue|react document|shadow`.

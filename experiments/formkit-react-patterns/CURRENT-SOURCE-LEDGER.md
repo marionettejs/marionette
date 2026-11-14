@@ -1,4 +1,14 @@
-# Current component source ledger
+# Isolated schema regression revision
+
+Local sole-writer branch `codex/formkit-schema-regressions-20261114` is based exactly on reconstructed `fbc97910c4ad4b7b47d01c0db57a69c32dc4ba49`; that frozen checkout and its publication are unchanged. First checkpoint `80b7a88541eccd27eee6d4b03394ac6bbc86b5a5` fixes string-condition projection and unresolved dynamic-name outlets, with 95/95 free and 87/87 reference receipts in `evidence/schema-projection-regressions/`.
+
+The subsequent isolated revision retains legal-bind named/keyed fields through Schema/memo replacement and honors changed/removed explicit keys for named identity. It reuses native projection/reconciliation and keeps private anonymous fallback keys separate. Final combined checks pass **96/96 free acceptance and 93/93 installed reference cases**, with all runtime hashes matching and unchanged through both runs. New fixtures cover Document/ShadowRoot, stable edits/Core/DOM, requested replacement, bound types/precedence/raw props, anonymous keyed fields, loops and exact cleanup. See `evidence/schema-retention-regressions/README.md` and `source-hashes.json` for exact inputs, before failures, commands and all 17 module hashes.
+
+These are cloud JSDOM/Core receipts. Existing opaque default-child/provider-scope lifecycle, unkeyed anonymous controller-local identity and framework-object/whole-props syntax boundaries remain; no Pro/browser/timing result is relabeled for this source. The reconstruction ledger below remains source-specific historical provenance.
+
+---
+
+# Frozen reconstructed component source ledger
 
 This is a fresh review branch based on verified remote `a993e4fbe8ff5d170822819f5793c5005b8daf18`, with 250 verified members from the 252-member `aef737b` component snapshot and the accepted visibility version 1 patch. Two historical scratch diagnostics were excluded. Existing remote historical files remain. This does not recover or recreate the missing original 17-commit checkout or its 91 untracked files.
 

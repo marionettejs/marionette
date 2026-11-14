@@ -2,14 +2,15 @@ import { providerBoundary, nativeFormKitFactory } from './provider-scope.mjs';
 // Bounded DOM-layout composition over the existing sole FormKit node owner.
 import { compile } from '@formkit/core';
 import { createObserver } from '@formkit/observer';
-import { createSchemaController } from './schema.mjs';
+import { createSchemaController, schemaFieldKey } from './schema.mjs';
 import { renderSections } from './section-renderer.mjs';
 import { createSchemaRegistry } from './schema-registry.mjs';
 export function createLayoutController({form,schema,data:externalData={},components={},slots:externalSlots={}}){
   const layoutData=form._schemaDataOnly?{...externalData}:{...externalData,get values(){return form.node.value;}};
-  const reserved=new Set(['get','slots','__ownedKey',...(form._schemaDataOnly?[]:['values'])]);
+  const reserved=new Set(['get','slots','__ownedKey','__boundType',...(form._schemaDataOnly?[]:['values'])]);
   const registry=createSchemaRegistry(()=>{if(!dead){renderer?.refresh();form._placeSchemaFields?.();}});
   const fieldIdentities=new Map();layoutData.__ownedKey=(...parts)=>{const key=JSON.stringify(parts);if(!fieldIdentities.has(key))fieldIdentities.set(key,Symbol('layout field'));return fieldIdentities.get(key);};
+  layoutData.__boundType=props=>props?.type??'text';
   layoutData.get=registry.get;layoutData.slots=externalSlots;
   const slots={...externalSlots},outlets=new Map();let next=0;
   function expression(value){if(typeof value==='string'&&value.startsWith('$'))compile(value);else if(value&&typeof value==='object')Object.values(value).forEach(expression);}
@@ -62,31 +63,32 @@ export function createLayoutController({form,schema,data:externalData={},compone
 
     // Explicit built-in FormKit declarations share the native owner map. This
     // preserves edited values/DOM when Schema presentation or memoKey changes.
-    // Custom factories and expression-bound props retain the opaque route.
-    if(entry.$cmp==='FormKit'&&components.FormKit?.[nativeFormKitFactory]&&!entry.bind&&entry.props&&typeof entry.props==='object'&&!Array.isArray(entry.props)){
+    // Legal bind bags share projection; custom factories/whole-props stay opaque.
+    if(entry.$cmp==='FormKit'&&components.FormKit?.[nativeFormKitFactory]&&(!entry.bind||typeof entry.bind==='string')&&(entry.props===undefined||(entry.props&&typeof entry.props==='object'&&!Array.isArray(entry.props)))){
       // Non-container children are a default slot, not native field arrays.
       // Keep that factory boundary; ordinary inputs and named slots still use
       // retained native ownership, as do group/list child compositions.
       const children=entry.children;
       const namedSlots=children&&typeof children==='object'&&!Array.isArray(children)&&!['$el','$cmp','$formkit','if','for'].some(key=>key in children);
-      if(children!==undefined&&!namedSlots&&!['group','list'].includes(entry.props.type))return{fields:[],dom:entry};
-      const props=Object.getOwnPropertyDescriptors(entry.props),source=Object.getOwnPropertyDescriptors(entry);
+      if(children!==undefined&&!namedSlots&&!['group','list'].includes(entry.props?.type))return{fields:[],dom:entry};
+      const props=Object.getOwnPropertyDescriptors(entry.props??{}),source=Object.getOwnPropertyDescriptors(entry);
       for(const key of Object.keys(props))props[key]={...props[key],enumerable:true};
-      const type=props.type??{value:'text',enumerable:true,configurable:true};delete props.type;
-      for(const key of ['if','for','children'])if(source[key])props[key]=source[key];
+      const type=props.type??{value:entry.bind?`$__boundType(${entry.bind.replace(/^\$:/,'')})`:'text',enumerable:true,configurable:true};delete props.type;
+      for(const key of ['if','for','children','bind'])if(source[key])props[key]=source[key];
       props.$formkit=type;entry=Object.create(Object.getPrototypeOf(entry),props);
     }
     if('$formkit'in entry){
       // A declared name can resolve to undefined; share an identity with projection.
-      if(!Object.hasOwn(entry,'key'))entry=Object.defineProperty(Object.create(Object.getPrototypeOf(entry),Object.getOwnPropertyDescriptors(entry)),'key',{value:`$__ownedKey('declaration${next++}'${loopAliases.map(alias=>`, $${alias}`).join('')})`,enumerable:true});
+      if(!Object.hasOwn(entry,'key'))entry=Object.defineProperty(Object.create(Object.getPrototypeOf(entry),Object.getOwnPropertyDescriptors(entry)),schemaFieldKey,{value:`$__ownedKey('declaration${next++}'${loopAliases.map(alias=>`, $${alias}`).join('')})`,enumerable:true});
       let slot;do{slot=`__ownedField${next++}`;}while(Object.hasOwn(slots,slot));
       const nativeChildren=Object.hasOwn(entry,'children')&&(['group','list'].includes(entry.$formkit)||(typeof entry.$formkit==='string'&&entry.$formkit.startsWith('$')&&Array.isArray(entry.children)))?parse(entry.children):undefined;
       slots[slot]=({parent,before,locals={},fields=form.fields})=>{
         const anchor=document.createComment('owned field'),outlet=Symbol(slot);parent.insertBefore(anchor,before);
         let current,presentation;
         const update=({locals:scope=locals}={})=>{
-          const name=Object.hasOwn(entry,'name')?resolved(entry.name,scope):resolved(entry.bind,scope)?.name;
-          const identity=entry.key!==undefined?resolved(entry.key,scope):undefined;const field=name!==undefined?fields.get(String(name)):[...fields.values()].find(field=>field.spec.key===identity);if(!field)throw new Error(`Missing owned layout field: ${name}`);
+          const bound=entry.bind?resolved(entry.bind,scope):{};
+          const name=Object.hasOwn(entry,'name')?resolved(entry.name,scope):bound?.name;
+          const identity=Object.hasOwn(entry,'key')?resolved(entry.key,scope):bound?.key!==undefined?bound.key:resolved(entry[schemaFieldKey],scope);const field=name!==undefined?fields.get(String(name)):[...fields.values()].find(field=>field.spec.key===identity);if(!field)throw new Error(`Missing owned layout field: ${name}`);
           if(field.el.nextSibling!==anchor)anchor.parentNode.insertBefore(field.el,anchor);
           if(current!==field){presentation?.destroy();current=field;presentation=nativeChildren&&['group','list'].includes(field.node.props.type)?childPresentation(field,nativeChildren.dom,scope):undefined;}
           presentation?.update(scope);outlets.set(outlet,{fields,name:name===undefined?undefined:String(name),identity,anchor});

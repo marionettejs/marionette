@@ -4,6 +4,8 @@ import { compile } from '@formkit/core';
 import { eq } from '@formkit/utils';
 import { createObserver } from '@formkit/observer';
 import { createSchemaRegistry } from './schema-registry.mjs';
+// Shared only by field projection and layout; never a user-requested key.
+export const schemaFieldKey = Symbol('schema field fallback key');
 
 export function createSchemaController({ node, schema, onFields, data = {}, dataOnly = false }) {
   if (!schema || typeof schema !== 'object') throw new TypeError('Schema must be an array or schema object');
@@ -59,7 +61,10 @@ export function createSchemaController({ node, schema, onFields, data = {}, data
     const field = { ...(bound??{}), type };
     if(name!==undefined)field.name=String(name);else delete field.name;
     if(Object.hasOwn(input,'key'))field.key=value(input.key,locals);
-    else if(name===undefined){let keys=anonymousKeys.get(origin);if(!keys){keys=new Map();anonymousKeys.set(origin,keys);}const path=JSON.stringify(loopKeys);if(!keys.has(path))keys.set(path,Symbol('schema field'));field.key=keys.get(path);}
+    else if(name===undefined&&field.key===undefined){
+      if(Object.hasOwn(input,schemaFieldKey))field.key=value(input[schemaFieldKey],locals);
+      else{let keys=anonymousKeys.get(origin);if(!keys){keys=new Map();anonymousKeys.set(origin,keys);}const path=JSON.stringify(loopKeys);if(!keys.has(path))keys.set(path,Symbol('schema field'));field.key=keys.get(path);}
+    }
     for (const [key, item] of Object.entries(input)) {
       if (['$formkit', 'name', 'if', 'else', 'for', 'children', 'key', 'bind'].includes(key)) continue;
       // Raw props skip expression interpretation, as in FormKit Schema.

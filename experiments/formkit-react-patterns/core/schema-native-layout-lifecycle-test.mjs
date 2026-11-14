@@ -19,8 +19,8 @@ assert.deepEqual([...host.querySelectorAll('article h2')].map(n=>n.textContent),
 // A native group schema event redraws its official sections and child anchor.
 a.emit('schema');await tick();assert.equal(host.querySelector('[data-title="A2"] input'),input);assert.equal(made,2);assert.equal(destroyed,0);
 api.setSlots({default:{$el:'nav',children:['$slots.fields']}});await tick();assert.equal(host.querySelector('nav [data-title="A2"] input'),input);assert.equal(made,2);
-// Replacing presentation retains matching named Core fields and their controls.
-api.setSchema({$formkit:'group',name:'a',children:[{$el:'footer',children:[{$formkit:'text',name:'same'}]}]});await tick();
+// Replacing presentation with the same explicit key retains named Core fields.
+api.setSchema({$formkit:'group',name:'a',key:'a',children:[{$el:'footer',children:[{$formkit:'text',name:'same'}]}]});await tick();
 assert.equal(api.node.at('a'),a);assert.equal(api.node.at('a.same'),same);assert.equal(host.querySelector('footer input'),input);assert.equal(api.node.at('b'),undefined);assert.equal(destroyed,2);assert.equal(a.children.length,1);
 api.destroy();assert.equal(host.querySelector('input'),null);assert.equal(destroyed,made);assert.equal(api.metrics.coreNodesCreated,api.metrics.coreNodesDestroyed);
 // Destroying just the layout restores the native child outlet, retaining owners.
