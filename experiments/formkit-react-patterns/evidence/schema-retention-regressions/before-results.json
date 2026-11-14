@@ -1,0 +1,104 @@
+{
+  "baselineCommit": "fbc97910c4ad4b7b47d01c0db57a69c32dc4ba49",
+  "implementationCheckpoint": "80b7a88541eccd27eee6d4b03394ac6bbc86b5a5",
+  "fixtureSHA256": "6a7683236daa2dc61dbe55f5815a4629cf2e13d0abc85e2b365a6fd0c78a244c",
+  "apparatus": "Final fixtures use a narrow Node resolve hook to read unchanged fbc97910 runtime files. The earlier 80b7a885 checkpoint reproduced the same two defects before implementation; exact final-fixture before receipts use fbc97910. Actual peer arms ignore that adapter import.",
+  "cases": [
+    {
+      "mode": "bind",
+      "arm": "experiment",
+      "surface": "document",
+      "exitCode": 1,
+      "expectationMet": true,
+      "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: bind schema retains Core\n    at file:///workspace/scratch/ea2cded971c5/formkit-schema-regressions-20261114/experiments/formkit-react-patterns/core/schema-bind-retention-test.mjs:47:17 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+    },
+    {
+      "mode": "bind",
+      "arm": "vue",
+      "surface": "document",
+      "exitCode": 0,
+      "expectationMet": true,
+      "output": "{\"arm\":\"vue\",\"surface\":\"document\",\"selected\":\"bind\",\"passed\":true,\"observations\":[{\"syntax\":\"bind\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    },
+    {
+      "mode": "bind",
+      "arm": "react",
+      "surface": "document",
+      "exitCode": 0,
+      "expectationMet": true,
+      "output": "{\"arm\":\"react\",\"surface\":\"document\",\"selected\":\"bind\",\"passed\":true,\"observations\":[{\"syntax\":\"bind\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    },
+    {
+      "mode": "key",
+      "arm": "experiment",
+      "surface": "document",
+      "exitCode": 1,
+      "expectationMet": true,
+      "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: object changed key replaces Core\n    at file:///workspace/scratch/ea2cded971c5/formkit-schema-regressions-20261114/experiments/formkit-react-patterns/core/schema-bind-retention-test.mjs:46:44 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+    },
+    {
+      "mode": "key",
+      "arm": "vue",
+      "surface": "document",
+      "exitCode": 0,
+      "expectationMet": true,
+      "output": "{\"arm\":\"vue\",\"surface\":\"document\",\"selected\":\"key\",\"passed\":true,\"observations\":[{\"syntax\":\"object\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    },
+    {
+      "mode": "key",
+      "arm": "react",
+      "surface": "document",
+      "exitCode": 0,
+      "expectationMet": true,
+      "output": "{\"arm\":\"react\",\"surface\":\"document\",\"selected\":\"key\",\"passed\":true,\"observations\":[{\"syntax\":\"object\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    },
+    {
+      "mode": "bind",
+      "arm": "experiment",
+      "surface": "shadow",
+      "exitCode": 1,
+      "expectationMet": true,
+      "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: bind schema retains Core\n    at file:///workspace/scratch/ea2cded971c5/formkit-schema-regressions-20261114/experiments/formkit-react-patterns/core/schema-bind-retention-test.mjs:47:17 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+    },
+    {
+      "mode": "bind",
+      "arm": "vue",
+      "surface": "shadow",
+      "exitCode": 0,
+      "expectationMet": true,
+      "output": "{\"arm\":\"vue\",\"surface\":\"shadow\",\"selected\":\"bind\",\"passed\":true,\"observations\":[{\"syntax\":\"bind\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    },
+    {
+      "mode": "bind",
+      "arm": "react",
+      "surface": "shadow",
+      "exitCode": 0,
+      "expectationMet": true,
+      "output": "{\"arm\":\"react\",\"surface\":\"shadow\",\"selected\":\"bind\",\"passed\":true,\"observations\":[{\"syntax\":\"bind\",\"operation\":\"data\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"},{\"syntax\":\"bind\",\"operation\":\"schema-memo\",\"sameCore\":true,\"sameDom\":true,\"value\":\"User edit\"}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    },
+    {
+      "mode": "key",
+      "arm": "experiment",
+      "surface": "shadow",
+      "exitCode": 1,
+      "expectationMet": true,
+      "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: object changed key replaces Core\n    at file:///workspace/scratch/ea2cded971c5/formkit-schema-regressions-20261114/experiments/formkit-react-patterns/core/schema-bind-retention-test.mjs:46:44 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+    },
+    {
+      "mode": "key",
+      "arm": "vue",
+      "surface": "shadow",
+      "exitCode": 0,
+      "expectationMet": true,
+      "output": "{\"arm\":\"vue\",\"surface\":\"shadow\",\"selected\":\"key\",\"passed\":true,\"observations\":[{\"syntax\":\"object\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    },
+    {
+      "mode": "key",
+      "arm": "react",
+      "surface": "shadow",
+      "exitCode": 0,
+      "expectationMet": true,
+      "output": "{\"arm\":\"react\",\"surface\":\"shadow\",\"selected\":\"key\",\"passed\":true,\"observations\":[{\"syntax\":\"object\",\"operation\":\"key\",\"sameCore\":false,\"sameDom\":false,\"value\":null},{\"syntax\":\"object\",\"operation\":\"key-remove\",\"sameCore\":false,\"sameDom\":false,\"value\":null}],\"checks\":[\"legal bind/object stable Schema/memo/data retention\",\"changed/removed explicit key replaces named owner\",\"bound textarea and explicit precedence/raw props\",\"anonymous bound-key retention\",\"loop lexical scope and reorder\",\"native parent and actual DOM root\",\"exact teardown and registry cleanup\"]}\n"
+    }
+  ]
+}

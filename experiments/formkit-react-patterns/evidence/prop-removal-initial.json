@@ -1,0 +1,17 @@
+[
+  {
+    "command": "node core/prop-removal-parity.mjs vue",
+    "exitCode": 0,
+    "output": "{\"mode\":\"vue\",\"initial\":{\"caption\":\"ONE\",\"renderedCaption\":\"ONE\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"updated\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"omitted\":{\"renderedCaption\":\"undefined\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"en\"},\"explicitUndefined\":{\"renderedCaption\":\"undefined\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"fr\"},\"status\":\"passed\"}\n"
+  },
+  {
+    "command": "node core/prop-removal-parity.mjs react",
+    "exitCode": 0,
+    "output": "{\"mode\":\"react\",\"initial\":{\"caption\":\"ONE\",\"renderedCaption\":\"ONE\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"updated\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":\"Native title\",\"customClass\":true,\"disabled\":true,\"delay\":0,\"locale\":\"en\"},\"omitted\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":null,\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"en\"},\"explicitUndefined\":{\"caption\":\"TWO\",\"renderedCaption\":\"TWO\",\"title\":null,\"customClass\":true,\"disabled\":false,\"delay\":0,\"locale\":\"fr\"},\"status\":\"passed\"}\n"
+  },
+  {
+    "command": "node core/prop-removal-parity.mjs experiment",
+    "exitCode": 1,
+    "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n'ONE' !== 'TWO'\n\n    at file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/prop-removal-parity.mjs:24:9 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 'ONE',\n  expected: 'TWO',\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+  }
+]

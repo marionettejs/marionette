@@ -1,0 +1,13 @@
+file://[experiment-root]/core/schema.mjs:24
+      for (const key of Object.keys(entry)) if (!fieldKeys.has(key)) throw new TypeError(`Unsupported field schema key: ${key}`);
+                                                                           ^
+
+TypeError: Unsupported field schema key: validationVisibility
+    at parse (file://[experiment-root]/core/schema.mjs:24:76)
+    at Array.map (<anonymous>)
+    at parseBranch (file://[experiment-root]/core/schema.mjs:38:88)
+    at createSchemaController (file://[experiment-root]/core/schema.mjs:39:18)
+    at mountSchemaReference (file://[experiment-root]/harness/schema-reference.mjs:18:197)
+    at async file://[experiment-root]/harness/schema-check.mjs:11:11
+
+Node.js v24.22.1

@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import {setupProjectionDom,mountProjectionReference,settle} from './schema-projection-reference.mjs';
+const dom = setupProjectionDom(),arm = process.argv[2] ?? 'experiment',host = document.querySelector('main');
+const {getNode} = await import('@formkit/core');
+const conditional = (condition,yes,no)=>({if: condition,then: yes,else: no});
+const declaration = (syntax,props)=>syntax === 'sugar' ? {$formkit: 'text',...props} : {$cmp: 'FormKit',...(syntax === 'bind' ? {bind: '$bag'} : {}),props: {type: 'text',...props}};
+async function cleanup(app) {const ids = app.nodes.map(n=>n.props.id);app.destroy();await settle();assert.equal(app.counts().created,app.counts().destroyed);assert.equal(host.childNodes.length,0);for (const id of ids) {assert.equal(getNode(id),undefined);}}
+let mounts = 0;
+for (const syntax of ['sugar','literal','bind']) {
+  for (const [condition,flag] of [['false',false],['1 === 2',false],['true',true],['2 > 1',true],['$: false',false],['$chooseThen',false],['$chooseThen',true]]) {
+    const expected = flag ? 'thenField' : 'elseField',field = declaration(syntax,{name: conditional(condition,'thenField','elseField'),label: conditional(condition,'Then label','Else label'),placeholder: conditional(condition,'Then hint','Else hint')});
+    const app = await mountProjectionReference(arm,host,[{$formkit: 'group',name: 'g',children: [{$el: 'section',children: [field]}]}],{chooseThen: flag,bag: {name: 'overridden',key: 'bound-key'}});mounts++;
+    try {const group = app.node.at('g'),node = app.node.at('g.' + expected),input = host.querySelector('input');assert.ok(node,syntax + ' ' + condition + ' selects projected name');assert.equal(group.children.length,1);assert.equal(input.name,expected);assert.equal(node.props.label,flag ? 'Then label' : 'Else label');assert.equal(input.placeholder,flag ? 'Then hint' : 'Else hint');await node.input('edited');await settle();await app.update({chooseThen: flag,bag: {name: 'overridden',key: 'bound-key'}});assert.ok(app.node.at('g.' + expected) === node);assert.ok(host.querySelector('input') === input);assert.equal(input.value,'edited');} finally {await cleanup(app);}
+  }
+  // Anonymous lookup must evaluate the same conditional key as projection.
+  const field = declaration(syntax,{key: conditional('false','wrong-key',conditional('1 === 2','also-wrong','right-key')),label: '$title'});
+  const app = await mountProjectionReference(arm,host,[{$formkit: 'group',name: 'g',children: [{$el: 'section',children: [field]}]}],{title: 'Initial',bag: {type: 'text',key: 'overridden-bound-key'}});mounts++;
+  try {const group = app.node.at('g'),node = group.children[0],input = host.querySelector('input');assert.equal(group.children.length,1);assert.ok(node.name);await node.input('anonymous edit');await settle();await app.update({title: 'Updated',bag: {type: 'text',key: 'overridden-bound-key'}});assert.ok(group.children[0] === node);assert.ok(host.querySelector('input') === input);assert.equal(input.value,'anonymous edit');assert.equal(node.props.label,'Updated');} finally {await cleanup(app);}
+  // Changing both conditional name and key requests peer-equivalent replacement.
+  const identity = conditional('$chooseThen','$leftName',conditional('false','wrong','$rightName'));
+  const dynamic = await mountProjectionReference(arm,host,[{$formkit: 'group',name: 'g',children: [{$el: 'section',children: [declaration(syntax,{name: identity,key: identity,label: '$title'})]}]}],{chooseThen: false,leftName: 'left',rightName: 'right',title: 'Before',bag: {name: 'overridden'}});mounts++;
+  try {const parent = dynamic.node.at('g'),right = dynamic.node.at('g.right'),input = host.querySelector('input');assert.ok(right);await right.input('right edit');await settle();await dynamic.update({chooseThen: true,leftName: 'left',rightName: 'right',title: 'After',bag: {name: 'overridden'}});const left = dynamic.node.at('g.left'),leftInput = host.querySelector('input');assert.ok(left);assert.ok(left !== right);assert.ok(leftInput !== input);assert.equal(right.context == null,true);assert.equal(dynamic.node.at('g.right'),undefined);assert.equal(parent.children.length,1);assert.equal(left.value,undefined);await left.input('left edit');await settle();await dynamic.update({chooseThen: true,leftName: 'left',rightName: 'right',title: 'Retained',bag: {name: 'overridden'}});assert.ok(dynamic.node.at('g.left') === left);assert.ok(host.querySelector('input') === leftInput);assert.equal(leftInput.value,'left edit');} finally {await cleanup(dynamic);}
+}
+// A conditional identity on the native container must select its child field map.
+const group = await mountProjectionReference(arm,host,[{$formkit: 'group',name: conditional('false','wrong','right'),children: [{$el: 'section',children: [{$formkit: 'text',name: conditional('1 === 2','wrongChild','child')}]}]}]);mounts++;
+try {assert.ok(group.node.at('right.child'));assert.equal(group.node.children.length,1);assert.equal(host.querySelector('input').name,'child');} finally {await cleanup(group);dom.window.close();}
+console.log(JSON.stringify({arm,passed: true,mounts,checks: ['sugar/literal/legal-bind conditional names','true/false/arithmetic/prefixed/dynamic condition semantics','conditional label/placeholder props','nested conditional anonymous keys','explicit prop precedence','dynamic keyed name replacement and stable identity','conditional group ownership','exact node/registry/DOM cleanup']}));

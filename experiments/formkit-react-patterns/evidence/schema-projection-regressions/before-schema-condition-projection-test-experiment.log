@@ -1,0 +1,17 @@
+file:///workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/schema-layout.mjs:88
+          const identity=entry.key!==undefined?resolved(entry.key,scope):undefined;const field=name!==undefined?fields.get(String(name)):[...fields.values()].find(field=>field.spec.key===identity);if(!field)throw new Error(`Missing owned layout field: ${name}`);
+                                                                                                                                                                                                                     ^
+
+Error: Missing owned layout field: fallback
+    at update (file:///workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/schema-layout.mjs:88:214)
+    at slots.<computed> (file:///workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/schema-layout.mjs:93:9)
+    at Object.__ownedField2 (file:///workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/schema-layout.mjs:30:22)
+    at draw (file:///workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/section-renderer.mjs:59:227)
+    at draw (file:///workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/section-renderer.mjs:57:55)
+    at draw (file:///workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/section-renderer.mjs:215:7)
+    at file:///workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/section-renderer.mjs:109:365
+    at effect (file:///workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/section-renderer.mjs:38:165)
+    at binding (file:///workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/section-renderer.mjs:39:63)
+    at draw (file:///workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/section-renderer.mjs:109:210)
+
+Node.js v24.22.1

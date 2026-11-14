@@ -1,0 +1,73 @@
+{
+  "version": "2.5.0",
+  "scope": "Pure public Core getter/config/prop event behavior, no framework renderer",
+  "states": [
+    {
+      "stage": "inherited-group",
+      "effective": "dirty",
+      "own": false,
+      "config": "dirty",
+      "events": []
+    },
+    {
+      "stage": "explicit",
+      "effective": "live",
+      "own": true,
+      "config": "dirty",
+      "events": [
+        {
+          "type": "string",
+          "value": "live"
+        }
+      ]
+    },
+    {
+      "stage": "assigned-undefined",
+      "own": true,
+      "config": "dirty",
+      "events": [
+        {
+          "type": "string",
+          "value": "live"
+        },
+        {
+          "type": "undefined"
+        }
+      ]
+    },
+    {
+      "stage": "deleted-no-notification",
+      "effective": "dirty",
+      "own": false,
+      "config": "dirty",
+      "events": [
+        {
+          "type": "string",
+          "value": "live"
+        },
+        {
+          "type": "undefined"
+        }
+      ]
+    },
+    {
+      "stage": "inherited-config-change",
+      "effective": "blur",
+      "own": false,
+      "config": "blur",
+      "events": [
+        {
+          "type": "string",
+          "value": "live"
+        },
+        {
+          "type": "undefined"
+        },
+        {
+          "type": "string",
+          "value": "blur"
+        }
+      ]
+    }
+  ]
+}

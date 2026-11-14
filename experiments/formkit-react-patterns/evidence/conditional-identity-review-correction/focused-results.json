@@ -1,0 +1,20 @@
+{
+  "fixtureSHA256": "de3acf0583811e1cba94fbef2827d39ad6e3c17d979696055658eb9948d4391d",
+  "cases": [
+    {
+      "arm": "experiment",
+      "exitCode": 0,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"mounts\":28,\"checks\":[\"sugar/literal/legal-bind conditional names\",\"true/false/arithmetic/prefixed/dynamic condition semantics\",\"conditional label/placeholder props\",\"nested conditional anonymous keys\",\"explicit prop precedence\",\"dynamic keyed name replacement and stable identity\",\"conditional group ownership\",\"exact node/registry/DOM cleanup\"]}\n"
+    },
+    {
+      "arm": "vue",
+      "exitCode": 0,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"mounts\":28,\"checks\":[\"sugar/literal/legal-bind conditional names\",\"true/false/arithmetic/prefixed/dynamic condition semantics\",\"conditional label/placeholder props\",\"nested conditional anonymous keys\",\"explicit prop precedence\",\"dynamic keyed name replacement and stable identity\",\"conditional group ownership\",\"exact node/registry/DOM cleanup\"]}\n"
+    },
+    {
+      "arm": "react",
+      "exitCode": 0,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"mounts\":28,\"checks\":[\"sugar/literal/legal-bind conditional names\",\"true/false/arithmetic/prefixed/dynamic condition semantics\",\"conditional label/placeholder props\",\"nested conditional anonymous keys\",\"explicit prop precedence\",\"dynamic keyed name replacement and stable identity\",\"conditional group ownership\",\"exact node/registry/DOM cleanup\"]}\n"
+    }
+  ]
+}

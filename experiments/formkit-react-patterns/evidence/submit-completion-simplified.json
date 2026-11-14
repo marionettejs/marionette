@@ -1,0 +1,1 @@
+{"passed":true,"checks":["normal synchronous submit completion destroys owner","normal async submit completion destroys owner","destroy while returned submission promise settles","original sync error and async rejection propagate"]}

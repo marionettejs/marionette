@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
+const dom = new JSDOM('<body><main></main>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle']) {globalThis[key] = dom.window[key];}
+const {mount} = await import('./index.mjs'),{createNode,getNode} = await import('@formkit/core');const pause = ()=>new Promise(resolve=>setTimeout(resolve,35));
+const rowsDefinition = {type: 'list',features: [node=>{let rows = [];node.on('created',()=>{rows = [0,1].map(index=>createNode({parent: node,index,props: {type: 'group',id: 'owned-row-' + index}}));node.context.rows = rows;});node.on('destroyed',()=>{for (const row of rows) {row.destroy();}});}],schema: {$el: 'section',children: {$el: 'article',for: ['node','$rows'],attrs: {key: '$node.props.id'},children: '$slots.default'}}};
+const composite = {type: 'group',schema: {$formkit: 'rows',name: 'inner',value: [{label: 'first'},{label: 'second'}],children: {$formkit: 'text',name: 'label'}}};
+const api = mount({host: document.querySelector('main'),inputs: {rows: rowsDefinition,composite},fields: [{name: 'outer',type: 'composite'}]});
+try {
+  await pause();const inner = api.node.at('outer.inner'),first = inner.children[0],second = inner.children[1];assert.equal(first.children.length,1);assert.equal(second.children.length,1);assert.equal(first.children[0].parent,first);assert.equal(second.children[0].parent,second);assert.deepEqual([...api.form.el.querySelectorAll('input')].map(input=>input.value),['first','second']);
+  const retained = api.form.el.querySelectorAll('input')[1],leaf = second.children[0],removedId = first.children[0].props.id;await leaf.input('edited');inner.emit('schema');await pause();assert.equal(api.form.el.querySelectorAll('input')[1],retained);assert.equal(second.children[0],leaf);assert.equal(api.form.el.querySelectorAll('input').length,2);
+  first.destroy();inner.context.rows = [second];api.form.render();await pause();assert.equal(getNode(removedId),undefined);assert.equal(api.form.el.querySelectorAll('input').length,1);assert.equal(api.form.el.querySelector('input'),retained);assert.equal(leaf.value,'edited');assert.equal(leaf.parent,second);
+} finally {api.destroy();dom.window.close();}
+console.log('multiple scoped default-child invocations: correct row Core parent, retained redraw scopes, row removal disposes removed children, edited DOM/Core/value preserved');

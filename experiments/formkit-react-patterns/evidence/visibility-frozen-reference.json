@@ -1,0 +1,858 @@
+{
+  "arm": "adapter",
+  "candidate": "/workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/visibility-frozen/core/index.mjs",
+  "versions": {
+    "formkit": "2.5.0",
+    "react": "19.2.0",
+    "vue": "3.5.44"
+  },
+  "checks": [
+    {
+      "scenario": "default-text",
+      "states": [
+        {
+          "stage": "initial",
+          "effective": "live",
+          "own": true,
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "blur",
+          "effective": "live",
+          "own": true,
+          "visible": true,
+          "blurred": true,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "dirty-invalid",
+          "effective": "live",
+          "own": true,
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters."
+          ],
+          "value": "bad"
+        },
+        {
+          "stage": "submit",
+          "effective": "live",
+          "own": true,
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": true,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters.",
+            "Sorry, not all fields are filled out correctly."
+          ],
+          "value": "bad"
+        }
+      ]
+    },
+    {
+      "scenario": "default-checkbox",
+      "states": [
+        {
+          "stage": "initial",
+          "effective": "live",
+          "own": true,
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Please accept the Field."
+          ]
+        },
+        {
+          "stage": "blur",
+          "effective": "live",
+          "own": true,
+          "visible": true,
+          "blurred": true,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Please accept the Field."
+          ]
+        },
+        {
+          "stage": "dirty-invalid",
+          "effective": "live",
+          "own": true,
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": false,
+          "invalid": false,
+          "messages": [],
+          "value": true
+        },
+        {
+          "stage": "submit",
+          "effective": "live",
+          "own": true,
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": true,
+          "invalid": false,
+          "messages": [],
+          "value": true
+        }
+      ]
+    },
+    {
+      "scenario": "root-blur-dirty",
+      "states": [
+        {
+          "stage": "initial",
+          "effective": "live",
+          "own": true,
+          "config": "blur dirty",
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "blur",
+          "effective": "live",
+          "own": true,
+          "config": "blur dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "dirty-invalid",
+          "effective": "live",
+          "own": true,
+          "config": "blur dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters."
+          ],
+          "value": "bad"
+        },
+        {
+          "stage": "submit",
+          "effective": "live",
+          "own": true,
+          "config": "blur dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": true,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters.",
+            "Sorry, not all fields are filled out correctly."
+          ],
+          "value": "bad"
+        }
+      ]
+    },
+    {
+      "scenario": "group-dirty-over-root-blur",
+      "states": [
+        {
+          "stage": "initial",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "blur",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "dirty-invalid",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters."
+          ],
+          "value": "bad"
+        },
+        {
+          "stage": "submit",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": true,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters.",
+            "Sorry, not all fields are filled out correctly."
+          ],
+          "value": "bad"
+        }
+      ]
+    },
+    {
+      "scenario": "list-blur-over-root-live",
+      "states": [
+        {
+          "stage": "initial",
+          "effective": "live",
+          "own": true,
+          "config": "blur",
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "blur",
+          "effective": "live",
+          "own": true,
+          "config": "blur",
+          "visible": true,
+          "blurred": true,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "dirty-invalid",
+          "effective": "live",
+          "own": true,
+          "config": "blur",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters."
+          ],
+          "value": "bad"
+        },
+        {
+          "stage": "submit",
+          "effective": "live",
+          "own": true,
+          "config": "blur",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": true,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters.",
+            "Sorry, not all fields are filled out correctly."
+          ],
+          "value": "bad"
+        }
+      ]
+    },
+    {
+      "scenario": "explicit-live",
+      "states": [
+        {
+          "stage": "initial",
+          "effective": "live",
+          "own": true,
+          "config": "blur dirty",
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "blur",
+          "effective": "live",
+          "own": true,
+          "config": "blur dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "dirty-invalid",
+          "effective": "live",
+          "own": true,
+          "config": "blur dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters."
+          ],
+          "value": "bad"
+        },
+        {
+          "stage": "submit",
+          "effective": "live",
+          "own": true,
+          "config": "blur dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": true,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters.",
+            "Sorry, not all fields are filled out correctly."
+          ],
+          "value": "bad"
+        }
+      ]
+    },
+    {
+      "scenario": "explicit-blur-shields-root-live",
+      "states": [
+        {
+          "stage": "initial",
+          "effective": "blur",
+          "own": true,
+          "config": "live",
+          "visible": false,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": []
+        },
+        {
+          "stage": "blur",
+          "effective": "blur",
+          "own": true,
+          "config": "live",
+          "visible": true,
+          "blurred": true,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "dirty-invalid",
+          "effective": "blur",
+          "own": true,
+          "config": "live",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters."
+          ],
+          "value": "bad"
+        },
+        {
+          "stage": "submit",
+          "effective": "blur",
+          "own": true,
+          "config": "live",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": true,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters.",
+            "Sorry, not all fields are filled out correctly."
+          ],
+          "value": "bad"
+        }
+      ]
+    },
+    {
+      "scenario": "remove-prop-override",
+      "states": [
+        {
+          "stage": "initial",
+          "effective": "live",
+          "own": true,
+          "config": "blur dirty",
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "removed",
+          "effective": "live",
+          "own": true,
+          "config": "blur dirty",
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "parent-config-after-removal",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "blur",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "dirty-invalid",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters."
+          ],
+          "value": "bad"
+        },
+        {
+          "stage": "submit",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": true,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters.",
+            "Sorry, not all fields are filled out correctly."
+          ],
+          "value": "bad"
+        }
+      ]
+    },
+    {
+      "scenario": "remove-prop-override-to-type-default",
+      "states": [
+        {
+          "stage": "initial",
+          "effective": "live",
+          "own": true,
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "removed",
+          "effective": "live",
+          "own": true,
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "parent-config-after-removal",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "blur",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "dirty-invalid",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters."
+          ],
+          "value": "bad"
+        },
+        {
+          "stage": "submit",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": true,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters.",
+            "Sorry, not all fields are filled out correctly."
+          ],
+          "value": "bad"
+        }
+      ]
+    },
+    {
+      "scenario": "dynamic-inherited-config",
+      "states": [
+        {
+          "stage": "initial",
+          "effective": "live",
+          "own": true,
+          "config": "blur dirty",
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "root-config-live",
+          "effective": "live",
+          "own": true,
+          "config": "live",
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "root-config-dirty",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "blur",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "dirty-invalid",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters."
+          ],
+          "value": "bad"
+        },
+        {
+          "stage": "submit",
+          "effective": "live",
+          "own": true,
+          "config": "dirty",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": true,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters.",
+            "Sorry, not all fields are filled out correctly."
+          ],
+          "value": "bad"
+        }
+      ]
+    },
+    {
+      "scenario": "unknown-config-mode",
+      "states": [
+        {
+          "stage": "initial",
+          "effective": "live",
+          "own": true,
+          "config": "unknown-mode",
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "blur",
+          "effective": "live",
+          "own": true,
+          "config": "unknown-mode",
+          "visible": true,
+          "blurred": true,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "dirty-invalid",
+          "effective": "live",
+          "own": true,
+          "config": "unknown-mode",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters."
+          ],
+          "value": "bad"
+        },
+        {
+          "stage": "submit",
+          "effective": "live",
+          "own": true,
+          "config": "unknown-mode",
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": true,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters.",
+            "Sorry, not all fields are filled out correctly."
+          ],
+          "value": "bad"
+        }
+      ]
+    },
+    {
+      "scenario": "array-config-modes",
+      "states": [
+        {
+          "stage": "initial",
+          "effective": "live",
+          "own": true,
+          "config": [
+            "blur",
+            "dirty"
+          ],
+          "visible": true,
+          "blurred": false,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "blur",
+          "effective": "live",
+          "own": true,
+          "config": [
+            "blur",
+            "dirty"
+          ],
+          "visible": true,
+          "blurred": true,
+          "dirty": false,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field is required."
+          ]
+        },
+        {
+          "stage": "dirty-invalid",
+          "effective": "live",
+          "own": true,
+          "config": [
+            "blur",
+            "dirty"
+          ],
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": false,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters."
+          ],
+          "value": "bad"
+        },
+        {
+          "stage": "submit",
+          "effective": "live",
+          "own": true,
+          "config": [
+            "blur",
+            "dirty"
+          ],
+          "visible": true,
+          "blurred": true,
+          "dirty": true,
+          "submitted": true,
+          "invalid": true,
+          "messages": [
+            "Field must be greater than or equal to 5 characters.",
+            "Sorry, not all fields are filled out correctly."
+          ],
+          "value": "bad"
+        }
+      ]
+    }
+  ]
+}

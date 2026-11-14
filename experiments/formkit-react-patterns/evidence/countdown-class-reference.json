@@ -1,0 +1,18 @@
+[
+  {
+    "arm": "vue",
+    "sectionClass": "formkit-input-maxlength-remaining",
+    "count": 7
+  },
+  {
+    "arm": "react",
+    "sectionClass": "formkit-input-maxlength-remaining",
+    "count": 7
+  },
+  {
+    "arm": "experiment",
+    "sectionClass": "formkit-input-maxlength-remaining",
+    "count": 7,
+    "actualElement": "<span class=\"formkit-input-maxlength-remaining\">7<span>7 remaining characters</span></span>"
+  }
+]

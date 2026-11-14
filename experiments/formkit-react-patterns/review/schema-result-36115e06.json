@@ -1,0 +1,18 @@
+{
+  "controller": {
+    "calls": 1,
+    "destroyed": true
+  },
+  "owner": {
+    "calls": 1,
+    "destroyed": true
+  },
+  "$values.f0 ===": "Error: E104",
+  "$values.f0 + (": "Error: E104",
+  "$values.missing": "TypeError: Unsupported schema dependency: values.missing; use $values.<always-present-field>",
+  "$values.f0 === 'show'": "accepted",
+  "destroyInInitialCallback": {
+    "called": 1,
+    "destroyed": true
+  }
+}

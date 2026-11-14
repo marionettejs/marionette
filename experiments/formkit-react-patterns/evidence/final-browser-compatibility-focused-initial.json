@@ -1,0 +1,68 @@
+{
+  "tests": [
+    {
+      "file": "core/literal-formkit-retention-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"ordinary literal FormKit retains Core/edited value/DOM on Schema+memo change\",\"raw prop remains literal\",\"new sibling reconciles under same parent\",\"exact owned teardown\"],\"scope\":\"Actual pinned adapters and portable native projection;not arbitrary opaque-factory state retention\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/literal-formkit-projection-test.mjs",
+      "args": [],
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/literal-formkit-projection-test.mjs:7\n}finally{api.destroy();dom.window.close();}\n ^^^^^^^\n\nSyntaxError: Unexpected token 'finally'\n    at compileSourceTextModule (node:internal/modules/esm/utils:319:16)\n    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)\n    at #translate (node:internal/modules/esm/loader:438:20)\n    at afterLoad (node:internal/modules/esm/loader:506:29)\n    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:511:12)\n    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:564:36)\n    at afterResolve (node:internal/modules/esm/loader:611:52)\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:617:12)\n    at node:internal/modules/esm/loader:636:32\n    at TracingChannel.tracePromise (node:diagnostics_channel:370:14)\n\nNode.js v24.22.1\n"
+    },
+    {
+      "file": "core/svg-namespace-contract-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"real SVG namespace and root interface\",\"nested path and SVG inherit namespace\",\"foreignObject children resume HTML\",\"normal cleanup\"],\"scope\":\"Basic SVG/HTML boundaries;not blanket XML/MathML or browser geometry certification\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/lazy-scope-exception-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"failed renderChildren construction disposes allocated Core/DOM\",\"public stop leaves no failed child scope\",\"retry does not accumulate or duplicate fields\",\"all created nodes deregistered/destroyed once\"],\"scope\":\"Portable factory construction cleanup,not arbitrary callback rollback or attempt-all teardown\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/lazy-inheritance-removal-test.mjs",
+      "args": [
+        "adapter",
+        "conditional"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"mode\":\"conditional\",\"observed\":{\"entered\":1,\"completed\":1,\"factories\":1,\"source\":\"module\",\"keptOutside\":true,\"childNames\":[\"outside\",\"inside\",\"future\"]},\"scope\":\"React replacement semantics:lost inherited options starts own loader before creating descendants\",\"cameraCalls\":0,\"performanceSamples\":0}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-slot-data-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"Schema-valued slots use replacement data\",\"omitted data keys disappear\",\"loop locals update and keyed DOM stays retained\",\"repeated refresh stays live\",\"borrowed data.node survives cleanup\",\"owned nodes destroyed once\"],\"scope\":\"Adapter schema-valued slot contract;no upstream schema-valued slot API equivalence or browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/nested-provider-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"actual Vue/React nested precedence: outer common definition/locale/classes, inner delay/unique definition/plugin; inherited Lazy bypass; one Core form, initial values, validation and exact cleanup\",\"opaque provider inside projected native group preserves one parent/value/validation owner and schema-removal cleanup\",\"true same-form Lazy function/object/namespace loading holds only descendants, retains siblings and hydrates delayed initial values\",\"schema removal and form destruction cancel pending Application before late factory/Core work\",\"async rejection is observable on owning View; public Application restart retries without replacing the form\",\"defaultConfig:false passes raw scoped plugins while keeping actual inherited parent validation\",\"replacement options apply to newly mounted descendants and retain existing Core identity/value\",\"opaque provider aliases inside keyed loops retain lexical data, Core identity and exact cleanup\",\"active Application reload retains existing descendants and value, scopes future children, and tears down every Core node once\",\"public mount preserves explicitly prepared Application provider scope and inherited Lazy bypass\",\"direct-child props forward and update; child props/bind win, DOM descendants do not inherit, overridden refs never receive duplicate mounting\",\"changing configFile automatically reloads options through Application while retaining existing nodes and values\",\"synchronous provider siblings in a native list allocate in source order and preserve all initial list values\",\"opaque sibling scopes preserve named input slot rendering\",\"opaque provider input named slots retain and update loop-local lexical data\"]}\n",
+      "stderr": ""
+    }
+  ],
+  "passed": 6,
+  "failed": 1,
+  "runtimeSha256": {
+    "core/index.mjs": "737c35a788a65d7030123434ec184a927cb465a38a002a27174ec992dbcb9ea0",
+    "core/provider-scope.mjs": "2c7c42c975f80a008f2166a655d136b491f7b44f13dbfa6eacc56b880242afd0",
+    "core/schema-layout.mjs": "abc8d70b68e1f782dcc8d34609c069deac5f5f701ed38965d107f2d3a02f2fb8",
+    "core/section-renderer.mjs": "4bef0234a3c272480045ed04047ff31b2f3087395715d0735647add6ffbc5864",
+    "core/root-slots.mjs": "fdae5a1b69311e961a5d87d5e4e1f64aa9953e0a7d7042cbdd52ba7144f85ca4",
+    "core/provider-components.mjs": "bfa70038bcbe312beae42ff6728e5d272bc67ae9e984633f63d1d3ed90dbd190"
+  },
+  "scope": "Small final browser patch reconciliation;no additional broad review or benchmark run",
+  "performanceBoundary": "Input timing invalidated by independent capture:true audit;corrected harness owned by licensed task. No post-fix timings claimed."
+}

@@ -1,0 +1,94 @@
+{
+  "patchCheck": {
+    "exitCode": 0,
+    "output": "",
+    "error": ""
+  },
+  "canonicalBaseline": {
+    "core/index.mjs": {
+      "canonicalHash": "037f69f8b1d09be99851f2aae53e2266710da3e71db29c24fb9c0671d147db5a",
+      "baselineHash": "037f69f8b1d09be99851f2aae53e2266710da3e71db29c24fb9c0671d147db5a",
+      "matches": true
+    },
+    "core/section-renderer.mjs": {
+      "canonicalHash": "4b2ea7f1542eacad033de873993be1e52a0bb965838451f23903dff033adf917",
+      "baselineHash": "4b2ea7f1542eacad033de873993be1e52a0bb965838451f23903dff033adf917",
+      "matches": true
+    },
+    "core/schema-layout.mjs": {
+      "canonicalHash": "c4b61e5765e9e9c713ad103f1994ef2cd65fecd826abb4470c2e6ebee60409ea",
+      "baselineHash": "c4b61e5765e9e9c713ad103f1994ef2cd65fecd826abb4470c2e6ebee60409ea",
+      "matches": true
+    },
+    "core/root-slots.mjs": {
+      "canonicalHash": "2074e8571b2c81cf20e39e887dd11c961efc75dfbfa36c00826b44f6d313ccc4",
+      "baselineHash": "2074e8571b2c81cf20e39e887dd11c961efc75dfbfa36c00826b44f6d313ccc4",
+      "matches": true
+    },
+    "core/formkit-application.mjs": {
+      "canonicalHash": "6a9798a21701e41c93ac1ed16eac9ce8c0c2a12c2f1cd67832070f0c174ce32f",
+      "baselineHash": "6a9798a21701e41c93ac1ed16eac9ce8c0c2a12c2f1cd67832070f0c174ce32f",
+      "matches": true
+    },
+    "core/config-scope.mjs": {
+      "canonicalHash": null,
+      "baselineHash": null,
+      "matches": true
+    },
+    "core/provider-components.mjs": {
+      "canonicalHash": null,
+      "baselineHash": null,
+      "matches": true
+    },
+    "core/provider-scope.mjs": {
+      "canonicalHash": null,
+      "baselineHash": null,
+      "matches": true
+    },
+    "core/nested-provider-test.mjs": {
+      "canonicalHash": null,
+      "baselineHash": null,
+      "matches": true
+    },
+    "core/nested-provider-upstream.mjs": {
+      "canonicalHash": null,
+      "baselineHash": null,
+      "matches": true
+    },
+    "core/nested-lazy-upstream.mjs": {
+      "canonicalHash": null,
+      "baselineHash": null,
+      "matches": true
+    },
+    "core/NESTED-PROVIDERS.md": {
+      "canonicalHash": null,
+      "baselineHash": null,
+      "matches": true
+    }
+  },
+  "officialSources": {
+    "core": {
+      "version": "2.5.0",
+      "sha256": "cf08b63e085233ed1c74839e2618259a776a29e46048d28ebbdf1d27f4dcdbd7"
+    },
+    "inputs": {
+      "version": "2.5.0",
+      "sha256": "c4aa648bf56a1cf95f7b38c62201ab847676bfdf564b84596ce0e693ff70579d"
+    },
+    "react": {
+      "version": "2.5.0",
+      "sha256": "6d2a1950a197355e2fe20536ee3809899160df05f13b3d03f11dd93868dc82c8"
+    },
+    "vue": {
+      "version": "2.5.0",
+      "sha256": "3a5ad66eb0f94433fd98299378ed29f751320a532017f1f274bafb9e44f54e8e"
+    }
+  },
+  "regressions": {
+    "total": 73,
+    "passed": 73,
+    "bootstrap": "globalThis.getComputedStyle=(...args)=>window.getComputedStyle(...args); before importing each JSDOM test"
+  },
+  "officialReferenceRuns": 6,
+  "browserRun": false
+}

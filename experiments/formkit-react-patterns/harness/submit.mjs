@@ -1,0 +1,25 @@
+import {JSDOM} from 'jsdom';
+import assert from 'node:assert/strict';
+import {fields,classes,values} from './fixtures.mjs';
+const dom = new JSDOM('<!doctype html><html><body><main id="host"></main></body></html>',{url: 'https://example.test',pretendToBeVisual: true});
+for (const key of ['window','document','HTMLElement','Element','Node','Document','ShadowRoot','MutationObserver','Event','CustomEvent','HTMLInputElement']) {globalThis[key] = dom.window[key];}
+Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
+globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);globalThis.SVGElement = dom.window.SVGElement;
+globalThis.requestAnimationFrame = dom.window.requestAnimationFrame.bind(dom.window);globalThis.cancelAnimationFrame = dom.window.cancelAnimationFrame.bind(dom.window);
+const arm = process.argv[2] ?? 'vue',count = Number(process.argv[3] ?? 20),host = document.querySelector('#host');
+const {mountReference,mountCurrent} = await import('./reference.mjs');
+let submitted = 0,invalid = 0,payload;
+const options = {onSubmit: value=>{submitted++;payload = value},onSubmitInvalid: ()=>invalid++};
+const api = arm === 'current' ? await mountCurrent(host,count,options) : arm === 'experiment' ? await (await import('../core/index.mjs')).mount({host,count,fields: fields(count),classes,values: values(count),...options}) : await mountReference(arm,host,count,options);
+const delay = ()=>new Promise(r=>setTimeout(r,5));
+async function until(predicate,label) {for (let n = 0;n < 400;n++) {await delay();if (predicate()) {return;}} throw Error(`Did not settle: ${label}`)}
+await until(()=>api.node?.isSettled && host.querySelectorAll('input[type=text]').length === count,'mount');
+host.querySelector('form').dispatchEvent(new Event('submit',{bubbles: true,cancelable: true}));
+await until(()=>invalid === 1,'invalid submit');assert.equal(submitted,0);
+for (const n of api.node.children) {await n.input('Filled');}
+await until(()=>api.node.isSettled && api.node.children.every(n=>!n.store.rule_required),'valid values');
+host.querySelector('form').dispatchEvent(new Event('submit',{bubbles: true,cancelable: true}));
+await until(()=>submitted === 1,'valid submit');assert.equal(Object.keys(payload).length,count);assert.ok(Object.values(payload).every(v=>v === 'Filled'));
+api.reset();await until(()=>api.node.children.every(n=>!!n.store.rule_required),'reset errors');
+api.destroy();
+console.log(JSON.stringify({arm,count,status: 'PASS',checks: ['invalid submission blocked','valid submission payload','reset validation'],limits: ['JSDOM only; no timing']}));dom.window.close();

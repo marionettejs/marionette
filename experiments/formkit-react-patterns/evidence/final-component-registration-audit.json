@@ -1,0 +1,36 @@
+{
+  "registeredPortableNames": [
+    "FormKit",
+    "FormKitSchema",
+    "FormKitRoot",
+    "FormKitSummary",
+    "FormKitMessages",
+    "FormKitIcon",
+    "FormKitProvider",
+    "FormKitLazyProvider"
+  ],
+  "cases": [
+    {
+      "mode": "Document",
+      "all8Registered": true,
+      "oneForm": true,
+      "sameCoreParent": true,
+      "rootMatchesBoundary": true,
+      "created": 2
+    },
+    {
+      "mode": "ShadowRoot",
+      "all8Registered": true,
+      "oneForm": true,
+      "sameCoreParent": true,
+      "rootMatchesBoundary": true,
+      "created": 2
+    }
+  ],
+  "newLiteralNames": [
+    "FormKitSchema",
+    "FormKitRoot"
+  ],
+  "inputKindsAdded": 0,
+  "scope": "Public combined registry and Document/ShadowRoot ownership audit;no real browser/performance claim"
+}

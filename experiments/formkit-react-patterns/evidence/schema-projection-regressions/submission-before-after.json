@@ -1,0 +1,32 @@
+{
+  "source": "\nimport{JSDOM}from'jsdom';const d=new JSDOM('<body><main></main>');for(const k of ['window','document','Node','Element','HTMLElement','HTMLInputElement','HTMLFormElement','Event','CustomEvent','MutationObserver','getComputedStyle'])globalThis[k]=d.window[k];\nconst {mount}=await import(process.argv[2]);let submitted=0,invalid=0;const a=mount({host:document.querySelector('main'),schema:{$formkit:'group',name:'g',children:[{if:'false',then:{$el:'section',children:[{$formkit:'text',name:'hiddenRequired',validation:'required'}]}}]},formProps:{actions:false},config:{delay:0},onSubmit:()=>submitted++,onSubmitInvalid:()=>invalid++});await new Promise(r=>setTimeout(r,25));await a.submit();console.log(JSON.stringify({inputs:document.querySelectorAll('input').length,coreChildren:a.node.at('g').children.map(n=>n.name),submitted,invalid,valid:a.node.context.state.valid}));a.destroy();d.window.close();\n",
+  "argumentsNote": "Read the runtime index URL from argv[2] when running this source via --eval, or argv[3] when using the recorded stdin command node --input-type=module - probe <URL>.",
+  "cases": [
+    {
+      "label": "before",
+      "runtimeIndex": "/workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/index.mjs",
+      "exitCode": 0,
+      "result": {
+        "inputs": 1,
+        "coreChildren": [
+          "hiddenRequired"
+        ],
+        "submitted": 0,
+        "invalid": 1,
+        "valid": false
+      }
+    },
+    {
+      "label": "after",
+      "runtimeIndex": "/workspace/scratch/ea2cded971c5/formkit-schema-regressions-20261114/experiments/formkit-react-patterns/core/index.mjs",
+      "exitCode": 0,
+      "result": {
+        "inputs": 0,
+        "coreChildren": [],
+        "submitted": 1,
+        "invalid": 0,
+        "valid": true
+      }
+    }
+  ]
+}

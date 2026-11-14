@@ -1,0 +1,9 @@
+file://[experiment-root]/harness/context-check.mjs:13
+const delay=()=>new Promise(r=>setTimeout(r,5));async function until(predicate,label){for(let i=0;i<400;i++){await delay();if(predicate())return;}throw Error('Did not settle: '+label)}
+                                                                                                                                                        ^
+
+Error: Did not settle: blur state/message
+    at until (file://[experiment-root]/harness/context-check.mjs:13:153)
+    at async file://[experiment-root]/harness/context-check.mjs:16:40
+
+Node.js v24.22.1

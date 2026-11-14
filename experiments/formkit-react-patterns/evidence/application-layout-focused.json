@@ -1,0 +1,79 @@
+{
+  "tests": [
+    {
+      "file": "core/projected-layout-focus-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"modes\":[\"conditional\",\"reorder\"],\"checks\":[\"mixed keyed list reorder\",\"conditional insertion/removal\",\"retained Core/input/value/focus/selection without focus events\",\"nested value topology\",\"normal teardown\"],\"limits\":\"JSDOM focused regression; licensed combined browser acceptance remains separate\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/application-config-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"default export function/object and namespace config; no Core/UI before readiness; real input and owned cleanup\",\"stop/destroy cancel import preparation and prevent late factory/Core/UI work\",\"newer restart supersedes pending config and prevents stale activation\",\"initial rejection propagates without UI; retry works; active rejection retains prior View\",\"owned child Applications borrow provider scope, bypass import/defaults, share reactive root config and stop/destroy with owner\",\"cancelled consumer cannot mount after shared provider resolves and does not cancel borrowed provider\",\"defaultConfig:false uses explicit library/bindings/plugins; no default validation/native library injected\",\"synchronous mount also accepts a fully supplied pipeline\",\"public View factory override and borrowed Region ownership remain ordinary Marionette contracts\"],\"applications\":14,\"source\":\"Application.prepareStart/start/restart/stop/destroy; existing FormView/Region ownership\",\"scope\":\"Application config scope, not a Vue/React context object or schema component imitation\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/lazy-provider-upstream.mjs",
+      "args": [
+        "vue"
+      ],
+      "exitCode": 0,
+      "stdout": "<Suspense> is an experimental feature and its API will likely change.\n{\"passed\":true,\"arm\":\"vue\",\"evidence\":[{\"case\":\"pending -> default-config load\",\"factoryCalls\":1,\"created\":1,\"destroyed\":1},{\"case\":\"inherited provider bypasses configFile/defaultConfig\",\"moduleLoads\":0,\"factoryCalls\":0},{\"case\":\"unmount while import pending\",\"factoryCallsAfterUnmount\":1,\"childNodesCreated\":0},{\"case\":\"defaultConfig:false\",\"rawPipeline\":true,\"defaultValidationInjected\":false},{\"case\":\"module rejection\",\"error\":\"Controlled config rejection\",\"childNodesCreated\":0}],\"scope\":\"Actual official FormKitLazyProvider; controlled file modules only; no new wrapper semantics substituted\"}\n",
+      "stderr": "[Vue warn]: Component is missing template or render function:  {\n  name: 'FormKitConfigLoader2',\n  props: [ 'defaultConfig', 'configFile' ],\n  inheritAttrs: false,\n  setup: [AsyncFunction: FormKitConfigLoader2]\n} \n  at <FormKitConfigLoader2 configFile=\"file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/fixtures/provider-reject.mjs?vue=6\" defaultConfig=undefined > \n  at <FormKitLazyProvider2 configFile=\"file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/fixtures/provider-reject.mjs?vue=6\" > \n  at <App>\n"
+    },
+    {
+      "file": "core/lazy-provider-upstream.mjs",
+      "args": [
+        "react"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"react\",\"evidence\":[{\"case\":\"pending -> default-config load\",\"factoryCalls\":1,\"created\":1,\"destroyed\":1},{\"case\":\"inherited provider bypasses configFile/defaultConfig\",\"moduleLoads\":0,\"factoryCalls\":0},{\"case\":\"unmount while import pending\",\"factoryCallsAfterUnmount\":1,\"childNodesCreated\":0},{\"case\":\"defaultConfig:false\",\"rawPipeline\":true,\"defaultValidationInjected\":false},{\"case\":\"module rejection\",\"error\":\"Controlled config rejection\",\"childNodesCreated\":0}],\"scope\":\"Actual official FormKitLazyProvider; controlled file modules only; no new wrapper semantics substituted\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-native-layout-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"mixed native group/list DOM and text\",\"no phantom Core nodes\",\"native value topology\",\"aggregate validation\",\"data update\",\"anonymous keyed node/DOM identity\",\"keyed DOM reorder\",\"conditional and row removal\",\"cleanup\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-native-layout-lifecycle-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"factory children/props/update/disposal\",\"independent repeated sibling names\",\"inherited outer-loop scope\",\"anonymous native group ownership\",\"Core-driven conditional projection\",\"native section redraw\",\"root slot redraw\",\"schema replacement retention\",\"layout-only teardown restores children\",\"all-created-node teardown\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/combined-scope-lifecycle-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "combined nested layout/outer lexical field slots: independent repeated names, changed/reordered locals, field IDs, retained Core/DOM/value and native/root redraw passed\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/reorder-focus-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"96 focused permutation reorders preserve order/input/Core/value/selection with no focus events\",\"focused ancestor group and nested child reorder preserve state\",\"focused removal does not refocus deleted control\",\"normal destruction\"],\"limits\":[\"JSDOM regression; real-browser validation required\"]}\n",
+      "stderr": "",
+      "apparatus": "Same getComputedStyle delegation as core/verify-free.mjs; initial missing-global fixture launch retained separately"
+    },
+    {
+      "file": "core/formkit-component-ownership-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "explicit FormKit component Core ownership: group children and both inverse mixed group/list compositions, input/update identity and exact cleanup passed\n",
+      "stderr": ""
+    }
+  ],
+  "passed": 9,
+  "failed": 0,
+  "runtimeSha256": {
+    "core/index.mjs": "037f69f8b1d09be99851f2aae53e2266710da3e71db29c24fb9c0671d147db5a",
+    "core/formkit-application.mjs": "6a9798a21701e41c93ac1ed16eac9ce8c0c2a12c2f1cd67832070f0c174ce32f",
+    "core/schema-layout.mjs": "c4b61e5765e9e9c713ad103f1994ef2cd65fecd826abb4470c2e6ebee60409ea"
+  }
+}

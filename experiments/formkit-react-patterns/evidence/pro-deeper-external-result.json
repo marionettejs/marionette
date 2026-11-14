@@ -1,0 +1,1081 @@
+{
+  "purpose": "Pro implementation capability additions and deeper/browser evidence; isolated patch proposals for canonical writer",
+  "canonicalWriterTask": "6af74fa6-f51c-8191-a8e2-a8a9dd891016",
+  "source": {
+    "library_file_id": "libfile_fde3_f-cc31604ad998819192d39bb488031c7f_3633c514934c8191a03706259b76dd26",
+    "file_id": "file_00000000146081f7a11a22ff4ef71b3d",
+    "sha256": "16f38972bbbe4e37e669d1b63ab8f34c59d15e0e6e72c675d2499860e1e267f1",
+    "bytes": 529029,
+    "verifiedMembers": 54,
+    "method": "Authorized Library text reconstruction, final newline restored only after matching supplied exact SHA256; every supplied member hash verified."
+  },
+  "baselineRuntimeSha256": {
+    "core/index.mjs": "9126170dd6d1a26d578809fa80b26ed464547061376f2cc9bbc4a553db03905c",
+    "core/root-slots.mjs": "2074e8571b2c81cf20e39e887dd11c961efc75dfbfa36c00826b44f6d313ccc4",
+    "core/section-renderer.mjs": "69917e7f8c38946671771884da8c88590631be859442117f2395e1525e2c88df",
+    "core/upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+    "core/schema-layout.mjs": "59d13f260e4580f3de1fb12fbec34ceac9cf6f302b087649ac0b31780a622ea0",
+    "core/schema.mjs": "6700683721618da630489d01383962c1fb47f6ce48a49d255c98d796a3e6a8d2",
+    "core/schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+    "core/native-types.mjs": "62099c0812d6f637ff3a2af5ef951240588b5472b41cfd6c0f0122e09816c40f",
+    "core/value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba"
+  },
+  "candidateRuntimeSha256": {
+    "core/index.mjs": "166650c0f679d5e12ffaa24f895342dc636504ef4e2774d2555f3df1637108f1",
+    "core/root-slots.mjs": "2074e8571b2c81cf20e39e887dd11c961efc75dfbfa36c00826b44f6d313ccc4",
+    "core/section-renderer.mjs": "2a2cbf976ca7df59ea0c9683ab2c5cec3e003d15cea2136a29ff1b39872fa0d8",
+    "core/upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+    "core/schema-layout.mjs": "59d13f260e4580f3de1fb12fbec34ceac9cf6f302b087649ac0b31780a622ea0",
+    "core/schema.mjs": "6700683721618da630489d01383962c1fb47f6ce48a49d255c98d796a3e6a8d2",
+    "core/schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+    "core/native-types.mjs": "62099c0812d6f637ff3a2af5ef951240588b5472b41cfd6c0f0122e09816c40f",
+    "core/value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba"
+  },
+  "changedRuntimeFiles": [
+    "core/index.mjs",
+    "core/section-renderer.mjs"
+  ],
+  "addedCapabilities": [
+    {
+      "name": "Nested repeater parent scope",
+      "change": "Forwarded default slots preserve an already scoped locals.node; inner child inputs attach to their current group rather than the repeater.",
+      "proof": "Baseline created inner text with no proper parent/value; candidate renders One, adds/edit Two, adds independent outer rows. Passed real Chromium nested editing."
+    },
+    {
+      "name": "Section DOM refs and explicit callback refs",
+      "change": "Populate __fkSectionRefs from schema meta.section; exclude iterated sections; honor explicit ref callbacks; clear refs on structural removal/destruction.",
+      "proof": "Contract regression failed before patch and passes after; matches installed React 2.5 section-ref behavior."
+    },
+    {
+      "name": "False ARIA states",
+      "change": "Serialize false aria-* values as the literal false string instead of removing the attribute.",
+      "proof": "Literal/reactive regression passes; real Chromium axe aria-required-attr combobox violations disappear."
+    },
+    {
+      "name": "Default Genesis class compatibility",
+      "change": "Normalize default section classes with upstream kebab(). Explicit user rootClasses remain supported.",
+      "proof": "Default class regression and class-config checks pass; real Chromium now uses official local Genesis styles without a fixture rootClasses override."
+    },
+    {
+      "name": "Document and ShadowRoot propagation",
+      "change": "Provide host DOM root as __root to root/field nodes before Core creation, including ignored children.",
+      "proof": "Document/ShadowRoot creation-time contract passes; real browser color focus error disappears and swatch canvas changes to RGBA [0,255,0,255]."
+    }
+  ],
+  "alreadySupportedModesVerifiedNotCountedAsAdditions": [
+    "Async dropdown page 1/page 2 via hasNextPage, selection and dynamic options replacement with retained DOM/Core identity.",
+    "Autocomplete out-of-order async results preserve latest search.",
+    "Pending async options may resolve after field removal without unhandled errors or DOM resurrection.",
+    "Grouped multiple dropdown with checkbox options and tag presentation.",
+    "Async optionLoader rehydrates a saved value label.",
+    "German date formatting, leap-day selection and inclusive date limits.",
+    "Mixed Pro async submission/loading and reset.",
+    "Unified schema data updates retain dropdown and remove conditional toggle."
+  ],
+  "deepResults": {
+    "async-pagination-and-option-replacement": {
+      "status": "passed",
+      "details": {
+        "calls": [
+          1,
+          2
+        ],
+        "value": "b",
+        "retained": true
+      }
+    },
+    "async-search-order": {
+      "status": "passed",
+      "details": {
+        "order": [
+          "old",
+          "old",
+          "new"
+        ],
+        "latestVisible": true
+      }
+    },
+    "pending-options-removal": {
+      "status": "passed",
+      "details": {
+        "lateResolutionIgnored": true
+      }
+    },
+    "nested-repeaters": {
+      "status": "passed",
+      "details": {
+        "value": {
+          "teams": [
+            {
+              "title": "A",
+              "members": [
+                {
+                  "name": "One"
+                },
+                {
+                  "name": "Two"
+                }
+              ]
+            },
+            {
+              "members": []
+            }
+          ]
+        },
+        "nestedParentage": true
+      }
+    },
+    "localized-leap-day-and-inclusive-bounds": {
+      "status": "passed",
+      "details": {
+        "value": "2024-03-01",
+        "formatted": "01.03.2024",
+        "localizedLabel": "29. Februar 2024"
+      }
+    },
+    "mixed-pro-submit-reset": {
+      "status": "passed",
+      "details": {
+        "submitted": {
+          "enabled": true,
+          "code": "987654",
+          "date": "2024-01-31"
+        },
+        "reset": {
+          "enabled": false,
+          "code": "123456",
+          "date": "2024-01-31"
+        }
+      }
+    },
+    "unified-schema-data-removal": {
+      "status": "passed",
+      "details": {
+        "retainedChoice": true,
+        "removedValue": null
+      }
+    },
+    "grouped-multiselect-checkbox-options": {
+      "status": "passed",
+      "details": {
+        "value": [
+          "a",
+          "b"
+        ],
+        "grouped": true,
+        "checkboxes": true
+      }
+    },
+    "async-option-value-rehydration": {
+      "status": "passed",
+      "details": {
+        "value": 42,
+        "labelHydrated": true
+      }
+    }
+  },
+  "familyReruns": {
+    "baseline14PlusNine": "MOUNT autocomplete PASS\nMOUNT colorpicker PASS\nMOUNT currency PASS\nMOUNT datepicker PASS\nMOUNT dropdown PASS\nMOUNT mask PASS\nMOUNT rating PASS\nMOUNT repeater PASS\nMOUNT slider PASS\nMOUNT taglist PASS\nMOUNT toggle PASS\nMOUNT togglebuttons PASS\nMOUNT transferlist PASS\nMOUNT unit PASS\nPASS: 14 Pro mounts; 9 interaction scenarios; all created Core nodes destroyed.\n",
+    "baselineRemainingFive": "PASS colorpicker\nPASS datepicker\nPASS mask\nPASS rating\nPASS transferlist\nPASS: all five previously mount-only Pro families now have focused DOM interaction coverage.\n",
+    "candidate14PlusNine": "MOUNT autocomplete PASS\nMOUNT colorpicker PASS\nMOUNT currency PASS\nMOUNT datepicker PASS\nMOUNT dropdown PASS\nMOUNT mask PASS\nMOUNT rating PASS\nMOUNT repeater PASS\nMOUNT slider PASS\nMOUNT taglist PASS\nMOUNT toggle PASS\nMOUNT togglebuttons PASS\nMOUNT transferlist PASS\nMOUNT unit PASS\nPASS: 14 Pro mounts; 9 interaction scenarios; all created Core nodes destroyed.\n",
+    "candidateRemainingFive": "PASS colorpicker\nPASS datepicker\nPASS mask\nPASS rating\nPASS transferlist\nPASS: all five previously mount-only Pro families now have focused DOM interaction coverage.\n"
+  },
+  "browser": {
+    "launch": {
+      "executablePath": "/usr/bin/chromium",
+      "headless": true,
+      "chromiumSandbox": true,
+      "args": [
+        "--enable-automation"
+      ]
+    },
+    "tests": {
+      "all14-dom": {
+        "status": "passed",
+        "details": {
+          "families": 14
+        }
+      },
+      "native-keyboard-validation": {
+        "status": "passed",
+        "details": {
+          "name": "Browser name",
+          "check": true,
+          "select": "b"
+        }
+      },
+      "pro-keyboard-popover-focus": {
+        "status": "passed",
+        "details": {
+          "rating": 3,
+          "code": "",
+          "choice": "b",
+          "enabled": false,
+          "focusRetained": true
+        }
+      },
+      "date-browser-popover-boundaries": {
+        "status": "passed",
+        "details": {
+          "date": "2024-03-01"
+        }
+      },
+      "nested-browser-edit-add": {
+        "status": "passed",
+        "details": {
+          "teams": [
+            {
+              "title": "A",
+              "members": [
+                {
+                  "name": "Two"
+                },
+                {
+                  "name": "Three"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "color-browser-canvas": {
+        "status": "passed",
+        "details": {
+          "value": "#00FF00",
+          "bounds": {
+            "x": 230,
+            "y": 110.828125,
+            "width": 128.390625,
+            "height": 42
+          },
+          "canvasPixels": [
+            0,
+            255,
+            0,
+            255
+          ]
+        }
+      },
+      "axe-all14": {
+        "status": "passed",
+        "details": {
+          "violationRules": [
+            "aria-allowed-attr"
+          ]
+        }
+      },
+      "25-mount-unmount-cycles": {
+        "status": "passed",
+        "details": {
+          "cycles": 25,
+          "remainingInputs": 0
+        }
+      },
+      "touch-rating-real-geometry": {
+        "status": "passed",
+        "details": {
+          "bounds": {
+            "x": 96,
+            "y": 153.828125,
+            "width": 24,
+            "height": 24
+          },
+          "value": 4
+        }
+      }
+    },
+    "pageErrors": [],
+    "requestFailures": [
+      {
+        "origin": "https://pc805io.cc",
+        "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+      },
+      {
+        "origin": "https://pc805io.cc",
+        "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+      }
+    ],
+    "configuration": {
+      "styles": "Local official @formkit/themes/genesis and @formkit/pro/genesis; local genesisIcons.",
+      "rootClasses": "Candidate default rootClasses now normalizes section names through kebab(); no fixture class override is used."
+    },
+    "version": "154.0.8037.57",
+    "commandLine": [
+      "/usr/lib/chromium/chromium",
+      "--show-component-extension-options",
+      "--enable-gpu-rasterization",
+      "--no-default-browser-check",
+      "--disable-pings",
+      "--media-router=0",
+      "--enable-remote-extensions",
+      "--load-extension",
+      "--disable-field-trial-config",
+      "--disable-background-networking",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-back-forward-cache",
+      "--disable-breakpad",
+      "--disable-component-extensions-with-background-pages",
+      "--disable-component-update",
+      "--no-default-browser-check",
+      "--disable-default-apps",
+      "--disable-dev-shm-usage",
+      "--disable-edgeupdater",
+      "--disable-extensions",
+      "--disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,HttpsUpgrades,HttpsFirstBalancedModeAutoEnable,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,AvoidCorsURLLoaderRestartOnRedirect,TcpPortRandomizationWin,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,PreconnectToSearch,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion",
+      "--enable-features=CDPScreenshotNewSurface,SkipListAccountsWithoutGaiaCookies",
+      "--allow-pre-commit-input",
+      "--disable-hang-monitor",
+      "--disable-ipc-flooding-protection",
+      "--disable-popup-blocking",
+      "--disable-prompt-on-repost",
+      "--disable-renderer-backgrounding",
+      "--disable-updater-scheduler",
+      "--force-color-profile=srgb",
+      "--metrics-recording-only",
+      "--no-first-run",
+      "--password-store=basic",
+      "--use-mock-keychain",
+      "--no-service-autorun",
+      "--disable-search-engine-choice-screen",
+      "--unsafely-disable-devtools-self-xss-warnings",
+      "--enable-unsafe-swiftshader",
+      "--edge-skip-compat-layer-relaunch",
+      "--disable-stack-profiler",
+      "--disable-infobars",
+      "--disable-sync",
+      "--do-not-de-elevate",
+      "--headless",
+      "--hide-scrollbars",
+      "--mute-audio",
+      "--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4",
+      "--enable-automation",
+      "--user-data-dir=/tmp/playwright_chromiumdev_profile-gTuLeo",
+      "--remote-debugging-pipe",
+      "--no-startup-window",
+      "--noerrdialogs",
+      "--ozone-platform=headless",
+      "--ozone-override-screen-size=800,600",
+      "--use-angle=swiftshader-webgl",
+      "--flag-switches-begin",
+      "--flag-switches-end",
+      "--enable-unsafe-swiftshader"
+    ],
+    "accessibility": {
+      "passes": 29,
+      "incomplete": 4,
+      "violations": [
+        {
+          "id": "aria-allowed-attr",
+          "impact": "critical",
+          "description": "Ensure an element's role supports its ARIA attributes",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/aria-allowed-attr?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                "#experiment-mnv14-3"
+              ],
+              "failureSummary": "Fix all of the following:\n  ARIA attribute is not allowed: aria-valuetext=\"Current color: undefined\""
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "browserPreflight": {
+    "launch": {
+      "executablePath": "/usr/bin/chromium",
+      "headless": true,
+      "chromiumSandbox": true,
+      "args": [
+        "--enable-automation"
+      ]
+    },
+    "browserVersion": "154.0.8037.57",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "commandLine": [
+      "/usr/lib/chromium/chromium",
+      "--show-component-extension-options",
+      "--enable-gpu-rasterization",
+      "--no-default-browser-check",
+      "--disable-pings",
+      "--media-router=0",
+      "--enable-remote-extensions",
+      "--load-extension",
+      "--disable-field-trial-config",
+      "--disable-background-networking",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-back-forward-cache",
+      "--disable-breakpad",
+      "--disable-component-extensions-with-background-pages",
+      "--disable-component-update",
+      "--no-default-browser-check",
+      "--disable-default-apps",
+      "--disable-dev-shm-usage",
+      "--disable-edgeupdater",
+      "--disable-extensions",
+      "--disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,HttpsUpgrades,HttpsFirstBalancedModeAutoEnable,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,AvoidCorsURLLoaderRestartOnRedirect,TcpPortRandomizationWin,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,PreconnectToSearch,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion",
+      "--enable-features=CDPScreenshotNewSurface,SkipListAccountsWithoutGaiaCookies",
+      "--allow-pre-commit-input",
+      "--disable-hang-monitor",
+      "--disable-ipc-flooding-protection",
+      "--disable-popup-blocking",
+      "--disable-prompt-on-repost",
+      "--disable-renderer-backgrounding",
+      "--disable-updater-scheduler",
+      "--force-color-profile=srgb",
+      "--metrics-recording-only",
+      "--no-first-run",
+      "--password-store=basic",
+      "--use-mock-keychain",
+      "--no-service-autorun",
+      "--disable-search-engine-choice-screen",
+      "--unsafely-disable-devtools-self-xss-warnings",
+      "--enable-unsafe-swiftshader",
+      "--edge-skip-compat-layer-relaunch",
+      "--disable-stack-profiler",
+      "--disable-infobars",
+      "--disable-sync",
+      "--do-not-de-elevate",
+      "--headless",
+      "--hide-scrollbars",
+      "--mute-audio",
+      "--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4",
+      "--enable-automation",
+      "--user-data-dir=/tmp/playwright_chromiumdev_profile-MrLMKU",
+      "--remote-debugging-pipe",
+      "--no-startup-window",
+      "--noerrdialogs",
+      "--ozone-platform=headless",
+      "--ozone-override-screen-size=800,600",
+      "--use-angle=swiftshader-webgl",
+      "--flag-switches-begin",
+      "--flag-switches-end",
+      "--enable-unsafe-swiftshader"
+    ],
+    "status": "passed"
+  },
+  "maskModeMatrix": {
+    "launch": {
+      "executablePath": "/usr/bin/chromium",
+      "headless": true,
+      "chromiumSandbox": true,
+      "args": [
+        "--enable-automation"
+      ]
+    },
+    "tests": {
+      "mask-adapter-false-false": {
+        "status": "passed",
+        "details": {
+          "ref": false,
+          "unmaskValue": false,
+          "allowIncomplete": false,
+          "value": "",
+          "display": "___-___"
+        }
+      },
+      "mask-adapter-false-true": {
+        "status": "passed",
+        "details": {
+          "ref": false,
+          "unmaskValue": false,
+          "allowIncomplete": true,
+          "value": "___-___",
+          "display": "___-___"
+        }
+      },
+      "mask-adapter-true-false": {
+        "status": "passed",
+        "details": {
+          "ref": false,
+          "unmaskValue": true,
+          "allowIncomplete": false,
+          "value": "",
+          "display": "___-___"
+        }
+      },
+      "mask-adapter-true-true": {
+        "status": "passed",
+        "details": {
+          "ref": false,
+          "unmaskValue": true,
+          "allowIncomplete": true,
+          "value": "",
+          "display": "___-___"
+        }
+      },
+      "mask-react-false-false": {
+        "status": "passed",
+        "details": {
+          "ref": true,
+          "unmaskValue": false,
+          "allowIncomplete": false,
+          "value": "",
+          "display": "___-___"
+        }
+      },
+      "mask-react-false-true": {
+        "status": "passed",
+        "details": {
+          "ref": true,
+          "unmaskValue": false,
+          "allowIncomplete": true,
+          "value": "___-___",
+          "display": "___-___"
+        }
+      },
+      "mask-react-true-false": {
+        "status": "passed",
+        "details": {
+          "ref": true,
+          "unmaskValue": true,
+          "allowIncomplete": false,
+          "value": "",
+          "display": "___-___"
+        }
+      },
+      "mask-react-true-true": {
+        "status": "passed",
+        "details": {
+          "ref": true,
+          "unmaskValue": true,
+          "allowIncomplete": true,
+          "value": "",
+          "display": "___-___"
+        }
+      }
+    },
+    "pageErrors": [],
+    "requestFailures": [],
+    "configuration": {
+      "styles": "Local official @formkit/themes/genesis and @formkit/pro/genesis; local genesisIcons.",
+      "rootClasses": "Candidate default rootClasses now normalizes section names through kebab(); no fixture class override is used."
+    },
+    "version": "154.0.8037.57",
+    "commandLine": [
+      "/usr/lib/chromium/chromium",
+      "--show-component-extension-options",
+      "--enable-gpu-rasterization",
+      "--no-default-browser-check",
+      "--disable-pings",
+      "--media-router=0",
+      "--enable-remote-extensions",
+      "--load-extension",
+      "--disable-field-trial-config",
+      "--disable-background-networking",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-back-forward-cache",
+      "--disable-breakpad",
+      "--disable-component-extensions-with-background-pages",
+      "--disable-component-update",
+      "--no-default-browser-check",
+      "--disable-default-apps",
+      "--disable-dev-shm-usage",
+      "--disable-edgeupdater",
+      "--disable-extensions",
+      "--disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,HttpsUpgrades,HttpsFirstBalancedModeAutoEnable,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,AvoidCorsURLLoaderRestartOnRedirect,TcpPortRandomizationWin,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,PreconnectToSearch,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion",
+      "--enable-features=CDPScreenshotNewSurface,SkipListAccountsWithoutGaiaCookies",
+      "--allow-pre-commit-input",
+      "--disable-hang-monitor",
+      "--disable-ipc-flooding-protection",
+      "--disable-popup-blocking",
+      "--disable-prompt-on-repost",
+      "--disable-renderer-backgrounding",
+      "--disable-updater-scheduler",
+      "--force-color-profile=srgb",
+      "--metrics-recording-only",
+      "--no-first-run",
+      "--password-store=basic",
+      "--use-mock-keychain",
+      "--no-service-autorun",
+      "--disable-search-engine-choice-screen",
+      "--unsafely-disable-devtools-self-xss-warnings",
+      "--enable-unsafe-swiftshader",
+      "--edge-skip-compat-layer-relaunch",
+      "--disable-stack-profiler",
+      "--disable-infobars",
+      "--disable-sync",
+      "--do-not-de-elevate",
+      "--headless",
+      "--hide-scrollbars",
+      "--mute-audio",
+      "--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4",
+      "--enable-automation",
+      "--user-data-dir=/tmp/playwright_chromiumdev_profile-mlEXZu",
+      "--remote-debugging-pipe",
+      "--no-startup-window",
+      "--noerrdialogs",
+      "--ozone-platform=headless",
+      "--ozone-override-screen-size=800,600",
+      "--use-angle=swiftshader-webgl",
+      "--flag-switches-begin",
+      "--flag-switches-end",
+      "--enable-unsafe-swiftshader"
+    ]
+  },
+  "performancePilot": {
+    "protocol": {
+      "question": "Describe steady-state main-thread mount and destroy duration for this exact 14-Pro-control fixture; no framework comparison or certification.",
+      "arms": 1,
+      "fixture": "browser-entry fixtures.all: one instance of each of the 14 official Pro families, one repeater child, local Genesis styles/icons",
+      "build": "esbuild 0.25.12, minify true, NODE_ENV production, no source map",
+      "warmups": 3,
+      "measured": 10,
+      "ordering": "single arm, fixed serial order",
+      "metrics": [
+        "synchronous mount duration",
+        "mount through two animation frames",
+        "synchronous destroy duration"
+      ],
+      "retryPolicy": "No workload retries or discarded samples; preserve any failure.",
+      "summary": "Raw samples plus median/min/max per metric; no comparative ratios or superiority claims.",
+      "limits": "Shared cloud host; no independently attested exclusive CPU; cached module/stylesheet startup; absolute diagnostic pilot only. No browser sandbox flags disabled."
+    },
+    "environment": {
+      "node": "v24.19.0",
+      "platform": "linux",
+      "release": "6.18.57",
+      "arch": "x64",
+      "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+      "logicalCpus": 5
+    },
+    "launch": {
+      "executablePath": "/usr/bin/chromium",
+      "headless": true,
+      "chromiumSandbox": true,
+      "args": [
+        "--enable-automation"
+      ]
+    },
+    "browserVersion": "154.0.8037.57",
+    "samples": [
+      {
+        "index": 0,
+        "warmup": true,
+        "syncMountMs": 237.10000000149012,
+        "twoFramesMs": 393,
+        "syncDestroyMs": 6.300000000745058,
+        "remainingInputs": 0
+      },
+      {
+        "index": 1,
+        "warmup": true,
+        "syncMountMs": 87.30000000074506,
+        "twoFramesMs": 199.89999999850988,
+        "syncDestroyMs": 5.200000002980232,
+        "remainingInputs": 0
+      },
+      {
+        "index": 2,
+        "warmup": true,
+        "syncMountMs": 108.30000000074506,
+        "twoFramesMs": 220,
+        "syncDestroyMs": 4.600000001490116,
+        "remainingInputs": 0
+      },
+      {
+        "index": 3,
+        "warmup": false,
+        "syncMountMs": 96.10000000149012,
+        "twoFramesMs": 200,
+        "syncDestroyMs": 5,
+        "remainingInputs": 0
+      },
+      {
+        "index": 4,
+        "warmup": false,
+        "syncMountMs": 73.5,
+        "twoFramesMs": 166.79999999701977,
+        "syncDestroyMs": 5.400000002235174,
+        "remainingInputs": 0
+      },
+      {
+        "index": 5,
+        "warmup": false,
+        "syncMountMs": 141.39999999850988,
+        "twoFramesMs": 235.89999999850988,
+        "syncDestroyMs": 6.699999999254942,
+        "remainingInputs": 0
+      },
+      {
+        "index": 6,
+        "warmup": false,
+        "syncMountMs": 134.20000000298023,
+        "twoFramesMs": 316.6000000014901,
+        "syncDestroyMs": 5.899999998509884,
+        "remainingInputs": 0
+      },
+      {
+        "index": 7,
+        "warmup": false,
+        "syncMountMs": 80.39999999850988,
+        "twoFramesMs": 250,
+        "syncDestroyMs": 7.5,
+        "remainingInputs": 0
+      },
+      {
+        "index": 8,
+        "warmup": false,
+        "syncMountMs": 94.69999999925494,
+        "twoFramesMs": 241.19999999925494,
+        "syncDestroyMs": 7.099999997764826,
+        "remainingInputs": 0
+      },
+      {
+        "index": 9,
+        "warmup": false,
+        "syncMountMs": 89.89999999850988,
+        "twoFramesMs": 240.60000000149012,
+        "syncDestroyMs": 9.399999998509884,
+        "remainingInputs": 0
+      },
+      {
+        "index": 10,
+        "warmup": false,
+        "syncMountMs": 81.80000000074506,
+        "twoFramesMs": 231.30000000074506,
+        "syncDestroyMs": 7.300000000745058,
+        "remainingInputs": 0
+      },
+      {
+        "index": 11,
+        "warmup": false,
+        "syncMountMs": 73.79999999701977,
+        "twoFramesMs": 216.79999999701977,
+        "syncDestroyMs": 8.600000001490116,
+        "remainingInputs": 0
+      },
+      {
+        "index": 12,
+        "warmup": false,
+        "syncMountMs": 102,
+        "twoFramesMs": 268.8999999985099,
+        "syncDestroyMs": 7,
+        "remainingInputs": 0
+      }
+    ],
+    "summary": {
+      "syncMountMs": {
+        "n": 10,
+        "min": 73.5,
+        "median": 92.29999999888241,
+        "max": 141.39999999850988
+      },
+      "twoFramesMs": {
+        "n": 10,
+        "min": 166.79999999701977,
+        "median": 238.25,
+        "max": 316.6000000014901
+      },
+      "syncDestroyMs": {
+        "n": 10,
+        "min": 5,
+        "median": 7.049999998882413,
+        "max": 9.399999998509884
+      }
+    },
+    "status": "passed"
+  },
+  "upstreamReproductions": [
+    {
+      "issue": "Incremental native keyboard mask entry does not produce typed digits",
+      "scope": "Official @formkit/pro 0.131.0, adapter and official React 2.5, Chromium 154.0.8037.57. Four masked/unmasked x allowIncomplete combinations each.",
+      "observed": "Typing 987654 leaves ___-___; Core value remains empty or placeholders in both renderers. Whole-value beforeinput replacement works in JSDOM.",
+      "status": "Unresolved package/browser interoperability gap; do not call browser mask editing supported based on family smoke. No licensed vendor source modified."
+    },
+    {
+      "issue": "Colorpicker invalid aria-valuetext on button role",
+      "observed": "axe aria-allowed-attr remains for current color undefined; reproduced against the official React renderer.",
+      "status": "Upstream schema accessibility finding; no silent local semantic replacement."
+    }
+  ],
+  "logs": {
+    "canonical-pro-breadth.log": "MOUNT autocomplete PASS\nMOUNT colorpicker PASS\nMOUNT currency PASS\nMOUNT datepicker PASS\nMOUNT dropdown PASS\nMOUNT mask PASS\nMOUNT rating PASS\nMOUNT repeater PASS\nMOUNT slider PASS\nMOUNT taglist PASS\nMOUNT toggle PASS\nMOUNT togglebuttons PASS\nMOUNT transferlist PASS\nMOUNT unit PASS\nPASS: 14 Pro mounts; 9 interaction scenarios; all created Core nodes destroyed.\n",
+    "canonical-pro-five.log": "PASS colorpicker\nPASS datepicker\nPASS mask\nPASS rating\nPASS transferlist\nPASS: all five previously mount-only Pro families now have focused DOM interaction coverage.\n",
+    "nested-diagnostic.log": "NESTED BEFORE {\"nodes\":[{\"type\":\"form\",\"name\":\"form\",\"value\":{\"teams\":[{\"title\":\"A\",\"members\":[{\"name\":\"One\"}]}]}},{\"type\":\"submit\",\"name\":\"submit_1\"},{\"type\":\"repeater\",\"name\":\"teams\",\"parent\":\"form\",\"value\":[{\"title\":\"A\",\"members\":[{\"name\":\"One\"}]}]},{\"type\":\"group\",\"name\":0,\"parent\":\"teams\",\"value\":{\"title\":\"A\",\"members\":[{\"name\":\"One\"}]}},{\"type\":\"text\",\"name\":\"title\",\"parent\":0,\"value\":\"A\"},{\"type\":\"repeater\",\"name\":\"members\",\"parent\":0,\"value\":[{\"name\":\"One\"}]},{\"type\":\"group\",\"name\":0,\"parent\":\"members\",\"value\":{\"name\":\"One\"}},{\"type\":\"text\",\"name\":-1},{\"type\":\"button\",\"name\":-1},{\"type\":\"button\",\"name\":-1}],\"buttons\":[\"Add \",\"Add \"],\"inputs\":[{\"name\":\"title\",\"value\":\"A\"},{\"name\":\"\",\"value\":\"\"}],\"value\":{\"teams\":[{\"title\":\"A\",\"members\":[{\"name\":\"One\"}]}]}}\nNESTED AFTER {\"inputs\":[{\"name\":\"title\",\"value\":\"A\"},{\"name\":\"\",\"value\":\"\"},{\"name\":\"\",\"value\":\"\"}],\"value\":{\"teams\":[{\"title\":\"A\",\"members\":[{\"name\":\"One\"},{}]}]}}\nnested-repeaters {\"status\":\"failed\",\"error\":\"Timed out: nested row added\",\"stack\":[\"Error: Timed out: nested row added\",\"    at until (file:///workspace/adapter-pro-deep/runtime/pro-deep-smoke.mjs:16:116)\",\"    at async file:///workspace/adapter-pro-deep/runtime/pro-deep-smoke.mjs:34:944\",\"    at async run (file:///workspace/adapter-pro-deep/runtime/pro-deep-smoke.mjs:20:143)\",\"    at async file:///workspace/adapter-pro-deep/runtime/pro-deep-smoke.mjs:33:1\"],\"domErrors\":[],\"asyncErrors\":[]}\n",
+    "section-refs-before.log": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ undefined\n- HTMLInputElement {}\n\n    at file:///workspace/adapter-pro-deep/runtime/core/section-refs-contract-test.mjs:5:8 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: undefined,\n  expected: HTMLInputElement {},\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+    "section-refs-after.log": "PASS: section refs, loop exclusion, explicit callback refs and terminal cleanup.\n",
+    "aria-false-before.log": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nnull !== 'false'\n\n    at file:///workspace/adapter-pro-deep/runtime/core/aria-false-contract-test.mjs:1:463 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: null,\n  expected: 'false',\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+    "aria-false-after.log": "PASS: literal/dynamic false ARIA state remains present; native Boolean props remain Boolean.\n",
+    "theme-default-before.log": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Default classes match official Genesis section spelling\n    at file:///workspace/adapter-pro-deep/runtime/theme-default-probe.mjs:1:451 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: null,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+    "theme-default-after.log": "PASS: default section class normalization matches Genesis.\n",
+    "root-contract-before.log": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ undefined\n- Document {\n-   location: [Getter/Setter] Location {\n-     assign: [Function: assign],\n-     hash: [Getter/Setter: ''],\n-     host: [Getter/Setter: ''],\n-     hostname: [Getter/Setter: ''],\n-     href: [Getter/Setter: 'about:blank'],\n-     origin: [Getter: 'null'],\n-     pathname: [Getter/Setter: 'blank'],\n-     port: [Getter/Setter: ''],\n-     protocol: [Getter/Setter: 'about:'],\n-     reload: [Function: reload],\n-     replace: [Function: replace],\n-     search: [Getter/Setter: ''],\n-     toString: [Function: toString]\n-   }\n- }\n\n    at file:///workspace/adapter-pro-deep/runtime/root-contract-probe.mjs:1:707 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: undefined,\n  expected: Document { location: [Getter/Setter] },\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+    "root-contract-after.log": "PASS: document/shadow root available during Core creation and on fields.\n",
+    "pro-deep-root-candidate.log": "async-pagination-and-option-replacement {\"status\":\"passed\",\"details\":{\"calls\":[1,2],\"value\":\"b\",\"retained\":true}}\nasync-search-order {\"status\":\"passed\",\"details\":{\"order\":[\"old\",\"old\",\"new\"],\"latestVisible\":true}}\npending-options-removal {\"status\":\"passed\",\"details\":{\"lateResolutionIgnored\":true}}\nNESTED BEFORE {\"nodes\":[{\"type\":\"form\",\"name\":\"form\",\"value\":{\"teams\":[{\"title\":\"A\",\"members\":[{\"name\":\"One\"}]}]}},{\"type\":\"submit\",\"name\":\"submit_4\"},{\"type\":\"repeater\",\"name\":\"teams\",\"parent\":\"form\",\"value\":[{\"title\":\"A\",\"members\":[{\"name\":\"One\"}]}]},{\"type\":\"group\",\"name\":0,\"parent\":\"teams\",\"value\":{\"title\":\"A\",\"members\":[{\"name\":\"One\"}]}},{\"type\":\"text\",\"name\":\"title\",\"parent\":0,\"value\":\"A\"},{\"type\":\"repeater\",\"name\":\"members\",\"parent\":0,\"value\":[{\"name\":\"One\"}]},{\"type\":\"group\",\"name\":0,\"parent\":\"members\",\"value\":{\"name\":\"One\"}},{\"type\":\"text\",\"name\":\"name\",\"parent\":0,\"value\":\"One\"},{\"type\":\"button\",\"name\":-1},{\"type\":\"button\",\"name\":-1}],\"buttons\":[\"Add \",\"Add \"],\"inputs\":[{\"name\":\"title\",\"value\":\"A\"},{\"name\":\"name\",\"value\":\"One\"}],\"value\":{\"teams\":[{\"title\":\"A\",\"members\":[{\"name\":\"One\"}]}]}}\nNESTED AFTER {\"inputs\":[{\"name\":\"title\",\"value\":\"A\"},{\"name\":\"name\",\"value\":\"One\"},{\"name\":\"name\",\"value\":\"\"}],\"value\":{\"teams\":[{\"title\":\"A\",\"members\":[{\"name\":\"One\"},{}]}]}}\nnested-repeaters {\"status\":\"passed\",\"details\":{\"value\":{\"teams\":[{\"title\":\"A\",\"members\":[{\"name\":\"One\"},{\"name\":\"Two\"}]},{\"members\":[]}]},\"nestedParentage\":true}}\nlocalized-leap-day-and-inclusive-bounds {\"status\":\"passed\",\"details\":{\"value\":\"2024-03-01\",\"formatted\":\"01.03.2024\",\"localizedLabel\":\"29. Februar 2024\"}}\nmixed-pro-submit-reset {\"status\":\"passed\",\"details\":{\"submitted\":{\"enabled\":true,\"code\":\"987654\",\"date\":\"2024-01-31\"},\"reset\":{\"enabled\":false,\"code\":\"123456\",\"date\":\"2024-01-31\"}}}\nunified-schema-data-removal {\"status\":\"passed\",\"details\":{\"retainedChoice\":true,\"removedValue\":null}}\ngrouped-multiselect-checkbox-options {\"status\":\"passed\",\"details\":{\"value\":[\"a\",\"b\"],\"grouped\":true,\"checkboxes\":true}}\nasync-option-value-rehydration {\"status\":\"passed\",\"details\":{\"value\":42,\"labelHydrated\":true}}\n",
+    "pro-breadth-root-candidate.log": "MOUNT autocomplete PASS\nMOUNT colorpicker PASS\nMOUNT currency PASS\nMOUNT datepicker PASS\nMOUNT dropdown PASS\nMOUNT mask PASS\nMOUNT rating PASS\nMOUNT repeater PASS\nMOUNT slider PASS\nMOUNT taglist PASS\nMOUNT toggle PASS\nMOUNT togglebuttons PASS\nMOUNT transferlist PASS\nMOUNT unit PASS\nPASS: 14 Pro mounts; 9 interaction scenarios; all created Core nodes destroyed.\n",
+    "pro-five-root-candidate.log": "PASS colorpicker\nPASS datepicker\nPASS mask\nPASS rating\nPASS transferlist\nPASS: all five previously mount-only Pro families now have focused DOM interaction coverage.\n",
+    "class-config-candidate.log": "class config: Core inheritance, notified replacement, local overrides, late fields, explicit closure refresh and retained DOM passed\n",
+    "renderer-breadth-with-refs.log": "renderer breadth: 3-part/object/numeric loops, dynamic tags, recursive attrs, icons, Boolean properties, text and teardown passed\ncomponent registry lifecycle, reactive props, child slot, and unknown-component failure passed\n",
+    "browser-functional-final.log": "all14-dom {\"status\":\"passed\",\"details\":{\"families\":14}}\nnative-keyboard-validation {\"status\":\"passed\",\"details\":{\"name\":\"Browser name\",\"check\":true,\"select\":\"b\"}}\npro-keyboard-popover-focus {\"status\":\"passed\",\"details\":{\"rating\":3,\"code\":\"\",\"choice\":\"b\",\"enabled\":false,\"focusRetained\":true}}\ndate-browser-popover-boundaries {\"status\":\"passed\",\"details\":{\"date\":\"2024-03-01\"}}\nnested-browser-edit-add {\"status\":\"passed\",\"details\":{\"teams\":[{\"title\":\"A\",\"members\":[{\"name\":\"Two\"},{\"name\":\"Three\"}]}]}}\ncolor-browser-canvas {\"status\":\"passed\",\"details\":{\"value\":\"#00FF00\",\"bounds\":{\"x\":230,\"y\":110.828125,\"width\":128.390625,\"height\":42},\"canvasPixels\":[0,255,0,255]}}\naxe-all14 {\"status\":\"passed\",\"details\":{\"violationRules\":[\"aria-allowed-attr\"]}}\n25-mount-unmount-cycles {\"status\":\"passed\",\"details\":{\"cycles\":25,\"remainingInputs\":0}}\ntouch-rating-real-geometry {\"status\":\"passed\",\"details\":{\"bounds\":{\"x\":96,\"y\":153.828125,\"width\":24,\"height\":24},\"value\":4}}\n",
+    "browser-mask-matrix.log": "mask-adapter-false-false {\"status\":\"passed\",\"details\":{\"ref\":false,\"unmaskValue\":false,\"allowIncomplete\":false,\"value\":\"\",\"display\":\"___-___\"}}\nmask-adapter-false-true {\"status\":\"passed\",\"details\":{\"ref\":false,\"unmaskValue\":false,\"allowIncomplete\":true,\"value\":\"___-___\",\"display\":\"___-___\"}}\nmask-adapter-true-false {\"status\":\"passed\",\"details\":{\"ref\":false,\"unmaskValue\":true,\"allowIncomplete\":false,\"value\":\"\",\"display\":\"___-___\"}}\nmask-adapter-true-true {\"status\":\"passed\",\"details\":{\"ref\":false,\"unmaskValue\":true,\"allowIncomplete\":true,\"value\":\"\",\"display\":\"___-___\"}}\nmask-react-false-false {\"status\":\"passed\",\"details\":{\"ref\":true,\"unmaskValue\":false,\"allowIncomplete\":false,\"value\":\"\",\"display\":\"___-___\"}}\nmask-react-false-true {\"status\":\"passed\",\"details\":{\"ref\":true,\"unmaskValue\":false,\"allowIncomplete\":true,\"value\":\"___-___\",\"display\":\"___-___\"}}\nmask-react-true-false {\"status\":\"passed\",\"details\":{\"ref\":true,\"unmaskValue\":true,\"allowIncomplete\":false,\"value\":\"\",\"display\":\"___-___\"}}\nmask-react-true-true {\"status\":\"passed\",\"details\":{\"ref\":true,\"unmaskValue\":true,\"allowIncomplete\":true,\"value\":\"\",\"display\":\"___-___\"}}\n",
+    "reference-color-axe.log": "reference-color-axe {\"status\":\"passed\",\"details\":{\"violations\":[{\"id\":\"aria-allowed-attr\",\"impact\":\"critical\",\"nodes\":[{\"target\":[\"#input_0\"],\"failureSummary\":\"Fix all of the following:\\n  ARIA attribute is not allowed: aria-valuetext=\\\"Current color: undefined\\\"\"}]}]}}\n",
+    "performance-pilot.log": "{\"status\":\"passed\",\"summary\":{\"syncMountMs\":{\"n\":10,\"min\":73.5,\"median\":92.29999999888241,\"max\":141.39999999850988},\"twoFramesMs\":{\"n\":10,\"min\":166.79999999701977,\"median\":238.25,\"max\":316.6000000014901},\"syncDestroyMs\":{\"n\":10,\"min\":5,\"median\":7.049999998882413,\"max\":9.399999998509884}}}\n",
+    "final-runtime-browser-sha256.txt": "166650c0f679d5e12ffaa24f895342dc636504ef4e2774d2555f3df1637108f1  core/index.mjs\n2a2cbf976ca7df59ea0c9683ab2c5cec3e003d15cea2136a29ff1b39872fa0d8  core/section-renderer.mjs\n57995695654f63ff068da2fa250bddd637d3a5a5fbd012309d08be76bc26a835  ../browser/app-perf.js\nbd6850264668b3326de0b38a7f28899cba60944e5a92900bc3a7bf51a9fb269f  ../browser/app-perf.css\n4dc9f9f9b20e9bd95bf201f43d2d643f48938f36a70ddcb6fce3dd611a178180  /usr/lib/chromium/chromium\n2c8d32d29dc6781c35ae196ea83299d507ac88fc339301abe74672feda299779  /usr/bin/chromium\n"
+  },
+  "reproduce": [
+    "npm ci with supplied lockfile, then normal npm installation of @formkit/pro@0.131.0, canvas@3.2.3, @formkit/icons@2.5.0, playwright@1.65.0 and @axe-core/playwright@4.14.0 for this verification workspace.",
+    "Apply runtimePatch against the supplied source; existing Pro tests need only Genesis selector-spelling updates included under updatedExistingTests.",
+    "node root-contract-probe.mjs; node theme-default-probe.mjs; node core/section-refs-contract-test.mjs; node core/aria-false-contract-test.mjs",
+    "timeout 50s node pro-deep-smoke.mjs",
+    "timeout 35s node pro-breadth-smoke.mjs; timeout 35s node pro-remaining-five-smoke.mjs",
+    "Build browser-entry with esbuild 0.25.12 and run browser-verify functional at the approved outer execution boundary, chromiumSandbox:true.",
+    "Performance protocol was saved before measurement; browser-performance-pilot.mjs uses the production minified bundle and fixed 3 warmups/10 measured samples."
+  ],
+  "limits": [
+    "No canonical branch edits, publishing, merging, Mac use, key copying or security-settings changes.",
+    "Default command-boundary Chromium launch aborted on synthetic setuid-helper ownership. Approved outer-boundary launch succeeded with chromiumSandbox:true and effective command line free of --no-sandbox/--disable-setuid-sandbox; this is not independent kernel sandbox attestation.",
+    "Real native keyboard, mouse, popover, canvas, touch geometry, focus retention and 25 repeated mount/unmount cycles were exercised. Manual screen-reader behavior, all device/engine combinations and complete accessibility are not established.",
+    "Pro remote telemetry requests fail at the configured outbound proxy; no bypass or credential/network changes were made. Artifacts preserve only failed-request origins, never their key-bearing paths. Remote license status is not asserted.",
+    "Performance is a one-arm steady-state diagnostic on shared hardware; module/style startup cached, no comparative ratios, no performance superiority claim.",
+    "All 14 Pro families have basic interaction coverage, but full per-prop/per-mode production parity is not established; mask native editing and the upstream colorpicker ARIA issue remain open."
+  ],
+  "actualOfficialPackageInventory": {
+    "version": "0.131.0",
+    "dependencies": {
+      "@formkit/drag-and-drop": "^0.6.3",
+      "@formkit/tempo": "^1.0.0"
+    },
+    "peerDependencies": {
+      "@formkit/core": "^2.0.0",
+      "@formkit/inputs": "^2.0.0",
+      "@formkit/utils": "^2.0.0"
+    },
+    "publicExports": [
+      "$if",
+      "autocomplete",
+      "colorpicker",
+      "createBaseSections",
+      "createProPlugin",
+      "createSectionFactory",
+      "currency",
+      "datepicker",
+      "dropdown",
+      "inputs",
+      "mask",
+      "rating",
+      "repeater",
+      "slider",
+      "taglist",
+      "toggle",
+      "togglebuttons",
+      "transferlist",
+      "unit"
+    ],
+    "definitions": {
+      "autocomplete": {
+        "type": "input",
+        "family": "dropdown",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [],
+        "featureCount": 12
+      },
+      "colorpicker": {
+        "type": "input",
+        "family": "text",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [
+          "disbaled",
+          "format",
+          "valueFormat",
+          "alpha",
+          "panelControls",
+          "panelFormat",
+          "eyeDropper",
+          "inline",
+          "options",
+          "showValue",
+          "closeOnSelect",
+          "allowPaste"
+        ],
+        "featureCount": 7
+      },
+      "currency": {
+        "type": "input",
+        "family": "text",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [
+          "options"
+        ],
+        "featureCount": 1
+      },
+      "datepicker": {
+        "type": "input",
+        "family": "text",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [
+          "dateFormat",
+          "dayButtonFormat",
+          "format",
+          "inline",
+          "monthButtonFormat",
+          "monthFormat",
+          "overlay",
+          "pickerOnly",
+          "showMonths",
+          "showPagination",
+          "weekStart",
+          "weekdayFormat",
+          "yearFormat",
+          "years"
+        ],
+        "featureCount": 12
+      },
+      "dropdown": {
+        "type": "input",
+        "family": "dropdown",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [],
+        "featureCount": 10
+      },
+      "mask": {
+        "type": "input",
+        "family": "text",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [
+          "allowIncomplete",
+          "mask",
+          "mode",
+          "tokens",
+          "showMask",
+          "unmaskValue",
+          "prefix",
+          "suffix",
+          "reverse",
+          "overlay"
+        ],
+        "featureCount": 2
+      },
+      "rating": {
+        "type": "input",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [],
+        "featureCount": 2
+      },
+      "repeater": {
+        "type": "list",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [
+          "min",
+          "max",
+          "total",
+          "upControl",
+          "downControl",
+          "removeControl",
+          "insertControl",
+          "addLabel",
+          "addButton",
+          "addAttrs",
+          "draggable"
+        ],
+        "featureCount": 11
+      },
+      "slider": {
+        "type": "input",
+        "family": "",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [
+          "min",
+          "max",
+          "step",
+          "showInput",
+          "tooltip",
+          "tooltipFormat",
+          "inputAttrs",
+          "maxInputAttrs",
+          "minInputAttrs",
+          "marks",
+          "markLabels",
+          "snapToMarks",
+          "chart",
+          "scalingFunction",
+          "intervals"
+        ],
+        "featureCount": 1
+      },
+      "taglist": {
+        "type": "input",
+        "family": "dropdown",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [],
+        "featureCount": 12
+      },
+      "toggle": {
+        "type": "input",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [
+          "checked",
+          "thumbColorOff",
+          "thumbColorOn",
+          "iconColorOff",
+          "iconColorOn",
+          "valueLabelColorOff",
+          "valueLabelColorOn",
+          "offValue",
+          "offValueLabel",
+          "onValue",
+          "onValueLabel",
+          "thumbIcon",
+          "trackColorOff",
+          "trackColorOn",
+          "valueLabelDisplay",
+          "altLabelPosition"
+        ],
+        "featureCount": 1
+      },
+      "togglebuttons": {
+        "type": "input",
+        "family": "button",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [
+          "options"
+        ],
+        "featureCount": 2
+      },
+      "transferlist": {
+        "type": "input",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [],
+        "featureCount": 15
+      },
+      "unit": {
+        "type": "input",
+        "family": "text",
+        "schemaFactory": "function",
+        "component": "undefined",
+        "definitionLibrary": [],
+        "props": [],
+        "featureCount": 1
+      }
+    }
+  },
+  "componentInventoryConclusion": "All 14 current Pro exports are schema factories with no exported component definition/library requirement. Their normal dependency tree supplies drag-and-drop and tempo. The implemented gaps concern adapter ownership, DOM root/refs and semantic rendering, not invented replacement components."
+}

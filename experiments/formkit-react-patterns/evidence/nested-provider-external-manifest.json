@@ -1,0 +1,62 @@
+{
+  "core/index.mjs": {
+    "before": "037f69f8b1d09be99851f2aae53e2266710da3e71db29c24fb9c0671d147db5a",
+    "after": "145585191fd0d458fa7f7e109fa3ddf8025a0dd06a13cd4f5b4e47ce7503ddb5"
+  },
+  "core/section-renderer.mjs": {
+    "before": "4b2ea7f1542eacad033de873993be1e52a0bb965838451f23903dff033adf917",
+    "after": "50ff2f11b19cf2e3131aa8f86b301543f16874f97c71eb17a04f9e130d9630e1"
+  },
+  "core/schema-layout.mjs": {
+    "before": "c4b61e5765e9e9c713ad103f1994ef2cd65fecd826abb4470c2e6ebee60409ea",
+    "after": "4f5d5bb5f059d856a0f7ac65c6fa3e0ab2dc0d3e9574265d410925b3484d6ded"
+  },
+  "core/root-slots.mjs": {
+    "before": "2074e8571b2c81cf20e39e887dd11c961efc75dfbfa36c00826b44f6d313ccc4",
+    "after": "451082a99235dba755968949f3a4dcd71ca18c8edd94467c8aff64d617145f18"
+  },
+  "core/formkit-application.mjs": {
+    "before": "6a9798a21701e41c93ac1ed16eac9ce8c0c2a12c2f1cd67832070f0c174ce32f",
+    "after": "25d01ade64187b593bca8e8487a56726c108c948e4de085a854c88900b726310"
+  },
+  "core/config-scope.mjs": {
+    "before": null,
+    "after": "0f4a9406a05af6aaf1caa644b1e8c3994b2a01880ae06d4d59abe5bdd9d56f1d"
+  },
+  "core/provider-components.mjs": {
+    "before": null,
+    "after": "03bf9e7e84e2f3f7371ed1c9a11b53981dd0557d5c184c317057f98121b7a9ec"
+  },
+  "core/provider-scope.mjs": {
+    "before": null,
+    "after": "3f8df8502448e6c8dd4715352d090edf900ad421fbbdfb25ea5b72a177ba5181"
+  },
+  "nested-provider-runtime.patch": {
+    "sha256": "6b0354bcf3ec89f53297915e73d5d02b434a2b03bf401fe5995260ad35cc0901",
+    "bytes": 36432
+  },
+  "core/nested-provider-test.mjs": {
+    "before": null,
+    "after": "1d47a74a1ccc040cc3d9f35cbdd0eb5df7c48a2903b5e4733b1d9e6f170f2a8d"
+  },
+  "core/nested-provider-upstream.mjs": {
+    "before": null,
+    "after": "bd6e0ce3ac87270228c0fe1187dde876f1566b26e6ae9cd28692a8d8d77b4325"
+  },
+  "core/nested-lazy-upstream.mjs": {
+    "before": null,
+    "after": "0ac6347f8f8a6d2e1c8b3f209e4b0674991f9ea2e40212ebb1019bb4f0dc5094"
+  },
+  "nested-provider-tests.patch": {
+    "sha256": "90433c1cbaf489932ec26337db1ba3bb716634f9d695f159af03c170d52f09e6",
+    "bytes": 22532
+  },
+  "core/NESTED-PROVIDERS.md": {
+    "before": null,
+    "after": "245e877f57aa837d405f79f364d94dafccee17d00ac677ff425ca58031839484"
+  },
+  "nested-provider-docs.patch": {
+    "sha256": "d10916026a30181f7c0348ebb6c3e3e31d1c7fdf0196a73e883d27a1b06c0221",
+    "bytes": 6701
+  }
+}

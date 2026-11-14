@@ -1,0 +1,20 @@
+[
+  {
+    "arm": "adapter",
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Application must preserve an already supplied Core rootConfig\n+ actual - expected\n\n  {\n    _add: [Function: _add],\n    _rm: [Function: _rm],\n+   locale: 'en',\n-   locale: 'fr',\n    rootClasses: [Function: rootClasses],\n+   rootConfig: {\n+     _add: [Function: _add],\n+     _rm: [Function: _rm],\n+     locale: 'fr',\n+     rootClasses: [Function: rootClasses]\n+   }\n  }\n\n    at file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/application-root-config-test.mjs:31:19 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: {\n    locale: 'en',\n    rootClasses: [Function: rootClasses],\n    rootConfig: {\n      locale: 'fr',\n      rootClasses: [Function: rootClasses],\n      _add: [Function: _add],\n      _rm: [Function: _rm]\n    },\n    _add: [Function: _add],\n    _rm: [Function: _rm]\n  },\n  expected: {\n    locale: 'fr',\n    rootClasses: [Function: rootClasses],\n    _add: [Function: _add],\n    _rm: [Function: _rm]\n  },\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+  },
+  {
+    "arm": "vue",
+    "exitCode": 0,
+    "stdout": "{\"passed\":true,\"arm\":\"vue\",\"observedInitial\":{\"rootIdentity\":false,\"wrappedRoot\":true,\"locale\":\"en\",\"childLocale\":\"en\",\"inputClass\":\"formkit-input\"},\"referenceDifference\":\"Vue2.5 wraps a pre-normalized rootConfig and loses its inherited locale/classes in this fixture\",\"checks\":[\"preserve supplied Core rootConfig identity\",\"initial shared locale/classes\",\"notified shared locale update with retained Core/DOM\",\"each created node destroyed once\"],\"scope\":\"Installed provider normalization counterpart; no nested-provider or browser/performance claim\"}\n",
+    "stderr": ""
+  },
+  {
+    "arm": "react",
+    "exitCode": 0,
+    "stdout": "{\"passed\":true,\"arm\":\"react\",\"observedInitial\":{\"rootIdentity\":true,\"wrappedRoot\":false,\"locale\":\"fr\",\"childLocale\":\"fr\",\"inputClass\":\"shared-input\"},\"referenceDifference\":\"Preserves supplied Core rootConfig as React2.5 does\",\"checks\":[\"preserve supplied Core rootConfig identity\",\"initial shared locale/classes\",\"notified shared locale update with retained Core/DOM\",\"each created node destroyed once\"],\"scope\":\"Installed provider normalization counterpart; no nested-provider or browser/performance claim\"}\n",
+    "stderr": ""
+  }
+]

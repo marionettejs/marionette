@@ -1,0 +1,1 @@
+{"arm":"vue","status":"PASS","checks":["official schema conditional show/hide","Core values remove with field","retained toggle DOM","fresh branch node on re-add","destroy"],"limits":["explicit root-value schema-data subscription; JSDOM only"]}

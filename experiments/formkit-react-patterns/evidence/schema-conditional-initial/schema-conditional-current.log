@@ -1,0 +1,17 @@
+file://[experiment-root]/node_modules/@formkit/core/dist/index.mjs:1551
+    get(...args) {
+       ^
+
+RangeError: Maximum call stack size exceeded
+    at Object.get (file://[experiment-root]/node_modules/@formkit/core/dist/index.mjs:1551:8)
+    at Object.get (file://[experiment-root]/node_modules/@formkit/core/dist/index.mjs:1317:34)
+    at classSources (file://[experiment-root]/current-303ddfbb/index.mjs:1406:30)
+    at file://[experiment-root]/current-303ddfbb/index.mjs:1437:135
+    at effect.callback (file://[experiment-root]/current-303ddfbb/index.mjs:282:21)
+    at OwnedEffect.run (file://[experiment-root]/current-303ddfbb/index.mjs:219:12)
+    at BindingValue.get (file://[experiment-root]/current-303ddfbb/index.mjs:301:21)
+    at OwnedEffect.value (file://[experiment-root]/current-303ddfbb/index.mjs:199:20)
+    at sectionClasses (file://[experiment-root]/current-303ddfbb/index.mjs:1437:36)
+    at Object.get (file://[experiment-root]/current-303ddfbb/index.mjs:1453:16)
+
+Node.js v24.22.1

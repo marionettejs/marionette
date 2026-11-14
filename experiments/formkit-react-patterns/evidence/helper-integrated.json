@@ -1,0 +1,27 @@
+[
+  {
+    "command": "node core/helper-components-test.mjs",
+    "exitCode": 0,
+    "output": "PASS public mount registers FormKitMessages with teardown\nPASS public mount registers FormKitIcon with teardown\nPASS summary forceShow respects actual validation visibility and renders error text safely\nPASS summary follows validation updates, submit visibility, onShow and link focus navigation\nPASS summary subscribes to added descendants and drops removed descendants\nPASS messages follows add/update/remove, stable message IDs, shared placement ownership and cleanup\nPASS messages rebinds node/defaultPosition/sections and clears immediately on node destruction\nPASS destroyed summary ignores later submissions, descendant updates and queued show work\nPASS icon uses official registry and supports reactive props, keyboard clicks and listener cleanup\nPASS icon drops stale async results, handles loader rejection and ignores post-destroy completion\nPASS icon sanitizes arbitrary markup and honors explicit keyboard/role/tabindex handlers\nPASS icon honors explicit/parent loader precedence and official iconLoaderUrl resolution\nPASS summary rebinds node and sections without retaining old tree presentation\nPASS icon cancels pending rendering when its Core parent is destroyed\n{\"mode\":\"after\",\"newlySupportedComponents\":[\"FormKitSummary\",\"FormKitMessages\",\"FormKitIcon\"],\"assertions\":[\"public mount registers FormKitMessages with teardown\",\"public mount registers FormKitIcon with teardown\",\"summary forceShow respects actual validation visibility and renders error text safely\",\"summary follows validation updates, submit visibility, onShow and link focus navigation\",\"summary subscribes to added descendants and drops removed descendants\",\"messages follows add/update/remove, stable message IDs, shared placement ownership and cleanup\",\"messages rebinds node/defaultPosition/sections and clears immediately on node destruction\",\"destroyed summary ignores later submissions, descendant updates and queued show work\",\"icon uses official registry and supports reactive props, keyboard clicks and listener cleanup\",\"icon drops stale async results, handles loader rejection and ignores post-destroy completion\",\"icon sanitizes arbitrary markup and honors explicit keyboard/role/tabindex handlers\",\"icon honors explicit/parent loader precedence and official iconLoaderUrl resolution\",\"summary rebinds node and sections without retaining old tree presentation\",\"icon cancels pending rendering when its Core parent is destroyed\"]}\n"
+  },
+  {
+    "command": "node core/component-library-test.mjs",
+    "exitCode": 0,
+    "output": "PASS factory libraries merge global < definition.library < field.library and reconcile replacement/removal\nPASS input slot schemas and root form sections resolve their own local factory libraries\n"
+  },
+  {
+    "command": "node core/mount-scope-cleanup-test.mjs",
+    "exitCode": 0,
+    "output": "PASS scopedFactories\nPASS failedShow\nPASS terminalLayout\n"
+  },
+  {
+    "command": "node core/schema-native-layout-lifecycle-test.mjs",
+    "exitCode": 0,
+    "output": "{\"passed\":true,\"checks\":[\"factory children/props/update/disposal\",\"independent repeated sibling names\",\"inherited outer-loop scope\",\"anonymous native group ownership\",\"Core-driven conditional projection\",\"native section redraw\",\"root slot redraw\",\"schema replacement retention\",\"layout-only teardown restores children\",\"all-created-node teardown\"]}\n"
+  },
+  {
+    "command": "node core/review-regressions-test.mjs",
+    "exitCode": 0,
+    "output": "PASS group\nPASS objectProps\nPASS lexicalSlots\nPASS defaultChildren\nPASS duplicateKeys\nPASS constructor\nPASS terminal\n"
+  }
+]

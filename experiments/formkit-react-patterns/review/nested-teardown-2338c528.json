@@ -1,0 +1,1 @@
+{"passed":true,"order":["form","outer","inner","x"],"life":["before:detach","detach","destroy"],"nodes":4,"checks":["nested parent-first exactly once","all registry IDs removed","captured context subscribers cleared","detached input/blur listeners inactive","double destroy stable","slot observer no later renderer metrics"]}

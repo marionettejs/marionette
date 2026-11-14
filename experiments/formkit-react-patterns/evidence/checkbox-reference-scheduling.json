@@ -1,0 +1,23 @@
+{
+  "change": "Use the same React flushSync update boundary already used for initial render and other matching reference fixtures; all original assertions retained",
+  "runs": [
+    {
+      "run": 1,
+      "exitCode": 0,
+      "stdout": "{\"arm\":\"react\",\"results\":[{\"value\":\"YES\",\"checked\":true,\"on\":\"YES\",\"off\":\"NO\"},{\"value\":\"YES\",\"checked\":false,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"Y\",\"checked\":true,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"Y\",\"checked\":true,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"N\",\"checked\":false,\"on\":\"Y\",\"off\":\"N\"}]}\n",
+      "stderr": ""
+    },
+    {
+      "run": 2,
+      "exitCode": 0,
+      "stdout": "{\"arm\":\"react\",\"results\":[{\"value\":\"YES\",\"checked\":true,\"on\":\"YES\",\"off\":\"NO\"},{\"value\":\"YES\",\"checked\":false,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"Y\",\"checked\":true,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"Y\",\"checked\":true,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"N\",\"checked\":false,\"on\":\"Y\",\"off\":\"N\"}]}\n",
+      "stderr": ""
+    },
+    {
+      "run": 3,
+      "exitCode": 0,
+      "stdout": "{\"arm\":\"react\",\"results\":[{\"value\":\"YES\",\"checked\":true,\"on\":\"YES\",\"off\":\"NO\"},{\"value\":\"YES\",\"checked\":false,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"Y\",\"checked\":true,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"Y\",\"checked\":true,\"on\":\"Y\",\"off\":\"N\"},{\"value\":\"N\",\"checked\":false,\"on\":\"Y\",\"off\":\"N\"}]}\n",
+      "stderr": ""
+    }
+  ]
+}

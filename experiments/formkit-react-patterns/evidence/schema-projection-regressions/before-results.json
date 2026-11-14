@@ -1,0 +1,22 @@
+{
+  "commit": "fbc97910c4ad4b7b47d01c0db57a69c32dc4ba49",
+  "apparatus": "Node synchronous resolve hook redirects only the shared regression fixture index import to the untouched exact baseline source. No runtime module edits.",
+  "cases": [
+    {
+      "fixture": "core/schema-condition-projection-test.mjs",
+      "fixtureSHA256": "0680ee65a80388d51fdcdd5b6f6554700a2772579a3270f252b86b658aa5cf5a",
+      "runtimeIndex": "file:///workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/index.mjs",
+      "exitCode": 1,
+      "log": "before-schema-condition-projection-test-experiment.log",
+      "expectedFailure": true
+    },
+    {
+      "fixture": "core/schema-dynamic-name-layout-test.mjs",
+      "fixtureSHA256": "d1517f87f5291035d8f077381696564bb719474b985c4b8fc64b7d21b51c9c4b",
+      "runtimeIndex": "file:///workspace/scratch/ea2cded971c5/formkit-publication-20261114-0349/repo/experiments/formkit-react-patterns/core/index.mjs",
+      "exitCode": 1,
+      "log": "before-schema-dynamic-name-layout-test-experiment.log",
+      "expectedFailure": true
+    }
+  ]
+}

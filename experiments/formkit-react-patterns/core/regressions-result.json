@@ -1,0 +1,1 @@
+{"passed":true,"checks":["multiple-instance input/message ID uniqueness","local label/error IDREFs","setFields after destroy does not create children or DOM","destroy during dispatch prevents later calls","unsubscribe during dispatch prevents later call","destroy in before:render prevents rendered state and event"]}

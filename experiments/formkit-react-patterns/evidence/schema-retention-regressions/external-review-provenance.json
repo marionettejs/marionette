@@ -1,0 +1,54 @@
+{
+  "sourceDirectory": "/workspace/scratch/ea2cded971c5/schema-retention-verification-fbc97910",
+  "reviewedArtifacts": {
+    "REPORT.md": "07e8e6dc4704d80ca09aed2c59f4520b0f004b60e05e253cca5605cd1b70702b",
+    "minimal-adapter.mjs": "b440074f50f7bdecdaf217c85e2584fbc2c943e91485b4f3dde4d84001a25931",
+    "summary.json": "959cc898baf800a063f91520818d44718b361959f81677e889d301455f8b824f"
+  },
+  "summary": {
+    "commit": "fbc97910c4ad4b7b47d01c0db57a69c32dc4ba49",
+    "observations": 120,
+    "classificationAssertionsPassed": true,
+    "stableBindRebuildAdapterLosses": 10,
+    "explicitObjectKeyReplacementAdapterMismatches": 2,
+    "scopeFailuresForLegalSyntax": 0,
+    "teardownFailuresForLegalSyntax": 0,
+    "exactCoreTeardownForAllObservedCases": true,
+    "unsupportedSyntaxTeardownErrors": 10,
+    "runtimeUnchanged": true,
+    "canonicalClean": true,
+    "networkUsed": false,
+    "macUsed": false,
+    "runtimeSourceSha256": {
+      "index.mjs": "c9a304f114324e5d2afd8b7fd38395f6bd6c9d578bc6bb0f784a674fc1630522",
+      "structural-components.mjs": "a5ac28e15400d8a3792be5827f3287973b2940a0c9176de6a4a5dba25e1e5245",
+      "provider-scope.mjs": "2c7c42c975f80a008f2166a655d136b491f7b44f13dbfa6eacc56b880242afd0",
+      "upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+      "provider-components.mjs": "bfa70038bcbe312beae42ff6728e5d272bc67ae9e984633f63d1d3ed90dbd190",
+      "config-scope.mjs": "0f4a9406a05af6aaf1caa644b1e8c3994b2a01880ae06d4d59abe5bdd9d56f1d",
+      "formkit-application.mjs": "6535edfb2564b057699f35b1e4f9c1b9f99d9b213f0e188f23ffb4aeb6d02238",
+      "native-types.mjs": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a",
+      "helper-components.mjs": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc",
+      "section-renderer.mjs": "4bef0234a3c272480045ed04047ff31b2f3087395715d0735647add6ffbc5864",
+      "component-library.mjs": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f",
+      "value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba",
+      "root-slots.mjs": "fdae5a1b69311e961a5d87d5e4e1f64aa9953e0a7d7042cbdd52ba7144f85ca4",
+      "schema-layout.mjs": "17c4640253565fffc3ff0d01a0b7238374b1ba1275f79ff921d8e7bacd82f2ea",
+      "schema.mjs": "305cc037f3cce98727ba1c20218bee32d1f56ba76ae385c32bd745b77ba96fda",
+      "schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+      "submission-controller.mjs": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968"
+    },
+    "packageLockSha256": "efb1b6f2983d1b010a28ca3aae4c663547b1627c85200b1af1d5f3f434adb74b",
+    "artifacts": {
+      "reproduce.mjs": "4d11765426946f19d3079d9d0eb39da46190ed9d1a47c82caa44be18de653e9a",
+      "reproduce-pure.mjs": "f73769ddca7158655e6b782075fbc79267e4d8b93493b95bb0404a36033d9faf",
+      "minimal-adapter.mjs": "b440074f50f7bdecdaf217c85e2584fbc2c943e91485b4f3dde4d84001a25931",
+      "run.py": "0233c67a5c24f76fcc917dd73bb320ff9ece2a4e818a069c96cadf677f83d764",
+      "run-pure.py": "f14df9402740e7735f6c9d41f9e5f07c2bba0b21498ee0caa37499434723b017",
+      "results.json": "637e955db4741bc3eb677162497ca139854f7312cd9846b4342db31cd0109b7a",
+      "pure-results.json": "b59dd1135ac302206be91487ebfb632b82c1f0c2d31a83a0799633a45289088f",
+      "REPORT.md": "07e8e6dc4704d80ca09aed2c59f4520b0f004b60e05e253cca5605cd1b70702b",
+      "verify-results.py": "bfc20aef399c3be43081507d6b84a3ecc7817eaf0c7b44706923a5642e29d74e"
+    }
+  }
+}

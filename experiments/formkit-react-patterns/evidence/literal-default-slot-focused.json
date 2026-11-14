@@ -1,0 +1,91 @@
+{
+  "base": "16077d9b7604d6537b9dcfe20dadf6b954b97a7e",
+  "before": "file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/schema.mjs:50\n    if (!Object.hasOwn(input, '$formkit')) throw new TypeError('Use createLayoutController for DOM layout nodes');\n                                                 ^\n\nTypeError: Use createLayoutController for DOM layout nodes\n    at project (file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/schema.mjs:50:50)\n    at file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/schema.mjs:38:61\n    at Array.flatMap (<anonymous>)\n    at project (file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/schema.mjs:38:44)\n    at project (file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/schema.mjs:65:92)\n    at file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/schema.mjs:38:61\n    at Array.flatMap (<anonymous>)\n    at project (file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/schema.mjs:38:44)\n    at evaluate (file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/schema.mjs:80:72)\n    at watch (file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/node_modules/@formkit/observer/dist/index.mjs:140:15)\n\nNode.js v24.22.1\n",
+  "tests": [
+    {
+      "file": "core/literal-formkit-default-slot-test.mjs",
+      "args": [
+        "adapter"
+      ],
+      "exitCode": 0,
+      "status": "passed",
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"button array default-slot markup mounts and updates\",\"ordinary sibling input retains Core/edited value/DOM across Schema+memo replacement\",\"named schema slots preserved on adapter\",\"exact owned teardown\"],\"scope\":\"Portable literal FormKit children;framework function-slot syntax is not claimed equivalent\"}\n"
+    },
+    {
+      "file": "core/literal-formkit-default-slot-test.mjs",
+      "args": [
+        "vue"
+      ],
+      "exitCode": 0,
+      "status": "passed",
+      "output": "{\"passed\":true,\"arm\":\"vue\",\"checks\":[\"button array default-slot markup mounts and updates\",\"ordinary sibling input retains Core/edited value/DOM across Schema+memo replacement\",\"named schema slots preserved on adapter\",\"exact owned teardown\"],\"scope\":\"Portable literal FormKit children;framework function-slot syntax is not claimed equivalent\"}\n"
+    },
+    {
+      "file": "core/literal-formkit-default-slot-test.mjs",
+      "args": [
+        "react"
+      ],
+      "exitCode": 0,
+      "status": "passed",
+      "output": "{\"passed\":true,\"arm\":\"react\",\"checks\":[\"button array default-slot markup mounts and updates\",\"ordinary sibling input retains Core/edited value/DOM across Schema+memo replacement\",\"named schema slots preserved on adapter\",\"exact owned teardown\"],\"scope\":\"Portable literal FormKit children;framework function-slot syntax is not claimed equivalent\"}\n"
+    },
+    {
+      "file": "core/literal-formkit-retention-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "status": "passed",
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"ordinary literal FormKit retains Core/edited value/DOM on Schema+memo change\",\"raw prop remains literal\",\"new sibling reconciles under same parent\",\"exact owned teardown\"],\"scope\":\"Actual pinned adapters and portable native projection;not arbitrary opaque-factory state retention\"}\n"
+    },
+    {
+      "file": "core/literal-formkit-projection-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "status": "passed",
+      "output": "{\"passed\":true,\"checks\":[\"own/non-enumerable prop getters retain expression/loop scope\",\"memo replacement retains keyed native owners and edited DOM\",\"raw props preserved\",\"custom FormKit library stays opaque without phantom Core fields\"],\"scope\":\"Ordinary built-in literal props;whole bound prop bags and opaque private component state retain documented lifecycle\"}\n"
+    },
+    {
+      "file": "core/schema-native-layout-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "status": "passed",
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"mixed native group/list DOM and text\",\"no phantom Core nodes\",\"native value topology\",\"aggregate validation\",\"data update\",\"anonymous keyed node/DOM identity\",\"keyed DOM reorder\",\"conditional and row removal\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/formkit-component-ownership-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "status": "passed",
+      "output": "explicit FormKit component Core ownership: group children and both inverse mixed group/list compositions, input/update identity and exact cleanup passed\n"
+    },
+    {
+      "file": "core/schema-root-components-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "status": "passed",
+      "output": "{\"passed\":true,\"checks\":[\"literal Schema owns only its fields; Core sibling order/initial values, isolated explicit data including node/values, updates and exact teardown\",\"replacement Schema and data retain native Core/DOM owners and values, and reconcile added fields\",\"Schema in native group/provider inherits options, plugins and parent validation ownership\",\"Schema-local library overrides portable factories and the FormKit sugar factory without allocating hidden Core fields\",\"Schema mounted callback and default caller slot render without duplicate owners\",\"Root waits for attachment, discovers Document, adds no Core/form owner and tears down children once\",\"Root and Schema compose inside actual ShadowRoot with local DOM-root inheritance\",\"Schema data.node is data, does not steal parent injection and is never destroyed by the Schema owner\",\"Root discovers its actual nested shadow boundary rather than global document or enclosing form hint; providers and Schema preserve it\",\"Schema mounted callback waits for real attachment and runs once\",\"Schema-valued named slots reuse existing presentation-slot renderer and local data\",\"removing Schema/Root during Lazy preparation destroys its Application and blocks late factory/Core work\",\"pending unattached Root teardown never creates descendants\",\"reactive FormKit context supplied as Schema data refreshes and unsubscribes without destroying its borrowed node\",\"library and memoKey updates rebuild presentation factories while retaining native fields and transparent schema layout\"]}\n"
+    }
+  ],
+  "passed": 8,
+  "failed": 0,
+  "runtimeSha256": {
+    "core/index.mjs": "737c35a788a65d7030123434ec184a927cb465a38a002a27174ec992dbcb9ea0",
+    "core/structural-components.mjs": "a5ac28e15400d8a3792be5827f3287973b2940a0c9176de6a4a5dba25e1e5245",
+    "core/provider-scope.mjs": "2c7c42c975f80a008f2166a655d136b491f7b44f13dbfa6eacc56b880242afd0",
+    "core/upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+    "core/provider-components.mjs": "bfa70038bcbe312beae42ff6728e5d272bc67ae9e984633f63d1d3ed90dbd190",
+    "core/config-scope.mjs": "0f4a9406a05af6aaf1caa644b1e8c3994b2a01880ae06d4d59abe5bdd9d56f1d",
+    "core/formkit-application.mjs": "6535edfb2564b057699f35b1e4f9c1b9f99d9b213f0e188f23ffb4aeb6d02238",
+    "core/native-types.mjs": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a",
+    "core/helper-components.mjs": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc",
+    "core/section-renderer.mjs": "4bef0234a3c272480045ed04047ff31b2f3087395715d0735647add6ffbc5864",
+    "core/component-library.mjs": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f",
+    "core/value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba",
+    "core/root-slots.mjs": "fdae5a1b69311e961a5d87d5e4e1f64aa9953e0a7d7042cbdd52ba7144f85ca4",
+    "core/schema-layout.mjs": "17c4640253565fffc3ff0d01a0b7238374b1ba1275f79ff921d8e7bacd82f2ea",
+    "core/schema.mjs": "305cc037f3cce98727ba1c20218bee32d1f56ba76ae385c32bd745b77ba96fda",
+    "core/schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+    "core/submission-controller.mjs": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968"
+  },
+  "scope": "Literal FormKit non-container default children stay opaque; ordinary inputs/named slots and group/list projection preserve existing owner behavior. Peer arms share default markup only; adapter-specific named schema slots are tested on adapter. No browser or performance run.",
+  "initialFixtureCorrection": "First peer arms included adapter named-schema-slot objects unsupported by Vue/React. Preserved initial logs, corrected fixture to common array markup and retained-input path; no runtime change was needed for that fixture error."
+}

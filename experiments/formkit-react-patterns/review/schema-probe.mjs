@@ -1,0 +1,7 @@
+import 'node:assert/strict';import {createNode} from '@formkit/core';import {createSchemaController} from '../core/schema.mjs';
+const schema = [{$formkit: 'text',name: 'f0'},{if: '$values.f0 === \'show\'',then: {$formkit: 'text',name: 'extra'},else: []}];const tick = ()=>new Promise(r=>setTimeout(r,10));
+const results = {};
+for (const mode of ['controller','owner']) {const n = createNode({type: 'group',value: {f0: 'hide'}});let calls = 0;const c = createSchemaController({node: n,schema,onFields: ()=>calls++});await tick();n.input({f0: 'show'},false);if (mode === 'controller') {c.destroy();} else {n.destroy();} await tick();results[mode] = {calls,destroyed: c.destroyed};if (mode === 'controller') {n.destroy();}}
+for (const expression of ['$values.f0 ===','$values.f0 + (','$values.missing','$values.f0 === \'show\'']) {const n = createNode({type: 'group',value: {f0: 'hide'}});try {const c = createSchemaController({node: n,schema: [{$formkit: 'text',name: 'f0'},{if: expression,then: []}],onFields: ()=>{}});results[expression] = 'accepted';c.destroy()} catch (e) {results[expression] = String(e)}n.destroy();}
+const n = createNode({type: 'group',value: {f0: 'hide'}});let called = 0;const c = createSchemaController({node: n,schema,onFields: ()=>{called++;n.destroy()}});await tick();results.destroyInInitialCallback = {called,destroyed: c.destroyed};
+console.log(JSON.stringify(results,null,2));

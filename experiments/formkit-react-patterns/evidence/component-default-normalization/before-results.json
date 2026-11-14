@@ -1,0 +1,42 @@
+{
+  "commit": "11aa0e06c81601287af3a0c68b1e40cc01e9b7f1",
+  "fixtureSHA256": "8591cac0b30e516e03336fe2687faa5b3ead71d689eed628ab3d4e35703242ca",
+  "cases": [
+    {
+      "arm": "experiment",
+      "surface": "document",
+      "exitCode": 1,
+      "output": "{\"arm\":\"experiment\",\"surface\":\"document\",\"observations\":[{\"case\":\"type-undefined\",\"passed\":false,\"error\":{\"name\":\"TypeError\",\"message\":\"Field schema requires a resolved type and name\"},\"created\":2,\"destroyed\":2},{\"case\":\"type-null\",\"passed\":false,\"error\":{\"name\":\"TypeError\",\"message\":\"Field schema requires a resolved type and name\"},\"created\":2,\"destroyed\":2},{\"case\":\"name-null\",\"passed\":false,\"error\":{\"name\":\"TypeError\",\"message\":\"Field schema requires a resolved type and name\"},\"created\":2,\"destroyed\":2},{\"case\":\"name-empty\",\"passed\":false,\"error\":{\"name\":\"TypeError\",\"message\":\"Field schema requires a resolved type and name\"},\"created\":2,\"destroyed\":2},{\"case\":\"name-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4}],\"passed\":false,\"checks\":[\"explicit nullish type suppresses bound textarea then defaults to text\",\"explicit null/empty/undefined name suppresses bound name then generates Core name\",\"shared normalized anonymous outlet lookup\",\"data/schema/memo retention and explicit-key replacement\",\"native field projection validation stays strict\",\"shared parent/actual DOM root\",\"exact node/registry/DOM teardown\"]}\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: all supported component-default cases mount and retain correctly\n    at file:///workspace/scratch/ea2cded971c5/formkit-component-defaults-20261114/experiments/formkit-react-patterns/core/component-prop-defaults-test.mjs:40:506 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+    },
+    {
+      "arm": "vue",
+      "surface": "document",
+      "exitCode": 0,
+      "output": "{\"arm\":\"vue\",\"surface\":\"document\",\"observations\":[{\"case\":\"type-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"type-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-empty\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4}],\"passed\":true,\"checks\":[\"explicit nullish type suppresses bound textarea then defaults to text\",\"explicit null/empty/undefined name suppresses bound name then generates Core name\",\"shared normalized anonymous outlet lookup\",\"data/schema/memo retention and explicit-key replacement\",\"native field projection validation stays strict\",\"shared parent/actual DOM root\",\"exact node/registry/DOM teardown\"]}\n"
+    },
+    {
+      "arm": "react",
+      "surface": "document",
+      "exitCode": 0,
+      "output": "{\"arm\":\"react\",\"surface\":\"document\",\"observations\":[{\"case\":\"type-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"type-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-empty\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4}],\"passed\":true,\"checks\":[\"explicit nullish type suppresses bound textarea then defaults to text\",\"explicit null/empty/undefined name suppresses bound name then generates Core name\",\"shared normalized anonymous outlet lookup\",\"data/schema/memo retention and explicit-key replacement\",\"native field projection validation stays strict\",\"shared parent/actual DOM root\",\"exact node/registry/DOM teardown\"]}\n"
+    },
+    {
+      "arm": "experiment",
+      "surface": "shadow",
+      "exitCode": 1,
+      "output": "{\"arm\":\"experiment\",\"surface\":\"shadow\",\"observations\":[{\"case\":\"type-undefined\",\"passed\":false,\"error\":{\"name\":\"TypeError\",\"message\":\"Field schema requires a resolved type and name\"},\"created\":2,\"destroyed\":2},{\"case\":\"type-null\",\"passed\":false,\"error\":{\"name\":\"TypeError\",\"message\":\"Field schema requires a resolved type and name\"},\"created\":2,\"destroyed\":2},{\"case\":\"name-null\",\"passed\":false,\"error\":{\"name\":\"TypeError\",\"message\":\"Field schema requires a resolved type and name\"},\"created\":2,\"destroyed\":2},{\"case\":\"name-empty\",\"passed\":false,\"error\":{\"name\":\"TypeError\",\"message\":\"Field schema requires a resolved type and name\"},\"created\":2,\"destroyed\":2},{\"case\":\"name-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4}],\"passed\":false,\"checks\":[\"explicit nullish type suppresses bound textarea then defaults to text\",\"explicit null/empty/undefined name suppresses bound name then generates Core name\",\"shared normalized anonymous outlet lookup\",\"data/schema/memo retention and explicit-key replacement\",\"native field projection validation stays strict\",\"shared parent/actual DOM root\",\"exact node/registry/DOM teardown\"]}\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: all supported component-default cases mount and retain correctly\n    at file:///workspace/scratch/ea2cded971c5/formkit-component-defaults-20261114/experiments/formkit-react-patterns/core/component-prop-defaults-test.mjs:40:506 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+    },
+    {
+      "arm": "vue",
+      "surface": "shadow",
+      "exitCode": 0,
+      "output": "{\"arm\":\"vue\",\"surface\":\"shadow\",\"observations\":[{\"case\":\"type-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"type-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-empty\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4}],\"passed\":true,\"checks\":[\"explicit nullish type suppresses bound textarea then defaults to text\",\"explicit null/empty/undefined name suppresses bound name then generates Core name\",\"shared normalized anonymous outlet lookup\",\"data/schema/memo retention and explicit-key replacement\",\"native field projection validation stays strict\",\"shared parent/actual DOM root\",\"exact node/registry/DOM teardown\"]}\n"
+    },
+    {
+      "arm": "react",
+      "surface": "shadow",
+      "exitCode": 0,
+      "output": "{\"arm\":\"react\",\"surface\":\"shadow\",\"observations\":[{\"case\":\"type-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"type-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-null\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-empty\",\"passed\":true,\"created\":4,\"destroyed\":4},{\"case\":\"name-undefined\",\"passed\":true,\"created\":4,\"destroyed\":4}],\"passed\":true,\"checks\":[\"explicit nullish type suppresses bound textarea then defaults to text\",\"explicit null/empty/undefined name suppresses bound name then generates Core name\",\"shared normalized anonymous outlet lookup\",\"data/schema/memo retention and explicit-key replacement\",\"native field projection validation stays strict\",\"shared parent/actual DOM root\",\"exact node/registry/DOM teardown\"]}\n"
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "tests": [
+    {
+      "file": "core/schema-root-components-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"literal Schema owns only its fields; Core sibling order/initial values, isolated explicit data including node/values, updates and exact teardown\",\"replacement Schema and data retain native Core/DOM owners and values, and reconcile added fields\",\"Schema in native group/provider inherits options, plugins and parent validation ownership\",\"Schema-local library overrides portable factories and the FormKit sugar factory without allocating hidden Core fields\",\"Schema mounted callback and default caller slot render without duplicate owners\",\"Root waits for attachment, discovers Document, adds no Core/form owner and tears down children once\",\"Root and Schema compose inside actual ShadowRoot with local DOM-root inheritance\",\"Schema data.node is data, does not steal parent injection and is never destroyed by the Schema owner\",\"Root discovers its actual nested shadow boundary rather than global document or enclosing form hint; providers and Schema preserve it\",\"Schema mounted callback waits for real attachment and runs once\",\"Schema-valued named slots reuse existing presentation-slot renderer and local data\",\"removing Schema/Root during Lazy preparation destroys its Application and blocks late factory/Core work\",\"pending unattached Root teardown never creates descendants\",\"reactive FormKit context supplied as Schema data refreshes and unsubscribes without destroying its borrowed node\",\"library and memoKey updates rebuild presentation factories while retaining native fields and transparent schema layout\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-root-upstream.mjs",
+      "args": [
+        "vue",
+        "document"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"arm\":\"vue\",\"mode\":\"document\",\"initial\":{\"sameParent\":true,\"rootMatches\":true,\"forms\":1,\"value\":\"hydrated\",\"label\":\"Initial\",\"dataNode\":\"borrowed\",\"dataValues\":\"supplied\",\"mounted\":1},\"update\":{\"retained\":true,\"value\":\"keep\",\"label\":\"Changed\",\"children\":[\"kept\",\"added\"]},\"borrowedDestroyed\":1,\"remainingForms\":0}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-root-upstream.mjs",
+      "args": [
+        "vue",
+        "shadow"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"arm\":\"vue\",\"mode\":\"shadow\",\"initial\":{\"sameParent\":true,\"rootMatches\":true,\"forms\":1,\"value\":\"hydrated\",\"label\":\"Initial\",\"dataNode\":\"borrowed\",\"dataValues\":\"supplied\",\"mounted\":1},\"update\":{\"retained\":true,\"value\":\"keep\",\"label\":\"Changed\",\"children\":[\"kept\",\"added\"]},\"borrowedDestroyed\":1,\"remainingForms\":0}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-root-upstream.mjs",
+      "args": [
+        "react",
+        "document"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"arm\":\"react\",\"mode\":\"document\",\"initial\":{\"sameParent\":true,\"rootMatches\":true,\"forms\":1,\"value\":\"hydrated\",\"label\":\"Initial\",\"dataNode\":\"borrowed\",\"dataValues\":\"supplied\",\"mounted\":1},\"update\":{\"retained\":true,\"value\":\"keep\",\"label\":\"Changed\",\"children\":[\"kept\",\"added\"]},\"borrowedDestroyed\":0,\"remainingForms\":0}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-root-upstream.mjs",
+      "args": [
+        "react",
+        "shadow"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"arm\":\"react\",\"mode\":\"shadow\",\"initial\":{\"sameParent\":true,\"rootMatches\":true,\"forms\":1,\"value\":\"hydrated\",\"label\":\"Initial\",\"dataNode\":\"borrowed\",\"dataValues\":\"supplied\",\"mounted\":1},\"update\":{\"retained\":true,\"value\":\"keep\",\"label\":\"Changed\",\"children\":[\"kept\",\"added\"]},\"borrowedDestroyed\":0,\"remainingForms\":0}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/data-boolean-contract-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"boolean data/ARIA attrs preserve false and true\",\"native boolean disabled retains presence semantics\",\"null removes data/ARIA attrs\",\"updates retain element identity\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/owned-subtree-disposal-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"conditional DOM owner removal retains detached descendant ancestry\",\"detached listeners and component resources disposed once\",\"nested Core child removed from aggregate parent\",\"new conditional branch and root redraw render once\",\"final ownership cleanup exact once\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/provider-inheritance-transition-test.mjs",
+      "args": [
+        "adapter"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"afterInherited\":{\"hasChild\":true,\"moduleCompleted\":0,\"factories\":0},\"afterModule\":{\"hasChild\":true,\"source\":\"inherited\",\"factories\":0},\"referenceDifference\":\"React replacement provider supplies inherited options before pending module finishes\",\"scope\":\"Controlled import;no browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/provider-inheritance-transition-test.mjs",
+      "args": [
+        "react"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"react\",\"afterInherited\":{\"hasChild\":true,\"moduleCompleted\":0,\"factories\":0},\"afterModule\":{\"hasChild\":true,\"source\":\"inherited\",\"factories\":1},\"referenceDifference\":\"React replacement provider supplies inherited options before pending module finishes\",\"scope\":\"Controlled import;no browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/provider-inheritance-transition-test.mjs",
+      "args": [
+        "vue"
+      ],
+      "exitCode": 0,
+      "stdout": "<Suspense> is an experimental feature and its API will likely change.\n{\"passed\":true,\"arm\":\"vue\",\"afterInherited\":{\"hasChild\":false,\"moduleCompleted\":0,\"factories\":0},\"afterModule\":{\"hasChild\":true,\"source\":\"module\",\"factories\":1},\"referenceDifference\":\"Vue captures provider config during setup;replacement stays on loader\",\"scope\":\"Controlled import;no browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/nested-provider-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"actual Vue/React nested precedence: outer common definition/locale/classes, inner delay/unique definition/plugin; inherited Lazy bypass; one Core form, initial values, validation and exact cleanup\",\"opaque provider inside projected native group preserves one parent/value/validation owner and schema-removal cleanup\",\"true same-form Lazy function/object/namespace loading holds only descendants, retains siblings and hydrates delayed initial values\",\"schema removal and form destruction cancel pending Application before late factory/Core work\",\"async rejection is observable on owning View; public Application restart retries without replacing the form\",\"defaultConfig:false passes raw scoped plugins while keeping actual inherited parent validation\",\"replacement options apply to newly mounted descendants and retain existing Core identity/value\",\"opaque provider aliases inside keyed loops retain lexical data, Core identity and exact cleanup\",\"active Application reload retains existing descendants and value, scopes future children, and tears down every Core node once\",\"public mount preserves explicitly prepared Application provider scope and inherited Lazy bypass\",\"direct-child props forward and update; child props/bind win, DOM descendants do not inherit, overridden refs never receive duplicate mounting\",\"changing configFile automatically reloads options through Application while retaining existing nodes and values\",\"synchronous provider siblings in a native list allocate in source order and preserve all initial list values\",\"opaque sibling scopes preserve named input slot rendering\",\"opaque provider input named slots retain and update loop-local lexical data\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/application-root-config-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"arm\":\"adapter\",\"observedInitial\":{\"rootIdentity\":true,\"wrappedRoot\":false,\"locale\":\"fr\",\"childLocale\":\"fr\",\"inputClass\":\"shared-input\"},\"referenceDifference\":\"Preserves supplied Core rootConfig as React2.5 does\",\"checks\":[\"preserve supplied Core rootConfig identity\",\"initial shared locale/classes\",\"notified shared locale update with retained Core/DOM\",\"each created node destroyed once\"],\"scope\":\"Installed provider normalization counterpart; no nested-provider or browser/performance claim\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/projected-layout-focus-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"modes\":[\"conditional\",\"reorder\"],\"checks\":[\"mixed keyed list reorder\",\"conditional insertion/removal\",\"retained Core/input/value/focus/selection without focus events\",\"nested value topology\",\"normal teardown\"],\"limits\":\"JSDOM focused regression; licensed combined browser acceptance remains separate\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/repeated-lifecycle-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "12 repeated mixed-schema mount/unmount cycles: pending validation/input, component and Core disposal, registry removal and inert terminal API passed\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/teardown-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"results\":[{\"count\":200,\"parentCommitEventsObserved\":0,\"coreDestroyed\":202,\"domChildListRecords\":1,\"rootRemovedChildren\":212},{\"count\":400,\"parentCommitEventsObserved\":0,\"coreDestroyed\":402,\"domChildListRecords\":1,\"rootRemovedChildren\":412}],\"checks\":[\"parent-first terminal destruction avoids live-parent commits; destroyed ledger settlement not required\",\"all nodes deregistered/destroyed\",\"one bulk root DOM clear\",\"no later metrics activity\",\"live field removal still commits\"],\"limits\":[\"observed parent events, not instrumentation of every internal Core operation\",\"JSDOM counters, not browser timings\"]}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/helper-lifecycle-contract-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "helper lifecycle: unchanged icon DOM retained or terminal helper removal owned by root passed\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/section-refs-contract-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "PASS: section refs, loop exclusion, explicit callback refs and terminal cleanup.\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/schema-attrs-redraw-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "{\"passed\":true,\"checks\":[\"12 attribute redraws and 3 Core schema events retain input/Core/clone/focus/selection\",\"one mounted delivery\",\"one ResizeObserver created and disconnected once\",\"one clone maximum\",\"event listener replacement/removal without duplicates\",\"plugin class and min-height retained with object and unchanged string styles\",\"DOM/Core input still updates clone\",\"hidden/loop/dynamic-tag branches use latest attrs\",\"structural and shared-schema identity changes request existing redraw fallback\",\"exact-once cleanup\"],\"firstEvents\":4,\"secondEvents\":4,\"mounts\":1,\"destroys\":1,\"observers\":1}\n",
+      "stderr": ""
+    },
+    {
+      "file": "core/exception-lifecycle-test.mjs",
+      "args": [],
+      "exitCode": 0,
+      "stdout": "exceptions: original component/update and submission failures propagate, normal explicit cleanup releases resources, invalid root construction cleans owned nodes; no rollback/recovery guarantee added\n",
+      "stderr": ""
+    }
+  ],
+  "passed": 19,
+  "failed": 0,
+  "runtimeSha256": {
+    "core/index.mjs": "99955188d468adc4835c62b11d769d8a0527d1855d3fdce93711ba3aa11badce",
+    "core/section-renderer.mjs": "5f84ba728a67d348504ab60d72765387e57daf029f32f874f01773006caf4036",
+    "core/provider-components.mjs": "0e9e37b57887cb85a1f9c7af7f7ef0b2359f6cc1c0d3644bcc0b9749020b2c98",
+    "core/structural-components.mjs": "a5ac28e15400d8a3792be5827f3287973b2940a0c9176de6a4a5dba25e1e5245"
+  },
+  "scope": "Combined final factories,renderer fixes and provider transition;actual pinned references;no real browser or comparative performance claim"
+}

@@ -1,0 +1,18 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+  assert.ok(described.node.at('declared.child'))
+
+    at file:///workspace/scratch/ea2cded971c5/formkit-schema-regressions-20261114/experiments/formkit-react-patterns/core/schema-dynamic-name-layout-test.mjs:18:12 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.22.1

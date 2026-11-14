@@ -1,0 +1,40 @@
+{
+  "library_file_id": "libfile_fde3_f-18e3607c74808191a9ba7949098d490f_3633c514934c8191a03706259b76dd26",
+  "file_id": "file_0000000003a481f5ae135dd54c52529a",
+  "sha256": "e168b8a979199bfd342f1c8774843dce5f5bceb2c9f131238cc67602026e8cdb",
+  "sourceSpecificEvidence": {
+    "pendingCanonicalUpdate": {
+      "head": "a6bc63804ed711845fc5fd084e733f72ae461c00",
+      "snapshotSha256": "14b7613384c53920a7c0e4e72159fcb3518586f14e4682b822b85698f89b5dd1",
+      "status": "Materialized and all249 member hashes verified. Twenty browser cases and3 default-slot JSDOM references pass. Corrected timing remains blocked on DOM-placement integration."
+    },
+    "correctedHarness": {
+      "timingSamplesStarted": 0,
+      "changes": [
+        "Exact intended input filtered at document capture with capture:true; reject synthetic events; assert trusted Event.CAPTURING_PHASE",
+        "Native newsletter checked DOM and Pro toggle/slider number/handle/fill DOM checked after update/reset",
+        "Normalized complete live Core topology including ignored nodes",
+        "Per-declared-widget controls/roles and all outer geometry compared",
+        "Initial and invalid messages compared",
+        "All requests record arm/fixture/invocation/stage/operation and UTC/page-relative start/end timing; no external paths; legitimate licensing unchanged",
+        "Failed receipts preserved before comparison assertions"
+      ],
+      "captureSmoke": "3/3 native/Vue/React trusted event-order cases pass; wrong-target event ignored, synthetic event rejected; no timing measurements in this smoke",
+      "canonicalGate": "All six sequences complete with correct updated DOM and trusted input; comparison fails solely because adapter repeater height510.140625 versus Vue/React494.140625. No other widget dimensions, normalized Core topology, semantic widget state, messages or updated/reset states differ."
+    },
+    "domPlacementProposal": {
+      "scope": "core/index.mjs only, separate isolated proposal; canonical untouched",
+      "cause": "Native factory bookkeeping wrappers prevent official CSS [data-type=repeater] > .formkit-fieldset > .formkit-outer margin-bottom:0 from matching nested add button. Extra margin16px increases total height.",
+      "behavior": "Keep the bookkeeping host connected with display:contents and place built-in native field output beside it under its declared schema parent, on initial render and redraw. No stylesheet change or benchmark-only fast path.",
+      "verified": [
+        "6/6 corrected shared-form gate passes including all widget geometry, DOM values, topology/messages, trusted capture, identity and cleanup",
+        "19/19 factory browser proposal rerun passes;60/60 Core cleanup",
+        "Public free-input regression verifies direct schema child, bound prop update, structural redraw placement, removal and exact4/4 Core teardown",
+        "Existing focused lazy/render/Schema ownership regressions pass"
+      ],
+      "limits": "This preserves the established factory host, not a complete general fragment-host API. Existing opaque/custom factory contracts remain. Parent is fixing an independent button-array default-slot issue; reconcile rather than overwrite it."
+    }
+  },
+  "integration": "Only canonical-evidence/native-factory-dom-placement.patch applied; index hash exact87af40a0, newer schema-layout default-slot correction preserved. Callback counter optimization and upstream Pro retention proposals are not applied. Combined source still requires licensed browser verification.",
+  "performanceSamplesCollectedHere": 0
+}

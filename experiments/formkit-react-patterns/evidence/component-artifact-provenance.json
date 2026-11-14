@@ -1,0 +1,90 @@
+{
+  "remoteBase": "a993e4fbe8ff5d170822819f5793c5005b8daf18",
+  "sourceSnapshotSha256": "613861061b70d402cc39f41ced236e546120fbbd39a7776a9fb1e8c6a37f380a",
+  "verifiedMembers": 252,
+  "appliedMembers": 250,
+  "excludedHistoricalScratchFiles": [
+    "core/initial-baseline.tmp.mjs",
+    "core/initial-counts.mjs"
+  ],
+  "runtimeFilesVerifiedBeforePatch": 17,
+  "missingRelativeRuntimeImports": [],
+  "packageLockMatchesManifest": true,
+  "formkitLicense": "core/LICENSE.formkit",
+  "licensedProDependency": false,
+  "visibilityVersion": 1,
+  "visibilityArtifactSha256": "6cc0cd8cecd7184c6424b135fc412974dd7e73e4efc94ef18301d0af2026fb4e",
+  "proposedIndexSha256": "c9a304f114324e5d2afd8b7fd38395f6bd6c9d578bc6bb0f784a674fc1630522",
+  "recoveryClaim": "Fresh remote clone plus verified source artifact. Original17-commit history and91 historical untracked files are not recovered or recreated.",
+  "assembledAtUtc": "2026-11-14T03:59:21.660335+00:00",
+  "sourceRuntimeHead": "aef737b693921e5dd2ccd54237018994fb77c718",
+  "visibilityIndependentReview": "Version1 accepted by independent review; no additional concrete defect reported.",
+  "testFixtureAdaptation": "Only relative import and output paths adapted. Ownership test prints results instead of writing into source cwd.",
+  "focusedVerification": {
+    "inheritedAssertions": 17,
+    "ownershipAssertions": 13,
+    "probes": [
+      "frozen adapter",
+      "current adapter",
+      "React2.5",
+      "Vue2.5",
+      "public Core2.5",
+      "adapter/React/Vue ownership peers"
+    ]
+  },
+  "browserBuild": {
+    "passed": true,
+    "package": "marionette5.1.1 from pinned npm lock",
+    "command": "./node_modules/.bin/esbuild core/index.mjs --bundle --format=esm --platform=browser --tsconfig-raw='{}' --outfile=<external-build-path>",
+    "note": "Empty tsconfig avoids unrelated parent framework development path aliases; no runtime shim.",
+    "sha256": "75ec75423e186fcefb55b23d1cbee8b7a6d32e261db3110d504d5d8707f6ae6b",
+    "bytes": 418674
+  },
+  "limitations": [
+    "Current visibility revision has no new real-browser/Pro or comparative performance run.",
+    "Prior aef737b browser20/20,corrected gates6/6 and72 measured216 warmups remain frozen-source evidence only.",
+    "No licensed Pro sources/keys, original Git recovery claim, force push, merge or release."
+  ],
+  "verifiedAtUtc": "2026-11-14T04:03:31.052207+00:00",
+  "runtimeSha256": {
+    "core/index.mjs": "c9a304f114324e5d2afd8b7fd38395f6bd6c9d578bc6bb0f784a674fc1630522",
+    "core/structural-components.mjs": "a5ac28e15400d8a3792be5827f3287973b2940a0c9176de6a4a5dba25e1e5245",
+    "core/provider-scope.mjs": "2c7c42c975f80a008f2166a655d136b491f7b44f13dbfa6eacc56b880242afd0",
+    "core/upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+    "core/provider-components.mjs": "bfa70038bcbe312beae42ff6728e5d272bc67ae9e984633f63d1d3ed90dbd190",
+    "core/config-scope.mjs": "0f4a9406a05af6aaf1caa644b1e8c3994b2a01880ae06d4d59abe5bdd9d56f1d",
+    "core/formkit-application.mjs": "6535edfb2564b057699f35b1e4f9c1b9f99d9b213f0e188f23ffb4aeb6d02238",
+    "core/native-types.mjs": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a",
+    "core/helper-components.mjs": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc",
+    "core/section-renderer.mjs": "4bef0234a3c272480045ed04047ff31b2f3087395715d0735647add6ffbc5864",
+    "core/component-library.mjs": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f",
+    "core/value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba",
+    "core/root-slots.mjs": "fdae5a1b69311e961a5d87d5e4e1f64aa9953e0a7d7042cbdd52ba7144f85ca4",
+    "core/schema-layout.mjs": "17c4640253565fffc3ff0d01a0b7238374b1ba1275f79ff921d8e7bacd82f2ea",
+    "core/schema.mjs": "305cc037f3cce98727ba1c20218bee32d1f56ba76ae385c32bd745b77ba96fda",
+    "core/schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+    "core/submission-controller.mjs": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968"
+  },
+  "fullVerification": {
+    "acceptance": {
+      "passed": 93,
+      "failed": 0,
+      "receipt": "evidence/fresh-branch-free-acceptance.json"
+    },
+    "references": {
+      "passed": 81,
+      "failed": 0,
+      "receipt": "evidence/fresh-branch-reference-comparisons.json"
+    },
+    "runtimeUnchanged": true
+  },
+  "fixtureCorrections": {
+    "files": [
+      "core/form-actions-breadth-test.mjs",
+      "core/regressions.mjs",
+      "core/test.mjs"
+    ],
+    "change": "Explicitly request live validation in fixtures testing immediate localized errors or error ID references. Current inheritance/default behavior has separate17/13 focused assertions.",
+    "initialReceipt": "evidence/free-acceptance-visibility-initial.json"
+  }
+}

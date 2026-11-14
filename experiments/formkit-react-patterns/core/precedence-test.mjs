@@ -1,0 +1,12 @@
+import {JSDOM} from 'jsdom';import assert from 'node:assert/strict';
+const dom = new JSDOM('<body><div id="host"></div>');for (const key of ['window','document','Node','Element','HTMLElement','HTMLFormElement','HTMLInputElement','Event','CustomEvent','MutationObserver']) {globalThis[key] = dom.window[key];}
+const {mount} = await import('./index.mjs');const tick = ()=>new Promise(r=>setTimeout(r,25));
+const instance = mount({instrument: true,host: document.querySelector('#host'),fields: [{name: 'x',id: 'explicit-id',label: 'X',attrs: {placeholder: 'initial',id: 'bad-initial',class: 'bad-initial'}}]});await tick();
+const node = instance.node.at('x'),input = document.querySelector('input'),id = input.id,classes = input.className;
+assert.equal(id,'explicit-id');assert.notEqual(classes,'bad-initial');
+node.context.attrs.id = 'bad-update';node.context.attrs.class = 'bad-update';node.context.attrs.placeholder = 'updated';node.props.help = 'notify';await tick();
+assert.equal(input.id,id);assert.equal(input.className,classes);assert.equal(input.placeholder,'updated');assert.equal(document.querySelector('label').control,input);
+delete node.context.attrs.id;delete node.context.attrs.class;delete node.context.attrs.placeholder;node.props.help = 'notify again';await tick();
+assert.equal(input.id,id);assert.equal(input.className,classes);assert.equal(input.hasAttribute('placeholder'),false);assert.equal(document.querySelector('label').control,input);
+node.props.attrs = {id: 'replacement',class: 'replacement',placeholder: 'new bag'};await tick();assert.equal(input.id,id);assert.equal(input.className,classes);assert.equal(input.placeholder,'new bag');instance.destroy();
+console.log(JSON.stringify({passed: true,checks: ['explicit attrs win initial bind','explicit attrs win notified bind update','clearing bind preserves explicit attrs','bind-only attrs update/remove','replacement attrs bag preserves label/control association']}));

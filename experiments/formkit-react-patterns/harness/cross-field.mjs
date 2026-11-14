@@ -1,0 +1,23 @@
+import {JSDOM} from 'jsdom';
+import assert from 'node:assert/strict';
+import {fields,classes,values} from './fixtures.mjs';
+const dom = new JSDOM('<!doctype html><html><body><main id="host"></main></body></html>',{url: 'https://example.test',pretendToBeVisual: true});
+for (const key of ['window','document','HTMLElement','Element','Node','Document','ShadowRoot','MutationObserver','Event','CustomEvent','HTMLInputElement']) {globalThis[key] = dom.window[key];}
+Object.defineProperty(globalThis,'navigator',{value: dom.window.navigator,configurable: true});
+globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);globalThis.SVGElement = dom.window.SVGElement;
+globalThis.requestAnimationFrame = dom.window.requestAnimationFrame.bind(dom.window);globalThis.cancelAnimationFrame = dom.window.cancelAnimationFrame.bind(dom.window);
+const arm = process.argv[2] ?? 'vue',count = Number(process.argv[3] ?? 20),host = document.querySelector('#host');
+const {mountReference,mountCurrent} = await import('./reference.mjs');
+const trackedClasses = {...classes,outer: n=>({'study-outer': true,'cross-active': n.name === 'f1' && n.at('$parent.f0')?.value === 'activate'})};
+const testFields = fields(count).map(f=>({...f,classes: trackedClasses}));
+const api = arm === 'current' ? await mountCurrent(host,count,{classes: trackedClasses,fields: testFields}) : arm === 'experiment' ? await (await import('../core/index.mjs')).mount({host,count,fields: testFields,classes: trackedClasses,values: values(count)}) : await mountReference(arm,host,count,{classes: trackedClasses,fields: testFields});
+const delay = ()=>new Promise(r=>setTimeout(r,5));
+async function until(predicate,label) {for (let n = 0;n < 400;n++) {await delay();if (predicate()) {return;}} throw Error(`Did not settle: ${label}`)}
+await until(()=>api.node?.isSettled && host.querySelectorAll('input[type=text]').length === count,'mount');
+const target = host.querySelectorAll('input[type=text]')[1];
+assert.equal(host.querySelectorAll('.cross-active').length,0);
+await api.node.at('f0').input('activate');await until(()=>host.querySelectorAll('.cross-active').length === 1,'tracked sibling class');
+assert.ok(host.querySelector('.cross-active').contains(target));
+await api.node.at('f0').input('off');await until(()=>host.querySelectorAll('.cross-active').length === 0,'tracked sibling clear');
+api.destroy();assert.equal(host.querySelectorAll('input').length,0);
+console.log(JSON.stringify({arm,count,status: 'PASS',checks: ['tracked sibling value class invalidation','class clears after dependency update','target input retained','destroy'],limits: ['JSDOM; no browser timing']}));dom.window.close();

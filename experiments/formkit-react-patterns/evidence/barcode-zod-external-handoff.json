@@ -1,0 +1,217 @@
+{
+  "status": "ready for immediate integration; no canonical edits",
+  "runtimeChanges": 0,
+  "newAdapterImplementationCount": 0,
+  "newlyVerifiedInventory": [
+    "barcode input from @formkit/barcode@1.1.0 via inputs:{barcode}",
+    "createZodPlugin from @formkit/zod@2.5.0 via plugins and onSubmit"
+  ],
+  "sourceSnapshot": "baseline-sha256.json",
+  "patches": {
+    "barcode-zod-tests.patch": "c36c67fceae3f2e3ad563adce43ebd85e007cf9d958d9ed851549ede180d760a",
+    "barcode-zod-dependencies.patch": "7a044e27d32604289f0d3f85b217fc1ff30bedd9e82789ef79e58b6e7d1ae16a"
+  },
+  "normalAcceptance": {
+    "barcode-baseline-adapter.json": {
+      "passed": true,
+      "arm": "adapter",
+      "checks": [
+        "official input definition through ordinary inputs registration",
+        "text input/Core nested value",
+        "actual scanner icon event",
+        "controlled getUserMedia -> official stream attachment",
+        "allowed/rejected barcode formats",
+        "official reset stops tracks on decode and cancel",
+        "format/label update retains owner and input",
+        "controlled source rejection displays official error",
+        "destroy while scanning removes dialog/stops stream"
+      ],
+      "mockSourceRequests": 4,
+      "streams": 3,
+      "trackStops": [
+        1,
+        1,
+        1
+      ],
+      "dialogShows": 3,
+      "dialogCloses": 4,
+      "detachedDialogOpen": false,
+      "limitations": "JSDOM + controlled media/video/dialog and public decoder-result boundary; no real device, image decoding, permission or browser claim"
+    },
+    "barcode-upstream-vue.json": {
+      "passed": true,
+      "arm": "vue",
+      "checks": [
+        "official input definition through ordinary inputs registration",
+        "text input/Core nested value",
+        "actual scanner icon event",
+        "controlled getUserMedia -> official stream attachment",
+        "allowed/rejected barcode formats",
+        "official reset stops tracks on decode and cancel",
+        "format/label update retains owner and input",
+        "controlled source rejection displays official error",
+        "destroy while scanning removes dialog/stops stream"
+      ],
+      "mockSourceRequests": 4,
+      "streams": 3,
+      "trackStops": [
+        1,
+        1,
+        1
+      ],
+      "dialogShows": 3,
+      "dialogCloses": 4,
+      "detachedDialogOpen": false,
+      "limitations": "JSDOM + controlled media/video/dialog and public decoder-result boundary; no real device, image decoding, permission or browser claim"
+    },
+    "barcode-upstream-react.json": {
+      "passed": true,
+      "arm": "react",
+      "checks": [
+        "official input definition through ordinary inputs registration",
+        "text input/Core nested value",
+        "actual scanner icon event",
+        "controlled getUserMedia -> official stream attachment",
+        "allowed/rejected barcode formats",
+        "official reset stops tracks on decode and cancel",
+        "format/label update retains owner and input",
+        "controlled source rejection displays official error",
+        "destroy while scanning removes dialog/stops stream"
+      ],
+      "mockSourceRequests": 4,
+      "streams": 3,
+      "trackStops": [
+        1,
+        1,
+        1
+      ],
+      "dialogShows": 3,
+      "dialogCloses": 3,
+      "detachedDialogOpen": true,
+      "limitations": "JSDOM + controlled media/video/dialog and public decoder-result boundary; no real device, image decoding, permission or browser claim"
+    },
+    "zod-baseline-adapter.json": {
+      "passed": true,
+      "arm": "adapter",
+      "checks": [
+        "real createZodPlugin through ordinary plugins/onSubmit",
+        "nested field error mapping",
+        "native validation precedence",
+        "live Zod messages and blocking ledger",
+        "invalid submit blocked",
+        "valid input clears Zod errors without replacing owner/input",
+        "safeParseAsync transformed submission payload",
+        "setZodErrors extension installed",
+        "exact-once descendant destruction"
+      ],
+      "submitted": {
+        "profile": {
+          "name": "Ada"
+        },
+        "email": "ada@example.test",
+        "age": 21
+      },
+      "limitations": "No browser/device claim; plugin timeout/server-error modes are separate coverage"
+    },
+    "zod-upstream-vue.json": {
+      "passed": true,
+      "arm": "vue",
+      "checks": [
+        "real createZodPlugin through ordinary plugins/onSubmit",
+        "nested field error mapping",
+        "native validation precedence",
+        "live Zod messages and blocking ledger",
+        "invalid submit blocked",
+        "valid input clears Zod errors without replacing owner/input",
+        "safeParseAsync transformed submission payload",
+        "setZodErrors extension installed",
+        "exact-once descendant destruction"
+      ],
+      "submitted": {
+        "profile": {
+          "name": "Ada"
+        },
+        "email": "ada@example.test",
+        "age": 21
+      },
+      "limitations": "No browser/device claim; plugin timeout/server-error modes are separate coverage"
+    },
+    "zod-upstream-react.json": {
+      "passed": true,
+      "arm": "react",
+      "checks": [
+        "real createZodPlugin through ordinary plugins/onSubmit",
+        "nested field error mapping",
+        "native validation precedence",
+        "live Zod messages and blocking ledger",
+        "invalid submit blocked",
+        "valid input clears Zod errors without replacing owner/input",
+        "safeParseAsync transformed submission payload",
+        "setZodErrors extension installed",
+        "exact-once descendant destruction"
+      ],
+      "submitted": {
+        "profile": {
+          "name": "Ada"
+        },
+        "email": "ada@example.test",
+        "age": 21
+      },
+      "limitations": "No browser/device claim; plugin timeout/server-error modes are separate coverage"
+    }
+  },
+  "lateMockSourceLimit": {
+    "adapter": {
+      "arm": "adapter",
+      "case": "source resolves after Core/DOM teardown",
+      "observedUpstreamSharedLimit": true,
+      "mockSourceRequests": 1,
+      "trackStopsBeforeFixtureCleanup": 0,
+      "lateErrors": [
+        {
+          "name": "TypeError",
+          "message": "Cannot set properties of null (setting 'scannerLoading')"
+        }
+      ],
+      "hostEmpty": true,
+      "fixtureStoppedSyntheticTrack": true,
+      "scope": "No real camera or permission API; official Barcode/ZXing path has no owner for this late stream"
+    },
+    "vue": {
+      "arm": "vue",
+      "case": "source resolves after Core/DOM teardown",
+      "observedUpstreamSharedLimit": true,
+      "mockSourceRequests": 1,
+      "trackStopsBeforeFixtureCleanup": 0,
+      "lateErrors": [
+        {
+          "name": "TypeError",
+          "message": "Cannot set properties of null (setting 'scannerLoading')"
+        }
+      ],
+      "hostEmpty": true,
+      "fixtureStoppedSyntheticTrack": true,
+      "scope": "No real camera or permission API; official Barcode/ZXing path has no owner for this late stream"
+    },
+    "react": {
+      "arm": "react",
+      "case": "source resolves after Core/DOM teardown",
+      "observedUpstreamSharedLimit": true,
+      "mockSourceRequests": 1,
+      "trackStopsBeforeFixtureCleanup": 0,
+      "lateErrors": [
+        {
+          "name": "TypeError",
+          "message": "Cannot set properties of null (setting 'scannerLoading')"
+        }
+      ],
+      "hostEmpty": true,
+      "fixtureStoppedSyntheticTrack": true,
+      "scope": "No real camera or permission API; official Barcode/ZXing path has no owner for this late stream"
+    }
+  },
+  "lazyAssessment": "Separate: awaited raw config import/factory before existing mount works; no automatic FormKitLazyProvider component/API added. An inherited async provider boundary/cancellation/defaultConfig:false contract is not present in the synchronous portable factory ABI. No unrelated API invented.",
+  "cameraScope": "Only controlled media sources and synthetic tracks; actual official Barcode+ZXing attachment/reset cleanup runs. Public continuous decoder method supplies results instead of decoding images. No actual camera/device permission requested or accessed.",
+  "fillForm": "Promise wrapper is owned by canonical writer; unchanged in this lane.",
+  "patchApplication": "Tests and dependency patches validated with git apply --check against canonical snapshot; no files applied."
+}

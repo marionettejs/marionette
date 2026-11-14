@@ -1,0 +1,31 @@
+{
+  "patchSha256": "c3926870dcfad524e9d097753f7284db055f82387741cbef57bb732cbc4cd905",
+  "newCapability": "Mixed DOM/text/component/conditional/loop schemas under native group/list children",
+  "tests": [
+    {
+      "command": "node core/schema-native-layout-test.mjs vue",
+      "exitCode": 0,
+      "output": "{\"arm\":\"vue\",\"passed\":true,\"checks\":[\"mixed native group/list DOM and text\",\"no phantom Core nodes\",\"native value topology\",\"aggregate validation\",\"data update\",\"anonymous keyed node/DOM identity\",\"keyed DOM reorder\",\"conditional and row removal\",\"cleanup\"]}\n"
+    },
+    {
+      "command": "node core/schema-native-layout-test.mjs react",
+      "exitCode": 0,
+      "output": "{\"arm\":\"react\",\"passed\":true,\"checks\":[\"mixed native group/list DOM and text\",\"no phantom Core nodes\",\"native value topology\",\"aggregate validation\",\"data update\",\"anonymous keyed node/DOM identity\",\"keyed DOM reorder\",\"conditional and row removal\",\"cleanup\"]}\n"
+    },
+    {
+      "command": "node core/schema-native-layout-test.mjs experiment",
+      "exitCode": 0,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"mixed native group/list DOM and text\",\"no phantom Core nodes\",\"native value topology\",\"aggregate validation\",\"data update\",\"anonymous keyed node/DOM identity\",\"keyed DOM reorder\",\"conditional and row removal\",\"cleanup\"]}\n"
+    },
+    {
+      "command": "node core/schema-native-layout-lifecycle-test.mjs",
+      "exitCode": 0,
+      "output": "{\"passed\":true,\"checks\":[\"factory children/props/update/disposal\",\"independent repeated sibling names\",\"inherited outer-loop scope\",\"anonymous native group ownership\",\"Core-driven conditional projection\",\"native section redraw\",\"root slot redraw\",\"schema replacement retention\",\"layout-only teardown restores children\",\"all-created-node teardown\"]}\n"
+    },
+    {
+      "command": "node core/review-regressions-test.mjs",
+      "exitCode": 0,
+      "output": "PASS group\nPASS objectProps\nPASS lexicalSlots\nPASS defaultChildren\nPASS duplicateKeys\nPASS constructor\nPASS terminal\n"
+    }
+  ]
+}

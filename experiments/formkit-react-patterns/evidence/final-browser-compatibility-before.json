@@ -1,0 +1,17 @@
+{
+  "baseReviewCommit": "194f521b264e5b58d010299b4a2fa16163c467d0",
+  "tests": [
+    {
+      "file": "core/literal-formkit-retention-test.mjs",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: literal FormKit must retain its Core owner across Schema/memo replacement\n    at file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/literal-formkit-retention-test.mjs:8:319 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+    },
+    {
+      "file": "core/svg-namespace-contract-test.mjs",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'http://www.w3.org/1999/xhtml'\n- 'http://www.w3.org/2000/svg'\n                     ^\n\n    at file:///workspace/scratch/ea2cded971c5/formkit-experiment-restore/experiments/formkit-react-patterns/core/svg-namespace-contract-test.mjs:7:275 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 'http://www.w3.org/1999/xhtml',\n  expected: 'http://www.w3.org/2000/svg',\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.22.1\n"
+    }
+  ]
+}

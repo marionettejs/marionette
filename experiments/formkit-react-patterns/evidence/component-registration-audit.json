@@ -1,0 +1,32 @@
+{
+  "unknownNamedFactories": [
+    {
+      "name": "FormKitSchema",
+      "error": "Unknown component factory: FormKitSchema",
+      "created": 2,
+      "destroyed": 2
+    },
+    {
+      "name": "FormKitRoot",
+      "error": "Unknown component factory: FormKitRoot",
+      "created": 2,
+      "destroyed": 2
+    }
+  ],
+  "counterparts": [
+    {
+      "mode": "Document",
+      "unifiedSchema": true,
+      "coreRootPropagation": true,
+      "cleanup": true
+    },
+    {
+      "mode": "ShadowRoot",
+      "unifiedSchema": true,
+      "coreRootPropagation": true,
+      "cleanup": true
+    }
+  ],
+  "vueRuntimeAlias": true,
+  "scope": "Current public default factory registration audit; unsupported names are observations, not permanent negative acceptance tests"
+}

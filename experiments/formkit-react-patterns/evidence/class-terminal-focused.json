@@ -1,0 +1,1 @@
+{"passed":true,"checks":["form-class destroys during explicit render without revoked proxy error or rendered resurrection","notified input-class destroys during observed update","original user class error after destruction preserved"]}

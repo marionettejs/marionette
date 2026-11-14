@@ -1,0 +1,793 @@
+{
+  "scope": "All current top-level free acceptance tests plus behavior inventories, each in a fresh Node/JSDOM process; excludes historical checkpoints, Pro, browser/device and performance certification",
+  "apparatus": {
+    "node": "v24.22.1",
+    "platform": "linux",
+    "arch": "x64",
+    "dependencies": {
+      "@formkit/addons": "2.5.0",
+      "@formkit/barcode": "1.1.0",
+      "@formkit/react": "2.5.0",
+      "@formkit/themes": "2.5.0",
+      "@formkit/vue": "2.5.0",
+      "@formkit/zod": "2.5.0",
+      "esbuild": "0.25.12",
+      "jsdom": "27.0.1",
+      "marionette": "5.1.1",
+      "react": "19.2.0",
+      "react-dom": "19.2.0",
+      "vue": "3.5.44",
+      "zod": "3.25.76"
+    },
+    "packageLockSha256": "efb1b6f2983d1b010a28ca3aae4c663547b1627c85200b1af1d5f3f434adb74b",
+    "domBootstrap": "Delegates getComputedStyle to the window created by each test, for older fixtures predating the official theme plugin. No layout/resize/canvas shims supplied by this runner."
+  },
+  "runtimeSha256": {
+    "core/index.mjs": "c9a304f114324e5d2afd8b7fd38395f6bd6c9d578bc6bb0f784a674fc1630522",
+    "core/structural-components.mjs": "a5ac28e15400d8a3792be5827f3287973b2940a0c9176de6a4a5dba25e1e5245",
+    "core/provider-scope.mjs": "2c7c42c975f80a008f2166a655d136b491f7b44f13dbfa6eacc56b880242afd0",
+    "core/upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+    "core/provider-components.mjs": "bfa70038bcbe312beae42ff6728e5d272bc67ae9e984633f63d1d3ed90dbd190",
+    "core/config-scope.mjs": "0f4a9406a05af6aaf1caa644b1e8c3994b2a01880ae06d4d59abe5bdd9d56f1d",
+    "core/formkit-application.mjs": "6535edfb2564b057699f35b1e4f9c1b9f99d9b213f0e188f23ffb4aeb6d02238",
+    "core/native-types.mjs": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a",
+    "core/helper-components.mjs": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc",
+    "core/section-renderer.mjs": "4bef0234a3c272480045ed04047ff31b2f3087395715d0735647add6ffbc5864",
+    "core/component-library.mjs": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f",
+    "core/value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba",
+    "core/root-slots.mjs": "fdae5a1b69311e961a5d87d5e4e1f64aa9953e0a7d7042cbdd52ba7144f85ca4",
+    "core/schema-layout.mjs": "17c4640253565fffc3ff0d01a0b7238374b1ba1275f79ff921d8e7bacd82f2ea",
+    "core/schema.mjs": "305cc037f3cce98727ba1c20218bee32d1f56ba76ae385c32bd745b77ba96fda",
+    "core/schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+    "core/submission-controller.mjs": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968"
+  },
+  "tests": [
+    {
+      "file": "core/addon-compat-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"real Core group ownership\",\"two rendered tabs/panels\",\"validation blocks forward\",\"input commits nested value\",\"next/previous/goTo and Tab key hookup\",\"tab focus and selection\",\"retained node and label update\",\"active step removal fallback\",\"dynamic multistep creation\",\"every descendant destroyed once\"],\"evidence\":[{\"stage\":\"initial\",\"active\":\"one\",\"tabs\":[{\"text\":\"First\",\"selected\":\"true\"},{\"text\":\"Second\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameNext\"},{\"hidden\":true,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{},\"two\":{}}}},{\"stage\":\"invalid-blocked\",\"active\":\"one\",\"tabs\":[{\"text\":\"First\",\"selected\":\"true\"},{\"text\":\"Second\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameName is required.Next\"},{\"hidden\":true,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{},\"two\":{}}}},{\"stage\":\"valid-next\",\"active\":\"two\",\"tabs\":[{\"text\":\"First\",\"selected\":\"false\"},{\"text\":\"Second\",\"selected\":\"true\"}],\"panels\":[{\"hidden\":true,\"text\":\"NameNext\"},{\"hidden\":false,\"text\":\"DetailsPrevious\"}],\"values\":{\"wizard\":{\"one\":{\"first\":\"Paul\"},\"two\":{}}}},{\"stage\":\"replace-step\",\"active\":\"one\",\"tabs\":[{\"text\":\"Updated first\",\"selected\":\"true\"},{\"text\":\"Third\",\"selected\":\"false\"}],\"panels\":[{\"hidden\":false,\"text\":\"NameNext\"},{\"hidden\":true,\"text\":\"Previous\"}],\"values\":{\"wizard\":{\"one\":{\"first\":\"Paul\"},\"three\":{}}}}],\"destroyed\":8}\n"
+    },
+    {
+      "file": "core/addon-plugin-smoke-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"environment\":\"JSDOM 27.0.1; synthetic ResizeObserver records hookup/disconnect; no layout or animation timing claims\",\"checks\":[\"autoHeight document: root, clone, min bound, input, resize hookup, teardown\",\"autoHeight shadow: root, clone, min bound, input, resize hookup, teardown\",\"autoHeight ownerDocument: root, clone, min bound, input, resize hookup, teardown\",\"floatingLabels existing: official schema transform, input, teardown\",\"autoAnimate existing: official target hookup/schema, mutation, teardown; no JSDOM animation claim\",\"maxlengthCountdown existing: official schema, initial and updated remaining count, teardown\",\"localStorage existing plugin plus root-name support: explicit key isolation, save, remount restore, clear on submit\",\"selector host preserves Region resolution\"]}\n"
+    },
+    {
+      "file": "core/anonymous-breadth-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS Core-generated anonymous names, positional reuse/removal and keyed reordering\n"
+    },
+    {
+      "file": "core/application-config-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"default export function/object and namespace config; no Core/UI before readiness; real input and owned cleanup\",\"stop/destroy cancel import preparation and prevent late factory/Core/UI work\",\"newer restart supersedes pending config and prevents stale activation\",\"initial rejection propagates without UI; retry works; active rejection retains prior View\",\"owned child Applications borrow provider scope, bypass import/defaults, share reactive root config and stop/destroy with owner\",\"cancelled consumer cannot mount after shared provider resolves and does not cancel borrowed provider\",\"defaultConfig:false uses explicit library/bindings/plugins; no default validation/native library injected\",\"synchronous mount also accepts a fully supplied pipeline\",\"public View factory override and borrowed Region ownership remain ordinary Marionette contracts\"],\"applications\":14,\"source\":\"Application.prepareStart/start/restart/stop/destroy; existing FormView/Region ownership\",\"scope\":\"Application config scope, not a Vue/React context object or schema component imitation\"}\n"
+    },
+    {
+      "file": "core/application-root-config-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"observedInitial\":{\"rootIdentity\":true,\"wrappedRoot\":false,\"locale\":\"fr\",\"childLocale\":\"fr\",\"inputClass\":\"shared-input\"},\"referenceDifference\":\"Preserves supplied Core rootConfig as React2.5 does\",\"checks\":[\"preserve supplied Core rootConfig identity\",\"initial shared locale/classes\",\"notified shared locale update with retained Core/DOM\",\"each created node destroyed once\"],\"scope\":\"Installed provider normalization counterpart; no nested-provider or browser/performance claim\"}\n"
+    },
+    {
+      "file": "core/aria-false-contract-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS: literal/dynamic false ARIA state remains present; native Boolean props remain Boolean.\n"
+    },
+    {
+      "file": "core/async-native-lifecycle-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "async native lifecycle: stale validation result, externally resolved select options, submit waits, detached payload, reset during native submission, and pending-rule removal passed\n"
+    },
+    {
+      "file": "core/barcode-compat-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"official input definition through ordinary inputs registration\",\"text input/Core nested value\",\"actual scanner icon event\",\"controlled getUserMedia -> official stream attachment\",\"allowed/rejected barcode formats\",\"official reset stops tracks on decode and cancel\",\"format/label update retains owner and input\",\"controlled source rejection displays official error\",\"destroy while scanning removes dialog/stops stream\"],\"mockSourceRequests\":4,\"streams\":3,\"trackStops\":[1,1,1],\"dialogShows\":3,\"dialogCloses\":4,\"detachedDialogOpen\":false,\"limitations\":\"JSDOM + controlled media/video/dialog and public decoder-result boundary; no real device, image decoding, permission or browser claim\"}\n"
+    },
+    {
+      "file": "core/checkbox-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"official single checkbox features/schema\",\"optional absent value and validation\",\"nested conditional help IDREF\",\"click boolean/custom scalar on/off\",\"external value updates checked property\",\"disabled native click\",\"reset\",\"remove/readd\",\"option groups now use official array values\",\"owned cleanup\"],\"limits\":[\"JSDOM click only; Space and real browser pending\",\"native checkbox only; no themed decorator SVG\"]}\n"
+    },
+    {
+      "file": "core/checkbox-update-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"updated scalar props notify checked state without value coercion\",\"click uses changed on/off\",\"omitted overrides normalize to documented boolean defaults without value reset\",\"falsey scalar values preserved\",\"node/input identity retained\"],\"limits\":[\"Vue/React omission behaviors diverge; boolean-default normalization is an explicit adapter policy\"]}\n"
+    },
+    {
+      "file": "core/class-config-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "class config: Core inheritance, notified replacement, local overrides, late fields, explicit closure refresh and retained DOM passed\n"
+    },
+    {
+      "file": "core/combined-scope-lifecycle-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "combined nested layout/outer lexical field slots: independent repeated names, changed/reordered locals, field IDs, retained Core/DOM/value and native/root redraw passed\n"
+    },
+    {
+      "file": "core/component-library-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS factory libraries merge global < definition.library < field.library and reconcile replacement/removal\nPASS input slot schemas and root form sections resolve their own local factory libraries\n"
+    },
+    {
+      "file": "core/data-boolean-contract-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"boolean data/ARIA attrs preserve false and true\",\"native boolean disabled retains presence semantics\",\"null removes data/ARIA attrs\",\"updates retain element identity\"]}\n"
+    },
+    {
+      "file": "core/default-child-scopes-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "multiple scoped default-child invocations: correct row Core parent, retained redraw scopes, row removal disposes removed children, edited DOM/Core/value preserved\n"
+    },
+    {
+      "file": "core/dom-attrs-breadth-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS direct DOM listeners/data/aria attrs and retained FormKit pseudo props\n"
+    },
+    {
+      "file": "core/dynamic-slots-breadth-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "dynamic named slots: add, replace every repeated instance, remove, re-add, retained DOM/Core/value and component teardown passed\n"
+    },
+    {
+      "file": "core/exception-lifecycle-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "exceptions: original component/update and submission failures propagate, normal explicit cleanup releases resources, invalid root construction cleans owned nodes; no rollback/recovery guarantee added\n"
+    },
+    {
+      "file": "core/form-actions-breadth-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS official actions submit/disabled/opt-out, custom rules/locales\n"
+    },
+    {
+      "file": "core/form-helpers-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "official fillForm awaits captured native submit completion/rejection; describeForm values and default sensitive-field redaction passed\n"
+    },
+    {
+      "file": "core/formkit-component-ownership-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "explicit FormKit component Core ownership: group children and both inverse mixed group/list compositions, input/update identity and exact cleanup passed\n"
+    },
+    {
+      "file": "core/group-props-lifecycle-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "native group prop/validation/class/attr updates and removal, retained child ownership, omitted options retention and explicit empty options passed\n"
+    },
+    {
+      "file": "core/helper-components-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS public mount registers FormKitMessages with teardown\nPASS public mount registers FormKitIcon with teardown\nPASS summary forceShow respects actual validation visibility and renders error text safely\nPASS summary follows validation updates, submit visibility, onShow and link focus navigation\nPASS summary subscribes to added descendants and drops removed descendants\nPASS messages follows add/update/remove, stable message IDs, shared placement ownership and cleanup\nPASS messages rebinds node/defaultPosition/sections and clears immediately on node destruction\nPASS destroyed summary ignores later submissions, descendant updates and queued show work\nPASS icon uses official registry and supports reactive props, keyboard clicks and listener cleanup\nPASS icon drops stale async results, handles loader rejection and ignores post-destroy completion\nPASS icon sanitizes arbitrary markup and honors explicit keyboard/role/tabindex handlers\nPASS icon honors explicit/parent loader precedence and official iconLoaderUrl resolution\nPASS summary rebinds node and sections without retaining old tree presentation\nPASS icon cancels pending rendering when its Core parent is destroyed\n{\"mode\":\"after\",\"newlySupportedComponents\":[\"FormKitSummary\",\"FormKitMessages\",\"FormKitIcon\"],\"assertions\":[\"public mount registers FormKitMessages with teardown\",\"public mount registers FormKitIcon with teardown\",\"summary forceShow respects actual validation visibility and renders error text safely\",\"summary follows validation updates, submit visibility, onShow and link focus navigation\",\"summary subscribes to added descendants and drops removed descendants\",\"messages follows add/update/remove, stable message IDs, shared placement ownership and cleanup\",\"messages rebinds node/defaultPosition/sections and clears immediately on node destruction\",\"destroyed summary ignores later submissions, descendant updates and queued show work\",\"icon uses official registry and supports reactive props, keyboard clicks and listener cleanup\",\"icon drops stale async results, handles loader rejection and ignores post-destroy completion\",\"icon sanitizes arbitrary markup and honors explicit keyboard/role/tabindex handlers\",\"icon honors explicit/parent loader precedence and official iconLoaderUrl resolution\",\"summary rebinds node and sections without retaining old tree presentation\",\"icon cancels pending rendering when its Core parent is destroyed\"]}\n"
+    },
+    {
+      "file": "core/helper-lifecycle-contract-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "helper lifecycle: unchanged icon DOM retained or terminal helper removal owned by root passed\n"
+    },
+    {
+      "file": "core/hooks-breadth-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS field node/input callbacks, replacement without duplicate listeners, plugin/config/error hooks\n"
+    },
+    {
+      "file": "core/initial-topology-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"initial\":{\"enabled\":true,\"contextNotifications\":0,\"tokenChecks\":183,\"expressionEvaluations\":159,\"domWrites\":35,\"structuralChanges\":52,\"coreNodesCreated\":5,\"coreNodesDestroyed\":0,\"coreInputEvents\":6,\"coreCommitEvents\":14,\"coreMessageEvents\":6,\"classRootEvaluations\":15,\"valueSnapshots\":0,\"resetComparisonSnapshots\":0,\"valueChangeEvents\":0,\"stateEvents\":1,\"facadeListeners\":10},\"checks\":[\"synchronous later nested sibling class\",\"synchronous cross-field slot\",\"complete initial Core topology\",\"explicit render retains forced escape hatch\",\"ownership cleanup\"]}\nunclaimed initial construction resources released; no transaction promise\n"
+    },
+    {
+      "file": "core/input-breadth-components.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS custom component factory mount/update/destruction through public mount\n"
+    },
+    {
+      "file": "core/input-breadth-interactions.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS radio/checkbox group and multiselect user input\nPASS file input/reset, list values, type replacement ownership\n"
+    },
+    {
+      "file": "core/input-breadth-smoke.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS radio {}\nPASS checkbox {\"x\":[]}\nPASS select {\"x\":[]}\nPASS select {\"x\":\"One\"}\nPASS file {\"x\":[]}\nPASS list {\"x\":[null,null]}\nPASS button {}\nPASS custom schema definition and features\n"
+    },
+    {
+      "file": "core/lazy-inheritance-removal-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"mode\":\"basic\",\"observed\":{\"entered\":1,\"completed\":1,\"factories\":1,\"source\":\"module\",\"keptOutside\":true,\"childNames\":[\"outside\",\"inside\"]},\"scope\":\"React replacement semantics:lost inherited options starts own loader before creating descendants\",\"cameraCalls\":0,\"performanceSamples\":0}\n"
+    },
+    {
+      "file": "core/lazy-scope-exception-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"failed renderChildren construction disposes allocated Core/DOM\",\"public stop leaves no failed child scope\",\"retry does not accumulate or duplicate fields\",\"all created nodes deregistered/destroyed once\"],\"scope\":\"Portable factory construction cleanup,not arbitrary callback rollback or attempt-all teardown\"}\n"
+    },
+    {
+      "file": "core/lifecycle-breadth-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS attached mounted once, schema redraw retaining Core node and cleanup\n"
+    },
+    {
+      "file": "core/literal-formkit-default-slot-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"button array default-slot markup mounts and updates\",\"ordinary sibling input retains Core/edited value/DOM across Schema+memo replacement\",\"named schema slots preserved on adapter\",\"exact owned teardown\"],\"scope\":\"Portable literal FormKit children;framework function-slot syntax is not claimed equivalent\"}\n"
+    },
+    {
+      "file": "core/literal-formkit-projection-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"own/non-enumerable prop getters retain expression/loop scope\",\"memo replacement retains keyed native owners and edited DOM\",\"raw props preserved\",\"custom FormKit library stays opaque without phantom Core fields\"],\"scope\":\"Ordinary built-in literal props;whole bound prop bags and opaque private component state retain documented lifecycle\"}\n"
+    },
+    {
+      "file": "core/literal-formkit-retention-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"ordinary literal FormKit retains Core/edited value/DOM on Schema+memo change\",\"raw prop remains literal\",\"new sibling reconciles under same parent\",\"exact owned teardown\"],\"scope\":\"Actual pinned adapters and portable native projection;not arbitrary opaque-factory state retention\"}\n"
+    },
+    {
+      "file": "core/meta-inventory-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "existing official meta input: invisible schema, value/facade/removal; inventory correction only, not new support\n"
+    },
+    {
+      "file": "core/model-value-breadth-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS initial values/model/default precedence, controlled updates and latest callbacks\n"
+    },
+    {
+      "file": "core/mount-scope-cleanup-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS scopedFactories\nPASS failedShow\nPASS terminalLayout\n"
+    },
+    {
+      "file": "core/native-factory-dom-placement-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"factory native outer placed directly in schema container\",\"full sections redraw re-presents once with same Core and edited value\",\"conditional removal removes presented DOM and Core owner\",\"re-add and terminal disposal exact\"],\"scope\":\"DOM hierarchy and lifecycle only; real geometry belongs to licensed browser evidence\"}\n"
+    },
+    {
+      "file": "core/native-props-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "default/explicit delay, official prop normalization, retained attrs update/removal and prototype facade passed\n"
+    },
+    {
+      "file": "core/nested-provider-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"actual Vue/React nested precedence: outer common definition/locale/classes, inner delay/unique definition/plugin; inherited Lazy bypass; one Core form, initial values, validation and exact cleanup\",\"opaque provider inside projected native group preserves one parent/value/validation owner and schema-removal cleanup\",\"true same-form Lazy function/object/namespace loading holds only descendants, retains siblings and hydrates delayed initial values\",\"schema removal and form destruction cancel pending Application before late factory/Core work\",\"async rejection is observable on owning View; public Application restart retries without replacing the form\",\"defaultConfig:false passes raw scoped plugins while keeping actual inherited parent validation\",\"replacement options apply to newly mounted descendants and retain existing Core identity/value\",\"opaque provider aliases inside keyed loops retain lexical data, Core identity and exact cleanup\",\"active Application reload retains existing descendants and value, scopes future children, and tears down every Core node once\",\"public mount preserves explicitly prepared Application provider scope and inherited Lazy bypass\",\"direct-child props forward and update; child props/bind win, DOM descendants do not inherit, overridden refs never receive duplicate mounting\",\"changing configFile automatically reloads options through Application while retaining existing nodes and values\",\"synchronous provider siblings in a native list allocate in source order and preserve all initial list values\",\"opaque sibling scopes preserve named input slot rendering\",\"opaque provider input named slots retain and update loop-local lexical data\"]}\n"
+    },
+    {
+      "file": "core/nested-slot-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"official nested group parentage/schema\",\"scoped label slot with supplied cross-field values\",\"notified cross-field label update preserves control\",\"nested values/reset\",\"nested child removal\",\"group removal cleans slot/observer\",\"all owned nodes destroyed\",\"unsupported slot rejected before topology mutation\"],\"metrics\":{\"enabled\":true,\"contextNotifications\":32,\"tokenChecks\":1184,\"expressionEvaluations\":277,\"domWrites\":62,\"structuralChanges\":68,\"coreNodesCreated\":6,\"coreNodesDestroyed\":6,\"coreInputEvents\":14,\"coreCommitEvents\":31,\"coreMessageEvents\":32,\"classRootEvaluations\":21,\"valueSnapshots\":0,\"resetComparisonSnapshots\":1,\"valueChangeEvents\":0,\"stateEvents\":11,\"facadeListeners\":0}}\n"
+    },
+    {
+      "file": "core/option-value-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "explicit empty/omitted option values, label insertion/update, typed selection and reset passed\n"
+    },
+    {
+      "file": "core/owned-subtree-disposal-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"conditional DOM owner removal retains detached descendant ancestry\",\"detached listeners and component resources disposed once\",\"nested Core child removed from aggregate parent\",\"new conditional branch and root redraw render once\",\"final ownership cleanup exact once\"]}\n"
+    },
+    {
+      "file": "core/passive-event-contract-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS: Pro passive touch event names, native passive behavior, replacement and teardown.\n"
+    },
+    {
+      "file": "core/plugin-input-breadth-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS library-plugin-defined input via public mount\n"
+    },
+    {
+      "file": "core/precedence-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"explicit attrs win initial bind\",\"explicit attrs win notified bind update\",\"clearing bind preserves explicit attrs\",\"bind-only attrs update/remove\",\"replacement attrs bag preserves label/control association\"]}\n"
+    },
+    {
+      "file": "core/pro-contracts-free-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "free contracts: ignored parentage, named list slots/loop scope, nested group ownership, native group/list arrays and exact-once teardown passed\n"
+    },
+    {
+      "file": "core/projected-layout-focus-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"modes\":[\"conditional\",\"reorder\"],\"checks\":[\"mixed keyed list reorder\",\"conditional insertion/removal\",\"retained Core/input/value/focus/selection without focus events\",\"nested value topology\",\"normal teardown\"],\"limits\":\"JSDOM focused regression; licensed combined browser acceptance remains separate\"}\n"
+    },
+    {
+      "file": "core/provider-inheritance-transition-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"afterInherited\":{\"hasChild\":true,\"moduleCompleted\":0,\"factories\":0},\"afterModule\":{\"hasChild\":true,\"source\":\"inherited\",\"factories\":0},\"referenceDifference\":\"React replacement provider supplies inherited options before pending module finishes\",\"scope\":\"Controlled import;no browser/performance claim\"}\n"
+    },
+    {
+      "file": "core/regressions.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"unique IDs\",\"label/error references\",\"postdestroy entry does not recreate fields\"]}\n"
+    },
+    {
+      "file": "core/renderer-breadth-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "renderer breadth: 3-part/object/numeric loops, dynamic tags, recursive attrs, icons, Boolean properties, text and teardown passed\ncomponent registry lifecycle, reactive props, child slot, and unknown-component failure passed\n"
+    },
+    {
+      "file": "core/renderer-component-input-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "custom schema component factory integrates with node input and teardown\n"
+    },
+    {
+      "file": "core/renderer-descriptor-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "non-enumerable schema getters survive loop/condition/dynamic-tag projection and nested FormKit sugar\n"
+    },
+    {
+      "file": "core/renderer-keyed-loop-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "keyed loops preserve DOM, focus and selection; update locals; delete rows; reject duplicate keys; update retained slot ownership\n"
+    },
+    {
+      "file": "core/renderer-nested-formkit-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "nested $formkit sugar creates bound child Core node through FormKit factory and tears down\n"
+    },
+    {
+      "file": "core/reorder-focus-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"96 focused permutation reorders preserve order/input/Core/value/selection with no focus events\",\"focused ancestor group and nested child reorder preserve state\",\"focused removal does not refocus deleted control\",\"normal destruction\"],\"limits\":[\"JSDOM regression; real-browser validation required\"]}\n"
+    },
+    {
+      "file": "core/repeated-lifecycle-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "12 repeated mixed-schema mount/unmount cycles: pending validation/input, component and Core disposal, registry removal and inert terminal API passed\n"
+    },
+    {
+      "file": "core/review-regressions-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS group\nPASS objectProps\nPASS lexicalSlots\nPASS defaultChildren\nPASS duplicateKeys\nPASS constructor\nPASS terminal\n"
+    },
+    {
+      "file": "core/root-schema-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"single reused official form element\",\"official form class/attrs precedence\",\"official incomplete message schema/id/type\",\"default slot preserves child identity\",\"official loading state and async submit\",\"official reset messages\",\"root and child ownership teardown\"],\"metrics\":{\"enabled\":true,\"contextNotifications\":23,\"tokenChecks\":1097,\"expressionEvaluations\":213,\"domWrites\":61,\"structuralChanges\":44,\"coreNodesCreated\":3,\"coreNodesDestroyed\":3,\"coreInputEvents\":6,\"coreCommitEvents\":9,\"coreMessageEvents\":48,\"classRootEvaluations\":16,\"valueSnapshots\":0,\"resetComparisonSnapshots\":1,\"valueChangeEvents\":0,\"stateEvents\":27,\"facadeListeners\":0}}\n"
+    },
+    {
+      "file": "core/schema-anonymous-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "anonymous schema and layout fields use stable ownership, unique Core-generated names and retained loop nodes\n"
+    },
+    {
+      "file": "core/schema-attrs-redraw-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"12 attribute redraws and 3 Core schema events retain input/Core/clone/focus/selection\",\"one mounted delivery\",\"one ResizeObserver created and disconnected once\",\"one clone maximum\",\"event listener replacement/removal without duplicates\",\"plugin class and min-height retained with object and unchanged string styles\",\"DOM/Core input still updates clone\",\"hidden/loop/dynamic-tag branches use latest attrs\",\"structural and shared-schema identity changes request existing redraw fallback\",\"exact-once cleanup\"],\"firstEvents\":4,\"secondEvents\":4,\"mounts\":1,\"destroys\":1,\"observers\":1}\n"
+    },
+    {
+      "file": "core/schema-breadth-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "schema breadth: dynamic types/names/props, function data, raw values, loops, conditional groups, updateData and reactive node values passed\n"
+    },
+    {
+      "file": "core/schema-get-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "$get late registration, value updates, deregistration, layout updates and disposal passed\n"
+    },
+    {
+      "file": "core/schema-layout-breadth-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "layout breadth: arbitrary literal tags, external data, handlers, conditional field ownership and updateData passed\nlayout loops preserve named Core owners through data and dynamic tag updates\nlayout component factory props, owned child field and disposal passed\n"
+    },
+    {
+      "file": "core/schema-layout-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "layout invalid syntax, ownership, focus, controller disposal, expanded tags/loops and final cleanup passed\n"
+    },
+    {
+      "file": "core/schema-native-layout-lifecycle-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"factory children/props/update/disposal\",\"independent repeated sibling names\",\"inherited outer-loop scope\",\"anonymous native group ownership\",\"Core-driven conditional projection\",\"native section redraw\",\"root slot redraw\",\"schema replacement retention\",\"layout-only teardown restores children\",\"all-created-node teardown\"]}\n"
+    },
+    {
+      "file": "core/schema-native-layout-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"checks\":[\"mixed native group/list DOM and text\",\"no phantom Core nodes\",\"native value topology\",\"aggregate validation\",\"data update\",\"anonymous keyed node/DOM identity\",\"keyed DOM reorder\",\"conditional and row removal\",\"cleanup\"]}\n"
+    },
+    {
+      "file": "core/schema-nested-errors.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "nested schema invalid syntax, duplicate scope, supported loops/slots and cleanup passed\n"
+    },
+    {
+      "file": "core/schema-owner-lifecycle-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"independent Schema owners share one Core group without duplicate IDs\",\"one local library replacement preserves sibling owner/Core/DOM\",\"removing one Schema leaves parent/sibling and borrowed node intact\",\"every owned Core/presentation resource destroyed once\",\"same-root Region detach/reattach preserves Core/DOM/value and single mounted callback\",\"explicit remount into ShadowRoot selects its actual DOM root\"],\"scope\":\"Public ownership/composition/Region contracts;active Root cross-root auto-retargeting remains outside documented contract;no browser/performance claim\"}\n"
+    },
+    {
+      "file": "core/schema-prop-contracts-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "schema bind precedence, conditional props, nested raw values, class reset and literal dollar passed\n"
+    },
+    {
+      "file": "core/schema-root-components-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"literal Schema owns only its fields; Core sibling order/initial values, isolated explicit data including node/values, updates and exact teardown\",\"replacement Schema and data retain native Core/DOM owners and values, and reconcile added fields\",\"Schema in native group/provider inherits options, plugins and parent validation ownership\",\"Schema-local library overrides portable factories and the FormKit sugar factory without allocating hidden Core fields\",\"Schema mounted callback and default caller slot render without duplicate owners\",\"Root waits for attachment, discovers Document, adds no Core/form owner and tears down children once\",\"Root and Schema compose inside actual ShadowRoot with local DOM-root inheritance\",\"Schema data.node is data, does not steal parent injection and is never destroyed by the Schema owner\",\"Root discovers its actual nested shadow boundary rather than global document or enclosing form hint; providers and Schema preserve it\",\"Schema mounted callback waits for real attachment and runs once\",\"Schema-valued named slots reuse existing presentation-slot renderer and local data\",\"removing Schema/Root during Lazy preparation destroys its Application and blocks late factory/Core work\",\"pending unattached Root teardown never creates descendants\",\"reactive FormKit context supplied as Schema data refreshes and unsubscribes without destroying its borrowed node\",\"library and memoKey updates rebuild presentation factories while retaining native fields and transparent schema layout\"]}\n"
+    },
+    {
+      "file": "core/schema-slot-data-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"Schema-valued slots use replacement data\",\"omitted data keys disappear\",\"loop locals update and keyed DOM stays retained\",\"repeated refresh stays live\",\"borrowed data.node survives cleanup\",\"owned nodes destroyed once\"],\"scope\":\"Adapter schema-valued slot contract;no upstream schema-valued slot API equivalence or browser/performance claim\"}\n"
+    },
+    {
+      "file": "core/schema-slots-contract-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "provided $slots.default presence, scoped component child invocation and cleanup passed\n"
+    },
+    {
+      "file": "core/schema-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"official compiled supplied values expression\",\"then/else branch swap\",\"retained control identity\",\"removed child/value cleanup\",\"controller stops callbacks after destroy\",\"invalid schema rejects; dynamic names/selects/optional dependencies accepted\",\"Core destruction owns observer cleanup\"]}\n"
+    },
+    {
+      "file": "core/section-refs-contract-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS: section refs, loop exclusion, explicit callback refs and terminal cleanup.\n"
+    },
+    {
+      "file": "core/sections-breadth-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS root/field sectionsSchema and retained Core owner on update\n"
+    },
+    {
+      "file": "core/sections-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"official nested wrapper/inner/input schema\",\"attrs binding and in-place context bag mutation\",\"help section and dynamic text\",\"upstream blur validation state/messages\",\"describedBy help/error association\",\"upstream valid/complete state\",\"retained input across section changes\",\"actual context-store teardown during dispatch\",\"retained context cannot reactivate classes/store\"],\"metrics\":{\"enabled\":true,\"contextNotifications\":16,\"tokenChecks\":900,\"expressionEvaluations\":186,\"domWrites\":50,\"structuralChanges\":40,\"coreNodesCreated\":3,\"coreNodesDestroyed\":3,\"coreInputEvents\":5,\"coreCommitEvents\":7,\"coreMessageEvents\":30,\"classRootEvaluations\":15,\"valueSnapshots\":0,\"resetComparisonSnapshots\":0,\"valueChangeEvents\":0,\"stateEvents\":18,\"facadeListeners\":0}}\n"
+    },
+    {
+      "file": "core/select-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"official placeholder/required state\",\"external typed value updates selected property despite stable function\",\"input preserves normalized numeric values\",\"options update preserves node/select/value\",\"reset placeholder\",\"upstream absent-value first option default\",\"multiple/grouped options and official optionsLoader normalization\",\"cleanup\"],\"limits\":[\"JSDOM input only; real native keyboard pending\"]}\n"
+    },
+    {
+      "file": "core/slot-update-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"presentation slot updates preserve node/input/edited value\",\"slot remove/add preserves input\",\"malformed expressions fail before topology mutation\",\"failed runtime construction destroys all new resources\"]}\n"
+    },
+    {
+      "file": "core/submission-controller-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\n  \"passed\": true,\n  \"results\": [\n    {\n      \"arm\": \"original303\",\n      \"case\": \"success\",\n      \"status\": \"resolved\",\n      \"value\": \"success\",\n      \"calls\": 1,\n      \"signal\": true,\n      \"rootErrors\": [],\n      \"fieldErrors\": []\n    },\n    {\n      \"arm\": \"original303\",\n      \"case\": \"invalid\",\n      \"status\": \"resolved\",\n      \"value\": \"invalid\",\n      \"calls\": 0,\n      \"signal\": false,\n      \"rootErrors\": [],\n      \"fieldErrors\": []\n    },\n    {\n      \"arm\": \"original303\",\n      \"case\": \"error\",\n      \"status\": \"resolved\",\n      \"value\": \"error\",\n      \"calls\": 1,\n      \"signal\": true,\n      \"rootErrors\": [\n        \"failed\"\n      ],\n      \"fieldErrors\": []\n    },\n    {\n      \"arm\": \"original303\",\n      \"case\": \"field-error\",\n      \"status\": \"resolved\",\n      \"value\": \"error\",\n      \"calls\": 1,\n      \"signal\": true,\n      \"rootErrors\": [\n        \"server rejected\"\n      ],\n      \"fieldErrors\": [\n        \"field rejected\"\n      ]\n    },\n    {\n      \"arm\": \"original303\",\n      \"case\": \"hook-error\",\n      \"status\": \"resolved\",\n      \"value\": \"error\",\n      \"calls\": 0,\n      \"signal\": false,\n      \"rootErrors\": [\n        \"hook failure\"\n      ],\n      \"fieldErrors\": []\n    },\n    {\n      \"arm\": \"original303\",\n      \"case\": \"reset\",\n      \"calls\": 1,\n      \"afterCancel\": {\n        \"first\": {\n          \"status\": \"resolved\",\n          \"value\": \"cancelled\"\n        },\n        \"second\": {\n          \"status\": \"resolved\",\n          \"value\": \"busy\"\n        },\n        \"signals\": [\n          true\n        ]\n      },\n      \"afterLateCompletion\": {\n        \"first\": {\n          \"status\": \"resolved\",\n          \"value\": \"cancelled\"\n        },\n        \"second\": {\n          \"status\": \"resolved\",\n          \"value\": \"busy\"\n        }\n      }\n    },\n    {\n      \"arm\": \"original303\",\n      \"case\": \"destroy\",\n      \"calls\": 1,\n      \"afterCancel\": {\n        \"first\": {\n          \"status\": \"resolved\",\n          \"value\": \"cancelled\"\n        },\n        \"second\": {\n          \"status\": \"resolved\",\n          \"value\": \"busy\"\n        },\n        \"signals\": [\n          true\n        ]\n      },\n      \"afterLateCompletion\": {\n        \"first\": {\n          \"status\": \"resolved\",\n          \"value\": \"cancelled\"\n        },\n        \"second\": {\n          \"status\": \"resolved\",\n          \"value\": \"busy\"\n        }\n      }\n    },\n    {\n      \"arm\": \"compat\",\n      \"case\": \"success\",\n      \"status\": \"resolved\",\n      \"value\": \"success\",\n      \"calls\": 1,\n      \"signal\": true,\n      \"rootErrors\": [],\n      \"fieldErrors\": []\n    },\n    {\n      \"arm\": \"compat\",\n      \"case\": \"invalid\",\n      \"status\": \"resolved\",\n      \"value\": \"invalid\",\n      \"calls\": 0,\n      \"signal\": false,\n      \"rootErrors\": [],\n      \"fieldErrors\": []\n    },\n    {\n      \"arm\": \"compat\",\n      \"case\": \"error\",\n      \"status\": \"resolved\",\n      \"value\": \"error\",\n      \"calls\": 1,\n      \"signal\": true,\n      \"rootErrors\": [\n        \"failed\"\n      ],\n      \"fieldErrors\": []\n    },\n    {\n      \"arm\": \"compat\",\n      \"case\": \"field-error\",\n      \"status\": \"resolved\",\n      \"value\": \"error\",\n      \"calls\": 1,\n      \"signal\": true,\n      \"rootErrors\": [\n        \"server rejected\"\n      ],\n      \"fieldErrors\": [\n        \"field rejected\"\n      ]\n    },\n    {\n      \"arm\": \"compat\",\n      \"case\": \"hook-error\",\n      \"status\": \"resolved\",\n      \"value\": \"error\",\n      \"calls\": 0,\n      \"signal\": false,\n      \"rootErrors\": [\n        \"hook failure\"\n      ],\n      \"fieldErrors\": []\n    },\n    {\n      \"arm\": \"compat\",\n      \"case\": \"reset\",\n      \"calls\": 1,\n      \"afterCancel\": {\n        \"first\": {\n          \"status\": \"resolved\",\n          \"value\": \"cancelled\"\n        },\n        \"second\": {\n          \"status\": \"resolved\",\n          \"value\": \"busy\"\n        },\n        \"signals\": [\n          true\n        ]\n      },\n      \"afterLateCompletion\": {\n        \"first\": {\n          \"status\": \"resolved\",\n          \"value\": \"cancelled\"\n        },\n        \"second\": {\n          \"status\": \"resolved\",\n          \"value\": \"busy\"\n        }\n      }\n    },\n    {\n      \"arm\": \"compat\",\n      \"case\": \"destroy\",\n      \"calls\": 1,\n      \"afterCancel\": {\n        \"first\": {\n          \"status\": \"resolved\",\n          \"value\": \"cancelled\"\n        },\n        \"second\": {\n          \"status\": \"resolved\",\n          \"value\": \"busy\"\n        },\n        \"signals\": [\n          true\n        ]\n      },\n      \"afterLateCompletion\": {\n        \"first\": {\n          \"status\": \"resolved\",\n          \"value\": \"cancelled\"\n        },\n        \"second\": {\n          \"status\": \"resolved\",\n          \"value\": \"busy\"\n        }\n      }\n    },\n    {\n      \"arm\": \"native\",\n      \"case\": \"success\",\n      \"status\": \"resolved\",\n      \"value\": \"<undefined>\",\n      \"calls\": 1,\n      \"signal\": false,\n      \"rootErrors\": [\n        \"old error\"\n      ],\n      \"fieldErrors\": []\n    },\n    {\n      \"arm\": \"native\",\n      \"case\": \"invalid\",\n      \"status\": \"resolved\",\n      \"value\": \"<undefined>\",\n      \"calls\": 0,\n      \"signal\": false,\n      \"rootErrors\": [\n        \"old error\"\n      ],\n      \"fieldErrors\": []\n    },\n    {\n      \"arm\": \"native\",\n      \"case\": \"error\",\n      \"status\": \"rejected\",\n      \"error\": \"failed\",\n      \"calls\": 1,\n      \"signal\": false,\n      \"rootErrors\": [\n        \"old error\"\n      ],\n      \"fieldErrors\": []\n    },\n    {\n      \"arm\": \"native\",\n      \"case\": \"field-error\",\n      \"status\": \"rejected\",\n      \"error\": \"server rejected\",\n      \"calls\": 1,\n      \"signal\": false,\n      \"rootErrors\": [\n        \"old error\"\n      ],\n      \"fieldErrors\": []\n    },\n    {\n      \"arm\": \"native\",\n      \"case\": \"hook-error\",\n      \"status\": \"rejected\",\n      \"error\": \"hook failure\",\n      \"calls\": 0,\n      \"signal\": false,\n      \"rootErrors\": [\n        \"old error\"\n      ],\n      \"fieldErrors\": []\n    },\n    {\n      \"arm\": \"native\",\n      \"case\": \"reset\",\n      \"calls\": 2,\n      \"afterCancel\": {\n        \"first\": {\n          \"status\": \"pending\"\n        },\n        \"second\": {\n          \"status\": \"pending\"\n        },\n        \"signals\": [\n          null,\n          null\n        ]\n      },\n      \"afterLateCompletion\": {\n        \"first\": {\n          \"status\": \"resolved\",\n          \"value\": \"<undefined>\"\n        },\n        \"second\": {\n          \"status\": \"resolved\",\n          \"value\": \"<undefined>\"\n        }\n      }\n    },\n    {\n      \"arm\": \"native\",\n      \"case\": \"destroy\",\n      \"calls\": 2,\n      \"afterCancel\": {\n        \"first\": {\n          \"status\": \"pending\"\n        },\n        \"second\": {\n          \"status\": \"pending\"\n        },\n        \"signals\": [\n          null,\n          null\n        ]\n      },\n      \"afterLateCompletion\": {\n        \"first\": {\n          \"status\": \"resolved\",\n          \"value\": \"<undefined>\"\n        },\n        \"second\": {\n          \"status\": \"resolved\",\n          \"value\": \"<undefined>\"\n        }\n      }\n    }\n  ],\n  \"limits\": [\n    \"historical original303, not current-main claim\",\n    \"native alternate uses actual FormKit2.5 official submit handler\",\n    \"no browser timing; no new API implementation\",\n    \"pre-callback validation cancellation and raw callback mutation deliberately not asserted here\"\n  ]\n}\n"
+    },
+    {
+      "file": "core/submission-phases-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "original validation-phase busy/cancel, settled delayed input, invalid focus, next attempt passed\ncompat validation-phase busy/cancel, settled delayed input, invalid focus, next attempt passed\n"
+    },
+    {
+      "file": "core/submit-completion-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"normal synchronous submit completion destroys owner\",\"normal async submit completion destroys owner\",\"destroy while returned submission promise settles\",\"original sync error and async rejection propagate\"]}\n"
+    },
+    {
+      "file": "core/submit-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"official form/text definitions\",\"invalid callback suppresses valid submit\",\"raw event both paths\",\"submitted state\",\"incomplete UI message\",\"valid submit detached snapshot\",\"official reset clears submitted/value\"]}\n"
+    },
+    {
+      "file": "core/svg-namespace-contract-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"real SVG namespace and root interface\",\"nested path and SVG inherit namespace\",\"foreignObject children resume HTML\",\"normal cleanup\"],\"scope\":\"Basic SVG/HTML boundaries;not blanket XML/MathML or browser geometry certification\"}\n"
+    },
+    {
+      "file": "core/teardown-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"results\":[{\"count\":200,\"parentCommitEventsObserved\":0,\"coreDestroyed\":202,\"domChildListRecords\":1,\"rootRemovedChildren\":212},{\"count\":400,\"parentCommitEventsObserved\":0,\"coreDestroyed\":402,\"domChildListRecords\":1,\"rootRemovedChildren\":412}],\"checks\":[\"parent-first terminal destruction avoids live-parent commits; destroyed ledger settlement not required\",\"all nodes deregistered/destroyed\",\"one bulk root DOM clear\",\"no later metrics activity\",\"live field removal still commits\"],\"limits\":[\"observed parent events, not instrumentation of every internal Core operation\",\"JSDOM counters, not browser timings\"]}\n"
+    },
+    {
+      "file": "core/test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"checks\":[\"store batching\",\"store destruction cancels notification\",\"required validation\",\"form tag\",\"DOM/Core input\",\"focus and identity\",\"observed classes\",\"messages\",\"dynamic removal/addition\",\"reset\",\"silent closure stays stale on unrelated changes\",\"explicit render refreshes silent closure and preserves input\",\"teardown\"],\"metrics\":{\"enabled\":true,\"contextNotifications\":34,\"tokenChecks\":2156,\"expressionEvaluations\":622,\"domWrites\":106,\"structuralChanges\":91,\"coreNodesCreated\":6,\"coreNodesDestroyed\":6,\"coreInputEvents\":11,\"coreCommitEvents\":22,\"coreMessageEvents\":57,\"classRootEvaluations\":59,\"valueSnapshots\":0,\"resetComparisonSnapshots\":1,\"valueChangeEvents\":0,\"stateEvents\":26,\"facadeListeners\":0}}\n"
+    },
+    {
+      "file": "core/theme-breadth-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "PASS official theme plugin registered icon renders through raw SVG section\n"
+    },
+    {
+      "file": "core/unified-schema-root-slots-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "unified schema/root slots: data, nested factories, content slots, retained DOM/Core/value, schema replacement, root redraw, callbacks, parked fields, explicit-controller compatibility and exact-once teardown passed\n"
+    },
+    {
+      "file": "core/uninstrumented-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "uninstrumented default smoke passed\n"
+    },
+    {
+      "file": "core/validation-visibility-ownership-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"count\":13,\"checks\":[{\"name\":\"onNode submit survives initial render, blur and unrelated update\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"plugin submit survives creation, blur and unrelated update\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"direct undefined construction omits own visibility and preserves plugin\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"attrs undefined construction omits own visibility and preserves plugin\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"later plugin replacement survives explicit declaration removal\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"unchanged declarative mode does not reclaim runtime replacement\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"changed declaration reclaims mode then removal restores inheritance\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":false,\"messages\":0}},{\"name\":\"attrs declaration removal restores inheritance and later config\",\"passed\":true,\"state\":{\"mode\":\"dirty\",\"own\":false,\"messages\":0}},{\"name\":\"onNode replacement wins over initial explicit declaration\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"definition props with undefined construction preserve feature mode\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"plugin replacement during explicit update retains runtime ownership\",\"passed\":true,\"state\":{\"mode\":\"submit\",\"own\":true,\"messages\":0}},{\"name\":\"runtime round-trip to prior declared value retains runtime ownership\",\"passed\":true,\"state\":{\"mode\":\"live\",\"own\":true,\"messages\":1}},{\"name\":\"in-place declaration mutation tracks prior declared value\",\"passed\":true,\"state\":{\"mode\":\"blur dirty\",\"own\":false,\"messages\":0}}]}\n"
+    },
+    {
+      "file": "core/value-facade-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"arm\":\"experiment\",\"passed\":true,\"metrics\":{\"enabled\":true,\"contextNotifications\":25,\"tokenChecks\":972,\"expressionEvaluations\":236,\"domWrites\":57,\"structuralChanges\":61,\"coreNodesCreated\":5,\"coreNodesDestroyed\":5,\"coreInputEvents\":28,\"coreCommitEvents\":49,\"coreMessageEvents\":33,\"classRootEvaluations\":21,\"valueSnapshots\":7,\"resetComparisonSnapshots\":1,\"valueChangeEvents\":5,\"stateEvents\":13,\"facadeListeners\":0}}\n"
+    },
+    {
+      "file": "core/zod-compat-test.mjs",
+      "args": [],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "output": "{\"passed\":true,\"arm\":\"adapter\",\"checks\":[\"real createZodPlugin through ordinary plugins/onSubmit\",\"nested field error mapping\",\"native validation precedence\",\"live Zod messages and blocking ledger\",\"invalid submit blocked\",\"valid input clears Zod errors without replacing owner/input\",\"safeParseAsync transformed submission payload\",\"setZodErrors extension installed\",\"exact-once descendant destruction\"],\"submitted\":{\"profile\":{\"name\":\"Ada\"},\"email\":\"ada@example.test\",\"age\":21},\"limitations\":\"No browser/device claim; plugin timeout/server-error modes are separate coverage\"}\n"
+    }
+  ],
+  "passed": 93,
+  "failed": 0,
+  "runtimeUnchanged": true
+}

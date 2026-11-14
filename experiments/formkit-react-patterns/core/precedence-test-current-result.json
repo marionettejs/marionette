@@ -1,0 +1,1 @@
+{"passed":true,"checks":["explicit attrs win initial bind","explicit attrs win notified bind update","clearing bind preserves explicit attrs","bind-only attrs update/remove","replacement attrs bag preserves label/control association"]}

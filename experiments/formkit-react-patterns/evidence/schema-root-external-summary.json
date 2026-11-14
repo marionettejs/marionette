@@ -1,0 +1,113 @@
+{
+  "canonicalHead": "fe3775036666230fbaebb8b304c22c28752bfdab",
+  "canonicalBaseline": {
+    "core/index.mjs": {
+      "canonical": "145585191fd0d458fa7f7e109fa3ddf8025a0dd06a13cd4f5b4e47ce7503ddb5",
+      "baseline": "145585191fd0d458fa7f7e109fa3ddf8025a0dd06a13cd4f5b4e47ce7503ddb5",
+      "matches": true
+    },
+    "core/structural-components.mjs": {
+      "canonical": null,
+      "baseline": null,
+      "matches": true
+    },
+    "core/section-renderer.mjs": {
+      "canonical": "50ff2f11b19cf2e3131aa8f86b301543f16874f97c71eb17a04f9e130d9630e1",
+      "baseline": "50ff2f11b19cf2e3131aa8f86b301543f16874f97c71eb17a04f9e130d9630e1",
+      "matches": true
+    },
+    "core/provider-scope.mjs": {
+      "canonical": "3f8df8502448e6c8dd4715352d090edf900ad421fbbdfb25ea5b72a177ba5181",
+      "baseline": "3f8df8502448e6c8dd4715352d090edf900ad421fbbdfb25ea5b72a177ba5181",
+      "matches": true
+    },
+    "core/schema-layout.mjs": {
+      "canonical": "4f5d5bb5f059d856a0f7ac65c6fa3e0ab2dc0d3e9574265d410925b3484d6ded",
+      "baseline": "4f5d5bb5f059d856a0f7ac65c6fa3e0ab2dc0d3e9574265d410925b3484d6ded",
+      "matches": true
+    },
+    "core/schema.mjs": {
+      "canonical": "2ceee34b447250550bfed79674aef52a1c6f3b01b6880f866382638cecc50dda",
+      "baseline": "2ceee34b447250550bfed79674aef52a1c6f3b01b6880f866382638cecc50dda",
+      "matches": true
+    },
+    "core/root-slots.mjs": {
+      "canonical": "451082a99235dba755968949f3a4dcd71ca18c8edd94467c8aff64d617145f18",
+      "baseline": "451082a99235dba755968949f3a4dcd71ca18c8edd94467c8aff64d617145f18",
+      "matches": true
+    },
+    "core/schema-root-components-test.mjs": {
+      "canonical": null,
+      "baseline": null,
+      "matches": true
+    },
+    "core/schema-root-upstream.mjs": {
+      "canonical": null,
+      "baseline": null,
+      "matches": true
+    },
+    "core/SCHEMA-ROOT-COMPONENTS.md": {
+      "canonical": null,
+      "baseline": null,
+      "matches": true
+    },
+    "core/README.md": {
+      "canonical": "4421e9bc6d884799db8b726d1b1533825655ec2a4b1f044a0fba89d67cf2790c",
+      "baseline": "4421e9bc6d884799db8b726d1b1533825655ec2a4b1f044a0fba89d67cf2790c",
+      "matches": true
+    },
+    "core/RENDERER-COMPONENTS.md": {
+      "canonical": "411c81f5f3bb88962e78d5aab8349a57ee12eb8898a832b00db0b1ebe8851121",
+      "baseline": "411c81f5f3bb88962e78d5aab8349a57ee12eb8898a832b00db0b1ebe8851121",
+      "matches": true
+    }
+  },
+  "unmodifiedProviderHash": "0e9e37b57887cb85a1f9c7af7f7ef0b2359f6cc1c0d3644bcc0b9749020b2c98",
+  "officialSources": {
+    "vue": {
+      "version": "2.5.0",
+      "sha256": "3a5ad66eb0f94433fd98299378ed29f751320a532017f1f274bafb9e44f54e8e"
+    },
+    "react": {
+      "version": "2.5.0",
+      "sha256": "6d2a1950a197355e2fe20536ee3809899160df05f13b3d03f11dd93868dc82c8"
+    },
+    "core": {
+      "version": "2.5.0",
+      "sha256": "cf08b63e085233ed1c74839e2618259a776a29e46048d28ebbdf1d27f4dcdbd7"
+    },
+    "inputs": {
+      "version": "2.5.0",
+      "sha256": "c4aa648bf56a1cf95f7b38c62201ab847676bfdf564b84596ce0e693ff70579d"
+    }
+  },
+  "catalog": {
+    "reusableNames": [
+      "FormKit",
+      "FormKitSchema",
+      "FormKitRoot",
+      "FormKitProvider",
+      "FormKitLazyProvider",
+      "FormKitMessages",
+      "FormKitSummary",
+      "FormKitIcon"
+    ],
+    "newNames": [
+      "FormKitSchema",
+      "FormKitRoot"
+    ],
+    "remainingUnaccounted": []
+  },
+  "acceptance": {
+    "file": "acceptance-final.json",
+    "passed": 81,
+    "failed": 0,
+    "runtimeUnchanged": true
+  },
+  "references": {
+    "file": "upstream-results.json",
+    "runs": 4,
+    "passed": 4
+  },
+  "browserRun": false
+}

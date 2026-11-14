@@ -1,0 +1,130 @@
+{
+  "branch": "codex/formkit-react-pattern-experiment",
+  "implementationCommit": "08474f3ffc1768b4fbf5fa2c92259c7291e5f1e1",
+  "baseCommit": "da45f45c30340cd152f8eb9431a7541c6af695fa",
+  "runtimeSha256": {
+    "core/index.mjs": "96697236324acc47721c2fe32c483faae0bc7cd503a6ccd9b5a9132b80746982",
+    "core/native-types.mjs": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a",
+    "core/helper-components.mjs": "fa217d88388a3728bc984727332016bdd6f37f83fe314002940d76c46511c3cc",
+    "core/section-renderer.mjs": "4b2ea7f1542eacad033de873993be1e52a0bb965838451f23903dff033adf917",
+    "core/upstream-bindings.mjs": "61291d23f5d95311730445b073e07fc47a3e09ac1ead9d082a47876b97fd1344",
+    "core/component-library.mjs": "ded0fc66cc2dbe0703c2954994299e4842c6af675616f59fda8fb0aaefb14e8f",
+    "core/value-facade.mjs": "d644545536adee04fbeaf1d401dffcc290671cf1e4deade84afbd9eb3660d4ba",
+    "core/root-slots.mjs": "2074e8571b2c81cf20e39e887dd11c961efc75dfbfa36c00826b44f6d313ccc4",
+    "core/schema-layout.mjs": "d7363f7bfe216de72a31d869b3d59aa8a20d295a966bb7f4a4e928f46f06ba5a",
+    "core/schema.mjs": "2ceee34b447250550bfed79674aef52a1c6f3b01b6880f866382638cecc50dda",
+    "core/schema-registry.mjs": "8fa4068bb88e0380bfb43984c6d40d5c4e7758f68f46190ce8596583707a551a",
+    "core/submission-controller.mjs": "1f34d9abb7f980380ddd32fecee519e7e0b7c85e84b22e88e158d1b2ad250968"
+  },
+  "acceptance": {
+    "passed": 75,
+    "failed": 0,
+    "receipt": "evidence/free-comprehensive-catalog.json"
+  },
+  "comparisons": {
+    "passed": 53,
+    "failed": 0,
+    "receipt": "evidence/free-comparisons-catalog.json"
+  },
+  "newNamedHelpers": [
+    "FormKitSummary",
+    "FormKitMessages",
+    "FormKitIcon"
+  ],
+  "newControlKinds": [
+    "multi-step",
+    "step"
+  ],
+  "otherNewCapabilities": [
+    "mixed DOM/text/component native group/list composition",
+    "unified schema/root slots",
+    "definition/input-local component libraries",
+    "autoHeightTextarea DOM and attribute-redraw hookup"
+  ],
+  "newlyVerifiedExistingSupport": [
+    "barcode@1.1.0",
+    "createZodPlugin@2.5.0",
+    "meta inventory correction",
+    "describeForm",
+    "fillForm awaiting completion/rejection repaired"
+  ],
+  "openPortableCapability": "Automatic async configuration provider is assigned to isolated lane; awaited import before mount works",
+  "performance": "HELD pending component/provider accounting; browser correctness may proceed",
+  "licensedCombinedAcceptance": "Pending same licensed Pro/browser task on supplied snapshot",
+  "preservation": {
+    "startingDirtyOrUntracked": 192,
+    "unchangedStartingPaths": 179,
+    "intentionallyModifiedStartingPaths": [
+      {
+        "path": "experiments/formkit-react-patterns/BREADTH-RECOVERY.md",
+        "beforeSha256": "3f2995f3e0d9752609475fbbcba3f271069440566f10c91db8509bc50e08e7c3",
+        "sha256": "641c381f7ce7fc012555f7387da900a02ec073d1e0c4b7b5c06b50d4b763c719"
+      },
+      {
+        "path": "experiments/formkit-react-patterns/core/README.md",
+        "beforeSha256": "2851dbcfc3e528c53a6fb8206dd4ea41c4b25cd9e7102cab4d35c984cc6522a8",
+        "sha256": "5f8d086530c7640932f35b6e57fa6ee8510a9f22ec72a83e36a7eb2f7138730e"
+      },
+      {
+        "path": "experiments/formkit-react-patterns/core/RENDERER-COMPONENTS.md",
+        "beforeSha256": "0aaf2d915abae321437216a4ce53149c4a5d66ec47c3260d824539407b931d09",
+        "sha256": "78f64494fb5c36ec8df4da6eebd7ed9558f2da983cc69e82a1c094b7789308dc"
+      },
+      {
+        "path": "experiments/formkit-react-patterns/core/SCHEMA.md",
+        "beforeSha256": "3b3b3e55f90cbc48421b8cae3a17f43544fb3dcdb7ef8070cf7a5396459eff94",
+        "sha256": "8fd31ed1b0db89bce8ebe2c43ebb9ce90af30d3167fed49e14ac988a26c11f55"
+      },
+      {
+        "path": "experiments/formkit-react-patterns/core/index.mjs",
+        "beforeSha256": "9126170dd6d1a26d578809fa80b26ed464547061376f2cc9bbc4a553db03905c",
+        "sha256": "96697236324acc47721c2fe32c483faae0bc7cd503a6ccd9b5a9132b80746982"
+      },
+      {
+        "path": "experiments/formkit-react-patterns/core/native-types.mjs",
+        "beforeSha256": "62099c0812d6f637ff3a2af5ef951240588b5472b41cfd6c0f0122e09816c40f",
+        "sha256": "1b20278b11968bc1279e8bd44df876825d1e44772f17c1d693e39e80ed630e0a"
+      },
+      {
+        "path": "experiments/formkit-react-patterns/core/precedence-test.mjs",
+        "beforeSha256": "47585ba50d22b78a58119c5ddb85334efa25ddf04ce10feb722bc59c7708c84f",
+        "sha256": "4e9c94d399e332fdd50273e6ec71acaa32fb334dcf296a35f99edf63a5ef1eaf"
+      },
+      {
+        "path": "experiments/formkit-react-patterns/core/schema-layout.mjs",
+        "beforeSha256": "59d13f260e4580f3de1fb12fbec34ceac9cf6f302b087649ac0b31780a622ea0",
+        "sha256": "d7363f7bfe216de72a31d869b3d59aa8a20d295a966bb7f4a4e928f46f06ba5a"
+      },
+      {
+        "path": "experiments/formkit-react-patterns/core/schema-nested-errors.mjs",
+        "beforeSha256": "564d37a47169086bf5d197ca713f8af31e389c3be0e1dda8d0e5fd1aa9f12d03",
+        "sha256": "79ca88a47f6075f9ae8a5fadcf3d5b86e896e82689e9c9017b2a29d13c0c1b6c"
+      },
+      {
+        "path": "experiments/formkit-react-patterns/core/schema.mjs",
+        "beforeSha256": "6700683721618da630489d01383962c1fb47f6ce48a49d255c98d796a3e6a8d2",
+        "sha256": "2ceee34b447250550bfed79674aef52a1c6f3b01b6880f866382638cecc50dda"
+      },
+      {
+        "path": "experiments/formkit-react-patterns/core/section-renderer.mjs",
+        "beforeSha256": "69917e7f8c38946671771884da8c88590631be859442117f2395e1525e2c88df",
+        "sha256": "4b2ea7f1542eacad033de873993be1e52a0bb965838451f23903dff033adf917"
+      },
+      {
+        "path": "experiments/formkit-react-patterns/package-lock.json",
+        "beforeSha256": "d57c2240934353f0196a0599a910c75b84f01192ed94a347472f327f16f25688",
+        "sha256": "efb1b6f2983d1b010a28ca3aae4c663547b1627c85200b1af1d5f3f434adb74b"
+      },
+      {
+        "path": "experiments/formkit-react-patterns/package.json",
+        "beforeSha256": "6c4c8205b9481d459783cf4a3ae8b56ed3f1d79a6483fb1c947a114efa7079b1",
+        "sha256": "225c8e9656ba326392fbaafff08345499d824d0dc6a4bdc8df9c981cc28b6365"
+      }
+    ],
+    "unchangedAbsences": [
+      "experiments/formkit-react-patterns/core/submit-terminal-test.mjs"
+    ],
+    "unexpectedChanges": [],
+    "historicalReviewsAndCheckpoints": "Preserved and left unstaged; no reset/clean/overwrite was used."
+  }
+}

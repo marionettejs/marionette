@@ -1,0 +1,318 @@
+import { bindingEffect, effectProjection, invalidateProjection, effectMetadata, propsMetadata, readEffect } from './effects.ts';
+import { coreValueChanged, releaseCoreReads } from './core-reads.ts';
+import { createClasses, createMessage, generateClassList, isNode } from '@formkit/core';
+import { cloneAny, empty, eq, token, undefine } from '@formkit/utils';
+import { certifyContext, contextChanged, defaultRootClasses, nativeClassHook, contextObject, contextProxy, opaqueRender, withRenderHint } from './invalidation.ts';
+import type { FormKitFrameworkContext, FormKitMessage, FormKitNode, FormKitPlugin } from '@formkit/core';
+
+// Implements the public framework-context contract. The MIT v2.1.2 bindings are
+// the behavioral reference; this implementation has no Vue reactivity dependency.
+function reactive<T extends object>(value: T, changed: () => void, metadataChanged: () => void): T {
+  const proxies = new WeakMap<object, object>();
+  function wrap<V>(item: V): V {
+    if (!item || typeof item !== 'object' || isNode(item) || Object.isFrozen(item) ||
+      (!Array.isArray(item) && ![Object.prototype, null].includes(Object.getPrototypeOf(item)))) { return item; }
+    if (proxies.has(item)) { return proxies.get(item) as V; }
+    const proxy = new Proxy(item, {
+      get(target, key, receiver) { readEffect(proxy); return wrap(Reflect.get(target, key, receiver)); },
+      set(target, key, next, receiver) {
+        const previous = Reflect.get(target, key);
+        const success = Reflect.set(target, key, next, receiver);
+        if (receiver === proxy && success && !Object.is(previous, next)) { invalidateProjection(item as object); changed(); }
+        return success;
+      },
+      deleteProperty(target, key) {
+        const present = Object.hasOwn(target, key);
+        const success = Reflect.deleteProperty(target, key);
+        if (present && success) { invalidateProjection(item as object); changed(); }
+        return success;
+      },
+      setPrototypeOf(target, prototype) {
+        const success = Reflect.setPrototypeOf(target, prototype);
+        invalidateProjection(item as object); metadataChanged();
+        return success;
+      },
+      defineProperty(target, key, descriptor) {
+        const success = Reflect.defineProperty(target, key, descriptor);
+        if (success) { invalidateProjection(item as object); if (descriptor.get || descriptor.set) { metadataChanged(); } changed(); }
+        return success;
+      }
+    });
+    proxies.set(item, proxy);
+    proxies.set(proxy, proxy);
+    contextProxy(item, proxy);
+    return proxy as V;
+  }
+  return wrap(value);
+}
+
+type ClassSource = {
+  root?: Record<string, boolean>;
+  basis?: 'default' | 'empty';
+  contributions: { classes?: ReturnType<typeof createClasses>; scalar?: string; constant: boolean }[];
+  intrinsic: boolean;
+  resolved?: string;
+};
+function sameClassSource(left: unknown, right: unknown) {
+  const a = left as ClassSource | undefined, b = right as ClassSource;
+  if (!a) { return false; }
+  if (!a.intrinsic || !b.intrinsic) { return !a.intrinsic && !b.intrinsic && a.resolved === b.resolved; }
+  return a.basis === b.basis && a.contributions.every((entry, index) => entry.scalar === b.contributions[index].scalar);
+}
+
+export const nativeBindings: FormKitPlugin = node => {
+  let alive = true;
+  let hasTicked = false;
+  let shownValidation = false;
+  let pendingNativeDateDelete = false;
+  let pendingDOMInputValue: string | undefined;
+  const domInputValue = (payload: unknown) => typeof pendingDOMInputValue === 'string' &&
+    node.props.number !== undefined && node.props.number !== 'integer' &&
+    typeof payload === 'number' && Number.isFinite(payload) && pendingDOMInputValue.includes('.') &&
+    Number(pendingDOMInputValue) === payload && pendingDOMInputValue !== String(payload) ? pendingDOMInputValue : payload;
+  const receipts: string[] = [];
+  const messages: Record<string, FormKitMessage> = {};
+  let inputErrorsReady = false;
+  const ui: Record<string, FormKitMessage> = {};
+  node.ledger.count('blocking', message => message.blocking);
+  node.ledger.count('errors', message => message.type === 'error');
+  const changed = (needed = true) => { contextChanged(node); if (alive && node.context !== null) { withRenderHint(node, needed, () => node.emit('context-update', node)); } };
+  const listen: FormKitNode['on'] = (event, callback, pos) => {
+    const receipt = node.on(event, callback, pos);
+    receipts.push(receipt);
+    return receipt;
+  };
+  const initialContext = {
+    ...node.props,
+    attrs: node.props.attrs ?? {},
+    node,
+    _value: node.value,
+    value: node.value,
+    didMount: false,
+    defaultMessagePlacement: true,
+    slots: node.props.__slots ?? {},
+    ui,
+    state: { blurred: false, dirty: false, submitted: false, failing: false, settled: node.isSettled },
+    fns: {
+      length: (object: object) => Object.keys(object).length,
+      number: Number, string: String, json: JSON.stringify, eq
+    },
+    handlers: {
+      blur(event?: FocusEvent) {
+        if (pendingNativeDateDelete) {
+          pendingNativeDateDelete = false;
+          void node.input((event?.target as HTMLInputElement).value);
+        }
+        if (node.props.number !== undefined && ['number', 'range', 'hidden'].includes(node.props.type) &&
+          typeof node._value === 'string' && node._value !== '') {
+          const number = Number(node._value);
+          void node.input(Number.isFinite(number) ? number : undefined);
+        }
+        node.store.set(createMessage({ key: 'blurred', visible: false, value: true }));
+        node.props.attrs?.onBlur?.(event);
+      },
+      touch() {
+        if (context.state.dirty && node.props.dirtyBehavior !== 'compare') { return; }
+        const dirty = !eq(node.props._init, node._value);
+        if (dirty || node.props.dirtyBehavior === 'compare') {
+          node.store.set(createMessage({ key: 'dirty', visible: false, value: dirty }));
+        }
+      },
+      DOMInput(event: Event) {
+        const target = event.target as HTMLInputElement;
+        pendingNativeDateDelete = 'inputType' in event && String(event.inputType).startsWith('delete') &&
+          ['date', 'datetime-local', 'month', 'time', 'week'].includes(target.type) && target.value === '' &&
+          target.ownerDocument.activeElement === target && !empty(node._value);
+        if (!pendingNativeDateDelete) {
+          pendingDOMInputValue = target.value;
+          void node.input(pendingDOMInputValue);
+        }
+        node.emit('dom-input-event', event);
+      }
+    }
+  } as unknown as FormKitFrameworkContext;
+  // Inherited config values are absent from the own-property snapshot.
+  if (!Object.hasOwn(initialContext, 'disabled')) { initialContext.disabled = node.props.disabled; }
+  const context = reactive(initialContext, changed, () => { effectMetadata(node); contextChanged(node); });
+  const validationVisible = () => {
+    if (context.state.submitted) { return true; }
+    if (!shownValidation && !context.state.settled) { return false; }
+    const visibility = node.props.validationVisibility ?? (node.props.type === 'checkbox' ? 'dirty' : 'blur');
+    switch (visibility) {
+      case 'live': return true;
+      case 'blur': return context.state.blurred;
+      case 'dirty': return context.state.dirty;
+      case 'submit': return false;
+      default: return String(visibility).split(/[\s,|]+/).some(mode => mode === 'live' ||
+        mode === 'blur' && context.state.blurred || mode === 'dirty' && context.state.dirty);
+    }
+  };
+  Object.defineProperties(context.state, {
+    valid: { enumerable: true, get: () => !node.ledger.value('blocking') },
+    errors: { enumerable: true, get: () => !!node.ledger.value('errors') },
+    required: { enumerable: true, get: () => !!node.props.parsedRules?.some((rule: { name: string }) => rule.name === 'required') },
+    rules: { enumerable: true, get: () => !!node.props.parsedRules?.length },
+    empty: { enumerable: true, get: () => empty(context.value) },
+    passing: { enumerable: true, get: () => !context.state.failing },
+    validationVisible: { enumerable: true, get: validationVisible },
+    invalid: { enumerable: true, get: () => context.state.failing && validationVisible() },
+    complete: { enumerable: true, get: () => context.state.rules ? context.state.valid && !context.state.errors :
+      context.state.dirty && !context.state.empty }
+  });
+  const messageProducer = {};
+  let messageVersion = 0;
+  let visibleEntries: [string, FormKitMessage][] = [];
+  function visibleMessages() {
+    // The table is our own projection. Message objects remain opaque, and their
+    // fields keep individual read effects; only membership has this revision.
+    opaqueRender();
+    const entries = Object.entries(messages).filter(([, message]) => message.type !== 'validation' || validationVisible());
+    if (entries.length !== visibleEntries.length || entries.some(([key, message], index) =>
+      key !== visibleEntries[index][0] || message !== visibleEntries[index][1])) { messageVersion++; }
+    visibleEntries = entries;
+    return contextObject(node, effectProjection(Object.fromEntries(entries), messageProducer, messageVersion, node), 'messages');
+  }
+  function classContribution(section: string, value: Parameters<typeof createClasses>[2]): ClassSource['contributions'][number] {
+    if (typeof value === 'function') { return classContribution(section, Reflect.apply(value, undefined, [node, section])); }
+    const constant = !value || typeof value === 'string';
+    return { classes: constant ? undefined : createClasses(section, node, value),
+      scalar: typeof value === 'string' ? value : '', constant };
+  }
+  function classSources(section: string): ClassSource {
+    // Each source remains opaque: reads, callback arguments and callback order
+    // stay live even when its scalar result leaves the generated list unchanged.
+    opaqueRender();
+    readEffect(node);
+    const root = node.config.rootClasses;
+    let basis: ClassSource['basis'] = 'empty';
+    const rootClasses = typeof root === 'function' ? (() => {
+      const configuration = node.config;
+      const callback = configuration.rootClasses;
+      basis = callback === defaultRootClasses ? 'default' : undefined;
+      return basis === 'default' ? undefined : Reflect.apply(callback as Function, configuration, [section, node]);
+    })() : undefined;
+    const classes = node.config.classes;
+    const contributions = [classContribution(section, classes?.[section]),
+      classContribution(section, node.props[`_${section}Class`]),
+      classContribution(section, node.props[`${section}Class`])];
+    const value: ClassSource = { root: rootClasses, basis, contributions,
+      intrinsic: basis !== undefined && contributions.every(entry => entry.constant) && nativeClassHook(node) };
+    // Unknown maps and middleware can execute getters/hooks during generation.
+    // Keep that whole application boundary atomic with its source reads.
+    if (!value.intrinsic) { value.resolved = generateSection(section, value); }
+    return value;
+  }
+  function generateSection(section: string, value: ClassSource) {
+    const root = value.basis === 'default' ? defaultRootClasses(section) : value.root ?? {};
+    return generateClassList(node, section, root, ...value.contributions.map(entry =>
+      entry.constant ? createClasses(section, node, entry.scalar) : entry.classes!)) ?? '';
+  }
+  function sectionClasses(section: string) {
+    const effect = bindingEffect();
+    const source = effect ? effect.value(`class-source:${effect.nextEvaluation()}:${section}`, section, effect.context ?? node, () => classSources(section), sameClassSource, true) : classSources(section);
+    const value = source as ClassSource;
+    return value.intrinsic ? generateSection(section, value) : value.resolved!;
+  }
+  Object.defineProperties(context, {
+    items: { enumerable: true, configurable: true, get: () => node.children.map(child => child.uid) },
+    messages: { enumerable: true, configurable: true, get: visibleMessages },
+    describedBy: { enumerable: true, configurable: true, get: () => [context.help ? `help-${context.id}` : '',
+      ...Object.keys(context.messages).map(key => `${context.id}-${key}`)].filter(Boolean).join(' ') || undefined },
+    classes: { enumerable: true, configurable: true, get: () => contextObject(node, new Proxy({}, {
+      get(target, section) {
+        if (typeof section !== 'string' || section in Object.prototype) { return Reflect.get(target, section); }
+        return sectionClasses(section);
+      }
+    }), 'classes') }
+  });
+  certifyContext(node, context);
+  function applyErrors(errors: unknown) {
+    node.store.apply((Array.isArray(errors) ? errors : []).map(value => createMessage({ key: `prop-error-${token()}`,
+      type: 'error', value: String(value), meta: { source: 'prop' } })), message => message.type === 'error' && message.meta.source === 'prop');
+  }
+  const inputErrorSource = `input-prop-${token()}`;
+  let inputErrorAddresses: string[] = [];
+  type InputErrors = Record<string, string | string[]>;
+  function applyInputErrors(errors?: InputErrors) {
+    node.walk(child => child.store.filter(message => message.meta.source !== inputErrorSource));
+    const supplied = errors ?? {};
+    const messagesByAddress = Object.fromEntries([...inputErrorAddresses.map(address => [address, []]), ...Object.entries(supplied).map(([address, entries]) => [address,
+      (typeof entries === 'string' ? [entries] : entries)
+        .map(value => createMessage({ key: `prop-error-${token()}`, type: 'error', value: String(value), meta: { source: inputErrorSource } }))])]);
+    inputErrorAddresses = Object.keys(supplied);
+    node.store.apply(messagesByAddress, message => message.meta.source === inputErrorSource);
+  }
+  function messageChanged(message: FormKitMessage) {
+    if (Object.isFrozen(message)) { contextObject(node, message, 'message'); }
+    delete ui[message.key];
+    delete messages[message.key];
+    if (message.type === 'ui' && message.visible && !message.meta.showAsMessage) { ui[message.key] = message; } else if (message.visible) { messages[message.key] = message; } else if (message.type === 'state') { context.state[message.key] = !!message.value; }
+    if (validationVisible()) { shownValidation = true; }
+    changed();
+  }
+  listen('prop', ({ payload: { prop, value } }) => {
+    const descriptor = Object.getOwnPropertyDescriptor(context, prop);
+    if (!descriptor?.get) { context[prop] = value; }
+    if (prop === '__propDefs') { propsMetadata(node); }
+    if (prop === 'errors') { applyErrors(value); }
+    if (prop === 'inputErrors' && inputErrorsReady) { applyInputErrors(value as InputErrors | undefined); }
+    changed();
+  });
+  for (const event of ['config:classes', 'config:rootClasses', 'child', 'childRemoved']) {
+    listen(event, () => changed());
+  }
+  for (const name of ['blocking', 'errors']) {
+    let nonzero = !!node.ledger.value(name);
+    listen(`count:${name}`, ({ payload }) => {
+      const next = !!payload, needed = next !== nonzero;
+      nonzero = next;
+      changed(needed);
+    });
+  }
+  listen('input', ({ payload }) => { context._value = domInputValue(payload); coreValueChanged(node, '_value'); });
+  listen('commitRaw', ({ payload }) => {
+    context.value = payload;
+    context._value = domInputValue(payload);
+    pendingDOMInputValue = undefined;
+    node.emit('modelUpdated');
+    changed();
+    coreValueChanged(node, '_value');
+  });
+  listen('commit', () => {
+    if (hasTicked && !node.store.validating?.value) { context.handlers.touch(); }
+    if (node.type === 'input' && context.state.errors && !undefine(node.props.preserveErrors)) {
+      node.store.filter(message => !(message.type === 'error' && message.meta.autoClear === true));
+    }
+    changed();
+    coreValueChanged(node, 'value');
+  });
+  listen('settled', ({ payload }) => { context.state.settled = payload; changed(); });
+  listen('mounted', () => { context.didMount = true; });
+  listen('created', () => {
+    applyErrors(node.props.errors);
+    inputErrorsReady = true;
+    applyInputErrors(node.props.inputErrors);
+    context.value = context._value = node.value;
+    void node.settled.then(() => { if (alive) { node.props._init = cloneAny(node.value); } });
+  });
+  listen('message-added', ({ payload }) => messageChanged(payload));
+  listen('message-updated', ({ payload }) => messageChanged(payload));
+  listen('message-removed', ({ payload }) => {
+    delete ui[payload.key];
+    delete messages[payload.key];
+    if (payload.type === 'state') { delete context.state[payload.key]; }
+    if (payload.key === 'validating' && hasTicked) { context.handlers.touch(); }
+    changed();
+  });
+  const dispose = () => {
+    alive = false;
+    releaseCoreReads(node);
+    receipts.forEach(receipt => node.off(receipt));
+    node.context = undefined;
+  };
+  listen('destroying', dispose);
+  listen('destroyed', dispose);
+  queueMicrotask(() => { hasTicked = alive; });
+  node.context = context;
+  node.emit('context', node, false);
+};

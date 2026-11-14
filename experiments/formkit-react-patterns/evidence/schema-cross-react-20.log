@@ -1,0 +1,1 @@
+{"arm":"react","count":20,"status":"PASS","checks":["tracked sibling value class invalidation","class clears after dependency update","target input retained","destroy"],"limits":["JSDOM; no browser timing"]}
