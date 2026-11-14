@@ -14,8 +14,13 @@ export function createLayoutController({form,schema,data: externalData = {},comp
   const fieldIdentities = new Map();layoutData.__ownedKey = (...parts)=>{const key = JSON.stringify(parts);if (!fieldIdentities.has(key)) {fieldIdentities.set(key,Symbol('layout field'));} return fieldIdentities.get(key);};
   layoutData.__boundType = props=>props?.type ?? 'text';
   layoutData.get = registry.get;layoutData.slots = externalSlots;
-  const slots = {...externalSlots},outlets = new Map();let next = 0;
+  const slots = {...externalSlots},outlets = new Map(),expressions = new Map();let next = 0,activeScope = {};
   const ownedField = (fields,ownerNode,name,key)=>fields.get(name !== undefined ? String(name) : form._anonymousKeys.get(ownerNode)?.keys.get(key));
+  function read(token) {
+    const parts = token.split('.');let object = parts[0] in activeScope ? activeScope : layoutData,owner;
+    for (const part of parts) {owner = object;object = object?.[part];}
+    return typeof object === 'function' ? object.bind(owner) : object;
+  }
   function expression(value) {if (typeof value === 'string' && value.startsWith('$')) {compile(value);} else if (value && typeof value === 'object') {Object.values(value).forEach(expression);}}
   function condition(value,scope) {
     return resolved(typeof value === 'string' && !value.startsWith('$') ? '$: ' + value : value,scope);
@@ -23,7 +28,10 @@ export function createLayoutController({form,schema,data: externalData = {},comp
   function resolved(value,scope = {}) {
     if (value && typeof value === 'object' && Object.hasOwn(value,'if') && Object.hasOwn(value,'then')) {return resolved(condition(value.if,scope) ? value.then : value.else,scope);}
     if (typeof value !== 'string' || value.length < 2 || !value.startsWith('$')) {return value;}
-    return compile(value).provide(tokens=>Object.fromEntries(tokens.map(token=>[token,()=>{const parts = token.split('.');let object = parts[0] in scope ? scope : layoutData,owner;for (const part of parts) {owner = object;object = object?.[part];} return typeof object === 'function' ? object.bind(owner) : object;}])))();
+    let compiled = expressions.get(value);
+    if (!compiled) {compiled = compile(value).provide(tokens=>Object.fromEntries(tokens.map(token=>[token,()=>read(token)])));expressions.set(value,compiled);}
+    const previous = activeScope;activeScope = scope;
+    try {return compiled();} finally {activeScope = previous;}
   }
   // A presentation owns DOM only. Child Core nodes remain in the native
   // group's existing field map and return to its default outlet on teardown.
@@ -132,7 +140,7 @@ export function createLayoutController({form,schema,data: externalData = {},comp
   const parsed = form._opaqueSchema ? {fields: [],dom: schema} : parse(schema),host = document.createElement('div');host.dataset.formkitLayout = '';if (form._schemaDataOnly) {host.style.display = 'contents';}
   let renderer,observer,controller,dead = false,pending = false;
   const destroy = ()=>{
-    if (dead) {return;}dead = true;form.off('before:destroy',destroy);delete form._placeSchemaFields;delete form._layoutController;registry.destroy();controller?.destroy();observer?.kill();
+    if (dead) {return;}dead = true;expressions.clear();form.off('before:destroy',destroy);delete form._placeSchemaFields;delete form._layoutController;registry.destroy();controller?.destroy();observer?.kill();
     // Restore owned fields before removing their presentation-only containers.
     if (!form._ending) {for (const field of form.fields.values()) {form._fieldAnchor.parentNode.insertBefore(field.el,form._fieldAnchor);}}
     renderer?.destroy(!form._ending);if (!form._ending) {host.remove();}
