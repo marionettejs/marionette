@@ -56,8 +56,8 @@ export default defineConfig({
       find: /^@mnjs\/adapters\/xstate$/,
       replacement: fileURLToPath(new URL('./packages/adapters/src/data/xstate.ts', import.meta.url))
     }, {
-      find: /^@mnjs\/adapters\/backbone$/,
-      replacement: fileURLToPath(new URL('./packages/adapters/src/data/backbone.ts', import.meta.url))
+      find: /^@mnjs\/adapters\/(backbone|skeletor)$/,
+      replacement: fileURLToPath(new URL('./packages/adapters/src/data/$1.ts', import.meta.url))
     }, {
       find: /^@mnjs\/adapters\/dom\/(morphdom|lit-html|jquery)$/,
       replacement: fileURLToPath(new URL('./packages/adapters/src/dom/$1.ts', import.meta.url))

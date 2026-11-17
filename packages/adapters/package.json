@@ -59,6 +59,17 @@
         "default": "./dist/dom/lit-html.cjs"
       },
       "default": "./dist/dom/lit-html.js"
+    },
+    "./skeletor": {
+      "import": {
+        "types": "./dist/types/esm/data/skeletor.d.ts",
+        "default": "./dist/skeletor.js"
+      },
+      "require": {
+        "types": "./dist/types/cjs/data/skeletor.d.ts",
+        "default": "./dist/skeletor.cjs"
+      },
+      "default": "./dist/skeletor.js"
     }
   },
   "files": [
@@ -80,7 +91,8 @@
     "jquery": "^4.0.0",
     "marionette": "^5.0.1",
     "morphdom": "^2.7.8",
-    "lit-html": "^3.3.3"
+    "lit-html": "^3.3.3",
+    "@converse/skeletor": "4.0.2"
   },
   "peerDependenciesMeta": {
     "@types/backbone": {
@@ -100,6 +112,9 @@
     },
     "lit-html": {
       "optional": true
+    },
+    "@converse/skeletor": {
+      "optional": true
     }
   },
   "scripts": {
@@ -113,7 +128,8 @@
     "adapter",
     "xstate",
     "morphdom",
-    "lit-html"
+    "lit-html",
+    "skeletor"
   ],
   "license": "MIT",
   "repository": {

@@ -1,0 +1,12 @@
+{
+  "name": "marionette-skeletor-adapter-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "tsc -p tsconfig.json && node validate.mjs && node validate.cjs"
+  },
+  "dependencies": {
+    "@converse/skeletor": "4.0.2",
+    "typescript": "6.0.3"
+  }
+}

@@ -35,6 +35,14 @@ export default [
     ],
     plugins: [compile()]
   },
+  {
+    input: 'src/data/skeletor.ts',
+    output: [
+      { file: 'dist/skeletor.js', sourcemap: true, format: 'es' },
+      { file: 'dist/skeletor.cjs', sourcemap: true, format: 'cjs', exports: 'default' }
+    ],
+    plugins: [compile()]
+  },
   ...['morphdom', 'lit-html'].map(name => ({
     input: `src/dom/${ name }.ts`,
     external: [name],

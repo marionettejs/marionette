@@ -496,6 +496,14 @@
     {
       "file": "dom-adapters.spec.mjs",
       "title": "lit-html: released connected contents transfer to reject attachment"
+    },
+    {
+      "file": "skeletor-adapter.spec.mjs",
+      "title": "packed Skeletor adapter renders computed values and reconciles collections once"
+    },
+    {
+      "file": "skeletor-adapter.spec.mjs",
+      "title": "packed Skeletor adapter observes attached hydration and releases only owner listeners"
     }
   ],
   "fixtures": [
@@ -522,6 +530,7 @@
     "jquery-dom-api-types",
     "no-default-export",
     "removed-core-adapters",
+    "skeletor-adapter",
     "standalone-packages",
     "utils-package",
     "vite",

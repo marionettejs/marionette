@@ -11,6 +11,8 @@ const packageRoot = resolve(root, 'packages/adapters');
 const sourceRoot = resolve(packageRoot, 'src');
 const quality = 11;
 const artifacts = [
+  ['Skeletor adapter ES module', 'dist/skeletor.js'],
+  ['Skeletor adapter CommonJS', 'dist/skeletor.cjs'],
   ['Backbone adapter ES module', 'dist/backbone.js'],
   ['Backbone adapter CommonJS', 'dist/backbone.cjs'],
   ['jQuery DomApi ES module', 'dist/dom/jquery.js'],
@@ -25,6 +27,7 @@ const artifacts = [
 const expectedExternalImports = [
   [],
   ['jquery'],
+  [],
   [],
   ['morphdom'],
   ['lit-html'],

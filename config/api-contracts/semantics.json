@@ -5428,6 +5428,83 @@
       "documentation": {
         "status": "documented"
       }
+    },
+    {
+      "id": "provider.skeletor-consumers",
+      "entrypoints": [
+        "@mnjs/adapters/skeletor"
+      ],
+      "exports": [
+        "default"
+      ],
+      "result": "Skeletor 4.0.2 models retain cid identity. Own attributes and declared computed keys have key-presence semantics including null/undefined; template serialization is a shallow enumerable snapshot with computed precedence, separate from persistence.",
+      "timing": "Native events are synchronous. Mutation-related sort reconciles membership/order immediately and consumes its matching update; reorder-only set also reconciles once. Standalone sort reports reorder.",
+      "ownership": "Data sources remain borrowed. State disposal releases adapter-managed subscriptions without invoking persistence-capable Model.destroy or source-wide listener cleanup.",
+      "mutation": "attrs writes and computed changes reach configured handlers. Merges retain models and children and leave rendering to model events. Reset rebuilds children; source ordering and view filters follow CollectionView configuration.",
+      "repetition": "Native off matching makes cleanup idempotent and scopes it by event/callback/context. Independent CollectionView observers own distinct callback functions.",
+      "destruction": "Destroying a consumer leaves caller-owned sources and listeners usable. Application-owned fetching, hydration and saving continue independently of the adapter.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/packages/adapters.md",
+          "heading": "Skeletor",
+          "members": [
+            "get",
+            "has",
+            "key",
+            "models",
+            "observeCollection",
+            "serialize",
+            "subscribe",
+            "disposeOwned"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "reads own attributes and declared computed keys, including null and undefined"
+        },
+        {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "keeps ordinary prototype-named attributes when computed properties exist"
+        },
+        {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "provides an enumerable template snapshot without changing persisted attributes"
+        },
+        {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "preserves event maps, space-separated names, payloads, and both context forms"
+        },
+        {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "does not destroy borrowed models or owned state or call persistence on teardown"
+        },
+        {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "delivers one structural observation for each native operation"
+        },
+        {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "handles reorder-only set with model instances and merge:false attribute objects"
+        },
+        {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "reconciles set operations with sortWithCollection disabled"
+        },
+        {
+          "file": "test/browser/skeletor-adapter.spec.mjs",
+          "title": "packed Skeletor adapter renders computed values and reconciles collections once"
+        },
+        {
+          "file": "test/browser/skeletor-adapter.spec.mjs",
+          "title": "packed Skeletor adapter observes attached hydration and releases only owner listeners"
+        }
+      ],
+      "documentation": {
+        "status": "documented"
+      }
     }
   ]
 }
