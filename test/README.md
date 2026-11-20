@@ -390,7 +390,16 @@ the repository's include/exclude configuration when changing either dependency.
 Dependabot proposes weekly root tooling updates, with TypeScript ESLint, Vitest,
 and Stryker packages grouped by tool before the remaining development dependency
 minor and patch updates are grouped together. Other root major upgrades remain
-separate. Weekly GitHub Action minor and patch updates are grouped; major upgrades
+separate. Certification-pinned Playwright, Backbone, jsdom, Rollup,
+`@rollup/plugin-terser` and terser updates have their own version-update group;
+the HTML policy separates its applicable Playwright, jsdom, Rollup and terser pins
+the same way. These groups keep direct pinned updates out of routine tooling PRs.
+They do not update certification metadata or coordinate the root and HTML PRs;
+those changes still require deliberate validation. The groups share each policy's
+existing open-PR limit, and unrelated updates can still change transitive lockfile
+entries, so the existing pin checks remain necessary. Security groups are unchanged
+and may combine pinned and routine fixes.
+Weekly GitHub Action minor and patch updates are grouped; major upgrades
 remain separate. Monthly consumer-fixture updates preserve review of their independent
 lockfiles. These groups apply to version updates; security updates remain separate.
 Local Marionette package versions are excluded from these automated updates. The
