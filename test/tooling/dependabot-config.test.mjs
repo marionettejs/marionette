@@ -17,7 +17,8 @@ const ignoresBackbone = update => (update.ignore ?? []).some(rule =>
   matchesGlob('backbone', rule['dependency-name']) && !rule.versions && !rule['update-types']);
 const floorDirectory = '/test/fixtures/backbone-adapter';
 // Dependabot patterns use '*' for package names, including scoped names.
-const matchesName = (name, pattern) => new RegExp(`^${pattern.split('*').map(RegExp.escape).join('.*')}$`).test(name);
+const matchesName = (name, pattern) => new RegExp(`^${pattern.split('*')
+  .map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*')}$`).test(name);
 const matchesGroup = (group, name, updateType, appliesTo = 'version-updates') =>
   (group['applies-to'] ?? 'version-updates') === appliesTo &&
   (group['dependency-type'] ?? 'development') === 'development' &&
