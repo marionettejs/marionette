@@ -47,12 +47,12 @@
   "browsers": {
     "playwright": {
       "package": "@playwright/test",
-      "version": "1.65.0",
+      "version": "1.65.1",
       "browserBuilds": [
         {
           "name": "chromium",
-          "version": "158.0.8127.18",
-          "revision": "1254"
+          "version": "159.0.8154.6",
+          "revision": "1255"
         },
         {
           "name": "firefox",
