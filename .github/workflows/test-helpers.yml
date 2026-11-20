@@ -38,7 +38,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - cypress: '16.2.1'
+          - cypress: 'current'
             flags: ''
           - cypress: '14.0.0'
             flags: '--cypress-floor'
@@ -57,8 +57,9 @@ jobs:
       - name: Install and build
         run: npm ci
       - name: Install example tools and Cypress browser
-        run: |
-          npm exec --yes --ignore-scripts --package=cypress@${{ matrix.cypress }} -- cypress install
+        env:
+          MNJS_TEST_CYPRESS_PROFILE: ${{ matrix.cypress }}
+        run: node test/examples/install-cypress.mjs
       - name: Verify packed helper with Cypress and failure probes
         run: npm run test:helpers:consumer -- --cypress ${{ matrix.flags }}
       - name: Record exact-source artifact certification
