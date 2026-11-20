@@ -8,7 +8,13 @@ const manifest = JSON.parse(readFileSync(new URL('../../packages/test/examples/p
 const lock = JSON.parse(readFileSync(new URL('../../packages/test/examples/package-lock.json', import.meta.url)));
 
 test('the current profile follows the exact locked examples version', () => {
-  assert.deepEqual(cypressProfile('current', manifest, lock), { version: '16.3.0', floor: false });
+  assert.deepEqual(cypressProfile('current', manifest, lock), { version: manifest.devDependencies.cypress, floor: false });
+  const updatedManifest = structuredClone(manifest);
+  const updatedLock = structuredClone(lock);
+  updatedManifest.devDependencies.cypress = '16.4.0';
+  updatedLock.packages[''].devDependencies.cypress = '16.4.0';
+  updatedLock.packages['node_modules/cypress'].version = '16.4.0';
+  assert.deepEqual(cypressProfile('current', updatedManifest, updatedLock), { version: '16.4.0', floor: false });
 });
 
 test('the Cypress 14 profile selects both its version and verification mode', () => {
