@@ -22,7 +22,7 @@
     "lockedDependencies": {
       "backbone": "1.6.1",
       "jsdom": "31.0.1",
-      "rollup": "4.68.4"
+      "rollup": "4.68.5"
     },
     "commands": {
       "deterministic": [
