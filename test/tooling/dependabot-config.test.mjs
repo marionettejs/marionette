@@ -16,6 +16,51 @@ const policiesFor = directory => npmUpdates.filter(update =>
 const ignoresBackbone = update => (update.ignore ?? []).some(rule =>
   matchesGlob('backbone', rule['dependency-name']) && !rule.versions && !rule['update-types']);
 const floorDirectory = '/test/fixtures/backbone-adapter';
+// Dependabot patterns use '*' for package names, including scoped names.
+const matchesName = (name, pattern) => new RegExp(`^${pattern.split('*').map(RegExp.escape).join('.*')}$`).test(name);
+const matchesGroup = (group, name, updateType, appliesTo = 'version-updates') =>
+  (group['applies-to'] ?? 'version-updates') === appliesTo &&
+  (group['dependency-type'] ?? 'development') === 'development' &&
+  (!group['update-types'] || group['update-types'].includes(updateType)) &&
+  (group.patterns ?? ['*']).some(pattern => matchesName(name, pattern)) &&
+  !(group['exclude-patterns'] ?? []).some(pattern => matchesName(name, pattern));
+const groupFor = (policy, name, updateType, appliesTo) => Object.entries(policy.groups)
+  .find(([, group]) => matchesGroup(group, name, updateType, appliesTo))?.[0];
+
+test('certification pins route separately from routine tooling and remain eligible for security updates', async() => {
+  const performance = await readJson('config/performance.json');
+  const profile = await readJson('config/release-profile.json');
+  const consumer = await readJson('benchmarks/consumer-bundles/contract.json');
+  const certifiedNames = [...new Set([
+    ...Object.keys(performance.toolchain.lockedDependencies),
+    profile.browsers.playwright.package,
+    ...Object.keys(consumer.toolchain).map(name => name === 'rollupPluginTerser' ? '@rollup/plugin-terser' : name),
+  ])];
+  for (const [directory, manifestPath, certificationGroup, routineGroup, routineName, securityGroup] of [
+    ['/', 'package.json', 'certification-toolchain', 'tooling-updates', 'eslint-plugin-jsdoc', 'root-security'],
+    ['/packages/html', 'packages/html/package.json', 'html-certification-toolchain', 'html-tooling', 'typescript', 'html-security'],
+  ]) {
+    const policy = policiesFor(directory)[0];
+    const manifest = await readJson(manifestPath);
+    const applicablePins = certifiedNames.filter(name => name in manifest.devDependencies);
+    assert.deepEqual(policy.groups[certificationGroup].patterns.toSorted(), applicablePins.toSorted());
+    assert.deepEqual(policy.groups[routineGroup]['exclude-patterns'].toSorted(), applicablePins.toSorted());
+    for (const name of applicablePins) {
+      for (const updateType of ['patch', 'minor', 'major']) {
+        assert.equal(groupFor(policy, name, updateType), certificationGroup, `${directory}: ${name} ${updateType}`);
+        assert.equal(matchesGroup(policy.groups[routineGroup], name, updateType), false);
+        assert.equal(groupFor(policy, name, updateType, 'security-updates'), securityGroup);
+      }
+    }
+    for (const updateType of ['patch', 'minor']) {
+      assert.equal(groupFor(policy, routineName, updateType), routineGroup);
+      assert.equal(matchesGroup(policy.groups[certificationGroup], routineName, updateType), false);
+    }
+    assert.equal(groupFor(policy, routineName, 'patch', 'security-updates'), securityGroup);
+  }
+  assert.equal(groupFor(policiesFor('/')[0], '@rollup/plugin-babel', 'patch'), 'tooling-updates');
+  assert.equal(groupFor(policiesFor('/')[0], '@typescript-eslint/parser', 'patch'), 'typescript-eslint');
+});
 
 test('each installed consumer fixture has exactly one Dependabot policy', async() => {
   const inventory = await readJson('config/release-validation.json');
