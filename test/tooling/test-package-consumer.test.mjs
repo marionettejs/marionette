@@ -14,12 +14,14 @@ function fixture() {
   mkdirSync(join(directory, 'packages/test/examples'), { recursive: true });
   mkdirSync(join(directory, 'tmp'));
   cpSync(join(root, 'test/examples/verify-test-package.mjs'), script);
+  cpSync(join(root, 'test/examples/cypress-profile.mjs'), join(directory, 'test/examples/cypress-profile.mjs'));
   writeFileSync(join(directory, 'packages/test/package.json'), JSON.stringify({ version: '0.1.0' }));
   writeFileSync(join(directory, 'packages/test/examples/package.json'), JSON.stringify({
-    dependencies: { marionette: '5.0.0' }, devDependencies: { '@playwright/test': '1.63.0' }
+    dependencies: { marionette: '5.0.0' }, devDependencies: { '@playwright/test': '1.63.0', cypress: '16.3.0' }
   }));
   writeFileSync(join(directory, 'packages/test/examples/package-lock.json'), JSON.stringify({ packages: {
-    '': { dependencies: { '@mnjs/test': 'file:..' } },
+    '': { dependencies: { '@mnjs/test': 'file:..' }, devDependencies: { cypress: '16.3.0' } },
+    'node_modules/cypress': { version: '16.3.0' },
     'node_modules/@mnjs/test': { version: '0.1.0', resolved: 'file:..' }
   } }));
   return { directory, script, output: join(directory, 'report'), temporary: join(directory, 'tmp') };
