@@ -253,9 +253,12 @@ shallow enumerable template snapshot of both, with computed values taking
 precedence. It does not change persisted attributes or `toJSON()`. Models retain
 `cid` identity; merges keep child Views and leave their rendering to model events.
 Non-silent collection operations, including reorder-only `set`, reconcile
-changes. `reset` rebuilds children. Silent operations do not notify Views. Use
-an explicit render or update notification to show those changes. View teardown
-does not call persistence-capable model `destroy` or perform source-wide cleanup.
+changes. `reset` rebuilds children. Silent operations do not notify observers;
+a manual render still reads the live collection. Use non-silent mutations for
+automatic updates, or explicitly notify before manually rendering. Don't rely
+on later notifications to reconcile a View that already rendered silent changes.
+View teardown does not call persistence-capable model `destroy` or perform
+source-wide cleanup.
 As with native Skeletor events, use distinct callbacks or owner contexts for
 independent registrations.
 

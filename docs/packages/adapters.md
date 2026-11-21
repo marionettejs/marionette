@@ -266,18 +266,22 @@ Mutation-related `sort` reports an `update` immediately, including reorder-only
 `set([existingModels...])` when Skeletor emits no `update`. A matching native
 `update` is consumed unless intervening callbacks changed the source again.
 Membership changes compare observed snapshots, not native event payloads.
-An unpaired update is delivered even when those snapshots match. Its membership
-arrays may be empty while a View that rendered a silent intermediate state still
-has changes to reconcile. Updates reapply CollectionView's ordering and filtering. With
+A stale outer membership event after a nested mutation does not replay that
+delta. Updates reapply CollectionView's ordering and filtering. With
 `sortWithCollection: false`, source order is ignored; an explicit `viewComparator`
 and filters still apply. Merges retain the same models and child Views; their
 configured model events still own row rendering. `reset` rebuilds children.
 
-Silent operations do not notify Views by themselves. A full render reads the
-current source, and the next observed sort or update reconciles membership
-against that View's own snapshot without rebuilding unchanged children.
-`collection.trigger('update', collection)` can explicitly request reconciliation
-and refresh ordering or filtering.
+Silent operations do not notify collection observers. An explicit
+`collectionView.render()` still reads the live collection and rebuilds its
+children at that moment; it does not advance the adapter's observation snapshot.
+Do not rely on mixing silent mutation plus manual render with later observed
+mutations in the same View lifetime. Use non-silent mutations for automatic
+updates. After a silent mutation, use `collection.trigger('update', collection)`
+instead of rendering manually to reconcile an already observed View. If you have
+already rendered manually, continue to render explicitly or recreate the
+CollectionView to establish a fresh observation baseline before resuming
+automatic updates.
 
 Use the map context as the following argument, as with native Skeletor events.
 Native `off` matching removes registrations sharing the same source, event,

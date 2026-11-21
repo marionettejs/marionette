@@ -5449,7 +5449,7 @@
         "default"
       ],
       "result": "Skeletor 4.0.3 models retain cid identity. Own attributes and computed keys declared through getters or methods have key-presence semantics including null/undefined; template serialization is a shallow enumerable snapshot with computed precedence, separate from persistence.",
-      "timing": "Native events are synchronous. Mutation-related sort reconciles immediately including reorder-only set. Matching updates are not replayed unless the source changed again. Unpaired updates notify even when observer snapshots agree. Sort and update reconcile against the View snapshot, preserving silently rendered members without duplicating children.",
+      "timing": "Native events are synchronous. Mutation-related sort reconciles immediately including reorder-only set. Matching updates are not replayed unless the source changed again. Nested membership deltas compare observed source snapshots, not stale native event payloads. Silent operations do not notify; a manual render reads the live source but does not advance the observer snapshot. Switching from silent/manual to automatic updates in the same View lifetime is not guaranteed.",
       "ownership": "Data sources remain borrowed. State disposal releases adapter-managed subscriptions without invoking persistence-capable Model.destroy or source-wide listener cleanup.",
       "mutation": "attrs writes and computed changes reach configured handlers. Merges retain models and children and leave rendering to model events. Reset rebuilds children; source ordering and view filters follow CollectionView configuration.",
       "repetition": "Native off matching makes cleanup idempotent and scopes it by event/callback/context. Independent CollectionView observers own distinct callback functions.",
@@ -5514,15 +5514,7 @@
         },
         {
           "file": "test/unit/skeletor-adapter.spec.js",
-          "title": "reconciles silent changes already consumed by an explicit render"
-        },
-        {
-          "file": "test/unit/skeletor-adapter.spec.js",
-          "title": "removes a silently added and explicitly rendered child on unpaired native remove"
-        },
-        {
-          "file": "test/unit/skeletor-adapter.spec.js",
-          "title": "adds a silently removed and explicitly rendered child on unpaired native add"
+          "title": "does not notify for silent mutations and reads the current source on manual render"
         },
         {
           "file": "test/unit/skeletor-adapter.spec.js",
@@ -5538,7 +5530,7 @@
         },
         {
           "file": "test/browser/skeletor-adapter.spec.mjs",
-          "title": "packed Skeletor adapter keeps children unique after silent rendering and nested updates"
+          "title": "packed Skeletor adapter keeps children unique through nested notified mutations"
         }
       ],
       "documentation": {

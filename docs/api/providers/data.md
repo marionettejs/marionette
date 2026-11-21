@@ -83,15 +83,6 @@ CollectionView reads a snapshot and subscribes during its first render. The prov
 
 `previous` and `current` identify the models before and after an update under the same stable key. A different model object replaces the child: CollectionView destroys the old child and creates one for the current object. Retaining the same model object preserves its child and rendered contents while sorting and filtering are reapplied. Added/removed entries must correspond to the before/after snapshots. Emit a coherent change for each structural source change; notifications describe completed changes, not commands for Marionette to mutate the collection.
 
-Snapshot-based providers can set `reconcile: true` on an update or reorder
-notification. CollectionView then derives additions and removals from its own
-previous snapshot and the live source, rather than applying provider-relative
-membership arrays directly. This covers explicit renders that read changes the
-provider did not observe. An explicit `updated` pair still describes a same-key
-replacement when its previous and current models are in the View's respective
-snapshots. A reorder only becomes an update when the View observes changed
-membership. Notifications without the flag retain their explicit-delta behavior.
-
 Every model must occur once. Keys must be non-null, unique and unchanged while that model remains observed; CollectionView raises `MN0039` for these key violations. These key checks are not comprehensive validation of malformed notification payloads. Equality follows JavaScript Map/Set semantics, which compares object keys by identity. A domain ID is suitable only if it meets those lifetime constraints. A retained key does not grant a new model object the previous child's identity.
 
 Keep model or actor events separate from collection notifications. A retained object's rendering belongs to the row's configured source subscriptions, such as `modelEvents: { change: 'render' }`, or an explicit application call to `row.render()`. A source event does not by itself mean the collection observer emits an update, sorts, or refilters; call `list.sort()` or `list.filter()` when presentation needs recomputing. See [`@mnjs/data` providers](../../packages/data.md#providers) for that package's collection event translation and the [CollectionView reference](../collection-view.md) for display/lifetime operations.

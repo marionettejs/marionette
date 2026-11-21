@@ -223,23 +223,23 @@ describe('Skeletor adapter with real 4.0.3 sources', function() {
     const context = {};
     const stop = SkeletorApi.observeCollection(collection, notify, context);
     collection.add(second);
-    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [second], removed: [], updated: [], reconcile: true });
+    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [second], removed: [], updated: [] });
     notify.mockClear();
     collection.set([{ id: 1, rank: 0 }], { remove: false });
-    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [], removed: [], updated: [], reconcile: true });
+    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [], removed: [], updated: [] });
     notify.mockClear();
     collection.remove(second);
-    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [], removed: [second], updated: [], reconcile: true });
+    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [], removed: [second], updated: [] });
     notify.mockClear();
     collection.reset([first, second]);
     expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'reset' });
     notify.mockClear();
     collection.sort();
-    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'reorder', reconcile: true });
+    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'reorder' });
     expect(notify.mock.contexts).toEqual([context]);
     notify.mockClear();
     collection.trigger('sort', collection);
-    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'reorder', reconcile: true });
+    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'reorder' });
     stop(); stop();
     collection.reset([]);
     expect(notify).toHaveBeenCalledTimes(1);
@@ -260,10 +260,9 @@ describe('Skeletor adapter with real 4.0.3 sources', function() {
     expect(view.el.textContent).toBe('BC');
     expect(view.children.map(child => child.model)).toEqual([second, third]);
     expect(previous.isDestroyed()).toBe(true);
-    expect(notify.mock.calls).toEqual([
-      [{ kind: 'update', added: [second, third], removed: [first], updated: [], reconcile: true }],
-      [{ kind: 'update', added: [], removed: [], updated: [], reconcile: true }]
-    ]);
+    expect(notify).toHaveBeenCalledExactlyOnceWith({
+      kind: 'update', added: [second, third], removed: [first], updated: []
+    });
     stop();
     view.destroy();
   });
@@ -300,31 +299,7 @@ describe('Skeletor adapter with real 4.0.3 sources', function() {
     view.destroy();
   });
 
-  it('reconciles silent changes already consumed by an explicit render', function() {
-    const collection = new Collection([{ id: 1, title: 'A', rank: 1 }], { comparator: 'rank' });
-    const view = list(collection);
-    const second = collection.add({ id: 2, title: 'B', rank: 2 }, { silent: true });
-    expect(view.el.textContent).toBe('A');
-    view.render();
-    const secondChild = view.children.findByModel(second);
-    const third = collection.add({ id: 3, title: 'C', rank: 0 });
-    expect(view.el.textContent).toBe('CAB');
-    expect(view.children.map(child => child.model)).toEqual(collection.models);
-    expect(view.children.findByModel(second)).toBe(secondChild);
-
-    const fourth = collection.add({ id: 4, title: 'D', rank: 3 }, { silent: true });
-    view.render();
-    const fourthChild = view.children.findByModel(fourth);
-    collection.remove(fourth, { silent: true });
-    collection.sort();
-    expect(view.el.textContent).toBe('CAB');
-    expect(view.children.map(child => child.model)).toEqual(collection.models);
-    expect(fourthChild.isDestroyed()).toBe(true);
-    expect(view.children.findByModel(third)).toBeDefined();
-    view.destroy();
-  });
-
-  it('removes a silently added and explicitly rendered child on unpaired native remove', function() {
+  it('does not notify for silent mutations and reads the current source on manual render', function() {
     const first = new Item({ id: 1, title: 'A' });
     const second = new Item({ id: 2, title: 'B' });
     const collection = new Collection([first]);
@@ -332,46 +307,21 @@ describe('Skeletor adapter with real 4.0.3 sources', function() {
     const notify = vi.fn();
     const stop = SkeletorApi.observeCollection(collection, notify);
     collection.add(second, { silent: true });
-    view.render();
-    const added = view.children.findByModel(second);
-    expect(view.el.textContent).toBe('AB');
-    collection.remove(second);
     expect(view.el.textContent).toBe('A');
-    expect(added.isDestroyed()).toBe(true);
-    expect(notify).toHaveBeenCalledExactlyOnceWith({
-      kind: 'update', added: [], removed: [], updated: [], reconcile: true
-    });
-    stop();
-    view.destroy();
-  });
-
-  it('adds a silently removed and explicitly rendered child on unpaired native add', function() {
-    const first = new Item({ id: 1, title: 'A' });
-    const second = new Item({ id: 2, title: 'B' });
-    const collection = new Collection([first, second]);
-    const view = list(collection);
-    const notify = vi.fn();
-    const stop = SkeletorApi.observeCollection(collection, notify);
-    collection.remove(second, { silent: true });
+    expect(notify).not.toHaveBeenCalled();
     view.render();
-    const retained = view.children.findByModel(first);
-    expect(view.el.textContent).toBe('A');
-    collection.add(second);
     expect(view.el.textContent).toBe('AB');
-    expect(view.children.findByModel(first)).toBe(retained);
     expect(view.children.map(child => child.model)).toEqual([first, second]);
-    expect(notify).toHaveBeenCalledExactlyOnceWith({
-      kind: 'update', added: [], removed: [], updated: [], reconcile: true
-    });
+    expect(notify).not.toHaveBeenCalled();
     stop();
     view.destroy();
   });
 
   it('does not resurrect a manually removed child until genuine source removal and re-add', function() {
-    const collection = new Collection([{ id: 1, title: 'A', rank: 1 }], { comparator: 'rank' });
+    const collection = new Collection([{ id: 1, title: 'A', rank: 1 }, { id: 2, title: 'B', rank: 2 }],
+      { comparator: 'rank' });
     const view = list(collection);
-    const second = collection.add({ id: 2, title: 'B', rank: 2 }, { silent: true });
-    view.render();
+    const second = collection.get(2);
     const removed = view.children.findByModel(second);
     view.removeChildView(removed);
     collection.add({ id: 3, title: 'C', rank: 3 });

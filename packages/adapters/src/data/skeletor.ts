@@ -84,9 +84,9 @@ const SkeletorApi = {
       // update unless intervening callbacks changed the source again.
       const { added, removed } = snapshotChange();
       if (fromMutation || added.length || removed.length) {
-        callback.call(context, { kind: 'update', added, removed, updated: [], reconcile: true });
+        callback.call(context, { kind: 'update', added, removed, updated: [] });
       } else {
-        callback.call(context, { kind: 'reorder', reconcile: true });
+        callback.call(context, { kind: 'reorder' });
       }
     };
     const onReset = function() {
@@ -96,12 +96,13 @@ const SkeletorApi = {
     const onUpdate = function(_: Collection<TModel>, options?: Options) {
       const alreadySorted = options && sortedOptions.delete(options);
       const { added, removed, reordered } = snapshotChange();
-      if (alreadySorted && !added.length && !removed.length && !reordered) { return; }
+      // Do not replay a stale outer membership delta after a nested event.
+      // Merges and explicit bare updates still refresh ordering and filtering.
+      if (!added.length && !removed.length && !reordered &&
+          (alreadySorted || (options?.changes && !options.changes.merged?.length))) { return; }
 
-      // An unpaired update can be meaningful to a View that rendered a silent
-      // intermediate state, even when this observer's snapshot did not change.
-      // Merges retain model identity; model events still own row rendering.
-      callback.call(context, { kind: 'update', added, removed, updated: [], reconcile: true });
+      // Model events still own row rendering.
+      callback.call(context, { kind: 'update', added, removed, updated: [] });
     };
 
     return subscribe(collection, { sort: onSort, reset: onReset, update: onUpdate }, context);

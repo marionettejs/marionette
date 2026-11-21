@@ -122,7 +122,7 @@ test('packed Skeletor adapter observes attached hydration and releases only owne
   assert.deepEqual(result.persisted, { id: 'profile', title: 'After teardown' });
 });
 
-test('packed Skeletor adapter keeps children unique after silent rendering and nested updates', async({ page }) => {
+test('packed Skeletor adapter keeps children unique through nested notified mutations', async({ page }) => {
   const result = await page.evaluate(async() => {
     const [{ createMarionette }, { default: SkeletorApi }, { Collection, Model }] = await Promise.all([
       import('marionette'), import('@mnjs/adapters/skeletor'), import('@converse/skeletor')
@@ -135,12 +135,12 @@ test('packed Skeletor adapter keeps children unique after silent rendering and n
     const runtime = createMarionette();
     runtime.setDataApi(SkeletorApi);
     const Child = runtime.View.extend({ template: ({ label }) => label });
-    const collection = new Collection([{ id: 1, title: 'A', rank: 1 }], { model: Item, comparator: 'rank' });
+    const collection = new Collection([{ id: 1, title: 'A', rank: 1 }, { id: 2, title: 'B', rank: 2 }],
+      { model: Item, comparator: 'rank' });
     const region = new runtime.Region({ el: '#content' });
     const view = new runtime.CollectionView({ collection, childView: Child });
     region.show(view);
-    const second = collection.add({ id: 2, title: 'B', rank: 2 }, { silent: true });
-    view.render();
+    const second = collection.get(2);
     const secondChild = view.children.findByModel(second);
     const secondNode = secondChild.el;
     collection.once('sort', () => {

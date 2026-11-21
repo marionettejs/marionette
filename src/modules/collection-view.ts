@@ -191,10 +191,9 @@ interface Replacement {key: unknown; previous: unknown; current: unknown;}
 interface Update {kind: 'update'; added: SnapshotEntry[]; removed: SnapshotEntry[]; updated: Replacement[];}
 type Change = {kind: 'reset'} | {kind: 'reorder'} | Update;
 interface Notification {change: Change; snapshot: Snapshot;}
-type RawChange = {kind: 'reset'} | {kind: 'reorder'; reconcile?: boolean} | {
+type RawChange = {kind: 'reset' | 'reorder'} | {
   kind: 'update'; added: unknown[]; removed: unknown[];
   updated: Array<{previous: unknown; current: unknown}>;
-  reconcile?: boolean;
 };
 
 type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
@@ -294,39 +293,20 @@ function buildCollectionSnapshot(Data: DataProvider, collection: unknown, previo
 }
 
 function normalizeCollectionChange(change: RawChange, previous: Snapshot, current: Snapshot): Change {
-  if (change.kind === 'reset') { return change; }
-
-  // Snapshot-based providers can have a different observation baseline
-  // after an explicit render. Compare against this View's own source snapshot.
-  if (change.reconcile === true) {
-    const updated = change.kind === 'update' ? change.updated.filter(pair =>
-      pair.previous !== pair.current && previous.models.has(pair.previous) && current.models.has(pair.current)
-    ) : [];
-    const replacedPrevious = updated.length ? new Set(updated.map(pair => pair.previous)) : undefined;
-    const replacedCurrent = updated.length ? new Set(updated.map(pair => pair.current)) : undefined;
-    const added = current.entries.filter(({ model }) => !previous.models.has(model) && !replacedCurrent?.has(model));
-    const removed = previous.entries.filter(({ model }) => !current.models.has(model) && !replacedPrevious?.has(model));
-    if (change.kind === 'reorder' && !added.length && !removed.length) { return change; }
-    return { kind: 'update', added, removed, updated: normalizeReplacements(updated, current) };
-  }
-
   if (change.kind !== 'update') { return change; }
+
   const added = new Set(change.added);
   const removed = new Set(change.removed);
   return {
     kind: 'update',
     added: added.size ? current.entries.filter(entry => added.has(entry.model)) : [],
     removed: removed.size ? previous.entries.filter(entry => removed.has(entry.model)) : [],
-    updated: normalizeReplacements(change.updated, current)
+    updated: change.updated.map(pair => ({
+      key: current.models.get(pair.current)!.key,
+      previous: pair.previous,
+      current: pair.current
+    }))
   };
-}
-
-function normalizeReplacements(updated: Array<{previous: unknown; current: unknown}>, current: Snapshot): Replacement[] {
-  return updated.map(pair => ({
-    key: current.models.get(pair.current)!.key,
-    previous: pair.previous,
-    current: pair.current
-  }));
 }
 
 function canDetachContents(container: Element, children: CollectionChild[]) {
