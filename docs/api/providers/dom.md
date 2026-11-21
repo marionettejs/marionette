@@ -52,6 +52,7 @@ Only content insertion changes; native root creation, queries and placement rema
 | `detachEl(el)` | Remove the element from its parent while preserving the element and listeners for possible reuse. |
 | `replaceEl(newEl, oldEl)` | Replace the old element in its parent. Native does nothing for identical elements or a parentless old element. |
 | `setContents(el, output)` | Apply renderer output within the root. Native uses `innerHTML`, with nullish output clearing contents. Match this method to the renderer's output. |
+| `setUnsafeHtml(el, markup)` | Replace children with caller-trusted markup via native `innerHTML`, without renderer dispatch. An empty string removes all children. |
 | `setAttributes(el, attributes)` | Apply attributes. Native uses own enumerable keys, removes `null` values, ignores `undefined`, and stringifies other values. Unmentioned attributes remain. |
 | `appendContents(el, contents)` | Native default: append an Element/DocumentFragment to the parent Element/DocumentFragment. The jQuery adapter also accepts HTML strings, element arrays and jQuery collections. |
 | `moveEl(el, parent, before?)` | Insert or move the element before the reference node; append when omitted/null. Native uses `moveBefore` for an existing child of that parent when available, otherwise `insertBefore`. |
@@ -59,6 +60,17 @@ Only content insertion changes; native root creation, queries and placement rema
 | `detachContents(el)` | Remove contents while retaining the root. Native clears `textContent`. This operation does not establish View destruction by itself. |
 | `notifyAttach(el)` | Notify content integration that the View's element has attached. Native does nothing. |
 | `notifyDetach(el)` | Notify content integration that the View's element has detached. Native does nothing. |
+
+Use `setContents` for renderer output. Use `setUnsafeHtml` only for an explicit
+raw-markup write, such as a trusted SVG string in a dedicated icon container.
+It does not sanitize markup, run Marionette teardown, or clean up jQuery data
+and event handlers on removed descendants like jQuery's `.html()` does. Do not
+use it on a View root managed by a renderer such as `@mnjs/html`: replacing its
+children removes the markers used by later renders. Use a dedicated container
+whose descendants are not managed by a renderer, View, Region, or jQuery.
+Pass an empty string to clear it. Provider overlays inherit the method unless
+they override it. It is optional in the TypeScript provider contract so existing
+standalone providers remain valid; the native provider always supplies it.
 
 Marionette owns View/Region lifecycle and child cleanup around these operations. Providers must preserve the root identity and must not destroy unrelated Views or borrowed sources. Preserve renderer markers when moving child elements; a provider must support the actual content it created. The `@mnjs/html` adapter implements content insertion and attachment notifications; use its [integration guide](../../../packages/html/guide.md#choosing-a-dom-integration).
 

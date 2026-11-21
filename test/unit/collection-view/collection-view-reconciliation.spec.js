@@ -234,6 +234,29 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
+  it('reconciles membership from the View snapshot when provider deltas disagree', function() {
+    const first = { id: 1, name: 'first' };
+    const second = { id: 2, name: 'second' };
+    const third = { id: 3, name: 'third' };
+    const source = { models: [first] };
+    const view = new ListView({ collection: source }).render();
+    source.models = [first, second];
+    view.render();
+    const firstChild = view.children.findByModel(first);
+    const secondChild = view.children.findByModel(second);
+
+    source.models = [first];
+    source.notify({ kind: 'update', reconcile: true, added: [], removed: [], updated: [] });
+    expect(secondChild.isDestroyed()).toBe(true);
+    expect(view.children.findByModel(first)).toBe(firstChild);
+
+    source.models = [third, first];
+    source.notify({ kind: 'reorder', reconcile: true });
+    expect(view.children.first().model).toBe(third);
+    expect(view.children.findByModel(first)).toBe(firstChild);
+    view.destroy();
+  });
+
   it('does not replay a snapshot replacement already applied by rendering', function() {
     const first = { id: 1, name: 'first' };
     const second = { id: 1, name: 'second' };

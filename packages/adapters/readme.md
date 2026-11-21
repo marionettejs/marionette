@@ -259,8 +259,9 @@ does not call persistence-capable model `destroy` or perform source-wide cleanup
 As with native Skeletor events, use distinct callbacks or owner contexts for
 independent registrations.
 
-The adapter has no provider runtime imports. Skeletor 4.0.3 requires Node 22.13
-or later and supports native `require('@converse/skeletor')` on those versions.
+The adapter has no provider runtime imports. This package declares Node
+`^22.22.2 || >=24.15.0`. Skeletor 4.0.3 has its own lower Node requirement
+(`>=22.13.0`) and supports native `require('@converse/skeletor')`.
 See the Skeletor section of the version-matched reference below for the full
 contract and a rendered example.
 

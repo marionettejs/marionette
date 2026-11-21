@@ -11,6 +11,7 @@ export interface DomApi<Query extends ArrayLike<Element> = ArrayLike<Element>, C
   detachEl: (el: Element) => void;
   replaceEl: (newEl: Element, oldEl: Element) => void;
   setContents: (el: Element, html: Content) => void;
+  setUnsafeHtml?: (el: Element, markup: string) => void;
   setAttributes: (el: Element, attrs: unknown) => void;
   appendContents: (el: Element | DocumentFragment, contents: Element | DocumentFragment) => void;
   moveEl: (el: Element, parent: Element | DocumentFragment, before?: Node | null) => void;
@@ -90,6 +91,11 @@ export default {
   // Replace the contents of `el` with the `html`
   setContents(el: Element, html: string | null | undefined) {
     el.innerHTML = html ?? '';
+  },
+
+  // Replace children with caller-trusted markup, without renderer dispatch.
+  setUnsafeHtml(el: Element, markup: string): void {
+    el.innerHTML = markup;
   },
 
   // Sets attributes on a DOM node

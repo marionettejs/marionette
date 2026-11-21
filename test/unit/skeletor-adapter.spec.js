@@ -260,9 +260,10 @@ describe('Skeletor adapter with real 4.0.3 sources', function() {
     expect(view.el.textContent).toBe('BC');
     expect(view.children.map(child => child.model)).toEqual([second, third]);
     expect(previous.isDestroyed()).toBe(true);
-    expect(notify).toHaveBeenCalledExactlyOnceWith({
-      kind: 'update', added: [second, third], removed: [first], updated: [], reconcile: true
-    });
+    expect(notify.mock.calls).toEqual([
+      [{ kind: 'update', added: [second, third], removed: [first], updated: [], reconcile: true }],
+      [{ kind: 'update', added: [], removed: [], updated: [], reconcile: true }]
+    ]);
     stop();
     view.destroy();
   });
@@ -320,6 +321,49 @@ describe('Skeletor adapter with real 4.0.3 sources', function() {
     expect(view.children.map(child => child.model)).toEqual(collection.models);
     expect(fourthChild.isDestroyed()).toBe(true);
     expect(view.children.findByModel(third)).toBeDefined();
+    view.destroy();
+  });
+
+  it('removes a silently added and explicitly rendered child on unpaired native remove', function() {
+    const first = new Item({ id: 1, title: 'A' });
+    const second = new Item({ id: 2, title: 'B' });
+    const collection = new Collection([first]);
+    const view = list(collection);
+    const notify = vi.fn();
+    const stop = SkeletorApi.observeCollection(collection, notify);
+    collection.add(second, { silent: true });
+    view.render();
+    const added = view.children.findByModel(second);
+    expect(view.el.textContent).toBe('AB');
+    collection.remove(second);
+    expect(view.el.textContent).toBe('A');
+    expect(added.isDestroyed()).toBe(true);
+    expect(notify).toHaveBeenCalledExactlyOnceWith({
+      kind: 'update', added: [], removed: [], updated: [], reconcile: true
+    });
+    stop();
+    view.destroy();
+  });
+
+  it('adds a silently removed and explicitly rendered child on unpaired native add', function() {
+    const first = new Item({ id: 1, title: 'A' });
+    const second = new Item({ id: 2, title: 'B' });
+    const collection = new Collection([first, second]);
+    const view = list(collection);
+    const notify = vi.fn();
+    const stop = SkeletorApi.observeCollection(collection, notify);
+    collection.remove(second, { silent: true });
+    view.render();
+    const retained = view.children.findByModel(first);
+    expect(view.el.textContent).toBe('A');
+    collection.add(second);
+    expect(view.el.textContent).toBe('AB');
+    expect(view.children.findByModel(first)).toBe(retained);
+    expect(view.children.map(child => child.model)).toEqual([first, second]);
+    expect(notify).toHaveBeenCalledExactlyOnceWith({
+      kind: 'update', added: [], removed: [], updated: [], reconcile: true
+    });
+    stop();
     view.destroy();
   });
 

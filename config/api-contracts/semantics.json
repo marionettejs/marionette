@@ -1291,7 +1291,8 @@
             "notifyDetach",
             "replaceEl",
             "setAttributes",
-            "setContents"
+            "setContents",
+            "setUnsafeHtml"
           ]
         },
         {
@@ -3470,11 +3471,21 @@
             "notifyDetach",
             "replaceEl",
             "setAttributes",
-            "setContents"
+            "setContents",
+            "setUnsafeHtml"
           ]
         }
       ],
       "tests": [
+        {
+          "file": "test/unit/runtime/dom-api.spec.js",
+          "title": "replaces children with markup and clears them with an empty string"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: inherits raw markup insertion without changing renderer output",
+          "runner": "test/unit/dom-adapters.spec.js"
+        },
         {
           "file": "test/unit/jquery-dom-api.spec.js",
           "title": "returns native results from view.$() with the native DomApi"
@@ -5438,7 +5449,7 @@
         "default"
       ],
       "result": "Skeletor 4.0.3 models retain cid identity. Own attributes and computed keys declared through getters or methods have key-presence semantics including null/undefined; template serialization is a shallow enumerable snapshot with computed precedence, separate from persistence.",
-      "timing": "Native events are synchronous. Mutation-related sort reconciles immediately including reorder-only set. Matching updates are not replayed unless the source changed again. Sort and update reconcile against the View snapshot, preserving silently rendered members without duplicating children.",
+      "timing": "Native events are synchronous. Mutation-related sort reconciles immediately including reorder-only set. Matching updates are not replayed unless the source changed again. Unpaired updates notify even when observer snapshots agree. Sort and update reconcile against the View snapshot, preserving silently rendered members without duplicating children.",
       "ownership": "Data sources remain borrowed. State disposal releases adapter-managed subscriptions without invoking persistence-capable Model.destroy or source-wide listener cleanup.",
       "mutation": "attrs writes and computed changes reach configured handlers. Merges retain models and children and leave rendering to model events. Reset rebuilds children; source ordering and view filters follow CollectionView configuration.",
       "repetition": "Native off matching makes cleanup idempotent and scopes it by event/callback/context. Independent CollectionView observers own distinct callback functions.",
@@ -5504,6 +5515,14 @@
         {
           "file": "test/unit/skeletor-adapter.spec.js",
           "title": "reconciles silent changes already consumed by an explicit render"
+        },
+        {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "removes a silently added and explicitly rendered child on unpaired native remove"
+        },
+        {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "adds a silently removed and explicitly rendered child on unpaired native add"
         },
         {
           "file": "test/unit/skeletor-adapter.spec.js",

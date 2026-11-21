@@ -266,7 +266,9 @@ Mutation-related `sort` reports an `update` immediately, including reorder-only
 `set([existingModels...])` when Skeletor emits no `update`. A matching native
 `update` is consumed unless intervening callbacks changed the source again.
 Membership changes compare observed snapshots, not native event payloads.
-Updates reapply CollectionView's ordering and filtering. With
+An unpaired update is delivered even when those snapshots match. Its membership
+arrays may be empty while a View that rendered a silent intermediate state still
+has changes to reconcile. Updates reapply CollectionView's ordering and filtering. With
 `sortWithCollection: false`, source order is ignored; an explicit `viewComparator`
 and filters still apply. Merges retain the same models and child Views; their
 configured model events still own row rendering. `reset` rebuilds children.
@@ -290,9 +292,10 @@ and awaiting `hydrated` belong to the application. To render asynchronous
 hydration, attach a View with `modelEvents: { change: 'render' }` before completion;
 the later native changes update it normally.
 
-The adapter has ESM and CommonJS entrypoints. Skeletor 4.0.3 requires Node
-22.13 or later for its Node entrypoint. Its ES module build supports native
-`require('@converse/skeletor')` on those Node versions. The adapter's CommonJS
-export is tested with a model supplied through that native `require`.
+The adapter has ESM and CommonJS entrypoints and declares Node
+`^22.22.2 || >=24.15.0` for its package. Skeletor 4.0.3 independently requires
+Node `>=22.13.0` for its Node entrypoint; that lower floor does not extend
+the adapter's supported range. Skeletor's ES module build supports native
+`require('@converse/skeletor')`, which the adapter's CommonJS fixture uses.
 Verification covers local rendering and application-owned persistence, not remote
 servers, account integration, or a general performance improvement.

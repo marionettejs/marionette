@@ -96,11 +96,11 @@ const SkeletorApi = {
     const onUpdate = function(_: Collection<TModel>, options?: Options) {
       const alreadySorted = options && sortedOptions.delete(options);
       const { added, removed, reordered } = snapshotChange();
-      if (!added.length && !removed.length && !reordered &&
-          (alreadySorted || (options?.changes && !options.changes.merged?.length))) { return; }
+      if (alreadySorted && !added.length && !removed.length && !reordered) { return; }
 
-      // Bare updates may explicitly refresh presentation. Merges retain model
-      // identity; model events still own the child's rendering.
+      // An unpaired update can be meaningful to a View that rendered a silent
+      // intermediate state, even when this observer's snapshot did not change.
+      // Merges retain model identity; model events still own row rendering.
       callback.call(context, { kind: 'update', added, removed, updated: [], reconcile: true });
     };
 
