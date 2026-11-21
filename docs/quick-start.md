@@ -24,7 +24,7 @@ mkdir marionette-example
 cd marionette-example
 npm init -y
 npm pkg set type=module scripts.dev="vite" scripts.build="vite build"
-npm install --ignore-scripts --save-exact marionette@5.1.1 @mnjs/utils@5.1.1 @mnjs/radio@5.1.1 @mnjs/html@1.0.0
+npm install --ignore-scripts --save-exact marionette@5.2.0 @mnjs/utils@5.2.0 @mnjs/radio@5.2.0 @mnjs/html@1.0.0
 npm install --ignore-scripts --save-dev vite@8
 ```
 
