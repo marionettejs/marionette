@@ -168,7 +168,7 @@
     "@types/jquery": "4.0.1",
     "@typescript-eslint/eslint-plugin": "8.73.0",
     "@typescript-eslint/parser": "8.73.0",
-    "@vitest/coverage-v8": "5.1.0",
+    "@vitest/coverage-v8": "5.1.1",
     "@vitest/eslint-plugin": "1.6.28",
     "ajv": "8.20.0",
     "backbone": "^1.4.0",
@@ -191,7 +191,7 @@
     "underscore": "^1.13.0",
     "urlpattern-polyfill": "10.1.0",
     "vite": "8.3.8",
-    "vitest": "5.1.0",
+    "vitest": "5.1.1",
     "xstate": "5.33.4",
     "yaml": "2.9.1"
   },
