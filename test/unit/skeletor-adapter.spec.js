@@ -31,6 +31,12 @@ function list(collection, options = {}) {
   return new mn.CollectionView({ collection, childView, ...options }).render();
 }
 
+function expectChildModels(view, models) {
+  const actual = view.children.map(child => child.model);
+  expect(actual).toHaveLength(models.length);
+  models.forEach((model, index) => expect(actual[index]).toBe(model));
+}
+
 describe('Skeletor adapter with real 4.0.3 sources', function() {
   it('reads own attributes and declared computed keys, including null and undefined', function() {
     const model = new Item({ title: 'First', nullable: null, undef: undefined });
@@ -258,7 +264,7 @@ describe('Skeletor adapter with real 4.0.3 sources', function() {
 
     collection.add(second);
     expect(view.el.textContent).toBe('BC');
-    expect(view.children.map(child => child.model)).toEqual([second, third]);
+    expectChildModels(view, [second, third]);
     expect(previous.isDestroyed()).toBe(true);
     expect(notify).toHaveBeenCalledExactlyOnceWith({
       kind: 'update', added: [second, third], removed: [first], updated: []
@@ -277,7 +283,7 @@ describe('Skeletor adapter with real 4.0.3 sources', function() {
     ]));
     collection.add({ id: 2, title: 'B', rank: 2 });
     expect(view.el.textContent).toBe('BC');
-    expect(view.children.map(child => child.model)).toEqual(collection.models);
+    expectChildModels(view, collection.models);
     expect(notify).toHaveBeenCalledTimes(2);
     expect(notify.mock.calls.map(([{ added }]) => added.map(model => model.id))).toEqual([[2], [3]]);
     stop();
@@ -295,7 +301,7 @@ describe('Skeletor adapter with real 4.0.3 sources', function() {
     ]));
     collection.add({ id: 2, title: 'B', rank: 2 });
     expect(view.el.textContent).toBe('BC');
-    expect(view.children.map(child => child.model)).toEqual(collection.models);
+    expectChildModels(view, collection.models);
     view.destroy();
   });
 
@@ -311,7 +317,7 @@ describe('Skeletor adapter with real 4.0.3 sources', function() {
     expect(notify).not.toHaveBeenCalled();
     view.render();
     expect(view.el.textContent).toBe('AB');
-    expect(view.children.map(child => child.model)).toEqual([first, second]);
+    expectChildModels(view, [first, second]);
     expect(notify).not.toHaveBeenCalled();
     stop();
     view.destroy();

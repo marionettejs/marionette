@@ -508,6 +508,10 @@
     {
       "file": "skeletor-adapter.spec.mjs",
       "title": "packed Skeletor adapter observes attached hydration and releases only owner listeners"
+    },
+    {
+      "file": "skeletor-adapter.spec.mjs",
+      "title": "packed Skeletor adapter keeps children unique through nested notified mutations"
     }
   ],
   "fixtures": [
