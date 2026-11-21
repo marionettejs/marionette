@@ -11,6 +11,8 @@ at the time it shipped; older prerelease APIs may have been superseded.
 
 ### v5.2.0
 
+> Bring your own models. Marionette 5.2 adds a Skeletor adapter and gives trusted markup an explicit way into the DOM.
+
 * Add the optional `@mnjs/adapters/skeletor` adapter for Skeletor 4.0.3.
   Views can read model attributes and computed values without altering persisted
   attributes, and CollectionViews follow collection events while retaining
