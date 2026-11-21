@@ -134,7 +134,9 @@ Each job installs and builds its own checkout and uploads its own reports. The
 `Node 24` aggregate check also requires the Node 26 LTS package fixture job;
 all seven required suites must succeed. A failed, cancelled, or skipped suite
 does not pass the aggregate check. macOS package smoke
-runs alongside these jobs, and Windows package smoke runs on master pushes.
+runs alongside these jobs. Windows package smoke runs on pull requests and master
+pushes, including GNU tar archive portability tests under Git Bash before exact
+candidate restoration and the package fixtures.
 On PRs, Linux and macOS run `bash test/fixtures/smoke.sh` after `npm ci`: it packs
 the built outputs once without lifecycle scripts and supplies those same five
 tarballs to `cjs-node`, `standalone-packages`, `core-types`, `vite`,

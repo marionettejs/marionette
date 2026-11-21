@@ -1,5 +1,6 @@
 import { verifyDevelopmentKit } from '../docs/development-kit.mjs';
 import { spawnSync } from 'node:child_process';
+import { readTarFile } from './archive.mjs';
 import { createHash } from 'node:crypto';
 import { appendFile, readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
@@ -108,19 +109,8 @@ for (const packageEvidence of evidence.packages) {
   assertEqual(packageManifest.integrity, packageEvidence.tarball.integrity, `${label} package manifest integrity`);
   assertEqual(packageManifest.shasum, packageEvidence.tarball.shasum, `${label} package manifest shasum`);
 
-  const tarPackage = spawnSync('tar', [
-    '-xOf',
-    tarballPath,
-    'package/package.json',
-  ], { encoding: 'utf8', maxBuffer: 1024 * 1024 });
-  if (tarPackage.error) {
-    throw tarPackage.error;
-  }
-  if (tarPackage.status !== 0) {
-    process.stderr.write(tarPackage.stderr);
-    throw new Error(`tar exited with status ${tarPackage.status}.`);
-  }
-  if (JSON.stringify(JSON.parse(tarPackage.stdout)) !== JSON.stringify(packageEvidence.manifest)) {
+  const tarPackage = readTarFile(tarball, 'package/package.json', { gzip: true });
+  if (JSON.stringify(JSON.parse(tarPackage)) !== JSON.stringify(packageEvidence.manifest)) {
     throw new Error(`${label} packed package.json does not match the evidence manifest.`);
   }
 }

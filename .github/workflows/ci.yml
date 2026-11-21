@@ -632,7 +632,6 @@ jobs:
 
   windows-package-smoke:
     name: Package smoke (Windows x64)
-    if: github.event_name == 'push'
     needs: candidate
     runs-on: windows-2025
 
@@ -653,6 +652,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Test archive portability under Git Bash
+        shell: bash
+        env:
+          MNJS_REQUIRE_GNU_TAR: '1'
+        run: node --test test/release/archive.test.mjs
 
       - name: Restore exact candidate
         uses: ./.github/actions/restore-candidate
