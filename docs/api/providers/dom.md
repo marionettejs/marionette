@@ -63,10 +63,14 @@ Only content insertion changes; native root creation, queries and placement rema
 
 Use `setContents` for renderer output. Use `setUnsafeHtml` only for an explicit
 raw-markup write, such as a trusted SVG string in a dedicated icon container.
-It does not sanitize or run Marionette teardown. Do not use it on children owned
-by a renderer or another View. Provider overlays inherit it unless they override
-it. It is optional in the TypeScript provider contract so existing standalone
-providers remain valid; the native provider always supplies it.
+It does not sanitize markup, run Marionette teardown, or clean up jQuery data
+and event handlers on removed descendants like jQuery's `.html()` does. Do not
+use it on a View root managed by a renderer such as `@mnjs/html`: replacing its
+children removes the markers used by later renders. Use a dedicated container
+whose descendants are not managed by a renderer, View, Region, or jQuery.
+Pass an empty string to clear it. Provider overlays inherit the method unless
+they override it. It is optional in the TypeScript provider contract so existing
+standalone providers remain valid; the native provider always supplies it.
 
 Marionette owns View/Region lifecycle and child cleanup around these operations. Providers must preserve the root identity and must not destroy unrelated Views or borrowed sources. Preserve renderer markers when moving child elements; a provider must support the actual content it created. The `@mnjs/html` adapter implements content insertion and attachment notifications; use its [integration guide](../../../packages/html/guide.md#choosing-a-dom-integration).
 

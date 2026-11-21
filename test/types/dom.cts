@@ -12,6 +12,10 @@ nativeDom.setContents(el, '<b>contents</b>');
 const rawMarkup: void = nativeDom.setUnsafeHtml(el, '<i>icon</i>');
 // @ts-expect-error Only raw markup strings are supported.
 nativeDom.setUnsafeHtml(el, fragment);
+// A complete standalone provider written before setUnsafeHtml remains valid.
+const { setUnsafeHtml: _setUnsafeHtml, ...legacyDom } = nativeDom;
+const compatibleDom: DomApi<NodeListOf<Element>, string> = legacyDom;
+compatibleDom.setUnsafeHtml?.(el, '<i>optional</i>');
 nativeDom.setAttributes(el, {disabled: true, tabIndex: 0, title: null});
 nativeDom.setAttributes(el, Object.assign(() => {}, {title: 'callable map'}));
 for (const ignored of [undefined, null, false, true, 0, 1, 0n, 1n, '', 'ignored', Symbol()] as const) {
