@@ -246,6 +246,23 @@ describe('DomApi', function() {
     });
   });
 
+  describe('#setUnsafeHtml', function() {
+    it('replaces children with markup and clears them with an empty string', function() {
+      const el = document.createElement('span');
+      const oldChild = el.appendChild(document.createElement('b'));
+
+      DomApi.setUnsafeHtml(el, '<svg viewBox="0 0 16 16"><path d="M2 8h12"/></svg>');
+
+      const svg = el.firstElementChild;
+      expect(oldChild.parentNode).toBeNull();
+      expect(svg.namespaceURI).toBe('http://www.w3.org/2000/svg');
+      expect(svg.firstElementChild.namespaceURI).toBe(svg.namespaceURI);
+
+      DomApi.setUnsafeHtml(el, '');
+      expect(el.childNodes).toHaveLength(0);
+    });
+  });
+
   describe('#setAttributes', function() {
     it('applies own enumerable attributes without assigning element properties', function() {
       const el = document.createElement('div');

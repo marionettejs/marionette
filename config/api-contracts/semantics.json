@@ -1291,7 +1291,8 @@
             "notifyDetach",
             "replaceEl",
             "setAttributes",
-            "setContents"
+            "setContents",
+            "setUnsafeHtml"
           ]
         },
         {
@@ -3470,11 +3471,21 @@
             "notifyDetach",
             "replaceEl",
             "setAttributes",
-            "setContents"
+            "setContents",
+            "setUnsafeHtml"
           ]
         }
       ],
       "tests": [
+        {
+          "file": "test/unit/runtime/dom-api.spec.js",
+          "title": "replaces children with markup and clears them with an empty string"
+        },
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "lit-html: inherits raw markup insertion without changing renderer output",
+          "runner": "test/unit/dom-adapters.spec.js"
+        },
         {
           "file": "test/unit/jquery-dom-api.spec.js",
           "title": "returns native results from view.$() with the native DomApi"
