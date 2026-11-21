@@ -11,7 +11,7 @@ at the time it shipped; older prerelease APIs may have been superseded.
 
 ### v5.2.0
 
-> Skeletor has joined the cast. He gets an optional adapter, so the takeover will have to wait. We also added `setUnsafeHtml`, which is about as close as an API name can get to a warning label.
+> We took Backbone out of core, and somehow ended up with Skeletor. He’s optional. Apparently we do have a policy about skeletons.
 
 * Add the optional `@mnjs/adapters/skeletor` adapter for Skeletor 4.0.3.
   Views can read model attributes and computed values without altering persisted
