@@ -210,11 +210,11 @@
   "devDependencies": {
     "typescript": "6.0.3",
     "terser": "5.51.2",
-    "jsdom": "31.0.0",
+    "jsdom": "31.0.1",
     "marionette": "5.0.1",
     "lit-html": "3.3.3",
-    "@playwright/test": "1.65.0",
-    "rollup": "4.68.2"
+    "@playwright/test": "1.65.1",
+    "rollup": "4.68.5"
   },
   "dependencies": {
     "@types/trusted-types": "2.0.7"
