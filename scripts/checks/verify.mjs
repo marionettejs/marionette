@@ -10,6 +10,7 @@ const scripts = [
   ...(process.env.MNJS_HTML_TARBALL ? [] : ['docs:prepare-html']), 'test:router-tarball',
   'lint:ci', values.full ? 'coverage' : 'test:unit',
 ];
+scripts.splice(scripts.indexOf('build') + 1, 0, values.full ? 'coverage:formkit' : 'test:formkit:unit', 'test:formkit');
 if (values.full) { scripts.push('test:source', 'coverage:tooling', 'docs:check', 'test:dist', 'test:browser', 'test:browser-performance', 'test:fixtures', 'agent:cache', 'test:agent-app', 'agent:reference', 'agent:fixtures'); }
 if (!process.env.npm_execpath) { throw new Error('Run verification through npm run verify.'); }
 for (const script of scripts) {

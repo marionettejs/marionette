@@ -1,0 +1,95 @@
+{
+  "results": [
+    {
+      "name": "no-op",
+      "present": true,
+      "sameFocused": true,
+      "selection": [
+        1,
+        4,
+        "backward"
+      ],
+      "sameValue": true,
+      "events": [],
+      "order": [
+        "a",
+        "b",
+        "c"
+      ],
+      "sameCore": true
+    },
+    {
+      "name": "move-focused",
+      "present": true,
+      "sameFocused": true,
+      "selection": [
+        1,
+        4,
+        "backward"
+      ],
+      "sameValue": true,
+      "events": [],
+      "order": [
+        "c",
+        "a",
+        "b"
+      ],
+      "sameCore": true
+    },
+    {
+      "name": "move-sibling",
+      "present": true,
+      "sameFocused": true,
+      "selection": [
+        1,
+        4,
+        "backward"
+      ],
+      "sameValue": true,
+      "events": [],
+      "order": [
+        "c",
+        "b",
+        "a"
+      ],
+      "sameCore": true
+    },
+    {
+      "name": "move-focused-ancestor",
+      "present": true,
+      "sameFocused": true,
+      "selection": [
+        1,
+        4,
+        "backward"
+      ],
+      "sameValue": true,
+      "events": [],
+      "order": [
+        "z",
+        "x",
+        "y"
+      ],
+      "sameCore": true
+    },
+    {
+      "name": "remove-focused",
+      "present": false,
+      "sameFocused": false,
+      "selection": [
+        1,
+        4,
+        "backward"
+      ],
+      "sameValue": true,
+      "events": [],
+      "order": [
+        "a",
+        "c"
+      ]
+    }
+  ],
+  "limits": [
+    "JSDOM does not emulate real keyboard/IME or state-preserving moveBefore browser semantics"
+  ]
+}

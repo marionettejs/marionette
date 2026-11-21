@@ -1,0 +1,1 @@
+{"passed":true,"checks":["raw callback destroy cancels continuation","destroy during awaited settlement suppresses callbacks","sync user exception preserved","async user rejection preserved","destroying submit callback rejection preserved"]}

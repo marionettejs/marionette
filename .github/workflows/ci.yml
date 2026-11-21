@@ -162,6 +162,24 @@ jobs:
             test/tmp/test-package-consumer/
           if-no-files-found: warn
 
+      - name: Build and verify the FormKit package candidate
+        run: |
+          npm run lint:formkit
+          npm run build:formkit
+          npm run coverage:formkit
+          npm run test:formkit
+
+      - name: Upload FormKit package reports
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: formkit-node-24
+          path: |
+            packages/formkit/coverage/
+            packages/formkit/test/tmp/package-result.json
+            packages/formkit/test/tmp/packed-*/mnjs-formkit-*.tgz
+          if-no-files-found: warn
+
   tooling:
     name: Tooling (Node 24)
     needs: candidate

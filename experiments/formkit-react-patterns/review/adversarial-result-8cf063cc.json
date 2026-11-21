@@ -1,0 +1,9 @@
+{
+  "afterDestroySubscriberCalls": 0,
+  "duplicateIds": [],
+  "setFieldsAfterDestroy": {
+    "fields": 0,
+    "children": 0,
+    "detachedInputs": 0
+  }
+}

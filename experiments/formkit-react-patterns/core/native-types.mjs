@@ -1,0 +1,1 @@
+export const nativeTypes = ['text','email','password','search','tel','url','number','date','time','datetime-local','month','week','color','range','hidden','textarea','checkbox','select','group','list','radio','file','button','submit','meta'];

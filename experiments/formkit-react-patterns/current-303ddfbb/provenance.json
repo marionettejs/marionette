@@ -1,0 +1,84 @@
+{
+  "revision": "303ddfbb171be8b38964b1972ffd976599540564",
+  "source": "independently verified native-fence head map",
+  "files": [
+    {
+      "path": "packages/formkit/src/bindings.ts",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "1ab5697cd3fa6d34fc56f81230a191d0b8678025"
+    },
+    {
+      "path": "packages/formkit/src/composition-input.ts",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "fe5ee276a7f410303c3e286efed35e851eceeaa3"
+    },
+    {
+      "path": "packages/formkit/src/composition.ts",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "45aefdcdaaa3ac12959e6c72af4fb3d8e1695976"
+    },
+    {
+      "path": "packages/formkit/src/core-reads.ts",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "825a195c5acf7384683f2ce380f02df92d62af77"
+    },
+    {
+      "path": "packages/formkit/src/effects.ts",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "b82de5e57e6ec029b05b632ca2f315360543b17a"
+    },
+    {
+      "path": "packages/formkit/src/index.ts",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "2803b320e2937da4178b1ab4c47315b177136d02"
+    },
+    {
+      "path": "packages/formkit/src/invalidation.ts",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "219f6078f56f0a60326becee7cb90ffa06ba5041"
+    },
+    {
+      "path": "packages/formkit/src/ownership.ts",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "a5b2b749b6251d9c435d6e43285659df7ec194f6"
+    },
+    {
+      "path": "packages/formkit/src/row-ownership.ts",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "0c9921acb3857fdeacfda0489c254d0226b3eedc"
+    },
+    {
+      "path": "packages/formkit/src/runtime.ts",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "5f6f56fb557168db42221c1cc91807ea6a20bd72"
+    },
+    {
+      "path": "packages/formkit/src/schema-view.ts",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "01a47a22db2e4ff969f78dacf8eab9ff52be8230"
+    },
+    {
+      "path": "packages/formkit/src/schema.ts",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "a397518355a3ff18f137251a09bad555828c0bc3"
+    },
+    {
+      "path": "packages/formkit/src/view-components.ts",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "260c413bde7a783478b328c1e79d8d54094fcb6e"
+    }
+  ]
+}

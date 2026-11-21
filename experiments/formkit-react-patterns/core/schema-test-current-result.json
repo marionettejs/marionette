@@ -1,0 +1,1 @@
+{"passed":true,"checks":["official compiled supplied values expression","then/else branch swap","retained control identity","removed child/value cleanup","controller stops callbacks after destroy","unsupported schema rejected","Core destruction owns observer cleanup"]}

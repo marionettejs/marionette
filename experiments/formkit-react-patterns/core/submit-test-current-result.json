@@ -1,0 +1,1 @@
+{"passed":true,"checks":["official form/text definitions","invalid callback suppresses valid submit","raw event both paths","submitted state","incomplete UI message","valid submit detached snapshot","official reset clears submitted/value"]}

@@ -1,0 +1,12 @@
+{
+  "afterDestroySubscriberCalls": 1,
+  "duplicateIds": [
+    "experiment-x",
+    "experiment-x-rule_required"
+  ],
+  "setFieldsAfterDestroy": {
+    "fields": 1,
+    "children": 1,
+    "detachedInputs": 1
+  }
+}

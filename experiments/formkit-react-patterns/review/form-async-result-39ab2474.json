@@ -1,0 +1,16 @@
+{
+  "pending": {
+    "calls": 1,
+    "rootDisabled": true,
+    "childDisabled": true,
+    "domDisabled": true,
+    "loading": true
+  },
+  "afterDestroy": {
+    "children": 0,
+    "dom": "",
+    "loading": false,
+    "context": null
+  }
+}
+{"validAfterRawDestroy":0}

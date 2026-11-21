@@ -19,6 +19,9 @@ export default [
       'dist/**',
       'node_modules/**',
       'packages/*/dist/**',
+      // Generated FormKit coverage and extracted package-consumer artifacts.
+      'packages/formkit/coverage/**',
+      'packages/formkit/test/tmp/**',
       // Optional Lit-derived renderer retains its independent upstream-style checks.
       'packages/html/**',
       'examples/*/dist/**',
