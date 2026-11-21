@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { htmlCandidate } from '../../test/docs/html-candidate.mjs';
 import { readArguments } from './arguments.mjs';
+import { extractTar, readTarFile } from './archive.mjs';
 
 // This archive is a same-run build transfer, never a publication artifact or a
 // cache. The expected hash must come from the producing job's output.
@@ -42,11 +43,12 @@ try {
     console.log(sha256);
   } else {
     assert.match(args.sha256 || '', /^[a-f0-9]{64}$/, 'Supply the producer job output as --sha256');
-    assert.equal(createHash('sha256').update(await readFile(archive)).digest('hex'), args.sha256, 'Build output checksum mismatch');
+    const bytes = await readFile(archive);
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), args.sha256, 'Build output checksum mismatch');
     // Check the authenticated identity before touching any checkout output.
-    const received = JSON.parse(run('tar', ['-xOf', archive, 'identity.json']));
+    const received = JSON.parse(readTarFile(bytes, 'identity.json'));
     assert.deepEqual(received, identity, 'Build outputs require the exact source SHA, lockfile and toolchain');
-    run('tar', ['-xf', archive, '-C', temporary]);
+    extractTar(bytes, temporary);
     for (const path of paths) {
       await rm(resolve(root, path), { recursive: true, force: true });
       await mkdir(dirname(resolve(root, path)), { recursive: true });

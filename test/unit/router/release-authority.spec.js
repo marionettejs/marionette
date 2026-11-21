@@ -13,7 +13,7 @@ it('settles initial cancellation when a driver state read stops the owner', asyn
       return entry.getState();
     } };
   } };
-  const router = createRouter({ driver, routes: { a: { path: '/a' } } });
+  const router = createRouter({ driver, routes: { '/a': { name: 'a' } } });
   await router.start();
   assert.deepEqual(await router.getInitialDispatch(), { status: 'cancelled' });
   assert.equal(router.isRunning(), false);
@@ -28,8 +28,8 @@ for (const action of ['navigate', 'veto', 'prior-veto', 'stop']) {
     const handled = [];
     let enabled = false;
     let newer;
-    const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' } },
-      intercept(url) {
+    const router = createRouter({ driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' } },
+      owns(url) {
         if (enabled && url.pathname === '/a') {
           enabled = false;
           if (action === 'stop') { router.stop(); } else { newer = router.navigate('b'); }
@@ -60,7 +60,7 @@ for (const action of ['navigate', 'stop']) {
     let newer;
     const errors = [];
     const failure = new Error('obsolete refresh policy');
-    const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' } }, intercept() {
+    const router = createRouter({ driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' } }, owns() {
       if (enabled) {
         enabled = false;
         if (action === 'stop') { router.stop(); } else { newer = router.navigate('b'); }
@@ -86,7 +86,7 @@ it('keeps a navigation from an initial marking observer authoritative', async() 
     memory.updateCurrentEntry(options);
     if (notify) { notify = false; newer = router.navigate('b'); }
   } };
-  const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' } },
+  const router = createRouter({ driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' } },
     handler(match) { handled.push(match.name); } });
   await router.start();
   assert.deepEqual(await router.getInitialDispatch(), { status: 'cancelled' });
@@ -97,52 +97,18 @@ it('keeps a navigation from an initial marking observer authoritative', async() 
   assert.deepEqual(handled, ['b']);
 });
 
-it('does not overwrite a replacement match from a state-update observer', async() => {
+
+it('reads the final stored state after a nested marking observer', async() => {
   const memory = memoryDriver({ url: 'https://routes.example/a' });
-  let notify = false;
-  let newer;
+  let notify = true;
   const driver = { ...memory, get currentEntry() { return memory.currentEntry; }, updateCurrentEntry(options) {
     memory.updateCurrentEntry(options);
-    if (notify) { notify = false; newer = router.navigate('b', {}, { history: 'replace', state: { resource: 'b' } }); }
+    if (notify) { notify = false; driver.updateCurrentEntry({ state: { ...memory.currentEntry.getState(), fromObserver: true } }); }
   } };
-  const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' } } });
+  const router = createRouter({ driver, routes: { '/a': { name: 'a' } } });
   await router.start(); await router.getInitialDispatch();
-  notify = true;
-  assert.equal(router.updateState({ tab: 'a' }), true);
-  assert.equal(await newer.finished, true);
-  assert.equal(router.getCurrent().name, 'b');
-  assert.deepEqual(router.getCurrent().state, { resource: 'b' });
+  assert.deepEqual(router.getCurrent().state, { fromObserver: true });
 });
-
-for (const matched of [true, false]) {
-  it(`preserves ${matched ? 'owned' : 'unowned'} entry status against supplied reserved state`, async() => {
-    const driver = memoryDriver({ url: `https://routes.example/${matched ? 'a' : 'outside'}` });
-    const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' } } });
-    await router.start(); await router.getInitialDispatch();
-    assert.equal(router.updateState({ '@mnjs/router': !matched, tab: 'details' }), true);
-    if (matched) { assert.deepEqual(router.getCurrent().state, { tab: 'details' }); }
-    await router.navigate('b').finished;
-    assert.equal(router.canGoBack(), matched);
-    assert.equal(await router.back(), matched);
-    assert.equal(router.getCurrent().name, matched ? 'a' : 'b');
-    if (matched) { assert.deepEqual(router.getCurrent().state, { tab: 'details' }); }
-  });
-}
-
-for (const initial of [false, true]) {
-  it(`reads the final stored state after a nested ${initial ? 'marking' : 'update'} observer`, async() => {
-    const memory = memoryDriver({ url: 'https://routes.example/a' });
-    let notify = initial;
-    const driver = { ...memory, get currentEntry() { return memory.currentEntry; }, updateCurrentEntry(options) {
-      memory.updateCurrentEntry(options);
-      if (notify) { notify = false; router.updateState({ fromObserver: true }); }
-    } };
-    const router = createRouter({ driver, routes: { a: { path: '/a' } } });
-    await router.start(); await router.getInitialDispatch();
-    if (!initial) { notify = true; router.updateState({ outer: true }); }
-    assert.deepEqual(router.getCurrent().state, initial ? { fromObserver: true } : { outer: true, fromObserver: true });
-  });
-}
 
 for (const action of ['navigate', 'stop']) {
   it(`abandons refresh after a successful state read reenters ${action}`, async() => {
@@ -159,7 +125,7 @@ for (const action of ['navigate', 'stop']) {
         return entry.getState();
       } };
     } };
-    const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' } } });
+    const router = createRouter({ driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' } } });
     await router.start(); await router.getInitialDispatch();
     notify = true;
     assert.equal(await router.refresh(), false);
@@ -168,7 +134,7 @@ for (const action of ['navigate', 'stop']) {
   });
 }
 
-for (const phase of ['mark', 'update', 'refresh']) {
+for (const phase of ['mark', 'refresh']) {
   it(`skips obsolete entry reads after ${phase} already navigated elsewhere`, async() => {
     const memory = memoryDriver({ url: 'https://routes.example/a' });
     let enabled = phase === 'mark';
@@ -185,37 +151,17 @@ for (const phase of ['mark', 'update', 'refresh']) {
       memory.updateCurrentEntry(options);
       if (enabled && phase !== 'refresh') { enabled = false; newer = router.navigate('b'); armed = true; }
     } };
-    const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' } }, intercept() {
+    const router = createRouter({ driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' } }, owns() {
       if (enabled && phase === 'refresh') { enabled = false; newer = router.navigate('b'); armed = true; }
       return true;
     } });
     await router.start(); await router.getInitialDispatch();
     if (phase !== 'mark') {
       enabled = true;
-      if (phase === 'refresh') { assert.equal(await router.refresh(), false); } else { router.updateState({ outer: true }); }
+      assert.equal(await router.refresh(), false);
     }
     assert.equal(await newer.finished, true);
     assert.equal(stale, undefined);
     assert.equal(router.getCurrent().name, 'b');
   });
 }
-
-it('does not overwrite a newer match when the final state read navigates', async() => {
-  const memory = memoryDriver({ url: 'https://routes.example/a' });
-  let enabled = false;
-  let reading = false;
-  let newer;
-  const driver = { ...memory, get currentEntry() {
-    const entry = memory.currentEntry;
-    return { ...entry, getState() {
-      if (reading) { reading = false; newer = router.navigate('b', {}, { state: { page: 'b' } }); }
-      return entry.getState();
-    } };
-  }, updateCurrentEntry(options) { memory.updateCurrentEntry(options); if (enabled) { enabled = false; reading = true; } } };
-  const router = createRouter({ driver, routes: { a: { path: '/a' }, b: { path: '/b' } } });
-  await router.start(); await router.getInitialDispatch(); enabled = true;
-  router.updateState({ outer: true });
-  assert.equal(await newer.finished, true);
-  assert.equal(router.getCurrent().name, 'b');
-  assert.deepEqual(router.getCurrent().state, { page: 'b' });
-});

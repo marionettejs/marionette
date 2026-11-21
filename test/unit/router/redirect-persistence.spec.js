@@ -10,11 +10,11 @@ for (const asynchronous of [false, true]) {
       const entered = Promise.withResolvers();
       const work = Promise.withResolvers();
       let paused = initial;
-      const router = createRouter({ driver, persistParams: ['desk'], routes: {
-        desk: { path: '/:desk', redirect() {
+      const router = createRouter({ driver, routes: {
+        '/:desk': { name: 'desk', redirect() {
           const target = { name: 'catalog' };
           return asynchronous ? Promise.resolve(target) : target;
-        } }, catalog: { path: '/:desk/catalog', handler(match) {
+        } }, '/:desk/catalog': { name: 'catalog', handler(match) {
           if (paused) { entered.resolve(match); return work.promise; }
         } },
       } });
@@ -25,7 +25,7 @@ for (const asynchronous of [false, true]) {
       completion.then(() => { settled = true; });
       const first = await Promise.race([entered.promise.then(match => ({ match })), completion.then(value => ({ value }))]);
       assert.equal(first.match?.params.desk, 'red');
-      assert.equal(driver.currentEntry.url, 'https://routes.example/red/catalog');
+      assert.equal(driver.currentEntry.url, `https://routes.example/red/catalog${initial ? '' : '?drop=1#old'}`);
       assert.equal(settled, false, 'Redirect completion must await destination presentation');
       work.resolve();
       const result = await completion;
@@ -35,11 +35,11 @@ for (const asynchronous of [false, true]) {
   }
 
   it(`keeps explicit params authoritative in ${asynchronous ? 'async' : 'sync'} redirects`, async() => {
-    const router = createRouter({ driver: memoryDriver({ url: 'https://routes.example/red' }), persistParams: ['desk'], routes: {
-      desk: { path: '/:desk', redirect() {
+    const router = createRouter({ driver: memoryDriver({ url: 'https://routes.example/red' }), routes: {
+      '/:desk': { name: 'desk', redirect() {
         const target = { name: 'catalog', params: { desk: 'green' } };
         return asynchronous ? Promise.resolve(target) : target;
-      } }, catalog: { path: '/:desk/catalog' },
+      } }, '/:desk/catalog': { name: 'catalog' },
     } });
     await router.start();
     assert.equal((await router.getInitialDispatch()).status, 'matched');
@@ -47,22 +47,22 @@ for (const asynchronous of [false, true]) {
   });
 
   it(`does not borrow missing redirect params from the departing route with ${asynchronous ? 'async' : 'sync'} targets`, async() => {
-    const router = createRouter({ driver: memoryDriver({ url: 'https://routes.example/blue/catalog' }), persistParams: ['desk'], routes: {
-      legacy: { path: '/legacy', redirect() {
+    const router = createRouter({ driver: memoryDriver({ url: 'https://routes.example/blue/catalog' }), routes: {
+      '/legacy': { name: 'legacy', redirect() {
         const target = { name: 'catalog' };
         return asynchronous ? Promise.resolve(target) : target;
-      } }, catalog: { path: '/:desk/catalog' },
+      } }, '/:desk/catalog': { name: 'catalog' },
     } });
     await router.start(); await router.getInitialDispatch();
     await assert.rejects(router.navigate('legacy').finished, /missing param "desk"/);
   });
 
   it(`preserves explicit param clearing in ${asynchronous ? 'async' : 'sync'} redirects`, async() => {
-    const router = createRouter({ driver: memoryDriver({ url: 'https://routes.example/red' }), persistParams: ['desk'], routes: {
-      desk: { path: '/:desk', redirect() {
+    const router = createRouter({ driver: memoryDriver({ url: 'https://routes.example/red' }), routes: {
+      '/:desk': { name: 'desk', redirect() {
         const target = { name: 'catalog', params: { desk: undefined } };
         return asynchronous ? Promise.resolve(target) : target;
-      } }, catalog: { path: '/:desk/catalog' },
+      } }, '/:desk/catalog': { name: 'catalog' },
     } });
     await router.start();
     const initial = await router.getInitialDispatch();

@@ -13,7 +13,7 @@ it('adds originating info without changing existing error, Match, hook or listen
   const events = [];
   const Routes = Router.extend({ onRouteError(...args) { hooks.push(args); } });
   const router = new Routes({ driver: memoryDriver({ url: `${origin}/home` }), routes: {
-    home: { path: '/home' }, fail: { path: '/fail', handler() { throw error; } },
+    '/home': { name: 'home' }, '/fail': { name: 'fail', handler() { throw error; } },
   } });
   router.on('route:error', (reason, match) => oldListeners.push([reason, match]));
   router.on('route:error', (...args) => events.push(args));
@@ -34,8 +34,8 @@ it('exposes info for planning failure without a Match', async() => {
   const info = { caller: {} };
   const events = [];
   const router = createRouter({ driver: memoryDriver({ url: `${origin}/home` }), routes: {
-    home: { path: '/home' }, fail: { path: '/fail' },
-  }, intercept(url) { if (url.pathname === '/fail') { throw error; } return true; } });
+    '/home': { name: 'home' }, '/fail': { name: 'fail' },
+  }, owns(url) { if (url.pathname === '/fail') { throw error; } return true; } });
   router.on('route:error', (...args) => events.push(args));
   await router.start(); await router.getInitialDispatch();
   await assert.rejects(router.navigate('fail', {}, { info }).finished, reason => reason === error);
@@ -52,11 +52,11 @@ for (const asynchronous of [false, true]) {
       const info = { caller: {} };
       const events = [];
       const router = createRouter({ driver: memoryDriver({ url: `${origin}/home` }), routes: {
-        home: { path: '/home' },
-        old: { path: '/old', redirect: () => asynchronous ? Promise.resolve('/middle') : '/middle' },
-        middle: { path: '/middle', redirect: () => ({ name: 'fail', hash: '#details' }) },
-        fail: { path: '/fail', handler() { throw error; } },
-      }, intercept(url) { if (beforeMatch && url.pathname === '/fail') { throw error; } return true; } });
+        '/home': { name: 'home' },
+        '/old': { name: 'old', redirect: () => asynchronous ? Promise.resolve('/middle') : '/middle' },
+        '/middle': { name: 'middle', redirect: () => ({ name: 'fail', hash: '#details' }) },
+        '/fail': { name: 'fail', handler() { throw error; } },
+      }, owns(url) { if (beforeMatch && url.pathname === '/fail') { throw error; } return true; } });
       router.on('route:error', (...args) => events.push(args));
       await router.start(); await router.getInitialDispatch();
       await assert.rejects(router.navigate('old', {}, { info }).finished, reason => reason === error);
@@ -80,8 +80,8 @@ it('keeps per-attempt info through synchronous error-hook reentry with a shared 
     if (hooks.length === 1) { second = this.navigate('second', {}, { info: secondInfo }); }
   } });
   const router = new Routes({ driver: memoryDriver({ url: `${origin}/home` }), routes: {
-    home: { path: '/home' }, first: { path: '/first' }, second: { path: '/second', handler() { throw shared; } },
-  }, intercept(url) { if (url.pathname === '/first') { throw shared; } return true; } });
+    '/home': { name: 'home' }, '/first': { name: 'first' }, '/second': { name: 'second', handler() { throw shared; } },
+  }, owns(url) { if (url.pathname === '/first') { throw shared; } return true; } });
   router.on('route:error', (...args) => events.push(args));
   try {
     await router.start(); await router.getInitialDispatch();
@@ -104,8 +104,8 @@ for (const operation of ['initial', 'refresh']) {
       let failing = operation === 'initial';
       const events = [];
       const router = createRouter({ driver: memoryDriver({ url: `${origin}/home` }), routes: {
-        home: { path: '/home', handler() { if (failing && !beforeMatch) { throw error; } } },
-      }, intercept() { if (failing && beforeMatch) { throw error; } return true; } });
+        '/home': { name: 'home', handler() { if (failing && !beforeMatch) { throw error; } } },
+      }, owns() { if (failing && beforeMatch) { throw error; } return true; } });
       router.on('route:error', (...args) => events.push(args));
       await router.start();
       if (operation === 'initial') {
@@ -134,7 +134,7 @@ for (const mode of ['throw', 'reject']) {
       return { committed: Promise.reject(error), finished: Promise.reject(error) };
     } };
     const events = [];
-    const router = createRouter({ driver, routes: { home: { path: '/home' } } });
+    const router = createRouter({ driver, routes: { '/home': { name: 'home' } } });
     router.on('route:error', (...args) => events.push(args));
     await router.start(); await router.getInitialDispatch();
     if (mode === 'throw') { assert.throws(() => router.navigate('home', {}, { info: {} }), reason => reason === error); } else {
@@ -151,7 +151,7 @@ it('does not report abandoned route work after cancellation', async() => {
   const work = Promise.withResolvers();
   const events = [];
   const router = createRouter({ driver: memoryDriver({ url: `${origin}/home` }), routes: {
-    home: { path: '/home' }, slow: { path: '/slow', handler() { entered.resolve(); return work.promise; } },
+    '/home': { name: 'home' }, '/slow': { name: 'slow', handler() { entered.resolve(); return work.promise; } },
   } });
   router.on('route:error', (...args) => events.push(args));
   await router.start(); await router.getInitialDispatch();

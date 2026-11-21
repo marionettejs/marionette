@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
 
-test('release profile rejects broader and narrower engines in every published package', async t => {
+test('release profile rejects consumer support and required verification drift', async t => {
   const repository = resolve(import.meta.dirname, '../..');
   const root = await mkdtemp(join(tmpdir(), 'marionette-release-profile-'));
   t.after(() => rm(root, { recursive: true, force: true, maxRetries: 3 }));
@@ -42,4 +42,62 @@ test('release profile rejects broader and narrower engines in every published pa
       await writeFile(path, original);
     }
   }
+  for (const [file, before, after, message] of [
+    ['ci.yml', 'name: Node 26 LTS packages', 'continue-on-error: true\n    name: Node 26 LTS packages', /must test Node 26 as a required job/],
+    ['ci.yml', ', node-lts]', ']', /aggregate must require node-lts/],
+    ['ci.yml', ', node-lts]', ', pre-node-lts]', /aggregate must require node-lts/],
+    ['ci.yml', ', node-lts]', ', node-lts-extra]', /aggregate must require node-lts/],
+    ['docs-pages.yml', '\'22.22.2\', ', '', /must require the consumer Node matrix/],
+    ['docs-pages.yml', ', \'26.0.0\'', '', /must require the consumer Node matrix/],
+    ['release.yml', ', \'26\'', '', /must require the consumer Node matrix/],
+    ['release.yml', ', certification]', ']', /promotion must require consumer-lts/],
+    ['release.yml', ', certification]', ', pre-certification]', /promotion must require consumer-lts/],
+    ['release.yml', ', certification]', ', certification-extra]', /promotion must require consumer-lts/],
+    ['release.yml', ', consumer-lts]', ']', /promotion must require consumer-lts/],
+    ['release.yml', ', consumer-lts]', ', pre-consumer-lts]', /promotion must require consumer-lts/],
+    ['release.yml', ', consumer-lts]', ', consumer-lts-extra]', /promotion must require consumer-lts/],
+  ]) {
+    const path = join(root, '.github/workflows', file);
+    const original = await readFile(path, 'utf8');
+    assert(original.includes(before), before);
+    await writeFile(path, original.replace(before, after));
+    const result = run();
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stderr, message);
+    await writeFile(path, original);
+  }
+
+  // A duplicate keeps the lane count unchanged but loses one required floor/latest version.
+  const docsPath = join(root, '.github/workflows/docs-pages.yml');
+  const docsOriginal = await readFile(docsPath, 'utf8');
+  for (const version of profile.source.consumerNodeVersions) {
+    const duplicate = profile.source.consumerNodeVersions.find(entry => entry !== version);
+    const spec = `'${version}'`;
+    assert(docsOriginal.includes(spec), version);
+    await writeFile(docsPath, docsOriginal.replace(spec, `'${duplicate}'`));
+    const result = run();
+    assert.equal(result.status, 1, `Missing ${version}: ${result.stderr}`);
+    assert.match(result.stderr, /must require the consumer Node matrix/);
+    await writeFile(docsPath, docsOriginal);
+  }
+
+  // A following job must not supply a missing promotion dependency, including
+  // valid job IDs with underscores or uppercase letters.
+  const releasePath = join(root, '.github/workflows/release.yml');
+  const original = await readFile(releasePath, 'utf8');
+  const missingGate = original.replace(', consumer-lts]', ']');
+  const following = missingGate.slice(missingGate.indexOf('  certified_artifact:\n'),
+    missingGate.indexOf('  publication-targets:\n'));
+  assert(following.includes('    needs: preflight'));
+  for (const id of ['certified_artifact', 'Certified_Artifact']) {
+    const workflow = missingGate.replace(following,
+      following.replace('    needs: preflight', '    needs: [preflight, consumer-lts]'))
+      .replaceAll('certified_artifact', id);
+    await writeFile(releasePath, workflow);
+    const result = run();
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stderr, /promotion must require consumer-lts/);
+  }
+  await writeFile(releasePath, original);
+
 });

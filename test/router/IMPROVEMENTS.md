@@ -1,3 +1,8 @@
+> Historical pre-port review notes. The route-owning Applications port replaces
+> the registration/selection API described below; use the package README and
+> DESIGN for the current contract. Historical tests/results are not certification
+> of the port.
+
 # Independent router improvement scope
 
 Base: `a613f8de3a7c5a9a4d9aebe42a5f04b64b3ac6d0`, inspected with canonical origin

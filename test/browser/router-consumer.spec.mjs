@@ -3,7 +3,7 @@ import { routerArtifactPath } from '../router/artifact.mjs';
 import { test } from './fixtures.mjs';
 
 async function desk(page) {
-  test.skip(!await page.evaluate(() => 'navigation' in window), 'Navigation API unavailable');
+  expect(await page.evaluate(() => 'navigation' in window), 'Native Navigation API is required').toBe(true);
   await page.route('**/router.js', route => route.fulfill({
     path: routerArtifactPath('dist/index.js'), contentType: 'text/javascript',
   }));
@@ -11,9 +11,6 @@ async function desk(page) {
     path: routerArtifactPath('examples/desk/desk.mjs'), contentType: 'text/javascript',
   }));
   await page.evaluate(async() => {
-    const imports = document.createElement('script'); imports.type = 'importmap';
-    imports.textContent = JSON.stringify({ imports: { '@mnjs/router': '/router.js' } });
-    document.head.append(imports);
     const { navigationDriver } = await import('/router.js');
     const { Desk } = await import('/desk.mjs');
     const main = document.getElementById('content');
@@ -69,16 +66,17 @@ test('lazy sidebar routes refresh after mounting and registration survives UI st
     const { Activity } = await import('/desk.mjs');
     const state = window.deskExample;
     state.activity = state.tools.addChildApp('activity', new Activity({
-      router: state.router,
-      tools: state.tools,
       region: state.tools.getRegion(),
     }));
+    state.activity.mountRoutes(state.router, { parent: 'desk' });
+    await state.tools.start();
+    await state.activity.start();
   });
-  expect(await page.evaluate(() => window.deskExample.activity.isRunning())).toBe(false);
+  expect(await page.evaluate(() => window.deskExample.activity.isRunning())).toBe(true);
   expect(await page.evaluate(() => window.deskExample.router.navigate('activity', { desk: 'green' }).finished)).toBe(true);
   await expect(page.locator('#inspector')).toHaveText('Activity inspector');
   expect(await page.evaluate(async() => {
-    const state = window.deskExample; state.activity.stop();
+    const state = window.deskExample; state.activity.clear();
     const registered = state.router.hasRoute('activity');
     const refreshed = await state.router.refresh();
     state.activity.destroy();

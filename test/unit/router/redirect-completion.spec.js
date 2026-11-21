@@ -12,8 +12,8 @@ for (const initial of [false, true]) {
       const ready = [];
       const driver = memoryDriver({ url: `https://routes.example/${initial ? 'page' : 'home'}` });
       const router = createRouter({ driver, routes: {
-        home: { path: '/home' },
-        page: { path: '/page', redirect(match) {
+        '/home': { name: 'home' },
+        '/page': { name: 'page', redirect(match) {
           const target = match.url.hash ? undefined : '#details';
           return asynchronous ? Promise.resolve(target) : target;
         }, handler(match) {
@@ -56,8 +56,8 @@ for (const failure of ['operational', 'cancelled']) {
     const errors = [];
     const ready = [];
     const router = createRouter({ driver: memoryDriver({ url: 'https://routes.example/home' }), routes: {
-      home: { path: '/home' },
-      page: { path: '/page', redirect: match => match.url.hash ? undefined : Promise.resolve('#details'), handler() {
+      '/home': { name: 'home' },
+      '/page': { name: 'page', redirect: match => match.url.hash ? undefined : Promise.resolve('#details'), handler() {
         entered.resolve();
         return work.promise;
       } },
@@ -88,7 +88,7 @@ for (const failure of ['operational', 'cancelled']) {
 it('leaves ordinary fragment navigation native after a followed redirect completes', async() => {
   const driver = memoryDriver({ url: 'https://routes.example/page' });
   const router = createRouter({ driver, routes: {
-    page: { path: '/page', redirect: match => match.url.hash ? undefined : '#details' },
+    '/page': { name: 'page', redirect: match => match.url.hash ? undefined : '#details' },
   } });
   const ready = [];
   router.on('route:ready', match => ready.push(match.url.hash));

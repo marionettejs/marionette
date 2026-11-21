@@ -64,9 +64,9 @@ function setup(options = {}) {
   const router = createRouter({
     routes,
     driver,
-    intercept: isAppUrl,
-    notFound: { name: 'notFound', within: isAppUrl },
-    persistParams: ['workspace'],
+    owns: isAppUrl,
+    notFound: 'notFound',
+
     handler: async(match, handlerContext) => {
       log.push(`handler:${ match.name }`);
       await context.handler?.(match, handlerContext);
@@ -210,7 +210,7 @@ describe('Router intercept rules', () => {
   }
 
   it('leaves URLs that match nothing outside the notFound scope alone', async() => {
-    const context = await started({ notFound: { name: 'notFound', within: url => url.pathname.startsWith('/w1/') } });
+    const context = await started({ owns: url => url.pathname.startsWith('/w1/'), notFound: 'notFound' });
 
     context.driver.simulate('http://localhost/elsewhere/page');
     await tick();
@@ -459,14 +459,15 @@ describe('Router dispatch and events', () => {
     assert.equal(context.router.url('root'), '/');
   });
 
-  it('gives notFound the params of the deepest unnamed prefix so persistParams still apply', async() => {
+  it('keeps deepest-prefix params on not-found without inventing shared named-route ancestry', async() => {
     const context = await started({ url: 'http://localhost/w1/does-not-exist/deeper' });
 
     assert.equal(context.router.getCurrent().name, 'notFound');
     assert.deepEqual(context.router.getCurrent().params, { workspace: 'w1' });
-    assert.equal(context.router.url('schedule'), '/w1/schedule');
+    assert.throws(() => context.router.url('schedule'), /missing param "workspace"/);
+    assert.equal(context.router.url('schedule', context.router.getCurrent().params), '/w1/schedule');
 
-    await context.router.navigate('schedule').finished;
+    await context.router.navigate('schedule', context.router.getCurrent().params).finished;
     assert.equal(context.driver.currentEntry.url, 'http://localhost/w1/schedule');
   });
 
@@ -585,7 +586,7 @@ describe('Router.navigate', () => {
     }
   }
 
-  it('builds the URL from a route name, copying persistParams from the current match', async() => {
+  it('builds the URL from a route name, reusing shared-ancestor params from the current match', async() => {
     const context = await started();
 
     const { committed, finished } = context.router.navigate('worklist', { worklistId: 'owned-by' }, {
@@ -598,7 +599,7 @@ describe('Router.navigate', () => {
     assert.equal(lastRoute(context).query.get('clinicianId'), '7');
   });
 
-  it('lets explicit params override persistParams', async() => {
+  it('lets explicit params override shared-ancestor values', async() => {
     const context = await started();
 
     await context.router.navigate('worklist', { workspace: 'w2', worklistId: 'a' }).finished;
@@ -675,7 +676,7 @@ describe('Router.navigate', () => {
 });
 
 describe('Router.url and params', () => {
-  it('copies only missing persistParams that the target route declares', async() => {
+  it('copies only missing parameters on shared target nodes', async() => {
     const context = await started();
 
     assert.equal(context.router.url('worklist', { worklistId: 'a' }), '/w1/worklist/a');
@@ -685,7 +686,7 @@ describe('Router.url and params', () => {
   });
 
   it('needs explicit params before any match exists', () => {
-    const router = createRouter({ routes: baseRoutes(), persistParams: ['workspace'] });
+    const router = createRouter({ routes: baseRoutes(), });
 
     assert.throws(() => router.url('schedule'), /missing param/);
     assert.equal(router.url('schedule', { workspace: 'w1' }), '/w1/schedule');
@@ -884,7 +885,7 @@ describe('Router asynchronous redirects', () => {
     assert.equal(seen.signal, lastRoute(context).signal);
     assert.equal(seen.signal.aborted, false);
 
-    context.router.navigate('schedule', {}, { history: 'push' });
+    context.router.navigate('schedule', { workspace: 'w1' }, { history: 'push' });
     assert.equal(seen.signal.aborted, true);
   });
 
@@ -894,7 +895,7 @@ describe('Router asynchronous redirects', () => {
     mountLegacy(context, wait);
 
     const legacy = context.router.navigate('/w1/flow/f1');
-    await context.router.navigate('worklist', { worklistId: 'a' }).finished;
+    await context.router.navigate('worklist', { workspace: 'w1', worklistId: 'a' }).finished;
     wait.open('p1');
 
     assert.equal(await legacy.finished, false);
@@ -921,7 +922,7 @@ describe('Router asynchronous redirects', () => {
     mountLegacy(context, wait);
 
     context.router.navigate('/w1/flow/f1');
-    await context.router.navigate('schedule', {}, { history: 'push' }).finished;
+    await context.router.navigate('schedule', { workspace: 'w1' }, { history: 'push' }).finished;
     wait.fail(new Error('too late'));
     await tick();
 
@@ -1201,7 +1202,7 @@ describe('Router.refresh and mount', () => {
 
   it('preserves entry state across a refresh', async() => {
     const context = await started();
-    context.router.updateState({ scrollTop: 3 });
+    context.driver.updateCurrentEntry({ state: { ...context.driver.currentEntry.getState(), scrollTop: 3 } });
 
     await context.router.refresh();
 
@@ -1322,36 +1323,5 @@ describe('Router entry state on navigate', () => {
     assert.equal(await context.router.navigate('/w1/schedule').finished, true);
 
     assert.deepEqual(context.driver.currentEntry.getState(), { [MARKER]: true });
-  });
-});
-
-describe('Router.updateState', () => {
-  it('merges into the current entry state and the current match', async() => {
-    const context = await started();
-    await context.router.navigate('worklist', { worklistId: 'a' }, { state: { first: 1 } }).finished;
-
-    context.router.updateState({ second: 2 });
-
-    assert.deepEqual(context.driver.currentEntry.getState(), { first: 1, second: 2, [MARKER]: true });
-    assert.deepEqual(context.router.getCurrent().state, { first: 1, second: 2 });
-
-    context.router.updateState({ first: 9 });
-    assert.deepEqual(context.router.getCurrent().state, { first: 9, second: 2 });
-  });
-
-  it('keeps ownership of the entry so back() still works', async() => {
-    const context = await started();
-    context.router.updateState({ note: 'x' });
-    await context.router.navigate('worklist', { worklistId: 'a' }).finished;
-
-    assert.equal(context.router.canGoBack(), true);
-    await context.router.back();
-    assert.deepEqual(context.router.getCurrent().state, { note: 'x' });
-  });
-
-  it('rejects state that is not a plain object', async() => {
-    const context = await started();
-
-    assert.throws(() => context.router.updateState('text'), TypeError);
   });
 });

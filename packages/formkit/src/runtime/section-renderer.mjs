@@ -1,5 +1,7 @@
 // FormKit section-schema DOM interpreter.
 // Expression/provider pattern follows FormKit React 2.5 (MIT: LICENSE.formkit).
+import { View } from 'marionette';
+import { insertNode, removeNode, displayContents, applyStyle } from './dom-operations.mjs';
 import { formKitScope, formKitDomRoot, formKitParent } from './provider-scope.mjs';
 import { compile } from '@formkit/core';
 import { createSchemaDependencies } from './schema-registry.mjs';
@@ -17,7 +19,7 @@ function projectSchema(entry,omit = [],overrides = {}) {
   return Object.create(Object.getPrototypeOf(entry),descriptors);
 }
 
-export function renderSections({host,schema,context,metrics,slots = {},reuseRoot = false,data = {},components = {},configScope,domRoot,parentNode}) {
+export function renderSections({host,Dom = View.prototype.Dom,schema,context,metrics,slots = {},reuseRoot = false,data = {},components = {},configScope,domRoot,parentNode}) {
   let dead = false,rootUsed = false,removeDom = true;const effects = new Set(),elements = new Set(),schemaCells = new WeakMap();
   const cellFor = entry=>{const source = entry[sectionSource] ?? entry;let cell = schemaCells.get(source);if (!cell) {cell = {current: source};schemaCells.set(source,cell);} return cell;};
   const iterationScope = Symbol('iteration scope'),methodBindings = new WeakMap();
@@ -65,7 +67,7 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
       ready = true;apply(result);
     } else {binding(value,locals,owner,apply);}
   }
-  function range(parent,before,owner) {const start = document.createComment('section'),end = document.createComment('/section');parent.insertBefore(start,before);parent.insertBefore(end,before);owner.add(()=>{if (!removeDom) {return;} let n = start;while (n) {const next = n.nextSibling;n.remove();if (n === end) {break;}n = next;}});return {start,end};}
+  function range(parent,before,owner) {const start = parent.ownerDocument.createComment('section'),end = parent.ownerDocument.createComment('/section');insertNode(Dom,parent,start,before);insertNode(Dom,parent,end,before);owner.add(()=>{if (!removeDom) {return;} let n = start;while (n) {const next = n.nextSibling;removeNode(Dom,n);if (n === end) {break;}n = next;}});return {start,end};}
   function draw(entry,parent,before,locals,owner,childProps) {
     if (entry && typeof entry === 'object' && !Array.isArray(entry)) {const current = cellFor(entry).current;if (current !== (entry[sectionSource] ?? entry)) {entry = projectSchema(entry,[],{attrs: current.attrs,bind: current.bind});}}
     if (entry == null || entry === false) {return;}
@@ -74,7 +76,7 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
       const args = {parent,before,context,locals,parentNode: locals[formKitParent] ?? parentNode ?? read('node',locals),configScope: locals[formKitScope] ?? configScope,domRoot: locals[formKitDomRoot] ?? domRoot},slot = slots[entry.slice(7)](args);
       if (typeof slot === 'function') {owner.add(()=>slot(removeDom));} else if (slot) {if (typeof slot.update === 'function') {const effect = ()=>slot.update(args);effects.add(effect);owner.add(()=>effects.delete(effect));}owner.add(()=>slot.destroy?.(removeDom));} return;
     }
-    if (typeof entry !== 'object') {const text = document.createTextNode('');parent.insertBefore(text,before);owner.add(()=>{if (removeDom) {text.remove();}});binding(entry,locals,owner,value=>{const next = value == null ? '' : String(value);if (text.data !== next) {text.data = next;metric('domWrites');}});return;}
+    if (typeof entry !== 'object') {const text = parent.ownerDocument.createTextNode('');insertNode(Dom,parent,text,before);owner.add(()=>{if (removeDom) {removeNode(Dom,text);}});binding(entry,locals,owner,value=>{const next = value == null ? '' : String(value);if (text.data !== next) {text.data = next;metric('domWrites');}});return;}
     if (Object.hasOwn(entry,'$formkit')) {
       // Match upstream sugar while preserving lazy/non-enumerable node fields.
       const props = projectSchema(entry,['$formkit','for','if','children','bind'],{type: entry.$formkit});
@@ -93,7 +95,7 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
       owner.add(() => keyDependencies.destroy());
       const move = (row,cursor)=>{
         if (row.end.nextSibling === cursor) {return;}
-        let node = row.start;while (node) {const next = node.nextSibling;parent.insertBefore(node,cursor);if (node === row.end) {break;}node = next;}
+        let node = row.start;while (node) {const next = node.nextSibling;insertNode(Dom,parent,node,cursor);if (node === row.end) {break;}node = next;}
         metric('structuralChanges');
       };
       binding(source,locals,owner,values=>{
@@ -129,7 +131,7 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
     if (Object.hasOwn(entry,'$cmp')) {
       const component = typeof entry.$cmp === 'string' ? components[entry.$cmp] : entry.$cmp;
       if (typeof component !== 'function') {throw new TypeError(`Unknown component factory: ${String(entry.$cmp)}`);}
-      const container = document.createElement('span');container.style.display = 'contents';parent.insertBefore(container,before);
+      const container = Dom.createElement('span');displayContents(Dom,container);insertNode(Dom,parent,container,before);
       let instance,mounted = false,componentKey;const childScopes = new Set();
       const renderChildren = (target = container,beforeChild = null,slotData = {},inheritedProps)=>{
         const child = scope();let closed = false;
@@ -138,8 +140,8 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
         childScopes.add(destroy);
         try {draw(entry.children,target,beforeChild,childLocals,child,inheritedProps);return destroy;} catch (error) {destroy();throw error;}
       };
-      const dispose = ()=>{instance?.destroy?.(removeDom);for (const destroy of childScopes) {destroy(removeDom);} if (removeDom) {container.replaceChildren();}};
-      owner.add(()=>{dispose();if (removeDom) {container.remove();}});
+      const dispose = ()=>{instance?.destroy?.(removeDom);for (const destroy of childScopes) {destroy(removeDom);} if (removeDom) {Dom.detachContents(container);}};
+      owner.add(()=>{dispose();if (removeDom) {removeNode(Dom,container);}});
       // Framework-neutral boundary: factories adapt Marionette Views (or DOM)
       // explicitly. React/Vue component objects are not interchangeable here.
       let explicit = {},bound = {},ready = false;
@@ -164,7 +166,7 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
     const reuse = reuseRoot && !rootUsed && parent === host && host.tagName.toLowerCase() === entry.$el;
     const svgNamespace = 'http://www.w3.org/2000/svg';
     const inSvg = entry.$el === 'svg' || (parent.namespaceURI === svgNamespace && parent.localName !== 'foreignObject');
-    const element = reuse ? host : inSvg ? document.createElementNS(svgNamespace,entry.$el) : document.createElement(entry.$el);if (reuse) {rootUsed = true;} else {parent.insertBefore(element,before);owner.add(()=>{if (removeDom) {element.remove();}});}
+    const element = reuse ? host : inSvg ? parent.ownerDocument.createElementNS(svgNamespace,entry.$el) : Dom.createElement(entry.$el);if (reuse) {rootUsed = true;} else {insertNode(Dom,parent,element,before);owner.add(()=>{if (removeDom) {removeNode(Dom,element);}});}
     const section = entry.meta?.section,refs = read('__fkSectionRefs',locals);
     if (typeof section === 'string' && refs && typeof refs === 'object' && !locals[iterationScope] && !Object.hasOwn(entry.attrs ?? {},'ref')) {
       refs[section] = element;owner.add(()=>{if (refs[section] === element) {refs[section] = null;}});
@@ -179,12 +181,16 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
         if (previous) {element.removeEventListener(previous.event,previous.fn,previous.options);}
         if (typeof value === 'function') {element.addEventListener(event,value,options);listeners.set(name,{event,fn: value,options});} else {listeners.delete(name);} return;
       }
-      if (name === 'innerHTML') {const next = value == null ? '' : String(value);if (element.innerHTML !== next) {element.innerHTML = next;metric('domWrites');} return;}
+      // Raw markup belongs to a dedicated section outlet, not managed contents.
+      if (name === 'innerHTML') {
+        if (reuse || entry.children != null) {throw new TypeError('Section raw HTML requires a dedicated element without managed children');}
+        const next = value == null ? '' : String(value);
+        if (element.innerHTML !== next) {Dom.setUnsafeHtml(element,next);metric('domWrites');}
+        return;
+      }
       if (name === 'style' && (value == null || typeof value === 'object')) {
         const next = value ?? {},previous = styleValue && typeof styleValue === 'object' ? styleValue : {};
-        if (typeof styleValue === 'string') {element.removeAttribute('style');}
-        for (const key of Object.keys(previous)) {if (!(key in next)) {if (key.startsWith('--') || key.includes('-')) {element.style.removeProperty(key);} else {element.style[key] = '';}}}
-        for (const [key,part] of Object.entries(next)) {if (previous[key] !== part) {if (key.startsWith('--') || key.includes('-')) {element.style.setProperty(key,part ?? '');} else {element.style[key] = part ?? '';}}}
+        applyStyle(Dom,element,next,previous,typeof styleValue === 'string');
         styleValue = {...next};return;
       }
       if (name === 'style') {if (styleValue === value) {return;}styleValue = value;}
@@ -193,14 +199,14 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
       if (name === 'value') {
       // An option without a value attribute derives its value from label text.
       // Materialize explicit empty values before children are inserted, too.
-        if (element.tagName === 'OPTION' && value == null) {if (element.hasAttribute('value')) {element.removeAttribute('value');metric('domWrites');} return;}
+        if (element.tagName === 'OPTION' && value == null) {if (element.hasAttribute('value')) {Dom.setAttributes(element,{value: null});metric('domWrites');} return;}
         const next = String(value ?? '');if (element.value !== next || (element.tagName === 'OPTION' && !element.hasAttribute('value'))) {element.value = next;metric('domWrites');} return;
       }
       if (name === 'selected') {const next = !!value;if (element.selected !== next) {element.selected = next;metric('domWrites');} return;}
       if (name === 'checked') {const next = !!value;if (element.checked !== next) {element.checked = next;metric('domWrites');} return;}
       if (name === 'disabled') {const next = !!value && value !== 'false';if (element.disabled !== next) {element.disabled = next;metric('domWrites');} return;}
       if ((name.startsWith('aria-') || name.startsWith('data-')) && typeof value === 'boolean') {value = String(value);}
-      if (value === undefined || value === null || value === false) {if (element.hasAttribute(name)) {element.removeAttribute(name);metric('domWrites');}} else {const next = String(value);if (element.getAttribute(name) !== next) {element.setAttribute(name,next);metric('domWrites');}}
+      if (value === undefined || value === null || value === false) {if (element.hasAttribute(name)) {Dom.setAttributes(element,{[name]: null});metric('domWrites');}} else {const next = String(value);if (element.getAttribute(name) !== next) {Dom.setAttributes(element,{[name]: next});metric('domWrites');}}
     }
     const applyAttrs = next=>{
       attrOwner.destroy();attrOwner = scope();const inherited = childProps?.() ?? {};const previous = new Set(ownedAttrs);ownedAttrs.clear();
@@ -238,7 +244,7 @@ export function renderSections({host,schema,context,metrics,slots = {},reuseRoot
       draw(entry.children,element,null,locals,descendants);
     } else {draw(entry.children,element,null,locals,owner);}
   }
-  try {draw(schema,host,null,{},root);} catch (error) {dead = true;root.destroy();effects.clear();throw error;}
+  try {draw(schema,host,null,{},root);} catch (error) {dead = true;try {root.destroy();} catch { /* Preserve the construction error. */ }effects.clear();throw error;}
   const unsubscribe = subscribeReactiveStore(context,()=>{if (dead) {return;}metric('contextNotifications');for (const effect of [...effects]) {if (effects.has(effect)) {effect();}}});
   // Attribute-only schema changes retain DOM and mount-owned plugin resources.
   // Structural changes continue through the caller's existing redraw path.

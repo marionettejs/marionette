@@ -4,6 +4,9 @@ Version-matched Markdown for `marionette` v5, whose core requires neither Backbo
 
 - [Documentation index](docs/readme.md)
 - [Agent workflow](docs/agents.md)
+- [Build an application, page, or feature with managed Views, Regions and lists](docs/guides/composition.md)
+- [Local requests, stale results and retries](docs/guides/async-requests.md)
+- [Records lesson: loading, retry and error UI](docs/records.md)
 - [Install and render a View](docs/quick-start.md)
 - [Ownership and lifetimes](docs/architecture.md)
 - [API index](docs/api.md)
@@ -38,6 +41,10 @@ Version-matched Markdown for `marionette` v5, whose core requires neither Backbo
 - [@mnjs/utils: shared utilities](docs/packages/utils.md)
 - [@mnjs/adapters: optional integrations](docs/packages/adapters.md)
 
+- [@mnjs/html: tagged-template renderer](packages/html/guide.md)
+- [Installed HTML reference](docs/packages/html.md)
+- [@mnjs/router: feature-owned routing](docs/packages/router.md)
+
 ## Integration and learning guides
 
 - [Renderer and data setup](docs/integrations/setup.md)
@@ -50,12 +57,17 @@ Version-matched Markdown for `marionette` v5, whose core requires neither Backbo
 - [Existing HTML](docs/guides/existing-html.md)
 - [Integrate with existing UI](docs/guides/existing-ui.md)
 - [Navigation and feature ownership](docs/guides/routing.md)
+- [Optional native fragment navigation](docs/guides/fragment-navigation.md)
 - [Lists](docs/guides/lists.md)
 - [Imperative controls](docs/guides/widgets.md)
 - [Accessibility and rendering](docs/guides/accessibility-rendering.md)
 - [Production](docs/guides/production.md)
-- [Records lesson](docs/records.md)
 
 ## Development tools
 
 - [Check and debug an application](docs/tooling.md)
+
+## Development packages
+
+- [Testing helpers](packages/test/readme.md)
+- [Testing helper reference](packages/test/guide.md)

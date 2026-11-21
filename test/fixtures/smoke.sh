@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# CI installs/builds first through npm ci. Reuse those outputs and pack only once.
+# Reuse an explicit candidate in CI; local callers may pack already built outputs.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
+if [ "$#" -gt 0 ]; then
+  arguments=("$@")
+else
 artifacts=$(mktemp -d "${TMPDIR:-/tmp}/marionette-package-smoke.XXXXXX")
 trap 'rm -rf "$artifacts"' EXIT
 
@@ -12,11 +15,12 @@ for index in "${!directories[@]}"; do
   filename=$(cd "${directories[$index]}" && npm pack --ignore-scripts --silent --pack-destination "$artifacts")
   arguments+=("${flags[$index]}" "$artifacts/$filename")
 done
+fi
 
-# CJS runtime, standalone ESM/CJS, types, bundling/maps, adapters, Backbone lists.
+# CJS runtime, standalone ESM/CJS, types, bundling/maps, adapters, Backbone lists, and the documented quick start.
 # Full fixture coverage remains on master pushes and release certification.
 status=0
-for fixture in cjs-node standalone-packages core-types vite cjs-adapters collection-removal-survivors; do
+for fixture in cjs-node standalone-packages core-types vite cjs-adapters collection-removal-survivors docs-quick-start; do
   if ! npm run test:fixtures -- "${arguments[@]}" --fixture "$fixture" \
     --report "test/tmp/fixture-reports/smoke-$fixture.json"; then
     status=1

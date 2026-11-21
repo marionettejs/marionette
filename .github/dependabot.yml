@@ -16,9 +16,15 @@ updates:
         patterns: ['vitest', '@vitest/*']
       mutation:
         patterns: ['@stryker-mutator/*']
+      # These versions also need coordinated certification metadata updates.
+      certification-toolchain:
+        applies-to: version-updates
+        dependency-type: development
+        patterns: ['@playwright/test', 'backbone', 'jsdom', 'rollup', '@rollup/plugin-terser', 'terser']
       tooling-updates:
         dependency-type: development
         patterns: ['*']
+        exclude-patterns: ['@playwright/test', 'backbone', 'jsdom', 'rollup', '@rollup/plugin-terser', 'terser']
         update-types: [minor, patch]
     ignore:
       - dependency-name: marionette
@@ -103,9 +109,15 @@ updates:
       html-security:
         applies-to: security-updates
         patterns: ['*']
+      # Keep certification updates out of routine HTML tooling PRs.
+      html-certification-toolchain:
+        applies-to: version-updates
+        dependency-type: development
+        patterns: ['@playwright/test', 'jsdom', 'rollup', 'terser']
       html-tooling:
         dependency-type: development
         patterns: ['*']
+        exclude-patterns: ['@playwright/test', 'jsdom', 'rollup', 'terser']
         update-types: [minor, patch]
     ignore:
       # Update the released compatibility baseline deliberately, not with tooling.

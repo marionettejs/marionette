@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { setImmediate as turn } from 'node:timers/promises';
 import { Application } from 'marionette';
-import { ChildAppSwitcher, memoryDriver } from '@mnjs/router';
+import { RouteApplication, memoryDriver } from '@mnjs/router';
 import { Desk, Activity } from './desk.mjs';
 
 export async function verifyConsumer() {
@@ -69,28 +69,29 @@ export async function verifyConsumer() {
     assert.deepEqual(errors, []);
 
     const activity = app.tools.addChildApp('activity', new Activity({
-      router: app.router,
-      tools: app.tools,
       region: app.tools.getRegion(),
     }));
     assert.equal(activity.isRunning(), false);
+    activity.mountRoutes(app.router, { parent: 'desk' });
+    await app.tools.start();
+    await activity.start();
     const catalogView = app.page.getView();
     assert.equal(await app.router.navigate('activity', { desk: 'blue' }).finished, true);
     assert.equal(app.page.getView(), catalogView, 'Sidebar ownership does not follow URL ancestry');
     assert.equal(app.side.textContent, 'Activity inspector');
-    assert.deepEqual(app.router.getCurrent().branch.map(entry => entry.name), ['desk', 'activity']);
-    activity.stop();
+    assert.deepEqual(app.router.getCurrent().branch.map(entry => entry.name), ['desk', undefined, 'activity']);
+    activity.clear();
     assert.equal(app.router.hasRoute('activity'), true);
     assert.equal(await app.router.refresh(), true);
     activity.destroy();
     assert.equal(app.router.hasRoute('activity'), false);
     assert.equal(app.router.getCurrent(), null);
     const recreated = app.tools.addChildApp('activity', new Activity({
-      router: app.router,
-      tools: app.tools,
       region: app.tools.getRegion(),
     }));
     assert.notEqual(recreated, activity, 'Explicit child registration after destruction creates a new feature');
+    recreated.mountRoutes(app.router, { parent: 'desk' });
+    await recreated.start();
     assert.equal(await app.router.refresh(), true);
     assert.equal(app.side.textContent, 'Activity inspector');
 
@@ -99,11 +100,12 @@ export async function verifyConsumer() {
     await landing.router.start();
     assert.deepEqual(await landing.router.getInitialDispatch(), { status: 'unmatched' });
     const lazy = landing.tools.addChildApp('activity', new Activity({
-      router: landing.router,
-      tools: landing.tools,
       region: landing.tools.getRegion(),
     }));
     assert.equal(lazy.isRunning(), false);
+    lazy.mountRoutes(landing.router, { parent: 'desk' });
+    await landing.tools.start();
+    await lazy.start();
     assert.equal(landing.router.url('activity', { desk: 'green' }), '/green/activity');
     assert.equal(await landing.router.refresh(), true);
     assert.equal(landing.side.textContent, 'Activity inspector');
@@ -179,7 +181,7 @@ export async function verifyConsumer() {
     const shared = Promise.withResolvers();
     let preparations = 0;
     const Page = Application.extend({ prepareStart() { preparations++; return shared.promise; } });
-    const pages = new ChildAppSwitcher(); owned.push(pages);
+    const pages = new RouteApplication(); owned.push(pages);
     const page = pages.addChildApp('page', new Page());
     await pages.start();
     const caller = new AbortController();

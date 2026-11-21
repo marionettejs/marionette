@@ -47,7 +47,7 @@ test('release filter examples include infrastructure and exclude ordinary edits'
   // Reassess the matcher before adding negation, ordered exclusions, directory-only
   // filters, or other glob syntax; passing here does not prove GitHub event routing.
   for (const path of [
-    'tools/eslint/index.mjs', 'tools/eslint/index.d.cts', 'scripts/performance/bundle-size.mjs',
+    '.github/actions/restore-candidate/action.yml', 'tools/eslint/index.mjs', 'tools/eslint/index.d.cts', 'scripts/performance/bundle-size.mjs',
     'scripts/diagnostics/check-catalog.mjs', 'scripts/api-contracts/check.mjs',
     'package.json', 'packages/data/package.json', 'packages/adapters/rollup.config.mjs',
     '.babelrc', '.npmrc', 'test/fixtures/sample/.npmignore', 'build/.gitignore',
@@ -74,4 +74,143 @@ test('npm publication dry runs exercise absent versions and leave occupied versi
     assert.match(step.run, /--dry-run/);
     assert.match(step.run, /--ignore-scripts/);
   }
+});
+
+
+test('required Node LTS release checks consume immutable inputs before certification without rebuilding', async() => {
+  const workflow = parse(await readFile(resolve(import.meta.dirname, '../../.github/workflows/release.yml'), 'utf8'));
+  const consumer = workflow.jobs['consumer-lts'];
+  assert.equal(consumer['continue-on-error'], undefined);
+  assert.deepEqual(consumer.needs, ['preflight', 'build']);
+  const steps = consumer.steps;
+  const download = steps.find(step => step.uses?.startsWith('actions/download-artifact@'));
+  assert.equal(download.with.name, 'release-candidate-${{ env.SOURCE_SHA }}');
+  const verify = steps.find(step => step.run?.includes('release:verify'));
+  assert.doesNotMatch(verify.run, /--require-validation/);
+  assert.match(verify.run, /--source-commit/);
+  const setup = steps.find(step => step.with?.['node-version']);
+  assert(steps.indexOf(download) < steps.indexOf(verify));
+  assert(steps.indexOf(verify) < steps.indexOf(setup));
+  for (const command of ['test:fixtures', 'check:docs-installed']) {
+    const step = steps.find(candidate => candidate.run?.includes(command));
+    assert.match(step.run, /--artifact-dir release/);
+    assert.equal(step.env.npm_config_engine_strict, 'true');
+    assert(steps.indexOf(setup) < steps.indexOf(step));
+  }
+  assert(!steps.some(step => /npm ci|npm run build|release:artifact/.test(step.run || '')));
+  assert(workflow.jobs.certification.needs.includes('consumer-lts'));
+  assert(workflow.jobs['promotion-dry-run'].needs.includes('certification'));
+});
+
+test('CI builds once and source checks remain independent of candidate artifacts', async() => {
+  const workflow = parse(await readFile(resolve(import.meta.dirname, '../../.github/workflows/ci.yml'), 'utf8'));
+  assert(workflow.jobs.candidate);
+  assert.equal(workflow.on.candidate, undefined);
+  assert.equal(workflow.env.MNJS_SKIP_PREPARE, '1');
+  assert.equal(workflow.jobs['source-checks'].needs, undefined);
+  assert(!workflow.jobs['source-checks'].steps.some(step => step.run?.includes('check:diagnostics')));
+  assert(workflow.jobs.core.steps.some(step => step.run === 'npm run check:diagnostics'));
+  assert.equal(workflow.jobs['router-browser-candidate'].needs, 'candidate');
+  assert.match(workflow.jobs['router-browser-candidate'].steps.find(step => step.id === 'candidate').run, /--build-sha256/);
+  const commands = workflow.jobs.candidate.steps.filter(step => step.run).map(step => step.run).join('\n');
+  assert.equal(commands.match(/npm run release:artifact/g).length, 1);
+  assert(!commands.includes('npm run build'));
+  for (const name of ['core', 'tooling', 'browsers', 'agent-reference', 'linux-package-smoke', 'package-smoke', 'windows-package-smoke', 'node-lts', 'performance-timing']) {
+    const job = workflow.jobs[name];
+    assert.equal(job.needs, 'candidate', name);
+    assert(job.steps.some(step => step.uses === './.github/actions/restore-candidate'), name);
+    assert(!job.steps.some(step => step.run === 'npm run build'), name);
+  }
+  for (const name of ['linux-package-smoke', 'package-smoke', 'windows-package-smoke', 'node-lts']) {
+    for (const step of workflow.jobs[name].steps.filter(item => /test:fixtures|smoke.sh/.test(item.run || ''))) {
+      assert(step.run.includes('--artifact-dir test/tmp/candidate'), name);
+    }
+  }
+  for (const name of ['router-browser-candidate', 'router-browsers']) {
+    assert(!workflow.jobs[name].steps.some(step => /npm run build(?:\s|$)/.test(step.run || '')));
+  }
+});
+
+test('release uploads immutable inputs before independent validation and joins every required lane', async() => {
+  const workflow = parse(await readFile(resolve(import.meta.dirname, '../../.github/workflows/release.yml'), 'utf8'));
+  assert.equal(workflow.env.MNJS_SKIP_PREPARE, '1');
+  assert(!workflow.jobs.build.steps.some(step => /release:validate/.test(step.run || '')));
+  const groups = workflow.jobs['candidate-checks'].strategy.matrix.group;
+  const { candidateGroups, candidateChecks } = await import('../../scripts/release/validation.mjs');
+  assert.deepEqual(groups.toSorted(), Object.keys(candidateGroups).toSorted());
+  assert.deepEqual(Object.values(candidateGroups).flat().toSorted(), candidateChecks.map(entry => entry.id).toSorted());
+  const certification = workflow.jobs.certification;
+  assert.deepEqual(certification.needs, ['preflight', 'build', 'candidate-checks', 'package-smoke', 'consumer-lts']);
+  assert.equal(certification.if, 'always() && needs.preflight.outputs.mode == \'dry-run\'');
+  assert.match(certification.steps[0].run, /all\(\.\[\]; \.result == "success"\)/);
+  assert(certification.steps.some(step => step.run?.endsWith('--join')));
+  assert(certification.steps.some(step => step.with?.name === 'certified-candidate-${{ env.SOURCE_SHA }}'));
+  for (const name of ['candidate-checks', 'package-smoke', 'consumer-lts']) {
+    assert.deepEqual(workflow.jobs[name].needs, ['preflight', 'build']);
+    assert.equal(workflow.jobs[name]['continue-on-error'], undefined);
+  }
+  for (const name of ['promotion-dry-run', 'certified_artifact', 'publication-targets', 'publish']) {
+    const job = workflow.jobs[name];
+    const candidateDownload = job.steps.find(step => step.uses?.startsWith('actions/download-artifact@'));
+    assert.equal(candidateDownload.with.name, 'certified-candidate-${{ env.SOURCE_SHA }}');
+    assert(job.steps.some(step => step.run?.includes('--require-validation')));
+    assert(!job.steps.some(step => /npm ci|npm run build|release:artifact/.test(step.run || '')));
+    for (const step of job.steps.filter(item => item.run?.startsWith('npm publish'))) {
+      assert(step.run.includes('--ignore-scripts'));
+      assert(step.run.includes('./release/'));
+    }
+  }
+});
+
+test('documentation builds and packs once for the local check and all six consumer lanes', async() => {
+  const workflow = parse(await readFile(resolve(import.meta.dirname, '../../.github/workflows/docs-pages.yml'), 'utf8'));
+  assert.equal(workflow.env.MNJS_SKIP_PREPARE, '1');
+  const build = workflow.jobs.build;
+  assert.equal(build.steps.filter(step => step.run?.includes('release:artifact')).length, 1);
+  assert(!build.steps.some(step => /npm pack/.test(step.run || '')));
+  const check = workflow.jobs.documentation.steps.find(step => step.run?.includes('npm run docs:check'));
+  assert.equal(workflow.jobs.documentation.needs, 'build');
+  assert(!build.steps.some(step => /docs:check/.test(step.run || '')));
+  assert.deepEqual(workflow.jobs.deploy.needs, ['documentation', 'consumer-lts']);
+  assert.equal(check.env.MARIONETTE_ARTIFACT_DIR, '${{ github.workspace }}/test/tmp/candidate');
+  assert.deepEqual(workflow.jobs['consumer-lts'].strategy.matrix.node, ['22.22.2', '22', '24.15.0', '24', '26.0.0', '26']);
+  const steps = workflow.jobs['consumer-lts'].steps;
+  assert(steps.findIndex(step => step.run?.includes('release:verify')) < steps.findIndex(step => step.name === 'Setup consumer Node'));
+});
+
+test('required documentation check keeps its public name and rejects unsuccessful builds', async() => {
+  const workflow = parse(await readFile(resolve(import.meta.dirname, '../../.github/workflows/docs-pages.yml'), 'utf8'));
+  const validation = workflow.jobs.documentation;
+  // This exact check name is required by the default-branch ruleset.
+  assert.equal(validation.name, 'Build and validate');
+  assert.equal(Object.values(workflow.jobs).filter(job => job.name === 'Build and validate').length, 1);
+  assert.notEqual(workflow.jobs.build.name, 'Build and validate');
+  assert.equal(validation.needs, 'build');
+  assert.equal(validation.if, 'always()');
+  assert.equal(validation['continue-on-error'], undefined);
+  assert(validation.steps.some(step => step.run === 'npm run docs:check && npm run docs:check-router'));
+  const gate = validation.steps[0];
+  assert.equal(gate.env.BUILD_RESULT, '${{ needs.build.result }}');
+  for (const result of ['success', 'failure', 'cancelled', 'skipped', '']) {
+    const checked = spawnSync('bash', ['-e', '-c', gate.run], {
+      encoding: 'utf8', env: { ...process.env, BUILD_RESULT: result },
+    });
+    assert.equal(checked.status, result === 'success' ? 0 : 1, `${result}: ${checked.stderr}`);
+  }
+});
+
+
+test('Windows candidate restoration runs on PRs with explicit GNU tar validation', async() => {
+  const workflow = parse(await readFile(resolve(import.meta.dirname, '../../.github/workflows/ci.yml'), 'utf8'));
+  const windows = workflow.jobs['windows-package-smoke'];
+  assert.equal(windows.if, undefined);
+  assert.equal(windows['runs-on'], 'windows-2025');
+  assert.equal(windows.needs, 'candidate');
+  const portability = windows.steps.findIndex(step => step.run === 'node --test test/release/archive.test.mjs');
+  const restore = windows.steps.findIndex(step => step.uses === './.github/actions/restore-candidate');
+  const fixtures = windows.steps.findIndex(step => step.run === 'npm run test:fixtures -- --artifact-dir test/tmp/candidate');
+  assert(portability >= 0 && portability < restore && restore < fixtures);
+  assert.equal(windows.steps[portability].shell, 'bash');
+  assert.equal(windows.steps[portability].env.MNJS_REQUIRE_GNU_TAR, '1');
+  assert.equal(windows.steps[fixtures].if, undefined);
 });

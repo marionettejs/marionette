@@ -18,7 +18,7 @@ for (const { from, to, expected } of hashChanges) {
 it('keeps an ordinary explicit empty fragment native in the memory Router', async() => {
   const driver = memoryDriver({ url: 'https://routes.example/page' });
   let handlers = 0;
-  const router = createRouter({ driver, routes: { page: { path: '/page', handler() { handlers++; } } } });
+  const router = createRouter({ driver, routes: { '/page': { name: 'page', handler() { handlers++; } } } });
   await router.start(); await router.getInitialDispatch();
   const current = router.getCurrent();
   await driver.navigate('/page#').finished;

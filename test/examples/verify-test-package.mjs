@@ -5,12 +5,14 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync,
 import { basename, delimiter, dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { parseArgs } from 'node:util';
+import { cypressProfile } from './cypress-profile.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const { values } = parseArgs({ options: {
   output: { type: 'string', default: join(root, 'test/tmp/test-package-consumer') },
   browser: { type: 'boolean', default: false },
   cypress: { type: 'boolean', default: false },
+  'install-cypress': { type: 'boolean', default: false },
   'minimum-peers': { type: 'boolean', default: false },
   'cypress-floor': { type: 'boolean', default: false },
   artifact: { type: 'string' },
@@ -20,6 +22,7 @@ const output = resolve(values.output);
 mkdirSync(output, { recursive: true });
 let workspace;
 let consumer;
+let cypressFloor = values['cypress-floor'];
 const fixture = join(root, 'packages/test/examples');
 const npmCli = process.env.npm_execpath;
 const env = {
@@ -33,12 +36,13 @@ const env = {
 const report = { artifact: undefined, sha256: undefined, node: process.version,
   dependencyProfile: values['cypress-floor'] ? 'cypress-14' : values['minimum-peers'] ? 'minimum-peers' : 'locked-examples',
   requestedChecks: { browser: values.browser, cypress: values.cypress,
-    cypressComponentOnly: values.cypress && values['cypress-floor'] }, stages: [], passed: false };
-function run(name, command, args, cwd = consumer) {
+    cypressComponentOnly: values.cypress && cypressFloor,
+    cypressInstall: values['install-cypress'] }, stages: [], passed: false };
+function run(name, command, args, cwd = consumer, environment = env) {
   const stage = { name, passed: false };
   report.stages.push(stage);
   try {
-    const result = execFileSync(command, args, { cwd, env, encoding: 'utf8', timeout: 180000, stdio: ['ignore', 'pipe', 'pipe'] });
+    const result = execFileSync(command, args, { cwd, env: environment, encoding: 'utf8', timeout: 180000, stdio: ['ignore', 'pipe', 'pipe'] });
     writeFileSync(join(output, `${name}.log`), result);
     stage.passed = true;
     console.log(`${name}: passed`);
@@ -57,16 +61,23 @@ function assertIsolated(directory) {
 }
 try {
   if (!npmCli) { throw new Error('Run helper consumer verification through npm so its CLI can be located.'); }
+  assert(!values['install-cypress'] || values.cypress, 'Cypress installation requires --cypress.');
   assert.equal(Boolean(values.artifact), Boolean(values.sha256), 'Supply --artifact and --sha256 together.');
   const fixtureManifest = JSON.parse(readFileSync(join(fixture, 'package.json'), 'utf8'));
+  const originalLock = readFileSync(join(fixture, 'package-lock.json'), 'utf8');
+  const profile = cypressProfile(process.env.MNJS_TEST_CYPRESS_PROFILE ?? (cypressFloor ? '14.0.0' : 'current'),
+    fixtureManifest, JSON.parse(originalLock), cypressFloor);
+  cypressFloor = profile.floor;
+  report.dependencyProfile = cypressFloor ? 'cypress-14' : values['minimum-peers'] ? 'minimum-peers' : 'locked-examples';
+  report.requestedChecks.cypressComponentOnly = values.cypress && cypressFloor;
   const expectedVersions = {
     marionette: fixtureManifest.dependencies.marionette,
     helper: JSON.parse(readFileSync(join(root, 'packages/test/package.json'), 'utf8')).version,
     playwright: fixtureManifest.devDependencies['@playwright/test'],
     vitest: values['minimum-peers'] ? '4.1.0' : fixtureManifest.devDependencies.vitest,
     testingLibrary: values['minimum-peers'] ? '8.7.0' : fixtureManifest.devDependencies['@testing-library/dom'],
-    mountUtils: values['minimum-peers'] || values['cypress-floor'] ? '4.0.0' : fixtureManifest.devDependencies['@cypress/mount-utils'],
-    cypress: values['cypress-floor'] ? '14.0.0' : fixtureManifest.devDependencies.cypress
+    mountUtils: values['minimum-peers'] || cypressFloor ? '4.0.0' : fixtureManifest.devDependencies['@cypress/mount-utils'],
+    cypress: profile.version
   };
   const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
   const sourceDirty = Boolean(execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: root, encoding: 'utf8' }).trim());
@@ -107,7 +118,6 @@ try {
   assert.equal(installedManifest.version, expectedVersions.helper);
   cpSync(fixture, consumer, { recursive: true, filter: path => !path.split('/').includes('node_modules') });
   assertIsolated(consumer);
-  const originalLock = readFileSync(join(fixture, 'package-lock.json'), 'utf8');
   // Change only the helper's local locator/integrity; keep every external pin intact.
   const locator = 'file:../artifact.tgz';
   cpSync(artifact, join(workspace, 'packages/test/artifact.tgz'));
@@ -119,11 +129,11 @@ try {
       '@testing-library/dom': '8.7.0', '@cypress/mount-utils': '4.0.0'
     });
   }
-  if (values['cypress-floor']) {
+  if (cypressFloor) {
     // Cypress 14 uses its own component-server tooling, independently of runtime peers.
     Object.assign(consumerManifest.devDependencies, {
-      cypress: '14.0.0', '@cypress/mount-utils': '4.0.0',
-      '@cypress/vite-dev-server': '6.0.1', vite: '6.4.0'
+      cypress: profile.version, '@cypress/mount-utils': '4.0.0',
+      '@cypress/vite-dev-server': '6.0.1', vite: '6.4.6'
     });
   }
   writeFileSync(join(consumer, 'package.json'), `${JSON.stringify(consumerManifest, null, 2)}\n`);
@@ -135,7 +145,7 @@ try {
   const lockedConsumer = `${JSON.stringify(consumerLock, null, 2)}\n`;
   writeFileSync(join(consumer, 'package-lock.json'), lockedConsumer);
   report.consumerLockSha256 = createHash('sha256').update(lockedConsumer).digest('hex');
-  if (values['minimum-peers'] || values['cypress-floor']) {
+  if (values['minimum-peers'] || cypressFloor) {
     // A separate exact-minimum graph is intentionally resolved without overrides.
     report.consumerLockSha256 = undefined;
     rmSync(join(consumer, 'package-lock.json'));
@@ -184,8 +194,23 @@ try {
     runNpm('playwright-gallery', ['run', 'test:playwright']);
   }
   if (values.cypress) {
+    if (values['install-cypress']) {
+      const installEnvironment = { ...env };
+      delete installEnvironment.CYPRESS_INSTALL_BINARY;
+      run('cypress-install', process.execPath, [join(consumer, 'node_modules/cypress/bin/cypress'), 'install'],
+        consumer, installEnvironment);
+    }
     cpSync(join(root, 'test/examples/cypress-smoke.mjs'), join(consumer, 'cypress-smoke.mjs'));
-    try { run('cypress-runtime', process.execPath, ['cypress-smoke.mjs', ...(values['cypress-floor'] ? ['--component-only'] : [])]); } finally {
+    try {
+      run('cypress-runtime', process.execPath, ['cypress-smoke.mjs', ...(cypressFloor ? ['--component-only'] : [])]);
+      const runtime = JSON.parse(readFileSync(join(consumer, 'test-results/cypress/smoke.json'), 'utf8'));
+      assert.equal(runtime.componentOnly, cypressFloor, 'The executed Cypress mode must match the selected profile.');
+      assert.deepEqual([...new Set(runtime.scenarios.map(scenario => scenario.cypressVersion))], [expectedVersions.cypress],
+        'The executed Cypress binary must match the installed consumer version.');
+      report.cypressRuntime = { version: expectedVersions.cypress, componentOnly: runtime.componentOnly,
+        scenarios: runtime.scenarios.map(({ name, browser, browserVersion }) => ({ name, browser, browserVersion })) };
+      console.log(`Cypress runtime verified: ${JSON.stringify(report.cypressRuntime)}`);
+    } finally {
       const diagnostics = join(consumer, 'test-results/cypress');
       if (existsSync(diagnostics)) { cpSync(diagnostics, join(output, 'cypress'), { recursive: true }); }
     }

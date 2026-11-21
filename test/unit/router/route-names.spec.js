@@ -5,8 +5,8 @@ import { createRouter } from './helpers.js';
 
 it('rejects URL-shaped route names in array, hash and nested definitions at registration', () => {
   for (const name of ['/', '/named', '//example.test/path', 'https://elsewhere.test/', 'HTTPS://elsewhere.test/', 'a+b.c-d://host/path']) {
-    for (const routes of [[{ name, path: '/expected' }], { [name]: { path: '/expected' } }, {
-      parent: { path: '/parent', children: [{ name, path: 'expected' }] },
+    for (const routes of [[{ name, path: '/expected' }], { '/expected': { name } }, {
+      '/parent': { children: [{ name, path: 'expected' }] },
     }]) {
       assert.throws(() => createRouter({ routes }), /Route name .* is reserved for URL navigation/);
     }
@@ -29,10 +29,10 @@ it('keeps ordinary and non-URL punctuation names available for URL generation an
 
 it('rejects a reserved name mount without changing existing routes or raw URL navigation', async() => {
   const driver = memoryDriver({ url: 'https://routes.example/home' });
-  const router = createRouter({ driver, routes: { home: { path: '/home' } } });
+  const router = createRouter({ driver, routes: { '/home': { name: 'home' } } });
   await router.start(); await router.getInitialDispatch();
   const current = router.getCurrent();
-  assert.throws(() => router.mount({ '/reserved': { path: '/expected' } }), /reserved for URL navigation/);
+  assert.throws(() => router.mount({ '/expected': { name: '/reserved' } }), /reserved for URL navigation/);
   assert.equal(router.hasRoute('/reserved'), false);
   assert.equal(router.hasRoute('home'), true);
   assert.equal(router.getCurrent(), current);

@@ -28,21 +28,28 @@ npm ci
 
 Consumer LTS compatibility is checked separately from this pinned source toolchain.
 See the [quick start](docs/quick-start.md) for the verified consumer versions.
-The Node 22.22.2 and 24.15.0 floors are tested support boundaries for the complete
+The Node 22.22.2, 24.15.0 and 26.0.0 floors are tested support boundaries for the complete
 consumer experience, including the documented JSDOM 30 testing recipe; they are
 not intrinsic browser-runtime API requirements. A future development-dependency
 bump must not silently raise these floors: changing consumer support requires an
-explicit policy review and installed-artifact verification. Newer Node versions
-may install the packages; the LTS matrix records the verified set, with Node 26
-checked separately as advisory. All five manifests must match `consumerNodeRange`.
+explicit policy review and installed-artifact verification. Node 26 entered
+[Active LTS on October 28, 2026](https://github.com/nodejs/Release/blob/main/schedule.json).
+The required consumer matrix covers the floor and latest patch of Node 22, 24
+and 26. CI also requires the Node 26 package fixtures, and release promotion
+requires Node 26 fixtures and documentation recipes against the exact candidate
+tarballs built with the pinned source toolchain. All five manifests must match `consumerNodeRange`.
 
 `npm ci` builds the packages and checks the core distributions through `prepare`.
 Generated `dist/` directories and `src/version.js` are ignored by Git; edit source files
 and their co-located TypeScript contracts. Declarations are generated for all five
 packages; do not maintain separate handwritten copies. After source edits, run
-`npm run build` before distribution or browser checks. The fixture runner builds
-once before packing local packages; supplying an artifact directory or all five
-tarballs skips rebuilding.
+`npm run build` before distribution or browser checks.
+
+CI sets `MNJS_SKIP_PREPARE=1` for installation, then explicitly builds one candidate
+and transfers its exact packages and compiled outputs. This skips only the root
+preparation script; dependency install scripts still follow npm's checked-in policy.
+The fixture runner builds once before packing local packages; supplying an artifact
+directory or all five tarballs skips rebuilding.
 
 `npm pack` and npm Git installs
 run `prepare` automatically under your selected Node/npm; npm does not select the
@@ -66,7 +73,7 @@ issue before requesting review.
 From the framework checkout, using the toolchain in the release profile:
 
 ```sh
-npm ci --ignore-scripts
+MNJS_SKIP_PREPARE=1 npm ci
 npm run build
 mkdir -p ../marionette-v5-artifacts
 npm pack ./.package ./packages/utils ./packages/radio ./packages/adapters ./packages/data --ignore-scripts --pack-destination ../marionette-v5-artifacts
@@ -81,7 +88,7 @@ The build prepares `.package` with the core runtime and selected consumer docs a
 their repository-relative paths. Release and fixture tooling use this same staged
 core package. Its generated `package.json` includes `docs-manifest.json` and the
 consumer skill. The source manifest keeps a narrow runtime-and-root-guides allowlist
-for direct root packs and Git installs; use `.package` for the documented candidate.
+for direct root packs and Git installs; use `.package` for the documented candidate. Core-bundled skill and docs changes reach npm consumers only with a `marionette` release; companion package releases do not update them.
 
 Local packing does not establish registry publication. Release evidence and version
 labels must come from the actual published artifact.

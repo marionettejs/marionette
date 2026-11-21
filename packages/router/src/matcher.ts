@@ -54,7 +54,12 @@ function snapshotRoutes(routes: RouteTable, controller: object): RegisteredRoute
   const array = Array.isArray(routes);
   const prototype = !array && routes && typeof routes === 'object' ? Object.getPrototypeOf(routes) : undefined;
   if (!array && prototype !== Object.prototype && prototype !== null) {throw new TypeError('mount() requires an array of route definitions or a route hash');}
-  const definitions: readonly RouteDefinition[] = array ? routes : Object.entries(routes).map(([name, definition]) => ({ ...definition, name }));
+  const definitions: readonly RouteDefinition[] = array ? routes : Object.entries(routes).map(([path, definition]) => {
+    const entryPrototype = definition && typeof definition === 'object' ? Object.getPrototypeOf(definition) : undefined;
+    if (entryPrototype !== Object.prototype && entryPrototype !== null) {throw new TypeError(`Route hash entry "${ path }" must be a plain object`);}
+    if (Object.hasOwn(definition, 'path')) {throw new TypeError(`Route hash entry "${ path }" cannot contain "path"; use the hash key or an array definition`);}
+    return { ...definition, path };
+  });
   return definitions.map(definition => {
     assertDefinition(definition);
     const handler = definition.handler === undefined ? undefined : resolveMethod(controller, definition.handler, definition.name ?? definition.path).bind(controller) as RouteHandler;
@@ -84,6 +89,7 @@ function compileNode(definition: RegisteredRoute, parent: Node, state: State, mo
     path,
     names: ownNames,
     meta: { ...definition.meta },
+    data: definition.data,
   };
   const node = {
     path,
@@ -137,6 +143,7 @@ function toResult(route: Route, params: Record<string, string>, target: URL): Re
       path: item.path,
       params: pick(params, item.names),
       meta: { ...item.meta },
+      data: item.data,
     })),
     redirect: route.redirect,
     handler: route.handler,
@@ -207,6 +214,22 @@ export class Matcher {
 
   getParamNames(name: string) {
     return [...this.#route(name).names];
+  }
+
+  getSharedParamNames(fromName: string, toName: string) {
+    const { byName } = this.#compiled();
+    const from = byName.get(fromName);
+    const to = byName.get(toName);
+    const names: string[] = [];
+    for (let index = 0; from && to && index < to.branch.length && from.branch[index] === to.branch[index]; index++) {
+      names.push(...to.branch[index].names);
+    }
+    return names;
+  }
+
+  resolve(name: string, params: Record<string, string>, url: URL) {
+    const route = this.#compiled().byName.get(name);
+    return route ? toResult(route, params, url) : null;
   }
 
   has(name: string) {

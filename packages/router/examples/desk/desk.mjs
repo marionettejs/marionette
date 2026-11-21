@@ -38,10 +38,9 @@ const ReloadingPage = Application.extend({
 });
 
 export const Catalog = RouteApplication.extend({
-  routeParent: 'desk',
   routes: {
-    catalog: { path: 'catalog', handler: 'showCatalog' },
-    item: { path: 'catalog/:id', handler: 'showItem' },
+    'catalog': { name: 'catalog', handler: 'showCatalog' },
+    'catalog/:id': { name: 'item', handler: 'showItem' },
   },
   initialize() {
     this.addChildApp('page', new ReloadingPage({ region: this.getRegion() }));
@@ -49,16 +48,15 @@ export const Catalog = RouteApplication.extend({
   async showItem(match) {
     const { signal } = match;
     signal.throwIfAborted();
-    this.getOption('tools').getChildApp('activity')?.stop();
+    this.getOption('tools').getChildApp('activity')?.clear();
     const page = this.getChildApp('page');
-    if (this.desk !== match.params.desk || this.item !== match.params.id) {
-      page.stop();
-      this.desk = match.params.desk;
-      this.item = match.params.id;
-    }
-    const starting = page.start({ id: match.params.id, load: this.getOption('load') });
+    const starting = this.switchTo('page', {
+      key: { desk: match.params.desk, id: match.params.id },
+      signal,
+      options: { id: match.params.id, load: this.getOption('load') },
+    });
     const presented = page.initialPresentation();
-    await starting; // May fulfill false because the page replaced its own work.
+    await starting; // May return undefined when the page replaces its own startup.
     const outcome = await presented;
     signal.throwIfAborted();
     if (outcome.kind === 'stopped') { throw new Error('Required presentation stopped'); }
@@ -66,31 +64,28 @@ export const Catalog = RouteApplication.extend({
   },
   showCatalog(match) {
     match.signal.throwIfAborted();
-    this.getOption('tools').getChildApp('activity')?.stop();
-    this.getChildApp('page').stop();
+    this.getOption('tools').getChildApp('activity')?.clear();
+    this.clear();
     this.showView(new PresentationView({
       model: { kind: 'content', value: `Catalog ${match.params.desk}` },
     }));
   },
 });
 
-export const Activity = RouteApplication.extend({
-  routeParent: 'desk',
-  routes: {
-    activity: { path: 'activity', handler: 'showActivity' },
-  },
-  async showActivity(match) {
-    const { signal } = match;
-    await this.getOption('tools').start();
-    signal.throwIfAborted();
-    return this.start({ routeSignal: signal });
-  },
-  onStart(_app, { routeSignal } = {}) {
-    if (routeSignal?.aborted) { return; }
+const ActivityPanel = RouteApplication.extend({
+  routes: { '': { name: 'activity', handler: 'showActivity' } },
+  showActivity() {
     this.showView(new PresentationView({
       model: { kind: 'content', value: 'Activity inspector' },
     }));
   },
+});
+
+// This independently owned root is started explicitly after lazy registration.
+// Its mounted panel then follows ordinary keyed route activation.
+export const Activity = RouteApplication.extend({
+  childApps: { panel: ActivityPanel },
+  routes: { 'activity': { mount: 'panel' } },
 });
 
 export const Desk = Application.extend({
@@ -99,20 +94,20 @@ export const Desk = Application.extend({
     const router = this.addChildApp('navigation', new Router({
       driver: options.driver,
       routes: {
-        desk: {
-          path: '/:desk',
+        '/:desk': {
+          name: 'desk',
           meta: { shell: 'desk' },
-          redirect: ({ params }) => ({ name: 'catalog', params }),
+          redirect: { name: 'catalog' },
         },
       },
     }));
     const tools = this.addChildApp('tools', new Application({ region: { el: options.side } }));
-    this.addChildApp('catalog', new Catalog({
-      router,
+    const catalog = this.addChildApp('catalog', new Catalog({
       tools,
       region: { el: options.main },
       load: this.getOption('load'),
     }));
+    catalog.mountRoutes(router, { parent: 'desk' });
   },
   async prepareStart(_options, { signal }) {
     await this.getChildApp('catalog').start();

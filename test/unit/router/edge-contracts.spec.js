@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Application } from 'marionette';
 import { memoryDriver } from '@mnjs/router';
-import { ChildAppSwitcher } from '@mnjs/router';
+import { RouteApplication } from '@mnjs/router';
 import { createRouter } from './helpers.js';
 
 const owners = new Set();
@@ -58,15 +58,15 @@ describe('navigation query and entry-state boundaries', () => {
     });
   }
 
-  it('replaces foreign non-object state with an explicit plain-object update', async() => {
+  it('replaces foreign non-object state through explicit navigation state', async() => {
     const driver = memoryDriver({ url: 'http://localhost/' });
     const listeners = intercept(driver);
     await driver.navigate('/item', { state: new Map([['old', 1]]) }).finished;
     listeners.abort();
     const router = createRouter({ driver, routes: [{ name: 'item', path: '/item' }] });
     await router.start();
-    router.updateState({ tab: 'details' });
-    expect(driver.currentEntry.getState()).toEqual({ tab: 'details' });
+    await router.navigate('/item', { history: 'replace', state: { tab: 'details' } }).finished;
+    expect(driver.currentEntry.getState()).toEqual({ tab: 'details', '@mnjs/router': true });
     expect(router.getCurrent().state).toEqual({ tab: 'details' });
   });
 
@@ -182,22 +182,23 @@ describe('memory driver queued traversal and event semantics', () => {
 });
 
 describe('switcher selection lifetime boundaries', () => {
-  it('reconstructs a selection when an object key becomes an array key', async() => {
+  it('rejects an array key before retiring a running flat-key selection', async() => {
     const owner = own();
     let preparations = 0;
     const Page = Application.extend({ prepareStart() { preparations++; } });
-    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const switcher = owner.addChildApp('pages', new RouteApplication());
     const page = switcher.addChildApp('page', new Page());
     await switcher.start();
     await switcher.switchTo('page', { key: { id: 'one' } });
-    expect(await switcher.switchTo('page', { key: ['one'] })).toBe(page);
-    expect(preparations).toBe(2);
+    await expect(switcher.switchTo('page', { key: ['one'] })).rejects.toBeInstanceOf(TypeError);
+    expect(switcher.getCurrent()).toBe(page);
+    expect(preparations).toBe(1);
   });
 
   it('preserves a group explicitly re-enabled and selected from owner stop notification', async() => {
     const owner = own();
     await owner.start();
-    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const switcher = owner.addChildApp('pages', new RouteApplication());
     switcher.addChildApp('a', new Application());
     const b = switcher.addChildApp('b', new Application());
     await switcher.start();
@@ -219,7 +220,7 @@ describe('switcher selection lifetime boundaries', () => {
       childApps: { nested: Application },
       async prepareStart() { await this.getChildApp('nested').start(); throw failure; },
     });
-    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const switcher = owner.addChildApp('pages', new RouteApplication());
     const page = switcher.addChildApp('page', new Page());
     const nested = page.getChildApp('nested');
     nested.onBeforeStop = () => { throw cleanup; };
@@ -229,9 +230,9 @@ describe('switcher selection lifetime boundaries', () => {
     nested.onBeforeStop = () => {};
   });
 
-  it('ignores an old replacement failure after stop notification selects a newer child', async() => {
+  it('preserves the normal stop failure boundary after a callback selects a newer child', async() => {
     const owner = own();
-    const switcher = owner.addChildApp('pages', new ChildAppSwitcher());
+    const switcher = owner.addChildApp('pages', new RouteApplication());
     const current = switcher.addChildApp('current', new Application());
     const latest = switcher.addChildApp('latest', new Application());
     switcher.addChildApp('obsolete', new Application());
@@ -239,7 +240,7 @@ describe('switcher selection lifetime boundaries', () => {
     await switcher.switchTo('current');
     let shown;
     current.onBeforeStop = () => { shown = switcher.switchTo('latest'); throw new Error('obsolete stop failed'); };
-    expect(await switcher.switchTo('obsolete')).toBeUndefined();
+    await expect(switcher.switchTo('obsolete')).rejects.toThrow('obsolete stop failed');
     current.onBeforeStop = () => {};
     expect(await shown).toBe(latest);
     expect(switcher.getCurrent()).toBe(latest);
@@ -254,7 +255,7 @@ describe('activation and routing error boundaries', () => {
         const failure = new Error(`${ phase } failed`);
         const driver = memoryDriver({ url: `https://routing.example/${ initial ? 'item' : 'outside' }` });
         const router = createRouter({ driver, routes: [{ name: 'item', path: '/item' }],
-          intercept(url) { if (phase === 'planning' && url.pathname === '/item') { throw failure; } return true; },
+          owns(url) { if (phase === 'planning' && url.pathname === '/item') { throw failure; } return true; },
         });
         const errors = [];
         const failed = Promise.withResolvers();

@@ -5,11 +5,62 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
 import { pathToFileURL } from 'node:url';
+import { get } from 'node:http';
 import { candidateOutput, inspectRouterArchive, sha256, validatePreparationReceipt, validateRouterPackage, verifyRouterBrowserReport, verifyRouterDocumentation } from './artifact.mjs';
+import { createLazyHistoryServer, verifyLazyHistoryBrowserReport, withBrowserDeadline } from './lazy-history-browser.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const manifest = JSON.parse(readFileSync(join(root, 'packages/router/package.json')));
 const notice = readFileSync(join(root, 'license.txt'));
+
+test('standalone navigation deadline bounds a pending promise and preserves settled outcomes', async() => {
+  assert.equal(await withBrowserDeadline(Promise.resolve('ready'), 'fixture'), 'ready');
+  const error = new Error('navigation failed');
+  await assert.rejects(withBrowserDeadline(Promise.reject(error), 'fixture'), value => value === error);
+  await assert.rejects(withBrowserDeadline(new Promise(() => {}), 'fixture navigation', 20), /fixture navigation did not settle within 20ms/);
+});
+
+test('missing production assets return 404 without crashing the standalone server', async t => {
+  const directory = mkdtempSync(join(tmpdir(), 'router-http-assets-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  mkdirSync(join(directory, 'dist/assets'), { recursive: true });
+  writeFileSync(join(directory, 'dist/assets/present.js'), 'export const present = true;');
+  const server = createLazyHistoryServer(directory);
+  await new Promise(ready => server.listen(0, '127.0.0.1', ready));
+  t.after(() => new Promise(closed => server.close(closed)));
+  const request = path => new Promise((done, reject) => {
+    get(`http://127.0.0.1:${server.address().port}${path}`, response => {
+      let body = '';
+      response.setEncoding('utf8');
+      response.on('data', chunk => { body += chunk; });
+      response.on('end', () => done({ status: response.statusCode, body }));
+    }).on('error', reject);
+  });
+  assert.deepEqual(await request('/assets/missing.js'), { status: 404, body: 'Not found' });
+  assert.deepEqual(await request('/assets/present.js'), { status: 200, body: 'export const present = true;' });
+});
+
+test('standalone browser evidence requires every engine, probe mode and Chromium sandbox', () => {
+  const report = { policy: 'chromium-firefox-webkit', engines: ['chromium', 'firefox', 'webkit'].map(name => ({
+    name, version: 'recorded executable', status: 'passed', ...(name === 'chromium' ? { chromiumSandbox: true } : {}),
+    branches: ['available', 'undefined', 'throwing'].map(mode => ({
+      mode, fallback: mode !== 'available', initialDispatch: 'matched', navigationStateAndBack: 'passed',
+      navigationGetterReads: mode === 'throwing' ? 1 : 0,
+    })),
+  })) };
+  assert.deepEqual(verifyLazyHistoryBrowserReport(report), { engines: 3, cases: 9 });
+  for (const change of [
+    value => value.engines.pop(),
+    value => { value.engines[1].name = 'chromium'; },
+    value => { value.engines[0].chromiumSandbox = false; },
+    value => { value.engines[1].status = 'failed'; },
+    value => value.engines[2].branches.pop(),
+    value => { value.engines[2].branches[2].navigationGetterReads = 2; },
+  ]) {
+    const broken = structuredClone(report); change(broken);
+    assert.throws(() => verifyLazyHistoryBrowserReport(broken));
+  }
+});
 
 for (const outcome of ['success', 'nonzero', 'launch-error', 'timeout']) {
   test(`retention launcher bounds children and preserves ${outcome} diagnostics`, () => {
@@ -76,10 +127,13 @@ function fixture(t) {
   write('readme.md', '# Router\n[Design](DESIGN.md#child-applications)\n[MIT](license.txt)\n');
   write('DESIGN.md', '# Design\n## Child applications\n');
   write('PROVENANCE.md', '# Provenance\n');
+  write('changelog.md', '# Changelog\n');
   for (const file of ['examples/desk/README.md', 'examples/desk/desk.mjs',
     'examples/catalog/README.md', 'examples/catalog/catalog.mjs']) { write(file, '# Example\n'); }
-  for (const kind of ['import', 'require']) {
-    for (const field of ['default', 'types']) { write(manifest.exports['.'][kind][field], 'export {};\n'); }
+  for (const entry of ['.', './history']) {
+    for (const kind of ['import', 'require']) {
+      for (const field of ['default', 'types']) { write(manifest.exports[entry][kind][field], 'export {};\n'); }
+    }
   }
   const pack = () => {
     const files = [];
@@ -138,17 +192,33 @@ test('failed archive validation does not claim a publishable manifest', t => {
 test('rejects unexpected packed material and missing public entries', t => {
   const f = fixture(t);
   f.write('.npmrc', 'unexpected package file');
-  let archive = f.pack();
+  const archive = f.pack();
   assert.throws(() => inspectRouterArchive(archive, sha256(readFileSync(archive))), /Unexpected router payload/);
   rmSync(join(f.pkg, '.npmrc'));
-  rmSync(join(f.pkg, 'dist/index.cjs'));
-  archive = f.pack();
-  assert.throws(() => inspectRouterArchive(archive, sha256(readFileSync(archive))), /Missing entry/);
+  for (const entry of ['dist/index.cjs', 'changelog.md']) {
+    rmSync(join(f.pkg, entry));
+    const incomplete = f.pack();
+    assert.throws(() => inspectRouterArchive(incomplete, sha256(readFileSync(incomplete))), /Missing entry/);
+    f.write(entry, 'fixture\n');
+  }
+});
+
+test('requires every public History runtime and declaration in the archive', t => {
+  const f = fixture(t);
+  for (const kind of ['import', 'require']) {
+    for (const field of ['default', 'types']) {
+      const entry = manifest.exports['./history'][kind][field];
+      rmSync(join(f.pkg, entry));
+      const archive = f.pack();
+      assert.throws(() => inspectRouterArchive(archive, sha256(readFileSync(archive))), /Missing entry/);
+      f.write(entry, 'export {};\n');
+    }
+  }
 });
 
 test('checks installed documentation anchors, files and package boundaries', t => {
   const f = fixture(t);
-  assert.deepEqual(verifyRouterDocumentation(f.pkg), { pages: 5, relativeLinks: 2 });
+  assert.deepEqual(verifyRouterDocumentation(f.pkg), { pages: 6, relativeLinks: 2 });
   f.write('readme.md', '[Missing](DESIGN.md#missing)');
   assert.throws(() => verifyRouterDocumentation(f.pkg), /Missing anchor/);
   f.write('readme.md', '[Missing](absent.md)');
@@ -164,6 +234,22 @@ test('neither preparation entry point accepts a publication mode', () => {
     });
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /Unknown option '--publish'/);
+  }
+});
+
+test('registry peer selection requires registry mode and an explicit supported evidence version', () => {
+  const currentVersion = JSON.parse(readFileSync(join(root, 'package.json'))).version;
+  for (const [args, diagnostic] of [
+    [['--registry-peer-version', currentVersion], /requires --registry-peers/],
+    [['--registry-peers', '--registry-peer-version', '5.0.0'], /minimum 5.0.1 or current/],
+    [['--registry-peers', '--registry-peer-version', '^5.0.1'], /minimum 5.0.1 or current/],
+    [['--registry-peers', '--registry-peer-version', 'latest'], /minimum 5.0.1 or current/],
+  ]) {
+    const result = spawnSync(process.execPath, [join(root, 'test/router/tarball.mjs'), ...args], {
+      encoding: 'utf8', env: { ...process.env, npm_execpath: 'unused-before-argument-validation' },
+    });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, diagnostic);
   }
 });
 
@@ -190,24 +276,54 @@ test('keeps output outside the source even through an existing directory alias',
   assert.throws(() => candidateOutput(f.pkg, join(alias, 'new-output')), /outside the source/);
 });
 
-test('browser evidence requires every declared case once and an actual executable version', () => {
-  const inventory = { schemaVersion: 1, policy: 'initial-chromium', tests: [{ file: 'router.spec.mjs', title: 'route' }] };
-  const report = { config: { metadata: { routerBrowserVersion: 'Chromium 154' } }, errors: [],
-    stats: { expected: 1, skipped: 0, flaky: 0, unexpected: 0 }, suites: [{ specs: [{ file: 'router.spec.mjs', title: 'route',
-      tests: [{ projectName: 'router-chromium', status: 'expected', expectedStatus: 'passed', results: [{ status: 'passed' }] }] }] }] };
-  assert.equal(verifyRouterBrowserReport(report, inventory).version, 'Chromium 154');
-  for (const mutate of [r => { r.config.metadata = {}; }, r => { r.errors.push({ message: 'runner error' }); },
+test('browser evidence requires every case once on each engine and actual versions', () => {
+  const names = ['chromium', 'firefox', 'webkit'];
+  const inventory = { schemaVersion: 1, policy: 'chromium-firefox-webkit', tests: [{ file: 'router.spec.mjs', title: 'route' }] };
+  const versions = { chromium: '158.0.8127.18', firefox: '159.0', webkit: '27.2' };
+  const report = { errors: [],
+    stats: { expected: 3, skipped: 0, flaky: 0, unexpected: 0 }, suites: [{ specs: [{ file: 'router.spec.mjs', title: 'route',
+      tests: names.map(name => ({ projectName: `router-${name}`, annotations: [{ type: 'browser-version', description: versions[name] }], status: 'expected', expectedStatus: 'passed', results: [{ status: 'passed', retry: 0 }] })) }] }] };
+  assert.deepEqual(verifyRouterBrowserReport(report, inventory).engines, names.map(name => ({
+    name, version: versions[name], expected: 1,
+  })));
+  for (const mutate of [r => { r.errors.push({ message: 'runner error' }); },
     r => { r.errors = ''; }, r => { r.errors = { length: 0 }; },
-    r => { r.stats.skipped = 1; }, r => { r.stats.expected = 2; }, r => { r.suites = []; },
-    r => { r.suites[0].specs[0].tests[0].results.push({ status: 'passed' }); },
-    r => { r.suites[0].specs[0].tests[0].projectName = 'webkit'; }]) {
+    r => { r.stats.skipped = 1; }, r => { r.stats.flaky = 1; }, r => { r.stats.unexpected = 1; },
+    r => { r.stats.skipped = -1; r.stats.flaky = 1; },
+    r => { r.stats.expected = 4; }, r => { r.suites = []; },
+    r => { r.suites[0].specs[0].tests[0].results.push({ status: 'passed', retry: 1 }); },
+    r => { r.suites[0].specs[0].tests[0].results[0].retry = 1; },
+    r => { r.suites[0].specs[0].tests[0].expectedStatus = 'failed'; },
+    r => { r.suites[0].specs[0].tests[0].projectName = 'webkit'; },
+    r => { r.suites[0].specs[0].tests.push(structuredClone(r.suites[0].specs[0].tests[0])); },
+  ]) {
     const changed = structuredClone(report);
     mutate(changed);
     assert.throws(() => verifyRouterBrowserReport(changed, inventory));
   }
+  for (const index of names.keys()) {
+    for (const mutate of [r => { r.suites[0].specs[0].tests[index].annotations = []; },
+      r => { r.suites[0].specs[0].tests[index].annotations[0].description = ' '; },
+      r => { r.suites[0].specs[0].tests[index].annotations.push({ type: 'browser-version', description: 'other' }); },
+      r => { r.suites[0].specs[0].tests.splice(index, 1); r.stats.expected--; },
+      r => { r.suites[0].specs[0].tests[index].results[0].status = 'skipped'; },
+      r => { r.suites[0].specs[0].tests[index].status = 'flaky'; }]) {
+      const changed = structuredClone(report);
+      mutate(changed);
+      assert.throws(() => verifyRouterBrowserReport(changed, inventory));
+    }
+  }
+  const inconsistent = structuredClone(report);
+  const second = structuredClone(inconsistent.suites[0].specs[0]); second.title = 'other route';
+  second.tests[0].annotations[0].description = 'other build';
+  inconsistent.suites[0].specs.push(second); inconsistent.stats.expected = 6;
+  assert.throws(() => verifyRouterBrowserReport(inconsistent, { ...inventory, tests: [...inventory.tests,
+    { file: 'router.spec.mjs', title: 'other route' }] }), /Consistent chromium executables/);
+  assert.throws(() => verifyRouterBrowserReport(report, { ...inventory, policy: 'initial-chromium' }));
+  assert.throws(() => verifyRouterBrowserReport(report, { ...inventory, tests: [...inventory.tests, ...inventory.tests] }));
 });
 
-test('router discovery uses the complete Chromium inventory in dedicated and development configurations', () => {
+test('router discovery uses every inventory case on all engines in both configurations', () => {
   const discover = config => {
     const result = JSON.parse(execFileSync(process.execPath, [join(root, 'node_modules/@playwright/test/cli.js'), 'test',
       '--config', config, '--list', '--reporter=json'], { cwd: root, encoding: 'utf8' }));
@@ -222,7 +338,95 @@ test('router discovery uses the complete Chromium inventory in dedicated and dev
     return cases.map(entry => JSON.stringify(entry)).sort();
   };
   const router = JSON.parse(readFileSync(join(root, 'test/router/browser-inventory.json'))).tests;
-  assert.deepEqual(discover('playwright.router.config.mjs'), router.map(({ file, title }) => JSON.stringify([file, title, 'router-chromium'])).sort());
+  const expected = prefix => router.flatMap(({ file, title }) => ['chromium', 'firefox', 'webkit']
+    .map(name => JSON.stringify([file, title, `${prefix}${name}`]))).sort();
+  assert.deepEqual(discover('playwright.router.config.mjs'), expected('router-'));
   const regular = discover('playwright.config.mjs').map(entry => JSON.parse(entry)).filter(([file]) => file.startsWith('router-'));
-  assert.deepEqual(regular.map(entry => JSON.stringify(entry)).sort(), router.map(({ file, title }) => JSON.stringify([file, title, 'chromium'])).sort());
+  assert.deepEqual(regular.map(entry => JSON.stringify(entry)).sort(), expected(''));
+  const core = discover('playwright.core-release.config.mjs').map(entry => JSON.parse(entry));
+  assert.ok(core.length > 0);
+  assert.ok(core.every(([file]) => !file.startsWith('router-')), 'Core release retains its separate inventory');
+  const diagnostic = discover('playwright.router-diagnostics.config.mjs').map(entry => JSON.parse(entry));
+  assert.equal(diagnostic.length, 6, 'Two native contract cases on each engine');
+  assert.ok(diagnostic.every(([, title]) => title === 'native Back to a distinct earlier entry supersedes the still-preparing destination' ||
+    title === 'native queued Back dispatch follows completed abort-listener navigation'));
+  assert.deepEqual([...new Set(diagnostic.map(([, , project]) => project))].sort(), ['chromium', 'firefox', 'webkit']);
+});
+
+test('Router projects launch their named engines and preserve Chromium sandboxing', async() => {
+  const { default: dedicated } = await import('../../playwright.router.config.mjs');
+  const { default: development } = await import('../../playwright.config.mjs');
+  const { default: diagnostic } = await import('../../playwright.router-diagnostics.config.mjs');
+  assert.equal(diagnostic.metadata.routerNativeTrace, true);
+  assert.notEqual(diagnostic.outputDir, development.outputDir);
+  assert.notEqual(diagnostic.reporter[1][1].outputFile, development.reporter[2][1].outputFile);
+  const names = ['chromium', 'firefox', 'webkit'];
+  assert.deepEqual(dedicated.projects.map(({ name, use }) => [name, use.browserName]),
+    names.map(name => [`router-${name}`, name]));
+  assert.equal(dedicated.projects[0].use.launchOptions.chromiumSandbox, true);
+  assert.deepEqual(development.projects.map(({ name, use }) => [name, use.browserName]),
+    names.map(name => [name, name]));
+});
+
+for (const mode of ['build', 'reuse', 'failed-restore']) {
+  test(`Router preparation ${mode} preserves the exact archive and never bypasses a failed restore`, t => {
+    const f = fixture(t);
+    const archive = f.pack();
+    const source = join(f.directory, 'source');
+    const output = join(f.directory, 'prepared');
+    const calls = join(f.directory, 'npm-calls.jsonl');
+    const npm = join(f.directory, 'npm.cjs');
+    mkdirSync(join(source, 'test/router'), { recursive: true });
+    mkdirSync(join(source, 'config'));
+    writeFileSync(join(source, 'package.json'), '{"type":"module"}');
+    const profile = JSON.parse(readFileSync(join(root, 'config/release-profile.json')));
+    writeFileSync(join(source, 'config/release-profile.json'), JSON.stringify(profile));
+    writeFileSync(join(source, 'test/router/prepare.mjs'), readFileSync(join(root, 'test/router/prepare.mjs')));
+    writeFileSync(join(source, 'test/router/artifact.mjs'),
+      `export { candidateOutput, inspectRouterArchive, sha256 } from ${JSON.stringify(pathToFileURL(join(root, 'test/router/artifact.mjs')).href)};`);
+    writeFileSync(npm, `
+const { appendFileSync, copyFileSync } = require('node:fs');
+const { join } = require('node:path');
+const args = process.argv.slice(2);
+appendFileSync(${JSON.stringify(calls)}, JSON.stringify(args) + '\\n');
+if (args[0] === '--version') console.log(${JSON.stringify(profile.source.npm)});
+else if (args[0] === 'run') {
+  if (${JSON.stringify(mode)} === 'failed-restore') process.exit(7);
+} else if (args[0] === 'pack') {
+  copyFileSync(${JSON.stringify(archive)}, join(args.at(-1), 'router.tgz'));
+  console.log(JSON.stringify([{ filename: 'router.tgz' }]));
+} else process.exit(99);
+`);
+    const git = args => execFileSync('git', args, { cwd: source, encoding: 'utf8' }).trim();
+    git(['init', '-q']); git(['add', '.']);
+    git(['-c', 'user.name=Tests', '-c', 'user.email=tests@example.invalid', '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'clean fixture']);
+    const checksum = 'a'.repeat(64);
+    const result = spawnSync(process.execPath, [join(source, 'test/router/prepare.mjs'), '--output', output,
+      ...(mode === 'build' ? [] : ['--build-sha256', checksum])], {
+      encoding: 'utf8', env: { ...process.env, npm_execpath: npm },
+    });
+    assert.equal(result.status, mode === 'failed-restore' ? 1 : 0, result.stderr);
+    const commands = readFileSync(calls, 'utf8').trim().split('\n').map(JSON.parse);
+    assert.deepEqual(commands.filter(args => args[0] === 'run'), mode === 'build' ? [['run', 'build:router']] :
+      [['run', 'release:outputs', '--', '--mode', 'restore', '--sha256', checksum]]);
+    assert.equal(commands.filter(args => args[0] === 'pack').length, mode === 'failed-restore' ? 0 : 1);
+    if (mode !== 'failed-restore') {
+      const receipt = JSON.parse(readFileSync(join(output, 'router-candidate.json')));
+      assert.equal(receipt.sourceCommit, git(['rev-parse', 'HEAD']));
+      assert.equal(receipt.sourceDirty, false);
+      assert.equal(receipt.archive.sha256, sha256(readFileSync(archive)));
+      assert.equal(receipt.buildOutputsSha256, mode === 'build' ? undefined : checksum);
+    }
+  });
+}
+
+
+test('explicit invalid Router build hashes cannot fall back to a local build', () => {
+  for (const checksum of ['', 'invalid', 'a'.repeat(63)]) {
+    const result = spawnSync(process.execPath, [join(root, 'test/router/prepare.mjs'), '--output', '/unused-before-hash-validation',
+      '--build-sha256', checksum], { encoding: 'utf8', env: { ...process.env, npm_execpath: '/unused-before-hash-validation' } });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Supply the producer build SHA-256/);
+    assert.doesNotMatch(result.stderr, /MODULE_NOT_FOUND|ENOENT/);
+  }
 });

@@ -1,5 +1,7 @@
 // Portable DOM factories for the official FormKit 2.5 helper behaviors.
 // Schema shapes follow @formkit/vue and @formkit/react (MIT: LICENSE.formkit).
+import { View } from 'marionette';
+import { insertNode, removeNode } from './dom-operations.mjs';
 import { createSection, localize } from '@formkit/inputs';
 import { createIconHandler } from '@formkit/themes';
 import { token, undefine } from '@formkit/utils';
@@ -54,6 +56,7 @@ function findElement(host, id) {
 
 function createMessageHelper(args, environment, isSummary) {
   const { host } = args;
+  const Dom = environment.getDom ? environment.getDom() : View.prototype.Dom;
   const id = `summary-${token()}`;
   let props = {}, node, renderer, closed = false, queued = false, shown = false, submitPending = false;
   let disposers = [], contextSubscriptions = new Map(), summaries = [];
@@ -139,7 +142,7 @@ function createMessageHelper(args, environment, isSummary) {
         on('childRemoved.deep', schedule);
         on('submit-raw', () => { shown = true; submitPending = true; schedule(); });
       } else if (!undefine(props.defaultPosition)) {disposers.push(moveMessages(node.context));}
-      renderer = renderSections({ host, schema: (isSummary ? summarySchema : messageSchema)(props.sectionsSchema || {}), context: node.context, data, components: factoryLibrary(environment, props) });
+      renderer = renderSections({ Dom, host, schema: (isSummary ? summarySchema : messageSchema)(props.sectionsSchema || {}), context: node.context, data, components: factoryLibrary(environment, props) });
     }
     refresh();
   }
@@ -154,7 +157,7 @@ export function FormKitSummary(args, environment = {}) { return createMessageHel
 // document and retain a conservative SVG vocabulary; never assign arbitrary HTML.
 const svgElements = new Set('svg g path circle ellipse rect line polyline polygon defs symbol use title desc clipPath mask linearGradient radialGradient stop pattern'.split(' '));
 const svgAttributes = new Set('xmlns viewBox width height x y x1 x2 y1 y2 cx cy r rx ry d points fill fill-rule fill-opacity stroke stroke-width stroke-linecap stroke-linejoin stroke-miterlimit stroke-dasharray stroke-dashoffset stroke-opacity opacity transform id class role aria-hidden aria-label focusable preserveAspectRatio clip-path clip-rule mask offset stop-color stop-opacity gradientUnits gradientTransform spreadMethod patternUnits patternContentUnits patternTransform'.split(' '));
-function safeSvg(host, markup) {
+function safeSvg(Dom, host, markup) {
   if (typeof markup !== 'string' || !markup.trimStart().startsWith('<svg')) {return;}
   const Parser = host.ownerDocument.defaultView.DOMParser;
   const parsed = new Parser().parseFromString(markup, 'image/svg+xml');
@@ -167,13 +170,13 @@ function safeSvg(host, markup) {
       const name = attribute.name, value = attribute.value;
       const fragment = /^(?:#[-\w:.]+|url\(#[\w:.-]+\))$/;
       if (name === 'href' || name === 'xlink:href') {
-        if (/^#[-\w:.]+$/.test(value)) {element.setAttribute('href', value);}
+        if (/^#[-\w:.]+$/.test(value)) {Dom.setAttributes(element,{href: value});}
       } else if (svgAttributes.has(name) && !/javascript:|data:|https?:|\/\/|expression\s*\(/i.test(value) && (!/url\s*\(/i.test(value) || fragment.test(value))) {
-        element.setAttribute(name, value);
+        Dom.setAttributes(element,{[name]: value});
       }
     }
     for (const child of source.childNodes) {
-      if (child.nodeType === 1) { const clean = copy(child); if (clean) {element.append(clean);} } else if (child.nodeType === 3 && ['title', 'desc'].includes(source.localName)) {element.append(host.ownerDocument.createTextNode(child.textContent));}
+      if (child.nodeType === 1) { const clean = copy(child); if (clean) {insertNode(Dom,element,clean);} } else if (child.nodeType === 3 && ['title', 'desc'].includes(source.localName)) {insertNode(Dom,element,host.ownerDocument.createTextNode(child.textContent));}
     }
     return element;
   }
@@ -182,32 +185,33 @@ function safeSvg(host, markup) {
 
 export function FormKitIcon(args, environment = {}) {
   const { host } = args;
+  const Dom = environment.getDom ? environment.getDom() : View.prototype.Dom;
   let props = {}, node, span, generation = 0, closed = false, unsubscribe = () => {}, offDestroy = () => {}, listeners = [];
   let previousIcon, previousLoader, previousUrl, previousHandler;
   function clearSpan(remove = true) {
     for (const [name, handler] of listeners.splice(0)) {span?.removeEventListener(name, handler);}
-    if (remove) {span?.remove();}
+    if (remove && span) {removeNode(Dom,span);}
     span = undefined;
   }
   function display(markup, request) {
     if (closed || request !== generation) {return;}
-    const svg = safeSvg(host, markup);
+    const svg = safeSvg(Dom, host, markup);
     if (!props.icon || !svg) { clearSpan(); return; }
     for (const [name, handler] of listeners.splice(0)) {span?.removeEventListener(name, handler);}
-    span ||= host.ownerDocument.createElement('span');
-    for (const attribute of [...span.attributes]) {span.removeAttribute(attribute.name);}
-    span.className = ['formkit-icon', props.className || props.class].filter(Boolean).join(' ');
+    span ||= Dom.createElement('span');
+    for (const attribute of [...span.attributes]) {Dom.setAttributes(span,{[attribute.name]: null});}
+    Dom.setAttributes(span,{class: ['formkit-icon', props.className || props.class].filter(Boolean).join(' ')});
     const clickable = typeof props.onClick === 'function';
     for (const [name, value] of Object.entries(props)) {
       if (['icon', 'iconLoader', 'iconLoaderUrl', 'class', 'className', 'node', 'role', 'tabIndex', 'tabindex'].includes(name)) {continue;}
       if (/^on[A-Z]/.test(name) && typeof value === 'function' && !/^onKey[Dd]own$/.test(name)) {
         const event = name.slice(2).toLowerCase(); span.addEventListener(event, value); listeners.push([event, value]);
-      } else if ((name === 'id' || name === 'title' || name === 'dir' || name === 'lang' || /^(?:aria|data)-[\w-]+$/.test(name)) && value != null) {span.setAttribute(name, String(value));}
+      } else if ((name === 'id' || name === 'title' || name === 'dir' || name === 'lang' || /^(?:aria|data)-[\w-]+$/.test(name)) && value != null) {Dom.setAttributes(span,{[name]: String(value)});}
     }
     const role = props.role ?? (clickable ? 'button' : undefined);
     const tabIndex = props.tabIndex ?? props.tabindex ?? (clickable ? 0 : undefined);
-    if (role != null) {span.setAttribute('role', String(role));}
-    if (tabIndex != null) {span.setAttribute('tabindex', String(tabIndex));}
+    if (role != null) {Dom.setAttributes(span,{role: String(role)});}
+    if (tabIndex != null) {Dom.setAttributes(span,{tabindex: String(tabIndex)});}
     const keydown = event => {
       (props.onKeyDown || props.onKeydown)?.(event);
       if (!event.defaultPrevented && clickable && ['Enter', ' ', 'Spacebar'].includes(event.key)) {
@@ -215,7 +219,7 @@ export function FormKitIcon(args, environment = {}) {
       }
     };
     span.addEventListener('keydown', keydown); listeners.push(['keydown', keydown]);
-    span.replaceChildren(svg); if (span.parentNode !== host) {host.append(span);}
+    Dom.detachContents(span);insertNode(Dom,span,svg); if (span.parentNode !== host) {insertNode(Dom,host,span);}
   }
   let currentMarkup;
   function load(force = false, renderProps = false) {

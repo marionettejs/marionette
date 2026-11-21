@@ -2,6 +2,8 @@
 
 Build a feature that loads records and shows the selected record beside its list. The [runnable example](../examples/records/README.md) also reloads without replacing the layout, retries failures, and closes/reopens the feature. The excerpts below come from that example; follow the source links for the complete modules.
 
+This repository tutorial uses `@mnjs/html` and its local package dependency. For the recommended `@mnjs/html` setup and a copyable installed-app feature, use the [quick start](quick-start.md) and [composition starter](guides/composition.md).
+
 ## Run it
 
 The source is included with these docs; the commands here use the repository checkout. For an application using installed packages, follow the [quick start](quick-start.md) and [setup reference](integrations/setup.md).
@@ -10,6 +12,7 @@ This repository example uses the pinned Node 24 contributor toolchain. Packaged 
 
 ```sh
 npm ci --ignore-scripts
+npm --prefix packages/html ci --ignore-scripts
 npm --prefix examples/records ci --ignore-scripts
 npm --prefix examples/records run dev
 ```
@@ -202,7 +205,7 @@ The Application chooses DetailView for a selected record or EmptyDetailView when
 | [records-api.js](../examples/records/src/records-api.js) | Implement `list({ signal })`, returning `{ id, title, description }` objects. |
 | [page.js](../examples/records/src/page.js) | Define the page Regions and Open/Close controls; forward Retry intent from the displayed error View. |
 | [main.js](../examples/records/src/main.js) | Start MainApplication at the root element. |
-| [setup.js](../examples/records/src/setup.js) | Configure the data/state integration and Lit renderer once. |
+| [setup.js](../examples/records/src/setup.js) | Configure the data/state integration and `@mnjs/html` renderer once. |
 
 MainApplication owns the page and registers RecordsApplication as a child. Its `viewEvents` connects page intent. `onStart` attaches the page once and starts the child in its content Region. Parent restart retains both without installing listeners or starting the child again. The parent is ready when its page is available; the child has its own data readiness. Stopping or destroying the parent also stops or destroys the registered child.
 
@@ -216,7 +219,7 @@ Close calls synchronous `stop()` and empties the child's UI. The page controls r
 
 Stop destroys the feature's Views; Marionette automatically removes the Application's listeners to the destroyed list. The Application keeps the prepared collection for selection lookup and passes it to the list. A successful start or restart replaces that reference. These local records have no independent resources requiring a stop hook. The Application and selection Model survive so the feature can reopen; final destruction disposes the owned state.
 
-Lit interpolation renders record strings as text; no example-specific escaping helper is needed.
+`@mnjs/html` interpolation renders record strings as text; no example-specific escaping helper is needed.
 
 ## Check changes
 

@@ -6,6 +6,10 @@ Mounting requires a DOM; importing the neutral entry and creating a cleanup scop
 Repository-example links follow `master` and may change; this installed guide
 describes the helper version above.
 
+The Vite setup commands select the latest Vite 8 release. Commit the generated
+`package-lock.json` and use `npm ci` for reproducible installs, updating the lockfile
+when adopting dependency fixes.
+
 Choose the part that matches your test:
 
 - [Mocha with the core](#mocha-use-the-core)
@@ -177,7 +181,8 @@ Cypress's custom Vite dev-server function without a UI-framework preset.
 For the setup below, install the custom dev server and Vite alongside Cypress:
 
 ```sh
-npm install --save-dev --save-exact cypress@16.1.1 @cypress/mount-utils@5.0.0 @cypress/vite-dev-server@8.0.0 vite@8.0.16
+npm install --save-dev --save-exact cypress@16.1.1 @cypress/mount-utils@5.0.0 @cypress/vite-dev-server@8.0.0
+npm install --save-dev vite@8
 ```
 
 Use `cypress.config.mjs` so the configuration works in either a CommonJS or ESM
@@ -301,7 +306,8 @@ Install the runner and dev server, then install Chromium through Playwright's
 normal browser setup:
 
 ```sh
-npm install --save-dev --save-exact @playwright/test@1.63.0 vite@8.0.16
+npm install --save-dev --save-exact @playwright/test@1.63.0
+npm install --save-dev vite@8
 npx playwright install chromium
 ```
 
@@ -793,7 +799,7 @@ described below; archive-specific native runner results belong with the release
 record.
 
 The 5.0.0 version in this historical table is not the current installation pin.
-Use the [installation instructions](readme.md#install) for Marionette 5.0.1 and
+Use the [installation instructions](readme.md#install) for Marionette 5.1.1 and
 the separately versioned `@mnjs/test` 1.0.0.
 
 | Entry / runner | Version and checks |

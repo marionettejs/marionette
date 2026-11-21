@@ -6,7 +6,7 @@
     "validate": "vite build --sourcemap && node verify-maps.mjs"
   },
   "dependencies": {
-    "vite": "^8.3.6"
+    "vite": "^8.3.8"
   },
   "allowScripts": {
     "fsevents@2.3.3": true

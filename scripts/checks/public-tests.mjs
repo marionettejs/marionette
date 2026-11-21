@@ -6,7 +6,7 @@ import ts from 'typescript';
 const repository = resolve(import.meta.dirname, '../..');
 const { values } = parseArgs({ options: { root: { type: 'string', default: repository } } });
 const root = resolve(values.root);
-const roots = ['test/unit', 'test/types', 'test/browser', 'test/fixtures', 'test/contracts', 'test/setup', 'benchmarks/agent'];
+const roots = ['test/unit', 'test/types', 'test/browser', 'test/fixtures', 'test/contracts', 'test/package-compatibility', 'test/setup', 'benchmarks/agent'];
 const failures = [];
 const intrinsicNames = new Set(['__proto__']);
 

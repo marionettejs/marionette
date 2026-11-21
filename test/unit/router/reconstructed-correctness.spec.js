@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Application } from 'marionette';
-import { ChildAppSwitcher, memoryDriver } from '@mnjs/router';
+import { RouteApplication, memoryDriver } from '@mnjs/router';
 import { createRouter } from './helpers.js';
 
 const groups = new Set();
@@ -10,7 +10,7 @@ afterEach(() => {
 });
 
 async function pagesWith(Page = Application) {
-  const pages = new ChildAppSwitcher();
+  const pages = new RouteApplication();
   groups.add(pages);
   const page = pages.addChildApp('page', new Page());
   await pages.start();
@@ -43,7 +43,7 @@ describe('reconstructed navigation correctness', () => {
     expect(router.getCurrent().name).toBe('next');
   });
 
-  for (const target of ['target', '?done=1', '#done']) {
+  for (const target of ['/legacy/target', '?done=1', '#done']) {
     it(`resolves synchronous and asynchronous ${target} redirects against their navigation URL`, async() => {
       const paths = [];
       for (const asynchronous of [false, true]) {
@@ -120,16 +120,16 @@ describe('reconstructed navigation correctness', () => {
     });
   }
 
-  for (const policy of ['intercept', 'within']) {
+  for (const policy of ['matched', 'not-found']) {
     it(`reports and rejects a refresh ${policy} policy failure through the route boundary`, async() => {
       let fail = false;
       const failure = new Error(`${policy} failed`);
       const errors = vi.fn();
       const driver = memoryDriver({ url: 'https://example.test/page' });
       const router = createRouter({ driver,
-        routes: policy === 'intercept' ? [{ name: 'page', path: '/page' }] : [],
-        intercept() { if (fail && policy === 'intercept') { throw failure; } return true; },
-        notFound: { name: 'missing', within() { if (fail && policy === 'within') { throw failure; } return true; } },
+        routes: policy === 'matched' ? [{ name: 'page', path: '/page' }] : [],
+        owns() { if (fail) { throw failure; } return true; },
+        notFound: 'missing',
       });
       await router.start();
       await router.getInitialDispatch();

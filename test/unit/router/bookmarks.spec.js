@@ -48,7 +48,7 @@ describe('Application-owned bookmark redirects', () => {
     assert.equal(router.getCurrent().name, 'home');
   });
 
-  it('forwards query only when the callback requests it and does not inherit a hash for named targets', async() => {
+  it('forwards an explicit query and an omitted hash for named targets', async() => {
     const driver = memoryDriver({ url: base });
     const router = createRouter({ driver, routes: [
       { name: 'home', path: '/home' }, { name: 'item', path: '/items/:id' },
@@ -56,7 +56,7 @@ describe('Application-owned bookmark redirects', () => {
     ] });
     await router.start();
     await router.navigate('/old/7?q=one#details').finished;
-    assert.equal(driver.currentEntry.url, 'https://example.test/items/7?q=one');
+    assert.equal(driver.currentEntry.url, 'https://example.test/items/7?q=one#details');
   });
 
   for (const initial of [false, true]) {

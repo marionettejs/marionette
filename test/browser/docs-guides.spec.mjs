@@ -139,7 +139,7 @@ test('Documented asynchronous navigation retains its shell through readiness and
     }
     await route.fulfill({ json: { title: about ? 'About' : 'Home', body: 'Ready' } });
   });
-  await loadGuide(page, 'routing', 'app, mount', 2);
+  await loadGuide(page, 'fragment-navigation', 'app, mount', 2);
   await expect(page.getByRole('heading', { name: 'Home', exact: true })).toBeVisible();
   await page.evaluate(() => {
     window.shell = window.guide.app.getView();
@@ -245,7 +245,7 @@ test('Documented navigation handles direct links, history, focus and listener cl
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.evaluate(() => window.history.replaceState(null, '', '#about'));
-  await loadGuide(page, 'routing', 'app, mount');
+  await loadGuide(page, 'fragment-navigation', 'app, mount');
   await expect(page.getByRole('heading', { name: 'About', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'About', exact: true })).not.toBeFocused();
   await expect(page).toHaveTitle('About');

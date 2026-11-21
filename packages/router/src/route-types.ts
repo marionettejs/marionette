@@ -1,4 +1,4 @@
-import type { Params, RouteTable } from './types.ts';
+import type { Params, RouteDefinition, RouteTable } from './types.ts';
 
 // Preserve the literal table's type and identity without copying or freezing it.
 export function defineRoutes<const R extends RouteTable>(routes: R): R {
@@ -48,16 +48,15 @@ type JoinPath<Parent extends string, Path extends string> = Path extends `/${ st
   : string extends Parent | Path ? string : `${ Parent }/${ Path }`;
 type RouteSpec = { name: string; path: string };
 
-type NodeSpecs<Node, Parent extends string> = Node extends { path: infer Path extends string }
+type NodeSpecs<Node, Parent extends string> = RouteDefinition extends Node ? RouteSpec : Node extends { path: infer Path extends string }
   ? (Node extends { name?: infer Name } ? [Extract<Name, string>] extends [never] ? never
     : { name: Extract<Name, string>; path: JoinPath<Parent, Path> } : never) |
     (Node extends { children: infer Children extends RouteTable } ? TableSpecs<Children, JoinPath<Parent, Path>> : never)
   : never;
 
 type TableSpecs<R extends RouteTable, Parent extends string = ''> = R extends readonly (infer Node)[]
-  ? number extends R['length'] ? RouteSpec : NodeSpecs<Node, Parent>
-  : string extends keyof R ? RouteSpec
-    : { [Name in keyof R & string]: NodeSpecs<Omit<R[Name], 'name'> & { name: Name }, Parent> }[keyof R & string];
+  ? NodeSpecs<Node, Parent>
+  : { [Path in keyof R & (string | number)]: NodeSpecs<Omit<R[Path], 'path'> & { path: `${ Path }` }, Parent> }[keyof R & (string | number)];
 
 /** Names from arrays, route hashes and their literal children; dynamic tables use string. */
 export type RouteNames<R extends RouteTable> = TableSpecs<R>['name'];

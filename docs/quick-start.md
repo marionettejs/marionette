@@ -1,12 +1,21 @@
 # Install and render a View
 
-This guide targets Marionette 5.0.1 and is verified on the supported Node LTS lines: Node 22.22.2+ (22.x) or 24.15.0+ (24.x). Use the latest patch of either line. Newer Node versions may install; Node 26 remains advisory until its LTS support is verified. The [documentation index](readme.md) identifies this package version.
+This guide belongs to the installed Marionette package. Supported consumer Node LTS lines are 22.22.2+ (22.x), 24.15.0+ (24.x) and 26.x, with required installed-package verification at each floor and latest patch. Use the latest patch of a supported line. Optional companions have their own requirements; `@mnjs/router` requires Node 24.15.0 or newer. The [documentation index](readme.md) routes to the bundled guides.
 
 ## Install matching packages
 
-Use matching `5.0.1` versions of `marionette` and the companion packages: `@mnjs/utils`, `@mnjs/radio`, `@mnjs/adapters`, and optional `@mnjs/data`. Pin the versions explicitly when installing these packages.
+Use matching versions of `marionette`, `@mnjs/utils`, and `@mnjs/radio` to preserve their shared runtime identity. Optional Data has a nonoptional Utils peer `^5.0.1`; Adapters supports core `^5.0.1`. Neither requires an identical package version. Keep one shared Utils instance across core, Radio, and Data. Pin the selected versions explicitly for reproducible installs. The independently versioned renderer below does not need `@mnjs/adapters`.
 
 ## Create the project
+
+For a greenfield project with no stack chosen, this is the recommended Vite and `@mnjs/html`
+setup. In an existing project, follow its compatible renderer, data runtime, router,
+build setup, and architecture. For a whole application, page, or composed feature,
+continue with the compact [composition starter](guides/composition.md) after the
+first render below. It combines managed Views/Regions, lists and feature readiness,
+with focused links for deeper needs; the first View is not a complete application template.
+
+`@mnjs/html` is independently versioned from core. This recipe pins version `1.0.0`; use its matching package documentation.
 
 Create a project directory:
 
@@ -15,11 +24,13 @@ mkdir marionette-example
 cd marionette-example
 npm init -y
 npm pkg set type=module scripts.dev="vite" scripts.build="vite build"
-npm install --ignore-scripts --save-exact marionette@5.0.1 @mnjs/utils@5.0.1 @mnjs/radio@5.0.1 @mnjs/adapters@5.0.1 lit-html@3.3.3
-npm install --ignore-scripts --save-dev --save-exact vite@8.3.0
+npm install --ignore-scripts --save-exact marionette@5.1.1 @mnjs/utils@5.1.1 @mnjs/radio@5.1.1 @mnjs/html@1.0.0
+npm install --ignore-scripts --save-dev vite@8
 ```
 
-This first UI uses `marionette`, the Lit adapter from `@mnjs/adapters`, and `lit-html`. Core also depends on `@mnjs/utils` and `@mnjs/radio`; the command pins those dependencies to the same release. `@mnjs/data` is optional and is added in the [data setup guide](integrations/setup.md).
+The Vite command selects the latest release within the supported Vite 8 major. Commit the generated `package-lock.json` and use `npm ci` to reproduce that dependency graph; update Vite as new fixes become available.
+
+This first UI uses `marionette`, `html` from `@mnjs/html`, and its `@mnjs/html/marionette` DOM adapter. Core also depends on `@mnjs/utils` and `@mnjs/radio`; the command pins those dependencies to the same release. `@mnjs/data` is optional and is added in the [data setup guide](integrations/setup.md).
 
 Create `index.html`:
 
@@ -42,10 +53,10 @@ Create `main.js`:
 
 ```js
 import { Region, View, setDomApi } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
-setDomApi(LitDomApi);
+setDomApi(HtmlDomApi);
 
 const WelcomeView = View.extend({
   template: () => html`<h1>Hello, Marionette</h1>`
@@ -65,6 +76,6 @@ Open the address Vite prints. You should see “Hello, Marionette”. `npm run b
 
 The View describes the content. The Region renders and mounts it, then owns replacement and destruction. Calling `region.show(anotherView)` replaces the previous View; `region.empty()` destroys the displayed View.
 
-The Lit DOM adapter is configured once before creating Views. The default renderer calls each template function with its data.
+Configure `HtmlDomApi` once before creating Views. The default renderer calls each template function with its data; `HtmlDomApi` updates the View's contents. Use View `events`/`triggers`/`ui` for interactions. `@mnjs/html` rejects `@event` and event-handler property bindings; ordinary values, attributes and non-handler properties remain template data.
 
-Continue with the [learning progression](readme.md#learn-as-the-feature-grows) for local interaction, data, composition, and Application readiness.
+Continue with the [composition starter](guides/composition.md) for a whole application, page or composed feature; the [learning progression](readme.md#learn-as-the-feature-grows) offers deeper lessons.

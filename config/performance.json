@@ -8,7 +8,7 @@
   "toolchain": {
     "releaseProfile": {
       "path": "config/release-profile.json",
-      "sha256": "a103773e32cb3c3c593a8c010b5ede5548974dfe701f3eb38a7bb95baf443c57",
+      "sha256": "49380b9e31d7549db8cf8041e02bebcb12b583dd72f794f89ab7a740fe4e80c4",
       "node": "24.19.0",
       "npm": "11.17.0",
       "lockfileVersion": 3,
@@ -21,8 +21,8 @@
     },
     "lockedDependencies": {
       "backbone": "1.6.1",
-      "jsdom": "31.0.0",
-      "rollup": "4.68.0"
+      "jsdom": "31.0.1",
+      "rollup": "4.68.5"
     },
     "commands": {
       "deterministic": [

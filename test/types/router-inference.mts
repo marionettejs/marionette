@@ -4,9 +4,9 @@ import { Application, type LifecycleContext } from 'marionette';
 const routes = defineRoutes([
   { name: 'home', path: '/' },
   { path: '/:workspace', children: {
-    item: { path: 'items/:id{/:tab}?' },
-    absolute: { path: '/standalone/:standaloneId' },
-    file: { path: 'file-:id.:ext' },
+    'items/:id{/:tab}?': { name: "item" },
+    '/standalone/:standaloneId': { name: "absolute" },
+    'file-:id.:ext': { name: "file" },
   } },
   { name: 'escaped', path: '/literal/\\:label/:id' },
   { name: 'grouped', path: '/required{/part/:id}' },
@@ -78,7 +78,7 @@ factoryRouter.url('item', item);
 factoryRouter.url('item');
 
 const hashes = defineRoutes({
-  section: { path: '/section/:sectionId', children: [
+  '/section/:sectionId': { name: "section", children: [
     { name: 'detail', path: 'detail/:detailId' },
   ] },
 });
@@ -100,7 +100,7 @@ const dynamicRouter = new Router({ routes: dynamic });
 dynamicRouter.url('registered-at-runtime', { arbitrary: 7 });
 dynamicRouter.navigate('registered-at-runtime');
 const dynamicPath: string = '/runtime/:id';
-const namedDynamic = new Router({ routes: defineRoutes({ runtime: { path: dynamicPath } }) });
+const namedDynamic = new Router({ routes: defineRoutes({ [dynamicPath]: { name: "runtime" } }) });
 namedDynamic.url('runtime', { arbitrary: 7 });
 // @ts-expect-error A broad path does not erase a known hash name.
 namedDynamic.url('other');
@@ -153,9 +153,9 @@ void [literalPath, name, item, optional, optionalZero, escapedGroup, absolute, i
   nullId, undefinedId, booleanTab, missingGroup, escapedColon, childName, count, label];
 
 // Static feature catalogs compose declarations independently of runtime availability.
-const workspaceRoutes = defineRoutes({ workspace: { path: '/:workspace' } });
-const featureRoutes = defineRoutes({ feature: { path: 'features/:id{/:tab}?' } });
-const nestedRoutes = defineRoutes({ nestedFeature: { path: 'nested/:childId' } });
+const workspaceRoutes = defineRoutes({ '/:workspace': { name: "workspace" } });
+const featureRoutes = defineRoutes({ 'features/:id{/:tab}?': { name: "feature" } });
+const nestedRoutes = defineRoutes({ 'nested/:childId': { name: "nestedFeature" } });
 type KnownFeatures = import('@mnjs/router').RouteCatalog<[
   typeof workspaceRoutes,
   { routes: typeof featureRoutes; parent: 'workspace' },
@@ -185,8 +185,8 @@ shared.url('feature', { id: 7 });
 removeRuntimeOnly();
 
 // A static catalog cannot advertise children of missing or later parents.
-const catalogParentTable = defineRoutes({ catalogParent: { path: '/:desk' } });
-const catalogChildTable = defineRoutes({ catalogChild: { path: 'children/:id' } });
+const catalogParentTable = defineRoutes({ '/:desk': { name: "catalogParent" } });
+const catalogChildTable = defineRoutes({ 'children/:id': { name: "catalogChild" } });
 type MissingParentCatalog = import('@mnjs/router').RouteCatalog<[
   typeof catalogParentTable,
   { routes: typeof catalogChildTable; parent: 'misspelled' },

@@ -29,11 +29,13 @@ Run `npm run test:docs-production -- --artifact-dir /absolute/path/to/five-tarba
 
 The Documentation workflow builds with the pinned source toolchain, then runs
 `npm run check:docs-installed -- --artifact-dir <five-tarball-directory>` on
-Node 22.22.2, latest 22.x, 24.15.0 and latest 24.x.
+Node 22.22.2, latest 22.x, 24.15.0, latest 24.x, 26.0.0 and latest 26.x.
 It installs all five tarballs and checks ESM/CommonJS behavior, packaged helpers,
 executable documentation and consumer lint, test, TypeScript and Vite recipes.
-Node 26 remains a separate advisory lane; new LTS lines require verification
-before the consumer support policy changes.
+These are required checks. CI also requires the full package fixture suite on
+latest Node 26. Release promotion requires both Node 26 versions to pass all
+package fixtures and installed documentation recipes against the same immutable
+five-tarball candidate, without rebuilding it on the consumer Node version.
 
 ## Browser CI environment
 
@@ -65,8 +67,10 @@ Reports still reject comparisons when browser or package versions differ.
 | Installed ESM/CJS/Vite/TypeScript and executable docs | `fixtures/` | `npm run test:fixtures -- --fixture esm-node` |
 | CLI, release, docs, performance and benchmark infrastructure | `tooling/`, `release/`, `docs/`, `performance/`, `agent-benchmark/` | `npm run test:tooling` |
 | Static production import graph | `source/` | `npm run test:source` |
+| Standalone Data and Data/Adapters against npm 5.0.1 and the local candidate | `package-compatibility/` | `npm run build && npm run test:package-compatibility` |
 | Built ESM/CJS/UMD exports | `dist/` | `npm run test:dist` |
 | Consumer documentation, package discovery and runnable recipes | `docs/`, `agent-docs/` | `npm run docs:check` |
+| Published Router/HTML example and TypeScript consumer (Node 24.15.0+) | `docs/router-companion.mjs` | `npm run docs:check-router` |
 
 `npm ci` uses the pinned toolchain and builds packages through `prepare`. `npm test`
 is deliberately fast: it runs unit tests without a hidden type/build pretest.
@@ -124,11 +128,15 @@ Chromium, Firefox and WebKit from the checked-in release profile.
 ## CI jobs
 
 The Node 24 CI suites run in parallel: core checks and unit coverage, tooling
-coverage, browser contracts, agent reference controls, and Linux package fixtures.
+coverage, browser contracts, exact-installed Router archive browsers, agent
+reference controls, and Linux package fixtures.
 Each job installs and builds its own checkout and uploads its own reports. The
-`Node 24` aggregate check succeeds only when all five suites succeed; a failed,
-cancelled, or skipped suite does not pass the aggregate check. macOS package smoke
-runs alongside these jobs, and Windows package smoke runs on master pushes.
+`Node 24` aggregate check also requires the Node 26 LTS package fixture job;
+all seven required suites must succeed. A failed, cancelled, or skipped suite
+does not pass the aggregate check. macOS package smoke
+runs alongside these jobs. Windows package smoke runs on pull requests and master
+pushes, including GNU tar archive portability tests under Git Bash before exact
+candidate restoration and the package fixtures.
 On PRs, Linux and macOS run `bash test/fixtures/smoke.sh` after `npm ci`: it packs
 the built outputs once without lifecycle scripts and supplies those same five
 tarballs to `cjs-node`, `standalone-packages`, `core-types`, `vite`,
@@ -144,7 +152,9 @@ Each suite uploads the following repository report paths:
 | --- | --- |
 | `coverage-node-24` | `coverage/`, `test/tmp/unit-results.xml`, `test/tmp/test-package-consumer/` |
 | `tooling-node-24` | `coverage/tooling/`, excluding temporary `coverage/tooling/tmp/` data; retained for 7 days |
-| `browsers-node-24` | `test/tmp/browser/results.json`, `test/tmp/browser/results.xml`, `test/tmp/browser/report/`, `test/tmp/browser/results/`, `test/tmp/performance/browser-report.json` |
+| `browsers-node-24` | `test/tmp/browser/results.json`, `test/tmp/browser/results.xml`, `test/tmp/browser/report/`, `test/tmp/browser/results/`, `test/tmp/router-diagnostics/`, `test/tmp/performance/browser-report.json` |
+| `router-browser-candidate` | Canonical Linux producer's `${RUNNER_TEMP}/router-browser-candidate/`: exact `.tgz`, adjacent `router-candidate.json` and SHA-256 file |
+| `router-browsers-node-24` | macOS verifier's `${RUNNER_TEMP}/router-browser-verification/` (archive identity, installed lockfile, per-engine execution results and `browser-evidence/`), received `${RUNNER_TEMP}/router-browser-candidate/`, `test/tmp/router-browser/`, `test/tmp/router-browser-probes.json` |
 | `agent-reference-node-24` | `test/tmp/agent-reference-app/`, `test/tmp/agent-reference/reference-report.json`, `test/tmp/agent-reference/artifacts/artifact-input.json`, `test/tmp/agent-fixtures/fixture-controls.json` |
 | `fixtures-node-24` | `test/tmp/fixture-reports/` |
 
@@ -224,17 +234,67 @@ To intentionally refresh one external graph, use `npm --prefix
 test/fixtures/<name> update --package-lock-only --ignore-scripts`, review its
 manifest and lock together, then run that fixture. Never delete locks during tests.
 
+## HTML renderer for documentation checks
+
+The default examples use independently versioned `@mnjs/html`. Before
+`docs:check`, `check:docs-examples`, `check:docs-installed`,
+`test:docs-production`, `verify -- --full` or `release:validate`, prepare its
+published registry archive:
+
+```sh
+npm run docs:prepare-html
+```
+
+The version and archive name come from `packages/html/package.json`. Set
+`MNJS_HTML_TARBALL` only to override the prepared archive with a matching exact
+candidate. The five coordinated release tarballs remain unchanged; documentation
+and fixture reports record the separate renderer hash. Preparation downloads the
+exact published version with npm pack; it does not rebuild checkout source. The
+HTML workflow owns renderer candidate tests. This does not publish an HTML release.
+
+The fixture runner prepares this dependency when `docs-quick-start` is selected,
+unless an explicit archive is supplied. Registry installation in the public quick
+start requires the documented HTML version to be published before this guidance
+is released or deployed.
+
 ## Exact release candidates
 
 The independently versioned router follows its
 [release procedure](../packages/router/RELEASING.md). The core
 publisher below remains limited to its five framework packages. Its browser
 check uses `playwright.core-release.config.mjs`, preserving the exact core
-inventory while router-owned cases have separate Chromium certification.
+inventory while router-owned cases have separate Chromium, Firefox and WebKit
+certification. The existing browser job runs the source-checkout Router cases. A separate
+canonical Ubuntu producer prepares one archive from clean source. The dependent
+GitHub-hosted `macos-15` arm64 job checks out that exact producer SHA, receives the
+archive and adjacent preparation receipt, and verifies the recorded digest before
+running `test:router-tarball -- --artifact ... --sha256 ... --registry-peers --browser`.
+It requires matching producer/archive/verifier commits and clean verifier source
+before and after execution. Each engine executes independently with the pinned
+configuration, including sandboxed Chromium. A known launch failure blocks that
+engine without another launch attempt; partial evidence never passes certification
+or the required job. These are macOS archive-browser results. Earlier Linux
+archive sandbox failures are not certified by this lane. Host security policy is
+unchanged. The Router
+validator requires the full inventory once per engine, actual executable versions
+and zero failures, retries or skips. Playwright WebKit results do not certify
+every shipping Safari/iOS version.
+The native tests assert the pinned WebKit engine's
+[documented differences](../packages/router/readme.md#known-native-webkit-differences)
+explicitly; they do not skip those cases or normalize Router runtime behavior.
+Passing this inventory includes those differences and does not establish native
+behavior identical to Chromium or Firefox. Separate native diagnostics preserve
+the raw receipts in `test/tmp/router-diagnostics/`.
+Installed per-engine JSON/blob/trace evidence and the merged report live under
+`test/tmp/router-browser/` and are copied to the receipt's `browser-evidence/`
+directory, including on failure. The verification receipt distinguishes blocked
+engines with zero cases from engines that ran and failed. The installed lockfile
+is retained even when browser certification fails.
 
 From a clean committed checkout:
 
 ```sh
+MNJS_SKIP_PREPARE=1 npm ci
 npm run release:artifact -- --output release
 npm run release:validate -- --artifact-dir release
 npm run release:verify -- --artifact-dir release --require-validation
@@ -246,6 +306,31 @@ the release test surface. Certification requires every declared browser case in
 every engine from the release profile, plus every fixture; a reduced passing report
 cannot silently reduce the release requirements.
 
+
+The release workflow uploads immutable input packages before validation. Independent
+source, tooling, documentation, distribution, browser and fixture lanes write
+`candidate-validation-<group>.json` and matching checksums. `release:validate --group
+<group>` runs one lane; `release:validate --join` checks all six lane records and
+produces the same complete certificate as the local command above. The final job
+requires every lane, platform shard and consumer Node job to succeed, then verifies
+all logs, browser cases and locked fixtures before uploading `certified-candidate`.
+Missing, failed, stale or altered evidence blocks that gate. Re-running a lane
+revokes its previous result and any complete certificate in that directory.
+
+CI and documentation candidates use `release:artifact --validation-only`. They retain
+the actual source repository, including forks, and cannot satisfy publication's
+`--require-validation` verification. Their same-run compiled-output archive binds
+all generated files, the renderer archive, source commit, lockfile and toolchain to
+a SHA-256 value obtained from the producer job. It is a build transfer, not a cache
+or publication input. Fixture, browser, documentation and agent-reference consumers
+reuse the original package tarballs; they do not rebuild them.
+
+Master CI remains distinct from release certification: its current aggregate does
+not produce the complete release certificate or promotion rehearsal. Publication
+continues to require a successful trusted manual dry run on the exact merged SHA.
+A PR-head artifact, a different merge commit or an ordinary CI artifact cannot replace
+that certification. Consolidating those workflows would require routing master CI
+through the complete trusted certifier, rather than accepting its current artifact.
 
 Candidate validation runs required checks and tests browser/distribution/fixture
 consumers against the original tarballs. Its separate validation record binds logs,
@@ -307,7 +392,16 @@ the repository's include/exclude configuration when changing either dependency.
 Dependabot proposes weekly root tooling updates, with TypeScript ESLint, Vitest,
 and Stryker packages grouped by tool before the remaining development dependency
 minor and patch updates are grouped together. Other root major upgrades remain
-separate. Weekly GitHub Action minor and patch updates are grouped; major upgrades
+separate. Certification-pinned Playwright, Backbone, jsdom, Rollup,
+`@rollup/plugin-terser` and terser updates have their own version-update group;
+the HTML policy separates its applicable Playwright, jsdom, Rollup and terser pins
+the same way. These groups keep direct pinned updates out of routine tooling PRs.
+They do not update certification metadata or coordinate the root and HTML PRs;
+those changes still require deliberate validation. The groups share each policy's
+existing open-PR limit, and unrelated updates can still change transitive lockfile
+entries, so the existing pin checks remain necessary. Security groups are unchanged
+and may combine pinned and routine fixes.
+Weekly GitHub Action minor and patch updates are grouped; major upgrades
 remain separate. Monthly consumer-fixture updates preserve review of their independent
 lockfiles. These groups apply to version updates; security updates remain separate.
 Local Marionette package versions are excluded from these automated updates. The
@@ -346,3 +440,13 @@ Packed checks verify both files and their relative links/anchors, execute the
 README's own Vitest configuration/test, then exercise the reference recipes.
 Repository examples follow `master`; validate their merged destinations before
 publication as described in the helper release procedure.
+
+The dedicated Router documentation check installs published Router 0.1.0, HTML
+1.0.0 and Marionette 5.0.1 in an isolated consumer fixture. These pins identify
+reproducible evidence, not a mandatory application stack. It executes the actual
+routed HTML guide with `memoryDriver`, tests loading/retention/failure/cancellation
+and cleanup, and compiles public TypeScript imports. It runs in the source Node
+24 documentation job, separately from core's Node 22 consumer matrix. Memory/DOM
+checks do not establish native-browser behavior. Update pins and evidence together
+when intentionally testing a later companion release. No package is published by
+this check.

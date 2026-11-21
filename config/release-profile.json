@@ -3,11 +3,23 @@
   "source": {
     "node": "24.19.0",
     "npm": "11.17.0",
-    "advisoryNodeMajor": "26",
-    "advisoryWorkflow": "node-current.yml",
-    "advisoryJob": "package-smoke",
     "consumerNodeRange": "^22.22.2 || >=24.15.0",
-    "lockfileVersion": 3
+    "lockfileVersion": 3,
+    "consumerNodeMajor": "26",
+    "consumerWorkflow": "ci.yml",
+    "consumerJob": "node-lts",
+    "consumerNodeVersions": [
+      "22.22.2",
+      "22",
+      "24.15.0",
+      "24",
+      "26.0.0",
+      "26"
+    ],
+    "releaseConsumerNodeVersions": [
+      "26.0.0",
+      "26"
+    ]
   },
   "hosts": [
     {
@@ -35,12 +47,12 @@
   "browsers": {
     "playwright": {
       "package": "@playwright/test",
-      "version": "1.65.0",
+      "version": "1.65.1",
       "browserBuilds": [
         {
           "name": "chromium",
-          "version": "158.0.8127.18",
-          "revision": "1254"
+          "version": "159.0.8154.6",
+          "revision": "1255"
         },
         {
           "name": "firefox",

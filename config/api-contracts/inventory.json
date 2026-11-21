@@ -1,11 +1,11 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "48d3a912ac1494e5e404e6afd373ce45958b660e3e8aa8c4f60952c5a367dbc4",
+  "semanticsSha256": "69505a6ccf45316d2baecc96a394a900505c198c6d55897ad853f47da66d1fb4",
   "entrypoints": [
     {
       "name": "marionette",
-      "version": "5.0.1",
+      "version": "5.1.1",
       "kind": "runtime",
       "source": "src/index.ts",
       "conditions": {
@@ -2866,12 +2866,12 @@
         {
           "name": "createMarionette",
           "kind": "value",
-          "signature": "() => { Application: ApplicationConstructor<{}, [options?: ApplicationOptions | undefined], object, {}>; Behavior: BehaviorConstructor<{}, [options: BehaviorOptions | undefined, view: BehaviorHost<ArrayLike<Element>>], unknown, {}>; CollectionView: CollectionViewConstructor<{}, [options?: CollectionViewConfiguration<CollectionChild, never> | undefined], unknown, {}, ArrayLike<Element>>; DataApi: DefaultDataApi; DomApi: { notifyAttach(_el: Element): void; notifyDetach(_el: Element): void; createElement(tagName: string): HTMLElement; createBuffer(): DocumentFragment; getDocumentEl(el: Element): Element | null; findEl(el: DocumentFragment | Element | Document, selector: string): NodeListOf<Element>; hasEl(el: Node, childEl: Node | null | undefined): boolean; detachEl(el: Node): void; replaceEl(newEl: Node, oldEl: Node): void; setContents(el: Element, html: string | null | undefined): void; setAttributes(el: Element, attrs: unknown): void; appendContents(el: Node, contents: Node): void; moveEl(el: Node, parent: DocumentFragment | Element, before?: Node | null): void; hasContents(el: Node | null | undefined): boolean; detachContents(el: Node): void; }; Events: Events; MarionetteError: MarionetteErrorConstructor; MnObject: MnObjectConstructor<{}, [options?: object | undefined], object, {}>; Radio: RadioApi; Region: RegionConstructor<{}, [options?: RegionOptions | undefined], {}>; StateApi: StateApi<unknown>; VERSION: string; View: ViewConstructor<{}, [options?: ViewConfiguration | undefined], unknown, {}, ArrayLike<Element>>; extend: MarionetteExtend; monitorViewEvents: (view: ViewLifecycle) => void; setDataApi<Mixin extends object>(mixin?: Overlay<DataApi<never, never, never>, Mixin>): void; setDomApi<Mixin extends object>(mixin?: Overlay<DomApi<ArrayLike<Element>, never>, Mixin>): void; setEventDelegator<Adapter extends Delegator>(delegator: Adapter): void; setRenderer(renderer?: Renderer<never, never, never> | undefined): void; setStateApi<Mixin extends object>(mixin?: Overlay<StateApi<never>, Mixin>): void; }",
+          "signature": "() => { Application: ApplicationConstructor<{}, [options?: ApplicationOptions | undefined], object, {}>; Behavior: BehaviorConstructor<{}, [options: BehaviorOptions | undefined, view: BehaviorHost<ArrayLike<Element>>], unknown, {}>; CollectionView: CollectionViewConstructor<{}, [options?: CollectionViewConfiguration<CollectionChild, never> | undefined], unknown, {}, ArrayLike<Element>>; DataApi: DefaultDataApi; DomApi: { notifyAttach(_el: Element): void; notifyDetach(_el: Element): void; createElement(tagName: string): HTMLElement; createBuffer(): DocumentFragment; getDocumentEl(el: Element): Element | null; findEl(el: DocumentFragment | Element | Document, selector: string): NodeListOf<Element>; hasEl(el: Node, childEl: Node | null | undefined): boolean; detachEl(el: Node): void; replaceEl(newEl: Node, oldEl: Node): void; setContents(el: Element, html: string | null | undefined): void; setUnsafeHtml(el: Element, markup: string): void; setAttributes(el: Element, attrs: unknown): void; appendContents(el: Node, contents: Node): void; moveEl(el: Node, parent: DocumentFragment | Element, before?: Node | null): void; hasContents(el: Node | null | undefined): boolean; detachContents(el: Node): void; }; Events: Events; MarionetteError: MarionetteErrorConstructor; MnObject: MnObjectConstructor<{}, [options?: object | undefined], object, {}>; Radio: RadioApi; Region: RegionConstructor<{}, [options?: RegionOptions | undefined], {}>; StateApi: StateApi<unknown>; VERSION: string; View: ViewConstructor<{}, [options?: ViewConfiguration | undefined], unknown, {}, ArrayLike<Element>>; extend: MarionetteExtend; monitorViewEvents: (view: ViewLifecycle) => void; setDataApi<Mixin extends object>(mixin?: Overlay<DataApi<never, never, never>, Mixin>): void; setDomApi<Mixin extends object>(mixin?: Overlay<DomApi<ArrayLike<Element>, never>, Mixin>): void; setEventDelegator<Adapter extends Delegator>(delegator: Adapter): void; setRenderer(renderer?: Renderer<never, never, never> | undefined): void; setStateApi<Mixin extends object>(mixin?: Overlay<StateApi<never>, Mixin>): void; }",
           "contracts": [
             "runtime-isolation"
           ],
           "call": [
-            "(): { Application: ApplicationConstructor<{}, [options?: ApplicationOptions | undefined], object, {}>; Behavior: BehaviorConstructor<{}, [options: BehaviorOptions | undefined, view: BehaviorHost<ArrayLike<Element>>], unknown, {}>; CollectionView: CollectionViewConstructor<{}, [options?: CollectionViewConfiguration<CollectionChild, never> | undefined], unknown, {}, ArrayLike<Element>>; DataApi: DefaultDataApi; DomApi: { notifyAttach(_el: Element): void; notifyDetach(_el: Element): void; createElement(tagName: string): HTMLElement; createBuffer(): DocumentFragment; getDocumentEl(el: Element): Element | null; findEl(el: DocumentFragment | Element | Document, selector: string): NodeListOf<Element>; hasEl(el: Node, childEl: Node | null | undefined): boolean; detachEl(el: Node): void; replaceEl(newEl: Node, oldEl: Node): void; setContents(el: Element, html: string | null | undefined): void; setAttributes(el: Element, attrs: unknown): void; appendContents(el: Node, contents: Node): void; moveEl(el: Node, parent: DocumentFragment | Element, before?: Node | null): void; hasContents(el: Node | null | undefined): boolean; detachContents(el: Node): void; }; Events: Events; MarionetteError: MarionetteErrorConstructor; MnObject: MnObjectConstructor<{}, [options?: object | undefined], object, {}>; Radio: RadioApi; Region: RegionConstructor<{}, [options?: RegionOptions | undefined], {}>; StateApi: StateApi<unknown>; VERSION: string; View: ViewConstructor<{}, [options?: ViewConfiguration | undefined], unknown, {}, ArrayLike<Element>>; extend: MarionetteExtend; monitorViewEvents: (view: ViewLifecycle) => void; setDataApi<Mixin extends object>(mixin?: Overlay<DataApi<never, never, never>, Mixin>): void; setDomApi<Mixin extends object>(mixin?: Overlay<DomApi<ArrayLike<Element>, never>, Mixin>): void; setEventDelegator<Adapter extends Delegator>(delegator: Adapter): void; setRenderer(renderer?: Renderer<never, never, never> | undefined): void; setStateApi<Mixin extends object>(mixin?: Overlay<StateApi<never>, Mixin>): void; }"
+            "(): { Application: ApplicationConstructor<{}, [options?: ApplicationOptions | undefined], object, {}>; Behavior: BehaviorConstructor<{}, [options: BehaviorOptions | undefined, view: BehaviorHost<ArrayLike<Element>>], unknown, {}>; CollectionView: CollectionViewConstructor<{}, [options?: CollectionViewConfiguration<CollectionChild, never> | undefined], unknown, {}, ArrayLike<Element>>; DataApi: DefaultDataApi; DomApi: { notifyAttach(_el: Element): void; notifyDetach(_el: Element): void; createElement(tagName: string): HTMLElement; createBuffer(): DocumentFragment; getDocumentEl(el: Element): Element | null; findEl(el: DocumentFragment | Element | Document, selector: string): NodeListOf<Element>; hasEl(el: Node, childEl: Node | null | undefined): boolean; detachEl(el: Node): void; replaceEl(newEl: Node, oldEl: Node): void; setContents(el: Element, html: string | null | undefined): void; setUnsafeHtml(el: Element, markup: string): void; setAttributes(el: Element, attrs: unknown): void; appendContents(el: Node, contents: Node): void; moveEl(el: Node, parent: DocumentFragment | Element, before?: Node | null): void; hasContents(el: Node | null | undefined): boolean; detachContents(el: Node): void; }; Events: Events; MarionetteError: MarionetteErrorConstructor; MnObject: MnObjectConstructor<{}, [options?: object | undefined], object, {}>; Radio: RadioApi; Region: RegionConstructor<{}, [options?: RegionOptions | undefined], {}>; StateApi: StateApi<unknown>; VERSION: string; View: ViewConstructor<{}, [options?: ViewConfiguration | undefined], unknown, {}, ArrayLike<Element>>; extend: MarionetteExtend; monitorViewEvents: (view: ViewLifecycle) => void; setDataApi<Mixin extends object>(mixin?: Overlay<DataApi<never, never, never>, Mixin>): void; setDomApi<Mixin extends object>(mixin?: Overlay<DomApi<ArrayLike<Element>, never>, Mixin>): void; setEventDelegator<Adapter extends Delegator>(delegator: Adapter): void; setRenderer(renderer?: Renderer<never, never, never> | undefined): void; setStateApi<Mixin extends object>(mixin?: Overlay<StateApi<never>, Mixin>): void; }"
           ],
           "memberContracts": {}
         },
@@ -3040,7 +3040,7 @@
         {
           "name": "DomApi",
           "kind": "value",
-          "signature": "{ notifyAttach(_el: Element): void; notifyDetach(_el: Element): void; createElement(tagName: string): HTMLElement; createBuffer(): DocumentFragment; getDocumentEl(el: Element): Element | null; findEl(el: DocumentFragment | Element | Document, selector: string): NodeListOf<Element>; hasEl(el: Node, childEl: Node | null | undefined): boolean; detachEl(el: Node): void; replaceEl(newEl: Node, oldEl: Node): void; setContents(el: Element, html: string | null | undefined): void; setAttributes(el: Element, attrs: unknown): void; appendContents(el: Node, contents: Node): void; moveEl(el: Node, parent: DocumentFragment | Element, before?: Node | null): void; hasContents(el: Node | null | undefined): boolean; detachContents(el: Node): void; }",
+          "signature": "{ notifyAttach(_el: Element): void; notifyDetach(_el: Element): void; createElement(tagName: string): HTMLElement; createBuffer(): DocumentFragment; getDocumentEl(el: Element): Element | null; findEl(el: DocumentFragment | Element | Document, selector: string): NodeListOf<Element>; hasEl(el: Node, childEl: Node | null | undefined): boolean; detachEl(el: Node): void; replaceEl(newEl: Node, oldEl: Node): void; setContents(el: Element, html: string | null | undefined): void; setUnsafeHtml(el: Element, markup: string): void; setAttributes(el: Element, attrs: unknown): void; appendContents(el: Node, contents: Node): void; moveEl(el: Node, parent: DocumentFragment | Element, before?: Node | null): void; hasContents(el: Node | null | undefined): boolean; detachContents(el: Node): void; }",
           "contracts": [
             "dom-api"
           ],
@@ -3059,7 +3059,8 @@
             "notifyDetach": "(_el: Element) => void",
             "replaceEl": "(newEl: Node, oldEl: Node) => void",
             "setAttributes": "(el: Element, attrs: unknown) => void",
-            "setContents": "(el: Element, html: string | null | undefined) => void"
+            "setContents": "(el: Element, html: string | null | undefined) => void",
+            "setUnsafeHtml": "(el: Element, markup: string) => void"
           },
           "callableMembers": [
             "appendContents",
@@ -3076,7 +3077,8 @@
             "notifyDetach",
             "replaceEl",
             "setAttributes",
-            "setContents"
+            "setContents",
+            "setUnsafeHtml"
           ],
           "memberContracts": {
             "static": {
@@ -3123,6 +3125,9 @@
                 "dom-api"
               ],
               "setContents": [
+                "dom-api"
+              ],
+              "setUnsafeHtml": [
                 "dom-api"
               ]
             }
@@ -3150,7 +3155,8 @@
             "notifyDetach": "(el: Element) => void",
             "replaceEl": "(newEl: Element, oldEl: Element) => void",
             "setAttributes": "(el: Element, attrs: unknown) => void",
-            "setContents": "(el: Element, html: Content) => void"
+            "setContents": "(el: Element, html: Content) => void",
+            "setUnsafeHtml": "?((el: Element, markup: string) => void) | undefined"
           },
           "callableMembers": [
             "appendContents",
@@ -3167,7 +3173,8 @@
             "notifyDetach",
             "replaceEl",
             "setAttributes",
-            "setContents"
+            "setContents",
+            "setUnsafeHtml"
           ],
           "memberContracts": {
             "static": {
@@ -3214,6 +3221,9 @@
                 "type-shapes"
               ],
               "setContents": [
+                "type-shapes"
+              ],
+              "setUnsafeHtml": [
                 "type-shapes"
               ]
             }
@@ -6505,7 +6515,7 @@
     },
     {
       "name": "@mnjs/utils",
-      "version": "5.0.1",
+      "version": "5.1.1",
       "kind": "runtime",
       "source": "packages/utils/src/index.ts",
       "conditions": {
@@ -7213,7 +7223,7 @@
     },
     {
       "name": "@mnjs/radio",
-      "version": "5.0.1",
+      "version": "5.1.1",
       "kind": "runtime",
       "source": "packages/radio/src/index.ts",
       "conditions": {
@@ -7686,7 +7696,7 @@
     },
     {
       "name": "@mnjs/data",
-      "version": "5.0.1",
+      "version": "5.1.1",
       "kind": "runtime",
       "source": "packages/data/src/index.ts",
       "conditions": {
@@ -8323,7 +8333,7 @@
     },
     {
       "name": "@mnjs/adapters/backbone",
-      "version": "5.0.1",
+      "version": "5.1.1",
       "kind": "runtime",
       "source": "packages/adapters/src/data/backbone.ts",
       "conditions": {
@@ -8398,7 +8408,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/jquery",
-      "version": "5.0.1",
+      "version": "5.1.1",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/jquery.ts",
       "conditions": {
@@ -8458,7 +8468,7 @@
     },
     {
       "name": "@mnjs/adapters/xstate",
-      "version": "5.0.1",
+      "version": "5.1.1",
       "kind": "runtime",
       "source": "packages/adapters/src/data/xstate.ts",
       "conditions": {
@@ -8554,7 +8564,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/morphdom",
-      "version": "5.0.1",
+      "version": "5.1.1",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/morphdom.ts",
       "conditions": {
@@ -8594,7 +8604,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/lit-html",
-      "version": "5.0.1",
+      "version": "5.1.1",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/lit-html.ts",
       "conditions": {
@@ -9910,7 +9920,8 @@
             "notifyDetach",
             "replaceEl",
             "setAttributes",
-            "setContents"
+            "setContents",
+            "setUnsafeHtml"
           ]
         },
         {
@@ -10973,7 +10984,8 @@
             "notifyDetach",
             "replaceEl",
             "setAttributes",
-            "setContents"
+            "setContents",
+            "setUnsafeHtml"
           ]
         }
       ]
@@ -12442,6 +12454,14 @@
       "arguments": [
         "match"
       ]
+    },
+    {
+      "source": "packages/router/src/route-application.ts",
+      "event": "'before:route'",
+      "kind": "literal",
+      "arguments": [
+        "match"
+      ]
     }
   ],
   "sources": {
@@ -12459,19 +12479,19 @@
     "packages/radio/src/index.ts": "24171247f65ecb3697629883abe9d248395b090d566ea70ac7c1b856d1cd7940",
     "packages/radio/src/radio.ts": "42a799d58d602c0fbbb4fcbc16170e1a89dad55c47d5f00ffaed69c8ee3d877f",
     "packages/radio/src/requests.ts": "87c52bfae0bdd5646b248a07da69e278192b3722a552355eef8144e227d0daa4",
-    "packages/router/src/child-app-switcher.ts": "737f009506d04674ccb01f80e5c0ebfb3549dc76a06d8e8778ea211bcfb732d5",
     "packages/router/src/drivers/history.ts": "14815da42a8b69be6a139b8cda522a6d52bda99a0742aa8a0d2267aacc8ba022",
     "packages/router/src/drivers/memory.ts": "3b514c1e50d1e74059ee1a716fe223f914f9243e822507ce3eedbe7bba3bb23c",
     "packages/router/src/drivers/navigation.ts": "da7c760d28b10e5c2e8702926985a0c3dd7a7418f7b56e377400dd17aa13de29",
-    "packages/router/src/index.ts": "4cf987cf9e54f39ba797164a1b3d899f090aaf922ea6107c5619ee870ccc2621",
-    "packages/router/src/matcher.ts": "84bd79ae17115312c5398bf163de70fd0797898eb5e68ea4a47413d6b343e61a",
+    "packages/router/src/index.ts": "738db6d4fe5fea9eabb641761ac7f03ce901378f74ad7dfb3cd634ea98ba65cf",
+    "packages/router/src/matcher.ts": "1d7b9e1f105e4be44306594ebd81973bfd101ee34250bcdaf0b165ba0583ffbf",
     "packages/router/src/pattern.ts": "c35c5947becea43013944725d9a249605442265d8f82ccd8f36a93fb4c01ba08",
     "packages/router/src/query.ts": "c0f7a9f45401991472cabf707724c491ea056b302fce522fb2c7ce48c6cd7417",
-    "packages/router/src/route-application.ts": "b92f85fb8fb617fa6c2ecdf73178b89f97c328f78584baef34653fcaa148f498",
-    "packages/router/src/route-types.ts": "e677e857813a28e25da0d9e45a77495cf7499dcb79f601d4b50d338e7e3dfa9f",
-    "packages/router/src/router.ts": "c4d98ebf66a494663ec1fabccfa1c385f5378c7ced49d78ca3d8d886aa015722",
-    "packages/router/src/selection-key.ts": "1b425678728f4713605ac91aaedad14c4f114034534200b2808960ee6f972853",
-    "packages/router/src/types.ts": "c5e0cf07152e2b18188e7e9a4b44cc2bec4fc159969630d215c6335e5dc559a0",
+    "packages/router/src/route-application.ts": "120612524922ff400a813d8436dd1f8e94b3cb80ce4aeac8571014c87b3f251f",
+    "packages/router/src/route-types.ts": "fc730e038bff44e25c25be39af6f0c02f55bb062eda1e7a0d0ec7f309c444c41",
+    "packages/router/src/router.ts": "8039a4bf49f03ee9aa979fb5e5cf271b5620456a1a8fce038832668aebfbd015",
+    "packages/router/src/selection-key.ts": "8d2007c10c6e6df576441b13b2d46cf086243464879a9d2d7e9927014c945030",
+    "packages/router/src/selection.ts": "5c9b5a7cd6fb0511545b56606a247896d1b89c64cb12b4a06b53195a445f4767",
+    "packages/router/src/types.ts": "433d2acbdfbde8ae735e5f0b5e21f87d9908653069a147b67a40c62f19e44500",
     "packages/test/src/context.ts": "2480f1721ff900bbbb0de6648cbaef247786eff93009c0407a066f14cc72cdf0",
     "packages/test/src/cypress.js": "d0589b13c1634802f0490d28249c7b45f90a4835bd73368cd6d9336c513a0f9e",
     "packages/test/src/errors.ts": "a9f7fed430e0759b599ca2605ff952cc6f984068edd7c1b2f048d5312caed3a4",
@@ -12515,17 +12535,17 @@
     "src/modules/application.ts": "b849627a22170d6b985f7647c219206fd51ec166c420127ef2fefdd540775a19",
     "src/modules/behavior.ts": "94a30450a2aa414e4cdb2af263bb7e9be5acec55d170e268ee16abe2a62791c0",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
-    "src/modules/collection-view.ts": "55060bbdc23115d10bfeb728ec94296f4fe684f166f58b06d79a793ef9123051",
+    "src/modules/collection-view.ts": "505657b327e36cb72009eca50248ccff25df7987eccdee96b93034d663091650",
     "src/modules/common/build-region.ts": "69fc222800674736c3385928e8a4b07932c1fd5ca7237b48fb4ab8f3a309022b",
     "src/modules/common/chainable-methods.ts": "5d61465f3de8bc0f84a3491e24067f7a711f2a7ebae08cb1a3d94375d9d153a2",
     "src/modules/common/monitor-view-events.ts": "e4f221ca598e2ce63c1cff766edbb2221d7cc7d1cb527086689e08b622a4f655",
     "src/modules/common/view.ts": "cd62997f30b7120e61f5067f876e612793dba629dfe942b46f156c861273c67e",
     "src/modules/object.ts": "23dacb7eacf2448ccbb690caa92195b49b992def43e4ef7cb598b50c03224100",
     "src/modules/region.ts": "d2f5c8547e086b04e73a7744e3ee02711255726d46d0bd0749498ea1fef63730",
-    "src/modules/view.ts": "0412ca663eb8fc8a41fa03d6bb8ea9dfa85dc66402bbb1a08e7db1fd2c4c2786",
+    "src/modules/view.ts": "a66e96f1ff66b863bf20ea1a8301d5b2115a5f508772cd0a5e8b1dafc0a742a9",
     "src/runtime-id.ts": "3636769dee054da16eaa2171f2badc2a71a528dedb41ea1d4ac3342e09060087",
     "src/runtime/data-api.ts": "f962aeba9bc33e10a1db3fc0c098d05a23bc54250d781f5df371bd11da419b66",
-    "src/runtime/dom-api.ts": "6dcaec5e6e4c7e14c84da32daeb8ff5b8f85ae24ec1f82ab9af2054ed9166475",
+    "src/runtime/dom-api.ts": "17f84f4774b34b3d58647e4b379a216ae8709c73c68a59a94043d6fd34b37de7",
     "src/runtime/event-delegator.ts": "0b1f0ed46c49ea7f29fce9b6a7966253cb871ea6ed365ff3566ad8aa61351e4e",
     "src/runtime/renderer.ts": "9d3419a82872bc0ed017e2716cafe430b33833aab44d8cdf8c74746b1ecdab30",
     "src/runtime/state-api.ts": "109cad5a2d2aebda1d50c907009e62ee40c816983e9a5f09b59197d392ca4f31",
@@ -12535,29 +12555,29 @@
   },
   "evidence": {
     "config/diagnostics/catalog.json": "89ca537fe5cacaef35d30f25aeb4d1ed4e1e8802c80c540f3672533c7b0145c4",
-    "docs/api/application.md": "602a37e92b020739cf4ee62228a8f8e3205e94f7399cc62757d28aaa8fc57331",
-    "docs/api/behavior.md": "6e34689d9144337d79fd5e96f8d0a00de6ed4710206e1ec266a735cd54333c60",
-    "docs/api/collection-view.md": "6d5efa095019d9e8a230f0e608f2598bbb1033194662f9965568bc5da5d862de",
+    "docs/api/application.md": "4279a2d15bab25612463382ac0edfe046c3580c3b8741c1f09bb5a14deaade67",
+    "docs/api/behavior.md": "e859cd22c1af3c7a9789b68274ae7679c58784418047d93c1199c90c7ea918be",
+    "docs/api/collection-view.md": "1966452087de8675dd76f0d97e218b14aa941dd83f0d1d572b9e6e10e1fc264a",
     "docs/api/errors.md": "f4efcdd5da9dcf053b936fab32d6e200f8223f799e2517dee7753823b89946b2",
     "docs/api/mnobject.md": "89cfe4ac212de4ac5fd966cb427c1391749a2be623ccc9b6f16bb4c3497313bc",
     "docs/api/providers/data.md": "da9d70dbbc9750b0187640ea84f4a0280cdcf13b718b2ca32fe76efd709b7d38",
-    "docs/api/providers/dom.md": "276aeea93e94a16fb78a9149d61e8a15d7cfc0502979d3cf7ac1954fb9c4e12a",
-    "docs/api/region.md": "d6951eb046fbcf2a9b6c6bf43b83f71e02fa3696fbce61daadbd60af62221a60",
-    "docs/api/runtime.md": "b82fc651c2ae6c076b7b8600310ba7e908d699f9bb2a817851be6b22fc8c2e6f",
+    "docs/api/providers/dom.md": "71c4597df4cca59e9a76ec766a122980a2369f9199bb841c0660a73e00241639",
+    "docs/api/region.md": "c71a7a5800d32a647e359df08a8f7df5bd133549a04d3baca6648f5dccf157ff",
+    "docs/api/runtime.md": "320c7e34f9fef2d8567181e8c718c452ec81e06f97ecbfc591f35ac5240312f3",
     "docs/api/shared/common.md": "8982228a2345240414e35ba4f0967e95530f5966fe1254efd9a09575706d5b6a",
     "docs/api/shared/events.md": "d32469eb9dab26b77b94615c8bc337fc360536dd3e0489e12ad1ebb086f685f0",
     "docs/api/shared/state.md": "51b4ff2bee1d7b908801062778efc3d45c1873a9f3d4f454360cdd3476a20f25",
-    "docs/api/shared/view-bindings.md": "b0c178b8b2a4e077ad817a56883fbea32406fa8d4e5d8a8bef86426e9bbeaa0c",
+    "docs/api/shared/view-bindings.md": "fe051a3191e6d87c748c37a7c4294c3fc19e55c42170a0a11a7ab576c25830e2",
     "docs/api/view.md": "05204ee537e94fab906c1b849a0123a13e2221bef1ab5f2fd65d8575f4339a8f",
-    "docs/guides/typescript.md": "baba4c8483115fd7a6bb16089f38e5666f9c0f632079b531a107ee48b1ed6285",
-    "docs/packages/adapters.md": "2ca78b9b8bcc434eb766cc5f4d5bf9338ad4ff6f4eaf59641f61b7a0e533a8d2",
+    "docs/guides/typescript.md": "06f02bfa2fc401639d54bbf7bf663c86ecea8affe0cfd329f87ec0335bf88977",
+    "docs/packages/adapters.md": "791304a5b0889fc2d5860efdd0d7183ad2131cc6b8770fa03be5b3d5edcbae08",
     "docs/packages/data.md": "7b398e8c2ee1a38ea7fad8babfb97f45d5d873e1dacf97af9a8c8f57f83e870f",
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
     "docs/packages/utils.md": "158e2051ee438acd7e235f0f29ce45f42ad798bb6d460a871efd29904e2728ec",
     "test/browser/collection-deferred-lifecycle.spec.mjs": "e1e4bf980ea81566f0f11de712bb1298ef9250f967710eae8997a1413932d595",
     "test/browser/collection-empty-lifecycle.spec.mjs": "d5d3f88b1a7c9259f55c119415a722a52af7475b823d7214a77da9e9d316a90e",
     "test/browser/shadow-lifecycle.spec.mjs": "e91153c05faddec48cbb19dcab4afc30778acd9fd974dbb41f6e272c5af93d18",
-    "test/contracts/dom-adapters.js": "fde66012b44e63769a4cece9008799a8b8f9aaa3701f108ff0dfbae5825afccb",
+    "test/contracts/dom-adapters.js": "72dd1b6056bd30e5133fb234f91efd2dda07ab1a5519056dd50db68bff747ad4",
     "test/unit/application-child-declarations.spec.js": "693740783f56c4e24aa886076389378d106839987b7ce442bfefb267ca5a2f84",
     "test/unit/application-child-lifecycle.spec.js": "78296e9b442918bf03a3f9741f00e0884aa043092774e984f0e735757197b1d8",
     "test/unit/application-lifecycle.spec.js": "f1e49dce6510a15434f32ba2aefe9eb878b06b63fb47ae62a4f4f83ebbbbdcb1",
@@ -12606,6 +12626,7 @@
     "test/unit/region-lifecycle.spec.js": "1445b64c438a380f14bd490bb3f106ac0c3a73c0b8b2c744043e49288b71c66c",
     "test/unit/region-missing-selector.spec.js": "214bf1911ddeeb7d06806f12a6973d84b7129110893282352cf0a972e44480c3",
     "test/unit/requests.spec.js": "ac3de9d1a355c7139ee30d6a106a4f2111f75e9455adc92678d67ad790ed1188",
+    "test/unit/runtime/dom-api.spec.js": "1ef3542e887a1b6a1a06922c8195fe54cd6c960dbc04d16d3b4613f96ebeb99c",
     "test/unit/runtime/event-delegator.spec.js": "6d75e90b91a4b1441fed3f0c909ac6a0e52634265cad0d1604a779ea8007c65b",
     "test/unit/state-owner.spec.js": "6f5455831330909831bf427ef431dc46bc431239b5d34fdb5ed05df79378437a",
     "test/unit/utils/build-event-args.spec.js": "da1201c4d39e0ab8fb17502dfabe85f7784f5792ae98418b1b2119319dd3867e",

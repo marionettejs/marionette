@@ -1,5 +1,7 @@
 # Records example
 
+This repository example uses `@mnjs/html` with Marionette-owned events and child lifecycles. The [quick start](../../docs/quick-start.md) and [composition starter](../../docs/guides/composition.md) teach the recommended `@mnjs/html` setup.
+
 Follow the [records lesson](../../docs/records.md) for the ownership and event flow.
 
 The installed documentation includes this source for reading alongside the lesson. The commands below run from the Marionette repository checkout and use its linked local packages. To create an application from installed packages, start with the [quick start](../../docs/quick-start.md).
@@ -15,6 +17,7 @@ From the repository root:
 ```sh
 npm run check:release-profile
 npm ci --ignore-scripts
+npm --prefix packages/html ci --ignore-scripts
 npm --prefix examples/records ci --ignore-scripts
 npm --prefix examples/records run dev
 ```

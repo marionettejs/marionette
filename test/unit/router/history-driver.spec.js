@@ -119,7 +119,7 @@ for (const read of ['currentEntry', 'entries']) {
   it(`cancels pending routing work when ${read} detects an unknown History entry`, async() => {
     const fixture = context(); const { driver, window } = fixture;
     const gate = Promise.withResolvers(); const ready = [];
-    const router = new Router({ driver, routes: { home: { path: '/' }, page: { path: '/page' } },
+    const router = new Router({ driver, routes: { '/': { name: 'home' }, '/page': { name: 'page' } },
       handler(match) { if (match.name === 'page') { return gate.promise; } },
     });
     fixture.routers.push(router);
@@ -144,7 +144,7 @@ for (const read of ['currentEntry', 'entries']) {
 it('preserves newer routing started while a detected reset writes its metadata', async() => {
   const fixture = context(); const { driver, window } = fixture;
   const gate = Promise.withResolvers();
-  const router = new Router({ driver, routes: { home: { path: '/' }, page: { path: '/page' }, newer: { path: '/newer' } },
+  const router = new Router({ driver, routes: { '/': { name: 'home' }, '/page': { name: 'page' }, '/newer': { name: 'newer' } },
     handler(match) { if (match.name === 'page') { return gate.promise; } },
   });
   fixture.routers.push(router);
@@ -209,7 +209,7 @@ it('keeps completed History signals live while pending handlers remain cancellab
 it('keeps a completed Router Match live across an ignored fragment, then cancels it on replacement or stop', async() => {
   const fixture = context(); const { driver, window } = fixture;
   const handled = [];
-  const router = new Router({ driver, routes: { home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' } },
+  const router = new Router({ driver, routes: { '/': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' } },
     handler(match) { handled.push(match.name); },
   });
   fixture.routers.push(router);
@@ -270,12 +270,12 @@ for (const asynchronous of [false, true]) {
       const fixture = context({ value: 'old' }); const { driver } = fixture;
       let enabled = false;
       const router = new Router({ driver, routes: {
-        source: { path: '/', redirect(match) {
+        '/': { name: 'source', redirect(match) {
           if (!enabled) { return; }
           const target = !conditional || match.state.value === 'new' ? '/new' : '/old';
           return asynchronous ? Promise.resolve(target) : target;
         } },
-        fresh: { path: '/new' }, stale: { path: '/old' },
+        '/new': { name: 'fresh' }, '/old': { name: 'stale' },
       } });
       fixture.routers.push(router);
       await router.start(); await router.getInitialDispatch(); enabled = true;
@@ -401,7 +401,7 @@ it('observes a traversal completed while detached before a retained driver binds
 
 it('rebinds a retained driver after stop without retaining detached listeners', async() => {
   const fixture = context();
-  const router = new Router({ driver: fixture.driver, routes: { a: { path: '/a' }, b: { path: '/b' } } });
+  const router = new Router({ driver: fixture.driver, routes: { '/a': { name: 'a' }, '/b': { name: 'b' } } });
   fixture.routers.push(router);
   await router.start(); await router.getInitialDispatch();
   await router.navigate('a').finished; router.stop();
@@ -416,7 +416,7 @@ it('rebinds a retained driver after stop without retaining detached listeners', 
 for (const failure of [new Error('handler failed'), new DOMException('independent fetch', 'AbortError')]) {
   it(`preserves operational ${failure.name} through Router error and finished`, async() => {
     const fixture = context();
-    const router = new Router({ driver: fixture.driver, routes: { a: { path: '/a' } }, handler() { throw failure; } });
+    const router = new Router({ driver: fixture.driver, routes: { '/a': { name: 'a' } }, handler() { throw failure; } });
     fixture.routers.push(router);
     const errors = []; router.on('route:error', error => errors.push(error));
     await router.start(); await router.getInitialDispatch();

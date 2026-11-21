@@ -79,7 +79,7 @@ export function routerConformance({ name, createDriver, describe, it, assert }) 
     const router = new Router({
       routes: createRoutes(),
       driver,
-      intercept: url => url.pathname.startsWith(prefix),
+      owns: url => url.pathname.startsWith(prefix),
       handler: match => {
         log.push(`handler:${ match.name }:${ match.params.id }`);
         return behaviors[match.params.id]?.(match);
@@ -258,9 +258,7 @@ export function routerConformance({ name, createDriver, describe, it, assert }) 
       await h.router.start();
       await h.router.navigate('page', { run: h.run, id: 's' }, { state: { scroll: 4 } }).finished;
 
-      h.router.updateState({ focus: 'main' });
-
-      assert.deepEqual(h.router.getCurrent().state, { scroll: 4, focus: 'main' });
+      assert.deepEqual(h.router.getCurrent().state, { scroll: 4 });
       assert.equal(h.driver.currentEntry.getState()['@mnjs/router'], true);
     });
 

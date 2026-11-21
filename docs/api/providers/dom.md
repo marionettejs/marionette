@@ -2,10 +2,12 @@
 
 [API index](../../api.md) · [Runtime configuration](../runtime.md) · [View rendering](../shared/view-bindings.md#templates-and-data)
 
-For renderer-specific integration, use Marionette’s [`@mnjs/adapters/dom/lit-html`](../../integrations/setup.md#configure-once) adapter with Lit template
-results, or the optional [@mnjs/html DOM adapter](../../../packages/html/guide.md#choosing-a-dom-integration)
-with that package's results and Marionette-owned events. Native HTML string output
-can retain the default DomApi. Neither optional adapter becomes a core dependency.
+For new templated UI, use the optional [@mnjs/html DOM adapter](../../../packages/html/guide.md#choosing-a-dom-integration)
+with that package's results and Marionette-owned events. Existing Lit and Morphdom
+integrations remain supported by [@mnjs/adapters](../../packages/adapters.md);
+Lit template results use [`@mnjs/adapters/dom/lit-html`](../../packages/adapters.md#lit-html).
+Native HTML string output can retain the default DomApi. No optional renderer
+becomes a core dependency.
 
 Choose an existing integration when it fits. A renderer evaluates a template; DomApi applies the output and performs DOM operations; EventDelegator installs DOM listeners. These independent boundaries let a View keep its lifecycle and ownership rules while changing its integration.
 
@@ -15,7 +17,7 @@ Choose an existing integration when it fits. A renderer evaluates a template; Do
 
 Marionette serializes data and applies template context before calling the renderer; a falsy final data value becomes `{}`. It passes every return value to `attachElContent`, whose default calls `Dom.setContents(el, output)`. A Promise is not awaited, and `undefined` does not mean “skip insertion.” If a renderer performs insertion itself, override `attachElContent` to match that strategy and keep the View's fixed root. Usually, putting insertion in DomApi keeps the responsibilities simpler.
 
-The native `setContents` treats strings as HTML. Choose an integration such as [Lit](../../integrations/setup.md#configure-once) for templated UI with ordinary text interpolation. This small text-only class demonstrates a typed DomApi overlay without building a new template engine:
+The native `setContents` treats strings as HTML. Choose an integration such as [`@mnjs/html`](../../../packages/html/guide.md#choosing-a-dom-integration) for templated UI with ordinary text interpolation. This small text-only class demonstrates a typed DomApi overlay without building a new template engine:
 
 ```ts
 import { View, type DomApiContract } from 'marionette';
@@ -50,6 +52,7 @@ Only content insertion changes; native root creation, queries and placement rema
 | `detachEl(el)` | Remove the element from its parent while preserving the element and listeners for possible reuse. |
 | `replaceEl(newEl, oldEl)` | Replace the old element in its parent. Native does nothing for identical elements or a parentless old element. |
 | `setContents(el, output)` | Apply renderer output within the root. Native uses `innerHTML`, with nullish output clearing contents. Match this method to the renderer's output. |
+| `setUnsafeHtml(el, markup)` | Replace children with caller-trusted markup via native `innerHTML`, without renderer dispatch. An empty string removes all children. |
 | `setAttributes(el, attributes)` | Apply attributes. Native uses own enumerable keys, removes `null` values, ignores `undefined`, and stringifies other values. Unmentioned attributes remain. |
 | `appendContents(el, contents)` | Native default: append an Element/DocumentFragment to the parent Element/DocumentFragment. The jQuery adapter also accepts HTML strings, element arrays and jQuery collections. |
 | `moveEl(el, parent, before?)` | Insert or move the element before the reference node; append when omitted/null. Native uses `moveBefore` for an existing child of that parent when available, otherwise `insertBefore`. |
@@ -58,9 +61,20 @@ Only content insertion changes; native root creation, queries and placement rema
 | `notifyAttach(el)` | Notify content integration that the View's element has attached. Native does nothing. |
 | `notifyDetach(el)` | Notify content integration that the View's element has detached. Native does nothing. |
 
-Marionette owns View/Region lifecycle and child cleanup around these operations. Providers must preserve the root identity and must not destroy unrelated Views or borrowed sources. Preserve renderer markers when moving child elements; a provider must support the actual content it created. The Lit adapter implements content insertion and attachment notifications; see its [connection requirements and limitations](../../packages/adapters.md#lit-html).
+Use `setContents` for renderer output. Use `setUnsafeHtml` only for an explicit
+raw-markup write, such as a trusted SVG string in a dedicated icon container.
+It does not sanitize markup, run Marionette teardown, or clean up jQuery data
+and event handlers on removed descendants like jQuery's `.html()` does. Do not
+use it on a View root managed by a renderer such as `@mnjs/html`: replacing its
+children removes the markers used by later renders. Use a dedicated container
+whose descendants are not managed by a renderer, View, Region, or jQuery.
+Pass an empty string to clear it. Provider overlays inherit the method unless
+they override it. It is optional in the TypeScript provider contract so existing
+standalone providers remain valid; the native provider always supplies it.
 
-Attachment notifications follow monitored Marionette lifecycle, including construction on an attached root. `monitorViewEvents: false` on the View class disables that monitoring. Integrations such as Lit rely on these notifications for directive connection state, so disabling monitoring also disables that integration behavior. Arbitrary external DOM movement is not observed.
+Marionette owns View/Region lifecycle and child cleanup around these operations. Providers must preserve the root identity and must not destroy unrelated Views or borrowed sources. Preserve renderer markers when moving child elements; a provider must support the actual content it created. The `@mnjs/html` adapter implements content insertion and attachment notifications; use its [integration guide](../../../packages/html/guide.md#choosing-a-dom-integration).
+
+Attachment notifications follow monitored Marionette lifecycle, including construction on an attached root. `monitorViewEvents: false` on the View class disables that monitoring. Integrations such as `@mnjs/html` rely on these notifications for directive connection state, so disabling monitoring also disables that integration behavior. Arbitrary external DOM movement is not observed.
 
 Root values must satisfy the DOM `Element` contract, including inherited `Node`
 methods and properties. DomApi configures operations on DOM nodes; it is not an

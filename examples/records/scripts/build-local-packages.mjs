@@ -15,6 +15,6 @@ for (const script of ['build:utils', 'build:radio']) {
 execFileSync(process.execPath, [
   'node_modules/rollup/dist/bin/rollup', '-c', 'rollup.config.mjs', '--noConflict',
 ], { cwd: root, stdio: 'inherit' });
-for (const script of ['build:types', 'build:data', 'build:adapters']) {
+for (const script of ['build:types', 'build:data', 'build:html']) {
   execFileSync(process.execPath, [npm, 'run', script], { cwd: root, stdio: 'inherit' });
 }

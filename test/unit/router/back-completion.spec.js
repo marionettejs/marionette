@@ -24,8 +24,8 @@ for (const coalesced of [false, true]) {
         if (gated) { entered.resolve(); return presentation.promise; }
       };
       const router = createRouter({ driver, routes: {
-        source: { path: '/source', redirect: () => gated && redirected ? Promise.resolve('/target') : undefined, handler },
-        target: { path: '/target', handler }, next: { path: '/next' },
+        '/source': { name: 'source', redirect: () => gated && redirected ? Promise.resolve('/target') : undefined, handler },
+        '/target': { name: 'target', handler }, '/next': { name: 'next' },
       } });
       router.on('route:ready', match => ready.push(match.name));
       router.on('route:error', error => errors.push(error));
@@ -59,7 +59,7 @@ for (const coalesced of [false, true]) {
 
 it('keeps a settled current-entry traversal an immediate no-op', async() => {
   const driver = memoryDriver({ url: 'https://routes.example/source' });
-  const router = createRouter({ driver, routes: { source: { path: '/source' } } });
+  const router = createRouter({ driver, routes: { '/source': { name: 'source' } } });
   let routes = 0;
   router.on('route', () => { routes++; });
   await router.start(); await router.getInitialDispatch();
@@ -75,7 +75,7 @@ it('keeps genuinely distinct Back destinations independent after the first commi
   const errors = [];
   const driver = memoryDriver({ url: 'https://routes.example/first' });
   const router = createRouter({ driver, routes: {
-    first: { path: '/first' }, second: { path: '/second' }, third: { path: '/third' },
+    '/first': { name: 'first' }, '/second': { name: 'second' }, '/third': { name: 'third' },
   }, handler(match) {
     if (gated) { entered[match.name].resolve(); return work[match.name].promise; }
   } });
@@ -104,10 +104,10 @@ for (const history of ['replace', 'push']) {
     let replaced = false;
     let unrelated;
     const router = createRouter({ driver, routes: {
-      a: { path: '/a', handler() {
+      '/a': { name: 'a', handler() {
         if (gated && !replaced) { replaced = true; unrelated = router.navigate('c', {}, { history }); }
       } },
-      b: { path: '/b' }, c: { path: '/c', handler: () => work.promise },
+      '/b': { name: 'b' }, '/c': { name: 'c', handler: () => work.promise },
     } });
     await router.start(); await router.getInitialDispatch();
     await router.navigate('b').finished;

@@ -144,6 +144,18 @@
     "section": "Companion packages"
   },
   {
+    "source": "docs/packages/html.md",
+    "route": "docs/packages/html-reference",
+    "title": "Installed HTML reference",
+    "section": "Companion packages"
+  },
+  {
+    "source": "docs/packages/router.md",
+    "route": "docs/packages/router",
+    "title": "@mnjs/router: feature-owned routing",
+    "section": "Companion packages"
+  },
+  {
     "source": "docs/integrations/setup.md",
     "route": "docs/integrations/setup",
     "title": "Setup and data",
@@ -201,6 +213,24 @@
     "source": "docs/guides/routing.md",
     "route": "docs/guides/routing",
     "title": "Connect navigation to feature ownership",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/fragment-navigation.md",
+    "route": "docs/guides/fragment-navigation",
+    "title": "Optional native fragment navigation",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/composition.md",
+    "route": "docs/guides/composition",
+    "title": "Compose an application feature",
+    "section": "Guides"
+  },
+  {
+    "source": "docs/guides/async-requests.md",
+    "route": "docs/guides/async-requests",
+    "title": "Local requests, stale results and retries",
     "section": "Guides"
   },
   {

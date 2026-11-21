@@ -52,7 +52,8 @@ hook change, with identical source toolchain and production builds. On this Mac,
 were 10.10 ms before and 9.80 ms after. The paired mount ratio's bootstrap 95%
 interval was 0.959–1.096. That interval permits roughly a 9.6% mount slowdown, so this small synthetic check is inconclusive about material overhead. It does not establish zero overhead, paint speed or application performance.
 
-The package remains unpublished. CI is separately identified below; neither local checks nor CI establish
+The package was unpublished at this validation checkpoint; 1.0.0 has since been
+published independently. CI is separately identified below; neither local checks nor CI establish
 registry contents or a deployed documentation website.
 
 ## Historical prototype evidence

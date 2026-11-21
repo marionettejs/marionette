@@ -221,3 +221,35 @@ The declarations remain hand-maintained. Strict ESM/CJS consumer and anti-any
 checks sample public contracts; they do not prove every runtime signature matches
 the declaration surface. Full implementation-derived declaration verification
 and the remaining runtime formatting are separate work.
+
+## Configured DOM ownership
+
+A FormKitView captures its configured `Dom` provider when initialized. Library-owned
+HTML elements, normalized attributes, buffers, placement, replacement and removal
+use that provider and receiver through direct fields, schema scopes, slots,
+Provider/LazyProvider and helpers. Configure each owning View and Region explicitly;
+configuration is not automatically inherited between unrelated owners. Standalone
+helpers capture the configured default `View.Dom` when created. Foreign component
+factories retain responsibility for their own renderers.
+
+Required element operations are `createElement`, `createBuffer`, `setAttributes`,
+`moveEl`, `appendContents`, `replaceEl`, `detachEl` and `detachContents`. A missing
+method fails normally; provider errors are not retried through a native provider.
+Namespace creation and text/comment operations use owner-document primitives where
+the DomApi interface has no equivalent. FormKit retains normalized live property,
+listener and focus behavior rather than treating these as plain attributes.
+
+Use `innerHTML` only for trusted markup in a dedicated section without managed
+children, such as a built-in icon. The captured provider's `setUnsafeHtml` writes
+it without renderer dispatch or sanitization. Do not mix it with ordinary
+children or use it on a reused form root; keep ordinary text as text. The separate
+`FormKitIcon` helper still sanitizes SVG.
+
+Raw sections require a Marionette build that exposes `DomApi.setUnsafeHtml`
+(such as master `4df53edb` or a later published version providing the same API).
+Older providers without it cannot render raw sections; there is no native
+fallback. Before publishing this candidate, set the Marionette peer floor to
+the first verified published version that provides the operation.
+
+Actual HtmlDomApi parent/Region integration and browser focus/IME behavior require
+separate verification; configured-provider JSDOM controls do not establish them.

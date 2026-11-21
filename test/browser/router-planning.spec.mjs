@@ -17,7 +17,7 @@ async function fixture(page) {
   await page.route('**/router.js', route => route.fulfill({ path: routerArtifactPath('dist/index.js'), contentType: 'text/javascript' }));
 }
 
-const cases = ['redirect', 'intercept', 'within'].flatMap(phase => [
+const cases = ['redirect', 'owns-matched', 'owns-missing'].flatMap(phase => [
   { phase, outcome: 'ready', action: 'navigate' },
   { phase, outcome: 'stopped', action: 'stop' },
 ]);
@@ -38,10 +38,10 @@ for (const { phase, outcome, action } of cases) {
       let newer;
       const reenter = () => { if (operation === 'stop') { router.stop(); } else { newer = router.navigate('/next'); } };
       router = new Router({ routes: {
-        home: { path: '/' }, next: { path: '/next' },
-        ...(planning === 'within' ? {} : { source: { path: '/source', redirect: planning === 'redirect' ? reenter : undefined } }),
-      }, intercept(url) { if (planning === 'intercept' && url.pathname === '/source') { reenter(); } return true; },
-      notFound: { name: 'missing', within(url) { if (planning === 'within' && url.pathname === '/source') { reenter(); return true; } return false; } },
+        '/': { name: 'home' }, '/next': { name: 'next' },
+        ...(planning === 'owns-missing' ? {} : { '/source': { name: 'source', redirect: planning === 'redirect' ? reenter : undefined } }),
+      }, owns(url) { if (planning.startsWith('owns-') && url.pathname === '/source') { reenter(); } return true; },
+      notFound: 'missing',
       handler(match) {
         handlers.push(match.name);
         if (match.name === 'next' && completion === 'failed') { throw new DOMException('independent newer request', 'AbortError'); }
@@ -80,7 +80,7 @@ test('native initial-work abort callback can navigate without obsolete intercept
     const errors = [];
     let newer;
     const router = new Router({ routes: {
-      home: { path: '/' }, source: { path: '/source' }, next: { path: '/next' },
+      '/': { name: 'home' }, '/source': { name: 'source' }, '/next': { name: 'next' },
     }, handler(match) {
       handlers.push(match.name);
       if (match.name === 'home') {
@@ -116,8 +116,8 @@ test('native cancelled initial redirect cannot replace its newer navigation with
     const handlers = [];
     let newer;
     const router = new Router({ routes: {
-      source: { path: '/source', redirect() { newer = router.navigate('/next'); return '/stale'; } },
-      next: { path: '/next' }, stale: { path: '/stale' },
+      '/source': { name: 'source', redirect() { newer = router.navigate('/next'); return '/stale'; } },
+      '/next': { name: 'next' }, '/stale': { name: 'stale' },
     }, handler(match) { handlers.push(match.name); if (match.name === 'next') { return work.promise; } } });
     await router.start();
     const initial = await router.getInitialDispatch();
@@ -157,11 +157,11 @@ for (const historyMode of ['replace', 'push']) {
       let replaced = false;
       let unrelated;
       const router = new Router({ routes: {
-        home: { path: '/' },
-        a: { path: '/a', handler() {
+        '/': { name: 'home' },
+        '/a': { name: 'a', handler() {
           if (active && !replaced) { replaced = true; unrelated = router.navigate('c', {}, { history }); }
         } },
-        b: { path: '/b' }, c: { path: '/c', handler: () => work.promise },
+        '/b': { name: 'b' }, '/c': { name: 'c', handler: () => work.promise },
       } });
       await router.start(); await router.getInitialDispatch();
       await router.navigate('a').finished; await router.navigate('b').finished;
@@ -187,10 +187,10 @@ test('native registration retirement during planning cancels initial work withou
     const { Router } = await import('/router.js');
     const work = Promise.withResolvers();
     const handlers = [];
-    const router = new Router({ routes: { home: { path: '/' } }, handler(match) { handlers.push(match.name); return work.promise; } });
+    const router = new Router({ routes: { '/': { name: 'home' } }, handler(match) { handlers.push(match.name); return work.promise; } });
     await router.start();
     const initial = router.getInitialDispatch();
-    const unmount = router.mount({ source: { path: '/source', redirect() { unmount(); } } });
+    const unmount = router.mount({ '/source': { name: 'source', redirect() { unmount(); } } });
     const obsolete = await router.navigate('/source').finished;
     const initialOutcome = await initial;
     work.reject(new Error('obsolete initial request'));

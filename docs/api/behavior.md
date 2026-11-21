@@ -10,8 +10,8 @@ This Behavior turns Escape into a host event. The owner of the host decides how 
 
 ```ts
 import { Behavior, View } from 'marionette';
-import LitDomApi from '@mnjs/adapters/dom/lit-html';
-import { html } from 'lit-html';
+import HtmlDomApi from '@mnjs/html/marionette';
+import { html } from '@mnjs/html';
 
 const DismissOnEscape = Behavior.extend({
   events: { keydown: 'handleKeydown' },
@@ -25,7 +25,7 @@ const DismissOnEscape = Behavior.extend({
 const SearchPanel = View.extend({
   behaviors: [DismissOnEscape],
   template: () => html`<input aria-label="Search">`,
-}).setDomApi(LitDomApi);
+}).setDomApi(HtmlDomApi);
 
 const panel = new SearchPanel();
 panel.render();

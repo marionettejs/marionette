@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-24.04
     container:
       # Keep the image version/digest aligned with the Playwright lockfiles.
-      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d
+      image: mcr.microsoft.com/playwright:v1.65.1-noble@sha256:1507cbfc550a63a6b7396791ca4f00df17beb56342d2447b3f106c306f525579
       options: --user 1001:1001 --shm-size=1g
     defaults:
       run:

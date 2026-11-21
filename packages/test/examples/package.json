@@ -18,15 +18,15 @@
   "devDependencies": {
     "@cypress/mount-utils": "5.0.0",
     "@cypress/vite-dev-server": "8.0.0",
-    "@playwright/test": "1.65.0",
+    "@playwright/test": "1.65.1",
     "@testing-library/dom": "10.4.2",
-    "@testing-library/user-event": "14.6.8",
+    "@testing-library/user-event": "14.6.12",
     "@vitest/browser-playwright": "5.1.0",
-    "cypress": "16.2.1",
-    "jsdom": "31.0.0",
-    "playwright": "1.65.0",
+    "cypress": "16.3.0",
+    "jsdom": "31.0.1",
+    "playwright": "1.65.1",
     "typescript": "6.0.3",
-    "vite": "8.3.6",
+    "vite": "8.3.8",
     "vitest": "5.1.0",
     "typescript-7": "npm:typescript@7.0.2"
   }

@@ -1,3 +1,4 @@
+import { insertNode, removeNode, displayContents } from './dom-operations.mjs';
 import {enumerableKeys, defineScopeProperties} from './scope-properties.mjs';
 import { createFormKitStructuralComponents } from './structural-components.mjs';
 import { subscribeReactiveStore } from './upstream-bindings.mjs';
@@ -59,7 +60,7 @@ function isModeled(spec) {return spec.modelValue !== undefined || spec.value !==
 function schemaFor(node,sections) {const schema = node.props.definition.schema;return typeof schema === 'function' ? schema({...sections ?? {}}) : schema;}
 
 function createField(node,spec,view,initial,renderDefault,present) {
-  const el = document.createElement('div');el.dataset.experimentField = String(node.name);
+  const Dom = view._formKitDom, el = Dom.createElement('div');Dom.setAttributes(el, {'data-experiment-field': String(node.name)});
   const initialVisibility = nativeProps(spec,node.props.definition);
   let declaredVisibility = initialVisibility.props.validationVisibility !== undefined ? initialVisibility.props.validationVisibility : initialVisibility.attrs.validationVisibility;
   let ownsVisibility = declaredVisibility !== undefined && Object.hasOwn(node.props,'validationVisibility') && eq(node.props.validationVisibility,declaredVisibility);
@@ -72,7 +73,7 @@ function createField(node,spec,view,initial,renderDefault,present) {
         scopeSpec = nextSpec;
         // Equivalent reconstructed slots keep their component/Core owners.
         if (active?.setSchema(schema)) {active.refresh();return;}
-        const nextHost = document.createElement('span');nextHost.dataset.experimentSlot = name;
+        const nextHost = Dom.createElement('span');Dom.setAttributes(nextHost, {'data-experiment-slot': name});
         const nextObserver = createObserver(view.node),data = Object.create(view._schemaData);let nextRenderer;
         Object.defineProperty(data,'values',{get: ()=>nextObserver.value});
         const keys = new Set();
@@ -85,30 +86,43 @@ function createField(node,spec,view,initial,renderDefault,present) {
           const source = key in locals ? locals : key in (scopeSpec.__schemaScope ?? {}) ? scopeSpec.__schemaScope : scopeSpec.__schemaData;
           return source?.[key];
         });
-        try {nextRenderer = renderSections({host: nextHost,schema,context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,currentLibrary),data});nextObserver.watch(()=>nextRenderer.update());} catch (error) {nextObserver.kill();nextRenderer?.destroy();throw error;}
-        if (host) {observer.kill();active.destroy();host.replaceWith(nextHost);} else {parent.insertBefore(nextHost,before);}
+        try {
+          nextRenderer = renderSections({Dom,host: nextHost,schema,context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,currentLibrary),data});
+          nextObserver.watch(()=>nextRenderer.update());
+          if (host) {
+            const previousObserver = observer, previousRenderer = active;
+            observer = undefined;active = undefined;
+            previousObserver?.kill();previousRenderer?.destroy();Dom.replaceEl(nextHost,host);
+          } else {insertNode(Dom,parent,nextHost,before);}
+        } catch (error) {
+          // The replacement is not owned by the controller until installation succeeds.
+          try {nextObserver.kill();} catch { /* Preserve the installation error. */ }
+          try {nextRenderer?.destroy();} catch { /* Preserve the installation error. */ }
+          try {if (nextHost.parentNode) {removeNode(Dom,nextHost);}} catch { /* Preserve the installation error. */ }
+          throw error;
+        }
         host = nextHost;active = nextRenderer;observer = nextObserver;
       };
-      const controller = {name,update,setScope(next) {scopeSpec = next;active.refresh();},refresh() {if (!closed) {active.refresh();}},destroy(remove = true) {if (closed) {return;}closed = true;observer.kill();active.destroy(remove);if (remove) {host.remove();}slotControllers.delete(controller);}};
+      const controller = {name,update,setScope(next) {scopeSpec = next;active?.refresh();},refresh() {if (!closed) {active?.refresh();}},destroy(remove = true) {if (closed) {return;}closed = true;observer?.kill();active?.destroy(remove);if (remove) {removeNode(Dom,host);}slotControllers.delete(controller);}};
       update(currentSlots[name]);slotControllers.add(controller);return (remove = true)=>controller.destroy(remove);
     };
   }
   if (renderDefault) {
     slots.default = ({parent,before,locals})=>{
       const parentNode = locals?.node ?? node;let content = defaultScopes.get(parentNode);
-      if (!content) {const host = document.createElement('span');host.style.display = 'contents';content = {host,dispose: renderDefault(host,null,{node: parentNode})};defaultScopes.set(parentNode,content);}
-      content.active = true;parent.insertBefore(content.host,before);let closed = false;
-      return (remove = true)=>{if (closed) {return;}closed = true;content.active = false;if (remove) {content.host.remove();} if (!redrawing) {defaultScopes.delete(parentNode);content.dispose?.(remove);}};
+      if (!content) {const host = Dom.createElement('span');displayContents(Dom,host);content = {host,dispose: renderDefault(host,null,{node: parentNode})};defaultScopes.set(parentNode,content);}
+      content.active = true;insertNode(Dom,parent,content.host,before);let closed = false;
+      return (remove = true)=>{if (closed) {return;}closed = true;content.active = false;if (remove) {removeNode(Dom,content.host);} if (!redrawing) {defaultScopes.delete(parentNode);content.dispose?.(remove);}};
     };
-  } else if ((node.type !== 'input' && Array.isArray(spec.children ?? []))) {slots.default = ({parent,before})=>{anchor = document.createComment('group fields');parent.insertBefore(anchor,before);return (remove = true)=>{if (remove) {anchor.remove();}};};} else {for (const name of Object.keys(currentSlots)) {slots[name] = renderSlot(name);}}
+  } else if ((node.type !== 'input' && Array.isArray(spec.children ?? []))) {slots.default = ({parent,before})=>{anchor = el.ownerDocument.createComment('group fields');insertNode(Dom,parent,anchor,before);return (remove = true)=>{if (remove) {removeNode(Dom,anchor);}};};} else {for (const name of Object.keys(currentSlots)) {slots[name] = renderSlot(name);}}
   const redraw = next=>{
     if (dead) {return;}
     const nextSchema = schemaFor(node,next.sectionsSchema);
     if (next.library === field.spec.library && renderer?.setSchema(nextSchema)) {return;}
-    for (const child of children.values()) {child.el.remove();} for (const content of defaultScopes.values()) {content.host.remove();}
+    for (const child of children.values()) {removeNode(Dom,child.el);} for (const content of defaultScopes.values()) {removeNode(Dom,content.host);}
     redrawing = true;try {renderer?.destroy();} finally {redrawing = false;}anchor = undefined;
-    renderer = renderSections({host: el,schema: nextSchema,context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,next.library),slots});
-    for (const [parent,content] of defaultScopes) {if (!content.active) {defaultScopes.delete(parent);content.dispose?.();content.host.remove();}}
+    renderer = renderSections({Dom,host: el,schema: nextSchema,context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,next.library),slots});
+    for (const [parent,content] of defaultScopes) {if (!content.active) {defaultScopes.delete(parent);content.dispose?.();removeNode(Dom,content.host);}}
     if (anchor && !next[schemaChildScope]) {reconcile(view,node,children,next.children ?? [],anchor,initial ?? {});}
     present?.(el);
   };
@@ -156,12 +170,12 @@ function createField(node,spec,view,initial,renderDefault,present) {
     const previous = field.spec;field.spec = next;
     if (next.__schemaScope !== previous.__schemaScope || next.__schemaData !== previous.__schemaData) {for (const slot of slotControllers) {slot.setScope(next);}}
     if (next !== previous && isModeled(next) && !eq(modelValue(next),modelValue(previous)) && !eq(node.value,modelValue(next))) {node.input(cloneAny(modelValue(next)),false);}
-  },disposeView(remove = true) {if (dead) {return;}dead = true;node.off(inputReceipt);node.off(schemaReceipt);node.off(visibilityReceipt);view.off('attach fields:attached',notifyMounted);renderer?.destroy(remove);for (const content of defaultScopes.values()) {content.dispose?.(remove);}defaultScopes.clear();for (const slot of slotControllers) {slot.destroy(remove);} for (const child of children.values()) {child.disposeView(remove);} if (remove) {el.remove();}},disposeNodes(parentFirst = false) {if (parentFirst) {node.destroy();} for (const child of children.values()) {child.disposeNodes(parentFirst);}children.clear();view._anonymousKeys.delete(node);if (!parentFirst) {node.destroy();}},destroy() {if (dead) {return;}field.disposeView();field.disposeNodes();}};
+  },disposeView(remove = true) {if (dead) {return;}dead = true;node.off(inputReceipt);node.off(schemaReceipt);node.off(visibilityReceipt);view.off('attach fields:attached',notifyMounted);renderer?.destroy(remove);for (const content of defaultScopes.values()) {content.dispose?.(remove);}defaultScopes.clear();for (const slot of slotControllers) {slot.destroy(remove);} for (const child of children.values()) {child.disposeView(remove);} if (remove) {removeNode(Dom,el);}},disposeNodes(parentFirst = false) {if (parentFirst) {node.destroy();} for (const child of children.values()) {child.disposeNodes(parentFirst);}children.clear();view._anonymousKeys.delete(node);if (!parentFirst) {node.destroy();}},destroy() {if (dead) {return;}field.disposeView();field.disposeNodes();}};
   const inputReceipt = node.on('modelUpdated',()=>{field.spec.onInputRaw?.(node.context?.value,node);field.spec.onInput?.(node.context?.value,node);if (isModeled(field.spec)) {const value = shallowClone(node.value);field.spec.onUpdateModelValue?.(value);field.spec['onUpdate:modelValue']?.(value);field.spec.onChange?.(value,node);}});
   const schemaReceipt = node.on('schema',event=>{if (event.origin !== node || dead || schemaQueued) {return;}schemaQueued = true;queueMicrotask(()=>{schemaQueued = false;if (!dead) {redraw(field.spec);}});});
   view.on('attach fields:attached',notifyMounted);queueMicrotask(notifyMounted);
   spec.onNode?.(node);
-  try {renderer = renderSections({host: el,schema: schemaFor(node,spec.sectionsSchema),context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,spec.library),slots});field.update(spec);present?.(el);return field;} catch (error) {field.destroy();throw error;}
+  try {renderer = renderSections({Dom,host: el,schema: schemaFor(node,spec.sectionsSchema),context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,spec.library),slots});field.update(spec);present?.(el);return field;} catch (error) {try {field.destroy();} catch { /* Preserve the construction error. */ } throw error;}
 }
 
 const generalProps = new Set([...runtimeProps,'label','help','disabled','validationVisibility','slots','definition','defaultValue','onUpdateModelValue','onChange','sync','dynamic','ignore','preserve']);
@@ -244,7 +258,7 @@ function reconcile(view,parent,map,specs,anchor,initial) {
   const elements = entries.map(([key])=>map.get(key).el).filter(element=>!element.parentNode || element.parentNode === anchor.parentNode);
   const active = anchor.getRootNode().activeElement ?? anchor.ownerDocument.activeElement;
   const pivot = elements.findIndex(element=>element.contains(active));
-  const place = (first,last,cursor)=>{for (let i = last;i >= first;i--) {const element = elements[i];if (element.nextSibling !== cursor) {anchor.parentNode.insertBefore(element,cursor);}cursor = element;}};
+  const place = (first,last,cursor)=>{for (let i = last;i >= first;i--) {const element = elements[i];if (element.nextSibling !== cursor) {insertNode(view._formKitDom,anchor.parentNode,element,cursor);}cursor = element;}};
   // Moving a focused ancestor with insertBefore blurs it in real browsers.
   // Keep that retained subtree attached; move only its siblings around it.
   if (pivot < 0) {place(0,elements.length - 1,anchor);} else {place(pivot + 1,elements.length - 1,anchor);place(0,pivot - 1,elements[pivot]);}
@@ -253,8 +267,8 @@ function reconcile(view,parent,map,specs,anchor,initial) {
 
 function createSchemaOwner(view,{host,props,context,parentNode,configScope,domRoot,renderChildren,hasChildren}) {
   const parent = parentNode ?? context.node ?? view.node,scope = new MnObject();
-  const anchor = document.createComment('schema fields');host.append(anchor);
-  Object.assign(scope,{node: parent,fields: new Map(),metrics: view.metrics,_fieldAnchor: anchor,_schemaParent: parent,_schemaDataOnly: true,
+  const Dom = view._formKitDom, anchor = host.ownerDocument.createComment('schema fields');insertNode(Dom,host,anchor);
+  Object.assign(scope,{node: parent,_formKitDom: Dom,fields: new Map(),metrics: view.metrics,_fieldAnchor: anchor,_schemaParent: parent,_schemaDataOnly: true,
     _domRoot: domRoot ?? parent.props.__root,_providerScope: configScope,_anonymousKeys: new WeakMap(),_fieldId: 0,
     definitions: view.definitions,plugins: view.plugins,config: view.config,_countCore: view._countCore,
     _configScopes: {get: node=>node === parent ? configScope : view._configScopes.get(node),set: (node,value)=>view._configScopes.set(node,value)},
@@ -262,7 +276,7 @@ function createSchemaOwner(view,{host,props,context,parentNode,configScope,domRo
   });
   let current,unsubscribe = ()=>{},removeDom = true,dead = false,mounted = false,pending = false;
   const attached = ()=>{if (dead || !host.isConnected) {return;}scope.trigger('attach');if (!mounted) {mounted = true;current?.onMounted?.();}};view.on('attach',attached);
-  scope.on('before:destroy',()=>{dead = true;scope._ending = true;view.off('attach',attached);unsubscribe();scope._layoutController?.destroy();for (const field of scope.fields.values()) {field.disposeView(removeDom);} for (const field of scope.fields.values()) {field.disposeNodes();}scope.fields.clear();scope._anonymousKeys = new WeakMap();if (removeDom) {anchor.remove();}});
+  scope.on('before:destroy',()=>{dead = true;scope._ending = true;view.off('attach',attached);unsubscribe();scope._layoutController?.destroy();for (const field of scope.fields.values()) {field.disposeView(removeDom);} for (const field of scope.fields.values()) {field.disposeNodes();}scope.fields.clear();scope._anonymousKeys = new WeakMap();if (removeDom) {removeNode(Dom,anchor);}});
   const refresh = ()=>{if (!dead) {scope._layoutController?.updateData(current?.data ?? {});}};
   const changed = ()=>{if (dead || pending) {return;}pending = true;queueMicrotask(()=>{pending = false;refresh();});};
   const update = next=>{
@@ -285,6 +299,7 @@ export class ExperimentalFormView extends View {
   get tagName() { return 'form'; }
   get template() { return false; }
   initialize(options = {}) {
+    this._formKitDom = this.Dom;
     this._schema = options.schema;this._schemaSlots = options.schemaSlots ?? {};this._rootSlots = options.slots ?? {};
     const view = this;this._schemaData = {...options.data,get values() {return view.node.value;}};
     this.metrics = { enabled: options.instrument === true, contextNotifications: 0,tokenChecks: 0,expressionEvaluations: 0,domWrites: 0,structuralChanges: 0,coreNodesCreated: 0,coreNodesDestroyed: 0,coreInputEvents: 0,coreCommitEvents: 0,coreMessageEvents: 0,classRootEvaluations: 0 };
@@ -292,14 +307,14 @@ export class ExperimentalFormView extends View {
     this._fieldId = 0; this._ending = false;
     const hostRoot = options.domRoot ?? this.el.getRootNode();
     this._domRoot = hostRoot.nodeType === 9 || hostRoot.host ? hostRoot : this.el.ownerDocument;
-    this.components = {...createFormKitStructuralComponents(this,args=>createSchemaOwner(this,args)),...createFormKitProviders(this),...createFormKitHelpers({getNode: ()=>this.node,getComponents: ()=>this.components,getPlugins: ()=>this.plugins,removeDom: ()=>!this._ending}),FormKit: ({host,props,context,locals,schemaData,parentNode,configScope,domRoot,hasChildren,schemaChildren,renderChildren})=>{
+    this.components = {...createFormKitStructuralComponents(this,args=>createSchemaOwner(this,args)),...createFormKitProviders(this),...createFormKitHelpers({getDom: ()=>this._formKitDom,getNode: ()=>this.node,getComponents: ()=>this.components,getPlugins: ()=>this.plugins,removeDom: ()=>!this._ending}),FormKit: ({host,props,context,locals,schemaData,parentNode,configScope,domRoot,hasChildren,schemaChildren,renderChildren})=>{
       const name = props.name;
       const namedSlots = hasChildren && schemaChildren && !Array.isArray(schemaChildren) && typeof schemaChildren === 'object' && !['$el','$cmp','$formkit','if','for'].some(key=>key in schemaChildren);
       const spec = {...Object.fromEntries(Object.getOwnPropertyNames(props).map(key=>[key,props[key]])),name,__schemaScope: locals,__schemaData: schemaData,...(hasChildren ? {children: namedSlots ? schemaChildren : {default: []}} : {})};
       const parent = parentNode ?? context.node ?? this.node;
       const node = createFieldNode(this,parent,spec,{},configScope,domRoot);
-      const present = el=>{el.style.display = 'contents';for (const child of [...el.childNodes]) {host.parentNode.insertBefore(child,host);}};
-      const field = createField(node,spec,this,undefined,hasChildren && !namedSlots ? renderChildren : undefined,present);host.append(field.el);
+      const present = el=>{displayContents(this._formKitDom,el);for (const child of [...el.childNodes]) {insertNode(this._formKitDom,host.parentNode,child,host);}};
+      const field = createField(node,spec,this,undefined,hasChildren && !namedSlots ? renderChildren : undefined,present);insertNode(this._formKitDom,host,field.el);
 
       return {update: next=>{field.update({...next,name,children: spec.children,__schemaScope: locals,__schemaData: schemaData});if (namedSlots) {field.refresh();}},destroy: (remove = true)=>{if (remove) {field.destroy();} else {field.disposeView(false);field.disposeNodes(true);}}};
     },...options.components};
@@ -327,8 +342,8 @@ export class ExperimentalFormView extends View {
     this.node.context.handlers.submit = this._onSubmit;
     this.specs = options.fields ?? (options.schema !== undefined ? [] : Array.from({ length: options.count ?? 1 }, (_, i) => ({ name: `field${i}`, label: `Field ${i}`, validation: 'required' })));
     this._directSpecs = this.specs;this._schemaSpecs = [];
-    this.on('before:destroy', () => { this._ending = true; this.node.off(schemaReceipt); this._facade.destroy(); this.node.destroy(); this._layoutController?.destroy(); this._rootRenderer?.destroy(false); for (const field of this.fields.values()) {field.disposeView(false);} for (const field of this.fields.values()) {field.disposeNodes(true);} this.fields.clear(); this._anonymousKeys = new WeakMap(); this.el.replaceChildren(); });
-    try {this._renderRoot();} catch (error) {this.destroy();throw error;}
+    this.on('before:destroy', () => { this._ending = true; this.node.off(schemaReceipt); this._facade.destroy(); this.node.destroy(); this._layoutController?.destroy(); this._rootRenderer?.destroy(false); for (const field of this.fields.values()) {field.disposeView(false);} for (const field of this.fields.values()) {field.disposeNodes(true);} this.fields.clear(); this._anonymousKeys = new WeakMap(); this._formKitDom.detachContents(this.el); });
+    try {this._renderRoot();} catch (error) {try {this.destroy();} catch { /* Preserve the construction error. */ } throw error;}
   }
   render() {
     if (this.isDestroyed()) {return this;}
@@ -343,13 +358,13 @@ export class ExperimentalFormView extends View {
     this._isRendered = true; this.triggerMethod('render', this); return this;
   }
   _renderRoot() {
-    this._fieldAnchor = document.createComment('fields');document.createDocumentFragment().append(this._fieldAnchor);
-    this._rootRenderer = renderSections({host: this.el,schema: schemaFor(this.node,this._sectionsSchema),context: this.node.context,metrics: this.metrics,configScope: this._providerScope,domRoot: this._domRoot,components: resolveComponentLibrary(this.node,this.components,this.node.props.library),reuseRoot: true,slots: createRootSlots(this,this._rootSlots)});
+    this._fieldAnchor = this.el.ownerDocument.createComment('fields');insertNode(this._formKitDom,this._formKitDom.createBuffer(),this._fieldAnchor);
+    this._rootRenderer = renderSections({Dom: this._formKitDom,host: this.el,schema: schemaFor(this.node,this._sectionsSchema),context: this.node.context,metrics: this.metrics,configScope: this._providerScope,domRoot: this._domRoot,components: resolveComponentLibrary(this.node,this.components,this.node.props.library),reuseRoot: true,slots: createRootSlots(this,this._rootSlots)});
   }
   setSectionsSchema(sectionsSchema) {
     if (this._ending || this.isDestroyed()) {return this;}
     this._sectionsSchema = sectionsSchema;this._layoutController?.detach();
-    for (const field of this.fields.values()) {field.el.remove();}
+    for (const field of this.fields.values()) {removeNode(this._formKitDom,field.el);}
     this._rootRenderer.destroy();this._renderRoot();
     reconcile(this,this.node,this.fields,this.specs,this._fieldAnchor,this.initialValues);
     this._layoutController?.place();return this;

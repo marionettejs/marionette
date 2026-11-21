@@ -12,8 +12,8 @@ async function measureNative(plan) {
   const rows = [];
   const cursors = { 10: 0, 100: 0, 1000: 0 };
   for (const step of plan) {
-    const routes = Object.fromEntries(Array.from({ length: step.size }, (_, index) => [`r${index}`, {
-      path: index % 2 ? `/r${index}/:id` : `/r${index}/static`,
+    const routes = Object.fromEntries(Array.from({ length: step.size }, (_, index) => [index % 2 ? `/r${index}/:id` : `/r${index}/static`, {
+      name: `r${index}`,
     }]));
     let handled = 0;
     const router = new Router({ routes, handler() { handled++; } });

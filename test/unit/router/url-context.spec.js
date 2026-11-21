@@ -113,12 +113,12 @@ describe('Generated pathname normalization', () => {
   }
 });
 
-describe('own-property persisted parameters', () => {
+describe('own-property shared-ancestor parameters', () => {
   for (const key of ['constructor', 'toString', '__proto__']) {
-    it(`persists own ${ key } values and respects explicit clearing`, async() => {
+    it(`reuses own ${ key } values from a shared node and respects explicit clearing`, async() => {
       const driver = memoryDriver({ url: 'https://example.test/one/page' });
-      const router = createRouter({ driver, persistParams: [key], routes: [
-        { name: 'page', path: `/:${ key }/page` }, { name: 'other', path: `/:${ key }/other` },
+      const router = createRouter({ driver, routes: [
+        { path: `/:${ key }`, children: [{ name: 'page', path: 'page' }, { name: 'other', path: 'other' }] },
       ] });
       await router.start();
       assert.equal(router.url('other'), '/one/other');

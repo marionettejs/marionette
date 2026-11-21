@@ -1,0 +1,27 @@
+name: Restore exact candidate
+description: Download and verify same-run candidate packages and compiled outputs
+inputs:
+  source-sha:
+    required: true
+    description: Exact checked-out commit
+  build-sha256:
+    required: true
+    description: Compiled-output checksum from the producing job
+runs:
+  using: composite
+  steps:
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+      with:
+        name: candidate-${{ inputs.source-sha }}
+        path: test/tmp/candidate
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+      with:
+        name: build-outputs-${{ inputs.source-sha }}
+        path: test/tmp/build-outputs
+    - shell: bash
+      env:
+        CANDIDATE_SOURCE_SHA: ${{ inputs.source-sha }}
+        BUILD_OUTPUT_SHA256: ${{ inputs.build-sha256 }}
+      run: |
+        npm run release:verify -- --artifact-dir test/tmp/candidate --source-commit "$CANDIDATE_SOURCE_SHA"
+        npm run release:outputs -- --mode restore --sha256 "$BUILD_OUTPUT_SHA256"

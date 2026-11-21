@@ -3,6 +3,7 @@ import { request } from 'node:http';
 import { test } from './fixtures.mjs';
 
 const contracts = [
+  'lit-html: inherits raw markup insertion without changing renderer output',
   'morphdom: composes with a preselected jQuery DomApi',
   'morphdom: replaces initial contents, preserves root and survivor, and commits synchronously',
   'morphdom: destroys Region children before parent rendering',

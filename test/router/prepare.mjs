@@ -6,7 +6,9 @@ import { parseArgs } from 'node:util';
 import { candidateOutput, inspectRouterArchive, sha256 } from './artifact.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
-const { values } = parseArgs({ options: { output: { type: 'string' } } });
+const { values } = parseArgs({ options: { output: { type: 'string' }, 'build-sha256': { type: 'string' } } });
+const reuseBuild = Object.hasOwn(values, 'build-sha256');
+if (reuseBuild) { assert.match(values['build-sha256'], /^[a-f0-9]{64}$/, 'Supply the producer build SHA-256'); }
 assert.ok(values.output, 'Pass --output with a new directory outside the checkout');
 const output = candidateOutput(root, values.output);
 const npm = process.env.npm_execpath;
@@ -20,14 +22,21 @@ assert.equal(git(['status', '--porcelain', '--untracked-files=all']), '', 'Prepa
 const commit = git(['rev-parse', 'HEAD']);
 mkdirSync(output, { recursive: true });
 assert.equal(readdirSync(output).length, 0, 'The output directory must be empty');
-execFileSync(process.execPath, [npm, 'run', 'build:router'], { cwd: root, stdio: 'inherit' });
+if (reuseBuild) {
+  // The producer already compiled Router and its declaration dependencies. Restore
+  // only with the independently supplied same-run snapshot hash; never trust stale dist.
+  execFileSync(process.execPath, [npm, 'run', 'release:outputs', '--', '--mode', 'restore',
+    '--sha256', values['build-sha256']], { cwd: root, stdio: 'inherit' });
+} else {
+  execFileSync(process.execPath, [npm, 'run', 'build:router'], { cwd: root, stdio: 'inherit' });
+}
 const [packed] = JSON.parse(execFileSync(process.execPath, [npm, 'pack', resolve(root, 'packages/router'),
   '--ignore-scripts', '--offline', '--json', '--pack-destination', output], { cwd: root, encoding: 'utf8' }));
 const archive = resolve(output, packed.filename);
 const identity = inspectRouterArchive(archive, sha256(readFileSync(archive)));
 assert.equal(git(['rev-parse', 'HEAD']), commit);
 assert.equal(git(['status', '--porcelain', '--untracked-files=all']), '');
-const receipt = { schemaVersion: 1, sourceCommit: commit, sourceDirty: false, publishableManifest: true,
+const receipt = { schemaVersion: 1, ...(reuseBuild ? { buildOutputsSha256: values['build-sha256'] } : {}), sourceCommit: commit, sourceDirty: false, publishableManifest: true,
   node: process.versions.node, npm: npmVersion, archive: { ...identity, file: packed.filename } };
 writeFileSync(resolve(output, 'router-candidate.json'), `${JSON.stringify(receipt, null, 2)}\n`);
 writeFileSync(resolve(output, `${packed.filename}.sha256`), `${identity.sha256}  ${packed.filename}\n`);

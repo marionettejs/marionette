@@ -17,10 +17,13 @@ async function loadHistory(page) {
     window.usesPatternPolyfill = globalThis.URLPattern === URLPattern;
   });
 }
-const test = base.extend({ page: async({ page }, use) => {
+async function prepareHistoryPage(page) {
   await page.route('**/favicon.ico', route => route.fulfill({ status: 204, body: '' }));
   await page.route('**/router.js', route => route.fulfill({ path: routerArtifactPath('dist/index.js'), contentType: 'text/javascript' }));
   await loadHistory(page);
+}
+const test = base.extend({ page: async({ page }, use) => {
+  await prepareHistoryPage(page);
   await use(page);
 } });
 
@@ -50,10 +53,11 @@ test('History driver with a URLPattern polyfill owns normal Marionette feature p
     const region = new Region({ el: '#content' });
     const Item = View.extend({ template: ({ value }) => html`<h1>${value}</h1>` }).setDomApi(LitDomApi);
     const frame = new Application();
-    const router = frame.addChildApp('router', new Router({ driver: historyDriver(), routes: { home: { path: '/' } } }));
-    const Catalog = RouteApplication.extend({ routes: { item: { path: '/items/:id', handler: 'showItem' } },
+    const router = frame.addChildApp('router', new Router({ driver: historyDriver(), routes: { '/': { name: 'home' } } }));
+    const Catalog = RouteApplication.extend({ routes: { '/items/:id': { name: 'item', handler: 'showItem' } },
       showItem(match) { this.showView(new Item({ model: { value: match.params.id } })); } });
-    const catalog = frame.addChildApp('catalog', new Catalog({ router, region }));
+    const catalog = frame.addChildApp('catalog', new Catalog({ region }));
+    catalog.mountRoutes(router);
     try {
       await frame.start(); await catalog.start(); await router.start(); await router.getInitialDispatch();
       await router.navigate('item', { id: title }).finished;
@@ -75,7 +79,7 @@ test('History Back and Forward retain known keys, dense indexes, state and requi
     const driver = historyDriver();
     const gate = Promise.withResolvers(); const entered = Promise.withResolvers();
     let hold = false;
-    const router = new Router({ driver, routes: { home: { path: '/' }, item: { path: '/items/:id' } }, handler(match) {
+    const router = new Router({ driver, routes: { '/': { name: 'home' }, '/items/:id': { name: 'item' } }, handler(match) {
       if (hold && match.params.id === '1') { entered.resolve(); return gate.promise; }
     } });
     try {
@@ -108,9 +112,9 @@ for (const outcome of ['ready', 'error', 'abort-error', 'redirect', 'stop']) {
       const failure = mode === 'abort-error' ? new DOMException('independent fetch abort', 'AbortError') : new Error('destination failed');
       let hold = false;
       const router = new Router({ driver: historyDriver(), routes: {
-        home: { path: '/' },
-        a: { path: '/a', redirect() { if (hold && mode === 'redirect') { return { name: 'final' }; } } },
-        b: { path: '/b' }, final: { path: '/final' },
+        '/': { name: 'home' },
+        '/a': { name: 'a', redirect() { if (hold && mode === 'redirect') { return { name: 'final' }; } } },
+        '/b': { name: 'b' }, '/final': { name: 'final' },
       }, async handler(match) {
         if (hold && (match.name === 'a' || match.name === 'final')) {
           entered.resolve(); await gate.promise;
@@ -136,44 +140,155 @@ for (const outcome of ['ready', 'error', 'abort-error', 'redirect', 'stop']) {
 
 for (const historyMode of ['push', 'replace']) {
   for (const outcome of ['ready', 'abort-error']) {
-    test(`History Back superseded by ${historyMode} keeps later ${outcome} traversal separate`, async({ page }) => {
+    test(`History Back superseded by ${historyMode} keeps later ${outcome} traversal separate`, async({ page, context, candidateServer }) => {
       const pageErrors = []; page.on('pageerror', error => pageErrors.push(error.message));
       const result = await page.evaluate(async({ historyMode: mode, outcome: expected }) => {
         const { Router, historyDriver } = window.historyApi;
-        const driver = historyDriver(); const entered = Promise.withResolvers(); const gate = Promise.withResolvers();
+        const driver = historyDriver();
+        // A late old pop can still supersede later work and fail the test, but
+        // it cannot enter or complete a different entry's gated phase.
+        const phases = new Map();
+        const phaseFor = key => {
+          const phase = { entered: Promise.withResolvers(), work: Promise.withResolvers(), completed: Promise.withResolvers() };
+          phases.set(key, phase); return phase;
+        };
+        const newerGate = Promise.withResolvers();
         const failure = new DOMException('independent later traversal failure', 'AbortError');
         const ready = []; const errors = []; let hold = false;
         const router = new Router({ driver, routes: {
-          home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' }, d: { path: '/d' },
+          '/': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' }, '/d': { name: 'd' },
         }, async handler(match) {
-          if (hold && match.name === 'd') { await gate.promise; }
-          if (hold && match.name === 'b') {
-            entered.resolve(); await gate.promise;
+          if (hold && match.name === 'd') { await newerGate.promise; }
+          const phase = phases.get(match.key);
+          if (phase) {
+            phase.entered.resolve(match); await phase.work.promise;
             if (expected === 'abort-error') { throw failure; }
           }
         } });
         router.on('route:ready', match => ready.push(match.name));
         router.on('route:error', (error, match) => errors.push({ same: error === failure, name: match.name }));
+        router.on('route:ready', match => phases.get(match.key)?.completed.resolve());
+        router.on('route:error', (error, match) => phases.get(match.key)?.completed.resolve());
         try {
           await router.start(); await router.getInitialDispatch();
           await router.navigate('a').finished;
           await router.navigate('b', {}, { state: { page: 'b' } }).finished; const b = driver.currentEntry;
           await router.navigate('c').finished; hold = true;
+          const queuedPhase = phaseFor(b.key);
           const back = router.back();
           const newer = router.navigate('d', {}, { history: mode }).finished;
-          await entered.promise;
-          const before = { back: await back, newer: await newer, ready: ready.slice(), errors: errors.slice(),
-            key: driver.currentEntry.key === b.key, index: driver.currentEntry.index,
-            path: location.pathname, state: router.getCurrent().state };
-          const complete = new Promise(resolve => router.once(expected === 'ready' ? 'route:ready' : 'route:error', resolve));
-          gate.resolve(); await complete;
-          return { before, ready, errors, nativeReads: window.nativeNavigationReads };
-        } finally { router.destroy(); gate.resolve(); }
+          // Cancellation of the local receipt must not depend on a browser pop.
+          const canceled = await back;
+          // A physical queued traversal is optional. This deadline releases only
+          // the fixture's /d work; it infers nothing about browser cancellation.
+          let release;
+          const arrived = await Promise.race([queuedPhase.entered.promise.then(() => true),
+            new Promise(resolve => { release = setTimeout(() => resolve(false), 1000); })]);
+          clearTimeout(release);
+          if (!arrived) { newerGate.resolve(); }
+          const newerOutcome = await newer;
+          const before = { canceled, newer: newerOutcome, current: router.getCurrent().name,
+            index: driver.currentEntry.index, path: location.pathname, ready: ready.slice(), errors: errors.slice() };
+          if (arrived) {
+            before.key = driver.currentEntry.key === b.key;
+            before.state = router.getCurrent().state;
+            queuedPhase.work.resolve(); await queuedPhase.completed.promise;
+          }
+          const queued = { arrived, before, ready: ready.slice(), errors: errors.slice(), nativeReads: window.nativeNavigationReads };
+          // The deadline does not establish that history.go is idle. End this
+          // page's scenario here if its physical traversal was not observed.
+          if (!arrived) { return { queued, sameInstance: false }; }
+          // Establish a fresh known predecessor and prove canceled receipts do
+          // not join a later explicit Back's readiness or operational failure.
+          newerGate.resolve(); hold = false;
+          // Explicit push allocates a distinct entry even if the old pop left
+          // /b current; auto would replace it and deliberately preserve its key.
+          await router.navigate('b', {}, { history: 'push', state: { page: 'later-b' } }).finished; const laterB = driver.currentEntry;
+          await router.navigate('c').finished;
+          const readyOffset = ready.length; const errorOffset = errors.length;
+          const laterPhase = phaseFor(laterB.key); hold = true;
+          let settled = false;
+          const later = router.back().then(value => { settled = true; return { value }; }, error => {
+            settled = true; return { error: error.name, same: error === failure };
+          });
+          const laterMatch = await laterPhase.entered.promise;
+          const laterBefore = { settled, canceled: await back, newer: await newer,
+            key: driver.currentEntry.key === laterB.key, index: driver.currentEntry.index === laterB.index,
+            distinct: laterB.key !== b.key, matchKey: laterMatch.key === laterB.key,
+            path: location.pathname, state: router.getCurrent().state,
+            ready: ready.slice(readyOffset), errors: errors.slice(errorOffset) };
+          laterPhase.work.resolve(); const laterOutcome = await later;
+          return { queued, sameInstance: true, laterBefore, laterOutcome,
+            ready: ready.slice(readyOffset), errors: errors.slice(errorOffset),
+            path: location.pathname, current: router.getCurrent().name, nativeReads: window.nativeNavigationReads };
+        } finally { router.destroy(); for (const phase of phases.values()) { phase.work.resolve(); } newerGate.resolve(); }
       }, { historyMode, outcome });
-      expect(result).toEqual({ before: { back: false, newer: false, ready: ['home', 'a', 'b', 'c'], errors: [],
-        key: true, index: 2, path: '/b', state: { page: 'b' } },
-      ready: outcome === 'ready' ? ['home', 'a', 'b', 'c', 'b'] : ['home', 'a', 'b', 'c'],
-      errors: outcome === 'ready' ? [] : [{ same: true, name: 'b' }], nativeReads: 0 });
+      if (!result.queued.arrived) {
+        // Discard the old browsing context's session history before the fresh
+        // readiness/error control. It makes no same-instance retirement claim.
+        await page.close();
+        const control = await context.newPage();
+        control.on('pageerror', error => pageErrors.push(error.message));
+        try {
+          await control.goto(candidateServer);
+          await prepareHistoryPage(control);
+          Object.assign(result, await control.evaluate(async expected => {
+            const { Router, historyDriver } = window.historyApi;
+            const driver = historyDriver();
+            const entered = Promise.withResolvers(); const gate = Promise.withResolvers();
+            const failure = new DOMException('independent later traversal failure', 'AbortError');
+            const ready = []; const errors = []; let target;
+            const router = new Router({ driver, routes: { '/': { name: 'home' }, '/b': { name: 'b' }, '/c': { name: 'c' } },
+              async handler(match) {
+                if (match.key !== target?.key) { return; }
+                entered.resolve(match); await gate.promise;
+                if (expected === 'abort-error') { throw failure; }
+              } });
+            router.on('route:ready', match => ready.push(match.name));
+            router.on('route:error', (error, match) => errors.push({ same: error === failure, name: match.name }));
+            try {
+              await router.start(); await router.getInitialDispatch();
+              await router.navigate('b', {}, { history: 'push', state: { page: 'later-b' } }).finished;
+              const b = driver.currentEntry;
+              await router.navigate('c').finished;
+              const readyOffset = ready.length; const errorOffset = errors.length; target = b;
+              let settled = false;
+              const later = router.back().then(value => { settled = true; return { value }; }, error => {
+                settled = true; return { error: error.name, same: error === failure };
+              });
+              const match = await entered.promise;
+              const laterBefore = { settled, key: driver.currentEntry.key === b.key, index: driver.currentEntry.index === b.index,
+                matchKey: match.key === b.key, path: location.pathname, state: router.getCurrent().state,
+                ready: ready.slice(readyOffset), errors: errors.slice(errorOffset) };
+              gate.resolve(); const laterOutcome = await later;
+              return { laterBefore, laterOutcome, ready: ready.slice(readyOffset), errors: errors.slice(errorOffset),
+                path: location.pathname, current: router.getCurrent().name, nativeReads: window.nativeNavigationReads };
+            } finally { router.destroy(); gate.resolve(); }
+          }, outcome));
+        } finally { await control.close(); }
+      }
+      console.log('Router History canceled traversal contract:', JSON.stringify(result));
+      const fails = outcome === 'abort-error';
+      const freshErrors = fails ? [{ same: true, name: 'b' }] : [];
+      if (result.queued.arrived) {
+        expect(result.queued).toEqual({ arrived: true,
+          before: { canceled: false, newer: false, current: 'b', index: 2, path: '/b', ready: ['home', 'a', 'b', 'c'], errors: [],
+            key: true, state: { page: 'b' } },
+          ready: fails ? ['home', 'a', 'b', 'c'] : ['home', 'a', 'b', 'c', 'b'], errors: freshErrors, nativeReads: 0 });
+      } else {
+        expect(result.queued).toEqual({ arrived: false,
+          before: { canceled: false, newer: true, current: 'd', index: historyMode === 'replace' ? 3 : 4, path: '/d', ready: ['home', 'a', 'b', 'c', 'd'], errors: [] },
+          ready: ['home', 'a', 'b', 'c', 'd'], errors: [], nativeReads: 0 });
+      }
+      expect(result.sameInstance).toBe(result.queued.arrived);
+      expect(result.laterBefore).toEqual({ settled: false,
+        ...(result.sameInstance ? { canceled: false, newer: false, distinct: true } : {}),
+        key: true, index: true, matchKey: true, path: '/b', state: { page: 'later-b' }, ready: [], errors: [] });
+      expect(result.laterOutcome).toEqual(fails ? { error: 'AbortError', same: true } : { value: true });
+      expect(result.ready).toEqual(fails ? [] : ['b']);
+      expect(result.errors).toEqual(freshErrors);
+      expect({ path: result.path, current: result.current, nativeReads: result.nativeReads })
+        .toEqual({ path: '/b', current: 'b', nativeReads: 0 });
       expect(pageErrors).toEqual([]);
     });
   }
@@ -186,7 +301,7 @@ test('a distinct History Back after commitment supersedes the earlier destinatio
     const driver = historyDriver(); const entered = Promise.withResolvers(); const gate = Promise.withResolvers();
     const ready = []; const errors = []; let hold = false;
     const router = new Router({ driver, routes: {
-      home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' },
+      '/': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' },
     }, handler(match) { if (hold && match.name === 'b') { entered.resolve(); return gate.promise; } } });
     router.on('route:ready', match => ready.push(match.name)); router.on('route:error', error => errors.push(error.message));
     try {
@@ -239,7 +354,7 @@ test('retained History routing resumes after a traversal arrived while stopped',
   const result = await page.evaluate(async() => {
     const { Router, historyDriver } = window.historyApi;
     const driver = historyDriver(); const handled = [];
-    const router = new Router({ driver, routes: { home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' }, c: { path: '/c' } },
+    const router = new Router({ driver, routes: { '/': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' }, '/c': { name: 'c' } },
       handler(match) { handled.push(match.name); } });
     try {
       await router.start(); await router.getInitialDispatch();
@@ -305,7 +420,7 @@ for (const outcome of ['ready', 'error', 'abort-error', 'stop']) {
       const failure = mode === 'abort-error' ? new DOMException('independent fetch failed', 'AbortError') : new Error('newer work failed');
       let armed = false; let newer;
       window.addEventListener('popstate', () => { if (armed) { armed = false; newer = driver.navigate('/d'); } }, { signal: owner.signal });
-      const router = new Router({ driver, routes: { home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' }, d: { path: '/d' } }, async handler(match) {
+      const router = new Router({ driver, routes: { '/': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' }, '/d': { name: 'd' } }, async handler(match) {
         handled.push(match.name);
         if (match.name === 'd') {
           entered.resolve(); await gate.promise;
@@ -396,7 +511,7 @@ test('History reload reconstruction preserves user state and starts a new known 
   const before = await page.evaluate(async() => {
     const { Router, historyDriver } = window.historyApi;
     const driver = historyDriver();
-    const router = new Router({ driver, routes: { item: { path: '/items/:id' } } });
+    const router = new Router({ driver, routes: { '/items/:id': { name: 'item' } } });
     await router.start(); await router.getInitialDispatch();
     await router.navigate('item', { id: 7 }, { state: { tab: 'saved' } }).finished;
     window.historyBeforeReload = router;
@@ -406,7 +521,7 @@ test('History reload reconstruction preserves user state and starts a new known 
   const result = await page.evaluate(async oldKey => {
     const { Router, historyDriver } = window.historyApi;
     const driver = historyDriver();
-    const router = new Router({ driver, routes: { item: { path: '/items/:id' } } });
+    const router = new Router({ driver, routes: { '/items/:id': { name: 'item' } } });
     try {
       await router.start(); const initial = await router.getInitialDispatch();
       const unknown = await driver.traverseTo(oldKey).finished.then(() => 'incorrect success', error => error.name);
@@ -422,7 +537,7 @@ test('History reload reconstruction preserves user state and starts a new known 
 test('History link interception respects browser gestures, targets and unclaimed links', async({ page }) => {
   await page.evaluate(async() => {
     const { Router, historyDriver } = window.historyApi;
-    const router = new Router({ driver: historyDriver(), routes: { item: { path: '/items/:id' } } });
+    const router = new Router({ driver: historyDriver(), routes: { '/items/:id': { name: 'item' } } });
     await router.start(); await router.getInitialDispatch();
     window.historyLinks = { router, observed: [] };
     document.querySelector('#content').innerHTML = '<a id="ordinary" href="/items/1">Item</a><a id="target" target="_blank" href="/items/2">Target</a><a id="download" download href="/items/2">Download</a><a id="unclaimed" href="/outside">Outside</a>';
@@ -433,7 +548,9 @@ test('History link interception respects browser gestures, targets and unclaimed
   });
   await page.locator('#ordinary').click();
   expect(await page.evaluate(() => window.historyLinks.router.getCurrent().userInitiated)).toBe(true);
-  await page.locator('#ordinary').click({ modifiers: ['Control'] });
+  // Control-click opens the context menu on macOS. Exercise the platform's
+  // modified-link gesture while still requiring a trusted, unclaimed click.
+  await page.locator('#ordinary').click({ modifiers: ['ControlOrMeta'] });
   await page.locator('#target').click(); await page.locator('#download').click(); await page.locator('#unclaimed').click();
   const result = await page.evaluate(() => {
     const value = { observed: window.historyLinks.observed, path: location.pathname, nativeReads: window.nativeNavigationReads };
@@ -447,7 +564,7 @@ test('History click routing detaches on stop and destruction, then rebinds once 
   await page.evaluate(async() => {
     const { Router, historyDriver } = window.historyApi;
     const handled = [];
-    const router = new Router({ driver: historyDriver(), routes: { item: { path: '/items/:id' } }, handler(match) { handled.push(match.params.id); } });
+    const router = new Router({ driver: historyDriver(), routes: { '/items/:id': { name: 'item' } }, handler(match) { handled.push(match.params.id); } });
     await router.start(); await router.getInitialDispatch();
     window.historyLifetime = { router, handled, claimed: [] };
     document.querySelector('#content').innerHTML = '<a id="one" href="/items/1">One</a><a id="two" href="/items/2">Two</a>';
@@ -558,7 +675,7 @@ test('Router binding failure cleans History listeners without stopping Applicati
     driver.addEventListener = (type, listener, options) => {
       subscribe(type, listener, options); signals.push(options.signal); if (fail) { throw failure; }
     };
-    const router = new Router({ driver, routes: { home: { path: '/' } } });
+    const router = new Router({ driver, routes: { '/': { name: 'home' } } });
     const child = router.addChildApp('kept', new Application()); await child.start();
     const failStop = () => { stops++; throw new Error('unexpected stop'); };
     router.on('before:stop', failStop);
@@ -584,7 +701,7 @@ test('ordinary History fragments cancel pending route work without redispatching
   await page.evaluate(async() => {
     const { Router, historyDriver } = window.historyApi;
     const gate = Promise.withResolvers(); const entered = Promise.withResolvers(); const handled = []; const ready = [];
-    const router = new Router({ driver: historyDriver(), routes: { home: { path: '/' }, slow: { path: '/slow' } }, handler(match) {
+    const router = new Router({ driver: historyDriver(), routes: { '/': { name: 'home' }, '/slow': { name: 'slow' } }, handler(match) {
       handled.push(match.name); if (match.name === 'slow') { entered.resolve(); return gate.promise; }
     } });
     router.on('route:ready', match => ready.push(match.name));
@@ -613,7 +730,7 @@ for (const read of [false, true]) {
       driver.addEventListener('navigate', event => { count++; arrived.resolve(event); }, { signal: owner.signal });
       const hash = new Promise(resolve => window.addEventListener('hashchange', resolve, { once: true, signal: owner.signal }));
       const handled = [];
-      const router = new Router({ driver, routes: { home: { path: '/' } }, handler(match) { handled.push(match.name); } });
+      const router = new Router({ driver, routes: { '/': { name: 'home' } }, handler(match) { handled.push(match.name); } });
       try {
         await router.start(); await router.getInitialDispatch();
         location.hash = 'details';
@@ -632,7 +749,7 @@ for (const read of ['currentEntry', 'entries']) {
     const result = await page.evaluate(async method => {
       const { Router, historyDriver } = window.historyApi;
       const driver = historyDriver(); const gate = Promise.withResolvers(); const ready = [];
-      const router = new Router({ driver, routes: { home: { path: '/' }, page: { path: '/page' } },
+      const router = new Router({ driver, routes: { '/': { name: 'home' }, '/page': { name: 'page' } },
         handler(match) { if (match.name === 'page') { return gate.promise; } },
       });
       router.on('route:ready', match => ready.push(match.name));
@@ -687,7 +804,7 @@ for (const operation of ['navigate', 'click']) {
     await page.route('**/document-destination', route => route.fulfill({ body: '<!doctype html><title>Document handoff</title><p>New document</p>', contentType: 'text/html' }));
     await page.evaluate(async() => {
       const { Router, historyDriver } = window.historyApi;
-      const router = new Router({ driver: historyDriver(), routes: { home: { path: '/' } } });
+      const router = new Router({ driver: historyDriver(), routes: { '/': { name: 'home' } } });
       await router.start(); await router.getInitialDispatch(); window.historyHandoff = router;
     });
     if (operation === 'click') {
@@ -707,7 +824,7 @@ for (const asynchronous of [false, true]) {
       const { Router, historyDriver } = window.historyApi;
       history.replaceState(null, '', '/old');
       const entered = Promise.withResolvers(); const gate = Promise.withResolvers(); const handled = [];
-      const router = new Router({ driver: historyDriver(), routes: { old: { path: '/old', redirect(match) {
+      const router = new Router({ driver: historyDriver(), routes: { '/old': { name: 'old', redirect(match) {
         const target = match.url.hash ? undefined : '#details'; return deferred ? Promise.resolve(target) : target;
       }, handler(match) { handled.push(match.url.hash); entered.resolve(); return gate.promise; } } } });
       try {
@@ -724,7 +841,7 @@ test('completed History Match survives an ignored fragment and is canceled by re
   const result = await page.evaluate(async() => {
     const { Router, historyDriver } = window.historyApi;
     const driver = historyDriver(); const handled = [];
-    const router = new Router({ driver, routes: { home: { path: '/' }, a: { path: '/a' }, b: { path: '/b' } },
+    const router = new Router({ driver, routes: { '/': { name: 'home' }, '/a': { name: 'a' }, '/b': { name: 'b' } },
       handler(match) { handled.push(match.name); },
     });
     try {
@@ -776,12 +893,12 @@ for (const asynchronous of [false, true]) {
         const { Router, historyDriver } = window.historyApi;
         history.replaceState({ value: 'old' }, ''); let enabled = false;
         const router = new Router({ driver: historyDriver(), routes: {
-          source: { path: '/', redirect(match) {
+          '/': { name: 'source', redirect(match) {
             if (!enabled) { return; }
             const target = !select || match.state.value === 'new' ? '/new' : '/old';
             return deferred ? Promise.resolve(target) : target;
           } },
-          fresh: { path: '/new' }, stale: { path: '/old' },
+          '/new': { name: 'fresh' }, '/old': { name: 'stale' },
         } });
         try {
           await router.start(); await router.getInitialDispatch(); enabled = true;
