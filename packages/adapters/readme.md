@@ -240,9 +240,37 @@ Lit event handlers use Lit's normal element receiver; use closures when a
 handler needs application or View state. Do not independently replace Lit's
 contents or switch content adapters after rendering.
 
+## Skeletor
+
+Import `SkeletorApi` from `@mnjs/adapters/skeletor` and install the optional peer
+`@converse/skeletor@4.0.3` (the verified supported version). Configure it through
+`setDataApi` on both CollectionView and child View classes, or through an isolated
+runtime's setter. Configure `setStateApi` independently for Skeletor state.
+
+`get` and `has` include own declared computed keys as well as own attributes;
+`has` means key presence even for null/undefined values. `serialize` returns a fresh
+shallow enumerable template snapshot of both, with computed values taking
+precedence. It does not change persisted attributes or `toJSON()`. Models retain
+`cid` identity; merges keep child Views and leave their rendering to model events.
+Non-silent collection operations, including reorder-only `set`, reconcile
+changes. `reset` rebuilds children. Silent operations do not notify observers;
+a manual render still reads the live collection. Use non-silent mutations for
+automatic updates, or explicitly notify before manually rendering. Don't rely
+on later notifications to reconcile a View that already rendered silent changes.
+View teardown does not call persistence-capable model `destroy` or perform
+source-wide cleanup.
+As with native Skeletor events, use distinct callbacks or owner contexts for
+independent registrations.
+
+The adapter has no provider runtime imports. This package declares Node
+`^22.22.2 || >=24.15.0`. Skeletor 4.0.3 has its own lower Node requirement
+(`>=22.13.0`) and supports native `require('@converse/skeletor')`.
+See the Skeletor section of the version-matched reference below for the full
+contract and a rendered example.
+
 ## Version-matched reference
 
 When the matching Marionette version is installed, locate its `package.json` with
 `require.resolve('marionette/package.json')`. Read `docs/packages/adapters.md` beside
-that file for the five adapter subpaths, provider configuration, ownership and
+that file for the adapter subpaths, provider configuration, ownership and
 cleanup, optional peers, and exported types.

@@ -93,6 +93,16 @@
       "baselineBrotliBytes": 0
     },
     {
+      "name": "Skeletor adapter ES module",
+      "path": "packages/adapters/dist/skeletor.js",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Skeletor adapter CommonJS",
+      "path": "packages/adapters/dist/skeletor.cjs",
+      "baselineBrotliBytes": 0
+    },
+    {
       "name": "Morphdom DOM adapter ES module",
       "path": "packages/adapters/dist/dom/morphdom.js",
       "baselineBrotliBytes": 0
@@ -223,6 +233,13 @@
       "subpath": "@mnjs/adapters/xstate",
       "input": "packages/adapters/src/data/xstate.ts",
       "output": "packages/adapters/dist/xstate.js",
+      "baselineModules": [],
+      "baselineExternalImports": []
+    },
+    {
+      "subpath": "@mnjs/adapters/skeletor",
+      "input": "packages/adapters/src/data/skeletor.ts",
+      "output": "packages/adapters/dist/skeletor.js",
       "baselineModules": [],
       "baselineExternalImports": []
     },

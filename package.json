@@ -153,6 +153,7 @@
     "@babel/core": "7.29.13",
     "@babel/plugin-transform-typescript": "7.29.9",
     "@babel/preset-env": "7.29.14",
+    "@converse/skeletor": "4.0.3",
     "@cypress/mount-utils": "5.0.0",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.65.1",

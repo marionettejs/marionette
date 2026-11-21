@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "69505a6ccf45316d2baecc96a394a900505c198c6d55897ad853f47da66d1fb4",
+  "semanticsSha256": "917fcbe783e8d4330b8f1e9667d148463594bd136bb9407bef3688497878828d",
   "entrypoints": [
     {
       "name": "marionette",
@@ -8651,6 +8651,81 @@
           }
         }
       ]
+    },
+    {
+      "name": "@mnjs/adapters/skeletor",
+      "version": "5.1.1",
+      "kind": "runtime",
+      "source": "packages/adapters/src/data/skeletor.ts",
+      "conditions": {
+        "import": {
+          "types": "./dist/types/esm/data/skeletor.d.ts",
+          "default": "./dist/skeletor.js"
+        },
+        "require": {
+          "types": "./dist/types/cjs/data/skeletor.d.ts",
+          "default": "./dist/skeletor.cjs"
+        },
+        "default": "./dist/skeletor.js"
+      },
+      "exports": [
+        {
+          "name": "default",
+          "kind": "value",
+          "signature": "{ key(model: Model<ModelAttributes>): string; get: (model: Model<ModelAttributes>, attribute: string) => unknown; has: (model: Model<ModelAttributes>, attribute: string) => boolean; serialize(model: Model<ModelAttributes>): Record<string, unknown>; models<TModel extends Model>(collection: Collection<TModel>): TModel[]; subscribe: { (entity: IEventEmitter, events: EventCallbackMap, context?: unknown, explicitContext?: unknown): () => void; (entity: IEventEmitter, eventName: string | EventCallbackMap, callback?: EventCallback | undefined, context?: unknown): () => void; }; disposeOwned(source: IEventEmitter): void; observeCollection<TModel extends Model>(collection: Collection<TModel>, callback: (change: unknown) => void, context?: unknown): () => void; }",
+          "contracts": [
+            "provider.skeletor-consumers"
+          ],
+          "members": {
+            "disposeOwned": "(source: IEventEmitter) => void",
+            "get": "(model: Model<ModelAttributes>, attribute: string) => unknown",
+            "has": "(model: Model<ModelAttributes>, attribute: string) => boolean",
+            "key": "(model: Model<ModelAttributes>) => string",
+            "models": "<TModel extends Model>(collection: Collection<TModel>) => TModel[]",
+            "observeCollection": "<TModel extends Model>(collection: Collection<TModel>, callback: (change: unknown) => void, context?: unknown) => () => void",
+            "serialize": "(model: Model<ModelAttributes>) => Record<string, unknown>",
+            "subscribe": "{ (entity: IEventEmitter, events: EventCallbackMap, context?: unknown, explicitContext?: unknown): () => void; (entity: IEventEmitter, eventName: string | EventCallbackMap, callback?: EventCallback | undefined, context?: unknown): () => void; }"
+          },
+          "callableMembers": [
+            "disposeOwned",
+            "get",
+            "has",
+            "key",
+            "models",
+            "observeCollection",
+            "serialize",
+            "subscribe"
+          ],
+          "memberContracts": {
+            "static": {
+              "disposeOwned": [
+                "provider.skeletor-consumers"
+              ],
+              "get": [
+                "provider.skeletor-consumers"
+              ],
+              "has": [
+                "provider.skeletor-consumers"
+              ],
+              "key": [
+                "provider.skeletor-consumers"
+              ],
+              "models": [
+                "provider.skeletor-consumers"
+              ],
+              "observeCollection": [
+                "provider.skeletor-consumers"
+              ],
+              "serialize": [
+                "provider.skeletor-consumers"
+              ],
+              "subscribe": [
+                "provider.skeletor-consumers"
+              ]
+            }
+          }
+        }
+      ]
     }
   ],
   "documentationCoverage": [
@@ -11683,6 +11758,26 @@
           "heading": "Isolation and composition"
         }
       ]
+    },
+    {
+      "id": "provider.skeletor-consumers",
+      "status": "documented",
+      "docs": [
+        {
+          "file": "docs/packages/adapters.md",
+          "heading": "Skeletor",
+          "members": [
+            "get",
+            "has",
+            "key",
+            "models",
+            "observeCollection",
+            "serialize",
+            "subscribe",
+            "disposeOwned"
+          ]
+        }
+      ]
     }
   ],
   "diagnostics": [
@@ -12467,6 +12562,7 @@
   "sources": {
     "packages/adapters/src/data/backbone.ts": "ed914550aa30821e6eed207d67ccbfaa85287bf9ae0b5209ee5adbf842a91324",
     "packages/adapters/src/data/internal/keyed-snapshot.ts": "a227618502d031cf4711f0b48847fa882b1a57abec89aecd7b2ed1db073694ac",
+    "packages/adapters/src/data/skeletor.ts": "506a68c3398179e40122bf6e7378f804134493c12ab0b1637a10211aaa3aba4a",
     "packages/adapters/src/data/xstate.ts": "147f8ff77b76405d7235da7f89c7591607e4b8b2b11c72369e084fbe224ea7c2",
     "packages/adapters/src/dom/jquery.ts": "d9563a641fc8ee0bc82e93ec23a7d90c192213caf45df181e20a373b147145c2",
     "packages/adapters/src/dom/lit-html.ts": "9873a89fa2a11a4e52e254f050602c5886c35c7795001d2d4a1820d6c05c2fd7",
@@ -12570,13 +12666,14 @@
     "docs/api/shared/view-bindings.md": "fe051a3191e6d87c748c37a7c4294c3fc19e55c42170a0a11a7ab576c25830e2",
     "docs/api/view.md": "05204ee537e94fab906c1b849a0123a13e2221bef1ab5f2fd65d8575f4339a8f",
     "docs/guides/typescript.md": "06f02bfa2fc401639d54bbf7bf663c86ecea8affe0cfd329f87ec0335bf88977",
-    "docs/packages/adapters.md": "791304a5b0889fc2d5860efdd0d7183ad2131cc6b8770fa03be5b3d5edcbae08",
+    "docs/packages/adapters.md": "2b302b7c5a00d60bb5dc423525124a8c8bc0dd74a96403c863558bbe764158a8",
     "docs/packages/data.md": "7b398e8c2ee1a38ea7fad8babfb97f45d5d873e1dacf97af9a8c8f57f83e870f",
     "docs/packages/radio.md": "b598cc4f4f721358e7513d1556cf2c6da04bb8d104a335e006d317c8233c4270",
     "docs/packages/utils.md": "158e2051ee438acd7e235f0f29ce45f42ad798bb6d460a871efd29904e2728ec",
     "test/browser/collection-deferred-lifecycle.spec.mjs": "e1e4bf980ea81566f0f11de712bb1298ef9250f967710eae8997a1413932d595",
     "test/browser/collection-empty-lifecycle.spec.mjs": "d5d3f88b1a7c9259f55c119415a722a52af7475b823d7214a77da9e9d316a90e",
     "test/browser/shadow-lifecycle.spec.mjs": "e91153c05faddec48cbb19dcab4afc30778acd9fd974dbb41f6e272c5af93d18",
+    "test/browser/skeletor-adapter.spec.mjs": "7ff9c3323cc92c2eaa0c89e0b5daf545986ba450fb2510e4f511924d3cb79efb",
     "test/contracts/dom-adapters.js": "72dd1b6056bd30e5133fb234f91efd2dda07ab1a5519056dd50db68bff747ad4",
     "test/unit/application-child-declarations.spec.js": "693740783f56c4e24aa886076389378d106839987b7ce442bfefb267ca5a2f84",
     "test/unit/application-child-lifecycle.spec.js": "78296e9b442918bf03a3f9741f00e0884aa043092774e984f0e735757197b1d8",
@@ -12628,6 +12725,7 @@
     "test/unit/requests.spec.js": "ac3de9d1a355c7139ee30d6a106a4f2111f75e9455adc92678d67ad790ed1188",
     "test/unit/runtime/dom-api.spec.js": "1ef3542e887a1b6a1a06922c8195fe54cd6c960dbc04d16d3b4613f96ebeb99c",
     "test/unit/runtime/event-delegator.spec.js": "6d75e90b91a4b1441fed3f0c909ac6a0e52634265cad0d1604a779ea8007c65b",
+    "test/unit/skeletor-adapter.spec.js": "3bd239808f49be3020f14325141a3434b25cdaf0d57c478e0df33379923b0cb9",
     "test/unit/state-owner.spec.js": "6f5455831330909831bf427ef431dc46bc431239b5d34fdb5ed05df79378437a",
     "test/unit/utils/build-event-args.spec.js": "da1201c4d39e0ab8fb17502dfabe85f7784f5792ae98418b1b2119319dd3867e",
     "test/unit/utils/call-handler.spec.js": "9053aceb7afb3b516b8905d49c8888914c701117557791a99d936297b338ec8d",

@@ -4,6 +4,7 @@ Optional integrations for existing data sources and DOM libraries. Import the su
 
 | Subpath | Default export | Peer used by the application |
 | --- | --- | --- |
+| `@mnjs/adapters/skeletor` | `SkeletorApi` | Skeletor `4.0.3`, with its bundled types. |
 | `@mnjs/adapters/backbone` | `BackboneApi` | Backbone `^1.3.1`; TypeScript also needs `@types/backbone` `^1.4.23`. |
 | `@mnjs/adapters/xstate` | `createXStateActorApi` | XState v5 actors; the integration is tested with `5.33.2`. It uses structural actor interfaces and does not import XState. |
 | `@mnjs/adapters/dom/jquery` | `JQueryDomApi` | jQuery `^4.0.0`; TypeScript also needs `@types/jquery` `^4.0.1`. |
@@ -206,3 +207,99 @@ and `@mnjs/html/marionette`. Router works with other renderers too.
 When adapting an older Lit-based Catalog, replace `lit-html` with `@mnjs/html`
 and `@mnjs/adapters/dom/lit-html` with `@mnjs/html/marionette`. Keep the function
 templates and View event bindings. No Router runtime change is needed.
+
+## Skeletor
+
+`SkeletorApi` implements DataApi and StateApi for `@converse/skeletor` **4.0.3**.
+Install that optional peer alongside compatible Marionette and adapters packages.
+The adapter imports only Skeletor types; it adds no Skeletor or Backbone runtime
+imports. Configure both the CollectionView and its child View before construction,
+or configure an isolated runtime as in this complete rendered example:
+
+```js
+import { Collection, Model } from '@converse/skeletor';
+import SkeletorApi from '@mnjs/adapters/skeletor';
+import { createMarionette } from 'marionette';
+
+class Task extends Model {
+  get computed() {
+    return { label: { deps: ['title'], fn: model => `${model.get('title')}!` } };
+  }
+}
+const runtime = createMarionette();
+runtime.setDataApi(SkeletorApi);
+// Set this independently when state also uses Skeletor.
+runtime.setStateApi(SkeletorApi);
+const TaskView = runtime.View.extend({
+  template: ({ label }) => label,
+  modelEvents: { change: 'render' }
+});
+const model = new Task({ id: 1, title: 'Inbox' });
+const collection = new Collection([model]);
+const view = new runtime.CollectionView({ collection, childView: TaskView }).render();
+model.attrs.title = 'Archive';
+```
+
+| Method | Contract |
+| --- | --- |
+| `key(model)` | Uses `cid`, independent of persisted ID. |
+| `has(model, name)` | Checks own attributes or own declared computed keys, including keys valued `null` or `undefined`. This is key presence, unlike Skeletor's non-nullish `Model.has()`. |
+| `get(model, name)` | Reads own declared computed values through `Model.get()`, otherwise own attributes directly. Computed keys take precedence on collisions. Missing or inherited keys return `undefined`. |
+| `serialize(model)` | Returns a fresh, shallow plain snapshot containing enumerable own attributes and declared computed keys. Computed keys take precedence. Keys valued `null` or `undefined` remain present. Destructuring, spread, `Object.keys`, and key-presence checks work on this template snapshot. |
+| `models(collection)` | Copies the ordered model array, retaining model identity. |
+| `subscribe(source, nameOrMap, callback?, context?)` | Preserves native event names, arguments, event maps and callback contexts; returns idempotent native `off` cleanup. |
+| `observeCollection(collection, notify, context?)` | Reconciles native non-silent collection operations once, retaining surviving children. Returns idempotent cleanup. |
+| `disposeOwned(source)` | Leaves the source intact after owner subscriptions are released. |
+
+Serialization is for templates, including `View.serializeModel()` and the
+`models` entries from `View.serializeCollection()`. It does not modify attributes,
+`attrs`, `toJSON()`, or persistence. A snapshot does not update after it is returned;
+render again for fresh data. Nested attribute objects retain their identity.
+Skeletor's `attrs` itself does not enumerate computed keys, so returning that proxy
+would not provide these template semantics. JSON stringification still follows
+JavaScript rules and omits keys valued `undefined`. The adapter reads the
+computed definitions once per serialization, whether supplied as a getter or
+a JavaScript method.
+
+A standalone `sort()` reports `reorder` when observed membership is unchanged.
+Mutation-related `sort` reports an `update` immediately, including reorder-only
+`set([existingModels...])` when Skeletor emits no `update`. A matching native
+`update` is consumed unless intervening callbacks changed the source again.
+Membership changes compare observed snapshots, not native event payloads.
+A stale outer membership event after a nested mutation does not replay that
+delta. Updates reapply CollectionView's ordering and filtering. With
+`sortWithCollection: false`, source order is ignored; an explicit `viewComparator`
+and filters still apply. Merges retain the same models and child Views; their
+configured model events still own row rendering. `reset` rebuilds children.
+
+Silent operations do not notify collection observers. An explicit
+`collectionView.render()` still reads the live collection and rebuilds its
+children at that moment; it does not advance the adapter's observation snapshot.
+Do not rely on mixing silent mutation plus manual render with later observed
+mutations in the same View lifetime. Use non-silent mutations for automatic
+updates. After a silent mutation, use `collection.trigger('update', collection)`
+instead of rendering manually to reconcile an already observed View. If you have
+already rendered manually, continue to render explicitly or recreate the
+CollectionView to establish a fresh observation baseline before resuming
+automatic updates.
+
+Use the map context as the following argument, as with native Skeletor events.
+Native `off` matching removes registrations sharing the same source, event,
+callback and context together. Use a fresh callback wrapper or distinct owner
+contexts for independent lifetimes; the [subscription cleanup boundary](../api/providers/data.md#subscription-cleanup)
+also applies here. Collection observers create their own callback functions.
+
+Destroying Views or owned state releases adapter-managed subscriptions only.
+Caller-owned listeners and sources survive; the adapter never calls model
+`destroy()`, source-wide `off()`, or `stopListening()`. Fetching, saving, flushing,
+and awaiting `hydrated` belong to the application. To render asynchronous
+hydration, attach a View with `modelEvents: { change: 'render' }` before completion;
+the later native changes update it normally.
+
+The adapter has ESM and CommonJS entrypoints and declares Node
+`^22.22.2 || >=24.15.0` for its package. Skeletor 4.0.3 independently requires
+Node `>=22.13.0` for its Node entrypoint; that lower floor does not extend
+the adapter's supported range. Skeletor's ES module build supports native
+`require('@converse/skeletor')`, which the adapter's CommonJS fixture uses.
+Verification covers local rendering and application-owned persistence, not remote
+servers, account integration, or a general performance improvement.

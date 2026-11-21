@@ -60,6 +60,7 @@ updates:
       - /test/fixtures/jquery-dom-api-types
       - /test/fixtures/no-default-export
       - /test/fixtures/removed-core-adapters
+      - /test/fixtures/skeletor-adapter
       - /test/fixtures/standalone-packages
       - /test/fixtures/utils-package
       - /test/fixtures/vite

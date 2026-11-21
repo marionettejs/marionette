@@ -63,6 +63,22 @@ assert.equal(view.el.firstChild, button[0]);
 button.off();
 view.destroy();
 `,
+  'packages-adapters-6': `
+assert.equal(view.el.textContent, 'Archive!');
+assert.equal(SkeletorApi.get(model, 'label'), 'Archive!');
+assert.equal(SkeletorApi.has(model, 'label'), true);
+assert.deepEqual(Object.keys(SkeletorApi.serialize(model)), ['id', 'title', 'label']);
+assert.deepEqual(model.toJSON(), { id: 1, title: 'Archive' });
+const child = view.children.findByModel(model);
+collection.add(new Task({ id: 2, title: 'Second' }));
+assert.equal(view.el.textContent, 'Archive!Second!');
+collection.set([collection.get(2), model]);
+assert.equal(view.el.textContent, 'Second!Archive!');
+assert.equal(view.children.findByModel(model), child);
+view.destroy();
+model.attrs.title = 'Still alive';
+assert.equal(model.get('title'), 'Still alive');
+`,
   'packages-adapters-5': `
 assert.equal(buttons.length, 1);
 assert.equal(buttons[0].tagName, 'BUTTON');

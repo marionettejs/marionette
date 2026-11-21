@@ -17,7 +17,7 @@ const packageInputs = [
 const adapterFixtures = new Set([
   'adapters-package-vite', 'backbone-adapter', 'backbone-adapter-types', 'cjs-adapters',
   'collection-removal-survivors', 'jquery-dom-api', 'jquery-dom-api-types',
-  'xstate-adapter-types', 'dom-adapters-package',
+  'skeletor-adapter', 'xstate-adapter-types', 'dom-adapters-package',
 ]);
 
 function readOptions(args) {

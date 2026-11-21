@@ -182,7 +182,7 @@ test('exports every current guide with exact bytes and reproducible provenance',
         const value = entry.exports.find(symbol => symbol.kind === 'value');
         assert(lookup(value.name).matches.some(match => match.entrypoint === entry.name), entry.name);
       }
-      assert.equal(lookup('default').matches.length, 5, 'Default adapters retain their separate entrypoints');
+      assert.equal(lookup('default').matches.length, 6, 'Default adapters retain their separate entrypoints');
       assert.deepEqual(lookup('BackboneApi').matches, [], 'Local import names are not public export names');
       assert(lookup('listenTo').matches.length > 1, 'Bare members report all matching exports');
       assert.deepEqual(lookup('MissingPublicSymbol').matches, []);
