@@ -95,7 +95,8 @@ function createField(node,spec,view,initial,renderDefault,present) {
             previousObserver?.kill();previousRenderer?.destroy();Dom.replaceEl(nextHost,host);
           } else {insertNode(Dom,parent,nextHost,before);}
         } catch (error) {
-          // The replacement is not owned by the controller until installation succeeds.
+          // Release only the provisional observer, renderer and host. Previously
+          // completed ownership changes are not rolled back.
           try {nextObserver.kill();} catch { /* Preserve the installation error. */ }
           try {nextRenderer?.destroy();} catch { /* Preserve the installation error. */ }
           try {if (nextHost.parentNode) {removeNode(Dom,nextHost);}} catch { /* Preserve the installation error. */ }

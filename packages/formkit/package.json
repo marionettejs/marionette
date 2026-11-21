@@ -1,6 +1,7 @@
 {
   "name": "@mnjs/formkit",
   "version": "0.1.0",
+  "private": true,
   "description": "FormKit schemas and validation with Marionette View and Application ownership",
   "license": "MIT",
   "type": "module",

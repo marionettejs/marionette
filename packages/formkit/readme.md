@@ -1,13 +1,13 @@
 # @mnjs/formkit
 
 FormKit schemas, inputs and validation with Marionette View, Region and
-Application ownership. This is an unpublished package candidate. It imports
+Application ownership. This is a private, unpublished workspace candidate. It imports
 neither React nor Vue; their component objects require explicit DOM factories.
 
 The frozen `5fa30f06` candidate has independent approval for scoped PR
 integration. Its root lint, default verification, 106 acceptance cases, 138
 Vue/React/adapter references, package coverage, packed ESM/CJS consumers and
-strict type consumers pass under Node 24.19.0/npm 11.17.0. The dynamic-list,
+strict type consumers passed for that frozen revision under Node 24.19.0/npm 11.17.0. The dynamic-list,
 raw identity, mixed ownership and dependency-pruning corrections are included.
 This is an unpublished candidate, not browser, Pro, performance or release
 certification. Exact-source Pro tests executed: zero. Current browser assets
@@ -32,7 +32,8 @@ npm --prefix packages/formkit run coverage
 `build` emits ESM and CommonJS bundles plus declarations for each module system.
 `test` runs actual public-package Vitest tests without a hidden build. The packed
 check extracts a newly created FormKit tarball into an isolated consumer, reuses
-installed dependencies without registry access, then verifies both module systems,
+the workspace-built Marionette (including `setUnsafeHtml`) and locally installed
+open-source dependencies without registry access, then verifies both module systems,
 public exports, mount/update/destruction and TypeScript consumers. Mandatory compiler
 counts and extracted-package scope/lifetime guards also run; the check fails if
 instrumentation misses the layout module or required outlet work disappears. It writes the
@@ -138,7 +139,7 @@ runtime validator from TypeScript. `FieldSpec` declares native props and accepts
 additional plugin props as `unknown`. Config, plugins, schemas and nodes reuse
 FormKit's public types. Factory props and lifecycle, slots, form state, metrics,
 Application readiness and the mount result have explicit declarations. ESM
-`.mts` and CommonJS `.cts` consumer fixtures verify the published declarations,
+`.mts` and CommonJS `.cts` consumer fixtures verify the package declarations,
 including wrong-value and missing-host errors plus mixed fields/schema declarations.
 
 ## Schemas and component factories
@@ -177,8 +178,11 @@ FormKit, Summary, Messages, Icon, Provider, LazyProvider, Schema and Root roles
 are registered by the View. `@mnjs/formkit/components` separately exports the
 portable `FormKitSummary`, `FormKitMessages`, `FormKitIcon` and
 `createFormKitHelpers` factories for explicit outlets. Messages follow visible
-Core context messages. Summary links navigate to fields. Icons use official
-loaders and a conservative SVG vocabulary. These portable behaviors do not
+Core context messages. Summary links navigate to fields. The portable `FormKitIcon`
+helper sanitizes SVG with a conservative vocabulary. Stock field icon sections use
+trusted markup instead: only pass trusted SVG through field icon props or supply
+trusted sources through `icons`, `iconLoader`, `iconLoaderUrl`, or a theme. They
+do not go through the portable helper sanitizer. These portable behaviors do not
 implement Vue/React injection, refs, emits or framework slots.
 
 ## Load configuration with an Application
@@ -245,11 +249,13 @@ it without renderer dispatch or sanitization. Do not mix it with ordinary
 children or use it on a reused form root; keep ordinary text as text. The separate
 `FormKitIcon` helper still sanitizes SVG.
 
-Raw sections require a Marionette build that exposes `DomApi.setUnsafeHtml`
-(such as master `4df53edb` or a later published version providing the same API).
-Older providers without it cannot render raw sections; there is no native
-fallback. Before publishing this candidate, set the Marionette peer floor to
-the first verified published version that provides the operation.
+Raw sections require a Marionette provider with `DomApi.setUnsafeHtml`, as in
+workspace Core containing `4df53edb`. Older providers without it cannot render
+raw sections; there is no native fallback. This package stays private until
+Marionette 5.2.0 ships with that method. `^5.2.0` is the planned publication peer
+range, not a claim that the release exists or that registry integration has been
+verified. Verify the published peer with a fresh install before removing the
+publication guard and changing the range.
 
 Actual HtmlDomApi parent/Region integration and browser focus/IME behavior require
 separate verification; configured-provider JSDOM controls do not establish them.

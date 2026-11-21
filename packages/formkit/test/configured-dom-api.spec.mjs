@@ -92,13 +92,20 @@ it('uses native namespace creation only where required and routes SVG attributes
   const circle = view.el.querySelector('circle'), html = view.el.querySelector('foreignObject div'); expect(circle.namespaceURI).toBe('http://www.w3.org/2000/svg'); expect(html.namespaceURI).toBe('http://www.w3.org/1999/xhtml'); expect(a.created.has(html)).toBe(true);
   expect(a.calls.some(x => x.name === 'setAttributes' && x.tag === 'circle')).toBe(true); view.updateData({ shown: false, radius: 3 }); expect(view.el.querySelector('circle')).toBeNull(); expect(a.calls.some(x => x.name === 'detachEl' && x.tag === 'circle')).toBe(true);
 });
-it('routes foreign-Document Elements by nodeType without global instanceof assumptions', () => {
+it('routes foreign-Document Elements by nodeType without global instanceof assumptions', async() => {
   const frame = document.createElement('iframe'); document.body.append(frame);
   const foreign = frame.contentDocument; let view;
   const a = configured('foreign', { createElement(tag) { const element = foreign.createElement(tag); a.created.add(element); return element; } });
   try {
-    view = new a.Form({ fields: [{ name: 'word' }], values: { word: 'Foreign' }, schema: [{ $el: 'aside', if: '$show', children: 'Other' }], data: { show: true }, formProps: { actions: false } }); owners.push(view); foreign.body.append(view.el); view.render();
+    view = new a.Form({ fields: [{ name: 'word', prefixIcon: svg }], values: { word: 'Foreign' }, schema: [{ $el: 'aside', if: '$show', children: 'Other' }], data: { show: true }, formProps: { actions: false } }); owners.push(view); foreign.body.append(view.el); view.render();
     const input = view.el.querySelector('input'); expect(input instanceof HTMLElement).toBe(false); expect(input.ownerDocument).toBe(foreign); expect(a.created.has(input)).toBe(true);
+    await vi.waitFor(() => {
+      const icon = view.el.querySelector('svg');
+      expect(icon?.ownerDocument).toBe(foreign);
+      expect(icon?.namespaceURI).toBe('http://www.w3.org/2000/svg');
+      expect(icon?.querySelector('path')?.ownerDocument).toBe(foreign);
+    });
+    expect(a.calls.filter(call => call.name === 'setUnsafeHtml')).toEqual([{ name: 'setUnsafeHtml', tag: 'label', receiver: true }]);
     view.updateData({ show: false }); expect(view.el.querySelector('aside')).toBeNull(); expect(a.calls.some(x => x.name === 'detachEl' && x.tag === 'aside')).toBe(true); expect(a.calls.every(x => x.receiver)).toBe(true);
   } finally { view?.destroy(); frame.remove(); }
 });
