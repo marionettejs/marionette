@@ -11,7 +11,7 @@ at the time it shipped; older prerelease APIs may have been superseded.
 
 ### v5.2.0
 
-> Bring your own models. Marionette 5.2 adds a Skeletor adapter and gives trusted markup an explicit way into the DOM.
+> Skeletor has joined the cast. He gets an optional adapter, so the takeover will have to wait. We also added `setUnsafeHtml`, which is about as close as an API name can get to a warning label.
 
 * Add the optional `@mnjs/adapters/skeletor` adapter for Skeletor 4.0.3.
   Views can read model attributes and computed values without altering persisted
