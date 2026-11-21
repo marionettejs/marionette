@@ -16,7 +16,8 @@ at the time it shipped; older prerelease APIs may have been superseded.
 * Add the optional `@mnjs/adapters/skeletor` adapter for Skeletor 4.0.3.
   Views can read model attributes and computed values without altering persisted
   attributes, and CollectionViews follow collection events while retaining
-  children for unchanged models.
+  children for unchanged models. A collection reset still destroys and rebuilds
+  the child Views.
 * Add `DomApi.setUnsafeHtml` for writing raw, caller-trusted strings into a
   dedicated subtree the caller owns. It does not sanitize markup or manage
   renderer or View lifecycles. Existing rendering entry points are unchanged.
