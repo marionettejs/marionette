@@ -175,6 +175,10 @@
     },
     {
       "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: inherits raw markup insertion without changing renderer output"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
       "title": "morphdom: composes with a preselected jQuery DomApi"
     },
     {

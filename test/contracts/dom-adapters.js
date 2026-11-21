@@ -61,7 +61,29 @@ function subscriptionTemplate() {
   };
 }
 
-export const domAdapterContracts = [];
+export const domAdapterContracts = [{
+  name: 'lit-html: inherits raw markup insertion without changing renderer output',
+  run() {
+    const markup = '<svg viewBox="0 0 16 16"><path d="M2 8h12"/></svg>';
+    const LitView = makeView('lit-html', {
+      template: () => html`<span class="text">${markup}</span><span class="icon"></span>`
+    });
+    const view = new LitView();
+    try {
+      view.render();
+      const text = view.el.querySelector('.text');
+      const icon = view.el.querySelector('.icon');
+
+      view.Dom.setUnsafeHtml(icon, markup);
+
+      check(text.textContent === markup && text.childElementCount === 0, 'Lit should still render the string as text');
+      check(icon.firstElementChild?.namespaceURI === 'http://www.w3.org/2000/svg',
+        'The inherited operation should parse SVG in the dedicated container');
+    } finally {
+      view.destroy();
+    }
+  }
+}];
 
 for (const kind of ['morphdom', 'lit-html']) {
   domAdapterContracts.push({
