@@ -4,7 +4,7 @@ Optional integrations for existing data sources and DOM libraries. Import the su
 
 | Subpath | Default export | Peer used by the application |
 | --- | --- | --- |
-| `@mnjs/adapters/skeletor` | `SkeletorApi` | Skeletor `4.0.2`, with its bundled types. |
+| `@mnjs/adapters/skeletor` | `SkeletorApi` | Skeletor `4.0.3`, with its bundled types. |
 | `@mnjs/adapters/backbone` | `BackboneApi` | Backbone `^1.3.1`; TypeScript also needs `@types/backbone` `^1.4.23`. |
 | `@mnjs/adapters/xstate` | `createXStateActorApi` | XState v5 actors; the integration is tested with `5.33.2`. It uses structural actor interfaces and does not import XState. |
 | `@mnjs/adapters/dom/jquery` | `JQueryDomApi` | jQuery `^4.0.0`; TypeScript also needs `@types/jquery` `^4.0.1`. |
@@ -210,7 +210,7 @@ templates and View event bindings. No Router runtime change is needed.
 
 ## Skeletor
 
-`SkeletorApi` implements DataApi and StateApi for `@converse/skeletor` **4.0.2**.
+`SkeletorApi` implements DataApi and StateApi for `@converse/skeletor` **4.0.3**.
 Install that optional peer alongside compatible Marionette and adapters packages.
 The adapter imports only Skeletor types; it adds no Skeletor or Backbone runtime
 imports. Configure both the CollectionView and its child View before construction,
@@ -257,18 +257,25 @@ Serialization is for templates, including `View.serializeModel()` and the
 render again for fresh data. Nested attribute objects retain their identity.
 Skeletor's `attrs` itself does not enumerate computed keys, so returning that proxy
 would not provide these template semantics. JSON stringification still follows
-JavaScript rules and omits keys valued `undefined`.
+JavaScript rules and omits keys valued `undefined`. The adapter reads the
+computed definitions once per serialization, whether supplied as a getter or
+a JavaScript method.
 
-A standalone `sort()` reports `reorder`. Mutation-related `sort` reports an
-`update` with the membership difference, and its matching native `update` is
-consumed. This also reconciles reorder-only `set([existingModels...])`, including
-`merge: false` and comparator bypass with `sort: false` or `at`, where Skeletor
-emits no `update`. A mutation without a sort uses its native `update`. These
-set-driven updates reapply the CollectionView's ordering and filtering; with
+A standalone `sort()` reports `reorder` when observed membership is unchanged.
+Mutation-related `sort` reports an `update` immediately, including reorder-only
+`set([existingModels...])` when Skeletor emits no `update`. A matching native
+`update` is consumed unless intervening callbacks changed the source again.
+Membership changes compare observed snapshots, not native event payloads.
+Updates reapply CollectionView's ordering and filtering. With
 `sortWithCollection: false`, source order is ignored; an explicit `viewComparator`
-and filters still apply. Merges
-retain model and child identity and leave rendering to the child's configured
-model events. `reset` rebuilds children. Silent operations do not notify Views.
+and filters still apply. Merges retain the same models and child Views; their
+configured model events still own row rendering. `reset` rebuilds children.
+
+Silent operations do not notify Views by themselves. A full render reads the
+current source, and the next observed sort or update reconciles membership
+against that View's own snapshot without rebuilding unchanged children.
+`collection.trigger('update', collection)` can explicitly request reconciliation
+and refresh ordering or filtering.
 
 Use the map context as the following argument, as with native Skeletor events.
 Native `off` matching removes registrations sharing the same source, event,
@@ -283,9 +290,9 @@ and awaiting `hydrated` belong to the application. To render asynchronous
 hydration, attach a View with `modelEvents: { change: 'render' }` before completion;
 the later native changes update it normally.
 
-The adapter has ESM and CommonJS entrypoints. Skeletor 4.0.2's own native Node
-`require` entry does not expose its constructors correctly; use ESM imports, or
-dynamic `import('@converse/skeletor')` from a CommonJS application. The adapter's
-CommonJS export is tested with models supplied through that dynamic import.
+The adapter has ESM and CommonJS entrypoints. Skeletor 4.0.3 requires Node
+22.13 or later for its Node entrypoint. Its ES module build supports native
+`require('@converse/skeletor')` on those Node versions. The adapter's CommonJS
+export is tested with a model supplied through that native `require`.
 Verification covers local rendering and application-owned persistence, not remote
 servers, account integration, or a general performance improvement.

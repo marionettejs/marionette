@@ -51,7 +51,7 @@ try {
   writeFileSync(join(directory, 'package.json'), JSON.stringify({ name: 'installed-docs-check', private: true, type: 'module' }));
   npm(['install', '--ignore-scripts', '--no-audit', '--no-fund',
     ...packs.map(pack => join(artifacts, pack.filename)), htmlCandidate().path, 'lit-html@3.3.3', 'eslint@10.11.0', 'typescript@6.0.3',
-    '@converse/skeletor@4.0.2', 'backbone@1.6.1', '@types/backbone@1.4.23', 'jquery@4.0.0', '@types/jquery@4.0.1',
+    '@converse/skeletor@4.0.3', 'backbone@1.6.1', '@types/backbone@1.4.23', 'jquery@4.0.0', '@types/jquery@4.0.1',
     'morphdom@2.7.8', 'xstate@5.33.2', 'jsdom@30.1.0']);
 
   report.renderer = htmlCandidate();

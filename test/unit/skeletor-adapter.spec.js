@@ -1,7 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Collection, Model } from '@converse/skeletor';
+import Backbone from 'backbone';
 import { createMarionette } from 'marionette';
 import SkeletorApi from '@mnjs/adapters/skeletor';
+import BackboneApi from '@mnjs/adapters/backbone';
 
 class Item extends Model {
   get computed() {
@@ -29,7 +31,7 @@ function list(collection, options = {}) {
   return new mn.CollectionView({ collection, childView, ...options }).render();
 }
 
-describe('Skeletor adapter with real 4.0.2 sources', function() {
+describe('Skeletor adapter with real 4.0.3 sources', function() {
   it('reads own attributes and declared computed keys, including null and undefined', function() {
     const model = new Item({ title: 'First', nullable: null, undef: undefined });
     for (const [key, value] of Object.entries({ title: 'First', label: 'First!', nullable: null,
@@ -68,6 +70,31 @@ describe('Skeletor adapter with real 4.0.2 sources', function() {
     expect(SkeletorApi.serialize(model).label).toBe('Second!');
     data.title = 'template only';
     expect(model.get('title')).toBe('Second');
+  });
+
+  it('recognizes method-shaped computed definitions and reads them once per serialization', function() {
+    const definitions = vi.fn(function() {
+      return { label: { deps: [], fn: () => 'computed' }, unset: { deps: [], fn: () => undefined } };
+    });
+    class MethodItem extends Model { computed() { return definitions.call(this); } }
+    const model = new MethodItem({ label: 'stored', title: 'A' });
+    expect(SkeletorApi.has(model, 'label')).toBe(true);
+    expect(SkeletorApi.has(model, 'name')).toBe(false);
+    expect(SkeletorApi.get(model, 'label')).toBe('computed');
+    definitions.mockClear();
+    expect(SkeletorApi.serialize(model)).toEqual({ label: 'computed', title: 'A', unset: undefined });
+    expect(definitions.mock.contexts).toEqual([model]);
+
+    const fromGetter = vi.fn(() => ({ label: { deps: [], fn: () => 'getter' } }));
+    class GetterItem extends Model { get computed() { return fromGetter(); } }
+    const getter = new GetterItem({ title: 'B' });
+    fromGetter.mockClear();
+    expect(SkeletorApi.serialize(getter)).toEqual({ title: 'B', label: 'getter' });
+    expect(fromGetter).toHaveBeenCalledTimes(1);
+
+    class NoDefinitions extends Model { computed() {} }
+    const plain = new NoDefinitions({ title: 'C' });
+    expect(SkeletorApi.serialize(plain)).toEqual({ title: 'C' });
   });
 
   it('serializes computed values for model and collection templates', function() {
@@ -196,26 +223,135 @@ describe('Skeletor adapter with real 4.0.2 sources', function() {
     const context = {};
     const stop = SkeletorApi.observeCollection(collection, notify, context);
     collection.add(second);
-    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [second], removed: [], updated: [] });
+    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [second], removed: [], updated: [], reconcile: true });
     notify.mockClear();
     collection.set([{ id: 1, rank: 0 }], { remove: false });
-    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [], removed: [], updated: [] });
+    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [], removed: [], updated: [], reconcile: true });
     notify.mockClear();
     collection.remove(second);
-    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [], removed: [second], updated: [] });
+    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'update', added: [], removed: [second], updated: [], reconcile: true });
     notify.mockClear();
     collection.reset([first, second]);
     expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'reset' });
     notify.mockClear();
     collection.sort();
-    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'reorder' });
+    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'reorder', reconcile: true });
     expect(notify.mock.contexts).toEqual([context]);
     notify.mockClear();
     collection.trigger('sort', collection);
-    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'reorder' });
+    expect(notify).toHaveBeenCalledExactlyOnceWith({ kind: 'reorder', reconcile: true });
     stop(); stop();
     collection.reset([]);
     expect(notify).toHaveBeenCalledTimes(1);
+  });
+
+  it('reconciles nested mutations without publishing stale outer membership', function() {
+    const first = new Item({ id: 1, title: 'A' });
+    const second = new Item({ id: 2, title: 'B' });
+    const third = new Item({ id: 3, title: 'C' });
+    const collection = new Collection([first]);
+    const view = list(collection);
+    const notify = vi.fn();
+    const stop = SkeletorApi.observeCollection(collection, notify);
+    const previous = view.children.first();
+    collection.once('add', () => collection.set([second, third]));
+
+    collection.add(second);
+    expect(view.el.textContent).toBe('BC');
+    expect(view.children.map(child => child.model)).toEqual([second, third]);
+    expect(previous.isDestroyed()).toBe(true);
+    expect(notify).toHaveBeenCalledExactlyOnceWith({
+      kind: 'update', added: [second, third], removed: [first], updated: [], reconcile: true
+    });
+    stop();
+    view.destroy();
+  });
+
+  it('keeps distinct paired updates deduplicated through nested sort notifications', function() {
+    const collection = new Collection([{ id: 1, title: 'A', rank: 1 }], { comparator: 'rank' });
+    const view = list(collection);
+    const notify = vi.fn();
+    const stop = SkeletorApi.observeCollection(collection, notify);
+    collection.once('sort', () => collection.set([
+      { id: 2, title: 'B', rank: 2 }, { id: 3, title: 'C', rank: 3 }
+    ]));
+    collection.add({ id: 2, title: 'B', rank: 2 });
+    expect(view.el.textContent).toBe('BC');
+    expect(view.children.map(child => child.model)).toEqual(collection.models);
+    expect(notify).toHaveBeenCalledTimes(2);
+    expect(notify.mock.calls.map(([{ added }]) => added.map(model => model.id))).toEqual([[2], [3]]);
+    stop();
+    view.destroy();
+  });
+
+  it('preserves the legacy Backbone nested-sort result', function() {
+    const collection = new Backbone.Collection([{ id: 1, title: 'A', rank: 1 }], { comparator: 'rank' });
+    const mn = createMarionette();
+    mn.setDataApi(BackboneApi);
+    const childView = mn.View.extend({ template: ({ title }) => title });
+    const view = new mn.CollectionView({ collection, childView }).render();
+    collection.once('sort', () => collection.set([
+      { id: 2, title: 'B', rank: 2 }, { id: 3, title: 'C', rank: 3 }
+    ]));
+    collection.add({ id: 2, title: 'B', rank: 2 });
+    expect(view.el.textContent).toBe('BC');
+    expect(view.children.map(child => child.model)).toEqual(collection.models);
+    view.destroy();
+  });
+
+  it('reconciles silent changes already consumed by an explicit render', function() {
+    const collection = new Collection([{ id: 1, title: 'A', rank: 1 }], { comparator: 'rank' });
+    const view = list(collection);
+    const second = collection.add({ id: 2, title: 'B', rank: 2 }, { silent: true });
+    expect(view.el.textContent).toBe('A');
+    view.render();
+    const secondChild = view.children.findByModel(second);
+    const third = collection.add({ id: 3, title: 'C', rank: 0 });
+    expect(view.el.textContent).toBe('CAB');
+    expect(view.children.map(child => child.model)).toEqual(collection.models);
+    expect(view.children.findByModel(second)).toBe(secondChild);
+
+    const fourth = collection.add({ id: 4, title: 'D', rank: 3 }, { silent: true });
+    view.render();
+    const fourthChild = view.children.findByModel(fourth);
+    collection.remove(fourth, { silent: true });
+    collection.sort();
+    expect(view.el.textContent).toBe('CAB');
+    expect(view.children.map(child => child.model)).toEqual(collection.models);
+    expect(fourthChild.isDestroyed()).toBe(true);
+    expect(view.children.findByModel(third)).toBeDefined();
+    view.destroy();
+  });
+
+  it('does not resurrect a manually removed child until genuine source removal and re-add', function() {
+    const collection = new Collection([{ id: 1, title: 'A', rank: 1 }], { comparator: 'rank' });
+    const view = list(collection);
+    const second = collection.add({ id: 2, title: 'B', rank: 2 }, { silent: true });
+    view.render();
+    const removed = view.children.findByModel(second);
+    view.removeChildView(removed);
+    collection.add({ id: 3, title: 'C', rank: 3 });
+    expect(view.el.textContent).toBe('AC');
+    expect(view.children.findByModel(second)).toBeUndefined();
+    collection.remove(second);
+    collection.add(second);
+    expect(view.el.textContent).toBe('ABC');
+    expect(view.children.findByModel(second)).not.toBe(removed);
+    view.destroy();
+  });
+
+  it('accepts a bare update as an explicit membership and presentation refresh', function() {
+    const collection = new Collection([{ id: 1, title: 'A', visible: true }]);
+    const view = list(collection, { viewFilter: child => child.model.get('visible') });
+    collection.get(1).set('visible', false);
+    collection.add({ id: 2, title: 'B', visible: true }, { silent: true });
+    expect(view.el.textContent).toBe('A');
+    collection.trigger('update', collection);
+    expect(view.el.textContent).toBe('B');
+    collection.trigger('sort', collection);
+    collection.trigger('update', collection, {});
+    expect(view.el.textContent).toBe('B');
+    view.destroy();
   });
 
   it('retains child identity and renders merged models once through model events', function() {
@@ -308,10 +444,14 @@ describe('Skeletor adapter with real 4.0.2 sources', function() {
   });
 
   it('does not configure other runtimes when imported or installed', function() {
-    const first = runtime();
-    const second = createMarionette();
-    const model = new Model();
-    expect(first.View.prototype.Data.key(model)).toBe(model.cid);
-    expect(second.View.prototype.Data.key(model)).toBe(model);
+    const configured = runtime();
+    const unconfigured = createMarionette();
+    const model = new Item({ title: 'A' });
+    const first = new configured.View({ model, template: ({ label }) => label }).render();
+    const second = new unconfigured.View({ model, template: ({ label }) => label ?? 'not serialized' }).render();
+    expect(first.el.textContent).toBe('A!');
+    expect(second.el.textContent).toBe('not serialized');
+    first.destroy();
+    second.destroy();
   });
 });

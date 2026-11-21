@@ -240,17 +240,10 @@ Lit event handlers use Lit's normal element receiver; use closures when a
 handler needs application or View state. Do not independently replace Lit's
 contents or switch content adapters after rendering.
 
-## Version-matched reference
-
-When the matching Marionette version is installed, locate its `package.json` with
-`require.resolve('marionette/package.json')`. Read `docs/packages/adapters.md` beside
-that file for the adapter subpaths, provider configuration, ownership and
-cleanup, optional peers, and exported types.
-
 ## Skeletor
 
 Import `SkeletorApi` from `@mnjs/adapters/skeletor` and install the optional peer
-`@converse/skeletor@4.0.2` (the verified supported version). Configure it through
+`@converse/skeletor@4.0.3` (the verified supported version). Configure it through
 `setDataApi` on both CollectionView and child View classes, or through an isolated
 runtime's setter. Configure `setStateApi` independently for Skeletor state.
 
@@ -259,11 +252,21 @@ runtime's setter. Configure `setStateApi` independently for Skeletor state.
 shallow enumerable template snapshot of both, with computed values taking
 precedence. It does not change persisted attributes or `toJSON()`. Models retain
 `cid` identity; merges keep child Views and leave their rendering to model events.
-Native collection operations, including reorder-only `set`, reconcile once;
-`reset` rebuilds children. View teardown only releases owner subscriptions and
-never calls persistence-capable model `destroy` or removes caller listeners.
+Non-silent collection operations, including reorder-only `set`, reconcile
+changes. `reset` rebuilds children. Silent operations do not notify Views. Use
+an explicit render or update notification to show those changes. View teardown
+does not call persistence-capable model `destroy` or perform source-wide cleanup.
+As with native Skeletor events, use distinct callbacks or owner contexts for
+independent registrations.
 
-The adapter has no provider runtime imports. Skeletor 4.0.2's own Node CommonJS
-entry does not expose constructors correctly; use ESM or dynamic import for that
-provider. See the [full contract and rendered example](https://marionettejs.com/docs/packages/adapters.html#skeletor)
-for serialization, event-map contexts, collection ordering and hydration details.
+The adapter has no provider runtime imports. Skeletor 4.0.3 requires Node 22.13
+or later and supports native `require('@converse/skeletor')` on those versions.
+See the Skeletor section of the version-matched reference below for the full
+contract and a rendered example.
+
+## Version-matched reference
+
+When the matching Marionette version is installed, locate its `package.json` with
+`require.resolve('marionette/package.json')`. Read `docs/packages/adapters.md` beside
+that file for the adapter subpaths, provider configuration, ownership and
+cleanup, optional peers, and exported types.

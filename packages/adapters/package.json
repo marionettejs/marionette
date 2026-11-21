@@ -92,7 +92,7 @@
     "marionette": "^5.0.1",
     "morphdom": "^2.7.8",
     "lit-html": "^3.3.3",
-    "@converse/skeletor": "4.0.2"
+    "@converse/skeletor": "4.0.3"
   },
   "peerDependenciesMeta": {
     "@types/backbone": {

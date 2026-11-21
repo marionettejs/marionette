@@ -5437,8 +5437,8 @@
       "exports": [
         "default"
       ],
-      "result": "Skeletor 4.0.2 models retain cid identity. Own attributes and declared computed keys have key-presence semantics including null/undefined; template serialization is a shallow enumerable snapshot with computed precedence, separate from persistence.",
-      "timing": "Native events are synchronous. Mutation-related sort reconciles membership/order immediately and consumes its matching update; reorder-only set also reconciles once. Standalone sort reports reorder.",
+      "result": "Skeletor 4.0.3 models retain cid identity. Own attributes and computed keys declared through getters or methods have key-presence semantics including null/undefined; template serialization is a shallow enumerable snapshot with computed precedence, separate from persistence.",
+      "timing": "Native events are synchronous. Mutation-related sort reconciles immediately including reorder-only set. Matching updates are not replayed unless the source changed again. Sort and update reconcile against the View snapshot, preserving silently rendered members without duplicating children.",
       "ownership": "Data sources remain borrowed. State disposal releases adapter-managed subscriptions without invoking persistence-capable Model.destroy or source-wide listener cleanup.",
       "mutation": "attrs writes and computed changes reach configured handlers. Merges retain models and children and leave rendering to model events. Reset rebuilds children; source ordering and view filters follow CollectionView configuration.",
       "repetition": "Native off matching makes cleanup idempotent and scopes it by event/callback/context. Independent CollectionView observers own distinct callback functions.",
@@ -5494,12 +5494,32 @@
           "title": "reconciles set operations with sortWithCollection disabled"
         },
         {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "recognizes method-shaped computed definitions and reads them once per serialization"
+        },
+        {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "reconciles nested mutations without publishing stale outer membership"
+        },
+        {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "reconciles silent changes already consumed by an explicit render"
+        },
+        {
+          "file": "test/unit/skeletor-adapter.spec.js",
+          "title": "accepts a bare update as an explicit membership and presentation refresh"
+        },
+        {
           "file": "test/browser/skeletor-adapter.spec.mjs",
           "title": "packed Skeletor adapter renders computed values and reconciles collections once"
         },
         {
           "file": "test/browser/skeletor-adapter.spec.mjs",
           "title": "packed Skeletor adapter observes attached hydration and releases only owner listeners"
+        },
+        {
+          "file": "test/browser/skeletor-adapter.spec.mjs",
+          "title": "packed Skeletor adapter keeps children unique after silent rendering and nested updates"
         }
       ],
       "documentation": {

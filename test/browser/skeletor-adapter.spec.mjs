@@ -121,3 +121,40 @@ test('packed Skeletor adapter observes attached hydration and releases only owne
   assert.equal(result.destroyed, true);
   assert.deepEqual(result.persisted, { id: 'profile', title: 'After teardown' });
 });
+
+test('packed Skeletor adapter keeps children unique after silent rendering and nested updates', async({ page }) => {
+  const result = await page.evaluate(async() => {
+    const [{ createMarionette }, { default: SkeletorApi }, { Collection, Model }] = await Promise.all([
+      import('marionette'), import('@mnjs/adapters/skeletor'), import('@converse/skeletor')
+    ]);
+    class Item extends Model {
+      computed() {
+        return { label: { deps: ['title'], fn: model => `${model.get('title')}!` } };
+      }
+    }
+    const runtime = createMarionette();
+    runtime.setDataApi(SkeletorApi);
+    const Child = runtime.View.extend({ template: ({ label }) => label });
+    const collection = new Collection([{ id: 1, title: 'A', rank: 1 }], { model: Item, comparator: 'rank' });
+    const region = new runtime.Region({ el: '#content' });
+    const view = new runtime.CollectionView({ collection, childView: Child });
+    region.show(view);
+    const second = collection.add({ id: 2, title: 'B', rank: 2 }, { silent: true });
+    view.render();
+    const secondChild = view.children.findByModel(second);
+    const secondNode = secondChild.el;
+    collection.once('sort', () => {
+      collection.set([second, { id: 4, title: 'D', rank: 4 }]);
+    });
+    collection.add({ id: 3, title: 'C', rank: 3 });
+    const reconciled = {
+      text: view.el.textContent,
+      models: view.children.map(child => child.model.id),
+      sameChild: view.children.findByModel(second) === secondChild,
+      sameNode: view.el.firstElementChild === secondNode
+    };
+    region.destroy();
+    return reconciled;
+  });
+  assert.deepEqual(result, { text: 'B!D!', models: [2, 4], sameChild: true, sameNode: true });
+});
