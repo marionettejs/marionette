@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@types/jquery": "4.0.1",
-    "jquery": "4.0.0",
+    "jquery": "4.1.0",
     "typescript": "7.0.2"
   }
 }

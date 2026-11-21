@@ -6,7 +6,7 @@
     "validate": "node validate.mjs"
   },
   "dependencies": {
-    "jquery": "4.0.0",
+    "jquery": "4.1.0",
     "jsdom": "^31.0.1"
   }
 }
