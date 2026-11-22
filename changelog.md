@@ -9,6 +9,26 @@ For the current v4 → v5 changes and replacements, see the
 [migration guide](docs/guides/migration.md). Entries below describe each release
 at the time it shipped; older prerelease APIs may have been superseded.
 
+### v5.2.0
+
+> We took Backbone out of core, and somehow ended up with Skeletor. He’s optional. Apparently we do have a policy about skeletons.
+
+* Add the optional `@mnjs/adapters/skeletor` adapter for Skeletor 4.0.3.
+  Views can read model attributes and computed values without altering persisted
+  attributes, and CollectionViews follow collection events while retaining
+  children for unchanged models. A collection reset still destroys and rebuilds
+  the child Views.
+* Add `DomApi.setUnsafeHtml` for writing raw, caller-trusted strings into a
+  dedicated subtree the caller owns. It does not sanitize markup or manage
+  renderer or View lifecycles. Existing rendering entry points are unchanged.
+* Reuse immutable candidate build outputs across certification jobs, with
+  checks for the exact source, lockfile and toolchain before restoration.
+* Move the five coordinated packages `marionette`, `@mnjs/utils`, `@mnjs/radio`,
+  `@mnjs/data` and `@mnjs/adapters` to **5.2.0**, with matching core/Radio/Utils
+  dependencies. Data's Utils peer and Adapters' core peer retain their
+  `^5.0.1` ranges. HTML, Router and the test helpers remain independently
+  versioned.
+
 ### v5.1.1
 
 > We had barely finished saying “5.1.0” when Vite gave us a reason to say “5.1.1.” The runtime stayed put; the example tooling did not.

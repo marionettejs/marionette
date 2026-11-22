@@ -17,7 +17,7 @@ Install Data; modern npm supplies its nonoptional Utils peer automatically. With
 core already installed, its matching Utils satisfies the peer:
 
 ```sh
-npm install --ignore-scripts --save-exact @mnjs/data@5.1.1
+npm install --ignore-scripts --save-exact @mnjs/data@5.2.0
 ```
 
 ```js
@@ -46,7 +46,7 @@ also leaves the Model alive.
 For a new application, add core and its matching Radio package:
 
 ```sh
-npm install --ignore-scripts --save-exact marionette@5.1.1 @mnjs/radio@5.1.1
+npm install --ignore-scripts --save-exact marionette@5.2.0 @mnjs/radio@5.2.0
 ```
 
 Configure providers before constructing consumers:

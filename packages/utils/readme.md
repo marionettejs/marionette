@@ -4,7 +4,7 @@ The small helpers behind Marionette, available for your own components.
 Marionette and `@mnjs/data` import these same implementations.
 
 ```bash
-npm install --save-exact @mnjs/utils@5.1.1
+npm install --save-exact @mnjs/utils@5.2.0
 ```
 
 Use matching versions of `marionette`, `@mnjs/utils`, and `@mnjs/radio` to
