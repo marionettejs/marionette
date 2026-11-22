@@ -435,14 +435,14 @@ it without renderer dispatch or sanitization. Do not mix it with ordinary
 children or use it on a reused form root; keep ordinary text as text. The separate
 `FormKitIcon` helper still sanitizes SVG.
 
-This candidate requires Marionette `^5.2.0`, the first release expected to
-provide `DomApi.setUnsafeHtml`. Raw sections cannot render with a provider
-that omits that method; there is no native fallback.
+This candidate requires Marionette `^5.2.0`, which provides
+`DomApi.setUnsafeHtml`. Raw sections cannot render with a provider that omits
+that method; there is no native fallback.
 
-Local prerelease testing uses a pinned workspace build that already provides
-the operation (such as master `4df53edb`). That source build is not the
-published peer. Verify a clean install of this package against the published
-Marionette 5.2.0 before publishing FormKit.
+The current package-local lock uses published Marionette, Radio and Utils 5.2.0.
+The earlier `4df53edb` workspace build was a historical prerelease control, not
+this candidate's peer graph. See [the integration guide](RELEASED-520-INTEGRATION.md)
+for the separate root-tool/package installs and hosted verification scope.
 
 Actual HtmlDomApi parent/Region integration and browser focus/IME behavior require
 separate verification; configured-provider JSDOM controls do not establish them.

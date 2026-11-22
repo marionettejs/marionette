@@ -1,0 +1,73 @@
+name: FormKit package
+
+on:
+  pull_request:
+    paths:
+      - 'packages/formkit/**'
+      - '.github/workflows/formkit.yml'
+      - '.nvmrc'
+      - 'config/release-profile.json'
+      - 'scripts/checks/release-profile.mjs'
+      - 'scripts/release/packages.mjs'
+      - 'eslint.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+  push:
+    branches: [master]
+    paths:
+      - 'packages/formkit/**'
+      - '.github/workflows/formkit.yml'
+      - '.nvmrc'
+      - 'config/release-profile.json'
+      - 'scripts/checks/release-profile.mjs'
+      - 'scripts/release/packages.mjs'
+      - 'eslint.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Private FormKit package against released peers
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup pinned Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            packages/formkit/package-lock.json
+      - name: Verify source toolchain
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+      # The package lint command loads the repository ESLint configuration.
+      # No root build or release step runs; FormKit stays outside workspaces.
+      - name: Install repository lint tools
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install isolated package dependencies
+        run: npm --prefix packages/formkit ci --ignore-scripts --no-audit --no-fund --workspaces=false
+      - name: Verify bindings, lint, build, tests, types and packed consumers
+        run: npm --prefix packages/formkit run check
+      - name: Measure active runtime coverage
+        run: npm --prefix packages/formkit run coverage
+      - name: Retain package verification reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: formkit-validation-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            packages/formkit/test/tmp/lint-result.json
+            packages/formkit/test/tmp/package-result.json
+            packages/formkit/coverage/coverage-summary.json
+            packages/formkit/coverage/graph-result.json
+            packages/formkit/coverage/lcov.info
+          if-no-files-found: warn
+          retention-days: 14
