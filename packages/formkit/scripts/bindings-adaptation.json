@@ -1,0 +1,938 @@
+{
+  "schemaVersion": 1,
+  "reference": {
+    "package": "@formkit/react",
+    "version": "2.9.0",
+    "entry": "dist/index.mjs",
+    "resolved": "https://registry.npmjs.org/@formkit/react/-/react-2.9.0.tgz",
+    "integrity": "sha512-wjwGzqgFyDDrxbJryCsd65wwjFS2nYe+nbFqSgRK6U7dEe0pvoK46wJsI9xGNEm5Y1VRkraPumNviDVZWnXFhg==",
+    "fileSHA256": "de33d03be1631e6c15704d13a5c897aeca22a0351178158ba85bedbf606aed7b",
+    "startMarker": "function isObject2(",
+    "endMarker": "\n// packages/react/src/defaultConfig.ts",
+    "sliceSHA256": "10ebd9a7dde10629fa7e1ee46e8fb71283039dfbf1aa222cc05aff2b75d283a2"
+  },
+  "target": {
+    "path": "src/runtime/upstream-bindings.mjs",
+    "sha256": "11566558425e1fbfd3a24271b8cbad2f8ec1b4d4b551a36698caef7ee963d4be",
+    "lineCount": 637
+  },
+  "adaptation": "Exact line edits over the locked published2.9.0 reactive-store/binding slice. Removes React hook, retains candidate ownership/lifecycle/cache/list-key and2.9parity changes. Original2.5source attribution remains historical; not an unmodified2.9copy.",
+  "hunks": [
+    {
+      "at": 0,
+      "remove": [],
+      "insert": [
+        "// Adapted from @formkit/react 2.5.0 published reactiveStore.ts/bindings.ts.\n",
+        "// Copyright (c) 2021-2026 FormKit, Inc. MIT: LICENSE.formkit.\n",
+        "// Removed React hook; added observer ownership cleanup and explicit cache refresh.\n",
+        "import {createMessage,createClasses,generateClassList} from '@formkit/core';\n",
+        "import {cloneAny,camel,undefine,shallowClone,eq,has,empty} from '@formkit/utils';\n",
+        "import {createObserver} from '@formkit/observer';\n",
+        "import {enumerableKeys} from './scope-properties.mjs';\n",
+        "const __getOwnPropNames = Object.getOwnPropertyNames;\n",
+        "const createInitializer = (factory, result) => function initialize() {\n",
+        "  if (factory) {\n",
+        "    const initializeFactory = factory[__getOwnPropNames(factory)[0]];\n",
+        "    factory = 0;\n",
+        "    result = initializeFactory(0);\n",
+        "  }\n",
+        "  return result;\n",
+        "};\n"
+      ]
+    },
+    {
+      "at": 1,
+      "remove": [
+        "  return typeof value === \"object\" && value !== null;\n"
+      ],
+      "insert": [
+        "  return typeof value === 'object' && value !== null;\n"
+      ]
+    },
+    {
+      "at": 4,
+      "remove": [
+        "  if (!isObject2(target)) return void 0;\n"
+      ],
+      "insert": [
+        "  if (!isObject2(target)) {return void 0;}\n"
+      ]
+    },
+    {
+      "at": 9,
+      "remove": [
+        "    throw new Error(\"FormKit reactive stores can only be attached to objects.\");\n"
+      ],
+      "insert": [
+        "    throw new Error('FormKit reactive stores can only be attached to objects.');\n"
+      ]
+    },
+    {
+      "at": 12,
+      "remove": [
+        "  if (existing) return existing;\n"
+      ],
+      "insert": [
+        "  if (existing) {return existing;}\n"
+      ]
+    },
+    {
+      "at": 15,
+      "remove": [],
+      "insert": [
+        "    dead: false,\n"
+      ]
+    },
+    {
+      "at": 28,
+      "remove": [
+        "  if (!store) return;\n"
+      ],
+      "insert": [
+        "  if (!store || store.dead) {return;}\n"
+      ]
+    },
+    {
+      "at": 30,
+      "remove": [
+        "  if (store.pending) return;\n"
+      ],
+      "insert": [
+        "  if (store.pending) {return;}\n"
+      ]
+    },
+    {
+      "at": 35,
+      "remove": [
+        "    subscribers.forEach((subscriber) => subscriber());\n"
+      ],
+      "insert": [
+        "    subscribers.forEach((subscriber) => { if (store.subscribers.has(subscriber)) {subscriber();} });\n"
+      ]
+    },
+    {
+      "at": 40,
+      "remove": [
+        "  if (!store) return;\n"
+      ],
+      "insert": [
+        "  if (!store) {return;}\n",
+        "  store.dead = true;\n"
+      ]
+    },
+    {
+      "at": 45,
+      "remove": [
+        "  if (!store) return () => {\n",
+        "  };\n"
+      ],
+      "insert": [
+        "  if (!store || store.dead) {\n",
+        "    return () => {\n",
+        "    };\n",
+        "  }\n"
+      ]
+    },
+    {
+      "at": 52,
+      "remove": [
+        "function useReactiveStore(target) {\n",
+        "  const stableTarget = useMemo(() => target, [target]);\n",
+        "  const subscribe = (subscriber) => subscribeReactiveStore(stableTarget, subscriber);\n",
+        "  const getSnapshot = () => getReactiveStore(stableTarget)?.version ?? 0;\n",
+        "  useSyncExternalStore(subscribe, getSnapshot, getSnapshot);\n",
+        "}\n",
+        "var formKitReactiveStoreSymbol;\n",
+        "var init_reactiveStore = __esm({\n",
+        "  \"packages/react/src/reactiveStore.ts\"() {\n"
+      ],
+      "insert": [
+        "let formKitReactiveStoreSymbol;\n",
+        "const initializeReactiveStore = createInitializer({\n",
+        "  'packages/react/src/reactiveStore.ts'() {\n"
+      ]
+    },
+    {
+      "at": 62,
+      "remove": [
+        "      \"FormKitReactiveStore\"\n"
+      ],
+      "insert": [
+        "      'FormKitReactiveStore'\n"
+      ]
+    },
+    {
+      "at": 67,
+      "remove": [
+        "  if (!context.state) return false;\n",
+        "  if (context.state.submitted) return true;\n"
+      ],
+      "insert": [
+        "  if (!context.state) {return false;}\n",
+        "  if (context.state.submitted) {return true;}\n"
+      ]
+    },
+    {
+      "at": 74,
+      "remove": [
+        "      case \"live\":\n"
+      ],
+      "insert": [
+        "      case 'live':\n"
+      ]
+    },
+    {
+      "at": 76,
+      "remove": [
+        "      case \"blur\":\n"
+      ],
+      "insert": [
+        "      case 'blur':\n"
+      ]
+    },
+    {
+      "at": 78,
+      "remove": [
+        "      case \"dirty\":\n"
+      ],
+      "insert": [
+        "      case 'dirty':\n"
+      ]
+    },
+    {
+      "at": 86,
+      "remove": [
+        "  return String(value ?? \"\").split(/[\\s,|]+/).filter(Boolean);\n"
+      ],
+      "insert": [
+        "  return String(value ?? '').split(/[\\s,|]+/).filter(Boolean);\n"
+      ]
+    },
+    {
+      "at": 109,
+      "remove": [
+        "  return typeof value === \"object\" && value !== null && Object.getPrototypeOf(value) === Object.prototype;\n"
+      ],
+      "insert": [
+        "  return typeof value === 'object' && value !== null && Object.getPrototypeOf(value) === Object.prototype;\n"
+      ]
+    },
+    {
+      "at": 114,
+      "remove": [
+        "  if (aKeys.length !== bKeys.length) return false;\n"
+      ],
+      "insert": [
+        "  if (aKeys.length !== bKeys.length) {return false;}\n"
+      ]
+    },
+    {
+      "at": 116,
+      "remove": [
+        "    if (!Object.prototype.hasOwnProperty.call(b, key)) return false;\n",
+        "    if (!Object.is(a[key], b[key])) return false;\n"
+      ],
+      "insert": [
+        "    if (!Object.prototype.hasOwnProperty.call(b, key)) {return false;}\n",
+        "    if (!Object.is(a[key], b[key])) {return false;}\n"
+      ]
+    },
+    {
+      "at": 122,
+      "remove": [
+        "  if (Object.is(current, next)) return false;\n"
+      ],
+      "insert": [
+        "  if (Object.is(current, next)) {return false;}\n"
+      ]
+    },
+    {
+      "at": 124,
+      "remove": [
+        "    if (current.length !== next.length) return true;\n"
+      ],
+      "insert": [
+        "    if (current.length !== next.length) {return true;}\n"
+      ]
+    },
+    {
+      "at": 126,
+      "remove": [
+        "      if (!Object.is(current[i], next[i])) return true;\n"
+      ],
+      "insert": [
+        "      if (!Object.is(current[i], next[i])) {return true;}\n"
+      ]
+    },
+    {
+      "at": 136,
+      "remove": [
+        "  return node.children.map((child) => {\n",
+        "    if (!listItemKeys.has(child.uid)) {\n",
+        "      listItemKeys.set(child.uid, `fk-item-${nextListItemKey++}`);\n",
+        "    }\n",
+        "    return listItemKeys.get(child.uid);\n"
+      ],
+      "insert": [
+        "  const previous = listItemKeys.get(node), current = new Map();\n",
+        "  const items = node.children.map((child) => {\n",
+        "    const key = previous?.get(child.uid) ?? `fk-item-${nextListItemKey++}`;\n",
+        "    current.set(child.uid, key);\n",
+        "    return key;\n"
+      ]
+    },
+    {
+      "at": 142,
+      "remove": [],
+      "insert": [
+        "  // Retain keys only for this parent's current children, preserving Core UIDs.\n",
+        "  listItemKeys.set(node, current);\n",
+        "  return items;\n"
+      ]
+    },
+    {
+      "at": 143,
+      "remove": [
+        "var listItemKeys, nextListItemKey, reactBindings, bindings_default;\n",
+        "var init_bindings = __esm({\n",
+        "  \"packages/react/src/bindings.ts\"() {\n",
+        "    init_reactiveStore();\n",
+        "    listItemKeys = /* @__PURE__ */ new Map();\n"
+      ],
+      "insert": [
+        "let listItemKeys, nextListItemKey, reactBindings, bindingsDefault;\n",
+        "const initializeBindings = createInitializer({\n",
+        "  'packages/react/src/bindings.ts'() {\n",
+        "    initializeReactiveStore();\n",
+        "    listItemKeys = /* @__PURE__ */ new WeakMap();\n"
+      ]
+    },
+    {
+      "at": 150,
+      "remove": [
+        "      node.ledger.count(\"blocking\", (m) => m.blocking);\n",
+        "      node.ledger.count(\"errors\", (m) => m.type === \"error\");\n"
+      ],
+      "insert": [
+        "      node.ledger.count('blocking', (m) => m.blocking);\n",
+        "      node.ledger.count('errors', (m) => m.type === 'error');\n"
+      ]
+    },
+    {
+      "at": 165,
+      "remove": [
+        "      let validationVisibility = node.props.validationVisibility || (node.props.type === \"checkbox\" ? \"dirty\" : \"blur\");\n",
+        "      let hasShownErrors = visibilityModes(validationVisibility).includes(\"live\");\n"
+      ],
+      "insert": [
+        "      let validationVisibility = node.props.validationVisibility || (node.props.type === 'checkbox' ? 'dirty' : 'blur');\n",
+        "      let hasShownErrors = visibilityModes(validationVisibility).includes('live');\n"
+      ]
+    },
+    {
+      "at": 169,
+      "remove": [
+        "        isRequired = (parsedRules ?? []).some((rule) => rule.name === \"required\");\n"
+      ],
+      "insert": [
+        "        isRequired = (parsedRules ?? []).some((rule) => rule.name === 'required');\n"
+      ]
+    },
+    {
+      "at": 174,
+      "remove": [
+        "        if (msg.type === \"ui\" && msg.visible) {\n"
+      ],
+      "insert": [
+        "        if (msg.type === 'ui' && msg.visible) {\n"
+      ]
+    },
+    {
+      "at": 179,
+      "remove": [],
+      "insert": [
+        "      let contextAlive = true;\n"
+      ]
+    },
+    {
+      "at": 180,
+      "remove": [],
+      "insert": [
+        "      const classObservers = new Set();\n"
+      ]
+    },
+    {
+      "at": 182,
+      "remove": [
+        "          if (!node) return \"\";\n"
+      ],
+      "insert": [
+        "          if (!node || !contextAlive) {return '';}\n"
+      ]
+    },
+    {
+      "at": 184,
+      "remove": [
+        "          if (!className && typeof property === \"string\") {\n"
+      ],
+      "insert": [
+        "          if (!className && typeof property === 'string') {\n"
+      ]
+    },
+    {
+      "at": 187,
+      "remove": [],
+      "insert": [
+        "              classObservers.add(observedNode);\n"
+      ]
+    },
+    {
+      "at": 189,
+      "remove": [
+        "                const rootClasses = typeof observed.config.rootClasses === \"function\" ? observed.config.rootClasses(property, observed) : {};\n"
+      ],
+      "insert": [
+        "                const rootClasses = typeof observed.config.rootClasses === 'function' ? observed.config.rootClasses(property, observed) : {};\n"
+      ]
+    },
+    {
+      "at": 212,
+      "remove": [
+        "                ) ?? \"\";\n"
+      ],
+      "insert": [
+        "                ) ?? '';\n"
+      ]
+    },
+    {
+      "at": 223,
+      "remove": [
+        "          return className ?? \"\";\n"
+      ],
+      "insert": [
+        "          return className ?? '';\n"
+      ]
+    },
+    {
+      "at": 230,
+      "remove": [
+        "        if (typeof pendingDOMInputValue === \"string\" && typeof node.props.number !== \"undefined\" && node.props.number !== \"integer\" && typeof payload === \"number\" && Number.isFinite(payload) && pendingDOMInputValue.includes(\".\") && pendingDOMInputValue !== String(payload)) {\n"
+      ],
+      "insert": [
+        "        if (typeof pendingDOMInputValue === 'string' && typeof node.props.number !== 'undefined' && node.props.number !== 'integer' && typeof payload === 'number' && Number.isFinite(payload) && pendingDOMInputValue.includes('.') && pendingDOMInputValue !== String(payload)) {\n"
+      ]
+    },
+    {
+      "at": 237,
+      "remove": [
+        "        if (contextRef) notifyReactiveStore(contextRef);\n"
+      ],
+      "insert": [
+        "        if (contextRef) {notifyReactiveStore(contextRef);}\n"
+      ]
+    },
+    {
+      "at": 252,
+      "remove": [
+        "            if (!node) return;\n"
+      ],
+      "insert": [
+        "            if (!node) {return;}\n"
+      ]
+    },
+    {
+      "at": 254,
+      "remove": [
+        "              /* @__PURE__ */ createMessage({ key: \"blurred\", visible: false, value: true })\n"
+      ],
+      "insert": [
+        "              /* @__PURE__ */ createMessage({ key: 'blurred', visible: false, value: true })\n"
+      ]
+    },
+    {
+      "at": 257,
+      "remove": [
+        "            if (typeof onBlur === \"function\") {\n"
+      ],
+      "insert": [
+        "            if (typeof onBlur === 'function') {\n"
+      ]
+    },
+    {
+      "at": 262,
+      "remove": [
+        "            const doCompare = context.dirtyBehavior === \"compare\";\n",
+        "            if (node.store.dirty?.value && !doCompare) return;\n"
+      ],
+      "insert": [
+        "            const doCompare = context.dirtyBehavior === 'compare';\n",
+        "            if (node.store.dirty?.value && !doCompare) {return;}\n"
+      ]
+    },
+    {
+      "at": 265,
+      "remove": [
+        "            if (!dirty && !doCompare) return;\n"
+      ],
+      "insert": [
+        "            if (!dirty && !doCompare) {return;}\n"
+      ]
+    },
+    {
+      "at": 267,
+      "remove": [
+        "              /* @__PURE__ */ createMessage({ key: \"dirty\", visible: false, value: dirty })\n"
+      ],
+      "insert": [
+        "              /* @__PURE__ */ createMessage({ key: 'dirty', visible: false, value: dirty })\n"
+      ]
+    },
+    {
+      "at": 271,
+      "remove": [],
+      "insert": [
+        "            if (!contextAlive) {return;}\n"
+      ]
+    },
+    {
+      "at": 273,
+      "remove": [
+        "            node.emit(\"dom-input-event\", e);\n"
+      ],
+      "insert": [
+        "            node.emit('dom-input-event', e);\n"
+      ]
+    },
+    {
+      "at": 303,
+      "remove": [
+        "          valid: !node.ledger.value(\"blocking\"),\n"
+      ],
+      "insert": [
+        "          valid: !node.ledger.value('blocking'),\n"
+      ]
+    },
+    {
+      "at": 305,
+      "remove": [
+        "          errors: !!node.ledger.value(\"errors\"),\n"
+      ],
+      "insert": [
+        "          errors: !!node.ledger.value('errors'),\n"
+      ]
+    },
+    {
+      "at": 321,
+      "remove": [
+        "      Object.defineProperty(context, \"__fkSectionRefs\", {\n"
+      ],
+      "insert": [
+        "      Object.defineProperty(context, '__fkSectionRefs', {\n"
+      ]
+    },
+    {
+      "at": 327,
+      "remove": [
+        "      if (node.type !== \"input\") {\n",
+        "        Object.defineProperty(context.state, \"empty\", {\n"
+      ],
+      "insert": [
+        "      if (node.type !== 'input') {\n",
+        "        Object.defineProperty(context.state, 'empty', {\n"
+      ]
+    },
+    {
+      "at": 345,
+      "remove": [
+        "        if (node.type !== \"input\") emptyDirty = true;\n",
+        "        else context.state.empty = empty(payload);\n"
+      ],
+      "insert": [
+        "        if (node.type !== 'input') {emptyDirty = true;} else {context.state.empty = empty(payload);}\n"
+      ]
+    },
+    {
+      "at": 355,
+      "remove": [
+        "      if (node.type !== \"input\") {\n",
+        "        Object.defineProperty(context, \"value\", {\n"
+      ],
+      "insert": [
+        "      if (node.type !== 'input') {\n",
+        "        Object.defineProperty(context, 'value', {\n"
+      ]
+    },
+    {
+      "at": 371,
+      "remove": [
+        "        Object.defineProperty(context, \"_value\", {\n"
+      ],
+      "insert": [
+        "        Object.defineProperty(context, '_value', {\n"
+      ]
+    },
+    {
+      "at": 375,
+      "remove": [
+        "            if (_valueLinked) return context.value;\n"
+      ],
+      "insert": [
+        "            if (_valueLinked) {return context.value;}\n"
+      ]
+    },
+    {
+      "at": 415,
+      "remove": [
+        "        for (const key in availableMessages) {\n"
+      ],
+      "insert": [
+        "        for (const key of enumerableKeys(availableMessages)) {\n"
+      ]
+    },
+    {
+      "at": 417,
+      "remove": [
+        "          if (message3.type !== \"validation\" || context.state.validationVisible) {\n"
+      ],
+      "insert": [
+        "          if (message3.type !== 'validation' || context.state.validationVisible) {\n"
+      ]
+    },
+    {
+      "at": 428,
+      "remove": [
+        "        for (const key in context.messages) {\n"
+      ],
+      "insert": [
+        "        for (const key of enumerableKeys(context.messages)) {\n"
+      ]
+    },
+    {
+      "at": 431,
+      "remove": [
+        "        context.describedBy = describers.length ? describers.join(\" \") : void 0;\n"
+      ],
+      "insert": [
+        "        context.describedBy = describers.length ? describers.join(' ') : void 0;\n"
+      ]
+    },
+    {
+      "at": 437,
+      "remove": [
+        "      node.on(\"prop:validationVisibility\", ({ payload }) => {\n"
+      ],
+      "insert": [
+        "      node.on('prop:validationVisibility', ({ payload }) => {\n"
+      ]
+    },
+    {
+      "at": 441,
+      "remove": [
+        "      node.on(\"prop:parsedRules\", ({ payload }) => {\n"
+      ],
+      "insert": [
+        "      node.on('prop:parsedRules', ({ payload }) => {\n"
+      ]
+    },
+    {
+      "at": 446,
+      "remove": [
+        "      node.on(\"prop:rootClasses\", () => {\n"
+      ],
+      "insert": [
+        "      node.on('prop:rootClasses', () => {\n"
+      ]
+    },
+    {
+      "at": 452,
+      "remove": [
+        "      node.on(\"created\", () => {\n"
+      ],
+      "insert": [
+        "      node.on('created', () => {\n"
+      ]
+    },
+    {
+      "at": 459,
+      "remove": [
+        "        (async () => {\n"
+      ],
+      "insert": [
+        "        (async() => {\n"
+      ]
+    },
+    {
+      "at": 461,
+      "remove": [
+        "          if (node) node.props._init = cloneAny(node.value);\n"
+      ],
+      "insert": [
+        "          if (node) {node.props._init = cloneAny(node.value);}\n"
+      ]
+    },
+    {
+      "at": 465,
+      "remove": [
+        "      node.on(\"mounted\", () => {\n"
+      ],
+      "insert": [
+        "      node.on('mounted', () => {\n"
+      ]
+    },
+    {
+      "at": 469,
+      "remove": [
+        "      node.on(\"settled\", ({ payload: isSettled }) => {\n"
+      ],
+      "insert": [
+        "      node.on('settled', ({ payload: isSettled }) => {\n"
+      ]
+    },
+    {
+      "at": 478,
+      "remove": [
+        "          if (observedContextProps.has(prop)) return;\n"
+      ],
+      "insert": [
+        "          if (observedContextProps.has(prop)) {return;}\n"
+      ]
+    },
+    {
+      "at": 485,
+      "remove": [
+        "            if (!hasContextValueChanged(context[key], payload)) return;\n"
+      ],
+      "insert": [
+        "            if (!hasContextValueChanged(context[key], payload)) {return;}\n"
+      ]
+    },
+    {
+      "at": 493,
+      "remove": [
+        "          \"__root\",\n",
+        "          \"help\",\n",
+        "          \"label\",\n",
+        "          \"disabled\",\n",
+        "          \"options\",\n",
+        "          \"type\",\n",
+        "          \"attrs\",\n",
+        "          \"preserve\",\n",
+        "          \"preserveErrors\",\n",
+        "          \"id\",\n",
+        "          \"dirtyBehavior\"\n"
+      ],
+      "insert": [
+        "          '__root',\n",
+        "          'help',\n",
+        "          'label',\n",
+        "          'disabled',\n",
+        "          'options',\n",
+        "          'type',\n",
+        "          'attrs',\n",
+        "          'preserve',\n",
+        "          'preserveErrors',\n",
+        "          'id',\n",
+        "          'dirtyBehavior'\n"
+      ]
+    },
+    {
+      "at": 513,
+      "remove": [
+        "        if (definition3.props) observeProps(definition3.props);\n"
+      ],
+      "insert": [
+        "        if (definition3.props) {observeProps(definition3.props);}\n"
+      ]
+    },
+    {
+      "at": 516,
+      "remove": [
+        "      node.on(\"added-props\", ({ payload }) => observeProps(payload));\n",
+        "      node.on(\"input\", ({ payload }) => {\n",
+        "        if (node.type !== \"input\") {\n"
+      ],
+      "insert": [
+        "      node.on('added-props', ({ payload }) => observeProps(payload));\n",
+        "      node.on('input', ({ payload }) => {\n",
+        "        if (node.type !== 'input') {\n"
+      ]
+    },
+    {
+      "at": 525,
+      "remove": [
+        "      node.on(\"commitRaw\", ({ payload }) => {\n",
+        "        if (node.type !== \"input\") {\n"
+      ],
+      "insert": [
+        "      node.on('commitRaw', ({ payload }) => {\n",
+        "        if (node.type !== 'input') {\n"
+      ]
+    },
+    {
+      "at": 535,
+      "remove": [
+        "          if (node) node.emit(\"modelUpdated\");\n"
+      ],
+      "insert": [
+        "          if (node) {node.emit('modelUpdated');}\n"
+      ]
+    },
+    {
+      "at": 539,
+      "remove": [
+        "      node.on(\"commit\", ({ payload }) => {\n",
+        "        if ((!context.state.dirty || context.dirtyBehavior === \"compare\") && node.isCreated && hasTicked) {\n"
+      ],
+      "insert": [
+        "      node.on('commit', ({ payload }) => {\n",
+        "        if ((!context.state.dirty || context.dirtyBehavior === 'compare') && node.isCreated && hasTicked) {\n"
+      ]
+    },
+    {
+      "at": 544,
+      "remove": [
+        "            const receipt = node.on(\"message-removed\", ({ payload: message3 }) => {\n",
+        "              if (message3.key === \"validating\") {\n"
+      ],
+      "insert": [
+        "            const receipt = node.on('message-removed', ({ payload: message3 }) => {\n",
+        "              if (message3.key === 'validating') {\n"
+      ]
+    },
+    {
+      "at": 552,
+      "remove": [
+        "        if (node.type === \"input\" && context.state.complete && context.state.errors && !undefine(node.props.preserveErrors)) {\n"
+      ],
+      "insert": [
+        "        if (node.type === 'input' && context.state.complete && context.state.errors && !undefine(node.props.preserveErrors)) {\n"
+      ]
+    },
+    {
+      "at": 554,
+      "remove": [
+        "            (message3) => !(message3.type === \"error\" && message3.meta?.autoClear === true)\n"
+      ],
+      "insert": [
+        "            (message3) => !(message3.type === 'error' && message3.meta?.autoClear === true)\n"
+      ]
+    },
+    {
+      "at": 557,
+      "remove": [
+        "        if (node.type === \"list\" && node.sync) {\n"
+      ],
+      "insert": [
+        "        if (node.type === 'list' && node.sync) {\n"
+      ]
+    },
+    {
+      "at": 564,
+      "remove": [
+        "        if (message3.type === \"ui\" && message3.visible && !message3.meta.showAsMessage) {\n"
+      ],
+      "insert": [
+        "        if (message3.type === 'ui' && message3.visible && !message3.meta.showAsMessage) {\n"
+      ]
+    },
+    {
+      "at": 568,
+      "remove": [
+        "        } else if (message3.type === \"state\") {\n"
+      ],
+      "insert": [
+        "        } else if (message3.type === 'state') {\n"
+      ]
+    },
+    {
+      "at": 573,
+      "remove": [
+        "      node.on(\"message-added\", (e) => updateState(e.payload));\n",
+        "      node.on(\"message-updated\", (e) => updateState(e.payload));\n",
+        "      node.on(\"message-removed\", ({ payload: message3 }) => {\n"
+      ],
+      "insert": [
+        "      node.on('message-added', (e) => updateState(e.payload));\n",
+        "      node.on('message-updated', (e) => updateState(e.payload));\n",
+        "      node.on('message-removed', ({ payload: message3 }) => {\n"
+      ]
+    },
+    {
+      "at": 581,
+      "remove": [
+        "      node.on(\"settled:blocking\", () => {\n"
+      ],
+      "insert": [
+        "      node.on('settled:blocking', () => {\n"
+      ]
+    },
+    {
+      "at": 585,
+      "remove": [
+        "      node.on(\"unsettled:blocking\", () => {\n"
+      ],
+      "insert": [
+        "      node.on('unsettled:blocking', () => {\n"
+      ]
+    },
+    {
+      "at": 589,
+      "remove": [
+        "      node.on(\"settled:errors\", () => {\n"
+      ],
+      "insert": [
+        "      node.on('settled:errors', () => {\n"
+      ]
+    },
+    {
+      "at": 593,
+      "remove": [
+        "      node.on(\"unsettled:errors\", () => {\n"
+      ],
+      "insert": [
+        "      node.on('unsettled:errors', () => {\n"
+      ]
+    },
+    {
+      "at": 597,
+      "remove": [],
+      "insert": [
+        "      context.refreshClasses = () => { if (!contextAlive) {return;} for (const observed of classObservers) {observed.kill();} classObservers.clear(); for (const key of Object.keys(cachedClasses)) {delete cachedClasses[key];} notifyReactiveStore(context); };\n",
+        "      for (const event of ['config:classes','config:rootClasses','prop:rootClasses']) {node.on(event,context.refreshClasses);}\n"
+      ]
+    },
+    {
+      "at": 599,
+      "remove": [
+        "      node.emit(\"context\", node, false);\n",
+        "      node.on(\"destroyed\", () => {\n"
+      ],
+      "insert": [
+        "      node.emit('context', node, false);\n",
+        "      node.on('destroyed', () => {\n",
+        "        listItemKeys.delete(node);\n",
+        "        contextAlive = false;\n",
+        "        for (const observed of classObservers) {observed.kill();}\n",
+        "        classObservers.clear();\n"
+      ]
+    },
+    {
+      "at": 605,
+      "remove": [
+        "    bindings_default = reactBindings;\n"
+      ],
+      "insert": [
+        "    bindingsDefault = reactBindings;\n"
+      ]
+    },
+    {
+      "at": 608,
+      "remove": [],
+      "insert": [
+        "\n",
+        "initializeBindings();\n",
+        "export {bindingsDefault as bindings, subscribeReactiveStore, getReactiveStore};\n"
+      ]
+    }
+  ]
+}
