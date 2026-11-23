@@ -28,16 +28,22 @@ function mountApplication(config) {
   const host = document.createElement('main');
   document.body.append(host);
   let mountedView, drain;
+  const mountedFields = [];
   const App = FormKitApplication.extend({
     createFormView(options) {
       mountedView = new FormKitView({...options, instrument: true});
       drain = fieldPlacements(mountedView);
+      mountedView.once('before:attach', () => {
+        for (const child of mountedView.node.children) {
+          child.on('mounted', () => mountedFields.push(child.name));
+        }
+      });
       return mountedView;
     }
   });
   const app = new App({region: {el: host}, config, form: {fields, formProps: {actions: true}}});
   owners.push(app);
-  return {app, host, view: () => mountedView, placements: () => drain()};
+  return {app, host, mountedFields, view: () => mountedView, placements: () => drain()};
 }
 
 it('batches package-owned field wrappers in the stock FormKit Application path', async() => {
@@ -50,6 +56,12 @@ it('batches package-owned field wrappers in the stock FormKit Application path',
   for (const input of form.el.querySelectorAll('input')) {
     expect(input.compareDocumentPosition(submit)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   }
+  expect(fixture.mountedFields).toEqual(['first', 'second']);
+  expect(form.metrics.coreNodesCreated).toBeGreaterThan(2);
+  expect(form.metrics.coreNodesDestroyed).toBe(0);
+  fixture.app.destroy();
+  expect(form.metrics.coreNodesDestroyed).toBe(form.metrics.coreNodesCreated);
+  expect(fixture.host.childNodes).toHaveLength(0);
 });
 
 it('leaves the initial placement path unchanged for an Application with a custom config', async() => {
@@ -89,8 +101,9 @@ it('supports an ordinary FormKitView subclass; caller-owned roots stay on the ol
   }
 });
 
-it('leaves a committed prefix in place on insertion error; a later render uses the same field nodes', () => {
+it('rethrows the original insertion error and releases the partially placed fields on destroy', () => {
   const view = new FormKitView({fields, instrument: true, formProps: {actions: false}});
+  const host = document.createElement('main');
   owners.push(view);
   const insertBefore = view.el.insertBefore;
   const failure = new Error('synthetic platform insertion failure');
@@ -105,20 +118,27 @@ it('leaves a committed prefix in place on insertion error; a later render uses t
     return insertBefore.call(this, node, before);
   };
   try {
-    expect(() => view.render()).toThrow(failure);
+    try {
+      view.render();
+      expect.unreachable('Expected fragment insertion to throw');
+    } catch (error) {
+      expect(error).toBe(failure);
+    }
   } finally {
     delete view.el.insertBefore;
   }
   expect(writes).toBe(1);
   expect(prefix.parentNode).toBe(view.el);
   expect(suffix.parentNode).toBeNull();
-  const nodes = [...view.node.children];
-  const nodeCount = view.metrics.coreNodesCreated;
-  view.render();
-  expect([...view.el.querySelectorAll('[data-experiment-field]')]).toEqual([prefix, suffix]);
-  expect(view.node.children).toHaveLength(nodes.length);
-  nodes.forEach((node, index) => expect(view.node.children[index]).toBe(node));
-  expect(view.metrics.coreNodesCreated).toBe(nodeCount);
+  expect(view.metrics.coreNodesCreated).toBe(3);
+  expect(view.metrics.coreNodesDestroyed).toBe(0);
+  host.append(view.el);
+  view.destroy();
+  expect(view.metrics.coreNodesDestroyed).toBe(view.metrics.coreNodesCreated);
+  expect(prefix.parentNode).toBeNull();
+  expect(suffix.parentNode).toBeNull();
+  expect(view.el.childNodes).toHaveLength(0);
+  expect(host.childNodes).toHaveLength(0);
 });
 
 it('preserves ordinary placement when the view root is already attached', () => {

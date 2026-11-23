@@ -39,8 +39,9 @@ function moveMessages(context) {
   context.defaultMessagePlacement = false;
   return () => {
     if (--state.count) {return;}
-    if (context.defaultMessagePlacement === false) {context.defaultMessagePlacement = state.previous;}
+    // Retire the lease before restoring placement: a caller's setter can open another outlet.
     messagePlacements.delete(context);
+    if (context.defaultMessagePlacement === false) {context.defaultMessagePlacement = state.previous;}
   };
 }
 function resolveNode(args, props, environment) {

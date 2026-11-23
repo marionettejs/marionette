@@ -13,8 +13,8 @@
   },
   "target": {
     "path": "src/runtime/upstream-bindings.mjs",
-    "sha256": "11566558425e1fbfd3a24271b8cbad2f8ec1b4d4b551a36698caef7ee963d4be",
-    "lineCount": 637
+    "sha256": "3f89596d624bad543f639e7d015ae8c7abae17ea62c362b49ae7eb06040b1fba",
+    "lineCount": 643
   },
   "adaptation": "Exact line edits over the locked published2.9.0 reactive-store/binding slice. Removes React hook, retains candidate ownership/lifecycle/cache/list-key and2.9parity changes. Original2.5source attribution remains historical; not an unmodified2.9copy.",
   "hunks": [
@@ -501,6 +501,30 @@
       ],
       "insert": [
         "            node.emit('dom-input-event', e);\n"
+      ]
+    },
+    {
+      "at": 279,
+      "remove": [
+        "      const context = {\n"
+      ],
+      "insert": [
+        "      let defaultMessagePlacement = true;\n",
+        "      const context = {\n"
+      ]
+    },
+    {
+      "at": 294,
+      "remove": [
+        "        defaultMessagePlacement: true,\n"
+      ],
+      "insert": [
+        "        get defaultMessagePlacement() {return defaultMessagePlacement;},\n",
+        "        set defaultMessagePlacement(value) {\n",
+        "          if (Object.is(defaultMessagePlacement, value)) {return;}\n",
+        "          defaultMessagePlacement = value;\n",
+        "          notifyContextMutation();\n",
+        "        },\n"
       ]
     },
     {

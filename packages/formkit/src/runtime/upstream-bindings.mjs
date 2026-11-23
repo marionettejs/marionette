@@ -298,6 +298,7 @@ const initializeBindings = createInitializer({
         notifyContextMutation
       );
       const sectionRefs = {};
+      let defaultMessagePlacement = true;
       const context = {
         _value: inputValue,
         attrs: node.props.attrs,
@@ -313,7 +314,12 @@ const initializeBindings = createInitializer({
         didMount: false,
         node,
         options: node.props.options,
-        defaultMessagePlacement: true,
+        get defaultMessagePlacement() {return defaultMessagePlacement;},
+        set defaultMessagePlacement(value) {
+          if (Object.is(defaultMessagePlacement, value)) {return;}
+          defaultMessagePlacement = value;
+          notifyContextMutation();
+        },
         slots: node.props.__slots,
         state: {
           blurred: false,

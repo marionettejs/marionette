@@ -78,7 +78,10 @@ The consumer supplies `saveProfile`. `mount` owns a Region and the returned form
 call `destroy()` when that owner is no longer needed. The host remains available
 for later use. Supply `fields`, `schema`, or both, with `fields: []` for an empty form. Both
 sources share the owned Core form; `setFields` updates direct declarations and
-`setSchema` updates schema content.
+`setSchema` updates schema content. Reordering keyed field declarations moves
+their DOM elements and preserves their Core nodes; it does not reorder a Core
+list's indices or values. To reorder the list itself, move the rows through
+FormKit Core (for example, by setting a row node's `index`) as well.
 The compatibility `count` fixture creates required text fields and should not be
 used for production declarations. Native actions follow the official form
 schema; `formProps: { actions: false }` suppresses them.
