@@ -151,22 +151,29 @@ jobs:
 
           const binary = await realpath(chromium.executablePath());
           const binarySha256 = createHash('sha256').update(await readFile(binary)).digest('hex');
-          const launch = { headless: true, chromiumSandbox: true, executablePath: binary };
+          const launch = { headless: true, chromiumSandbox: true, executablePath: binary, args: ['--enable-automation'] };
           const evidence = { binarySha256, chromiumSandbox: true, headless: true, outcome: 'failed' };
           try {
             const browser = await chromium.launch(launch);
             try {
-              const cdp = await browser.newBrowserCDPSession();
-              const { arguments: args } = await cdp.send('Browser.getBrowserCommandLine');
-              const disablingArgs = args.filter((arg) =>
-                /^--(?:no-sandbox|disable-setuid-sandbox|disable-seccomp-filter-sandbox|disable-namespace-sandbox)(?:=|$)/.test(arg));
-              if (disablingArgs.length) throw new Error('Sandbox-disabled browser command line');
+              evidence.browserVersion = browser.version();
               const page = await browser.newPage();
               await page.setContent('<main>Sandbox preflight</main>');
               if (await page.locator('main').textContent() !== 'Sandbox preflight') {
                 throw new Error('Renderer smoke failed');
               }
-              evidence.browserVersion = browser.version();
+              evidence.rendererSmoke = 'passed';
+
+              const cdp = await browser.newBrowserCDPSession();
+              const { arguments: args } = await cdp.send('Browser.getBrowserCommandLine');
+              if (!Array.isArray(args) || !args.includes('--enable-automation')) {
+                throw new Error('Browser command-line audit was not enabled');
+              }
+              // Retain observed switch names; omit ephemeral runner/temporary profile paths and values.
+              evidence.observedSwitches = args.filter((arg) => arg.startsWith('--')).map((arg) => arg.split('=', 1)[0]);
+              const disablingArgs = args.filter((arg) =>
+                /^--(?:no-sandbox|disable-setuid-sandbox|disable-seccomp-filter-sandbox|disable-namespace-sandbox|disable-gpu-sandbox|allow-sandbox-debugging)(?:=|$)/.test(arg));
+              if (disablingArgs.length) throw new Error('Sandbox-disabled browser command line');
               evidence.outcome = 'passed';
             } finally {
               await browser.close();
