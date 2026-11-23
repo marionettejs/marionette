@@ -1,4 +1,4 @@
-name: FormKit synthetic macOS sandbox preflight
+name: FormKit synthetic hosted correctness
 
 on:
   push:
@@ -102,15 +102,16 @@ jobs:
           retention-days: 7
 
   macos-sandbox:
-    name: Sandboxed Chromium preflight (GitHub-hosted macOS arm64)
+    name: Sandboxed Chromium synthetic correctness (GitHub-hosted macOS arm64)
     runs-on: macos-15
-    timeout-minutes: 10
+    timeout-minutes: 30
     env:
       MNJS_SKIP_PREPARE: '1'
     steps:
       - name: Checkout isolated synthetic preflight source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          fetch-depth: 8
           persist-credentials: false
       - name: Setup pinned Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
@@ -127,7 +128,7 @@ jobs:
             echo "node=$(node --version)"
             echo "npm=$(npm --version)"
             echo "os=$(sw_vers -productVersion)"
-            echo "mode=sandbox_smoke_only_not_a_benchmark"
+            echo "mode=real_browser_correctness_only_not_a_benchmark"
             shasum -a 256 package-lock.json
           } > "$RUNNER_TEMP/formkit-evidence/provenance.txt"
           npm run check:release-profile -- --host macos-arm64 --runner macos-15
@@ -185,11 +186,57 @@ jobs:
             await writeFile(process.env.BROWSER_EVIDENCE, JSON.stringify(evidence, null, 2) + '\n');
           }
           JS
-      - name: Retain preflight-only evidence
+      - name: Assemble exact packs and locked public study dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=660d5beb697379faa39b023c9fbce8d0bf2122a4
+          patch="$GITHUB_WORKSPACE/.github/benchmarks/formkit-initial-placement-v4.patch"
+          study="$GITHUB_WORKSPACE/.github/benchmarks/formkit-study-v1"
+          report="$RUNNER_TEMP/formkit-evidence"
+          git merge-base --is-ancestor "$base" HEAD
+          (cd "$study"; echo '6f1c22e5fb834d3935002b3014947b5ee0f66bc17a2bbe847639ab193b4565d0  package-lock.json' | shasum -a 256 -c -)
+          echo "1062ab4c4e64017bd6017da3a63ccd9f87b92263dc995f0f4b643e3ff2c7e2d5  $patch" | shasum -a 256 -c -
+          git worktree add --detach "$RUNNER_TEMP/formkit-base" "$base"
+          git worktree add --detach "$RUNNER_TEMP/formkit-v4" "$base"
+          git -C "$RUNNER_TEMP/formkit-v4" apply --index "$patch"
+          printf 'base_tree=%s\ncandidate_tree=%s\n' \
+            "$(git -C "$RUNNER_TEMP/formkit-base" rev-parse HEAD^{tree})" \
+            "$(git -C "$RUNNER_TEMP/formkit-v4" write-tree)" >> "$report/provenance.txt"
+          for arm in baseline candidate; do
+            if [[ "$arm" = baseline ]]; then checkout=formkit-base; else checkout=formkit-v4; fi
+            package="$RUNNER_TEMP/$checkout/packages/formkit"
+            pack="$RUNNER_TEMP/$arm-pack"
+            mkdir -p "$pack" "$study/packs/$arm"
+            (
+              cd "$package"
+              npm ci --ignore-scripts --no-audit --no-fund --workspaces=false
+              npm run build
+              npm pack --ignore-scripts --pack-destination "$pack"
+            )
+            (cd "$pack"; shasum -a 256 ./*.tgz) > "$report/$arm-pack-sha256.txt"
+            tar -xzf "$pack"/*.tgz -C "$study/packs/$arm"
+          done
+          cd "$study"
+          npm ci --ignore-scripts --no-audit --no-fund
+          node build.mjs
+          shasum -a 256 package-lock.json fixture.mjs run-correctness.mjs > "$report/harness-hashes.txt"
+          find dist -type f -print0 | xargs -0 shasum -a 256 >> "$report/harness-hashes.txt"
+      - name: Verify all 24 public synthetic workload cells (no timings)
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PLAYWRIGHT_BROWSERS_PATH="$RUNNER_TEMP/formkit-chromium"
+          export XDG_CONFIG_HOME="$RUNNER_TEMP/formkit-profile/config"
+          export XDG_CACHE_HOME="$RUNNER_TEMP/formkit-profile/cache"
+          export TMPDIR="$RUNNER_TEMP/formkit-profile/tmp"
+          export FORMKIT_STUDY_REPORT="$RUNNER_TEMP/formkit-evidence/correctness.json"
+          node .github/benchmarks/formkit-study-v1/run-correctness.mjs
+      - name: Retain preflight and correctness-only evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: formkit-synthetic-macos-preflight-${{ github.sha }}-${{ github.run_attempt }}
+          name: formkit-synthetic-macos-correctness-${{ github.sha }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/formkit-evidence/
           if-no-files-found: warn
           retention-days: 7
