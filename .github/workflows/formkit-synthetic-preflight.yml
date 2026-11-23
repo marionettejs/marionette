@@ -24,7 +24,7 @@ jobs:
       - name: Checkout CI-only commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          fetch-depth: 2
+          fetch-depth: 8
           persist-credentials: false
       - name: Setup pinned Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD^)" = "$BASELINE"
+          git merge-base --is-ancestor "$BASELINE" HEAD
           mkdir -p "$RUNNER_TEMP/formkit-evidence"
           patch=.github/benchmarks/formkit-initial-placement-v4.patch
           echo "$PATCH_SHA  $patch" | sha256sum -c -
@@ -58,12 +58,13 @@ jobs:
           npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
           npm ci --ignore-scripts --no-audit --no-fund
       - name: Install exact lockfile Chromium
-        run: npx --no-install playwright install chromium
+        run: PLAYWRIGHT_BROWSERS_PATH="$RUNNER_TEMP/formkit-chromium" npx --no-install playwright install chromium
       - name: Require sandbox-enabled browser preflight
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/formkit-profile"/{config,cache,tmp}
+          export PLAYWRIGHT_BROWSERS_PATH="$RUNNER_TEMP/formkit-chromium"
           export XDG_CONFIG_HOME="$RUNNER_TEMP/formkit-profile/config"
           export XDG_CACHE_HOME="$RUNNER_TEMP/formkit-profile/cache"
           export TMPDIR="$RUNNER_TEMP/formkit-profile/tmp"
