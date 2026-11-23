@@ -1,4 +1,4 @@
-name: FormKit synthetic hosted correctness
+name: FormKit synthetic hosted timing
 
 on:
   push:
@@ -102,9 +102,9 @@ jobs:
           retention-days: 7
 
   macos-sandbox:
-    name: Sandboxed Chromium synthetic correctness (GitHub-hosted macOS arm64)
+    name: Sandboxed Chromium matched timing (GitHub-hosted macOS arm64)
     runs-on: macos-15
-    timeout-minutes: 30
+    timeout-minutes: 50
     env:
       MNJS_SKIP_PREPARE: '1'
     steps:
@@ -128,7 +128,7 @@ jobs:
             echo "node=$(node --version)"
             echo "npm=$(npm --version)"
             echo "os=$(sw_vers -productVersion)"
-            echo "mode=real_browser_correctness_only_not_a_benchmark"
+            echo "mode=standalone_public_synthetic_correctness_and_timing"
             shasum -a 256 package-lock.json
           } > "$RUNNER_TEMP/formkit-evidence/provenance.txt"
           npm run check:release-profile -- --host macos-arm64 --runner macos-15
@@ -220,7 +220,7 @@ jobs:
           cd "$study"
           npm ci --ignore-scripts --no-audit --no-fund
           node build.mjs
-          shasum -a 256 package-lock.json fixture.mjs run-correctness.mjs > "$report/harness-hashes.txt"
+          shasum -a 256 package-lock.json fixture.mjs run-correctness.mjs run-timing.mjs > "$report/harness-hashes.txt"
           find dist -type f -print0 | xargs -0 shasum -a 256 >> "$report/harness-hashes.txt"
       - name: Verify all 24 public synthetic workload cells (no timings)
         shell: bash
@@ -232,11 +232,32 @@ jobs:
           export TMPDIR="$RUNNER_TEMP/formkit-profile/tmp"
           export FORMKIT_STUDY_REPORT="$RUNNER_TEMP/formkit-evidence/correctness.json"
           node .github/benchmarks/formkit-study-v1/run-correctness.mjs
-      - name: Retain preflight and correctness-only evidence
+      - name: Validate shared measurement marks before recording any sample
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PLAYWRIGHT_BROWSERS_PATH="$RUNNER_TEMP/formkit-chromium"
+          export XDG_CONFIG_HOME="$RUNNER_TEMP/formkit-profile/config"
+          export XDG_CACHE_HOME="$RUNNER_TEMP/formkit-profile/cache"
+          export TMPDIR="$RUNNER_TEMP/formkit-profile/tmp"
+          export FORMKIT_STUDY_SMOKE=1
+          export FORMKIT_STUDY_REPORT="$RUNNER_TEMP/formkit-evidence/instrumentation-smoke.json"
+          node .github/benchmarks/formkit-study-v1/run-timing.mjs
+      - name: Collect serial balanced timings and retain all outcomes
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PLAYWRIGHT_BROWSERS_PATH="$RUNNER_TEMP/formkit-chromium"
+          export XDG_CONFIG_HOME="$RUNNER_TEMP/formkit-profile/config"
+          export XDG_CACHE_HOME="$RUNNER_TEMP/formkit-profile/cache"
+          export TMPDIR="$RUNNER_TEMP/formkit-profile/tmp"
+          export FORMKIT_STUDY_REPORT="$RUNNER_TEMP/formkit-evidence/raw-timing.json"
+          node .github/benchmarks/formkit-study-v1/run-timing.mjs
+      - name: Retain preflight, behavior and raw timing evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: formkit-synthetic-macos-correctness-${{ github.sha }}-${{ github.run_attempt }}
+          name: formkit-synthetic-macos-timing-${{ github.sha }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/formkit-evidence/
           if-no-files-found: warn
           retention-days: 7

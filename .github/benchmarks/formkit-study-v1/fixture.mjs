@@ -18,14 +18,37 @@ function specs(count, shape) {
     children: Array.from({ length: 5 }, (_, offset) => field(row * 5 + offset, false))
   })) }];
 }
-let dispose, initial, trusted, count, shape;
+let dispose, initial, trusted, count, shape, timed;
+function targetValue(root) {
+  return shape === 'rows' ? root?.value?.rows?.[count / 5 - 1]?.[name(count - 1)] : root?.value?.[name(count - 1)];
+}
 window.study = {
-  mount(n, workload) {
+  mount(n, workload, measure = false) {
     if (dispose || ![450, 1500].includes(n) || !['flat', 'validated', 'rows'].includes(workload)) throw Error('Bad invocation');
     count = n; shape = workload; trusted = 0;
+    timed = measure ? { mountStart: performance.now(), edits: [{ value: 'valid' }, { value: 'warmer' }], next: 0 } : null;
     dispose = attach(host, { id: formId, type: 'form', actions: false }, specs(n, workload));
-    window.study.onInput = event => { if (event.isTrusted && event.target.id === id(count - 1)) trusted++; };
-    host.addEventListener('input', window.study.onInput);
+    if (timed) {
+      timed.mountReturn = performance.now();
+      timed.root = getNode(formId);
+      if (!timed.root) throw Error('Missing root after mount');
+      timed.receipt = timed.root.on('commit', () => {
+        const edit = timed?.edits[timed.next];
+        if (!edit || edit.input === undefined || targetValue(timed.root) !== edit.value) return;
+        const leaf = getNode(id(count - 1));
+        const sibling = getNode(id(count - 2));
+        if (leaf?.value !== edit.value || sibling?.value !== '') return;
+        edit.commit = performance.now();
+        timed.next++;
+      });
+    }
+    window.study.onInput = event => {
+      if (!event.isTrusted || event.target.id !== id(count - 1)) return;
+      trusted++;
+      const edit = timed?.edits[timed.next];
+      if (edit && event.target.value === edit.value && edit.input === undefined) edit.input = performance.now();
+    };
+    host.addEventListener('input', window.study.onInput, true);
   },
   initial() {
     initial = Array.from(host.querySelectorAll('input'));
@@ -38,7 +61,7 @@ window.study = {
     const root = getNode(formId);
     const node = getNode(id(count - 1));
     const sibling = getNode(id(count - 2));
-    const value = shape === 'rows' ? root?.value?.rows?.[count / 5 - 1]?.[name(count - 1)] : root?.value?.[name(count - 1)];
+    const value = targetValue(root);
     return trusted > 0 && node?.value === expected && value === expected && sibling?.value === '';
   },
   identityRetained() {
@@ -51,9 +74,32 @@ window.study = {
       .map(key => document.getElementById(key)?.textContent?.toLowerCase() ?? '');
     return fragment ? described.some(text => text.includes(fragment)) : !described.some(Boolean);
   },
+  measuredReady(index) {
+    return !!timed && timed.edits[index]?.commit !== undefined;
+  },
   unmount() {
-    host.removeEventListener('input', window.study.onInput);
+    host.removeEventListener('input', window.study.onInput, true);
+    if (timed) {
+      timed.root.off(timed.receipt);
+      timed.root = undefined;
+      timed.destroyStart = performance.now();
+    }
     dispose(); dispose = undefined; initial = undefined;
+    if (timed) timed.destroyReturn = performance.now();
+  },
+  measurement() {
+    if (!this.clean() || timed?.next !== 2 || !(timed.destroyStart <= timed.destroyReturn)) throw Error('Incomplete sample');
+    const [first, warm] = timed.edits;
+    if (!(timed.mountStart <= timed.mountReturn && timed.mountReturn <= first.input &&
+      first.input <= first.commit && first.commit <= warm.input && warm.input <= warm.commit &&
+      warm.commit <= timed.destroyStart)) throw Error('Nonmonotonic sample');
+    return {
+      mountMs: timed.mountReturn - timed.mountStart,
+      mountToFirstCommitMs: first.commit - timed.mountStart,
+      firstInputToCommitMs: first.commit - first.input,
+      warmInputToCommitMs: warm.commit - warm.input,
+      destroyMs: timed.destroyReturn - timed.destroyStart
+    };
   },
   clean() {
     return host.childNodes.length === 0 && !getNode(formId) &&
