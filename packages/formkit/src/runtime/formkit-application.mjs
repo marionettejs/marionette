@@ -4,6 +4,18 @@ import { Application } from 'marionette';
 import { createConfig } from '@formkit/core';
 import { kebab } from '@formkit/utils';
 
+// A FormKit root config is mutable and may be shared with other forms.
+const stockRootConfigs = new WeakMap();
+export function hasStockRootConfig(config) {
+  const defaults = stockRootConfigs.get(config);
+  if (!defaults || Object.getPrototypeOf(config) !== Object.prototype ||
+    Reflect.ownKeys(config).length !== defaults.length) {return false;}
+  return defaults.every(([key, value]) => {
+    const property = Object.getOwnPropertyDescriptor(config, key);
+    return property && Object.hasOwn(property, 'value') && Object.is(property.value, value);
+  });
+}
+
 export function createFormKitApplication(FormView) {
   return Application.extend({
     async prepareStart(options = {}, { signal }) {
@@ -27,10 +39,14 @@ export function createFormKitApplication(FormView) {
       if (typeof loaded === 'function') {loaded = loaded();}
       signal.throwIfAborted();
       const raw = loaded ?? {}, defaults = settings.defaultConfig !== false;
-      const rootConfig = raw.config?.rootConfig ?? createConfig({
+      const suppliedRootConfig = raw.config?.rootConfig;
+      const rootConfig = suppliedRootConfig ?? createConfig({
         ...(defaults ? { locale: 'en', rootClasses: section => ({ [`formkit-${kebab(section)}`]: true }) } : {}),
         ...(defaults && raw.locale ? { locale: raw.locale } : {}), ...raw.config
       });
+      if (defaults && suppliedRootConfig == null && Object.keys(raw.config ?? {}).length === 0) {
+        stockRootConfigs.set(rootConfig,Object.entries(rootConfig));
+      }
       return { options: raw, defaultConfig: defaults, rootConfig };
     },
     onStart(_application, options, scope) {

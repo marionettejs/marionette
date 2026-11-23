@@ -7,7 +7,7 @@ import { nativeFormKitFactory, formKitScope } from './provider-scope.mjs';
 export { defaultConfig } from './config-scope.mjs';
 // Experimental slice. React 2.5.0 store/class-cache patterns adapted under MIT;
 // see LICENSE.formkit. DOM renderer and Marionette ownership are new code.
-import { createFormKitApplication } from './formkit-application.mjs';
+import { createFormKitApplication, hasStockRootConfig } from './formkit-application.mjs';
 import { createFormKitHelpers } from './helper-components.mjs';
 import { resolveComponentLibrary } from './component-library.mjs';
 import { installValueFacade } from './value-facade.mjs';
@@ -16,7 +16,7 @@ import { createFieldCommitTracker } from './field-commits.mjs';
 import { createInputCompletion, createInputCompletionScope } from './input-completion.mjs';
 import { camel, kebab, slugify, extend, cloneAny, shallowClone, eq } from '@formkit/utils';
 import { createThemePlugin } from '@formkit/themes';
-import { View, Region, MnObject } from 'marionette';
+import { View, Region, MnObject, DomApi } from 'marionette';
 import { createNode, compile, reset, createMessage } from '@formkit/core';
 import { createLibraryPlugin, inputs as nativeInputs, runtimeProps } from '@formkit/inputs';
 import { createObserver } from '@formkit/observer';
@@ -237,7 +237,62 @@ function fieldEntries(view,parent,specs) {
   if (new Set(entries.map(([key])=>key)).size !== entries.length) {throw new TypeError('Unique sibling field keys required');}
   return entries;
 }
-function reconcile(view,parent,map,specs,anchor,initial) {
+const freshForms = new WeakMap();
+const stockInitialPlacementMethods = ['createElement', 'setAttributes', 'createBuffer', 'appendContents', 'moveEl', 'detachEl']
+  .map(name => [name, DomApi[name]]);
+
+function hasStockSpecs(specs) {
+  return specs.every(spec => {
+    if (spec.onNode || spec.ref || spec.definition || spec.library || spec.sectionsSchema || spec.props?.definition ||
+      spec.props?.library || spec.props?.ref || spec.attrs?.ref || spec.plugins?.length) {return false;}
+    return spec.children == null || Array.isArray(spec.children) && hasStockSpecs(spec.children);
+  });
+}
+
+function hasOrdinaryMarkup(element) {
+  const canReact = el => el.localName.includes('-') || el.hasAttribute('is') ||
+    el.shadowRoot || el.localName === 'template';
+  if (canReact(element)) {return false;}
+  for (const child of element.getElementsByTagName('*')) {
+    if (canReact(child)) {return false;}
+  }
+  return true;
+}
+
+function firstPlacement(view,specs,anchor) {
+  const root = freshForms.get(view);
+  freshForms.delete(view);
+  const Dom = view._formKitDom;
+  if (!root || root !== view.el || root.localName !== 'form' || root.hasAttribute('is') || root.parentNode ||
+    view._schema !== undefined || view._layoutController || view._sectionsSchema || Object.keys(view._rootSlots).length ||
+    anchor !== view._fieldAnchor || anchor.parentNode !== root || specs.length < 2 || !hasStockSpecs(specs) ||
+    stockInitialPlacementMethods.some(([name, method]) => Dom[name] !== method)) {return;}
+  const renderer = view._rootRenderer;
+  return (elements,pivot) => {
+    const config = view.config?.rootConfig;
+    if ((config && !hasStockRootConfig(config)) || pivot >= 0 || elements.length < 2 || elements.length !== specs.length ||
+      elements.some(el => el.parentNode || el.ownerDocument !== root.ownerDocument || !hasOrdinaryMarkup(el)) ||
+      view._ending || view.el !== root || root.parentNode || view._rootRenderer !== renderer ||
+      view._fieldAnchor !== anchor || anchor.parentNode !== root) {return false;}
+    const fragment = Dom.createBuffer();
+    if (fragment.ownerDocument !== root.ownerDocument) {return false;}
+    try {
+      for (const el of elements) {Dom.appendContents(fragment,el);}
+      // The native placement operation inserts the fragment before the anchor in one write.
+      Dom.moveEl(fragment,root,anchor);
+    } catch (error) {
+      for (const el of elements) {
+        if (el.parentNode === fragment) {
+          try {Dom.detachEl(el);} catch { /* Preserve the original placement error. */ }
+        }
+      }
+      throw error;
+    }
+    return true;
+  };
+}
+
+function reconcile(view,parent,map,specs,anchor,initial,placeFirst) {
   const entries = fieldEntries(view,parent,specs);
   for (const [key,spec] of entries) {const existing = map.get(key);if (existing && (existing.node.props.type !== (spec.type ?? 'text') || !Object.is(existing.spec.key,spec.key))) {existing.destroy();map.delete(key);}}
   const names = new Set(entries.map(([key])=>key));
@@ -266,6 +321,7 @@ function reconcile(view,parent,map,specs,anchor,initial) {
   const elements = entries.map(([key])=>map.get(key).el).filter(element=>!element.parentNode || element.parentNode === anchor.parentNode);
   const active = anchor.getRootNode().activeElement ?? anchor.ownerDocument.activeElement;
   const pivot = elements.findIndex(element=>element.contains(active));
+  if (placeFirst?.(elements,pivot)) {return;}
   const place = (first,last,cursor)=>{for (let i = last;i >= first;i--) {const element = elements[i];if (element.nextSibling !== cursor) {insertNode(view._formKitDom,anchor.parentNode,element,cursor);}cursor = element;}};
   // Moving a focused ancestor with insertBefore blurs it in real browsers.
   // Keep that retained subtree attached; move only its siblings around it.
@@ -310,8 +366,22 @@ function createSchemaOwner(view,{host,props,context,parentNode,configScope,domRo
 export class ExperimentalFormView extends View {
   get tagName() { return 'form'; }
   get template() { return false; }
+  _getEl() {
+    // Check property presence rather than calling a consumer's el getter twice.
+    const ownsRoot = !('el' in this);
+    const el = super._getEl();
+    if (ownsRoot) {freshForms.set(this,el);}
+    return el;
+  }
   initialize(options = {}) {
     this._formKitDom = this.Dom;
+    const customConfig = Object.keys(options.config ?? {}).some(key => key !== 'rootConfig') ||
+      (options.config?.rootConfig && !hasStockRootConfig(options.config.rootConfig));
+    if (options.defaultConfig === false || Object.keys(options.inputs ?? {}).length || options.plugins?.length ||
+      Object.keys(options.components ?? {}).length || options.formProps?.definition || options.formProps?.library ||
+      Object.keys(options.rules ?? {}).length || customConfig || options.icons || options.iconLoader || options.iconLoaderUrl) {
+      freshForms.delete(this);
+    }
     this._schema = options.schema;this._schemaSlots = options.schemaSlots ?? {};this._rootSlots = options.slots ?? {};
     const view = this;this._schemaData = {...options.data,get values() {return view.node.value;}};
     this.metrics = { enabled: options.instrument === true, contextNotifications: 0,tokenChecks: 0,expressionEvaluations: 0,domWrites: 0,structuralChanges: 0,coreNodesCreated: 0,coreNodesDestroyed: 0,coreInputEvents: 0,coreCommitEvents: 0,coreMessageEvents: 0,classRootEvaluations: 0 };
@@ -429,7 +499,7 @@ export class ExperimentalFormView extends View {
   setErrors(errors,fieldErrors) { return this._facade.setErrors(errors,fieldErrors); }
   setFields(specs) {
     return this._facade.batch('setFields',()=>{
-      validateFields(specs,this.definitions);this._setFields([...specs,...this._schemaSpecs]);this._directSpecs = specs;
+      validateFields(specs,this.definitions);this._setFields([...specs,...this._schemaSpecs],true);this._directSpecs = specs;
     });
   }
   _setSchemaFields(specs) {
@@ -437,11 +507,12 @@ export class ExperimentalFormView extends View {
       this._setFields([...this._directSpecs,...specs]);this._schemaSpecs = specs;
     });
   }
-  _setFields(specs) {
+  _setFields(specs,direct = false) {
     if (this._ending || this.isDestroyed()) {return;}
     validateFields(specs,this.definitions);
     const anchor = this._layoutController?.fieldAnchor ?? this._fieldAnchor;
     if (!this._isRendered && this.fields.size === 0) {
+      const placeFirst = direct ? firstPlacement(this,specs,anchor) : undefined;
 
       this._initialNodes = new Map();
       const prepare = (parent,childSpecs,initial)=>{
@@ -451,7 +522,7 @@ export class ExperimentalFormView extends View {
       try {
         prepare(this.node,specs,this.initialValues);
         this.node.context.refreshClasses();this._rootRenderer.refresh();
-        reconcile(this,this.node,this.fields,specs,anchor,this.initialValues);
+        reconcile(this,this.node,this.fields,specs,anchor,this.initialValues,placeFirst);
       } finally {
         // Only unclaimed construction resources; no rollback of rendered fields.
         for (const nodes of this._initialNodes.values()) {for (const node of nodes.values()) {node.destroy();}}
