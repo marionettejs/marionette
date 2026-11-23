@@ -20,12 +20,12 @@ await once(server, 'listening');
 const binary = await realpath(chromium.executablePath());
 const sha256 = createHash('sha256').update(await readFile(binary)).digest('hex');
 const smoke = process.env.FORMKIT_STUDY_SMOKE === '1';
-const records = [], evidence = { study: 'hosted-formkit-synthetic-v1', mode: smoke ? 'instrumentation-smoke' : 'timing', sha256, records };
+const records = [], evidence = { study: 'hosted-formkit-single-root-v5', mode: smoke ? 'instrumentation-smoke' : 'timing', sha256, records };
 const blocked = /^--(?:no-sandbox|disable-setuid-sandbox|disable-seccomp-filter-sandbox|disable-namespace-sandbox|disable-gpu-sandbox|allow-sandbox-debugging)(?:=|$)/;
-const armNames = ['baseline', 'candidate', 'vue', 'react'];
-const squares = [[0, 1, 3, 2], [1, 2, 0, 3], [2, 3, 1, 0], [3, 0, 2, 1]];
-const workloads = [450, 1500].flatMap(count => ['flat', 'validated', 'rows'].map(shape => ({ count, shape })));
-evidence.protocol = { warmupsPerCell: 1, measuredPerCell: 8, noRetries: true, browserPerSample: true, squares, workloads };
+const armNames = ['baseline', 'candidate', 'v5'];
+const squares = [[0, 1, 2], [1, 2, 0], [2, 0, 1], [0, 2, 1], [2, 1, 0], [1, 0, 2]];
+const workloads = [1500].flatMap(count => ['flat', 'validated', 'rows'].map(shape => ({ count, shape })));
+evidence.protocol = { warmupsPerCell: 1, measuredPerCell: 6, noRetries: true, browserPerSample: true, squares, workloads };
 const urls = arm => 'http://127.0.0.1:' + server.address().port + '/' + arm + '/index.html';
 
 async function sample(arm, count, shape) {
@@ -74,9 +74,8 @@ async function enter(workload, block, position, armIndex) {
 }
 try {
   for (const [workloadIndex, workload] of workloads.entries()) {
-    if (smoke && workload.count !== 450) continue;
-    for (const [position, arm] of squares[workloadIndex % 4].entries()) await enter(workload, -1, position, arm);
-    for (let block = 0; !smoke && block < 8; block++) {
+    for (const [position, arm] of squares[workloadIndex % squares.length].entries()) await enter(workload, -1, position, arm);
+    for (let block = 0; !smoke && block < 6; block++) {
       const order = squares[(block + workloadIndex) % squares.length];
       for (const [position, arm] of order.entries()) await enter(workload, block, position, arm);
     }

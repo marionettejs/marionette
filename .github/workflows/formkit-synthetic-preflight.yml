@@ -1,4 +1,4 @@
-name: FormKit synthetic hosted timing
+name: FormKit synthetic single-root regression timing
 
 on:
   push:
@@ -32,7 +32,7 @@ jobs:
       - name: Checkout CI-only commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          fetch-depth: 8
+          fetch-depth: 16
           persist-credentials: false
       - name: Setup pinned Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
@@ -102,7 +102,7 @@ jobs:
           retention-days: 7
 
   macos-sandbox:
-    name: Sandboxed Chromium matched timing (GitHub-hosted macOS arm64)
+    name: V0, V4, V5 matched timing (GitHub-hosted macOS arm64)
     runs-on: macos-15
     timeout-minutes: 50
     env:
@@ -111,7 +111,7 @@ jobs:
       - name: Checkout isolated synthetic preflight source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          fetch-depth: 8
+          fetch-depth: 16
           persist-credentials: false
       - name: Setup pinned Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
@@ -192,26 +192,47 @@ jobs:
           set -euo pipefail
           base=660d5beb697379faa39b023c9fbce8d0bf2122a4
           patch="$GITHUB_WORKSPACE/.github/benchmarks/formkit-initial-placement-v4.patch"
+          patch5="$GITHUB_WORKSPACE/.github/benchmarks/formkit-initial-placement-v5.patch"
           study="$GITHUB_WORKSPACE/.github/benchmarks/formkit-study-v1"
           report="$RUNNER_TEMP/formkit-evidence"
           git merge-base --is-ancestor "$base" HEAD
           (cd "$study"; echo '6f1c22e5fb834d3935002b3014947b5ee0f66bc17a2bbe847639ab193b4565d0  package-lock.json' | shasum -a 256 -c -)
           echo "1062ab4c4e64017bd6017da3a63ccd9f87b92263dc995f0f4b643e3ff2c7e2d5  $patch" | shasum -a 256 -c -
+          echo "7f7569b4fc88e8a758764ee68832d2525e05e55107fea30705a8c34f1187780f  $patch5" | shasum -a 256 -c -
+          git worktree add --detach "$RUNNER_TEMP/formkit-v5" "$base"
+          git -C "$RUNNER_TEMP/formkit-v5" apply --index "$patch5"
           git worktree add --detach "$RUNNER_TEMP/formkit-base" "$base"
           git worktree add --detach "$RUNNER_TEMP/formkit-v4" "$base"
           git -C "$RUNNER_TEMP/formkit-v4" apply --index "$patch"
           printf 'base_tree=%s\ncandidate_tree=%s\n' \
             "$(git -C "$RUNNER_TEMP/formkit-base" rev-parse HEAD^{tree})" \
             "$(git -C "$RUNNER_TEMP/formkit-v4" write-tree)" >> "$report/provenance.txt"
-          for arm in baseline candidate; do
-            if [[ "$arm" = baseline ]]; then checkout=formkit-base; else checkout=formkit-v4; fi
+          echo "v5_tree=$(git -C "$RUNNER_TEMP/formkit-v5" write-tree)" >> "$report/provenance.txt"
+          python3 - "$RUNNER_TEMP" <<'PY'
+          import pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          path = 'packages/formkit/src/runtime/index.mjs'
+          v4 = (root / 'formkit-v4' / path).read_text()
+          v5 = (root / 'formkit-v5' / path).read_text()
+          needle = 'anchor.parentNode !== root || !hasStockSpecs(specs)'
+          assert v4.count(needle) == 1 and v4.replace(needle, 'anchor.parentNode !== root || specs.length < 2 || !hasStockSpecs(specs)') == v5
+          PY
+          for arm in baseline candidate v5; do
+            case "$arm" in baseline) checkout=formkit-base;; candidate) checkout=formkit-v4;; v5) checkout=formkit-v5;; esac
             package="$RUNNER_TEMP/$checkout/packages/formkit"
             pack="$RUNNER_TEMP/$arm-pack"
             mkdir -p "$pack" "$study/packs/$arm"
             (
               cd "$package"
               npm ci --ignore-scripts --no-audit --no-fund --workspaces=false
-              npm run build
+              if [[ "$arm" = v5 ]]; then
+                npm --prefix "$RUNNER_TEMP/$checkout" ci --ignore-scripts --no-audit --no-fund
+                npm run check 2>&1 | tee "$report/v5-package-check.txt"
+                cp "$study/v5-placement.spec.mjs" test/synthetic-v5-placement.spec.mjs
+                npm test -- test/synthetic-v5-placement.spec.mjs 2>&1 | tee "$report/v5-placement-check.txt"
+              else
+                npm run build
+              fi
               npm pack --ignore-scripts --pack-destination "$pack"
             )
             (cd "$pack"; shasum -a 256 ./*.tgz) > "$report/$arm-pack-sha256.txt"
@@ -222,7 +243,7 @@ jobs:
           node build.mjs
           shasum -a 256 package-lock.json fixture.mjs run-correctness.mjs run-timing.mjs > "$report/harness-hashes.txt"
           find dist -type f -print0 | xargs -0 shasum -a 256 >> "$report/harness-hashes.txt"
-      - name: Verify all 24 public synthetic workload cells (no timings)
+      - name: Verify all 18 public synthetic workload cells (no timings)
         shell: bash
         run: |
           set -euo pipefail
@@ -257,7 +278,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: formkit-synthetic-macos-timing-${{ github.sha }}-${{ github.run_attempt }}
+          name: formkit-synthetic-macos-v5-timing-${{ github.sha }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/formkit-evidence/
           if-no-files-found: warn
           retention-days: 7

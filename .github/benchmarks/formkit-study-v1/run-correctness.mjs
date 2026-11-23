@@ -19,9 +19,9 @@ server.listen(0, '127.0.0.1');
 await once(server, 'listening');
 const binary = await realpath(chromium.executablePath());
 const sha256 = createHash('sha256').update(await readFile(binary)).digest('hex');
-const records = [], evidence = { study: 'hosted-formkit-synthetic-v1', mode: 'correctness-only', sha256, records };
+const records = [], evidence = { study: 'hosted-formkit-single-root-v5', mode: 'correctness-only', sha256, records };
 const blocked = /^--(?:no-sandbox|disable-setuid-sandbox|disable-seccomp-filter-sandbox|disable-namespace-sandbox|disable-gpu-sandbox|allow-sandbox-debugging)(?:=|$)/;
-const arms = ['baseline', 'candidate', 'vue', 'react'];
+const arms = ['baseline', 'candidate', 'v5'];
 async function test(arm, count, shape) {
   const browser = await chromium.launch({ executablePath: binary, headless: true, chromiumSandbox: true, args: ['--enable-automation'] });
   try {
