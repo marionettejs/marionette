@@ -1,0 +1,130 @@
+name: FormKit synthetic benchmark preflight
+
+on:
+  push:
+    branches: [codex/formkit-synthetic-ci-20261123]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: formkit-synthetic-ci-20261123
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Sandbox and exact FormKit package gates
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      MNJS_SKIP_PREPARE: '1'
+      BASELINE: 660d5beb697379faa39b023c9fbce8d0bf2122a4
+      PATCH_SHA: 1062ab4c4e64017bd6017da3a63ccd9f87b92263dc995f0f4b643e3ff2c7e2d5
+    steps:
+      - name: Checkout CI-only commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Setup pinned Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version-file: .nvmrc
+      - name: Verify inputs and check out both immutable source variations
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "$BASELINE"
+          mkdir -p "$RUNNER_TEMP/formkit-evidence"
+          patch=.github/benchmarks/formkit-initial-placement-v4.patch
+          echo "$PATCH_SHA  $patch" | sha256sum -c -
+          git worktree add --detach "$RUNNER_TEMP/formkit-baseline" "$BASELINE"
+          git worktree add --detach "$RUNNER_TEMP/formkit-candidate" "$BASELINE"
+          git -C "$RUNNER_TEMP/formkit-candidate" apply --index "$GITHUB_WORKSPACE/$patch"
+          {
+            echo "driver_commit=$GITHUB_SHA"
+            echo "base_commit=$BASELINE"
+            echo "base_tree=$(git -C "$RUNNER_TEMP/formkit-baseline" rev-parse HEAD^{tree})"
+            echo "candidate_tree=$(git -C "$RUNNER_TEMP/formkit-candidate" write-tree)"
+            echo "patch_sha256=$PATCH_SHA"
+            echo "runner=$RUNNER_OS/$RUNNER_ARCH"
+            echo "node=$(node --version)"
+            echo "npm=$(npm --version)"
+            echo "kernel=$(uname -sr)"
+            echo "logical_cpus=$(nproc)"
+            awk '/^MemTotal:/ { print "memory_kib=" $2 }' /proc/meminfo
+            sha256sum package-lock.json packages/formkit/package-lock.json
+          } > "$RUNNER_TEMP/formkit-evidence/provenance.txt"
+          npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+          npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install exact lockfile Chromium
+        run: npx --no-install playwright install chromium
+      - name: Require sandbox-enabled browser preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/formkit-profile"/{config,cache,tmp}
+          export XDG_CONFIG_HOME="$RUNNER_TEMP/formkit-profile/config"
+          export XDG_CACHE_HOME="$RUNNER_TEMP/formkit-profile/cache"
+          export TMPDIR="$RUNNER_TEMP/formkit-profile/tmp"
+          export BROWSER_EVIDENCE="$RUNNER_TEMP/formkit-evidence/browser-preflight.json"
+          node --input-type=module <<'JS'
+          import { createHash } from 'node:crypto';
+          import { readFile, realpath, writeFile } from 'node:fs/promises';
+          import { chromium } from '@playwright/test';
+
+          const binary = await realpath(chromium.executablePath());
+          const binarySha256 = createHash('sha256').update(await readFile(binary)).digest('hex');
+          const launch = { headless: true, chromiumSandbox: true, executablePath: binary };
+          const evidence = { binarySha256, chromiumSandbox: true, headless: true, outcome: 'failed' };
+          try {
+            const browser = await chromium.launch(launch);
+            try {
+              const cdp = await browser.newBrowserCDPSession();
+              const { arguments: args } = await cdp.send('Browser.getBrowserCommandLine');
+              const disablingArgs = args.filter((arg) =>
+                /^--(?:no-sandbox|disable-setuid-sandbox|disable-seccomp-filter-sandbox|disable-namespace-sandbox)(?:=|$)/.test(arg));
+              if (disablingArgs.length) throw new Error('Sandbox-disabled browser command line');
+              const page = await browser.newPage();
+              await page.setContent('<main>Sandbox preflight</main>');
+              if (await page.locator('main').textContent() !== 'Sandbox preflight') {
+                throw new Error('Renderer smoke failed');
+              }
+              evidence.browserVersion = browser.version();
+              evidence.outcome = 'passed';
+            } finally {
+              await browser.close();
+            }
+          } catch (error) {
+            console.error(error);
+            process.exitCode = 1;
+          } finally {
+            await writeFile(process.env.BROWSER_EVIDENCE, JSON.stringify(evidence, null, 2) + '\n');
+          }
+          JS
+      - name: Verify and hash isolated package builds
+        shell: bash
+        run: |
+          set -euo pipefail
+          for arm in baseline candidate; do
+            root="$RUNNER_TEMP/formkit-$arm"
+            mkdir "$RUNNER_TEMP/formkit-$arm-pack"
+            npm --prefix "$root" ci --ignore-scripts --no-audit --no-fund
+            npm --prefix "$root/packages/formkit" ci --ignore-scripts --no-audit --no-fund --workspaces=false
+            npm --prefix "$root/packages/formkit" run check
+            (
+              cd "$root/packages/formkit"
+              npm pack --ignore-scripts --pack-destination "$RUNNER_TEMP/formkit-$arm-pack" --json
+              node -e 'let l=require("./package-lock.json"); for(let [p,v] of Object.entries(l.packages)) if (/^node_modules\/(?:marionette|@formkit\/[^/]+|@mnjs\/(?:utils|radio))$/.test(p)) console.log(p,v.version,v.integrity)'
+            ) > "$RUNNER_TEMP/formkit-evidence/$arm-package.txt"
+            (cd "$RUNNER_TEMP/formkit-$arm-pack" && sha256sum ./*.tgz) \
+              >> "$RUNNER_TEMP/formkit-evidence/$arm-package.txt"
+          done
+      - name: Retain synthetic preflight evidence only
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: formkit-synthetic-preflight-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/formkit-evidence/
+          if-no-files-found: warn
+          retention-days: 7
