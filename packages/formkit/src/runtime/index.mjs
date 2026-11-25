@@ -66,6 +66,9 @@ function schemaFor(node,sections) {const schema = node.props.definition.schema;r
 function createField(node,spec,view,initial,renderDefault,present) {
   const Dom = view._formKitDom, el = Dom.createElement('div');Dom.setAttributes(el, {'data-experiment-field': String(node.name)});
   const initialVisibility = nativeProps(spec,node.props.definition);
+  const initialDefinitionProps = node.props.definition.props ?? [];
+  const initialPromotedKeys = Array.isArray(initialDefinitionProps) ? initialDefinitionProps : Object.keys(initialDefinitionProps);
+  let declaredAttrKeys = Object.keys(initialVisibility.attrs).filter(key => key !== 'validationVisibility' && !initialPromotedKeys.includes(key));
   let declaredVisibility = initialVisibility.props.validationVisibility !== undefined ? initialVisibility.props.validationVisibility : initialVisibility.attrs.validationVisibility;
   let ownsVisibility = declaredVisibility !== undefined && Object.hasOwn(node.props,'validationVisibility') && eq(node.props.validationVisibility,declaredVisibility);
   const visibilityReceipt = node.on('prop:validationVisibility',event=>{if (event.origin === node) {ownsVisibility = false;}});
@@ -142,7 +145,12 @@ function createField(node,spec,view,initial,renderDefault,present) {
       const {props,attrs} = nativeProps(next,node.props.definition);
       const definitions = node.props.definition.props ?? [],keys = Array.isArray(definitions) ? definitions : Object.keys(definitions);
       for (const key of Object.keys(attrs)) {if (keys.includes(key)) {if (key !== 'validationVisibility') {node.props[key] = attrs[key];} delete attrs[key];}}
-      node.props.attrs = attrs;
+      // Reconcile only declaration-owned attrs; Core plugins may add their own.
+      const currentAttrs = node.props.attrs;
+      const nextAttrs = {...currentAttrs,...attrs};
+      for (const key of declaredAttrKeys) {if (!Object.hasOwn(attrs,key)) {delete nextAttrs[key];}}
+      declaredAttrKeys = Object.keys(attrs);
+      if (!eq(currentAttrs,nextAttrs)) {node.props.attrs = nextAttrs;}
       for (const [key,value] of Object.entries(props)) {if (key !== 'name' && key !== 'type' && key !== 'definition' && key !== 'validationVisibility') {node.props[key] = value;}}
       for (const key of Object.keys(field.spec.classes ?? {})) {if (!(key in (next.classes ?? {}))) {node.props[`_${key}Class`] = undefined;}}
     }

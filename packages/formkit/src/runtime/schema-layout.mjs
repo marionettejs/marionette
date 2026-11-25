@@ -153,7 +153,7 @@ export function createLayoutController({form,schema,data: externalData = {},comp
       for (const {key} of schemaValueKeys(entry.attrs ?? {})) {if (key === 'innerHTML') {throw new TypeError('Layout raw HTML unsupported');}}
       expression(entry.attrs);expression(entry.props);expression(entry.bind);expression(entry.if);
       if ('$cmp' in entry && hasAuthoredSlots(entry)) {checkLazyLayout(entry);return {fields: [],dom: entry};}
-      const children = parse(entry.children ?? [],loopAliases);return {fields: entry.if ? [{if: entry.if,then: children.fields}] : children.fields,dom: {...entry,children: children.dom}};
+      const children = parse(entry.children ?? [],loopAliases);return {fields: Object.hasOwn(entry,'if') ? [{if: entry.if,then: children.fields}] : children.fields,dom: {...entry,children: children.dom}};
     }
     if ('if' in entry && 'then' in entry) {
       for (const key of Object.keys(entry)) {if (!['if','then','else','for'].includes(key)) {throw new TypeError(`Unsupported layout condition key: ${key}`);}}

@@ -19,7 +19,14 @@ export function schemaIdentity(input, resolve) {
   const identity = {bound,name: bound?.name,key: bound?.key};
   // Match explicit prop declaration order, without compiling raw literal values.
   for (const {source,key,raw} of schemaValueKeys(input)) {
-    if (key === 'name' || key === 'key') {identity[key] = raw ? input[source] : resolve(input[source]);}
+    if (key === 'name' || key === 'key') {
+      const declared = input[source], resolved = raw ? declared : resolve(declared);
+      // Rendered name expressions share the existing anonymous-undefined path.
+      // Literal/raw declarations and unrelated invalid result types stay unchanged.
+      identity[key] = key === 'name' && !raw && typeof declared === 'string' &&
+        declared.length > 1 && declared.startsWith('$') && (resolved === null || resolved === '') ?
+        undefined : resolved;
+    }
   }
   if (input[projectedFormKit]) {identity.name = componentName(identity.name);}
   return identity;
