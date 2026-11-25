@@ -110,8 +110,7 @@ async function checkFixedKeyLifecycle(api, anonymous) {
   });
   const wait = async promise => {
     let timer;
-    try { return await Promise.race([promise, new Promise((_, reject) => {timer = setTimeout(() => reject(new Error('Public fence deadline exceeded')), 1000);})]); }
-    finally {clearTimeout(timer);}
+    try { return await Promise.race([promise, new Promise((_, reject) => {timer = setTimeout(() => reject(new Error('Public fence deadline exceeded')), 1000);})]); } finally {clearTimeout(timer);}
   };
   const type = (input, value) => {input.value = value; input.dispatchEvent(new Event('input', {bubbles: true}));};
   try {

@@ -3,8 +3,7 @@ import { mount } from '@mnjs/formkit';
 
 const owners = [];
 afterEach(() => {
-  try { for (const api of owners.splice(0).reverse()) { api.destroy(); } }
-  finally { document.body.replaceChildren(); vi.useRealTimers(); }
+  try { for (const api of owners.splice(0).reverse()) { api.destroy(); } } finally { document.body.replaceChildren(); vi.useRealTimers(); }
 });
 function create(candidate, options = {}) {
   const host = document.createElement('main'); document.body.append(host);
@@ -62,7 +61,7 @@ it.each([false, { bad: 'name' }])('retains rejection of an unrelated invalid exp
   expect(() => create(candidate)).toThrow(TypeError);
 });
 it('preserves a raw dollar-prefixed schema name without evaluating it', async() => {
-  const { api } = create('Ignored', { schema: [{ $formkit: 'text', __raw__name: '$candidate' }] });
+  const { api } = create('Ignored', { schema: [{ $formkit: 'text', '__raw__name': '$candidate' }] });
   await api.whenPendingEditsSettled();
   expect(api.node.at('$candidate')).toBeDefined();
 });
