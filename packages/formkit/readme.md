@@ -13,17 +13,12 @@ FormKit schemas, inputs and validation with Marionette View, Region and
 Application ownership. This is an unpublished package candidate. It imports
 neither React nor Vue; their component objects require explicit DOM factories.
 
-The frozen `5fa30f06` candidate has independent approval for scoped PR
-integration. Its root lint, default verification, 106 acceptance cases, 138
-Vue/React/adapter references, package coverage, packed ESM/CJS consumers and
-strict type consumers pass under Node 24.19.0/npm 11.17.0. The dynamic-list,
-raw identity, mixed ownership and dependency-pruning corrections are included.
-This is an unpublished candidate, not browser, Pro, performance or release
-certification. Exact-source Pro tests executed: zero. Current browser assets
-remain unavailable; prior browser receipts retain their historical source.
-Active watcher pruning does not remove all inert Core event history: the
-independent probe records 73 slots versus 41 at baseline. No complete memory
-or garbage-collection guarantee is claimed. See [PROVENANCE.md](PROVENANCE.md).
+The package workflow checks the current revision against released Marionette
+5.2.0 and FormKit 2.9.0. It exercises the package's ESM, CommonJS and TypeScript
+exports, lifecycle and validation contracts, and selected Vue and React
+reference cases. These are not full browser, licensed Pro, or performance
+certification. See [PROVENANCE.md](PROVENANCE.md) for historical evidence rather
+than treating results from a frozen candidate as current.
 
 ## Build and verify the candidate
 

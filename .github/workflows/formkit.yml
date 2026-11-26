@@ -58,6 +58,18 @@ jobs:
         run: npm --prefix packages/formkit run check
       - name: Measure active runtime coverage
         run: npm --prefix packages/formkit run coverage
+      - name: Set up consumer Node 22.22.2
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22.22.2'
+      - name: Verify clean npm consumer on Node 22.22.2
+        run: node packages/formkit/scripts/check-clean-consumer.mjs
+      - name: Set up consumer Node 24.15.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.15.0'
+      - name: Verify clean npm consumer on Node 24.15.0
+        run: node packages/formkit/scripts/check-clean-consumer.mjs
       - name: Retain package verification reports
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -66,6 +78,7 @@ jobs:
           path: |
             packages/formkit/test/tmp/lint-result.json
             packages/formkit/test/tmp/package-result.json
+            packages/formkit/test/tmp/clean-consumer-*.json
             packages/formkit/coverage/coverage-summary.json
             packages/formkit/coverage/graph-result.json
             packages/formkit/coverage/lcov.info
