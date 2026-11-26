@@ -507,7 +507,10 @@ export class ExperimentalFormView extends View {
   setErrors(errors,fieldErrors) { return this._facade.setErrors(errors,fieldErrors); }
   setFields(specs) {
     return this._facade.batch('setFields',()=>{
-      validateFields(specs,this.definitions);this._setFields([...specs,...this._schemaSpecs],true);this._directSpecs = specs;
+      if (!Array.isArray(specs)) {throw new TypeError('Fields must be an array');}
+      if (this._ending || this.isDestroyed()) {validateFields(specs,this.definitions);}
+      else {this._setFields([...specs,...this._schemaSpecs],true);}
+      this._directSpecs = specs;
     });
   }
   _setSchemaFields(specs) {
@@ -547,7 +550,7 @@ export class ExperimentalFormView extends View {
   }
 }
 
-export const FormKitApplication = createFormKitApplication(ExperimentalFormView);
+export const FormKitApplication = /* @__PURE__ */ createFormKitApplication(ExperimentalFormView);
 
 export function mount(options = {}) {
   const { [formKitScope]: providerScope, defaultConfig = true, instrument = false, host, count = 1, fields, values = {}, classes, config, onSubmit, onSubmitInvalid, onSubmitRaw, formProps, inputs, plugins, components, rules, locales, messages, sectionsSchema, theme, icons, iconLoaderUrl, iconLoader, schema, data, slots, schemaSlots } = options;
