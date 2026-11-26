@@ -508,8 +508,7 @@ export class ExperimentalFormView extends View {
   setFields(specs) {
     return this._facade.batch('setFields',()=>{
       if (!Array.isArray(specs)) {throw new TypeError('Fields must be an array');}
-      if (this._ending || this.isDestroyed()) {validateFields(specs,this.definitions);}
-      else {this._setFields([...specs,...this._schemaSpecs],true);}
+      if (this._ending || this.isDestroyed()) {validateFields(specs,this.definitions);} else {this._setFields([...specs,...this._schemaSpecs],true);}
       this._directSpecs = specs;
     });
   }
