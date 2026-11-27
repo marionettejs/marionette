@@ -22,7 +22,23 @@ function projectSchema(entry,omit = [],overrides = {}) {
   return Object.create(Object.getPrototypeOf(entry),descriptors);
 }
 
-export function renderSections({host,Dom = View.prototype.Dom,schema,context,metrics,slots = {},reuseRoot = false,data = {},components = {},configScope,domRoot,parentNode}) {
+// The default fallbacks for these stock slots each own one element and
+// cannot render siblings. Their existing outer slot sets the insertion point.
+const stockLeaves = new Map([
+  ['$slots.help', ['div', '$help']],
+  ['$slots.label', ['label', '$label']],
+  ['$slots.prefixIcon', ['label', '$prefixIcon && $_rawPrefixIcon']],
+  ['$slots.suffixIcon', ['span', '$suffixIcon && $_rawSuffixIcon']],
+]);
+function isOwnedStockLeaf(slot,yes,branch) {
+  const readOwn = (object,key)=>Object.getOwnPropertyDescriptor(object,key)?.value;
+  const condition = readOwn(slot,'if'), leaf = stockLeaves.get(condition);
+  if (!leaf || yes !== condition || !isSchemaPojo(branch) ||
+      '$cmp' in branch || '$formkit' in branch || 'for' in branch || 'then' in branch || 'else' in branch) {return false;}
+  return readOwn(branch,'$el') === leaf[0] && readOwn(branch,'if') === leaf[1];
+}
+
+export function renderSections({host,Dom = View.prototype.Dom,schema,context,metrics,slots = {},reuseRoot = false,ownStockLeaves = false,data = {},components = {},configScope,domRoot,parentNode}) {
   let dead = false,rootUsed = false,removeDom = true;const effects = new Set(),elements = new Set(),schemaCells = new WeakMap();
   const cellFor = entry=>{const source = entry[sectionSource] ?? entry;let cell = schemaCells.get(source);if (!cell) {cell = {current: source};schemaCells.set(source,cell);} return cell;};
   const iterationScope = Symbol('iteration scope'), scopedEffects = Symbol('outlet effects'),methodBindings = new WeakMap();
@@ -84,8 +100,13 @@ export function renderSections({host,Dom = View.prototype.Dom,schema,context,met
       if (raw) {apply(bag[source]);} else {valueBinding(bag[source],locals,owner,apply,key,deep);}
     }
   }
-  function range(parent,before,owner) {const start = parent.ownerDocument.createComment('section'),end = parent.ownerDocument.createComment('/section');insertNode(Dom,parent,start,before);insertNode(Dom,parent,end,before);owner.add(()=>{if (!removeDom) {return;} let n = start;while (n) {const next = n.nextSibling;removeNode(Dom,n);if (n === end) {break;}n = next;}});return {start,end};}
-  function draw(entry,parent,before,locals,owner,childProps) {
+  function createRange(parent,before,first = before) {
+    const start = parent.ownerDocument.createComment('section'),end = parent.ownerDocument.createComment('/section');
+    insertNode(Dom,parent,start,first);insertNode(Dom,parent,end,before);
+    return {start,end,clear() {if (!removeDom) {return;} let n = start;while (n) {const next = n.nextSibling;removeNode(Dom,n);if (n === end) {break;}n = next;}}};
+  }
+  function range(parent,before,owner) {const bounds = createRange(parent,before);owner.add(bounds.clear);return bounds;}
+  function draw(entry,parent,before,locals,owner,childProps,ownedLeaf = false,restoreLeafBounds) {
     if (entry && typeof entry === 'object' && !Array.isArray(entry)) {const current = cellFor(entry).current;if (current !== (entry[sectionSource] ?? entry)) {entry = projectSchema(entry,[],{attrs: current.attrs,bind: current.bind});}}
     if (entry == null || entry === false) {return;}
     if (Array.isArray(entry)) {for (const child of entry) {draw(child,parent,before,locals,owner,childProps);} return;}
@@ -144,7 +165,29 @@ export function renderSections({host,Dom = View.prototype.Dom,schema,context,met
         if (pivot < 0) {place(0,ordered.length - 1,bounds.end);} else {place(pivot + 1,ordered.length - 1,bounds.end);place(0,pivot - 1,ordered[pivot].start);}
       },true);return;
     }
-    if (Object.hasOwn(entry,'if')) {const bounds = range(parent,before,owner);let child = scope(),previous;owner.add(()=>child.destroy());const yes = Object.hasOwn(entry,'then') ? entry.then : projectSchema(entry,['if']);binding(entry.if,locals,owner,value=>{const flag = !!value;if (flag === previous) {return;}previous = flag;child.destroy();child = scope();metric('structuralChanges');draw(flag ? yes : entry.else,parent,bounds.end,locals,child,childProps);},false,true);return;}
+    if (Object.hasOwn(entry,'if')) {
+      let bounds = ownedLeaf ? undefined : range(parent,before,owner);
+      const restoreBounds = ownedLeaf ? element=>{
+        if (bounds) {return;}
+        const attached = element?.parentNode === parent;
+        const at = attached ? element.nextSibling : before;
+        bounds = createRange(parent,at,attached ? element : at);
+      } : undefined;
+      if (ownedLeaf) {owner.add(()=>bounds?.clear());}
+      let child = scope(),previous;
+      owner.add(()=>child.destroy());
+      const yes = Object.hasOwn(entry,'then') ? entry.then : projectSchema(entry,['if']);
+      binding(entry.if,locals,owner,value=>{
+        const flag = Boolean(value);
+        if (flag === previous) {return;}
+        previous = flag;child.destroy();child = scope();metric('structuralChanges');
+        if (ownedLeaf && !ownStockLeaves) {restoreBounds();}
+        const branch = flag ? yes : entry.else;
+        const owned = ownStockLeaves && !flag && isOwnedStockLeaf(entry,yes,branch);
+        draw(branch,parent,bounds?.end ?? before,locals,child,childProps,owned,ownedLeaf && !bounds ? restoreBounds : undefined);
+      },false,true);
+      return;
+    }
     if (Object.hasOwn(entry,'$cmp')) {
       const component = typeof entry.$cmp === 'string' ? components[entry.$cmp] : entry.$cmp;
       if (typeof component !== 'function') {throw new TypeError(`Unknown component factory: ${String(entry.$cmp)}`);}
@@ -297,7 +340,9 @@ export function renderSections({host,Dom = View.prototype.Dom,schema,context,met
       }
       for (const name of previous) {if (!ownedAttrs.has(name)) {removeAttr(name,undefined);ownedAttrs.delete(name);}}
     };
-    const record = {cell: cellFor(entry),apply: applyAttrs};elements.add(record);owner.add(()=>elements.delete(record));applyAttrs(entry);if (syncAutomaticRef && !ownedAttrs.has('ref')) {syncAutomaticRef(true);}
+    const record = {cell: cellFor(entry),apply: applyAttrs};
+    if (restoreLeafBounds) {record.restoreBounds = ()=>restoreLeafBounds(element);}
+    elements.add(record);owner.add(()=>elements.delete(record));applyAttrs(entry);if (syncAutomaticRef && !ownedAttrs.has('ref')) {syncAutomaticRef(true);}
     if (childProps) {const update = ()=>applyAttrs(record.cell.current);registerEffect(update,locals,owner);}
     if (!reuse && entry.children !== undefined) {
       const descendants = scope();
@@ -311,7 +356,7 @@ export function renderSections({host,Dom = View.prototype.Dom,schema,context,met
   const unsubscribe = subscribeReactiveStore(context,()=>{if (dead) {return;}metric('contextNotifications');for (const effect of [...effects]) {if (effects.has(effect)) {effect();}}});
   // Attribute-only schema changes retain DOM and mount-owned plugin resources.
   // Structural changes continue through the caller's existing redraw path.
-  const setSchema = next=>{
+  const setSchema = (next,stock = ownStockLeaves)=>{
     if (dead) {return false;}
     const pairs = [],nextByOld = new WeakMap(),oldByNext = new WeakMap();
     const match = (before,after)=>{
@@ -335,6 +380,12 @@ export function renderSections({host,Dom = View.prototype.Dom,schema,context,met
       pairs.push([before,after]);return true;
     };
     if (!match(schema,next)) {return false;}
+    if (ownStockLeaves && !stock) {
+      // A late section override may add a ref that inserts siblings. Restore
+      // its cleanup boundaries in place before running any new attributes.
+      ownStockLeaves = false;
+      for (const record of elements) {record.restoreBounds?.();}
+    }
     for (const [before,after] of pairs) {const cell = cellFor(before);cell.current = after;schemaCells.set(after,cell);}
     schema = next;for (const record of elements) {record.apply(record.cell.current);} return true;
   };

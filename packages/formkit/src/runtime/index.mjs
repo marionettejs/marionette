@@ -63,6 +63,9 @@ function modelValue(spec) {return spec.modelValue !== undefined ? spec.modelValu
 function isModeled(spec) {return spec.modelValue !== undefined || spec.value !== undefined || typeof spec.onUpdateModelValue === 'function' || typeof spec['onUpdate:modelValue'] === 'function';}
 function schemaFor(node,sections) {const schema = node.props.definition.schema;return typeof schema === 'function' ? schema({...sections ?? {}}) : schema;}
 
+const stockTextSchema = nativeInputs.text.schema;
+const isStockTextSchema = (node, sections) => sections == null && node.props.definition.schema === stockTextSchema;
+
 function createField(node,spec,view,initial,renderDefault,present) {
   const Dom = view._formKitDom, el = Dom.createElement('div');Dom.setAttributes(el, {'data-experiment-field': String(node.name)});
   const initialVisibility = nativeProps(spec,node.props.definition);
@@ -125,10 +128,10 @@ function createField(node,spec,view,initial,renderDefault,present) {
   const redraw = next=>{
     if (dead) {return;}
     const nextSchema = schemaFor(node,next.sectionsSchema);
-    if (next.library === field.spec.library && renderer?.setSchema(nextSchema)) {return;}
+    if (next.library === field.spec.library && renderer?.setSchema(nextSchema,isStockTextSchema(node,next.sectionsSchema))) {return;}
     for (const child of children.values()) {removeNode(Dom,child.el);} for (const content of defaultScopes.values()) {removeNode(Dom,content.host);}
     redrawing = true;try {renderer?.destroy();} finally {redrawing = false;}anchor = undefined;
-    renderer = renderSections({Dom,host: el,schema: nextSchema,context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,next.library),slots});
+    renderer = renderSections({Dom,host: el,schema: nextSchema,ownStockLeaves: isStockTextSchema(node,next.sectionsSchema),context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,next.library),slots});
     for (const [parent,content] of defaultScopes) {if (!content.active) {defaultScopes.delete(parent);content.dispose?.();removeNode(Dom,content.host);}}
     if (anchor && !next[schemaChildScope]) {reconcile(view,node,children,next.children ?? [],anchor,initial ?? {});}
     present?.(el);
@@ -189,7 +192,7 @@ function createField(node,spec,view,initial,renderDefault,present) {
   const inputReceipt = node.on('modelUpdated',()=>{field.spec.onInputRaw?.(node.context?.value,node);field.spec.onInput?.(node.context?.value,node);if (isModeled(field.spec)) {const value = shallowClone(node.value);field.spec.onUpdateModelValue?.(value);field.spec['onUpdate:modelValue']?.(value);field.spec.onChange?.(value,node);}});
   const schemaReceipt = node.on('schema',event=>{if (event.origin !== node || dead || schemaQueued) {return;}schemaQueued = true;queueMicrotask(()=>{schemaQueued = false;if (!dead) {redraw(field.spec);}});});
   queueMicrotask(notifyMounted);
-  try {spec.onNode?.(node);renderer = renderSections({Dom,host: el,schema: schemaFor(node,spec.sectionsSchema),context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,spec.library),slots});field.update(spec);present?.(el);return field;} catch (error) {try {field.destroy();} catch { /* Preserve the construction error. */ } throw error;}
+  try {spec.onNode?.(node);renderer = renderSections({Dom,host: el,schema: schemaFor(node,spec.sectionsSchema),ownStockLeaves: isStockTextSchema(node,spec.sectionsSchema),context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,spec.library),slots});field.update(spec);present?.(el);return field;} catch (error) {try {field.destroy();} catch { /* Preserve the construction error. */ } throw error;}
 }
 
 const generalProps = new Set([...runtimeProps,'label','help','disabled','validationVisibility','slots','definition','defaultValue','onUpdateModelValue','onChange','sync','dynamic','ignore','preserve']);
