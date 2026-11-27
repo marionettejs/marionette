@@ -1,3 +1,4 @@
+import { diagnostics, metricsOf } from './diagnostics.mjs';
 import { afterEach, expect, it, vi } from 'vitest';
 import { mount } from '@mnjs/formkit';
 
@@ -14,7 +15,7 @@ function create(kind, condition) {
   wrapper.children = [{ $formkit: 'text', name: 'requiredField', label: 'Required field', validation: 'required' }];
   const submitted = vi.fn(), invalid = vi.fn();
   const api = mount({
-    host, schema: [wrapper], instrument: true, formProps: { actions: false },
+    host, schema: [wrapper], [diagnostics]: true, formProps: { actions: false },
     onSubmit: submitted, onSubmitInvalid: invalid,
     components: {
       Card({ host: target, renderChildren }) {
@@ -42,7 +43,7 @@ it.each(['element', 'component'])('does not create a required Core child below a
   }).toEqual({ hasWrapper: false, hasInput: false, hasCoreNode: false, values: {} });
   await vi.waitFor(() => expect(api.getFormState().valid).toBe(true));
   api.destroy();
-  expect(api.metrics.coreNodesCreated).toBe(api.metrics.coreNodesDestroyed);
+  expect(metricsOf(api).coreNodesCreated).toBe(metricsOf(api).coreNodesDestroyed);
 });
 it.each(['element', 'component'])('does not let an invisible required child block submit under a literal-false %s wrapper', async kind => {
   const { api, submitted, invalid } = create(kind, false);

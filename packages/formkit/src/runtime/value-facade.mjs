@@ -1,3 +1,4 @@
+import { diagnostics } from './diagnostics.mjs';
 // Marionette adapter conveniences, not additions to FormKit's upstream API.
 import { cloneAny, eq, isPojo } from '@formkit/utils';
 const merge = (base,patch)=>Object.fromEntries(Object.entries({...base,...patch}).map(([key,value])=>[key,isPojo(base?.[key]) && isPojo(patch[key]) ? merge(base[key],patch[key]) : value]));
@@ -18,7 +19,7 @@ function completeBranch(node,value) {
   }
 }
 export function installValueFacade(view) {
-  const node = view.node, metrics = view.metrics;
+  const node = view.node, metrics = view[diagnostics];
   Object.assign(metrics,{valueSnapshots: 0,resetComparisonSnapshots: 0,valueChangeEvents: 0,stateEvents: 0,facadeListeners: 0});
   const pendingInputs = new WeakMap();
   const count = key=>{if (metrics.enabled) {metrics[key]++;}};

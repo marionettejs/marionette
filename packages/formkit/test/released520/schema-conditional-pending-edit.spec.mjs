@@ -1,3 +1,4 @@
+import { diagnostics, metricsOf } from '../diagnostics.mjs';
 import { afterEach, expect, it, vi } from 'vitest';
 import { Region } from 'marionette';
 import { FormKitView } from '@mnjs/formkit';
@@ -19,7 +20,7 @@ it('retires a conditionally hidden pending edit without retiring its sibling, th
   const region = new Region({ el: host });
   owners.push(region);
   const view = new FormKitView({
-    instrument: true,
+    [diagnostics]: true,
     formProps: { actions: false },
     data: { shown: true },
     schema: [
@@ -145,5 +146,5 @@ it('retires a conditionally hidden pending edit without retiring its sibling, th
   expect(view.getValues()).toEqual({ conditional: 'Fresh generation edit', sibling: 'Sibling next' });
   region.destroy();
   expect(host.childNodes).toHaveLength(0);
-  expect(view.metrics.coreNodesCreated).toBe(view.metrics.coreNodesDestroyed);
+  expect(metricsOf(view).coreNodesCreated).toBe(metricsOf(view).coreNodesDestroyed);
 });

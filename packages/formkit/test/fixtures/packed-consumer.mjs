@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { readFile } from 'node:fs/promises';
 import { JSDOM } from 'jsdom';
+const diagnostics = Symbol.for('@mnjs/formkit/internal-diagnostics');
+const metricsOf = owner => owner[diagnostics] ?? owner.form[diagnostics];
 const dom = new JSDOM('<body></body>', { url: 'https://consumer.example.test/' });
 for (const key of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'HTMLInputElement', 'HTMLFormElement', 'Event', 'CustomEvent', 'MutationObserver', 'getComputedStyle']) {globalThis[key] = dom.window[key];}
 const require = createRequire(import.meta.url);
@@ -16,6 +18,12 @@ assert.deepEqual(Object.keys(components).sort(), Object.keys(cjsComponents).sort
 for (const api of [imported, required]) {
   const host = document.createElement('main'); document.body.append(host);
   const form = api.mount({ host, fields: [{ name: 'title', label: 'Title' }], values: { title: 'Packed' }, formProps: { actions: false } });
+  assert.deepEqual(Object.keys(form).sort(), [
+    'clearErrors', 'createValueProjection', 'destroy', 'form', 'getFormState', 'getValues',
+    'node', 'observeFieldCommits', 'reset', 'setErrors', 'setFields', 'setSchema', 'setSectionsSchema',
+    'setSlots', 'setValues', 'submit', 'updateData', 'whenPendingEditsSettled',
+  ]);
+  assert.equal('metrics' in form.form, false);
   assert.equal(form.getValues().title, 'Packed');
   assert.equal(host.querySelector('input').value, 'Packed');
   form.setValues({ title: 'Updated' });
@@ -50,7 +58,7 @@ for (const [format, api] of [['esm', imported], ['cjs', required]]) {
       wrapper.children = [{ $formkit: 'text', name: 'requiredField', label: 'Required field', validation: 'required' }];
       const submitted = []; let invalid = 0;
       const form = api.mount({
-        host, schema: [wrapper], instrument: true, formProps: { actions: false },
+        host, schema: [wrapper], [diagnostics]: true, formProps: { actions: false },
         onSubmit: values => { submitted.push(structuredClone(values)); },
         onSubmitInvalid: () => { invalid++; },
         components: { Card({ host: target, renderChildren }) {
@@ -89,7 +97,7 @@ for (const [format, api] of [['esm', imported], ['cjs', required]]) {
       } finally {
         form.destroy(); host.remove();
       }
-      assert.equal(form.metrics.coreNodesCreated, form.metrics.coreNodesDestroyed);
+      assert.equal(metricsOf(form).coreNodesCreated, metricsOf(form).coreNodesDestroyed);
       wrapperConditions.push({ format, kind, condition, passed: true });
     }
   }
@@ -101,7 +109,7 @@ async function checkFixedKeyLifecycle(api, anonymous) {
   let current;
   const facts = [], submitted = [];
   const form = api.mount({
-    host, instrument: true, formProps: {actions: false}, data: {candidate: 'answer'},
+    host, [diagnostics]: true, formProps: {actions: false}, data: {candidate: 'answer'},
     schema: [
       {$formkit: 'text', name: '$candidate', key: 'fixed-business-key', id: 'fixed-key-answer', config: {delay: 20}, onNode: node => {current = node;}},
       {$formkit: 'text', name: 'sibling', id: 'fixed-key-sibling'}
@@ -160,7 +168,7 @@ async function checkFixedKeyLifecycle(api, anonymous) {
     return {coreRecreated: true, domRecreated: true, generationsDistinct: true, staleFacts: 0, retainedSibling: true, submit: submitted[0]};
   } finally {
     form.destroy(); host.remove();
-    assert.equal(form.metrics.coreNodesCreated, form.metrics.coreNodesDestroyed);
+    assert.equal(metricsOf(form).coreNodesCreated, metricsOf(form).coreNodesDestroyed);
   }
 }
 const fixedKeyNames = [];
@@ -176,7 +184,7 @@ async function checkAnonymousEquivalence(api, component) {
   const props = {name: '$candidate', key: 'anonymous-business-key', id: 'anonymous-answer', config: {delay: 0}};
   const submitted = [];
   const form = api.mount({
-    host, formProps: {actions: false}, data: {candidate: 'answer'},
+    host, [diagnostics]: true, formProps: {actions: false}, data: {candidate: 'answer'},
     schema: [component ? {$cmp: 'FormKit', props: {type: 'text', ...props}} : {$formkit: 'text', ...props}],
     onSubmit: values => {submitted.push(structuredClone(values));},
   });
@@ -210,7 +218,7 @@ async function checkAnonymousEquivalence(api, component) {
   } finally {
     form.destroy();
     host.remove();
-    assert.equal(form.metrics.coreNodesCreated, form.metrics.coreNodesDestroyed);
+    assert.equal(metricsOf(form).coreNodesCreated, metricsOf(form).coreNodesDestroyed);
   }
 }
 const anonymousEquivalence = [];

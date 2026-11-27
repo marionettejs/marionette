@@ -1,3 +1,4 @@
+import { diagnostics, metricsOf } from '../diagnostics.mjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@mnjs/formkit';
 
@@ -5,7 +6,7 @@ const owners = [];
 function create(fields, values) {
   const host = document.createElement('main');
   document.body.append(host);
-  const api = mount({ host, fields, values, instrument: true, formProps: { actions: false } });
+  const api = mount({ host, fields, values, [diagnostics]: true, formProps: { actions: false } });
   owners.push(api);
   return { api, host };
 }
@@ -105,7 +106,7 @@ describe('controlled binding recovery: callback alias and facade boundaries', ()
     await edit(api, input, 'Edited');
     expect(callback.mock.calls).toEqual([['Edited']]);
     expect(api.form.isDestroyed()).toBe(true);
-    expect(api.metrics.coreNodesCreated).toBe(api.metrics.coreNodesDestroyed);
+    expect(metricsOf(api).coreNodesCreated).toBe(metricsOf(api).coreNodesDestroyed);
     input.value = 'Late'; input.dispatchEvent(new Event('input', { bubbles: true }));
     await Promise.resolve();
     expect(callback).toHaveBeenCalledTimes(1);

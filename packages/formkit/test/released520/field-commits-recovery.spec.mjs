@@ -1,3 +1,4 @@
+import { diagnostics, metricsOf } from '../diagnostics.mjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@mnjs/formkit';
 
@@ -200,20 +201,20 @@ describe('field commit ownership, data and conservative provenance', () => {
   });
 
   it('supports AbortSignal reasons and releases fence-only receipts', async() => {
-    vi.useFakeTimers(); const { api } = create([{ name: 'answer', config: { delay: 20 } }], { answer: 'Start' }, { instrument: true });
+    vi.useFakeTimers(); const { api } = create([{ name: 'answer', config: { delay: 20 } }], { answer: 'Start' }, { [diagnostics]: true });
     api.node.at('answer').input('Pending'); const controller = new AbortController(); const reason = new Error('caller canceled');
     const pending = api.whenPendingEditsSettled({ signal: controller.signal }); const outcome = pending.then(() => ({ resolved: true }), error => ({ resolved: false, error })); controller.abort(reason);
     const result = await outcome; expect(result.resolved).toBe(false); expect(result.error).toBe(reason);
-    expect(api.metrics.fieldCommitReceipts).toBe(0); expect(api.metrics.fieldCommitSnapshots).toBe(0);
+    expect(metricsOf(api).fieldCommitReceipts).toBe(0); expect(metricsOf(api).fieldCommitSnapshots).toBe(0);
     await vi.advanceTimersByTimeAsync(20);
   });
 
   it('does no opt-in observation work by default and no snapshots for a fence-only wait', async() => {
-    const { api } = create([{ name: 'answer' }], { answer: 'Start' }, { instrument: true }); api.node.at('answer').input('Core', false); await api.node.settled;
-    expect(Object.hasOwn(api.metrics, 'fieldCommitSnapshots')).toBe(false);
-    await api.whenPendingEditsSettled(); expect(api.metrics.fieldCommitSnapshots).toBe(0); expect(api.metrics.fieldCommitReceipts).toBe(0);
-    const stop = api.observeFieldCommits(() => {}); expect(api.metrics.fieldCommitSnapshots).toBeGreaterThan(0); stop();
-    expect(api.metrics.fieldCommitReceipts).toBe(0);
+    const { api } = create([{ name: 'answer' }], { answer: 'Start' }, { [diagnostics]: true }); api.node.at('answer').input('Core', false); await api.node.settled;
+    expect(Object.hasOwn(metricsOf(api), 'fieldCommitSnapshots')).toBe(false);
+    await api.whenPendingEditsSettled(); expect(metricsOf(api).fieldCommitSnapshots).toBe(0); expect(metricsOf(api).fieldCommitReceipts).toBe(0);
+    const stop = api.observeFieldCommits(() => {}); expect(metricsOf(api).fieldCommitSnapshots).toBeGreaterThan(0); stop();
+    expect(metricsOf(api).fieldCommitReceipts).toBe(0);
   });
 
   it('does not wait for asynchronous validation', async() => {

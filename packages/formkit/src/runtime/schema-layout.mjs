@@ -1,3 +1,4 @@
+import { diagnostics } from './diagnostics.mjs';
 import { insertNode, removeNode, displayContents } from './dom-operations.mjs';
 import {enumerableKeys, defineScopeProperties} from './scope-properties.mjs';
 import { providerBoundary, nativeFormKitFactory } from './provider-scope.mjs';
@@ -68,7 +69,7 @@ export function createLayoutController({form,schema,data: externalData = {},comp
     });
     try {
       projection = createSchemaController({node: field.node,schema: childSchema.fields,data,dataOnly: true,onFields: fields=>field.setChildren(fields)});
-      nested = renderSections({Dom,host,schema: childSchema.dom,context: {node: field.node},data,slots: scopedSlots,components,configScope: form._configScopes.get(field.node),domRoot: field.node.props.__root,parentNode: form._schemaParent ? field.node : undefined,metrics: form.metrics});
+      nested = renderSections({Dom,host,schema: childSchema.dom,context: {node: field.node},data,slots: scopedSlots,components,configScope: form._configScopes.get(field.node),domRoot: field.node.props.__root,parentNode: form._schemaParent ? field.node : undefined,metrics: form[diagnostics]});
     } catch (error) {unsubscribe();projection?.destroy();removeNode(Dom,host);throw error;}
     // Native section-schema redraws replace the child anchor, retaining owners.
     const receipt = field.node.on('schema',event=>{if (event.origin === field.node) {queueMicrotask(()=>{if (!closed && !dead) {place();nested.refresh();form._placeSchemaFields?.();}});}});
@@ -178,7 +179,7 @@ export function createLayoutController({form,schema,data: externalData = {},comp
     controller = createSchemaController({node: form.node,schema: parsed.fields,data: layoutData,dataOnly: form._schemaDataOnly,onFields: fields=>form._setSchemaFields ? form._setSchemaFields(fields) : form.setFields(fields)});
     insertNode(Dom,form._fieldAnchor.parentNode,host,form._fieldAnchor);
     observer = createObserver(form.node);
-    renderer = renderSections({Dom,host,schema: parsed.dom,context: form._schemaDataOnly ? {} : {node: form.node},data: layoutData,slots,components,configScope: form._providerScope,domRoot: form._domRoot,parentNode: form._schemaParent,metrics: form.metrics});
+    renderer = renderSections({Dom,host,schema: parsed.dom,context: form._schemaDataOnly ? {} : {node: form.node},data: layoutData,slots,components,configScope: form._providerScope,domRoot: form._domRoot,parentNode: form._schemaParent,metrics: form[diagnostics]});
     observer.watch(current=>current.value,()=>{
       if (pending || dead) {return;}pending = true;queueMicrotask(()=>{pending = false;if (!dead) {renderer.update();}});
     });

@@ -1,3 +1,4 @@
+import { diagnostics } from './diagnostics.mjs';
 import { insertNode, removeNode, displayContents } from './dom-operations.mjs';
 import {enumerableKeys, defineScopeProperties} from './scope-properties.mjs';
 import { createFormKitStructuralComponents } from './structural-components.mjs';
@@ -6,8 +7,7 @@ import { createFormKitProviders } from './provider-components.mjs';
 import { nativeFormKitFactory, formKitScope } from './provider-scope.mjs';
 import { preparedDefaults, withPreparedDefaults } from './config-scope.mjs';
 export { defaultConfig } from './config-scope.mjs';
-// Experimental slice. React 2.5.0 store/class-cache patterns adapted under MIT;
-// see LICENSE.formkit. DOM renderer and Marionette ownership are new code.
+// FormKit store and class-cache patterns are adapted under MIT; see LICENSE.formkit.
 import { createFormKitApplication, hasStockRootConfig } from './formkit-application.mjs';
 import { createFormKitHelpers } from './helper-components.mjs';
 import { resolveComponentLibrary } from './component-library.mjs';
@@ -98,7 +98,7 @@ function createField(node,spec,view,initial,renderDefault,present) {
           return source?.[key];
         });
         try {
-          nextRenderer = renderSections({Dom,host: nextHost,schema,context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,currentLibrary),data});
+          nextRenderer = renderSections({Dom,host: nextHost,schema,context,metrics: view[diagnostics],configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,currentLibrary),data});
           nextObserver.watch(()=>nextRenderer.update());
           if (host) {
             const previousObserver = observer, previousRenderer = active;
@@ -133,7 +133,7 @@ function createField(node,spec,view,initial,renderDefault,present) {
     if (next.library === field.spec.library && renderer?.setSchema(nextSchema,isStockTextSchema(node,next.sectionsSchema))) {return;}
     for (const child of children.values()) {removeNode(Dom,child.el);} for (const content of defaultScopes.values()) {removeNode(Dom,content.host);}
     redrawing = true;try {renderer?.destroy();} finally {redrawing = false;}anchor = undefined;
-    renderer = renderSections({Dom,host: el,schema: nextSchema,ownStockLeaves: isStockTextSchema(node,next.sectionsSchema),context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,next.library),slots});
+    renderer = renderSections({Dom,host: el,schema: nextSchema,ownStockLeaves: isStockTextSchema(node,next.sectionsSchema),context: node.context,metrics: view[diagnostics],configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,next.library),slots});
     for (const [parent,content] of defaultScopes) {if (!content.active) {defaultScopes.delete(parent);content.dispose?.();removeNode(Dom,content.host);}}
     if (anchor && !next[schemaChildScope]) {reconcile(view,node,children,next.children ?? [],anchor,initial ?? {});}
     present?.(el);
@@ -194,7 +194,7 @@ function createField(node,spec,view,initial,renderDefault,present) {
   const inputReceipt = node.on('modelUpdated',()=>{field.spec.onInputRaw?.(node.context?.value,node);field.spec.onInput?.(node.context?.value,node);if (isModeled(field.spec)) {const value = shallowClone(node.value);field.spec.onUpdateModelValue?.(value);field.spec['onUpdate:modelValue']?.(value);field.spec.onChange?.(value,node);}});
   const schemaReceipt = node.on('schema',event=>{if (event.origin !== node || dead || schemaQueued) {return;}schemaQueued = true;queueMicrotask(()=>{schemaQueued = false;if (!dead) {redraw(field.spec);}});});
   queueMicrotask(notifyMounted);
-  try {spec.onNode?.(node);renderer = renderSections({Dom,host: el,schema: schemaFor(node,spec.sectionsSchema),ownStockLeaves: isStockTextSchema(node,spec.sectionsSchema),context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,spec.library),slots});field.update(spec);present?.(el);return field;} catch (error) {try {field.destroy();} catch { /* Preserve the construction error. */ } throw error;}
+  try {spec.onNode?.(node);renderer = renderSections({Dom,host: el,schema: schemaFor(node,spec.sectionsSchema),ownStockLeaves: isStockTextSchema(node,spec.sectionsSchema),context: node.context,metrics: view[diagnostics],configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,spec.library),slots});field.update(spec);present?.(el);return field;} catch (error) {try {field.destroy();} catch { /* Preserve the construction error. */ } throw error;}
 }
 
 const generalProps = new Set([...runtimeProps,'label','help','disabled','validationVisibility','slots','definition','defaultValue','onUpdateModelValue','onChange','sync','dynamic','ignore','preserve']);
@@ -233,7 +233,7 @@ function createFieldNode(view,parent,spec,initial,configScope = view._configScop
   const scopedOptions = configScope?.options;
   if (props.validationVisibility === undefined) {delete props.validationVisibility;}
   if (attrs.validationVisibility === undefined) {delete attrs.validationVisibility;}
-  const node = createNode({parent: props.ignore ? null : parent,plugins: [completion.plugin,...(scopedOptions ? [...(view.metrics.enabled ? [view._countCore] : []),...(scopedOptions.plugins ?? [])] : view.plugins),...(spec.plugins ?? [])],index: spec.index,sync: !!(spec.sync ?? spec.dynamic),config: {...(scopedOptions ? scopedOptions.config : {...(view.config.rootConfig ? {rootConfig: view.config.rootConfig} : {}),...(props.ignore ? view.config : {})}),...spec.config},name: spec.name,value,props: {...props,type,attrs,__root: domRoot,id: props.id ?? `mnjs-formkit-${view.cid}-${++view._fieldId}`,__slots: Array.isArray(children) ? {default: ()=>[]} : Object.fromEntries(Object.keys(children ?? {}).map(name=>[name,name === 'default' ? ()=>[] : true]))}});
+  const node = createNode({parent: props.ignore ? null : parent,plugins: [completion.plugin,...(scopedOptions ? [...(view[diagnostics].enabled ? [view._countCore] : []),...(scopedOptions.plugins ?? [])] : view.plugins),...(spec.plugins ?? [])],index: spec.index,sync: !!(spec.sync ?? spec.dynamic),config: {...(scopedOptions ? scopedOptions.config : {...(view.config.rootConfig ? {rootConfig: view.config.rootConfig} : {}),...(props.ignore ? view.config : {})}),...spec.config},name: spec.name,value,props: {...props,type,attrs,__root: domRoot,id: props.id ?? `mnjs-formkit-${view.cid}-${++view._fieldId}`,__slots: Array.isArray(children) ? {default: ()=>[]} : Object.fromEntries(Object.keys(children ?? {}).map(name=>[name,name === 'default' ? ()=>[] : true]))}});
   if (configScope) {view._configScopes.set(node,configScope);}
   return node;
 }
@@ -345,7 +345,7 @@ function reconcile(view,parent,map,specs,anchor,initial,placeFirst) {
 function createSchemaOwner(view,{host,props,context,parentNode,configScope,domRoot,renderChildren,renderSlot,[authoredComponentSlots]: schemaSlots,hasChildren}) {
   const parent = parentNode ?? context.node ?? view.node,scope = new MnObject();
   const Dom = view._formKitDom, anchor = host.ownerDocument.createComment('schema fields');insertNode(Dom,host,anchor);
-  Object.assign(scope,{node: parent,_formKitDom: Dom,fields: new Map(),metrics: view.metrics,_fieldAnchor: anchor,_schemaParent: parent,_schemaDataOnly: true,
+  Object.assign(scope,{node: parent,_formKitDom: Dom,fields: new Map(),[diagnostics]: view[diagnostics],_fieldAnchor: anchor,_schemaParent: parent,_schemaDataOnly: true,
     _domRoot: domRoot ?? parent.props.__root,_providerScope: configScope,_anonymousKeys: new WeakMap(),_fieldId: 0,
     definitions: view.definitions,plugins: view.plugins,config: view.config,_countCore: view._countCore,_inputCompletionScope: view._inputCompletionScope,_pendingFieldMounts: view._pendingFieldMounts,
     _configScopes: {get: node=>node === parent ? configScope : view._configScopes.get(node),set: (node,value)=>view._configScopes.set(node,value)},
@@ -398,7 +398,7 @@ export class FormKitView extends View {
     }
     this._schema = options.schema;this._schemaSlots = options.schemaSlots ?? {};this._rootSlots = options.slots ?? {};
     const view = this;this._schemaData = {...options.data,get values() {return view.node.value;}};
-    this.metrics = { enabled: options.instrument === true, contextNotifications: 0,tokenChecks: 0,expressionEvaluations: 0,domWrites: 0,structuralChanges: 0,coreNodesCreated: 0,coreNodesDestroyed: 0,coreInputEvents: 0,coreCommitEvents: 0,coreMessageEvents: 0,classRootEvaluations: 0 };
+    this[diagnostics] = { enabled: options[diagnostics] === true, contextNotifications: 0,tokenChecks: 0,expressionEvaluations: 0,domWrites: 0,structuralChanges: 0,coreNodesCreated: 0,coreNodesDestroyed: 0,coreInputEvents: 0,coreCommitEvents: 0,coreMessageEvents: 0,classRootEvaluations: 0 };
     this._anonymousKeys = new WeakMap();this._configScopes = new WeakMap();
     this._fieldId = 0; this._ending = false;
     this._pendingFieldMounts = new Set();
@@ -420,14 +420,14 @@ export class FormKitView extends View {
     if (!Object.hasOwn(options.components ?? {},'FormKit')) {this.components.FormKit[nativeFormKitFactory] = true;}
     this.config = { ...(!options.config?.rootConfig && options.defaultConfig !== false ? {locale: 'en',rootClasses: section=>({[`formkit-${kebab(section)}`]: true})} : {}), ...(!options.config?.rootConfig && options.locale !== undefined ? {locale: options.locale} : {}), ...options.config, classes: options.classes ?? options.config?.classes, ...(options.messages ? {messages: options.messages} : {}) };
     const rootClasses = this.config.rootClasses;
-    if (this.metrics.enabled && rootClasses) {this.config.rootClasses = (section,node)=>{this.metrics.classRootEvaluations++;return rootClasses(section,node);};}
-    const countCore = node=>{this.metrics.coreNodesCreated++;for (const [event,key] of [['input','coreInputEvents'],['commit','coreCommitEvents'],['message-added','coreMessageEvents'],['message-updated','coreMessageEvents'],['message-removed','coreMessageEvents'],['destroyed','coreNodesDestroyed']]) {node.on(event,()=>this.metrics[key]++);}};
+    if (this[diagnostics].enabled && rootClasses) {this.config.rootClasses = (section,node)=>{this[diagnostics].classRootEvaluations++;return rootClasses(section,node);};}
+    const countCore = node=>{this[diagnostics].coreNodesCreated++;for (const [event,key] of [['input','coreInputEvents'],['commit','coreCommitEvents'],['message-added','coreMessageEvents'],['message-updated','coreMessageEvents'],['message-removed','coreMessageEvents'],['destroyed','coreNodesDestroyed']]) {node.on(event,()=>this[diagnostics][key]++);}};
     this._countCore = countCore;
     this.definitions = {...(options.defaultConfig === false ? {} : nativeInputs),...options.inputs};
     this.fields = new Map(); this.initialValues = structuredClone(options.values ?? {});
     this._inputCompletionScope = createInputCompletionScope();
     const completion = createInputCompletion(this._inputCompletionScope);
-    this.plugins = [completion.plugin,...(this.metrics.enabled ? [countCore] : []), ...(options.defaultConfig === false ? [] : [createLibraryPlugin(this.definitions), createThemePlugin(options.theme,options.icons,options.iconLoaderUrl,options.iconLoader), bindings, createValidationPlugin({...nativeRules,...options.rules}), createI18nPlugin(extend({ en,...options.locales },options.messages ?? {}))]), ...(options.plugins ?? [])];
+    this.plugins = [completion.plugin,...(this[diagnostics].enabled ? [countCore] : []), ...(options.defaultConfig === false ? [] : [createLibraryPlugin(this.definitions), createThemePlugin(options.theme,options.icons,options.iconLoaderUrl,options.iconLoader), bindings, createValidationPlugin({...nativeRules,...options.rules}), createI18nPlugin(extend({ en,...options.locales },options.messages ?? {}))]), ...(options.plugins ?? [])];
     this._providerScope = options[formKitScope] ? {options: {plugins: this.plugins,config: {rootConfig: options.config.rootConfig}},definitions: this.definitions} : undefined;
     this.node = createNode({ name: options.formProps?.name ?? 'form', value: this.initialValues, config: this.config,
       props: { ...options.formProps, ...(options.formProps?.definition ? {definition: completion.definition(options.formProps.definition)} : {}), __root: this._domRoot, type: 'form', attrs: options.formProps?.attrs ?? {}, id: options.formProps?.id ?? `mnjs-formkit-form-${this.cid}`, __slots: {default: true,fields: true,...Object.fromEntries(Object.keys(this._rootSlots).map(name=>[name,true]))}, onSubmit: options.onSubmit ?? (()=>{}), onSubmitInvalid: options.onSubmitInvalid, onSubmitRaw: options.onSubmitRaw },
@@ -469,7 +469,7 @@ export class FormKitView extends View {
   }
   _renderRoot() {
     this._fieldAnchor = this.el.ownerDocument.createComment('fields');insertNode(this._formKitDom,this._formKitDom.createBuffer(),this._fieldAnchor);
-    this._rootRenderer = renderSections({Dom: this._formKitDom,host: this.el,schema: schemaFor(this.node,this._sectionsSchema),context: this.node.context,metrics: this.metrics,configScope: this._providerScope,domRoot: this._domRoot,components: resolveComponentLibrary(this.node,this.components,this.node.props.library),reuseRoot: true,slots: createRootSlots(this,this._rootSlots)});
+    this._rootRenderer = renderSections({Dom: this._formKitDom,host: this.el,schema: schemaFor(this.node,this._sectionsSchema),context: this.node.context,metrics: this[diagnostics],configScope: this._providerScope,domRoot: this._domRoot,components: resolveComponentLibrary(this.node,this.components,this.node.props.library),reuseRoot: true,slots: createRootSlots(this,this._rootSlots)});
   }
   setSectionsSchema(sectionsSchema) {
     if (this._ending || this.isDestroyed() || (sectionsSchema === undefined && this._sectionsSchema === undefined)) {return this;}
@@ -503,12 +503,12 @@ export class FormKitView extends View {
   createValueProjection(options) { return createValueProjection(this, options); }
   observeFieldCommits(callback) {
     if (this._ending || this.isDestroyed() || !this.node.context) { return () => {}; }
-    this._commitTracker ??= createFieldCommitTracker(this.node, this.metrics, this._inputCompletionScope);
+    this._commitTracker ??= createFieldCommitTracker(this.node, this[diagnostics], this._inputCompletionScope);
     return this._commitTracker.observe(callback);
   }
   whenPendingEditsSettled(options) {
     if (this._ending || this.isDestroyed() || !this.node.context) { return Promise.reject(new DOMException('FormKit edit observation ended.', 'AbortError')); }
-    this._commitTracker ??= createFieldCommitTracker(this.node, this.metrics, this._inputCompletionScope);
+    this._commitTracker ??= createFieldCommitTracker(this.node, this[diagnostics], this._inputCompletionScope);
     return this._commitTracker.whenSettled(options);
   }
   getValues() { return this._facade.getValues(); }
@@ -562,9 +562,9 @@ export class FormKitView extends View {
 export const FormKitApplication = /* @__PURE__ */ createFormKitApplication(FormKitView);
 
 export function mount(options = {}) {
-  const { [formKitScope]: providerScope, [preparedDefaults]: prepared, defaultConfig = true, instrument = false, host, fields, values = {}, classes, config, locale, onSubmit, onSubmitInvalid, onSubmitRaw, formProps, inputs, plugins, components, rules, locales, messages, sectionsSchema, theme, icons, iconLoaderUrl, iconLoader, schema, data, slots, schemaSlots } = options;
+  const { [formKitScope]: providerScope, [preparedDefaults]: prepared, defaultConfig = true, [diagnostics]: measure = false, host, fields, values = {}, classes, config, locale, onSubmit, onSubmitInvalid, onSubmitRaw, formProps, inputs, plugins, components, rules, locales, messages, sectionsSchema, theme, icons, iconLoaderUrl, iconLoader, schema, data, slots, schemaSlots } = options;
   const region = new Region({ el: host });
-  const form = new FormKitView({ [formKitScope]: providerScope, [preparedDefaults]: prepared, defaultConfig, instrument, fields, values, classes, config, locale, onSubmit, onSubmitInvalid, onSubmitRaw, formProps, inputs, plugins, components, rules, locales, messages, sectionsSchema, theme, icons, iconLoaderUrl, iconLoader, schema, data, slots, schemaSlots, domRoot: (typeof region.el === 'string' ? region.getEl(region.el) : region.el).getRootNode() });
+  const form = new FormKitView({ [formKitScope]: providerScope, [preparedDefaults]: prepared, defaultConfig, [diagnostics]: measure, fields, values, classes, config, locale, onSubmit, onSubmitInvalid, onSubmitRaw, formProps, inputs, plugins, components, rules, locales, messages, sectionsSchema, theme, icons, iconLoaderUrl, iconLoader, schema, data, slots, schemaSlots, domRoot: (typeof region.el === 'string' ? region.getEl(region.el) : region.el).getRootNode() });
   try {region.show(form);} catch (error) {form.destroy();region.destroy();throw error;}
-  return { form, node: form.node, metrics: form.metrics, setSchema: nextSchema=>form.setSchema(nextSchema), updateData: nextData=>form.updateData(nextData), setSlots: nextSlots=>form.setSlots(nextSlots), setSectionsSchema: sections=>form.setSectionsSchema(sections), getValues: ()=>form.getValues(), createValueProjection: projectionOptions=>form.createValueProjection(projectionOptions), observeFieldCommits: callback=>form.observeFieldCommits(callback), whenPendingEditsSettled: settlementOptions=>form.whenPendingEditsSettled(settlementOptions), setValues: (nextValues,valueOptions)=>form.setValues(nextValues,valueOptions), getFormState: ()=>form.getFormState(), setErrors: (errors,fieldErrors)=>form.setErrors(errors,fieldErrors), clearErrors: ()=>form.node.clearErrors(), setFields: specs => form.setFields(specs), reset: () => form.resetForm(), submit: () => form.submit(), destroy: () => region.destroy() };
+  return { form, node: form.node, setSchema: nextSchema=>form.setSchema(nextSchema), updateData: nextData=>form.updateData(nextData), setSlots: nextSlots=>form.setSlots(nextSlots), setSectionsSchema: sections=>form.setSectionsSchema(sections), getValues: ()=>form.getValues(), createValueProjection: projectionOptions=>form.createValueProjection(projectionOptions), observeFieldCommits: callback=>form.observeFieldCommits(callback), whenPendingEditsSettled: settlementOptions=>form.whenPendingEditsSettled(settlementOptions), setValues: (nextValues,valueOptions)=>form.setValues(nextValues,valueOptions), getFormState: ()=>form.getFormState(), setErrors: (errors,fieldErrors)=>form.setErrors(errors,fieldErrors), clearErrors: ()=>form.node.clearErrors(), setFields: specs => form.setFields(specs), reset: () => form.resetForm(), submit: () => form.submit(), destroy: () => region.destroy() };
 }

@@ -1,3 +1,4 @@
+import { diagnostics, metricsOf } from './diagnostics.mjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Region, View, Application } from 'marionette';
 import { FormKitView, FormKitApplication, bindings, defaultConfig, mount } from '@mnjs/formkit';
@@ -25,7 +26,7 @@ describe('public forms and Marionette ownership', () => {
 
   it('mounts typed-value forms and follows actual DOM input, errors, reset and destruction', async() => {
     const target = host();
-    const form = own(mount({ host: target, instrument: true,
+    const form = own(mount({ host: target, [diagnostics]: true,
       fields: [{ name: 'email', type: 'email', label: 'Email', validation: 'required|email', validationVisibility: 'live' }],
       values: { email: '' }, formProps: { actions: false }
     }));
@@ -45,7 +46,7 @@ describe('public forms and Marionette ownership', () => {
     expect(form.getValues()).toEqual({ email: '' });
     form.destroy();
     expect(target.children).toHaveLength(0);
-    expect(form.metrics.coreNodesCreated).toBe(form.metrics.coreNodesDestroyed);
+    expect(metricsOf(form).coreNodesCreated).toBe(metricsOf(form).coreNodesDestroyed);
   });
 
   it('works as an ordinary Region-owned View and retains named Core fields', async() => {
@@ -84,7 +85,7 @@ describe('public forms and Marionette ownership', () => {
 
   it('composes direct fields and schema under one form with independently updated sources', async() => {
     const target = host();
-    const form = own(mount({ host: target, instrument: true,
+    const form = own(mount({ host: target, [diagnostics]: true,
       fields: [{ name: 'direct', label: 'Direct' }],
       schema: [{ $formkit: 'text', name: 'schemaField', label: 'Schema field' }],
       values: { direct: 'Direct value', schemaField: 'Schema value' },
@@ -102,7 +103,7 @@ describe('public forms and Marionette ownership', () => {
     form.setSchema([{ $formkit: 'text', name: 'schemaField', label: 'Updated schema' }]);
     expect(form.node.at('direct')).toBe(direct);
     form.destroy();
-    expect(form.metrics.coreNodesCreated).toBe(form.metrics.coreNodesDestroyed);
+    expect(metricsOf(form).coreNodesCreated).toBe(metricsOf(form).coreNodesDestroyed);
   });
 
   it('prepares configuration before showing an Application-owned FormKit View', async() => {

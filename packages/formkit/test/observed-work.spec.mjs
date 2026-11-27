@@ -1,9 +1,10 @@
+import { diagnostics, metricsOf } from './diagnostics.mjs';
 import { afterEach, expect, it } from 'vitest';
 import { FormKitView } from '@mnjs/formkit';
 
 const forms = [];
 function formWith(options = {}) {
-  const form = new FormKitView({ fields: [{ name: 'answer' }], instrument: true, ...options });
+  const form = new FormKitView({ fields: [{ name: 'answer' }], [diagnostics]: true, ...options });
   forms.push(form);
   document.body.append(form.render().el);
   return form;
@@ -15,10 +16,10 @@ afterEach(() => {
 
 it('does not compute form-state notifications with no subscriber', async() => {
   const form = formWith();
-  const before = form.metrics.stateEvents;
+  const before = metricsOf(form).stateEvents;
   await form.node.at('answer').input('changed', false);
   form.setErrors(['Example'], {});
-  expect(form.metrics.stateEvents - before).toBe(0);
+  expect(metricsOf(form).stateEvents - before).toBe(0);
   expect(form.getFormState().errors).toEqual(['Example']);
 });
 

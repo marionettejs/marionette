@@ -1,9 +1,10 @@
+import { diagnostics, metricsOf } from '../diagnostics.mjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@mnjs/formkit';
 const owners = [];
 function create() {
   const host = document.createElement('main'); document.body.append(host);
-  const api = mount({ host, fields: [{ name: 'answer', config: { delay: 20 } }], values: { answer: 'Start' }, instrument: true, formProps: { actions: false } });
+  const api = mount({ host, fields: [{ name: 'answer', config: { delay: 20 } }], values: { answer: 'Start' }, [diagnostics]: true, formProps: { actions: false } });
   owners.push(api); return api;
 }
 afterEach(() => { owners.splice(0).reverse().forEach(api => api.destroy()); document.body.replaceChildren(); vi.useRealTimers(); });
@@ -14,7 +15,7 @@ describe('independent priority probes retained unchanged', () => {
     Object.defineProperty(value, 'data', { enumerable: true, get() { api.destroy(); return 1; } });
     node.input(value, false);
     const callback = vi.fn(); const stop = api.observeFieldCommits(callback); await Promise.resolve();
-    expect(api.form.isDestroyed()).toBe(true); expect(api.metrics.fieldCommitObservers).toBe(0); expect(api.metrics.fieldCommitReceipts).toBe(0);
+    expect(api.form.isDestroyed()).toBe(true); expect(metricsOf(api).fieldCommitObservers).toBe(0); expect(metricsOf(api).fieldCommitReceipts).toBe(0);
     expect(callback).not.toHaveBeenCalled(); stop();
   });
 
@@ -22,8 +23,8 @@ describe('independent priority probes retained unchanged', () => {
     const api = create(); const node = api.node.at('answer'); const callback = vi.fn(); api.observeFieldCommits(callback);
     const value = {}; Object.defineProperty(value, 'data', { enumerable: true, get() { api.destroy(); return 1; } });
     expect(() => node.input(value, false)).not.toThrow(); await Promise.resolve();
-    expect(api.form.isDestroyed()).toBe(true); expect(api.metrics.fieldCommitObservers).toBe(0); expect(api.metrics.fieldCommitReceipts).toBe(0);
-    expect(api.metrics.fieldCommitEvents).toBe(0); expect(callback).not.toHaveBeenCalled();
+    expect(api.form.isDestroyed()).toBe(true); expect(metricsOf(api).fieldCommitObservers).toBe(0); expect(metricsOf(api).fieldCommitReceipts).toBe(0);
+    expect(metricsOf(api).fieldCommitEvents).toBe(0); expect(callback).not.toHaveBeenCalled();
   });
 
   it('does not fulfill before the original delayed timer after an unequal immediate input', async() => {

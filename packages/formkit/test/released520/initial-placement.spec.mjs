@@ -1,3 +1,4 @@
+import { diagnostics, metricsOf } from '../diagnostics.mjs';
 import { createConfig } from '@formkit/core';
 import { afterEach, expect, it } from 'vitest';
 import { FormKitApplication, FormKitView } from '@mnjs/formkit';
@@ -31,7 +32,7 @@ function mountApplication(config) {
   const mountedFields = [];
   const App = FormKitApplication.extend({
     createFormView(options) {
-      mountedView = new FormKitView({...options, instrument: true});
+      mountedView = new FormKitView({...options, [diagnostics]: true});
       drain = fieldPlacements(mountedView);
       mountedView.once('before:attach', () => {
         for (const child of mountedView.node.children) {
@@ -57,10 +58,10 @@ it('batches package-owned field wrappers in the stock FormKit Application path',
     expect(input.compareDocumentPosition(submit)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   }
   expect(fixture.mountedFields).toEqual(['first', 'second']);
-  expect(form.metrics.coreNodesCreated).toBeGreaterThan(2);
-  expect(form.metrics.coreNodesDestroyed).toBe(0);
+  expect(metricsOf(form).coreNodesCreated).toBeGreaterThan(2);
+  expect(metricsOf(form).coreNodesDestroyed).toBe(0);
   fixture.app.destroy();
-  expect(form.metrics.coreNodesDestroyed).toBe(form.metrics.coreNodesCreated);
+  expect(metricsOf(form).coreNodesDestroyed).toBe(metricsOf(form).coreNodesCreated);
   expect(fixture.host.childNodes).toHaveLength(0);
 });
 
@@ -92,7 +93,7 @@ it('supports an ordinary FormKitView subclass; caller-owned roots stay on the ol
   class SampleForm extends FormKitView {}
   for (const supplied of [false,true]) {
     const view = new SampleForm({
-      fields, instrument: true, formProps: {actions: false}, ...(supplied ? {el: document.createElement('form')} : {})
+      fields, [diagnostics]: true, formProps: {actions: false}, ...(supplied ? {el: document.createElement('form')} : {})
     });
     owners.push(view);
     const placements = fieldPlacements(view);
@@ -102,7 +103,7 @@ it('supports an ordinary FormKitView subclass; caller-owned roots stay on the ol
 });
 
 it('rethrows the original insertion error and releases the partially placed fields on destroy', () => {
-  const view = new FormKitView({fields, instrument: true, formProps: {actions: false}});
+  const view = new FormKitView({fields, [diagnostics]: true, formProps: {actions: false}});
   const host = document.createElement('main');
   owners.push(view);
   const insertBefore = view.el.insertBefore;
@@ -130,11 +131,11 @@ it('rethrows the original insertion error and releases the partially placed fiel
   expect(writes).toBe(1);
   expect(prefix.parentNode).toBe(view.el);
   expect(suffix.parentNode).toBeNull();
-  expect(view.metrics.coreNodesCreated).toBe(3);
-  expect(view.metrics.coreNodesDestroyed).toBe(0);
+  expect(metricsOf(view).coreNodesCreated).toBe(3);
+  expect(metricsOf(view).coreNodesDestroyed).toBe(0);
   host.append(view.el);
   view.destroy();
-  expect(view.metrics.coreNodesDestroyed).toBe(view.metrics.coreNodesCreated);
+  expect(metricsOf(view).coreNodesDestroyed).toBe(metricsOf(view).coreNodesCreated);
   expect(prefix.parentNode).toBeNull();
   expect(suffix.parentNode).toBeNull();
   expect(view.el.childNodes).toHaveLength(0);
@@ -142,7 +143,7 @@ it('rethrows the original insertion error and releases the partially placed fiel
 });
 
 it('preserves ordinary placement when the view root is already attached', () => {
-  const view = new FormKitView({fields, instrument: true, formProps: {actions: false}});
+  const view = new FormKitView({fields, [diagnostics]: true, formProps: {actions: false}});
   owners.push(view);
   document.body.append(view.el);
   const placements = fieldPlacements(view);

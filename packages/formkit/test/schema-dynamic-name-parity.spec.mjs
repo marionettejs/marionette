@@ -1,3 +1,4 @@
+import { diagnostics, metricsOf } from './diagnostics.mjs';
 import { afterEach, expect, it, vi } from 'vitest';
 import { mount } from '@mnjs/formkit';
 
@@ -10,7 +11,7 @@ function create(candidate, options = {}) {
   let current;
   const submitted = [];
   const api = mount({
-    host, instrument: true, formProps: { actions: false }, data: { candidate },
+    host, [diagnostics]: true, formProps: { actions: false }, data: { candidate },
     schema: [
       { $formkit: 'text', name: '$candidate', key: 'renamed', id: 'dynamic-name-input',
         label: 'Dynamic name', config: { delay: 80 }, onNode: node => { current = node; } },
@@ -39,7 +40,7 @@ it.each([undefined, null, ''])('renders an anonymous input when the name express
   expect(input.name).toBe(node.name);
   expect(api.node.at(node.name)).toBe(node);
   expect(host.querySelectorAll('input')).toHaveLength(2);
-  api.destroy(); expect(api.metrics.coreNodesCreated).toBe(api.metrics.coreNodesDestroyed);
+  api.destroy(); expect(metricsOf(api).coreNodesCreated).toBe(metricsOf(api).coreNodesDestroyed);
 });
 it('keeps a numeric zero expression a named field', async() => {
   const { api, host, current } = create(0);
@@ -87,7 +88,7 @@ it('retains one anonymous owner and pending edit across empty, undefined and nul
     ['Anonymous first', generation], ['Anonymous pending', generation], ['Anonymous next', generation]
   ]);
   expect(api.getValues()[node.name]).toBe('Anonymous next');
-  api.destroy(); expect(api.metrics.coreNodesCreated).toBe(api.metrics.coreNodesDestroyed);
+  api.destroy(); expect(metricsOf(api).coreNodesCreated).toBe(metricsOf(api).coreNodesDestroyed);
 });
 it.each([['', 'after'], [undefined, 'before'], [null, 'before']])('retires fixed-key generations through %s and returns to name %s without stale submit values', async(anonymousName, returnName) => {
   vi.useFakeTimers();
@@ -133,5 +134,5 @@ it.each([['', 'after'], [undefined, 'before'], [null, 'before']])('retires fixed
   const submit = api.submit(); await vi.runAllTimersAsync(); await submit;
   expect(submitted).toEqual([{ [returnName]: 'Current named value', sibling: 'Sibling next' }]);
   expect(api.getValues()).toEqual(submitted[0]);
-  api.destroy(); expect(api.metrics.coreNodesCreated).toBe(api.metrics.coreNodesDestroyed);
+  api.destroy(); expect(metricsOf(api).coreNodesCreated).toBe(metricsOf(api).coreNodesDestroyed);
 });

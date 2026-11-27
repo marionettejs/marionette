@@ -264,7 +264,7 @@ form.destroy();
 The value generic describes the consumer's value shape; it does not derive a
 runtime validator from TypeScript. `FieldSpec` declares native props and accepts
 additional plugin props as `unknown`. Config, plugins, schemas and nodes reuse
-FormKit's public types. Factory props and lifecycle, slots, form state, metrics,
+FormKit's public types. Factory props and lifecycle, slots, form state,
 Application readiness and the mount result have explicit declarations. ESM
 `.mts` and CommonJS `.cts` consumer fixtures verify the published declarations,
 including wrong-value and missing-host errors plus mixed fields/schema declarations.
@@ -387,8 +387,9 @@ Installed bundles contain that runtime and do not import repository paths.
 Standard FormKit inputs and portable factories are included; no licensed Pro
 source or key is shipped.
 Consumers can supply separately installed licensed plugins under their own
-configuration. Full Vue/React parity, all Pro modes, browser accessibility,
-geometry and performance are not certified by this package's tests. 
+configuration. The packed stock suite covers Chromium, Firefox and WebKit.
+The package does not claim exhaustive Vue/React compatibility, all Pro modes,
+assistive-technology coverage, or identical layout and performance.
 
 The declarations remain hand-maintained. Strict ESM/CJS consumer and anti-any
 checks sample public contracts; they do not prove every runtime signature matches
@@ -422,12 +423,9 @@ This candidate requires Marionette `^5.2.0`, which provides
 `DomApi.setUnsafeHtml`. Raw sections cannot render with a provider that omits
 that method; there is no native fallback.
 
-The current package-local lock uses published Marionette, Radio and Utils 5.2.0.
-The earlier `4df53edb` workspace build was a historical prerelease control, not
-this candidate's peer graph.
-
-Actual HtmlDomApi parent/Region integration and browser focus/IME behavior require
-separate verification; configured-provider JSDOM controls do not establish them.
+The package lock pins the test graph to published Marionette, Radio and Utils
+5.2.0. Cross-browser focus and input checks exercise the default DOM provider;
+custom providers must preserve the DOM operations and lifecycle described above.
 
 ## Replace supplied value branches explicitly
 
