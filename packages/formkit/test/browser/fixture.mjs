@@ -14,7 +14,7 @@ for (const type of ['compositionstart', 'compositionupdate', 'compositionend', '
       type, target: event.target.id, trusted: event.isTrusted, text: event.data ?? null,
       value: event.target.value ?? null, composing: event.isComposing ?? null,
     });
-  });
+  }, { capture: true });
 }
 
 async function mountPeer(arm) {

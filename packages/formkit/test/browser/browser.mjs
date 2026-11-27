@@ -102,27 +102,37 @@ async function keyboard(browser, arm) {
   }
 }
 
-async function composition(browser, arm) {
+async function composition(browser, arm, observed) {
   const page = await open(browser, arm);
   try {
     const cdp = await page.context().newCDPSession(page);
     await page.locator('label[for=name]').click();
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'name');
     await cdp.send('Input.imeSetComposition', { text: '엑', selectionStart: 1, selectionEnd: 1 });
+    observed.cancelCandidate = await page.locator('#name').inputValue();
     await cdp.send('Input.imeSetComposition', { text: '', selectionStart: 0, selectionEnd: 0 });
-    assert.equal(await page.locator('#name').inputValue(), '');
+    observed.cancelled = await page.locator('#name').inputValue();
     await cdp.send('Input.imeSetComposition', { text: '한', selectionStart: 1, selectionEnd: 1 });
+    observed.commitCandidate = await page.locator('#name').inputValue();
     await cdp.send('Input.insertText', { text: '한글' });
-    assert.equal(await page.locator('#name').inputValue(), '한글');
+    observed.committed = await page.locator('#name').inputValue();
     await page.keyboard.press('Enter');
     await page.waitForFunction(() => window.receipt.submissions.length);
-    const record = await page.evaluate(() => ({
+    Object.assign(observed, await page.evaluate(() => ({
       events: window.receipt.events.filter(event => event.target === 'name'),
       submissions: window.receipt.submissions,
-    }));
-    assert.equal(record.submissions.length, 1);
-    assert.equal(record.submissions[0].name, '한글');
-    assert.ok(record.events.some(event => event.type === 'compositionend' && event.trusted));
-    return record;
+    })));
+    assert.equal(observed.cancelCandidate, '엑');
+    assert.equal(observed.cancelled, '');
+    assert.equal(observed.commitCandidate, '한');
+    assert.equal(observed.committed, '한글');
+    assert.equal(observed.submissions.length, 1);
+    assert.equal(observed.submissions[0].name, '한글');
+    assert.ok(observed.events.some(event => event.type === 'input' && event.trusted && event.composing),
+      'Chromium must emit a trusted composing input during the CDP composition');
+    assert.ok(observed.events.some(event => event.type === 'input' && event.trusted && event.value === '한글'),
+      'Chromium must emit a trusted input for the committed text');
+    return observed;
   } finally {
     await page.close();
   }
@@ -144,10 +154,12 @@ try {
         const cases = engine === 'chromium' ? { keyboard, composition } : { keyboard };
         for (const [scenario, test] of Object.entries(cases)) {
           const identity = { engine, version: browser.version(), arm, scenario };
+          const observed = {};
           try {
-            results.push({ ...identity, observed: await test(browser, arm) });
+            results.push({ ...identity, observed: await test(browser, arm, observed) });
           } catch (error) {
-            results.push({ ...identity, error: String(error) });
+            console.error(`${engine} ${arm} ${scenario}: ${error}`);
+            results.push({ ...identity, observed, error: String(error) });
             process.exitCode = 1;
           }
         }
