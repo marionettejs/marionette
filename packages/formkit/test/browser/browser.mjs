@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium, firefox, webkit } from 'playwright';
 import { build } from 'vite';
+import { stockKitchen } from './kitchen-browser.mjs';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
 const work = fileURLToPath(new URL('../tmp/browser', import.meta.url));
@@ -198,6 +199,7 @@ try {
       for (const arm of arms) {
         const cases = engine === 'chromium' ? { keyboard, composition } : { keyboard };
         if (arm === 'marionette') { cases.stockDescriptions = stockDescriptions; }
+        if (arm !== 'react') { cases.stockKitchen = (browser, arm) => stockKitchen(browser, arm, origin); }
         for (const [scenario, test] of Object.entries(cases)) {
           const identity = { engine, version: browser.version(), arm, scenario };
           const observed = {};

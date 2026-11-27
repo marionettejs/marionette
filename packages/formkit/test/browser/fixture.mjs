@@ -1,3 +1,5 @@
+import { openFixture as openKitchenFixture } from './kitchen-fixture.mjs';
+
 const params = new URLSearchParams(location.search);
 const host = document.querySelector('#host');
 const toggle = document.querySelector('#show');
@@ -69,13 +71,18 @@ async function mountPeer(arm) {
   throw new Error('Choose a known FormKit peer');
 }
 
-const owner = await mountPeer(params.get('arm'));
-const show = () => owner.show(toggle.checked);
-toggle.addEventListener('change', show);
-window.receipt = {
-  submissions, events, describe: owner.describe, useDefaultSections: owner.useDefaultSections,
-  destroy() {
-    toggle.removeEventListener('change', show);
-    owner.destroy();
-  },
-};
+if (params.get('scenario') === 'stock-kitchen') {
+  toggle.hidden = true;
+  window.receipt = await openKitchenFixture(host, params.get('arm'));
+} else {
+  const owner = await mountPeer(params.get('arm'));
+  const show = () => owner.show(toggle.checked);
+  toggle.addEventListener('change', show);
+  window.receipt = {
+    submissions, events, describe: owner.describe, useDefaultSections: owner.useDefaultSections,
+    destroy() {
+      toggle.removeEventListener('change', show);
+      owner.destroy();
+    },
+  };
+}
