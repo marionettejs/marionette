@@ -27,7 +27,15 @@ export function createRootSlots(view,provided = {}) {
       if (typeof content === 'function') {
         const outlets = [];
         const renderFields = (parent = args.parent,before = args.before)=>{const dispose = fields({parent,before});outlets.push(dispose);return dispose;};
-        const result = content({...args,renderFields});
+        let result;
+        try {
+          result = content({...args,renderFields});
+        } catch (error) {
+          for (const dispose of outlets) {
+            try {dispose();} catch { /* Preserve the slot error. */ }
+          }
+          throw error;
+        }
         const destroy = (remove = true)=>{for (const dispose of outlets) {dispose(remove);} if (typeof result === 'function') {result(remove);} else {result?.destroy?.(remove);}};
         return {update: next=>{if (typeof result === 'object') {result?.update?.(next);}},destroy};
       }

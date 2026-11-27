@@ -71,3 +71,51 @@ it('still places fields when the root default slot changes', () => {
     host.remove();
   }
 });
+
+it('rejects a reserved root slot without disturbing the live draft', async() => {
+  const host = document.createElement('main');
+  document.body.append(host);
+  const form = mount({ host, fields: [{ name: 'answer' }], formProps: { actions: false } });
+  try {
+    const node = form.node.at('answer'), input = host.querySelector('input');
+    input.focus();
+    input.value = 'typed draft';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.setSelectionRange(1, 5);
+    expect(() => form.setSlots({ fields() {} })).toThrow('The root fields slot is reserved');
+    expect(host.querySelector('input')).toBe(input);
+    expect(document.activeElement).toBe(input);
+    expect([input.selectionStart, input.selectionEnd]).toEqual([1, 5]);
+    expect(form.node.at('answer')).toBe(node);
+    await node.settled;
+    expect(form.getValues()).toEqual({ answer: 'typed draft' });
+  } finally {
+    form.destroy();
+    host.remove();
+  }
+});
+
+it('releases a fields outlet if the owning slot callback throws', () => {
+  const host = document.createElement('main'), sibling = document.createElement('section');
+  document.body.append(host, sibling);
+  const marker = document.createElement('span');
+  sibling.append(marker);
+  const form = mount({ host, fields: [{ name: 'answer' }], formProps: { actions: false } });
+  const failure = new Error('slot failed');
+  try {
+    expect(() => form.setSlots({
+      default({ renderFields }) {
+        renderFields(sibling, marker);
+        expect(sibling.querySelector('input')).not.toBeNull();
+        throw failure;
+      },
+    })).toThrow(failure);
+    expect(Array.from(sibling.childNodes)).toEqual([marker]);
+    form.setSlots({});
+    expect(host.querySelector('input[name=answer]')).not.toBeNull();
+  } finally {
+    form.destroy();
+    host.remove();
+    sibling.remove();
+  }
+});

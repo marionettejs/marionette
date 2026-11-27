@@ -485,7 +485,10 @@ export class FormKitView extends View {
   }
   setSlots(slots = {}) {
     if (this._ending || this.isDestroyed()) {return this;}
-    this._rootSlots = slots;this.node.context.slots = {default: true,fields: true,...Object.fromEntries(Object.keys(slots).map(name=>[name,true]))};
+    const names = Object.keys(slots);
+    if (names.includes('fields')) {throw new TypeError('The root fields slot is reserved');}
+    this._rootSlots = slots;
+    this.node.context.slots = {default: true,fields: true,...Object.fromEntries(names.map(name=>[name,true]))};
     return this._redrawRootSections();
   }
   setSchema(schema) {

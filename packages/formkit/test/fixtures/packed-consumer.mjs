@@ -25,7 +25,22 @@ for (const api of [imported, required]) {
   ]);
   assert.equal('metrics' in form.form, false);
   assert.equal(form.getValues().title, 'Packed');
-  assert.equal(host.querySelector('input').value, 'Packed');
+  const input = host.querySelector('input');
+  const field = form.node.at('title');
+  assert.equal(input.value, 'Packed');
+  input.focus();
+  input.value = 'Typed packed draft';
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  input.setSelectionRange(2, 6);
+  assert.throws(() => form.setSlots({ fields() {} }), {
+    name: 'TypeError', message: 'The root fields slot is reserved',
+  });
+  assert.equal(host.querySelector('input'), input);
+  assert.equal(document.activeElement, input);
+  assert.deepEqual([input.selectionStart, input.selectionEnd], [2, 6]);
+  assert.equal(form.node.at('title'), field);
+  await field.settled;
+  assert.equal(form.getValues().title, 'Typed packed draft');
   form.setValues({ title: 'Updated' });
   assert.equal(form.getValues().title, 'Updated');
   form.destroy(); assert.equal(host.children.length, 0);

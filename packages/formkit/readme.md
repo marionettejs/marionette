@@ -53,8 +53,9 @@ for later use. Supply `fields`, `schema`, or both. With neither, the form starts
 sources share the owned Core form; `setFields` updates direct declarations and
 `setSchema` updates schema content. Use `updateData` and `setFields` for live edits
 where possible. Replacing a root schema, layout or slots may move the
-focused control. Resetting sections to the default when already using it
-leaves focus and selection alone. Reordering keyed field declarations moves
+focused control. The root `fields` slot is reserved; a `setSlots` call that
+supplies it throws without changing the active form. Resetting sections to the
+default when already using it leaves focus and selection alone. Reordering keyed field declarations moves
 their DOM elements and preserves their Core nodes; it does not reorder a Core
 list's indices or values. To reorder the list itself, move the rows through
 FormKit Core (for example, by setting a row node's `index`) as well.
