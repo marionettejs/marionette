@@ -5,7 +5,7 @@ const arm = params.get('arm');
 const fields = Number(params.get('fields'));
 const shape = params.get('shape');
 const coreDelayMs = 20;
-const target = Math.floor(fields / 2);
+const target = params.get('position') === 'front' ? 1 : Math.floor(fields / 2);
 const witness = params.get('witness') === '1';
 const initial = index => witness && index === 0 ? '' : witness && index === target ? 'x' : seeds(index);
 
@@ -74,6 +74,10 @@ const selector = id => host.querySelector(`#field-${id}`);
 function requireOutcome(accepted, description) {
   if (!accepted) { throw new Error(description); }
 }
+function onKey(event) {
+  if (!pending || event.target.id !== `field-${target}`) { return; }
+  pending.key = { code: event.code, trusted: event.isTrusted, capture: performance.now() - mark };
+}
 function onInput(event) {
   if (!pending || event.target.id !== `field-${target}` || event.target.value !== pending.value) { return; }
   pending.capture = performance.now() - mark;
@@ -99,6 +103,7 @@ window.bench = {
     const observer = new MutationObserver(onReady);
     observer.observe(host, { childList: true, subtree: true });
     host.addEventListener('input', onInput, true);
+    host.addEventListener('keydown', onKey, true);
     mark = performance.now();
     try {
       dispose = spawn(value => { node = value; onReady(); }, values => { submitted = structuredClone(values); }, () => { invalidSaves++; });
@@ -147,6 +152,7 @@ window.bench = {
   destroy() {
     node.off(rootReceipt);
     host.removeEventListener('input', onInput, true);
+    host.removeEventListener('keydown', onKey, true);
     const start = performance.now();
     dispose();
     report.teardownMs = performance.now() - start;

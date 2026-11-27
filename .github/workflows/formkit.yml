@@ -138,6 +138,14 @@ jobs:
           FORMKIT_BENCH_READINESS: '1'
           FORMKIT_BENCH_PR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node packages/formkit/test/browser/benchmark/run-samples.mjs
+      - name: Profile public FormKit renderer and retention
+        if: github.event_name == 'pull_request' && github.event.pull_request.number == 3850 && github.event.pull_request.draft
+        continue-on-error: true
+        timeout-minutes: 6
+        env:
+          FORMKIT_BENCH_PROFILE: '1'
+          FORMKIT_BENCH_PR_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: node packages/formkit/test/browser/benchmark/run-samples.mjs
       - name: Retain public browser receipts
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

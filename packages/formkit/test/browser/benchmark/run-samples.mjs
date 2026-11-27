@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { build } from 'vite';
+import { idleControl, rendererStages, retainedAfterCycles } from './profile.mjs';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const work = fileURLToPath(new URL('../../tmp/browser', import.meta.url));
@@ -30,7 +31,9 @@ const provenance = {
 await writeFile(join(work, 'benchmark-provenance-results.json'), `${JSON.stringify(provenance, null, 2)}\n`);
 if (process.env.FORMKIT_BROWSER_BUILD_ONLY === '1') { process.exit(0); }
 const readiness = process.env.FORMKIT_BENCH_READINESS === '1';
-const reportName = readiness ? 'readiness-witness-results.json' : 'benchmark-samples-results.json';
+const profiling = process.env.FORMKIT_BENCH_PROFILE === '1';
+assert.ok(!profiling || !readiness, 'Choose one diagnostic mode');
+const reportName = profiling ? 'phase-profile-results.json' : readiness ? 'readiness-witness-results.json' : 'benchmark-samples-results.json';
 const arms = ['marionette', 'vue', 'react'];
 const orders = arms.flatMap(a => arms.filter(b => b !== a).map(b => [a, b, arms.find(c => c !== a && c !== b)]));
 const server = createServer(async(request, response) => {
@@ -76,6 +79,32 @@ async function witness(page, fields) {
   return { ...data, baseline, payloadVerified: true };
 }
 
+async function collectProfiles(browser, origin, rows) {
+  async function readout(identity, read) {
+    const row = { ...identity, version: browser.version() };
+    rows.push(row);
+    try {
+      row.observed = await read();
+    } catch (error) {
+      row.error = String(error);
+      process.exitCode = 1;
+    }
+    await writeFile(join(work, reportName), `${JSON.stringify(rows, null, 2)}\n`);
+    console.log(row.kind, row.arm, row.error ?? 'verified');
+  }
+  for (const front of [true, false]) {
+    for (const [block, order] of [orders[0], orders[3], orders[4]].entries()) {
+      for (const arm of order) {
+        await readout({ kind: 'renderer', arm, front, block }, () => rendererStages(browser, origin, arm, front));
+      }
+    }
+  }
+  for (const arm of arms) {
+    await readout({ kind: 'memory-control', arm }, () => idleControl(browser, origin, arm));
+    await readout({ kind: 'memory-cycles', arm }, () => retainedAfterCycles(browser, origin, arm));
+  }
+}
+
 let browser;
 const rows = [];
 try {
@@ -83,7 +112,8 @@ try {
   const origin = `http://127.0.0.1:${server.address().port}`;
   browser = await chromium.launch({ chromiumSandbox: true });
   console.log(`Sandboxed Chromium ${browser.version()}`);
-  for (const shape of (readiness ? ['validated'] : ['flat', 'validated'])) {
+  if (profiling) { await collectProfiles(browser, origin, rows); }
+  for (const shape of (profiling ? [] : readiness ? ['validated'] : ['flat', 'validated'])) {
     for (const fields of [450, 1500]) {
       shapeSamples: for (const [block, order] of (readiness ? [arms] : [orders[0], orders[3], ...orders]).entries()) {
         for (const arm of order) {
