@@ -73,7 +73,10 @@ The consumer supplies `saveProfile`. `mount` owns a Region and the returned form
 call `destroy()` when that owner is no longer needed. The host remains available
 for later use. Supply `fields`, `schema`, or both, with `fields: []` for an empty form. Both
 sources share the owned Core form; `setFields` updates direct declarations and
-`setSchema` updates schema content. Reordering keyed field declarations moves
+`setSchema` updates schema content. Use `updateData` and `setFields` for live edits
+where possible. Replacing a root schema, layout or slots may move the
+focused control. Resetting sections to the default when already using it
+leaves focus and selection alone. Reordering keyed field declarations moves
 their DOM elements and preserves their Core nodes; it does not reorder a Core
 list's indices or values. To reorder the list itself, move the rows through
 FormKit Core (for example, by setting a row node's `index`) as well.

@@ -28,6 +28,7 @@ async function mountPeer(arm) {
     });
     return {
       show: shown => form.updateData({ shown }),
+      useDefaultSections: () => form.setSectionsSchema(undefined),
       describe(help, error) {
         form.updateData({ help });
         const node = form.node.at('name');
@@ -72,7 +73,7 @@ const owner = await mountPeer(params.get('arm'));
 const show = () => owner.show(toggle.checked);
 toggle.addEventListener('change', show);
 window.receipt = {
-  submissions, events, describe: owner.describe,
+  submissions, events, describe: owner.describe, useDefaultSections: owner.useDefaultSections,
   destroy() {
     toggle.removeEventListener('change', show);
     owner.destroy();

@@ -112,8 +112,13 @@ async function stockDescriptions(browser, arm) {
     await page.keyboard.insertText('Synthetic draft');
     await input.evaluate(el => {
       window.originalStockInput = el;
+      window.stockInputBlurCount = 0;
+      el.addEventListener('blur', () => { window.stockInputBlurCount++; });
       el.setSelectionRange(2, 6);
     });
+    await page.evaluate(() => window.receipt.useDefaultSections());
+    assert.ok(await input.evaluate(el => el === window.originalStockInput && el === document.activeElement));
+    assert.equal(await page.evaluate(() => window.stockInputBlurCount), 0);
     await page.evaluate(() => window.receipt.describe('Synthetic help', 'Synthetic error'));
     const hasBoth = () => {
       const control = document.querySelector('#name');
@@ -136,7 +141,7 @@ async function stockDescriptions(browser, arm) {
     assert.ok(await input.evaluate(el => el === window.originalStockInput && el === document.activeElement));
     await page.evaluate(() => window.receipt.destroy());
     assert.equal(await page.locator('#host').evaluate(host => host.childNodes.length), 0);
-    return { accessibleDescriptions: true, focusAndSelectionPreserved: true, cleanTeardown: true };
+    return { accessibleDescriptions: true, focusAndSelectionPreserved: true, defaultSectionsStayedFocused: true, cleanTeardown: true };
   } finally {
     await page.close();
   }

@@ -434,7 +434,7 @@ export class ExperimentalFormView extends View {
     if (this._providerScope) {this._configScopes.set(this.node,this._providerScope);}
     this.config = this.node.config;
     this._sectionsSchema = options.sectionsSchema ?? options.formProps?.sectionsSchema;
-    const schemaReceipt = this.node.on('schema',event=>{if (event.origin === this.node) {queueMicrotask(()=>{if (!this._ending) {this.setSectionsSchema(this._sectionsSchema);}});}});
+    const schemaReceipt = this.node.on('schema',event=>{if (event.origin === this.node) {queueMicrotask(()=>{if (!this._ending) {this._redrawRootSections();}});}});
     this.once('attach',()=>{if (!this._ending) {this.node.emit('mounted');}});
     const retryFieldMounts = ()=>{
       // Retry only parked fields. Preserve the separate microtask for each
@@ -471,8 +471,12 @@ export class ExperimentalFormView extends View {
     this._rootRenderer = renderSections({Dom: this._formKitDom,host: this.el,schema: schemaFor(this.node,this._sectionsSchema),context: this.node.context,metrics: this.metrics,configScope: this._providerScope,domRoot: this._domRoot,components: resolveComponentLibrary(this.node,this.components,this.node.props.library),reuseRoot: true,slots: createRootSlots(this,this._rootSlots)});
   }
   setSectionsSchema(sectionsSchema) {
-    if (this._ending || this.isDestroyed()) {return this;}
-    this._sectionsSchema = sectionsSchema;this._layoutController?.detach();
+    if (this._ending || this.isDestroyed() || (sectionsSchema === undefined && this._sectionsSchema === undefined)) {return this;}
+    this._sectionsSchema = sectionsSchema;
+    return this._redrawRootSections();
+  }
+  _redrawRootSections() {
+    this._layoutController?.detach();
     for (const field of this.fields.values()) {removeNode(this._formKitDom,field.el);}
     this._rootRenderer.destroy();this._renderRoot();
     reconcile(this,this.node,this.fields,this.specs,this._fieldAnchor,this.initialValues);
@@ -481,7 +485,7 @@ export class ExperimentalFormView extends View {
   setSlots(slots = {}) {
     if (this._ending || this.isDestroyed()) {return this;}
     this._rootSlots = slots;this.node.context.slots = {default: true,fields: true,...Object.fromEntries(Object.keys(slots).map(name=>[name,true]))};
-    return this.setSectionsSchema(this._sectionsSchema);
+    return this._redrawRootSections();
   }
   setSchema(schema) {
     if (this._ending || this.isDestroyed()) {return this;}
