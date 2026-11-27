@@ -1,53 +1,32 @@
-> Package-only review: build, tests, fixtures, licenses and binding reproduction are
-> owned by this package. No working experiment directory is required. Historical
-> source and receipts remain linked by immutable commit in `PROVENANCE.md`.
-
-> Local released-peer integration: this private candidate targets official Marionette,
-> Radio and Utils **5.2.0**, with the FormKit family pinned together at **2.9.0**.
-> See `RELEASED-520-INTEGRATION.md` for source recovery, exact package provenance,
-> executed checks and limits. Historical TCM evidence is not current acceptance.
-
 # @mnjs/formkit
 
-FormKit schemas, inputs and validation with Marionette View, Region and
-Application ownership. This is an unpublished package candidate. It imports
-neither React nor Vue; their component objects require explicit DOM factories.
+Build validated forms in Marionette with FormKit inputs and schema. A Marionette
+View owns the form and its Core nodes, so replacing a Region also cleans up the
+form. No Vue or React runtime is required.
 
-The package workflow checks the current revision against released Marionette
-5.2.0 and FormKit 2.9.0. It exercises the package's ESM, CommonJS and TypeScript
-exports, lifecycle and validation contracts, and selected Vue and React
-reference cases. These are not full browser, licensed Pro, or performance
-certification. See [PROVENANCE.md](PROVENANCE.md) for historical evidence rather
-than treating results from a frozen candidate as current.
+This is an unpublished preview tested with Marionette 5.2.0 and FormKit 2.9.0.
+Use the packed preview from the project rather than installing it by name from
+npm. See [Scope](#scope) for what is and is not covered.
 
-## Build and verify the candidate
+## Use an existing Region
 
-From the repository checkout after dependencies have been installed:
+```js
+import { Region } from 'marionette';
+import { FormKitView } from '@mnjs/formkit';
 
-```sh
-npm --prefix packages/formkit run build
-npm --prefix packages/formkit test
-npm --prefix packages/formkit run check:types
-npm --prefix packages/formkit run check:package
-npm --prefix packages/formkit run lint
-npm --prefix packages/formkit run coverage
+const region = new Region({ el: document.querySelector('main') });
+const view = new FormKitView({ fields: [{ name: 'title', label: 'Title' }] });
+region.show(view);
+view.on('form:change', (values, state, info) => {
+  console.log(values, state.valid, info.source);
+});
+region.empty(); // destroys the View and its owned Core nodes
 ```
 
-`build` emits ESM and CommonJS bundles plus declarations for each module system.
-`test` runs actual public-package Vitest tests without a hidden build. The packed
-check extracts a newly created FormKit tarball into an isolated consumer, reuses
-installed dependencies without registry access, then verifies both module systems,
-public exports, mount/update/destruction and TypeScript consumers. Mandatory compiler
-counts and extracted-package scope/lifetime guards also run; the check fails if
-instrumentation misses the layout module or required outlet work disappears. It writes the
-report and candidate path to `test/tmp/package-result.json`.
-
-`lint` checks package files and the complete active runtime import graph with the
-repository's rules. The complete production graph is owned by `src/runtime`; lint rejects any
-production import escaping the package source directory. `coverage` uses the
-same package-owned build graph. These focused tests
-are not comprehensive behavior or browser certification. See [DESIGN.md](DESIGN.md)
-for source ownership and the remaining integration work.
+Use this pattern when a Marionette application already owns the screen. Show a
+`FormKitView` in its Region, just like another View. Emptying or replacing the
+Region destroys the form and its owned FormKit nodes. Use normal Marionette
+events and lifecycle hooks to coordinate the form with the rest of the app.
 
 ## Mount a form
 
@@ -108,40 +87,10 @@ its `(wholeValues, state, { source })` arguments. Await `node.settled` after an
 input operation to await Core settlement; that promise does not certify that all
 asynchronous validation or queued callbacks have finished.
 
-Without a field override or inherited configuration, current bindings use the
-upstream `blur` default for ordinary inputs and `dirty` for checkboxes. An
-independent text-input probe on the frozen adapter and pinned Vue/React 2.5
-showed no visible required message initially and one after actual focus/blur,
-with no own `validationVisibility` prop. A deliberate current live-default
-divergence is not supported by that evidence.
-
-Removing an explicit `validationVisibility` declaration is a separate contract.
-The adapter clears a mode only while the declaration still owns it, then resumes
-inherited configuration. A later plugin/onNode/runtime replacement retains its
-ownership; an unrelated declaration update does not reclaim it. The independent
-ownership suite passes for those adapter cases. This does not establish paired
-Vue/React equivalence for every explicit override-removal sequence.
-
-## Use an existing Region
-
-```js
-import { Region } from 'marionette';
-import { FormKitView } from '@mnjs/formkit';
-
-const region = new Region({ el: document.querySelector('main') });
-const view = new FormKitView({ fields: [{ name: 'title', label: 'Title' }] });
-region.show(view);
-view.on('form:change', (values, state, info) => {
-  console.log(values, state.valid, info.source);
-});
-region.empty(); // destroys the View and its owned Core nodes
-```
-
-`FormKitView` supports the normal `extend`, event and Region lifecycle contracts.
-The package tests cover retained ordinary named fields when their declarations
-are updated. That evidence does not establish approval of the proposed dynamic-list or raw
-identity corrections. The stable package name aliases the existing runtime constructor;
-`ExperimentalFormView` is not a public package export.
+Ordinary inputs default to showing validation on blur; checkboxes default to
+dirty. Fields and inherited configuration can choose a different visibility.
+When a field stops declaring an override, it resumes inherited configuration
+unless a plugin or runtime change has since taken ownership.
 
 ## Observe captured commits and wait for pending edits
 
@@ -404,6 +353,35 @@ or icon declarations to a prepared config, other named declarations remain avail
 Use `locale` with `locales` to select a translation. An explicit `config.locale`
 takes precedence. Within an Application, locale set on an individual form
 overrides the Application's default; an explicit form `config.locale` still wins.
+
+## Build and verify the candidate
+
+From the repository checkout after dependencies have been installed:
+
+```sh
+npm --prefix packages/formkit run build
+npm --prefix packages/formkit test
+npm --prefix packages/formkit run check:types
+npm --prefix packages/formkit run check:package
+npm --prefix packages/formkit run lint
+npm --prefix packages/formkit run coverage
+```
+
+`build` emits ESM and CommonJS bundles plus declarations for each module system.
+`test` runs actual public-package Vitest tests without a hidden build. The packed
+check extracts a newly created FormKit tarball into an isolated consumer, reuses
+installed dependencies without registry access, then verifies both module systems,
+public exports, mount/update/destruction and TypeScript consumers. Mandatory compiler
+counts and extracted-package scope/lifetime guards also run; the check fails if
+instrumentation misses the layout module or required outlet work disappears. It writes the
+report and candidate path to `test/tmp/package-result.json`.
+
+`lint` checks package files and the complete active runtime import graph with the
+repository's rules. The complete production graph is owned by `src/runtime`; lint rejects any
+production import escaping the package source directory. `coverage` uses the
+same package-owned build graph. These focused tests
+are not comprehensive behavior or browser certification. See [DESIGN.md](DESIGN.md)
+for source ownership and the remaining integration work.
 
 ## Scope
 

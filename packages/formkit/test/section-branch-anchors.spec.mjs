@@ -492,3 +492,83 @@ it('retires siblings from a help ref added without replacing the field', async()
     host.remove();
   }
 });
+
+it('keeps the control and connects help that first appears after a late section ref', async() => {
+  const host = document.createElement('main');
+  document.body.append(host);
+  const field = { name: 'answer', id: 'answer', label: 'Answer', value: 'draft text' };
+  const refValues = [];
+  const ref = el => refValues.push(el);
+  const custom = { ...field, sectionsSchema: { help: { attrs: { ref } } } };
+  const form = mount({ host, fields: [field], formProps: { actions: false } });
+  const flush = () => new Promise(resolve => setTimeout(resolve, 0));
+  try {
+    await form.node.settled;
+    const input = host.querySelector('input');
+    input.focus();
+    input.setSelectionRange(2, 5);
+    form.setFields([custom]);
+    await flush();
+    expect(input.hasAttribute('aria-describedby')).toBe(false);
+    expect(refValues).toEqual([]);
+    form.setFields([{ ...custom, help: 'Late explanation' }]);
+    await flush();
+    const help = document.getElementById(input.getAttribute('aria-describedby'));
+    expect(help?.textContent).toBe('Late explanation');
+    expect(refValues).toEqual([help]);
+    expect(document.activeElement).toBe(input);
+    expect([input.selectionStart, input.selectionEnd]).toEqual([2, 5]);
+    form.setFields([custom]);
+    await flush();
+    expect(refValues).toEqual([help, null]);
+    expect(input.hasAttribute('aria-describedby')).toBe(false);
+    expect(host.querySelector('input')).toBe(input);
+  } finally {
+    form.destroy();
+    host.remove();
+  }
+});
+
+it('keeps the control while a stock prefix icon is customized, toggled and activated', async() => {
+  const host = document.createElement('main');
+  document.body.append(host);
+  const svg = '<svg viewBox="0 0 10 10"><path d="M 0 0 L 10 10"></path></svg>';
+  const refValues = [];
+  let clicks = 0;
+  const field = { name: 'answer', id: 'answer-icon', value: 'draft text', prefixIcon: svg,
+    onPrefixIconClick() { clicks++; },
+  };
+  const form = mount({ host, fields: [field], formProps: { actions: false } });
+  const flush = () => new Promise(resolve => setTimeout(resolve, 0));
+  const ref = el => refValues.push(el);
+  const custom = { ...field, sectionsSchema: { prefixIcon: { attrs: { ref } } } };
+  try {
+    await form.node.settled;
+    const input = host.querySelector('input');
+    expect(host.querySelector('svg')).not.toBeNull();
+    input.focus();
+    input.setSelectionRange(2, 5);
+    form.setFields([custom]);
+    await flush();
+    const icon = refValues[0];
+    expect(icon?.querySelector('svg')).not.toBeNull();
+    icon.click();
+    expect(clicks).toBe(1);
+    form.setFields([{ ...custom, prefixIcon: '' }]);
+    await flush();
+    expect(host.querySelector('svg')).toBeNull();
+    expect(refValues).toEqual([icon, null]);
+    form.setFields([custom]);
+    await flush();
+    const restored = refValues[2];
+    expect(restored?.querySelector('svg')).not.toBeNull();
+    restored.click();
+    expect(clicks).toBe(2);
+    expect(host.querySelector('input')).toBe(input);
+    expect(document.activeElement).toBe(input);
+    expect([input.selectionStart, input.selectionEnd]).toEqual([2, 5]);
+  } finally {
+    form.destroy();
+    host.remove();
+  }
+});
