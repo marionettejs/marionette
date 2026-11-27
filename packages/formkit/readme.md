@@ -390,6 +390,18 @@ For raw `defaultConfig: false` pipelines,
 exported `bindings` can be combined with explicitly supplied FormKit library
 plugins; the raw pipeline must provide its own root form definition and context.
 
+For ordinary View and `mount()` options, supply `rules`, `locales`, and `plugins`
+directly. For an Application, put the same settings under its `config` option.
+The package adds the standard FormKit plugins once. A prepared
+`defaultConfig(options)` result already includes them and can be passed to a
+provider or Application, or spread into View and `mount()` options without
+installing the defaults a second time. When you add rule, input, locale, message,
+or icon declarations to a prepared config, other named declarations remain available.
+
+Use `locale` with `locales` to select a translation. An explicit `config.locale`
+takes precedence. Within an Application, locale set on an individual form
+overrides the Application's default; an explicit form `config.locale` still wins.
+
 ## Scope
 
 Runtime code lives in `src/runtime` and the public entries import it locally.

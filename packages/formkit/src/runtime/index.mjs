@@ -4,6 +4,7 @@ import { createFormKitStructuralComponents } from './structural-components.mjs';
 import { subscribeReactiveStore } from './upstream-bindings.mjs';
 import { createFormKitProviders } from './provider-components.mjs';
 import { nativeFormKitFactory, formKitScope } from './provider-scope.mjs';
+import { preparedDefaults, withPreparedDefaults } from './config-scope.mjs';
 export { defaultConfig } from './config-scope.mjs';
 // Experimental slice. React 2.5.0 store/class-cache patterns adapted under MIT;
 // see LICENSE.formkit. DOM renderer and Marionette ownership are new code.
@@ -385,6 +386,7 @@ export class ExperimentalFormView extends View {
     return el;
   }
   initialize(options = {}) {
+    if (options.defaultConfig !== false) {options = withPreparedDefaults(options);}
     this._formKitDom = this.Dom;
     const customConfig = Object.keys(options.config ?? {}).some(key => key !== 'rootConfig') ||
       (options.config?.rootConfig && !hasStockRootConfig(options.config.rootConfig));
@@ -415,7 +417,7 @@ export class ExperimentalFormView extends View {
       return {update: next=>{field.update({...next,name,children: spec.children,__schemaScope: locals,__schemaData: schemaData});if (legacySlots && !authoredSlots.length) {field.refresh();}},...(authoredSlots.length ? {refresh: ()=>field.refreshSlotScopes()} : {}),destroy: (remove = true)=>{if (remove) {field.destroy();} else {field.disposeView(false);field.disposeNodes(true);}}};
     },...options.components};
     if (!Object.hasOwn(options.components ?? {},'FormKit')) {this.components.FormKit[nativeFormKitFactory] = true;}
-    this.config = { ...(!options.config?.rootConfig && options.defaultConfig !== false ? {locale: 'en',rootClasses: section=>({[`formkit-${kebab(section)}`]: true})} : {}), ...options.config, classes: options.classes ?? options.config?.classes, ...(options.messages ? {messages: options.messages} : {}) };
+    this.config = { ...(!options.config?.rootConfig && options.defaultConfig !== false ? {locale: 'en',rootClasses: section=>({[`formkit-${kebab(section)}`]: true})} : {}), ...(!options.config?.rootConfig && options.locale !== undefined ? {locale: options.locale} : {}), ...options.config, classes: options.classes ?? options.config?.classes, ...(options.messages ? {messages: options.messages} : {}) };
     const rootClasses = this.config.rootClasses;
     if (this.metrics.enabled && rootClasses) {this.config.rootClasses = (section,node)=>{this.metrics.classRootEvaluations++;return rootClasses(section,node);};}
     const countCore = node=>{this.metrics.coreNodesCreated++;for (const [event,key] of [['input','coreInputEvents'],['commit','coreCommitEvents'],['message-added','coreMessageEvents'],['message-updated','coreMessageEvents'],['message-removed','coreMessageEvents'],['destroyed','coreNodesDestroyed']]) {node.on(event,()=>this.metrics[key]++);}};
@@ -555,9 +557,9 @@ export class ExperimentalFormView extends View {
 export const FormKitApplication = /* @__PURE__ */ createFormKitApplication(ExperimentalFormView);
 
 export function mount(options = {}) {
-  const { [formKitScope]: providerScope, defaultConfig = true, instrument = false, host, count = 1, fields, values = {}, classes, config, onSubmit, onSubmitInvalid, onSubmitRaw, formProps, inputs, plugins, components, rules, locales, messages, sectionsSchema, theme, icons, iconLoaderUrl, iconLoader, schema, data, slots, schemaSlots } = options;
+  const { [formKitScope]: providerScope, [preparedDefaults]: prepared, defaultConfig = true, instrument = false, host, count = 1, fields, values = {}, classes, config, locale, onSubmit, onSubmitInvalid, onSubmitRaw, formProps, inputs, plugins, components, rules, locales, messages, sectionsSchema, theme, icons, iconLoaderUrl, iconLoader, schema, data, slots, schemaSlots } = options;
   const region = new Region({ el: host });
-  const form = new ExperimentalFormView({ [formKitScope]: providerScope, defaultConfig, instrument, count, fields, values, classes, config, onSubmit, onSubmitInvalid, onSubmitRaw, formProps, inputs, plugins, components, rules, locales, messages, sectionsSchema, theme, icons, iconLoaderUrl, iconLoader, schema, data, slots, schemaSlots, domRoot: (typeof region.el === 'string' ? region.getEl(region.el) : region.el).getRootNode() });
+  const form = new ExperimentalFormView({ [formKitScope]: providerScope, [preparedDefaults]: prepared, defaultConfig, instrument, count, fields, values, classes, config, locale, onSubmit, onSubmitInvalid, onSubmitRaw, formProps, inputs, plugins, components, rules, locales, messages, sectionsSchema, theme, icons, iconLoaderUrl, iconLoader, schema, data, slots, schemaSlots, domRoot: (typeof region.el === 'string' ? region.getEl(region.el) : region.el).getRootNode() });
   try {region.show(form);} catch (error) {form.destroy();region.destroy();throw error;}
   return { form, node: form.node, metrics: form.metrics, setSchema: nextSchema=>form.setSchema(nextSchema), updateData: nextData=>form.updateData(nextData), setSlots: nextSlots=>form.setSlots(nextSlots), setSectionsSchema: sections=>form.setSectionsSchema(sections), getValues: ()=>form.getValues(), createValueProjection: projectionOptions=>form.createValueProjection(projectionOptions), observeFieldCommits: callback=>form.observeFieldCommits(callback), whenPendingEditsSettled: settlementOptions=>form.whenPendingEditsSettled(settlementOptions), setValues: (nextValues,valueOptions)=>form.setValues(nextValues,valueOptions), getFormState: ()=>form.getFormState(), setErrors: (errors,fieldErrors)=>form.setErrors(errors,fieldErrors), clearErrors: ()=>form.node.clearErrors(), setFields: specs => form.setFields(specs), reset: () => form.resetForm(), submit: () => form.submit(), destroy: () => region.destroy() };
 }

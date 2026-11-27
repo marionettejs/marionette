@@ -1,4 +1,5 @@
 import { formKitScope } from './provider-scope.mjs';
+import { preparedDefaults } from './config-scope.mjs';
 // FormKit config readiness and scope through ordinary Marionette Application ownership.
 import { Application } from 'marionette';
 import { createConfig } from '@formkit/core';
@@ -42,7 +43,7 @@ export function createFormKitApplication(FormView) {
       const suppliedRootConfig = raw.config?.rootConfig;
       const rootConfig = suppliedRootConfig ?? createConfig({
         ...(defaults ? { locale: 'en', rootClasses: section => ({ [`formkit-${kebab(section)}`]: true }) } : {}),
-        ...(defaults && raw.locale ? { locale: raw.locale } : {}), ...raw.config
+        ...(raw.locale !== undefined ? { locale: raw.locale } : {}), ...raw.config
       });
       if (defaults && suppliedRootConfig == null && Object.keys(raw.config ?? {}).length === 0) {
         stockRootConfigs.set(rootConfig,Object.entries(rootConfig));
@@ -64,9 +65,11 @@ export function createFormKitApplication(FormView) {
     getFormOptions(form = {}) {
       const scope = this.getFormKitScope();
       if (!scope) {throw new Error('Start the FormKit Application before creating scoped forms');}
+      const inherited = scope.options[preparedDefaults], local = form[preparedDefaults];
       return {
         ...scope.options, ...form, [formKitScope]: true,
-        config: { rootConfig: scope.rootConfig, ...form.config },
+        [preparedDefaults]: inherited && local ? [...inherited, ...local] : inherited ?? local,
+        config: { rootConfig: scope.rootConfig, ...(form.locale !== undefined ? { locale: form.locale } : {}), ...form.config },
         plugins: [...(scope.options.plugins ?? []), ...(form.plugins ?? [])],
         defaultConfig: scope.defaultConfig
       };
