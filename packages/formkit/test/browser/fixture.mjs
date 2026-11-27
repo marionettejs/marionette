@@ -1,3 +1,4 @@
+const params = new URLSearchParams(location.search);
 const host = document.querySelector('#host');
 const toggle = document.querySelector('#show');
 const schema = [
@@ -20,8 +21,20 @@ for (const type of ['compositionstart', 'compositionupdate', 'compositionend', '
 async function mountPeer(arm) {
   if (arm === 'marionette') {
     const { mount } = await import('@mnjs/formkit');
-    const form = mount({ host, schema, data: { shown: true }, formProps: { actions: true }, onSubmit });
-    return { show: shown => form.updateData({ shown }), destroy: () => form.destroy() };
+    const stockTest = params.get('scenario') === 'stock-descriptions';
+    const form = mount({
+      host, schema: stockTest ? [{ ...schema[0], help: '$help' }, schema[1]] : schema,
+      data: stockTest ? { shown: true, help: '' } : { shown: true }, formProps: { actions: true }, onSubmit,
+    });
+    return {
+      show: shown => form.updateData({ shown }),
+      describe(help, error) {
+        form.updateData({ help });
+        const node = form.node.at('name');
+        if (error) { node.setErrors([error]); } else { node.clearErrors(); }
+      },
+      destroy: () => form.destroy(),
+    };
   }
 
   if (arm === 'vue') {
@@ -55,11 +68,11 @@ async function mountPeer(arm) {
   throw new Error('Choose a known FormKit peer');
 }
 
-const owner = await mountPeer(new URLSearchParams(location.search).get('arm'));
+const owner = await mountPeer(params.get('arm'));
 const show = () => owner.show(toggle.checked);
 toggle.addEventListener('change', show);
 window.receipt = {
-  submissions, events,
+  submissions, events, describe: owner.describe,
   destroy() {
     toggle.removeEventListener('change', show);
     owner.destroy();

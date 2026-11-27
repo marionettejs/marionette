@@ -65,10 +65,12 @@ await new Promise(resolve => { server.listen(0, '127.0.0.1', resolve); });
 const origin = `http://127.0.0.1:${server.address().port}`;
 const arms = ['marionette', 'vue', 'react'];
 
-async function open(browser, arm) {
+async function open(browser, arm, scenario) {
   const page = await browser.newPage();
   await page.route('**/*', route => route.request().url().startsWith(`${origin}/`) ? route.continue() : route.abort());
-  await page.goto(`${origin}/?arm=${arm}`);
+  const params = new URLSearchParams({ arm });
+  if (scenario) { params.set('scenario', scenario); }
+  await page.goto(`${origin}/?${params}`);
   await page.waitForFunction(() => window.receipt && document.querySelector('#notes'));
   return page;
 }
@@ -97,6 +99,44 @@ async function keyboard(browser, arm) {
     await page.evaluate(() => window.receipt.destroy());
     assert.equal(await page.locator('#host').evaluate(host => host.childElementCount), 0);
     return { firstSave, focusRetargeted: true, cleanTeardown: true };
+  } finally {
+    await page.close();
+  }
+}
+
+async function stockDescriptions(browser, arm) {
+  const page = await open(browser, arm, 'stock-descriptions');
+  try {
+    const input = page.locator('#name');
+    await page.locator('label[for=name]').click();
+    await page.keyboard.insertText('Synthetic draft');
+    await input.evaluate(el => {
+      window.originalStockInput = el;
+      el.setSelectionRange(2, 6);
+    });
+    await page.evaluate(() => window.receipt.describe('Synthetic help', 'Synthetic error'));
+    const hasBoth = () => {
+      const control = document.querySelector('#name');
+      const descriptions = (control.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean)
+        .map(id => document.getElementById(id)?.textContent);
+      return descriptions.includes('Synthetic help') && descriptions.includes('Synthetic error');
+    };
+    await page.waitForFunction(hasBoth);
+    assert.deepEqual(await input.evaluate(el => ({
+      same: el === window.originalStockInput,
+      focused: el === document.activeElement,
+      value: el.value,
+      start: el.selectionStart,
+      end: el.selectionEnd,
+    })), { same: true, focused: true, value: 'Synthetic draft', start: 2, end: 6 });
+    await page.evaluate(() => window.receipt.describe('', ''));
+    await page.waitForFunction(() => !document.querySelector('#name').getAttribute('aria-describedby')
+      && !document.querySelector('#host').textContent.includes('Synthetic help')
+      && !document.querySelector('#host').textContent.includes('Synthetic error'));
+    assert.ok(await input.evaluate(el => el === window.originalStockInput && el === document.activeElement));
+    await page.evaluate(() => window.receipt.destroy());
+    assert.equal(await page.locator('#host').evaluate(host => host.childNodes.length), 0);
+    return { accessibleDescriptions: true, focusAndSelectionPreserved: true, cleanTeardown: true };
   } finally {
     await page.close();
   }
@@ -152,6 +192,7 @@ try {
       assert.equal(browser.version(), expectedBrowsers.get(engine), `Unexpected ${engine} version`);
       for (const arm of arms) {
         const cases = engine === 'chromium' ? { keyboard, composition } : { keyboard };
+        if (arm === 'marionette') { cases.stockDescriptions = stockDescriptions; }
         for (const [scenario, test] of Object.entries(cases)) {
           const identity = { engine, version: browser.version(), arm, scenario };
           const observed = {};
