@@ -130,9 +130,9 @@ async function stockDescriptions(browser, arm) {
       end: el.selectionEnd,
     })), { same: true, focused: true, value: 'Synthetic draft', start: 2, end: 6 });
     await page.evaluate(() => window.receipt.describe('', ''));
-    await page.waitForFunction(() => !document.querySelector('#name').getAttribute('aria-describedby')
-      && !document.querySelector('#host').textContent.includes('Synthetic help')
-      && !document.querySelector('#host').textContent.includes('Synthetic error'));
+    await page.waitForFunction(() => !document.querySelector('#name').getAttribute('aria-describedby') &&
+      !document.querySelector('#host').textContent.includes('Synthetic help') &&
+      !document.querySelector('#host').textContent.includes('Synthetic error'));
     assert.ok(await input.evaluate(el => el === window.originalStockInput && el === document.activeElement));
     await page.evaluate(() => window.receipt.destroy());
     assert.equal(await page.locator('#host').evaluate(host => host.childNodes.length), 0);
