@@ -136,3 +136,37 @@ it.each(Object.keys(roots))('%s preserves distinct inherited and local rules and
   await vi.waitFor(() => expect(invalid).toHaveBeenCalledTimes(1), { timeout: 300 });
   expect(submitted).not.toHaveBeenCalled();
 });
+
+it('preserves plain Application rules and inputs when a prepared child adds its own', async() => {
+  const enrolled = vi.fn(() => false), local = vi.fn(() => true);
+  const submitted = vi.fn(), invalid = vi.fn();
+  const target = await roots.application({
+    rules: { enrolled },
+    inputs: { inheritedInput: inputs.text },
+    messages: { en: { validation: { enrolled: 'Organization rule sentinel' } } },
+  }, {
+    ...defaultConfig({ rules: { local } }),
+    fields: [
+      { ...requiredField, type: 'inherited-input', value: 'ready', validation: 'enrolled' },
+      { ...requiredField, name: 'other', value: 'ready', validation: 'local' },
+    ],
+    formProps: { actions: false }, onSubmit: submitted, onSubmitInvalid: invalid,
+  });
+  await vi.waitFor(() => expect(target.textContent).toContain('Organization rule sentinel'), { timeout: 300 });
+  expect(enrolled).toHaveBeenCalledTimes(1);
+  expect(local).toHaveBeenCalledTimes(1);
+  target.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+  await vi.waitFor(() => expect(invalid).toHaveBeenCalledTimes(1), { timeout: 300 });
+  expect(submitted).not.toHaveBeenCalled();
+});
+
+it('does not let implicit prepared English override an Application locale', async() => {
+  const inherited = { locale: 'fr', locales: {
+    fr: { validation: { required: 'French Application sentinel' } },
+  } };
+  const form = { fields: [requiredField], formProps: { actions: false } };
+  const french = await roots.application(inherited, { ...defaultConfig(), ...form });
+  await vi.waitFor(() => expect(french.textContent).toContain('French Application sentinel'), { timeout: 300 });
+  const english = await roots.application(inherited, { ...defaultConfig({ locale: 'en' }), ...form });
+  await vi.waitFor(() => expect(english.textContent).toContain('Answer is required'), { timeout: 300 });
+});

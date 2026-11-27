@@ -36,7 +36,7 @@ export function defaultConfig(options = {}) {
     createI18nPlugin(extend({en,...options.locales},options.messages ?? {})),createValidationPlugin({...rules,...options.rules})
   ];
   const declarative = Object.fromEntries(mergeable.map(key=>[key,options[key]]));
-  return {...options,[preparedDefaults]: [{plugins,options: declarative}],inputs: definitions,config: {locale: options.locale ?? 'en',rootClasses: section=>({[`formkit-${kebab(section)}`]: true}),...options.config},plugins: [...plugins,...(options.plugins ?? [])]};
+  return {...options,[preparedDefaults]: [{plugins,options: declarative}],inputs: definitions,config: {...(options.locale !== undefined ? {locale: options.locale} : {}),rootClasses: section=>({[`formkit-${kebab(section)}`]: true}),...options.config},plugins: [...plugins,...(options.plugins ?? [])]};
 }
 export function normalizeConfig(config) {
   const raw = (typeof config === 'function' ? config() : config) ?? {};

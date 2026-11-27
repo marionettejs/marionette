@@ -66,9 +66,11 @@ export function createFormKitApplication(FormView) {
       const scope = this.getFormKitScope();
       if (!scope) {throw new Error('Start the FormKit Application before creating scoped forms');}
       const inherited = scope.options[preparedDefaults], local = form[preparedDefaults];
+      const prepared = inherited || local ?
+        [...(inherited ?? []), {plugins: [],options: scope.options}, ...(local ?? [])] : undefined;
       return {
         ...scope.options, ...form, [formKitScope]: true,
-        [preparedDefaults]: inherited && local ? [...inherited, ...local] : inherited ?? local,
+        [preparedDefaults]: prepared,
         config: { rootConfig: scope.rootConfig, ...(form.locale !== undefined ? { locale: form.locale } : {}), ...form.config },
         plugins: [...(scope.options.plugins ?? []), ...(form.plugins ?? [])],
         defaultConfig: scope.defaultConfig
