@@ -33,6 +33,9 @@ export async function dynamicList(browser, arm, origin) {
       caret: input.selectionStart,
     }));
     assert.equal(afterMove.sameInput, true);
+    if (arm === 'marionette') {
+      assert.deepEqual(afterMove, { sameInput: true, focused: true, caret: 2 });
+    }
     await page.evaluate(() => window.receipt.remove(1));
     await waitForValues(removed);
     await page.getByRole('button', { name: 'Save rows', exact: true }).click();
