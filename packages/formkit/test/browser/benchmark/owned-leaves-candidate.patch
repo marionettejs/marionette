@@ -1,0 +1,324 @@
+--- a/packages/formkit/src/runtime/index.mjs
++++ b/packages/formkit/src/runtime/index.mjs
+@@ -63,6 +63,9 @@
+ function isModeled(spec) {return spec.modelValue !== undefined || spec.value !== undefined || typeof spec.onUpdateModelValue === 'function' || typeof spec['onUpdate:modelValue'] === 'function';}
+ function schemaFor(node,sections) {const schema = node.props.definition.schema;return typeof schema === 'function' ? schema({...sections ?? {}}) : schema;}
+ 
++const stockTextSchema = nativeInputs.text.schema;
++const isStockTextSchema = (node, sections) => sections == null && node.props.definition.schema === stockTextSchema;
++
+ function createField(node,spec,view,initial,renderDefault,present) {
+   const Dom = view._formKitDom, el = Dom.createElement('div');Dom.setAttributes(el, {'data-experiment-field': String(node.name)});
+   const initialVisibility = nativeProps(spec,node.props.definition);
+@@ -128,7 +131,7 @@
+     if (next.library === field.spec.library && renderer?.setSchema(nextSchema)) {return;}
+     for (const child of children.values()) {removeNode(Dom,child.el);} for (const content of defaultScopes.values()) {removeNode(Dom,content.host);}
+     redrawing = true;try {renderer?.destroy();} finally {redrawing = false;}anchor = undefined;
+-    renderer = renderSections({Dom,host: el,schema: nextSchema,context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,next.library),slots});
++    renderer = renderSections({Dom,host: el,schema: nextSchema,ownStockLeaves: isStockTextSchema(node,next.sectionsSchema),context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,next.library),slots});
+     for (const [parent,content] of defaultScopes) {if (!content.active) {defaultScopes.delete(parent);content.dispose?.();removeNode(Dom,content.host);}}
+     if (anchor && !next[schemaChildScope]) {reconcile(view,node,children,next.children ?? [],anchor,initial ?? {});}
+     present?.(el);
+@@ -189,7 +192,7 @@
+   const inputReceipt = node.on('modelUpdated',()=>{field.spec.onInputRaw?.(node.context?.value,node);field.spec.onInput?.(node.context?.value,node);if (isModeled(field.spec)) {const value = shallowClone(node.value);field.spec.onUpdateModelValue?.(value);field.spec['onUpdate:modelValue']?.(value);field.spec.onChange?.(value,node);}});
+   const schemaReceipt = node.on('schema',event=>{if (event.origin !== node || dead || schemaQueued) {return;}schemaQueued = true;queueMicrotask(()=>{schemaQueued = false;if (!dead) {redraw(field.spec);}});});
+   queueMicrotask(notifyMounted);
+-  try {spec.onNode?.(node);renderer = renderSections({Dom,host: el,schema: schemaFor(node,spec.sectionsSchema),context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,spec.library),slots});field.update(spec);present?.(el);return field;} catch (error) {try {field.destroy();} catch { /* Preserve the construction error. */ } throw error;}
++  try {spec.onNode?.(node);renderer = renderSections({Dom,host: el,schema: schemaFor(node,spec.sectionsSchema),ownStockLeaves: isStockTextSchema(node,spec.sectionsSchema),context: node.context,metrics: view.metrics,configScope: view._configScopes.get(node),domRoot: node.props.__root,parentNode: view._schemaParent ? node : undefined,components: resolveComponentLibrary(node,view.components,spec.library),slots});field.update(spec);present?.(el);return field;} catch (error) {try {field.destroy();} catch { /* Preserve the construction error. */ } throw error;}
+ }
+ 
+ const generalProps = new Set([...runtimeProps,'label','help','disabled','validationVisibility','slots','definition','defaultValue','onUpdateModelValue','onChange','sync','dynamic','ignore','preserve']);
+--- a/packages/formkit/src/runtime/section-renderer.mjs
++++ b/packages/formkit/src/runtime/section-renderer.mjs
+@@ -22,7 +22,23 @@
+   return Object.create(Object.getPrototypeOf(entry),descriptors);
+ }
+ 
+-export function renderSections({host,Dom = View.prototype.Dom,schema,context,metrics,slots = {},reuseRoot = false,data = {},components = {},configScope,domRoot,parentNode}) {
++// The default fallbacks for these stock slots each own one element and
++// cannot render siblings. Their existing outer slot sets the insertion point.
++const stockLeaves = new Map([
++  ['$slots.help', ['div', '$help']],
++  ['$slots.label', ['label', '$label']],
++  ['$slots.prefixIcon', ['label', '$prefixIcon && $_rawPrefixIcon']],
++  ['$slots.suffixIcon', ['span', '$suffixIcon && $_rawSuffixIcon']],
++]);
++function isOwnedStockLeaf(slot,yes,branch) {
++  const readOwn = (object,key)=>Object.getOwnPropertyDescriptor(object,key)?.value;
++  const condition = readOwn(slot,'if'), leaf = stockLeaves.get(condition);
++  if (!leaf || yes !== condition || !isSchemaPojo(branch) ||
++      '$cmp' in branch || '$formkit' in branch || 'for' in branch || 'then' in branch || 'else' in branch) {return false;}
++  return readOwn(branch,'$el') === leaf[0] && readOwn(branch,'if') === leaf[1];
++}
++
++export function renderSections({host,Dom = View.prototype.Dom,schema,context,metrics,slots = {},reuseRoot = false,ownStockLeaves = false,data = {},components = {},configScope,domRoot,parentNode}) {
+   let dead = false,rootUsed = false,removeDom = true;const effects = new Set(),elements = new Set(),schemaCells = new WeakMap();
+   const cellFor = entry=>{const source = entry[sectionSource] ?? entry;let cell = schemaCells.get(source);if (!cell) {cell = {current: source};schemaCells.set(source,cell);} return cell;};
+   const iterationScope = Symbol('iteration scope'), scopedEffects = Symbol('outlet effects'),methodBindings = new WeakMap();
+@@ -85,7 +101,7 @@
+     }
+   }
+   function range(parent,before,owner) {const start = parent.ownerDocument.createComment('section'),end = parent.ownerDocument.createComment('/section');insertNode(Dom,parent,start,before);insertNode(Dom,parent,end,before);owner.add(()=>{if (!removeDom) {return;} let n = start;while (n) {const next = n.nextSibling;removeNode(Dom,n);if (n === end) {break;}n = next;}});return {start,end};}
+-  function draw(entry,parent,before,locals,owner,childProps) {
++  function draw(entry,parent,before,locals,owner,childProps,ownedLeaf = false) {
+     if (entry && typeof entry === 'object' && !Array.isArray(entry)) {const current = cellFor(entry).current;if (current !== (entry[sectionSource] ?? entry)) {entry = projectSchema(entry,[],{attrs: current.attrs,bind: current.bind});}}
+     if (entry == null || entry === false) {return;}
+     if (Array.isArray(entry)) {for (const child of entry) {draw(child,parent,before,locals,owner,childProps);} return;}
+@@ -144,7 +160,21 @@
+         if (pivot < 0) {place(0,ordered.length - 1,bounds.end);} else {place(pivot + 1,ordered.length - 1,bounds.end);place(0,pivot - 1,ordered[pivot].start);}
+       },true);return;
+     }
+-    if (Object.hasOwn(entry,'if')) {const bounds = range(parent,before,owner);let child = scope(),previous;owner.add(()=>child.destroy());const yes = Object.hasOwn(entry,'then') ? entry.then : projectSchema(entry,['if']);binding(entry.if,locals,owner,value=>{const flag = !!value;if (flag === previous) {return;}previous = flag;child.destroy();child = scope();metric('structuralChanges');draw(flag ? yes : entry.else,parent,bounds.end,locals,child,childProps);},false,true);return;}
++    if (Object.hasOwn(entry,'if')) {
++      const at = ownedLeaf ? before : range(parent,before,owner).end;
++      let child = scope(),previous;
++      owner.add(()=>child.destroy());
++      const yes = Object.hasOwn(entry,'then') ? entry.then : projectSchema(entry,['if']);
++      binding(entry.if,locals,owner,value=>{
++        const flag = Boolean(value);
++        if (flag === previous) {return;}
++        previous = flag;child.destroy();child = scope();metric('structuralChanges');
++        const branch = flag ? yes : entry.else;
++        const owned = ownStockLeaves && !flag && isOwnedStockLeaf(entry,yes,branch);
++        draw(branch,parent,at,locals,child,childProps,owned);
++      },false,true);
++      return;
++    }
+     if (Object.hasOwn(entry,'$cmp')) {
+       const component = typeof entry.$cmp === 'string' ? components[entry.$cmp] : entry.$cmp;
+       if (typeof component !== 'function') {throw new TypeError(`Unknown component factory: ${String(entry.$cmp)}`);}
+--- /dev/null
++++ b/packages/formkit/test/section-branch-anchors.spec.mjs
+@@ -0,0 +1,232 @@
++import { expect, it } from 'vitest';
++import { mount } from '@mnjs/formkit';
++import { renderSections } from '../src/runtime/section-renderer.mjs';
++
++it('clears an imperative slot inserted after the original else branch changes', () => {
++  const host = document.createElement('main');
++  const data = { enabled: true };
++  const schema = { if: '$enabled', then: { $el: 'b' }, else: { $el: 'i' } };
++  const renderer = renderSections({
++    host, schema, data, context: {},
++    slots: {
++      append({ parent, before }) {
++        parent.insertBefore(document.createElement('output'), before);
++      },
++    },
++  });
++  schema.else = '$slots.append';
++  data.enabled = false;
++  renderer.update();
++  expect(host.querySelector('output')).not.toBeNull();
++  renderer.destroy();
++  expect(host.childNodes).toHaveLength(0);
++});
++
++it('clears component content explicitly mounted alongside its owned ancestor', () => {
++  const host = document.createElement('main');
++  let output;
++  const renderer = renderSections({
++    host, context: {}, data: { enabled: true },
++    schema: { if: '$enabled', then: { $el: 'div', children: {
++      $cmp: 'Outlet', children: { $el: 'output' },
++    } } },
++    components: {
++      Outlet({ renderChildren }) {
++        // The outlet deliberately renders outside its parent's element, but
++        // still within the enclosing conditional branch.
++        const destroy = renderChildren(host, host.lastChild);
++        output = host.querySelector('output');
++        return { destroy };
++      },
++    },
++  });
++  expect(output?.parentNode).toBe(host);
++  renderer.destroy();
++  expect(host.childNodes).toHaveLength(0);
++});
++
++it('preserves descendants and stops updates when teardown does not remove DOM', () => {
++  const host = document.createElement('main');
++  const data = { enabled: true };
++  const schema = { if: '$enabled', then: { $el: 'b', children: 'on' }, else: { $el: 'i', children: 'off' } };
++  const renderer = renderSections({ host, schema, data, context: {} });
++  const existing = [...host.childNodes];
++  renderer.destroy(false);
++  data.enabled = false;
++  renderer.update();
++  expect([...host.childNodes]).toEqual(existing);
++  expect(host.querySelector('b').textContent).toBe('on');
++  expect(host.querySelector('i')).toBeNull();
++});
++
++it('opens initially empty stock help without creating its own markers or replacing the control', async() => {
++  const host = document.createElement('main');
++  document.body.append(host);
++  const field = { name: 'answer', label: 'Answer', delay: 0 };
++  const form = mount({ host, fields: [field], formProps: { actions: false } });
++  try {
++    await form.node.settled;
++    const input = host.querySelector('input');
++    const node = form.node.at('answer');
++    input.focus();
++    const openCount = () => {
++      const walker = document.createTreeWalker(host, NodeFilter.SHOW_COMMENT);
++      let n = 0;
++      for (let mark = walker.nextNode(); mark; mark = walker.nextNode()) {
++        if (mark.data === 'section') { n++; }
++      }
++      return n;
++    };
++    const empty = openCount();
++    form.setFields([{ ...field, help: 'Explanation' }]);
++    await new Promise(resolve => setTimeout(resolve, 0));
++    expect(host.textContent).toContain('Explanation');
++    expect(openCount()).toBe(empty);
++    node.setErrors(['Local message']);
++    await new Promise(resolve => setTimeout(resolve, 0));
++    expect(host.textContent).toContain('Local message');
++    const descriptions = () => (input.getAttribute('aria-describedby') ?? '').split(/\s+/)
++      .filter(Boolean).map(id => document.getElementById(id)?.textContent);
++    expect(descriptions()).toContain('Explanation');
++    expect(descriptions()).toContain('Local message');
++    expect(host.querySelector('input')).toBe(input);
++    expect(document.activeElement).toBe(input);
++    form.setFields([field]);
++    node.clearErrors();
++    await new Promise(resolve => setTimeout(resolve, 0));
++    expect(host.textContent).not.toContain('Explanation');
++    expect(host.textContent).not.toContain('Local message');
++    expect(descriptions()).toEqual([]);
++    expect(form.node.at('answer')).toBe(node);
++    expect(host.querySelector('input')).toBe(input);
++  } finally {
++    form.destroy();
++    expect(host.childNodes).toHaveLength(0);
++    host.remove();
++  }
++});
++
++it('keeps explicitly customized conditional branches on the general path', async() => {
++  const host = document.createElement('main');
++  const form = mount({ host, fields: [{
++    name: 'answer', label: 'Answer',
++    children: { label: { $el: 'strong', children: 'Named slot' } },
++    sectionsSchema: { inner: { attrs: { 'data-section-custom': 'yes' } } },
++  }] });
++  try {
++    await form.node.settled;
++    expect(host.querySelector('strong').textContent).toBe('Named slot');
++    expect(host.querySelector('[data-section-custom]').contains(host.querySelector('input'))).toBe(true);
++  } finally {
++    form.destroy();
++    expect(host.childNodes).toHaveLength(0);
++  }
++});
++
++it('reuses a stock section after adding and removing a named help slot', async() => {
++  const host = document.createElement('main');
++  const field = { name: 'answer', help: 'Default help' };
++  const form = mount({ host, fields: [field] });
++  const flush = () => new Promise(resolve => setTimeout(resolve, 0));
++  try {
++    await form.node.settled;
++    const original = host.querySelector('input');
++    const help = () => [...host.querySelectorAll('div')].filter(el => el.textContent === 'Default help').length;
++    expect(help()).toBeGreaterThan(0);
++    form.setFields([{ ...field, children: { help: { $el: 'strong', children: 'Custom help' } } }]);
++    await flush();
++    expect(host.querySelector('strong')?.textContent).toBe('Custom help');
++    expect(host.textContent).not.toContain('Default help');
++    form.setFields([field]);
++    await flush();
++    expect(host.querySelector('strong')).toBeNull();
++    expect(help()).toBeGreaterThan(0);
++    expect(host.querySelector('input')).toBe(original);
++  } finally {
++    form.destroy();
++    expect(host.childNodes).toHaveLength(0);
++  }
++});
++
++it('does not sweep an independent element left by a configured help slot', async() => {
++  const host = document.createElement('main');
++  const field = { name: 'answer', help: 'Default help' };
++  const custom = { ...field, children: { help: { $cmp: 'StatusOnDestroy' } } };
++  let status;
++  const form = mount({
++    host, fields: [custom], components: {
++      StatusOnDestroy({ host: slotContent }) {
++        return { destroy(remove) {
++          const wrapper = slotContent.closest('[data-experiment-slot="help"]');
++          if (!status && remove && wrapper) {
++            status = document.createElement('output');
++            status.textContent = 'External status';
++            wrapper.after(status);
++          }
++        } };
++      }
++    },
++  });
++  const flush = () => new Promise(resolve => setTimeout(resolve, 0));
++  try {
++    await form.node.settled;
++    expect(host.querySelector('output')).toBeNull();
++    form.setFields([field]);
++    await flush();
++    expect(host.querySelector('output')).toBe(status);
++    expect(host.textContent).toContain('Default help');
++    form.setFields([custom]);
++    await flush();
++    expect(host.querySelector('output')).toBe(status);
++    expect(host.textContent).not.toContain('Default help');
++  } finally {
++    form.destroy();
++    expect(host.childNodes).toHaveLength(0);
++  }
++});
++
++it('retains active stock help and calls its late ref cleanup without remounting', async() => {
++  const host = document.createElement('main');
++  const field = { name: 'answer', help: 'Default help' };
++  const form = mount({ host, fields: [field] });
++  const seen = [];
++  try {
++    await form.node.settled;
++    const input = host.querySelector('input');
++    const described = input.getAttribute('aria-describedby');
++    const help = host.querySelector(`[id="${described}"]`);
++    expect(help?.textContent).toBe('Default help');
++    form.setFields([{ ...field, sectionsSchema: { help: { attrs: { ref: node => seen.push(node) } } } }]);
++    expect(host.querySelector('input')).toBe(input);
++    expect(seen).toEqual([help]);
++  } finally {
++    form.destroy();
++    expect(seen.at(-1)).toBeNull();
++    expect(host.childNodes).toHaveLength(0);
++  }
++});
++
++it('keeps keyed controls and their accessible labels attached during row reorder', async() => {
++  const host = document.createElement('main');
++  document.body.append(host);
++  const left = { key: 'left', name: 'left', id: 'left', label: 'Left' };
++  const right = { key: 'right', name: 'right', id: 'right', label: 'Right' };
++  const form = mount({ host, fields: [left, right] });
++  try {
++    await form.node.settled;
++    const control = host.querySelector('#right');
++    control.value = 'editing';
++    control.focus();
++    control.setSelectionRange(2, 4);
++    form.setFields([right, left]);
++    expect([...host.querySelectorAll('input')].map(el => el.id)).toEqual(['right', 'left']);
++    expect(host.querySelector('#right')).toBe(control);
++    expect(host.querySelector('label[for="right"]').control).toBe(control);
++    expect(document.activeElement).toBe(control);
++    expect([control.selectionStart, control.selectionEnd]).toEqual([2, 4]);
++  } finally {
++    form.destroy();
++    expect(host.childNodes).toHaveLength(0);
++    host.remove();
++  }
++});
