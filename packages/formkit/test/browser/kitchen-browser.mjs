@@ -22,7 +22,7 @@ export async function stockKitchen(browser, arm, origin) {
       const input = field(key);
       if (key === 'range') {
         await input.press('Home');
-        for (let i = 0; i < 7; i++) await input.press('ArrowRight');
+        for (let i = 0; i < 7; i++) {await input.press('ArrowRight');}
       } else {
         await input.fill(value);
       }
@@ -36,9 +36,9 @@ export async function stockKitchen(browser, arm, origin) {
     assert.equal(await page.evaluate(() => window.receipt.submissions.length), 0, 'non-submit button');
     await field('save').click();
     await page.waitForFunction(() => window.receipt.submissions.length === 1);
-    const payload = await page.evaluate(async () => {
-      const { file, ...values } = window.receipt.submissions[0];
-      return { ...values, file: await Promise.all(file.map(async ({ name, file }) => ({ name, bytes: await file.text() }))) };
+    const payload = await page.evaluate(async() => {
+      const { file: uploads, ...submitted } = window.receipt.submissions[0];
+      return { ...submitted, file: await Promise.all(uploads.map(async({ name, file: upload }) => ({ name, bytes: await upload.text() }))) };
     });
     assert.deepEqual(payload, values, arm + ' stock input payload');
     await page.getByRole('button', { name: 'Remove fixture.txt', exact: true }).click();

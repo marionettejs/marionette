@@ -1,4 +1,5 @@
 import { openFixture as openKitchenFixture } from './kitchen-fixture.mjs';
+import { openDynamicList } from './dynamic-list-fixture.mjs';
 
 const params = new URLSearchParams(location.search);
 const host = document.querySelector('#host');
@@ -74,6 +75,9 @@ async function mountPeer(arm) {
 if (params.get('scenario') === 'stock-kitchen') {
   toggle.hidden = true;
   window.receipt = await openKitchenFixture(host, params.get('arm'));
+} else if (params.get('scenario') === 'dynamic-list') {
+  toggle.hidden = true;
+  window.receipt = await openDynamicList({ host, arm: params.get('arm') });
 } else {
   const owner = await mountPeer(params.get('arm'));
   const show = () => owner.show(toggle.checked);
