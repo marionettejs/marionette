@@ -260,6 +260,43 @@ it('respects explicit slot retention when a factory is torn down', () => {
   }
 });
 
+it.each([
+  ['renderer cleanup on branch removal', false, form => form.updateData({ enabled: false })],
+  ['explicit disposer on branch removal', true, form => form.updateData({ enabled: false })],
+  ['renderer cleanup on form destroy', false, form => form.destroy()],
+  ['explicit disposer on form destroy', true, form => form.destroy()],
+])('cleans nested external content with %s', (_scenario, explicit, removeForm) => {
+  const host = document.createElement('main');
+  const external = document.createElement('aside');
+  const independent = document.createElement('small');
+  external.append(independent);
+  const form = mount({
+    host,
+    data: { enabled: true },
+    schema: { if: '$enabled', then: { $el: 'div', children: {
+      $cmp: 'Panel', children: { $cmp: 'Portal', children: { $el: 'output' } },
+    } } },
+    components: {
+      Panel({ renderChildren }) {
+        const dispose = renderChildren();
+        if (explicit) {
+          return { destroy() { dispose(); } };
+        }
+      },
+      Portal({ renderChildren }) {
+        renderChildren(external);
+      },
+    },
+  });
+  try {
+    expect(external.querySelector('output')).not.toBeNull();
+    removeForm(form);
+    expect([...external.children]).toEqual([independent]);
+  } finally {
+    form.destroy();
+  }
+});
+
 it('preserves descendants and stops updates when teardown does not remove DOM', () => {
   const host = document.createElement('main');
   const data = { enabled: true };

@@ -525,9 +525,15 @@ const components = {
 `renderSlot` returns undefined when there is no matching content. Each call
 owns its own outlet. `update(data)` replaces that outlet's local data: explicit
 slot data takes precedence over enclosing loop variables and outer schema data.
-An omitted key restores the outer binding. `destroy()` releases the outlet; the
-component owner also releases any outlets it still owns at teardown. The legacy
-FormKit named `children` bag remains supported. On built-in FormKit inputs,
+An omitted key restores the outer binding. Leave normal outlet cleanup to the
+renderer, which releases each outlet when its owning component is destroyed.
+Use the disposer from `renderChildren()` or `renderSlot(...).destroy()` when
+you need to close an outlet earlier. If a component's `destroy(removeDom)` hook
+also closes an outlet, call the outlet disposer without arguments: the hook's
+flag describes the component's own DOM, not where a nested outlet renders.
+Pass `false` to an outlet disposer only when intentionally retaining its DOM.
+
+The legacy FormKit named `children` bag remains supported. On built-in FormKit inputs,
 authored entries override matching section names; a section the input never
 requests stays unmounted. Existing explicit `props.slots` on the
 `FormKitSchema` wrapper take precedence over authored named entries there.
