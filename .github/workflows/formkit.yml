@@ -138,26 +138,6 @@ jobs:
           FORMKIT_BENCH_READINESS: '1'
           FORMKIT_BENCH_PR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node packages/formkit/test/browser/benchmark/run-samples.mjs
-      - name: Compare packed stock section ownership candidate
-        if: github.event_name == 'pull_request' && github.event.pull_request.number == 3850 && github.event.pull_request.draft
-        continue-on-error: true
-        timeout-minutes: 10
-        env:
-          FORMKIT_PAIR_BASELINE: '917413af2250cb62ea282566687c1ad740ba3fd4'
-        run: |
-          set -euo pipefail
-          work=packages/formkit/test/tmp/browser
-          patch=packages/formkit/test/browser/benchmark/owned-leaves-candidate.patch
-          echo '95ba16aca5e91ff05dc40ffcc67d831f292bf635a424681b6059629a18e333eb  packages/formkit/test/browser/benchmark/owned-leaves-candidate.patch' | sha256sum --check
-          pack=$(node -e 'console.log(require("./packages/formkit/test/tmp/browser/pack.json")[0].filename)')
-          mkdir -p "$work/pair-candidate"
-          git apply --check "$patch"
-          git apply "$patch"
-          trap 'git restore -- packages/formkit/src/runtime/index.mjs packages/formkit/src/runtime/section-renderer.mjs; rm -f packages/formkit/test/section-branch-anchors.spec.mjs' EXIT
-          (cd packages/formkit && npm test -- test/section-branch-anchors.spec.mjs)
-          npm --prefix packages/formkit run build
-          (cd packages/formkit && npm pack --ignore-scripts --pack-destination test/tmp/browser/pair-candidate --json > test/tmp/browser/pair-candidate/pack.json)
-          node packages/formkit/test/browser/benchmark/run-packed-pair.mjs "$work/$pack" "$work/pair-candidate/$pack"
       - name: Retain public browser receipts
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
