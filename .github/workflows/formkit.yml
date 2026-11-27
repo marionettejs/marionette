@@ -103,16 +103,9 @@ jobs:
 
   browser:
     name: Public FormKit browser peer contracts
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    container:
-      image: mcr.microsoft.com/playwright:v1.65.1-noble@sha256:1507cbfc550a63a6b7396791ca4f00df17beb56342d2447b3f106c306f525579
-      options: --user 1001:1001 --shm-size=1g
-    defaults:
-      run:
-        shell: bash
-    env:
-      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+    # Use a supported VM rather than the job container: the Chromium sandbox
+    # needs user namespaces, unavailable in the browser container.
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -130,8 +123,8 @@ jobs:
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
           npm --prefix packages/formkit ci --ignore-scripts --no-audit --no-fund --workspaces=false
-      - name: Verify provisioned browsers
-        run: node scripts/checks/provisioned-browsers.mjs
+      - name: Install browsers pinned by the root lockfile
+        run: node node_modules/playwright/cli.js install --with-deps
       - name: Build and pack the exact FormKit candidate
         run: |
           mkdir -p packages/formkit/test/tmp/browser

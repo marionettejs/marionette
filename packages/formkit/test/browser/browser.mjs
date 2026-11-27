@@ -14,6 +14,8 @@ const dist = join(work, 'dist');
 const [pack] = JSON.parse(await readFile(join(work, 'pack.json'), 'utf8'));
 const tarball = join(work, pack.filename);
 const installed = join(work, 'packed-formkit');
+const profile = JSON.parse(await readFile(new URL('../../../../config/release-profile.json', import.meta.url), 'utf8'));
+const expectedBrowsers = new Map(profile.browsers.playwright.browserBuilds.map(({ name, version }) => [name, version]));
 const report = { source: process.env.GITHUB_SHA ?? null, tarballSHA256: null, peers: {}, results: [] };
 const results = report.results;
 const receipt = async() => {
@@ -137,6 +139,7 @@ try {
       continue;
     }
     try {
+      assert.equal(browser.version(), expectedBrowsers.get(engine), `Unexpected ${engine} version`);
       for (const arm of arms) {
         const cases = engine === 'chromium' ? { keyboard, composition } : { keyboard };
         for (const [scenario, test] of Object.entries(cases)) {
