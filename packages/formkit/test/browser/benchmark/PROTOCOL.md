@@ -55,3 +55,13 @@ second timing comparison. It seeds failing required and length sentinels,
 checks field errors and a rejected Save, repairs the fields, verifies the full
 payload, and observes the root and every leaf's destruction beyond the final
 destruction event's microtask. Receipt timing reflects the extra instrumentation.
+
+For the independent renderer and retention diagnostic, run the same command
+with `FORMKIT_BENCH_PROFILE=1`. It currently samples only the mounted 1,500-text
+case: position a trusted keystroke in the first viewport or at the midpoint,
+check full Core disposal, and collect held-live and post-GC measurements across
+five cycles with an idle control. An additional unmeasured mount counts
+elements, text, and comment markers attached within the host. CDP's DOM
+counter is broader than that attached census. The thread-time stages include
+browser and driver instrumentation and do not isolate framework JavaScript;
+the heap checkpoints are not process RAM or peak memory.

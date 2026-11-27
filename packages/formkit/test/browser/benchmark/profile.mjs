@@ -82,6 +82,27 @@ export async function idleControl(browser, origin, arm) {
   }
 }
 
+// CDP counts reachable nodes, not just nodes attached to the live form. A
+// scalar census lets us distinguish extra render markers from actual elements.
+function attachedCensus(page) {
+  return page.evaluate(() => {
+    const form = document.querySelector('main');
+    const walker = document.createTreeWalker(form, NodeFilter.SHOW_ALL);
+    const counts = { elements: 0, text: 0, comments: 0, other: 0, markers: {}, tags: {} };
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        counts.elements++;
+        counts.tags[node.localName] = (counts.tags[node.localName] ?? 0) + 1;
+      } else if (node.nodeType === Node.TEXT_NODE) { counts.text++; } else if (node.nodeType === Node.COMMENT_NODE) {
+        counts.comments++;
+        const key = ['section', '/section', 'owned field', 'fields', 'schema fields'].includes(node.data) ? node.data : 'other';
+        counts.markers[key] = (counts.markers[key] ?? 0) + 1;
+      } else { counts.other++; }
+    }
+    return counts;
+  });
+}
+
 export async function retainedAfterCycles(browser, origin, arm) {
   const { context, page, cdp } = await openProbe(browser, origin, arm, false);
   try {
@@ -96,7 +117,11 @@ export async function retainedAfterCycles(browser, origin, arm) {
       const retained = await observedMemory(cdp, true);
       cycles.push({ live, retained, disposal });
     }
-    return { arm, baseline, cycles };
+    // Profile instrumentation must not influence any of the five observed cycles.
+    await mount(page);
+    const attached = await attachedCensus(page);
+    await destroy(page);
+    return { arm, baseline, attached, cycles };
   } finally {
     await context.close();
   }
