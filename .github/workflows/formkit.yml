@@ -132,6 +132,12 @@ jobs:
           (cd packages/formkit && npm pack --ignore-scripts --pack-destination test/tmp/browser --json > test/tmp/browser/pack.json)
       - name: Verify keyboard and composition contracts
         run: node packages/formkit/test/browser/browser.mjs
+      - name: Verify validation and full Core disposal in Chromium
+        timeout-minutes: 4
+        env:
+          FORMKIT_BENCH_READINESS: '1'
+          FORMKIT_BENCH_PR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node packages/formkit/test/browser/benchmark/run-samples.mjs
       - name: Retain public browser receipts
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

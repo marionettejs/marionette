@@ -49,3 +49,9 @@ python3 packages/formkit/test/browser/benchmark/analyze.py packages/formkit/test
 
 Retain the provenance and raw samples with the build revision. Do not run any
 competing browser workloads or builds during sampling.
+
+The separate `FORMKIT_BENCH_READINESS=1` run is a correctness control, not a
+second timing comparison. It seeds failing required and length sentinels,
+checks field errors and a rejected Save, repairs the fields, verifies the full
+payload, and observes the root and every leaf's destruction beyond the final
+destruction event's microtask. Receipt timing reflects the extra instrumentation.
