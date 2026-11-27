@@ -1,7 +1,7 @@
 // FormKit section-schema DOM interpreter.
 // Expression/provider pattern follows FormKit React 2.5 (MIT: LICENSE.formkit).
 import { View } from 'marionette';
-import { insertNode, removeNode, displayContents, applyStyle } from './dom-operations.mjs';
+import { containsOutletTarget, insertNode, removeNode, displayContents, applyStyle } from './dom-operations.mjs';
 import { formKitScope, formKitDomRoot, formKitParent } from './provider-scope.mjs';
 import { compile, isConditional } from '@formkit/core';
 import { createSchemaDependencies } from './schema-registry.mjs';
@@ -37,14 +37,6 @@ function isOwnedStockLeaf(slot,yes,branch) {
   if (!leaf || yes !== condition || !isSchemaPojo(branch) ||
       '$cmp' in branch || '$formkit' in branch || 'for' in branch || 'then' in branch || 'else' in branch) {return false;}
   return readOwn(branch,'$el') === leaf[0] && readOwn(branch,'if') === leaf[1];
-}
-
-function containsOutletTarget(ancestor,target) {
-  // Node.contains does not cross a shadow boundary.
-  for (let node = target;node;node = node.getRootNode().host) {
-    if (ancestor.contains(node)) {return true;}
-  }
-  return false;
 }
 
 export function renderSections({host,Dom = View.prototype.Dom,schema,context,metrics,slots = {},reuseRoot = false,ownStockLeaves = false,data = {},components = {},configScope,domRoot,parentNode}) {

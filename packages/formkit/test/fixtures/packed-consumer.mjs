@@ -44,6 +44,27 @@ for (const api of [imported, required]) {
   form.setValues({ title: 'Updated' });
   assert.equal(form.getValues().title, 'Updated');
   form.destroy(); assert.equal(host.children.length, 0);
+
+  const sibling = document.createElement('section'), marker = document.createElement('span');
+  sibling.append(marker);
+  document.body.append(sibling);
+  const projected = api.mount({
+    host,
+    fields: [{ name: 'direct' }],
+    schema: [{ $el: 'article', children: [{ $formkit: 'text', name: 'nested' }] }],
+    slots: { default: ({ renderFields }) => renderFields(sibling, marker) },
+    formProps: { actions: false },
+  });
+  try {
+    assert.equal(sibling.querySelectorAll('input').length, 2);
+    projected.destroy();
+    assert.deepEqual([...sibling.childNodes], [marker]);
+    assert.equal(host.childElementCount, 0);
+  } finally {
+    projected.destroy();
+    sibling.remove();
+    host.remove();
+  }
 }
 const manifest = require('@mnjs/formkit/package.json'); assert.equal(manifest.name, '@mnjs/formkit');
 assert.throws(() => require('@mnjs/formkit/src/index.mjs'), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });

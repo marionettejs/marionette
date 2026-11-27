@@ -119,3 +119,28 @@ it('releases a fields outlet if the owning slot callback throws', () => {
     sibling.remove();
   }
 });
+
+it('removes relocated fields and layout from a sibling when the form is destroyed', () => {
+  const host = document.createElement('main'), sibling = document.createElement('section');
+  const marker = document.createElement('span');
+  sibling.append(marker);
+  document.body.append(host, sibling);
+  const form = mount({
+    host,
+    fields: [{ name: 'answer' }],
+    schema: [{ $el: 'article', children: [{ $formkit: 'text', name: 'nested' }] }],
+    formProps: { actions: false },
+    slots: { default: ({ renderFields }) => renderFields(sibling, marker) },
+  });
+  try {
+    expect(sibling.querySelector('input[name=answer]')).not.toBeNull();
+    expect(sibling.querySelector('article input[name=nested]')).not.toBeNull();
+    form.destroy();
+    expect(Array.from(sibling.childNodes)).toEqual([marker]);
+    expect(host.childElementCount).toBe(0);
+  } finally {
+    form.destroy();
+    host.remove();
+    sibling.remove();
+  }
+});

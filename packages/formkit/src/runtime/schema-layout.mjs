@@ -1,5 +1,5 @@
 import { diagnostics } from './diagnostics.mjs';
-import { insertNode, removeNode, displayContents } from './dom-operations.mjs';
+import { containsOutletTarget, insertNode, removeNode, displayContents } from './dom-operations.mjs';
 import {enumerableKeys, defineScopeProperties} from './scope-properties.mjs';
 import { providerBoundary, nativeFormKitFactory } from './provider-scope.mjs';
 // Bounded DOM-layout composition over the existing sole FormKit node owner.
@@ -172,7 +172,9 @@ export function createLayoutController({form,schema,data: externalData = {},comp
     if (dead) {return;}dead = true;expressions.clear();form.off('before:destroy',destroy);delete form._placeSchemaFields;delete form._layoutController;registry.destroy();controller?.destroy();observer?.kill();
     // Restore owned fields before removing their presentation-only containers.
     if (!form._ending) {for (const field of form.fields.values()) {insertNode(Dom,form._fieldAnchor.parentNode,field.el,form._fieldAnchor);}}
-    renderer?.destroy(!form._ending,bulkRemovalRoot);if (!form._ending) {removeNode(Dom,host);}
+    const outside = bulkRemovalRoot && !containsOutletTarget(bulkRemovalRoot,host);
+    renderer?.destroy(!form._ending,outside ? host : bulkRemovalRoot);
+    if (!form._ending || outside) {removeNode(Dom,host);}
   };
   try {
     form._placeSchemaFields = ()=>{for (const {fields,ownerNode,name,identity,anchor} of outlets.values()) {const field = ownedField(fields,ownerNode,name,identity);if (field && field.el.nextSibling !== anchor) {insertNode(Dom,anchor.parentNode,field.el,anchor);}}};

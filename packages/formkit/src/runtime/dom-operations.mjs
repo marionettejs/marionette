@@ -48,3 +48,11 @@ export function applyStyle(Dom, element, next, previous = {}, reset = false) {
   }
 }
 export function displayContents(Dom, element) { applyStyle(Dom, element, { display: 'contents' }); }
+
+export function containsOutletTarget(ancestor, target) {
+  // Node.contains does not cross a shadow boundary.
+  for (let node = target; node; node = node.getRootNode().host) {
+    if (ancestor.contains(node)) { return true; }
+  }
+  return false;
+}
