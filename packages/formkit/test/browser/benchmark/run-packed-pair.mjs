@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { build } from 'vite';
+import { observedMemory } from './cdp-milestones.mjs';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const work = fileURLToPath(new URL('../../tmp/browser/packed-pair', import.meta.url));
@@ -64,7 +65,7 @@ const server = createServer(async(req, res) => {
   }
 });
 const resultPath = join(work, '..', 'packed-pair-results.json');
-const results = { provenance, rows: [] };
+const results = { provenance, rows: [], memory: [] };
 let browser;
 try {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
@@ -121,6 +122,41 @@ try {
             await writeFile(resultPath, `${JSON.stringify(results, null, 2)}\n`);
           }
         }
+      }
+    }
+  }
+  // Separate phase: no GC commands or CDP sampling in the timed cells above.
+  // Fresh context per observation, one warm-up then one observed full cycle.
+  for (let block = 0; block < 6; block++) {
+    const order = block % 2 ? [...arms].reverse() : arms;
+    for (const arm of order) {
+      const row = { fields: 1500, shape: 'flat', block, arm, correct: false };
+      results.memory.push(row);
+      const page = await browser.newPage({ viewport: { width: 1000, height: 800 } });
+      try {
+        page.setDefaultTimeout(15000);
+        await page.route('**/*', route => route.request().url().startsWith(`${origin}/`) ? route.continue() : route.abort());
+        await page.goto(`${origin}/${arm}/index.html?arm=marionette&fields=1500&shape=flat`);
+        await page.waitForFunction(() => window.bench);
+        const cdp = await page.context().newCDPSession(page);
+        await milestone(page, 'mount');
+        await milestone(page, 'observeDestroy');
+        row.baseline = await observedMemory(cdp, true);
+        await milestone(page, 'mount');
+        row.live = await observedMemory(cdp, true);
+        await milestone(page, 'observeDestroy');
+        row.retained = await observedMemory(cdp, true);
+        assert.equal(await page.evaluate(() => window.bench.report.destroyedCount), 1501);
+        assert.equal(await page.locator('main').evaluate(el => el.childNodes.length), 0);
+        assert.equal(row.retained.nodes, row.baseline.nodes);
+        assert.equal(row.retained.jsEventListeners, row.baseline.jsEventListeners);
+        row.correct = true;
+      } catch (error) {
+        row.error = String(error);
+        throw error;
+      } finally {
+        await page.close();
+        await writeFile(resultPath, `${JSON.stringify(results, null, 2)}\n`);
       }
     }
   }
