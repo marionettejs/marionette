@@ -58,17 +58,33 @@ jobs:
         run: npm --prefix packages/formkit run check
       - name: Measure active runtime coverage
         run: npm --prefix packages/formkit run coverage
-      - name: Set up consumer Node 22.22.2
+      - name: Read consumer Node floors from the release profile
+        id: consumer-floors
+        run: |
+          node --input-type=module <<'NODE' >> "$GITHUB_OUTPUT"
+          import assert from 'node:assert/strict';
+          import { readFileSync } from 'node:fs';
+
+          const { source } = JSON.parse(readFileSync('config/release-profile.json', 'utf8'));
+          const { engines } = JSON.parse(readFileSync('packages/formkit/package.json', 'utf8'));
+          assert.equal(engines.node, source.consumerNodeRange);
+          const [, node22, node24] = engines.node.match(/^\^(22\.\d+\.\d+) \|\| >=(24\.\d+\.\d+)$/) ?? [];
+          for (const [key, version] of Object.entries({ node22, node24 })) {
+            assert.ok(version && source.consumerNodeVersions.includes(version), `Unapproved consumer floor: ${key}`);
+            console.log(`${key}=${version}`);
+          }
+          NODE
+      - name: Set up the Node 22 floor
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '22.22.2'
-      - name: Verify clean npm consumer on Node 22.22.2
+          node-version: ${{ steps.consumer-floors.outputs.node22 }}
+      - name: Verify clean npm consumer at the Node 22 floor
         run: node packages/formkit/scripts/check-clean-consumer.mjs
-      - name: Set up consumer Node 24.15.0
+      - name: Set up the Node 24 floor
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '24.15.0'
-      - name: Verify clean npm consumer on Node 24.15.0
+          node-version: ${{ steps.consumer-floors.outputs.node24 }}
+      - name: Verify clean npm consumer at the Node 24 floor
         run: node packages/formkit/scripts/check-clean-consumer.mjs
       - name: Retain package verification reports
         if: always()
