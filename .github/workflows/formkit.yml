@@ -111,6 +111,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 40
       - name: Set up pinned Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -138,11 +139,38 @@ jobs:
           FORMKIT_BENCH_READINESS: '1'
           FORMKIT_BENCH_PR_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node packages/formkit/test/browser/benchmark/run-samples.mjs
+      - name: Compare the proposed ownership change on the same browser
+        if: github.event_name == 'pull_request' && github.event.pull_request.number == 3850 && github.event.pull_request.draft
+        continue-on-error: true
+        timeout-minutes: 8
+        env:
+          FORMKIT_PAIR_BASELINE: 'current runtime with only 165d1cc stock ownership change reversed'
+        run: |
+          set -euo pipefail
+          work=packages/formkit/test/tmp/browser
+          before=43b2c08e06e60da4ebbf0af08b7eed3ee80582db
+          after=165d1cc632e89d47465218b6b0a60bb99a746cfe
+          paths=(packages/formkit/src/runtime/index.mjs packages/formkit/src/runtime/section-renderer.mjs)
+          git diff --binary "$before" "$after" -- "${paths[@]}" > "$work/ownership-change.patch"
+          test -s "$work/ownership-change.patch"
+          git apply --reverse --check "$work/ownership-change.patch"
+          git apply --reverse "$work/ownership-change.patch"
+          trap 'git restore -- "${paths[@]}"' EXIT
+          npm --prefix packages/formkit run build
+          mkdir -p "$work/control"
+          (cd packages/formkit && npm pack --ignore-scripts --pack-destination test/tmp/browser/control --json > test/tmp/browser/control/pack.json)
+          control=$(node -p 'require("./packages/formkit/test/tmp/browser/control/pack.json")[0].filename')
+          candidate=$(node -p 'require("./packages/formkit/test/tmp/browser/pack.json")[0].filename')
+          git restore -- "${paths[@]}"
+          node packages/formkit/test/browser/benchmark/run-packed-pair.mjs "$work/control/$control" "$work/$candidate"
       - name: Retain public browser receipts
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: formkit-public-browser-${{ github.event.pull_request.head.sha || github.sha }}
-          path: packages/formkit/test/tmp/browser/*-results.json
+          path: |
+            packages/formkit/test/tmp/browser/*-results.json
+            packages/formkit/test/tmp/browser/pack.json
+            packages/formkit/test/tmp/browser/mnjs-formkit-*.tgz
           if-no-files-found: warn
           retention-days: 14
