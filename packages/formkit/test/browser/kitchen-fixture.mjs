@@ -41,6 +41,17 @@ export async function openFixture(host, arm) {
     app.use(plugin,defaultConfig);
     app.mount(host);
     destroy = ()=>app.unmount();
+  } else if (arm === 'react') {
+    const { createElement: h } = await import('react');
+    const { flushSync } = await import('react-dom');
+    const { createRoot } = await import('react-dom/client');
+    const { defaultConfig, FormKit, FormKitSchema, FormKitProvider } = await import('@formkit/react');
+    const root = createRoot(host);
+    const config = defaultConfig();
+    flushSync(() => root.render(
+      h(FormKitProvider, { config }, h(FormKit, { type: 'form', actions: false, onSubmit }, h(FormKitSchema, { schema }))),
+    ));
+    destroy = () => flushSync(() => root.unmount());
   } else {throw new Error('Unknown framework');}
   return {submissions,destroy};
 }

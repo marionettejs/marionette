@@ -200,8 +200,8 @@ try {
       for (const arm of arms) {
         const cases = engine === 'chromium' ? { keyboard, composition } : { keyboard };
         if (arm === 'marionette') { cases.stockDescriptions = stockDescriptions; }
+        cases.stockKitchen = () => stockKitchen(browser, arm, origin);
         if (arm !== 'react') {
-          cases.stockKitchen = () => stockKitchen(browser, arm, origin);
           cases.dynamicList = () => dynamicList(browser, arm, origin);
         }
         for (const [scenario, test] of Object.entries(cases)) {
