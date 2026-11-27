@@ -12,6 +12,17 @@ afterEach(() => {
 });
 
 describe('public forms and Marionette ownership', () => {
+  it('mounts an empty form when no fields or schema are declared', () => {
+    const target = host();
+    const form = own(mount({ host: target, formProps: { actions: false } }));
+    expect(form.getValues()).toEqual({});
+    expect(form.node.children).toHaveLength(0);
+    expect(target.querySelectorAll('input')).toHaveLength(0);
+    form.setFields([{ name: 'first', label: 'First' }]);
+    expect(form.node.at('first')).toBeDefined();
+    expect(target.querySelectorAll('input')).toHaveLength(1);
+  });
+
   it('mounts typed-value forms and follows actual DOM input, errors, reset and destruction', async() => {
     const target = host();
     const form = own(mount({ host: target, instrument: true,

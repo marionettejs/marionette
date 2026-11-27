@@ -142,9 +142,6 @@ export interface FormOptions<Values extends object = FormValues> extends FormKit
   formProps?: FormProps;
   sectionsSchema?: FormKitSectionsSchema;
   defaultConfig?: boolean;
-  instrument?: boolean;
-  /** Compatibility fixture option. Prefer an explicit fields or schema declaration. */
-  count?: number;
   onSubmit?(values: Values, node: FormKitNode): unknown | PromiseLike<unknown>;
   onSubmitInvalid?(node: FormKitNode): void;
   onSubmitRaw?(event: Event | undefined, node: FormKitNode): void;
@@ -197,21 +194,11 @@ export interface SetValuesOptions {
   /** false replaces supplied top-level branches; omitted fields in retained records become empty. */
   merge?: boolean;
 }
-export interface FormMetrics {
-  enabled: boolean;
-  coreNodesCreated: number;
-  coreNodesDestroyed: number;
-  contextNotifications: number;
-  domWrites: number;
-  structuralChanges: number;
-  [metric: string]: number | boolean;
-}
 export interface FormKitViewMembers<Values extends object = FormValues> {
   preinitialize(options?: FormKitViewOptions<Values>): void;
   render(): this;
   readonly node: FormKitNode;
   readonly config: FormKitConfig;
-  readonly metrics: FormMetrics;
   readonly components: ComponentLibrary;
   readonly formMessages: HTMLElement | null;
   createValueProjection(options: ValueProjectionOptions<Values>): ValueProjection;
@@ -253,7 +240,6 @@ export declare const FormKitView: FormKitViewConstructor;
 export interface MountedForm<Values extends object = FormValues> {
   readonly form: FormKitViewInstance<Values>;
   readonly node: FormKitNode;
-  readonly metrics: FormMetrics;
   setFields(fields: readonly FieldSpec[]): void;
   setSchema(schema: Schema | undefined): FormKitViewInstance<Values> | undefined;
   updateData(data?: Record<string, unknown>): FormKitViewInstance<Values> | undefined;

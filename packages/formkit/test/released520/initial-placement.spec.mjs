@@ -13,8 +13,8 @@ function fieldPlacements(view) {
     records.push(...observer.takeRecords());
     observer.disconnect();
     return records.map(record => [...record.addedNodes]
-      .filter(node => node.nodeType === 1 && node.hasAttribute('data-experiment-field'))
-      .map(element => element.getAttribute('data-experiment-field')))
+      .filter(node => node.nodeType === 1 && node.hasAttribute('data-mnjs-formkit-field'))
+      .map(element => element.getAttribute('data-mnjs-formkit-field')))
       .filter(names => names.length);
   };
 }

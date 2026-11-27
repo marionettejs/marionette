@@ -35,11 +35,8 @@
   "files": [
     "dist/",
     "readme.md",
-    "DESIGN.md",
-    "PROVENANCE.md",
     "license.txt",
-    "LICENSE.formkit",
-    "RELEASED-520-INTEGRATION.md"
+    "LICENSE.formkit"
   ],
   "sideEffects": false,
   "engines": {

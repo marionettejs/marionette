@@ -4,9 +4,8 @@ Build validated forms in Marionette with FormKit inputs and schema. A Marionette
 View owns the form and its Core nodes, so replacing a Region also cleans up the
 form. No Vue or React runtime is required.
 
-This is an unpublished preview tested with Marionette 5.2.0 and FormKit 2.9.0.
-Use the packed preview from the project rather than installing it by name from
-npm. See [Scope](#scope) for what is and is not covered.
+This 0.1.0 candidate targets Marionette 5.2.0 and FormKit 2.9.0. It has not
+been published to npm. See [Scope](#scope) for what is and is not covered.
 
 ## Use an existing Region
 
@@ -50,7 +49,7 @@ editor.destroy();
 
 The consumer supplies `saveProfile`. `mount` owns a Region and the returned form;
 call `destroy()` when that owner is no longer needed. The host remains available
-for later use. Supply `fields`, `schema`, or both, with `fields: []` for an empty form. Both
+for later use. Supply `fields`, `schema`, or both. With neither, the form starts empty. Both
 sources share the owned Core form; `setFields` updates direct declarations and
 `setSchema` updates schema content. Use `updateData` and `setFields` for live edits
 where possible. Replacing a root schema, layout or slots may move the
@@ -59,8 +58,7 @@ leaves focus and selection alone. Reordering keyed field declarations moves
 their DOM elements and preserves their Core nodes; it does not reorder a Core
 list's indices or values. To reorder the list itself, move the rows through
 FormKit Core (for example, by setting a row node's `index`) as well.
-The compatibility `count` fixture creates required text fields and should not be
-used for production declarations. Native actions follow the official form
+Native actions follow the official form
 schema; `formProps: { actions: false }` suppresses them.
 
 The returned `MountedForm` exposes the Core `node` and ordinary Marionette `form`,
@@ -194,8 +192,8 @@ sampling, snapshot or queued fact. Completion ownership adds one live-node Set
 entry per registered producer; active completion/settled subscriptions are installed
 only while observation or a fence is active and released afterward. Fact
 subscribers and fence waiters remain opt-in. A fence-only
-wait observes settlement without cloning values. The new methods are an isolated
-recovery candidate and require independent review before consumer adoption.
+wait observes settlement without cloning values. These methods are intended for applications that synchronize with an external
+store and do not affect the default submit flow.
 
 ## Reuse projection lifecycle without a state-library dependency
 
@@ -244,8 +242,7 @@ fire-and-forget cancellation is handled even for requests made after disposal;
 retired owners do not invoke the reporter. Awaited operations still reject.
 Reentrant requests
 reread before applying stale data. It adds no default subscription or projection to
-a form that never creates it. This is a new local candidate API pending independent
-review; no full application/Pro/browser readiness follows from its package tests.
+a form that never creates it.
 
 ## Type values and extension points
 
@@ -380,23 +377,18 @@ report and candidate path to `test/tmp/package-result.json`.
 repository's rules. The complete production graph is owned by `src/runtime`; lint rejects any
 production import escaping the package source directory. `coverage` uses the
 same package-owned build graph. These focused tests
-are not comprehensive behavior or browser certification. See [DESIGN.md](DESIGN.md)
+are not comprehensive behavior or browser certification. See [design notes](https://github.com/marionettejs/marionette/tree/master/packages/formkit)
 for source ownership and the remaining integration work.
 
 ## Scope
 
 Runtime code lives in `src/runtime` and the public entries import it locally.
-The byte-preserving relocation baseline is recorded in [PROVENANCE.md](PROVENANCE.md).
 Installed bundles contain that runtime and do not import repository paths.
-The integrated treatment includes the independently reviewed layout compiler-reuse
-correction. Its matched relocation-only baseline and exact runtime hashes are
-recorded in [PROVENANCE.md](PROVENANCE.md). Free inputs and
-portable factories are included; no licensed Pro source or key is shipped.
+Standard FormKit inputs and portable factories are included; no licensed Pro
+source or key is shipped.
 Consumers can supply separately installed licensed plugins under their own
 configuration. Full Vue/React parity, all Pro modes, browser accessibility,
-geometry and performance are not certified by this package's tests. The current scoped approval includes the dynamic-list, raw identity and mixed
-ownership corrections. The default-visibility agreement above remains distinct
-from exhaustive parity for explicit override-removal sequences.
+geometry and performance are not certified by this package's tests. 
 
 The declarations remain hand-maintained. Strict ESM/CJS consumer and anti-any
 checks sample public contracts; they do not prove every runtime signature matches
@@ -432,8 +424,7 @@ that method; there is no native fallback.
 
 The current package-local lock uses published Marionette, Radio and Utils 5.2.0.
 The earlier `4df53edb` workspace build was a historical prerelease control, not
-this candidate's peer graph. See [the integration guide](RELEASED-520-INTEGRATION.md)
-for the separate root-tool/package installs and hosted verification scope.
+this candidate's peer graph.
 
 Actual HtmlDomApi parent/Region integration and browser focus/IME behavior require
 separate verification; configured-provider JSDOM controls do not establish them.

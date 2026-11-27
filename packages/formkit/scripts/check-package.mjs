@@ -18,7 +18,14 @@ await mkdir(join(root, 'test/tmp'), { recursive: true });
 const temporary = await mkdtemp(join(root, 'test/tmp/packed-'));
 const output = execFileSync('npm', ['pack', '--ignore-scripts', '--json', '--pack-destination', temporary], { cwd: root, encoding: 'utf8' });
 const [packed] = JSON.parse(output);
-assert.ok(packed.files.length);
+const allowedRootFiles = new Set(['package.json', 'readme.md', 'license.txt', 'LICENSE.formkit']);
+const shipped = new Set(packed.files.map(({ path }) => path));
+for (const name of allowedRootFiles) {
+  assert.ok(shipped.has(name), `Missing release artifact: ${name}`);
+}
+for (const name of shipped) {
+  assert.ok(allowedRootFiles.has(name) || /^dist\//.test(name), `Unexpected published artifact: ${name}`);
+}
 for (const { path } of packed.files) {
   assert.ok(!/^(?:src|types|test|scripts|experiments|node_modules)\//.test(path), `Unexpected published development file: ${path}`);
   assert.ok(!/@formkit\/pro|(?:^|\/)\.env(?:\.|$)/.test(path), `Unexpected private artifact: ${path}`);

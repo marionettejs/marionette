@@ -68,7 +68,7 @@ const stockTextSchema = nativeInputs.text.schema;
 const isStockTextSchema = (node, sections) => sections == null && node.props.definition.schema === stockTextSchema;
 
 function createField(node,spec,view,initial,renderDefault,present) {
-  const Dom = view._formKitDom, el = Dom.createElement('div');Dom.setAttributes(el, {'data-experiment-field': String(node.name)});
+  const Dom = view._formKitDom, el = Dom.createElement('div');Dom.setAttributes(el, {'data-mnjs-formkit-field': String(node.name)});
   const initialVisibility = nativeProps(spec,node.props.definition);
   const initialDefinitionProps = node.props.definition.props ?? [];
   const initialPromotedKeys = Array.isArray(initialDefinitionProps) ? initialDefinitionProps : Object.keys(initialDefinitionProps);
@@ -84,7 +84,7 @@ function createField(node,spec,view,initial,renderDefault,present) {
         scopeSpec = nextSpec;
         // Equivalent reconstructed slots keep their component/Core owners.
         if (active?.setSchema(schema)) {active.refresh();return;}
-        const nextHost = Dom.createElement('span');Dom.setAttributes(nextHost, {'data-experiment-slot': name});
+        const nextHost = Dom.createElement('span');Dom.setAttributes(nextHost, {'data-mnjs-formkit-slot': name});
         const nextObserver = createObserver(view.node),data = Object.create(view._schemaData);let nextRenderer;
         Object.defineProperty(data,'values',{get: ()=>nextObserver.value});
         const keys = new Set();
@@ -233,7 +233,7 @@ function createFieldNode(view,parent,spec,initial,configScope = view._configScop
   const scopedOptions = configScope?.options;
   if (props.validationVisibility === undefined) {delete props.validationVisibility;}
   if (attrs.validationVisibility === undefined) {delete attrs.validationVisibility;}
-  const node = createNode({parent: props.ignore ? null : parent,plugins: [completion.plugin,...(scopedOptions ? [...(view.metrics.enabled ? [view._countCore] : []),...(scopedOptions.plugins ?? [])] : view.plugins),...(spec.plugins ?? [])],index: spec.index,sync: !!(spec.sync ?? spec.dynamic),config: {...(scopedOptions ? scopedOptions.config : {...(view.config.rootConfig ? {rootConfig: view.config.rootConfig} : {}),...(props.ignore ? view.config : {})}),...spec.config},name: spec.name,value,props: {...props,type,attrs,__root: domRoot,id: props.id ?? `experiment-${view.cid}-${++view._fieldId}`,__slots: Array.isArray(children) ? {default: ()=>[]} : Object.fromEntries(Object.keys(children ?? {}).map(name=>[name,name === 'default' ? ()=>[] : true]))}});
+  const node = createNode({parent: props.ignore ? null : parent,plugins: [completion.plugin,...(scopedOptions ? [...(view.metrics.enabled ? [view._countCore] : []),...(scopedOptions.plugins ?? [])] : view.plugins),...(spec.plugins ?? [])],index: spec.index,sync: !!(spec.sync ?? spec.dynamic),config: {...(scopedOptions ? scopedOptions.config : {...(view.config.rootConfig ? {rootConfig: view.config.rootConfig} : {}),...(props.ignore ? view.config : {})}),...spec.config},name: spec.name,value,props: {...props,type,attrs,__root: domRoot,id: props.id ?? `mnjs-formkit-${view.cid}-${++view._fieldId}`,__slots: Array.isArray(children) ? {default: ()=>[]} : Object.fromEntries(Object.keys(children ?? {}).map(name=>[name,name === 'default' ? ()=>[] : true]))}});
   if (configScope) {view._configScopes.set(node,configScope);}
   return node;
 }
@@ -376,7 +376,7 @@ function createSchemaOwner(view,{host,props,context,parentNode,configScope,domRo
   return {update,refresh,destroy(remove = true,root) {if (dead) {return;}removeDom = remove;bulkRemovalRoot = root ?? (remove ? host : undefined);scope.destroy();}};
 }
 
-export class ExperimentalFormView extends View {
+export class FormKitView extends View {
   get tagName() { return 'form'; }
   get template() { return false; }
   _getEl() {
@@ -430,7 +430,7 @@ export class ExperimentalFormView extends View {
     this.plugins = [completion.plugin,...(this.metrics.enabled ? [countCore] : []), ...(options.defaultConfig === false ? [] : [createLibraryPlugin(this.definitions), createThemePlugin(options.theme,options.icons,options.iconLoaderUrl,options.iconLoader), bindings, createValidationPlugin({...nativeRules,...options.rules}), createI18nPlugin(extend({ en,...options.locales },options.messages ?? {}))]), ...(options.plugins ?? [])];
     this._providerScope = options[formKitScope] ? {options: {plugins: this.plugins,config: {rootConfig: options.config.rootConfig}},definitions: this.definitions} : undefined;
     this.node = createNode({ name: options.formProps?.name ?? 'form', value: this.initialValues, config: this.config,
-      props: { ...options.formProps, ...(options.formProps?.definition ? {definition: completion.definition(options.formProps.definition)} : {}), __root: this._domRoot, type: 'form', attrs: options.formProps?.attrs ?? {}, id: options.formProps?.id ?? `experiment-form-${this.cid}`, __slots: {default: true,fields: true,...Object.fromEntries(Object.keys(this._rootSlots).map(name=>[name,true]))}, onSubmit: options.onSubmit ?? (()=>{}), onSubmitInvalid: options.onSubmitInvalid, onSubmitRaw: options.onSubmitRaw },
+      props: { ...options.formProps, ...(options.formProps?.definition ? {definition: completion.definition(options.formProps.definition)} : {}), __root: this._domRoot, type: 'form', attrs: options.formProps?.attrs ?? {}, id: options.formProps?.id ?? `mnjs-formkit-form-${this.cid}`, __slots: {default: true,fields: true,...Object.fromEntries(Object.keys(this._rootSlots).map(name=>[name,true]))}, onSubmit: options.onSubmit ?? (()=>{}), onSubmitInvalid: options.onSubmitInvalid, onSubmitRaw: options.onSubmitRaw },
       plugins: this.plugins });
     if (this._providerScope) {this._configScopes.set(this.node,this._providerScope);}
     this.config = this.node.config;
@@ -450,7 +450,7 @@ export class ExperimentalFormView extends View {
     const submitHandler = this.node.context.handlers.submit;
     this._onSubmit = event => { return this.lastSubmission = submitHandler(event); };
     this.node.context.handlers.submit = this._onSubmit;
-    this.specs = options.fields ?? (options.schema !== undefined ? [] : Array.from({ length: options.count ?? 1 }, (_, i) => ({ name: `field${i}`, label: `Field ${i}`, validation: 'required' })));
+    this.specs = options.fields ?? [];
     this._directSpecs = this.specs;this._schemaSpecs = [];
     this.on('before:destroy', () => { this._ending = true; this._pendingFieldMounts.clear(); this.node.off(schemaReceipt); this._commitTracker?.destroy(); this._inputCompletionScope.destroy(); this._facade.destroy(); this.node.destroy(); this._layoutController?.[destroyWithRemovalRoot](this.el); this._rootRenderer?.destroy(false,this.el); for (const field of this.fields.values()) {field.disposeView(false,this.el);} for (const field of this.fields.values()) {field.disposeNodes(true);} this.fields.clear(); this._anonymousKeys = new WeakMap(); this._formKitDom.detachContents(this.el); });
     try {this._renderRoot();} catch (error) {try {this.destroy();} catch { /* Preserve the construction error. */ } throw error;}
@@ -559,12 +559,12 @@ export class ExperimentalFormView extends View {
   }
 }
 
-export const FormKitApplication = /* @__PURE__ */ createFormKitApplication(ExperimentalFormView);
+export const FormKitApplication = /* @__PURE__ */ createFormKitApplication(FormKitView);
 
 export function mount(options = {}) {
-  const { [formKitScope]: providerScope, [preparedDefaults]: prepared, defaultConfig = true, instrument = false, host, count = 1, fields, values = {}, classes, config, locale, onSubmit, onSubmitInvalid, onSubmitRaw, formProps, inputs, plugins, components, rules, locales, messages, sectionsSchema, theme, icons, iconLoaderUrl, iconLoader, schema, data, slots, schemaSlots } = options;
+  const { [formKitScope]: providerScope, [preparedDefaults]: prepared, defaultConfig = true, instrument = false, host, fields, values = {}, classes, config, locale, onSubmit, onSubmitInvalid, onSubmitRaw, formProps, inputs, plugins, components, rules, locales, messages, sectionsSchema, theme, icons, iconLoaderUrl, iconLoader, schema, data, slots, schemaSlots } = options;
   const region = new Region({ el: host });
-  const form = new ExperimentalFormView({ [formKitScope]: providerScope, [preparedDefaults]: prepared, defaultConfig, instrument, count, fields, values, classes, config, locale, onSubmit, onSubmitInvalid, onSubmitRaw, formProps, inputs, plugins, components, rules, locales, messages, sectionsSchema, theme, icons, iconLoaderUrl, iconLoader, schema, data, slots, schemaSlots, domRoot: (typeof region.el === 'string' ? region.getEl(region.el) : region.el).getRootNode() });
+  const form = new FormKitView({ [formKitScope]: providerScope, [preparedDefaults]: prepared, defaultConfig, instrument, fields, values, classes, config, locale, onSubmit, onSubmitInvalid, onSubmitRaw, formProps, inputs, plugins, components, rules, locales, messages, sectionsSchema, theme, icons, iconLoaderUrl, iconLoader, schema, data, slots, schemaSlots, domRoot: (typeof region.el === 'string' ? region.getEl(region.el) : region.el).getRootNode() });
   try {region.show(form);} catch (error) {form.destroy();region.destroy();throw error;}
   return { form, node: form.node, metrics: form.metrics, setSchema: nextSchema=>form.setSchema(nextSchema), updateData: nextData=>form.updateData(nextData), setSlots: nextSlots=>form.setSlots(nextSlots), setSectionsSchema: sections=>form.setSectionsSchema(sections), getValues: ()=>form.getValues(), createValueProjection: projectionOptions=>form.createValueProjection(projectionOptions), observeFieldCommits: callback=>form.observeFieldCommits(callback), whenPendingEditsSettled: settlementOptions=>form.whenPendingEditsSettled(settlementOptions), setValues: (nextValues,valueOptions)=>form.setValues(nextValues,valueOptions), getFormState: ()=>form.getFormState(), setErrors: (errors,fieldErrors)=>form.setErrors(errors,fieldErrors), clearErrors: ()=>form.node.clearErrors(), setFields: specs => form.setFields(specs), reset: () => form.resetForm(), submit: () => form.submit(), destroy: () => region.destroy() };
 }

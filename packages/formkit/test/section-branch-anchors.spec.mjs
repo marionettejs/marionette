@@ -409,7 +409,7 @@ it('does not sweep an independent element left by a configured help slot', async
     host, fields: [custom], components: {
       StatusOnDestroy({ host: slotContent }) {
         return { destroy(remove) {
-          const wrapper = slotContent.closest('[data-experiment-slot="help"]');
+          const wrapper = slotContent.closest('[data-mnjs-formkit-slot="help"]');
           if (!status && remove && wrapper) {
             status = document.createElement('output');
             status.textContent = 'External status';
