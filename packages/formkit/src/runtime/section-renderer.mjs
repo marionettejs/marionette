@@ -12,6 +12,7 @@ import { subscribeReactiveStore } from './upstream-bindings.mjs';
 // Only project the schema node when removing control keys; spreading it loses
 // those getters and can eagerly evaluate children before their row scope exists.
 const sectionSource = Symbol('sectionSource');
+export const destroyWithRemovalRoot = Symbol('destroy with removal root');
 export const authoredComponentSlots = Symbol('authored component slots');
 const disposeNothing = ()=>{};
 function projectSchema(entry,omit = [],overrides = {}) {
@@ -38,8 +39,16 @@ function isOwnedStockLeaf(slot,yes,branch) {
   return readOwn(branch,'$el') === leaf[0] && readOwn(branch,'if') === leaf[1];
 }
 
+function containsOutletTarget(ancestor,target) {
+  // Node.contains does not cross a shadow boundary.
+  for (let node = target;node;node = node.getRootNode().host) {
+    if (ancestor.contains(node)) {return true;}
+  }
+  return false;
+}
+
 export function renderSections({host,Dom = View.prototype.Dom,schema,context,metrics,slots = {},reuseRoot = false,ownStockLeaves = false,data = {},components = {},configScope,domRoot,parentNode}) {
-  let dead = false,rootUsed = false,removeDom = true;const effects = new Set(),elements = new Set(),schemaCells = new WeakMap();
+  let dead = false,rootUsed = false,removeDom = true,removedSubtree;const effects = new Set(),elements = new Set(),schemaCells = new WeakMap();
   const cellFor = entry=>{const source = entry[sectionSource] ?? entry;let cell = schemaCells.get(source);if (!cell) {cell = {current: source};schemaCells.set(source,cell);} return cell;};
   const iterationScope = Symbol('iteration scope'), scopedEffects = Symbol('outlet effects'),methodBindings = new WeakMap();
   function registerEffect(effect,locals,owner) {
@@ -106,13 +115,16 @@ export function renderSections({host,Dom = View.prototype.Dom,schema,context,met
     return {start,end,clear() {if (!removeDom) {return;} let n = start;while (n) {const next = n.nextSibling;removeNode(Dom,n);if (n === end) {break;}n = next;}}};
   }
   function range(parent,before,owner) {const bounds = createRange(parent,before);owner.add(bounds.clear);return bounds;}
+  function destroyOwned(owner,callback) {
+    if (removedSubtree && owner[destroyWithRemovalRoot]) {owner[destroyWithRemovalRoot](removedSubtree);} else {callback?.call(typeof owner === 'function' ? undefined : owner,removeDom);}
+  }
   function draw(entry,parent,before,locals,owner,childProps,ownedLeaf = false,restoreLeafBounds) {
     if (entry && typeof entry === 'object' && !Array.isArray(entry)) {const current = cellFor(entry).current;if (current !== (entry[sectionSource] ?? entry)) {entry = projectSchema(entry,[],{attrs: current.attrs,bind: current.bind});}}
     if (entry == null || entry === false) {return;}
     if (Array.isArray(entry)) {for (const child of entry) {draw(child,parent,before,locals,owner,childProps);} return;}
     if (typeof entry === 'string' && entry.startsWith('$slots.') && Object.hasOwn(slots,entry.slice(7))) {
       const args = {parent,before,context,locals,parentNode: locals[formKitParent] ?? parentNode ?? read('node',locals),configScope: locals[formKitScope] ?? configScope,domRoot: locals[formKitDomRoot] ?? domRoot},slot = slots[entry.slice(7)](args);
-      if (typeof slot === 'function') {owner.add(()=>slot(removeDom));} else if (slot) {if (typeof slot.update === 'function') {const effect = ()=>slot.update(args);registerEffect(effect,locals,owner);}owner.add(()=>slot.destroy?.(removeDom));} return;
+      if (typeof slot === 'function') {owner.add(()=>destroyOwned(slot,slot));} else if (slot) {if (typeof slot.update === 'function') {const effect = ()=>slot.update(args);registerEffect(effect,locals,owner);}owner.add(()=>destroyOwned(slot,slot.destroy));} return;
     }
     if (typeof entry !== 'object') {const text = parent.ownerDocument.createTextNode('');insertNode(Dom,parent,text,before);owner.add(()=>{if (removeDom) {removeNode(Dom,text);}});binding(entry,locals,owner,value=>{const next = value == null ? '' : String(value);if (text.data !== next) {text.data = next;metric('domWrites');}});return;}
     if (Object.hasOwn(entry,'$formkit')) {
@@ -197,7 +209,16 @@ export function renderSections({host,Dom = View.prototype.Dom,schema,context,met
       const slotContent = name=>Object.hasOwn(authored ?? {},name) && authored[name] != null ? authored[name] : name === 'default' ? entry.children : undefined;
       const mountOutlet = (content,target,beforeChild,slotData,inheritedProps,tracked = false)=>{
         const child = scope();let closed = false;
-        const destroy = (remove = removeDom)=>{if (closed) {return;}closed = true;childScopes.delete(destroy);const previous = removeDom;removeDom = remove;try {child.destroy();} finally {removeDom = previous;}};
+        const finish = (remove,bulkRemovalRoot = removedSubtree)=>{
+          if (closed) {return;}closed = true;childScopes.delete(destroy);
+          const previous = removeDom,subtree = removedSubtree;
+          // An outlet mounted outside the removed ancestor is not removed with it.
+          removeDom = remove ?? (removeDom || (bulkRemovalRoot !== undefined && !containsOutletTarget(bulkRemovalRoot,target)));
+          removedSubtree = remove !== undefined || removeDom ? undefined : bulkRemovalRoot;
+          try {child.destroy();} finally {removeDom = previous;removedSubtree = subtree;}
+        };
+        const destroy = remove=>finish(remove);
+        destroy[destroyWithRemovalRoot] = boundary=>finish(undefined,boundary);
         const setProps = next=>{
           Object.assign(childLocals,next);
           if (Object.hasOwn(next,'node')) {childLocals[formKitParent] = next.node;}
@@ -213,10 +234,10 @@ export function renderSections({host,Dom = View.prototype.Dom,schema,context,met
         try {draw(content,target,beforeChild,childLocals,child,inheritedProps);} catch (error) {destroy();throw error;}
         return tracked ? {
           update(next = {}) {if (closed) {return;}put(next);for (const effect of [...outletEffects.effects]) {if (outletEffects.effects.has(effect)) {effect();}}},
-          destroy,
+          destroy,[destroyWithRemovalRoot]: destroy[destroyWithRemovalRoot],
         } : destroy;
       };
-      const dispose = ()=>{generation++;instance?.destroy?.(removeDom);for (const destroy of childScopes) {destroy(removeDom);} if (removeDom) {Dom.detachContents(container);}};
+      const dispose = ()=>{generation++;const callback = instance?.destroy;if (childScopes.has(callback)) {callback();} else if (callback) {destroyOwned(instance,callback);} for (const automaticallyDestroy of childScopes) {automaticallyDestroy();} if (removeDom) {Dom.detachContents(container);}};
       owner.add(()=>{dispose();if (removeDom) {removeNode(Dom,container);}});
       // Framework-neutral boundary: factories adapt Marionette Views (or DOM)
       // explicitly. React/Vue component objects are not interchangeable here.
@@ -348,7 +369,7 @@ export function renderSections({host,Dom = View.prototype.Dom,schema,context,met
       const descendants = scope();
       // Remove this owned element as one subtree, as browser renderers do.
       // Descendant resources still dispose, retaining detached DOM ancestry.
-      owner.add(()=>{const previous = removeDom;removeDom = false;try {descendants.destroy();} finally {removeDom = previous;}});
+      owner.add(()=>{const previous = removeDom,subtree = removedSubtree;if (removeDom) {removedSubtree = element;}removeDom = false;try {descendants.destroy();} finally {removeDom = previous;removedSubtree = subtree;}});
       draw(entry.children,element,null,locals,descendants);
     } else {draw(entry.children,element,null,locals,owner);}
   }
@@ -389,5 +410,5 @@ export function renderSections({host,Dom = View.prototype.Dom,schema,context,met
     for (const [before,after] of pairs) {const cell = cellFor(before);cell.current = after;schemaCells.set(after,cell);}
     schema = next;for (const record of elements) {record.apply(record.cell.current);} return true;
   };
-  return {setSchema,update() {for (const effect of [...effects]) {if (effects.has(effect)) {effect();}}},refresh() {for (const effect of [...effects]) {if (effects.has(effect)) {effect(true);}}},destroy(remove = true) {if (dead) {return;}removeDom = remove;dead = true;unsubscribe();root.destroy();effects.clear();}};
+  return {setSchema,update() {for (const effect of [...effects]) {if (effects.has(effect)) {effect();}}},refresh() {for (const effect of [...effects]) {if (effects.has(effect)) {effect(true);}}},destroy(remove = true,bulkRemovalRoot) {if (dead) {return;}removeDom = remove;removedSubtree = bulkRemovalRoot;dead = true;unsubscribe();root.destroy();effects.clear();removedSubtree = undefined;}};
 }

@@ -5,7 +5,7 @@ import { insertNode, removeNode } from './dom-operations.mjs';
 import { createSection, localize } from '@formkit/inputs';
 import { createIconHandler } from '@formkit/themes';
 import { token, undefine } from '@formkit/utils';
-import { renderSections } from './section-renderer.mjs';
+import { renderSections, destroyWithRemovalRoot } from './section-renderer.mjs';
 import { subscribeReactiveStore } from './upstream-bindings.mjs';
 
 const messages = createSection('messages', () => ({ $el: 'ul', if: '$fns.length($messages)' }));
@@ -113,11 +113,11 @@ function createMessageHelper(args, environment, isSummary) {
     queued = true;
     queueMicrotask(() => { queued = false; if (!closed) {refresh();} });
   }
-  function clear(remove = true) {
+  function clear(remove = true,bulkRemovalRoot) {
     for (const dispose of disposers.splice(0).reverse()) {dispose();}
     for (const unsubscribe of contextSubscriptions.values()) {unsubscribe();}
     contextSubscriptions.clear();
-    renderer?.destroy(remove); renderer = undefined;
+    renderer?.destroy(remove,bulkRemovalRoot); renderer = undefined;
   }
   function update(next) {
     if (closed) {return;}
@@ -136,7 +136,7 @@ function createMessageHelper(args, environment, isSummary) {
       if (!node.context) {return;}
       const boundNode = node;
       const on = (event, callback) => { const receipt = boundNode.on(event, callback); disposers.push(() => boundNode.off(receipt)); };
-      on('destroying', () => { clear(environment.removeDom?.() ?? true); node = undefined; summaries = []; submitPending = false; });
+      on('destroying', () => { clear(environment.removeDom?.() ?? true,environment.bulkRemovalRoot?.()); node = undefined; summaries = []; submitPending = false; });
       if (isSummary) {
         localize('summaryHeader', 'There were errors in your form.')(node);
         on('child.deep', schedule);
@@ -148,7 +148,8 @@ function createMessageHelper(args, environment, isSummary) {
     refresh();
   }
   try { update(args.props || {}); } catch (error) { clear(); closed = true; throw error; }
-  return { update, destroy(remove = true) { if (closed) {return;} closed = true; clear(remove); node = undefined; } };
+  const destroy = (remove = true,bulkRemovalRoot)=>{if (closed) {return;}closed = true;clear(remove,bulkRemovalRoot);node = undefined;};
+  return {update,destroy,[destroyWithRemovalRoot]: root=>destroy(false,root)};
 }
 
 export function FormKitMessages(args, environment = {}) { return createMessageHelper(args, environment, false); }

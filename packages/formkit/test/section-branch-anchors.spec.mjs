@@ -2,47 +2,262 @@ import { expect, it } from 'vitest';
 import { mount } from '@mnjs/formkit';
 import { renderSections } from '../src/runtime/section-renderer.mjs';
 
-it('clears an imperative slot inserted after the original else branch changes', () => {
+it('clears an imperative schema slot first shown after a branch update', () => {
   const host = document.createElement('main');
-  const data = { enabled: true };
-  const schema = { if: '$enabled', then: { $el: 'b' }, else: { $el: 'i' } };
-  const renderer = renderSections({
-    host, schema, data, context: {},
-    slots: {
+  const form = mount({
+    host, data: { enabled: true },
+    schema: { if: '$enabled', then: { $el: 'b' }, else: '$slots.append' },
+    schemaSlots: {
       append({ parent, before }) {
-        parent.insertBefore(document.createElement('output'), before);
+        const output = document.createElement('output');
+        output.textContent = 'Slot output';
+        parent.insertBefore(output, before);
+        return remove => { if (remove) { output.remove(); } };
       },
     },
   });
-  schema.else = '$slots.append';
-  data.enabled = false;
-  renderer.update();
-  expect(host.querySelector('output')).not.toBeNull();
-  renderer.destroy();
-  expect(host.childNodes).toHaveLength(0);
+  try {
+    expect(host.querySelector('b')).not.toBeNull();
+    expect(host.querySelector('output')).toBeNull();
+    form.updateData({ enabled: false });
+    expect(host.querySelector('output')?.textContent).toBe('Slot output');
+    form.updateData({ enabled: true });
+    expect(host.querySelector('output')).toBeNull();
+    expect(host.querySelector('b')).not.toBeNull();
+  } finally {
+    form.destroy();
+    expect(host.childNodes).toHaveLength(0);
+  }
 });
 
-it('clears component content explicitly mounted alongside its owned ancestor', () => {
+it('clears component children rendered alongside their conditional ancestor', () => {
   const host = document.createElement('main');
   let output;
-  const renderer = renderSections({
-    host, context: {}, data: { enabled: true },
-    schema: { if: '$enabled', then: { $el: 'div', children: {
-      $cmp: 'Outlet', children: { $el: 'output' },
-    } } },
+  const form = mount({
+    host, data: { enabled: true },
+    schema: [{ $el: 'strong', attrs: { id: 'unrelated' }, children: 'Keep me' },
+      { if: '$enabled', then: { $el: 'div', attrs: { id: 'outer' }, children: {
+        $cmp: 'Outlet', children: { $el: 'output' },
+      } } }],
     components: {
-      Outlet({ renderChildren }) {
-        // The outlet deliberately renders outside its parent's element, but
-        // still within the enclosing conditional branch.
-        const destroy = renderChildren(host, host.lastChild);
-        output = host.querySelector('output');
-        return { destroy };
+      Outlet({ host: ownedHost, renderChildren }) {
+        const ancestor = ownedHost.closest('#outer');
+        const target = ancestor.parentElement;
+        const cleanup = renderChildren(target, ancestor.nextSibling);
+        output = target.querySelector('output');
+        return { destroy: cleanup };
       },
     },
   });
-  expect(output?.parentNode).toBe(host);
-  renderer.destroy();
-  expect(host.childNodes).toHaveLength(0);
+  try {
+    const ancestor = host.querySelector('#outer');
+    expect(output?.parentNode).toBe(ancestor.parentNode);
+    const unrelated = host.querySelector('#unrelated');
+    expect(unrelated?.textContent).toBe('Keep me');
+    for (let i = 0; i < 2; i++) {
+      form.updateData({ enabled: false });
+      expect(host.querySelector('#outer')).toBeNull();
+      expect(host.querySelector('output')).toBeNull();
+      expect(host.querySelector('#unrelated')).toBe(unrelated);
+      form.updateData({ enabled: true });
+      expect(host.querySelectorAll('output')).toHaveLength(1);
+    }
+  } finally {
+    form.destroy();
+    expect(host.childNodes).toHaveLength(0);
+  }
+});
+
+it.each([
+  ['a conditional hides', form => form.updateData({ enabled: false })],
+  ['the form is destroyed', form => form.destroy()],
+])('cleans surviving shadow outlets when %s', (_scenario, remove) => {
+  const host = document.createElement('main');
+  const externalHost = document.createElement('aside');
+  const external = externalHost.attachShadow({ mode: 'open' });
+  const independent = document.createElement('small');
+  external.append(independent);
+  host.append(externalHost);
+  const wrapper = document.createElement('div');
+  host.append(wrapper);
+  let inner, form;
+  try {
+    form = mount({
+      host: wrapper, data: { enabled: true },
+      schema: { if: '$enabled', then: { $el: 'div', attrs: { id: 'shadow-owner' }, children: {
+        $cmp: 'Outlets', children: { $el: 'output', children: 'Owned' },
+      } } },
+      components: {
+        Outlets({ host: ownedHost, renderChildren }) {
+          inner = ownedHost.closest('#shadow-owner').attachShadow({ mode: 'open' });
+          renderChildren(inner);
+          renderChildren(external);
+        },
+      },
+    });
+    expect(inner.querySelector('output')).not.toBeNull();
+    expect(external.querySelector('output')).not.toBeNull();
+    remove(form);
+    expect(host.querySelector('#shadow-owner')).toBeNull();
+    expect(inner.querySelector('output')?.textContent).toBe('Owned');
+    expect([...external.children]).toEqual([independent]);
+  } finally {
+    form?.destroy();
+    externalHost.remove();
+    wrapper.remove();
+  }
+});
+
+it('cleans an outlet nested inside the built-in FormKitRoot when its branch hides', () => {
+  const host = document.createElement('main');
+  document.body.append(host);
+  const external = document.createElement('aside');
+  const independent = document.createElement('small');
+  external.append(independent);
+  const form = mount({
+    host, data: { enabled: true },
+    schema: { if: '$enabled', then: { $el: 'div', children: {
+      $cmp: 'FormKitRoot', children: { $cmp: 'Portal', children: { $el: 'output' } },
+    } } },
+    components: { Portal({ renderChildren }) { renderChildren(external); } },
+  });
+  try {
+    expect(external.querySelector('output')).not.toBeNull();
+    form.updateData({ enabled: false });
+    expect([...external.children]).toEqual([independent]);
+  } finally {
+    form.destroy();
+    host.remove();
+  }
+});
+
+const portal = { $cmp: 'Portal', children: { $el: 'output' } };
+it.each([
+  ['a schema inside a conditional', {
+    schema: { if: '$enabled', then: { $el: 'div', children: {
+      $cmp: 'FormKitSchema', props: { schema: [{ $el: 'div', children: portal }] },
+    } } },
+  }, form => form.updateData({ enabled: false })],
+  ['a schema inside a destroyed form', {
+    schema: { $cmp: 'FormKitSchema', props: { schema: [{ $el: 'div', children: portal }] } },
+  }, form => form.destroy()],
+  ['a replaced nested schema', {
+    schema: { $cmp: 'FormKitSchema', props: { schema: [{ $el: 'div', children: portal }] } },
+  }, form => form.setSchema(undefined)],
+  ['a named help slot inside a destroyed form', {
+    fields: [{ name: 'answer', help: 'Help', children: { help: portal } }],
+  }, form => form.destroy()],
+  ['a native group layout inside a destroyed form', {
+    schema: [{ $formkit: 'group', name: 'group', children: [{ $el: 'div', children: portal }] }],
+  }, form => form.destroy()],
+])('cleans an external outlet owned by %s', (_scenario, declaration, remove) => {
+  const host = document.createElement('main');
+  const external = document.createElement('aside');
+  const independent = document.createElement('small');
+  external.append(independent);
+  const form = mount({
+    host, data: { enabled: true }, ...declaration,
+    components: { Portal({ renderChildren }) { renderChildren(external); } },
+  });
+  try {
+    expect(external.querySelector('output')).not.toBeNull();
+    remove(form);
+    expect([...external.children]).toEqual([independent]);
+  } finally {
+    form.destroy();
+  }
+});
+
+const authoredOutletSchemas = [
+  ['opaque group', { $cmp: 'FormKitRoot', children: {
+    $cmp: 'FormKit', props: { type: 'group', name: 'group' }, children: portal,
+  } }],
+  ['authored named Schema slot', { $cmp: 'FormKitSchema',
+    props: { schema: ['$slots.details'] }, slots: { details: portal },
+  }],
+  ['authored default Schema slot', { $cmp: 'FormKitSchema',
+    props: { schema: ['$slots.default'] }, children: portal,
+  }],
+  ['custom message section', { $cmp: 'FormKitMessages',
+    props: { sectionsSchema: { messages: { ...portal, if: true } } },
+  }],
+];
+it.each(authoredOutletSchemas.flatMap(([name, children])=>[
+  [name, 'hide', children, form=>form.updateData({ enabled: false })],
+  [name, 'destroy', children, form=>form.destroy()],
+]))('cleans an escaped %s outlet on %s', (_name, _operation, children, remove) => {
+  const host = document.createElement('main');
+  document.body.append(host);
+  const external = document.createElement('aside');
+  const independent = document.createElement('small');
+  external.append(independent);
+  const form = mount({
+    host, data: { enabled: true },
+    schema: { if: '$enabled', then: { $el: 'div', children } },
+    components: { Portal({ renderChildren }) { renderChildren(external); } },
+  });
+  try {
+    expect(external.querySelector('output')).not.toBeNull();
+    remove(form);
+    expect([...external.children]).toEqual([independent]);
+  } finally {
+    form.destroy();
+    host.remove();
+  }
+});
+
+it('runs the factory-selected outlet disposer before remaining outlets', () => {
+  const host = document.createElement('main');
+  const external = document.createElement('aside');
+  const teardown = [];
+  const form = mount({
+    host, data: { enabled: true },
+    schema: { if: '$enabled', then: { $cmp: 'Both', children: {
+      $el: 'output', attrs: { ref: '$register' },
+    } } },
+    components: {
+      Both({ renderChildren }) {
+        const register = name => element => { if (!element) { teardown.push(name); } };
+        renderChildren(external, null, { register: register('first') });
+        const second = renderChildren(external, null, { register: register('second') });
+        return { destroy: second };
+      },
+    },
+  });
+  try {
+    expect(external.children).toHaveLength(2);
+    form.updateData({ enabled: false });
+    expect(teardown).toEqual(['second', 'first']);
+    expect(external.children).toHaveLength(0);
+  } finally {
+    form.destroy();
+  }
+});
+
+it('respects explicit slot retention when a factory is torn down', () => {
+  const host = document.createElement('main');
+  const external = document.createElement('aside');
+  const form = mount({
+    host, data: { enabled: true },
+    schema: { if: '$enabled', then: { $el: 'div', children: {
+      $cmp: 'Portal', slots: { details: { $el: 'output', children: 'Keep this output' } },
+    } } },
+    components: {
+      Portal({ renderSlot }) {
+        const slot = renderSlot('details', external);
+        return { destroy() { slot.destroy(false); } };
+      },
+    },
+  });
+  try {
+    const output = external.querySelector('output');
+    expect(output?.textContent).toBe('Keep this output');
+    form.updateData({ enabled: false });
+    expect(external.querySelector('output')).toBe(output);
+  } finally {
+    form.destroy();
+    external.replaceChildren();
+  }
 });
 
 it('preserves descendants and stops updates when teardown does not remove DOM', () => {

@@ -6,7 +6,7 @@ import { compile } from '@formkit/core';
 import { createObserver } from '@formkit/observer';
 import { createSchemaController, schemaFieldKey, schemaChildScope, projectedFormKit, schemaIdentity } from './schema.mjs';
 import { subscribeReactiveStore } from './upstream-bindings.mjs';
-import { renderSections } from './section-renderer.mjs';
+import { renderSections, destroyWithRemovalRoot } from './section-renderer.mjs';
 import { createSchemaRegistry, createSchemaDependencies } from './schema-registry.mjs';
 import { isSchemaPojo,isClassReset,schemaValueKeys } from './schema-value.mjs';
 export function createLayoutController({form,schema,data: externalData = {},components = {},slots: externalSlots = {}}) {
@@ -72,10 +72,10 @@ export function createLayoutController({form,schema,data: externalData = {},comp
     } catch (error) {unsubscribe();projection?.destroy();removeNode(Dom,host);throw error;}
     // Native section-schema redraws replace the child anchor, retaining owners.
     const receipt = field.node.on('schema',event=>{if (event.origin === field.node) {queueMicrotask(()=>{if (!closed && !dead) {place();nested.refresh();form._placeSchemaFields?.();}});}});
-    return {update(nextScope) {lexical = nextScope;place();projection.updateData(data);nested.update();},destroy(remove = true) {
+    return {update(nextScope) {lexical = nextScope;place();projection.updateData(data);nested.update();},destroy(remove = true,bulkRemovalRoot) {
       if (closed) {return;}closed = true;unsubscribe();projection.destroy();field.node.off(receipt);
       const anchor = field.childAnchor;if (remove && anchor?.parentNode) {for (const child of field.children.values()) {insertNode(Dom,anchor.parentNode,child.el,anchor);}}
-      nested.destroy(remove);if (remove) {removeNode(Dom,host);}
+      nested.destroy(remove,bulkRemovalRoot);if (remove) {removeNode(Dom,host);}
     }};
   }
   const isProvider = entry=>!!(typeof entry?.$cmp === 'string' ? components[entry.$cmp] : entry?.$cmp)?.[providerBoundary];
@@ -140,7 +140,9 @@ export function createLayoutController({form,schema,data: externalData = {},comp
           if (current !== field) {presentation?.destroy();current = field;presentation = nativeChildren && ['group','list'].includes(field.node.props.type) ? childPresentation(field,nativeChildren,scope) : undefined;}
           presentation?.update(scope);outlets.set(outlet,{fields,ownerNode,name: name === undefined ? undefined : String(name),identity,anchor});
         };
-        update();return {update,destroy(remove = true) {dependencies.destroy();presentation?.destroy(remove);outlets.delete(outlet);if (remove) {removeNode(Dom,anchor);}}};
+        update();
+        const destroy = (remove = true,bulkRemovalRoot)=>{dependencies.destroy();presentation?.destroy(remove,bulkRemovalRoot);outlets.delete(outlet);if (remove) {removeNode(Dom,anchor);}};
+        return {update,destroy,[destroyWithRemovalRoot]: root=>destroy(false,root)};
       };
       return {fields: [nativeChildren ? {...entry,children: [],[schemaChildScope]: true} : entry],dom: entry.if ? {if: entry.if,then: `$slots.${slot}`} : `$slots.${slot}`};
     }
@@ -164,11 +166,12 @@ export function createLayoutController({form,schema,data: externalData = {},comp
   if (form._placeSchemaFields) {throw new TypeError('Only one layout controller per form');}
   const parsed = form._opaqueSchema ? {fields: [],dom: schema} : parse(schema),host = Dom.createElement('div');Dom.setAttributes(host,{'data-formkit-layout': ''});if (form._schemaDataOnly) {displayContents(Dom,host);}
   let renderer,observer,controller,dead = false,pending = false;
-  const destroy = ()=>{
+  const destroy = ()=>teardown();
+  const teardown = bulkRemovalRoot=>{
     if (dead) {return;}dead = true;expressions.clear();form.off('before:destroy',destroy);delete form._placeSchemaFields;delete form._layoutController;registry.destroy();controller?.destroy();observer?.kill();
     // Restore owned fields before removing their presentation-only containers.
     if (!form._ending) {for (const field of form.fields.values()) {insertNode(Dom,form._fieldAnchor.parentNode,field.el,form._fieldAnchor);}}
-    renderer?.destroy(!form._ending);if (!form._ending) {removeNode(Dom,host);}
+    renderer?.destroy(!form._ending,bulkRemovalRoot);if (!form._ending) {removeNode(Dom,host);}
   };
   try {
     form._placeSchemaFields = ()=>{for (const {fields,ownerNode,name,identity,anchor} of outlets.values()) {const field = ownedField(fields,ownerNode,name,identity);if (field && field.el.nextSibling !== anchor) {insertNode(Dom,anchor.parentNode,field.el,anchor);}}};
@@ -181,6 +184,6 @@ export function createLayoutController({form,schema,data: externalData = {},comp
     });
     form.on('before:destroy',destroy);
   } catch (error) {try {destroy();} catch { /* Preserve the construction error. */ } throw error;}
-  const api = {destroy,get fieldAnchor() {return host.parentNode ? host : form._fieldAnchor;},detach() {removeNode(Dom,host);},place() {if (dead) {return;} const anchor = form._fieldAnchor;if (host.nextSibling !== anchor) {insertNode(Dom,anchor.parentNode,host,anchor);}form._placeSchemaFields();},updateData(nextScope = {}) {if (dead) {return;} for (const key of Object.keys(layoutData)) {if (!reserved.has(key)) {delete layoutData[key];}} for (const [key,value] of Object.entries(nextScope)) {if (!reserved.has(key)) {layoutData[key] = value;}}controller.updateData(layoutData);renderer.update();form._placeSchemaFields();},get destroyed() {return dead;}};
+  const api = {destroy,[destroyWithRemovalRoot]: teardown,get fieldAnchor() {return host.parentNode ? host : form._fieldAnchor;},detach() {removeNode(Dom,host);},place() {if (dead) {return;} const anchor = form._fieldAnchor;if (host.nextSibling !== anchor) {insertNode(Dom,anchor.parentNode,host,anchor);}form._placeSchemaFields();},updateData(nextScope = {}) {if (dead) {return;} for (const key of Object.keys(layoutData)) {if (!reserved.has(key)) {delete layoutData[key];}} for (const [key,value] of Object.entries(nextScope)) {if (!reserved.has(key)) {layoutData[key] = value;}}controller.updateData(layoutData);renderer.update();form._placeSchemaFields();},get destroyed() {return dead;}};
   form._layoutController = api;return api;
 }

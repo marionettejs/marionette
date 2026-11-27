@@ -1,7 +1,7 @@
 import { insertNode, removeNode, displayContents } from './dom-operations.mjs';
 import {enumerableKeys, defineScopeProperties} from './scope-properties.mjs';
 // Root form presentation slots; declared fields keep their sole Core owner.
-import {renderSections} from './section-renderer.mjs';
+import {renderSections,destroyWithRemovalRoot} from './section-renderer.mjs';
 export function createRootSlots(view,provided = {}) {
   const Dom = view._formKitDom, anchor = view._fieldAnchor;let placed = false;
   const fields = ({parent,before})=>{
@@ -44,5 +44,6 @@ export function renderSchemaSlot(view,content,args,slots = {}) {
   const data = Object.create(currentData);
   defineScopeProperties(data, enumerableKeys(args.locals), key => args.locals[key]);
   try {renderer = renderSections({Dom,host,schema: content,context: args.context,data,parentNode: args.parentNode,configScope: args.configScope,domRoot: args.domRoot,components: view.components,metrics: view.metrics,slots});} catch (error) {try {removeNode(Dom,host);} catch { /* Preserve the render error. */ } throw error;}
-  return {update() {if (currentData !== view._schemaData) {currentData = view._schemaData;Object.setPrototypeOf(data,currentData);}renderer.refresh();},destroy(remove = true) {renderer.destroy(remove);if (remove) {removeNode(Dom,host);}}};
+  const destroy = (remove = true,bulkRemovalRoot)=>{renderer.destroy(remove,bulkRemovalRoot);if (remove) {removeNode(Dom,host);}};
+  return {update() {if (currentData !== view._schemaData) {currentData = view._schemaData;Object.setPrototypeOf(data,currentData);}renderer.refresh();},destroy,[destroyWithRemovalRoot]: root=>destroy(false,root)};
 }
