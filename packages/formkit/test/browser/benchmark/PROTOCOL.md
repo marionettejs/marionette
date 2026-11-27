@@ -32,3 +32,20 @@ browser job is an infrastructure/correctness precedent, not a timing baseline.
 - Build each arm in its own production artifact for actual Brotli JS/CSS bytes
   and initial-route versus lazy coverage. The shared comparison fixture cannot
   tell what each framework would independently ship.
+
+## Run on a sandbox-capable Linux VM
+
+Use the same Node pin, lockfiles and browser installation as the FormKit browser
+job. From the checkout root, after dependency installation:
+
+```sh
+mkdir -p packages/formkit/test/tmp/browser
+npm --prefix packages/formkit run build
+(cd packages/formkit && npm pack --ignore-scripts --pack-destination test/tmp/browser --json > test/tmp/browser/pack.json)
+FORMKIT_BROWSER_BUILD_ONLY=1 node packages/formkit/test/browser/browser.mjs
+node packages/formkit/test/browser/benchmark/run-samples.mjs
+python3 packages/formkit/test/browser/benchmark/analyze.py packages/formkit/test/tmp/browser/benchmark-samples-results.json
+```
+
+Retain the provenance and raw samples with the build revision. Do not run any
+competing browser workloads or builds during sampling.
