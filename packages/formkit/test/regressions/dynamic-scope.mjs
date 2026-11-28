@@ -1,0 +1,43 @@
+// Public behavior guard for cached expression providers and controller lifetimes.
+import assert from 'node:assert/strict';
+import {setupProjectionDom, settle} from './dom.mjs';
+const dom = setupProjectionDom(), hostA = document.querySelector('main'), hostB = document.createElement('aside'); document.body.append(hostB);
+const {mount, defaultConfig} = await import(new URL(process.env.FORMKIT_SCOPE_ENTRY ?? '../../dist/index.js', import.meta.url));
+const {createNode, getNode} = await import('@formkit/core');
+const nodes = [], destroyed = new Map(), calls = {};
+const capture = node => {nodes.push(node); node.on('destroyed', () => destroyed.set(node, (destroyed.get(node) ?? 0) + 1));};
+const config = defaultConfig({plugins: [capture], config: {delay: 0}});
+const remote = (id, value) => createNode({plugins: config.plugins, config: config.config, name: id, value, props: {type: 'text', id}});
+const remoteA = remote('scope-remote-a', 'alpha'), remoteB = remote('scope-remote-b', 'beta');
+const schema = [{$formkit: 'text', name: 'trigger'}, {$el: 'section', for: ['row', '$rows'], key: '$row.id', children: [{$formkit: '$row.type', if: '$row.visible', bind: '$row.props', name: {if: '$row.named', then: '$namer.name($row, $get($target))', else: '$missing.name'}, key: '$keyer.key($row)'}]}];
+const originalRows = () => [{id: 'one', type: 'text', named: true, visible: true, props: {label: 'One', validation: 'required'}}, {id: 'two', type: 'text', named: true, visible: true, props: {label: 'Two'}}];
+const data = (prefix, source, rows) => ({target: source.props.id, rows, namer: {prefix, name(row, context) {assert.equal(this.prefix, prefix); calls[prefix] = (calls[prefix] ?? 0) + 1; return this.prefix + '_' + (context?.value ?? 'missing') + '_' + row.id;}}, keyer: {prefix, key(row) {assert.equal(this.prefix, prefix); return this.prefix + ':' + row.id;}}});
+let apiA, apiB;
+const mountForm = (host, state) => mount({host, schema, data: state, plugins: [capture], config: {delay: 0}, formProps: {actions: false}});
+try {
+  let rows = originalRows(); apiA = mountForm(hostA, data('A', remoteA, rows)); apiB = mountForm(hostB, data('B', remoteB, originalRows())); await settle();
+  const first = apiA.node.at('A_alpha_one'), second = apiA.node.at('A_alpha_two'), other = apiB.node.at('B_beta_one'), input = hostA.querySelector('input[name=A_alpha_one]');
+  assert.ok(first && second && other); await first.input('Edited', false); await settle();
+  rows = [rows[1], rows[0]].map(row => ({...row, props: {...row.props, help: 'Updated'}})); apiA.updateData(data('A', remoteA, rows)); await settle();
+  assert.equal(apiA.node.at('A_alpha_one') === first, true); assert.equal(apiA.node.at('A_alpha_two') === second, true); assert.equal(hostA.querySelector('input[name=A_alpha_one]') === input, true); assert.equal(first.value, 'Edited'); assert.equal(first.props.help, 'Updated'); assert.equal(apiB.node.at('B_beta_one') === other, true);
+  apiA.updateData(data('AA', remoteA, rows)); await settle(); assert.ok(apiA.node.at('AA_alpha_one')); assert.equal(first.context == null, true);
+  await remoteA.input('delta', false); await settle(); assert.ok(apiA.node.at('AA_delta_one')); assert.equal(apiB.node.at('B_beta_one') === other, true);
+  apiA.updateData(data('AA', remoteB, rows)); await settle(); assert.ok(apiA.node.at('AA_beta_one')); const before = calls.AA;
+  await remoteA.input('obsolete', false); await settle(); assert.equal(calls.AA, before, 'retired $get reads do not survive compiled reuse');
+  await remoteB.input('next', false); await settle(); assert.ok(apiA.node.at('AA_next_one')); assert.ok(apiB.node.at('B_next_one'));
+  const previousType = apiA.node.at('AA_next_one'), kept = apiA.node.at('AA_next_two');
+  rows = rows.map(row => row.id === 'one' ? {...row, type: 'textarea'} : row); apiA.updateData(data('AA', remoteB, rows)); await settle();
+  assert.equal(apiA.node.at('AA_next_one').props.type, 'textarea'); assert.equal(previousType.context == null, true); assert.equal(apiA.node.at('AA_next_two') === kept, true);
+  rows = rows.map(row => row.id === 'one' ? {...row, named: false} : row); apiA.updateData(data('AA', remoteB, rows)); await settle();
+  const anonymous = apiA.node.children.find(node => node.props.type === 'textarea'), textarea = hostA.querySelector('textarea'); assert.ok(anonymous && textarea); assert.equal(apiA.node.at('AA_next_one'), undefined);
+  await anonymous.input('Anonymous edit', false); await settle(); apiA.updateData(data('AA', remoteB, rows.map(row => ({...row})))); await settle();
+  assert.equal(apiA.node.children.includes(anonymous), true); assert.equal(hostA.querySelector('textarea') === textarea, true); assert.equal(anonymous.value, 'Anonymous edit');
+  apiA.setSchema(schema); await settle(); assert.equal(apiA.node.children.includes(anonymous), true); assert.equal(hostA.querySelector('textarea') === textarea, true);
+  rows = rows.map(row => row.id === 'one' ? {...row, visible: false} : row); apiA.updateData(data('AA', remoteB, rows)); await settle(); assert.equal(anonymous.context == null, true); assert.equal(hostA.querySelector('textarea'), null); assert.equal(apiA.node.at('AA_next_two') === kept, true);
+  const dead = apiA; apiA.destroy(); apiA = undefined; const closedCalls = calls.AA;
+  await Promise.resolve().then(() => remoteB.input('after', false)); await settle(); assert.equal(calls.AA, closedCalls); assert.ok(apiB.node.at('B_after_one')); dead.updateData(data('AA', remoteA, originalRows())); await settle(); assert.equal(calls.AA, closedCalls);
+  await remoteA.input('fresh', false); apiA = mountForm(hostA, data('NEW', remoteA, originalRows())); await settle(); assert.ok(apiA.node.at('NEW_fresh_one')); assert.ok(apiB.node.at('B_after_one'));
+  apiA.destroy(); apiA = undefined; apiB.destroy(); apiB = undefined; remoteA.destroy(); remoteB.destroy(); await settle();
+  assert.equal(nodes.length, destroyed.size); assert.ok([...destroyed.values()].every(count => count === 1)); for (const node of nodes) {assert.equal(getNode(node.props.id), undefined);} assert.equal(hostA.childElementCount, 0); assert.equal(hostB.childElementCount, 0);
+  console.log(JSON.stringify({passed: true, created: nodes.length, destroyed: destroyed.size, checks: ['same compiled expressions across live rows and independent forms', 'reordered Core/DOM edits and bound props retained', 'fresh method receivers and data scopes', 'dynamic $get target and subscription pruning', 'dynamic type, conditional anonymous name and explicit key', 'schema replacement, condition removal and new controller lifetime', 'async notification after destruction and exact cleanup']}));
+} finally {apiA?.destroy(); apiB?.destroy(); if (remoteA.context) {remoteA.destroy();} if (remoteB.context) {remoteB.destroy();} dom.window.close();}
