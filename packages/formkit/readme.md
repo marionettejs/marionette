@@ -458,11 +458,12 @@ facts and notify:false remain unchanged, and reset retains construction defaults
 
 ### Native class type contracts
 
-Native subclasses retain typed values, method-style `preinitialize(options)` and a
-polymorphic `render()` return. Early setup belongs in the method: it runs during
-base construction before subclass fields initialize. Packed ESM/CJS controls verify
-that ordering and normal View disposal. This declaration correction changes no
-runtime constructor or callable/extend implementation.
+Use either a native subclass or `FormKitView.extend()`. Both can define
+`initialize(options)` as a normal Marionette hook without calling a FormKit
+implementation. FormKit setup finishes before the first render. Use
+`onBeforeRender` or `onRender` for work that depends on the FormKit node.
+An explicitly supplied root `el` must be empty; put existing layout in a
+separate View and show the form in its Region.
 
 ### Expressions inside schema value arrays
 

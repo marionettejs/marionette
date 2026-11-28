@@ -376,87 +376,48 @@ function createSchemaOwner(view,{host,props,context,parentNode,configScope,domRo
   return {update,refresh,destroy(remove = true,root) {if (dead) {return;}removeDom = remove;bulkRemovalRoot = root ?? (remove ? host : undefined);scope.destroy();}};
 }
 
-export class FormKitView extends View {
-  get tagName() { return 'form'; }
-  get template() { return false; }
+const pendingFormKitSetup = new WeakMap();
+
+function ensureFormKitSetup(view) {
+  if (!pendingFormKitSetup.has(view) || view.isDestroyed()) {return;}
+  const options = pendingFormKitSetup.get(view);
+  pendingFormKitSetup.delete(view);
+  initializeFormKit.call(view, options);
+}
+
+export const FormKitView = /* @__PURE__ */ View.extend({
+  constructor: function FormKitViewOwner(options = {}) {
+    pendingFormKitSetup.set(this, options);
+    try {
+      View.apply(this, arguments);
+      // The consumer's initialize hook may not call the inherited method.
+      ensureFormKitSetup(this);
+    } finally {
+      pendingFormKitSetup.delete(this);
+    }
+  },
+  initialize() {
+    ensureFormKitSetup(this);
+  },
+  tagName: 'form',
+  template: false,
   _getEl() {
     // Check property presence rather than calling a consumer's el getter twice.
     const ownsRoot = !('el' in this);
-    const el = super._getEl();
+    const el = View.prototype._getEl.call(this);
+    if (!ownsRoot && this.Dom.hasContents(el)) {
+      // Reject before Marionette starts binding UI or attaching listeners.
+      const error = new TypeError('FormKitView requires an empty root element');
+      error.code = 'FORMKIT_ROOT_NOT_EMPTY';
+      throw error;
+    }
     if (ownsRoot) {freshForms.set(this,el);}
     return el;
-  }
-  initialize(options = {}) {
-    if (options.defaultConfig !== false) {options = withPreparedDefaults(options);}
-    this._formKitDom = this.Dom;
-    const customConfig = Object.keys(options.config ?? {}).some(key => key !== 'rootConfig') ||
-      (options.config?.rootConfig && !hasStockRootConfig(options.config.rootConfig));
-    if (options.defaultConfig === false || Object.keys(options.inputs ?? {}).length || options.plugins?.length ||
-      Object.keys(options.components ?? {}).length || options.formProps?.definition || options.formProps?.library ||
-      Object.keys(options.rules ?? {}).length || customConfig || options.icons || options.iconLoader || options.iconLoaderUrl) {
-      freshForms.delete(this);
-    }
-    this._schema = options.schema;this._schemaSlots = options.schemaSlots ?? {};this._rootSlots = options.slots ?? {};
-    const view = this;this._schemaData = {...options.data,get values() {return view.node.value;}};
-    this[diagnostics] = { enabled: options[diagnostics] === true, contextNotifications: 0,tokenChecks: 0,expressionEvaluations: 0,domWrites: 0,structuralChanges: 0,coreNodesCreated: 0,coreNodesDestroyed: 0,coreInputEvents: 0,coreCommitEvents: 0,coreMessageEvents: 0,classRootEvaluations: 0 };
-    this._anonymousKeys = new WeakMap();this._configScopes = new WeakMap();
-    this._fieldId = 0; this._ending = false;
-    this._pendingFieldMounts = new Set();
-    const hostRoot = options.domRoot ?? this.el.getRootNode();
-    this._domRoot = hostRoot.nodeType === 9 || hostRoot.host ? hostRoot : this.el.ownerDocument;
-    this.components = {...createFormKitStructuralComponents(this,args=>createSchemaOwner(this,args)),...createFormKitProviders(this),...createFormKitHelpers({getDom: ()=>this._formKitDom,getNode: ()=>this.node,getComponents: ()=>this.components,getPlugins: ()=>this.plugins,removeDom: ()=>!this._ending,bulkRemovalRoot: ()=>this._ending ? this.el : undefined}),FormKit: ({host,props,context,locals,schemaData,parentNode,configScope,domRoot,hasChildren,schemaChildren,[authoredComponentSlots]: schemaSlots,renderChildren})=>{
-      const name = props.name;
-      const legacySlots = schemaChildren && !Array.isArray(schemaChildren) && typeof schemaChildren === 'object' && !['$el','$cmp','$formkit','if','for'].some(key=>key in schemaChildren);
-      const authoredSlots = Object.entries(schemaSlots ?? {}).filter(([,content])=>content != null);
-      const namedSlots = authoredSlots.length ? {...(legacySlots ? schemaChildren : schemaChildren !== undefined ? {default: schemaChildren} : {}),...Object.fromEntries(authoredSlots)} : legacySlots ? schemaChildren : undefined;
-      const spec = {...Object.fromEntries(Object.getOwnPropertyNames(props).map(key=>[key,props[key]])),name,__schemaScope: locals,__schemaData: schemaData,...(namedSlots || hasChildren ? {children: namedSlots ?? {default: []}} : {})};
-      const parent = parentNode ?? context.node ?? this.node;
-      const node = createFieldNode(this,parent,spec,{},configScope,domRoot);
-      const present = el=>{displayContents(this._formKitDom,el);for (const child of [...el.childNodes]) {insertNode(this._formKitDom,host.parentNode,child,host);}};
-      const field = createField(node,spec,this,undefined,hasChildren && !namedSlots ? renderChildren : undefined,present);insertNode(this._formKitDom,host,field.el);
-
-      return {update: next=>{field.update({...next,name,children: spec.children,__schemaScope: locals,__schemaData: schemaData});if (legacySlots && !authoredSlots.length) {field.refresh();}},...(authoredSlots.length ? {refresh: ()=>field.refreshSlotScopes()} : {}),destroy: (remove = true)=>{if (remove) {field.destroy();} else {field.disposeView(false);field.disposeNodes(true);}},[destroyWithRemovalRoot]: root=>{field.disposeView(false,root);field.disposeNodes(true);}};
-    },...options.components};
-    if (!Object.hasOwn(options.components ?? {},'FormKit')) {this.components.FormKit[nativeFormKitFactory] = true;}
-    this.config = { ...(!options.config?.rootConfig && options.defaultConfig !== false ? {locale: 'en',rootClasses: section=>({[`formkit-${kebab(section)}`]: true})} : {}), ...(!options.config?.rootConfig && options.locale !== undefined ? {locale: options.locale} : {}), ...options.config, classes: options.classes ?? options.config?.classes, ...(options.messages ? {messages: options.messages} : {}) };
-    const rootClasses = this.config.rootClasses;
-    if (this[diagnostics].enabled && rootClasses) {this.config.rootClasses = (section,node)=>{this[diagnostics].classRootEvaluations++;return rootClasses(section,node);};}
-    const countCore = node=>{this[diagnostics].coreNodesCreated++;for (const [event,key] of [['input','coreInputEvents'],['commit','coreCommitEvents'],['message-added','coreMessageEvents'],['message-updated','coreMessageEvents'],['message-removed','coreMessageEvents'],['destroyed','coreNodesDestroyed']]) {node.on(event,()=>this[diagnostics][key]++);}};
-    this._countCore = countCore;
-    this.definitions = {...(options.defaultConfig === false ? {} : nativeInputs),...options.inputs};
-    this.fields = new Map(); this.initialValues = structuredClone(options.values ?? {});
-    this._inputCompletionScope = createInputCompletionScope();
-    const completion = createInputCompletion(this._inputCompletionScope);
-    this.plugins = [completion.plugin,...(this[diagnostics].enabled ? [countCore] : []), ...(options.defaultConfig === false ? [] : [createLibraryPlugin(this.definitions), createThemePlugin(options.theme,options.icons,options.iconLoaderUrl,options.iconLoader), bindings, createValidationPlugin({...nativeRules,...options.rules}), createI18nPlugin(extend({ en,...options.locales },options.messages ?? {}))]), ...(options.plugins ?? [])];
-    this._providerScope = options[formKitScope] ? {options: {plugins: this.plugins,config: {rootConfig: options.config.rootConfig}},definitions: this.definitions} : undefined;
-    this.node = createNode({ name: options.formProps?.name ?? 'form', value: this.initialValues, config: this.config,
-      props: { ...options.formProps, ...(options.formProps?.definition ? {definition: completion.definition(options.formProps.definition)} : {}), __root: this._domRoot, type: 'form', attrs: options.formProps?.attrs ?? {}, id: options.formProps?.id ?? `mnjs-formkit-form-${this.cid}`, __slots: {default: true,fields: true,...Object.fromEntries(Object.keys(this._rootSlots).map(name=>[name,true]))}, onSubmit: options.onSubmit ?? (()=>{}), onSubmitInvalid: options.onSubmitInvalid, onSubmitRaw: options.onSubmitRaw },
-      plugins: this.plugins });
-    if (this._providerScope) {this._configScopes.set(this.node,this._providerScope);}
-    this.config = this.node.config;
-    this._sectionsSchema = options.sectionsSchema ?? options.formProps?.sectionsSchema;
-    const schemaReceipt = this.node.on('schema',event=>{if (event.origin === this.node) {queueMicrotask(()=>{if (!this._ending) {this._redrawRootSections();}});}});
-    this.once('attach',()=>{if (!this._ending) {this.node.emit('mounted');}});
-    const retryFieldMounts = ()=>{
-      // Retry only parked fields. Preserve the separate microtask for each
-      // field, so root attach and user callbacks keep their existing ordering.
-      for (const check of this._pendingFieldMounts) {
-        this._pendingFieldMounts.delete(check);
-        queueMicrotask(check);
-      }
-    };
-    this.on({attach: retryFieldMounts,'fields:attached': retryFieldMounts});
-    this._facade = installValueFacade(this);
-    const submitHandler = this.node.context.handlers.submit;
-    this._onSubmit = event => { return this.lastSubmission = submitHandler(event); };
-    this.node.context.handlers.submit = this._onSubmit;
-    this.specs = options.fields ?? [];
-    this._directSpecs = this.specs;this._schemaSpecs = [];
-    this.on('before:destroy', () => { this._ending = true; this._pendingFieldMounts.clear(); this.node.off(schemaReceipt); this._commitTracker?.destroy(); this._inputCompletionScope.destroy(); this._facade.destroy(); this.node.destroy(); this._layoutController?.[destroyWithRemovalRoot](this.el); this._rootRenderer?.destroy(false,this.el); for (const field of this.fields.values()) {field.disposeView(false,this.el);} for (const field of this.fields.values()) {field.disposeNodes(true);} this.fields.clear(); this._anonymousKeys = new WeakMap(); this._formKitDom.detachContents(this.el); });
-    try {this._renderRoot();} catch (error) {try {this.destroy();} catch { /* Preserve the construction error. */ } throw error;}
-  }
+  },
   render() {
     if (this.isDestroyed()) {return this;}
+    // Also support a consumer rendering directly from initialize().
+    ensureFormKitSetup(this);
     this.triggerMethod('before:render', this);
     if (!this._isRendered) {
       this.setFields(this.specs);
@@ -466,23 +427,23 @@ export class FormKitView extends View {
       for (const field of this.fields.values()) {field.refresh();}
     }
     this._isRendered = true; this.triggerMethod('render', this); return this;
-  }
+  },
   _renderRoot() {
     this._fieldAnchor = this.el.ownerDocument.createComment('fields');insertNode(this._formKitDom,this._formKitDom.createBuffer(),this._fieldAnchor);
     this._rootRenderer = renderSections({Dom: this._formKitDom,host: this.el,schema: schemaFor(this.node,this._sectionsSchema),context: this.node.context,metrics: this[diagnostics],configScope: this._providerScope,domRoot: this._domRoot,components: resolveComponentLibrary(this.node,this.components,this.node.props.library),reuseRoot: true,slots: createRootSlots(this,this._rootSlots)});
-  }
+  },
   setSectionsSchema(sectionsSchema) {
     if (this._ending || this.isDestroyed() || (sectionsSchema === undefined && this._sectionsSchema === undefined)) {return this;}
     this._sectionsSchema = sectionsSchema;
     return this._redrawRootSections();
-  }
+  },
   _redrawRootSections() {
     this._layoutController?.detach();
     for (const field of this.fields.values()) {removeNode(this._formKitDom,field.el);}
     this._rootRenderer.destroy();this._renderRoot();
     reconcile(this,this.node,this.fields,this.specs,this._fieldAnchor,this.initialValues);
     this._layoutController?.place();return this;
-  }
+  },
   setSlots(slots = {}) {
     if (this._ending || this.isDestroyed()) {return this;}
     const names = Object.keys(slots);
@@ -490,46 +451,46 @@ export class FormKitView extends View {
     this._rootSlots = slots;
     this.node.context.slots = {default: true,fields: true,...Object.fromEntries(names.map(name=>[name,true]))};
     return this._redrawRootSections();
-  }
+  },
   setSchema(schema) {
     if (this._ending || this.isDestroyed()) {return this;}
     this._layoutController?.destroy();this._schema = schema;
     if (schema !== undefined) {createLayoutController({form: this,schema,data: this._schemaData,components: this.components,slots: this._schemaSlots});} else {this._setSchemaFields([]);}
     return this;
-  }
+  },
   updateData(next = {}) {
     if (this._ending || this.isDestroyed()) {return this;}
     for (const key of Object.keys(this._schemaData)) {if (key !== 'values') {delete this._schemaData[key];}}
     for (const [key,value] of Object.entries(next)) {if (key !== 'values') {this._schemaData[key] = value;}}
     this._layoutController?.updateData(this._schemaData);this._rootRenderer.refresh();for (const field of this.fields.values()) {field.refresh();} return this;
-  }
-  createValueProjection(options) { return createValueProjection(this, options); }
+  },
+  createValueProjection(options) { return createValueProjection(this, options); },
   observeFieldCommits(callback) {
     if (this._ending || this.isDestroyed() || !this.node.context) { return () => {}; }
     this._commitTracker ??= createFieldCommitTracker(this.node, this[diagnostics], this._inputCompletionScope);
     return this._commitTracker.observe(callback);
-  }
+  },
   whenPendingEditsSettled(options) {
     if (this._ending || this.isDestroyed() || !this.node.context) { return Promise.reject(new DOMException('FormKit edit observation ended.', 'AbortError')); }
     this._commitTracker ??= createFieldCommitTracker(this.node, this[diagnostics], this._inputCompletionScope);
     return this._commitTracker.whenSettled(options);
-  }
-  getValues() { return this._facade.getValues(); }
-  getFormState() { return this._facade.getFormState(); }
-  setValues(values,options) { return this._facade.setValues(values,options); }
-  setErrors(errors,fieldErrors) { return this._facade.setErrors(errors,fieldErrors); }
+  },
+  getValues() { return this._facade.getValues(); },
+  getFormState() { return this._facade.getFormState(); },
+  setValues(values,options) { return this._facade.setValues(values,options); },
+  setErrors(errors,fieldErrors) { return this._facade.setErrors(errors,fieldErrors); },
   setFields(specs) {
     return this._facade.batch('setFields',()=>{
       if (!Array.isArray(specs)) {throw new TypeError('Fields must be an array');}
       if (this._ending || this.isDestroyed()) {validateFields(specs,this.definitions);} else {this._setFields([...specs,...this._schemaSpecs],true);}
       this._directSpecs = specs;
     });
-  }
+  },
   _setSchemaFields(specs) {
     return this._facade.batch('setFields',()=>{
       this._setFields([...this._directSpecs,...specs]);this._schemaSpecs = specs;
     });
-  }
+  },
   _setFields(specs,direct = false) {
     if (this._ending || this.isDestroyed()) {return;}
     validateFields(specs,this.definitions);
@@ -553,13 +514,87 @@ export class FormKitView extends View {
       }
     } else {reconcile(this,this.node,this.fields,specs,anchor,this.initialValues);}
     this.specs = specs;
-  }
-  get formMessages() { return this.el.querySelector(':scope > .formkit-messages'); }
-  resetForm() { return this._facade.batch('resetForm',()=>{if (!this._ending && !this.isDestroyed()) {reset(this.node);}}); }
+  },
+  resetForm() { return this._facade.batch('resetForm',()=>{if (!this._ending && !this.isDestroyed()) {reset(this.node);}}); },
   submit() {
     if (this._ending || this.isDestroyed()) {return Promise.resolve();}
     this.el.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); return this.lastSubmission;
   }
+});
+
+Object.defineProperty(FormKitView.prototype, 'formMessages', {
+  configurable: true,
+  get() { return this.el.querySelector(':scope > .formkit-messages'); },
+});
+
+function initializeFormKit(options) {
+  if (options.defaultConfig !== false) {options = withPreparedDefaults(options);}
+  this._formKitDom = this.Dom;
+  const customConfig = Object.keys(options.config ?? {}).some(key => key !== 'rootConfig') ||
+    (options.config?.rootConfig && !hasStockRootConfig(options.config.rootConfig));
+  if (options.defaultConfig === false || Object.keys(options.inputs ?? {}).length || options.plugins?.length ||
+    Object.keys(options.components ?? {}).length || options.formProps?.definition || options.formProps?.library ||
+    Object.keys(options.rules ?? {}).length || customConfig || options.icons || options.iconLoader || options.iconLoaderUrl) {
+    freshForms.delete(this);
+  }
+  this._schema = options.schema;this._schemaSlots = options.schemaSlots ?? {};this._rootSlots = options.slots ?? {};
+  const view = this;this._schemaData = {...options.data,get values() {return view.node.value;}};
+  this[diagnostics] = { enabled: options[diagnostics] === true, contextNotifications: 0,tokenChecks: 0,expressionEvaluations: 0,domWrites: 0,structuralChanges: 0,coreNodesCreated: 0,coreNodesDestroyed: 0,coreInputEvents: 0,coreCommitEvents: 0,coreMessageEvents: 0,classRootEvaluations: 0 };
+  this._anonymousKeys = new WeakMap();this._configScopes = new WeakMap();
+  this._fieldId = 0; this._ending = false;
+  this._pendingFieldMounts = new Set();
+  const hostRoot = options.domRoot ?? this.el.getRootNode();
+  this._domRoot = hostRoot.nodeType === 9 || hostRoot.host ? hostRoot : this.el.ownerDocument;
+  this.components = {...createFormKitStructuralComponents(this,args=>createSchemaOwner(this,args)),...createFormKitProviders(this),...createFormKitHelpers({getDom: ()=>this._formKitDom,getNode: ()=>this.node,getComponents: ()=>this.components,getPlugins: ()=>this.plugins,removeDom: ()=>!this._ending,bulkRemovalRoot: ()=>this._ending ? this.el : undefined}),FormKit: ({host,props,context,locals,schemaData,parentNode,configScope,domRoot,hasChildren,schemaChildren,[authoredComponentSlots]: schemaSlots,renderChildren})=>{
+    const name = props.name;
+    const legacySlots = schemaChildren && !Array.isArray(schemaChildren) && typeof schemaChildren === 'object' && !['$el','$cmp','$formkit','if','for'].some(key=>key in schemaChildren);
+    const authoredSlots = Object.entries(schemaSlots ?? {}).filter(([,content])=>content != null);
+    const namedSlots = authoredSlots.length ? {...(legacySlots ? schemaChildren : schemaChildren !== undefined ? {default: schemaChildren} : {}),...Object.fromEntries(authoredSlots)} : legacySlots ? schemaChildren : undefined;
+    const spec = {...Object.fromEntries(Object.getOwnPropertyNames(props).map(key=>[key,props[key]])),name,__schemaScope: locals,__schemaData: schemaData,...(namedSlots || hasChildren ? {children: namedSlots ?? {default: []}} : {})};
+    const parent = parentNode ?? context.node ?? this.node;
+    const node = createFieldNode(this,parent,spec,{},configScope,domRoot);
+    const present = el=>{displayContents(this._formKitDom,el);for (const child of [...el.childNodes]) {insertNode(this._formKitDom,host.parentNode,child,host);}};
+    const field = createField(node,spec,this,undefined,hasChildren && !namedSlots ? renderChildren : undefined,present);insertNode(this._formKitDom,host,field.el);
+
+    return {update: next=>{field.update({...next,name,children: spec.children,__schemaScope: locals,__schemaData: schemaData});if (legacySlots && !authoredSlots.length) {field.refresh();}},...(authoredSlots.length ? {refresh: ()=>field.refreshSlotScopes()} : {}),destroy: (remove = true)=>{if (remove) {field.destroy();} else {field.disposeView(false);field.disposeNodes(true);}},[destroyWithRemovalRoot]: root=>{field.disposeView(false,root);field.disposeNodes(true);}};
+  },...options.components};
+  if (!Object.hasOwn(options.components ?? {},'FormKit')) {this.components.FormKit[nativeFormKitFactory] = true;}
+  this.config = { ...(!options.config?.rootConfig && options.defaultConfig !== false ? {locale: 'en',rootClasses: section=>({[`formkit-${kebab(section)}`]: true})} : {}), ...(!options.config?.rootConfig && options.locale !== undefined ? {locale: options.locale} : {}), ...options.config, classes: options.classes ?? options.config?.classes, ...(options.messages ? {messages: options.messages} : {}) };
+  const rootClasses = this.config.rootClasses;
+  if (this[diagnostics].enabled && rootClasses) {this.config.rootClasses = (section,node)=>{this[diagnostics].classRootEvaluations++;return rootClasses(section,node);};}
+  const countCore = node=>{this[diagnostics].coreNodesCreated++;for (const [event,key] of [['input','coreInputEvents'],['commit','coreCommitEvents'],['message-added','coreMessageEvents'],['message-updated','coreMessageEvents'],['message-removed','coreMessageEvents'],['destroyed','coreNodesDestroyed']]) {node.on(event,()=>this[diagnostics][key]++);}};
+  this._countCore = countCore;
+  this.definitions = {...(options.defaultConfig === false ? {} : nativeInputs),...options.inputs};
+  this.fields = new Map(); this.initialValues = structuredClone(options.values ?? {});
+  this._inputCompletionScope = createInputCompletionScope();
+  const completion = createInputCompletion(this._inputCompletionScope);
+  this.plugins = [completion.plugin,...(this[diagnostics].enabled ? [countCore] : []), ...(options.defaultConfig === false ? [] : [createLibraryPlugin(this.definitions), createThemePlugin(options.theme,options.icons,options.iconLoaderUrl,options.iconLoader), bindings, createValidationPlugin({...nativeRules,...options.rules}), createI18nPlugin(extend({ en,...options.locales },options.messages ?? {}))]), ...(options.plugins ?? [])];
+  this._providerScope = options[formKitScope] ? {options: {plugins: this.plugins,config: {rootConfig: options.config.rootConfig}},definitions: this.definitions} : undefined;
+  this.node = createNode({ name: options.formProps?.name ?? 'form', value: this.initialValues, config: this.config,
+    props: { ...options.formProps, ...(options.formProps?.definition ? {definition: completion.definition(options.formProps.definition)} : {}), __root: this._domRoot, type: 'form', attrs: options.formProps?.attrs ?? {}, id: options.formProps?.id ?? `mnjs-formkit-form-${this.cid}`, __slots: {default: true,fields: true,...Object.fromEntries(Object.keys(this._rootSlots).map(name=>[name,true]))}, onSubmit: options.onSubmit ?? (()=>{}), onSubmitInvalid: options.onSubmitInvalid, onSubmitRaw: options.onSubmitRaw },
+    plugins: this.plugins });
+  if (this._providerScope) {this._configScopes.set(this.node,this._providerScope);}
+  this.config = this.node.config;
+  this._sectionsSchema = options.sectionsSchema ?? options.formProps?.sectionsSchema;
+  const schemaReceipt = this.node.on('schema',event=>{if (event.origin === this.node) {queueMicrotask(()=>{if (!this._ending) {this._redrawRootSections();}});}});
+  this.once('attach',()=>{if (!this._ending) {this.node.emit('mounted');}});
+  const retryFieldMounts = ()=>{
+    // Retry only parked fields. Preserve the separate microtask for each
+    // field, so root attach and user callbacks keep their existing ordering.
+    for (const check of this._pendingFieldMounts) {
+      this._pendingFieldMounts.delete(check);
+      queueMicrotask(check);
+    }
+  };
+  this.on({attach: retryFieldMounts,'fields:attached': retryFieldMounts});
+  this._facade = installValueFacade(this);
+  const submitHandler = this.node.context.handlers.submit;
+  this._onSubmit = event => { return this.lastSubmission = submitHandler(event); };
+  this.node.context.handlers.submit = this._onSubmit;
+  this.specs = options.fields ?? [];
+  this._directSpecs = this.specs;this._schemaSpecs = [];
+  this.on('before:destroy', () => { this._ending = true; this._pendingFieldMounts.clear(); this.node.off(schemaReceipt); this._commitTracker?.destroy(); this._inputCompletionScope.destroy(); this._facade.destroy(); this.node.destroy(); this._layoutController?.[destroyWithRemovalRoot](this.el); this._rootRenderer?.destroy(false,this.el); for (const field of this.fields.values()) {field.disposeView(false,this.el);} for (const field of this.fields.values()) {field.disposeNodes(true);} this.fields.clear(); this._anonymousKeys = new WeakMap(); this._formKitDom.detachContents(this.el); });
+  try {this._renderRoot();} catch (error) {try {this.destroy();} catch { /* Preserve the construction error. */ } throw error;}
 }
 
 export const FormKitApplication = /* @__PURE__ */ createFormKitApplication(FormKitView);

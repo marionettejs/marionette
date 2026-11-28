@@ -16,6 +16,38 @@ assert.deepEqual(Object.keys(imported).sort(), names);
 assert.deepEqual(Object.keys(required).sort(), names);
 assert.deepEqual(Object.keys(components).sort(), Object.keys(cjsComponents).sort());
 for (const api of [imported, required]) {
+  const Base = api.FormKitView;
+  const fields = [{ name: 'subclassField' }];
+  const Legacy = Base.extend({
+    initialize() { this.initializedByConsumer = true; },
+  });
+  class Native extends Base {
+    initialize() { this.initializedByConsumer = true; }
+  }
+  for (const Constructor of [Legacy, Native]) {
+    const view = new Constructor({ fields });
+    assert.equal(view.initializedByConsumer, true);
+    assert.ok(view instanceof Base);
+    assert.equal(view.render(), view);
+    assert.ok(view.el.querySelector('input[name="subclassField"]'));
+    view.destroy();
+  }
+  const RenderDuringInit = Base.extend({
+    initialize() { this.render(); },
+  });
+  const eager = new RenderDuringInit({ fields });
+  assert.equal(eager.isRendered(), true);
+  assert.ok(eager.el.querySelector('input[name="subclassField"]'));
+  eager.destroy();
+  const populated = document.createElement('form');
+  const retained = populated.appendChild(document.createElement('p'));
+  assert.throws(() => new Base({ el: populated, fields }), { code: 'FORMKIT_ROOT_NOT_EMPTY' });
+  assert.equal(populated.firstChild, retained);
+  const empty = document.createElement('form');
+  const explicit = new Base({ el: empty, fields });
+  explicit.render();
+  assert.ok(empty.querySelector('input[name="subclassField"]'));
+  explicit.destroy();
   const host = document.createElement('main'); document.body.append(host);
   const form = api.mount({ host, fields: [{ name: 'title', label: 'Title' }], values: { title: 'Packed' }, formProps: { actions: false } });
   assert.deepEqual(Object.keys(form).sort(), [
