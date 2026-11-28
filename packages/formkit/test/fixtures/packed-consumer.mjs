@@ -17,12 +17,17 @@ assert.deepEqual(Object.keys(required).sort(), names);
 assert.deepEqual(Object.keys(components).sort(), Object.keys(cjsComponents).sort());
 for (const api of [imported, required]) {
   const Base = api.FormKitView;
+  assert.equal(Object.hasOwn(Base.prototype, 'initialize'), false);
   const fields = [{ name: 'subclassField' }];
   const Legacy = Base.extend({
     initialize() { this.initializedByConsumer = true; },
+    onBeforeRender() { this.beforeRenderByConsumer = true; },
+    onBeforeDestroy() { this.beforeDestroyByConsumer = true; },
   });
   class Native extends Base {
     initialize() { this.initializedByConsumer = true; }
+    onBeforeRender() { this.beforeRenderByConsumer = true; }
+    onBeforeDestroy() { this.beforeDestroyByConsumer = true; }
   }
   for (const Constructor of [Legacy, Native]) {
     const view = new Constructor({ fields });
@@ -30,7 +35,13 @@ for (const api of [imported, required]) {
     assert.ok(view instanceof Base);
     assert.equal(view.render(), view);
     assert.ok(view.el.querySelector('input[name="subclassField"]'));
+    assert.equal(view.beforeRenderByConsumer, true);
+    const node = view.node;
+    let destroyed = false;
+    node.on('destroyed', () => { destroyed = true; });
     view.destroy();
+    assert.equal(view.beforeDestroyByConsumer, true);
+    assert.equal(destroyed, true);
   }
   const RenderDuringInit = Base.extend({
     initialize() { this.render(); },

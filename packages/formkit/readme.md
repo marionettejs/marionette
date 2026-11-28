@@ -4,8 +4,8 @@ Build validated forms in Marionette with FormKit inputs and schema. A Marionette
 View owns the form and its Core nodes, so replacing a Region also cleans up the
 form. No Vue or React runtime is required.
 
-This 0.1.0 candidate targets Marionette 5.2.0 and FormKit 2.9.0. It has not
-been published to npm. See [Scope](#scope) for what is and is not covered.
+This 0.1.0 candidate targets Marionette 5.2.0 and FormKit 2.9.0. It is not
+published to npm. See [Scope](#scope) for the supported feature set.
 
 ## Use an existing Region
 
@@ -123,7 +123,7 @@ This first channel classifies explicit `setValues` and declaration operations as
 user provenance, including for synthetic input or forwarded label activation.
 A custom legacy `form:change` source label is not proof of user origin. The fact
 channel is not user-only; the application must choose how unknown origins are
-handled. No XState dependency or actor synchronization is added.
+handled. The package does not subscribe to an external store.
 
 The fence waits for contributing Core nodes and live input producers registered to
 the constructing form, including ignored inputs with `parent: null`, their
@@ -214,8 +214,8 @@ projection.dispose();
 wait for the existing pending-edit fence, then read current values and apply the
 existing `setValues` operation with `notify:false` (recursive merge by default).
 This suppresses `form:change` for the projected write, not field callbacks or
-programmatic commit facts. The controller does not subscribe to XState, dispatch
-domain commands, infer acceptance, flush application debounce queues or make
+programmatic commit facts. The controller does not subscribe to a store, dispatch
+application commands, infer acceptance, flush application debounce queues or make
 schema/structure changes transactional. Replacement is opt-in as documented below.
 
 `flush()` uses the fence before applying values, not after. If edits or fact
@@ -271,6 +271,12 @@ Application readiness and the mount result have explicit declarations. ESM
 including wrong-value and missing-host errors plus mixed fields/schema declarations.
 
 ## Schemas and component factories
+
+Treat schemas, component libraries and configuration as trusted application code.
+Schema expressions can call functions you make available, and
+`FormKitLazyProvider` can import a module from its `configFile` URL. Do not
+pass user-controlled schemas or URLs. Pass untrusted strings as data, not as
+markup.
 
 ```js
 const editor = mount({
@@ -359,7 +365,7 @@ Use `locale` with `locales` to select a translation. An explicit `config.locale`
 takes precedence. Within an Application, locale set on an individual form
 overrides the Application's default; an explicit form `config.locale` still wins.
 
-## Build and verify the candidate
+## Build and test from source
 
 From the repository checkout after dependencies have been installed:
 
@@ -376,10 +382,10 @@ npm --prefix packages/formkit run coverage
 `test` runs actual public-package Vitest tests without a hidden build. The packed
 check extracts a newly created FormKit tarball into an isolated consumer, reuses
 installed dependencies without registry access, then verifies both module systems,
-public exports, mount/update/destruction and TypeScript consumers. Mandatory compiler
-counts and extracted-package scope/lifetime guards also run; the check fails if
-instrumentation misses the layout module or required outlet work disappears. It writes the
-report and candidate path to `test/tmp/package-result.json`.
+public exports, mount/update/destruction and TypeScript consumers.
+Extracted-package regression checks also verify that obsolete schema scopes
+release their dependencies. The report and tarball path are written to
+`test/tmp/package-result.json`.
 
 `lint` checks package files and the complete active runtime import graph with the
 repository's rules. The complete production graph is owned by `src/runtime`; lint rejects any
@@ -427,7 +433,7 @@ it without renderer dispatch or sanitization. Do not mix it with ordinary
 children or use it on a reused form root; keep ordinary text as text. The separate
 `FormKitIcon` helper still sanitizes SVG.
 
-This candidate requires Marionette `^5.2.0`, which provides
+The package requires Marionette `^5.2.0`, which provides
 `DomApi.setUnsafeHtml`. Raw sections cannot render with a provider that omits
 that method; there is no native fallback.
 
@@ -443,7 +449,7 @@ patch are unchanged. Unknown old keys inside a replaced branch are removed. Acti
 registered fields omitted within retained records receive empty values (undefined for inputs,
 empty containers for groups/lists), so Core's normal hydration cannot retain their
 old answers. Registered fields remain represented in Core values; this does not
-promise deleting their declarations or producing a byte-identical actor object.
+promise deleting their declarations or producing an identical copy of store state.
 The input patch is detached and never mutated.
 
 The fenced `createValueProjection` accepts the same `merge:false` policy. Keep the
@@ -488,10 +494,6 @@ declarations are not attribute value arrays. Use `__deep__` on the
 expression-bearing property within a conditional bag; as in upstream
 FormKit 2.9, a prefix on the outer conditional property does not propagate
 deep mode through the selected branch.
-
-Earlier Marionette candidates eagerly resolved expression strings inside
-unprefixed schema value arrays. If a schema relied on that behavior, prefix
-its intended property with `__deep__` before adopting this candidate.
 
 ### Scoped component slots
 

@@ -390,14 +390,11 @@ export const FormKitView = /* @__PURE__ */ View.extend({
     pendingFormKitSetup.set(this, options);
     try {
       View.apply(this, arguments);
-      // The consumer's initialize hook may not call the inherited method.
+      // Required setup is independent of the consumer's lifecycle hooks.
       ensureFormKitSetup(this);
     } finally {
       pendingFormKitSetup.delete(this);
     }
-  },
-  initialize() {
-    ensureFormKitSetup(this);
   },
   tagName: 'form',
   template: false,
