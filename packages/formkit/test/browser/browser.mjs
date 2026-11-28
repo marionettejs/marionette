@@ -201,9 +201,7 @@ try {
         const cases = engine === 'chromium' ? { keyboard, composition } : { keyboard };
         if (arm === 'marionette') { cases.stockDescriptions = stockDescriptions; }
         cases.stockKitchen = () => stockKitchen(browser, arm, origin);
-        if (arm !== 'react') {
-          cases.dynamicList = () => dynamicList(browser, arm, origin);
-        }
+        cases.dynamicList = () => dynamicList(browser, arm, origin);
         for (const [scenario, test] of Object.entries(cases)) {
           const identity = { engine, version: browser.version(), arm, scenario };
           const observed = {};
