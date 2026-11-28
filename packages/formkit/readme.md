@@ -314,17 +314,24 @@ implement Vue/React injection, refs, emits or framework slots.
 
 ```js
 import { FormKitApplication } from '@mnjs/formkit';
+import config from './formkit.config.mjs';
 
 const editor = new FormKitApplication({
   region: { el: document.querySelector('main') },
-  configFile: new URL('./formkit.config.mjs', import.meta.url).href,
+  config,
   form: { fields: [{ name: 'email', type: 'email' }] },
 });
 if (await editor.start()) console.log(editor.getView().getValues());
 editor.destroy();
 ```
 
-Application preparation loads configuration before creating the form View.
+Export the configuration from that module. Importing it directly lets your
+bundler include its locale and plugin dependencies. Use `configFile` only for a
+separately served ES module URL whose imports the browser can resolve. A bundler
+may ship `new URL('./formkit.config.mjs', import.meta.url)` as a raw asset rather
+than bundle its imports.
+
+Application preparation resolves configuration before creating the form View.
 Cancellation prevents obsolete preparation from mounting later. A `provider`
 borrows a ready config scope; `addChildApp` separately establishes ownership.
 A borrowed Region remains borrowed. An unmatched selector with
